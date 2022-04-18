@@ -5,7 +5,7 @@ For more information on ironMON, see https://gist.github.com/valiant-code/adb18d
 
 Only Emerald, Leaf Green, and Fire Red are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord (Dementio#7078). You can find me on the Ironmon Discord server.
 
-This project is built from MKDasher's PokemonBizhawkLua project.
+This project is based on MKDasher's PokemonBizhawkLua project.
 https://github.com/mkdasher/PokemonBizhawkLua
 
 ## Installation
