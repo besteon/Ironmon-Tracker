@@ -5,6 +5,9 @@ For more information on ironMON, see https://gist.github.com/valiant-code/adb18d
 
 Only Emerald, Leaf Green, and Fire Red are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord (Dementio#7078). You can find me on the Ironmon Discord server.
 
+This project is built from MKDasher's PokemonBizhawkLua project.
+https://github.com/mkdasher/PokemonBizhawkLua
+
 ## Installation
 1. Unzip the project anywhere you like. The script will create a database file in the same directory as ironmon_tracker.lua. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
 2. Load your ROM in Bizhawk
