@@ -12,6 +12,7 @@ Currently, only Emerald, Leaf Green, and Fire Red are supported. If you find any
 
 ## Features
 OVERWORLD
+
 ![overworld](https://user-images.githubusercontent.com/103706338/163878628-16465876-c8e1-41d4-abff-907c7d53cf80.png)
 
 When not in battle, the tracker shows stats for the first pokemon in your party, including:
@@ -28,6 +29,7 @@ When not in battle, the tracker shows stats for the first pokemon in your party,
 11. The level at which your pokemon will learn another move.
 
 BATTLE
+
 ![battle](https://user-images.githubusercontent.com/103706338/163879091-b86f026e-050d-42a4-8ad8-28e110e763c5.png)
 
 When in battle, similar information is shown, with the following differences:
