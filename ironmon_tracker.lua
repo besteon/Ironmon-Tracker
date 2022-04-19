@@ -1,4 +1,4 @@
--- IRONMON TRACKER v0.1
+-- IRONMON TRACKER v0.1.1
 
 -- Based on Lua Script made by MKDasher
 -- Based on FractalFusion's VBA-rr lua scripts, with some extra features.
