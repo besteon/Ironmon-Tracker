@@ -3,7 +3,10 @@
 Ironmon-Tracker is a collection of lua scripts for the Bizhawk emulator used to track ironMON attempts.
 For more information on ironMON, see https://gist.github.com/valiant-code/adb18d248fa0fae7da6b639e2ee8f9c1
 
-Only Emerald, Leaf Green, and Fire Red are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord (Dementio#7078). You can find me on the Ironmon Discord server.
+Only Emerald, Leaf Green, and Fire Red are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord. You can find me on the Ironmon Discord server.
+
+This project is based on MKDasher's PokemonBizhawkLua project.
+https://github.com/mkdasher/PokemonBizhawkLua
 
 ## Installation
 1. Unzip the project anywhere you like. The script will create a database file in the same directory as ironmon_tracker.lua. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
