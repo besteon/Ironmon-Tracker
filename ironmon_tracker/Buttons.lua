@@ -26,7 +26,7 @@ StatButtonColors = {
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -40,12 +40,12 @@ Buttons = {
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 			Buttons[1].text = StatButtonStates[Program.StatButtonState.hp]
 			Buttons[1].textcolor = StatButtonColors[Program.StatButtonState.hp]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- ATT button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -59,12 +59,12 @@ Buttons = {
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
 			Buttons[2].text = StatButtonStates[Program.StatButtonState.att]
 			Buttons[2].textcolor = StatButtonColors[Program.StatButtonState.att]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- DEF button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -78,12 +78,12 @@ Buttons = {
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 			Buttons[3].text = StatButtonStates[Program.StatButtonState.def]
 			Buttons[3].textcolor = StatButtonColors[Program.StatButtonState.def]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPA button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -97,12 +97,12 @@ Buttons = {
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 			Buttons[4].text = StatButtonStates[Program.StatButtonState.spa]
 			Buttons[4].textcolor = StatButtonColors[Program.StatButtonState.spa]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPD button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -116,12 +116,12 @@ Buttons = {
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 			Buttons[5].text = StatButtonStates[Program.StatButtonState.spd]
 			Buttons[5].textcolor = StatButtonColors[Program.StatButtonState.spd]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPE button
 		type = ButtonType.singleButton,
-		visible = function() return Program.inBattle end,
+		visible = function() return Tracker.Data.inBattle == 1 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -135,7 +135,7 @@ Buttons = {
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 			Buttons[6].text = StatButtonStates[Program.StatButtonState.spe]
 			Buttons[6].textcolor = StatButtonColors[Program.StatButtonState.spe]
-			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	}	
 }

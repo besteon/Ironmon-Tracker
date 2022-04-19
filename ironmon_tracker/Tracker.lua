@@ -3,6 +3,12 @@ Tracker = {}
 Tracker.userDataKey = "ironmon_tracker_data"
 
 -- Data
+    -- main
+        -- ability
+    -- inBattle
+    -- currentlyTrackedPokemonMoves
+    -- player
+    -- slot
     -- moves
         -- pokemon
             -- first
@@ -17,19 +23,29 @@ Tracker.userDataKey = "ironmon_tracker_data"
             -- spa
             -- spd
             -- spe
-Tracker.Data = {
-    moves = {},
-    stats = {}
-}
+Tracker.Data = {}
+
+function Tracker.InitTrackerData()
+    local trackerData = {
+        selectedPokemon = {},
+        main = {
+            ability = 0
+        },
+        inBattle = 0,
+        currentlyTrackedPokemonMoves = {},
+        player = 1,
+        slot = 1,
+        moves = {},
+        stats = {}
+    }
+    return trackerData
+end
 
 function Tracker.Clear()
     if userdata.containskey(Tracker.userDataKey) then
         userdata.remove(Tracker.userDataKey)
     end
-    Tracker.Data = {
-        moves = {},
-        stats = {}
-    }
+    Tracker.Data = Tracker.InitTrackerData()
 end
 
 function Tracker.TrackMove(pokemonId, moveId)
@@ -62,8 +78,6 @@ function Tracker.TrackMove(pokemonId, moveId)
             end
         end
     end
-
-    Tracker.saveData()
 end
 
 function Tracker.getMoves(pokemonId)
@@ -77,12 +91,10 @@ end
 function Tracker.TrackStatPrediction(pokemonId, stats)
     Tracker.Data.stats[pokemonId] = {}
     Tracker.Data.stats[pokemonId].stats = stats
-
-    Tracker.saveData()
 end
 
 function Tracker.getButtonState()
-    if Tracker.Data.stats[Program.selectedPokemon.pokemonID] == nil then
+    if Tracker.Data.stats[Tracker.Data.selectedPokemon.pokemonID] == nil then
         return {
             hp = 1,
             att = 1,
@@ -92,23 +104,52 @@ function Tracker.getButtonState()
             spe = 1
         }
     else
-        return Tracker.Data.stats[Program.selectedPokemon.pokemonID].stats
+        return Tracker.Data.stats[Tracker.Data.selectedPokemon.pokemonID].stats
     end
 end
 
 function Tracker.saveData()
+    Tracker.Data.player = LayoutSettings.pokemonIndex.player
+    Tracker.Data.slot = LayoutSettings.pokemonIndex.slot
     local dataString = pickle(Tracker.Data)
+    print("Saving...")
+    print(dataString)
     userdata.set(Tracker.userDataKey, dataString)
 end
 
+-- Data
+    -- main
+        -- ability
+    -- inBattle
+    -- currentlyTrackedPokemonMoves
+    -- player
+    -- slot
+    -- moves
+        -- pokemon
+            -- first
+            -- second
+            -- third
+            -- fourth
+    -- stats
+        -- pokemon
+            -- hp
+            -- att
+            -- def
+            -- spa
+            -- spd
+            -- spe
 function Tracker.loadData()
+    print("Loading...")
+
     if userdata.containskey(Tracker.userDataKey) then
         local serializedTable = userdata.get(Tracker.userDataKey)
-        Tracker.Data = unpickle(serializedTable)
+        local trackerData = unpickle(serializedTable)
+        Tracker.Data = trackerData
     else
-        Tracker.Data = {
-            moves = {},
-            stats = {}
-        }
+        Tracker.Data = Tracker.InitTrackerData()
+        print("Nothing loaded.")
     end
+
+    LayoutSettings.pokemonIndex.player = Tracker.Data.player
+    LayoutSettings.pokemonIndex.slot = Tracker.Data.slot
 end

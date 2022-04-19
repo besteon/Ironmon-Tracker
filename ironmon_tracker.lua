@@ -34,6 +34,7 @@ else
 	client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
 	gui.defaultTextBackground(0)
 	event.onloadstate(Tracker.loadData)
+	event.onsavestate(Tracker.saveData)
 	event.onmemoryexecute(Program.HandleWhiteOut, GameSettings.whiteoutaddress)
 	event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.beginbattleaddress)
 	event.onmemoryexecute(Program.HandleEndBattle, GameSettings.endbattleaddress)
@@ -44,3 +45,4 @@ else
 		emu.frameadvance()
 	end
 end
+

@@ -1,9 +1,7 @@
 Program = {
-	selectedPokemon = {},
 	trainerPokemonTeam = {},
 	enemyPokemonTeam = {},
 	trainerInfo = {},
-	inBattle = false
 }
 Program.rng = {
 	current = 0,
@@ -42,11 +40,7 @@ Program.catchdata = {
 }
 
 Program.tracker = {
-	main = {
-		ability = 0
-	},
 	movesToUpdate = {},
-	currentlyTrackedPokemonMoves = {},
 	previousAttacker = 0,
 	playerWhitedOut = false
 }
@@ -76,31 +70,27 @@ function Program.main()
 	Program.trainerPokemonTeam = Program.getTrainerData(1)
 	Program.enemyPokemonTeam = Program.getTrainerData(2)
 	Program.trainerInfo = Program.getTrainerInfo()
-	Program.tracker.currentlyTrackedPokemonMoves = Program.updateTracker()
-	if Program.inBattle then
-		LayoutSettings.pokemonIndex.player = 2
-	else
-		LayoutSettings.pokemonIndex.player = 1
-	end
+
 	if LayoutSettings.showRightPanel then
 		local pokemonaux = Program.getPokemonData(LayoutSettings.pokemonIndex)
 		if Program.validPokemonData(pokemonaux) then
-			Program.selectedPokemon = pokemonaux
-		end
-		if Program.inBattle then
-			Drawing.drawTrackerView()
-		else
-			Drawing.drawPokemonView()
+			Tracker.Data.selectedPokemon = pokemonaux
+			Program.updateTracker()
+			if Tracker.Data.inBattle == 1 then
+				Drawing.drawTrackerView()
+			else
+				Drawing.drawPokemonView()
+			end
+			Program.StatButtonState = Tracker.getButtonState()
+			Buttons = Program.updateButtons(Program.StatButtonState)
+			Drawing.drawButtons()
 		end
 	end
-	Program.StatButtonState = Tracker.getButtonState()
-	Buttons = Program.updateButtons(Program.StatButtonState)
-	Drawing.drawButtons()
 	Drawing.drawLayout()
 end
 
 function Program.updateTracker()
-	Program.tracker.main.ability = Program.getMainAbility()
+	Tracker.Data.main.ability = Program.getMainAbility()
 
 	local attackerValue = Memory.readbyte(GameSettings.attackeraddress)
 
@@ -114,10 +104,12 @@ function Program.updateTracker()
 		Program.tracker.previousAttacker = attackerValue
 	end
 
-	if Program.selectedPokemon.pokemonID ~= nil then
-		return Tracker.getMoves(Program.selectedPokemon.pokemonID)
+	if Tracker.Data.selectedPokemon ~= nil then
+		if Tracker.Data.selectedPokemon.pokemonID ~= nil then
+			Tracker.Data.moves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID)
+		end
 	else
-		return {}
+		Tracker.Data.moves = {}
 	end
 end
 
@@ -142,7 +134,7 @@ function Program.getMainAbility()
 	if abilityValue ~= 1 then
 		return abilityValue
 	else
-		return Program.tracker.main.ability
+		return Tracker.Data.main.ability
 	end
 	-- Set main pokemon's ability. TODO: Update when main pokemon changes
 	return abilityValue
@@ -153,19 +145,28 @@ function Program.HandleWhiteOut()
 end
 
 function Program.HandleBeginBattle()
-	Program.inBattle = true
+	Tracker.Data.inBattle = 1
+	print("BeginBattle: " ..Tracker.Data.inBattle)
+	LayoutSettings.pokemonIndex.player = 2
+	LayoutSettings.pokemonIndex.slot = 1
+	Tracker.Data.player = 2
+	Tracker.Data.slot = 1
 end
 
 function Program.HandleEndBattle()
-	Program.inBattle = false
+	Tracker.Data.inBattle = 0
+	print("EndBattle: " ..Tracker.Data.inBattle)
+	LayoutSettings.pokemonIndex.player = 1
 	LayoutSettings.pokemonIndex.slot = 1
+	Tracker.Data.player = 1
+	Tracker.Data.slot = 1
 end
 
 function Program.HandleMove()
 	local moveValue = Memory.readword(GameSettings.chosenmoveaddress) + 1
 	local attackerValue = Memory.readbyte(GameSettings.attackeraddress)
 	if attackerValue % 2 == 1 then -- Opponent pokemon
-		table.insert(Program.tracker.movesToUpdate, { pokemonId = Program.selectedPokemon.pokemonID, move = moveValue })
+		table.insert(Program.tracker.movesToUpdate, { pokemonId = Tracker.Data.selectedPokemon.pokemonID, move = moveValue })
 	end
 end
 
