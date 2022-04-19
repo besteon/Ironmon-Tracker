@@ -98,14 +98,12 @@ end
 
 function Tracker.saveData()
     local dataString = pickle(Tracker.Data)
-    print(dataString)
     userdata.set(Tracker.userDataKey, dataString)
 end
 
 function Tracker.loadData()
     if userdata.containskey(Tracker.userDataKey) then
         local serializedTable = userdata.get(Tracker.userDataKey)
-        print(serializedTable)
         Tracker.Data = unpickle(serializedTable)
     else
         Tracker.Data = {
