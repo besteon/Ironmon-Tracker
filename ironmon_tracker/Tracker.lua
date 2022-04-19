@@ -1,66 +1,89 @@
 Tracker = {}
 
-Tracker.SQL = {
-    DB_FILE = gameinfo.getromname() .. "_ironmon_tracker.db",
-    CREATE_MOVES_TABLE = "CREATE TABLE IF NOT EXISTS moves (id INTEGER PRIMARY KEY, pokemon INTEGER NOT NULL, move INTEGER NOT NULL, time INTEGER NOT NULL, UNIQUE(pokemon, move));",
-    CREATE_STATS_TABLE = "CREATE TABLE IF NOT EXISTS stats (id INTEGER PRIMARY KEY, pokemon INTEGER NOT NULL, hp INTEGER NOT NULL, att INTEGER NOT NULL, def INTEGER NOT NULL, spa INTEGER NOT NULL, spd INTEGER NOT NULL, spe INTEGER NOT NULL, UNIQUE(pokemon));"
+Tracker.userDataKey = "ironmon_tracker_data"
+
+-- Data
+    -- moves
+        -- pokemon
+            -- first
+            -- second
+            -- third
+            -- fourth
+    -- stats
+        -- pokemon
+            -- hp
+            -- att
+            -- def
+            -- spa
+            -- spd
+            -- spe
+Tracker.Data = {
+    moves = {},
+    stats = {}
 }
 
-function Tracker.initialize()
-    SQL.opendatabase(Tracker.SQL.DB_FILE)
-    SQL.writecommand(Tracker.SQL.CREATE_MOVES_TABLE)
-    SQL.writecommand(Tracker.SQL.CREATE_STATS_TABLE)
-end
-
 function Tracker.Clear()
-    local clearMoves = "DELETE FROM moves"
-    local clearStats = "DELETE FROM stats"
-    SQL.writecommand(clearMoves)
-    SQL.writecommand(clearStats)
+    if userdata.containskey(Tracker.userDataKey) then
+        userdata.remove(Tracker.userDataKey)
+    end
+    Tracker.Data = {
+        moves = {},
+        stats = {}
+    }
 end
 
 function Tracker.TrackMove(pokemonId, moveId)
-    local moves = "SELECT move FROM moves WHERE pokemon = " .. pokemonId .. ";"
-    if type(moves) == "table" then
-        local movesSeen = 0
-        for _ in pairs(moves) do movesSeen = movesSeen + 1 end
-        if movesSeen > 4 then
-            local tryUpdate = "UPDATE moves SET pokemon = " .. pokemonId .. ", move = " .. moveId .. ", time = strftime('%s', 'now') WHERE pokemon = " .. pokemonId .. " AND move = " .. moveId .. ";"
-            local update = SQL.writecommand(tryUpdate)
+    local currentMoves = Tracker.Data.moves[pokemonId]
+    if currentMoves == nil then
+        Tracker.Data.moves[pokemonId] = {}
+        Tracker.Data.moves[pokemonId].first = moveId
+    else
+        local moveSeen = false
+        local moveCount = 0
+        for key, value in pairs(currentMoves) do
+            moveCount = moveCount + 1
+            if value == moveId then
+                moveSeen = true
+            end
+        end
+
+        if moveSeen == false then
+            if moveCount == 1 then
+                Tracker.Data.moves[pokemonId].second = moveId
+            elseif moveCount == 2 then
+                Tracker.Data.moves[pokemonId].third = moveId
+            elseif moveCount == 3 then
+                Tracker.Data.moves[pokemonId].fourth = moveId
+            elseif moveCount == 4 then
+                Tracker.Data.moves[pokemonId].fourth = Tracker.Data.moves[pokemonId].third
+                Tracker.Data.moves[pokemonId].third = Tracker.Data.moves[pokemonId].second
+                Tracker.Data.moves[pokemonId].second = Tracker.Data.moves[pokemonId].first
+                Tracker.Data.moves[pokemonId].first = moveId
+            end
         end
     end
 
-    -- This won't do anything if the move has already been seen due to the UNIQUE constraint
-    local cmd = "INSERT INTO moves (pokemon, move, time) VALUES(" .. pokemonId .. "," .. moveId .. ",strftime('%s', 'now'));"
-    SQL.writecommand(cmd)
+    Tracker.saveData()
 end
 
-function Tracker.GetMoves(pokemonId)
-    local cmd = "SELECT move FROM moves WHERE pokemon = " .. pokemonId .. " ORDER BY time DESC LIMIT 4;"
-    local moves = SQL.readcommand(cmd)
-    return moves
+function Tracker.getMoves(pokemonId)
+    if Tracker.Data.moves[pokemonId] == nil then
+        return {}
+    else
+        return Tracker.Data.moves[pokemonId]
+    end
 end
 
-function Tracker.UpdateStatButtonState(pokemonId, stats)
-    local insertOrReplace = "INSERT OR REPLACE INTO stats (pokemon, hp, att, def, spa, spd, spe) VALUES(" .. pokemonId .. "," .. stats.hp .. "," .. stats.att .. "," .. stats.def .. "," .. stats.spa .. "," .. stats.spd .. "," .. stats.spe .. ");"
-    SQL.writecommand(insertOrReplace)
+function Tracker.TrackStatPrediction(pokemonId, stats)
+    Tracker.Data.stats[pokemonId] = {}
+    Tracker.Data.stats[pokemonId].stats = stats
+
+    Tracker.saveData()
 end
 
 function Tracker.getButtonState()
-    local cmd = "SELECT hp, att, def, spa, spd, spe FROM stats WHERE pokemon = " .. Program.selectedPokemon.pokemonID .. " LIMIT 1;"
-    local stats = SQL.readcommand(cmd)
-    if type(stats) == "table" then
-        local newStats = {
-            hp = stats["hp 0"],
-            att = stats["att 0"],
-            def = stats["def 0"],
-            spa = stats["spa 0"],
-            spd = stats["spd 0"],
-            spe = stats["spe 0"]
-        }
-        return newStats
-    else
-        local defaultStats = {
+    if Tracker.Data.stats[Program.selectedPokemon.pokemonID] == nil then
+        return {
             hp = 1,
             att = 1,
             def = 1,
@@ -68,6 +91,26 @@ function Tracker.getButtonState()
             spd = 1,
             spe = 1
         }
-        return defaultStats
+    else
+        return Tracker.Data.stats[Program.selectedPokemon.pokemonID].stats
+    end
+end
+
+function Tracker.saveData()
+    local dataString = pickle(Tracker.Data)
+    print(dataString)
+    userdata.set(Tracker.userDataKey, dataString)
+end
+
+function Tracker.loadData()
+    if userdata.containskey(Tracker.userDataKey) then
+        local serializedTable = userdata.get(Tracker.userDataKey)
+        print(serializedTable)
+        Tracker.Data = unpickle(serializedTable)
+    else
+        Tracker.Data = {
+            moves = {},
+            stats = {}
+        }
     end
 end

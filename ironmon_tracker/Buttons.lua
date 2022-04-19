@@ -40,7 +40,7 @@ Buttons = {
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 			Buttons[1].text = StatButtonStates[Program.StatButtonState.hp]
 			Buttons[1].textcolor = StatButtonColors[Program.StatButtonState.hp]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- ATT button
@@ -59,7 +59,7 @@ Buttons = {
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
 			Buttons[2].text = StatButtonStates[Program.StatButtonState.att]
 			Buttons[2].textcolor = StatButtonColors[Program.StatButtonState.att]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- DEF button
@@ -78,7 +78,7 @@ Buttons = {
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 			Buttons[3].text = StatButtonStates[Program.StatButtonState.def]
 			Buttons[3].textcolor = StatButtonColors[Program.StatButtonState.def]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPA button
@@ -97,7 +97,7 @@ Buttons = {
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 			Buttons[4].text = StatButtonStates[Program.StatButtonState.spa]
 			Buttons[4].textcolor = StatButtonColors[Program.StatButtonState.spa]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPD button
@@ -116,7 +116,7 @@ Buttons = {
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 			Buttons[5].text = StatButtonStates[Program.StatButtonState.spd]
 			Buttons[5].textcolor = StatButtonColors[Program.StatButtonState.spd]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
 	{ -- SPE button
@@ -135,7 +135,7 @@ Buttons = {
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 			Buttons[6].text = StatButtonStates[Program.StatButtonState.spe]
 			Buttons[6].textcolor = StatButtonColors[Program.StatButtonState.spe]
-			Tracker.UpdateStatButtonState(Program.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.TrackStatPrediction(Program.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	}	
 }

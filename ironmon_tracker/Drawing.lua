@@ -105,9 +105,9 @@ function Drawing.drawPokemonView()
 
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25,0xFFAAAAAA, 0xFF222222)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 8, 57, "Item:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 57, PokemonData.item[Program.selectedPokemon["heldItem"] + 1], "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 57, PokemonData.item[Program.selectedPokemon["heldItem"] + 1], "yellow")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 8, 67, "Ability:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 67, PokemonData.ability[Program.tracker.main.ability], "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, PokemonData.ability[Program.tracker.main.ability], "yellow")
 
 	
 	local statBoxX = 95
@@ -288,8 +288,8 @@ function Drawing.drawTrackerView()
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, 141, "/")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 57, 141, moveCount)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 141, "Next:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level", 0xFF00FF00)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove, 0xFF00FF00)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove)
 end
 
 function Drawing.drawButtons()

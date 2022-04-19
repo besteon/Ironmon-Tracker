@@ -115,11 +115,9 @@ function Program.updateTracker()
 	end
 
 	if Program.selectedPokemon.pokemonID ~= nil then
-		local moves = Tracker.GetMoves(Program.selectedPokemon.pokemonID)
-		if type(moves) == "table" then
-			return moves
-		end
-			return {}
+		return Tracker.getMoves(Program.selectedPokemon.pokemonID)
+	else
+		return {}
 	end
 end
 

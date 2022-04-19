@@ -19,9 +19,8 @@ dofile (DATA_FOLDER .. "/Buttons.lua")
 dofile (DATA_FOLDER .. "/Input.lua")
 dofile (DATA_FOLDER .. "/Drawing.lua")
 dofile (DATA_FOLDER .. "/Program.lua")
+dofile (DATA_FOLDER .. "/Pickle.lua")
 dofile (DATA_FOLDER .. "/Tracker.lua")
-
-Tracker.initialize()
 
 -- Main loop
 if GameSettings.game == 0 then
@@ -31,8 +30,10 @@ if GameSettings.game == 0 then
 		emu.frameadvance()
 	end
 else
+	Tracker.loadData()
 	client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
 	gui.defaultTextBackground(0)
+	event.onloadstate(Tracker.loadData)
 	event.onmemoryexecute(Program.HandleWhiteOut, GameSettings.whiteoutaddress)
 	event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.beginbattleaddress)
 	event.onmemoryexecute(Program.HandleEndBattle, GameSettings.endbattleaddress)
