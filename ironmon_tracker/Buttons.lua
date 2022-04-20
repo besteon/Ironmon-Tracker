@@ -26,7 +26,7 @@ StatButtonColors = {
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -45,7 +45,7 @@ Buttons = {
 	},
 	{ -- ATT button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -64,7 +64,7 @@ Buttons = {
 	},
 	{ -- DEF button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -83,7 +83,7 @@ Buttons = {
 	},
 	{ -- SPA button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -102,7 +102,7 @@ Buttons = {
 	},
 	{ -- SPD button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,
@@ -121,7 +121,7 @@ Buttons = {
 	},
 	{ -- SPE button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 125,

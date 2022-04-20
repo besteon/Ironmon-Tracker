@@ -56,7 +56,6 @@ Program.StatButtonState = {
 
 function Program.main()
 	Input.update()
-
 	if Program.tracker.playerWhitedOut == true then
 		Tracker.Clear()
 		Program.tracker.playerWhitedOut = false
@@ -71,45 +70,57 @@ function Program.main()
 	Program.enemyPokemonTeam = Program.getTrainerData(2)
 	Program.trainerInfo = Program.getTrainerInfo()
 
+	Program.updateTracker()
+
 	if LayoutSettings.showRightPanel then
-		local pokemonaux = Program.getPokemonData(LayoutSettings.pokemonIndex)
-		if Program.validPokemonData(pokemonaux) then
-			Tracker.Data.selectedPokemon = pokemonaux
-			Program.updateTracker()
-			if Tracker.Data.inBattle == 1 then
-				Drawing.drawTrackerView()
-			else
-				Drawing.drawPokemonView()
-			end
-			Program.StatButtonState = Tracker.getButtonState()
-			Buttons = Program.updateButtons(Program.StatButtonState)
-			Drawing.drawButtons()
+		if Tracker.Data.player == 2 then
+			Drawing.drawTrackerView()
+		else
+			Drawing.drawPokemonView()
 		end
+		Program.StatButtonState = Tracker.getButtonState()
+		Buttons = Program.updateButtons(Program.StatButtonState)
+		Drawing.drawButtons()
 	end
 	Drawing.drawLayout()
 end
 
 function Program.updateTracker()
+	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.player, slot = Tracker.Data.slot })
+	if Program.validPokemonData(pokemonaux) then
+		Tracker.Data.selectedPokemon = pokemonaux
+	end
+
 	Tracker.Data.main.ability = Program.getMainAbility()
 
-	local attackerValue = Memory.readbyte(GameSettings.attackeraddress)
+	if Tracker.Data.inBattle == 1 then
+		Tracker.Data.selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
+		Tracker.Data.enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+		Tracker.Data.selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
+		Tracker.Data.enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 
-	-- The game will rapidly change attackerValue each frame sometimes, so this
-	-- is to require the attackerValue to be the same for 2 consecutive frames before updating
-	if Program.tracker.previousAttacker ~= attackerValue then
-		Program.tracker.previousAttacker = attackerValue
-	elseif attackerValue % 2 == 1 then -- Odd for opponent pokemon
-		local slot = math.floor(attackerValue / 2) + 1
-		LayoutSettings.pokemonIndex.slot = slot
-		Program.tracker.previousAttacker = attackerValue
+		local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+		--if Tracker.Data.player == 2 then
+		if attackerValue % 2 == 1 then
+			if attackerValue == 1 then
+				Tracker.Data.slot = Tracker.Data.enemySlotOne
+			elseif attackerValue == 3 then
+				Tracker.Data.slot = Tracker.Data.enemySlotTwo
+			end
+		end
+
+		if Tracker.Data.player == 1 then
+			Tracker.Data.slot = Tracker.Data.selfSlotOne
+		end
+	else
+		Tracker.Data.selfSlotOne = 1
+		Tracker.Data.slot = Tracker.Data.selfSlotOne
 	end
 
 	if Tracker.Data.selectedPokemon ~= nil then
 		if Tracker.Data.selectedPokemon.pokemonID ~= nil then
-			Tracker.Data.moves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID)
+			Tracker.Data.currentlyTrackedPokemonMoves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID + 1)
 		end
-	else
-		Tracker.Data.moves = {}
 	end
 end
 
@@ -130,7 +141,7 @@ function Program.updateButtons(state)
 end
 
 function Program.getMainAbility()
-	local abilityValue = Memory.readbyte(GameSettings.abilityaddress) + 1
+	local abilityValue = Memory.readbyte(GameSettings.sBattlerAbilities) + 1
 	if abilityValue ~= 1 then
 		return abilityValue
 	else
@@ -141,32 +152,35 @@ function Program.getMainAbility()
 end
 
 function Program.HandleWhiteOut()
-	Program.tracker.playerWhitedOut = true
+	Program.Tracker.Data.playerWhitedOut = true
 end
 
 function Program.HandleBeginBattle()
 	Tracker.Data.inBattle = 1
-	print("BeginBattle: " ..Tracker.Data.inBattle)
-	LayoutSettings.pokemonIndex.player = 2
-	LayoutSettings.pokemonIndex.slot = 1
 	Tracker.Data.player = 2
 	Tracker.Data.slot = 1
 end
 
 function Program.HandleEndBattle()
 	Tracker.Data.inBattle = 0
-	print("EndBattle: " ..Tracker.Data.inBattle)
-	LayoutSettings.pokemonIndex.player = 1
-	LayoutSettings.pokemonIndex.slot = 1
 	Tracker.Data.player = 1
 	Tracker.Data.slot = 1
 end
 
 function Program.HandleMove()
-	local moveValue = Memory.readword(GameSettings.chosenmoveaddress) + 1
-	local attackerValue = Memory.readbyte(GameSettings.attackeraddress)
+	local moveValue = Memory.readword(GameSettings.gChosenMove) + 1
+	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 	if attackerValue % 2 == 1 then -- Opponent pokemon
-		table.insert(Program.tracker.movesToUpdate, { pokemonId = Tracker.Data.selectedPokemon.pokemonID, move = moveValue })
+		local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+		local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+
+		local pokemonId = 1
+		if attackerValue == 1 then
+			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
+		elseif attackerValue == 3 then
+			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
+		end
+		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue })
 	end
 end
 

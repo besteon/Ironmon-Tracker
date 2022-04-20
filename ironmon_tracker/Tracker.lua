@@ -32,9 +32,18 @@ function Tracker.InitTrackerData()
             ability = 0
         },
         inBattle = 0,
-        currentlyTrackedPokemonMoves = {},
+        currentlyTrackedPokemonMoves = {
+            first = 1,
+            second = 1,
+            third = 1,
+            fouth = 1
+        },
         player = 1,
         slot = 1,
+        selfSlotOne = 1,
+        selfSlotTwo = 1,
+        enemySlotOne = 1,
+        enemySlotTwo = 1,
         moves = {},
         stats = {}
     }
@@ -53,6 +62,9 @@ function Tracker.TrackMove(pokemonId, moveId)
     if currentMoves == nil then
         Tracker.Data.moves[pokemonId] = {}
         Tracker.Data.moves[pokemonId].first = moveId
+        Tracker.Data.moves[pokemonId].second = 1
+        Tracker.Data.moves[pokemonId].third = 1
+        Tracker.Data.moves[pokemonId].fourth = 1
     else
         local moveSeen = false
         local moveCount = 0
@@ -82,7 +94,12 @@ end
 
 function Tracker.getMoves(pokemonId)
     if Tracker.Data.moves[pokemonId] == nil then
-        return {}
+        return {
+            first = 1,
+            second = 1,
+            third = 1,
+            fourth = 1
+        }
     else
         return Tracker.Data.moves[pokemonId]
     end
@@ -109,11 +126,7 @@ function Tracker.getButtonState()
 end
 
 function Tracker.saveData()
-    Tracker.Data.player = LayoutSettings.pokemonIndex.player
-    Tracker.Data.slot = LayoutSettings.pokemonIndex.slot
     local dataString = pickle(Tracker.Data)
-    print("Saving...")
-    print(dataString)
     userdata.set(Tracker.userDataKey, dataString)
 end
 
@@ -139,7 +152,6 @@ end
             -- spd
             -- spe
 function Tracker.loadData()
-    print("Loading...")
 
     if userdata.containskey(Tracker.userDataKey) then
         local serializedTable = userdata.get(Tracker.userDataKey)
@@ -147,9 +159,5 @@ function Tracker.loadData()
         Tracker.Data = trackerData
     else
         Tracker.Data = Tracker.InitTrackerData()
-        print("Nothing loaded.")
     end
-
-    LayoutSettings.pokemonIndex.player = Tracker.Data.player
-    LayoutSettings.pokemonIndex.slot = Tracker.Data.slot
 end

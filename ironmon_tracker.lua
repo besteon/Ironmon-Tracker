@@ -22,6 +22,8 @@ dofile (DATA_FOLDER .. "/Program.lua")
 dofile (DATA_FOLDER .. "/Pickle.lua")
 dofile (DATA_FOLDER .. "/Tracker.lua")
 
+print("Ironmon-Tracker v0.1.1 loaded.")
+
 -- Main loop
 if GameSettings.game == 0 then
 	client.SetGameExtraPadding(0, 0, 0, 0)
@@ -35,10 +37,10 @@ else
 	gui.defaultTextBackground(0)
 	event.onloadstate(Tracker.loadData)
 	event.onsavestate(Tracker.saveData)
-	event.onmemoryexecute(Program.HandleWhiteOut, GameSettings.whiteoutaddress)
-	event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.beginbattleaddress)
-	event.onmemoryexecute(Program.HandleEndBattle, GameSettings.endbattleaddress)
-	event.onmemoryexecute(Program.HandleMove, GameSettings.attacktriggeraddress)
+	event.onmemoryexecute(Program.HandleWhiteOut, GameSettings.DoWhiteOut)
+	event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.BeginBattleIntro)
+	event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld)
+	event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle)
 	while true do
 		collectgarbage()
 		Program.main()
