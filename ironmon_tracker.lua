@@ -1,4 +1,4 @@
--- IRONMON TRACKER v0.1.2
+-- IRONMON TRACKER v0.1.3
 
 -- Based on Lua Script made by MKDasher
 -- Based on FractalFusion's VBA-rr lua scripts, with some extra features.
@@ -22,7 +22,7 @@ dofile (DATA_FOLDER .. "/Program.lua")
 dofile (DATA_FOLDER .. "/Pickle.lua")
 dofile (DATA_FOLDER .. "/Tracker.lua")
 
-print("Ironmon-Tracker v0.1.2 loaded.")
+print("Ironmon-Tracker v0.1.3 loaded.")
 
 -- Main loop
 if GameSettings.game == 0 then
