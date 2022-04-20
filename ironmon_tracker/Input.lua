@@ -39,32 +39,34 @@ function Input.update()
 
 	-- "R" pressed, cycle stat prediction for selected stat
 	if joypadButtons.R == true and Input.joypad.R ~= joypadButtons.R then
-		if Tracker.controller.statIndex == 1 then
-			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.hp]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.hp]
-		elseif Tracker.controller.statIndex == 2 then
-			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.att]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.att]
-		elseif Tracker.controller.statIndex == 3 then
-			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.def]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.def]
-		elseif Tracker.controller.statIndex == 4 then
-			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spa]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spa]
-		elseif Tracker.controller.statIndex == 5 then
-			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spd]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spd]
-		elseif Tracker.controller.statIndex == 6 then
-			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
-			Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spe]
-			Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spe]
+		if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
+			if Tracker.controller.statIndex == 1 then
+				Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.hp]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.hp]
+			elseif Tracker.controller.statIndex == 2 then
+				Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.att]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.att]
+			elseif Tracker.controller.statIndex == 3 then
+				Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.def]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.def]
+			elseif Tracker.controller.statIndex == 4 then
+				Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spa]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spa]
+			elseif Tracker.controller.statIndex == 5 then
+				Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spd]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spd]
+			elseif Tracker.controller.statIndex == 6 then
+				Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
+				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spe]
+				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spe]
+			end
+			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
-		Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 	end
 
 	Input.joypad = joypadButtons
