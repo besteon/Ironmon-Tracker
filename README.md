@@ -1,5 +1,7 @@
 # Ironmon-Tracker
 
+![ironmon_v0 1 3](https://user-images.githubusercontent.com/103706338/164341565-ee640cf1-0d30-4d94-adcb-6fce328c563b.gif)
+
 Ironmon-Tracker is a collection of lua scripts for the Bizhawk emulator used to track ironMON attempts.
 For more information on ironMON, see https://gist.github.com/valiant-code/adb18d248fa0fae7da6b639e2ee8f9c1
 
@@ -13,6 +15,8 @@ https://github.com/mkdasher/PokemonBizhawkLua
 2. Unzip the project anywhere you like. The script will create a database file in the same directory as ironmon_tracker.lua. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
 3. Load your ROM in Bizhawk (use Bizhawk v2.8 or later for maximum compatibility)
 4. Tools -> Lua Console -> Open Script -> ironmon_tracker.lua
+
+In the in-game options, set Button Mode to LR if using a controller to prevent help menu from displaying when using using the stat prediction feature.
 
 NOTE: When using savestates to save tracker data, SAVE TWICE! There is a bug that loads the previous save.
 
