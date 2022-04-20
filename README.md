@@ -16,6 +16,8 @@ https://github.com/mkdasher/PokemonBizhawkLua
 
 NOTE: When using savestates to save tracker data, SAVE TWICE! There is a bug that loads the previous save.
 
+![ironmon_v0 1 3](https://user-images.githubusercontent.com/103706338/164341565-ee640cf1-0d30-4d94-adcb-6fce328c563b.gif)
+
 ## Features
 ### Overworld View:
 
