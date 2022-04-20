@@ -144,7 +144,7 @@ function Drawing.drawPokemonView()
 	local moveStartY = movesBoxStartY + 3
 
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY - 13, "Move")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY, PokemonData.move[Tracker.Data.currentlyTrackedPokemonMoves.first + 1], Drawing.moveToColor(Tracker.Data.selectedPokemon["move1"] + 1))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY, PokemonData.move[Tracker.Data.selectedPokemon["move1"] + 1], Drawing.moveToColor(Tracker.Data.selectedPokemon["move1"] + 1))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY + 10, PokemonData.move[Tracker.Data.selectedPokemon["move2"] + 1], Drawing.moveToColor(Tracker.Data.selectedPokemon["move2"] + 1))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY + 20, PokemonData.move[Tracker.Data.selectedPokemon["move3"] + 1], Drawing.moveToColor(Tracker.Data.selectedPokemon["move3"] + 1))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY + 30, PokemonData.move[Tracker.Data.selectedPokemon["move4"] + 1], Drawing.moveToColor(Tracker.Data.selectedPokemon["move4"] + 1))
