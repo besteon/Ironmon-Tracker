@@ -81,6 +81,7 @@ function Program.main()
 		Program.StatButtonState = Tracker.getButtonState()
 		Buttons = Program.updateButtons(Program.StatButtonState)
 		Drawing.drawButtons()
+		Drawing.drawInputOverlay()
 	end
 	Drawing.drawLayout()
 end
@@ -156,6 +157,7 @@ function Program.HandleWhiteOut()
 end
 
 function Program.HandleBeginBattle()
+	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
 	Tracker.Data.player = 2
 	Tracker.Data.slot = 1

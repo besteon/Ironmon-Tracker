@@ -2,6 +2,12 @@ Tracker = {}
 
 Tracker.userDataKey = "ironmon_tracker_data"
 
+Tracker.controller = {
+    statIndex = 1,
+    framesSinceInput = 120,
+    boxVisibleFrames = 120,
+}
+
 -- Data
     -- main
         -- ability
