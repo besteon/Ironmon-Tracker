@@ -3,13 +3,13 @@
 Ironmon-Tracker is a collection of lua scripts for the Bizhawk emulator used to track ironMON attempts.
 For more information on ironMON, see https://gist.github.com/valiant-code/adb18d248fa0fae7da6b639e2ee8f9c1
 
-Only Emerald, Leaf Green, and Fire Red are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord. You can find me on the Ironmon Discord server.
+Only Emerald, Leaf Green rev 1, and Fire Red rev 1 are supported at this time. If you find any bugs or have feature requests, feel free to create a github issue or DM me on Discord. You can find me on the Ironmon Discord server.
 
 This project is based on MKDasher's PokemonBizhawkLua project.
 https://github.com/mkdasher/PokemonBizhawkLua
 
 ## Installation
-1. Download the project from the releases section. The master branch has additional changes and may be broken.
+1. Download the project from the **releases** section. The master branch has additional changes and may be broken.
 2. Unzip the project anywhere you like. The script will create a database file in the same directory as ironmon_tracker.lua. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
 3. Load your ROM in Bizhawk (use Bizhawk v2.8 or later for maximum compatibility)
 4. Tools -> Lua Console -> Open Script -> ironmon_tracker.lua
@@ -43,9 +43,3 @@ When in battle, similar information is shown, with the following differences:
 2. Item and Ability are not shown until they are utilized. (NOT YET IMPLEMENTED)
 3. Stats are not shown. Instead, you can click to mark + or -, depending on if you think the pokemon may have good or bad stats.
 4. Moves are only shown after being used in battle.
-
-### TODO
-
-1. Opponent Pokemon's item
-2. Opponent Pokemon's ability
-3. Controller support
