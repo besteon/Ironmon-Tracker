@@ -607,479 +607,6 @@ PokemonData = {
 		225, 225, 225, 225, 225,
 		225, 225
 	},
-	move = { "---",  "Pound", "Karate Chop", "DoubleSlap", "Comet Punch", "Mega Punch", "Pay Day",
-		"Fire Punch", "Ice Punch", "ThunderPunch", "Scratch", "ViceGrip", "Guillotine",
-		"Razor Wind", "Swords Dance", "Cut", "Gust", "Wing Attack", "Whirlwind", "Fly",
-		"Bind", "Slam", "Vine Whip", "Stomp", "Double Kick", "Mega Kick", "Jump Kick",
-		"Rolling Kick", "Sand-Attack", "Headbutt", "Horn Attack", "Fury Attack",
-		"Horn Drill", "Tackle", "Body Slam", "Wrap", "Take Down", "Thrash", "Double-Edge",
-		"Tail Whip", "Poison Sting", "Twineedle", "Pin Missile", "Leer", "Bite", "Growl",
-		"Roar", "Sing", "Supersonic", "SonicBoom", "Disable", "Acid", "Ember",
-		"Flamethrower", "Mist", "Water Gun", "Hydro Pump", "Surf", "Ice Beam", "Blizzard",
-		"Psybeam", "BubbleBeam", "Aurora Beam", "Hyper Beam", "Peck", "Drill Peck",
-		"Submission", "Low Kick", "Counter", "Seismic Toss", "Strength", "Absorb",
-		"Mega Drain", "Leech Seed", "Growth", "Razor Leaf", "SolarBeam", "PoisonPowder",
-		"Stun Spore", "Sleep Powder", "Petal Dance", "String Shot", "Dragon Rage",
-		"Fire Spin", "ThunderShock", "Thunderbolt", "Thunder Wave", "Thunder", "Rock Throw",
-		"Earthquake", "Fissure", "Dig", "Toxic", "Confusion", "Psychic", "Hypnosis",
-		"Meditate", "Agility", "Quick Attack", "Rage", "Teleport", "Night Shade", "Mimic",
-		"Screech", "Double Team", "Recover", "Harden", "Minimize", "SmokeScreen",
-		"Confuse Ray", "Withdraw", "Defense Curl", "Barrier", "Light Screen", "Haze",
-		"Reflect", "Focus Energy", "Bide", "Metronome", "Mirror Move", "Selfdestruct",
-		"Egg Bomb", "Lick", "Smog", "Sludge", "Bone Club", "Fire Blast", "Waterfall",
-		"Clamp", "Swift", "Skull Bash", "Spike Cannon", "Constrict", "Amnesia", "Kinesis",
-		"Softboiled", "Hi Jump Kick", "Glare", "Dream Eater", "Poison Gas", "Barrage",
-		"Leech Life", "Lovely Kiss", "Sky Attack", "Transform", "Bubble", "Dizzy Punch",
-		"Spore", "Flash", "Psywave", "Splash", "Acid Armor", "Crabhammer", "Explosion",
-		"Fury Swipes", "Bonemerang", "Rest", "Rock Slide", "Hyper Fang", "Sharpen", 
-		"Conversion", "Tri Attack", "Super Fang", "Slash", "Substitute", "Struggle",
-		"Sketch", "Triple Kick", "Thief", "Spider Web", "Mind Reader", "Nightmare",
-		"Flame Wheel", "Snore", "Curse", "Flail", "Conversion 2", "Aeroblast",
-		"Cotton Spore", "Reversal", "Spite", "Powder Snow", "Protect", "Mach Punch",
-		"Scary Face", "Faint Attack", "Sweet Kiss", "Belly Drum", "Sludge Bomb",
-		"Mud-Slap", "Octazooka", "Spikes", "Zap Cannon", "Foresight", "Destiny Bond",
-		"Perish Song", "Icy Wind", "Detect", "Bone Rush", "Lock-On", "Outrage", "Sandstorm",
-		"Giga Drain", "Endure", "Charm", "Rollout", "False Swipe", "Swagger", "Milk Drink",
-		"Spark", "Fury Cutter", "Steel Wing", "Mean Look", "Attract", "Sleep Talk",
-		"Heal Bell", "Return", "Present", "Frustration", "Safeguard", "Pain Split",
-		"Sacred Fire", "Magnitude", "DynamicPunch", "Megahorn", "DragonBreath",
-		"Baton Pass", "Encore", "Pursuit", "Rapid Spin", "Sweet Scent", "Iron Tail",
-		"Metal Claw", "Vital Throw", "Morning Sun", "Synthesis", "Moonlight", "Hidden Power",
-		"Cross Chop", "Twister", "Rain Dance", "Sunny Day", "Crunch", "Mirror Coat",
-		"Psych Up", "ExtremeSpeed", "AncientPower", "Shadow Ball", "Future Sight",
-		"Rock Smash", "Whirlpool", "Beat Up", "Fake Out", "Uproar", "Stockpile", "Spit Up",
-		"Swallow", "Heat Wave", "Hail", "Torment", "Flatter", "Will-O-Wisp", "Memento",
-		"Facade", "Focus Punch", "SmellingSalt", "Follow Me", "Nature Power", "Charge",
-		"Taunt", "Helping Hand", "Trick", "Role Play", "Wish", "Assist", "Ingrain",
-		"Superpower", "Magic Coat", "Recycle", "Revenge", "Brick Break", "Yawn", "Knock Off",
-		"Endeavor", "Eruption", "Skill Swap", "Imprison", "Refresh", "Grudge", "Snatch",
-		"Secret Power", "Dive", "Arm Thrust", "Camouflage", "Tail Glow", "Luster Purge",
-		"Mist Ball", "FeatherDance", "Teeter Dance", "Blaze Kick", "Mud Sport", "Ice Ball",
-		"Needle Arm", "Slack Off", "Hyper Voice", "Poison Fang", "Crush Claw", "Blast Burn",
-		"Hydro Cannon", "Meteor Mash", "Astonish", "Weather Ball", "Aromatherapy",
-		"Fake Tears", "Air Cutter", "Overheat", "Odor Sleuth", "Rock Tomb", "Silver Wind",
-		"Metal Sound", "GrassWhistle", "Tickle", "Cosmic Power", "Water Spout",
-		"Signal Beam", "Shadow Punch", "Extrasensory", "Sky Uppercut", "Sand Tomb",
-		"Sheer Cold", "Muddy Water", "Bullet Seed", "Aerial Ace", "Icicle Spear",
-		"Iron Defense", "Block", "Howl", "Dragon Claw", "Frenzy Plant", "Bulk Up",
-		"Bounce", "Mud Shot", "Poison Tail", "Covet", "Volt Tackle", "Magical Leaf",
-		"Water Sport", "Calm Mind", "Leaf Blade", "Dragon Dance", "Rock Blast",
-		"Shock Wave", "Water Pulse", "Doom Desire", "Psycho Boost"
-	},
-	maxpp = {
-		"---","35","25","10","15","20","20","15","15","15","35","30","5","10","20","30","35","35","20","15","20",
-		"20","25","20","30","5","10","15","15","15","25","20","5","35","15","20","20","10","15","30","35",
-		"20","20","30","25","40","20","15","20","20","20","30","25","15","30","25","5","15","10","5","20",
-		"20","20","5","35","20","20","20","20","20","15","25","15","10","20","25","10","35","30","15","10",
-		"40","10","15","30","15","20","10","15","10","5","10","10","25","10","20","40","30","30","20","20",
-		"15","10","40","15","10","30","10","20","10","40","40","20","30","30","20","30","10","10","20","5",
-		"10","30","20","20","20","5","15","15","20","10","15","35","20","15","10","10","30","15","40","20",
-		"15","10","5","10","30","10","15","20","15","40","20","10","5","15","10","10","10","15","30","30",
-		"10","10","20","10","1","1","10","25","10","5","15","25","15","10","15","30","5","40","15","10","25",
-		"10","30","10","20","10","10","10","10","10","20","5","40","5","5","15","5","10","5","10","10","10",
-		"10","20","20","40","15","10","20","20","25","5","15","10","5","20","15","20","25","20","5","30","5",
-		"10","20","40","5","20","40","20","15","35","10","5","5","5","15","5","20","5","5","15","20","10","5",
-		"5","15","10","15","15","10","10","10","20","10","10","10","10","15","15","15","10","20","20","10","20",
-		"20","20","20","20","10","10","10","20","20","5","15","10","10","15","10","20","5","5","10","10","20","5",
-		"10","20","10","20","20","20","5","5","15","20","10","15","20","15","10","10","15","10","5","5","10","15",
-		"10","5","20","25","5","40","15","5","40","15","20","20","5","15","20","20","15","15","5","10","30","20",
-		"30","15","5","40","15","5","20","5","15","25","25","15","20","15","20","15","20","10","20","20","5","5"
-	},
-	power = {
-		"---","40","50","15","18","80","40","75","75","75","40","55","---","80","---","50","40","60","---","90","15","80",
-		"45","65","30","120","100","60","---","70","65","15","---","40","85","15","90","120","120","---","15","25",
-		"25","---","60","---","---","---","---","---","---","40","40","90","---","40","110","90","90","110","65","65","65",
-		"150","35","80","80","---","---","---","80","20","40","---","---","55","120","---","---","---","120","---","---","35","40",
-		"90","---","110","50","100","---","80","---","50","90","---","---","---","40","20","---","---","---","---","---","---","---","---",
-		"---","---","---","---","---","---","---","---","---","---","---","---","200","100","30","30","65","65","110","80","35","60",
-		"130","20","10","---","---","---","130","---","100","---","15","20","---","140","---","40","70","---","---","---","---","---",
-		"100","250","18","50","---","75","80","---","---","80","---","70","---","50","---","10","60","---","---","---","60","50",
-		"---","---","---","100","---","---","---","40","---","40","---","60","---","---","90","20","65","---","120","---","---","---","55",
-		"---","25","---","120","---","75","---","---","30","40","---","---","65","40","70","---","---","---","---","---","---","---","---",
-		"---","100","---","100","120","60","---","---","40","50","---","100","50","70","---","---","---","60","100","40","---",
-		"---","80","---","---","80","60","80","120","40","35","---","40","90","---","---","---","95","---","---","---","---","---","70",
-		"150","70","---","---","---","---","---","---","---","---","---","---","120","---","---","60","75","---","65","---","150","---","---","---",
-		"---","---","70","80","15","---","---","70","70","---","---","85","---","30","60","---","90","50","75","150","150","90",
-		"30","50","---","---","60","130","---","60","60","---","---","---","---","150","75","60","80","85","35","---","90","25",
-		"60","25","---","---","---","80","150","---","85","55","50","60","120","60","---","---","90","---","25","60","60","140","140"
-	},
-	accuracy = {
-		"---","100","100","85","85","85","100","100","100","100","100","100","30","100","---","95","100","100","---","95",
-		"85","75","100","100","100","75","95","85","100","100","100","85","30","100","100","90","85","100","100",
-		"100","100","100","95","100","100","100","---","55","55","90","100","100","100","100","---","100","80","100",
-		"100","70","100","100","100","90","100","100","80","100","100","100","100","100","100","90","---","95","100",
-		"75","75","75","100","95","100","85","100","100","90","70","90","100","30","100","90","100","100","60","---",
-		"---","100","100","---","100","---","85","---","---","---","---","100","100","---","---","---","---","---","---","---","---","---","---",
-		"100","75","100","70","100","85","85","100","85","---","100","100","100","---","80","---","90","100","100","90",
-		"85","100","75","90","---","100","100","100","100","100","---","---","90","100","80","90","---","90","90","---","---",
-		"100","90","100","---","---","---","90","100","---","---","100","100","100","---","100","---","95","100","100","100",
-		"100","---","100","100","---","75","---","100","100","85","---","50","---","---","---","95","---","90","---","100","---","100",
-		"---","100","90","100","85","---","100","95","90","---","100","---","---","100","90","100","---","---","95","100","50",
-		"85","100","---","100","100","100","100","75","95","---","---","---","---","100","80","100","---","---","100","100","---",
-		"100","100","100","100","100","85","100","100","100","---","100","---","90","---","100","100","85","100","100",
-		"100","100","---","---","---","100","---","100","---","---","---","---","100","---","---","100","100","---","100","100","100",
-		"---","---","---","---","---","100","100","100","---","---","100","100","100","100","90","---","90","100","---","100","100",
-		"95","90","90","90","100","100","---","100","95","90","---","95","100","85","55","100","---","100","100","---",
-		"100","90","85","30","85","100","---","100","---","---","---","100","90","---","85","95","100","100","100","---","---",
-		"---","100","---","90","---","100","100","90"
-	},
-	movetype = {
-		"---",
-		"Normal",
-		"Fighting",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Fire",
-		"Ice",
-		"Electric",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Flying",
-		"Flying",
-		"Normal",
-		"Flying",
-		"Normal",
-		"Normal",
-		"Grass",
-		"Normal",
-		"Fighting",
-		"Normal",
-		"Fighting",
-		"Fighting",
-		"Ground",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Poison",
-		"Bug",
-		"Bug",
-		"Normal",
-		"Dark",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Poison",
-		"Fire",
-		"Fire",
-		"Ice",
-		"Water",
-		"Water",
-		"Water",
-		"Ice",
-		"Ice",
-		"Psychic",
-		"Water",
-		"Ice",
-		"Normal",
-		"Flying",
-		"Flying",
-		"Fighting",
-		"Fighting",
-		"Fighting",
-		"Fighting",
-		"Normal",
-		"Grass",
-		"Grass",
-		"Grass",
-		"Normal",
-		"Grass",
-		"Grass",
-		"Poison",
-		"Grass",
-		"Grass",
-		"Grass",
-		"Bug",
-		"Dragon",
-		"Fire",
-		"Electric",
-		"Electric",
-		"Electric",
-		"Electric",
-		"Rock",
-		"Ground",
-		"Ground",
-		"Ground",
-		"Poison",
-		"Psychic",
-		"Psychic",
-		"Psychic",
-		"Psychic",
-		"Psychic",
-		"Normal",
-		"Normal",
-		"Psychic",
-		"Ghost",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Ghost",
-		"Water",
-		"Normal",
-		"Psychic",
-		"Psychic",
-		"Ice",
-		"Psychic",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Flying",
-		"Normal",
-		"Normal",
-		"Ghost",
-		"Poison",
-		"Poison",
-		"Ground",
-		"Fire",
-		"Water",
-		"Water",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Psychic",
-		"Psychic",
-		"Normal",
-		"Fighting",
-		"Normal",
-		"Psychic",
-		"Poison",
-		"Normal",
-		"Bug",
-		"Normal",
-		"Flying",
-		"Normal",
-		"Water",
-		"Normal",
-		"Grass",
-		"Normal",
-		"Psychic",
-		"Normal",
-		"Poison",
-		"Water",
-		"Normal",
-		"Normal",
-		"Ground",
-		"Psychic",
-		"Rock",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Fighting",
-		"Dark",
-		"Bug",
-		"Normal",
-		"Ghost",
-		"Fire",
-		"Normal",
-		"Ghost",
-		"Normal",
-		"Normal",
-		"Flying",
-		"Grass",
-		"Fighting",
-		"Ghost",
-		"Ice",
-		"Normal",
-		"Fighting",
-		"Normal",
-		"Dark",
-		"Fairy",
-		"Normal",
-		"Poison",
-		"Ground",
-		"Water",
-		"Ground",
-		"Electric",
-		"Normal",
-		"Ghost",
-		"Normal",
-		"Ice",
-		"Fighting",
-		"Ground",
-		"Normal",
-		"Dragon",
-		"Rock",
-		"Grass",
-		"Normal",
-		"Fairy",
-		"Rock",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Electric",
-		"Bug",
-		"Steel",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Fire",
-		"Ground",
-		"Fighting",
-		"Bug",
-		"Dragon",
-		"Normal",
-		"Normal",
-		"Dark",
-		"Normal",
-		"Normal",
-		"Steel",
-		"Steel",
-		"Fighting",
-		"Normal",
-		"Grass",
-		"Fairy",
-		"Normal",
-		"Fighting",
-		"Dragon",
-		"Water",
-		"Fire",
-		"Dark",
-		"Psychic",
-		"Normal",
-		"Normal",
-		"Rock",
-		"Ghost",
-		"Psychic",
-		"Fighting",
-		"Water",
-		"Dark",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Fire",
-		"Ice",
-		"Dark",
-		"Dark",
-		"Fire",
-		"Dark",
-		"Normal",
-		"Fighting",
-		"Normal",
-		"Normal",
-		"Normal",
-		"Electric",
-		"Dark",
-		"Normal",
-		"Psychic",
-		"Psychic",
-		"Normal",
-		"Normal",
-		"Grass",
-		"Fighting",
-		"Psychic",
-		"Normal",
-		"Fighting",
-		"Fighting",
-		"Normal",
-		"Dark",
-		"Normal",
-		"Fire",
-		"Psychic",
-		"Psychic",
-		"Normal",
-		"Ghost",
-		"Dark",
-		"Normal",
-		"Water",
-		"Fighting",
-		"Normal",
-		"Bug",
-		"Psychic",
-		"Psychic",
-		"Flying",
-		"Normal",
-		"Fire",
-		"Ground",
-		"Ice",
-		"Grass",
-		"Normal",
-		"Normal",
-		"Poison",
-		"Normal",
-		"Fire",
-		"Water",
-		"Steel",
-		"Ghost",
-		"Normal",
-		"Grass",
-		"Dark",
-		"Flying",
-		"Fire",
-		"Normal",
-		"Rock",
-		"Bug",
-		"Steel",
-		"Grass",
-		"Normal",
-		"Psychic",
-		"Water",
-		"Bug",
-		"Ghost",
-		"Psychic",
-		"Fighting",
-		"Ground",
-		"Ice",
-		"Water",
-		"Grass",
-		"Flying",
-		"Ice",
-		"Steel",
-		"Normal",
-		"Normal",
-		"Dragon",
-		"Grass",
-		"Fighting",
-		"Flying",
-		"Ground",
-		"Poison",
-		"Normal",
-		"Electric",
-		"Grass",
-		"Water",
-		"Psychic",
-		"Grass",
-		"Dragon",
-		"Rock",
-		"Electric",
-		"Water",
-		"Steel",
-		"Psychic"
-	},
 	-- movelearnedlevels
 	--		group_id (game)
 	--			list of levels
@@ -1770,3 +1297,2846 @@ PickupData = {
 		rarity = { 15, 10, 10, 10, 10, 10, 10,  5,  5,  5,  5,  1,  1,  1,  1,  1}
 	}
 }	
+
+MoveData = {
+	{
+		id = "---",
+		name = "---",
+		type = "---",
+		power = "---",
+		pp = "---",
+		accuracy = "---"
+	},
+	{
+	id = "1",
+	name = "Pound",
+	type = "normal",
+	power = "40",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "2",
+	name = "Karate Chop",
+	type = "normal",
+	power = "50",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "3",
+	name = "DoubleSlap",
+	type = "normal",
+	power = "15",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "4",
+	name = "Comet Punch",
+	type = "normal",
+	power = "18",
+	pp = "15",
+	accuracy = "85"
+	},
+	{
+	id = "5",
+	name = "Mega Punch",
+	type = "normal",
+	power = "80",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "6",
+	name = "Pay Day",
+	type = "normal",
+	power = "40",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "7",
+	name = "Fire Punch",
+	type = "fire",
+	power = "75",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "8",
+	name = "Ice Punch",
+	type = "ice",
+	power = "75",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "9",
+	name = "ThunderPunch",
+	type = "electric",
+	power = "75",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "10",
+	name = "Scratch",
+	type = "normal",
+	power = "40",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "11",
+	name = "ViceGrip",
+	type = "normal",
+	power = "55",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "12",
+	name = "Guillotine",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "30"
+	},
+	{
+	id = "13",
+	name = "Razor Wind",
+	type = "normal",
+	power = "80",
+	pp = "10",
+	accuracy = "75"
+	},
+	{
+	id = "14",
+	name = "Swords Dance",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "15",
+	name = "Cut",
+	type = "normal",
+	power = "50",
+	pp = "30",
+	accuracy = "95"
+	},
+	{
+	id = "16",
+	name = "Gust",
+	type = "normal",
+	power = "40",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "17",
+	name = "Wing Attack",
+	type = "flying",
+	power = "35",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "18",
+	name = "Whirlwind",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "19",
+	name = "Fly",
+	type = "flying",
+	power = "70",
+	pp = "15",
+	accuracy = "95"
+	},
+	{
+	id = "20",
+	name = "Bind",
+	type = "normal",
+	power = "15",
+	pp = "20",
+	accuracy = "75"
+	},
+	{
+	id = "21",
+	name = "Slam",
+	type = "normal",
+	power = "80",
+	pp = "20",
+	accuracy = "75"
+	},
+	{
+	id = "22",
+	name = "Vine Whip",
+	type = "grass",
+	power = "35",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "23",
+	name = "Stomp",
+	type = "normal",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "24",
+	name = "Double Kick",
+	type = "fighting",
+	power = "30",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "25",
+	name = "Mega Kick",
+	type = "normal",
+	power = "120",
+	pp = "5",
+	accuracy = "75"
+	},
+	{
+	id = "26",
+	name = "Jump Kick",
+	type = "fighting",
+	power = "85",
+	pp = "25",
+	accuracy = "95"
+	},
+	{
+	id = "27",
+	name = "Rolling Kick",
+	type = "fighting",
+	power = "60",
+	pp = "15",
+	accuracy = "85"
+	},
+	{
+	id = "28",
+	name = "Sand-Attack",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "29",
+	name = "Headbutt",
+	type = "normal",
+	power = "70",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "30",
+	name = "Horn Attack",
+	type = "normal",
+	power = "65",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "31",
+	name = "Fury Attack",
+	type = "normal",
+	power = "15",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "32",
+	name = "Horn Drill",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "30"
+	},
+	{
+	id = "33",
+	name = "Tackle",
+	type = "normal",
+	power = "50",
+	pp = "35",
+	accuracy = "95"
+	},
+	{
+	id = "34",
+	name = "Body Slam",
+	type = "normal",
+	power = "85",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "35",
+	name = "Wrap",
+	type = "normal",
+	power = "15",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "36",
+	name = "Take Down",
+	type = "normal",
+	power = "90",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "37",
+	name = "Thrash",
+	type = "normal",
+	power = "90",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "38",
+	name = "Double-Edge",
+	type = "normal",
+	power = "100",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "39",
+	name = "Tail Whip",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "40",
+	name = "Poison Sting",
+	type = "poison",
+	power = "15",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "41",
+	name = "Twineedle",
+	type = "bug",
+	power = "25",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "42",
+	name = "Pin Missile",
+	type = "bug",
+	power = "14",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "43",
+	name = "Leer",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "44",
+	name = "Bite",
+	type = "normal",
+	power = "60",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "45",
+	name = "Growl",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "100"
+	},
+	{
+	id = "46",
+	name = "Roar",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "47",
+	name = "Sing",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "55"
+	},
+	{
+	id = "48",
+	name = "Supersonic",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "55"
+	},
+	{
+	id = "49",
+	name = "SonicBoom",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "90"
+	},
+	{
+	id = "50",
+	name = "Disable",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "80"
+	},
+	{
+	id = "51",
+	name = "Acid",
+	type = "poison",
+	power = "40",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "52",
+	name = "Ember",
+	type = "fire",
+	power = "40",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "53",
+	name = "Flamethrower",
+	type = "fire",
+	power = "95",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "54",
+	name = "Mist",
+	type = "ice",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "55",
+	name = "Water Gun",
+	type = "water",
+	power = "40",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "56",
+	name = "Hydro Pump",
+	type = "water",
+	power = "120",
+	pp = "5",
+	accuracy = "80"
+	},
+	{
+	id = "57",
+	name = "Surf",
+	type = "water",
+	power = "95",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "58",
+	name = "Ice Beam",
+	type = "ice",
+	power = "95",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "59",
+	name = "Blizzard",
+	type = "ice",
+	power = "120",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "60",
+	name = "Psybeam",
+	type = "psychic",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "61",
+	name = "BubbleBeam",
+	type = "water",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "62",
+	name = "Aurora Beam",
+	type = "ice",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "63",
+	name = "Hyper Beam",
+	type = "normal",
+	power = "150",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "64",
+	name = "Peck",
+	type = "flying",
+	power = "35",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "65",
+	name = "Drill Peck",
+	type = "flying",
+	power = "80",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "66",
+	name = "Submission",
+	type = "fighting",
+	power = "80",
+	pp = "25",
+	accuracy = "80"
+	},
+	{
+	id = "67",
+	name = "Low Kick",
+	type = "fighting",
+	power = "50",
+	pp = "20",
+	accuracy = "90"
+	},
+	{
+	id = "68",
+	name = "Counter",
+	type = "fighting",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "69",
+	name = "Seismic Toss",
+	type = "fighting",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "70",
+	name = "Strength",
+	type = "normal",
+	power = "80",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "71",
+	name = "Absorb",
+	type = "grass",
+	power = "40",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "72",
+	name = "Mega Drain",
+	type = "grass",
+	power = "75",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "73",
+	name = "Leech Seed",
+	type = "grass",
+	power = "---",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "74",
+	name = "Growth",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "75",
+	name = "Razor Leaf",
+	type = "grass",
+	power = "55",
+	pp = "25",
+	accuracy = "95"
+	},
+	{
+	id = "76",
+	name = "SolarBeam",
+	type = "grass",
+	power = "200",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "77",
+	name = "PoisonPowder",
+	type = "poison",
+	power = "---",
+	pp = "35",
+	accuracy = "75"
+	},
+	{
+	id = "78",
+	name = "Stun Spore",
+	type = "grass",
+	power = "---",
+	pp = "30",
+	accuracy = "75"
+	},
+	{
+	id = "79",
+	name = "Sleep Powder",
+	type = "grass",
+	power = "---",
+	pp = "15",
+	accuracy = "75"
+	},
+	{
+	id = "80",
+	name = "Petal Dance",
+	type = "grass",
+	power = "90",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "81",
+	name = "String Shot",
+	type = "bug",
+	power = "---",
+	pp = "40",
+	accuracy = "95"
+	},
+	{
+	id = "82",
+	name = "Dragon Rage",
+	type = "dragon",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "83",
+	name = "Fire Spin",
+	type = "fire",
+	power = "15",
+	pp = "15",
+	accuracy = "70"
+	},
+	{
+	id = "84",
+	name = "ThunderShock",
+	type = "electric",
+	power = "40",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "85",
+	name = "Thunderbolt",
+	type = "electric",
+	power = "95",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "86",
+	name = "Thunder Wave",
+	type = "electric",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "87",
+	name = "Thunder",
+	type = "electric",
+	power = "120",
+	pp = "10",
+	accuracy = "70"
+	},
+	{
+	id = "88",
+	name = "Rock Throw",
+	type = "rock",
+	power = "50",
+	pp = "15",
+	accuracy = "65"
+	},
+	{
+	id = "89",
+	name = "Earthquake",
+	type = "ground",
+	power = "100",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "90",
+	name = "Fissure",
+	type = "ground",
+	power = "---",
+	pp = "5",
+	accuracy = "30"
+	},
+	{
+	id = "91",
+	name = "Dig",
+	type = "ground",
+	power = "60",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "92",
+	name = "Toxic",
+	type = "poison",
+	power = "---",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "93",
+	name = "Confusion",
+	type = "psychic",
+	power = "50",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "94",
+	name = "Psychic",
+	type = "psychic",
+	power = "90",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "95",
+	name = "Hypnosis",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "70"
+	},
+	{
+	id = "96",
+	name = "Meditate",
+	type = "psychic",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "97",
+	name = "Agility",
+	type = "psychic",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "98",
+	name = "Quick Attack",
+	type = "normal",
+	power = "40",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "99",
+	name = "Rage",
+	type = "normal",
+	power = "20",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "100",
+	name = "Teleport",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "101",
+	name = "Night Shade",
+	type = "ghost",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "102",
+	name = "Mimic",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "103",
+	name = "Screech",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "85"
+	},
+	{
+	id = "104",
+	name = "Double Team",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "---"
+	},
+	{
+	id = "105",
+	name = "Recover",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "106",
+	name = "Harden",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "107",
+	name = "Minimize",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "108",
+	name = "SmokeScreen",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "109",
+	name = "Confuse Ray",
+	type = "ghost",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "110",
+	name = "Withdraw",
+	type = "water",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "111",
+	name = "Defense Curl",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "112",
+	name = "Barrier",
+	type = "psychic",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "113",
+	name = "Light Screen",
+	type = "psychic",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "114",
+	name = "Haze",
+	type = "ice",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "115",
+	name = "Reflect",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "116",
+	name = "Focus Energy",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "117",
+	name = "Bide",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "118",
+	name = "Metronome",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "119",
+	name = "Mirror Move",
+	type = "flying",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "120",
+	name = "Selfdestruct",
+	type = "normal",
+	power = "130",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "121",
+	name = "Egg Bomb",
+	type = "normal",
+	power = "100",
+	pp = "10",
+	accuracy = "75"
+	},
+	{
+	id = "122",
+	name = "Lick",
+	type = "ghost",
+	power = "20",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "123",
+	name = "Smog",
+	type = "poison",
+	power = "20",
+	pp = "20",
+	accuracy = "70"
+	},
+	{
+	id = "124",
+	name = "Sludge",
+	type = "poison",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "125",
+	name = "Bone Club",
+	type = "ground",
+	power = "65",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "126",
+	name = "Fire Blast",
+	type = "fire",
+	power = "120",
+	pp = "5",
+	accuracy = "85"
+	},
+	{
+	id = "127",
+	name = "Waterfall",
+	type = "water",
+	power = "80",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "128",
+	name = "Clamp",
+	type = "water",
+	power = "35",
+	pp = "10",
+	accuracy = "75"
+	},
+	{
+	id = "129",
+	name = "Swift",
+	type = "normal",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "130",
+	name = "Skull Bash",
+	type = "normal",
+	power = "100",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "131",
+	name = "Spike Cannon",
+	type = "normal",
+	power = "20",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "132",
+	name = "Constrict",
+	type = "normal",
+	power = "10",
+	pp = "35",
+	accuracy = "100"
+	},
+	{
+	id = "133",
+	name = "Amnesia",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "134",
+	name = "Kinesis",
+	type = "psychic",
+	power = "---",
+	pp = "15",
+	accuracy = "80"
+	},
+	{
+	id = "135",
+	name = "Softboiled",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "136",
+	name = "Hi Jump Kick",
+	type = "fighting",
+	power = "100",
+	pp = "20",
+	accuracy = "90"
+	},
+	{
+	id = "137",
+	name = "Glare",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "90"
+	},
+	{
+	id = "138",
+	name = "Dream Eater",
+	type = "psychic",
+	power = "100",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "139",
+	name = "Poison Gas",
+	type = "poison",
+	power = "---",
+	pp = "40",
+	accuracy = "80"
+	},
+	{
+	id = "140",
+	name = "Barrage",
+	type = "normal",
+	power = "15",
+	pp = "20",
+	accuracy = "85"
+	},
+	{
+	id = "141",
+	name = "Leech Life",
+	type = "bug",
+	power = "20",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "142",
+	name = "Lovely Kiss",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "75"
+	},
+	{
+	id = "143",
+	name = "Sky Attack",
+	type = "flying",
+	power = "200",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "144",
+	name = "Transform",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "145",
+	name = "Bubble",
+	type = "water",
+	power = "20",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "146",
+	name = "Dizzy Punch",
+	type = "normal",
+	power = "70",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "147",
+	name = "Spore",
+	type = "grass",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "148",
+	name = "Flash",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "70"
+	},
+	{
+	id = "149",
+	name = "Psywave",
+	type = "psychic",
+	power = "---",
+	pp = "15",
+	accuracy = "80"
+	},
+	{
+	id = "150",
+	name = "Splash",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "151",
+	name = "Acid Armor",
+	type = "poison",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "152",
+	name = "Crabhammer",
+	type = "water",
+	power = "90",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "153",
+	name = "Explosion",
+	type = "normal",
+	power = "170",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "154",
+	name = "Fury Swipes",
+	type = "normal",
+	power = "18",
+	pp = "15",
+	accuracy = "80"
+	},
+	{
+	id = "155",
+	name = "Bonemerang",
+	type = "ground",
+	power = "50",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "156",
+	name = "Rest",
+	type = "psychic",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "157",
+	name = "Rock Slide",
+	type = "rock",
+	power = "75",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "158",
+	name = "Hyper Fang",
+	type = "normal",
+	power = "80",
+	pp = "15",
+	accuracy = "90"
+	},
+	{
+	id = "159",
+	name = "Sharpen",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "160",
+	name = "Conversion",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "161",
+	name = "Tri Attack",
+	type = "normal",
+	power = "80",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "162",
+	name = "Super Fang",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "163",
+	name = "Slash",
+	type = "normal",
+	power = "70",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "164",
+	name = "Substitute",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "165",
+	name = "Struggle",
+	type = "normal",
+	power = "50",
+	pp = "1",
+	accuracy = "---"
+	},
+	{
+	id = "166",
+	name = "Sketch",
+	type = "normal",
+	power = "---",
+	pp = "1",
+	accuracy = "---"
+	},
+	{
+	id = "167",
+	name = "Triple Kick",
+	type = "fighting",
+	power = "10",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "168",
+	name = "Thief",
+	type = "dark",
+	power = "40",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "169",
+	name = "Spider Web",
+	type = "bug",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "170",
+	name = "Mind Reader",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "171",
+	name = "Nightmare",
+	type = "ghost",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "172",
+	name = "Flame Wheel",
+	type = "fire",
+	power = "60",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "173",
+	name = "Snore",
+	type = "normal",
+	power = "40",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "174",
+	name = "Curse",
+	type = "unknown",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "175",
+	name = "Flail",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "176",
+	name = "Conversion 2",
+	type = "normal",
+	power = "---",
+	pp = "30",
+	accuracy = "---"
+	},
+	{
+	id = "177",
+	name = "Aeroblast",
+	type = "flying",
+	power = "100",
+	pp = "5",
+	accuracy = "95"
+	},
+	{
+	id = "178",
+	name = "Cotton Spore",
+	type = "grass",
+	power = "---",
+	pp = "40",
+	accuracy = "85"
+	},
+	{
+	id = "179",
+	name = "Reversal",
+	type = "fighting",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "180",
+	name = "Spite",
+	type = "ghost",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "181",
+	name = "Powder Snow",
+	type = "ice",
+	power = "40",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "182",
+	name = "Protect",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "183",
+	name = "Mach Punch",
+	type = "fighting",
+	power = "40",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "184",
+	name = "Scary Face",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "185",
+	name = "Faint Attack",
+	type = "dark",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "186",
+	name = "Sweet Kiss",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "75"
+	},
+	{
+	id = "187",
+	name = "Belly Drum",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "188",
+	name = "Sludge Bomb",
+	type = "poison",
+	power = "90",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "189",
+	name = "Mud-Slap",
+	type = "ground",
+	power = "20",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "190",
+	name = "Octazooka",
+	type = "water",
+	power = "65",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "191",
+	name = "Spikes",
+	type = "ground",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "192",
+	name = "Zap Cannon",
+	type = "electric",
+	power = "100",
+	pp = "5",
+	accuracy = "50"
+	},
+	{
+	id = "193",
+	name = "Foresight",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "194",
+	name = "Destiny Bond",
+	type = "ghost",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "195",
+	name = "Perish Song",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "196",
+	name = "Icy Wind",
+	type = "ice",
+	power = "55",
+	pp = "15",
+	accuracy = "95"
+	},
+	{
+	id = "197",
+	name = "Detect",
+	type = "fighting",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "198",
+	name = "Bone Rush",
+	type = "ground",
+	power = "25",
+	pp = "10",
+	accuracy = "80"
+	},
+	{
+	id = "199",
+	name = "Lock-On",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "200",
+	name = "Outrage",
+	type = "dragon",
+	power = "90",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "201",
+	name = "Sandstorm",
+	type = "rock",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "202",
+	name = "Giga Drain",
+	type = "grass",
+	power = "60",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "203",
+	name = "Endure",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "204",
+	name = "Charm",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "205",
+	name = "Rollout",
+	type = "rock",
+	power = "30",
+	pp = "20",
+	accuracy = "90"
+	},
+	{
+	id = "206",
+	name = "False Swipe",
+	type = "normal",
+	power = "40",
+	pp = "40",
+	accuracy = "100"
+	},
+	{
+	id = "207",
+	name = "Swagger",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "90"
+	},
+	{
+	id = "208",
+	name = "Milk Drink",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "209",
+	name = "Spark",
+	type = "electric",
+	power = "65",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "210",
+	name = "Fury Cutter",
+	type = "bug",
+	power = "20",
+	pp = "20",
+	accuracy = "95"
+	},
+	{
+	id = "211",
+	name = "Steel Wing",
+	type = "steel",
+	power = "70",
+	pp = "25",
+	accuracy = "90"
+	},
+	{
+	id = "212",
+	name = "Mean Look",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "213",
+	name = "Attract",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "214",
+	name = "Sleep Talk",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "215",
+	name = "Heal Bell",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "216",
+	name = "Return",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "217",
+	name = "Present",
+	type = "normal",
+	power = "---",
+	pp = "15",
+	accuracy = "90"
+	},
+	{
+	id = "218",
+	name = "Frustration",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "219",
+	name = "Safeguard",
+	type = "normal",
+	power = "---",
+	pp = "25",
+	accuracy = "---"
+	},
+	{
+	id = "220",
+	name = "Pain Split",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "221",
+	name = "Sacred Fire",
+	type = "fire",
+	power = "100",
+	pp = "5",
+	accuracy = "95"
+	},
+	{
+	id = "222",
+	name = "Magnitude",
+	type = "ground",
+	power = "---",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "223",
+	name = "DynamicPunch",
+	type = "fighting",
+	power = "100",
+	pp = "5",
+	accuracy = "50"
+	},
+	{
+	id = "224",
+	name = "Megahorn",
+	type = "bug",
+	power = "120",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "225",
+	name = "DragonBreath",
+	type = "dragon",
+	power = "60",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "226",
+	name = "Baton Pass",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "227",
+	name = "Encore",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "228",
+	name = "Pursuit",
+	type = "dark",
+	power = "40",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "229",
+	name = "Rapid Spin",
+	type = "normal",
+	power = "20",
+	pp = "40",
+	accuracy = "100"
+	},
+	{
+	id = "230",
+	name = "Sweet Scent",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "231",
+	name = "Iron Tail",
+	type = "steel",
+	power = "100",
+	pp = "15",
+	accuracy = "75"
+	},
+	{
+	id = "232",
+	name = "Metal Claw",
+	type = "steel",
+	power = "50",
+	pp = "35",
+	accuracy = "95"
+	},
+	{
+	id = "233",
+	name = "Vital Throw",
+	type = "fighting",
+	power = "70",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "234",
+	name = "Morning Sun",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "235",
+	name = "Synthesis",
+	type = "grass",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "236",
+	name = "Moonlight",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "237",
+	name = "Hidden Power",
+	type = "normal",
+	power = "1",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "238",
+	name = "Cross Chop",
+	type = "fighting",
+	power = "100",
+	pp = "5",
+	accuracy = "80"
+	},
+	{
+	id = "239",
+	name = "Twister",
+	type = "dragon",
+	power = "40",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "240",
+	name = "Rain Dance",
+	type = "water",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "241",
+	name = "Sunny Day",
+	type = "fire",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "242",
+	name = "Crunch",
+	type = "dark",
+	power = "80",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "243",
+	name = "Mirror Coat",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "244",
+	name = "Psych Up",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "245",
+	name = "ExtremeSpeed",
+	type = "normal",
+	power = "80",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "246",
+	name = "AncientPower",
+	type = "rock",
+	power = "60",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "247",
+	name = "Shadow Ball",
+	type = "ghost",
+	power = "80",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "248",
+	name = "Future Sight",
+	type = "psychic",
+	power = "100",
+	pp = "15",
+	accuracy = "90"
+	},
+	{
+	id = "249",
+	name = "Rock Smash",
+	type = "fighting",
+	power = "20",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "250",
+	name = "Whirlpool",
+	type = "water",
+	power = "15",
+	pp = "15",
+	accuracy = "70"
+	},
+	{
+	id = "251",
+	name = "Beat Up",
+	type = "dark",
+	power = "10",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "252",
+	name = "Fake Out",
+	type = "normal",
+	power = "40",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "253",
+	name = "Uproar",
+	type = "normal",
+	power = "50",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "254",
+	name = "Stockpile",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "255",
+	name = "Spit Up",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "256",
+	name = "Swallow",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "257",
+	name = "Heat Wave",
+	type = "fire",
+	power = "100",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "258",
+	name = "Hail",
+	type = "ice",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "259",
+	name = "Torment",
+	type = "dark",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "260",
+	name = "Flatter",
+	type = "dark",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "261",
+	name = "Will-O-Wisp",
+	type = "fire",
+	power = "---",
+	pp = "15",
+	accuracy = "75"
+	},
+	{
+	id = "262",
+	name = "Memento",
+	type = "dark",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "263",
+	name = "Facade",
+	type = "normal",
+	power = "70",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "264",
+	name = "Focus Punch",
+	type = "fighting",
+	power = "150",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "265",
+	name = "SmellingSalt",
+	type = "normal",
+	power = "60",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "266",
+	name = "Follow Me",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "267",
+	name = "Nature Power",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "268",
+	name = "Charge",
+	type = "electric",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "269",
+	name = "Taunt",
+	type = "dark",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "270",
+	name = "Helping Hand",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "271",
+	name = "Trick",
+	type = "psychic",
+	power = "---",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "272",
+	name = "Role Play",
+	type = "psychic",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "273",
+	name = "Wish",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "274",
+	name = "Assist",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "275",
+	name = "Ingrain",
+	type = "grass",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "276",
+	name = "Superpower",
+	type = "fighting",
+	power = "120",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "277",
+	name = "Magic Coat",
+	type = "psychic",
+	power = "---",
+	pp = "15",
+	accuracy = "---"
+	},
+	{
+	id = "278",
+	name = "Recycle",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "279",
+	name = "Revenge",
+	type = "fighting",
+	power = "60",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "280",
+	name = "Brick Break",
+	type = "fighting",
+	power = "75",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "281",
+	name = "Yawn",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "282",
+	name = "Knock Off",
+	type = "dark",
+	power = "20",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "283",
+	name = "Endeavor",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "284",
+	name = "Eruption",
+	type = "fire",
+	power = "150",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "285",
+	name = "Skill Swap",
+	type = "psychic",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "286",
+	name = "Imprison",
+	type = "psychic",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "287",
+	name = "Refresh",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "288",
+	name = "Grudge",
+	type = "ghost",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "289",
+	name = "Snatch",
+	type = "dark",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "290",
+	name = "Secret Power",
+	type = "normal",
+	power = "70",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "291",
+	name = "Dive",
+	type = "water",
+	power = "60",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "292",
+	name = "Arm Thrust",
+	type = "fighting",
+	power = "15",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "293",
+	name = "Camouflage",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "294",
+	name = "Tail Glow",
+	type = "bug",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "295",
+	name = "Luster Purge",
+	type = "psychic",
+	power = "70",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "296",
+	name = "Mist Ball",
+	type = "psychic",
+	power = "70",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "297",
+	name = "FeatherDance",
+	type = "flying",
+	power = "---",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "298",
+	name = "Teeter Dance",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "299",
+	name = "Blaze Kick",
+	type = "fire",
+	power = "85",
+	pp = "10",
+	accuracy = "90"
+	},
+	{
+	id = "300",
+	name = "Mud Sport",
+	type = "ground",
+	power = "---",
+	pp = "15",
+	accuracy = "---"
+	},
+	{
+	id = "301",
+	name = "Ice Ball",
+	type = "ice",
+	power = "30",
+	pp = "20",
+	accuracy = "90"
+	},
+	{
+	id = "302",
+	name = "Needle Arm",
+	type = "grass",
+	power = "60",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "303",
+	name = "Slack Off",
+	type = "normal",
+	power = "---",
+	pp = "10",
+	accuracy = "---"
+	},
+	{
+	id = "304",
+	name = "Hyper Voice",
+	type = "normal",
+	power = "90",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "305",
+	name = "Poison Fang",
+	type = "poison",
+	power = "50",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "306",
+	name = "Crush Claw",
+	type = "normal",
+	power = "75",
+	pp = "10",
+	accuracy = "95"
+	},
+	{
+	id = "307",
+	name = "Blast Burn",
+	type = "fire",
+	power = "150",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "308",
+	name = "Hydro Cannon",
+	type = "water",
+	power = "150",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "309",
+	name = "Meteor Mash",
+	type = "steel",
+	power = "100",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "310",
+	name = "Astonish",
+	type = "ghost",
+	power = "30",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "311",
+	name = "Weather Ball",
+	type = "normal",
+	power = "50",
+	pp = "10",
+	accuracy = "100"
+	},
+	{
+	id = "312",
+	name = "Aromatherapy",
+	type = "grass",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "313",
+	name = "Fake Tears",
+	type = "dark",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "314",
+	name = "Air Cutter",
+	type = "flying",
+	power = "55",
+	pp = "25",
+	accuracy = "95"
+	},
+	{
+	id = "315",
+	name = "Overheat",
+	type = "fire",
+	power = "140",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "316",
+	name = "Odor Sleuth",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "317",
+	name = "Rock Tomb",
+	type = "rock",
+	power = "50",
+	pp = "10",
+	accuracy = "80"
+	},
+	{
+	id = "318",
+	name = "Silver Wind",
+	type = "bug",
+	power = "60",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "319",
+	name = "Metal Sound",
+	type = "steel",
+	power = "---",
+	pp = "40",
+	accuracy = "85"
+	},
+	{
+	id = "320",
+	name = "GrassWhistle",
+	type = "grass",
+	power = "---",
+	pp = "15",
+	accuracy = "55"
+	},
+	{
+	id = "321",
+	name = "Tickle",
+	type = "normal",
+	power = "---",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "322",
+	name = "Cosmic Power",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "323",
+	name = "Water Spout",
+	type = "water",
+	power = "150",
+	pp = "5",
+	accuracy = "100"
+	},
+	{
+	id = "324",
+	name = "Signal Beam",
+	type = "bug",
+	power = "75",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "325",
+	name = "Shadow Punch",
+	type = "ghost",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "326",
+	name = "Extrasensory",
+	type = "psychic",
+	power = "80",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "327",
+	name = "Sky Uppercut",
+	type = "fighting",
+	power = "85",
+	pp = "15",
+	accuracy = "90"
+	},
+	{
+	id = "328",
+	name = "Sand Tomb",
+	type = "ground",
+	power = "15",
+	pp = "15",
+	accuracy = "70"
+	},
+	{
+	id = "329",
+	name = "Sheer Cold",
+	type = "ice",
+	power = "---",
+	pp = "5",
+	accuracy = "30"
+	},
+	{
+	id = "330",
+	name = "Muddy Water",
+	type = "water",
+	power = "95",
+	pp = "10",
+	accuracy = "85"
+	},
+	{
+	id = "331",
+	name = "Bullet Seed",
+	type = "grass",
+	power = "10",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "332",
+	name = "Aerial Ace",
+	type = "flying",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "333",
+	name = "Icicle Spear",
+	type = "ice",
+	power = "10",
+	pp = "30",
+	accuracy = "100"
+	},
+	{
+	id = "334",
+	name = "Iron Defense",
+	type = "steel",
+	power = "---",
+	pp = "15",
+	accuracy = "---"
+	},
+	{
+	id = "335",
+	name = "Block",
+	type = "normal",
+	power = "---",
+	pp = "5",
+	accuracy = "---"
+	},
+	{
+	id = "336",
+	name = "Howl",
+	type = "normal",
+	power = "---",
+	pp = "40",
+	accuracy = "---"
+	},
+	{
+	id = "337",
+	name = "Dragon Claw",
+	type = "dragon",
+	power = "80",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "338",
+	name = "Frenzy Plant",
+	type = "grass",
+	power = "150",
+	pp = "5",
+	accuracy = "90"
+	},
+	{
+	id = "339",
+	name = "Bulk Up",
+	type = "fighting",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "340",
+	name = "Bounce",
+	type = "flying",
+	power = "85",
+	pp = "5",
+	accuracy = "85"
+	},
+	{
+	id = "341",
+	name = "Mud Shot",
+	type = "ground",
+	power = "55",
+	pp = "15",
+	accuracy = "95"
+	},
+	{
+	id = "342",
+	name = "Poison Tail",
+	type = "poison",
+	power = "50",
+	pp = "25",
+	accuracy = "100"
+	},
+	{
+	id = "343",
+	name = "Covet",
+	type = "normal",
+	power = "40",
+	pp = "40",
+	accuracy = "100"
+	},
+	{
+	id = "344",
+	name = "Volt Tackle",
+	type = "electric",
+	power = "120",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "345",
+	name = "Magical Leaf",
+	type = "grass",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "346",
+	name = "Water Sport",
+	type = "water",
+	power = "---",
+	pp = "15",
+	accuracy = "---"
+	},
+	{
+	id = "347",
+	name = "Calm Mind",
+	type = "psychic",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "348",
+	name = "Leaf Blade",
+	type = "grass",
+	power = "70",
+	pp = "15",
+	accuracy = "100"
+	},
+	{
+	id = "349",
+	name = "Dragon Dance",
+	type = "dragon",
+	power = "---",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "350",
+	name = "Rock Blast",
+	type = "rock",
+	power = "25",
+	pp = "10",
+	accuracy = "80"
+	},
+	{
+	id = "351",
+	name = "Shock Wave",
+	type = "electric",
+	power = "60",
+	pp = "20",
+	accuracy = "---"
+	},
+	{
+	id = "352",
+	name = "Water Pulse",
+	type = "water",
+	power = "60",
+	pp = "20",
+	accuracy = "100"
+	},
+	{
+	id = "353",
+	name = "Doom Desire",
+	type = "steel",
+	power = "120",
+	pp = "5",
+	accuracy = "85"
+	},
+	{
+	id = "354",
+	name = "Psycho Boost",
+	type = "psychic",
+	power = "140",
+	pp = "5",
+	accuracy = "90"
+	}
+}
