@@ -72,17 +72,15 @@ function Program.main()
 
 	Program.updateTracker()
 
-	if LayoutSettings.showRightPanel then
-		if Tracker.Data.player == 2 then
-			Drawing.drawTrackerView()
-		else
-			Drawing.drawPokemonView()
-		end
-		Program.StatButtonState = Tracker.getButtonState()
-		Buttons = Program.updateButtons(Program.StatButtonState)
-		Drawing.drawButtons()
-		Drawing.drawInputOverlay()
+	if Tracker.Data.player == 2 then
+		Drawing.drawTrackerView()
+	else
+		Drawing.drawPokemonView()
 	end
+	Program.StatButtonState = Tracker.getButtonState()
+	Buttons = Program.updateButtons(Program.StatButtonState)
+	Drawing.drawButtons()
+	Drawing.drawInputOverlay()
 	Drawing.drawLayout()
 end
 
@@ -159,8 +157,11 @@ end
 function Program.HandleBeginBattle()
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
-	Tracker.Data.player = 2
 	Tracker.Data.slot = 1
+
+	if Settings.autoTrackOpponentMons then
+		Tracker.Data.player = 2
+	end
 end
 
 function Program.HandleEndBattle()
@@ -172,6 +173,7 @@ end
 function Program.HandleMove()
 	local moveValue = Memory.readword(GameSettings.gChosenMove) + 1
 	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+
 	if attackerValue % 2 == 1 then -- Opponent pokemon
 		local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 		local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
@@ -179,8 +181,16 @@ function Program.HandleMove()
 		local pokemonId = 1
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
+			if Settings.autoTrackOpponentMons then
+				Tracker.Data.player = 2
+				Tracker.Data.slot = enemySlotOne
+			end
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
+			if Settings.autoTrackOpponentMons then
+				Tracker.Data.player = 2
+				Tracker.Data.slot = enemySlotTwo
+			end
 		end
 		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue })
 	end
@@ -200,103 +210,6 @@ function Program.getTrainerInfo()
 			tid = Memory.readword(trainer + 10),
 			sid = Memory.readword(trainer + 12)
 		}
-	end
-end
-
-function Program.updateCatchData()
-	if LayoutSettings.menus.catch.selecteditem == LayoutSettings.menus.catch.AUTO then
-		local pokemonaux = Program.getPokemonData({player = 2, slot = 1})
-		if Program.validPokemonData(pokemonaux) then
-			Program.catchdata.pokemon = pokemonaux.pokemonID
-			Program.catchdata.curHP = pokemonaux.curHP 
-			Program.catchdata.maxHP = pokemonaux.maxHP 
-			Program.catchdata.level = pokemonaux.level
-			Program.catchdata.status = pokemonaux.status
-		end
-	end
-	
-	local m = Program.catchdata.maxHP
-	local h = Program.catchdata.curHP
-	local c = PokemonData.catchrate[Program.catchdata.pokemon + 1]
-	
-	local s = 1
-	if Program.catchdata.status == 1 or Program.catchdata.status == 4 then
-		s = 2
-	elseif Program.catchdata.status > 1 then
-		s = 1.5
-	end
-	
-	local b = 1
-	if Program.catchdata.ball == 2 then
-	elseif Program.catchdata.ball == 2 then
-		b = 1.5
-	elseif Program.catchdata.ball == 3 then
-		b = 1.5
-	elseif Program.catchdata.ball == 5 then
-		b = 1.5
-	end
-	
-	local x = math.floor((3 * m - 2 * h) * math.floor(c * b))
-	x = math.floor(x / (3*m))
-	x = math.floor(x * s)
-	
-	local y = 65536
-	if (x < 255 and Program.catchdata.ball > 1) then		
-		y = math.floor(math.sqrt(16711680 / x))
-		y = math.floor(math.sqrt(y))
-		y = math.floor(1048560 / y)
-	end
-	Program.catchdata.rng = y
-	Program.catchdata.rate = (y/65536) * (y/65536) * (y/65536) * (y/65536)
-end
-
-function Program.updateEncounterData()
-	-- Search map in ROM's table
-	if Program.map.id == 0 then
-		Program.map.encounters[1].encrate = -1
-		Program.map.encounters[2].encrate = -1
-		Program.map.encounters[3].encrate = -1
-		return
-	end
-	local mapid_aux = Memory.readword(GameSettings.encountertable)
-	local index = 0
-	while mapid_aux ~= Program.map.id do
-		index = index + 1
-		mapid_aux = Memory.readword(GameSettings.encountertable + 20*index)
-		if mapid_aux == 0xFFFF then
-			Program.map.encounters[1].encrate = -1
-			Program.map.encounters[2].encrate = -1
-			Program.map.encounters[3].encrate = -1
-			return
-		end
-	end
-	
-	-- Search encounter data
-	for i=1,3,1 do
-		local minl = {}
-		local maxl = {}
-		local pkm = {}
-		local pointer = Memory.readdword(GameSettings.encountertable + 20*index + 4*i)
-		if pointer == 0 then
-			Program.map.encounters[i].encrate = -1
-		else
-			local ratio = Memory.readword(pointer)
-			if ratio == 0xFFFF then
-				Program.map.encounters[i].encrate = -1
-			else
-				Program.map.encounters[i].encrate = ratio
-				Program.map.encounters[i].pokemon = {}
-				pointer = Memory.readdword(pointer + 4)
-				for j = 1, Program.map.encounters[i].SLOTS,1 do
-					local pkmdata = Memory.readdword(pointer + (j-1)*4)
-					Program.map.encounters[i].pokemon[j] = {
-						minlevel = Utils.getbits(pkmdata, 0, 8),
-						maxlevel = Utils.getbits(pkmdata, 8, 8),
-						id = Utils.getbits(pkmdata, 16, 16)
-					}
-				end
-			end
-		end
 	end
 end
 

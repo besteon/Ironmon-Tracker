@@ -81,7 +81,7 @@ function Drawing.drawPokemonView()
 	Drawing.drawPokemonIcon(Tracker.Data.selectedPokemon["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
 	local colorbar = "white"
 
-	if LayoutSettings.easterEggs == true then
+	if Settings.easterEggs == true then
 		local easterEgg = PokemonData.name[Tracker.Data.selectedPokemon["pokemonID"] + 1]
 		if easterEgg == "Magikarp" then
 			gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. 129 .. ".gif", GraphicConstants.SCREEN_WIDTH / 2 - 16, GraphicConstants.SCREEN_HEIGHT / 2 - 28, 32, 32)

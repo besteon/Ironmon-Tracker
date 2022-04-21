@@ -14,8 +14,8 @@ function Input.update()
 	Input.mousetab_prev = Input.mousetab
 
 	local joypadButtons = joypad.get()
-	-- "Select" pressed
-	if joypadButtons.Select == true and Input.joypad.Select ~= joypadButtons.Select then
+	-- "Settings.controls.CYCLE_VIEW" pressed
+	if joypadButtons[Settings.controls.CYCLE_VIEW] == true and Input.joypad[Settings.controls.CYCLE_VIEW] ~= joypadButtons[Settings.controls.CYCLE_VIEW] then
 		if Tracker.Data.inBattle == 1 then
 			Tracker.Data.player = (Tracker.Data.player % 2) + 1
 			if Tracker.Data.player == 1 then
@@ -27,8 +27,8 @@ function Input.update()
 		end
 	end
 
-	-- "L" pressed, display box over next stat
-	if joypadButtons.L == true and Input.joypad.L ~= joypadButtons.L then
+	-- "Settings.controls.CYCLE_STAT" pressed, display box over next stat
+	if joypadButtons[Settings.controls.CYCLE_STAT] == true and Input.joypad[Settings.controls.CYCLE_STAT] ~= joypadButtons[Settings.controls.CYCLE_STAT] then
 		Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 		Tracker.controller.framesSinceInput = 0
 	else
@@ -37,8 +37,8 @@ function Input.update()
 		end
 	end
 
-	-- "R" pressed, cycle stat prediction for selected stat
-	if joypadButtons.R == true and Input.joypad.R ~= joypadButtons.R then
+	-- "Settings.controls.CYCLE_PREDICTION" pressed, cycle stat prediction for selected stat
+	if joypadButtons[Settings.controls.CYCLE_PREDICTION] == true and Input.joypad[Settings.controls.CYCLE_PREDICTION] ~= joypadButtons[Settings.controls.CYCLE_PREDICTION] then
 		if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 			if Tracker.controller.statIndex == 1 then
 				Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1

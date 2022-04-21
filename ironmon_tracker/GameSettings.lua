@@ -46,6 +46,7 @@ GameSettings.LANGUAGES = {
 
 function GameSettings.initialize()
 	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
+	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
 	local pstats = {0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4} -- Player stats
 	local estats = {0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C} -- Enemy stats
 	local rng    = {0x3004818, 0x3005D80, 0x3005000, 0x3004748, 0x3005AE0, 0x3005040} -- RNG address
@@ -58,6 +59,7 @@ function GameSettings.initialize()
 	local roamerpokemonoffset = {0x39D4, 0x4188, 0x4074, 0x39D4, 0x4188, 0x4074}
 	
 	if gamecode == 0x42504545 then
+		print("Emerald ROM Detected")
 		GameSettings.game = 2
 		GameSettings.gamename = "Pokemon Emerald (U)"
 		GameSettings.gamecolor = 0xFF009D07
@@ -76,7 +78,8 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02024070
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02024072
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02024074
-	elseif gamecode == 0x42505245 then
+	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
+		print("Firered v1.1 ROM Detected")
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.gamecolor = 0xFFF85800
@@ -95,7 +98,28 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
-	elseif gamecode == 0x42504745 then
+	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
+		print("Firered v1.0 ROM Detected")
+		GameSettings.game = 3
+		GameSettings.gamename = "Pokemon FireRed (U)"
+		GameSettings.gamecolor = 0xFFF85800
+		GameSettings.encountertable = 0x83C9CB8
+		GameSettings.version = GameSettings.VERSIONS.FRLG
+		GameSettings.language = GameSettings.LANGUAGES.U
+		GameSettings.versiongroup = 2
+		GameSettings.BeginBattleIntro = 0x080123c0
+		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.ChooseMoveUsedParticle = 0x080d86c8
+		GameSettings.gChosenMove = 0x02023d4c
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.DoWhiteOut = 0x08054bc8
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
+		print("Leaf Green v1.1 ROM Detected")
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.gamecolor = 0xFF40D060
@@ -110,6 +134,26 @@ function GameSettings.initialize()
 		GameSettings.gChosenMove = 0x02023d4c
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.DoWhiteOut = 0x08054bdc
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
+		print("Leaf Green v1.0 ROM Detected")
+		GameSettings.game = 3
+		GameSettings.gamename = "Pokemon LeafGreen (U)"
+		GameSettings.gamecolor = 0xFF40D060
+		GameSettings.encountertable = 0x83C9AF4
+		GameSettings.version = GameSettings.VERSIONS.FRLG
+		GameSettings.language = GameSettings.LANGUAGES.U
+		GameSettings.versiongroup = 2
+		GameSettings.BeginBattleIntro = 0x080123c0
+		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.ChooseMoveUsedParticle = 0x080d869c
+		GameSettings.gChosenMove = 0x02023d4c
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.DoWhiteOut = 0x08054bc8
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
