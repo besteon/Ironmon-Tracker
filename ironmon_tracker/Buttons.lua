@@ -29,7 +29,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			9,
 			8,
 			8
@@ -48,7 +48,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			19,
 			8,
 			8
@@ -67,7 +67,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			29,
 			8,
 			8
@@ -86,7 +86,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			39,
 			8,
 			8
@@ -105,7 +105,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			49,
 			8,
 			8
@@ -124,7 +124,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 125,
+			GraphicConstants.SCREEN_WIDTH + 126,
 			59,
 			8,
 			8

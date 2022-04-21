@@ -1,5 +1,42 @@
 Utils = {}
 
+Utils.stageMultipliers = {
+	[0] = { value = 0.25, color = 0xFFFF0000 },
+	[1] = {	value = 0.285714285714, color = 0xFFFF0000 },
+	[2] = {	value = 0.333333333333, color = 0xFFFF0000 },
+	[3] = {	value = 0.4, color = 0xFFFF0000 },
+	[4] = {	value = 0.5, color = 0xFFFF0000	},
+	[5] = {	value = 0.666666666666, color = 0xFFFF0000 },
+	[6] = {	value = 1.0, color = 0xFFFFFFFF },
+	[7] = {	value = 1.5, color = 0xFF00FF00	},
+	[8] = {	value = 2.0, color = 0xFF00FF00 },
+	[9] = {	value = 2.5, color = 0xFF00FF00	},
+	[10] = { value = 3.0, color = 0xFF00FF00 },
+	[11] = { value = 3.5, color = 0xFF00FF00 },
+	[12] = { value = 4.0, color = 0xFF00FF00 },
+}
+
+Utils.accEvasionMultipliers = {
+	[0] = { value = 0.333333333333, color = 0xFFFF0000 },
+	[1] = {	value = 0.375, color = 0xFFFF0000 },
+	[2] = {	value = 0.428571428571, color = 0xFFFF0000 },
+	[3] = {	value = 0.5, color = 0xFFFF0000 },
+	[4] = {	value = 0.6, color = 0xFFFF0000	},
+	[5] = {	value = 0.75, color = 0xFFFF0000 },
+	[6] = {	value = 1.0, color = 0xFFFFFFFF },
+	[7] = {	value = 1.333333333333, color = 0xFF00FF00	},
+	[8] = {	value = 1.666666666666, color = 0xFF00FF00 },
+	[9] = {	value = 2.0, color = 0xFF00FF00	},
+	[10] = { value = 2.333333333333, color = 0xFF00FF00 },
+	[11] = { value = 2.666666666666, color = 0xFF00FF00 },
+	[12] = { value = 3.0, color = 0xFF00FF00 },
+}
+
+function Utils.round(num, numDecimalPlaces)
+	local mult = 10^(numDecimalPlaces or 0)
+	return math.floor(num * mult + 0.5) / mult
+  end
+
 function Utils.ifelse(condition, ifcase, elsecase)
 	if condition then
 		return ifcase
@@ -119,4 +156,25 @@ function Utils.getTableValueIndex(myvalue, mytable)
 		end
 	end
 	return 1
+end
+
+function Utils.getStatValuesAndColors(stats)
+	local statValuesAndColors = {
+		HP = {},
+		ATK = {},
+		DEF = {},
+		SPEED = {},
+		SPATK = {},
+		SPDEF = {},
+		ACC = {},
+		EVASION = {}
+	}
+	for k, v in pairs(stats) do
+		if stat == "ACC" or stat == "EVASION" then
+			statValuesAndColors[k] = Utils.accEvasionMultipliers[v]
+		else
+			statValuesAndColors[k] = Utils.stageMultipliers[v]
+		end
+	end
+	return statValuesAndColors
 end

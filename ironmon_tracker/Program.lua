@@ -86,19 +86,33 @@ end
 
 function Program.updateTracker()
 	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.player, slot = Tracker.Data.slot })
+	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+
+	local battleMonSlot = Tracker.Data.slot + ((Tracker.Data.player + 1) % 2)
+
 	if Program.validPokemonData(pokemonaux) then
 		Tracker.Data.selectedPokemon = pokemonaux
 	end
 
+	--local battleMon = Program.getBattleMon(Tracker.Data.player, Tracker.Data.slot)
+
+	
 	Tracker.Data.main.ability = Program.getMainAbility()
 
 	if Tracker.Data.inBattle == 1 then
+		local battleMon = Program.getBattleMon(battleMonSlot)
+		if battleMon.statStages["HP"] ~= 0 then
+			Tracker.Data.selectedPokemon.statStages = battleMon.statStages
+			Tracker.Data.selectedPokemon.ability = battleMon.ability
+		else
+			Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+		end
+
 		Tracker.Data.selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
 		Tracker.Data.enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 		Tracker.Data.selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
 		Tracker.Data.enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 
-		local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 		--if Tracker.Data.player == 2 then
 		if attackerValue % 2 == 1 then
 			if attackerValue == 1 then
@@ -114,6 +128,7 @@ function Program.updateTracker()
 	else
 		Tracker.Data.selfSlotOne = 1
 		Tracker.Data.slot = Tracker.Data.selfSlotOne
+		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
 	end
 
 	if Tracker.Data.selectedPokemon ~= nil then
@@ -332,4 +347,35 @@ function Program.validPokemonData(pokemonData)
 	else
 		return true
 	end
+end
+
+function Program.getBattleMon(index)
+	local base = GameSettings.gBattleMons + ((index - 1) * 0x58)
+
+	return {
+		-- species = Memory.readword(base + 0x0),
+		-- attack = Memory.readword(base + 0x2),
+		-- defense = Memory.readword(base + 0x4),
+		-- speed = Memory.readword(base + 0x6),
+		-- spAttack = Memory.readword(base + 0x8),
+		-- spDefense = Memory.readword(base + 0xA),
+		-- moves = {
+		-- 	[1] = Memory.readword(base + 0xC),
+		-- 	[2] = Memory.readword(base + 0xE),
+		-- 	[3] = Memory.readword(base + 0x10),
+		-- 	[4] = Memory.readword(base + 0x12)
+		-- },
+		-- IVs, isEgg, abilityNum excluded
+		statStages = {
+			HP = Memory.readbyte(base + 0x18),
+			ATK = Memory.readbyte(base + 0x19),
+			DEF = Memory.readbyte(base + 0x1A),
+			SPEED = Memory.readbyte(base + 0x1B),
+			SPATK = Memory.readbyte(base + 0x1C),
+			SPDEF = Memory.readbyte(base + 0x1D),
+			ACC = Memory.readbyte(base + 0x1E),
+			EVASION = Memory.readbyte(base + 0x1F)
+		},
+		ability = Memory.readbyte(base + 0x20)
+	}
 end

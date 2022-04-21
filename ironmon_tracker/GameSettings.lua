@@ -78,6 +78,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02024070
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02024072
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02024074
+		GameSettings.gBattleMons = 0x02024084
 	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
 		print("Firered v1.1 ROM Detected")
 		GameSettings.game = 3
@@ -98,6 +99,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleMons = 0x02023be4
 	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
 		print("Firered v1.0 ROM Detected")
 		GameSettings.game = 3
@@ -118,6 +120,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleMons = 0x02023be4
 	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
 		print("Leaf Green v1.1 ROM Detected")
 		GameSettings.game = 3
@@ -138,6 +141,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleMons = 0x02023be4
 	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
 		print("Leaf Green v1.0 ROM Detected")
 		GameSettings.game = 3
@@ -158,6 +162,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleMons = 0x02023be4
 	else
 		GameSettings.game = 0
 		GameSettings.gamename = "Unsupported game"
