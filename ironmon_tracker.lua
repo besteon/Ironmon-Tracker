@@ -1,4 +1,4 @@
--- IRONMON TRACKER v0.1.4
+-- IRONMON TRACKER v0.1.5
 
 -- Based on Lua Script made by MKDasher
 -- Based on FractalFusion's VBA-rr lua scripts, with some extra features.
@@ -12,7 +12,7 @@ dofile (DATA_FOLDER .. "/Data.lua")
 dofile (DATA_FOLDER .. "/Memory.lua")
 dofile (DATA_FOLDER .. "/GameSettings.lua")
 
-print("Ironmon-Tracker v0.1.4 loaded.")
+print("Ironmon-Tracker v0.1.5 loaded.")
 
 -- Initialize Game Settings before loading other files.
 GameSettings.initialize()
