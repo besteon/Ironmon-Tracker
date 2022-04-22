@@ -2722,7 +2722,7 @@ MoveData = {
 	{
 	id = "2",
 	name = "Karate Chop",
-	type = "normal",
+	type = "fighting",
 	power = "50",
 	pp = "25",
 	accuracy = "100"
@@ -2813,7 +2813,7 @@ MoveData = {
 	type = "normal",
 	power = "80",
 	pp = "10",
-	accuracy = "75"
+	accuracy = "100"
 	},
 	{
 	id = "14",
@@ -2834,7 +2834,7 @@ MoveData = {
 	{
 	id = "16",
 	name = "Gust",
-	type = "normal",
+	type = "flying",
 	power = "40",
 	pp = "35",
 	accuracy = "100"
@@ -2930,7 +2930,7 @@ MoveData = {
 	{
 	id = "28",
 	name = "Sand-Attack",
-	type = "normal",
+	type = "ground",
 	power = "---",
 	pp = "15",
 	accuracy = "100"
@@ -3011,7 +3011,7 @@ MoveData = {
 	id = "38",
 	name = "Double-Edge",
 	type = "normal",
-	power = "100",
+	power = "120",
 	pp = "15",
 	accuracy = "100"
 	},
@@ -3058,7 +3058,7 @@ MoveData = {
 	{
 	id = "44",
 	name = "Bite",
-	type = "normal",
+	type = "dark",
 	power = "60",
 	pp = "25",
 	accuracy = "100"
@@ -3181,7 +3181,7 @@ MoveData = {
 	type = "ice",
 	power = "120",
 	pp = "5",
-	accuracy = "90"
+	accuracy = "70"
 	},
 	{
 	id = "60",
@@ -3243,9 +3243,9 @@ MoveData = {
 	id = "67",
 	name = "Low Kick",
 	type = "fighting",
-	power = "50",
+	power = "---",
 	pp = "20",
-	accuracy = "90"
+	accuracy = "100"
 	},
 	{
 	id = "68",
@@ -3413,7 +3413,7 @@ MoveData = {
 	type = "rock",
 	power = "50",
 	pp = "15",
-	accuracy = "65"
+	accuracy = "90"
 	},
 	{
 	id = "89",
@@ -3645,7 +3645,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "10",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "118",
@@ -3667,7 +3667,7 @@ MoveData = {
 	id = "120",
 	name = "Selfdestruct",
 	type = "normal",
-	power = "130",
+	power = "200",
 	pp = "5",
 	accuracy = "100"
 	},
@@ -3931,7 +3931,7 @@ MoveData = {
 	id = "153",
 	name = "Explosion",
 	type = "normal",
-	power = "170",
+	power = "250",
 	pp = "5",
 	accuracy = "100"
 	},
