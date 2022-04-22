@@ -63,36 +63,60 @@ function Tracker.Clear()
     Tracker.Data = Tracker.InitTrackerData()
 end
 
-function Tracker.TrackMove(pokemonId, moveId)
+function Tracker.TrackMove(pokemonId, moveId, level)
     local currentMoves = Tracker.Data.moves[pokemonId]
     if currentMoves == nil then
         Tracker.Data.moves[pokemonId] = {}
-        Tracker.Data.moves[pokemonId].first = moveId
-        Tracker.Data.moves[pokemonId].second = 1
-        Tracker.Data.moves[pokemonId].third = 1
-        Tracker.Data.moves[pokemonId].fourth = 1
+        Tracker.Data.moves[pokemonId].first = {
+            move = moveId,
+            level = level
+        }
+        Tracker.Data.moves[pokemonId].second = {
+            move = 1,
+            level = 1
+        }
+        Tracker.Data.moves[pokemonId].third = {
+            move = 1,
+            level = 1
+        }
+        Tracker.Data.moves[pokemonId].fourth = {
+            move = 1,
+            level = 1
+        }
     else
         local moveSeen = false
         local moveCount = 0
         for key, value in pairs(currentMoves) do
             moveCount = moveCount + 1
-            if value == moveId then
+            if value.move == moveId then
                 moveSeen = true
             end
         end
 
         if moveSeen == false then
             if moveCount == 1 then
-                Tracker.Data.moves[pokemonId].second = moveId
+                Tracker.Data.moves[pokemonId].second = {
+                    move = moveId,
+                    level = level
+                }
             elseif moveCount == 2 then
-                Tracker.Data.moves[pokemonId].third = moveId
+                Tracker.Data.moves[pokemonId].third = {
+                    move = moveId,
+                    level = level
+                }
             elseif moveCount == 3 then
-                Tracker.Data.moves[pokemonId].fourth = moveId
+                Tracker.Data.moves[pokemonId].fourth = {
+                    move = moveId,
+                    level = level
+                }
             elseif moveCount == 4 then
                 Tracker.Data.moves[pokemonId].fourth = Tracker.Data.moves[pokemonId].third
                 Tracker.Data.moves[pokemonId].third = Tracker.Data.moves[pokemonId].second
                 Tracker.Data.moves[pokemonId].second = Tracker.Data.moves[pokemonId].first
-                Tracker.Data.moves[pokemonId].first = moveId
+                Tracker.Data.moves[pokemonId].first = {
+                    move = moveId,
+                    level = level
+                }
             end
         end
     end
@@ -101,10 +125,22 @@ end
 function Tracker.getMoves(pokemonId)
     if Tracker.Data.moves[pokemonId] == nil then
         return {
-            first = 1,
-            second = 1,
-            third = 1,
-            fourth = 1
+            first = {
+                move = 1,
+                level = 1
+            },
+            second = {
+                move = 1,
+                level = 1
+            },
+            third = {
+                move = 1,
+                level = 1
+            },
+            fourth = {
+                move = 1,
+                level = 1
+            }
         }
     else
         return Tracker.Data.moves[pokemonId]

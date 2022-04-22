@@ -62,7 +62,7 @@ function Program.main()
 	end
 
 	for _, move in ipairs(Program.tracker.movesToUpdate) do
-		Tracker.TrackMove(move.pokemonId, move.move)
+		Tracker.TrackMove(move.pokemonId, move.move, move.level)
 	end
 	Program.tracker.movesToUpdate = {}
 
@@ -194,20 +194,23 @@ function Program.HandleMove()
 		local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 
 		local pokemonId = 1
+		local level = 1
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
+			level = Program.enemyPokemonTeam[enemySlotOne].level
 			if Settings.autoTrackOpponentMons then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotOne
 			end
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
+			level = Program.enemyPokemonTeam[enemySlotTwo].level
 			if Settings.autoTrackOpponentMons then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotTwo
 			end
 		end
-		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue })
+		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
 	end
 end
 
