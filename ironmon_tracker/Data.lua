@@ -3283,7 +3283,7 @@ MoveData = {
 	id = "72",
 	name = "Mega Drain",
 	type = "grass",
-	power = "75",
+	power = "40",
 	pp = "10",
 	accuracy = "100"
 	},
