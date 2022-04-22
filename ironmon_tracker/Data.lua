@@ -2843,7 +2843,7 @@ MoveData = {
 	id = "17",
 	name = "Wing Attack",
 	type = "flying",
-	power = "35",
+	power = "60",
 	pp = "35",
 	accuracy = "100"
 	},
@@ -2971,7 +2971,7 @@ MoveData = {
 	id = "33",
 	name = "Tackle",
 	type = "normal",
-	power = "50",
+	power = "35",
 	pp = "35",
 	accuracy = "95"
 	},
@@ -3275,8 +3275,8 @@ MoveData = {
 	id = "71",
 	name = "Absorb",
 	type = "grass",
-	power = "40",
-	pp = "15",
+	power = "20",
+	pp = "20",
 	accuracy = "100"
 	},
 	{
