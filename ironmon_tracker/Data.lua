@@ -3315,7 +3315,7 @@ MoveData = {
 	id = "76",
 	name = "SolarBeam",
 	type = "grass",
-	power = "200",
+	power = "120",
 	pp = "10",
 	accuracy = "100"
 	},
