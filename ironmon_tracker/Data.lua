@@ -2884,7 +2884,7 @@ MoveData = {
 	name = "Vine Whip",
 	type = "grass",
 	power = "35",
-	pp = "15",
+	pp = "10",
 	accuracy = "100"
 	},
 	{
@@ -2915,7 +2915,7 @@ MoveData = {
 	id = "26",
 	name = "Jump Kick",
 	type = "fighting",
-	power = "85",
+	power = "70",
 	pp = "25",
 	accuracy = "95"
 	},
@@ -3109,7 +3109,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "20",
-	accuracy = "80"
+	accuracy = "55"
 	},
 	{
 	id = "51",
@@ -3347,7 +3347,7 @@ MoveData = {
 	id = "80",
 	name = "Petal Dance",
 	type = "grass",
-	power = "90",
+	power = "70",
 	pp = "20",
 	accuracy = "100"
 	},
@@ -3469,7 +3469,7 @@ MoveData = {
 	type = "psychic",
 	power = "---",
 	pp = "20",
-	accuracy = "70"
+	accuracy = "60"
 	},
 	{
 	id = "96",
@@ -3795,7 +3795,7 @@ MoveData = {
 	id = "136",
 	name = "Hi Jump Kick",
 	type = "fighting",
-	power = "100",
+	power = "85",
 	pp = "20",
 	accuracy = "90"
 	},
@@ -3805,7 +3805,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "30",
-	accuracy = "90"
+	accuracy = "75"
 	},
 	{
 	id = "138",
@@ -3821,7 +3821,7 @@ MoveData = {
 	type = "poison",
 	power = "---",
 	pp = "40",
-	accuracy = "80"
+	accuracy = "55"
 	},
 	{
 	id = "140",
@@ -3851,7 +3851,7 @@ MoveData = {
 	id = "143",
 	name = "Sky Attack",
 	type = "flying",
-	power = "200",
+	power = "140",
 	pp = "5",
 	accuracy = "90"
 	},
@@ -4029,7 +4029,7 @@ MoveData = {
 	type = "normal",
 	power = "50",
 	pp = "1",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "166",
@@ -4069,7 +4069,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "40",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "171",
@@ -4077,7 +4077,7 @@ MoveData = {
 	type = "ghost",
 	power = "---",
 	pp = "15",
-	accuracy = "100"
+	accuracy = "---"
 	},
 	{
 	id = "172",
@@ -4253,7 +4253,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "40",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "194",
@@ -4301,7 +4301,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "5",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "200",
@@ -4387,7 +4387,7 @@ MoveData = {
 	id = "210",
 	name = "Fury Cutter",
 	type = "bug",
-	power = "20",
+	power = "10",
 	pp = "20",
 	accuracy = "95"
 	},
@@ -4603,7 +4603,7 @@ MoveData = {
 	id = "237",
 	name = "Hidden Power",
 	type = "normal",
-	power = "1",
+	power = "---",
 	pp = "15",
 	accuracy = "100"
 	},
@@ -4691,7 +4691,7 @@ MoveData = {
 	id = "248",
 	name = "Future Sight",
 	type = "psychic",
-	power = "100",
+	power = "80",
 	pp = "15",
 	accuracy = "90"
 	},
@@ -4805,7 +4805,7 @@ MoveData = {
 	type = "dark",
 	power = "---",
 	pp = "10",
-	accuracy = "100"
+	accuracy = "---"
 	},
 	{
 	id = "263",
@@ -5237,7 +5237,7 @@ MoveData = {
 	type = "normal",
 	power = "---",
 	pp = "40",
-	accuracy = "---"
+	accuracy = "100"
 	},
 	{
 	id = "317",
