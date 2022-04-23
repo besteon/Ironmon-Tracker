@@ -93,9 +93,6 @@ function Program.updateTracker()
 	if Program.validPokemonData(pokemonaux) then
 		Tracker.Data.selectedPokemon = pokemonaux
 	end
-
-	--local battleMon = Program.getBattleMon(Tracker.Data.player, Tracker.Data.slot)
-
 	
 	Tracker.Data.main.ability = Program.getMainAbility()
 
@@ -113,7 +110,6 @@ function Program.updateTracker()
 		Tracker.Data.selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
 		Tracker.Data.enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 
-		--if Tracker.Data.player == 2 then
 		if attackerValue % 2 == 1 then
 			if attackerValue == 1 then
 				Tracker.Data.slot = Tracker.Data.enemySlotOne
