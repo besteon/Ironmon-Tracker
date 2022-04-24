@@ -42,7 +42,6 @@ Program.catchdata = {
 Program.tracker = {
 	movesToUpdate = {},
 	previousAttacker = 0,
-	playerWhitedOut = false
 }
 
 Program.StatButtonState = {
@@ -56,10 +55,6 @@ Program.StatButtonState = {
 
 function Program.main()
 	Input.update()
-	if Program.tracker.playerWhitedOut == true then
-		Tracker.Clear()
-		Program.tracker.playerWhitedOut = false
-	end
 
 	for _, move in ipairs(Program.tracker.movesToUpdate) do
 		Tracker.TrackMove(move.pokemonId, move.move, move.level)
@@ -159,10 +154,6 @@ function Program.getMainAbility()
 	end
 	-- Set main pokemon's ability. TODO: Update when main pokemon changes
 	return abilityValue
-end
-
-function Program.HandleWhiteOut()
-	Program.Tracker.Data.playerWhitedOut = true
 end
 
 function Program.HandleBeginBattle()

@@ -20,7 +20,7 @@ Settings.ROMS_FOLDER = ""
 -- Settings.controls
     -- Must be wrapped in quotes and are case sensitive. Ex. "Start"
     -- Options are [ A, B, L, R, Up, Down, Left, Right, Start, Select ]
-Settings.controls.CYCLE_VIEW = "Select"
+Settings.controls.CYCLE_VIEW = "Start"
 Settings.controls.CYCLE_STAT = "L"
 Settings.controls.CYCLE_PREDICTION = "R"
 

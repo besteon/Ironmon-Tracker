@@ -24,7 +24,6 @@ GameSettings = {
 	gChosenMove = 0,
 	lastusedabilityaddress = 0,
 	attackeraddress = 0,
-	DoWhiteOut = 0,
 	gBattlerPartyIndexesSelfSlotOne = 0,
 	gBattlerPartyIndexesEnemySlotOne = 0,
 	gBattlerPartyIndexesSelfSlotTwo = 0,
@@ -73,7 +72,6 @@ function GameSettings.initialize()
 		GameSettings.ChooseMoveUsedParticle = 0x0814f8f8
 		GameSettings.gChosenMove = 0x020241EC
 		GameSettings.gBattlerAttacker = 0x0202420B
-		GameSettings.DoWhiteOut = 0x08084620
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02024070
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02024072
@@ -94,7 +92,6 @@ function GameSettings.initialize()
 		GameSettings.ChooseMoveUsedParticle = 0x080d86dc
 		GameSettings.gChosenMove = 0x02023d4c
 		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.DoWhiteOut = 0x08054bdc
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
@@ -115,7 +112,6 @@ function GameSettings.initialize()
 		GameSettings.ChooseMoveUsedParticle = 0x080d86c8
 		GameSettings.gChosenMove = 0x02023d4c
 		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.DoWhiteOut = 0x08054bc8
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
@@ -136,7 +132,6 @@ function GameSettings.initialize()
 		GameSettings.ChooseMoveUsedParticle = 0x080d86b0
 		GameSettings.gChosenMove = 0x02023d4c
 		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.DoWhiteOut = 0x08054bdc
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
@@ -157,7 +152,6 @@ function GameSettings.initialize()
 		GameSettings.ChooseMoveUsedParticle = 0x080d869c
 		GameSettings.gChosenMove = 0x02023d4c
 		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.DoWhiteOut = 0x08054bc8
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
