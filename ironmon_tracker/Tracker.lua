@@ -2,6 +2,9 @@ Tracker = {}
 
 Tracker.userDataKey = "ironmon_tracker_data"
 
+Tracker.redraw = true
+Tracker.waitFrames = 0
+
 Tracker.controller = {
     statIndex = 1,
     framesSinceInput = 120,
@@ -38,6 +41,7 @@ function Tracker.InitTrackerData()
             ability = 0
         },
         inBattle = 0,
+        needCheckSummary = 0,
         currentlyTrackedPokemonMoves = {
             first = 1,
             second = 1,
@@ -201,5 +205,8 @@ function Tracker.loadData()
         Tracker.Data = trackerData
     else
         Tracker.Data = Tracker.InitTrackerData()
+        if Settings.streamerMode == true then
+            Tracker.Data.needCheckSummary = 1
+        end
     end
 end

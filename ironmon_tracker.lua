@@ -1,4 +1,4 @@
--- IRONMON TRACKER v0.1.7
+-- IRONMON TRACKER v0.1.8
 
 -- Based on Lua Script made by MKDasher, which was based on FractalFusion's VBA-rr scripts.
 -- NOTE: On Bizhawk, go to Config / Display... Then uncheck Stretch pixels by integers only.
@@ -17,7 +17,7 @@ dofile (DATA_FOLDER .. "/Program.lua")
 dofile (DATA_FOLDER .. "/Pickle.lua")
 dofile (DATA_FOLDER .. "/Tracker.lua")
 
-print("Ironmon-Tracker v0.1.7")
+print("Ironmon-Tracker v0.1.8")
 
 Main = {}
 Main.LoadNextSeed = false
@@ -44,18 +44,26 @@ function Main.Run()
 		end
 	else
 		Tracker.loadData()
+
 		client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
 		gui.defaultTextBackground(0)
+
 		event.onloadstate(Tracker.loadData, "OnLoadState")
 		event.onsavestate(Tracker.saveData, "OnSaveState")
 		event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.BeginBattleIntro, "HandleBeginBattle")
 		event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld, "HandleEndBattle")
 		event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle, "HandleMove")
+		event.onmemoryexecute(Program.HandleShowSummary, GameSettings.ShowPokemonSummaryScreen, "HandleShowSummary")
+		event.onmemoryexecute(Program.HandleCalculateMonStats, GameSettings.CalculateMonStats, "HandleHandleCalculateMonStats")
+		event.onmemoryexecute(Program.HandleDisplayMonLearnedMove, GameSettings.DisplayMonLearnedMove, "HandleDisplayMonLearnedMove")
+		event.onmemoryexecute(Program.HandleSwitchSelectedMons, GameSettings.SwitchSelectedMons, "HandleSwitchSelectedMons")
+		event.onexit(Program.HandleExit, "HandleExit")
+
 		while Main.LoadNextSeed == false do
-			collectgarbage()
 			Program.main()
 			emu.frameadvance()
 		end
+		
 		Main.LoadNext()
 	end
 end

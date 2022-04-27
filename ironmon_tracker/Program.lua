@@ -1,7 +1,6 @@
 Program = {
 	trainerPokemonTeam = {},
 	enemyPokemonTeam = {},
-	trainerInfo = {},
 }
 Program.rng = {
 	current = 0,
@@ -61,22 +60,35 @@ function Program.main()
 	end
 	Program.tracker.movesToUpdate = {}
 
-	Program.trainerPokemonTeam = Program.getTrainerData(1)
-	Program.enemyPokemonTeam = Program.getTrainerData(2)
-	Program.trainerInfo = Program.getTrainerInfo()
-
-	Program.updateTracker()
-
-	if Tracker.Data.player == 2 then
-		Drawing.drawTrackerView()
-	else
-		Drawing.drawPokemonView()
+	if Tracker.Data.inBattle == 1 then
+		Tracker.redraw = true
 	end
-	Program.StatButtonState = Tracker.getButtonState()
-	Buttons = Program.updateButtons(Program.StatButtonState)
-	Drawing.drawButtons()
-	Drawing.drawInputOverlay()
-	Drawing.drawLayout()
+
+	if Tracker.redraw == true and Tracker.waitFrames == 0 then
+		Program.trainerPokemonTeam = Program.getTrainerData(1)
+		Program.enemyPokemonTeam = Program.getTrainerData(2)
+	
+		Program.updateTracker()
+	
+		if Tracker.Data.player == 2 then
+			Drawing.drawTrackerView()
+		else
+			if Tracker.Data.needCheckSummary == 0 then
+				Drawing.drawPokemonView()
+			else
+				Drawing.drawTrackerView()
+			end
+		end
+		Program.StatButtonState = Tracker.getButtonState()
+		Buttons = Program.updateButtons(Program.StatButtonState)
+		Drawing.drawButtons()
+		Drawing.drawInputOverlay()
+		Tracker.redraw = false
+	end
+
+	if Tracker.waitFrames > 0 then
+		Tracker.waitFrames = Tracker.waitFrames - 1
+	end
 end
 
 function Program.updateTracker()
@@ -164,12 +176,42 @@ function Program.HandleBeginBattle()
 	if Settings.autoTrackOpponentMons then
 		Tracker.Data.player = 2
 	end
+
+	Tracker.waitFrames = 180
 end
 
 function Program.HandleEndBattle()
 	Tracker.Data.inBattle = 0
 	Tracker.Data.player = 1
 	Tracker.Data.slot = 1
+
+	Tracker.redraw = true
+end
+
+function Program.HandleShowSummary()
+	Tracker.Data.needCheckSummary = 0
+	Tracker.redraw = true
+end
+
+function Program.HandleSwitchSelectedMons()
+	Tracker.redraw = true
+	Tracker.waitFrames = 30
+
+	if Settings.streamerMode == true then
+		Tracker.Data.needCheckSummary = 1
+	end
+end
+
+function Program.HandleCalculateMonStats()
+	Tracker.redraw = true
+end
+
+function Program.HandleDisplayMonLearnedMove()
+	Tracker.redraw = true
+end
+
+function Program.HandleExit()
+	Drawing.clearGUI()
 end
 
 function Program.HandleMove()
@@ -198,23 +240,6 @@ function Program.HandleMove()
 			end
 		end
 		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
-	end
-end
-
-function Program.getTrainerInfo()
-	local trainer = Memory.readdword(GameSettings.trainerpointer)
-	if Memory.readbyte(trainer) == 0 then
-		return {
-			gender = -1,
-			tid = 0,
-			sid = 0
-		}
-	else
-		return {
-			gender = Memory.readbyte(trainer + 8),
-			tid = Memory.readword(trainer + 10),
-			sid = Memory.readword(trainer + 12)
-		}
 	end
 end
 

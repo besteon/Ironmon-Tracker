@@ -1,14 +1,10 @@
 Drawing = {}
 
-function Drawing.drawLayout()
-	-- gui.drawRectangle(
-	-- 	GraphicConstants.SCREEN_WIDTH,
-	-- 	0,
-	-- 	GraphicConstants.RIGHT_GAP - 1,
-	-- 	GraphicConstants.UP_GAP +  GraphicConstants.DOWN_GAP + GraphicConstants.SCREEN_HEIGHT - 1,
-	-- 	GameSettings.gamecolor,
-	-- 	0x00000000
-	-- )
+function Drawing.clearGUI()
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH,0,GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP,GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
+	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 10, "You can get this", "white")
+	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 20, "tool on the", "white")
+	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 30, "ironMON Discord", "white")
 end
 
 function Drawing.drawPokemonIcon(id, x, y, selectedPokemon)
@@ -144,13 +140,6 @@ end
 function Drawing.drawPokemonView()
 	Drawing.drawPokemonIcon(Tracker.Data.selectedPokemon["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
 	local colorbar = "white"
-
-	if Settings.easterEggs == true then
-		local easterEgg = PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name
-		if easterEgg == "Magikarp" then
-			gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. 129 .. ".gif", GraphicConstants.SCREEN_WIDTH / 2 - 16, GraphicConstants.SCREEN_HEIGHT / 2 - 28, 32, 32)
-		end
-	end
 
 	if Tracker.Data.selectedPokemon["curHP"] / Tracker.Data.selectedPokemon["maxHP"] <= 0.2 then
 		colorbar = "red"

@@ -12,6 +12,11 @@ Settings.rom = {}
     -- Manual switching with SELECT is always active.
 Settings.autoTrackOpponentMons = true
 
+-- Settings.streamerMode
+    -- Updates tracker more accurately to when things happen on screen.
+        -- Must check summary of pokemon for it to populate in the tracker.
+Settings.streamerMode = false
+
 -- Settings.roms
     -- Settings.rom.FOLDER
         -- MAKE SURE TO DOUBLE UP YOUR BACKSLASHES Ex. C:\\Users\\Ash\\ironmon\\roms
@@ -25,14 +30,10 @@ Settings.controls.CYCLE_STAT = "L"
 Settings.controls.CYCLE_PREDICTION = "R"
 
     -- When all buttons are pressed simultaneously, the ROM will close and the next one from SEED_PATH will be loaded.
+    -- You can add or subtract the required buttons by adding [5] = "Button" or removing a line and so on.
 Settings.controls.NEXT_SEED = {
     [1] = "A",
     [2] = "B",
     [3] = "Start",
     [4] = "Select"
 }
-
--- Settings.easterEggs
-    -- There is only one easter egg right now. If you are a streamer, this easter egg is very benign / family safe and I think quite humerous. Only activates when you get a certain starter pokemon...
-Settings.easterEggs = true
-
