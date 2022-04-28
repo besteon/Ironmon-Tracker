@@ -210,6 +210,14 @@ function Program.HandleDisplayMonLearnedMove()
 	Tracker.redraw = true
 end
 
+function Program.HandleUpdatePoisonStepCounter()
+	Tracker.redraw = true
+end
+
+function Program.HandleWeHopeToSeeYouAgain()
+	Tracker.redraw = true
+end
+
 function Program.HandleExit()
 	Drawing.clearGUI()
 end
