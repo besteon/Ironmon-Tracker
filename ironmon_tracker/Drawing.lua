@@ -2,21 +2,27 @@ Drawing = {}
 
 function Drawing.clearGUI()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH,0,GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP,GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
-	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 10, "You can get this", "white")
-	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 20, "tool on the", "white")
-	-- gui.drawText(GraphicConstants.SCREEN_WIDTH + 10, 30, "ironMON Discord", "white")
 end
 
 function Drawing.drawPokemonIcon(id, x, y, selectedPokemon)
-	if id < 0 or id > 412 then
-		id = 0
-	end
-	if selectedPokemon then
-		gui.drawRectangle(x,y,GraphicConstants.RIGHT_GAP - 64,46, GraphicConstants.SELECTEDCOLOR[1], GraphicConstants.SELECTEDCOLOR[2])
-	else
-		gui.drawRectangle(x,y,GraphicConstants.RIGHT_GAP - 64,46, GraphicConstants.NONSELECTEDCOLOR, 0xFF222222)
-	end
-	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x+2, y+2, 32, 32)
+    if id < 0 or id > 412 then
+        id = 0
+    end
+    if selectedPokemon then
+        gui.drawRectangle(x,y,GraphicConstants.RIGHT_GAP - 64,50, GraphicConstants.SELECTEDCOLOR[1], GraphicConstants.SELECTEDCOLOR[2])
+    else
+        gui.drawRectangle(x,y,GraphicConstants.RIGHT_GAP - 64,50, GraphicConstants.NONSELECTEDCOLOR, 0xFF222222)
+    end
+
+	if PokemonData[id + 1].type[1] ~= "" then
+        gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[1] .. ".png", x+1, y+26, 32, 12)
+    end
+    if PokemonData[id + 1].type[2] ~= "" then
+        gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x+1, y+38, 32, 12)
+    end
+
+	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y-6, 32, 32)
+
 end
 
 function Drawing.drawText(x, y, text, color)
@@ -147,20 +153,20 @@ function Drawing.drawPokemonView()
 		colorbar = "yellow"
 	end
 	
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 7, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 17, "HP:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 55, 17, Tracker.Data.selectedPokemon["curHP"] .. "/" .. Tracker.Data.selectedPokemon["maxHP"], colorbar)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 27, "LVL:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 27, Tracker.Data.selectedPokemon["level"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 37, "EVO:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 37, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].evolution)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 7, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 17, "HP:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 17, Tracker.Data.selectedPokemon["curHP"] .. "/" .. Tracker.Data.selectedPokemon["maxHP"], colorbar)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 31, "LVL:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 31, Tracker.Data.selectedPokemon["level"])
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 43, "EVO:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 43, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].evolution)
 	
 
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25,0xFFAAAAAA, 0xFF222222)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Item:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 33, 57, MiscData.item[Tracker.Data.selectedPokemon["heldItem"] + 1], "yellow")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Ability:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 33, 67, MiscData.ability[Tracker.Data.main.ability], "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 57, MiscData.item[Tracker.Data.selectedPokemon["heldItem"] + 1], "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Ablty:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 67, MiscData.ability[Tracker.Data.main.ability], "yellow")
 
 	
 	local statBoxX = 95
@@ -250,8 +256,12 @@ function Drawing.drawPokemonView()
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48, 141, "/")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 141, moveCount)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 141, "Next:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level", 0xFF00FF00)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove, 0xFF00FF00)
+	local nextMoveColor = "white"
+	if nextMove - 1 == Tracker.Data.selectedPokemon["level"] then
+		nextMoveColor = 0xFF00FF00
+	end
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level", nextMoveColor)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove, nextMoveColor)
 end
 
 function Drawing.drawTrackerView()
@@ -264,19 +274,19 @@ function Drawing.drawTrackerView()
 		colorbar = "yellow"
 	end
 
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 7, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 17, "HP:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 55, 17, "?/?", colorbar)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 27, "LVL:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 27, Tracker.Data.selectedPokemon["level"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 40, 37, "EVO:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 37, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].evolution)
-
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 7, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 17, "HP:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 17, Tracker.Data.selectedPokemon["curHP"] .. "/" .. Tracker.Data.selectedPokemon["maxHP"], colorbar)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 31, "LVL:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 31, Tracker.Data.selectedPokemon["level"])
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 43, "EVO:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 43, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].evolution)
+	
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25,0xFFAAAAAA, 0xFF222222)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Item:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 33, 57, "---", "yellow")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Ability:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 33, 67, "---", "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 57, "---", "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Ablty:")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 67, "---", "yellow")
 
 	local statBoxX = 95
 	local statBoxY = 5
@@ -352,10 +362,10 @@ function Drawing.drawTrackerView()
 		end
 	end
 
-	local firstStar = movesLearnedSinceFirst > moveAgeRank.first and "*" or ""
-	local secondStar = movesLearnedSinceSecond > moveAgeRank.second and "*" or ""
-	local thirdStar = movesLearnedSinceThird > moveAgeRank.third and "*" or ""
-	local fouthStar = movesLearnedSinceFouth > moveAgeRank.fourth and "*" or ""
+	local firstStar = (Tracker.Data.currentlyTrackedPokemonMoves.first.level ~= 1 and movesLearnedSinceFirst > moveAgeRank.first) and "*" or ""
+	local secondStar = (Tracker.Data.currentlyTrackedPokemonMoves.second.level ~= 1 and movesLearnedSinceSecond > moveAgeRank.second) and "*" or ""
+	local thirdStar = (Tracker.Data.currentlyTrackedPokemonMoves.third.level ~= 1 and movesLearnedSinceThird > moveAgeRank.third) and "*" or ""
+	local fouthStar = (Tracker.Data.currentlyTrackedPokemonMoves.fourth.level ~= 1 and movesLearnedSinceFouth > moveAgeRank.fourth) and "*" or ""
 
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY - 13, "Move")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.first.move].name .. firstStar, Drawing.moveToColor(Tracker.Data.currentlyTrackedPokemonMoves.first.move))
