@@ -16,6 +16,7 @@ Tracker.controller = {
         -- ability
     -- inBattle
     -- currentlyTrackedPokemonMoves
+    -- currentlyTrackedPokemonAbilities
     -- player
     -- slot
     -- moves
@@ -48,6 +49,9 @@ function Tracker.InitTrackerData()
             third = 1,
             fouth = 1
         },
+        currentlyTrackedPokemonAbilities = {
+            1
+        },
         player = 1,
         slot = 1,
         selfSlotOne = 1,
@@ -55,7 +59,9 @@ function Tracker.InitTrackerData()
         enemySlotOne = 1,
         enemySlotTwo = 1,
         moves = {},
-        stats = {}
+        stats = {},
+        abilities = {},
+        items = {}
     }
     return trackerData
 end
@@ -65,6 +71,32 @@ function Tracker.Clear()
         userdata.remove(Tracker.userDataKey)
     end
     Tracker.Data = Tracker.InitTrackerData()
+end
+
+function Tracker.TrackAbility(pokemonId, abilityId)
+    local currentAbilities = Tracker.Data.abilities[pokemonId]
+    if currentAbilities == nil then
+        Tracker.Data.abilities[pokemonId] = {}
+        Tracker.Data.abilities[pokemonId][abilityId] = abilityId
+    else
+        if currentAbilities[abilityId] == nil then
+            Tracker.Data.abilities[pokemonId][abilityId] = abilityId
+        end
+    end
+end
+
+function Tracker.getAbilities(pokemonId)
+    if Tracker.Data.abilities[pokemonId] == nil then
+        return {
+            1
+        }
+    else
+        return Tracker.Data.abilities[pokemonId]
+    end
+end
+
+function Tracker.TrackItem(pokemonId, itemId)
+
 end
 
 function Tracker.TrackMove(pokemonId, moveId, level)

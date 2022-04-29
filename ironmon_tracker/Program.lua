@@ -40,6 +40,8 @@ Program.catchdata = {
 
 Program.tracker = {
 	movesToUpdate = {},
+	abilitiesToUpdate = {},
+	itemsToUpdate = {},
 	previousAttacker = 0,
 }
 
@@ -55,10 +57,23 @@ Program.StatButtonState = {
 function Program.main()
 	Input.update()
 
+	-- Update moves in the tracker
 	for _, move in ipairs(Program.tracker.movesToUpdate) do
 		Tracker.TrackMove(move.pokemonId, move.move, move.level)
 	end
 	Program.tracker.movesToUpdate = {}
+
+	-- Update abilities in the tracker
+	for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
+		Tracker.TrackAbility(ability.pokemonId, ability.abilityId)
+	end
+	Program.tracker.abilitiesToUpdate = {}
+
+	-- Update items in the tracker
+	for _, item in ipairs(Program.tracker.itemsToUpdate) do
+		Tracker.TrackItem(item.pokemonId, item.itemId)
+	end
+	Program.tracker.items = {}
 
 	if Tracker.Data.inBattle == 1 then
 		Tracker.redraw = true
@@ -137,6 +152,7 @@ function Program.updateTracker()
 	if Tracker.Data.selectedPokemon ~= nil then
 		if Tracker.Data.selectedPokemon.pokemonID ~= nil then
 			Tracker.Data.currentlyTrackedPokemonMoves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID + 1)
+			Tracker.Data.currentlyTrackedPokemonAbilities = Tracker.getAbilities(Tracker.Data.selectedPokemon.pokemonID + 1)
 		end
 	end
 end
@@ -218,6 +234,61 @@ function Program.HandleWeHopeToSeeYouAgain()
 	Tracker.redraw = true
 end
 
+-- ABILITY EVENT HANDLERS
+function Program.HandleBattleScriptDrizzleActivates()
+	Program.HandleAbilityActivate(2)
+end
+
+function Program.HandleBattleScriptSpeedBoostActivates()
+	Program.HandleAbilityActivate(3)
+end
+
+function Program.HandleBattleScriptTraceActivates()
+	Program.HandleAbilityActivate(36)
+end
+
+function Program.HandleBattleScriptRainDishActivates()
+	Program.HandleAbilityActivate(44)
+end
+
+function Program.HandleBattleScriptSandstreamActivates()
+	Program.HandleAbilityActivate(45)
+end
+
+function Program.HandleBattleScriptShedSkinActivates()
+	Program.HandleAbilityActivate(61)
+end
+
+function Program.HandleBattleScriptIntimidateActivates()
+	Program.HandleAbilityActivate(22)
+end
+
+function Program.HandleBattleScriptDroughtActivates()
+	Program.HandleAbilityActivate(70)
+end
+
+function Program.HandleBattleScriptStickyHoldActivates()
+	Program.HandleAbilityActivate(60)
+end
+
+function Program.HandleBattleScriptColorChangeActivates()
+	Program.HandleAbilityActivate(16)
+end
+
+function Program.HandleBattleScriptRoughSkinActivates()
+	Program.HandleAbilityActivate(24)
+end
+
+function Program.HandleBattleScriptCuteCharmActivates()
+	Program.HandleAbilityActivate(56)
+end
+
+function Program.HandleBattleScriptSynchronizeActivates()
+	Program.HandleAbilityActivate(28)
+end
+
+-- END ABILITY EVENT HANDLERS
+
 function Program.HandleExit()
 	Drawing.clearGUI()
 end
@@ -249,6 +320,31 @@ function Program.HandleMove()
 		end
 		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
 	end
+end
+
+function Program.HandleAbilityActivate(abilityId)
+	local slotZeroAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities)
+	local slotOneAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+	local slotTwoAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x2)
+	local slotThreeAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
+
+	local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
+	local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+	local selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
+	local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+
+	local pkmnId = 0
+	if slotZeroAbilityId == abilityId then
+		pkmnId = Program.trainerPokemonTeam[selfSlotOne].pkmID
+	elseif slotOneAbilityId == abilityId then
+		pkmnId = Program.enemyPokemonTeam[enemySlotOne].pkmID
+	elseif slotTwoAbilityId == abilityId then
+		pkmnId = Program.trainerPokemonTeam[selfSlotTwo].pkmID
+	elseif slotThreeAbilityId == abilityId then
+		pkmnId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
+	end
+
+	table.insert(Program.tracker.abilitiesToUpdate, { pokemonId = pkmnId + 1, abilityId = abilityId })
 end
 
 function Program.getTrainerData(index)

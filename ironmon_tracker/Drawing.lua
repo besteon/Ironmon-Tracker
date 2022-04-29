@@ -21,7 +21,7 @@ function Drawing.drawPokemonIcon(id, x, y, selectedPokemon)
         gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x+1, y+38, 32, 12)
     end
 
-	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y-6, 32, 32)
+	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y-7, 32, 32)
 
 end
 
@@ -253,12 +253,20 @@ function Drawing.drawPokemonView()
 	end
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 141, "Learned:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 43, 141, movesLearned)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48, 141, "/")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 141, moveCount)
+
+	local movesLearnedOffest = 0
+	if movesLearned > 9 then
+		movesLearnedOffest = 5
+	end
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48 + movesLearnedOffest, 141, "/")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53 + movesLearnedOffest, 141, moveCount)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 141, "Next:")
 	local nextMoveColor = "white"
 	if nextMove - 1 == Tracker.Data.selectedPokemon["level"] then
 		nextMoveColor = 0xFF00FF00
+	end
+	if nextMove == 0 then
+		nextMove = "n/a"
 	end
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level", nextMoveColor)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove, nextMoveColor)
@@ -285,8 +293,16 @@ function Drawing.drawTrackerView()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25,0xFFAAAAAA, 0xFF222222)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Item:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 57, "---", "yellow")
+
+	local abilityString = "---"
+	for k, v in pairs(Tracker.Data.currentlyTrackedPokemonAbilities) do
+		if v == Tracker.Data.selectedPokemon["ability"] then
+			local abilityId = Tracker.Data.selectedPokemon["ability"] + 1
+			abilityString = MiscData.ability[abilityId]
+		end
+	end
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Ablty:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 67, "---", "yellow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 67, abilityString, "yellow")
 
 	local statBoxX = 95
 	local statBoxY = 5
@@ -409,10 +425,18 @@ function Drawing.drawTrackerView()
 			end
 		end
 	end
+	if nextMove == 0 then
+		nextMove = "n/a"
+	end
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 141, "Learned:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 43, 141, movesLearned)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48, 141, "/")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 141, moveCount)
+
+	local movesLearnedOffest = 0
+	if movesLearned > 9 then
+		movesLearnedOffest = 5
+	end
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48 + movesLearnedOffest, 141, "/")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53 + movesLearnedOffest, 141, moveCount)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 141, "Next:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove)
