@@ -284,7 +284,7 @@ function Drawing.drawTrackerView()
 
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 7, PokemonData[Tracker.Data.selectedPokemon["pokemonID"] + 1].name)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 17, "HP:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 17, Tracker.Data.selectedPokemon["curHP"] .. "/" .. Tracker.Data.selectedPokemon["maxHP"], colorbar)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 17, "?/?", colorbar)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 31, "LVL:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 31, Tracker.Data.selectedPokemon["level"])
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 43, "EVO:")
