@@ -100,6 +100,8 @@ function Main.Run()
 end
 
 function Main.LoadNext()
+	client.SetSoundOn(false)
+
 	if Settings.ROMS_FOLDER == "" then
 		print("Please specify Settings.ROMS_FOLDER in ironmon_settings.lua to use this feature.")
 	end
@@ -120,6 +122,7 @@ function Main.LoadNext()
 	end
 
 	client.openrom(nextromname)
+	client.SetSoundOn(true)
 
 	if gameinfo.getromname() ~= "Null" then
 		Main.LoadNextSeed = false
