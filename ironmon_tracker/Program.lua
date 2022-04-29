@@ -196,6 +196,30 @@ function Program.HandleBeginBattle()
 	Tracker.waitFrames = 180
 end
 
+function Program.HandleStartWildBattle()
+	Tracker.controller.statIndex = 6
+	Tracker.Data.inBattle = 1
+	Tracker.Data.slot = 1
+
+	if Settings.autoTrackOpponentMons then
+		Tracker.Data.player = 2
+	end
+
+	Tracker.waitFrames = 280
+end
+
+function Program.HandleTrainerSentOutPkmn()
+	Tracker.controller.statIndex = 6
+	Tracker.Data.inBattle = 1
+	Tracker.Data.slot = 1
+
+	if Settings.autoTrackOpponentMons then
+		Tracker.Data.player = 2
+	end
+
+	Tracker.waitFrames = 100
+end
+
 function Program.HandleEndBattle()
 	Tracker.Data.inBattle = 0
 	Tracker.Data.player = 1

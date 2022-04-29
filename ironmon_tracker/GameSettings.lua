@@ -6,6 +6,8 @@ GameSettings = {
 	version = 0,
 
 	versiongroup = 0,
+	StartWildBattle = 0,
+	TrainerSentOutPkmn = 0,
 	BeginBattleIntro = 0,
 	ReturnFromBattleToOverworld = 0,
 	ChooseMoveUsedParticle = 0,
@@ -55,6 +57,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon Emerald (U)"
 		GameSettings.version = GameSettings.VERSIONS.E
 		GameSettings.versiongroup = 1
+
+		GameSettings.StartWildBattle = 0x080b0698
+		GameSettings.TrainerSentOutPkmn = 0x085cbbe7
 		GameSettings.BeginBattleIntro = 0x08039ECC
 		GameSettings.ReturnFromBattleToOverworld = 0x0803DF70
 		GameSettings.sBattlerAbilities = 0x0203aba4
@@ -92,6 +97,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
+
+		GameSettings.StartWildBattle = 0x0807f718
+		GameSettings.TrainerSentOutPkmn = 0x083fd421
 		GameSettings.BeginBattleIntro = 0x080123d4
 		GameSettings.ReturnFromBattleToOverworld = 0x08015b6c
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -129,6 +137,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
+
+		GameSettings.StartWildBattle = 0x0807f704
+		GameSettings.TrainerSentOutPkmn = 0x083fd3b1
 		GameSettings.BeginBattleIntro = 0x080123c0
 		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -166,6 +177,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
+
+		GameSettings.StartWildBattle = 0x0807f6ec
+		GameSettings.TrainerSentOutPkmn = 0x083fd25d
 		GameSettings.BeginBattleIntro = 0x080123d4
 		GameSettings.ReturnFromBattleToOverworld = 0x08015b6c
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -203,6 +217,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
+
+		GameSettings.StartWildBattle = 0x0807f6d8
+		GameSettings.TrainerSentOutPkmn = 0x083fd1ed
 		GameSettings.BeginBattleIntro = 0x080123c0
 		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
 		GameSettings.sBattlerAbilities = 0x02039a30
