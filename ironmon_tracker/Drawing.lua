@@ -348,40 +348,40 @@ function Drawing.drawTrackerView()
 	local movesLearnedSinceFouth = 0
 
 	for k, v in pairs(moveLevels) do
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.first.level and v < monLevel then
+		if v > Tracker.Data.currentlyTrackedPokemonMoves.first.level and v <= monLevel then
 			movesLearnedSinceFirst = movesLearnedSinceFirst + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.second.level and v < monLevel then
+		if v > Tracker.Data.currentlyTrackedPokemonMoves.second.level and v <= monLevel then
 			movesLearnedSinceSecond = movesLearnedSinceSecond + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.third.level and v < monLevel then
+		if v > Tracker.Data.currentlyTrackedPokemonMoves.third.level and v <= monLevel then
 			movesLearnedSinceThird = movesLearnedSinceThird + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.fourth.level and v < monLevel then
+		if v > Tracker.Data.currentlyTrackedPokemonMoves.fourth.level and v <= monLevel then
 			movesLearnedSinceFouth = movesLearnedSinceFouth + 1
 		end
 	end
 
 	moveAgeRank = {
-		first = 0,
-		second = 0,
-		third = 0,
-		fourth = 0
+		first = 1,
+		second = 1,
+		third = 1,
+		fourth = 1
 	}
 	for k, v in pairs(Tracker.Data.currentlyTrackedPokemonMoves) do
 		for k2, v2 in pairs(Tracker.Data.currentlyTrackedPokemonMoves) do
 			if k ~= k2 then
-				if v.level <= v2.level then
+				if v.level > v2.level then
 					moveAgeRank[k] = moveAgeRank[k] + 1
 				end
 			end
 		end
 	end
 
-	local firstStar = (Tracker.Data.currentlyTrackedPokemonMoves.first.level ~= 1 and movesLearnedSinceFirst > moveAgeRank.first) and "*" or ""
-	local secondStar = (Tracker.Data.currentlyTrackedPokemonMoves.second.level ~= 1 and movesLearnedSinceSecond > moveAgeRank.second) and "*" or ""
-	local thirdStar = (Tracker.Data.currentlyTrackedPokemonMoves.third.level ~= 1 and movesLearnedSinceThird > moveAgeRank.third) and "*" or ""
-	local fouthStar = (Tracker.Data.currentlyTrackedPokemonMoves.fourth.level ~= 1 and movesLearnedSinceFouth > moveAgeRank.fourth) and "*" or ""
+	local firstStar = (Tracker.Data.currentlyTrackedPokemonMoves.first.level ~= 1 and movesLearnedSinceFirst >= moveAgeRank.first) and "*" or ""
+	local secondStar = (Tracker.Data.currentlyTrackedPokemonMoves.second.level ~= 1 and movesLearnedSinceSecond >= moveAgeRank.second) and "*" or ""
+	local thirdStar = (Tracker.Data.currentlyTrackedPokemonMoves.third.level ~= 1 and movesLearnedSinceThird >= moveAgeRank.third) and "*" or ""
+	local fouthStar = (Tracker.Data.currentlyTrackedPokemonMoves.fourth.level ~= 1 and movesLearnedSinceFouth >= moveAgeRank.fourth) and "*" or ""
 
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY - 13, "Move")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, moveStartY, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.first.move].name .. firstStar, Drawing.moveToColor(Tracker.Data.currentlyTrackedPokemonMoves.first.move))
