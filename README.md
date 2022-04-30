@@ -63,7 +63,7 @@ Fix: Only update the tracker between runs when you can make a new savestate.
 
 Error: `NullHawk does not implement memory domains NLua.Exceptions.LuaException: unprotected error in call to Lua API (0)`
 
-Cause: Your roms must not have spaces in the names, or the path specified in Settings.ROMS_FOLDER is not correct.
+Cause: Your roms must not have spaces in the names, or the path specified in Settings.ROMS_FOLDER is not correct. Your rom number also can't have prepended zeros, such as Kaizo001.gba, Kaizo002.gba, etc. They must be Kaizo1.gba, Kaizo2.gba, etc.
 
 Fix: Rename your roms so they don't have spaces in the names, and make sure the slashes in Settings.ROMS_FOLDER are escaped. Ex. `C:\\gba\\roms` and NOT `C:\gba\roms`
 
