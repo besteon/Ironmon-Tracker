@@ -50,7 +50,7 @@ When in battle, similar information is shown, with the following differences:
 
 ## FAQ
 
-#### Common errors and solutions
+### Common errors and solutions
 
 Error: `ironmon_tracker/Tracker.lua: attempt to index field 'field' (a nil value)`
 Cause: Updating to a new version of the tracker and using a savestate from an older version.
@@ -64,7 +64,7 @@ Error: `Can't have lua running in two host threads at a time!`
 Cause: Outdated version of Bizhawk
 Fix: Use Bizhawk 2.8
 
-#### Frequently Asked Questions
+### Frequently Asked Questions
 
 Q: Are you going to add X information to the tracker?
 A: All info on the tracker should be either googlable or presented to the player by the game. This tracker is designed to give NO informational edge whatsoever. For example, enemy mon health % is not something that will be added, because eyeballing the health bar and praying for a damage roll is a large part of the game.
