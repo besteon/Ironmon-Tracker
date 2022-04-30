@@ -12,7 +12,7 @@ https://github.com/mkdasher/PokemonBizhawkLua
 
 ## Installation
 1. Download the project from the **releases** section. The master branch has additional changes and may be broken.
-2. Unzip the project anywhere you like. The script will create a database file in the same directory as ironmon_tracker.lua. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
+2. Unzip the project anywhere you like. The ironmon_tracker folder must be in the same directory as ironmon_tracker.lua.
 3. Load your ROM in Bizhawk (use Bizhawk v2.8 or later for maximum compatibility)
 4. Tools -> Lua Console -> Open Script -> ironmon_tracker.lua
 
