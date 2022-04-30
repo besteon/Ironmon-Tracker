@@ -1,4 +1,4 @@
--- IRONMON TRACKER v0.1.8
+-- IRONMON TRACKER v0.1.9
 
 -- Based on Lua Script made by MKDasher, which was based on FractalFusion's VBA-rr scripts.
 -- NOTE: On Bizhawk, go to Config / Display... Then uncheck Stretch pixels by integers only.
@@ -17,7 +17,7 @@ dofile (DATA_FOLDER .. "/Program.lua")
 dofile (DATA_FOLDER .. "/Pickle.lua")
 dofile (DATA_FOLDER .. "/Tracker.lua")
 
-print("Ironmon-Tracker v0.1.8")
+print("Ironmon-Tracker v0.1.9")
 
 Main = {}
 Main.LoadNextSeed = false
