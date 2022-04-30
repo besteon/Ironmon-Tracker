@@ -44,6 +44,49 @@ When not in battle, the tracker shows stats for the first pokemon in your party,
 
 When in battle, similar information is shown, with the following differences:
 1. Current HP is not shown
-2. Item and Ability are not shown until they are utilized. (NOT YET IMPLEMENTED)
-3. Stats are not shown. Instead, you can click to mark + or -, depending on if you think the pokemon may have good or bad stats.
-4. Moves are only shown after being used in battle.
+2. Stats are not shown. Instead, you can click to mark + or -, depending on if you think the pokemon may have good or bad stats.
+3. Moves are only shown after being used in battle.
+
+## FAQ
+
+### Common errors and solutions
+
+---
+
+Error: `ironmon_tracker/Tracker.lua: attempt to index field 'field' (a nil value)`
+
+Cause: Updating to a new version of the tracker and using a savestate from an older version.
+
+Fix: Only update the tracker between runs when you can make a new savestate.
+
+---
+
+Error: `NullHawk does not implement memory domains NLua.Exceptions.LuaException: unprotected error in call to Lua API (0)`
+
+Cause: Your roms must not have spaces in the names, or the path specified in Settings.ROMS_FOLDER is not correct.
+
+Fix: Rename your roms so they don't have spaces in the names, and make sure the slashes in Settings.ROMS_FOLDER are escaped. Ex. `C:\\gba\\roms` and NOT `C:\gba\roms`
+
+---
+
+Error: `Can't have lua running in two host threads at a time!`
+
+Cause: Outdated version of Bizhawk
+
+Fix: Use Bizhawk 2.8
+
+---
+
+### Frequently Asked Questions
+
+---
+
+Q: Are you going to add X information to the tracker?
+
+A: All info on the tracker should be either googlable or presented to the player by the game. This tracker is designed to give NO informational edge whatsoever. For example, enemy mon health % is not something that will be added, because eyeballing the health bar and praying for a damage roll is a large part of the game.
+
+---
+
+Q: Enemy Abilities/Items are not tracked, what gives?
+
+A: This feature is not implemented yet and far more complicated under the hood than move tracking is. These features will take a while.
