@@ -110,7 +110,8 @@ function Program.updateTracker()
 	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.player, slot = Tracker.Data.slot })
 	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 
-	local battleMonSlot = Tracker.Data.slot + ((Tracker.Data.player + 1) % 2)
+	-- TODO: Update for double battles
+	local battleMonSlot = Tracker.Data.player - 1
 
 	if Program.validPokemonData(pokemonaux) then
 		Tracker.Data.selectedPokemon = pokemonaux
@@ -493,7 +494,7 @@ function Program.validPokemonData(pokemonData)
 end
 
 function Program.getBattleMon(index)
-	local base = GameSettings.gBattleMons + ((index - 1) * 0x58)
+	local base = GameSettings.gBattleMons + (index * 0x58)
 
 	return {
 		-- species = Memory.readword(base + 0x0),
