@@ -44,9 +44,8 @@ When not in battle, the tracker shows stats for the first pokemon in your party,
 
 When in battle, similar information is shown, with the following differences:
 1. Current HP is not shown
-2. Item and Ability are not shown until they are utilized. (NOT YET IMPLEMENTED)
-3. Stats are not shown. Instead, you can click to mark + or -, depending on if you think the pokemon may have good or bad stats.
-4. Moves are only shown after being used in battle.
+2. Stats are not shown. Instead, you can click to mark + or -, depending on if you think the pokemon may have good or bad stats.
+3. Moves are only shown after being used in battle.
 
 ## FAQ
 
