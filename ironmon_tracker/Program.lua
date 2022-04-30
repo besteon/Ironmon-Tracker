@@ -43,6 +43,7 @@ Program.tracker = {
 	abilitiesToUpdate = {},
 	itemsToUpdate = {},
 	previousAttacker = 0,
+	updatePrimaryAbility = 0,
 }
 
 Program.StatButtonState = {
@@ -117,7 +118,11 @@ function Program.updateTracker()
 		Tracker.Data.selectedPokemon = pokemonaux
 	end
 	
-	Tracker.Data.main.ability = Program.getMainAbility()
+	-- Only update primary ability at the start of a battle
+	if Program.tracker.updatePrimaryAbility == 1 then
+		Tracker.Data.main.ability = Program.getMainAbility()
+		Program.tracker.updatePrimaryAbility = 0
+	end
 
 	if Tracker.Data.inBattle == 1 then
 		local battleMon = Program.getBattleMon(battleMonSlot)
@@ -186,6 +191,7 @@ function Program.getMainAbility()
 end
 
 function Program.HandleBeginBattle()
+	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
@@ -198,6 +204,7 @@ function Program.HandleBeginBattle()
 end
 
 function Program.HandleStartWildBattle()
+	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
@@ -210,6 +217,7 @@ function Program.HandleStartWildBattle()
 end
 
 function Program.HandleTrainerSentOutPkmn()
+	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1

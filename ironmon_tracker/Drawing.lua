@@ -120,9 +120,9 @@ function Drawing.drawStatusLevel(x, y, value)
 	elseif value == 5 then
 		Drawing.drawChevronDown(x, y, 4, 2, 1, "white")
 	elseif value == 7 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, "white")
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, "white")
 	elseif value == 8 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, "white")
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, "white")
 		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, "white")
 	elseif value == 9 then
 		Drawing.drawChevronUp(x, y, 4, 2, 1, "white")
@@ -425,8 +425,10 @@ function Drawing.drawTrackerView()
 			end
 		end
 	end
+	local levelString = "Level"
 	if nextMove == 0 then
-		nextMove = "n/a"
+		nextMove = ""
+		levelsString = "n/a"
 	end
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 141, "Learned:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 43, 141, movesLearned)
@@ -438,7 +440,7 @@ function Drawing.drawTrackerView()
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 48 + movesLearnedOffest, 141, "/")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53 + movesLearnedOffest, 141, moveCount)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 141, "Next:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, "Level")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 95, 141, levelString)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 120, 141, nextMove)
 end
 
