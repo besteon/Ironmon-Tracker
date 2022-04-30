@@ -122,10 +122,12 @@ function Tracker.TrackMove(pokemonId, moveId, level)
     else
         local moveSeen = false
         local moveCount = 0
+        local whichMove = 0
         for key, value in pairs(currentMoves) do
             moveCount = moveCount + 1
             if value.move == moveId then
                 moveSeen = true
+                whichMove = key
             end
         end
 
@@ -154,6 +156,11 @@ function Tracker.TrackMove(pokemonId, moveId, level)
                     level = level
                 }
             end
+        else
+            Tracker.Data.moves[pokemonId][whichMove] = {
+                move = moveId,
+                level = level
+            }
         end
     end
 end
