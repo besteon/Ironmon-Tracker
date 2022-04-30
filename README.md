@@ -52,6 +52,8 @@ When in battle, similar information is shown, with the following differences:
 
 ### Common errors and solutions
 
+---
+
 Error: `ironmon_tracker/Tracker.lua: attempt to index field 'field' (a nil value)`
 
 Cause: Updating to a new version of the tracker and using a savestate from an older version.
@@ -74,7 +76,11 @@ Cause: Outdated version of Bizhawk
 
 Fix: Use Bizhawk 2.8
 
+---
+
 ### Frequently Asked Questions
+
+---
 
 Q: Are you going to add X information to the tracker?
 
