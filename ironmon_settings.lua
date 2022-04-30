@@ -29,7 +29,7 @@ Settings.controls.CYCLE_VIEW = "Start"
 Settings.controls.CYCLE_STAT = "L"
 Settings.controls.CYCLE_PREDICTION = "R"
 
-    -- When all buttons are pressed simultaneously, the ROM will close and the next one from SEED_PATH will be loaded.
+    -- When all buttons are pressed simultaneously, the ROM will close and the next one from ROMS_FOLDER will be loaded.
     -- You can add or subtract the required buttons by adding [5] = "Button" or removing a line and so on.
 Settings.controls.NEXT_SEED = {
     [1] = "A",
