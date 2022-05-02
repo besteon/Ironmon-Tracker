@@ -4,6 +4,17 @@ Input = {
 	joypad = {}
 }
 
+
+
+function Input.force_evolve()
+	Input.mousetab = input.getmouse()
+	if Input.mousetab["Right"] then  -- Maybe we should change this command to something else?
+        gui.clearGraphics()
+    end
+
+    Input.mousetab_prev = Input.mousetab
+end
+
 function Input.update()
 	Input.mousetab = input.getmouse()
 	if Input.mousetab["Left"] and not Input.mousetab_prev["Left"] then
