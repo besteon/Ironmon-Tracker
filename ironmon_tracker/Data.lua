@@ -2123,9 +2123,9 @@ PokemonData = {
 	{
 	name = "Shedinja",
 	type = {"bug", "ghost"},
-	evolution = "20",
+	evolution = "---",
 	bst = "236",
-	movelvls = {{ 11, 15, 21, 25, 31, 35, 41, 41, 45 },{ 11, 15, 21, 25, 31, 35, 41, 41, 45 }}
+	movelvls = {{ 9, 14, 19, 25, 31, 38, 45 },{ 9, 14, 19, 25, 31, 38, 45 }}
 	},
 	{
 	name = "Taillow",
