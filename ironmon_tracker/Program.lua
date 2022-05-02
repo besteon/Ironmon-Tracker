@@ -196,7 +196,7 @@ function Program.HandleBeginBattle()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -209,7 +209,7 @@ function Program.HandleStartWildBattle()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -222,7 +222,7 @@ function Program.HandleTrainerSentOutPkmn()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -246,7 +246,7 @@ function Program.HandleSwitchSelectedMons()
 	Tracker.redraw = true
 	Tracker.waitFrames = 30
 
-	if Settings.streamerMode == true then
+	if Settings.tracker.MUST_CHECK_SUMMARY == true then
 		Tracker.Data.needCheckSummary = 1
 	end
 end
@@ -339,14 +339,14 @@ function Program.HandleMove()
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
-			if Settings.autoTrackOpponentMons then
+			if Settings.config.AUTO_TRACK == true then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotOne
 			end
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Settings.autoTrackOpponentMons then
+			if Settings.config.AUTO_TRACK == true then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotTwo
 			end

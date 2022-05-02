@@ -39,13 +39,12 @@ function Input.update()
 
 	-- "Settings.controls.NEXT_SEED"
 	local allPressed = true
-	for k, v in pairs(Settings.controls.NEXT_SEED) do
-		if joypadButtons[v] ~= true then
+	for button in string.gmatch(Settings.controls.NEXT_SEED, '([^,]+)') do
+		if joypadButtons[button] ~= true then
 			allPressed = false
 		end
 	end
 	if allPressed == true then
-		print("Loading next seed")
 		Main.LoadNextSeed = true
 	end
 
