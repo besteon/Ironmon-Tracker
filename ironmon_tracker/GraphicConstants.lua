@@ -4,10 +4,10 @@ GraphicConstants = {
 	RIGHT_GAP = 150,
 	SCREEN_HEIGHT = 160,
 	SCREEN_WIDTH = 240,
-	
-	SELECTEDCOLOR = {'yellow', 0xFF555500},
+
+	SELECTEDCOLOR = { 'yellow', 0xFF555500 },
 	NONSELECTEDCOLOR = 0xFFAAAAAA,
-	
+
 	SLOTCOLORS = {
 		'red',
 		'blue',
@@ -44,6 +44,8 @@ GraphicConstants = {
 		PSYCHIC = 0xFFF85888,
 		ICE = 0xFF98D8D8,
 		DRAGON = 0xFF7038F8,
-		DARK = 0xFF705848
+		DARK = 0xFF705848,
+		FAIRY = 0xFFEE99AC,
+		UNKNOWN = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 	}
 }

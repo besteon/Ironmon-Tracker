@@ -1,23 +1,31 @@
--- IRONMON TRACKER v0.1.9
+-- IRONMON GEN 3 TRACKER
 
 -- Based on Lua Script made by MKDasher, which was based on FractalFusion's VBA-rr scripts.
 -- NOTE: On Bizhawk, go to Config / Display... Then uncheck Stretch pixels by integers only.
 
-DATA_FOLDER = "ironmon_tracker"
-dofile ("ironmon_settings.lua")
-dofile (DATA_FOLDER .. "/Data.lua")
-dofile (DATA_FOLDER .. "/Memory.lua")
-dofile (DATA_FOLDER .. "/GameSettings.lua")
-dofile (DATA_FOLDER .. "/GraphicConstants.lua")
-dofile (DATA_FOLDER .. "/Utils.lua")
-dofile (DATA_FOLDER .. "/Buttons.lua")
-dofile (DATA_FOLDER .. "/Input.lua")
-dofile (DATA_FOLDER .. "/Drawing.lua")
-dofile (DATA_FOLDER .. "/Program.lua")
-dofile (DATA_FOLDER .. "/Pickle.lua")
-dofile (DATA_FOLDER .. "/Tracker.lua")
+-- The latest version of the tracker. Should be updated with each PR.
+TRACKER_VERSION = "0.1.9"
 
-print("Ironmon-Tracker v0.1.9")
+-- A frequently used placeholder when a data field is not applicable
+PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
+
+DATA_FOLDER = "ironmon_tracker"
+dofile("ironmon_settings.lua")
+dofile(DATA_FOLDER .. "/PokemonData.lua")
+dofile(DATA_FOLDER .. "/MoveData.lua")
+dofile(DATA_FOLDER .. "/Data.lua")
+dofile(DATA_FOLDER .. "/Memory.lua")
+dofile(DATA_FOLDER .. "/GameSettings.lua")
+dofile(DATA_FOLDER .. "/GraphicConstants.lua")
+dofile(DATA_FOLDER .. "/Utils.lua")
+dofile(DATA_FOLDER .. "/Buttons.lua")
+dofile(DATA_FOLDER .. "/Input.lua")
+dofile(DATA_FOLDER .. "/Drawing.lua")
+dofile(DATA_FOLDER .. "/Program.lua")
+dofile(DATA_FOLDER .. "/Pickle.lua")
+dofile(DATA_FOLDER .. "/Tracker.lua")
+
+print("Ironmon-Tracker v" .. TRACKER_VERSION)
 
 Main = {}
 Main.LoadNextSeed = false
@@ -92,7 +100,7 @@ function Main.Run()
 			Program.main()
 			emu.frameadvance()
 		end
-		
+
 		Main.LoadNext()
 	end
 end
