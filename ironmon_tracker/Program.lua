@@ -57,7 +57,7 @@ Program.StatButtonState = {
 
 function Program.main()
 	Input.update()
-    Input.force_evolve()
+    Input.set_exp_for_evolve()
 
 	-- Update moves in the tracker
 	for _, move in ipairs(Program.tracker.movesToUpdate) do

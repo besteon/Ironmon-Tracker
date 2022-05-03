@@ -4,12 +4,8 @@ Input = {
 	joypad = {}
 }
 
-
-
-
-
 function Input.exp_offsets()
-    -- Returns de exp offsets, encrypted.
+    -- Returns the exp offset, reminder that the exp is encrypted.
     -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)#Data
     -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
     local perso_orders = {
@@ -17,65 +13,45 @@ function Input.exp_offsets()
         2,      2,      3,      4,      3,      4,
         2,      2,      3,      4,      3,      4,
         2,      2,      3,      4,      3,      4
-    }  -- Couldn't manage to keep the strings and all.
-    local personality_index, substrct_offset, experience_offset
-    personality_index = memory.read_u32_le(0x02024284) % 24
+    }  -- Couldn't manage to keep the strings and use indexing. The number are the index of the G accordin to personality % 24
 
-    substrct_offset = perso_orders[(personality_index) + 1] - 1
+    local personality_Gindex, substrct_offset, experience_offset
+    personality_Gindex = memory.read_u32_le(0x02024284) % 24
+    substrct_offset = perso_orders[(personality_Gindex) + 1] - 1
 
+    -- + 32 to reach the data "section", then +4 to finally reach the exp of the G section.
     experience_offset = 0x02024284 + 32 + (12 * substrct_offset) + 4
     return experience_offset
 end
 
 function Input.decryption_key()
+    -- Key used to decrypt the data... And to encrypt the new data...!
     -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-
     local personality, trainer_id
     personality = memory.read_u32_le(0x02024284)
     trainer_id = memory.read_u32_le(0x02024284 + 4)
-
     return bit.bxor(personality, trainer_id)
 
 end
 
-
-function Input.calculate_checksum()
-    local sommation
-    sommation= 0
-    for i=1, 48, 4 do
-        sommation = sommation + bit.bxor(Input.decryption_key(), memory.read_u32_le(0x02024284 + 32 + i))
-        --gui.text(120,50 + i * 5, sommation)
-    end
-
-end
-
-
-
-
-function Input.force_evolve()
+function Input.set_exp_for_evolve()
     local decrypted_exp
     decrypted_exp = bit.bxor(Input.decryption_key(), memory.read_u32_le(Input.exp_offsets()))
 
-    
+    -- Couldn't go higher except by doing some more shenanigans I don't want to at the moment.
+    -- In the fluctuating category, it should set the pokemon lvl to 39ish.
     local new_exp, new_exp_crypted
-    new_exp = 60000
+    new_exp = 60000  
     new_exp_crypted = bit.bxor(new_exp, Input.decryption_key())
-
 
     local checksum
     checksum = memory.read_u16_le(0x02024284 + 28)
-    gui.text(50,50, checksum)
-    Input.calculate_checksum()
-    
-    Input.calculate_checksum()
 
     Input.mousetab = input.getmouse()
-	if Input.mousetab["Right"] then  -- Maybe we should change this command to something else?
+	if Input.mousetab["Right"] then  -- We should change this command to something else. An ideas?
         memory.write_u32_le(Input.exp_offsets(), new_exp_crypted)
-        memory.write_u16_le(0x02024284 + 28, checksum + (new_exp - decrypted_exp))
-        
+        memory.write_u16_le(0x02024284 + 28, checksum + (new_exp - decrypted_exp))        
     end
-
     Input.mousetab_prev = Input.mousetab
 end
 
