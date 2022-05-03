@@ -6,6 +6,27 @@ Input = {
 
 
 
+
+
+function Input.exp_offsets()
+    -- Returns de exp offsets, encrypted.
+    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)#Data
+    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+    local perso_orders = {
+        1,      1,      1,      1,      1,      1,
+        2,      2,      3,      4,      3,      4,
+        2,      2,      3,      4,      3,      4,
+        2,      2,      3,      4,      3,      4
+    }  -- Couldn't manage to keep the strings and all.
+    local personality_index, substrct_offset, experience_offset
+    personality_index = memory.readbyte(0x02024284) % 24
+
+    substrct_offset = perso_orders[(personality_index) + 1] - 1
+
+    experience_offset = 0x02024284 + 32 + (12 * substrct_offset)
+    return {experience_offset, experience_offset + 1, experience_offset + 2, experience_offset + 3}
+end
+
 function Input.force_evolve()
 	Input.mousetab = input.getmouse()
 	if Input.mousetab["Right"] then  -- Maybe we should change this command to something else?
