@@ -19,22 +19,61 @@ function Input.exp_offsets()
         2,      2,      3,      4,      3,      4
     }  -- Couldn't manage to keep the strings and all.
     local personality_index, substrct_offset, experience_offset
-    personality_index = memory.readbyte(0x02024284) % 24
+    personality_index = memory.read_u32_le(0x02024284) % 24
 
     substrct_offset = perso_orders[(personality_index) + 1] - 1
 
-    experience_offset = 0x02024284 + 32 + (12 * substrct_offset)
-    return {experience_offset, experience_offset + 1, experience_offset + 2, experience_offset + 3}
+    experience_offset = 0x02024284 + 32 + (12 * substrct_offset) + 4
+    return experience_offset
 end
 
+function Input.decryption_key()
+    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+
+    local personality, trainer_id
+    personality = memory.read_u32_le(0x02024284)
+    trainer_id = memory.read_u32_le(0x02024284 + 4)
+
+    return bit.bxor(personality, trainer_id)
+
+end
+
+
+function Input.calculate_checksum()
+    local sommation
+    sommation= 0
+    for i=1, 48, 4 do
+        sommation = sommation + bit.bxor(Input.decryption_key(), memory.read_u32_le(0x02024284 + 32 + i))
+        --gui.text(120,50 + i * 5, sommation)
+    end
+
+end
+
+
+
+
 function Input.force_evolve()
-    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+    local decrypted_exp
+    decrypted_exp = bit.bxor(Input.decryption_key(), memory.read_u32_le(Input.exp_offsets()))
 
-    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+    
+    local new_exp, new_exp_crypted
+    new_exp = 60000
+    new_exp_crypted = bit.bxor(new_exp, Input.decryption_key())
 
-	Input.mousetab = input.getmouse()
+
+    local checksum
+    checksum = memory.read_u16_le(0x02024284 + 28)
+    gui.text(50,50, checksum)
+    Input.calculate_checksum()
+    
+    Input.calculate_checksum()
+
+    Input.mousetab = input.getmouse()
 	if Input.mousetab["Right"] then  -- Maybe we should change this command to something else?
-        gui.clearGraphics()
+        memory.write_u32_le(Input.exp_offsets(), new_exp_crypted)
+        memory.write_u16_le(0x02024284 + 28, checksum + (new_exp - decrypted_exp))
+        
     end
 
     Input.mousetab_prev = Input.mousetab
