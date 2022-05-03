@@ -38,18 +38,18 @@ EvolutionTypes = {
 }
 
 --[[
-Data for each Pokémon (Gen 3)
+Data for each Pokémon (Gen 3) - Sourced from Bulbapedia
 Format for an entry:
 {
 	name: string -> Name of the Pokémon as it appears in game
 	type: {string, string} -> Each Pokémon can have one or two types, using the PokemonTypes enum to alias the strings
 	evolution: string -> Displays the level, item, or other requirement a Pokémon needs to evolve
 	bst: string -> A sum of the base stats of the Pokémon
-	movelvls: {{integer list}, {integer list}} -> A pair of lists of numbers declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
+	movelvls: {{integer list}, {integer list}} -> A pair of tables (1:RSE/2:FRLG) declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
 }
 ]]
 PokemonData = {
-	{
+	{ -- Empty entry for ID 0
 		name = "---",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
@@ -479,7 +479,7 @@ PokemonData = {
 	{
 		name = "Poliwhirl",
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
-		evolution = "37, WTR",
+		evolution = "37/WTR", -- Level 37 replaces trade evolution for Politoed
 		bst = "385",
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51 }, { 7, 13, 19, 27, 35, 43, 51 } }
 	},
@@ -500,7 +500,7 @@ PokemonData = {
 	{
 		name = "Kadabra",
 		type = { PokemonTypes.PSYCHIC, PokemonTypes.EMPTY },
-		evolution = "37",
+		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "400",
 		movelvls = { { 16, 18, 21, 23, 25, 30, 33, 36, 43 }, { 16, 18, 21, 23, 25, 30, 33, 36, 43 } }
 	},
@@ -521,7 +521,7 @@ PokemonData = {
 	{
 		name = "Machoke",
 		type = { PokemonTypes.FIGHTING, PokemonTypes.EMPTY },
-		evolution = "37",
+		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "405",
 		movelvls = { { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 }, { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 } }
 	},
@@ -577,7 +577,7 @@ PokemonData = {
 	{
 		name = "Graveler",
 		type = { PokemonTypes.ROCK, PokemonTypes.GROUND },
-		evolution = "37",
+		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "390",
 		movelvls = { { 6, 11, 16, 21, 29, 37, 45, 53, 62 }, { 6, 11, 16, 21, 29, 37, 45, 53, 62 } }
 	},
@@ -605,7 +605,7 @@ PokemonData = {
 	{
 		name = "Slowpoke",
 		type = { PokemonTypes.WATER, PokemonTypes.PSYCHIC },
-		evolution = "37, WTR",
+		evolution = "37/WTR", -- Water stone replaces trade evolution to Slowking
 		bst = "315",
 		movelvls = { { 6, 15, 20, 29, 34, 43, 48 }, { 6, 13, 17, 24, 29, 36, 40, 47 } }
 	},
@@ -673,7 +673,7 @@ PokemonData = {
 		movelvls = { { 8, 13, 19, 26, 34, 43, 53 }, { 8, 13, 19, 26, 34, 43, 53 } }
 	},
 	{
-		name = "Muk",
+		name = "Muk", -- PUMP SLOP
 		type = { PokemonTypes.POISON, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
@@ -703,7 +703,7 @@ PokemonData = {
 	{
 		name = "Haunter",
 		type = { PokemonTypes.GHOST, PokemonTypes.POISON },
-		evolution = "37",
+		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "405",
 		movelvls = { { 8, 13, 16, 21, 25, 31, 39, 48 }, { 8, 13, 16, 21, 25, 31, 39, 45, 53, 64 } }
 	},
@@ -717,7 +717,7 @@ PokemonData = {
 	{
 		name = "Onix",
 		type = { PokemonTypes.ROCK, PokemonTypes.GROUND },
-		evolution = "30",
+		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "385",
 		movelvls = { { 9, 13, 21, 25, 33, 37, 45, 49, 57 }, { 8, 12, 19, 23, 30, 34, 41, 45, 52, 56 } }
 	},
@@ -871,7 +871,7 @@ PokemonData = {
 	{
 		name = "Seadra",
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
-		evolution = "40",
+		evolution = "40", -- Level 40 replaces trade evolution
 		bst = "440",
 		movelvls = { { 8, 15, 22, 29, 40, 51, 62 }, { 8, 15, 22, 29, 40, 51, 62 } }
 	},
@@ -913,7 +913,7 @@ PokemonData = {
 	{
 		name = "Scyther",
 		type = { PokemonTypes.BUG, PokemonTypes.FLYING },
-		evolution = "30",
+		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "500",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } }
 	},
@@ -932,7 +932,7 @@ PokemonData = {
 		movelvls = { { 9, 17, 25, 36, 47, 58 }, { 9, 17, 25, 36, 47, 58 } }
 	},
 	{
-		name = "Magmar",
+		name = "Magmar", -- MAMGAR
 		type = { PokemonTypes.FIRE, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
@@ -1011,7 +1011,7 @@ PokemonData = {
 	{
 		name = "Porygon",
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
-		evolution = "30",
+		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "395",
 		movelvls = { { 9, 12, 20, 24, 32, 36, 44, 48 }, { 9, 12, 20, 24, 32, 36, 44, 48 } }
 	},
@@ -1023,7 +1023,7 @@ PokemonData = {
 		movelvls = { { 13, 19, 25, 31, 37, 43, 49, 55 }, { 13, 19, 25, 31, 37, 43, 49, 55 } }
 	},
 	{
-		name = "Omastar",
+		name = "Omastar", -- LORD HELIX
 		type = { PokemonTypes.ROCK, PokemonTypes.WATER },
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
@@ -1256,21 +1256,21 @@ PokemonData = {
 	{
 		name = "Pichu",
 		type = { PokemonTypes.ELECTRIC, PokemonTypes.EMPTY },
-		evolution = EvolutionTypes.NONE,
+		evolution = EvolutionTypes.FRIEND,
 		bst = "205",
 		movelvls = { { 6, 8, 11 }, { 6, 8, 11 } }
 	},
 	{
 		name = "Cleffa",
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
-		evolution = EvolutionTypes.NONE,
+		evolution = EvolutionTypes.FRIEND,
 		bst = "218",
 		movelvls = { { 8, 13 }, { 8, 13, 17 } }
 	},
 	{
 		name = "Igglybuff",
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
-		evolution = EvolutionTypes.NONE,
+		evolution = EvolutionTypes.FRIEND,
 		bst = "210",
 		movelvls = { { 9, 14 }, { 9, 14 } }
 	},
@@ -2248,7 +2248,7 @@ PokemonData = {
 		movelvls = { { 10, 14, 19, 23, 28, 32, 37, 41, 46, 50 }, { 10, 14, 19, 23, 28, 32, 37, 41, 46, 50 } }
 	},
 	{
-		name = "Wailord",
+		name = "Wailord", -- STONKS
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
@@ -2269,7 +2269,7 @@ PokemonData = {
 		movelvls = { {}, {} }
 	},
 	{
-		name = "Kecleon",
+		name = "Kecleon", -- KEKLEO-N
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "440",
@@ -2339,7 +2339,7 @@ PokemonData = {
 		movelvls = { { 7, 10, 13, 20, 23, 26, 32, 35, 38, 44 }, { 7, 10, 13, 19, 22, 25, 31, 34, 37, 43, 46 } }
 	},
 	{
-		name = "Crawdaunt",
+		name = "Crawdaunt", -- FRAUD
 		type = { PokemonTypes.WATER, PokemonTypes.DARK },
 		evolution = EvolutionTypes.NONE,
 		bst = "468",
@@ -2348,12 +2348,12 @@ PokemonData = {
 	{
 		name = "Feebas",
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
-		evolution = "35",
+		evolution = "35", -- Level 35 replaces beauty condition
 		bst = "200",
 		movelvls = { { 15, 30 }, { 15, 30 } }
 	},
 	{
-		name = "Milotic",
+		name = "Milotic", -- THICC
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
@@ -2663,7 +2663,7 @@ PokemonData = {
 	{
 		name = "Clamperl",
 		type = { PokemonTypes.WATER, PokemonTypes.EMPTY },
-		evolution = "30, WTR",
+		evolution = "30/WTR", -- Level 30 and stone replace trade evolution
 		bst = "345",
 		movelvls = { {}, {} }
 	},
@@ -2924,7 +2924,7 @@ PokemonData = {
 		type = { PokemonTypes.PSYCHIC, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
-		movelvls = { {}, {} }
+		movelvls = { { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 } }
 	},
 	{
 		name = "Chimecho",

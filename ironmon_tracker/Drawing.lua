@@ -26,7 +26,7 @@ function Drawing.drawPokemonIcon(id, x, y, selectedPokemon)
 end
 
 function Drawing.drawText(x, y, text, color)
-	gui.drawText(x, y, text, color, null, 9, "Franklin Gothic Medium")
+	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
 end
 
 function Drawing.drawTriangleRight(x, y, size, color)

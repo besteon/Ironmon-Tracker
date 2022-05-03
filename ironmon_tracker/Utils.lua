@@ -2,15 +2,15 @@ Utils = {}
 
 Utils.stageMultipliers = {
 	[0] = { value = 0.25, color = 0xFFFF0000 },
-	[1] = {	value = 0.285714285714, color = 0xFFFF0000 },
-	[2] = {	value = 0.333333333333, color = 0xFFFF0000 },
-	[3] = {	value = 0.4, color = 0xFFFF0000 },
-	[4] = {	value = 0.5, color = 0xFFFF0000	},
-	[5] = {	value = 0.666666666666, color = 0xFFFF0000 },
-	[6] = {	value = 1.0, color = 0xFFFFFFFF },
-	[7] = {	value = 1.5, color = 0xFF00FF00	},
-	[8] = {	value = 2.0, color = 0xFF00FF00 },
-	[9] = {	value = 2.5, color = 0xFF00FF00	},
+	[1] = { value = 0.285714285714, color = 0xFFFF0000 },
+	[2] = { value = 0.333333333333, color = 0xFFFF0000 },
+	[3] = { value = 0.4, color = 0xFFFF0000 },
+	[4] = { value = 0.5, color = 0xFFFF0000 },
+	[5] = { value = 0.666666666666, color = 0xFFFF0000 },
+	[6] = { value = 1.0, color = 0xFFFFFFFF },
+	[7] = { value = 1.5, color = 0xFF00FF00 },
+	[8] = { value = 2.0, color = 0xFF00FF00 },
+	[9] = { value = 2.5, color = 0xFF00FF00 },
 	[10] = { value = 3.0, color = 0xFF00FF00 },
 	[11] = { value = 3.5, color = 0xFF00FF00 },
 	[12] = { value = 4.0, color = 0xFF00FF00 },
@@ -18,24 +18,24 @@ Utils.stageMultipliers = {
 
 Utils.accEvasionMultipliers = {
 	[0] = { value = 0.333333333333, color = 0xFFFF0000 },
-	[1] = {	value = 0.375, color = 0xFFFF0000 },
-	[2] = {	value = 0.428571428571, color = 0xFFFF0000 },
-	[3] = {	value = 0.5, color = 0xFFFF0000 },
-	[4] = {	value = 0.6, color = 0xFFFF0000	},
-	[5] = {	value = 0.75, color = 0xFFFF0000 },
-	[6] = {	value = 1.0, color = 0xFFFFFFFF },
-	[7] = {	value = 1.333333333333, color = 0xFF00FF00	},
-	[8] = {	value = 1.666666666666, color = 0xFF00FF00 },
-	[9] = {	value = 2.0, color = 0xFF00FF00	},
+	[1] = { value = 0.375, color = 0xFFFF0000 },
+	[2] = { value = 0.428571428571, color = 0xFFFF0000 },
+	[3] = { value = 0.5, color = 0xFFFF0000 },
+	[4] = { value = 0.6, color = 0xFFFF0000 },
+	[5] = { value = 0.75, color = 0xFFFF0000 },
+	[6] = { value = 1.0, color = 0xFFFFFFFF },
+	[7] = { value = 1.333333333333, color = 0xFF00FF00 },
+	[8] = { value = 1.666666666666, color = 0xFF00FF00 },
+	[9] = { value = 2.0, color = 0xFF00FF00 },
 	[10] = { value = 2.333333333333, color = 0xFF00FF00 },
 	[11] = { value = 2.666666666666, color = 0xFF00FF00 },
 	[12] = { value = 3.0, color = 0xFF00FF00 },
 }
 
 function Utils.round(num, numDecimalPlaces)
-	local mult = 10^(numDecimalPlaces or 0)
+	local mult = 10 ^ (numDecimalPlaces or 0)
 	return math.floor(num * mult + 0.5) / mult
-  end
+end
 
 function Utils.ifelse(condition, ifcase, elsecase)
 	if condition then
@@ -46,7 +46,7 @@ function Utils.ifelse(condition, ifcase, elsecase)
 end
 
 function Utils.getbits(a, b, d)
-	return bit.rshift(a, b) % bit.lshift(1 ,d)
+	return bit.rshift(a, b) % bit.lshift(1, d)
 end
 
 function Utils.gettop(a)
@@ -54,8 +54,8 @@ function Utils.gettop(a)
 end
 
 function Utils.addhalves(a)
-	local b = Utils.getbits(a,0,16)
-	local c = Utils.getbits(a,16,16)
+	local b = Utils.getbits(a, 0, 16)
+	local c = Utils.getbits(a, 16, 16)
 	return b + c
 end
 
@@ -64,14 +64,14 @@ function Utils.mult32(a, b)
 	local d = a % 0x10000
 	local e = bit.rshift(b, 16)
 	local f = b % 0x10000
-	local g = (c*f + d*e) % 0x10000
-	local h = d*f
-	local i = g*0x10000 + h
+	local g = (c * f + d * e) % 0x10000
+	local h = d * f
+	local i = g * 0x10000 + h
 	return i
 end
 
 function Utils.rngDecrease(a)
-	return (Utils.mult32(a,0xEEB9EB65) + 0x0A3561A1) % 0x100000000
+	return (Utils.mult32(a, 0xEEB9EB65) + 0x0A3561A1) % 0x100000000
 end
 
 function Utils.rngAdvance(a)
@@ -89,17 +89,17 @@ function Utils.rng2Advance(a)
 	return (Utils.mult32(a, 0x41C64E6D) + 0x3039) % 0x100000000
 end
 
-function Utils.getRNGDistance(b,a)
-    local distseed = 0
-    for j=0,31,1 do
-		if Utils.getbits(a,j,1) ~= Utils.getbits(b,j,1) then
-			b = Utils.mult32(b, RNGData.multspa[j+1])+ RNGData.multspb[j+1]
+function Utils.getRNGDistance(b, a)
+	local distseed = 0
+	for j = 0, 31, 1 do
+		if Utils.getbits(a, j, 1) ~= Utils.getbits(b, j, 1) then
+			b = Utils.mult32(b, RNGData.multspa[j + 1]) + RNGData.multspb[j + 1]
 			distseed = distseed + bit.lshift(1, j)
 			if j == 31 then
 				distseed = distseed + 0x100000000
 			end
 		end
-    end
+	end
 	return distseed
 end
 
@@ -150,7 +150,7 @@ function Utils.getNatureColor(stat, nature)
 end
 
 function Utils.getTableValueIndex(myvalue, mytable)
-	for i=1,table.getn(mytable),1 do
+	for i = 1, table.getn(mytable), 1 do
 		if myvalue == mytable[i] then
 			return i
 		end
@@ -158,6 +158,7 @@ function Utils.getTableValueIndex(myvalue, mytable)
 	return 1
 end
 
+-- TODO: Remove?
 function Utils.getStatValuesAndColors(stats)
 	local statValuesAndColors = {
 		HP = {},
