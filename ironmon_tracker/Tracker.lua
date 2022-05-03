@@ -244,7 +244,7 @@ function Tracker.loadData()
         Tracker.Data = trackerData
     else
         Tracker.Data = Tracker.InitTrackerData()
-        if Settings.streamerMode == true then
+        if Settings.tracker.MUST_CHECK_SUMMARY == true then
             Tracker.Data.needCheckSummary = 1
         end
     end

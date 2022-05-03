@@ -25,6 +25,8 @@ function Input.update()
 				Tracker.Data.slot = enemySlotOne
 			end
 		end
+
+		Program.tracker.nextView = true
 	end
 
 	-- "Settings.controls.CYCLE_STAT" pressed, display box over next stat
@@ -39,13 +41,12 @@ function Input.update()
 
 	-- "Settings.controls.NEXT_SEED"
 	local allPressed = true
-	for k, v in pairs(Settings.controls.NEXT_SEED) do
-		if joypadButtons[v] ~= true then
+	for button in string.gmatch(Settings.controls.NEXT_SEED, '([^,]+)') do
+		if joypadButtons[button] ~= true then
 			allPressed = false
 		end
 	end
 	if allPressed == true then
-		print("Loading next seed")
 		Main.LoadNextSeed = true
 	end
 
@@ -85,6 +86,7 @@ function Input.update()
 end
 
 function Input.check(xmouse, ymouse)
+---@diagnostic disable-next-line: deprecated
 	for i = 1, table.getn(Buttons), 1 do
 		if Buttons[i].visible() then
 			if Buttons[i].type == ButtonType.singleButton then
