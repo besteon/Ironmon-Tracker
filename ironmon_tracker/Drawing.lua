@@ -188,7 +188,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Item:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 57, MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
 
-	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"]])
+	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"] + 1])
 	if monIsEnemy then
 		for k, v in pairs(Tracker.Data.currentlyTrackedPokemonAbilities) do
 			if v == monToDraw["ability"] then

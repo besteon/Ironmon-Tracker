@@ -473,7 +473,8 @@ function Program.getPokemonData(index)
 		spa = Memory.readword(start + 96),
 		spd = Memory.readword(start + 98),
 		status = status_result,
-		sleep_turns = sleep_turns_result
+		sleep_turns = sleep_turns_result,
+		ability = 0
 	}
 end
 
