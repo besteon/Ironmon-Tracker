@@ -1,16 +1,17 @@
--- IRONMON GEN 3 TRACKER
-
--- Based on Lua Script made by MKDasher, which was based on FractalFusion's VBA-rr scripts.
--- NOTE: On Bizhawk, go to Config / Display... Then uncheck Stretch pixels by integers only.
-
 -- The latest version of the tracker. Should be updated with each PR.
 TRACKER_VERSION = "0.1.9"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
 
+print("Ironmon-Tracker v" .. TRACKER_VERSION)
+
+-- Get the user settings!
 DATA_FOLDER = "ironmon_tracker"
-dofile("ironmon_settings.lua")
+INI = dofile(DATA_FOLDER .. "/Inifile.lua")
+Settings = INI.parse("Settings.ini")
+
+-- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
 dofile(DATA_FOLDER .. "/MoveData.lua")
 dofile(DATA_FOLDER .. "/Data.lua")
@@ -25,17 +26,14 @@ dofile(DATA_FOLDER .. "/Program.lua")
 dofile(DATA_FOLDER .. "/Pickle.lua")
 dofile(DATA_FOLDER .. "/Tracker.lua")
 
-print("Ironmon-Tracker v" .. TRACKER_VERSION)
-
 Main = {}
 Main.LoadNextSeed = false
-
-waitBeforeHook = 300
 
 -- Main loop
 function Main.Run()
 	print("Waiting 5s before loading...")
 	local frames = 0
+	local waitBeforeHook = 300
 	while frames < waitBeforeHook do
 		emu.frameadvance()
 		frames = frames + 1
@@ -108,11 +106,10 @@ end
 function Main.LoadNext()
 	client.SetSoundOn(false)
 
-	if Settings.ROMS_FOLDER == "" then
-		print("Please specify Settings.ROMS_FOLDER in ironmon_settings.lua to use this feature.")
+	if Settings.config.ROMS_FOLDER == nil then
+		print("Please specify ROMS_FOLDER in Settings.ini to use this feature.")
+		return
 	end
-
-	print("Loading next ROM...")
 
 	local romname = gameinfo.getromname()
 	userdata.clear()
@@ -122,10 +119,10 @@ function Main.LoadNext()
 	local romnumber = tonumber(string.match(romname, '[0-9]+')) + 1
 	local nextromname = ""
 	if rombasename == nil then
-		nextromname = Settings.ROMS_FOLDER .. "\\" .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. romnumber .. ".gba"
 	else
 		rombasename = rombasename:gsub(" ", "_")
-		nextromname = Settings.ROMS_FOLDER .. "\\" .. rombasename .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. rombasename .. romnumber .. ".gba"
 		print(nextromname)
 	end
 
@@ -135,9 +132,6 @@ function Main.LoadNext()
 	if gameinfo.getromname() ~= "Null" then
 		Main.LoadNextSeed = false
 		Main.Run()
-	else
-		print("Error loading next ROM: (do your ROM names have leading zeros?")
-		print(nextromname)
 	end
 end
 

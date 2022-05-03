@@ -2,41 +2,6 @@ Program = {
 	trainerPokemonTeam = {},
 	enemyPokemonTeam = {},
 }
-Program.rng = {
-	current = 0,
-	previous = 0,
-	grid = {}
-}
-Program.map = {
-	id = 0,
-	encounters = {
-		{
-			encrate = -1,
-			SLOTS = 12,
-			RATES = {20,20,10,10,10,10,5,5,4,4,1,1}
-		},
-		{
-			encrate = -1,
-			SLOTS = 5,
-			RATES = {60,30,5,4,1}
-		},
-		{
-			encrate = -1,
-			SLOTS = 5,
-			RATES = {60,30,5,4,1}
-		}
-	}
-}
-Program.catchdata = {
-	pokemon = 1,
-	curHP = 20,
-	maxHP = 20,
-	level = 5,
-	ball = 4,
-	status = 0,
-	rng = 0,
-	rate = 0
-}
 
 Program.tracker = {
 	movesToUpdate = {},
@@ -44,6 +9,10 @@ Program.tracker = {
 	itemsToUpdate = {},
 	previousAttacker = 0,
 	updatePrimaryAbility = 0,
+
+	nextView = false,
+	viewPokemon = 0,
+	targetPokemon = 0,
 }
 
 Program.StatButtonState = {
@@ -76,6 +45,22 @@ function Program.main()
 	end
 	Program.tracker.items = {}
 
+	--
+
+	-- if Tracker.redraw == true and Tracker.waitFrames == 0 then
+	-- 	-- We should only be redrawing when data changes. Since data has changed, grab it from memory again.
+	-- 	Program.UpdateDataFromMemory()
+
+	-- 	Drawing.DrawTracker(Tracker.Data.selectedPokemon, false)
+	-- 	Tracker.redraw = false
+	-- end
+
+	-- if Tracker.waitFrames > 0 then
+	-- 	Tracker.waitFrames = Tracker.waitFrames - 1
+	-- end
+
+	--
+
 	if Tracker.Data.inBattle == 1 then
 		Tracker.redraw = true
 	end
@@ -87,24 +72,27 @@ function Program.main()
 		Program.updateTracker()
 	
 		if Tracker.Data.player == 2 then
-			Drawing.drawTrackerView()
+			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true)
 		else
 			if Tracker.Data.needCheckSummary == 0 then
-				Drawing.drawPokemonView()
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, false)
 			else
-				Drawing.drawTrackerView()
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true)
 			end
 		end
 		Program.StatButtonState = Tracker.getButtonState()
 		Buttons = Program.updateButtons(Program.StatButtonState)
-		Drawing.drawButtons()
-		Drawing.drawInputOverlay()
 		Tracker.redraw = false
 	end
 
 	if Tracker.waitFrames > 0 then
 		Tracker.waitFrames = Tracker.waitFrames - 1
 	end
+end
+
+function Program.UpdateDataFromMemory()
+	Program.trainerPokemonTeam = Program.getTrainerData(1)
+	Program.enemyPokemonTeam = Program.getTrainerData(2)
 end
 
 function Program.updateTracker()
@@ -196,7 +184,7 @@ function Program.HandleBeginBattle()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -209,7 +197,7 @@ function Program.HandleStartWildBattle()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -222,7 +210,7 @@ function Program.HandleTrainerSentOutPkmn()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.slot = 1
 
-	if Settings.autoTrackOpponentMons then
+	if Settings.config.AUTO_TRACK == true then
 		Tracker.Data.player = 2
 	end
 
@@ -246,7 +234,7 @@ function Program.HandleSwitchSelectedMons()
 	Tracker.redraw = true
 	Tracker.waitFrames = 30
 
-	if Settings.streamerMode == true then
+	if Settings.tracker.MUST_CHECK_SUMMARY == true then
 		Tracker.Data.needCheckSummary = 1
 	end
 end
@@ -339,14 +327,14 @@ function Program.HandleMove()
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
-			if Settings.autoTrackOpponentMons then
+			if Settings.config.AUTO_TRACK == true then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotOne
 			end
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Settings.autoTrackOpponentMons then
+			if Settings.config.AUTO_TRACK == true then
 				Tracker.Data.player = 2
 				Tracker.Data.slot = enemySlotTwo
 			end
