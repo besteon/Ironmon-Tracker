@@ -28,6 +28,10 @@ function Input.exp_offsets()
 end
 
 function Input.force_evolve()
+    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+
+    -- Source : https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+
 	Input.mousetab = input.getmouse()
 	if Input.mousetab["Right"] then  -- Maybe we should change this command to something else?
         gui.clearGraphics()
