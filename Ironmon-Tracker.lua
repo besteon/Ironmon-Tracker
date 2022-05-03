@@ -1,21 +1,30 @@
-print("Ironmon-Tracker v0.1.9")
+-- The latest version of the tracker. Should be updated with each PR.
+TRACKER_VERSION = "0.1.9"
 
+-- A frequently used placeholder when a data field is not applicable
+PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
+
+print("Ironmon-Tracker v" .. TRACKER_VERSION)
+
+-- Get the user settings!
 DATA_FOLDER = "ironmon_tracker"
-
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 Settings = INI.parse("Settings.ini")
 
-dofile (DATA_FOLDER .. "/Data.lua")
-dofile (DATA_FOLDER .. "/Memory.lua")
-dofile (DATA_FOLDER .. "/GameSettings.lua")
-dofile (DATA_FOLDER .. "/GraphicConstants.lua")
-dofile (DATA_FOLDER .. "/Utils.lua")
-dofile (DATA_FOLDER .. "/Buttons.lua")
-dofile (DATA_FOLDER .. "/Input.lua")
-dofile (DATA_FOLDER .. "/Drawing.lua")
-dofile (DATA_FOLDER .. "/Program.lua")
-dofile (DATA_FOLDER .. "/Pickle.lua")
-dofile (DATA_FOLDER .. "/Tracker.lua")
+-- Import all scripts before starting the main loop
+dofile(DATA_FOLDER .. "/PokemonData.lua")
+dofile(DATA_FOLDER .. "/MoveData.lua")
+dofile(DATA_FOLDER .. "/Data.lua")
+dofile(DATA_FOLDER .. "/Memory.lua")
+dofile(DATA_FOLDER .. "/GameSettings.lua")
+dofile(DATA_FOLDER .. "/GraphicConstants.lua")
+dofile(DATA_FOLDER .. "/Utils.lua")
+dofile(DATA_FOLDER .. "/Buttons.lua")
+dofile(DATA_FOLDER .. "/Input.lua")
+dofile(DATA_FOLDER .. "/Drawing.lua")
+dofile(DATA_FOLDER .. "/Program.lua")
+dofile(DATA_FOLDER .. "/Pickle.lua")
+dofile(DATA_FOLDER .. "/Tracker.lua")
 
 Main = {}
 Main.LoadNextSeed = false
@@ -89,7 +98,7 @@ function Main.Run()
 			Program.main()
 			emu.frameadvance()
 		end
-		
+
 		Main.LoadNext()
 	end
 end

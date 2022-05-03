@@ -1,39 +1,41 @@
 Drawing = {}
 
 function Drawing.clearGUI()
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH,0,GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP,GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
 end
 
 function Drawing.drawPokemonIcon(id, x, y, selectedPokemon)
-    if id < 0 or id > 412 then
-        id = 0
-    end
+	if id < 0 or id > 412 then
+		id = 0
+	end
 
-    gui.drawRectangle(x,y,GraphicConstants.RIGHT_GAP - 64,50, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(x, y, GraphicConstants.RIGHT_GAP - 64, 50, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 
 	if PokemonData[id + 1].type[1] ~= "" then
-        gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[1] .. ".png", x+1, y+26, 32, 12)
-    end
-    if PokemonData[id + 1].type[2] ~= "" then
-        gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x+1, y+38, 32, 12)
-    end
+		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[1] .. ".png", x + 1, y + 26, 32, 12)
+	end
+	if PokemonData[id + 1].type[2] ~= "" then
+		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x + 1, y + 38, 32, 12)
+	end
 
-	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y-7, 32, 32)
+	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y - 7, 32, 32)
 
 end
 
 function Drawing.drawText(x, y, text, color)
-	gui.drawText( x, y, text, color, nil, 9, "Franklin Gothic Medium")
+	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
 end
 
 function Drawing.drawTriangleRight(x, y, size, color)
 	gui.drawRectangle(x, y, size, size, color)
-	gui.drawPolygon({{4+x,4+y},{4+x,y+size-4},{x+size-4,y+size/2}}, color, color)
+	gui.drawPolygon({ { 4 + x, 4 + y }, { 4 + x, y + size - 4 }, { x + size - 4, y + size / 2 } }, color, color)
 end
+
 function Drawing.drawTriangleLeft(x, y, size, color)
 	gui.drawRectangle(x, y, size, size, color)
-	gui.drawPolygon({{x+size-4,4+y},{x+size-4,y+size-4},{4+x,y+size/2}}, color, color)
+	gui.drawPolygon({ { x + size - 4, 4 + y }, { x + size - 4, y + size - 4 }, { 4 + x, y + size / 2 } }, color, color)
 end
+
 function Drawing.drawChevronUp(x, y, width, height, thickness, color)
 	local i = 0
 	y = y + height + thickness + 1
@@ -43,6 +45,7 @@ function Drawing.drawChevronUp(x, y, width, height, thickness, color)
 		i = i + 1
 	end
 end
+
 function Drawing.drawChevronDown(x, y, width, height, thickness, color)
 	local i = 0
 	y = y + thickness + 2
@@ -143,23 +146,23 @@ end
 
 function Drawing.drawButtons()
 	---@diagnostic disable-next-line: deprecated
-		for i = 1, table.getn(Buttons), 1 do
-			if Buttons[i].visible() then
-				if Buttons[i].type == ButtonType.singleButton then
-					gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
-					local extraY = 1
-					if Buttons[i].text == "--" then extraY = 0 end
-					Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
-				end
+	for i = 1, table.getn(Buttons), 1 do
+		if Buttons[i].visible() then
+			if Buttons[i].type == ButtonType.singleButton then
+				gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+				local extraY = 1
+				if Buttons[i].text == "--" then extraY = 0 end
+				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
 			end
 		end
 	end
-	
-	function Drawing.drawInputOverlay()
-		if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and (Tracker.Data.player == 2) then
-			gui.drawRectangle(Buttons[Tracker.controller.statIndex].box[1], Buttons[Tracker.controller.statIndex].box[2], Buttons[Tracker.controller.statIndex].box[3], Buttons[Tracker.controller.statIndex].box[4], "yellow", 0x000000)
-		end
+end
+
+function Drawing.drawInputOverlay()
+	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and (Tracker.Data.player == 2) then
+		gui.drawRectangle(Buttons[Tracker.controller.statIndex].box[1], Buttons[Tracker.controller.statIndex].box[2], Buttons[Tracker.controller.statIndex].box[3], Buttons[Tracker.controller.statIndex].box[4], "yellow", 0x000000)
 	end
+end
 
 function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawPokemonIcon(monToDraw["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
@@ -172,7 +175,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	end
 
 	local currentHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["curHP"])
-	local maxHP =  Utils.inlineIf(monIsEnemy, "?", monToDraw["maxHP"])
+	local maxHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["maxHP"])
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 7, PokemonData[monToDraw["pokemonID"] + 1].name)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 17, "HP:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 53, 17, currentHP .. "/" .. maxHP, colorbar)
@@ -180,8 +183,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 31, monToDraw["level"])
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 38, 43, "EVO:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 58, 43, PokemonData[monToDraw["pokemonID"] + 1].evolution)
-	
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25,GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 55, GraphicConstants.RIGHT_GAP - 64, 25, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Item:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 28, 57, MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
 
@@ -209,7 +212,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	local spdY = spaY + statInc
 	local speY = spdY + statInc
 	local bstY = speY + statInc
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxX, statBoxY, GraphicConstants.RIGHT_GAP - 101, 75,GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxX, statBoxY, GraphicConstants.RIGHT_GAP - 101, 75, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("hp", monToDraw["nature"])))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("atk", monToDraw["nature"])))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("def", monToDraw["nature"])))
@@ -230,7 +233,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 
 	-- Drawing moves
 	local movesBoxStartY = 94
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, movesBoxStartY, GraphicConstants.RIGHT_GAP - 11, 46,GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, movesBoxStartY, GraphicConstants.RIGHT_GAP - 11, 46, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 	local moveStartY = movesBoxStartY + 3
 
 	local monLevel = monToDraw["level"]
@@ -291,7 +294,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 1), moveTwo["name"] .. secondStar, Drawing.moveToColor(moveTwo))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 2), moveThree["name"] .. thirdStar, Drawing.moveToColor(moveThree))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["name"] .. fourthStar, Drawing.moveToColor(moveFour))
-	
+
 	local ppOffset = 70
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - 13, "PP")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY, Utils.inlineIf(monIsEnemy, moveOne["pp"], Utils.getbits(monToDraw["pp"], 0, 8)))
@@ -305,7 +308,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 1), moveTwo["power"])
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 2), moveThree["power"])
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["power"])
-	
+
 	local accOffset = 120
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - 13, "Acc")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY, moveOne["accuracy"])
@@ -314,7 +317,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["accuracy"])
 
 	-- Moves Learned
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 140, GraphicConstants.RIGHT_GAP - 11, 14,GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + 5, 140, GraphicConstants.RIGHT_GAP - 11, 14, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 	local learnedRowHeight = 141
 	local movelevellist = PokemonData[monToDraw["pokemonID"] + 1].movelvls -- pokemonID
 	local moveCount = 0
