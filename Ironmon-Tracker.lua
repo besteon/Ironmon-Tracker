@@ -1,3 +1,6 @@
+-- IronMon Tracker
+-- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
+
 -- The latest version of the tracker. Should be updated with each PR.
 TRACKER_VERSION = "0.1.9"
 
