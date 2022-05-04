@@ -72,12 +72,12 @@ function Program.main()
 		Program.updateTracker()
 	
 		if Tracker.Data.player == 2 then
-			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true)
+			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.selectedPokemon)
 		else
 			if Tracker.Data.needCheckSummary == 0 then
-				Drawing.DrawTracker(Tracker.Data.selectedPokemon, false)
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, false, Tracker.Data.selectedPokemon)
 			else
-				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true)
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.selectedPokemon)
 			end
 		end
 		Program.StatButtonState = Tracker.getButtonState()

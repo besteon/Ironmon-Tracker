@@ -18,10 +18,12 @@ StatButtonStates = {
 }
 
 StatButtonColors = {
-	0xFFFFFFFF,
-	0xFFFF0000,
-	0xFF00FF00
+	GraphicConstants.LAYOUTCOLORS.NEUTRAL,
+	GraphicConstants.LAYOUTCOLORS.DECREASE,
+	GraphicConstants.LAYOUTCOLORS.INCREASE
 }
+
+local buttonXOffset = 129
 
 Buttons = {
 	{ -- HP button
@@ -29,12 +31,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			9,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
@@ -48,12 +50,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			19,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
@@ -67,12 +69,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			29,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
@@ -86,12 +88,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			39,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
@@ -105,12 +107,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			49,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
@@ -124,12 +126,12 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
 		text = "",
 		box = {
-			GraphicConstants.SCREEN_WIDTH + 126,
+			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
 			59,
 			8,
 			8
 		},
-		backgroundcolor = {0xFFAAAAAA, 0xFF222222},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1

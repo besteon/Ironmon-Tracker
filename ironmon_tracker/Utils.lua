@@ -16,12 +16,21 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
-	for k, v in ipairs(pkmnData["type"]) do
+	for _, type in ipairs(pkmnData["type"]) do
 		if move["type"] ~= "---" then
-			if EffectiveData[move["type"]][v] ~= nil then
-				effectiveness = effectiveness * EffectiveData[move["type"]][v]
+			if EffectiveData[move["type"]][type] ~= nil then
+				effectiveness = effectiveness * EffectiveData[move["type"]][type]
 			end
 		end
 	end
 	return effectiveness
+end
+
+function Utils.isSTAB(move, pkmnData)
+	for _, type in ipairs(pkmnData["type"]) do
+		if move["type"] == type then
+			return true
+		end
+	end
+	return false
 end
