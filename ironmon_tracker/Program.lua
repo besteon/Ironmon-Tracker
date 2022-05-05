@@ -71,13 +71,13 @@ function Program.main()
 	
 		Program.updateTracker()
 	
-		if Tracker.Data.player == 2 then
-			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.selectedPokemon)
+		if Tracker.Data.selectedPlayer == 2 then
+			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
 		else
 			if Tracker.Data.needCheckSummary == 0 then
-				Drawing.DrawTracker(Tracker.Data.selectedPokemon, false, Tracker.Data.selectedPokemon)
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, false, Tracker.Data.targetedPokemon)
 			else
-				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.selectedPokemon)
+				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
 			end
 		end
 		Program.StatButtonState = Tracker.getButtonState()
@@ -96,14 +96,20 @@ function Program.UpdateDataFromMemory()
 end
 
 function Program.updateTracker()
-	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.player, slot = Tracker.Data.slot })
+	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.selectedPlayer, slot = Tracker.Data.selectedSlot })
+	local pokemontarget = Program.getPokemonData({ player = Tracker.Data.targetPlayer, slot = Tracker.Data.targetSlot })
 	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 
 	-- TODO: Update for double battles
-	local battleMonSlot = Tracker.Data.player - 1
+	local battleMonSlot = Tracker.Data.selectedPlayer - 1
 
 	if Program.validPokemonData(pokemonaux) then
 		Tracker.Data.selectedPokemon = pokemonaux
+	end
+	if Program.validPokemonData(pokemontarget) then
+		Tracker.Data.targetedPokemon = pokemontarget
+	else
+		Tracker.Data.targetedPokemon = nil
 	end
 	
 	-- Only update primary ability at the start of a battle
@@ -128,19 +134,24 @@ function Program.updateTracker()
 
 		if attackerValue % 2 == 1 then
 			if attackerValue == 1 then
-				Tracker.Data.slot = Tracker.Data.enemySlotOne
+				Tracker.Data.selectedSlot = Tracker.Data.enemySlotOne
+				Tracker.Data.targetSlot = Tracker.Data.selfSlotOne
 			elseif attackerValue == 3 then
-				Tracker.Data.slot = Tracker.Data.enemySlotTwo
+				Tracker.Data.selectedSlot = Tracker.Data.enemySlotTwo
+				Tracker.Data.targetSlot = Tracker.Data.selfSlotOne
 			end
 		end
 
-		if Tracker.Data.player == 1 then
-			Tracker.Data.slot = Tracker.Data.selfSlotOne
+		if Tracker.Data.selectedPlayer == 1 then
+			Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
+			Tracker.Data.targetSlot = Tracker.Data.enemySlotOne
 		end
 	else
 		Tracker.Data.selfSlotOne = 1
-		Tracker.Data.slot = Tracker.Data.selfSlotOne
+		Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
 		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+
+		Tracker.Data.targetedPokemon = nil
 	end
 
 	if Tracker.Data.selectedPokemon ~= nil then
@@ -182,10 +193,14 @@ function Program.HandleBeginBattle()
 	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
-	Tracker.Data.slot = 1
+	Tracker.Data.selectedSlot = 1
+	Tracker.Data.targetPlayer = 2
+	Tracker.Data.targetSlot = 1
 
 	if Settings.config.AUTO_TRACK == true then
-		Tracker.Data.player = 2
+		Tracker.Data.selectedPlayer = 2
+		Tracker.Data.targetPlayer = 1
+		Tracker.Data.targetSlot = 1
 	end
 
 	Tracker.waitFrames = 180
@@ -195,10 +210,12 @@ function Program.HandleStartWildBattle()
 	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
-	Tracker.Data.slot = 1
+	Tracker.Data.selectedSlot = 1
 
 	if Settings.config.AUTO_TRACK == true then
-		Tracker.Data.player = 2
+		Tracker.Data.selectedPlayer = 2
+		Tracker.Data.targetPlayer = 1
+		Tracker.Data.targetSlot = 1
 	end
 
 	Tracker.waitFrames = 280
@@ -208,10 +225,12 @@ function Program.HandleTrainerSentOutPkmn()
 	Program.tracker.updatePrimaryAbility = 1
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
-	Tracker.Data.slot = 1
+	Tracker.Data.selectedSlot = 1
 
 	if Settings.config.AUTO_TRACK == true then
-		Tracker.Data.player = 2
+		Tracker.Data.selectedPlayer = 2
+		Tracker.Data.targetPlayer = 1
+		Tracker.Data.targetSlot = 1
 	end
 
 	Tracker.waitFrames = 100
@@ -219,8 +238,12 @@ end
 
 function Program.HandleEndBattle()
 	Tracker.Data.inBattle = 0
-	Tracker.Data.player = 1
-	Tracker.Data.slot = 1
+	Tracker.Data.selectedPlayer = 1
+	Tracker.Data.selectedSlot = 1
+	Tracker.Data.targetPlayer = 2
+	Tracker.Data.targetSlot = 1
+
+	Tracker.Data.targetedPokemon = nil
 
 	Tracker.redraw = true
 end
@@ -319,6 +342,8 @@ function Program.HandleMove()
 	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 
 	if attackerValue % 2 == 1 then -- Opponent pokemon
+		local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
+
 		local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 		local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 
@@ -328,15 +353,19 @@ function Program.HandleMove()
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
 			if Settings.config.AUTO_TRACK == true then
-				Tracker.Data.player = 2
-				Tracker.Data.slot = enemySlotOne
+				Tracker.Data.selectedPlayer = 2
+				Tracker.Data.selectedSlot = enemySlotOne
+				Tracker.Data.targetPlayer = 1
+				Tracker.Data.targetSlot = selfSlotOne
 			end
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
 			if Settings.config.AUTO_TRACK == true then
-				Tracker.Data.player = 2
-				Tracker.Data.slot = enemySlotTwo
+				Tracker.Data.selectedPlayer = 2
+				Tracker.Data.selectedSlot = enemySlotTwo
+				Tracker.Data.targetPlayer = 1
+				Tracker.Data.targetSlot = selfSlotOne
 			end
 		end
 		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })

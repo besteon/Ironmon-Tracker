@@ -28,7 +28,7 @@ local buttonXOffset = 129
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
@@ -47,7 +47,7 @@ Buttons = {
 	},
 	{ -- ATT button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
@@ -66,7 +66,7 @@ Buttons = {
 	},
 	{ -- DEF button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
@@ -85,7 +85,7 @@ Buttons = {
 	},
 	{ -- SPA button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
@@ -104,7 +104,7 @@ Buttons = {
 	},
 	{ -- SPD button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
@@ -123,7 +123,7 @@ Buttons = {
 	},
 	{ -- SPE button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.player == 2 end,
+		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
