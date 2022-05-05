@@ -16,6 +16,10 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
+	if move["power"] == NOPOWER then
+		return 1.0
+	end
+	
 	for _, type in ipairs(pkmnData["type"]) do
 		if move["type"] ~= "---" then
 			if EffectiveData[move["type"]][type] ~= nil then
