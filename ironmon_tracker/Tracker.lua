@@ -38,6 +38,7 @@ Tracker.Data = {}
 function Tracker.InitTrackerData()
     local trackerData = {
         selectedPokemon = {},
+        targetedPokemon = {},
         main = {
             ability = 0
         },
@@ -52,8 +53,10 @@ function Tracker.InitTrackerData()
         currentlyTrackedPokemonAbilities = {
             1
         },
-        player = 1,
-        slot = 1,
+        selectedPlayer = 1,
+        selectedSlot = 1,
+        targetPlayer = 2,
+        targetSlot = 1,
         selfSlotOne = 1,
         selfSlotTwo = 1,
         enemySlotOne = 1,

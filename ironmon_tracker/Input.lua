@@ -17,12 +17,16 @@ function Input.update()
 	-- "Settings.controls.CYCLE_VIEW" pressed
 	if joypadButtons[Settings.controls.CYCLE_VIEW] == true and Input.joypad[Settings.controls.CYCLE_VIEW] ~= joypadButtons[Settings.controls.CYCLE_VIEW] then
 		if Tracker.Data.inBattle == 1 then
-			Tracker.Data.player = (Tracker.Data.player % 2) + 1
-			if Tracker.Data.player == 1 then
-				Tracker.Data.slot = 1
-			elseif Tracker.Data.player == 2 then
+			Tracker.Data.selectedPlayer = (Tracker.Data.selectedPlayer % 2) + 1
+			if Tracker.Data.selectedPlayer == 1 then
+				Tracker.Data.selectedSlot = 1
+				Tracker.Data.targetPlayer = 2
+				Tracker.Data.targetSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+			elseif Tracker.Data.selectedPlayer == 2 then
 				local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-				Tracker.Data.slot = enemySlotOne
+				Tracker.Data.selectedSlot = enemySlotOne
+				Tracker.Data.targetPlayer = 1
+				Tracker.Data.targetSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
 			end
 		end
 
