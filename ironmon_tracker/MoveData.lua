@@ -7,6 +7,7 @@ MoveCategories = {
 }
 
 NOPOWER = "---"
+NOPP = ""
 
 --[[
 The various Pokémon moves (Gen 3)
@@ -28,9 +29,9 @@ MoveData = {
 		id = "---",
 		name = "---",
 		type = "---",
-		power = "---",
-		pp = "---",
-		accuracy = "---",
+		power = "",
+		pp = NOPP,
+		accuracy = "",
 		category = MoveCategories.NONE,
 	},
 	{ -- Begin Gen 1 Moves
