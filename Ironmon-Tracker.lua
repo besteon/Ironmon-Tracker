@@ -34,6 +34,13 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
+	if Settings.config.LOAD_STATE_AT_START ~= nil then
+		-- If using a startup savestate, we need to
+		-- advance one frame after ROM load else Bizhawk is unhappy.
+		emu.frameadvance()
+		savestate.load(Settings.config.LOAD_STATE_AT_START)
+	end
+
 	print("Waiting 5s before loading...")
 	local frames = 0
 	local waitBeforeHook = 300
