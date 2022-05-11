@@ -10,6 +10,7 @@ function Utils.addhalves(a)
 	return b + c
 end
 
+-- If the `condition` is true, the value in `T` is returned, else the value in `F` is returned
 function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
@@ -19,7 +20,7 @@ function Utils.netEffectiveness(move, pkmnData)
 	if move["power"] == NOPOWER then
 		return 1.0
 	end
-	
+
 	for _, type in ipairs(pkmnData["type"]) do
 		if move["type"] ~= "---" then
 			if EffectiveData[move["type"]][type] ~= nil then
