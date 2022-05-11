@@ -5,6 +5,30 @@ TableData = {
 	misc   = { 4, 3, 4, 3, 2, 2, 4, 3, 4, 3, 2, 2, 4, 3, 4, 3, 2, 2, 1, 1, 1, 1, 1, 1 }
 }
 
+BagPocket = {
+	PC = 0,
+	Items = 1,
+	KeyItems = 2,
+	Pokeballs = 3,
+	TMHM = 4,
+	Berries = 5,
+}
+
+HealingType = {
+	Constant = 0,
+	Percentage = 1,
+}
+
+StatusType = {
+	Poison = 0,
+	Burn = 1,
+	Freeze = 2,
+	Sleep = 3,
+	Paralyze = 4,
+	Confuse = 5,
+	All = 100,
+}
+
 MiscData = {
 	nature = {
 		"Hardy", "Lonely", "Brave", "Adamant", "Naughty",
@@ -62,6 +86,240 @@ MiscData = {
 		"Poke Flute", "Secret Key", "Bike Voucher", "Gold Teeth", "Old Amber", "Card Key", "Lift Key", "Helix Fossil", "Dome Fossil", "Silph Scope",
 		"Bicycle", "Town Map", "Vs. Seeker", "Fame Checker", "TM Case", "Berry Pouch", "Teachy TV", "Tri-Pass", "Rainbow Pass", "Tea",
 		"MysticTicket", "AuroraTicket", "Powder Jar", "Ruby", "Sapphire", "Magma Emblem", "Old Sea Map"
+	},
+	healingItems = {
+		[13] = {
+			id = 13,
+			name = "Potion",
+			amount = 20,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[19] = {
+			id = 19,
+			name = "Full Restore",
+			amount = 100,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Items,
+		},
+		[20] = {
+			id = 20,
+			name = "Max Potion",
+			amount = 100,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Items,
+		},
+		[21] = {
+			id = 21,
+			name = "Hyper Potion",
+			amount = 120,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[22] = {
+			id = 22,
+			name = "Super Potion",
+			amount = 60,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[26] = {
+			id = 26,
+			name = "Fresh Water",
+			amount = 50,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[27] = {
+			id = 27,
+			name = "Soda Pop",
+			amount = 60,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[28] = {
+			id = 28,
+			name = "Lemonade",
+			amount = 80,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[29] = {
+			id = 29,
+			name = "Moomoo Milk",
+			amount = 100,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[30] = {
+			id = 30,
+			name = "EnergyPowder",
+			amount = 50,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[31] = {
+			id = 31,
+			name = "Energy Root",
+			amount = 200,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[44] = {
+			id = 44,
+			name = "Berry Juice",
+			amount = 20,
+			type = HealingType.Constant,
+			pocket = BagPocket.Items,
+		},
+		[139] = {
+			id = 139,
+			name = "Oran Berry",
+			amount = 10,
+			type = HealingType.Constant,
+			pocket = BagPocket.Berries,
+		},
+		[142] = {
+			id = 142,
+			name = "Sitrus Berry",
+			amount = 30,
+			type = HealingType.Constant,
+			pocket = BagPocket.Berries,
+		},
+		[143] = {
+			id = 143,
+			name = "Figy Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+		[144] = {
+			id = 144,
+			name = "Wiki Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+		[145] = {
+			id = 145,
+			name = "Mago Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+		[146] = {
+			id = 146,
+			name = "Aguav Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+		[147] = {
+			id = 147,
+			name = "Iapapa Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+		[175] = {
+			id = 175,
+			name = "Enigma Berry",
+			amount = 12.5,
+			type = HealingType.Percentage,
+			pocket = BagPocket.Berries,
+		},
+	},
+	statusItems = {
+		[14] = {
+			id = 14,
+			name = "Antidote",
+			type = StatusType.Poison,
+			pocket = BagPocket.Items,
+		},
+		[15] = {
+			id = 15,
+			name = "Burn Heal",
+			type = StatusType.Burn,
+			pocket = BagPocket.Items,
+		},
+		[16] = {
+			id = 16,
+			name = "Ice Heal",
+			type = StatusType.Freeze,
+			pocket = BagPocket.Items,
+		},
+		[17] = {
+			id = 17,
+			name = "Awakening",
+			type = StatusType.Sleep,
+			pocket = BagPocket.Items,
+		},
+		[18] = {
+			id = 18,
+			name = "Parlyz Heal",
+			type = StatusType.Paralyze,
+			pocket = BagPocket.Items,
+		},
+		[19] = {
+			id = 19,
+			name = "Full Restore",
+			type = StatusType.All,
+			pocket = BagPocket.Items,
+		},
+		[23] = {
+			id = 23,
+			name = "Full Heal",
+			type = StatusType.All,
+			pocket = BagPocket.Items,
+		},
+		[32] = {
+			id = 32,
+			name = "Heal Powder",
+			type = StatusType.All,
+			pocket = BagPocket.Items,
+		},		
+		[38] = {
+			id = 38,
+			name = "Lava Cookie",
+			type = StatusType.All,
+			pocket = BagPocket.Items,
+		},
+		[133] = {
+			id = 133,
+			name = "Cheri Berry",
+			type = StatusType.Paralyze,
+			pocket = BagPocket.Berries,
+		},
+		[134] = {
+			id = 134,
+			name = "Chesto Berry",
+			type = StatusType.Sleep,
+			pocket = BagPocket.Berries,
+		},
+		[135] = {
+			id = 135,
+			name = "Pecha Berry",
+			type = StatusType.Poison,
+			pocket = BagPocket.Berries,
+		},
+		[136] = {
+			id = 136,
+			name = "Rawst Berry",
+			type = StatusType.Burn,
+			pocket = BagPocket.Berries,
+		},
+		[137] = {
+			id = 137,
+			name = "Aspear Berry",
+			type = StatusType.Freeze,
+			pocket = BagPocket.Berries,
+		},
+		[141] = {
+			id = 141,
+			name = "Lum Berry",
+			type = StatusType.All,
+			pocket = BagPocket.Berries,
+		},
 	},
 	ability = {
 		"---",

@@ -1,8 +1,8 @@
 Memory = {}
 
 function Memory.read(addr, size)
-	mem = ""
-	memdomain = bit.rshift(addr, 24)
+	local mem = ""
+	local memdomain = bit.rshift(addr, 24)
 	if memdomain == 0 then
 		mem = "BIOS"
 	elseif memdomain == 2 then
