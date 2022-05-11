@@ -14,15 +14,20 @@ The various Pokémon moves (Gen 3)
 Data pulled from Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/List_of_moves (Note that categories differ from the source for Gen 3)
 
 Format for an entry:
-{
+
 	id: string -> internal id of the move, represented as an integer in a string
+
 	name: string -> the name of the move as it appears in game
+
 	type: string -> the type of damage the move does, using the PokemonTypes enum
+
 	power: string -> the strength of the move specified in game as in integer, or PLACEHOLDER when not applicable
+
 	pp: string -> the base amount of actions this move is capable of
+
 	accuracy: string -> the percent accuracy of the move connecting, or PLACEHOLDER when not applicable
+
 	category: integer -> the type of damage a move does: physical/special/status, using the MoveCategories enum
-}
 ]]
 MoveData = {
 	{ --- Empty entry for move ID 0
