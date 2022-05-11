@@ -549,3 +549,88 @@ function Program.getBattleMon(index)
 		ability = Memory.readbyte(base + 0x20)
 	}
 end
+
+function Program.getNumItems(pocket, itemId)
+	local pockets = {
+		[BagPocket.Items] = {
+			addr = GameSettings.bagPocket_Items,
+			size = GameSettings.bagPocket_Items_Size,
+		},
+		[BagPocket.Berries] = {
+			addr = GameSettings.bagPocket_Berries,
+			size = GameSettings.bagPocket_Berries_Size,
+		},
+	}
+
+	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+	for i=0x0,pockets[pocket].size*0x4,0x4 do
+		local id = Memory.readword(pockets[pocket].addr + i)
+		if id == itemId then
+			local quantity = bit.bxor(Memory.readword(pockets[pocket].addr + i + 0x2), key)
+			return quantity
+		end
+	end
+	return 0
+end
+
+function Program.getBagHealingItems(pkmn)
+	local totals = {
+		healing = 0,
+		numHeals = 0,
+	}
+	local maxHP = pkmn["maxHP"]
+
+	for _, item in pairs(MiscData.healingItems) do
+		local quantity = Program.getNumItems(item.pocket, item.id)
+		if quantity > 0 then
+			local healing = 0
+			if item.type == HealingType.Constant then
+				healing = item.amount * quantity
+			elseif item.type == HealingType.Percentage then
+				healing = ((item.amount * maxHP) / 100) * quantity
+			end
+			totals.healing = totals.healing + ((healing / maxHP) * 100)
+			totals.numHeals = totals.numHeals + quantity
+		end
+	end
+
+	return totals
+end
+
+function Program.getBagStatusItems()
+	local statusItems = {
+		poison = 0,
+		burn = 0,
+		freeze = 0,
+		sleep = 0,
+		paralyze = 0,
+		confuse = 0,
+		all = 0,
+	}
+
+	for _, item in pairs(MiscData.statusItems) do
+		local quantity = Program.getNumItems(item.pocket, item.id)
+		if quantity > 0 then
+			print(item.name)
+			if item.type == StatusType.Poison then
+				statusItems.poison = statusItems.poison + quantity
+			elseif item.type == StatusType.Burn then
+				statusItems.burn = statusItems.burn + quantity
+			elseif item.type == StatusType.Freeze then
+				statusItems.freeze = statusItems.freeze + quantity
+			elseif item.type == StatusType.Sleep then
+				statusItems.sleep = statusItems.sleep + quantity
+			elseif item.type == StatusType.Paralyze then
+				statusItems.paralyze = statusItems.paralyze + quantity
+			elseif item.type == StatusType.Confuse then
+				statusItems.confuse = statusItems.confuse + quantity
+			elseif item.type == StatusType.All then
+				statusItems.all = statusItems.all + quantity
+			end
+			print(statusItems)
+		end
+	end
+
+	return statusItems
+end

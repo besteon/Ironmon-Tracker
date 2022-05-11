@@ -208,10 +208,19 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local infoBoxHeight = 23
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals:", GraphicConstants.LAYOUTCOLORS.INCREASE)
+	local bag = Program.getBagHealingItems(monToDraw)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.INCREASE)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 57, "235% HP", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Status:", GraphicConstants.LAYOUTCOLORS.DECREASE)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", bag.healing) .. " HP (" .. bag.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
+	
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	-- local statusItems = Program.getBagStatusItems()
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 57, statusItems.burn, 0xFFFF0000)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, statusItems.sleep, "white")
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow")
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF)
 
 	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"] + 1])
 	if monIsEnemy then
@@ -374,6 +383,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 1), Utils.inlineIf(monIsEnemy or moveTwo["pp"] == NOPP, moveTwo["pp"], Utils.getbits(monToDraw["pp"], 8, 8)))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 2), Utils.inlineIf(monIsEnemy or moveThree["pp"] == NOPP, moveThree["pp"], Utils.getbits(monToDraw["pp"], 16, 8)))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 3), Utils.inlineIf(monIsEnemy or moveFour["pp"] == NOPP, moveFour["pp"], Utils.getbits(monToDraw["pp"], 24, 8)))
+
+	-- gui.drawImage(DATA_FOLDER .. "/images/icons/special6" .. ".png", GraphicConstants.SCREEN_WIDTH + ppOffset - 9, moveStartY + (distanceBetweenMoves * 1) + 2, 7, 7)
+	-- gui.drawImage(DATA_FOLDER .. "/images/icons/physical9" .. ".png", GraphicConstants.SCREEN_WIDTH + ppOffset - 9, moveStartY + (distanceBetweenMoves * 2) + 2, 7, 7)
 
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")

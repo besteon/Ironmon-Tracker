@@ -983,7 +983,7 @@ PokemonData = {
 	{
 		name = "Eevee",
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
-		evolution = EvolutionTypes.STONE,
+		evolution = EvolutionTypes.STONES,
 		bst = "325",
 		movelvls = { { 8, 16, 23, 30, 36, 42 }, { 8, 16, 23, 30, 36, 42 } }
 	},
