@@ -402,7 +402,6 @@ MiscData = {
 	}
 }
 
--- TODO: This may be able to be removed since it isn't accessed anywhere else in the project?
 EffectiveData = {
 	normal = { rock = 0.5, ghost = 0, steel = 0.5 },
 	fire = { fire = 0.5, water = 0.5, grass = 2, ice = 2, bug = 2, rock = 0.5, dragon = 0.5, steel = 2 },
@@ -420,5 +419,5 @@ EffectiveData = {
 	ghost = { normal = 0, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
 	dragon = { dragon = 2, steel = 0.5 },
 	dark = { fighting = 0.5, psychic = 2, ghost = 2, dark = 0.5, steel = 0.5 },
-	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5 },
+	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
 }

@@ -36,7 +36,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
@@ -55,7 +55,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
@@ -74,7 +74,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
@@ -93,7 +93,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
@@ -112,7 +112,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
@@ -131,7 +131,7 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER},
+		backgroundcolor = {GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL},
 		textcolor = 0xFF00AAFF,
 		onclick = function()
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1

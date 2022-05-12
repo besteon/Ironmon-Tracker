@@ -11,28 +11,6 @@ Tracker.controller = {
     boxVisibleFrames = 120,
 }
 
--- Data
-    -- main
-        -- ability
-    -- inBattle
-    -- currentlyTrackedPokemonMoves
-    -- currentlyTrackedPokemonAbilities
-    -- player
-    -- slot
-    -- moves
-        -- pokemon
-            -- first
-            -- second
-            -- third
-            -- fourth
-    -- stats
-        -- pokemon
-            -- hp
-            -- att
-            -- def
-            -- spa
-            -- spd
-            -- spe
 Tracker.Data = {}
 
 function Tracker.InitTrackerData()
@@ -44,15 +22,6 @@ function Tracker.InitTrackerData()
         },
         inBattle = 0,
         needCheckSummary = 0,
-        currentlyTrackedPokemonMoves = {
-            first = 1,
-            second = 1,
-            third = 1,
-            fouth = 1
-        },
-        currentlyTrackedPokemonAbilities = {
-            1
-        },
         selectedPlayer = 1,
         selectedSlot = 1,
         targetPlayer = 2,
@@ -64,7 +33,11 @@ function Tracker.InitTrackerData()
         moves = {},
         stats = {},
         abilities = {},
-        items = {}
+        items = {},
+        healingItems = {
+            healing = 0,
+            numHeals = 0,
+        },
     }
     return trackerData
 end
@@ -85,16 +58,6 @@ function Tracker.TrackAbility(pokemonId, abilityId)
         if currentAbilities[abilityId] == nil then
             Tracker.Data.abilities[pokemonId][abilityId] = abilityId
         end
-    end
-end
-
-function Tracker.getAbilities(pokemonId)
-    if Tracker.Data.abilities[pokemonId] == nil then
-        return {
-            1
-        }
-    else
-        return Tracker.Data.abilities[pokemonId]
     end
 end
 
@@ -168,6 +131,11 @@ function Tracker.TrackMove(pokemonId, moveId, level)
     end
 end
 
+function Tracker.TrackStatPrediction(pokemonId, stats)
+    Tracker.Data.stats[pokemonId] = {}
+    Tracker.Data.stats[pokemonId].stats = stats
+end
+
 function Tracker.getMoves(pokemonId)
     if Tracker.Data.moves[pokemonId] == nil then
         return {
@@ -193,9 +161,14 @@ function Tracker.getMoves(pokemonId)
     end
 end
 
-function Tracker.TrackStatPrediction(pokemonId, stats)
-    Tracker.Data.stats[pokemonId] = {}
-    Tracker.Data.stats[pokemonId].stats = stats
+function Tracker.getAbilities(pokemonId)
+    if Tracker.Data.abilities[pokemonId] == nil then
+        return {
+            1
+        }
+    else
+        return Tracker.Data.abilities[pokemonId]
+    end
 end
 
 function Tracker.getButtonState()
@@ -218,33 +191,14 @@ function Tracker.saveData()
     userdata.set(Tracker.userDataKey, dataString)
 end
 
--- Data
-    -- main
-        -- ability
-    -- inBattle
-    -- currentlyTrackedPokemonMoves
-    -- player
-    -- slot
-    -- moves
-        -- pokemon
-            -- first
-            -- second
-            -- third
-            -- fourth
-    -- stats
-        -- pokemon
-            -- hp
-            -- att
-            -- def
-            -- spa
-            -- spd
-            -- spe
 function Tracker.loadData()
-
     if userdata.containskey(Tracker.userDataKey) then
         local serializedTable = userdata.get(Tracker.userDataKey)
         local trackerData = unpickle(serializedTable)
-        Tracker.Data = trackerData
+        Tracker.Data = Tracker.InitTrackerData()
+        for k, v in pairs(trackerData) do
+            Tracker.Data[k] = v
+        end
     else
         Tracker.Data = Tracker.InitTrackerData()
         if Settings.tracker.MUST_CHECK_SUMMARY == true then
