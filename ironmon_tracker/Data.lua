@@ -277,7 +277,7 @@ MiscData = {
 			name = "Heal Powder",
 			type = StatusType.All,
 			pocket = BagPocket.Items,
-		},		
+		},
 		[38] = {
 			id = 38,
 			name = "Lava Cookie",
