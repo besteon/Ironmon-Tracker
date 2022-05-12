@@ -277,7 +277,7 @@ MiscData = {
 			name = "Heal Powder",
 			type = StatusType.All,
 			pocket = BagPocket.Items,
-		},		
+		},
 		[38] = {
 			id = 38,
 			name = "Lava Cookie",
@@ -402,7 +402,6 @@ MiscData = {
 	}
 }
 
--- TODO: This may be able to be removed since it isn't accessed anywhere else in the project?
 EffectiveData = {
 	normal = { rock = 0.5, ghost = 0, steel = 0.5 },
 	fire = { fire = 0.5, water = 0.5, grass = 2, ice = 2, bug = 2, rock = 0.5, dragon = 0.5, steel = 2 },
