@@ -592,16 +592,25 @@ function Program.getBagHealingItems(pkmn)
 	}
 	local maxHP = pkmn["maxHP"]
 
+	if pkmn == nil or maxHP == 0 then
+		return totals
+	end
+
 	for _, item in pairs(MiscData.healingItems) do
 		local quantity = Program.getNumItems(item.pocket, item.id)
 		if quantity > 0 then
 			local healing = 0
 			if item.type == HealingType.Constant then
-				healing = item.amount * quantity
+				local percentage = ((item.amount / maxHP) * 100)
+				if percentage > 100 then
+					percentage = 100
+				end
+				healing = percentage * quantity
 			elseif item.type == HealingType.Percentage then
-				healing = ((item.amount * maxHP) / 100) * quantity
+				healing = item.amount * quantity
 			end
-			totals.healing = totals.healing + ((healing / maxHP) * 100)
+			-- Healing is in a percentage compared to the mon's max HP
+			totals.healing = totals.healing + healing
 			totals.numHeals = totals.numHeals + quantity
 		end
 	end
