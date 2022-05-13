@@ -30,14 +30,18 @@ function Input.update()
 			end
 		end
 
-		Program.tracker.nextView = true
+		Tracker.redraw = true
 	end
 
 	-- "Settings.controls.CYCLE_STAT" pressed, display box over next stat
 	if joypadButtons[Settings.controls.CYCLE_STAT] == true and Input.joypad[Settings.controls.CYCLE_STAT] ~= joypadButtons[Settings.controls.CYCLE_STAT] then
 		Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 		Tracker.controller.framesSinceInput = 0
+		Tracker.redraw = true
 	else
+		if Tracker.controller.framesSinceInput == Tracker.controller.boxVisibleFrames - 1 then
+			Tracker.redraw = true
+		end
 		if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 			Tracker.controller.framesSinceInput = Tracker.controller.framesSinceInput + 1
 		end
@@ -61,28 +65,35 @@ function Input.update()
 				Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.hp]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.hp]
+				Tracker.controller.framesSinceInput = 0
 			elseif Tracker.controller.statIndex == 2 then
 				Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.att]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.att]
+				Tracker.controller.framesSinceInput = 0
 			elseif Tracker.controller.statIndex == 3 then
 				Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.def]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.def]
+				Tracker.controller.framesSinceInput = 0
 			elseif Tracker.controller.statIndex == 4 then
 				Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spa]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spa]
+				Tracker.controller.framesSinceInput = 0
 			elseif Tracker.controller.statIndex == 5 then
 				Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spd]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spd]
+				Tracker.controller.framesSinceInput = 0
 			elseif Tracker.controller.statIndex == 6 then
 				Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 				Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.spe]
 				Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spe]
+				Tracker.controller.framesSinceInput = 0
 			end
 			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			Tracker.redraw = true
 		end
 	end
 

@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.1.9"
+TRACKER_VERSION = "0.2.0"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -58,7 +58,6 @@ function Main.Run()
 		gui.defaultTextBackground(0)
 
 		event.onloadstate(Tracker.loadData, "OnLoadState")
-		event.onsavestate(Tracker.saveData, "OnSaveState")
 
 		-- Core events
 		--event.onmemoryexecute(Program.HandleStartWildBattle, GameSettings.StartWildBattle, "HandleStartWildBattle")
