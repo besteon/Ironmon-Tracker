@@ -1565,7 +1565,7 @@ MoveData = {
 		name = "Mind Reader",
 		type = PokemonTypes.NORMAL,
 		power = NOPOWER,
-		pp = "40",
+		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
 	},
