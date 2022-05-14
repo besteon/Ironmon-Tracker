@@ -52,6 +52,9 @@ function Program.main()
 	-- Only redraw the UI when an event has occurred which requires the UI to be redrawn.
 	-- TODO: This could be more granular for even more performance gains. In general, drawing to the UI is very cheap but reading values from emulated memory is very expensive
 	if Tracker.redraw == true and Tracker.waitFrames == 0 then
+		if Tracker.Data.inBattle == 1 then
+			Program.UpdateMonPartySlots()
+		end
 		Program.UpdatePokemonTeamDataFromMemory()
 		Program.UpdateSelectedPokemonData()
 		Program.UpdateTargetedPokemonData()
@@ -59,9 +62,6 @@ function Program.main()
 		Program.UpdateMonStatStages()
 		Program.UpdateMonPartySlots()
 		Program.UpdateBagHealingItems()
-		if Tracker.Data.inBattle == 1 then
-			Program.UpdateMonPartySlots()
-		end
 	
 		if Tracker.Data.selectedPlayer == 2 then
 			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
@@ -195,48 +195,19 @@ function Program.getMainAbility()
 	return abilityValue
 end
 
-function Program.HandleBeginBattle()
-	Tracker.controller.statIndex = 6
-	Tracker.Data.inBattle = 1
-	Tracker.Data.selectedSlot = 1
-	Tracker.Data.targetPlayer = 2
-	Tracker.Data.targetSlot = 1
-
-	if Settings.config.AUTO_TRACK == true then
-		Tracker.Data.selectedPlayer = 2
-		Tracker.Data.targetPlayer = 1
-		Tracker.Data.targetSlot = 1
-	end
-
-	Tracker.waitFrames = 180
-end
-
-function Program.HandleStartWildBattle()
-	Tracker.controller.statIndex = 6
-	Tracker.Data.inBattle = 1
-	Tracker.Data.selectedSlot = 1
-
-	if Settings.config.AUTO_TRACK == true then
-		Tracker.Data.selectedPlayer = 2
-		Tracker.Data.targetPlayer = 1
-		Tracker.Data.targetSlot = 1
-	end
-
-	Tracker.waitFrames = 280
-end
-
 function Program.HandleTrainerSentOutPkmn()
 	Tracker.controller.statIndex = 6
 	Tracker.Data.inBattle = 1
 	Tracker.Data.selectedSlot = 1
 
-	if Settings.config.AUTO_TRACK == true then
+	if Settings.tracker.AUTO_TRACK == true then
 		Tracker.Data.selectedPlayer = 2
 		Tracker.Data.targetPlayer = 1
 		Tracker.Data.targetSlot = 1
 	end
 
 	Tracker.waitFrames = 100
+	Tracker.redraw = true
 end
 
 function Program.HandleEndBattle()
@@ -280,6 +251,25 @@ function Program.HandleUpdatePoisonStepCounter()
 end
 
 function Program.HandleWeHopeToSeeYouAgain()
+	Tracker.redraw = true
+end
+
+function Program.HandleDoPokeballSendOutAnimation()
+	if Tracker.Data.inBattle == 0 then
+		Tracker.Data.selectedSlot = 1
+		Tracker.Data.targetPlayer = 2
+		Tracker.Data.targetSlot = 1
+	end
+
+	if Settings.tracker.AUTO_TRACK == true then
+		Tracker.Data.selectedPlayer = 2
+		Tracker.Data.targetPlayer = 1
+		Tracker.Data.targetSlot = 1
+	end
+
+	Tracker.controller.statIndex = 6
+	Tracker.Data.inBattle = 1
+	Tracker.waitFrames = 90
 	Tracker.redraw = true
 end
 
@@ -358,7 +348,7 @@ function Program.HandleMove()
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
-			if Settings.config.AUTO_TRACK == true then
+			if Settings.tracker.AUTO_TRACK == true then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotOne
 				Tracker.Data.targetPlayer = 1
@@ -367,7 +357,7 @@ function Program.HandleMove()
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Settings.config.AUTO_TRACK == true then
+			if Settings.tracker.AUTO_TRACK == true then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotTwo
 				Tracker.Data.targetPlayer = 1

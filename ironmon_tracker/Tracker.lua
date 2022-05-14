@@ -205,4 +205,6 @@ function Tracker.loadData()
             Tracker.Data.needCheckSummary = 1
         end
     end
+
+    Tracker.redraw = true
 end
