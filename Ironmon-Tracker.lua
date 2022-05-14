@@ -60,10 +60,9 @@ function Main.Run()
 		event.onloadstate(Tracker.loadData, "OnLoadState")
 
 		-- Core events
-		--event.onmemoryexecute(Program.HandleStartWildBattle, GameSettings.StartWildBattle, "HandleStartWildBattle")
-		event.onmemoryexecute(Program.HandleBeginBattle, GameSettings.BeginBattleIntro, "HandleBeginBattle")
 		event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld, "HandleEndBattle")
 		event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle, "HandleMove")
+		event.onmemoryexecute(Program.HandleDoPokeballSendOutAnimation, GameSettings.DoPokeballSendOutAnimation, "HandleDoPokeballSendOutAnimation")
 
 		-- Additional events to re-render on
 		event.onmemoryexecute(Program.HandleShowSummary, GameSettings.ShowPokemonSummaryScreen, "HandleShowSummary")
