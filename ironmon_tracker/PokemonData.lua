@@ -39,14 +39,18 @@ EvolutionTypes = {
 
 --[[
 Data for each Pokémon (Gen 3) - Sourced from Bulbapedia
+
 Format for an entry:
-{
+
 	name: string -> Name of the Pokémon as it appears in game
+
 	type: {string, string} -> Each Pokémon can have one or two types, using the PokemonTypes enum to alias the strings
+
 	evolution: string -> Displays the level, item, or other requirement a Pokémon needs to evolve
+
 	bst: string -> A sum of the base stats of the Pokémon
+
 	movelvls: {{integer list}, {integer list}} -> A pair of tables (1:RSE/2:FRLG) declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
-}
 ]]
 PokemonData = {
 	{ -- Empty entry for ID 0
@@ -983,7 +987,7 @@ PokemonData = {
 	{
 		name = "Eevee",
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
-		evolution = EvolutionTypes.STONE,
+		evolution = EvolutionTypes.STONES,
 		bst = "325",
 		movelvls = { { 8, 16, 23, 30, 36, 42 }, { 8, 16, 23, 30, 36, 42 } }
 	},

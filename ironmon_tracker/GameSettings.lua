@@ -24,6 +24,7 @@ GameSettings = {
 	SwitchSelectedMons = 0,
 	UpdatePoisonStepCounter = 0,
 	WeHopeToSeeYouAgain = 0,
+	DoPokeballSendOutAnimation = 0,
 
 	BattleScriptDrizzleActivates = 0,
 	BattleScriptSpeedBoostActivates = 0,
@@ -38,6 +39,14 @@ GameSettings = {
 	BattleScriptRoughSkinActivates = 0,
 	BattleScriptCuteCharmActivates = 0,
 	BattleScriptSynchronizeActivates = 0,
+
+	gSaveBlock1 = 0,
+	gSaveBlock2ptr = 0,
+	bagEncryptionKeyOffset = 0,
+	bagPocket_Items = 0,
+	bagPocket_Berries = 0,
+	bagPocket_Items_Size = 0,
+	bagPocket_Berries_Size = 0,
 }
 GameSettings.VERSIONS = {
 	RS = 1,
@@ -77,6 +86,7 @@ function GameSettings.initialize()
 		GameSettings.SwitchSelectedMons = 0x081b3938
 		GameSettings.UpdatePoisonStepCounter = 0x0809cb94
 		GameSettings.WeHopeToSeeYouAgain = 0x082727db
+		GameSettings.DoPokeballSendOutAnimation = 0x080753e8
 
 		GameSettings.BattleScriptDrizzleActivates = 0x082db430
 		GameSettings.BattleScriptSpeedBoostActivates = 0x082db444
@@ -91,6 +101,14 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x082db654
 		GameSettings.BattleScriptCuteCharmActivates = 0x082db66f
 		GameSettings.BattleScriptSynchronizeActivates = 0x082db67f
+
+		GameSettings.gSaveBlock1 = 0x02025a00
+		GameSettings.gSaveBlock2ptr = 0x03005d90
+		GameSettings.bagEncryptionKeyOffset = 0xAC
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
+		GameSettings.bagPocket_Items_Size = 30
+		GameSettings.bagPocket_Berries_Size = 46
 	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
 		print("Firered v1.1 ROM Detected")
 		GameSettings.game = 3
@@ -117,6 +135,7 @@ function GameSettings.initialize()
 		GameSettings.SwitchSelectedMons = 0x08122ed4
 		GameSettings.UpdatePoisonStepCounter = 0x0806d7b0
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5589
+		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d92ef
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9303
@@ -131,6 +150,14 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x081d9513
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d952e
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d953e
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
 		print("Firered v1.0 ROM Detected")
 		GameSettings.game = 3
@@ -157,6 +184,7 @@ function GameSettings.initialize()
 		GameSettings.SwitchSelectedMons = 0x08122e5c
 		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5511
+		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d927f
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9293
@@ -171,6 +199,14 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x081d94a3
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d94be
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d94ce
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
 		print("Leaf Green v1.1 ROM Detected")
 		GameSettings.game = 3
@@ -197,6 +233,7 @@ function GameSettings.initialize()
 		GameSettings.SwitchSelectedMons = 0x08122eac
 		GameSettings.UpdatePoisonStepCounter = 0x0806d7b0
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5565
+		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d92cb
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d92df
@@ -211,6 +248,14 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x081d94ef
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d950a
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d951a
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
 		print("Leaf Green v1.0 ROM Detected")
 		GameSettings.game = 3
@@ -237,6 +282,7 @@ function GameSettings.initialize()
 		GameSettings.SwitchSelectedMons = 0x08122e34
 		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
 		GameSettings.WeHopeToSeeYouAgain = 0x081a54ed
+		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d925b
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d926f
@@ -251,6 +297,14 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x081d947f
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d949a
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d94aa
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
 	else
 		GameSettings.game = 0
 		GameSettings.gamename = "Unsupported game"

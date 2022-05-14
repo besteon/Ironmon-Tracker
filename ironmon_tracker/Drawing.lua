@@ -9,17 +9,18 @@ function Drawing.drawPokemonIcon(id, x, y)
 		id = 0
 	end
 
-	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y - 7, 32, 32)
+	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y - 6, 32, 32)
 
 	if PokemonData[id + 1].type[1] ~= "" then
-		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[1] .. ".png", x + 1, y + 26, 30, 12)
+		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[1] .. ".png", x + 1, y + 28, 30, 12)
 	end
 	if PokemonData[id + 1].type[2] ~= "" then
-		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x + 1, y + 38, 30, 12)
+		gui.drawImage(DATA_FOLDER .. "/images/types/" .. PokemonData[id + 1].type[2] .. ".png", x + 1, y + 40, 30, 12)
 	end
 end
 
 function Drawing.drawText(x, y, text, color)
+	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium")
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
 end
 
@@ -141,7 +142,7 @@ function Drawing.drawStatusLevel(x, y, value)
 	end
 end
 
-function Drawing.drawMoveEffectiveness(x, y, value) 
+function Drawing.drawMoveEffectiveness(x, y, value)
 	if value == 2 then
 		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
 	elseif value == 4 then
@@ -179,9 +180,10 @@ end
 
 function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local borderMargin = 5
-	local statBoxX = 101
+	local statBoxWidth = 101
+	local statBoxHeight = 52
 
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxX, 50, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 
 	Drawing.drawPokemonIcon(monToDraw["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
 
@@ -197,23 +199,33 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local maxHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["maxHP"])
 
 	local pkmnStatOffsetX = 36
-	local pkmnStatStartY = 7
-	local pkmnStatOffsetY = 9
+	local pkmnStatStartY = 5
+	local pkmnStatOffsetY = 10
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), "Lv." .. monToDraw["level"] .. " (" .. PokemonData[monToDraw["pokemonID"] + 1].evolution .. ")")
 
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 55, statBoxX, 25, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	local infoBoxHeight = 23
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals:", GraphicConstants.LAYOUTCOLORS.INCREASE)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 57, "235% HP", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, "Status:", GraphicConstants.LAYOUTCOLORS.DECREASE)
+	if monIsEnemy == false then
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
+	end
+
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	-- local statusItems = Program.getBagStatusItems()
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 57, statusItems.burn, 0xFFFF0000)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, statusItems.sleep, "white")
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow")
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF)
 
 	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"] + 1])
 	if monIsEnemy then
-		for k, v in pairs(Tracker.Data.currentlyTrackedPokemonAbilities) do
+		for k, v in pairs(Tracker.Data.selectedPokemon.abilities) do
 			if v == monToDraw["ability"] then
 				local abilityId = monToDraw["ability"] + 1
 				abilityString = MiscData.ability[abilityId]
@@ -221,13 +233,17 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
+	-- Held item & ability
+	if monIsEnemy == false then
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
+	end
 
 	local statBoxY = 5
-	local statOffsetX = statBoxX + 1
-	local statValueOffsetX = statBoxX + 26
+	local statOffsetX = statBoxWidth + 1
+	local statValueOffsetX = statBoxWidth + 26
 	local statInc = 10
+	local statusLevelOffset = 5
 	local hpY = 7
 	local attY = hpY + statInc
 	local defY = attY + statInc
@@ -235,7 +251,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local spdY = spaY + statInc
 	local speY = spdY + statInc
 	local bstY = speY + statInc
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxX, statBoxY, GraphicConstants.RIGHT_GAP - statBoxX - borderMargin, 75, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, statBoxY, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("hp", monToDraw["nature"])))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("atk", monToDraw["nature"])))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("def", monToDraw["nature"])))
@@ -254,40 +270,44 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], Drawing.getNatureColor("spe", monToDraw["nature"]))
 	end
 
-	local statusLevelOffset = 5
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, hpY, monToDraw.statStages["HP"])
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, attY, monToDraw.statStages["ATK"])
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, defY, monToDraw.statStages["DEF"])
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, spaY, monToDraw.statStages["SPATK"])
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, spdY, monToDraw.statStages["SPDEF"])
-	Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, speY, monToDraw.statStages["SPEED"])
+	-- Stat stages -6 -> +6
+	if Tracker.Data.inBattle == 1 then
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, hpY, monToDraw.statStages["HP"])
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, attY, monToDraw.statStages["ATK"])
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, defY, monToDraw.statStages["DEF"])
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, spaY, monToDraw.statStages["SPATK"])
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, spdY, monToDraw.statStages["SPDEF"])
+		Drawing.drawStatusLevel(GraphicConstants.SCREEN_WIDTH + statValueOffsetX - statusLevelOffset, speY, monToDraw.statStages["SPEED"])
+	end
 
 	-- Drawing moves
 	local movesBoxStartY = 94
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2*borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local moveStartY = movesBoxStartY + 3
 
 	local monLevel = monToDraw["level"]
 	local monData = PokemonData[monToDraw["pokemonID"] + 1]
 	local moveLevels = monData.movelvls[GameSettings.versiongroup]
 
+	-- Determine if the opponent Pokémon's moves are old and mark with a star
 	local movesLearnedSinceFirst = 0
 	local movesLearnedSinceSecond = 0
 	local movesLearnedSinceThird = 0
-	local movesLearnedSinceFouth = 0
+	local movesLearnedSinceFourth = 0
 
 	for k, v in pairs(moveLevels) do
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.first.level and v <= monLevel then
+		if v > Tracker.Data.selectedPokemon.moves.first.level and v <= monLevel then
 			movesLearnedSinceFirst = movesLearnedSinceFirst + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.second.level and v <= monLevel then
+		if v > Tracker.Data.selectedPokemon.moves.second.level and v <= monLevel then
 			movesLearnedSinceSecond = movesLearnedSinceSecond + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.third.level and v <= monLevel then
+		if v > Tracker.Data.selectedPokemon.moves.third.level and v <= monLevel then
 			movesLearnedSinceThird = movesLearnedSinceThird + 1
 		end
-		if v > Tracker.Data.currentlyTrackedPokemonMoves.fourth.level and v <= monLevel then
-			movesLearnedSinceFouth = movesLearnedSinceFouth + 1
+		if v > Tracker.Data.selectedPokemon.moves.fourth.level and v <= monLevel then
+			movesLearnedSinceFourth = movesLearnedSinceFourth + 1
 		end
 	end
 
@@ -297,8 +317,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		third = 1,
 		fourth = 1
 	}
-	for k, v in pairs(Tracker.Data.currentlyTrackedPokemonMoves) do
-		for k2, v2 in pairs(Tracker.Data.currentlyTrackedPokemonMoves) do
+	for k, v in pairs(Tracker.Data.selectedPokemon.moves) do
+		for k2, v2 in pairs(Tracker.Data.selectedPokemon.moves) do
 			if k ~= k2 then
 				if v.level > v2.level then
 					moveAgeRank[k] = moveAgeRank[k] + 1
@@ -307,24 +327,25 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
-	local firstStar = (monIsEnemy == true and Tracker.Data.currentlyTrackedPokemonMoves.first.level ~= 1 and movesLearnedSinceFirst >= moveAgeRank.first) and "*" or ""
-	local secondStar = (monIsEnemy == true and Tracker.Data.currentlyTrackedPokemonMoves.second.level ~= 1 and movesLearnedSinceSecond >= moveAgeRank.second) and "*" or ""
-	local thirdStar = (monIsEnemy == true and Tracker.Data.currentlyTrackedPokemonMoves.third.level ~= 1 and movesLearnedSinceThird >= moveAgeRank.third) and "*" or ""
-	local fourthStar = (monIsEnemy == true and Tracker.Data.currentlyTrackedPokemonMoves.fourth.level ~= 1 and movesLearnedSinceFouth >= moveAgeRank.fourth) and "*" or ""
+	local stars = {
+		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.first.level ~= 1 and movesLearnedSinceFirst >= moveAgeRank.first) and "*" or "",
+		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.second.level ~= 1 and movesLearnedSinceSecond >= moveAgeRank.second) and "*" or "",
+		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.third.level ~= 1 and movesLearnedSinceThird >= moveAgeRank.third) and "*" or "",
+		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.fourth.level ~= 1 and movesLearnedSinceFourth >= moveAgeRank.fourth) and "*" or "",
+	}
 
-	local moveOne = Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.first.move], MoveData[monToDraw["move1"] + 1])
-	local moveTwo = Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.second.move], MoveData[monToDraw["move2"] + 1])
-	local moveThree = Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.third.move], MoveData[monToDraw["move3"] + 1])
-	local moveFour = Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.currentlyTrackedPokemonMoves.fourth.move], MoveData[monToDraw["move4"] + 1])
+	-- Determine which moves to show based on if the tracker is showing the enemy Pokémon or the player's.
+	local moves = {
+		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.first.move], MoveData[monToDraw["move1"] + 1]),
+		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.second.move], MoveData[monToDraw["move2"] + 1]),
+		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.third.move], MoveData[monToDraw["move3"] + 1]),
+		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.fourth.move], MoveData[monToDraw["move4"] + 1]),
+	}
 
 	local distanceBetweenMoves = 10
 
-	local moveOffset = 6
-	local movesString = "Move -- "
-
 	-- Moves Learned
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2*borderMargin), 14, GraphicConstants.LAYOUTCOLORS.BOXFILL, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
-	local learnedRowHeight = 141
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 14, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local movelevellist = PokemonData[monToDraw["pokemonID"] + 1].movelvls -- pokemonID
 	local moveCount = 0
 	local movesLearned = 0
@@ -345,59 +366,79 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	local moveTableHeaderHeightDiff = 14
 
+	local movesString = "Move ~  "
 	movesString = movesString .. movesLearned .. "/" .. moveCount
 	if nextMove ~= 0 then
 		movesString = movesString .. " (" .. nextMove .. ")"
 	end
 
 	-- Draw moves
-	local moveColorOne = Drawing.moveToColor(moveOne)
-	local moveColorTwo = Drawing.moveToColor(moveTwo)
-	local moveColorThree = Drawing.moveToColor(moveThree)
-	local moveColorFour = Drawing.moveToColor(moveFour)
+	local moveColors = {}
+	for moveIndex = 1, 4, 1 do
+		table.insert(moveColors, Drawing.moveToColor(moves[moveIndex]))
+	end
 
-	local stabColorOne = Utils.inlineIf(Utils.isSTAB(moveOne, PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	local stabColorTwo = Utils.inlineIf(Utils.isSTAB(moveTwo, PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	local stabColorThree = Utils.inlineIf(Utils.isSTAB(moveThree, PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	local stabColorFour = Utils.inlineIf(Utils.isSTAB(moveFour, PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	local stabColors = {}
+	for moveIndex = 1, 4, 1 do
+		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL))
+	end
 
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 1, moveStartY - moveTableHeaderHeightDiff, movesString)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY, moveOne["name"] .. firstStar, moveColorOne)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 1), moveTwo["name"] .. secondStar, moveColorTwo)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 2), moveThree["name"] .. thirdStar, moveColorThree)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["name"] .. fourthStar, moveColorFour)
+	-- Move category: physical, special, or status effect
+	local moveOffset = 7
+	local physicalCatLocation = DATA_FOLDER .. "/images/icons/physical.png"
+	local specialCatLocation = DATA_FOLDER .. "/images/icons/special.png"
+	local isStatusMove = {}
+	for moveIndex = 1, 4, 1 do
+		table.insert(isStatusMove, Utils.inlineIf(moves[moveIndex].category == MoveCategories.PHYSICAL or moves[moveIndex].category == MoveCategories.SPECIAL, false, true))
+	end
+	local categories = {}
+	for moveIndex = 1, 4, 1 do
+		table.insert(categories, Utils.inlineIf(moves[moveIndex].category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(moves[moveIndex].category == MoveCategories.SPECIAL, specialCatLocation, "")))
+	end
+	if Settings.tracker.SHOW_MOVE_CATEGORIES then
+		for catIndex = 0, 3, 1 do
+			if not isStatusMove[catIndex + 1] then
+				gui.drawImage(categories[catIndex + 1], GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * catIndex))
+			end
+		end
+	end
 
+	-- Move names (longest name is 12 characters?)
+	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString)
+	for moveIndex = 1, 4, 1 do
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex])
+	end
+
+	-- Move power points
 	local ppOffset = 82
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY, Utils.inlineIf(monIsEnemy, moveOne["pp"], Utils.getbits(monToDraw["pp"], 0, 8)))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 1), Utils.inlineIf(monIsEnemy, moveTwo["pp"], Utils.getbits(monToDraw["pp"], 8, 8)))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 2), Utils.inlineIf(monIsEnemy, moveThree["pp"], Utils.getbits(monToDraw["pp"], 16, 8)))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * 3), Utils.inlineIf(monIsEnemy, moveFour["pp"], Utils.getbits(monToDraw["pp"], 24, 8)))
+	for moveIndex = 1, 4, 1 do
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)))
+	end
 
+	-- Move attack power
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY, moveOne["power"], stabColorOne)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 1), moveTwo["power"], stabColorTwo)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 2), moveThree["power"], stabColorThree)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["power"], stabColorFour)
+	for moveIndex = 1, 4, 1 do
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
+	end
 
+	-- Move accuracy
 	local accOffset = 126
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY, moveOne["accuracy"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * 1), moveTwo["accuracy"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * 2), moveThree["accuracy"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * 3), moveFour["accuracy"])
+	for moveIndex = 1, 4, 1 do
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy)
+	end
 
-	if targetMon ~= nil then
-		local firstEffectiveness = Utils.netEffectiveness(moveOne, PokemonData[targetMon["pokemonID"] + 1])
-		local secondEffectiveness = Utils.netEffectiveness(moveTwo, PokemonData[targetMon["pokemonID"] + 1])
-		local thirdEffectiveness = Utils.netEffectiveness(moveThree, PokemonData[targetMon["pokemonID"] + 1])
-		local fourthEffectivness = Utils.netEffectiveness(moveFour, PokemonData[targetMon["pokemonID"] + 1])
-
-		Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY, firstEffectiveness)
-		Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * 1), secondEffectiveness)
-		Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * 2), thirdEffectiveness)
-		Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * 3), fourthEffectivness)
+	-- Move effectiveness against the opponent
+	if Tracker.Data.inBattle == 1 then
+		if targetMon ~= nil then
+			for moveIndex = 1, 4, 1 do
+				local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[targetMon.pokemonID + 1])
+				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
+			end
+		end
 	end
 
 	Drawing.drawButtons()
