@@ -20,7 +20,7 @@ function Drawing.drawPokemonIcon(id, x, y)
 end
 
 function Drawing.drawText(x, y, text, color)
-	gui.drawText(x+1, y+1, text, "black", nil, 9, "Franklin Gothic Medium")
+	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium")
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
 end
 
@@ -282,7 +282,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Drawing moves
 	local movesBoxStartY = 94
-  
+
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local moveStartY = movesBoxStartY + 3
 
@@ -414,7 +414,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local ppOffset = 82
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw["pp"], moveIndex * 8, 8)))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)))
 	end
 
 	-- Move attack power
