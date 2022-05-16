@@ -1,6 +1,6 @@
 # Ironmon-Tracker
 
-![ironmon_v0 1 3](https://user-images.githubusercontent.com/103706338/164341565-ee640cf1-0d30-4d94-adcb-6fce328c563b.gif)
+![Ironmon-Tracker_v0 2 0-min](https://user-images.githubusercontent.com/103706338/168518780-ceebdb88-57a8-49aa-b6b4-acc46c4d2101.gif)
 
 Ironmon-Tracker is a collection of lua scripts for the Bizhawk emulator used to track ironMON attempts.
 For more information on ironMON, see https://gist.github.com/valiant-code/adb18d248fa0fae7da6b639e2ee8f9c1
