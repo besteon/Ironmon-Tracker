@@ -43,7 +43,7 @@ function Program.main()
 
 	-- Execute event callbacks
 	-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
-		-- For example, the working directory in the context becomes the directory of EmuHawk.exe instead of the directory of the main Lua script
+	-- For example, the working directory in the context becomes the directory of EmuHawk.exe instead of the directory of the main Lua script
 	for _, callback in ipairs(Program.eventCallbacks) do
 		callback()
 	end
@@ -62,7 +62,11 @@ function Program.main()
 		Program.UpdateMonStatStages()
 		Program.UpdateMonPartySlots()
 		Program.UpdateBagHealingItems()
-	
+
+		if Tracker.Data.inBattle == 1 then
+			Program.UpdateMonPartySlots()
+		end
+
 		if Tracker.Data.selectedPlayer == 2 then
 			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
 		else
@@ -406,7 +410,7 @@ function Program.getTrainerData(index)
 	else
 		st = GameSettings.estats
 	end
-	for i = 1,6,1 do
+	for i = 1, 6, 1 do
 		local start = st + 100 * (i - 1)
 		local personality = Memory.readdword(start)
 		local magicword = bit.bxor(personality, Memory.readdword(start + 4))
@@ -429,37 +433,37 @@ function Program.getPokemonData(index)
 	else
 		start = GameSettings.estats + 100 * (index.slot - 1)
 	end
-	
+
 	local personality = Memory.readdword(start)
 	local otid = Memory.readdword(start + 4)
 	local magicword = bit.bxor(personality, otid)
-	
-	local aux = personality % 24
-	local growthoffset = (TableData.growth[aux+1] - 1) * 12
-	local attackoffset = (TableData.attack[aux+1] - 1) * 12
-	local effortoffset = (TableData.effort[aux+1] - 1) * 12
-	local miscoffset   = (TableData.misc[aux+1]   - 1) * 12
-	
-	local growth1 = bit.bxor(Memory.readdword(start+32+growthoffset),   magicword)
-	local growth2 = bit.bxor(Memory.readdword(start+32+growthoffset+4), magicword)
-	local growth3 = bit.bxor(Memory.readdword(start+32+growthoffset+8), magicword)
-	local attack1 = bit.bxor(Memory.readdword(start+32+attackoffset),   magicword)
-	local attack2 = bit.bxor(Memory.readdword(start+32+attackoffset+4), magicword)
-	local attack3 = bit.bxor(Memory.readdword(start+32+attackoffset+8), magicword)
-	local effort1 = bit.bxor(Memory.readdword(start+32+effortoffset),   magicword)
-	local effort2 = bit.bxor(Memory.readdword(start+32+effortoffset+4), magicword)
-	local effort3 = bit.bxor(Memory.readdword(start+32+effortoffset+8), magicword)
-	local misc1   = bit.bxor(Memory.readdword(start+32+miscoffset),     magicword)
-	local misc2   = bit.bxor(Memory.readdword(start+32+miscoffset+4),   magicword)
-	local misc3   = bit.bxor(Memory.readdword(start+32+miscoffset+8),   magicword)
-	
+
+	local aux          = personality % 24
+	local growthoffset = (TableData.growth[aux + 1] - 1) * 12
+	local attackoffset = (TableData.attack[aux + 1] - 1) * 12
+	local effortoffset = (TableData.effort[aux + 1] - 1) * 12
+	local miscoffset   = (TableData.misc[aux + 1] - 1) * 12
+
+	local growth1 = bit.bxor(Memory.readdword(start + 32 + growthoffset), magicword)
+	local growth2 = bit.bxor(Memory.readdword(start + 32 + growthoffset + 4), magicword)
+	local growth3 = bit.bxor(Memory.readdword(start + 32 + growthoffset + 8), magicword)
+	local attack1 = bit.bxor(Memory.readdword(start + 32 + attackoffset), magicword)
+	local attack2 = bit.bxor(Memory.readdword(start + 32 + attackoffset + 4), magicword)
+	local attack3 = bit.bxor(Memory.readdword(start + 32 + attackoffset + 8), magicword)
+	local effort1 = bit.bxor(Memory.readdword(start + 32 + effortoffset), magicword)
+	local effort2 = bit.bxor(Memory.readdword(start + 32 + effortoffset + 4), magicword)
+	local effort3 = bit.bxor(Memory.readdword(start + 32 + effortoffset + 8), magicword)
+	local misc1   = bit.bxor(Memory.readdword(start + 32 + miscoffset), magicword)
+	local misc2   = bit.bxor(Memory.readdword(start + 32 + miscoffset + 4), magicword)
+	local misc3   = bit.bxor(Memory.readdword(start + 32 + miscoffset + 8), magicword)
+
 	local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
-	         + Utils.addhalves(attack1) + Utils.addhalves(attack2) + Utils.addhalves(attack3)
-			 + Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
-			 + Utils.addhalves(misc1)   + Utils.addhalves(misc2)   + Utils.addhalves(misc3)
+			+ Utils.addhalves(attack1) + Utils.addhalves(attack2) + Utils.addhalves(attack3)
+			+ Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
+			+ Utils.addhalves(misc1) + Utils.addhalves(misc2) + Utils.addhalves(misc3)
 	cs = cs % 65536
-	
-	local status_aux = Memory.readdword(start+80)
+
+	local status_aux = Memory.readdword(start + 80)
 	local sleep_turns_result = 0
 	local status_result = 0
 	if status_aux == 0 then
@@ -468,20 +472,22 @@ function Program.getPokemonData(index)
 		sleep_turns_result = status_aux
 		status_result = 1
 	elseif status_aux == 8 then
-		status_result = 2	
+		status_result = 2
 	elseif status_aux == 16 then
-		status_result = 3	
+		status_result = 3
 	elseif status_aux == 32 then
-		status_result = 4	
+		status_result = 4
 	elseif status_aux == 64 then
-		status_result = 5	
+		status_result = 5
 	elseif status_aux == 128 then
-		status_result = 6	
+		status_result = 6
 	end
-	
+
 	return {
 		pokemonID = Utils.getbits(growth1, 0, 16),
 		heldItem = Utils.getbits(growth1, 16, 16),
+		experience = Utils.getbits(growth2, 32, 31),
+		friendship = Utils.getbits(growth3, 72, 8),
 		pokerus = Utils.getbits(misc1, 0, 8),
 		tid = Utils.getbits(otid, 0, 16),
 		sid = Utils.getbits(otid, 16, 16),
@@ -498,20 +504,20 @@ function Program.getPokemonData(index)
 		curHP = Memory.readword(start + 86),
 		maxHP = Memory.readword(start + 88),
 		atk = Memory.readword(start + 90),
-		def = Memory.readword(start + 92),  
+		def = Memory.readword(start + 92),
 		spe = Memory.readword(start + 94),
 		spa = Memory.readword(start + 96),
 		spd = Memory.readword(start + 98),
 		status = status_result,
 		sleep_turns = sleep_turns_result,
-		ability = 0
+		ability = 0,
 	}
 end
 
 function Program.validPokemonData(pokemonData)
 	if pokemonData["pokemonID"] < 0 or pokemonData["pokemonID"] > 412 or pokemonData["heldItem"] < 0 or pokemonData["heldItem"] > 376 then
 		return false
-	elseif pokemonData["move1"] < 0 or pokemonData["move2"] < 0 or pokemonData["move3"] < 0 or pokemonData["move4"] < 0 then		
+	elseif pokemonData["move1"] < 0 or pokemonData["move2"] < 0 or pokemonData["move3"] < 0 or pokemonData["move4"] < 0 then
 		return false
 	elseif pokemonData["move1"] > 354 or pokemonData["move2"] > 354 or pokemonData["move3"] > 354 or pokemonData["move4"] > 354 then
 		return false
@@ -547,7 +553,8 @@ function Program.getBattleMon(index)
 			ACC = Memory.readbyte(base + 0x1E),
 			EVASION = Memory.readbyte(base + 0x1F)
 		},
-		ability = Memory.readbyte(base + 0x20)
+		ability = Memory.readbyte(base + 0x20),
+		friendship = Memory.readbyte(base + 0x2B),
 	}
 end
 
@@ -565,7 +572,7 @@ function Program.getNumItems(pocket, itemId)
 
 	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
 	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
-	for i=0x0,pockets[pocket].size*0x4,0x4 do
+	for i = 0x0, pockets[pocket].size * 0x4, 0x4 do
 		local id = Memory.readword(pockets[pocket].addr + i)
 		if id == itemId then
 			local quantity = bit.bxor(Memory.readword(pockets[pocket].addr + i + 0x2), key)
