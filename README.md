@@ -43,11 +43,9 @@ Fix: Only update the tracker between runs when you can make a new savestate.
 
 Error: `NullHawk does not implement memory domains NLua.Exceptions.LuaException: unprotected error in call to Lua API (0)`
 
-Cause: Your roms must not have spaces in the names, or the path specified in Settings.ROMS_FOLDER is not correct. Your rom number also can't have leading zeros, such as Kaizo001.gba, Kaizo002.gba, etc. They must be Kaizo1.gba, Kaizo2.gba, etc.
+Cause: Your roms must not have spaces in the names, or the `TOMS_FOLDER` path specified in `Settings.ini` is not correct. Your rom number also can't have leading zeros, such as Kaizo001.gba, Kaizo002.gba, etc. They must be Kaizo1.gba, Kaizo2.gba, etc.
 
-Fix: Rename your roms so they don't have spaces in the names, and make sure the slashes in your `ROMS_FOLDER` setting are double backspaced.
-
-- Example: `C:\\gba\\roms` and NOT `C:\gba\roms`
+Fix: Rename your roms so they don't have spaces in the names.
 
 ---
 
@@ -56,19 +54,3 @@ Error: `Can't have lua running in two host threads at a time!`
 Cause: Outdated version of Bizhawk
 
 Fix: Use Bizhawk 2.8
-
----
-
-### Frequently Asked Questions
-
----
-
-Q: Are you going to add X information to the tracker?
-
-A: All info on the tracker should be either googlable or presented to the player by the game. This tracker is designed to give NO informational edge whatsoever. For example, enemy mon health % is not something that will be added, because eyeballing the health bar and praying for a damage roll is a large part of the game.
-
----
-
-Q: Enemy Abilities/Items are not tracked, what gives?
-
-A: This feature is not implemented yet and far more complicated under the hood than move tracking is. These features will take a while.
