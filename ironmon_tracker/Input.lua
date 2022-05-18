@@ -107,6 +107,7 @@ function Input.check(xmouse, ymouse)
 			if Buttons[i].type == ButtonType.singleButton then
 				if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 					Buttons[i].onclick()
+					Tracker.redraw = true
 				end
 			end
 		end

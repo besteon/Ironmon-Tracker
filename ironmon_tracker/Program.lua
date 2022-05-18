@@ -62,6 +62,9 @@ function Program.main()
 		Program.UpdateMonStatStages()
 		Program.UpdateMonPartySlots()
 		Program.UpdateBagHealingItems()
+
+		Program.StatButtonState = Tracker.getButtonState()
+		Buttons = Program.updateButtons(Program.StatButtonState)
 	
 		if Tracker.Data.selectedPlayer == 2 then
 			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
@@ -72,8 +75,6 @@ function Program.main()
 				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
 			end
 		end
-		Program.StatButtonState = Tracker.getButtonState()
-		Buttons = Program.updateButtons(Program.StatButtonState)
 
 		Tracker.redraw = false
 		Tracker.saveData()
