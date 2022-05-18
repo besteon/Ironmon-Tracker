@@ -201,10 +201,20 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local pkmnStatOffsetX = 36
 	local pkmnStatStartY = 5
 	local pkmnStatOffsetY = 10
+	-- Base Pokémon details
+	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name)
+	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), "Lv." .. monToDraw["level"] .. " (" .. PokemonData[monToDraw["pokemonID"] + 1].evolution .. ")")
+	-- Level and evolution
+	local levelDetails = "Lv." .. monToDraw.level
+	local evolutionDetails = " (" .. PokemonData[monToDraw["pokemonID"] + 1].evolution .. ")"
+	if Tracker.Data.selectedPokemon.friendship >= 220 and PokemonData[monToDraw["pokemonID"] + 1].evolution == EvolutionTypes.FRIEND then
+		-- Let the player know that evolution is right around the corner!
+		evolutionDetails = " (SOON)"
+	end
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails)
 
 	local infoBoxHeight = 23
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
