@@ -22,7 +22,6 @@ https://github.com/mkdasher/PokemonBizhawkLua
 
 If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent help menu from displaying.
 
-
 - **Settings.ini**: Modify this file to set your controller button configurations for toggling the battle view, selecting and toggling stat predictions, and quick loading a new seed.
 - **Quick loading seeds**: You can create a bunch of seeds ahead of time, and then use a button combination to load the next seed. Seeds must be in a numerical order without leading zeroes.
   - _For example:_ you can start at 13 with a file name like `kaizo13.gba`. Pressing the button combination would then load `kaizo14.gba`. Press it again and `kaizo15.gba` is loaded. If you tried `kaizo00014.gba`, the quick load feature won't work. Remove the leading zeroes.
@@ -43,7 +42,7 @@ Fix: Only update the tracker between runs when you can make a new savestate.
 
 Error: `NullHawk does not implement memory domains NLua.Exceptions.LuaException: unprotected error in call to Lua API (0)`
 
-Cause: Your roms must not have spaces in the names, or the `TOMS_FOLDER` path specified in `Settings.ini` is not correct. Your rom number also can't have leading zeros, such as Kaizo001.gba, Kaizo002.gba, etc. They must be Kaizo1.gba, Kaizo2.gba, etc.
+Cause: Your roms must not have spaces in the names, or the `ROMS_FOLDER` path specified in `Settings.ini` is not correct. Your rom number also can't have leading zeros, such as Kaizo001.gba, Kaizo002.gba, etc. They must be Kaizo1.gba, Kaizo2.gba, etc.
 
 Fix: Rename your roms so they don't have spaces in the names.
 
