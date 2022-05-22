@@ -107,13 +107,14 @@ end
 function Main.LoadNext()
 	client.SetSoundOn(false)
 
+    userdata.clear()
+
 	if Settings.config.ROMS_FOLDER == nil then
-		print("Please specify ROMS_FOLDER in Settings.ini to use this feature.")
+		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
 		return
 	end
 
 	local romname = gameinfo.getromname()
-	userdata.clear()
 	client.closerom()
 
 	local rombasename = string.match(romname, '[^0-9]+')
