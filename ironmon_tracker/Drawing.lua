@@ -19,6 +19,17 @@ function Drawing.drawPokemonIcon(id, x, y)
 	end
 end
 
+--[[
+Draws text for the tracker on screen with a shadow effect. Uses the Franklin Gothic Medium family with a 9 point size.
+
+	x, y: integer -> pixel position for the text
+
+	text: string -> the text to output to the screen
+
+	color: string or integer -> the color for the text; the shadow effect will be black
+
+	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
+]]
 function Drawing.drawText(x, y, text, color, style)
 	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium", style)
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
