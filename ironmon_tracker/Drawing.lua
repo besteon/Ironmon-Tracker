@@ -424,21 +424,31 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local ppOffset = 82
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)))
+		Drawing.drawText(
+            GraphicConstants.SCREEN_WIDTH + ppOffset, 
+            moveStartY + (distanceBetweenMoves * (moveIndex - 1)), 
+            string.format("%02s",Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)))
+        )
 	end
 
 	-- Move attack power
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
+		Drawing.drawText(
+            GraphicConstants.SCREEN_WIDTH + powerOffset,
+            moveStartY + (distanceBetweenMoves * (moveIndex - 1)), 
+            string.format("%03s", moves[moveIndex].power), 
+            stabColors[moveIndex])
 	end
 
 	-- Move accuracy
 	local accOffset = 126
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, 
+        moveStartY + (distanceBetweenMoves * (moveIndex - 1)),
+        string.format("%03s", moves[moveIndex].accuracy))
 	end
 
 	-- Move effectiveness against the opponent
