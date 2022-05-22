@@ -1,7 +1,8 @@
 Input = {
 	mousetab = {},
 	mousetab_prev = {},
-	joypad = {}
+	joypad = {},
+    noteForm = nil,
 }
 
 function Input.update()
@@ -111,6 +112,16 @@ function Input.check(xmouse, ymouse)
 				end
 			end
 		end
+        if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 5, 140, GraphicConstants.RIGHT_GAP - 10, 14) and Input.noteForm == nil then
+            Input.noteForm = forms.newform(290, 60, "Note", function() Input.noteForm = nil end)
+            textBox = forms.textbox(Input.noteForm, Tracker.GetNote(), 200, 20)
+            forms.button(Input.noteForm, "Set", function()
+                Tracker.SetNote(forms.gettext(textBox))
+                Tracker.redraw = true
+                forms.destroy(Input.noteForm)
+                Input.noteForm = nil
+            end, 200, 0)
+        end
 	end	
 end
 
