@@ -107,7 +107,7 @@ end
 function Main.LoadNext()
 	client.SetSoundOn(false)
 
-    userdata.clear()
+	userdata.clear()
 
 	if Settings.config.ROMS_FOLDER == nil then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")

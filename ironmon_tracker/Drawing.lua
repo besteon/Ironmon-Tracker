@@ -454,5 +454,5 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	Drawing.drawButtons()
 	Drawing.drawInputOverlay()
 
-    Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, Tracker.GetNote())
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, Tracker.GetNote())
 end
