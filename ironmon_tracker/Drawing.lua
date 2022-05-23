@@ -454,6 +454,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	Drawing.drawButtons()
 	Drawing.drawInputOverlay()
 
+    -- draw note box
     gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, Tracker.GetNote())
 end

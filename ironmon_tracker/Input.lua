@@ -112,6 +112,8 @@ function Input.check(xmouse, ymouse)
 				end
 			end
 		end
+
+        --note box
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil then
 			Input.noteForm = forms.newform(290, 60, "Note", function() Input.noteForm = nil end)
 			textBox = forms.textbox(Input.noteForm, Tracker.GetNote(), 200, 20)
