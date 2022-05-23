@@ -19,9 +19,20 @@ function Drawing.drawPokemonIcon(id, x, y)
 	end
 end
 
-function Drawing.drawText(x, y, text, color)
-	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium")
-	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
+--[[
+Draws text for the tracker on screen with a shadow effect. Uses the Franklin Gothic Medium family with a 9 point size.
+
+	x, y: integer -> pixel position for the text
+
+	text: string -> the text to output to the screen
+
+	color: string or integer -> the color for the text; the shadow effect will be black
+
+	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
+]]
+function Drawing.drawText(x, y, text, color, style)
+	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium", style)
+	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
 end
 
 function Drawing.drawTriangleRight(x, y, size, color)
@@ -60,40 +71,82 @@ end
 
 function Drawing.getNatureColor(stat, nature)
 	local color = GraphicConstants.LAYOUTCOLORS.NEUTRAL
-	if nature % 6 == 0 then
-		color = GraphicConstants.LAYOUTCOLORS.NEUTRAL
-	elseif stat == "atk" then
-		if nature < 5 then
-			color = GraphicConstants.LAYOUTCOLORS.INCREASE
-		elseif nature % 5 == 0 then
-			color = GraphicConstants.LAYOUTCOLORS.DECREASE
-		end
-	elseif stat == "def" then
-		if nature > 4 and nature < 10 then
-			color = GraphicConstants.LAYOUTCOLORS.INCREASE
-		elseif nature % 5 == 1 then
-			color = GraphicConstants.LAYOUTCOLORS.DECREASE
-		end
-	elseif stat == "spe" then
-		if nature > 9 and nature < 15 then
-			color = GraphicConstants.LAYOUTCOLORS.INCREASE
-		elseif nature % 5 == 2 then
-			color = GraphicConstants.LAYOUTCOLORS.DECREASE
-		end
-	elseif stat == "spa" then
-		if nature > 14 and nature < 20 then
-			color = GraphicConstants.LAYOUTCOLORS.INCREASE
-		elseif nature % 5 == 3 then
-			color = GraphicConstants.LAYOUTCOLORS.DECREASE
-		end
-	elseif stat == "spd" then
-		if nature > 19 then
-			color = GraphicConstants.LAYOUTCOLORS.INCREASE
-		elseif nature % 5 == 4 then
-			color = GraphicConstants.LAYOUTCOLORS.DECREASE
+	if not Settings.tracker.NATURE_WITH_FONT_STYLE then
+		if nature % 6 == 0 then
+			color = GraphicConstants.LAYOUTCOLORS.NEUTRAL
+		elseif stat == "atk" then
+			if nature < 5 then
+				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+			elseif nature % 5 == 0 then
+				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+			end
+		elseif stat == "def" then
+			if nature > 4 and nature < 10 then
+				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+			elseif nature % 5 == 1 then
+				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+			end
+		elseif stat == "spe" then
+			if nature > 9 and nature < 15 then
+				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+			elseif nature % 5 == 2 then
+				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+			end
+		elseif stat == "spa" then
+			if nature > 14 and nature < 20 then
+				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+			elseif nature % 5 == 3 then
+				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+			end
+		elseif stat == "spd" then
+			if nature > 19 then
+				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+			elseif nature % 5 == 4 then
+				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+			end
 		end
 	end
 	return color
+end
+
+function Drawing.getNatureStyle(monIsEnemy, stat, nature)
+	local style = "regular"
+	if Settings.tracker.NATURE_WITH_FONT_STYLE and not monIsEnemy then
+		if nature % 6 == 0 then
+			style = "regular"
+		elseif stat == "atk" then
+			if nature < 5 then
+				style = "bold"
+			elseif nature % 5 == 0 then
+				style = "italic"
+			end
+		elseif stat == "def" then
+			if nature > 4 and nature < 10 then
+				style = "bold"
+			elseif nature % 5 == 1 then
+				style = "italic"
+			end
+		elseif stat == "spe" then
+			if nature > 9 and nature < 15 then
+				style = "bold"
+			elseif nature % 5 == 2 then
+				style = "italic"
+			end
+		elseif stat == "spa" then
+			if nature > 14 and nature < 20 then
+				style = "bold"
+			elseif nature % 5 == 3 then
+				style = "italic"
+			end
+		elseif stat == "spd" then
+			if nature > 19 then
+				style = "bold"
+			elseif nature % 5 == 4 then
+				style = "italic"
+			end
+		end
+	end
+	return style
 end
 
 function Drawing.drawStatusLevel(x, y, value)
@@ -262,22 +315,22 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local speY = spdY + statInc
 	local bstY = speY + statInc
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, statBoxY, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("hp", monToDraw["nature"])))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("atk", monToDraw["nature"])))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("def", monToDraw["nature"])))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spaY, "SPA", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spa", monToDraw["nature"])))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spdY, "SPD", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spd", monToDraw["nature"])))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, speY, "SPE", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spe", monToDraw["nature"])))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("hp", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("atk", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("def", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spaY, "SPA", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spa", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spdY, "SPD", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spd", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, speY, "SPE", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spe", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, bstY, "BST", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, bstY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], Drawing.getNatureColor("hp", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], Drawing.getNatureColor("atk", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], Drawing.getNatureColor("def", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], Drawing.getNatureColor("spa", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], Drawing.getNatureColor("spd", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], Drawing.getNatureColor("spe", monToDraw["nature"]))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], Drawing.getNatureColor("hp", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], Drawing.getNatureColor("atk", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], Drawing.getNatureColor("def", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], Drawing.getNatureColor("spa", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], Drawing.getNatureColor("spd", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], Drawing.getNatureColor("spe", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
 	end
 
 	-- Stat stages -6 -> +6
