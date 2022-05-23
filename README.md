@@ -34,6 +34,7 @@ If you want to use your controller to toggle stat prediction markers on opponent
 - **Move effectiveness**: Moves that are super effective or not very effective against the opposing Pokémon will display one or two chevrons next to the move's power stat. Moves that are completely ineffective will display a red `X`.
 - **Attack type icons**: Icons for moves that are physical or special attack types can be displayed next to the move name. On by default, this can be turned off by setting `SHOW_MOVE_CATEGORIES` to false in the `Settings.ini` file.
 - **Healing items**: The tracker displays the number of healing items on hand in the bag and what percentage of max HP of the currently displayed Pokémon those items will heal by.
+- _Coming SOON_ **Notes**: Click on the bottom bar to leave a note about the Pokémon you are facing!
 
 ## FAQ
 
