@@ -1,6 +1,6 @@
 Thank you for using Ironmon-Tracker!
 
-This tool requires the Bizhawk emulator v2.8 or greater. Other versions have had issues and are not supported.
+This tool REQUIRES the Bizhawk emulator v2.8 or greater. You can find the emulator at https://tasvideos.org/BizHawk/ReleaseHistory. Other versions have had issues and are not supported.
 
 USAGE:
 1. Load your ROM (Only Emerald & FRLG are supported)
