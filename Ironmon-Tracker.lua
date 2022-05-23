@@ -9,6 +9,15 @@ PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant locat
 
 print("Ironmon-Tracker v" .. TRACKER_VERSION)
 
+-- Check the version of BizHawk that is running
+-- TODO: Look for a better way to compare rather than use string checks. I tested using tonumber() on version 2.7 and,
+-- unfortunately, client.getversion() returns "2.7.0", which results in tonumber() returning `nil`.
+if client.getversion() ~= "2.8" then
+	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
+	-- Bounce out... Don't pass Go! Don't collect $200.
+	return
+end
+
 -- Get the user settings!
 DATA_FOLDER = "ironmon_tracker"
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
