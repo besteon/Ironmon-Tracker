@@ -1,15 +1,3 @@
 {
-    "Lua.diagnostics.globals": [
-        "event",
-        "emu",
-        "client",
-        "gui",
-        "userdata",
-        "gameinfo",
-        "bit",
-        "memory",
-        "love",
-        "joypad",
-        "input"
-    ]
+  "Lua.diagnostics.globals": ["event", "emu", "client", "gui", "userdata", "gameinfo", "bit", "memory", "love", "joypad", "input", "forms"]
 }
