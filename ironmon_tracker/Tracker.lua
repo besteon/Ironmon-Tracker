@@ -141,6 +141,9 @@ function Tracker.SetNote(note)
     if note == nil then
         return
     end
+    if string.len(note) > 70 then
+        print("Note truncated to 70 characters")
+    end
     Tracker.Data.notes[Tracker.Data.selectedPokemon.pokemonID] = string.sub(note, 1, 70)
 end
 
