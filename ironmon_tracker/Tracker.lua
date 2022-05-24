@@ -38,6 +38,7 @@ function Tracker.InitTrackerData()
             healing = 0,
             numHeals = 0,
         },
+        notes = {},
     }
     return trackerData
 end
@@ -134,6 +135,24 @@ end
 function Tracker.TrackStatPrediction(pokemonId, stats)
     Tracker.Data.stats[pokemonId] = {}
     Tracker.Data.stats[pokemonId].stats = stats
+end
+
+function Tracker.SetNote(note)
+    if note == nil then
+        return
+    end
+    if string.len(note) > 70 then
+        print("Note truncated to 70 characters")
+    end
+    Tracker.Data.notes[Tracker.Data.selectedPokemon.pokemonID] = string.sub(note, 1, 70)
+end
+
+function Tracker.GetNote()
+    if Tracker.Data.notes[Tracker.Data.selectedPokemon.pokemonID] == nil then
+        return ""
+    else
+        return Tracker.Data.notes[Tracker.Data.selectedPokemon.pokemonID]
+    end
 end
 
 function Tracker.getMoves(pokemonId)

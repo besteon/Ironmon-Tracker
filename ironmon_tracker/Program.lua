@@ -332,6 +332,9 @@ end
 
 function Program.HandleExit()
 	Drawing.clearGUI()
+	if Input.noteForm then
+		forms.destroy(Input.noteForm)
+	end
 end
 
 function Program.HandleMove()

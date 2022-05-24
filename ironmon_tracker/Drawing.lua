@@ -506,4 +506,17 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	Drawing.drawButtons()
 	Drawing.drawInputOverlay()
+
+    -- draw note box
+    local note = Tracker.GetNote()
+    if note == '' then
+        gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
+    else
+        Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note)
+        --work around limitation of drawText not having width limit: paint over any spillover
+        local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
+        local y = 141
+        gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+        gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+    end
 end
