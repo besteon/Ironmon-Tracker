@@ -112,15 +112,17 @@ function Main.Run()
 end
 
 function Main.LoadNext()
-	client.SetSoundOn(false)
-
 	userdata.clear()
+    print "Reset tracker"
 
 	if Settings.config.ROMS_FOLDER == nil then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
+        Main.LoadNextSeed = false
+		Main.Run()
 		return
 	end
 
+    client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
 	client.closerom()
 
