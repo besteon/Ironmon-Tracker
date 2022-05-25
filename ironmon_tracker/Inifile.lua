@@ -67,7 +67,7 @@ function inifile.parse(name, backend)
 		if s then
 			section = s
 			t[section] = t[section] or {}
-			cursectionorder = {name = section}
+			cursectionorder = { name = section }
 			table.insert(sectionorder, cursectionorder)
 		end
 

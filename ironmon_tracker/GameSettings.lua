@@ -57,9 +57,9 @@ GameSettings.VERSIONS = {
 function GameSettings.initialize()
 	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
 	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
-	local pstats = {0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4} -- Player stats
-	local estats = {0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C} -- Enemy stats
-	
+	local pstats = { 0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4 } -- Player stats
+	local estats = { 0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C } -- Enemy stats
+
 	if gamecode == 0x42504545 then
 		print("Emerald ROM Detected")
 		GameSettings.game = 2
@@ -310,9 +310,9 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Unsupported game"
 		GameSettings.encountertable = 0
 	end
-	
+
 	if GameSettings.game > 0 then
-		GameSettings.pstats  = pstats[GameSettings.game]
-		GameSettings.estats  = estats[GameSettings.game]
+		GameSettings.pstats = pstats[GameSettings.game]
+		GameSettings.estats = estats[GameSettings.game]
 	end
 end
