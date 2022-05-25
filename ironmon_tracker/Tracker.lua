@@ -39,6 +39,7 @@ function Tracker.InitTrackerData()
 			numHeals = 0,
 		},
 		notes = {},
+		romHash = nil,
 	}
 	return trackerData
 end
@@ -218,6 +219,15 @@ function Tracker.loadData()
 		for k, v in pairs(trackerData) do
 			Tracker.Data[k] = v
 		end
+
+		if Tracker.Data.romHash then
+			if gameinfo.getromhash() == Tracker.Data.romHash then
+				print("Loaded tracker data")
+			else
+				print("New ROM detected, resetting tracker data")
+				Tracker.Data = Tracker.InitTrackerData()
+			end
+		end
 	else
 		Tracker.Data = Tracker.InitTrackerData()
 		if Settings.tracker.MUST_CHECK_SUMMARY == true then
@@ -225,5 +235,6 @@ function Tracker.loadData()
 		end
 	end
 
+	Tracker.Data.romHash = gameinfo.getromhash()
 	Tracker.redraw = true
 end
