@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.2.11"
+TRACKER_VERSION = "0.2.2"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -113,16 +113,16 @@ end
 
 function Main.LoadNext()
 	userdata.clear()
-    print "Reset tracker"
+	print "Reset tracker"
 
 	if Settings.config.ROMS_FOLDER == nil then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
-        Main.LoadNextSeed = false
+		Main.LoadNextSeed = false
 		Main.Run()
 		return
 	end
 
-    client.SetSoundOn(false)
+	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
 	client.closerom()
 
