@@ -24,6 +24,20 @@ function Drawing.drawText(x, y, text, color)
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium")
 end
 
+
+
+function Drawing.drawNumber(x, y, text, spacing, color)
+    local fix_align
+    fix_align = spacing - string.len(tostring(text))
+
+    local font
+    font = "Consolas"
+
+    gui.drawText(x + 1 - 3, y + 2, string.rep(" ", fix_align) .. text, "black", nil, 10, font)
+	gui.drawText(x -3, y+1, string.rep(" ", fix_align) .. text, color, nil, 10, font)
+end
+
+
 function Drawing.drawTriangleRight(x, y, size, color)
 	gui.drawRectangle(x, y, size, size, color)
 	gui.drawPolygon({ { 4 + x, 4 + y }, { 4 + x, y + size - 4 }, { x + size - 4, y + size / 2 } }, color, color)
@@ -272,12 +286,12 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, bstY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], Drawing.getNatureColor("hp", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], Drawing.getNatureColor("atk", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], Drawing.getNatureColor("def", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], Drawing.getNatureColor("spa", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], Drawing.getNatureColor("spd", monToDraw["nature"]))
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], Drawing.getNatureColor("spe", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"],3, Drawing.getNatureColor("hp", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"],3, Drawing.getNatureColor("atk", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"],3, Drawing.getNatureColor("def", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"],3, Drawing.getNatureColor("spa", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"],3, Drawing.getNatureColor("spd", monToDraw["nature"]))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"],3, Drawing.getNatureColor("spe", monToDraw["nature"]))
 	end
 
 	-- Stat stages -6 -> +6
@@ -424,10 +438,15 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local ppOffset = 82
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(
+		Drawing.drawNumber(
             GraphicConstants.SCREEN_WIDTH + ppOffset, 
-            moveStartY + (distanceBetweenMoves * (moveIndex - 1)), 
-            string.format("%02s",Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)))
+            moveStartY + (distanceBetweenMoves * (moveIndex - 1)),
+            Utils.inlineIf(
+                monIsEnemy or moves[moveIndex].pp == NOPP, 
+                moves[moveIndex].pp, 
+                Utils.getbits(monToDraw.pp, 
+                (moveIndex - 1) * 8, 8)
+            ),3
         )
 	end
 
@@ -435,10 +454,10 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(
+		Drawing.drawNumber(
             GraphicConstants.SCREEN_WIDTH + powerOffset,
             moveStartY + (distanceBetweenMoves * (moveIndex - 1)), 
-            string.format("%03s", moves[moveIndex].power), 
+            moves[moveIndex].power,3,
             stabColors[moveIndex])
 	end
 
@@ -446,9 +465,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local accOffset = 126
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, 
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, 
         moveStartY + (distanceBetweenMoves * (moveIndex - 1)),
-        string.format("%03s", moves[moveIndex].accuracy))
+        moves[moveIndex].accuracy, 3)
 	end
 
 	-- Move effectiveness against the opponent
