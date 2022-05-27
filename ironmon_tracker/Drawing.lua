@@ -26,15 +26,33 @@ end
 
 
 
-function Drawing.drawNumber(x, y, text, spacing, color)
-    local fix_align
-    fix_align = spacing - string.len(tostring(text))
+function Drawing.drawNumber(x, y, number, spacing, color)
+    -- Function that will add a space to a number so that the all the hungreds, tens and units are aligned if used accordingly.
+    -- xy : Coordinates to draw the number.
+    -- number : Number to draw (stats, move power, pp...)
+    --spacing : width the string need to have.
+        -- Move power,move accuracy and pokemon stats should have 3 in spacing.
+        -- PPs should have 2 in spacing.
+        
+    --Example:
+                    --123
+                    --345
+                    -- 56   <--- Notice the empty space
 
-    local font
+    local fix_align  -- Created a local function because I'm not sure to know how to do it with a simple formatting wiht a variable in lua.
+    fix_align = spacing - string.len(tostring(number))
+
+    local font  -- Created this variable for quick testing. Once you find the correct font, this variable can be deleted.
+        -- Tested with 3 of the 4 monoscripts according to this site: https://www.autoitscript.com/autoit3/docs/appendix/fonts.htm
+        -- In my opinion, Ludida Console gave the best result. Consolas gave good results too.
+        -- I'm not sure what other fonts are accessible...
     font = "Lucida Console"
-
-    gui.drawText(x + 1 - 3, y + 2, string.rep(" ", fix_align) .. text, "black", nil, 10, font)
-	gui.drawText(x -3, y+1, string.rep(" ", fix_align) .. text, color, nil, 10, font)
+    -- Added some numbers editing to realign the xy numbers because I increased the size of the fond to make it easier to read.
+    -- Alignments:
+        -- x : -3
+        -- y : -1
+    gui.drawText(x + 1 - 3, y + 1 + 1, string.rep(" ", fix_align) .. number, "black", nil, 10, font)
+	gui.drawText(x -3, y+1, string.rep(" ", fix_align) .. number, color, nil, 10, font)
 end
 
 
