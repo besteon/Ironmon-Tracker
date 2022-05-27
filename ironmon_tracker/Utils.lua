@@ -17,9 +17,13 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
+	-- Mirror Coat is a special case. It has no extra or reduced effectiveness, BUT will be ineffective against a Dark-type.
+	if move.id == "243" and pkmnData.type == PokemonTypes.DARK then
+		return 0.0
+	end
+
 	-- Skip check if move has no power.
-	-- In the case of Mirror Coat (id 243), we want to do the type check because it is ineffective against Dark type.
-	if move["power"] == NOPOWER and move.id ~= "243" then
+	if move["power"] == NOPOWER then
 		return 1.0
 	end
 
