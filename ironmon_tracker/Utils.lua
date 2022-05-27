@@ -17,7 +17,9 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
-	if move["power"] == NOPOWER then
+	-- Skip check if move has no power.
+	-- In the case of Mirror Coat (id 243), we want to do the type check because it is ineffective against Dark type.
+	if move["power"] == NOPOWER and move.id ~= "243" then
 		return 1.0
 	end
 
