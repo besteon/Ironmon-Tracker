@@ -31,7 +31,7 @@ function Drawing.drawNumber(x, y, text, spacing, color)
     fix_align = spacing - string.len(tostring(text))
 
     local font
-    font = "Courier New"
+    font = "Lucida Console"
 
     gui.drawText(x + 1 - 3, y + 2, string.rep(" ", fix_align) .. text, "black", nil, 10, font)
 	gui.drawText(x -3, y+1, string.rep(" ", fix_align) .. text, color, nil, 10, font)
