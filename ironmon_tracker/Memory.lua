@@ -14,14 +14,14 @@ function Memory.read(addr, size)
 	end
 	addr = bit.band(addr, 0xFFFFFF)
 	if size == 1 then
-		return memory.read_u8(addr,mem)
+		return memory.read_u8(addr, mem)
 	elseif size == 2 then
-		return memory.read_u16_le(addr,mem)
+		return memory.read_u16_le(addr, mem)
 	elseif size == 3 then
-		return memory.read_u24_le(addr,mem)
+		return memory.read_u24_le(addr, mem)
 	else
-		return memory.read_u32_le(addr,mem)
-	end 
+		return memory.read_u32_le(addr, mem)
+	end
 end
 
 function Memory.readdword(addr)

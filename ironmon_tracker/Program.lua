@@ -65,7 +65,7 @@ function Program.main()
 
 		Program.StatButtonState = Tracker.getButtonState()
 		Buttons = Program.updateButtons(Program.StatButtonState)
-	
+
 		if Tracker.Data.selectedPlayer == 2 then
 			Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
 		else
@@ -332,6 +332,9 @@ end
 
 function Program.HandleExit()
 	Drawing.clearGUI()
+	if Input.noteForm then
+		forms.destroy(Input.noteForm)
+	end
 end
 
 function Program.HandleMove()
@@ -584,9 +587,13 @@ function Program.getBagHealingItems(pkmn)
 		healing = 0,
 		numHeals = 0,
 	}
-	local maxHP = pkmn["maxHP"]
+	-- Need a null check before getting maxHP
+	if pkmn == nil then
+		return totals
+	end
 
-	if pkmn == nil or maxHP == 0 then
+	local maxHP = pkmn["maxHP"]
+	if maxHP == 0 then
 		return totals
 	end
 

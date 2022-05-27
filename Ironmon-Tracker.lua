@@ -2,12 +2,19 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.2.1"
+TRACKER_VERSION = "0.2.2"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
 
 print("Ironmon-Tracker v" .. TRACKER_VERSION)
+
+-- Check the version of BizHawk that is running
+if string.sub(client.getversion(), 1) ~= "2.8" then
+	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
+	-- Bounce out... Don't pass Go! Don't collect $200.
+	return
+end
 
 -- Get the user settings!
 DATA_FOLDER = "ironmon_tracker"
@@ -105,15 +112,18 @@ function Main.Run()
 end
 
 function Main.LoadNext()
-	client.SetSoundOn(false)
+	userdata.clear()
+	print "Reset tracker"
 
 	if Settings.config.ROMS_FOLDER == nil then
-		print("Please specify ROMS_FOLDER in Settings.ini to use this feature.")
+		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
+		Main.LoadNextSeed = false
+		Main.Run()
 		return
 	end
 
+	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
-	userdata.clear()
 	client.closerom()
 
 	local rombasename = string.match(romname, '[^0-9]+')

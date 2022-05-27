@@ -1,7 +1,8 @@
 Input = {
 	mousetab = {},
 	mousetab_prev = {},
-	joypad = {}
+	joypad = {},
+	noteForm = nil,
 }
 
 function Input.update()
@@ -101,7 +102,7 @@ function Input.update()
 end
 
 function Input.check(xmouse, ymouse)
----@diagnostic disable-next-line: deprecated
+	---@diagnostic disable-next-line: deprecated
 	for i = 1, table.getn(Buttons), 1 do
 		if Buttons[i].visible() then
 			if Buttons[i].type == ButtonType.singleButton then
@@ -111,10 +112,22 @@ function Input.check(xmouse, ymouse)
 				end
 			end
 		end
-	end	
+
+		--note box
+		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil then
+			Input.noteForm = forms.newform(290, 60, "Note (70 char. max)", function() Input.noteForm = nil end)
+			textBox = forms.textbox(Input.noteForm, Tracker.GetNote(), 200, 20)
+			forms.button(Input.noteForm, "Set", function()
+				Tracker.SetNote(forms.gettext(textBox))
+				Tracker.redraw = true
+				forms.destroy(Input.noteForm)
+				Input.noteForm = nil
+			end, 200, 0)
+		end
+	end
 end
 
-function Input.isInRange(xmouse,ymouse,x,y,xregion,yregion)
+function Input.isInRange(xmouse, ymouse, x, y, xregion, yregion)
 	if xmouse >= x and xmouse <= x + xregion then
 		if ymouse >= y and ymouse <= y + yregion then
 			return true
