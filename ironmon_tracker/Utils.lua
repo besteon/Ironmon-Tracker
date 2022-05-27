@@ -21,6 +21,10 @@ function Utils.netEffectiveness(move, pkmnData)
 	if move.id == "243" and pkmnData.type == PokemonTypes.DARK then
 		return 0.0
 	end
+	-- SonicBoom is another special case. Ineffective against Ghost-type.
+	if move.id == "49" and pkmnData.type == PokemonTypes.GHOST then
+		return 0.0
+	end
 
 	-- Skip check if move has no power.
 	if move["power"] == NOPOWER then
