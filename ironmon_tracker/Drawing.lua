@@ -54,8 +54,11 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
         -- y : -1
 
         local new_spacing
-        new_spacing = (spacing - string.len(tostring(number))) * 5
+        new_spacing = 0
 
+        if Settings.tracker.JUSTIFIED_NUMBERS then
+            new_spacing = (spacing - string.len(tostring(number))) * 5
+            end
 
         gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
         gui.drawText(x + new_spacing, y, number, color, nil, 9, "Franklin Gothic Medium", style)
