@@ -112,7 +112,7 @@ MiscData = {
 		[21] = {
 			id = 21,
 			name = "Hyper Potion",
-			amount = 120,
+			amount = 200,
 			type = HealingType.Constant,
 			pocket = BagPocket.Items,
 		},
