@@ -48,22 +48,18 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
                     --123
                     --345
                     -- 56   <--- Notice the empty space
-
-    local fix_align  -- Created a local function because I'm not sure to know how to do it with a simple formatting wiht a variable in lua.
-    fix_align = spacing - string.len(tostring(number))
-
-    local font  -- Created this variable for quick testing. Once you find the correct font, this variable can be deleted.
-        -- Tested with 3 of the 4 monoscripts according to this site: https://www.autoitscript.com/autoit3/docs/appendix/fonts.htm
-        -- In my opinion, Ludida Console gave the best result. Consolas gave good results too.
-        -- I'm not sure what other fonts are accessible...
-    font = "Lucida Console"
     -- Added some numbers editing to realign the xy numbers because I increased the size of the fond to make it easier to read.
     -- Alignments:
         -- x : -3
         -- y : -1
-    gui.drawText(x + 1 - 3, y + 1 + 1, string.rep(" ", fix_align) .. number, "black", nil, 10, font, style)
-	gui.drawText(x -3, y+1, string.rep(" ", fix_align) .. number, color, nil, 10, font, style)
-end
+
+        local new_spacing
+        new_spacing = (spacing - string.len(tostring(number))) * 5
+
+
+        gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
+        gui.drawText(x + new_spacing, y, number, color, nil, 9, "Franklin Gothic Medium", style)
+    end
 
 
 function Drawing.drawTriangleRight(x, y, size, color)
