@@ -484,7 +484,13 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
+		if moves[moveIndex].power == "WT" and Tracker.Data.inBattle == 1 and targetMon ~= nil then
+			-- Calculate the power of low kick to show in battle
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.weightMovePower(PokemonData[targetMon.pokemonID + 1]), stabColors[moveIndex])
+		else
+			-- Draw moves normally, with "WT" in place of power for low kick
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
+		end
 	end
 
 	-- Move accuracy

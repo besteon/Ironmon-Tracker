@@ -39,3 +39,26 @@ function Utils.isSTAB(move, pkmnData)
 	end
 	return false
 end
+
+-- Calculate base power for low kick (and grass knot in gen 4)
+function Utils.weightMovePower(pkmnData)
+	local weight = tonumber(pkmnData["weight"])
+	if weight == nil then
+		return "WT"
+	end
+	local power = "20"
+	if weight <= 22 then
+		power = "20"
+	elseif weight > 22 and weight <= 55 then
+		power = "40"
+	elseif weight > 55 and weight <= 110 then
+		power = "60"
+	elseif weight > 110 and weight <= 220 then
+		power = "80"
+	elseif weight > 220 and weight <= 440 then
+		power = "100"
+	elseif weight > 440 then
+		power = "120"
+	end
+	return power
+end
