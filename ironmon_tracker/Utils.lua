@@ -17,7 +17,24 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
-	if move["power"] == NOPOWER then
+
+	-- TODO: Do we want to handle Hidden Power's varied type in this? We could analyze the IV of the Pokémon and determine the type...
+
+	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
+	if move.power == NOPOWER then
+		if move.category ~= MoveCategories.STATUS then
+			if move.type == PokemonTypes.NORMAL and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+				return 0.0
+			elseif move.type == PokemonTypes.FIGHTING and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+				return 0.0
+			elseif move.type == PokemonTypes.PSYCHIC and (pkmnData.type[1] == PokemonTypes.DARK or pkmnData.type[2] == PokemonTypes.DARK) then
+				return 0.0
+			elseif move.type == PokemonTypes.GROUND and (pkmnData.type[1] == PokemonTypes.FLYING or pkmnData.type[2] == PokemonTypes.FLYING) then
+				return 0.0
+			elseif move.type == PokemonTypes.GHOST and (pkmnData.type[1] == PokemonTypes.NORMAL or pkmnData.type[2] == PokemonTypes.NORMAL) then
+				return 0.0
+			end
+		end
 		return 1.0
 	end
 
