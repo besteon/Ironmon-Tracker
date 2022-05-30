@@ -3124,7 +3124,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "400",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37 }, { 9, 13, 17, 21, 25, 29, 33, 37 } },
-		weight= 17.7
+		weight = 17.7
 	},
 	{
 		name = "Illumise",

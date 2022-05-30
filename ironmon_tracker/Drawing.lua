@@ -35,35 +35,29 @@ function Drawing.drawText(x, y, text, color, style)
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
 end
 
+--[[
+Function that will add a space to a number so that the all the hundreds, tens and ones units are aligned if used
+with the JUSTIFIED_NUMBERS setting.
 
+	x, y: integer -> pixel position for the text
+
+	number: string | number -> number to draw (stats, move power, pp...)
+
+	spacing: number -> the number of digits the number can hold max; e.g. use 3 for a number that can be up to 3 digits.
+		Move power, accuracy, and stats should have a 3 for `spacing`.
+		PP should have 2 for `spacing`.
+]]
 function Drawing.drawNumber(x, y, number, spacing, color, style)
-    -- Function that will add a space to a number so that the all the hungreds, tens and units are aligned if used accordingly.
-    -- xy : Coordinates to draw the number.
-    -- number : Number to draw (stats, move power, pp...)
-    --spacing : width the string need to have.
-        -- Move power,move accuracy and pokemon stats should have 3 in spacing.
-        -- PPs should have 2 in spacing.
-        
-    --Example:
-                    --123
-                    --345
-                    -- 56   <--- Notice the empty space
-    -- Added some numbers editing to realign the xy numbers because I increased the size of the fond to make it easier to read.
-    -- Alignments:
-        -- x : -3
-        -- y : -1
+	local new_spacing
+	new_spacing = 0
 
-        local new_spacing
-        new_spacing = 0
+	if Settings.tracker.JUSTIFIED_NUMBERS then
+		new_spacing = (spacing - string.len(tostring(number))) * 5
+	end
 
-        if Settings.tracker.JUSTIFIED_NUMBERS then
-            new_spacing = (spacing - string.len(tostring(number))) * 5
-            end
-
-        gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
-        gui.drawText(x + new_spacing, y, number, color, nil, 9, "Franklin Gothic Medium", style)
-    end
-
+	gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
+	gui.drawText(x + new_spacing, y, number, color, nil, 9, "Franklin Gothic Medium", style)
+end
 
 function Drawing.drawTriangleRight(x, y, size, color)
 	gui.drawRectangle(x, y, size, size, color)
@@ -355,7 +349,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, bstY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 
 	if monIsEnemy == false then
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"],3, Drawing.getNatureColor("hp", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], 3, Drawing.getNatureColor("hp", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], 3, Drawing.getNatureColor("atk", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], 3, Drawing.getNatureColor("def", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], 3, Drawing.getNatureColor("spa", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
@@ -474,8 +468,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
 		if moves[moveIndex].power == "WT" and Settings.tracker.CALCULATE_WEIGHT_BASED_DAMAGE then
-			if Tracker.Data.inBattle == 1 then 
-				local targetWeight = PokemonData[targetMon["pokemonID"]+1].weight
+			if Tracker.Data.inBattle == 1 then
+				local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
 				local newPower = Utils.calculateWeightBasedDamage(targetWeight)
 				moves[moveIndex].power = newPower
 			else
@@ -516,14 +510,14 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local ppOffset = 82
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)),2)
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)), 2)
 	end
 
 	-- Move attack power
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset,moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, 3, stabColors[moveIndex])
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, 3, stabColors[moveIndex])
 	end
 
 	-- Move accuracy
