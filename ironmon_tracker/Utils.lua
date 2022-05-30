@@ -39,3 +39,19 @@ function Utils.isSTAB(move, pkmnData)
 	end
 	return false
 end
+
+function Utils.calculateWeightBasedDamage(weight)
+	if weight < 10.0 then
+		return "20"
+	elseif weight < 25.0 then
+		return "40"
+	elseif weight < 50.0 then
+		return "60"
+	elseif weight < 100.0 then
+		return "80"
+	elseif weight < 200.0 then
+		return "100"
+	else
+		return "120"
+	end
+end
