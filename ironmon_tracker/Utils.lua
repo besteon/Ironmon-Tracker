@@ -40,7 +40,7 @@ function Utils.isSTAB(move, pkmnData)
 	return false
 end
 
-function Utils.calculateLowKickDamage(weight)
+function Utils.calculateWeightBasedDamage(weight)
 	if weight < 10.0 then
 		return "20"
 	elseif weight < 25.0 then
