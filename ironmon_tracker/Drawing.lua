@@ -473,6 +473,15 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
+		if moves[moveIndex].power == "WT" and Settings.tracker.CALCULATE_WEIGHT_BASED_DAMAGE then
+			if Tracker.Data.inBattle == 1 then 
+				local targetWeight = PokemonData[targetMon["pokemonID"]+1].weight
+				local newPower = Utils.calculateWeightBasedDamage(targetWeight)
+				moves[moveIndex].power = newPower
+			else
+				moves[moveIndex].power = "WT"
+			end
+		end
 		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL))
 	end
 
@@ -525,7 +534,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	-- Move effectiveness against the opponent
-	if Tracker.Data.inBattle == 1 then
+	if Settings.tracker.SHOW_MOVE_EFFECTIVENESS and Tracker.Data.inBattle == 1 then
 		if targetMon ~= nil then
 			for moveIndex = 1, 4, 1 do
 				local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[targetMon.pokemonID + 1])
