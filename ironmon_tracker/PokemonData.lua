@@ -52,7 +52,7 @@ Format for an entry:
 
 	movelvls: {{integer list}, {integer list}} -> A pair of tables (1:RSE/2:FRLG) declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
 
-	weight: string -> Weight of the Pokémon in lbs for low kick power calculation
+	weight: pokemon's weight in kg (mainly used for Low Kick calculations)
 ]]
 PokemonData = {
 	{ -- Empty entry for ID 0
@@ -61,7 +61,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
 		movelvls = { {}, {} },
-		weight = "---"
+		weight = 0.0
 	},
 	{
 		name = "Bulbasaur",
@@ -69,7 +69,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "318",
 		movelvls = { { 7, 10, 15, 15, 20, 25, 32, 39, 46 }, { 7, 10, 15, 15, 20, 25, 32, 39, 46 } },
-		weight = "15.2"
+		weight = 6.9
 	},
 	{
 		name = "Ivysaur",
@@ -77,7 +77,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "405",
 		movelvls = { { 7, 10, 15, 15, 22, 29, 38, 47, 56 }, { 7, 10, 15, 15, 22, 29, 38, 47, 56 } },
-		weight = "28.7"
+		weight = 13.0
 	},
 	{
 		name = "Venusaur",
@@ -85,7 +85,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 7, 10, 15, 15, 22, 29, 41, 53, 65 }, { 7, 10, 15, 15, 22, 29, 41, 53, 65 } },
-		weight = "220.5"
+		weight = 100.0
 	},
 	{
 		name = "Charmander",
@@ -93,7 +93,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "309",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "18.7"
+		weight = 8.5
 	},
 	{
 		name = "Charmeleon",
@@ -101,7 +101,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 7, 13, 20, 27, 34, 41, 48, 55 }, { 7, 13, 20, 27, 34, 41, 48, 55 } },
-		weight = "41.9"
+		weight = 19.0
 	},
 	{
 		name = "Charizard",
@@ -109,7 +109,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "534",
 		movelvls = { { 7, 13, 20, 27, 34, 36, 44, 54, 64 }, { 7, 13, 20, 27, 34, 36, 44, 54, 64 } },
-		weight = "199.5"
+		weight = 90.5
 	},
 	{
 		name = "Squirtle",
@@ -117,7 +117,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "314",
 		movelvls = { { 7, 10, 13, 18, 23, 28, 33, 40, 47 }, { 7, 10, 13, 18, 23, 28, 33, 40, 47 } },
-		weight = "19.8"
+		weight = 9.0
 	},
 	{
 		name = "Wartortle",
@@ -125,7 +125,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 7, 10, 13, 19, 25, 31, 37, 45, 53 }, { 7, 10, 13, 19, 25, 31, 37, 45, 53 } },
-		weight = "49.6"
+		weight = 22.5
 	},
 	{
 		name = "Blastoise",
@@ -133,7 +133,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 7, 10, 13, 19, 25, 31, 42, 55, 68 }, { 7, 10, 13, 19, 25, 31, 42, 55, 68 } },
-		weight = "188.5"
+		weight = 85.5
 	},
 	{
 		name = "Caterpie",
@@ -141,7 +141,7 @@ PokemonData = {
 		evolution = "7",
 		bst = "195",
 		movelvls = { {}, {} },
-		weight = "6.4"
+		weight = 2.9
 	},
 	{
 		name = "Metapod",
@@ -149,7 +149,7 @@ PokemonData = {
 		evolution = "10",
 		bst = "205",
 		movelvls = { { 7 }, { 7 } },
-		weight = "21.8"
+		weight = 9.9
 	},
 	{
 		name = "Butterfree",
@@ -157,7 +157,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "385",
 		movelvls = { { 10, 13, 14, 15, 18, 23, 28, 34, 40, 47 }, { 10, 13, 14, 15, 18, 23, 28, 34, 40, 47 } },
-		weight = "70.5"
+		weight = 32.0
 	},
 	{
 		name = "Weedle",
@@ -165,7 +165,7 @@ PokemonData = {
 		evolution = "7",
 		bst = "195",
 		movelvls = { {}, {} },
-		weight = "7.1"
+		weight = 3.2
 	},
 	{
 		name = "Kakuna",
@@ -173,7 +173,7 @@ PokemonData = {
 		evolution = "10",
 		bst = "205",
 		movelvls = { { 7 }, { 7 } },
-		weight = "22.0"
+		weight = 10.0
 	},
 	{
 		name = "Beedrill",
@@ -181,7 +181,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "385",
 		movelvls = { { 10, 15, 20, 25, 30, 35, 40, 45 }, { 10, 15, 20, 25, 30, 35, 40, 45 } },
-		weight = "65.0"
+		weight = 29.5
 	},
 	{
 		name = "Pidgey",
@@ -189,7 +189,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "251",
 		movelvls = { { 9, 13, 19, 25, 31, 39, 47 }, { 9, 13, 19, 25, 31, 39, 47 } },
-		weight = "4.0"
+		weight = 1.8
 	},
 	{
 		name = "Pidgeotto",
@@ -197,7 +197,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "349",
 		movelvls = { { 9, 13, 20, 27, 34, 43, 52 }, { 9, 13, 20, 27, 34, 43, 52 } },
-		weight = "66.1"
+		weight = 30.0
 	},
 	{
 		name = "Pidgeot",
@@ -205,7 +205,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "469",
 		movelvls = { { 9, 13, 20, 27, 34, 48, 62 }, { 9, 13, 20, 27, 34, 48, 62 } },
-		weight = "87.1"
+		weight = 39.5
 	},
 	{
 		name = "Rattata",
@@ -213,7 +213,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "253",
 		movelvls = { { 7, 13, 20, 27, 34, 41 }, { 7, 13, 20, 27, 34, 41 } },
-		weight = "7.7"
+		weight = 3.5
 	},
 	{
 		name = "Raticate",
@@ -221,7 +221,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "413",
 		movelvls = { { 7, 13, 20, 30, 40, 50 }, { 7, 13, 20, 30, 40, 50 } },
-		weight = "40.8"
+		weight = 18.5
 	},
 	{
 		name = "Spearow",
@@ -229,7 +229,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "262",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43 }, { 7, 13, 19, 25, 31, 37, 43 } },
-		weight = "4.4"
+		weight = 2.0
 	},
 	{
 		name = "Fearow",
@@ -237,7 +237,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "442",
 		movelvls = { { 7, 13, 26, 32, 40, 47 }, { 7, 13, 26, 32, 40, 47 } },
-		weight = "83.8"
+		weight = 38.0
 	},
 	{
 		name = "Ekans",
@@ -245,7 +245,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "288",
 		movelvls = { { 8, 13, 20, 25, 32, 37, 37, 37, 44 }, { 8, 13, 20, 25, 32, 37, 37, 37, 44 } },
-		weight = "15.2"
+		weight = 6.9
 	},
 	{
 		name = "Arbok",
@@ -253,7 +253,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "438",
 		movelvls = { { 8, 13, 20, 28, 38, 46, 46, 46, 56 }, { 8, 13, 20, 28, 38, 46, 46, 46, 56 } },
-		weight = "143.3"
+		weight = 65.0
 	},
 	{
 		name = "Pikachu",
@@ -261,7 +261,7 @@ PokemonData = {
 		evolution = EvolutionTypes.THUNDER,
 		bst = "300",
 		movelvls = { { 6, 8, 11, 15, 20, 26, 33, 41, 50 }, { 6, 8, 11, 15, 20, 26, 33, 41, 50 } },
-		weight = "13.0"
+		weight = 6.0
 	},
 	{
 		name = "Raichu",
@@ -269,7 +269,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "475",
 		movelvls = { {}, {} },
-		weight = "66.0"
+		weight = 30.0
 	},
 	{
 		name = "Sandshrew",
@@ -277,7 +277,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "300",
 		movelvls = { { 6, 11, 17, 23, 30, 37, 45, 53 }, { 6, 11, 17, 23, 30, 37, 45, 53 } },
-		weight = "26.0"
+		weight = 12.0
 	},
 	{
 		name = "Sandslash",
@@ -285,7 +285,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 6, 11, 17, 24, 33, 42, 52, 62 }, { 6, 11, 17, 24, 33, 42, 52, 62 } },
-		weight = "65.0"
+		weight = 29.5
 	},
 	{
 		name = "Nidoran F",
@@ -293,7 +293,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "275",
 		movelvls = { { 8, 12, 17, 20, 23, 30, 38, 47 }, { 8, 12, 17, 20, 23, 30, 38, 47 } },
-		weight = "15.4"
+		weight = 7.0
 	},
 	{
 		name = "Nidorina",
@@ -301,7 +301,7 @@ PokemonData = {
 		evolution = EvolutionTypes.MOON,
 		bst = "365",
 		movelvls = { { 8, 12, 18, 22, 26, 34, 43, 53 }, { 8, 12, 18, 22, 26, 34, 43, 53 } },
-		weight = "44.1"
+		weight = 20.0
 	},
 	{
 		name = "Nidoqueen",
@@ -309,7 +309,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 23 }, { 22, 43 } },
-		weight = "132.3"
+		weight = 60.0
 	},
 	{
 		name = "Nidoran M",
@@ -317,7 +317,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "273",
 		movelvls = { { 8, 12, 17, 20, 23, 30, 38, 47 }, { 8, 12, 17, 20, 23, 30, 38, 47 } },
-		weight = "19.8"
+		weight = 9.0
 	},
 	{
 		name = "Nidorino",
@@ -325,7 +325,7 @@ PokemonData = {
 		evolution = EvolutionTypes.MOON,
 		bst = "365",
 		movelvls = { { 8, 12, 18, 22, 26, 34, 43, 53 }, { 8, 12, 18, 22, 26, 34, 43, 53 } },
-		weight = "43.0"
+		weight = 19.5
 	},
 	{
 		name = "Nidoking",
@@ -333,7 +333,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 23 }, { 22, 43 } },
-		weight = "136.7"
+		weight = 62.0
 	},
 	{
 		name = "Clefairy",
@@ -341,7 +341,7 @@ PokemonData = {
 		evolution = EvolutionTypes.MOON,
 		bst = "323",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = "16.5"
+		weight = 7.5
 	},
 	{
 		name = "Clefable",
@@ -349,7 +349,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "473",
 		movelvls = { {}, {} },
-		weight = "88.2"
+		weight = 40.0
 	},
 	{
 		name = "Vulpix",
@@ -357,7 +357,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FIRE,
 		bst = "299",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = "22.0"
+		weight = 9.9
 	},
 	{
 		name = "Ninetales",
@@ -365,7 +365,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "505",
 		movelvls = { { 45 }, { 45 } },
-		weight = "44.0"
+		weight = 19.9
 	},
 	{
 		name = "Jigglypuff",
@@ -373,7 +373,7 @@ PokemonData = {
 		evolution = EvolutionTypes.MOON,
 		bst = "270",
 		movelvls = { { 9, 14, 19, 24, 29, 34, 39, 44, 49 }, { 9, 14, 19, 24, 29, 34, 39, 44, 49 } },
-		weight = "12.0"
+		weight = 5.5
 	},
 	{
 		name = "Wigglytuff",
@@ -381,7 +381,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "425",
 		movelvls = { {}, {} },
-		weight = "26.0"
+		weight = 12.0
 	},
 	{
 		name = "Zubat",
@@ -389,7 +389,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "245",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "17.0"
+		weight = 7.5
 	},
 	{
 		name = "Golbat",
@@ -397,7 +397,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "455",
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
-		weight = "121.0"
+		weight = 55.0
 	},
 	{
 		name = "Oddish",
@@ -405,7 +405,7 @@ PokemonData = {
 		evolution = "21",
 		bst = "320",
 		movelvls = { { 7, 14, 16, 18, 23, 32, 39 }, { 7, 14, 16, 18, 23, 32, 39 } },
-		weight = "12.0"
+		weight = 5.4
 	},
 	{
 		name = "Gloom",
@@ -413,7 +413,7 @@ PokemonData = {
 		evolution = EvolutionTypes.LEAF_SUN,
 		bst = "395",
 		movelvls = { { 7, 14, 16, 18, 24, 35, 44 }, { 7, 14, 16, 18, 24, 35, 44 } },
-		weight = "12.0"
+		weight = 8.6
 	},
 	{
 		name = "Vileplume",
@@ -421,7 +421,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 44 }, { 44 } },
-		weight = "41.0"
+		weight = 18.6
 	},
 	{
 		name = "Paras",
@@ -429,7 +429,7 @@ PokemonData = {
 		evolution = "24",
 		bst = "285",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "11.9"
+		weight = 5.4
 	},
 	{
 		name = "Parasect",
@@ -437,7 +437,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51, 59 }, { 7, 13, 19, 27, 35, 43, 51, 59 } },
-		weight = "65.0"
+		weight = 29.5
 	},
 	{
 		name = "Venonat",
@@ -445,7 +445,7 @@ PokemonData = {
 		evolution = "31",
 		bst = "305",
 		movelvls = { { 9, 17, 20, 25, 28, 33, 36, 41 }, { 9, 17, 20, 25, 28, 33, 36, 41 } },
-		weight = "66.1"
+		weight = 30.0
 	},
 	{
 		name = "Venomoth",
@@ -453,7 +453,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 9, 17, 20, 25, 28, 31, 36, 42, 52 }, { 9, 17, 20, 25, 28, 31, 36, 42, 52 } },
-		weight = "27.6"
+		weight = 12.5
 	},
 	{
 		name = "Diglett",
@@ -461,7 +461,7 @@ PokemonData = {
 		evolution = "26",
 		bst = "265",
 		movelvls = { { 9, 17, 25, 33, 41, 49 }, { 9, 17, 21, 25, 33, 41, 49 } },
-		weight = "1.8"
+		weight = 0.8
 	},
 	{
 		name = "Dugtrio",
@@ -469,7 +469,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 9, 17, 25, 26, 38, 51, 64 }, { 9, 17, 21, 25, 26, 38, 51, 64 } },
-		weight = "73.4"
+		weight = 33.3
 	},
 	{
 		name = "Meowth",
@@ -477,7 +477,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "290",
 		movelvls = { { 11, 20, 28, 35, 41, 46, 50 }, { 10, 18, 25, 31, 36, 40, 43, 45 } },
-		weight = "9.3"
+		weight = 66.6
 	},
 	{
 		name = "Persian",
@@ -485,7 +485,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "440",
 		movelvls = { { 11, 20, 29, 38, 46, 53, 59 }, { 10, 18, 25, 34, 42, 49, 55, 61 } },
-		weight = "70.5"
+		weight = 32.0
 	},
 	{
 		name = "Psyduck",
@@ -493,7 +493,7 @@ PokemonData = {
 		evolution = "33",
 		bst = "320",
 		movelvls = { { 10, 16, 23, 31, 40, 50 }, { 10, 16, 23, 31, 40, 50 } },
-		weight = "43.0"
+		weight = 19.6
 	},
 	{
 		name = "Golduck",
@@ -501,7 +501,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 10, 16, 23, 31, 44, 58 }, { 10, 16, 23, 31, 44, 58 } },
-		weight = "169.0"
+		weight = 76.6
 	},
 	{
 		name = "Mankey",
@@ -509,7 +509,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "305",
 		movelvls = { { 9, 15, 21, 27, 33, 39, 45, 51 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "61.7"
+		weight = 28.0
 	},
 	{
 		name = "Primeape",
@@ -517,7 +517,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 9, 15, 21, 27, 28, 36, 45, 54, 63 }, { 6, 11, 16, 21, 26, 28, 35, 44, 53, 62 } },
-		weight = "70.5"
+		weight = 32.0
 	},
 	{
 		name = "Growlithe",
@@ -525,7 +525,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FIRE,
 		bst = "350",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "41.9"
+		weight = 22.7
 	},
 	{
 		name = "Arcanine",
@@ -533,7 +533,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "555",
 		movelvls = { { 49 }, { 49 } },
-		weight = "341.7"
+		weight = 155.0
 	},
 	{
 		name = "Poliwag",
@@ -541,7 +541,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "300",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43 }, { 7, 13, 19, 25, 31, 37, 43 } },
-		weight = "27.3"
+		weight = 12.4
 	},
 	{
 		name = "Poliwhirl",
@@ -549,7 +549,7 @@ PokemonData = {
 		evolution = "37/WTR", -- Level 37 replaces trade evolution for Politoed
 		bst = "385",
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51 }, { 7, 13, 19, 27, 35, 43, 51 } },
-		weight = "44.1"
+		weight = 20.0
 	},
 	{
 		name = "Poliwrath",
@@ -557,7 +557,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 35, 51 }, { 35, 51 } },
-		weight = "119.0"
+		weight = 54.0
 	},
 	{
 		name = "Abra",
@@ -565,7 +565,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "310",
 		movelvls = { {}, {} },
-		weight = "43.0"
+		weight = 19.5
 	},
 	{
 		name = "Kadabra",
@@ -573,7 +573,7 @@ PokemonData = {
 		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "400",
 		movelvls = { { 16, 18, 21, 23, 25, 30, 33, 36, 43 }, { 16, 18, 21, 23, 25, 30, 33, 36, 43 } },
-		weight = "125.0"
+		weight = 56.5
 	},
 	{
 		name = "Alakazam",
@@ -581,7 +581,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 16, 18, 21, 23, 25, 30, 33, 36, 43 }, { 16, 18, 21, 23, 25, 30, 33, 36, 43 } },
-		weight = "106.0"
+		weight = 48.0
 	},
 	{
 		name = "Machop",
@@ -589,7 +589,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "305",
 		movelvls = { { 7, 13, 19, 22, 25, 31, 37, 40, 43, 49 }, { 7, 13, 19, 22, 25, 31, 37, 40, 43, 49 } },
-		weight = "43.0"
+		weight = 19.5
 	},
 	{
 		name = "Machoke",
@@ -597,7 +597,7 @@ PokemonData = {
 		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "405",
 		movelvls = { { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 }, { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 } },
-		weight = "155.0"
+		weight = 70.5
 	},
 	{
 		name = "Machamp",
@@ -605,7 +605,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "505",
 		movelvls = { { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 }, { 7, 13, 19, 22, 25, 33, 41, 46, 51, 59 } },
-		weight = "287.0"
+		weight = 130.0
 	},
 	{
 		name = "Bellsprout",
@@ -613,7 +613,7 @@ PokemonData = {
 		evolution = "21",
 		bst = "300",
 		movelvls = { { 6, 11, 15, 17, 19, 23, 30, 37, 45 }, { 6, 11, 15, 17, 19, 23, 30, 37, 45 } },
-		weight = "8.8"
+		weight = 4.0
 	},
 	{
 		name = "Weepinbell",
@@ -621,7 +621,7 @@ PokemonData = {
 		evolution = EvolutionTypes.LEAF,
 		bst = "390",
 		movelvls = { { 6, 11, 15, 17, 19, 24, 33, 42, 54 }, { 6, 11, 15, 17, 19, 24, 33, 42, 54 } },
-		weight = "14.1"
+		weight = 6.4
 	},
 	{
 		name = "Victreebel",
@@ -629,7 +629,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { {}, {} },
-		weight = "34.2"
+		weight = 15.5
 	},
 	{
 		name = "Tentacool",
@@ -637,7 +637,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "335",
 		movelvls = { { 6, 12, 19, 25, 30, 36, 43, 49 }, { 6, 12, 19, 25, 30, 36, 43, 49 } },
-		weight = "100"
+		weight = 45.5
 	},
 	{
 		name = "Tentacruel",
@@ -645,7 +645,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "515",
 		movelvls = { { 6, 12, 19, 25, 30, 38, 47, 55 }, { 6, 12, 19, 25, 30, 38, 47, 55 } },
-		weight = "121"
+		weight = 55.0
 	},
 	{
 		name = "Geodude",
@@ -653,7 +653,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "300",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "44"
+		weight = 20.0
 	},
 	{
 		name = "Graveler",
@@ -661,7 +661,7 @@ PokemonData = {
 		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "390",
 		movelvls = { { 6, 11, 16, 21, 29, 37, 45, 53, 62 }, { 6, 11, 16, 21, 29, 37, 45, 53, 62 } },
-		weight = "232"
+		weight = 105.0
 	},
 	{
 		name = "Golem",
@@ -669,7 +669,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "485",
 		movelvls = { { 6, 11, 16, 21, 29, 37, 45, 53, 62 }, { 6, 11, 16, 21, 29, 37, 45, 53, 62 } },
-		weight = "662"
+		weight = 300.0
 	},
 	{
 		name = "Ponyta",
@@ -677,7 +677,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "410",
 		movelvls = { { 9, 14, 19, 25, 31, 38, 45, 53 }, { 9, 14, 19, 25, 31, 38, 45, 53 } },
-		weight = "66.1"
+		weight = 30.0
 	},
 	{
 		name = "Rapidash",
@@ -685,7 +685,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 9, 14, 19, 25, 31, 38, 40, 50, 63 }, { 9, 14, 19, 25, 31, 38, 40, 50, 63 } },
-		weight = "209.0"
+		weight = 95.0
 	},
 	{
 		name = "Slowpoke",
@@ -693,7 +693,7 @@ PokemonData = {
 		evolution = "37/WTR", -- Water stone replaces trade evolution to Slowking
 		bst = "315",
 		movelvls = { { 6, 15, 20, 29, 34, 43, 48 }, { 6, 13, 17, 24, 29, 36, 40, 47 } },
-		weight = "79.4"
+		weight = 36.0
 	},
 	{
 		name = "Slowbro",
@@ -701,7 +701,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 6, 15, 20, 29, 34, 37, 46, 54 }, { 6, 13, 17, 24, 29, 36, 37, 44, 55 } },
-		weight = "173.0"
+		weight = 78.5
 	},
 	{
 		name = "Magnemite",
@@ -709,7 +709,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "325",
 		movelvls = { { 6, 11, 16, 21, 26, 32, 38, 44, 50 }, { 6, 11, 16, 21, 26, 32, 38, 44, 50 } },
-		weight = "13.0"
+		weight = 6.0
 	},
 	{
 		name = "Magneton",
@@ -717,7 +717,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 6, 11, 16, 21, 26, 35, 44, 53, 62 }, { 6, 11, 16, 21, 26, 35, 44, 53, 62 } },
-		weight = "132.0"
+		weight = 60.0
 	},
 	{
 		name = "Farfetch'd",
@@ -725,7 +725,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "352",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "33.1"
+		weight = 15.0
 	},
 	{
 		name = "Doduo",
@@ -733,7 +733,7 @@ PokemonData = {
 		evolution = "31",
 		bst = "310",
 		movelvls = { { 9, 13, 21, 25, 33, 37, 45 }, { 9, 13, 21, 25, 33, 37, 45 } },
-		weight = "86.0"
+		weight = 39.2
 	},
 	{
 		name = "Dodrio",
@@ -741,7 +741,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 9, 13, 21, 25, 38, 47, 60 }, { 9, 13, 21, 25, 38, 47, 60 } },
-		weight = "188.0"
+		weight = 85.2
 	},
 	{
 		name = "Seel",
@@ -749,7 +749,7 @@ PokemonData = {
 		evolution = "34",
 		bst = "325",
 		movelvls = { { 9, 17, 21, 29, 37, 41, 49 }, { 9, 17, 21, 29, 37, 41, 49 } },
-		weight = "198.0"
+		weight = 90.0
 	},
 	{
 		name = "Dewgong",
@@ -757,7 +757,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "475",
 		movelvls = { { 9, 17, 21, 29, 34, 42, 51, 64 }, { 9, 17, 21, 29, 34, 42, 51, 64 } },
-		weight = "265.0"
+		weight = 120.0
 	},
 	{
 		name = "Grimer",
@@ -765,7 +765,7 @@ PokemonData = {
 		evolution = "38",
 		bst = "325",
 		movelvls = { { 8, 13, 19, 26, 34, 43, 53 }, { 8, 13, 19, 26, 34, 43, 53 } },
-		weight = "66.0"
+		weight = 30.0
 	},
 	{
 		name = "Muk", -- PUMP SLOP
@@ -773,7 +773,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 8, 13, 19, 26, 34, 47, 61 }, { 8, 13, 19, 26, 34, 47, 61 } },
-		weight = "66.0"
+		weight = 30.0
 	},
 	{
 		name = "Shellder",
@@ -781,7 +781,7 @@ PokemonData = {
 		evolution = EvolutionTypes.WATER,
 		bst = "305",
 		movelvls = { { 9, 17, 25, 33, 41, 49 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "8.8"
+		weight = 4.0
 	},
 	{
 		name = "Cloyster",
@@ -789,7 +789,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 33, 41 }, { 36, 43 } },
-		weight = "292.1"
+		weight = 132.5
 	},
 	{
 		name = "Gastly",
@@ -797,7 +797,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "310",
 		movelvls = { { 8, 13, 16, 21, 28, 33, 36 }, { 8, 13, 16, 21, 28, 33, 36, 41, 48 } },
-		weight = "0.2"
+		weight = 0.1
 	},
 	{
 		name = "Haunter",
@@ -805,7 +805,7 @@ PokemonData = {
 		evolution = "37", -- Level 37 replaces trade evolution
 		bst = "405",
 		movelvls = { { 8, 13, 16, 21, 25, 31, 39, 48 }, { 8, 13, 16, 21, 25, 31, 39, 45, 53, 64 } },
-		weight = "0.2"
+		weight = 0.1
 	},
 	{
 		name = "Gengar",
@@ -813,7 +813,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 8, 13, 16, 21, 25, 31, 39, 48 }, { 8, 13, 16, 21, 25, 31, 39, 45, 53, 64 } },
-		weight = "89.3"
+		weight = 40.5
 	},
 	{
 		name = "Onix",
@@ -821,7 +821,7 @@ PokemonData = {
 		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "385",
 		movelvls = { { 9, 13, 21, 25, 33, 37, 45, 49, 57 }, { 8, 12, 19, 23, 30, 34, 41, 45, 52, 56 } },
-		weight = "463.0"
+		weight = 210.0
 	},
 	{
 		name = "Drowzee",
@@ -829,7 +829,7 @@ PokemonData = {
 		evolution = "26",
 		bst = "328",
 		movelvls = { { 10, 18, 25, 31, 36, 40, 43, 45 }, { 7, 11, 17, 21, 27, 31, 37, 41, 47 } },
-		weight = "71.4"
+		weight = 32.4
 	},
 	{
 		name = "Hypno",
@@ -837,7 +837,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "483",
 		movelvls = { { 10, 18, 25, 33, 40, 49, 55, 60 }, { 7, 11, 17, 21, 29, 35, 43, 49, 57 } },
-		weight = "166.7"
+		weight = 75.6
 	},
 	{
 		name = "Krabby",
@@ -845,7 +845,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "325",
 		movelvls = { { 12, 16, 23, 27, 34, 41, 45 }, { 12, 16, 23, 27, 34, 38, 45, 49 } },
-		weight = "14.3"
+		weight = 6.5
 	},
 	{
 		name = "Kingler",
@@ -853,7 +853,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "475",
 		movelvls = { { 12, 16, 23, 27, 38, 49, 57 }, { 12, 16, 23, 27, 38, 42, 57, 65 } },
-		weight = "132.3"
+		weight = 60.0
 	},
 	{
 		name = "Voltorb",
@@ -861,7 +861,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "330",
 		movelvls = { { 8, 15, 21, 27, 32, 37, 42, 46, 49 }, { 8, 15, 21, 27, 32, 37, 42, 46, 49 } },
-		weight = "23.0"
+		weight = 10.4
 	},
 	{
 		name = "Electrode",
@@ -869,7 +869,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 8, 15, 21, 27, 34, 41, 48, 54, 59 }, { 8, 15, 21, 27, 34, 41, 48, 54, 59 } },
-		weight = "147.0"
+		weight = 66.6
 	},
 	{
 		name = "Exeggcute",
@@ -877,7 +877,7 @@ PokemonData = {
 		evolution = EvolutionTypes.LEAF,
 		bst = "325",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43 }, { 7, 13, 19, 25, 31, 37, 43 } },
-		weight = "5.5"
+		weight = 2.5
 	},
 	{
 		name = "Exeggutor",
@@ -885,7 +885,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "520",
 		movelvls = { { 19, 31 }, { 19, 31 } },
-		weight = "264.6"
+		weight = 120.0
 	},
 	{
 		name = "Cubone",
@@ -893,7 +893,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "320",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = "14.3"
+		weight = 6.5
 	},
 	{
 		name = "Marowak",
@@ -901,7 +901,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "425",
 		movelvls = { { 9, 13, 17, 21, 25, 32, 39, 46, 53, 61 }, { 9, 13, 17, 21, 25, 32, 39, 46, 53, 61 } },
-		weight = "99.2"
+		weight = 45.0
 	},
 	{
 		name = "Hitmonlee",
@@ -909,7 +909,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 6, 11, 16, 20, 21, 26, 31, 36, 41, 46, 51 }, { 6, 11, 16, 20, 21, 26, 31, 36, 41, 46, 51 } },
-		weight = "109.8"
+		weight = 49.8
 	},
 	{
 		name = "Hitmonchan",
@@ -917,7 +917,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 7, 13, 20, 26, 26, 26, 32, 38, 44, 50 }, { 7, 13, 20, 26, 26, 26, 32, 38, 44, 50 } },
-		weight = "110.7"
+		weight = 50.2
 	},
 	{
 		name = "Lickitung",
@@ -925,7 +925,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "385",
 		movelvls = { { 7, 12, 18, 23, 29, 34, 40, 45, 51 }, { 7, 12, 18, 23, 29, 34, 40, 45, 51 } },
-		weight = "144.4"
+		weight = 65.5
 	},
 	{
 		name = "Koffing",
@@ -933,7 +933,7 @@ PokemonData = {
 		evolution = "35",
 		bst = "340",
 		movelvls = { { 9, 17, 21, 25, 33, 41, 45, 49 }, { 9, 17, 21, 25, 33, 41, 45, 49 } },
-		weight = "2.0"
+		weight = 1.0
 	},
 	{
 		name = "Weezing",
@@ -941,7 +941,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 9, 17, 21, 25, 33, 44, 51, 58 }, { 9, 17, 21, 25, 33, 44, 51, 58 } },
-		weight = "21.0"
+		weight = 9.5
 	},
 	{
 		name = "Rhyhorn",
@@ -949,7 +949,7 @@ PokemonData = {
 		evolution = "42",
 		bst = "345",
 		movelvls = { { 10, 15, 24, 29, 38, 43, 52, 57 }, { 10, 15, 24, 29, 38, 43, 52, 57 } },
-		weight = "254.0"
+		weight = 115.0
 	},
 	{
 		name = "Rhydon",
@@ -957,7 +957,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "485",
 		movelvls = { { 10, 15, 24, 29, 38, 46, 58, 66 }, { 10, 15, 24, 29, 38, 46, 58, 66 } },
-		weight = "265.0"
+		weight = 120.0
 	},
 	{
 		name = "Chansey",
@@ -965,7 +965,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "450",
 		movelvls = { { 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
-		weight = "76.3"
+		weight = 34.6
 	},
 	{
 		name = "Tangela",
@@ -973,7 +973,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "435",
 		movelvls = { { 10, 13, 19, 22, 28, 31, 37, 40, 46 }, { 10, 13, 19, 22, 28, 31, 37, 40, 46 } },
-		weight = "7.2"
+		weight = 35.0
 	},
 	{
 		name = "Kangaskhan",
@@ -981,7 +981,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "176.4"
+		weight = 80.0
 	},
 	{
 		name = "Horsea",
@@ -989,7 +989,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "295",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "18.0"
+		weight = 8.0
 	},
 	{
 		name = "Seadra",
@@ -997,7 +997,7 @@ PokemonData = {
 		evolution = "40", -- Level 40 replaces trade evolution
 		bst = "440",
 		movelvls = { { 8, 15, 22, 29, 40, 51, 62 }, { 8, 15, 22, 29, 40, 51, 62 } },
-		weight = "55.0"
+		weight = 25.0
 	},
 	{
 		name = "Goldeen",
@@ -1005,7 +1005,7 @@ PokemonData = {
 		evolution = "33",
 		bst = "320",
 		movelvls = { { 10, 15, 24, 29, 38, 43, 52 }, { 10, 15, 24, 29, 38, 43, 52, 57 } },
-		weight = "33.0"
+		weight = 15.0
 	},
 	{
 		name = "Seaking",
@@ -1013,7 +1013,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 10, 15, 24, 29, 41, 49, 61 }, { 10, 15, 24, 29, 41, 49, 61, 69 } },
-		weight = "86.0"
+		weight = 39.0
 	},
 	{
 		name = "Staryu",
@@ -1021,7 +1021,7 @@ PokemonData = {
 		evolution = EvolutionTypes.WATER,
 		bst = "340",
 		movelvls = { { 6, 10, 15, 19, 24, 28, 33, 37, 42, 46 }, { 6, 10, 15, 19, 24, 28, 33, 37, 42, 46 } },
-		weight = "76.0"
+		weight = 34.5
 	},
 	{
 		name = "Starmie",
@@ -1029,7 +1029,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "520",
 		movelvls = { { 33 }, { 33 } },
-		weight = "176.0"
+		weight = 80.0
 	},
 	{
 		name = "Mr. Mime",
@@ -1037,7 +1037,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 9, 13, 17, 21, 21, 25, 29, 33, 37, 41, 45, 49, 53 }, { 8, 12, 15, 19, 19, 22, 26, 29, 33, 36, 40, 43, 47, 50 } },
-		weight = "120.1"
+		weight = 54.5
 	},
 	{
 		name = "Scyther",
@@ -1045,7 +1045,7 @@ PokemonData = {
 		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "500",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "123.5"
+		weight = 56.0
 	},
 	{
 		name = "Jynx",
@@ -1053,7 +1053,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 9, 13, 21, 25, 35, 41, 51, 57, 67 }, { 9, 13, 21, 25, 35, 41, 51, 57, 67 } },
-		weight = "71.4"
+		weight = 40.6
 	},
 	{
 		name = "Electabuzz",
@@ -1061,7 +1061,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 9, 17, 25, 36, 47, 58 }, { 9, 17, 25, 36, 47, 58 } },
-		weight = "66.1"
+		weight = 30.0
 	},
 	{
 		name = "Magmar", -- MAMGAR
@@ -1069,7 +1069,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 7, 13, 19, 25, 33, 41, 49, 57 }, { 7, 13, 19, 25, 33, 41, 49, 57 } },
-		weight = "98.1"
+		weight = 44.5
 	},
 	{
 		name = "Pinsir",
@@ -1077,7 +1077,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "121.0"
+		weight = 55.0
 	},
 	{
 		name = "Tauros",
@@ -1085,7 +1085,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 8, 13, 19, 26, 34, 43, 53 }, { 8, 13, 19, 26, 34, 43, 53 } },
-		weight = "194.9"
+		weight = 88.4
 	},
 	{
 		name = "Magikarp",
@@ -1093,7 +1093,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "200",
 		movelvls = { { 15, 30 }, { 15, 30 } },
-		weight = "22.0"
+		weight = 10.0
 	},
 	{
 		name = "Gyarados",
@@ -1101,7 +1101,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
 		movelvls = { { 20, 25, 30, 35, 40, 45, 50, 55 }, { 20, 25, 30, 35, 40, 45, 50, 55 } },
-		weight = "518.0"
+		weight = 235.0
 	},
 	{
 		name = "Lapras",
@@ -1109,7 +1109,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "535",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49, 55 }, { 7, 13, 19, 25, 31, 37, 43, 49, 55 } },
-		weight = "48.5"
+		weight = 220.0
 	},
 	{
 		name = "Ditto",
@@ -1117,7 +1117,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "288",
 		movelvls = { {}, {} },
-		weight = "8.8"
+		weight = 4.0
 	},
 	{
 		name = "Eevee",
@@ -1125,7 +1125,7 @@ PokemonData = {
 		evolution = EvolutionTypes.STONES,
 		bst = "325",
 		movelvls = { { 8, 16, 23, 30, 36, 42 }, { 8, 16, 23, 30, 36, 42 } },
-		weight = "14.3"
+		weight = 6.5
 	},
 	{
 		name = "Vaporeon",
@@ -1133,7 +1133,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 16, 23, 30, 36, 42, 47, 52 }, { 8, 16, 23, 30, 36, 42, 47, 52 } },
-		weight = "63.9"
+		weight = 29.0
 	},
 	{
 		name = "Jolteon",
@@ -1141,7 +1141,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 16, 23, 30, 36, 42, 47, 52 }, { 8, 16, 23, 30, 36, 42, 47, 52 } },
-		weight = "54.0"
+		weight = 24.5
 	},
 	{
 		name = "Flareon",
@@ -1149,7 +1149,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 16, 23, 30, 36, 42, 47, 52 }, { 8, 16, 23, 30, 36, 42, 47, 52 } },
-		weight = "55.1"
+		weight = 25.0
 	},
 	{
 		name = "Porygon",
@@ -1157,7 +1157,7 @@ PokemonData = {
 		evolution = "30", -- Level 30 replaces trade evolution
 		bst = "395",
 		movelvls = { { 9, 12, 20, 24, 32, 36, 44, 48 }, { 9, 12, 20, 24, 32, 36, 44, 48 } },
-		weight = "80.5"
+		weight = 36.5
 	},
 	{
 		name = "Omanyte",
@@ -1165,7 +1165,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "355",
 		movelvls = { { 13, 19, 25, 31, 37, 43, 49, 55 }, { 13, 19, 25, 31, 37, 43, 49, 55 } },
-		weight = "16.5"
+		weight = 7.5
 	},
 	{
 		name = "Omastar", -- LORD HELIX
@@ -1173,7 +1173,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 13, 19, 25, 31, 37, 40, 46, 55, 65 }, { 13, 19, 25, 31, 37, 40, 46, 55, 65 } },
-		weight = "77.2"
+		weight = 35.0
 	},
 	{
 		name = "Kabuto",
@@ -1181,7 +1181,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "355",
 		movelvls = { { 13, 19, 25, 31, 37, 43, 49, 55 }, { 13, 19, 25, 31, 37, 43, 49, 55 } },
-		weight = "25.4"
+		weight = 11.5
 	},
 	{
 		name = "Kabutops",
@@ -1189,7 +1189,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 13, 19, 25, 31, 37, 40, 46, 55, 65 }, { 13, 19, 25, 31, 37, 40, 46, 55, 65 } },
-		weight = "89.3"
+		weight = 40.5
 	},
 	{
 		name = "Aerodactyl",
@@ -1197,7 +1197,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "515",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "130.1"
+		weight = 59.0
 	},
 	{
 		name = "Snorlax",
@@ -1205,7 +1205,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
 		movelvls = { { 6, 10, 15, 19, 24, 28, 28, 33, 37, 42, 46, 51 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53 } },
-		weight = "1041.1"
+		weight = 460.0
 	},
 	{
 		name = "Articuno",
@@ -1213,7 +1213,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 13, 25, 37, 49, 61, 73, 85 }, { 13, 25, 37, 49, 61, 73, 85 } },
-		weight = "122.1"
+		weight = 55.4
 	},
 	{
 		name = "Zapdos",
@@ -1221,7 +1221,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 13, 25, 37, 49, 61, 73, 85 }, { 13, 25, 37, 49, 61, 73, 85 } },
-		weight = "116.0"
+		weight = 52.6
 	},
 	{
 		name = "Moltres",
@@ -1229,7 +1229,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 13, 25, 37, 49, 61, 73, 85 }, { 13, 25, 37, 49, 61, 73, 85 } },
-		weight = "132.3"
+		weight = 60.0
 	},
 	{
 		name = "Dratini",
@@ -1237,7 +1237,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "300",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50, 57 }, { 8, 15, 22, 29, 36, 43, 50, 57 } },
-		weight = "7.3"
+		weight = 3.3
 	},
 	{
 		name = "Dragonair",
@@ -1245,7 +1245,7 @@ PokemonData = {
 		evolution = "55",
 		bst = "420",
 		movelvls = { { 8, 15, 22, 29, 38, 47, 56, 65 }, { 8, 15, 22, 29, 38, 47, 56, 65 } },
-		weight = "36.4"
+		weight = 16.5
 	},
 	{
 		name = "Dragonite",
@@ -1253,7 +1253,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 8, 15, 22, 29, 38, 47, 55, 61, 75 }, { 8, 15, 22, 29, 38, 47, 55, 61, 75 } },
-		weight = "463.0"
+		weight = 210.0
 	},
 	{
 		name = "Mewtwo",
@@ -1261,7 +1261,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "680",
 		movelvls = { { 11, 22, 33, 44, 55, 66, 77, 88, 99 }, { 11, 22, 33, 44, 55, 66, 77, 88, 99 } },
-		weight = "269.0"
+		weight = 122.0
 	},
 	{
 		name = "Mew",
@@ -1269,7 +1269,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 10, 20, 30, 40, 50 }, { 10, 20, 30, 40, 50 } },
-		weight = "8.8"
+		weight = 4.0
 	},
 	{
 		name = "Chikorita",
@@ -1277,7 +1277,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "318",
 		movelvls = { { 8, 12, 15, 22, 29, 36, 43, 50 }, { 8, 12, 15, 22, 29, 36, 43, 50 } },
-		weight = "14.1"
+		weight = 6.4
 	},
 	{
 		name = "Bayleef",
@@ -1285,7 +1285,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "405",
 		movelvls = { { 8, 12, 15, 23, 31, 39, 47, 55 }, { 8, 12, 15, 23, 31, 39, 47, 55 } },
-		weight = "34.8"
+		weight = 15.8
 	},
 	{
 		name = "Meganium",
@@ -1293,7 +1293,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 12, 15, 23, 31, 41, 51, 61 }, { 8, 12, 15, 23, 31, 41, 51, 61 } },
-		weight = "221.6"
+		weight = 100.5
 	},
 	{
 		name = "Cyndaquil",
@@ -1301,7 +1301,7 @@ PokemonData = {
 		evolution = "14",
 		bst = "309",
 		movelvls = { { 6, 12, 19, 27, 36, 46 }, { 6, 12, 19, 27, 36, 46 } },
-		weight = "17.4"
+		weight = 7.9
 	},
 	{
 		name = "Quilava",
@@ -1309,7 +1309,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 6, 12, 21, 31, 42, 54 }, { 6, 12, 21, 31, 42, 54 } },
-		weight = "41.9"
+		weight = 19.0
 	},
 	{
 		name = "Typhlosion",
@@ -1317,7 +1317,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "534",
 		movelvls = { { 6, 12, 21, 31, 45, 60 }, { 6, 12, 21, 31, 45, 60 } },
-		weight = "175.3"
+		weight = 79.5
 	},
 	{
 		name = "Totodile",
@@ -1325,7 +1325,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "314",
 		movelvls = { { 7, 13, 20, 27, 35, 43, 52 }, { 7, 13, 20, 27, 35, 43, 52 } },
-		weight = "20.9"
+		weight = 9.5
 	},
 	{
 		name = "Croconaw",
@@ -1333,7 +1333,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "405",
 		movelvls = { { 7, 13, 21, 28, 37, 45, 55 }, { 7, 13, 21, 28, 37, 45, 55 } },
-		weight = "55.1"
+		weight = 25.0
 	},
 	{
 		name = "Feraligatr",
@@ -1341,7 +1341,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 7, 13, 21, 28, 38, 47, 58 }, { 7, 13, 21, 28, 38, 47, 58 } },
-		weight = "195.8"
+		weight = 88.8
 	},
 	{
 		name = "Sentret",
@@ -1349,7 +1349,7 @@ PokemonData = {
 		evolution = "15",
 		bst = "215",
 		movelvls = { { 7, 12, 17, 24, 31, 40, 49 }, { 7, 12, 17, 24, 31, 40, 49 } },
-		weight = "13.2"
+		weight = 6.0
 	},
 	{
 		name = "Furret",
@@ -1357,7 +1357,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "415",
 		movelvls = { { 7, 12, 19, 28, 37, 48, 59 }, { 7, 12, 19, 28, 37, 48, 59 } },
-		weight = "71.6"
+		weight = 32.5
 	},
 	{
 		name = "Hoothoot",
@@ -1365,7 +1365,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "262",
 		movelvls = { { 6, 11, 16, 22, 28, 34, 48 }, { 6, 11, 16, 22, 28, 34, 48 } },
-		weight = "46.7"
+		weight = 21.2
 	},
 	{
 		name = "Noctowl",
@@ -1373,7 +1373,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "442",
 		movelvls = { { 6, 11, 16, 25, 33, 41, 57 }, { 6, 11, 16, 25, 33, 41, 57 } },
-		weight = "89.9"
+		weight = 40.8
 	},
 	{
 		name = "Ledyba",
@@ -1381,7 +1381,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "265",
 		movelvls = { { 8, 15, 22, 22, 22, 29, 36, 43, 50 }, { 8, 15, 22, 22, 22, 29, 36, 43, 50 } },
-		weight = "23.8"
+		weight = 10.8
 	},
 	{
 		name = "Ledian",
@@ -1389,7 +1389,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "390",
 		movelvls = { { 8, 15, 24, 24, 24, 33, 42, 51, 60 }, { 8, 15, 24, 24, 24, 33, 42, 51, 60 } },
-		weight = "78.5"
+		weight = 35.6
 	},
 	{
 		name = "Spinarak",
@@ -1397,7 +1397,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "250",
 		movelvls = { { 6, 11, 17, 23, 30, 37, 45, 53 }, { 6, 11, 17, 23, 30, 37, 45, 53 } },
-		weight = "18.7"
+		weight = 8.5
 	},
 	{
 		name = "Ariados",
@@ -1405,7 +1405,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "390",
 		movelvls = { { 6, 11, 17, 25, 34, 43, 53, 63 }, { 6, 11, 17, 25, 34, 43, 53, 63 } },
-		weight = "73.9"
+		weight = 33.5
 	},
 	{
 		name = "Crobat",
@@ -1413,7 +1413,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "535",
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
-		weight = "165.3"
+		weight = 75.0
 	},
 	{
 		name = "Chinchou",
@@ -1421,7 +1421,7 @@ PokemonData = {
 		evolution = "27",
 		bst = "330",
 		movelvls = { { 13, 17, 25, 29, 37, 41, 49 }, { 13, 17, 25, 29, 37, 41, 49 } },
-		weight = "26.0"
+		weight = 12.0
 	},
 	{
 		name = "Lanturn",
@@ -1429,7 +1429,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 13, 17, 25, 32, 43, 50, 61 }, { 13, 17, 25, 32, 43, 50, 61 } },
-		weight = "50.0"
+		weight = 22.5
 	},
 	{
 		name = "Pichu",
@@ -1437,7 +1437,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "205",
 		movelvls = { { 6, 8, 11 }, { 6, 8, 11 } },
-		weight = "4.0"
+		weight = 2.0
 	},
 	{
 		name = "Cleffa",
@@ -1445,7 +1445,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "218",
 		movelvls = { { 8, 13 }, { 8, 13, 17 } },
-		weight = "6.6"
+		weight = 3.0
 	},
 	{
 		name = "Igglybuff",
@@ -1453,7 +1453,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "210",
 		movelvls = { { 9, 14 }, { 9, 14 } },
-		weight = "2.0"
+		weight = 1.0
 	},
 	{
 		name = "Togepi",
@@ -1461,7 +1461,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "245",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = "3.3"
+		weight = 1.5
 	},
 	{
 		name = "Togetic",
@@ -1469,7 +1469,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = "7.1"
+		weight = 3.2
 	},
 	{
 		name = "Natu",
@@ -1477,7 +1477,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "320",
 		movelvls = { { 10, 20, 30, 30, 40, 50 }, { 10, 20, 30, 30, 40, 50 } },
-		weight = "4.0"
+		weight = 2.0
 	},
 	{
 		name = "Xatu",
@@ -1485,7 +1485,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "470",
 		movelvls = { { 10, 20, 35, 35, 50, 65 }, { 10, 20, 35, 35, 50, 65 } },
-		weight = "33.0"
+		weight = 15.0
 	},
 	{
 		name = "Mareep",
@@ -1493,7 +1493,7 @@ PokemonData = {
 		evolution = "15",
 		bst = "280",
 		movelvls = { { 9, 16, 23, 30, 37 }, { 9, 16, 23, 30, 37 } },
-		weight = "17.2"
+		weight = 7.8
 	},
 	{
 		name = "Flaaffy",
@@ -1501,7 +1501,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "365",
 		movelvls = { { 9, 18, 27, 36, 45 }, { 9, 18, 27, 36, 45 } },
-		weight = "29.3"
+		weight = 13.3
 	},
 	{
 		name = "Ampharos",
@@ -1509,7 +1509,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 9, 18, 27, 30, 42, 57 }, { 9, 18, 27, 30, 42, 57 } },
-		weight = "135.6"
+		weight = 61.5
 	},
 	{
 		name = "Bellossom",
@@ -1517,7 +1517,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 44, 55 }, { 44, 55 } },
-		weight = "13.0"
+		weight = 5.8
 	},
 	{
 		name = "Marill",
@@ -1525,7 +1525,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "250",
 		movelvls = { { 6, 10, 15, 21, 28, 36, 45 }, { 6, 10, 15, 21, 28, 36, 45 } },
-		weight = "18.0"
+		weight = 8.5
 	},
 	{
 		name = "Azumarill",
@@ -1533,7 +1533,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "410",
 		movelvls = { { 6, 10, 15, 24, 34, 45, 57 }, { 6, 10, 15, 24, 34, 45, 57 } },
-		weight = "63.0"
+		weight = 28.5
 	},
 	{
 		name = "Sudowoodo",
@@ -1541,7 +1541,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "410",
 		movelvls = { { 9, 17, 25, 33, 41, 49, 57 }, { 9, 17, 25, 33, 41, 49, 57 } },
-		weight = "83.8"
+		weight = 38.0
 	},
 	{
 		name = "Politoed",
@@ -1549,7 +1549,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 35, 51 }, { 35, 51 } },
-		weight = "74.7"
+		weight = 33.9
 	},
 	{
 		name = "Hoppip",
@@ -1557,7 +1557,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "250",
 		movelvls = { { 10, 13, 15, 17, 20, 25, 30 }, { 10, 13, 15, 17, 20, 25, 30 } },
-		weight = "1.1"
+		weight = 0.5
 	},
 	{
 		name = "Skiploom",
@@ -1565,7 +1565,7 @@ PokemonData = {
 		evolution = "27",
 		bst = "340",
 		movelvls = { { 10, 13, 15, 17, 22, 29, 36 }, { 10, 13, 15, 17, 22, 29, 36 } },
-		weight = "2.2"
+		weight = 1.0
 	},
 	{
 		name = "Jumpluff",
@@ -1573,7 +1573,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 10, 13, 15, 17, 22, 33, 44 }, { 10, 13, 15, 17, 22, 33, 44 } },
-		weight = "6.6"
+		weight = 3.0
 	},
 	{
 		name = "Aipom",
@@ -1581,7 +1581,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "360",
 		movelvls = { { 6, 13, 18, 25, 31, 38, 43, 50 }, { 6, 13, 18, 25, 31, 38, 43, 50 } },
-		weight = "25.4"
+		weight = 11.5
 	},
 	{
 		name = "Sunkern",
@@ -1589,7 +1589,7 @@ PokemonData = {
 		evolution = EvolutionTypes.SUN,
 		bst = "180",
 		movelvls = { { 6, 13, 18, 25, 30, 37, 42 }, { 6, 13, 18, 25, 30, 37, 42 } },
-		weight = "4.0"
+		weight = 1.8
 	},
 	{
 		name = "Sunflora",
@@ -1597,7 +1597,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "425",
 		movelvls = { { 6, 13, 18, 25, 30, 37, 42 }, { 6, 13, 18, 25, 30, 37, 42 } },
-		weight = "18.7"
+		weight = 8.5
 	},
 	{
 		name = "Yanma",
@@ -1605,7 +1605,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "390",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 6, 12, 17, 23, 28, 34, 39, 45, 50 } },
-		weight = "83.8"
+		weight = 38.0
 	},
 	{
 		name = "Wooper",
@@ -1613,7 +1613,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "210",
 		movelvls = { { 11, 16, 21, 31, 36, 41, 51, 51 }, { 11, 16, 21, 31, 36, 41, 51, 51 } },
-		weight = "18.7"
+		weight = 8.5
 	},
 	{
 		name = "Quagsire",
@@ -1621,7 +1621,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 11, 16, 23, 35, 42, 49, 61, 61 }, { 11, 16, 23, 35, 42, 49, 61, 61 } },
-		weight = "165.3"
+		weight = 75.0
 	},
 	{
 		name = "Espeon",
@@ -1629,7 +1629,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 16, 23, 30, 36, 42, 47, 52 }, { 8, 16, 23, 30, 36, 42, 47, 52 } },
-		weight = "58.4"
+		weight = 26.5
 	},
 	{
 		name = "Umbreon",
@@ -1637,7 +1637,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "525",
 		movelvls = { { 8, 16, 23, 30, 36, 42, 47, 52 }, { 8, 16, 23, 30, 36, 42, 47, 52 } },
-		weight = "59.5"
+		weight = 27.0
 	},
 	{
 		name = "Murkrow",
@@ -1645,7 +1645,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 9, 14, 22, 27, 35, 40, 48 }, { 9, 14, 22, 27, 35, 40, 48 } },
-		weight = "4.6"
+		weight = 2.1
 	},
 	{
 		name = "Slowking",
@@ -1653,7 +1653,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 6, 15, 20, 29, 34, 43, 48 }, { 6, 13, 17, 24, 29, 36, 40, 47 } },
-		weight = "175.3"
+		weight = 79.5
 	},
 	{
 		name = "Misdreavus",
@@ -1661,7 +1661,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "435",
 		movelvls = { { 6, 11, 17, 23, 30, 37, 45, 53 }, { 6, 11, 17, 23, 30, 37, 45, 53 } },
-		weight = "2.2"
+		weight = 1.0
 	},
 	{
 		name = "Unown",
@@ -1669,7 +1669,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Wobbuffet",
@@ -1677,7 +1677,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { {}, {} },
-		weight = "63.0"
+		weight = 28.5
 	},
 	{
 		name = "Girafarig",
@@ -1685,7 +1685,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "91.0"
+		weight = 41.5
 	},
 	{
 		name = "Pineco",
@@ -1693,7 +1693,7 @@ PokemonData = {
 		evolution = "31",
 		bst = "290",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "15.9"
+		weight = 7.2
 	},
 	{
 		name = "Forretress",
@@ -1701,7 +1701,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 8, 15, 22, 29, 39, 49, 59 }, { 8, 15, 22, 29, 31, 39, 49, 59 } },
-		weight = "277.3"
+		weight = 125.8
 	},
 	{
 		name = "Dunsparce",
@@ -1709,7 +1709,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "415",
 		movelvls = { { 11, 14, 21, 24, 31, 34, 41 }, { 11, 14, 21, 24, 31, 34, 41, 44, 51 } },
-		weight = "15.9"
+		weight = 14.0
 	},
 	{
 		name = "Gligar",
@@ -1717,7 +1717,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 6, 13, 20, 28, 36, 44, 52 }, { 6, 13, 20, 28, 36, 44, 52 } },
-		weight = "142.9"
+		weight = 64.8
 	},
 	{
 		name = "Steelix",
@@ -1725,7 +1725,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "510",
 		movelvls = { { 9, 13, 21, 25, 33, 37, 45, 49, 57 }, { 8, 12, 19, 23, 30, 34, 41, 45, 52, 56 } },
-		weight = "881.8"
+		weight = 400.0
 	},
 	{
 		name = "Snubbull",
@@ -1733,7 +1733,7 @@ PokemonData = {
 		evolution = "23",
 		bst = "300",
 		movelvls = { { 8, 13, 19, 26, 34, 43, 53 }, { 8, 13, 19, 26, 34, 43, 53 } },
-		weight = "17.2"
+		weight = 7.8
 	},
 	{
 		name = "Granbull",
@@ -1741,7 +1741,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 8, 13, 19, 28, 38, 49, 61 }, { 8, 13, 19, 28, 38, 49, 61 } },
-		weight = "107.4"
+		weight = 48.7
 	},
 	{
 		name = "Qwilfish",
@@ -1749,7 +1749,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 10, 10, 19, 28, 37, 46 }, { 9, 9, 13, 21, 25, 33, 37, 45 } },
-		weight = "8.6"
+		weight = 3.9
 	},
 	{
 		name = "Scizor",
@@ -1757,7 +1757,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "260.1"
+		weight = 118.0
 	},
 	{
 		name = "Shuckle",
@@ -1765,7 +1765,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "505",
 		movelvls = { { 9, 14, 23, 28, 37 }, { 9, 14, 23, 28, 37 } },
-		weight = "45.2"
+		weight = 20.5
 	},
 	{
 		name = "Heracross",
@@ -1773,7 +1773,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 6, 11, 17, 23, 30, 37, 45, 53 }, { 6, 11, 17, 23, 30, 37, 45, 53 } },
-		weight = "120.0"
+		weight = 54.0
 	},
 	{
 		name = "Sneasel",
@@ -1781,7 +1781,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50, 57, 64 }, { 8, 15, 22, 29, 36, 43, 50, 57, 64 } },
-		weight = "61.7"
+		weight = 28.0
 	},
 	{
 		name = "Teddiursa",
@@ -1789,7 +1789,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "330",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "19.4"
+		weight = 8.8
 	},
 	{
 		name = "Ursaring",
@@ -1797,7 +1797,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "277.3"
+		weight = 125.8
 	},
 	{
 		name = "Slugma",
@@ -1805,7 +1805,7 @@ PokemonData = {
 		evolution = "38",
 		bst = "250",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "77.0"
+		weight = 35.0
 	},
 	{
 		name = "Magcargo",
@@ -1813,7 +1813,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "410",
 		movelvls = { { 8, 15, 22, 29, 36, 48, 60 }, { 8, 15, 22, 29, 36, 48, 60 } },
-		weight = "121.0"
+		weight = 55.0
 	},
 	{
 		name = "Swinub",
@@ -1821,7 +1821,7 @@ PokemonData = {
 		evolution = "33",
 		bst = "250",
 		movelvls = { { 10, 19, 28, 37, 46, 55 }, { 10, 19, 28, 37, 46, 55 } },
-		weight = "14.3"
+		weight = 6.5
 	},
 	{
 		name = "Piloswine",
@@ -1829,7 +1829,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "450",
 		movelvls = { { 10, 19, 28, 33, 42, 56, 70 }, { 10, 19, 28, 33, 42, 56, 70 } },
-		weight = "123.0"
+		weight = 55.8
 	},
 	{
 		name = "Corsola",
@@ -1837,7 +1837,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "380",
 		movelvls = { { 6, 12, 17, 17, 23, 28, 34, 39, 45 }, { 6, 12, 17, 17, 23, 28, 34, 39, 45 } },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Remoraid",
@@ -1845,7 +1845,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "300",
 		movelvls = { { 11, 22, 22, 22, 33, 44, 55 }, { 11, 22, 22, 22, 33, 44, 55 } },
-		weight = "26.5"
+		weight = 12.0
 	},
 	{
 		name = "Octillery",
@@ -1853,7 +1853,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 11, 22, 22, 22, 25, 38, 54, 70 }, { 11, 22, 22, 22, 25, 38, 54, 70 } },
-		weight = "62.8"
+		weight = 28.5
 	},
 	{
 		name = "Delibird",
@@ -1861,7 +1861,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "330",
 		movelvls = { {}, {} },
-		weight = "35.3"
+		weight = 16.0
 	},
 	{
 		name = "Mantine",
@@ -1869,7 +1869,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "485.0"
+		weight = 220.0
 	},
 	{
 		name = "Skarmory",
@@ -1877,7 +1877,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 10, 13, 16, 26, 29, 32, 42, 45 }, { 10, 13, 16, 26, 29, 32, 42, 45 } },
-		weight = "112.0"
+		weight = 50.5
 	},
 	{
 		name = "Houndour",
@@ -1885,7 +1885,7 @@ PokemonData = {
 		evolution = "24",
 		bst = "330",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "23.8"
+		weight = 10.8
 	},
 	{
 		name = "Houndoom",
@@ -1893,7 +1893,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51, 59 }, { 7, 13, 19, 27, 35, 43, 51, 59 } },
-		weight = "77.2"
+		weight = 35.0
 	},
 	{
 		name = "Kingdra",
@@ -1901,7 +1901,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
 		movelvls = { { 8, 15, 22, 29, 40, 51, 62 }, { 8, 15, 22, 29, 40, 51, 62 } },
-		weight = "336.0"
+		weight = 152.0
 	},
 	{
 		name = "Phanpy",
@@ -1909,7 +1909,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "330",
 		movelvls = { { 9, 17, 25, 33, 41, 49 }, { 9, 17, 25, 33, 41, 49 } },
-		weight = "74.0"
+		weight = 33.5
 	},
 	{
 		name = "Donphan",
@@ -1917,7 +1917,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 9, 17, 25, 33, 41, 49 }, { 9, 17, 25, 33, 41, 49 } },
-		weight = "265.0"
+		weight = 120.0
 	},
 	{
 		name = "Porygon2",
@@ -1925,7 +1925,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "515",
 		movelvls = { { 9, 12, 20, 24, 32, 36, 44, 48 }, { 9, 12, 20, 24, 32, 36, 44, 48 } },
-		weight = "71.6"
+		weight = 32.5
 	},
 	{
 		name = "Stantler",
@@ -1933,7 +1933,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 11, 17, 21, 27, 31, 37, 41, 47 } },
-		weight = "157.0"
+		weight = 71.2
 	},
 	{
 		name = "Smeargle",
@@ -1941,7 +1941,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "250",
 		movelvls = { { 11, 21, 31, 41, 51, 61, 71, 81, 91 }, { 11, 21, 31, 41, 51, 61, 71, 81, 91 } },
-		weight = "127.9"
+		weight = 58.0
 	},
 	{
 		name = "Tyrogue",
@@ -1949,7 +1949,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "210",
 		movelvls = { {}, {} },
-		weight = "16.3"
+		weight = 21.0
 	},
 	{
 		name = "Hitmontop",
@@ -1957,7 +1957,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 7, 13, 19, 20, 25, 31, 37, 43, 49 }, { 7, 13, 19, 20, 25, 31, 37, 43, 49 } },
-		weight = "105.8"
+		weight = 48.0
 	},
 	{
 		name = "Smoochum",
@@ -1965,7 +1965,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "305",
 		movelvls = { { 9, 13, 21, 25, 33, 37, 45, 49, 57 }, { 9, 13, 21, 25, 33, 37, 45, 49, 57 } },
-		weight = "13.2"
+		weight = 6.0
 	},
 	{
 		name = "Elekid",
@@ -1973,7 +1973,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "360",
 		movelvls = { { 9, 17, 25, 33, 41, 49 }, { 9, 17, 25, 33, 41, 49 } },
-		weight = "51.8"
+		weight = 23.5
 	},
 	{
 		name = "Magby",
@@ -1981,7 +1981,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "365",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "47.2"
+		weight = 21.4
 	},
 	{
 		name = "Miltank",
@@ -1989,7 +1989,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 8, 13, 19, 26, 34, 43, 53 }, { 8, 13, 19, 26, 34, 43, 53 } },
-		weight = "166.4"
+		weight = 75.5
 	},
 	{
 		name = "Blissey",
@@ -1997,7 +1997,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
 		movelvls = { { 7, 10, 13, 18, 23, 28, 33, 40, 47 }, { 7, 10, 13, 18, 23, 28, 33, 40, 47 } },
-		weight = "103.2"
+		weight = 46.8
 	},
 	{
 		name = "Raikou",
@@ -2005,7 +2005,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 11, 21, 31, 41, 51, 61, 71, 81 }, { 11, 21, 31, 41, 51, 61, 71, 81 } },
-		weight = "392.4"
+		weight = 178.0
 	},
 	{
 		name = "Entei",
@@ -2013,7 +2013,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 11, 21, 31, 41, 51, 61, 71, 81 }, { 11, 21, 31, 41, 51, 61, 71, 81 } },
-		weight = "436.5"
+		weight = 198.0
 	},
 	{
 		name = "Suicune",
@@ -2021,7 +2021,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 11, 21, 31, 41, 51, 61, 71, 81 }, { 11, 21, 31, 41, 51, 61, 71, 81 } },
-		weight = "412.3"
+		weight = 187.0
 	},
 	{
 		name = "Larvitar",
@@ -2029,7 +2029,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "300",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50, 57 }, { 8, 15, 22, 29, 36, 43, 50, 57 } },
-		weight = "158.7"
+		weight = 72.0
 	},
 	{
 		name = "Pupitar",
@@ -2037,7 +2037,7 @@ PokemonData = {
 		evolution = "55",
 		bst = "410",
 		movelvls = { { 8, 15, 22, 29, 38, 47, 56, 65 }, { 8, 15, 22, 29, 38, 47, 56, 65 } },
-		weight = "335.1"
+		weight = 152.0
 	},
 	{
 		name = "Tyranitar",
@@ -2045,7 +2045,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 8, 15, 22, 29, 38, 47, 61, 75 }, { 8, 15, 22, 29, 38, 47, 61, 75 } },
-		weight = "445.3"
+		weight = 202.0
 	},
 	{
 		name = "Lugia",
@@ -2053,7 +2053,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "680",
 		movelvls = { { 11, 22, 33, 44, 55, 66, 77, 88, 99 }, { 11, 22, 33, 44, 55, 66, 77, 88, 99 } },
-		weight = "476.2"
+		weight = 216.0
 	},
 	{
 		name = "Ho-Oh",
@@ -2061,7 +2061,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "680",
 		movelvls = { { 11, 22, 33, 44, 55, 66, 77, 88, 99 }, { 11, 22, 33, 44, 55, 66, 77, 88, 99 } },
-		weight = "138.7"
+		weight = 199.0
 	},
 	{
 		name = "Celebi",
@@ -2069,7 +2069,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 10, 20, 30, 40, 50 }, { 10, 20, 30, 40, 50 } },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "none",
@@ -2277,7 +2277,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "310",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Grovyle",
@@ -2285,7 +2285,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 6, 11, 16, 17, 23, 29, 35, 41, 47, 53 }, { 6, 11, 16, 17, 23, 29, 35, 41, 47, 53 } },
-		weight = "47.6"
+		weight = 21.6
 	},
 	{
 		name = "Sceptile",
@@ -2293,7 +2293,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 6, 11, 16, 17, 23, 29, 35, 43, 51, 59 }, { 6, 11, 16, 17, 23, 29, 35, 43, 51, 59 } },
-		weight = "115.1"
+		weight = 52.2
 	},
 	{
 		name = "Torchic",
@@ -2301,7 +2301,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "310",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 34, 37, 43 }, { 7, 10, 16, 19, 25, 28, 34, 37, 43 } },
-		weight = "5.5"
+		weight = 2.5
 	},
 	{
 		name = "Combusken",
@@ -2309,7 +2309,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 7, 13, 16, 17, 21, 28, 32, 39, 43, 50 }, { 7, 13, 16, 17, 21, 28, 32, 39, 43, 50 } },
-		weight = "43.0"
+		weight = 19.5
 	},
 	{
 		name = "Blaziken",
@@ -2317,7 +2317,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 7, 13, 16, 17, 21, 28, 32, 36, 42, 49, 59 }, { 7, 13, 16, 17, 21, 28, 32, 36, 42, 49, 59 } },
-		weight = "114.6"
+		weight = 52.0
 	},
 	{
 		name = "Mudkip",
@@ -2325,7 +2325,7 @@ PokemonData = {
 		evolution = "16",
 		bst = "310",
 		movelvls = { { 6, 10, 15, 19, 24, 28, 33, 37, 42, 46 }, { 6, 10, 15, 19, 24, 28, 33, 37, 42, 46 } },
-		weight = "16.8"
+		weight = 7.6
 	},
 	{
 		name = "Marshtomp",
@@ -2333,7 +2333,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "405",
 		movelvls = { { 6, 10, 15, 16, 20, 25, 31, 37, 42, 46, 53 }, { 6, 10, 15, 16, 20, 25, 31, 37, 42, 46, 53 } },
-		weight = "61.7"
+		weight = 28.0
 	},
 	{
 		name = "Swampert",
@@ -2341,7 +2341,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "535",
 		movelvls = { { 6, 10, 15, 16, 20, 25, 31, 39, 46, 52, 61 }, { 6, 10, 15, 16, 20, 25, 31, 39, 46, 52, 61 } },
-		weight = "180.6"
+		weight = 81.9
 	},
 	{
 		name = "Poochyena",
@@ -2349,7 +2349,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "220",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = "30.0"
+		weight = 13.6
 	},
 	{
 		name = "Mightyena",
@@ -2357,7 +2357,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "420",
 		movelvls = { { 9, 13, 17, 22, 27, 32, 37, 42, 47, 52 }, { 9, 13, 17, 22, 27, 32, 37, 42, 47, 52 } },
-		weight = "81.6"
+		weight = 37.0
 	},
 	{
 		name = "Zigzagoon",
@@ -2365,7 +2365,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "240",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = "38.6"
+		weight = 17.5
 	},
 	{
 		name = "Linoone",
@@ -2373,7 +2373,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "420",
 		movelvls = { { 9, 13, 17, 23, 29, 35, 41, 47, 53 }, { 9, 13, 17, 23, 29, 35, 41, 47, 53 } },
-		weight = "71.6"
+		weight = 32.5
 	},
 	{
 		name = "Wurmple",
@@ -2381,7 +2381,7 @@ PokemonData = {
 		evolution = "7",
 		bst = "195",
 		movelvls = { {}, {} },
-		weight = "7.9"
+		weight = 3.6
 	},
 	{
 		name = "Silcoon",
@@ -2389,7 +2389,7 @@ PokemonData = {
 		evolution = "10",
 		bst = "205",
 		movelvls = { { 7 }, { 7 } },
-		weight = "22.0"
+		weight = 10.0
 	},
 	{
 		name = "Beautifly",
@@ -2397,7 +2397,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "385",
 		movelvls = { { 10, 13, 17, 20, 24, 27, 31, 34, 38 }, { 10, 13, 17, 20, 24, 27, 31, 34, 38 } },
-		weight = "62.6"
+		weight = 28.4
 	},
 	{
 		name = "Cascoon",
@@ -2405,7 +2405,7 @@ PokemonData = {
 		evolution = "10",
 		bst = "205",
 		movelvls = { { 7 }, { 7 } },
-		weight = "25.4"
+		weight = 11.5
 	},
 	{
 		name = "Dustox",
@@ -2413,7 +2413,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "385",
 		movelvls = { { 10, 13, 17, 20, 24, 27, 31, 34, 38 }, { 10, 13, 17, 20, 24, 27, 31, 34, 38 } },
-		weight = "69.7"
+		weight = 31.6
 	},
 	{
 		name = "Lotad",
@@ -2421,7 +2421,7 @@ PokemonData = {
 		evolution = "14",
 		bst = "220",
 		movelvls = { { 7, 13, 21, 31, 43 }, { 7, 13, 21, 31, 43 } },
-		weight = "5.7"
+		weight = 2.6
 	},
 	{
 		name = "Lombre",
@@ -2429,7 +2429,7 @@ PokemonData = {
 		evolution = EvolutionTypes.WATER,
 		bst = "340",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "71.6"
+		weight = 32.5
 	},
 	{
 		name = "Ludicolo",
@@ -2437,7 +2437,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { {}, {} },
-		weight = "121.3"
+		weight = 55.0
 	},
 	{
 		name = "Seedot",
@@ -2445,7 +2445,7 @@ PokemonData = {
 		evolution = "14",
 		bst = "220",
 		movelvls = { { 7, 13, 21, 31, 43 }, { 7, 13, 21, 31, 43 } },
-		weight = "8.8"
+		weight = 4.0
 	},
 	{
 		name = "Nuzleaf",
@@ -2453,7 +2453,7 @@ PokemonData = {
 		evolution = EvolutionTypes.LEAF,
 		bst = "340",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "61.7"
+		weight = 28.0
 	},
 	{
 		name = "Shiftry",
@@ -2461,7 +2461,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { {}, {} },
-		weight = "131.4"
+		weight = 59.6
 	},
 	{
 		name = "Nincada",
@@ -2469,7 +2469,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "266",
 		movelvls = { { 9, 14, 19, 25, 31, 38, 45 }, { 9, 14, 19, 25, 31, 38, 45 } },
-		weight = "12.1"
+		weight = 5.5
 	},
 	{
 		name = "Ninjask",
@@ -2477,7 +2477,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "456",
 		movelvls = { { 9, 14, 19, 20, 20, 20, 25, 31, 38, 45 }, { 9, 14, 19, 20, 20, 20, 25, 31, 38, 45 } },
-		weight = "26.5"
+		weight = 12.0
 	},
 	{
 		name = "Shedinja",
@@ -2485,7 +2485,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "236",
 		movelvls = { { 9, 14, 19, 25, 31, 38, 45 }, { 9, 14, 19, 25, 31, 38, 45 } },
-		weight = "2.6"
+		weight = 1.2
 	},
 	{
 		name = "Taillow",
@@ -2493,7 +2493,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "270",
 		movelvls = { { 8, 13, 19, 26, 34, 43 }, { 8, 13, 19, 26, 34, 43 } },
-		weight = "5.1"
+		weight = 2.3
 	},
 	{
 		name = "Swellow",
@@ -2501,7 +2501,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 8, 13, 19, 28, 38, 49 }, { 8, 13, 19, 28, 38, 49 } },
-		weight = "43.7"
+		weight = 19.8
 	},
 	{
 		name = "Shroomish",
@@ -2509,7 +2509,7 @@ PokemonData = {
 		evolution = "23",
 		bst = "295",
 		movelvls = { { 7, 10, 16, 22, 28, 36, 45, 54 }, { 7, 10, 16, 22, 28, 36, 45, 54 } },
-		weight = "9.9"
+		weight = 4.5
 	},
 	{
 		name = "Breloom",
@@ -2517,7 +2517,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 7, 10, 16, 22, 23, 28, 36, 45, 54 }, { 7, 10, 16, 22, 23, 28, 36, 45, 54 } },
-		weight = "86.4"
+		weight = 39.2
 	},
 	{
 		name = "Spinda",
@@ -2525,7 +2525,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "360",
 		movelvls = { { 12, 16, 23, 27, 34, 38, 45, 49, 56 }, { 12, 16, 23, 27, 34, 38, 45, 49, 56 } },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Wingull",
@@ -2533,7 +2533,7 @@ PokemonData = {
 		evolution = "25",
 		bst = "270",
 		movelvls = { { 7, 13, 21, 31, 43, 55 }, { 7, 13, 21, 31, 43, 55 } },
-		weight = "20.9"
+		weight = 9.5
 	},
 	{
 		name = "Pelipper",
@@ -2541,7 +2541,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "430",
 		movelvls = { { 7, 13, 21, 25, 33, 33, 47, 61 }, { 7, 13, 21, 25, 33, 33, 47, 61 } },
-		weight = "61.7"
+		weight = 28.0
 	},
 	{
 		name = "Surskit",
@@ -2549,7 +2549,7 @@ PokemonData = {
 		evolution = "22",
 		bst = "269",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 37 }, { 7, 13, 19, 25, 31, 37, 37 } },
-		weight = "3.7"
+		weight = 1.7
 	},
 	{
 		name = "Masquerain",
@@ -2557,7 +2557,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "414",
 		movelvls = { { 7, 13, 19, 26, 33, 40, 47, 53 }, { 7, 13, 19, 26, 33, 40, 47, 53 } },
-		weight = "7.9"
+		weight = 3.6
 	},
 	{
 		name = "Wailmer",
@@ -2565,7 +2565,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "400",
 		movelvls = { { 10, 14, 19, 23, 28, 32, 37, 41, 46, 50 }, { 10, 14, 19, 23, 28, 32, 37, 41, 46, 50 } },
-		weight = "286.6"
+		weight = 130.0
 	},
 	{
 		name = "Wailord", -- STONKS
@@ -2573,7 +2573,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 10, 14, 19, 23, 28, 32, 37, 44, 52, 59 }, { 10, 14, 19, 23, 28, 32, 37, 44, 52, 59 } },
-		weight = "877.4"
+		weight = 398.0
 	},
 	{
 		name = "Skitty",
@@ -2581,7 +2581,7 @@ PokemonData = {
 		evolution = EvolutionTypes.MOON,
 		bst = "260",
 		movelvls = { { 7, 13, 15, 19, 25, 27, 31, 37, 39 }, { 7, 13, 15, 19, 25, 27, 31, 37, 39 } },
-		weight = "24.3"
+		weight = 11.0
 	},
 	{
 		name = "Delcatty",
@@ -2589,7 +2589,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "380",
 		movelvls = { {}, {} },
-		weight = "71.9"
+		weight = 32.6
 	},
 	{
 		name = "Kecleon", -- KEKLEO-N
@@ -2597,7 +2597,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "440",
 		movelvls = { { 7, 12, 17, 24, 31, 40, 49 }, { 7, 12, 17, 24, 31, 40, 49 } },
-		weight = "48.5"
+		weight = 22.0
 	},
 	{
 		name = "Baltoy",
@@ -2605,7 +2605,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "300",
 		movelvls = { { 7, 11, 15, 19, 25, 31, 37, 45 }, { 7, 11, 15, 19, 25, 31, 37, 45 } },
-		weight = "47.4"
+		weight = 21.5
 	},
 	{
 		name = "Claydol",
@@ -2613,7 +2613,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "500",
 		movelvls = { { 7, 11, 15, 19, 25, 31, 36, 42, 55 }, { 7, 11, 15, 19, 25, 31, 36, 42, 55 } },
-		weight = "238.1"
+		weight = 108.0
 	},
 	{
 		name = "Nosepass",
@@ -2621,7 +2621,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "375",
 		movelvls = { { 7, 13, 16, 22, 28, 31, 37, 43, 46 }, { 7, 13, 16, 22, 28, 31, 37, 43, 46 } },
-		weight = "213.8"
+		weight = 97.0
 	},
 	{
 		name = "Torkoal",
@@ -2629,7 +2629,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "470",
 		movelvls = { { 7, 14, 17, 20, 27, 30, 33, 40, 43, 46 }, { 7, 14, 17, 20, 27, 30, 33, 40, 43, 46 } },
-		weight = "177.2"
+		weight = 80.4
 	},
 	{
 		name = "Sableye",
@@ -2637,7 +2637,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "380",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = "24.3"
+		weight = 11.0
 	},
 	{
 		name = "Barboach",
@@ -2645,7 +2645,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "288",
 		movelvls = { { 6, 6, 11, 16, 21, 26, 26, 31, 36, 41 }, { 6, 6, 11, 16, 21, 26, 26, 31, 36, 41 } },
-		weight = "4.2"
+		weight = 1.9
 	},
 	{
 		name = "Whiscash",
@@ -2653,7 +2653,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "468",
 		movelvls = { { 6, 6, 11, 16, 21, 26, 26, 36, 46, 56 }, { 6, 6, 11, 16, 21, 26, 26, 36, 46, 56 } },
-		weight = "52.0"
+		weight = 23.6
 	},
 	{
 		name = "Luvdisc",
@@ -2661,7 +2661,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "330",
 		movelvls = { { 12, 16, 24, 28, 36, 40, 48 }, { 12, 16, 24, 28, 36, 40, 48 } },
-		weight = "19.2"
+		weight = 8.7
 	},
 	{
 		name = "Corphish",
@@ -2669,7 +2669,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "308",
 		movelvls = { { 7, 10, 13, 20, 23, 26, 32, 35, 38, 44 }, { 7, 10, 13, 19, 22, 25, 31, 34, 37, 43, 46 } },
-		weight = "25.4"
+		weight = 11.5
 	},
 	{
 		name = "Crawdaunt", -- FRAUD
@@ -2677,7 +2677,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "468",
 		movelvls = { { 7, 10, 13, 20, 23, 26, 34, 39, 44, 52 }, { 7, 10, 13, 19, 22, 25, 33, 38, 43, 51, 56 } },
-		weight = "72.3"
+		weight = 32.8
 	},
 	{
 		name = "Feebas",
@@ -2685,7 +2685,7 @@ PokemonData = {
 		evolution = "35", -- Level 35 replaces beauty condition
 		bst = "200",
 		movelvls = { { 15, 30 }, { 15, 30 } },
-		weight = "16.3"
+		weight = 7.4
 	},
 	{
 		name = "Milotic", -- THICC
@@ -2693,7 +2693,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
 		movelvls = { { 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 10, 15, 20, 25, 30, 35, 40, 45, 50 } },
-		weight = "357.1"
+		weight = 162.0
 	},
 	{
 		name = "Carvanha",
@@ -2701,7 +2701,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "305",
 		movelvls = { { 7, 13, 16, 22, 28, 31, 37, 43 }, { 7, 13, 16, 22, 28, 31, 37, 43 } },
-		weight = "45.9"
+		weight = 20.8
 	},
 	{
 		name = "Sharpedo",
@@ -2709,7 +2709,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 7, 13, 16, 22, 28, 33, 38, 43, 48, 53 }, { 7, 13, 16, 22, 28, 33, 38, 43, 48, 53 } },
-		weight = "195.8"
+		weight = 88.8
 	},
 	{
 		name = "Trapinch",
@@ -2717,7 +2717,7 @@ PokemonData = {
 		evolution = "35",
 		bst = "290",
 		movelvls = { { 9, 17, 25, 33, 41, 49, 57 }, { 9, 17, 25, 33, 41, 49, 57 } },
-		weight = "33.1"
+		weight = 15.0
 	},
 	{
 		name = "Vibrava",
@@ -2725,7 +2725,7 @@ PokemonData = {
 		evolution = "45",
 		bst = "340",
 		movelvls = { { 9, 17, 25, 33, 35, 41, 49, 57 }, { 9, 17, 25, 33, 35, 41, 49, 57 } },
-		weight = "33.7"
+		weight = 15.3
 	},
 	{
 		name = "Flygon",
@@ -2733,7 +2733,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "520",
 		movelvls = { { 9, 17, 25, 33, 35, 41, 53, 65 }, { 9, 17, 25, 33, 35, 41, 53, 65 } },
-		weight = "180.8"
+		weight = 82.0
 	},
 	{
 		name = "Makuhita",
@@ -2741,7 +2741,7 @@ PokemonData = {
 		evolution = "24",
 		bst = "237",
 		movelvls = { { 10, 13, 19, 22, 28, 31, 37, 40, 46, 49 }, { 10, 13, 19, 22, 28, 31, 37, 40, 46, 49 } },
-		weight = "190.5"
+		weight = 86.4
 	},
 	{
 		name = "Hariyama",
@@ -2749,7 +2749,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "474",
 		movelvls = { { 10, 13, 19, 22, 29, 33, 40, 44, 51, 55 }, { 10, 13, 19, 22, 29, 33, 40, 44, 51, 55 } },
-		weight = "559.5"
+		weight = 253.8
 	},
 	{
 		name = "Electrike",
@@ -2757,7 +2757,7 @@ PokemonData = {
 		evolution = "26",
 		bst = "295",
 		movelvls = { { 9, 12, 17, 20, 25, 28, 33, 36, 41 }, { 9, 12, 17, 20, 25, 28, 33, 36, 41 } },
-		weight = "33.5"
+		weight = 15.2
 	},
 	{
 		name = "Manectric",
@@ -2765,7 +2765,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "475",
 		movelvls = { { 9, 12, 17, 20, 25, 31, 39, 45, 53 }, { 9, 12, 17, 20, 25, 31, 39, 45, 53 } },
-		weight = "88.6"
+		weight = 40.2
 	},
 	{
 		name = "Numel",
@@ -2773,7 +2773,7 @@ PokemonData = {
 		evolution = "33",
 		bst = "305",
 		movelvls = { { 11, 19, 25, 29, 31, 35, 41, 49 }, { 11, 19, 25, 29, 31, 35, 41, 49 } },
-		weight = "52.9"
+		weight = 24.0
 	},
 	{
 		name = "Camerupt",
@@ -2781,7 +2781,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 11, 19, 25, 29, 31, 33, 37, 45, 55 }, { 11, 19, 25, 29, 31, 33, 37, 45, 55 } },
-		weight = "485.0"
+		weight = 220.0
 	},
 	{
 		name = "Spheal",
@@ -2789,7 +2789,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "290",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 37, 43, 49 } },
-		weight = "87.1"
+		weight = 39.5
 	},
 	{
 		name = "Sealeo",
@@ -2797,7 +2797,7 @@ PokemonData = {
 		evolution = "44",
 		bst = "410",
 		movelvls = { { 7, 13, 19, 25, 31, 39, 39, 47, 55 }, { 7, 13, 19, 25, 31, 39, 39, 47, 55 } },
-		weight = "193.1"
+		weight = 87.6
 	},
 	{
 		name = "Walrein",
@@ -2805,7 +2805,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 7, 13, 19, 25, 31, 39, 39, 50, 61 }, { 7, 13, 19, 25, 31, 39, 39, 50, 61 } },
-		weight = "332.0"
+		weight = 150.6
 	},
 	{
 		name = "Cacnea",
@@ -2813,7 +2813,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "335",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49 } },
-		weight = "113.1"
+		weight = 51.3
 	},
 	{
 		name = "Cacturne",
@@ -2821,7 +2821,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "475",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 35, 41, 47, 53 }, { 9, 13, 17, 21, 25, 29, 35, 41, 47, 53, 59 } },
-		weight = "170.6"
+		weight = 77.4
 	},
 	{
 		name = "Snorunt",
@@ -2829,7 +2829,7 @@ PokemonData = {
 		evolution = "42",
 		bst = "300",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 34, 37, 43 }, { 7, 10, 16, 19, 25, 28, 34, 37, 43 } },
-		weight = "37.0"
+		weight = 16.8
 	},
 	{
 		name = "Glalie",
@@ -2837,7 +2837,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 34, 42, 53, 61 }, { 7, 10, 16, 19, 25, 28, 34, 42, 53, 61 } },
-		weight = "565.5"
+		weight = 256.5
 	},
 	{
 		name = "Lunatone",
@@ -2845,7 +2845,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "440",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "370.4"
+		weight = 168.0
 	},
 	{
 		name = "Solrock",
@@ -2853,7 +2853,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "440",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "339.5"
+		weight = 154.0
 	},
 	{
 		name = "Azurill",
@@ -2861,7 +2861,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FRIEND,
 		bst = "190",
 		movelvls = { { 6, 10, 15, 21 }, { 6, 10, 15, 21 } },
-		weight = "4.4"
+		weight = 2.0
 	},
 	{
 		name = "Spoink",
@@ -2869,7 +2869,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "330",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 34, 37, 37, 43 }, { 7, 10, 16, 19, 25, 28, 34, 37, 37, 43 } },
-		weight = "67.5"
+		weight = 30.6
 	},
 	{
 		name = "Grumpig",
@@ -2877,7 +2877,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "470",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 37, 43, 43, 55 }, { 7, 10, 16, 19, 25, 28, 37, 43, 43, 55 } },
-		weight = "157.6"
+		weight = 71.5
 	},
 	{
 		name = "Plusle",
@@ -2885,7 +2885,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 10, 13, 19, 22, 28, 31, 37, 40, 47 }, { 10, 13, 19, 22, 28, 31, 37, 40, 47 } },
-		weight = "9.3"
+		weight = 4.2
 	},
 	{
 		name = "Minun",
@@ -2893,7 +2893,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "405",
 		movelvls = { { 10, 13, 19, 22, 28, 31, 37, 40, 47 }, { 10, 13, 19, 22, 28, 31, 37, 40, 47 } },
-		weight = "9.3"
+		weight = 4.2
 	},
 	{
 		name = "Mawile",
@@ -2901,7 +2901,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "380",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46, 46, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46, 46, 46 } },
-		weight = "25.4"
+		weight = 11.5
 	},
 	{
 		name = "Meditite",
@@ -2909,7 +2909,7 @@ PokemonData = {
 		evolution = "37",
 		bst = "280",
 		movelvls = { { 9, 12, 18, 22, 28, 32, 38, 42, 48 }, { 9, 12, 17, 20, 25, 28, 33, 36, 41, 44 } },
-		weight = "24.7"
+		weight = 11.2
 	},
 	{
 		name = "Medicham",
@@ -2917,7 +2917,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "410",
 		movelvls = { { 9, 12, 18, 22, 28, 32, 40, 46, 54 }, { 9, 12, 17, 20, 25, 28, 33, 36, 47, 56 } },
-		weight = "69.4"
+		weight = 31.5
 	},
 	{
 		name = "Swablu",
@@ -2925,7 +2925,7 @@ PokemonData = {
 		evolution = "35",
 		bst = "310",
 		movelvls = { { 8, 11, 18, 21, 28, 31, 38, 41, 48 }, { 8, 11, 18, 21, 28, 31, 38, 41, 48 } },
-		weight = "2.6"
+		weight = 1.2
 	},
 	{
 		name = "Altaria",
@@ -2933,7 +2933,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "490",
 		movelvls = { { 8, 11, 18, 21, 28, 31, 35, 40, 45, 54, 59 }, { 8, 11, 18, 21, 28, 31, 35, 40, 45, 54, 59 } },
-		weight = "45.4"
+		weight = 20.6
 	},
 	{
 		name = "Wynaut",
@@ -2941,7 +2941,7 @@ PokemonData = {
 		evolution = "15",
 		bst = "260",
 		movelvls = { { 15, 15, 15, 15 }, { 15, 15, 15, 15 } },
-		weight = "30.9"
+		weight = 14.0
 	},
 	{
 		name = "Duskull",
@@ -2949,7 +2949,7 @@ PokemonData = {
 		evolution = "37",
 		bst = "295",
 		movelvls = { { 12, 16, 23, 27, 34, 38, 45, 49 }, { 12, 16, 23, 27, 34, 38, 45, 49 } },
-		weight = "33.1"
+		weight = 15.0
 	},
 	{
 		name = "Dusclops",
@@ -2957,7 +2957,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 12, 16, 23, 27, 34, 37, 41, 51, 58 }, { 12, 16, 23, 27, 34, 37, 41, 51, 58 } },
-		weight = "67.5"
+		weight = 30.6
 	},
 	{
 		name = "Roselia",
@@ -2965,7 +2965,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "400",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57 } },
-		weight = "4.4"
+		weight = 2.0
 	},
 	{
 		name = "Slakoth",
@@ -2973,7 +2973,7 @@ PokemonData = {
 		evolution = "18",
 		bst = "280",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43 }, { 7, 13, 19, 25, 31, 37, 43 } },
-		weight = "52.9"
+		weight = 24.0
 	},
 	{
 		name = "Vigoroth",
@@ -2981,7 +2981,7 @@ PokemonData = {
 		evolution = "36",
 		bst = "440",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = "102.5"
+		weight = 46.5
 	},
 	{
 		name = "Slaking",
@@ -2989,7 +2989,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "670",
 		movelvls = { { 7, 13, 19, 25, 31, 36, 37, 43 }, { 7, 13, 19, 25, 31, 36, 37, 43 } },
-		weight = "287.7"
+		weight = 130.5
 	},
 	{
 		name = "Gulpin",
@@ -2997,7 +2997,7 @@ PokemonData = {
 		evolution = "26",
 		bst = "302",
 		movelvls = { { 6, 9, 14, 17, 23, 28, 34, 34, 34, 39 }, { 6, 9, 14, 17, 23, 28, 34, 34, 34, 39 } },
-		weight = "22.7"
+		weight = 10.3
 	},
 	{
 		name = "Swalot",
@@ -3005,7 +3005,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "467",
 		movelvls = { { 6, 9, 14, 17, 23, 26, 31, 40, 40, 40, 48 }, { 6, 9, 14, 17, 23, 26, 31, 40, 40, 40, 48 } },
-		weight = "176.4"
+		weight = 80.0
 	},
 	{
 		name = "Tropius",
@@ -3013,7 +3013,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "460",
 		movelvls = { { 7, 11, 17, 21, 27, 31, 37, 41, 47 }, { 7, 11, 17, 21, 27, 31, 37, 41, 47 } },
-		weight = "220.5"
+		weight = 100.0
 	},
 	{
 		name = "Whismur",
@@ -3021,7 +3021,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "240",
 		movelvls = { { 11, 15, 21, 25, 31, 35, 41, 41, 45 }, { 11, 15, 21, 25, 31, 35, 41, 41, 45 } },
-		weight = "35.9"
+		weight = 16.3
 	},
 	{
 		name = "Loudred",
@@ -3029,7 +3029,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "360",
 		movelvls = { { 11, 15, 23, 29, 37, 43, 51, 51, 57 }, { 11, 15, 23, 29, 37, 43, 51, 51, 57 } },
-		weight = "89.3"
+		weight = 40.5
 	},
 	{
 		name = "Exploud",
@@ -3037,7 +3037,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "480",
 		movelvls = { { 11, 15, 23, 29, 37, 40, 45, 55, 55, 63 }, { 11, 15, 23, 29, 37, 40, 45, 55, 55, 63 } },
-		weight = "185.2"
+		weight = 84.0
 	},
 	{
 		name = "Clamperl",
@@ -3045,7 +3045,7 @@ PokemonData = {
 		evolution = "30/WTR", -- Level 30 and stone replace trade evolution
 		bst = "345",
 		movelvls = { {}, {} },
-		weight = "115.7"
+		weight = 52.5
 	},
 	{
 		name = "Huntail",
@@ -3053,7 +3053,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "485",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "59.5"
+		weight = 27.0
 	},
 	{
 		name = "Gorebyss",
@@ -3061,7 +3061,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "485",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50 }, { 8, 15, 22, 29, 36, 43, 50 } },
-		weight = "49.8"
+		weight = 22.6
 	},
 	{
 		name = "Absol",
@@ -3069,7 +3069,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "465",
 		movelvls = { { 9, 13, 17, 21, 26, 31, 36, 41, 46 }, { 9, 13, 17, 21, 26, 31, 36, 41, 46 } },
-		weight = "103.6"
+		weight = 47.0
 	},
 	{
 		name = "Shuppet",
@@ -3077,7 +3077,7 @@ PokemonData = {
 		evolution = "37",
 		bst = "295",
 		movelvls = { { 8, 13, 20, 25, 32, 37, 44, 49, 56 }, { 8, 13, 20, 25, 32, 37, 44, 49, 56 } },
-		weight = "5.1"
+		weight = 2.3
 	},
 	{
 		name = "Banette",
@@ -3085,7 +3085,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "455",
 		movelvls = { { 8, 13, 20, 25, 32, 39, 48, 55, 64 }, { 8, 13, 20, 25, 32, 39, 48, 55, 64 } },
-		weight = "27.6"
+		weight = 12.5
 	},
 	{
 		name = "Seviper",
@@ -3093,7 +3093,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "458",
 		movelvls = { { 7, 10, 16, 19, 25, 28, 34, 37, 43 }, { 7, 10, 16, 19, 25, 28, 34, 37, 43 } },
-		weight = "115.7"
+		weight = 52.5
 	},
 	{
 		name = "Zangoose",
@@ -3101,7 +3101,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "458",
 		movelvls = { { 7, 10, 13, 19, 25, 31, 37, 46, 55 }, { 7, 10, 13, 19, 25, 31, 37, 46, 55 } },
-		weight = "88.8"
+		weight = 40.3
 	},
 	{
 		name = "Relicanth",
@@ -3109,7 +3109,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "485",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50, 57, 64 }, { 8, 15, 22, 29, 36, 43, 50, 57, 64 } },
-		weight = "51.6"
+		weight = 23.4
 	},
 	{
 		name = "Aron",
@@ -3117,7 +3117,7 @@ PokemonData = {
 		evolution = "32",
 		bst = "330",
 		movelvls = { { 7, 10, 13, 17, 21, 25, 29, 34, 39, 44 }, { 7, 10, 13, 17, 21, 25, 29, 34, 39, 44 } },
-		weight = "132.3"
+		weight = 60.0
 	},
 	{
 		name = "Lairon",
@@ -3125,7 +3125,7 @@ PokemonData = {
 		evolution = "42",
 		bst = "430",
 		movelvls = { { 7, 10, 13, 17, 21, 25, 29, 37, 45, 53 }, { 7, 10, 13, 17, 21, 25, 29, 37, 45, 53 } },
-		weight = "246.6"
+		weight = 120.0
 	},
 	{
 		name = "Aggron",
@@ -3133,7 +3133,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "530",
 		movelvls = { { 7, 10, 13, 17, 21, 25, 29, 37, 50, 63 }, { 7, 10, 13, 17, 21, 25, 29, 37, 50, 63 } },
-		weight = "793.7"
+		weight = 360.0
 	},
 	{
 		name = "Castform",
@@ -3141,7 +3141,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "420",
 		movelvls = { { 10, 10, 10, 20, 20, 20, 30 }, { 10, 10, 10, 20, 20, 20, 30 } },
-		weight = "1.8"
+		weight = 0.8
 	},
 	{
 		name = "Volbeat",
@@ -3149,7 +3149,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "400",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37 }, { 9, 13, 17, 21, 25, 29, 33, 37 } },
-		weight = "39.0"
+		weight = 17.7
 	},
 	{
 		name = "Illumise",
@@ -3157,7 +3157,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "400",
 		movelvls = { { 9, 13, 17, 21, 25, 29, 33, 37 }, { 9, 13, 17, 21, 25, 29, 33, 37 } },
-		weight = "39.0"
+		weight = 17.7
 	},
 	{
 		name = "Lileep",
@@ -3165,7 +3165,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "355",
 		movelvls = { { 8, 15, 22, 29, 36, 43, 50, 50, 50 }, { 8, 15, 22, 29, 36, 43, 50, 50, 50 } },
-		weight = "52.5"
+		weight = 23.8
 	},
 	{
 		name = "Cradily",
@@ -3173,7 +3173,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 8, 15, 22, 29, 36, 48, 60, 60, 60 }, { 8, 15, 22, 29, 36, 48, 60, 60, 60 } },
-		weight = "133.2"
+		weight = 60.4
 	},
 	{
 		name = "Anorith",
@@ -3181,7 +3181,7 @@ PokemonData = {
 		evolution = "40",
 		bst = "355",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49, 55 }, { 7, 13, 19, 25, 31, 37, 43, 49, 55 } },
-		weight = "27.6"
+		weight = 12.5
 	},
 	{
 		name = "Armaldo",
@@ -3189,7 +3189,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "495",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 46, 55, 64 }, { 7, 13, 19, 25, 31, 37, 46, 55, 64 } },
-		weight = "150.4"
+		weight = 68.2
 	},
 	{
 		name = "Ralts",
@@ -3197,7 +3197,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "198",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41, 46 }, { 6, 11, 16, 21, 26, 31, 36, 41, 46 } },
-		weight = "14.6"
+		weight = 6.6
 	},
 	{
 		name = "Kirlia",
@@ -3205,7 +3205,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "278",
 		movelvls = { { 6, 11, 16, 21, 26, 33, 40, 47, 54 }, { 6, 11, 16, 21, 26, 33, 40, 47, 54 } },
-		weight = "44.5"
+		weight = 20.2
 	},
 	{
 		name = "Gardevoir",
@@ -3213,7 +3213,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "518",
 		movelvls = { { 6, 11, 16, 21, 26, 33, 42, 51, 60 }, { 6, 11, 16, 21, 26, 33, 42, 51, 60 } },
-		weight = "106.7"
+		weight = 48.4
 	},
 	{
 		name = "Bagon",
@@ -3221,7 +3221,7 @@ PokemonData = {
 		evolution = "30",
 		bst = "300",
 		movelvls = { { 9, 17, 21, 25, 33, 37, 41, 49, 53 }, { 9, 17, 21, 25, 33, 37, 41, 49, 53 } },
-		weight = "92.8"
+		weight = 42.1
 	},
 	{
 		name = "Shelgon",
@@ -3229,7 +3229,7 @@ PokemonData = {
 		evolution = "50",
 		bst = "420",
 		movelvls = { { 9, 17, 21, 25, 30, 38, 47, 56, 69, 78 }, { 9, 17, 21, 25, 30, 38, 47, 56, 69, 78 } },
-		weight = "243.6"
+		weight = 110.5
 	},
 	{
 		name = "Salamence",
@@ -3237,7 +3237,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 9, 17, 21, 25, 30, 38, 47, 50, 61, 79, 93 }, { 9, 17, 21, 25, 30, 38, 47, 50, 61, 79, 93 } },
-		weight = "226.2"
+		weight = 102.6
 	},
 	{
 		name = "Beldum",
@@ -3245,7 +3245,7 @@ PokemonData = {
 		evolution = "20",
 		bst = "300",
 		movelvls = { {}, {} },
-		weight = "209.9"
+		weight = 95.2
 	},
 	{
 		name = "Metang",
@@ -3253,7 +3253,7 @@ PokemonData = {
 		evolution = "45",
 		bst = "420",
 		movelvls = { { 20, 20, 26, 32, 38, 44, 50, 56, 62 }, { 20, 20, 26, 32, 38, 44, 50, 56, 62 } },
-		weight = "446.4"
+		weight = 202.5
 	},
 	{
 		name = "Metagross",
@@ -3261,7 +3261,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 20, 20, 26, 32, 38, 44, 55, 66, 77 }, { 20, 20, 26, 32, 38, 44, 55, 66, 77 } },
-		weight = "1212.5"
+		weight = 550.0
 	},
 	{
 		name = "Regirock",
@@ -3269,7 +3269,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 9, 17, 25, 33, 41, 49, 57, 65 }, { 9, 17, 25, 33, 41, 49, 57, 65 } },
-		weight = "507.1"
+		weight = 230.0
 	},
 	{
 		name = "Regice",
@@ -3277,7 +3277,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 9, 17, 25, 33, 41, 49, 57, 65 }, { 9, 17, 25, 33, 41, 49, 57, 65 } },
-		weight = "385.8"
+		weight = 175.0
 	},
 	{
 		name = "Registeel",
@@ -3285,7 +3285,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "580",
 		movelvls = { { 9, 17, 25, 33, 41, 41, 49, 57, 65 }, { 9, 17, 25, 33, 41, 41, 49, 57, 65 } },
-		weight = "451.9"
+		weight = 205.0
 	},
 	{
 		name = "Kyogre",
@@ -3293,7 +3293,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "670",
 		movelvls = { { 15, 20, 30, 35, 45, 50, 60, 65, 75 }, { 15, 20, 30, 35, 45, 50, 60, 65, 75 } },
-		weight = "776.0"
+		weight = 352.0
 	},
 	{
 		name = "Groudon",
@@ -3301,7 +3301,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "670",
 		movelvls = { { 15, 20, 30, 35, 45, 50, 60, 65, 75 }, { 15, 20, 30, 35, 45, 50, 60, 65, 75 } },
-		weight = "2094.4"
+		weight = 950.0
 	},
 	{
 		name = "Rayquaza",
@@ -3309,7 +3309,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "680",
 		movelvls = { { 15, 20, 30, 35, 45, 50, 60, 65, 75 }, { 15, 20, 30, 35, 45, 50, 60, 65, 75 } },
-		weight = "455.2"
+		weight = 206.5
 	},
 	{
 		name = "Latias",
@@ -3317,7 +3317,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 10, 15, 20, 25, 30, 35, 40, 45, 50 } },
-		weight = "88.2"
+		weight = 40.0
 	},
 	{
 		name = "Latios",
@@ -3325,7 +3325,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 10, 15, 20, 25, 30, 35, 40, 45, 50 } },
-		weight = "132.3"
+		weight = 60.0
 	},
 	{
 		name = "Jirachi",
@@ -3333,7 +3333,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 10, 15, 20, 25, 30, 35, 40, 45, 50 } },
-		weight = "2.4"
+		weight = 1.1
 	},
 	{
 		name = "Deoxys",
@@ -3341,7 +3341,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "600",
 		movelvls = { { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 }, { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 } },
-		weight = "134.0"
+		weight = 60.8
 	},
 	{
 		name = "Chimecho",
@@ -3349,7 +3349,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "425",
 		movelvls = { { 6, 9, 14, 17, 22, 25, 30, 33, 38, 41, 46 }, { 6, 9, 14, 17, 22, 25, 30, 33, 38, 41, 46 } },
-		weight = "2.2"
+		weight = 1.0
 	},
 	{
 		name = "Unown",
@@ -3357,7 +3357,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3365,7 +3365,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3373,7 +3373,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3381,7 +3381,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3389,7 +3389,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3397,7 +3397,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3405,7 +3405,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3413,7 +3413,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3421,7 +3421,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3429,7 +3429,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3437,7 +3437,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3445,7 +3445,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3453,7 +3453,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3461,7 +3461,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3469,7 +3469,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3477,7 +3477,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3485,7 +3485,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3493,7 +3493,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3501,7 +3501,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3509,7 +3509,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3517,7 +3517,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3525,7 +3525,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3533,7 +3533,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3541,7 +3541,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3549,7 +3549,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3557,7 +3557,7 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	},
 	{
 		name = "Unown",
@@ -3565,6 +3565,6 @@ PokemonData = {
 		evolution = EvolutionTypes.NONE,
 		bst = "336",
 		movelvls = { {}, {} },
-		weight = "11.0"
+		weight = 5.0
 	}
 }
