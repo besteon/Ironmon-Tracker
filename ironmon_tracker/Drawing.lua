@@ -508,13 +508,11 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		if moves[moveIndex].power == "WT" and Settings.tracker.CALCULATE_WEIGHT_BASED_DAMAGE == true then
-			if Tracker.Data.inBattle == 1 and targetMon ~= nil then
-				-- Calculate the power of weight moves to show in battle
-				local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
-				local newPower = Utils.calculateWeightBasedDamage(targetWeight)
-				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
-			end
+		if moves[moveIndex].power == "WT" and Settings.tracker.CALCULATE_WEIGHT_BASED_DAMAGE == true and Tracker.Data.inBattle == 1 then
+			-- Calculate the power of weight moves to show in battle
+			local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
+			local newPower = Utils.calculateWeightBasedDamage(targetWeight)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
 		else
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
 		end
