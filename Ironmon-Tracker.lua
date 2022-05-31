@@ -16,8 +16,10 @@ if string.sub(client.getversion(), 1) ~= "2.8" then
 	return
 end
 
--- Get the user settings!
+-- Root folder for the project data and sub scripts
 DATA_FOLDER = "ironmon_tracker"
+
+-- Get the user settings saved on disk and create the base Settings object
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 Settings = INI.parse("Settings.ini")
 
@@ -28,6 +30,7 @@ dofile(DATA_FOLDER .. "/Data.lua")
 dofile(DATA_FOLDER .. "/Memory.lua")
 dofile(DATA_FOLDER .. "/GameSettings.lua")
 dofile(DATA_FOLDER .. "/GraphicConstants.lua")
+dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Utils.lua")
 dofile(DATA_FOLDER .. "/Buttons.lua")
 dofile(DATA_FOLDER .. "/Input.lua")
@@ -50,6 +53,7 @@ function Main.Run()
 	end
 	print("Loading...")
 
+	-- Options.buildOptionsButtons()
 	GameSettings.initialize()
 
 	if GameSettings.game == 0 then
