@@ -2076,200 +2076,175 @@ PokemonData = {
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "none",
 		type = { PokemonTypes.EMPTY, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "---",
-		movelvls = { {}, {} },
-		weight = "---"
+		movelvls = { {}, {} }
 	},
 	{
 		name = "Treecko",
