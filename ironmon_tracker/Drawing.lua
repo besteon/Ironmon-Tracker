@@ -281,6 +281,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Base Pokémon details
 	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name)
+	-- Settings gear
+	gui.drawImage(DATA_FOLDER .. "/images/icons/gear.png", GraphicConstants.SCREEN_WIDTH + statBoxWidth - 8, 7)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar)
@@ -551,5 +553,47 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		local y = 141
 		gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 		gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+	end
+end
+
+function Drawing.drawSettingStateButton(index, state)
+	-- for i = 1, table.getn(Buttons), 1 do
+	-- 	if Buttons[i].visible() then
+	-- 		if Buttons[i].type == ButtonType.singleButton then
+	-- 			gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+	-- 			local extraY = 1
+	-- 			if Buttons[i].text == "--" then extraY = 0 end
+	-- 			Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
+	-- 		end
+	-- 	end
+	-- end
+	-- gui.drawRectangle()
+end
+
+function Drawing.truncateRomsFolder(folder)
+	if folder then
+		return "..." .. string.sub(folder, string.len(folder) - 10)
+	else
+		return ""
+	end
+end
+
+function Drawing.drawSettings()
+	local borderMargin = 5
+	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+
+	-- Settings view box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+
+	-- Cancel/close button
+	gui.drawRectangle(Options.cancelButton.box[1], Options.cancelButton.box[2], Options.cancelButton.box[3], Options.cancelButton.box[4], Options.cancelButton.backgroundColor[1], Options.cancelButton.backgroundColor[2])
+	Drawing.drawText(Options.cancelButton.box[1] + 1, Options.cancelButton.box[2], Options.cancelButton.text, Options.cancelButton.textColor)
+
+	-- Roms folder setting
+	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin + 1, borderMargin + 3, "Roms folder: " .. folder, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	if folder == "" then
+		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
 	end
 end
