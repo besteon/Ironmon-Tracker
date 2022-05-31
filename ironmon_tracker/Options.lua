@@ -19,35 +19,30 @@ Options.optionsButtons = {}
 --[[]]
 function Options.buildOptionsButtons()
 	local borderMargin = 5
-	print("Building options from Settings.ini...")
 	-- Used for the position offests. This assumes that there is only one option in the `config` category!
 	local optionIndex = 1
 	for _, category in pairs(Settings) do
-		print(category)
 		for key, value in pairs(category) do
-			print("key: " .. key .. "; value: " .. value)
-			optionIndex = optionIndex + 1
-			local button = {
-				text = key,
-				box = {
-					GraphicConstants.SCREEN_WIDTH + borderMargin + 3,
-					borderMargin + (optionIndex * 10),
-					8,
-					8,
-				},
-				backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-				textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
-				optionColor = GraphicConstants.LAYOUTCOLORS.INCREASE,
-				optionState = value,
-				onClick = function()
-					if value == true then
-						value = false
-					elseif value == false then
-						value = true
+			if value == true or value == false then
+				optionIndex = optionIndex + 1
+				local button = {
+					text = string.sub(key, 1, 1) .. string.sub(string.lower(string.gsub(key, "_", " ")), 2),
+					box = {
+						GraphicConstants.SCREEN_WIDTH + borderMargin + 3,
+						(optionIndex * 10),
+						8,
+						8,
+					},
+					backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
+					textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
+					optionColor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+					optionState = value,
+					onClick = function()
+						value = not value
 					end
-				end
-			}
-			-- table.insert(Settings.optionsButtons, button)
+				}
+				table.insert(Options.optionsButtons, button)
+			end
 		end
 	end
 end

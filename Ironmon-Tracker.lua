@@ -53,7 +53,7 @@ function Main.Run()
 	end
 	print("Loading...")
 
-	-- Options.buildOptionsButtons()
+	Options.buildOptionsButtons()
 	GameSettings.initialize()
 
 	if GameSettings.game == 0 then

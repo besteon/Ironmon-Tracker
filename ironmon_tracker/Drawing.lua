@@ -596,4 +596,10 @@ function Drawing.drawSettings()
 	if folder == "" then
 		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
 	end
+
+	-- Draw toggleable settings
+	for _, button in pairs(Options.optionsButtons) do
+		gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor)
+	end
 end
