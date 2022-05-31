@@ -17,7 +17,24 @@ end
 
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
-	if move["power"] == NOPOWER then
+
+	-- TODO: Do we want to handle Hidden Power's varied type in this? We could analyze the IV of the Pokémon and determine the type...
+
+	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
+	if move.power == NOPOWER then
+		if move.category ~= MoveCategories.STATUS then
+			if move.type == PokemonTypes.NORMAL and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+				return 0.0
+			elseif move.type == PokemonTypes.FIGHTING and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+				return 0.0
+			elseif move.type == PokemonTypes.PSYCHIC and (pkmnData.type[1] == PokemonTypes.DARK or pkmnData.type[2] == PokemonTypes.DARK) then
+				return 0.0
+			elseif move.type == PokemonTypes.GROUND and (pkmnData.type[1] == PokemonTypes.FLYING or pkmnData.type[2] == PokemonTypes.FLYING) then
+				return 0.0
+			elseif move.type == PokemonTypes.GHOST and (pkmnData.type[1] == PokemonTypes.NORMAL or pkmnData.type[2] == PokemonTypes.NORMAL) then
+				return 0.0
+			end
+		end
 		return 1.0
 	end
 
@@ -40,25 +57,18 @@ function Utils.isSTAB(move, pkmnData)
 	return false
 end
 
--- Calculate base power for low kick (and grass knot in gen 4)
-function Utils.weightMovePower(pkmnData)
-	local weight = tonumber(pkmnData["weight"])
-	if weight == nil then
-		return "WT"
+function Utils.calculateWeightBasedDamage(weight)
+	if weight < 10.0 then
+		return "20"
+	elseif weight < 25.0 then
+		return "40"
+	elseif weight < 50.0 then
+		return "60"
+	elseif weight < 100.0 then
+		return "80"
+	elseif weight < 200.0 then
+		return "100"
+	else
+		return "120"
 	end
-	local power = "20"
-	if weight <= 22 then
-		power = "20"
-	elseif weight > 22 and weight <= 55 then
-		power = "40"
-	elseif weight > 55 and weight <= 110 then
-		power = "60"
-	elseif weight > 110 and weight <= 220 then
-		power = "80"
-	elseif weight > 220 and weight <= 440 then
-		power = "100"
-	elseif weight > 440 then
-		power = "120"
-	end
-	return power
 end
