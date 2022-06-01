@@ -42,6 +42,10 @@ function Utils.netEffectiveness(move, pkmnData)
 		return 1.0
 	end
 
+	if move["name"] == "Future Sight" or move["name"] == "Doom Desire" then
+		return 1.0
+	end
+
 	for _, type in ipairs(pkmnData["type"]) do
 		if move["type"] ~= "---" then
 			if EffectiveData[move["type"]][type] ~= nil then
