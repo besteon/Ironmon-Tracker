@@ -422,7 +422,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], 3, Drawing.getNatureColor("spe", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
 	end
     for k, v in pairs(calculate_opponent_attack(100, false)) do
-        Drawing.drawNumber(30,30 + 10 * k,v, 10)
+        Drawing.drawNumber(70,5 + 10 * k,v, 10)
     end
 
 	-- Stat stages -6 -> +6
