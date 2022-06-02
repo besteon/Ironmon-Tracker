@@ -1,3 +1,7 @@
+# Draft function in a language I'm more familiar with.
+    # This file will be deleted.
+
+
 def calculate_damage(level, atk, deff, move_pow,*, STAB_bool, weak_2x=False, weak_4x=False):
     STAB = 1
     if STAB_bool:

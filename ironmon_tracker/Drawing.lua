@@ -1,30 +1,26 @@
 Drawing = {}
 
 
-
-
-
-
 local function calculate_opponent_attack(damage, crit)
     -- The idea behind this function is to automate the mathematics that
     -- you can do in theory with all the infos provided. The pokemon games's damage formula
     -- has been cracked down and you can find it on the web. This suggestion will display the range of
-    -- possible stats.
+    -- possible stats. Ideally, this function will be called following an attack. And a draw text will display the values.
     
     -- The intended use:
-        --> Somewhere in the main loop which I have no clue how to implement, check if attacked and HP changed.
+        --> Somewhere in the script which I have no clue where, nor how to implement for now, check if attacked and HP changed.
         --> If HP changed, call this function and display the result (Currently in the plain middle of the game screen.)
         --> Perhaps add an option to choose from the boxes notes or automated calculation? Or add a small section somewhere?
 
     -- Arguments:
         --damage (int)
         -- crit (bool) (NOT IMPLEMENTED YET)
-    --Returns : Both extreme possibles of the the stats.
+    --Returns : Both extreme possibles of the the stats, available for a future drawNumber.
 
 
-    -- Section where we should be Fetching data from game data.
-
-        -- Since this is a proof of concept, I fixed the datas from 
+    -- Section of data gathering. 
+    -- Fetching data from game data.
+        -- Since this is a proof of concept, I fixed the datas with local varaibles, using an example from 
         -- https://aminoapps.com/c/nintendo_gen7/page/blog/pokemon-damage-formula-part-2/wK7D_bdWfoup5WBvzB7qg4WR7Ve3nWE1EblCw
     
     -- Mismagius
@@ -33,7 +29,7 @@ local function calculate_opponent_attack(damage, crit)
             -- STAB boost!
         -- Recieves 29 damage (loses 29 HP)
         
-    --With these infos, we can calculate the RANGE of special attack possibles.
+    --With these infos, we can calculate the RANGE of special attack possibles, since an attack has a RNG value of 0.85 to 1.
             
     local level --level : Level of the opponent Monster.
     level = 100
@@ -45,6 +41,7 @@ local function calculate_opponent_attack(damage, crit)
     move_power = 40
 
     local STAB  -- STAB
+        -- Should be 1 or 1.5
     STAB = 1.5  -- Wailmer used the move.
 
     local resistance --Resistance or weaknesses multiplier
