@@ -27,6 +27,7 @@ HiddenPowerTypeList = {
 	PokemonTypes.DARK
 }
 
+--Mapping of move types to move categories for gens 1-3
 MoveTypeCategories = {
 	[PokemonTypes.NORMAL] 	= MoveCategories.PHYSICAL,
 	[PokemonTypes.FIGHTING]	= MoveCategories.PHYSICAL,
