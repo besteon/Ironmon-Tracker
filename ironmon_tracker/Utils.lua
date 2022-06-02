@@ -40,7 +40,7 @@ function Utils.netEffectiveness(move, pkmnData)
 
 	for _, type in ipairs(pkmnData["type"]) do
 		local moveType = move["type"]
-		if move["name"] == "Hidden Power" then
+		if move["name"] == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
 		if moveType ~= "---" then
@@ -55,7 +55,7 @@ end
 function Utils.isSTAB(move, pkmnData)
 	for _, type in ipairs(pkmnData["type"]) do
 		local moveType = move.type
-		if move.name == "Hidden Power" then
+		if move.name == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
 		if moveType== type then
