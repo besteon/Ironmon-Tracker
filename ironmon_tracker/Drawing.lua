@@ -1,5 +1,73 @@
 Drawing = {}
 
+
+
+
+
+
+local function calculate_opponent_attack(damage, crit)
+    -- The idea behind this function is to automate the mathematics that
+    -- you can do in theory with all the infos provided. The pokemon games's damage formula
+    -- has been cracked down and you can find it on the web. This suggestion will display the range of
+    -- possible stats.
+    
+    -- The intended use:
+        --> Somewhere in the main loop which I have no clue how to implement, check if attacked and HP changed.
+        --> If HP changed, call this function and display the result (Currently in the plain middle of the game screen.)
+        --> Perhaps add an option to choose from the boxes notes or automated calculation? Or add a small section somewhere?
+
+    -- Arguments:
+        --damage (int)
+        -- crit (bool) (NOT IMPLEMENTED YET)
+    --Returns : Both extreme possibles of the the stats.
+
+
+    -- Section where we should be Fetching data from game data.
+
+        -- Since this is a proof of concept, I fixed the datas from 
+        -- https://aminoapps.com/c/nintendo_gen7/page/blog/pokemon-damage-formula-part-2/wK7D_bdWfoup5WBvzB7qg4WR7Ve3nWE1EblCw
+    
+    -- Mismagius
+        -- Has 303 special defense
+        -- Gets attacked by a water gun  (move power = 40) from a wailmer lvl 100
+            -- STAB boost!
+        -- Recieves 29 damage (loses 29 HP)
+        
+    --With these infos, we can calculate the RANGE of special attack possibles.
+            
+    local level --level : Level of the opponent Monster.
+    level = 100
+
+    local defense -- defense : Defense of the attacked pokemon.
+    defense = 303
+
+    local move_power  -- Move's Power.
+    move_power = 40
+
+    local STAB  -- STAB
+    STAB = 1.5  -- Wailmer used the move.
+
+    local resistance --Resistance or weaknesses multiplier
+        -- Should be 0.25, 0.5, 1, 2 or 4.
+    resistance = 1
+
+    -- Could reduce amount of variables... Or perhaps use a loop? Lua is not my forte, so...:
+    -- For x in [0.85, 1] do ...
+    local level_modifier = (2*level + 10) / 250
+
+    local min_atk = (damage / STAB * resistance * 0.85 - 2) / move_power / level_modifier * defense
+    local max_atk = (damage / STAB * resistance * 1 - 2) / move_power / level_modifier * defense
+    return {math.floor(min_atk), math.floor(max_atk)}
+end
+
+
+
+
+
+
+
+
+
 function Drawing.clearGUI()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -362,6 +430,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], 3, Drawing.getNatureColor("spd", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], 3, Drawing.getNatureColor("spe", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
 	end
+    for k, v in pairs(calculate_opponent_attack(100, false)) do
+        Drawing.drawNumber(30,30 + 10 * k,v, 10)
+    end
 
 	-- Stat stages -6 -> +6
 	if Tracker.Data.inBattle == 1 then
@@ -524,6 +595,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3)
 	end
 
+    
 	-- Move effectiveness against the opponent
 	if Tracker.Data.inBattle == 1 then
 		if targetMon ~= nil then
@@ -550,3 +622,18 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
 	end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
