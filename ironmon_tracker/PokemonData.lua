@@ -22,27 +22,6 @@ PokemonTypes = {
 	EMPTY = "", -- No second type for this Pokémon or an empty field
 }
 
---List of values from above used to cycle through types when the Hidden Power button is clicked
-HiddenPowerTypeList = {
-	PokemonTypes.NORMAL,
-	PokemonTypes.FIGHTING,
-	PokemonTypes.FLYING,
-	PokemonTypes.POISON,
-	PokemonTypes.GROUND,
-	PokemonTypes.ROCK,
-	PokemonTypes.BUG,
-	PokemonTypes.GHOST,
-	PokemonTypes.STEEL,
-	PokemonTypes.FIRE,
-	PokemonTypes.WATER,
-	PokemonTypes.GRASS,
-	PokemonTypes.ELECTRIC,
-	PokemonTypes.PSYCHIC,
-	PokemonTypes.ICE,
-	PokemonTypes.DRAGON,
-	PokemonTypes.DARK
-}
-
 -- Enumerated constants that defines various evolution possibilities
 -- This enum does NOT include levels for evolution, only stones, friendship, no evolution, etc.
 EvolutionTypes = {

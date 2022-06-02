@@ -482,7 +482,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 	local categories = {}
 	for moveIndex = 1, 4, 1 do
-		table.insert(categories, Utils.inlineIf(moves[moveIndex].category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(moves[moveIndex].category == MoveCategories.SPECIAL, specialCatLocation, "")))
+		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
+		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
+		table.insert(categories, Utils.inlineIf(category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(category == MoveCategories.SPECIAL, specialCatLocation, "")))
 	end
 	if Settings.tracker.SHOW_MOVE_CATEGORIES then
 		for catIndex = 0, 3, 1 do
