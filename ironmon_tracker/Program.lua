@@ -18,6 +18,11 @@ Program.StatButtonState = {
 	spe = 1
 }
 
+Program.transformedPokemon = {
+	isTransformed = false,
+	forceSwitch = false,
+}
+
 Program.eventCallbacks = {}
 
 function Program.main()
@@ -261,6 +266,11 @@ function Program.HandleDoPokeballSendOutAnimation()
 		Tracker.Data.targetPlayer = 2
 		Tracker.Data.targetSlot = 1
 	end
+	
+	if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
+		-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
+		Program.transformedPokemon.isTransformed = false
+	end
 
 	if Settings.tracker.AUTO_TRACK == true then
 		Tracker.Data.selectedPlayer = 2
@@ -368,7 +378,21 @@ function Program.HandleMove()
 				Tracker.Data.targetSlot = selfSlotOne
 			end
 		end
-		table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
+
+		-- Stop tracking moves temporarily while transformed
+		if not Program.transformedPokemon.isTransformed then
+			table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
+		elseif moveValue == 19 or moveValue == 47 then
+			-- Account for niche scenario of force-switch moves being used while transformed
+			Program.transformedPokemon.forceSwitch = true
+		elseif Program.transformedPokemon.forceSwitch then
+			-- Reset when another move is used
+			Program.transformedPokemon.forceSwitch = false
+		end
+		-- This comes after so transform itself gets tracked
+		if moveValue == 145 then
+			Program.transformedPokemon.isTransformed = true
+		end
 	end
 
 	Tracker.redraw = true
