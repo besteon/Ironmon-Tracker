@@ -214,7 +214,7 @@ function Program.HandleTrainerSentOutPkmn()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.selectedSlot = 1
 
-	if Settings.tracker.AUTO_TRACK == true then
+	if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
 		Tracker.Data.selectedPlayer = 2
 		Tracker.Data.targetPlayer = 1
 		Tracker.Data.targetSlot = 1
@@ -275,7 +275,7 @@ function Program.HandleDoPokeballSendOutAnimation()
 		Tracker.Data.targetSlot = 1
 	end
 
-	if Settings.tracker.AUTO_TRACK == true then
+	if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
 		Tracker.Data.selectedPlayer = 2
 		Tracker.Data.targetPlayer = 1
 		Tracker.Data.targetSlot = 1
@@ -365,7 +365,7 @@ function Program.HandleMove()
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
-			if Settings.tracker.AUTO_TRACK == true then
+			if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotOne
 				Tracker.Data.targetPlayer = 1
@@ -374,7 +374,7 @@ function Program.HandleMove()
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Settings.tracker.AUTO_TRACK == true then
+			if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotTwo
 				Tracker.Data.targetPlayer = 1

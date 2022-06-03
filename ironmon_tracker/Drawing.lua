@@ -37,7 +37,7 @@ end
 
 --[[
 Function that will add a space to a number so that the all the hundreds, tens and ones units are aligned if used
-with the JUSTIFIED_NUMBERS setting.
+with the RIGHT_JUSTIFIED_NUMBERS setting.
 
 	x, y: integer -> pixel position for the text
 
@@ -51,7 +51,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
 	local new_spacing
 	new_spacing = 0
 
-	if Settings.tracker.JUSTIFIED_NUMBERS then
+	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
 	end
 
