@@ -91,7 +91,10 @@ function Program.main()
 			Tracker.waitFrames = Tracker.waitFrames - 1
 		end
 	elseif Program.state == State.SETTINGS then
-		Drawing.drawSettings()
+		if Options.redraw then
+			Drawing.drawSettings()
+			Options.redraw = false
+		end
 	end
 end
 
