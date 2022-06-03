@@ -139,9 +139,7 @@ function Input.check(xmouse, ymouse)
 		-- Options buttons toggles
 		for _, value in pairs(Options.optionsButtons) do
 			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
-				print("toggling " .. value.text .. " from " .. Utils.inlineIf(value.optionState, "true", "false"))
 				value.optionState = value.onClick()
-				print(value.text .. " is now " .. Utils.inlineIf(value.optionState, "true", "false"))
 				Options.redraw = true
 			end
 		end
