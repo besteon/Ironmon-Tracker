@@ -7,7 +7,7 @@ TRACKER_VERSION = "0.2.3"
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
 
-print("Ironmon-Tracker v" .. TRACKER_VERSION)
+print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
 if string.sub(client.getversion(), 1) ~= "2.8" then
