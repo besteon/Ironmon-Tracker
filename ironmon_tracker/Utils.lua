@@ -58,7 +58,7 @@ function Utils.isSTAB(move, pkmnData)
 		if move.name == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
-		if moveType== type then
+		if moveType == type then
 			return true
 		end
 	end
@@ -79,4 +79,15 @@ function Utils.calculateWeightBasedDamage(weight)
 	else
 		return "120"
 	end
+end
+
+function Utils.playerHasMove(moveName)
+	local pokemon = Tracker.Data.selectedPokemon 
+	local currentMoves = {pokemon["move1"],pokemon["move2"],pokemon["move3"],pokemon["move4"]}
+	for index, move in pairs(currentMoves) do
+		if MoveData[move+1].name == moveName then
+			return true
+		end
+	end
+	return false
 end

@@ -29,7 +29,7 @@ local HiddenPowerState = 0
 
 HiddenPowerButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.selectedPlayer == 1 and Program.playerHasMove("Hidden Power") end,
+	visible = function() return Tracker.Data.selectedPlayer == 1 and Utils.playerHasMove("Hidden Power") end,
 	text = "Hidden Power",
 	box = {
 		0,

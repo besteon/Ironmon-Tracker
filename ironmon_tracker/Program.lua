@@ -685,13 +685,3 @@ function Program.getBagStatusItems()
 	return statusItems
 end
 
-function Program.playerHasMove(moveName)
-	local pokemon = Tracker.Data.selectedPokemon 
-	local currentMoves = {pokemon["move1"],pokemon["move2"],pokemon["move3"],pokemon["move4"]}
-	for index, move in pairs(currentMoves) do
-		if MoveData[move+1].name == moveName then
-			return true
-		end
-	end
-	return false
-end
