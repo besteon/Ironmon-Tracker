@@ -2,12 +2,12 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.2.3"
+TRACKER_VERSION = "0.3.0"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
 
-print("Ironmon-Tracker v" .. TRACKER_VERSION)
+print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
 if string.sub(client.getversion(), 1) ~= "2.8" then
@@ -16,8 +16,10 @@ if string.sub(client.getversion(), 1) ~= "2.8" then
 	return
 end
 
--- Get the user settings!
+-- Root folder for the project data and sub scripts
 DATA_FOLDER = "ironmon_tracker"
+
+-- Get the user settings saved on disk and create the base Settings object
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 Settings = INI.parse("Settings.ini")
 
@@ -28,6 +30,7 @@ dofile(DATA_FOLDER .. "/Data.lua")
 dofile(DATA_FOLDER .. "/Memory.lua")
 dofile(DATA_FOLDER .. "/GameSettings.lua")
 dofile(DATA_FOLDER .. "/GraphicConstants.lua")
+dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Utils.lua")
 dofile(DATA_FOLDER .. "/Buttons.lua")
 dofile(DATA_FOLDER .. "/Input.lua")
@@ -50,6 +53,7 @@ function Main.Run()
 	end
 	print("Loading...")
 
+	Options.buildTrackerOptionsButtons()
 	GameSettings.initialize()
 
 	if GameSettings.game == 0 then

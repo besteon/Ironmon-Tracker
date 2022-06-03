@@ -37,7 +37,7 @@ end
 
 --[[
 Function that will add a space to a number so that the all the hundreds, tens and ones units are aligned if used
-with the JUSTIFIED_NUMBERS setting.
+with the RIGHT_JUSTIFIED_NUMBERS setting.
 
 	x, y: integer -> pixel position for the text
 
@@ -51,7 +51,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
 	local new_spacing
 	new_spacing = 0
 
-	if Settings.tracker.JUSTIFIED_NUMBERS then
+	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
 	end
 
@@ -283,6 +283,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Base Pokémon details
 	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name)
+	-- Settings gear
+	gui.drawImage(DATA_FOLDER .. "/images/icons/gear.png", GraphicConstants.SCREEN_WIDTH + statBoxWidth - 8, 7)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:")
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar)
@@ -558,5 +560,62 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		local y = 141
 		gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
 		gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+	end
+end
+
+function Drawing.drawSettingStateButton(index, state)
+	-- for i = 1, table.getn(Buttons), 1 do
+	-- 	if Buttons[i].visible() then
+	-- 		if Buttons[i].type == ButtonType.singleButton then
+	-- 			gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+	-- 			local extraY = 1
+	-- 			if Buttons[i].text == "--" then extraY = 0 end
+	-- 			Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
+	-- 		end
+	-- 	end
+	-- end
+	-- gui.drawRectangle()
+end
+
+function Drawing.truncateRomsFolder(folder)
+	if folder then
+		if string.len(folder) > 10 then
+			return "..." .. string.sub(folder, string.len(folder) - 10)
+		else
+			return folder
+		end
+	else
+		return ""
+	end
+end
+
+function Drawing.drawSettings()
+	local borderMargin = 5
+	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+
+	-- Settings view box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+
+	-- Cancel/close button
+	gui.drawRectangle(Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4], Options.closeButton.backgroundColor[1], Options.closeButton.backgroundColor[2])
+	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Options.closeButton.textColor)
+
+	-- Roms folder setting
+	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
+	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, Options.romsFolderOption.textColor)
+	if folder == "" then
+		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
+	end
+
+	-- Draw toggleable settings
+	for _, button in pairs(Options.optionsButtons) do
+		gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor)
+		-- Draw a mark if the feature is on
+		if button.optionState then
+			gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], button.optionColor)
+			gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], button.optionColor)
+		end
 	end
 end
