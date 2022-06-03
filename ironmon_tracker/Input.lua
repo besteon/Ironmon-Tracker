@@ -161,8 +161,7 @@ function Input.check(xmouse, ymouse)
 			-- Save the Settings.ini file if any changes were made
 			if Options.updated then
 				Options.updated = false
-				print("Settings.ini would be updated when the menu is closed in this case")
-				-- INI.save("Settings.ini", Settings)
+				INI.save("Settings.ini", Settings)
 			end
 			Tracker.redraw = true
 			Program.state = State.TRACKER
