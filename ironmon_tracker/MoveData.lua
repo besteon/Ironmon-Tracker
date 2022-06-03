@@ -6,6 +6,48 @@ MoveCategories = {
 	STATUS = 3,
 }
 
+--List of pokemon types used to cycle through types when the Hidden Power button is clicked
+HiddenPowerTypeList = {
+	PokemonTypes.NORMAL,
+	PokemonTypes.FIGHTING,
+	PokemonTypes.FLYING,
+	PokemonTypes.POISON,
+	PokemonTypes.GROUND,
+	PokemonTypes.ROCK,
+	PokemonTypes.BUG,
+	PokemonTypes.GHOST,
+	PokemonTypes.STEEL,
+	PokemonTypes.FIRE,
+	PokemonTypes.WATER,
+	PokemonTypes.GRASS,
+	PokemonTypes.ELECTRIC,
+	PokemonTypes.PSYCHIC,
+	PokemonTypes.ICE,
+	PokemonTypes.DRAGON,
+	PokemonTypes.DARK
+}
+
+--Mapping of move types to move categories for gens 1-3
+MoveTypeCategories = {
+	[PokemonTypes.NORMAL] 	= MoveCategories.PHYSICAL,
+	[PokemonTypes.FIGHTING]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.FLYING]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.POISON]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.GROUND]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.ROCK]		= MoveCategories.PHYSICAL,
+	[PokemonTypes.BUG]		= MoveCategories.PHYSICAL,
+	[PokemonTypes.GHOST]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.STEEL]	= MoveCategories.PHYSICAL,
+	[PokemonTypes.FIRE]		= MoveCategories.SPECIAL,
+	[PokemonTypes.WATER]	= MoveCategories.SPECIAL,
+	[PokemonTypes.GRASS]	= MoveCategories.SPECIAL,
+	[PokemonTypes.ELECTRIC]	= MoveCategories.SPECIAL,
+	[PokemonTypes.PSYCHIC]	= MoveCategories.SPECIAL,
+	[PokemonTypes.ICE]		= MoveCategories.SPECIAL,
+	[PokemonTypes.DRAGON]	= MoveCategories.SPECIAL,
+	[PokemonTypes.DARK]		= MoveCategories.SPECIAL,
+}
+
 NOPOWER = "---"
 NOPP = ""
 
@@ -2167,7 +2209,7 @@ MoveData = {
 		id = "237",
 		name = "Hidden Power",
 		type = PokemonTypes.NORMAL,
-		power = NOPOWER,
+		power = "VAR",
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,

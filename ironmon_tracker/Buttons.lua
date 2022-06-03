@@ -25,6 +25,28 @@ StatButtonColors = {
 
 local buttonXOffset = 129
 
+local HiddenPowerState = 0
+
+HiddenPowerButton = {
+	type = ButtonType.singleButton,
+	visible = function() return Tracker.Data.selectedPlayer == 1 and Utils.playerHasMove("Hidden Power") end,
+	text = "Hidden Power",
+	box = {
+		0,
+		0,
+		65,
+		10
+	},
+	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
+	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
+	onclick = function()
+		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
+		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
+		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[newType]
+		Tracker.Data.currentHiddenPowerType = newType
+	end
+}
+
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
@@ -139,5 +161,6 @@ Buttons = {
 			Buttons[6].textcolor = StatButtonColors[Program.StatButtonState.spe]
 			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
-	}
+	},
+	HiddenPowerButton
 }

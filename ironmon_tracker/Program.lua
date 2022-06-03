@@ -684,3 +684,4 @@ function Program.getBagStatusItems()
 
 	return statusItems
 end
+

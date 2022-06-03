@@ -39,9 +39,13 @@ function Utils.netEffectiveness(move, pkmnData)
 	end
 
 	for _, type in ipairs(pkmnData["type"]) do
-		if move["type"] ~= "---" then
-			if EffectiveData[move["type"]][type] ~= nil then
-				effectiveness = effectiveness * EffectiveData[move["type"]][type]
+		local moveType = move["type"]
+		if move["name"] == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
+			moveType = Tracker.Data.currentHiddenPowerType
+		end
+		if moveType ~= "---" then
+			if EffectiveData[moveType][type] ~= nil then
+				effectiveness = effectiveness * EffectiveData[moveType][type]
 			end
 		end
 	end
@@ -50,7 +54,11 @@ end
 
 function Utils.isSTAB(move, pkmnData)
 	for _, type in ipairs(pkmnData["type"]) do
-		if move["type"] == type then
+		local moveType = move.type
+		if move.name == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
+			moveType = Tracker.Data.currentHiddenPowerType
+		end
+		if moveType == type then
 			return true
 		end
 	end
@@ -71,4 +79,15 @@ function Utils.calculateWeightBasedDamage(weight)
 	else
 		return "120"
 	end
+end
+
+function Utils.playerHasMove(moveName)
+	local pokemon = Tracker.Data.selectedPokemon 
+	local currentMoves = {pokemon["move1"],pokemon["move2"],pokemon["move3"],pokemon["move4"]}
+	for index, move in pairs(currentMoves) do
+		if MoveData[move+1].name == moveName then
+			return true
+		end
+	end
+	return false
 end

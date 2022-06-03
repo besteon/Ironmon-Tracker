@@ -240,7 +240,9 @@ function Drawing.drawButtons()
 	for i = 1, table.getn(Buttons), 1 do
 		if Buttons[i].visible() then
 			if Buttons[i].type == ButtonType.singleButton then
-				gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+				if Buttons[i] ~= HiddenPowerButton then
+					gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+				end
 				local extraY = 1
 				if Buttons[i].text == "--" then extraY = 0 end
 				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
@@ -480,7 +482,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 	local categories = {}
 	for moveIndex = 1, 4, 1 do
-		table.insert(categories, Utils.inlineIf(moves[moveIndex].category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(moves[moveIndex].category == MoveCategories.SPECIAL, specialCatLocation, "")))
+		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
+		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
+		table.insert(categories, Utils.inlineIf(category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(category == MoveCategories.SPECIAL, specialCatLocation, "")))
 	end
 	if Settings.tracker.SHOW_MOVE_CATEGORIES then
 		for catIndex = 0, 3, 1 do
@@ -494,7 +498,12 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString)
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex])
+		if moves[moveIndex].name == "Hidden Power" and not monIsEnemy then
+			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
+			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
+		else
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex])
+		end
 	end
 
 	-- Move power points
