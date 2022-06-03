@@ -118,6 +118,7 @@ function Input.check(xmouse, ymouse)
 
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
+			Options.redraw = true
 			Program.state = State.SETTINGS
 		end
 
@@ -132,12 +133,36 @@ function Input.check(xmouse, ymouse)
 				Input.noteForm = nil
 			end, 200, 0)
 		end
-	end
 
-	-- Settings menu mouse input regions
-	if Program.state == State.SETTINGS then
-		-- settings cancel button
-		if Program.state == State.SETTINGS and Input.isInRange(xmouse, ymouse, Options.cancelButton.box[1], Options.cancelButton.box[2], Options.cancelButton.box[3], Options.cancelButton.box[4]) then
+		-- Settings menu mouse input regions
+	elseif Program.state == State.SETTINGS then
+		-- Options buttons toggles
+		for _, value in pairs(Options.optionsButtons) do
+			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
+				value.onClick()
+				Options.redraw = true
+				print("redrawing the settings page")
+			end
+		end
+
+		-- Roms folder setting
+		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], GraphicConstants.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
+			-- Use the standard file open dialog to get the roms folder
+			local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
+			-- Since the user had to pick a file, strip out the file name to just get the folder.
+			Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
+			Options.redraw = true
+			Options.updated = true
+		end
+
+		-- Settings close button
+		if Input.isInRange(xmouse, ymouse, Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4]) then
+			-- Save the Settings.ini file if any changes were made
+			if Options.updated then
+				Options.updated = false
+				print("Settings.ini would be updated when the menu is closed in this case")
+				-- INI.save("Settings.ini", Settings)
+			end
 			Tracker.redraw = true
 			Program.state = State.TRACKER
 		end

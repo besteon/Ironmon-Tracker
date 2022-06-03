@@ -1,7 +1,14 @@
 Options = {}
 
-Options.cancelButton = {
-	text = "Cancel",
+-- Update drawing the settings page if true
+Options.redraw = true
+
+-- Tracks if settings were modified so we know if we need to update Settings.ini or not.
+Options.updated = false
+
+-- A button to close the settings page and save the settings if any changes occurred
+Options.closeButton = {
+	text = "Close",
 	box = {
 		GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 40,
 		GraphicConstants.SCREEN_HEIGHT - 20,
@@ -11,6 +18,18 @@ Options.cancelButton = {
 	backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
 	textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
 	-- onClick = function(): currently handled in the Input object
+}
+
+-- Not a visible button, but is used by the Input script to see if clicks occurred on the setting
+Options.romsFolderOption = {
+	text = "Roms folder: ",
+	box = {
+		GraphicConstants.SCREEN_WIDTH + 6, -- 6 = borderMargin + 1
+		8, -- 8 = borderMargin + 3
+		8,
+		8,
+	},
+	textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
 }
 
 -- Stores the options in the Settings.ini file into configurable toggles in the Tracker
@@ -39,6 +58,10 @@ function Options.buildOptionsButtons()
 					optionState = value,
 					onClick = function()
 						value = not value
+						print(" value is now " .. Utils.inlineIf(value, "true", "false"))
+						if not Options.updated then
+							Options.updated = true
+						end
 					end
 				}
 				table.insert(Options.optionsButtons, button)
