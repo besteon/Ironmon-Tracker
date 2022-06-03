@@ -22,19 +22,32 @@ https://github.com/mkdasher/PokemonBizhawkLua
 
 If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent help menu from displaying.
 
+## Latest Changes
+
+<div style="display:flex">
+	<img style="padding-right:5px" src="https://user-images.githubusercontent.com/5532354/171784220-39601761-3df8-48d1-aff4-620e7d34de46.png" alt="Tracker with new gear icon">
+	<img src="https://user-images.githubusercontent.com/5532354/171784322-812000bb-55d2-4358-960b-79cfcb7f8c5d.png" alt="The tracker settings menu">
+</div>
+
+- **_NEW!!_ Settings**: You can now modify **nearly all** settings for the tracker within the tracker itself! Click on the gear icon near the Pokémon name to open the new Settings menu.
+  - Click on a setting to turn it on or off!
+  - Click on the Roms Folder setting to open a dialog that allows you to pick the folder where your files are stored.
+    - Note: Pick any file in the desired folder. The folder itself will be saved as the setting.
+    - Controller configuration will be coming to this menu soon!
+  - The Settings.ini file will update with your changes when you close the settings menu. You can still modify this file to set your controller button configurations and any other option.
+
 ## Features
 
 - **Your Pokémon**: Your Pokémon's stats, moves, ability, and more are tracked in real-time as you play! As you learn new moves and use them, level up, and use items, the tracker updates the appropriate information. It will also tell you the level or condition it needs to evolve, the number of moves it will learn, and the next level a move will be learned. All data is sourced from [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Main_Page) except some evolution requirements based on the use of the randomizer.
 - **Stat modifying moves**: If your opponent or you use a stat modifying move, like `Growl`, up and down chevrons are displayed next to the affected stat on the target. Up to three chevrons are displayed, and change color when the fourth, fifth, and sixth stack are applied.
 - **Enemy moveset**: Enemy Pokémon moves are unknown AND they change as the various Pokémon level up throughout the game! The tracker will display moves a Pokémon has as they use them, along with the basic PP, power, and accuracy information. When you encounter the same Pokémon type later in the game, old moves are marked with a `*` at the end of the name. This allows you to know that the move may still be known or may be replaced by a new move.
 - **Stat Prediction**: Enemy Pokémon stats are unknown, but you can mark a prediction on which stats may be high or low by adding a + or - icon to the appropriate stat. This is accomplished on the enemy Pokémon by cycling through the stats with the L button and toggling the prediction with the R button.
-- **Settings.ini**: Modify this file to set your controller button configurations for toggling the battle view, selecting and toggling stat predictions, and quick loading a new seed.
 - **Quick loading seeds**: You can create a bunch of seeds ahead of time, and then use a button combination to load the next seed. Seeds must be in a numerical order without leading zeroes.
   - _For example:_ you can start at 13 with a file name like `kaizo13.gba`. Pressing the button combination would then load `kaizo14.gba`. Press it again and `kaizo15.gba` is loaded. If you tried `kaizo00014.gba`, the quick load feature won't work. Remove the leading zeroes.
+- **Notes**: Click on the bottom bar to leave a note about the Pokémon you are facing!
 - **Move effectiveness**: Moves that are super effective or not very effective against the opposing Pokémon will display one or two chevrons next to the move's power stat. Moves that are completely ineffective will display a red `X`.
-- **Attack type icons**: Icons for moves that are physical or special attack types can be displayed next to the move name. On by default, this can be turned off by setting `SHOW_MOVE_CATEGORIES` to false in the `Settings.ini` file.
+- **Attack type icons**: Icons for moves that are physical or special attack types can be displayed next to the move name.
 - **Healing items**: The tracker displays the number of healing items on hand in the bag and what percentage of max HP of the currently displayed Pokémon those items will heal by.
-- _Coming SOON_ **Notes**: Click on the bottom bar to leave a note about the Pokémon you are facing!
 
 ## FAQ
 
