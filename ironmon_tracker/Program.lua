@@ -265,8 +265,11 @@ function Program.HandleDisplayMonLearnedMove()
 	Tracker.redraw = true
 end
 
-function Program.HandleUpdatePoisonStepCounter()
-	Tracker.redraw = true
+function Program.HandleDoPoisonFieldEffect()
+	-- Only update the tracker for poison damage if the lead Pokémon is poisoned
+	if Tracker.Data.selectedPokemon.status == 2 then
+		Tracker.redraw = true
+	end
 end
 
 function Program.HandleWeHopeToSeeYouAgain()
@@ -279,7 +282,7 @@ function Program.HandleDoPokeballSendOutAnimation()
 		Tracker.Data.targetPlayer = 2
 		Tracker.Data.targetSlot = 1
 	end
-	
+
 	if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
 		-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
 		Program.transformedPokemon.isTransformed = false
@@ -697,4 +700,3 @@ function Program.getBagStatusItems()
 
 	return statusItems
 end
-
