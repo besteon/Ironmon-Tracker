@@ -36,36 +36,42 @@ Options.romsFolderOption = {
 Options.optionsButtons = {}
 
 --[[]]
-function Options.buildOptionsButtons()
+function Options.buildTrackerOptionsButtons()
 	local borderMargin = 5
-	-- Used for the position offests. This assumes that there is only one option in the `config` category!
+	-- Used for the position offests.
 	local optionIndex = 1
-	for _, category in pairs(Settings) do
-		for key, value in pairs(category) do
-			if value == true or value == false then
-				optionIndex = optionIndex + 1
-				local button = {
-					text = string.sub(key, 1, 1) .. string.sub(string.lower(string.gsub(key, "_", " ")), 2),
-					box = {
-						GraphicConstants.SCREEN_WIDTH + borderMargin + 3,
-						(optionIndex * 10),
-						8,
-						8,
-					},
-					backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-					textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
-					optionColor = GraphicConstants.LAYOUTCOLORS.INCREASE,
-					optionState = value,
-					onClick = function()
-						value = not value
-						print(" value is now " .. Utils.inlineIf(value, "true", "false"))
-						if not Options.updated then
-							Options.updated = true
-						end
+	for key, value in pairs(Settings.tracker) do
+		-- All options in Settings.tracker SHOULD be boolean, but we'll verify here for now.
+		-- Eventually I want to expand this so that we can do more than just toggles, but let's get this out the door first.
+		if value == true or value == false then
+			optionIndex = optionIndex + 1
+			local button = {
+				text = string.sub(key, 1, 1) .. string.sub(string.lower(string.gsub(key, "_", " ")), 2),
+				box = {
+					GraphicConstants.SCREEN_WIDTH + borderMargin + 3,
+					(optionIndex * 10),
+					8,
+					8,
+				},
+				backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
+				textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
+				optionColor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+				optionState = value,
+				-- TODO: Need a better way to internally update the optionState member rather than depending on the caller to save it...
+				onClick = function() -- return the updated value to be saved into this button's optionState value
+					-- I learned a lot about Lua today... You can't just use `not` to toggle a boolean state. You HAVE to do this if-else block... WTF...
+					if Settings.tracker[key] == true then
+						Settings.tracker[key] = false
+					else
+						Settings.tracker[key] = true
 					end
-				}
-				table.insert(Options.optionsButtons, button)
-			end
+					if not Options.updated then
+						Options.updated = true
+					end
+					return Settings.tracker[key]
+				end
+			}
+			table.insert(Options.optionsButtons, button)
 		end
 	end
 end
