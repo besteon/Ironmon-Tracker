@@ -572,7 +572,11 @@ end
 
 function Drawing.truncateRomsFolder(folder)
 	if folder then
-		return "..." .. string.sub(folder, string.len(folder) - 10)
+		if string.len(folder) > 10 then
+			return "..." .. string.sub(folder, string.len(folder) - 10)
+		else
+			return folder
+		end
 	else
 		return ""
 	end
@@ -587,12 +591,12 @@ function Drawing.drawSettings()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 
 	-- Cancel/close button
-	gui.drawRectangle(Options.cancelButton.box[1], Options.cancelButton.box[2], Options.cancelButton.box[3], Options.cancelButton.box[4], Options.cancelButton.backgroundColor[1], Options.cancelButton.backgroundColor[2])
-	Drawing.drawText(Options.cancelButton.box[1] + 1, Options.cancelButton.box[2], Options.cancelButton.text, Options.cancelButton.textColor)
+	gui.drawRectangle(Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4], Options.closeButton.backgroundColor[1], Options.closeButton.backgroundColor[2])
+	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Options.closeButton.textColor)
 
 	-- Roms folder setting
 	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin + 1, borderMargin + 3, "Roms folder: " .. folder, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, Options.romsFolderOption.textColor)
 	if folder == "" then
 		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
 	end
@@ -601,5 +605,10 @@ function Drawing.drawSettings()
 	for _, button in pairs(Options.optionsButtons) do
 		gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
 		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor)
+		-- Draw a mark if the feature is on
+		if button.optionState then
+			gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], button.optionColor)
+			gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], button.optionColor)
+		end
 	end
 end
