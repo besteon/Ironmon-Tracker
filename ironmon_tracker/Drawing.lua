@@ -519,13 +519,25 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local powerOffset = 102
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
 	for moveIndex = 1, 4, 1 do
-		if moves[moveIndex].power == "WT" and Settings.tracker.CALCULATE_WEIGHT_BASED_DAMAGE == true and Tracker.Data.inBattle == 1 then
-			-- Calculate the power of weight moves to show in battle
-			local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
-			local newPower = Utils.calculateWeightBasedDamage(targetWeight)
+		local movePower = moves[moveIndex].power
+		if Settings.tracker.CALCULATE_VARIABLE_DAMAGE == true then
+			local newPower = movePower
+			if movePower == "WT" and Tracker.Data.inBattle == 1 then
+				-- Calculate the power of weight moves in battle
+				local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
+				newPower = Utils.calculateWeightBasedDamage(targetWeight)
+			elseif movePower == "<HP" then
+				-- Calculate the power of flail & reversal moves 
+				newPower = Utils.calculateLowHPBasedDamage(currentHP, maxHP)
+			elseif movePower == ">HP" and not monIsEnemy then
+				-- Calculate the power of water spout & eruption moves for the player only
+				newPower = Utils.calculateHighHPBasedDamage(currentHP, maxHP)
+			else 
+				newPower = movePower
+			end
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].power, stabColors[moveIndex])
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex])
 		end
 	end
 
