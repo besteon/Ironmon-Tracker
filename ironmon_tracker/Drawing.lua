@@ -526,8 +526,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 				-- Calculate the power of weight moves in battle
 				local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
 				newPower = Utils.calculateWeightBasedDamage(targetWeight)
-			elseif movePower == "<HP" then
-				-- Calculate the power of flail & reversal moves 
+			elseif movePower == "<HP" and not monIsEnemy then
+				-- Calculate the power of flail & reversal moves for player only
 				newPower = Utils.calculateLowHPBasedDamage(currentHP, maxHP)
 			elseif movePower == ">HP" and not monIsEnemy then
 				-- Calculate the power of water spout & eruption moves for the player only
