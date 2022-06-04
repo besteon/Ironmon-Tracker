@@ -12,6 +12,8 @@ https://github.com/mkdasher/PokemonBizhawkLua
 
 ## Installation
 
+0. If you haven't used BizHawk before, [download the emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher).
+   - **IMPORTANT**: _Run BizHawk once and **close** it_, then start it again before continuing! This ensures that BizHawk sets itself up properly on your system. Otherwise, the tracker may get some odd errors when trying to start it during your first use of BizHawk.
 1. Download the project from the [releases](https://github.com/besteon/Ironmon-Tracker/releases/) section. The main branch has additional changes and may be broken.
    - If you are feeling adventurous and wish to help us in finding bugs, you are more than welcome to clone the main branch. If the tracker crashes, please provide the log dump from the Lua Console to us via Discord or the [Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
 2. Unzip the project anywhere you like. We recommend using the `Lua` folder where you installed BizHawk. The ironmon_tracker folder must be in the same directory as Ironmon_Tracker.lua.
