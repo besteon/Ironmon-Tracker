@@ -81,6 +81,34 @@ function Utils.calculateWeightBasedDamage(weight)
 	end
 end
 
+-- For Flail & Reversal
+function Utils.calculateLowHPBasedDamage(currentHP, maxHP)
+	local percentHP = (currentHP / maxHP) * 100
+	if percentHP < 4.17 then
+		return "200"
+	elseif percentHP < 10.42 then
+		return "150"
+	elseif percentHP < 20.83 then
+		return "100"
+	elseif percentHP < 35.42 then
+		return "80"
+	elseif percentHP < 68.75 then
+		return "40"
+	else
+		return "20"
+	end
+end
+
+-- For Water Spout & Eruption
+function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
+	local basePower = (150 * currentHP) / maxHP
+	if basePower < 1 then 
+		basePower = 1 
+	end
+	local roundedPower = math.floor(basePower + 0.5)
+	return tostring(roundedPower)
+end
+
 function Utils.playerHasMove(moveName)
 	local pokemon = Tracker.Data.selectedPokemon 
 	local currentMoves = {pokemon["move1"],pokemon["move2"],pokemon["move3"],pokemon["move4"]}
