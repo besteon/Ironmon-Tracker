@@ -265,7 +265,7 @@ function Program.HandleDisplayMonLearnedMove()
 	Tracker.redraw = true
 end
 
-function Program.HandleDoPoisonFieldEffect()
+function Program.HandleUpdatePoisonStepCounter()
 	-- Only update the tracker for poison damage if the lead Pokémon is poisoned
 	if Tracker.Data.selectedPokemon.status == 2 then
 		Tracker.redraw = true
