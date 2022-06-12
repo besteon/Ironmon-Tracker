@@ -272,6 +272,11 @@ function Program.HandleUpdatePoisonStepCounter()
 	end
 end
 
+function Program.HandleHealPlayerParty()
+	Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+	Tracker.redraw = true
+end
+
 function Program.HandleWeHopeToSeeYouAgain()
 	Tracker.redraw = true
 end
