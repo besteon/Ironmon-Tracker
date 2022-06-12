@@ -3,7 +3,8 @@
 ![Ironmon-Tracker_v0 2 0-min](https://user-images.githubusercontent.com/103706338/168518780-ceebdb88-57a8-49aa-b6b4-acc46c4d2101.gif)
 
 Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) used to track ironMON attempts.
-For more information on ironMON, see https://gist.github.com/valiant-code/adb18d248fa0fae7da6b639e2ee8f9c1
+
+For more information on ironMON, see http://ironmon.gg
 
 Only Emerald, Leaf Green, and Fire Red (Generation 3 games) are supported. If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/Ironmon-Tracker/issues) or DM me on Discord. You can find me on the Ironmon Discord server.
 
@@ -26,17 +27,12 @@ If you want to use your controller to toggle stat prediction markers on opponent
 
 ## Latest Changes
 
-<div style="display:flex">
-	<img style="padding-right:5px" src="https://user-images.githubusercontent.com/5532354/171784220-39601761-3df8-48d1-aff4-620e7d34de46.png" alt="Tracker with new gear icon">
-	<img src="https://user-images.githubusercontent.com/5532354/171784322-812000bb-55d2-4358-960b-79cfcb7f8c5d.png" alt="The tracker settings menu">
-</div>
+![image](https://user-images.githubusercontent.com/5532354/173256930-d61c961c-0fed-449a-bf86-ccb5e0f9632f.png)
 
-- **_NEW!!_ Settings**: You can now modify **nearly all** settings for the tracker within the tracker itself! Click on the gear icon near the Pokémon name to open the new Settings menu.
-  - Click on a setting to turn it on or off!
-  - Click on the Roms Folder setting to open a dialog that allows you to pick the folder where your files are stored.
-    - Note: Pick any file in the desired folder. The folder itself will be saved as the setting.
-    - Controller configuration will be coming to this menu soon!
-  - The Settings.ini file will update with your changes when you close the settings menu. You can still modify this file to set your controller button configurations and any other option.
+- **_NEW!!_ PokéCenter Heal Tracking**: The new Survival IronMon ruleset requires tracking the number of visits to the Pokémon Centers (and other full party healing visits like Mom, etc.) for healing. When between 5-9 visits, the number is yellow, and 10 visits is red.
+  - Turn this on by selecting the new "Survival ruleset" option in the settings menu or in the Settings.ini file.
+  - Note that a new game will start with -1 PC Heals. This is because successful Lab Escapes heals you once. This will then set the counter to 0 as your game begins proper.
+  - This is still **in testing!** I _<u>HIGHLY</u>_ recommend tracking the number of visits separately until this is fully tested. If you find any issues at all, please let us know in the Discord or at the [GitHub Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
 
 ## Features
 
@@ -50,6 +46,12 @@ If you want to use your controller to toggle stat prediction markers on opponent
 - **Move effectiveness**: Moves that are super effective or not very effective against the opposing Pokémon will display one or two chevrons next to the move's power stat. Moves that are completely ineffective will display a red `X`.
 - **Attack type icons**: Icons for moves that are physical or special attack types can be displayed next to the move name.
 - **Healing items**: The tracker displays the number of healing items on hand in the bag and what percentage of max HP of the currently displayed Pokémon those items will heal by.
+- **Settings**: You can now modify **nearly all** settings for the tracker within the tracker itself! Click on the gear icon near the Pokémon name to open the new Settings menu.
+  - Click on a setting to turn it on or off!
+  - Click on the Roms Folder setting to open a dialog that allows you to pick the folder where your files are stored.
+    - Note: Pick any file in the desired folder. The folder itself will be saved as the setting.
+    - Controller configuration will be coming to this menu soon!
+  - The Settings.ini file will update with your changes when you close the settings menu. You can still modify this file to set your controller button configurations and any other option.
 
 ## FAQ
 
