@@ -304,11 +304,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	if monIsEnemy == false then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		if Tracker.Data.centerHealsRemaining == 11 then
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, "Infinite", GraphicConstants.LAYOUTCOLORS.INCREASE)
-		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, Tracker.Data.centerHealsRemaining, Utils.inlineIf(Tracker.Data.centerHealsRemaining > 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHealsRemaining > 1, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
+		if (Settings.tracker.SURVIVAL_RULESET) then
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
 		end
 	end
 
