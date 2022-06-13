@@ -149,7 +149,9 @@ function Input.check(xmouse, ymouse)
 			-- Use the standard file open dialog to get the roms folder
 			local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
 			-- Since the user had to pick a file, strip out the file name to just get the folder.
-			Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
+			if file ~= "" then
+				Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
+			end
 			Options.redraw = true
 			Options.updated = true
 		end

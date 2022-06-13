@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.3.1"
+TRACKER_VERSION = "0.3.2"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -80,7 +80,8 @@ function Main.Run()
 		event.onmemoryexecute(Program.HandleCalculateMonStats, GameSettings.CalculateMonStats, "HandleHandleCalculateMonStats")
 		event.onmemoryexecute(Program.HandleDisplayMonLearnedMove, GameSettings.DisplayMonLearnedMove, "HandleDisplayMonLearnedMove")
 		event.onmemoryexecute(Program.HandleSwitchSelectedMons, GameSettings.SwitchSelectedMons, "HandleSwitchSelectedMons")
-		event.onmemoryexecute(Program.HandleDoPoisonFieldEffect, GameSettings.DoPoisonFieldEffect, "HandleDoPoisonFieldEffect")
+		event.onmemoryexecute(Program.HandleUpdatePoisonStepCounter, GameSettings.UpdatePoisonStepCounter, "HandleUpdatePoisonStepCounter")
+		event.onmemoryexecute(Program.HandleHealPlayerParty, GameSettings.HealPlayerParty, "HandleHealPlayerParty")
 
 		-- Ability events
 		-- event.onmemoryread(Program.HandleBattleScriptDrizzleActivates, GameSettings.BattleScriptDrizzleActivates, "HandleBattleScriptDrizzleActivates")

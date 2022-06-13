@@ -300,9 +300,14 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local infoBoxHeight = 23
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 
+	-- Heals in bag/PokéCenter heals
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
+		if (Settings.tracker.SURVIVAL_RULESET) then
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 85, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
+		end
 	end
 
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
@@ -532,7 +537,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			elseif movePower == ">HP" and not monIsEnemy then
 				-- Calculate the power of water spout & eruption moves for the player only
 				newPower = Utils.calculateHighHPBasedDamage(currentHP, maxHP)
-			else 
+			else
 				newPower = movePower
 			end
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])

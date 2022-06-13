@@ -22,9 +22,10 @@ GameSettings = {
 	ShowPokemonSummaryScreen = 0,
 	CalculateMonStats = 0,
 	SwitchSelectedMons = 0,
-	DoPoisonFieldEffect = 0,
+	UpdatePoisonStepCounter = 0,
 	WeHopeToSeeYouAgain = 0,
 	DoPokeballSendOutAnimation = 0,
+	HealPlayerParty = 0,
 
 	BattleScriptDrizzleActivates = 0,
 	BattleScriptSpeedBoostActivates = 0,
@@ -84,9 +85,10 @@ function GameSettings.initialize()
 		GameSettings.CalculateMonStats = 0x08068d0c
 		GameSettings.DisplayMonLearnedMove = 0x081b7910
 		GameSettings.SwitchSelectedMons = 0x081b3938
-		GameSettings.DoPoisonFieldEffect = 0x080f9744
+		GameSettings.UpdatePoisonStepCounter = 0x0809cb94
 		GameSettings.WeHopeToSeeYouAgain = 0x082727db
 		GameSettings.DoPokeballSendOutAnimation = 0x080753e8
+		GameSettings.HealPlayerParty = 0x080f9180
 
 		GameSettings.BattleScriptDrizzleActivates = 0x082db430
 		GameSettings.BattleScriptSpeedBoostActivates = 0x082db444
@@ -133,9 +135,10 @@ function GameSettings.initialize()
 		GameSettings.CalculateMonStats = 0x0803e490
 		GameSettings.DisplayMonLearnedMove = 0x0812687c
 		GameSettings.SwitchSelectedMons = 0x08122ed4
-		GameSettings.DoPoisonFieldEffect = 0x080a062c
+		GameSettings.UpdatePoisonStepCounter = 0x080a062c
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5589
 		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
+		GameSettings.HealPlayerParty = 0x080a006c
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d92ef
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9303
@@ -182,9 +185,10 @@ function GameSettings.initialize()
 		GameSettings.CalculateMonStats = 0x0803e47c
 		GameSettings.DisplayMonLearnedMove = 0x08126804
 		GameSettings.SwitchSelectedMons = 0x08122e5c
-		GameSettings.DoPoisonFieldEffect = 0x080a0618
+		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5511
 		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
+		GameSettings.HealPlayerParty = 0x080a0058
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d927f
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9293
@@ -231,9 +235,10 @@ function GameSettings.initialize()
 		GameSettings.CalculateMonStats = 0x0803e490
 		GameSettings.DisplayMonLearnedMove = 0x08126854
 		GameSettings.SwitchSelectedMons = 0x08122eac
-		GameSettings.DoPoisonFieldEffect = 0x080a0600
+		GameSettings.UpdatePoisonStepCounter = 0x0806d7b0
 		GameSettings.WeHopeToSeeYouAgain = 0x081a5565
 		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
+		GameSettings.HealPlayerParty = 0x080a0040
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d92cb
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d92df
@@ -280,9 +285,10 @@ function GameSettings.initialize()
 		GameSettings.CalculateMonStats = 0x0803e47c
 		GameSettings.DisplayMonLearnedMove = 0x081267dc
 		GameSettings.SwitchSelectedMons = 0x08122e34
-		GameSettings.DoPoisonFieldEffect = 0x080a05ec
+		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
 		GameSettings.WeHopeToSeeYouAgain = 0x081a54ed
 		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
+		GameSettings.HealPlayerParty = 0x080a002c
 
 		GameSettings.BattleScriptDrizzleActivates = 0x081d925b
 		GameSettings.BattleScriptSpeedBoostActivates = 0x081d926f
