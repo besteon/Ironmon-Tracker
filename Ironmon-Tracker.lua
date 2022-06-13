@@ -21,7 +21,9 @@ DATA_FOLDER = "ironmon_tracker"
 
 -- Get the user settings saved on disk and create the base Settings object
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
-Settings = INI.parse("Settings.ini")
+-- Need to manually read the file to work around a bug in the ini parser, which
+-- does not correctly handle that the last iteration over lines() returns nil
+Settings = INI.parse(io.open("Settings.ini"):read("*a"), "memory")
 
 -- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
@@ -135,10 +137,10 @@ function Main.LoadNext()
 	local romnumber = tonumber(string.match(romname, '[0-9]+')) + 1
 	local nextromname = ""
 	if rombasename == nil then
-		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "/" .. romnumber .. ".gba"
 	else
 		rombasename = rombasename:gsub(" ", "_")
-		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. rombasename .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "/" .. rombasename .. romnumber .. ".gba"
 		print(nextromname)
 	end
 
