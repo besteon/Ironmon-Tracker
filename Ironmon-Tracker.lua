@@ -137,10 +137,10 @@ function Main.LoadNext()
 	local romnumber = tonumber(string.match(romname, '[0-9]+')) + 1
 	local nextromname = ""
 	if rombasename == nil then
-		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "/" .. romnumber .. ".gba"
 	else
 		rombasename = rombasename:gsub(" ", "_")
-		nextromname = Settings.config.ROMS_FOLDER .. "\\" .. rombasename .. romnumber .. ".gba"
+		nextromname = Settings.config.ROMS_FOLDER .. "/" .. rombasename .. romnumber .. ".gba"
 		print(nextromname)
 	end
 
