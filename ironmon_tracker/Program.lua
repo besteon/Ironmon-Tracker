@@ -7,6 +7,7 @@ Program = {
 	trainerPokemonTeam = {},
 	enemyPokemonTeam = {},
 	state = State.TRACKER,
+	PCHealTrackingButtonState = 0,
 }
 
 Program.tracker = {
@@ -273,8 +274,10 @@ function Program.HandleUpdatePoisonStepCounter()
 end
 
 function Program.HandleHealPlayerParty()
-	Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
-	Tracker.redraw = true
+	if Program.PCHealTrackingButtonState == 1 then
+		Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+		Tracker.redraw = true
+	end
 end
 
 function Program.HandleWeHopeToSeeYouAgain()

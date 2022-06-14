@@ -38,7 +38,7 @@ function Tracker.InitTrackerData()
 			healing = 0,
 			numHeals = 0,
 		},
-		centerHeals = -1,
+		centerHeals = 1,
 		notes = {},
 		currentHiddenPowerType = PokemonTypes.NORMAL,
 		romHash = nil,

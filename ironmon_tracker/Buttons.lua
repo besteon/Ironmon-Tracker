@@ -23,6 +23,16 @@ StatButtonColors = {
 	GraphicConstants.LAYOUTCOLORS.INCREASE
 }
 
+PCHealTrackingButtonStates = {
+	"x",
+	"+"
+}
+
+PCHealTrackingButtonColors = {
+	GraphicConstants.LAYOUTCOLORS.DECREASE,
+	GraphicConstants.LAYOUTCOLORS.INCREASE
+}
+
 local buttonXOffset = 129
 
 local HiddenPowerState = 0
@@ -44,6 +54,25 @@ HiddenPowerButton = {
 		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
 		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[newType]
 		Tracker.Data.currentHiddenPowerType = newType
+	end
+}
+
+PCHealTrackingButton = {
+	type = ButtonType.singleButton,
+	visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+	text = PCHealTrackingButtonStates[1],
+	box = {
+		GraphicConstants.SCREEN_WIDTH + 89,
+		68,
+		8,
+		8
+	},
+	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
+	textcolor = PCHealTrackingButtonColors[1],
+	onclick = function()
+		Program.PCHealTrackingButtonState = ((Program.PCHealTrackingButtonState + 1) % 2)
+		PCHealTrackingButton.text = PCHealTrackingButtonStates[Program.PCHealTrackingButtonState + 1]
+		PCHealTrackingButton.textcolor = PCHealTrackingButtonColors[Program.PCHealTrackingButtonState + 1]
 	end
 }
 
@@ -162,5 +191,6 @@ Buttons = {
 			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
-	HiddenPowerButton
+	HiddenPowerButton,
+	PCHealTrackingButton
 }
