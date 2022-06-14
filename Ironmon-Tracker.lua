@@ -21,9 +21,7 @@ DATA_FOLDER = "ironmon_tracker"
 
 -- Get the user settings saved on disk and create the base Settings object
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
--- Need to manually read the file to work around a bug in the ini parser, which
--- does not correctly handle that the last iteration over lines() returns nil
-Settings = INI.parse(io.open("Settings.ini"):read("*a"), "memory")
+Settings = INI.parse("Settings.ini")
 
 -- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
@@ -132,19 +130,36 @@ function Main.LoadNext()
 	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
 	client.closerom()
-
-	local rombasename = string.match(romname, '[^0-9]+')
-	local romnumber = tonumber(string.match(romname, '[0-9]+')) + 1
-	local nextromname = ""
-	if rombasename == nil then
-		nextromname = Settings.config.ROMS_FOLDER .. "/" .. romnumber .. ".gba"
-	else
-		rombasename = rombasename:gsub(" ", "_")
-		nextromname = Settings.config.ROMS_FOLDER .. "/" .. rombasename .. romnumber .. ".gba"
-		print(nextromname)
-	end
-
-	client.openrom(nextromname)
+  
+  -- Split the ROM name into its prefix and numerical values
+  local romprefix = string.match(romname, '[^0-9]+')
+  local romnumber = string.match(romname, '[0-9]+')
+  if romprefix == nil then romprefix = "" end
+  
+  -- Increment to the next ROM and determine its full file path
+  local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
+  local nextrompath = Settings.config.ROMS_FOLDER .. "\\" .. nextromname .. ".gba"
+  
+  -- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
+  local filecheck = io.open(nextrompath,"r")
+  if filecheck ~= nil then
+    -- This means the file exists, so proceed with opening it.
+    io.close(filecheck)
+  else
+    nextromname = nextromname:gsub(" ", "_")
+    nextrompath = Settings.config.ROMS_FOLDER .. "\\" .. nextromname .. ".gba"
+    filecheck = io.open(nextrompath,"r")
+    if filecheck == nil then
+      -- This means there doesn't exist a ROM file with spaces or underscores
+      print("Unable to locate next ROM file to load. Current ROM: " .. romname)
+      Main.LoadNextSeed = false
+      Main.Run()
+    else
+      io.close(filecheck)
+    end
+  end
+  
+  client.openrom(nextrompath)
 	client.SetSoundOn(true)
 
 	if gameinfo.getromname() ~= "Null" then
