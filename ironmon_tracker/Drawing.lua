@@ -240,7 +240,7 @@ function Drawing.drawButtons()
 	for i = 1, table.getn(Buttons), 1 do
 		if Buttons[i].visible() then
 			if Buttons[i].type == ButtonType.singleButton then
-				if Buttons[i].backgroundcolor then
+				if Buttons[i].backgroundcolor ~= nil then
 					-- Only draw border boxes where there are colors for one
 					gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
 				end
