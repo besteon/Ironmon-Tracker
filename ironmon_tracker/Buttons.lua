@@ -23,16 +23,6 @@ StatButtonColors = {
 	GraphicConstants.LAYOUTCOLORS.INCREASE
 }
 
-PCHealTrackingButtonStates = {
-	"x",
-	"+"
-}
-
-PCHealTrackingButtonColors = {
-	GraphicConstants.LAYOUTCOLORS.DECREASE,
-	GraphicConstants.LAYOUTCOLORS.INCREASE
-}
-
 local buttonXOffset = 129
 
 local HiddenPowerState = 0
@@ -47,7 +37,6 @@ HiddenPowerButton = {
 		65,
 		10
 	},
-	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
 	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
 	onclick = function()
 		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
@@ -60,7 +49,7 @@ HiddenPowerButton = {
 PCHealTrackingButton = {
 	type = ButtonType.singleButton,
 	visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
-	text = PCHealTrackingButtonStates[1],
+	text = "",
 	box = {
 		GraphicConstants.SCREEN_WIDTH + 89,
 		68,
@@ -68,11 +57,10 @@ PCHealTrackingButton = {
 		8
 	},
 	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-	textcolor = PCHealTrackingButtonColors[1],
-	onclick = function()
-		Program.PCHealTrackingButtonState = ((Program.PCHealTrackingButtonState + 1) % 2)
-		PCHealTrackingButton.text = PCHealTrackingButtonStates[Program.PCHealTrackingButtonState + 1]
-		PCHealTrackingButton.textcolor = PCHealTrackingButtonColors[Program.PCHealTrackingButtonState + 1]
+	textcolor = 0xFF00AAFF,
+	togglecolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+	onclick = function() 
+		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState 
 	end
 }
 
@@ -192,5 +180,40 @@ Buttons = {
 		end
 	},
 	HiddenPowerButton,
-	PCHealTrackingButton
+	PCHealTrackingButton,
+	{ -- PC Heal Increment Button
+		type = ButtonType.singleButton,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		text = "",
+		box = {
+			GraphicConstants.SCREEN_WIDTH + 67,
+			67,
+			6,
+			4
+		},
+		drawChevron = function(x, y, w, h, t) 
+			Drawing.drawChevronUp(x, y - 1, w, h, t, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		end,
+		onclick = function() 
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+		end
+	},
+	{ -- PC Heal Decrement Button
+		type = ButtonType.singleButton,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		text = "",
+		box = {
+			GraphicConstants.SCREEN_WIDTH + 67,
+			73,
+			6,
+			4
+		},
+		drawChevron = function(x, y, w, h, t) 
+			return Drawing.drawChevronDown(x, y - 3, w, h, t, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		end,
+		onclick = function() 
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		end
+	}
 }
