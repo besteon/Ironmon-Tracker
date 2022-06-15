@@ -246,7 +246,6 @@ function Drawing.drawButtons()
 				end
 				local extraY = 1
 				if Buttons[i].text == "--" then extraY = 0 end
-				if Buttons[i].text == "^" then extraY = 2 end
 				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
 				-- PC Heal Buttons for survival mode
 				if Buttons[i] == PCHealTrackingButton and Program.PCHealTrackingButtonState then
