@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.3.2"
+TRACKER_VERSION = "0.3.3"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -132,36 +132,36 @@ function Main.LoadNext()
 	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
 	client.closerom()
-  
-  -- Split the ROM name into its prefix and numerical values
-  local romprefix = string.match(romname, '[^0-9]+')
-  local romnumber = string.match(romname, '[0-9]+')
-  if romprefix == nil then romprefix = "" end
-  
-  -- Increment to the next ROM and determine its full file path
-  local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
-  local nextrompath = Settings.config.ROMS_FOLDER .. "\\" .. nextromname .. ".gba"
-  
-  -- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
-  local filecheck = io.open(nextrompath,"r")
-  if filecheck ~= nil then
-    -- This means the file exists, so proceed with opening it.
-    io.close(filecheck)
-  else
-    nextromname = nextromname:gsub(" ", "_")
-    nextrompath = Settings.config.ROMS_FOLDER .. "\\" .. nextromname .. ".gba"
-    filecheck = io.open(nextrompath,"r")
-    if filecheck == nil then
-      -- This means there doesn't exist a ROM file with spaces or underscores
-      print("Unable to locate next ROM file to load. Current ROM: " .. romname)
-      Main.LoadNextSeed = false
-      Main.Run()
-    else
-      io.close(filecheck)
-    end
-  end
-  
-  client.openrom(nextrompath)
+	
+	-- Split the ROM name into its prefix and numerical values
+	local romprefix = string.match(romname, '[^0-9]+')
+	local romnumber = string.match(romname, '[0-9]+')
+	if romprefix == nil then romprefix = "" end
+
+	-- Increment to the next ROM and determine its full file path
+	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
+	local nextrompath = Settings.config.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+
+	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
+	local filecheck = io.open(nextrompath,"r")
+	if filecheck ~= nil then
+		-- This means the file exists, so proceed with opening it.
+		io.close(filecheck)
+	else
+		nextromname = nextromname:gsub(" ", "_")
+		nextrompath = Settings.config.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+		filecheck = io.open(nextrompath,"r")
+		if filecheck == nil then
+			-- This means there doesn't exist a ROM file with spaces or underscores
+			print("Unable to locate next ROM file to load. Current ROM: " .. romname)
+			Main.LoadNextSeed = false
+			Main.Run()
+		else
+			io.close(filecheck)
+		end
+	end
+
+	client.openrom(nextrompath)
 	client.SetSoundOn(true)
 
 	if gameinfo.getromname() ~= "Null" then
