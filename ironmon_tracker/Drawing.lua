@@ -253,10 +253,6 @@ function Drawing.drawButtons()
 					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].togglecolor)
 					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2], Buttons[i].togglecolor)
 				end
-				if Buttons[i].drawChevron ~= nil then
-					-- Manual tracking buttons
-					Buttons[i].drawChevron(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4] - 1, 1)
-				end
 			end
 		end
 	end

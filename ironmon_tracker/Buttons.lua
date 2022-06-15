@@ -184,16 +184,14 @@ Buttons = {
 	{ -- PC Heal Increment Button
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
-		text = "",
+		text = "+",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 67,
-			67,
-			6,
+			68,
+			8,
 			4
 		},
-		drawChevron = function(x, y, w, h, t) 
-			Drawing.drawChevronUp(x, y - 1, w, h, t, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		end,
+		textcolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -203,16 +201,14 @@ Buttons = {
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
-		text = "",
+		text = "--",
 		box = {
 			GraphicConstants.SCREEN_WIDTH + 67,
-			73,
-			6,
+			74,
+			7,
 			4
 		},
-		drawChevron = function(x, y, w, h, t) 
-			return Drawing.drawChevronDown(x, y - 3, w, h, t, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		end,
+		textcolor = GraphicConstants.LAYOUTCOLORS.DECREASE,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
