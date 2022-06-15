@@ -7,7 +7,7 @@ Program = {
 	trainerPokemonTeam = {},
 	enemyPokemonTeam = {},
 	state = State.TRACKER,
-	PCHealTrackingButtonState = 0,
+	PCHealTrackingButtonState = false,
 }
 
 Program.tracker = {
@@ -274,10 +274,11 @@ function Program.HandleUpdatePoisonStepCounter()
 end
 
 function Program.HandleHealPlayerParty()
-	if Program.PCHealTrackingButtonState == 1 then
+	if Program.PCHealTrackingButtonState and Settings.tracker.SURVIVAL_RULESET then
 		Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
-		Tracker.redraw = true
 	end
+	-- Putting this outside the if so mon hp gets updated on PC heal
+	Tracker.redraw = true
 end
 
 function Program.HandleWeHopeToSeeYouAgain()
