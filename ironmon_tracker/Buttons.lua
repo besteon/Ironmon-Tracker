@@ -37,13 +37,30 @@ HiddenPowerButton = {
 		65,
 		10
 	},
-	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
 	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
 	onclick = function()
 		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
 		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
 		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[newType]
 		Tracker.Data.currentHiddenPowerType = newType
+	end
+}
+
+PCHealTrackingButton = {
+	type = ButtonType.singleButton,
+	visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+	text = "",
+	box = {
+		GraphicConstants.SCREEN_WIDTH + 89,
+		68,
+		8,
+		8
+	},
+	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
+	textcolor = 0xFF00AAFF,
+	togglecolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+	onclick = function() 
+		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState 
 	end
 }
 
@@ -162,5 +179,40 @@ Buttons = {
 			Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 		end
 	},
-	HiddenPowerButton
+	HiddenPowerButton,
+	PCHealTrackingButton,
+	{ -- PC Heal Increment Button
+		type = ButtonType.singleButton,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		text = "+",
+		box = {
+			GraphicConstants.SCREEN_WIDTH + 67,
+			68,
+			8,
+			4
+		},
+		textcolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+		onclick = function() 
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+		end
+	},
+	{ -- PC Heal Decrement Button
+		type = ButtonType.singleButton,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		text = "--",
+		box = {
+			GraphicConstants.SCREEN_WIDTH + 67,
+			74,
+			7,
+			4
+		},
+		textcolor = GraphicConstants.LAYOUTCOLORS.DECREASE,
+		onclick = function() 
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			-- Prevent negative values
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		end
+	}
 }

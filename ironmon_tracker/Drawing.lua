@@ -240,12 +240,19 @@ function Drawing.drawButtons()
 	for i = 1, table.getn(Buttons), 1 do
 		if Buttons[i].visible() then
 			if Buttons[i].type == ButtonType.singleButton then
-				if Buttons[i] ~= HiddenPowerButton then
+				if Buttons[i].backgroundcolor ~= nil then
+					-- Only draw border boxes where there are colors for one
 					gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
 				end
 				local extraY = 1
 				if Buttons[i].text == "--" then extraY = 0 end
 				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
+				-- PC Heal Buttons for survival mode
+				if Buttons[i] == PCHealTrackingButton and Program.PCHealTrackingButtonState then
+					-- Auto-tracking toggle button
+					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].togglecolor)
+					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2], Buttons[i].togglecolor)
+				end
 			end
 		end
 	end
@@ -306,7 +313,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
 		if (Settings.tracker.SURVIVAL_RULESET) then
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 85, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
+			-- Right-align the PC Heals number
+			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
 		end
 	end
 
