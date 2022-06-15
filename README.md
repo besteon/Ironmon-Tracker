@@ -4,12 +4,12 @@
 
 Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) used to track ironMON attempts.
 
-For more information on ironMON, see http://ironmon.gg
+For more information on ironMON, see <http://ironmon.gg>
 
 Only Emerald, Leaf Green, and Fire Red (Generation 3 games) are supported. If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/Ironmon-Tracker/issues) or DM me on Discord. You can find me on the Ironmon Discord server.
 
 This project is based on MKDasher's PokemonBizhawkLua project.
-https://github.com/mkdasher/PokemonBizhawkLua
+<https://github.com/mkdasher/PokemonBizhawkLua>
 
 ## Installation
 
@@ -31,7 +31,7 @@ If you want to use your controller to toggle stat prediction markers on opponent
 
 - **_NEW!!_ PokéCenter Heal Tracking**: The new Survival IronMon ruleset requires tracking the number of visits to the Pokémon Centers (and other full party healing visits like Mom, etc.) for healing. When between 5-9 visits, the number is yellow, and 10 visits is red.
   - Turn this on by selecting the new "Survival ruleset" option in the settings menu or in the Settings.ini file.
-  - To enable automatic tracking of PokéCenter-like heals, click the empty box to the right of the PC Heals number, a green "X" will appear to indicate that automatic tracking is on.
+  - To enable automatic tracking of PokéCenter-like heals, click the empty box to the right of the PC Heals number, a green "X" will appear to indicate that automatic tracking is on. It is advisable to **NOT** enable this until after the first non-rival fight as per the survival ironmon ruleset.
   - You can also use the + or - buttons on the left of the PC Heals number to add/subtract counts manually. This can be useful if you do not want automatic tracking or to correct any accidental counts.
   - As always with a new feature there may be issues that we haven't found yet. If you notice any issues then please let us know on Discord or in the [GitHub Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
 
