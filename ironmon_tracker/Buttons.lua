@@ -196,6 +196,8 @@ Buttons = {
 		end,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
 		end
 	},
 	{ -- PC Heal Decrement Button
@@ -213,6 +215,7 @@ Buttons = {
 		end,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			-- Prevent negative values
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
 		end
 	}
