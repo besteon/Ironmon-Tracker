@@ -525,7 +525,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FIRE,
 		bst = "350",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = 22.7
+		weight = 19.0
 	},
 	{
 		name = "Arcanine",
