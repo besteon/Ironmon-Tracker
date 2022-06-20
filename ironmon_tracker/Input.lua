@@ -161,6 +161,12 @@ function Input.check(xmouse, ymouse)
 			-- Save the Settings.ini file if any changes were made
 			if Options.updated then
 				Options.updated = false
+				-- Reset PC Heal tracking to count up or down from
+				if Settings.tracker.SURVIVAL_COUNT_DOWN then
+					Tracker.Data.centerHeals = 10
+				else
+					Tracker.Data.centerHeals = 0
+				end
 				INI.save("Settings.ini", Settings)
 			end
 			Tracker.redraw = true

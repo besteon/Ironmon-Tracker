@@ -275,9 +275,17 @@ end
 
 function Program.HandleHealPlayerParty()
 	if Program.PCHealTrackingButtonState and Settings.tracker.SURVIVAL_RULESET then
-		Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+		if Settings.tracker.SURVIVAL_COUNT_DOWN then
+			-- Automatically count down
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		else
+			-- Automatically count up
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+		end		
 	end
-	-- Putting this outside the if so mon hp gets updated on PC heal
+	-- This goes here so mon hp always gets updated on PC heal
 	Tracker.redraw = true
 end
 

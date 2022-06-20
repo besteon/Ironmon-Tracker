@@ -38,7 +38,7 @@ function Tracker.InitTrackerData()
 			healing = 0,
 			numHeals = 0,
 		},
-		centerHeals = 0,
+		centerHeals = Utils.inlineIf(Settings.tracker.SURVIVAL_COUNT_DOWN, 10, 0),
 		notes = {},
 		currentHiddenPowerType = PokemonTypes.NORMAL,
 		romHash = nil,
