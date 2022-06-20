@@ -10,7 +10,7 @@ PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant locat
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
-if string.sub(client.getversion(), 1) ~= "2.8" then
+if client.getversion == nil or client.getversion() ~= "2.8" then
 	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
 	-- Bounce out... Don't pass Go! Don't collect $200.
 	return
@@ -60,7 +60,6 @@ function Main.Run()
 
 	Options.buildTrackerOptionsButtons()
 	GameSettings.initialize()
-
 	if GameSettings.game == 0 then
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
