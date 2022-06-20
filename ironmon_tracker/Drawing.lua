@@ -315,7 +315,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor())
 		end
 	end
 

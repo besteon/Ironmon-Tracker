@@ -123,3 +123,27 @@ function Utils.playerHasMove(moveName)
 	end
 	return false
 end
+
+-- Returns the text color for PC heal tracking
+function Utils.getCenterHealColor()
+	local currentCount = Tracker.Data.centerHeals
+	if Settings.tracker.SURVIVAL_COUNT_DOWN then
+		-- Counting downwards
+		if currentCount < 1 then
+			return GraphicConstants.LAYOUTCOLORS.DECREASE
+		elseif currentCount < 6 then
+			return GraphicConstants.LAYOUTCOLORS.HIGHLIGHT
+		else
+			return GraphicConstants.LAYOUTCOLORS.INCREASE
+		end
+	else
+		-- Counting upwards
+		if currentCount < 5 then
+			return GraphicConstants.LAYOUTCOLORS.INCREASE
+		elseif currentCount < 10 then
+			return GraphicConstants.LAYOUTCOLORS.HIGHLIGHT
+		else
+			return GraphicConstants.LAYOUTCOLORS.DECREASE
+		end
+	end
+end
