@@ -24,6 +24,9 @@ INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 -- Need to manually read the file to work around a bug in the ini parser, which
 -- does not correctly handle that the last iteration over lines() returns nil
 Settings = INI.parse(io.open("Settings.ini"):read("*a"), "memory")
+-- If ROMS_FOLDER is left empty, Inifile.lua doesn't add it to the settings table, resulting in the ROMS_FOLDER 
+-- being deleted entirely from Settings.ini if another setting is toggled in the tracker options menu
+if Settings.config.ROMS_FOLDER == nil then Settings.config.ROMS_FOLDER = "" end
 
 -- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
