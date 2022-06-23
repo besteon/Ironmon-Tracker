@@ -124,21 +124,24 @@ function Main.LoadNext()
 	userdata.clear()
 	print "Reset tracker"
 
-	if Settings.config.ROMS_FOLDER == nil then
+	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
 		Main.LoadNextSeed = false
 		Main.Run()
 		return
 	end
 
-	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
-	client.closerom()
-	
 	-- Split the ROM name into its prefix and numerical values
 	local romprefix = string.match(romname, '[^0-9]+')
 	local romnumber = string.match(romname, '[0-9]+')
 	if romprefix == nil then romprefix = "" end
+
+	if romnumber == nil then
+		print("Current ROM does not have any numbers in its name, unable to load next seed.\nReloaded current ROM: " .. romname)
+		Main.LoadNextSeed = false
+		Main.Run()
+	end
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
@@ -155,7 +158,7 @@ function Main.LoadNext()
 		filecheck = io.open(nextrompath,"r")
 		if filecheck == nil then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("Unable to locate next ROM file to load. Current ROM: " .. romname)
+			print("Unable to locate next ROM file to load.\nReloaded current ROM: " .. romname)
 			Main.LoadNextSeed = false
 			Main.Run()
 		else
@@ -163,6 +166,9 @@ function Main.LoadNext()
 		end
 	end
 
+	client.SetSoundOn(false)
+	client.closerom()
+	print("Loading next ROM: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
 
