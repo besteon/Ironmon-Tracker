@@ -50,13 +50,12 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
-	print("Checking for open ROM before loading...")
+	print("Loading...")
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
 		emu.frameadvance()
 	end
-	print("Loading...")
 
 	Options.buildTrackerOptionsButtons()
 	GameSettings.initialize()
@@ -126,9 +125,7 @@ function Main.LoadNext()
 
 	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
-		Main.LoadNextSeed = false
-		Main.Run()
-		return
+		Main.CloseROM()
 	end
 
 	local romname = gameinfo.getromname()
@@ -138,9 +135,8 @@ function Main.LoadNext()
 	if romprefix == nil then romprefix = "" end
 
 	if romnumber == nil then
-		print("Current ROM does not have any numbers in its name, unable to load next seed.\nReloaded current ROM: " .. romname)
-		Main.LoadNextSeed = false
-		Main.Run()
+		print("Unable to load next ROM file: no numbers in current ROM name.\nClosing current ROM: " .. romname)
+		Main.CloseROM()
 	end
 
 	-- Increment to the next ROM and determine its full file path
@@ -158,9 +154,8 @@ function Main.LoadNext()
 		filecheck = io.open(nextrompath,"r")
 		if filecheck == nil then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("Unable to locate next ROM file to load.\nReloaded current ROM: " .. romname)
-			Main.LoadNextSeed = false
-			Main.Run()
+			print("Unable to locate next ROM file to load.\nClosing current ROM: " .. romname)
+			Main.CloseROM()
 		else
 			io.close(filecheck)
 		end
@@ -171,8 +166,14 @@ function Main.LoadNext()
 	print("Loading next ROM: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
+	Main.LoadNextSeed = false
+	Main.Run()
 
+end
+
+function Main.CloseROM()
 	if gameinfo.getromname() ~= "Null" then
+		client.closerom()
 		Main.LoadNextSeed = false
 		Main.Run()
 	end
