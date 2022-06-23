@@ -49,12 +49,11 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
-	print("Waiting 5s before loading...")
-	local frames = 0
-	local waitBeforeHook = 300
-	while frames < waitBeforeHook do
+	print("Waiting for open ROM before loading...")
+	local romLoaded = false
+	while not romLoaded do
+		if gameinfo.getromname() ~= "Null" then romLoaded = true end
 		emu.frameadvance()
-		frames = frames + 1
 	end
 	print("Loading...")
 
