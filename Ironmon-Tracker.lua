@@ -49,7 +49,7 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
-	print("Waiting for open ROM before loading...")
+	print("Checking for open ROM before loading...")
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
