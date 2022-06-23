@@ -10,6 +10,7 @@ PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant locat
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
+-- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
 if client.getversion == nil or client.getversion() ~= "2.8" then
 	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
 	-- Bounce out... Don't pass Go! Don't collect $200.
