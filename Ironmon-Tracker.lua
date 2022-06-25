@@ -33,6 +33,7 @@ dofile(DATA_FOLDER .. "/Memory.lua")
 dofile(DATA_FOLDER .. "/GameSettings.lua")
 dofile(DATA_FOLDER .. "/GraphicConstants.lua")
 dofile(DATA_FOLDER .. "/Options.lua")
+dofile(DATA_FOLDER .. "/Theme.lua")
 dofile(DATA_FOLDER .. "/Utils.lua")
 dofile(DATA_FOLDER .. "/Buttons.lua")
 dofile(DATA_FOLDER .. "/Input.lua")
@@ -56,6 +57,7 @@ function Main.Run()
 	print("Loading...")
 
 	Options.buildTrackerOptionsButtons()
+	Theme.buildTrackerThemeButtons()
 	GameSettings.initialize()
 
 	if GameSettings.game == 0 then

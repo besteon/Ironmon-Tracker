@@ -26,12 +26,14 @@ Draws text for the tracker on screen with a shadow effect. Uses the Franklin Got
 
 	text: string -> the text to output to the screen
 
-	color: string or integer -> the color for the text; the shadow effect will be black
+	color: string or integer -> the color for the text
+
+	shadowcolor: string or integer -> the color for the shadow effect drawn behind the text
 
 	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
 ]]
-function Drawing.drawText(x, y, text, color, style)
-	gui.drawText(x + 1, y + 1, text, "black", nil, 9, "Franklin Gothic Medium", style)
+function Drawing.drawText(x, y, text, color, shadowcolor, style)
+	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, "Franklin Gothic Medium", style)
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
 end
 
@@ -47,16 +49,14 @@ with the RIGHT_JUSTIFIED_NUMBERS setting.
 		Move power, accuracy, and stats should have a 3 for `spacing`.
 		PP should have 2 for `spacing`.
 ]]
-function Drawing.drawNumber(x, y, number, spacing, color, style)
-	local new_spacing
-	new_spacing = 0
+function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
+	local new_spacing = 0
 
 	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
 	end
 
-	gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
-	gui.drawText(x + new_spacing, y, number, color, nil, 9, "Franklin Gothic Medium", style)
+	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
 end
 
 function Drawing.drawTriangleRight(x, y, size, color)
@@ -94,39 +94,39 @@ function Drawing.moveToColor(move)
 end
 
 function Drawing.getNatureColor(stat, nature)
-	local color = GraphicConstants.LAYOUTCOLORS.NEUTRAL
+	local color = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
 	if not Settings.tracker.NATURE_WITH_FONT_STYLE then
 		if nature % 6 == 0 then
-			color = GraphicConstants.LAYOUTCOLORS.NEUTRAL
+			color = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
 		elseif stat == "atk" then
 			if nature < 5 then
-				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 			elseif nature % 5 == 0 then
-				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 			end
 		elseif stat == "def" then
 			if nature > 4 and nature < 10 then
-				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 			elseif nature % 5 == 1 then
-				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 			end
 		elseif stat == "spe" then
 			if nature > 9 and nature < 15 then
-				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 			elseif nature % 5 == 2 then
-				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 			end
 		elseif stat == "spa" then
 			if nature > 14 and nature < 20 then
-				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 			elseif nature % 5 == 3 then
-				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 			end
 		elseif stat == "spd" then
 			if nature > 19 then
-				color = GraphicConstants.LAYOUTCOLORS.INCREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 			elseif nature % 5 == 4 then
-				color = GraphicConstants.LAYOUTCOLORS.DECREASE
+				color = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 			end
 		end
 	end
@@ -175,111 +175,116 @@ end
 
 function Drawing.drawStatusLevel(x, y, value)
 	if value == 0 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
 	elseif value == 1 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 2 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 3 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 4 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 5 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 7 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 8 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 9 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
 	elseif value == 10 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
 	elseif value == 11 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
 	elseif value == 12 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
 	end
 end
 
 function Drawing.drawMoveEffectiveness(x, y, value)
 	if value == 2 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
 	elseif value == 4 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE)
 	elseif value == 0.5 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
 	elseif value == 0.25 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.DECREASE)
-	elseif value == 0 then
-		Drawing.drawText(x, y, "X", GraphicConstants.LAYOUTCOLORS.DECREASE)
-	end
-end
-
-function Drawing.drawButtons()
-	---@diagnostic disable-next-line: deprecated
-	for i = 1, table.getn(Buttons), 1 do
-		if Buttons[i].visible() then
-			if Buttons[i].type == ButtonType.singleButton then
-				if Buttons[i].backgroundcolor ~= nil then
-					-- Only draw border boxes where there are colors for one
-					gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
-				end
-				local extraY = 1
-				if Buttons[i].text == "--" then extraY = 0 end
-				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
-				-- PC Heal Buttons for survival mode
-				if Buttons[i] == PCHealTrackingButton and Program.PCHealTrackingButtonState then
-					-- Auto-tracking toggle button
-					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].togglecolor)
-					gui.drawLine(Buttons[i].box[1], Buttons[i].box[2] + Buttons[i].box[4], Buttons[i].box[1] + Buttons[i].box[3], Buttons[i].box[2], Buttons[i].togglecolor)
-				end
-			end
-		end
+		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE)
 	end
 end
 
 function Drawing.drawInputOverlay()
 	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and (Tracker.Data.selectedPlayer == 2) then
-		gui.drawRectangle(Buttons[Tracker.controller.statIndex].box[1], Buttons[Tracker.controller.statIndex].box[2], Buttons[Tracker.controller.statIndex].box[3], Buttons[Tracker.controller.statIndex].box[4], "yellow", 0x000000)
+		local i = Tracker.controller.statIndex
+		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], GraphicConstants.LAYOUTCOLORS.INPUT_HIGHLIGHT, 0x000000)
 	end
 end
 
+-- Returns a slightly darkened color
+function Drawing.calcShadowColor(color)
+	local color_hexval = (color - 0xFF000000)
+
+	-- get the RGB values of the color 
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
+
+	-- scale RGB values down to make them darker
+	local scale = 0x10 -- read as: 6.25%
+	r = r - r * scale / 0x100
+	g = g - g * scale / 0x100
+	b = b - b * scale / 0x100
+
+	-- build color with new hex values
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	return (0xFF000000 + color_hexval)
+end
+
 function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
+	-- Fill background and margins
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
+
 	local borderMargin = 5
 	local statBoxWidth = 101
 	local statBoxHeight = 52
 
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+	-- Draw top box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
 
 	Drawing.drawPokemonIcon(monToDraw["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
 
-	local colorbar = GraphicConstants.LAYOUTCOLORS.NEUTRAL
+	local colorbar = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
 	if monToDraw["curHP"] / monToDraw["maxHP"] <= 0.2 then
-		colorbar = GraphicConstants.LAYOUTCOLORS.DECREASE
+		colorbar = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 	elseif monToDraw["curHP"] / monToDraw["maxHP"] <= 0.5 then
-		colorbar = "yellow"
+		-- was "yellow" but that may be colorblind unsafe, might need to create a new layoutcolor option
+		colorbar = GraphicConstants.LAYOUTCOLORS.TEXT_MIDDLE_VALUE
 	end
 
+	-- calculate shadows based on the location of the text (top or bot box)
+	local bgHeaderShadow = Drawing.calcShadowColor(GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
+	local boxTopShadow = Drawing.calcShadowColor(GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
+	local boxBotShadow = Drawing.calcShadowColor(GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
 
 	local currentHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["curHP"])
 	local maxHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["maxHP"])
@@ -289,12 +294,12 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local pkmnStatOffsetY = 10
 	-- Base Pokémon details
 	-- Pokémon name
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
 	-- Settings gear
 	gui.drawImage(DATA_FOLDER .. "/images/icons/gear.png", GraphicConstants.SCREEN_WIDTH + statBoxWidth - 8, 7)
 	-- HP
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:")
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
 	-- Level and evolution
 	local levelDetails = "Lv." .. monToDraw.level
 	local evolutionDetails = " (" .. PokemonData[monToDraw["pokemonID"] + 1].evolution .. ")"
@@ -302,31 +307,44 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		-- Let the player know that evolution is right around the corner!
 		evolutionDetails = " (SOON)"
 	end
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
 
+	-- draw heal-info box
 	local infoBoxHeight = 23
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
 
 	-- Heals in bag/PokéCenter heals
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.INCREASE)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+		
 		if (Settings.tracker.SURVIVAL_RULESET) then
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.INCREASE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT, GraphicConstants.LAYOUTCOLORS.DECREASE)))
+			local healNumberColor = Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE, Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.LAYOUTCOLORS.TEXT_MIDDLE_VALUE, GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE))
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, healNumberColor, boxTopShadow)
+			
+			-- Draw the '+'', '-'', and toggle buttons for PC heal tracking
+			Drawing.drawText(Buttons[9].box[1], Buttons[9].box[2] + (Buttons[9].box[4] - 12) / 2 + 1, Buttons[9].text, Buttons[9].textcolor, boxTopShadow)
+			Drawing.drawText(Buttons[10].box[1], Buttons[10].box[2] + (Buttons[10].box[4] - 12) / 2 + 1, Buttons[10].text, Buttons[10].textcolor, boxTopShadow)
+			gui.drawRectangle(PCHealTrackingButton.box[1], PCHealTrackingButton.box[2], PCHealTrackingButton.box[3], PCHealTrackingButton.box[4], PCHealTrackingButton.backgroundcolor[1], PCHealTrackingButton.backgroundcolor[2])
+			-- Draw a mark if the feature is on
+			if Program.PCHealTrackingButtonState then
+				gui.drawLine(PCHealTrackingButton.box[1], PCHealTrackingButton.box[2], PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3], PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4], PCHealTrackingButton.togglecolor)
+				gui.drawLine(PCHealTrackingButton.box[1], PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4], PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3], PCHealTrackingButton.box[2], PCHealTrackingButton.togglecolor)
+			end
 		end
 	end
 
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
 	-- local statusItems = Program.getBagStatusItems()
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 57, statusItems.burn, 0xFFFF0000)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, statusItems.sleep, "white")
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow")
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF, boxTopShadow)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 57, statusItems.burn, 0xFFFF0000, boxTopShadow)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF, boxTopShadow)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, statusItems.sleep, "white", boxTopShadow)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
+	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
 	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"] + 1])
 	if monIsEnemy then
@@ -340,8 +358,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Held item & ability
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.LAYOUTCOLORS.HIGHLIGHT)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
 	end
 
 	local statBoxY = 5
@@ -356,23 +374,33 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local spdY = spaY + statInc
 	local speY = spdY + statInc
 	local bstY = speY + statInc
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, statBoxY, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("hp", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("atk", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("def", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spaY, "SPA", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spa", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spdY, "SPD", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spd", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, speY, "SPE", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.NEUTRAL, Drawing.getNatureColor("spe", monToDraw["nature"])), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, bstY, "BST", GraphicConstants.LAYOUTCOLORS.NEUTRAL)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, bstY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.LAYOUTCOLORS.NEUTRAL)
 
+	-- draw stat box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, statBoxY, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, hpY, " HP", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("hp", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, attY, "ATK", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("atk", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, defY, "DEF", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("def", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spaY, "SPA", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("spa", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, spdY, "SPD", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("spd", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, speY, "SPE", Utils.inlineIf(monIsEnemy, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, Drawing.getNatureColor("spe", monToDraw["nature"])), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statOffsetX, bstY, "BST", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, bstY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxTopShadow)
+
+	-- draw Pokemon's statis but only if it's yours
 	if monIsEnemy == false then
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], 3, Drawing.getNatureColor("hp", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], 3, Drawing.getNatureColor("atk", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], 3, Drawing.getNatureColor("def", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], 3, Drawing.getNatureColor("spa", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], 3, Drawing.getNatureColor("spd", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], 3, Drawing.getNatureColor("spe", monToDraw["nature"]), Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, hpY, monToDraw["maxHP"], 3, Drawing.getNatureColor("hp", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "hp", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, attY, monToDraw["atk"], 3, Drawing.getNatureColor("atk", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "atk", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, defY, monToDraw["def"], 3, Drawing.getNatureColor("def", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "def", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spaY, monToDraw["spa"], 3, Drawing.getNatureColor("spa", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spa", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, spdY, monToDraw["spd"], 3, Drawing.getNatureColor("spd", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spd", monToDraw.nature))
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + statValueOffsetX, speY, monToDraw["spe"], 3, Drawing.getNatureColor("spe", monToDraw["nature"]), boxTopShadow, Drawing.getNatureStyle(monIsEnemy, "spe", monToDraw.nature))
+	else -- otherwise draw stat info buttons
+		for i = 1, 6, 1 do
+			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then -- HP stat
+				gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
+				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + Utils.inlineIf(Buttons[i].text == "--", 0, 1), Buttons[i].text, Buttons[i].textcolor, boxTopShadow)
+			end
+		end
 	end
 
 	-- Stat stages -6 -> +6
@@ -387,8 +415,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Drawing moves
 	local movesBoxStartY = 94
-
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+	-- draw moves box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
 	local moveStartY = movesBoxStartY + 3
 
 	local monLevel = monToDraw["level"]
@@ -449,8 +477,6 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	local distanceBetweenMoves = 10
 
-	-- Moves Learned
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 14, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local movelevellist = PokemonData[monToDraw["pokemonID"] + 1].movelvls -- pokemonID
 	local moveCount = 0
 	local movesLearned = 0
@@ -469,7 +495,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
-	local moveTableHeaderHeightDiff = 14
+	local moveTableHeaderHeightDiff = 15
 
 	local movesString = "Move ~  "
 	movesString = movesString .. movesLearned .. "/" .. moveCount
@@ -485,7 +511,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
-		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.LAYOUTCOLORS.INCREASE, GraphicConstants.LAYOUTCOLORS.NEUTRAL))
+		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT))
 	end
 
 	-- Move category: physical, special, or status effect
@@ -512,26 +538,29 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Move names (longest name is 12 characters?)
 	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.LAYOUTCOLORS.TEXT_HEADER, bgHeaderShadow)
 	for moveIndex = 1, 4, 1 do
 		if moves[moveIndex].name == "Hidden Power" and not monIsEnemy then
 			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
 			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
+			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, HiddenPowerButton.textcolor, boxBotShadow)
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex])
+			-- TODO: put the move colors back
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxBotShadow)
+			-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex], boxBotShadow)
 		end
 	end
 
 	-- Move power points
 	local ppOffset = 82
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.LAYOUTCOLORS.TEXT_HEADER, bgHeaderShadow)
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)), 2)
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)), 2, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxBotShadow)
 	end
 
 	-- Move attack power
 	local powerOffset = 102
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.LAYOUTCOLORS.TEXT_HEADER, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
 	for moveIndex = 1, 4, 1 do
 		local movePower = moves[moveIndex].power
 		if Settings.tracker.CALCULATE_VARIABLE_DAMAGE == true then
@@ -549,17 +578,17 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			else
 				newPower = movePower
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex], boxBotShadow)
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex])
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex], boxBotShadow)
 		end
 	end
 
 	-- Move accuracy
 	local accOffset = 126
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc")
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.LAYOUTCOLORS.TEXT_HEADER, bgHeaderShadow)
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3)
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxBotShadow)
 	end
 
 	-- Move effectiveness against the opponent
@@ -567,25 +596,31 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		if targetMon ~= nil then
 			for moveIndex = 1, 4, 1 do
 				local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[targetMon.pokemonID + 1])
-				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
+				if effectiveness == 0 then
+					Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE, boxBotShadow)
+				else
+					Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - statusLevelOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
+				end
 			end
 		end
 	end
 
-	Drawing.drawButtons()
+	-- Drawing.drawButtons()
 	Drawing.drawInputOverlay()
 
-	-- draw note box
+	-- draw badge/note box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 14, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
+
 	local note = Tracker.GetNote()
 	if note == '' then
 		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
 	else
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note, boxBotShadow)
 		--work around limitation of drawText not having width limit: paint over any spillover
 		local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
 		local y = 141
-		gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
-		gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+		gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER)
+		gui.drawRectangle(x + 1, y, 12, 12, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
 	end
 end
 
@@ -620,28 +655,69 @@ function Drawing.drawSettings()
 	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
 	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
 
+	-- set the color for text/number shadows for the top boxes
+	local boxSettingsShadow = Drawing.calcShadowColor(GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
+
 	-- Settings view box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL)
 
 	-- Cancel/close button
 	gui.drawRectangle(Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4], Options.closeButton.backgroundColor[1], Options.closeButton.backgroundColor[2])
-	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Options.closeButton.textColor)
+	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Options.closeButton.textColor, boxSettingsShadow)
 
 	-- Roms folder setting
 	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
-	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, Options.romsFolderOption.textColor)
+	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, Options.romsFolderOption.textColor, boxSettingsShadow)
 	if folder == "" then
 		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
 	end
 
+	-- Customize button
+	gui.drawRectangle(Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4], Options.themeButton.backgroundColor[1], Options.themeButton.backgroundColor[2])
+	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, Options.themeButton.textColor, boxSettingsShadow)
+	
+
 	-- Draw toggleable settings
 	for _, button in pairs(Options.optionsButtons) do
 		gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
-		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor)
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor, boxSettingsShadow)
 		-- Draw a mark if the feature is on
 		if button.optionState then
 			gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], button.optionColor)
 			gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], button.optionColor)
 		end
 	end
+end
+
+function Drawing.drawThemeMenu()
+	local borderMargin = 5
+	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+
+	-- set the color for text/number shadows for the bottom box values
+	local boxThemeShadow = Drawing.calcShadowColor(GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
+
+	-- Draw Theme menu view box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
+
+	-- Draw Import & Export buttons
+	gui.drawRectangle(Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], Theme.importThemeButton.box[3], Theme.importThemeButton.box[4], Theme.importThemeButton.backgroundColor[1], Theme.importThemeButton.backgroundColor[2])
+	Drawing.drawText(Theme.importThemeButton.box[1] + 3, Theme.importThemeButton.box[2], Theme.importThemeButton.text, Theme.importThemeButton.textColor, boxThemeShadow)
+	gui.drawRectangle(Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], Theme.exportThemeButton.box[3], Theme.exportThemeButton.box[4], Theme.exportThemeButton.backgroundColor[1], Theme.exportThemeButton.backgroundColor[2])
+	Drawing.drawText(Theme.exportThemeButton.box[1] + 3, Theme.exportThemeButton.box[2], Theme.exportThemeButton.text, Theme.exportThemeButton.textColor, boxThemeShadow)
+
+	-- Draw each theme element and its color picker
+	for _, button in pairs(Theme.themeButtons) do
+		--gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor, boxThemeShadow)
+		-- fill in the box with the current defined color
+		if button.themeColor ~= nil then
+			gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], 0xFF000000, tonumber(button.themeColor, 16) + 0xFF000000) -- use a black border
+		end
+	end
+
+	-- Draw Close button
+	gui.drawRectangle(Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4], Theme.closeButton.backgroundColor[1], Theme.closeButton.backgroundColor[2])
+	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, Theme.closeButton.textColor, boxThemeShadow)
+	
 end

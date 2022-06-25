@@ -1,6 +1,7 @@
 State = {
 	TRACKER = "Tracker",
 	SETTINGS = "Settings",
+	THEME = "Theme",
 }
 
 Program = {
@@ -100,6 +101,11 @@ function Program.main()
 		if Options.redraw then
 			Drawing.drawSettings()
 			Options.redraw = false
+		end
+	elseif Program.state == State.THEME then
+		if Theme.redraw then
+			Drawing.drawThemeMenu()
+			Theme.redraw = false
 		end
 	end
 end

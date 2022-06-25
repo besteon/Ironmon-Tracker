@@ -18,9 +18,9 @@ StatButtonStates = {
 }
 
 StatButtonColors = {
-	GraphicConstants.LAYOUTCOLORS.NEUTRAL,
-	GraphicConstants.LAYOUTCOLORS.DECREASE,
-	GraphicConstants.LAYOUTCOLORS.INCREASE
+	GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+	GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
+	GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
 }
 
 local buttonXOffset = 129
@@ -56,9 +56,9 @@ PCHealTrackingButton = {
 		8,
 		8
 	},
-	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-	textcolor = 0xFF00AAFF,
-	togglecolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+	textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+	togglecolor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
 	onclick = function() 
 		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState 
 	end
@@ -75,8 +75,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 			Buttons[1].text = StatButtonStates[Program.StatButtonState.hp]
@@ -94,8 +94,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
 			Buttons[2].text = StatButtonStates[Program.StatButtonState.att]
@@ -113,8 +113,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 			Buttons[3].text = StatButtonStates[Program.StatButtonState.def]
@@ -132,8 +132,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 			Buttons[4].text = StatButtonStates[Program.StatButtonState.spa]
@@ -151,8 +151,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 			Buttons[5].text = StatButtonStates[Program.StatButtonState.spd]
@@ -170,8 +170,8 @@ Buttons = {
 			8,
 			8
 		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-		textcolor = 0xFF00AAFF,
+		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 		onclick = function()
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 			Buttons[6].text = StatButtonStates[Program.StatButtonState.spe]
@@ -191,7 +191,7 @@ Buttons = {
 			8,
 			4
 		},
-		textcolor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -208,7 +208,7 @@ Buttons = {
 			7,
 			4
 		},
-		textcolor = GraphicConstants.LAYOUTCOLORS.DECREASE,
+		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
@@ -216,3 +216,12 @@ Buttons = {
 		end
 	}
 }
+
+-- TODO: Potionally need to reassign the GraphicConstant colors to all the buttons each time the theme gets updated
+function Buttons.refreshTheme()
+	-- StatButtonColors = {
+	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
+	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
+	-- }
+end

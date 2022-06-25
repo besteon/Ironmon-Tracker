@@ -15,8 +15,8 @@ Options.closeButton = {
 		30,
 		11,
 	},
-	backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-	textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
+	backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 	-- onClick = function(): currently handled in the Input object
 }
 
@@ -29,7 +29,21 @@ Options.romsFolderOption = {
 		8,
 		8,
 	},
-	textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
+	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+}
+
+-- A button to navigate to the Theme menu for customizing the Tracker's look and feel
+Options.themeButton = {
+	text = "Customize",
+	box = {
+		GraphicConstants.SCREEN_WIDTH + 10,
+		GraphicConstants.SCREEN_HEIGHT - 20,
+		50,
+		11,
+	},
+	backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+	-- onClick = function(): currently handled in the Input object
 }
 
 -- Stores the options in the Settings.ini file into configurable toggles in the Tracker
@@ -37,6 +51,8 @@ Options.optionsButtons = {}
 
 --[[]]
 function Options.buildTrackerOptionsButtons()
+	-- Options.optionsButtons = {} -- TODO: Might use this function to just rebuild buttons each time theme gets updated, unsure yet
+
 	local borderMargin = 5
 	-- Used for the position offests.
 	local optionIndex = 1
@@ -53,9 +69,9 @@ function Options.buildTrackerOptionsButtons()
 					8,
 					8,
 				},
-				backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL },
-				textColor = GraphicConstants.LAYOUTCOLORS.NEUTRAL,
-				optionColor = GraphicConstants.LAYOUTCOLORS.INCREASE,
+				backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
+				textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+				optionColor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
 				optionState = value,
 				-- TODO: Need a better way to internally update the optionState member rather than depending on the caller to save it...
 				onClick = function() -- return the updated value to be saved into this button's optionState value

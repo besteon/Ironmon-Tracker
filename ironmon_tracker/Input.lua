@@ -156,6 +156,13 @@ function Input.check(xmouse, ymouse)
 			Options.updated = true
 		end
 
+		-- Settings Customize button
+		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
+			-- Navigate to the Theme Customization menu
+			Theme.redraw = true
+			Program.state = State.THEME
+		end
+
 		-- Settings close button
 		if Input.isInRange(xmouse, ymouse, Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4]) then
 			-- Save the Settings.ini file if any changes were made
@@ -165,6 +172,49 @@ function Input.check(xmouse, ymouse)
 			end
 			Tracker.redraw = true
 			Program.state = State.TRACKER
+		end
+	elseif Program.state == State.THEME then
+		-- TODO: this is broken for color picker buttons
+		-- Theme buttons color picker squares
+		for _, value in pairs(Theme.themeButtons) do
+			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
+				print("old: " .. value.themeColor)
+				value.themeColor = value.onClick()
+				print("new: " .. value.themeColor)
+				Theme.redraw = true
+			end
+		end
+
+		-- TODO: import feature doesn't fire, gettext is nil?
+		-- Import theme
+		if Input.isInRange(xmouse, ymouse, Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.importThemeButton.box[3] * 2), Theme.importThemeButton.box[4]) then
+			local themeForm = forms.newform(490, 70, "Enter a Theme configuration string to import:", function() return end)
+			local textBox = forms.textbox(themeForm, "[Ctrl+V to Paste here]", 400, 20, 5, 5)
+			forms.button(themeForm, "Import", function()
+				local formInput = forms.gettext(textBox)
+				if formInput ~= nil then
+					Theme.importThemeFromText(formInput)
+				end
+				forms.destroy(themeForm)
+			end, 400, 5)
+		end
+
+		-- TODO: opens the import prompt
+		-- Export theme
+		if Input.isInRange(xmouse, ymouse, Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.exportThemeButton.box[3] * 2), Theme.exportThemeButton.box[4]) then
+			local themeForm = forms.newform(490, 70, "Copy (Ctrl+C) your Theme configuration below:", function() return end)
+			local textBox = forms.textbox(themeForm, Theme.exportThemeToText(), 400, 20, 5, 5)
+		end
+		
+		-- Theme close button takes you back to the Options menu
+		if Input.isInRange(xmouse, ymouse, Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4]) then
+			-- Save the Settings.ini file if any changes were made
+			if Theme.updated then
+				INI.save("Settings.ini", Settings)
+				Theme.updated = false
+			end
+			Options.redraw = true
+			Program.state = State.SETTINGS
 		end
 	end
 end
