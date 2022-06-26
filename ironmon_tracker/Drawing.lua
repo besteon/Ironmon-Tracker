@@ -543,10 +543,10 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		if moves[moveIndex].name == "Hidden Power" and not monIsEnemy then
 			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
 			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
-			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, HiddenPowerButton.textcolor, boxBotShadow)
+			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, HiddenPowerButton.textcolor, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT), boxBotShadow)
 		else
-			-- TODO: put the move colors back
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxBotShadow)
+			-- TODO: put the move colors back DONE??)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, moveColors[moveIndex], GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT), boxBotShadow)
 			-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], moveColors[moveIndex], boxBotShadow)
 		end
 	end
@@ -605,7 +605,6 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
-	-- Drawing.drawButtons()
 	Drawing.drawInputOverlay()
 
 	-- draw badge/note box
@@ -651,6 +650,9 @@ function Drawing.truncateRomsFolder(folder)
 end
 
 function Drawing.drawSettings()
+	-- Fill background and margins
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
+
 	local borderMargin = 5
 	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
 	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
@@ -675,7 +677,6 @@ function Drawing.drawSettings()
 	-- Customize button
 	gui.drawRectangle(Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4], Options.themeButton.backgroundColor[1], Options.themeButton.backgroundColor[2])
 	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, Options.themeButton.textColor, boxSettingsShadow)
-	
 
 	-- Draw toggleable settings
 	for _, button in pairs(Options.optionsButtons) do
@@ -690,6 +691,9 @@ function Drawing.drawSettings()
 end
 
 function Drawing.drawThemeMenu()
+	-- Fill background and margins
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR, GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR)
+	
 	local borderMargin = 5
 	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
 	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
@@ -708,14 +712,24 @@ function Drawing.drawThemeMenu()
 
 	-- Draw each theme element and its color picker
 	for _, button in pairs(Theme.themeButtons) do
-		--gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
-		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, button.textColor, boxThemeShadow)
-		-- fill in the box with the current defined color
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 2, button.text, button.textColor, boxThemeShadow)
 		if button.themeColor ~= nil then
-			gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], 0xFF000000, tonumber(button.themeColor, 16) + 0xFF000000) -- use a black border
+			-- fill in the box with the current defined color
+			gui.drawEllipse(button.box[1], button.box[2], button.box[3], button.box[4], 0xFF000000, button.themeColor) -- black border
+		else
+			gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
+			-- Draw a mark if the feature is on
+			if GraphicConstants[button.themeKey] then
+				gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], button.optionColor)
+				gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], button.optionColor)
+			end
 		end
 	end
 
+	-- Draw Restore Defaults button
+	gui.drawRectangle(Theme.restoreDefaultsButton.box[1], Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.box[3], Theme.restoreDefaultsButton.box[4], Theme.restoreDefaultsButton.backgroundColor[1], Theme.restoreDefaultsButton.backgroundColor[2])
+	Drawing.drawText(Theme.restoreDefaultsButton.box[1] + 3, Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.text, Theme.restoreDefaultsButton.textColor, boxThemeShadow)
+	
 	-- Draw Close button
 	gui.drawRectangle(Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4], Theme.closeButton.backgroundColor[1], Theme.closeButton.backgroundColor[2])
 	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, Theme.closeButton.textColor, boxThemeShadow)

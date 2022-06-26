@@ -57,7 +57,7 @@ function Main.Run()
 	print("Loading...")
 
 	Options.buildTrackerOptionsButtons()
-	Theme.buildTrackerThemeButtons()
+	Theme.loadTheme()
 	GameSettings.initialize()
 
 	if GameSettings.game == 0 then

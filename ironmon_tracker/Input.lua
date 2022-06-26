@@ -178,39 +178,48 @@ function Input.check(xmouse, ymouse)
 		-- Theme buttons color picker squares
 		for _, value in pairs(Theme.themeButtons) do
 			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
-				print("old: " .. value.themeColor)
-				value.themeColor = value.onClick()
-				print("new: " .. value.themeColor)
+				value.onClick()
 				Theme.redraw = true
 			end
 		end
 
 		-- TODO: import feature doesn't fire, gettext is nil?
 		-- Import theme
-		if Input.isInRange(xmouse, ymouse, Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.importThemeButton.box[3] * 2), Theme.importThemeButton.box[4]) then
-			local themeForm = forms.newform(490, 70, "Enter a Theme configuration string to import:", function() return end)
-			local textBox = forms.textbox(themeForm, "[Ctrl+V to Paste here]", 400, 20, 5, 5)
-			forms.button(themeForm, "Import", function()
-				local formInput = forms.gettext(textBox)
+		if Input.isInRange(xmouse, ymouse, Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], Theme.importThemeButton.box[3], Theme.importThemeButton.box[4]) then
+			local themeImportForm = forms.newform(490, 70, "Enter a Theme configuration string to import:", function() return end)
+			local themeImportTextBox = forms.textbox(themeImportForm, "[Ctrl+V to Paste here]", 400, 20, 5, 5)
+			forms.button(themeImportForm, "Import", function()
+				local formInput = forms.gettext(themeImportTextBox)
 				if formInput ~= nil then
-					Theme.importThemeFromText(formInput)
+					-- Check if the import was successful
+					if not Theme.importThemeFromText(formInput) then
+						print("Error import Theme Config string:")
+						print(">> " .. formInput)
+					end
 				end
-				forms.destroy(themeForm)
+				forms.destroy(themeImportForm)
 			end, 400, 5)
 		end
 
 		-- TODO: opens the import prompt
 		-- Export theme
-		if Input.isInRange(xmouse, ymouse, Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.exportThemeButton.box[3] * 2), Theme.exportThemeButton.box[4]) then
-			local themeForm = forms.newform(490, 70, "Copy (Ctrl+C) your Theme configuration below:", function() return end)
-			local textBox = forms.textbox(themeForm, Theme.exportThemeToText(), 400, 20, 5, 5)
+		if Input.isInRange(xmouse, ymouse, Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], Theme.exportThemeButton.box[3], Theme.exportThemeButton.box[4]) then
+			local themeExportForm = forms.newform(470, 70, "Copy (Ctrl+C) your Theme configuration below:", function() return end)
+			forms.textbox(themeExportForm, Theme.exportThemeToText(), 430, 20, 5, 5)
+		end
+
+		-- Theme Restore Defaults button
+		if Input.isInRange(xmouse, ymouse, Theme.restoreDefaultsButton.box[1], Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.box[3], Theme.restoreDefaultsButton.box[4]) then
+			-- Should prompt confirmation here by changing the text of the button to draw "Are you sure?"
+			-- A follow through click would be required to execute this function
+			Theme.restoreDefaultTheme()
 		end
 		
 		-- Theme close button takes you back to the Options menu
 		if Input.isInRange(xmouse, ymouse, Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4]) then
 			-- Save the Settings.ini file if any changes were made
 			if Theme.updated then
-				INI.save("Settings.ini", Settings)
+				-- INI.save("Settings.ini", Settings) -- TODO: only enable when settings are clean and dont wipe your settings.ini file
 				Theme.updated = false
 			end
 			Options.redraw = true

@@ -51,8 +51,6 @@ Options.optionsButtons = {}
 
 --[[]]
 function Options.buildTrackerOptionsButtons()
-	-- Options.optionsButtons = {} -- TODO: Might use this function to just rebuild buttons each time theme gets updated, unsure yet
-
 	local borderMargin = 5
 	-- Used for the position offests.
 	local optionIndex = 1
