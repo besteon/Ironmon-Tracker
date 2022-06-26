@@ -614,7 +614,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	if note == '' then
 		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
 	else
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note, boxBotShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note, GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT, boxBotShadow)
 		--work around limitation of drawText not having width limit: paint over any spillover
 		local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
 		local y = 141
@@ -704,18 +704,22 @@ function Drawing.drawThemeMenu()
 	-- Draw Theme menu view box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL)
 
-	-- Draw Import & Export buttons
+	-- Draw Import, Export, Presets buttons
 	gui.drawRectangle(Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], Theme.importThemeButton.box[3], Theme.importThemeButton.box[4], Theme.importThemeButton.backgroundColor[1], Theme.importThemeButton.backgroundColor[2])
 	Drawing.drawText(Theme.importThemeButton.box[1] + 3, Theme.importThemeButton.box[2], Theme.importThemeButton.text, Theme.importThemeButton.textColor, boxThemeShadow)
 	gui.drawRectangle(Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], Theme.exportThemeButton.box[3], Theme.exportThemeButton.box[4], Theme.exportThemeButton.backgroundColor[1], Theme.exportThemeButton.backgroundColor[2])
 	Drawing.drawText(Theme.exportThemeButton.box[1] + 3, Theme.exportThemeButton.box[2], Theme.exportThemeButton.text, Theme.exportThemeButton.textColor, boxThemeShadow)
+	gui.drawRectangle(Theme.presetsButton.box[1], Theme.presetsButton.box[2], Theme.presetsButton.box[3], Theme.presetsButton.box[4], Theme.presetsButton.backgroundColor[1], Theme.presetsButton.backgroundColor[2])
+	Drawing.drawText(Theme.presetsButton.box[1] + 3, Theme.presetsButton.box[2], Theme.presetsButton.text, Theme.presetsButton.textColor, boxThemeShadow)
 
 	-- Draw each theme element and its color picker
 	for _, button in pairs(Theme.themeButtons) do
-		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 2, button.text, button.textColor, boxThemeShadow)
 		if button.themeColor ~= nil then
 			-- fill in the box with the current defined color
 			gui.drawEllipse(button.box[1], button.box[2], button.box[3], button.box[4], 0xFF000000, button.themeColor) -- black border
+			-- Draw the hex code to the side 
+			Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 2, string.upper(string.sub(string.format("%#x", button.themeColor), 5)), button.textColor, boxThemeShadow)
+			Drawing.drawText(button.box[1] + button.box[3] + 1 + 35, button.box[2] - 2, "~   " .. button.text, button.textColor, boxThemeShadow)
 		else
 			gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], button.backgroundColor[1], button.backgroundColor[2])
 			-- Draw a mark if the feature is on
@@ -723,6 +727,7 @@ function Drawing.drawThemeMenu()
 				gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], button.optionColor)
 				gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], button.optionColor)
 			end
+			Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 2, button.text, button.textColor, boxThemeShadow)
 		end
 	end
 

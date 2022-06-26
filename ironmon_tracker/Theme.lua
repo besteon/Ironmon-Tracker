@@ -6,14 +6,23 @@ Theme.redraw = true
 -- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
 Theme.updated = false
 
+-- Sample Themes: https://colorhunt.co/palettes/popular
+Theme.Presets = {
+    PresetNames = {
+        "Default",
+        "Cotton Candy",
+        "Spaceship",
+    },
+    PresetConfigStrings = {
+        ["Default"] = "000000 AAAAAA 222222 AAAAAA 222222 FFFFFF FFFFFF 00FF00 FFC20A FF0000 1",
+        ["Cotton Candy"] = "5D3A9B D35FB7 FFCBF3 1A85FF A0D3FF 000000 C0C0C0 1A85FF 994F00 D41159 0",
+        ["Spaceship"] = "222831 00ADB5 393E46 00ADB5 393E46 EEEEEE EEEEEE 00ADB5 7F8487 F73D93 1",
+    }
+}
+
 Theme.importThemeButton = {
 	text = "Import",
-	box = {
-		GraphicConstants.SCREEN_WIDTH + 10,
-		8,
-		34,
-		11,
-	},
+	box = {GraphicConstants.SCREEN_WIDTH + 10, 8, 34, 11},
     backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL },
 	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 	-- onClick = function(): currently handled in the Input object
@@ -21,15 +30,18 @@ Theme.importThemeButton = {
 
 Theme.exportThemeButton = {
 	text = "Export",
-	box = {
-		GraphicConstants.SCREEN_WIDTH + 10 + 30 + 10,
-		8,
-		34,
-		11,
-	},
+	box = {GraphicConstants.SCREEN_WIDTH + 57, 8, 33, 11},
     backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL },
 	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
 	-- onClick = function(): currently handled in the Input object
+}
+
+Theme.presetsButton = {
+	text = "Presets",
+	box = {GraphicConstants.SCREEN_WIDTH + 103, 8, 37, 11},
+    backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL },
+	textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+	onClick = function() Theme.openPresetsPrompt() end
 }
 
 -- A button to navigate to the Theme menu for customizing the Tracker's look and feel
@@ -65,87 +77,87 @@ Theme.closeButton = {
 Theme.themeButtons = {
 	{ -- BACKGROUND_COLOR button
         text = "Main background",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 25, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 25, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "BACKGROUND_COLOR",
         themeColor = GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR,
-        onClick = function() Theme.updateThemeColor("BACKGROUND_COLOR", "Main background") end
-	},
-	{ -- BOX_TOP_FILL button
-        text = "Upper-box fill",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 35, 8, 8},
-        textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-        themeKey = "BOX_TOP_FILL",
-        themeColor = GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL,
-        onClick = function() Theme.updateThemeColor("BOX_TOP_FILL", "Upper-box fill") end
+        onClick = function() Theme.requestNewColorFromUser("BACKGROUND_COLOR", "Main background", GraphicConstants.LAYOUTCOLORS.BACKGROUND_COLOR) end
 	},
 	{ -- BOX_TOP_BORDER button
         text = "Upper-box border",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 45, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 35, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "BOX_TOP_BORDER",
         themeColor = GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER,
-        onClick = function() Theme.updateThemeColor("BOX_TOP_BORDER", "Upper-box border") end
+        onClick = function() Theme.requestNewColorFromUser("BOX_TOP_BORDER", "Upper-box border", GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER) end
 	},
-	{ -- BOX_BOTTOM_FILL button
-        text = "Lower-box fill",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 55, 8, 8},
+	{ -- BOX_TOP_FILL button
+        text = "Upper-box fill",
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 45, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-        themeKey = "BOX_BOTTOM_FILL",
-        themeColor = GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL,
-        onClick = function() Theme.updateThemeColor("BOX_BOTTOM_FILL", "Lower-box fill") end
+        themeKey = "BOX_TOP_FILL",
+        themeColor = GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL,
+        onClick = function() Theme.requestNewColorFromUser("BOX_TOP_FILL", "Upper-box fill", GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL) end
 	},
 	{ -- BOX_BOTTOM_BORDER button
         text = "Lower-box border",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 65, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 55, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "BOX_BOTTOM_BORDER",
         themeColor = GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER,
-        onClick = function() Theme.updateThemeColor("BOX_BOTTOM_BORDER", "Lower-box border") end
+        onClick = function() Theme.requestNewColorFromUser("BOX_BOTTOM_BORDER", "Lower-box border", GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER) end
+	},
+	{ -- BOX_BOTTOM_FILL button
+        text = "Lower-box fill",
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 65, 8, 8},
+        textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+        themeKey = "BOX_BOTTOM_FILL",
+        themeColor = GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL,
+        onClick = function() Theme.requestNewColorFromUser("BOX_BOTTOM_FILL", "Lower-box fill", GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL) end
 	},
 	{ -- TEXT_DEFAULT button
         text = "Default text",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 75, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 75, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "TEXT_DEFAULT",
         themeColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-        onClick = function() Theme.updateThemeColor("TEXT_DEFAULT", "Default text") end
+        onClick = function() Theme.requestNewColorFromUser("TEXT_DEFAULT", "Default text", GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT) end
 	},
 	{ -- TEXT_HEADER button
         text = "Header text",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 85, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 85, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "TEXT_HEADER",
         themeColor = GraphicConstants.LAYOUTCOLORS.TEXT_HEADER,
-        onClick = function() Theme.updateThemeColor("TEXT_HEADER", "Header text") end
+        onClick = function() Theme.requestNewColorFromUser("TEXT_HEADER", "Header text", GraphicConstants.LAYOUTCOLORS.TEXT_HEADER) end
 	},
 	{ -- TEXT_POSITIVE button
         text = "Positive text",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 95, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 95, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "TEXT_POSITIVE",
         themeColor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
-        onClick = function() Theme.updateThemeColor("TEXT_POSITIVE", "Positive text") end
+        onClick = function() Theme.requestNewColorFromUser("TEXT_POSITIVE", "Positive text", GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE) end
 	},
 	{ -- TEXT_MIDDLE_VALUE button
         text = "Neutral text",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 105, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 105, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "TEXT_MIDDLE_VALUE",
         themeColor = GraphicConstants.LAYOUTCOLORS.TEXT_MIDDLE_VALUE,
-        onClick = function() Theme.updateThemeColor("TEXT_MIDDLE_VALUE", "Neutral text") end
+        onClick = function() Theme.requestNewColorFromUser("TEXT_MIDDLE_VALUE", "Neutral text", GraphicConstants.LAYOUTCOLORS.TEXT_MIDDLE_VALUE) end
 	},
 	{ -- TEXT_NEGATIVE button
         text = "Negative text",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 115, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 115, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "TEXT_NEGATIVE",
         themeColor = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
-        onClick = function() Theme.updateThemeColor("TEXT_NEGATIVE", "Negative text") end
+        onClick = function() Theme.requestNewColorFromUser("TEXT_NEGATIVE", "Negative text", GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE) end
 	},
 	{ -- MOVE_TYPES_ENABLED button
         text = "Enable move-type colors",
-        box = {GraphicConstants.SCREEN_WIDTH + 5 + 3, 125, 8, 8},
+        box = {GraphicConstants.SCREEN_WIDTH + 10, 125, 8, 8},
         textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
         themeKey = "MOVE_TYPES_ENABLED",
         backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOT_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOT_FILL },
@@ -153,6 +165,7 @@ Theme.themeButtons = {
         onClick = function()
             Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(Settings.theme["MOVE_TYPES_ENABLED"], false, true) -- toggle the setting
             GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+            Theme.redraw = true
             Theme.updated = true
             return Settings.theme["MOVE_TYPES_ENABLED"]
         end
@@ -170,7 +183,7 @@ function Theme.loadTheme()
         end
     end
 
-    -- Apply the theme to the buttons on the Tracker
+    -- Tracker Screen: Apply the theme to the buttons on the Tracker
     for i = 1, 6, 1 do
         Buttons[i].backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL }
 		Buttons[i].textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
@@ -181,18 +194,19 @@ function Theme.loadTheme()
     Buttons[9].textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
     Buttons[10].textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE
 
-    -- Apply the theme to the buttons in the Options Menu
+    -- Options Screen: Apply the theme to the buttons in the Options Menu
     for _, button in pairs(Options.optionsButtons) do
         button.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL }
         button.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
         button.optionColor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
     end
+    Options.romsFolderOption.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
     Options.closeButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL }
 	Options.closeButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
     Options.themeButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL }
 	Options.themeButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
 
-    -- Apply the theme to the buttons in the Theme menu
+    -- Theme Screen: Apply the theme to the buttons in the Theme menu
     for _, button in pairs(Theme.themeButtons) do
         if button.themeKey == "MOVE_TYPES_ENABLED" then
             button.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL }
@@ -207,50 +221,14 @@ function Theme.loadTheme()
 	Theme.importThemeButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
     Theme.exportThemeButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL }
 	Theme.exportThemeButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
+    Theme.presetsButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL }
+	Theme.presetsButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
     Theme.restoreDefaultsButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL }
 	Theme.restoreDefaultsButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
     Theme.closeButton.backgroundColor = { GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_BOTTOM_FILL }
 	Theme.closeButton.textColor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT
 
     Theme.redraw = true
-end
-
-function Theme.updateThemeColor(key, element_label, color_text)
-    local newThemeColor = Theme.requestNewColorFromUser(element_label)
-
-    if newThemeColor ~= nil then
-        -- Save the new theme element color both to the Settings.ini and to the current graphic contants used to draw the Tracker
-        print("Color picked: " .. key .. ": " .. newThemeColor)
-        Settings.theme[key] = newThemeColor
-        GraphicConstants.LAYOUTCOLORS[key] = tonumber(newThemeColor, 16) + 0xFF000000
-    end
-    Theme.updated = true
-
-    return newThemeColor -- is this needed?
-end
-
--- TODO: This doesnt appear to work either.
-function Theme.requestNewColorFromUser(element_label, color_text)
-    local themeColor = nil
-
-    local colorForm = forms.newform(290, 120, "Enter a new color...", function() return nil end)
-    forms.label(colorForm, element_label, 5, 5)
-    local textBox = forms.textbox(colorForm, color_text, 75, 35, "HEX", 5, 5)
-    forms.button(colorForm, "Save", function()
-        local colorFormText = forms.gettext(textBox)
-        if colorFormText ~= nil then
-            -- only parse the last 6 characters of the string, if less then just return nil
-            local len = string.len(colorFormText)
-            if len >= 6 then
-                themeColor = string.sub(colorFormText, len - 5)
-            end
-        end
-        forms.destroy(colorForm)
-    end, 110, 20)
-
-    print(Utils.inlineIf(themeColor ~= nil, themeColor, "Empty-Hex"))
-
-    return themeColor
 end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
@@ -320,10 +298,10 @@ function Theme.restoreDefaultTheme()
     Settings.theme["MOVE_TYPES_ENABLED"] = true
 
     Settings.theme["BACKGROUND_COLOR"] = "000000"
-    Settings.theme["BOX_TOP_FILL"] = "222222"
     Settings.theme["BOX_TOP_BORDER"] = "AAAAAA"
-    Settings.theme["BOX_BOTTOM_FILL"] = "222222"
+    Settings.theme["BOX_TOP_FILL"] = "222222"
     Settings.theme["BOX_BOTTOM_BORDER"] = "AAAAAA"
+    Settings.theme["BOX_BOTTOM_FILL"] = "222222"
 
     Settings.theme["TEXT_DEFAULT"] = "FFFFFF"
     Settings.theme["TEXT_HEADER"] = "FFFFFF"
@@ -333,4 +311,37 @@ function Theme.restoreDefaultTheme()
 
     Theme.updated = true
     Theme.loadTheme()
+end
+
+function Theme.requestNewColorFromUser(theme_key, element_label, color)
+    local colorForm = forms.newform(290, 100, "Enter a new color...", function() return nil end)
+    forms.label(colorForm, element_label .. " color:", 5, 5)
+    local textBox = forms.textbox(colorForm, string.sub(string.format("%#x", color), 5), 60, 35, "HEX", 5, 30)
+
+    forms.button(colorForm, "Save", function()
+        local textValue = forms.gettext(textBox)
+        if theme_key == nil or textValue == nil then
+            print("Unable to set color. Either element or color is nil.")
+            return
+        end
+    
+        Settings.theme[theme_key] = textValue
+        Theme.updated = true
+        Theme.loadTheme()
+        forms.destroy(colorForm)
+    end, 100, 30)
+end
+
+function Theme.openPresetsPrompt()
+    local presetsForm = forms.newform(350, 100, "Choose a preset...", function() return nil end)
+    forms.label(presetsForm, "Select a theme preset to use:", 5, 5)
+    local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 5, 30, 160, 30)
+    forms.setdropdownitems(presetDropdown, Theme.Presets.PresetNames, false) -- Required to prevent alphabetizing the list
+
+    forms.button(presetsForm, "Load", function()
+        Theme.importThemeFromText(Theme.Presets.PresetConfigStrings[forms.gettext(presetDropdown)])
+        Theme.updated = true
+        Theme.loadTheme()
+        forms.destroy(presetsForm)
+    end, 185, 30)
 end
