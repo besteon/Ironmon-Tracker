@@ -174,58 +174,33 @@ function Input.check(xmouse, ymouse)
 			Program.state = State.TRACKER
 		end
 	elseif Program.state == State.THEME then
-		-- Theme color picker buttons
-		for _, value in pairs(Theme.themeButtons) do
-			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
-				value.onClick()
-			end
-		end
-
-		-- Theme Import button
+		-- Check for input on 'Import', 'Export', and 'Presets' buttons
 		if Input.isInRange(xmouse, ymouse, Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], Theme.importThemeButton.box[3], Theme.importThemeButton.box[4]) then
-			local themeImportForm = forms.newform(490, 70, "Enter a Theme configuration string to import:", function() return end)
-			local themeImportTextBox = forms.textbox(themeImportForm, "[Ctrl+V to Paste here]", 400, 20, 5, 5)
-			forms.button(themeImportForm, "Import", function()
-				local formInput = forms.gettext(themeImportTextBox)
-				if formInput ~= nil then
-					-- Check if the import was successful
-					if not Theme.importThemeFromText(formInput) then
-						print("Error importing Theme Config string:")
-						print(">> " .. formInput)
-					end
-				end
-				forms.destroy(themeImportForm)
-			end, 400, 5)
+			Theme.importThemeButton.onClick()
 		end
-
-		-- Theme Export button
 		if Input.isInRange(xmouse, ymouse, Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], Theme.exportThemeButton.box[3], Theme.exportThemeButton.box[4]) then
-			local themeExportForm = forms.newform(470, 70, "Copy (Ctrl+C) your Theme configuration below:", function() return end)
-			forms.textbox(themeExportForm, Theme.exportThemeToText(), 430, 20, 5, 5)
+			Theme.exportThemeButton.onClick()
 		end
-
-		-- Theme Presets button
 		if Input.isInRange(xmouse, ymouse, Theme.presetsButton.box[1], Theme.presetsButton.box[2], Theme.presetsButton.box[3], Theme.presetsButton.box[4]) then
 			Theme.presetsButton.onClick()
 		end
 
-		-- Theme Restore Defaults button
-		if Input.isInRange(xmouse, ymouse, Theme.restoreDefaultsButton.box[1], Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.box[3], Theme.restoreDefaultsButton.box[4]) then
-			-- Should prompt confirmation here by changing the text of the button to draw "Are you sure?"
-			-- A follow through click would be required to execute this function
-			Theme.restoreDefaultTheme()
-		end
-		
-		-- Theme close button takes you back to the Options menu
-		if Input.isInRange(xmouse, ymouse, Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4]) then
-			-- Save the Settings.ini file if any changes were made
-			if Theme.updated then
-				print("Saving Theme configuration to Settings.ini, this takes a few seconds.")
-				INI.save("Settings.ini", Settings)
-				Theme.updated = false
+		-- Check for input on any of the theme config buttons
+		for _, button in pairs(Theme.themeButtons) do
+			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], GraphicConstants.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
+				button.onClick()
 			end
-			Options.redraw = true
-			Program.state = State.SETTINGS
+		end
+		if Input.isInRange(xmouse, ymouse, Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.moveTypeEnableButton.box[3] * 2), Theme.moveTypeEnableButton.box[4]) then
+			Theme.moveTypeEnableButton.onClick()
+		end
+
+		-- Check for input on 'Restore Defaults' and 'Close' buttons
+		if Input.isInRange(xmouse, ymouse, Theme.restoreDefaultsButton.box[1], Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.box[3], Theme.restoreDefaultsButton.box[4]) then
+			Theme.restoreDefaultsButton.onClick()
+		end
+		if Input.isInRange(xmouse, ymouse, Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4]) then
+			Theme.closeButton.onClick()
 		end
 	end
 end

@@ -4,6 +4,8 @@ GraphicConstants = {
 	RIGHT_GAP = 150,
 	SCREEN_HEIGHT = 160,
 	SCREEN_WIDTH = 240,
+	HIGHLIGHTED = 0xFFFFC20A,
+	MOVE_TYPES_ENABLED = true,
 
 	TYPECOLORS = {
 		normal = 0xFFA8A878,
@@ -27,23 +29,30 @@ GraphicConstants = {
 		unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 	},
 
-	-- 'Default' Theme, but gets replaced by what's in Settings.ini
-	LAYOUTCOLORS = {
-		BACKGROUND_COLOR = 0xFF000000,
-
-		BOX_TOP_BORDER = 0xFFAAAAAA,
-		BOX_TOP_FILL = 0xFF222222,
-		BOX_BOTTOM_BORDER = 0xFFAAAAAA,
-		BOX_BOTTOM_FILL = 0xFF222222,
-
-		TEXT_DEFAULT = 0xFFFFFFFF,
-		TEXT_HEADER = 0xFFFFFFFF,
-		TEXT_POSITIVE = 0xFF00FF00,
-		TEXT_MIDDLE_VALUE = 0xFFFFC20A,
-		TEXT_NEGATIVE = 0xFFFF0000,
-
-		INPUT_HIGHLIGHT = 0xFFFFC20A,
+	-- 'Default' Theme, but will get replaced by what's in Settings.ini
+	THEMECOLORS = {
+		["Default text"] = 0xFFFFFFFF,
+		["Positive text"] = 0xFF00FF00,
+		["Negative text"] = 0xFFFF0000,
+		["Intermediate text"] = 0xFFFFC20A,
+		["Header text"] = 0xFFFFFFFF,
+		["Upper box border"] = 0xFFAAAAAA,
+		["Upper box background"] = 0xFF222222,
+		["Lower box border"] = 0xFFAAAAAA,
+		["Lower box background"] = 0xFF222222,
+		["Main background"] = 0xFF000000,
 	},
 
-	MOVE_TYPES_ENABLED = true,
+	THEMECOLORS_ORDERED = {
+		"Default text",
+		"Positive text",
+		"Negative text",
+		"Intermediate text",
+		"Header text",
+		"Upper box border",
+		"Upper box background",
+		"Lower box border",
+		"Lower box background",
+		"Main background",
+	},
 }

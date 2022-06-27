@@ -56,7 +56,13 @@ function Main.Run()
 	end
 	print("Loading...")
 
+	if Settings.tracker == nil then
+		print("Unable to load Settings.ini file. Either fix the error or replace with fresh file.")
+		return
+	end
+
 	Options.buildTrackerOptionsButtons()
+	Theme.buildTrackerThemeButtons()
 	Theme.loadTheme()
 	GameSettings.initialize()
 

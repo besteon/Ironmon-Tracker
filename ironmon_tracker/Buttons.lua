@@ -18,9 +18,9 @@ StatButtonStates = {
 }
 
 StatButtonColors = {
-	GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-	GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
-	GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
+	"Default text",
+	"Negative text",
+	"Positive text"
 }
 
 local buttonXOffset = 129
@@ -31,13 +31,8 @@ HiddenPowerButton = {
 	type = ButtonType.singleButton,
 	visible = function() return Tracker.Data.selectedPlayer == 1 and Utils.playerHasMove("Hidden Power") end,
 	text = "Hidden Power",
-	box = {
-		0,
-		0,
-		65,
-		10
-	},
 	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
+	box = { 0, 0, 65, 10 },
 	onclick = function()
 		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
 		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
@@ -50,15 +45,10 @@ PCHealTrackingButton = {
 	type = ButtonType.singleButton,
 	visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
 	text = "",
-	box = {
-		GraphicConstants.SCREEN_WIDTH + 89,
-		68,
-		8,
-		8
-	},
-	backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-	textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-	togglecolor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
+	textcolor = "Default text",
+	box = { GraphicConstants.SCREEN_WIDTH + 89, 68, 8, 8 },
+	boxColors = { "Upper box border", "Upper box background" },
+	togglecolor = "Positive text",
 	onclick = function() 
 		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState 
 	end
@@ -69,14 +59,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			9,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 9, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 			Buttons[1].text = StatButtonStates[Program.StatButtonState.hp]
@@ -88,14 +73,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			19,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 19, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
 			Buttons[2].text = StatButtonStates[Program.StatButtonState.att]
@@ -107,14 +87,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			29,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 29, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 			Buttons[3].text = StatButtonStates[Program.StatButtonState.def]
@@ -126,14 +101,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			39,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 39, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 			Buttons[4].text = StatButtonStates[Program.StatButtonState.spa]
@@ -145,14 +115,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			49,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 49, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 			Buttons[5].text = StatButtonStates[Program.StatButtonState.spd]
@@ -164,14 +129,9 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
 		text = "",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + buttonXOffset,
-			59,
-			8,
-			8
-		},
-		backgroundcolor = { GraphicConstants.LAYOUTCOLORS.BOX_TOP_BORDER, GraphicConstants.LAYOUTCOLORS.BOX_TOP_FILL },
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
+		textcolor = "Default text",
+		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 59, 8, 8 },
+		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 			Buttons[6].text = StatButtonStates[Program.StatButtonState.spe]
@@ -185,13 +145,8 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
 		text = "+",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + 67,
-			68,
-			8,
-			4
-		},
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE,
+		textcolor = "Positive text",
+		box = { GraphicConstants.SCREEN_WIDTH + 67, 68, 8, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -202,13 +157,8 @@ Buttons = {
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
 		text = "--",
-		box = {
-			GraphicConstants.SCREEN_WIDTH + 67,
-			74,
-			7,
-			4
-		},
-		textcolor = GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
+		textcolor = "Negative text",
+		box = { GraphicConstants.SCREEN_WIDTH + 67, 74, 7, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
@@ -216,12 +166,3 @@ Buttons = {
 		end
 	}
 }
-
--- TODO: Potionally need to reassign the GraphicConstant colors to all the buttons each time the theme gets updated
-function Buttons.refreshTheme()
-	-- StatButtonColors = {
-	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_DEFAULT,
-	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_NEGATIVE,
-	-- 	GraphicConstants.LAYOUTCOLORS.TEXT_POSITIVE
-	-- }
-end
