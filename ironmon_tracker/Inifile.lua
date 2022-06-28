@@ -81,7 +81,7 @@ function inifile.parse(name, backend)
 
 		-- Key-value pairs
 		local key, value = line:match("^([%w_]+)%s-=%s-(.+)$")
-		if tonumber(value) then value = tonumber(value) end
+		-- if tonumber(value) then value = tonumber(value) end -- We don't use numbers yet and this is breaking the color hex codes.
 		if value == "true" then value = true end
 		if value == "false" then value = false end
 		if key and value ~= nil then
