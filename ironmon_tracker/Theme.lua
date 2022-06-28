@@ -9,6 +9,8 @@ Theme.updated = false
 Theme.Presets = {
     PresetNames = {
         "Default Theme",
+        "Fire Red",
+        "Leaf Green",
         "Beach Getaway",
         "Blue Da Ba Dee",
         "Calico Cat",
@@ -18,6 +20,8 @@ Theme.Presets = {
     -- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
     PresetConfigStrings = {
         ["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+        ["Fire Red"] = "FFFFFF 55CB6B 62C7FE FEFA69 FEFA69 FF1920 81000E FF1920 81000E 58050D 0",
+        ["Leaf Green"] = "FFFFFF 62C7FE FE7573 FEFA69 FEFA69 55CB6B 006200 55CB6B 006200 053A04 0",
         ["Beach Getaway"] = "222222 5463FF E78EA9 A581E6 444444 E78EA9 B9F8D3 E78EA9 FFFBE7 40DFEF 0",
         ["Blue Da Ba Dee"] = "FFFFFF 2EB5FF E04DBA FEFA69 55CB6B 198BFF 004881 198BFF 004881 072557 1",
         ["Calico Cat"] = "4A3432 E07E3D 8A9298 E07E3D FCFCF0 8A9298 FCFCF0 E07E3D FBCA8C 0F0601 0",
@@ -111,7 +115,6 @@ end
 
 -- Loads the theme defined in Settings into the Tracker's contants
 function Theme.loadTheme()
-    -- Load the Theme as defined in the Settings
     for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
         GraphicConstants.THEMECOLORS[colorkey] = tonumber(Settings.theme[string.gsub(colorkey, " ", "_")], 16) + 0xFF000000
     end
@@ -146,14 +149,13 @@ function Theme.importThemeFromText(theme_config)
         end
     end
 
-    -- Apply the imported theme config to our Settings, then load it
+    -- Apply as much of the imported theme config to our Settings as possible (must remain compatible with gen4/gen5 Tracker), then load it
     local index = 1
     for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do -- Only use the first 10 hex codes
         Settings.theme[string.gsub(colorkey, " ", "_")] = theme_colors[index]
         index = index + 1
     end
     Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0", false, true)
-    -- Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, 71, 71) == "0", false, true)
 
     Theme.updated = true
     Theme.loadTheme()
@@ -162,11 +164,9 @@ function Theme.importThemeFromText(theme_config)
 end
 
 -- Exports the theme options that can be customized into a string that can be shared and imported
--- Example string (default theme): "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1"
 function Theme.exportThemeToText()
-    local exportedTheme = ""
-
     -- Build base theme config string
+    local exportedTheme = ""
     for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
         -- Format each color code as "AABBCC", instead of "0xAABBCC" or "0xFFAABBCC"
         exportedTheme = exportedTheme .. string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5) .. " "
@@ -254,7 +254,6 @@ function Theme.closeMenuAndSave()
 
     -- Save the Settings.ini file if any changes were made
     if Theme.updated then
-        print("Saving Theme configuration to Settings.ini, this may take a moment.")
         INI.save("Settings.ini", Settings)
         Theme.updated = false
     end

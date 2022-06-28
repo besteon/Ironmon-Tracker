@@ -287,9 +287,17 @@ end
 
 function Program.HandleHealPlayerParty()
 	if Program.PCHealTrackingButtonState and Settings.tracker.SURVIVAL_RULESET then
-		Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+		if Settings.tracker.SURVIVAL_COUNT_DOWN then
+			-- Automatically count down
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		else
+			-- Automatically count up
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+		end		
 	end
-	-- Putting this outside the if so mon hp gets updated on PC heal
+	-- This goes here so mon hp always gets updated on PC heal
 	Tracker.redraw = true
 end
 
@@ -376,6 +384,41 @@ function Program.HandleBattleScriptSynchronizeActivates()
 end
 
 -- END ABILITY EVENT HANDLERS
+
+function Program.obtainBadge(badgeNumber)
+	if badgeNumber >= 1 and badgeNumber <= 8 then
+		Tracker.Data.badges[badgeNumber] = 1 -- Marks badge as obtained
+		Buttons.updateBadges()
+		Tracker.redraw = true
+	else
+		print("Unable to track obtaining badge #" .. badgeNumber)
+	end
+end
+
+function Program.HandleBadgeOneObtained()
+	Program.obtainBadge(1)
+end
+function Program.HandleBadgeTwoObtained()
+	Program.obtainBadge(2)
+end
+function Program.HandleBadgeThreeObtained()
+	Program.obtainBadge(3)
+end
+function Program.HandleBadgeFourObtained()
+	Program.obtainBadge(4)
+end
+function Program.HandleBadgeFiveObtained()
+	Program.obtainBadge(5)
+end
+function Program.HandleBadgeSixObtained()
+	Program.obtainBadge(6)
+end
+function Program.HandleBadgeSevenObtained()
+	Program.obtainBadge(7)
+end
+function Program.HandleBadgeEightObtained()
+	Program.obtainBadge(8)
+end
 
 function Program.HandleExit()
 	Drawing.clearGUI()

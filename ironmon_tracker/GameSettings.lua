@@ -41,6 +41,15 @@ GameSettings = {
 	BattleScriptCuteCharmActivates = 0,
 	BattleScriptSynchronizeActivates = 0,
 
+	ObtainBadgeOne = 0,
+	ObtainBadgeTwo = 0,
+	ObtainBadgeThree = 0,
+	ObtainBadgeFour = 0,
+	ObtainBadgeFive = 0,
+	ObtainBadgeSix = 0,
+	ObtainBadgeSeven = 0,
+	ObtainBadgeEight = 0,
+
 	gSaveBlock1 = 0,
 	gSaveBlock2ptr = 0,
 	bagEncryptionKeyOffset = 0,
@@ -63,6 +72,8 @@ function GameSettings.initialize()
 
 	if gamecode == 0x42504545 then
 		print("Emerald ROM Detected")
+		BadgeButtons.BADGE_GAME_PREFIX = "RSE"
+
 		GameSettings.game = 2
 		GameSettings.gamename = "Pokemon Emerald (U)"
 		GameSettings.version = GameSettings.VERSIONS.E
@@ -104,6 +115,23 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptCuteCharmActivates = 0x082db66f
 		GameSettings.BattleScriptSynchronizeActivates = 0x082db67f
 
+		-- RustboroCity_Gym_EventScript_RoxanneDefeated
+		GameSettings.ObtainBadgeOne = 0x08212f66
+		-- DewfordTown_Gym_EventScript_BrawlyDefeated
+		GameSettings.ObtainBadgeTwo = 0x081fc7f7
+		-- MauvilleCity_Gym_EventScript_WattsonDefeated
+		GameSettings.ObtainBadgeThree = 0x0820df2b
+		-- LavaridgeTown_Gym_1F_EventScript_FlanneryDefeated
+		GameSettings.ObtainBadgeFour = 0x081fe7c1
+		-- PetalburgCity_Gym_Text_NormanDefeat (unsure about this one)
+		GameSettings.ObtainBadgeFive = 0x08206107
+		-- FortreeCity_Gym_EventScript_WinonaDefeated
+		GameSettings.ObtainBadgeSix = 0x082165fd
+		-- MossdeepCity_Gym_EventScript_TateAndLizaDefeated
+		GameSettings.ObtainBadgeSeven = 0x082208d1
+		-- SootopolisCity_Gym_1F_EventScript_JuanDefeated
+		GameSettings.ObtainBadgeEight = 0x08224f82
+
 		GameSettings.gSaveBlock1 = 0x02025a00
 		GameSettings.gSaveBlock2ptr = 0x03005d90
 		GameSettings.bagEncryptionKeyOffset = 0xAC
@@ -113,6 +141,8 @@ function GameSettings.initialize()
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
 		print("Firered v1.1 ROM Detected")
+		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -154,6 +184,23 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d952e
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d953e
 
+		-- PewterCity_Gym_EventScript_DefeatedBrock
+		GameSettings.ObtainBadgeOne = 0x0816a63d
+		-- CeruleanCity_Gym_EventScript_MistyDefeated
+		GameSettings.ObtainBadgeTwo = 0x0816ab4b
+		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
+		GameSettings.ObtainBadgeThree = 0x0816b9f4
+		-- CeladonCity_Gym_EventScript_DefeatedErika
+		GameSettings.ObtainBadgeFour = 0x0816d118
+		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
+		GameSettings.ObtainBadgeFive = 0x0816d5f8
+		-- SaffronCity_Gym_EventScript_DefeatedSabrina
+		GameSettings.ObtainBadgeSix = 0x0816ee82
+		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
+		GameSettings.ObtainBadgeSeven = 0x0816da7e
+		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
+		GameSettings.ObtainBadgeEight = 0x08169f7c
+
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
@@ -163,6 +210,8 @@ function GameSettings.initialize()
 		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
 		print("Firered v1.0 ROM Detected")
+		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -204,6 +253,23 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d94be
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d94ce
 
+		-- PewterCity_Gym_EventScript_DefeatedBrock
+		GameSettings.ObtainBadgeOne = 0x0816a5c5
+		-- CeruleanCity_Gym_EventScript_MistyDefeated
+		GameSettings.ObtainBadgeTwo = 0x0816aad3
+		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
+		GameSettings.ObtainBadgeThree = 0x0816b97c
+		-- CeladonCity_Gym_EventScript_DefeatedErika
+		GameSettings.ObtainBadgeFour = 0x0816d0a0
+		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
+		GameSettings.ObtainBadgeFive = 0x0816d580
+		-- SaffronCity_Gym_EventScript_DefeatedSabrina
+		GameSettings.ObtainBadgeSix = 0x0816ee0a
+		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
+		GameSettings.ObtainBadgeSeven = 0x0816da06
+		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
+		GameSettings.ObtainBadgeEight = 0x08169f04
+
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
@@ -213,6 +279,8 @@ function GameSettings.initialize()
 		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
 		print("Leaf Green v1.1 ROM Detected")
+		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -254,6 +322,23 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d950a
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d951a
 
+		-- PewterCity_Gym_EventScript_DefeatedBrock
+		GameSettings.ObtainBadgeOne = 0x0816a619
+		-- CeruleanCity_Gym_EventScript_MistyDefeated
+		GameSettings.ObtainBadgeTwo = 0x0816ab27
+		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
+		GameSettings.ObtainBadgeThree = 0x0816b9d0
+		-- CeladonCity_Gym_EventScript_DefeatedErika
+		GameSettings.ObtainBadgeFour = 0x0816d0f4
+		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
+		GameSettings.ObtainBadgeFive = 0x0816d5d4
+		-- SaffronCity_Gym_EventScript_DefeatedSabrina
+		GameSettings.ObtainBadgeSix = 0x0816ee5e
+		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
+		GameSettings.ObtainBadgeSeven = 0x0816da5a
+		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
+		GameSettings.ObtainBadgeEight = 0x08169f58
+
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
@@ -263,6 +348,8 @@ function GameSettings.initialize()
 		GameSettings.bagPocket_Berries_Size = 43
 	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
 		print("Leaf Green v1.0 ROM Detected")
+		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -303,6 +390,23 @@ function GameSettings.initialize()
 		GameSettings.BattleScriptRoughSkinActivates = 0x081d947f
 		GameSettings.BattleScriptCuteCharmActivates = 0x081d949a
 		GameSettings.BattleScriptSynchronizeActivates = 0x081d94aa
+
+		-- PewterCity_Gym_EventScript_DefeatedBrock
+		GameSettings.ObtainBadgeOne = 0x0816a5a1
+		-- CeruleanCity_Gym_EventScript_MistyDefeated
+		GameSettings.ObtainBadgeTwo = 0x0816aaaf
+		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
+		GameSettings.ObtainBadgeThree = 0x0816b958
+		-- CeladonCity_Gym_EventScript_DefeatedErika
+		GameSettings.ObtainBadgeFour = 0x0816d07c
+		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
+		GameSettings.ObtainBadgeFive = 0x0816d55c
+		-- SaffronCity_Gym_EventScript_DefeatedSabrina
+		GameSettings.ObtainBadgeSix = 0x0816ede6
+		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
+		GameSettings.ObtainBadgeSeven = 0x0816d9e2
+		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
+		GameSettings.ObtainBadgeEight = 0x08169ee0
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c

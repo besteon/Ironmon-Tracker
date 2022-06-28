@@ -6,6 +6,12 @@ ImageTypes = {
     SPECIAL = "special"
 }
 
+NatureTypes = {
+	POSITIVE = 1,
+	NEGATIVE = -1,
+	NEUTRAL = 0,
+}
+
 function Drawing.clearGUI()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -60,6 +66,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
 
 	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
+		if number == "---" then new_spacing = 8 end
 	end
 
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
@@ -99,85 +106,47 @@ function Drawing.moveToColor(move)
 	return GraphicConstants.TYPECOLORS[move["type"]]
 end
 
-function Drawing.getNatureColor(stat, nature)
-	local color = GraphicConstants.THEMECOLORS["Default text"]
-	if not Settings.tracker.NATURE_WITH_FONT_STYLE then
-		if nature % 6 == 0 then
-			color = GraphicConstants.THEMECOLORS["Default text"]
-		elseif stat == "atk" then
-			if nature < 5 then
-				color = GraphicConstants.THEMECOLORS["Positive text"]
-			elseif nature % 5 == 0 then
-				color = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-		elseif stat == "def" then
-			if nature > 4 and nature < 10 then
-				color = GraphicConstants.THEMECOLORS["Positive text"]
-			elseif nature % 5 == 1 then
-				color = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-		elseif stat == "spe" then
-			if nature > 9 and nature < 15 then
-				color = GraphicConstants.THEMECOLORS["Positive text"]
-			elseif nature % 5 == 2 then
-				color = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-		elseif stat == "spa" then
-			if nature > 14 and nature < 20 then
-				color = GraphicConstants.THEMECOLORS["Positive text"]
-			elseif nature % 5 == 3 then
-				color = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-		elseif stat == "spd" then
-			if nature > 19 then
-				color = GraphicConstants.THEMECOLORS["Positive text"]
-			elseif nature % 5 == 4 then
-				color = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-		end
-	end
-	return color
-end
+function Drawing.calcNatureBonus(stat, nature)
+	local natureType = NatureTypes.NEUTRAL
 
-function Drawing.getNatureStyle(monIsEnemy, stat, nature)
-	local style = "regular"
-	if Settings.tracker.NATURE_WITH_FONT_STYLE and not monIsEnemy then
-		if nature % 6 == 0 then
-			style = "regular"
-		elseif stat == "atk" then
-			if nature < 5 then
-				style = "bold"
-			elseif nature % 5 == 0 then
-				style = "italic"
-			end
-		elseif stat == "def" then
-			if nature > 4 and nature < 10 then
-				style = "bold"
-			elseif nature % 5 == 1 then
-				style = "italic"
-			end
-		elseif stat == "spe" then
-			if nature > 9 and nature < 15 then
-				style = "bold"
-			elseif nature % 5 == 2 then
-				style = "italic"
-			end
-		elseif stat == "spa" then
-			if nature > 14 and nature < 20 then
-				style = "bold"
-			elseif nature % 5 == 3 then
-				style = "italic"
-			end
-		elseif stat == "spd" then
-			if nature > 19 then
-				style = "bold"
-			elseif nature % 5 == 4 then
-				style = "italic"
-			end
+	if nature % 6 == 0 then
+		natureType = NatureTypes.NEUTRAL
+	elseif stat == "atk" then
+		if nature < 5 then
+			natureType = NatureTypes.POSITIVE
+		elseif nature % 5 == 0 then
+			natureType = NatureTypes.NEGATIVE
 		end
+	elseif stat == "def" then
+		if nature > 4 and nature < 10 then
+			natureType = NatureTypes.POSITIVE
+		elseif nature % 5 == 1 then
+			natureType = NatureTypes.NEGATIVE
+		end
+	elseif stat == "spe" then
+		if nature > 9 and nature < 15 then
+			natureType = NatureTypes.POSITIVE
+		elseif nature % 5 == 2 then
+			natureType = NatureTypes.NEGATIVE
+		end
+	elseif stat == "spa" then
+		if nature > 14 and nature < 20 then
+			natureType = NatureTypes.POSITIVE
+		elseif nature % 5 == 3 then
+			natureType = NatureTypes.NEGATIVE
+		end
+	elseif stat == "spd" then
+		if nature > 19 then
+			natureType = NatureTypes.POSITIVE
+		elseif nature % 5 == 4 then
+			natureType = NatureTypes.NEGATIVE
+		end
+	else
+		natureType = NatureTypes.NEUTRAL
 	end
-	return style
-end
+
+	return natureType
+end	
 
 function Drawing.drawStatusLevel(x, y, value)
 	if value == 0 then
@@ -342,8 +311,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
-			local healNumberColor = Utils.inlineIf(Tracker.Data.centerHeals < 5, GraphicConstants.THEMECOLORS["Positive text"], Utils.inlineIf(Tracker.Data.centerHeals < 10, GraphicConstants.THEMECOLORS["Intermediate text"], GraphicConstants.THEMECOLORS["Negative text"]))
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, healNumberColor, boxTopShadow)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
 			
 			-- Draw the '+'', '-'', and toggle buttons for PC heal tracking
 			Drawing.drawText(Buttons[9].box[1], Buttons[9].box[2] + (Buttons[9].box[4] - 12) / 2 + 1, Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], boxTopShadow)
@@ -389,13 +357,31 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local statOffsetY = 7
 
 	for i = 1, #statLabels, 1 do
-		local textColor = Utils.inlineIf(monIsEnemy, GraphicConstants.THEMECOLORS["Default text"], Drawing.getNatureColor(statLabels[i], monToDraw["nature"]))
-		local natureStyle = Drawing.getNatureStyle(monIsEnemy, statLabels[i], monToDraw.nature)
+		local natureType = Drawing.calcNatureBonus(statLabels[i], monToDraw.nature)
+		local textColor = GraphicConstants.THEMECOLORS["Default text"]
+		local natureStyle = "regular"
+		local natureSymbol = ""
+		if natureType == NatureTypes.POSITIVE then
+			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
+				textColor = GraphicConstants.THEMECOLORS["Positive text"]
+			end
+			if Settings.tracker.NATURE_WITH_FONT_STYLE then
+				natureStyle = "bold"
+			end
+			natureSymbol = "+"
+		elseif natureType == NatureTypes.NEGATIVE then
+			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
+				textColor = GraphicConstants.THEMECOLORS["Negative text"]
+			end
+			if Settings.tracker.NATURE_WITH_FONT_STYLE then
+				natureStyle = "italic"
+			end
+			natureSymbol = "---"
+		end
 
-		-- Draw stat label
+		-- Draw stat label and nature symbol next to it
 		Drawing.drawText(statOffsetX, statOffsetY, statLabels[i]:upper(), textColor, boxTopShadow, natureStyle)
-		local natureSymbol = Utils.inlineIf(textColor == GraphicConstants.THEMECOLORS["Positive text"], "+", Utils.inlineIf(textColor == GraphicConstants.THEMECOLORS["Negative text"], "--", ""))
-		gui.drawText(statOffsetX + 25 - 10, statOffsetY - 1, natureSymbol, textColor, nil, 5, "Franklin Gothic Medium")
+		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, "Franklin Gothic Medium")
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Tracker.Data.inBattle == 1 then
@@ -419,10 +405,10 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Drawing moves
 	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
-	local movesBoxStartY = 94
+	local movesBoxStartY = 92
 	-- draw moves box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
-	local moveStartY = movesBoxStartY + 3
+	local moveStartY = movesBoxStartY + 2
 
 	local monLevel = monToDraw["level"]
 	local monData = PokemonData[monToDraw["pokemonID"] + 1]
@@ -500,7 +486,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
-	local moveTableHeaderHeightDiff = 15
+	local moveTableHeaderHeightDiff = 14
 
 	local movesString = "Move ~  "
 	movesString = movesString .. movesLearned .. "/" .. moveCount
@@ -613,19 +599,30 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	Drawing.drawInputOverlay()
 
-	-- draw badge/note box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 14, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	-- Draw badge/note box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 44, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 19, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	for index, button in pairs(BadgeButtons.badgeButtons) do
+		if button.visible() then
+			local addForOff = ""
+			if button.state == 0 then addForOff = "_OFF" end
+			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge"..index..addForOff..".png"
+			gui.drawImage(path,button.box[1], button.box[2])
+		end
+	end	
 
-	local note = Tracker.GetNote()
-	if note == '' then
-		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
-	else
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
-		--work around limitation of drawText not having width limit: paint over any spillover
-		local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
-		local y = 141
-		gui.drawLine(x, 141, x, y + 12, GraphicConstants.THEMECOLORS["Lower box border"])
-		gui.drawRectangle(x + 1, y, 12, 12, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+	-- Draw note box, but only for enemy pokemon
+	if Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 then
+		local note = Tracker.GetNote()
+		if note == '' then
+			gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 47, 11, 11)
+		else
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, note, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+			--work around limitation of drawText not having width limit: paint over any spillover
+			local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
+			local y = movesBoxStartY + 44
+			gui.drawLine(x, y, x, y + 14, GraphicConstants.THEMECOLORS["Lower box border"])
+			gui.drawRectangle(x + 1, y, 12, 14, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+		end
 	end
 end
 

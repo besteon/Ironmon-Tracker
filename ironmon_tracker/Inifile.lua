@@ -176,7 +176,10 @@ function inifile.save(name, t, backend)
 		end
 	end
 
-	return backends[backend].write(name, table.concat(contents, "\n"))
+	local file = io.open(name,"w")
+	assert(file~=nil)
+	file:write(table.concat(contents, "\n"))
+	io.close(file)
 end
 
 return inifile
