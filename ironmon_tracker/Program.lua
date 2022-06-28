@@ -156,7 +156,7 @@ function Program.UpdateMonStatStages()
 		Tracker.Data.selectedPokemon.statStages = battleMon.statStages
 		Tracker.Data.selectedPokemon.ability = battleMon.ability
 	else
-		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
 	end
 end
 
@@ -193,7 +193,7 @@ end
 function Program.BattleEnded()
 	Tracker.Data.selfSlotOne = 1
 	Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
-	Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+	Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
 
 	Tracker.Data.targetedPokemon = nil
 	Tracker.redraw = true
@@ -608,9 +608,9 @@ function Program.getBattleMon(index)
 			HP = Memory.readbyte(base + 0x18),
 			ATK = Memory.readbyte(base + 0x19),
 			DEF = Memory.readbyte(base + 0x1A),
-			SPEED = Memory.readbyte(base + 0x1B),
-			SPATK = Memory.readbyte(base + 0x1C),
-			SPDEF = Memory.readbyte(base + 0x1D),
+			SPE = Memory.readbyte(base + 0x1B),
+			SPA = Memory.readbyte(base + 0x1C),
+			SPD = Memory.readbyte(base + 0x1D),
 			ACC = Memory.readbyte(base + 0x1E),
 			EVASION = Memory.readbyte(base + 0x1F)
 		},

@@ -6,28 +6,23 @@ Theme.redraw = true
 -- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
 Theme.updated = false
 
--- Sample Themes: https://colorhunt.co/palettes/popular
 Theme.Presets = {
     PresetNames = {
-        "Default",
-        "Cotton Candy",
-        "Spaceship",
-        "Summer Beach",
+        "Default Theme",
+        "Beach Getaway",
         "Blue Da Ba Dee",
-        "Preset 6",
-        "Preset 7",
-        "Preset 8",
+        "Calico Cat",
+        "Cotton Candy",
+        "USS Galactic",
     },
     -- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
     PresetConfigStrings = {
-        ["Default"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
-        ["Cotton Candy"] = "000000 1A85FF D41159 9155D9 EEEEEE D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
-        ["Spaceship"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
-        ["Summer Beach"] = "222222 5463FF E78EA9 A581E6 444444 E78EA9 B9F8D3 E78EA9 FFFBE7 40DFEF 0",
+        ["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+        ["Beach Getaway"] = "222222 5463FF E78EA9 A581E6 444444 E78EA9 B9F8D3 E78EA9 FFFBE7 40DFEF 0",
         ["Blue Da Ba Dee"] = "FFFFFF 2EB5FF E04DBA FEFA69 55CB6B 198BFF 004881 198BFF 004881 072557 1",
-        ["Preset 6"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
-        ["Preset 7"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
-        ["Preset 8"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+        ["Calico Cat"] = "4A3432 E07E3D 8A9298 E07E3D FCFCF0 8A9298 FCFCF0 E07E3D FBCA8C 0F0601 0",
+        ["Cotton Candy"] = "000000 1A85FF D41159 9155D9 EEEEEE D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
+        ["USS Galactic"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
     }
 }
 
@@ -239,7 +234,7 @@ function Theme.tryRestoreDefaultTheme()
         Theme.restoreDefaultsButton.textColor = "Default text"
         Theme.restoreDefaultsButton.confirmReset = false
 
-        Theme.importThemeFromText(Theme.Presets.PresetConfigStrings["Default"])
+        Theme.importThemeFromText(Theme.Presets.PresetConfigStrings["Default Theme"])
     else
         Theme.restoreDefaultsButton.text = "   Are you sure?"
         Theme.restoreDefaultsButton.textColor = "Negative text"

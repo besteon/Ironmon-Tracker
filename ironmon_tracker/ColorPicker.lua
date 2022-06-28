@@ -140,17 +140,6 @@ function ColorPicker:drawMainCanvas()
     forms.drawText(self.mainCanvas,50,179,self.colorkey,0xFFFFFFFF,0x00000000,14,"Arial")
     forms.drawText(self.mainCanvas,14,221,"Hex Color:",0xFFFFFFFF,0x00000000,14,"Arial")
 
-    -- local firsthalf = ""
-    -- local remainingwords = ""
-    -- for word in string.gmatch(self.colorkey, "[^%s]+") do
-    --     if firsthalf == "" or (#firsthalf + #word) < 10 then
-    --         firsthalf = firsthalf .. word .. " "
-    --     else
-    --         remainingwords = remainingwords .. word .. " "
-    --     end
-    -- end
-    -- forms.drawText(self.mainCanvas,105,172,firsthalf,0xFFFFFFFF,0x00000000,14,"Arial")
-    -- forms.drawText(self.mainCanvas,105,188,remainingwords,0xFFFFFFFF,0x00000000,14,"Arial")
     forms.refresh(self.mainCanvas)
 end
 
@@ -161,7 +150,7 @@ function ColorPicker:show()
     self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
     self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 
-    self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,105,30)
+    self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)
     self.cancelButton = forms.button(self.mainForm,"Cancel", function() self:onClose() end,125,250,65,30)
 
     forms.setlocation(self.mainForm,self.xPos,self.yPos)
@@ -259,7 +248,6 @@ function ColorPicker:pointInRange(point)
         return false
     end
 end
-
 
 function ColorPicker:convertHSVtoColorPicker()
     self.valueSliderY = 10+((100-self.val)/100*150)
