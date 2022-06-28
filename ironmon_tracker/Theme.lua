@@ -252,12 +252,6 @@ function Theme.closeMenuAndSave()
         Theme.restoreDefaultsButton.confirmReset = false
     end
 
-    -- Save the Settings.ini file if any changes were made
-    if Theme.updated then
-        INI.save("Settings.ini", Settings)
-        Theme.updated = false
-    end
-
     -- Inform the Tracker Program to load the Options screen
     Options.redraw = true
     Program.state = State.SETTINGS

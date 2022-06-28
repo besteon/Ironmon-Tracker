@@ -361,7 +361,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		local textColor = GraphicConstants.THEMECOLORS["Default text"]
 		local natureStyle = "regular"
 		local natureSymbol = ""
-		if natureType == NatureTypes.POSITIVE then
+		if monIsEnemy == false and natureType == NatureTypes.POSITIVE then
 			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
 				textColor = GraphicConstants.THEMECOLORS["Positive text"]
 			end
@@ -369,7 +369,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 				natureStyle = "bold"
 			end
 			natureSymbol = "+"
-		elseif natureType == NatureTypes.NEGATIVE then
+		elseif monIsEnemy == false and natureType == NatureTypes.NEGATIVE then
 			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
 				textColor = GraphicConstants.THEMECOLORS["Negative text"]
 			end

@@ -181,14 +181,16 @@ function Input.check(xmouse, ymouse)
 		-- Settings close button
 		if Input.isInRange(xmouse, ymouse, Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4]) then
 			-- Save the Settings.ini file if any changes were made
-			if Options.updated then
+			if Options.updated or Theme.updated then
 				Options.updated = false
+				Theme.updated = false
 				-- Reset PC Heal tracking to count up or down from if it's at initial values
 				if Settings.tracker.SURVIVAL_COUNT_DOWN and Tracker.Data.centerHeals == 0 then
 					Tracker.Data.centerHeals = 10
 				elseif Tracker.Data.centerHeals == 10 then
 					Tracker.Data.centerHeals = 0
 				end
+				-- Save the Settings.ini file if any changes were made
 				INI.save("Settings.ini", Settings)
 			end
 			Tracker.redraw = true
