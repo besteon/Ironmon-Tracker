@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.3.4"
+TRACKER_VERSION = "0.3.5"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -34,6 +34,7 @@ dofile(DATA_FOLDER .. "/GameSettings.lua")
 dofile(DATA_FOLDER .. "/GraphicConstants.lua")
 dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Theme.lua")
+dofile(DATA_FOLDER .. "/ColorPicker.lua")
 dofile(DATA_FOLDER .. "/Utils.lua")
 dofile(DATA_FOLDER .. "/Buttons.lua")
 dofile(DATA_FOLDER .. "/Input.lua")

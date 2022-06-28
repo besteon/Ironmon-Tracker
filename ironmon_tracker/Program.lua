@@ -103,9 +103,15 @@ function Program.main()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
-		if Theme.redraw then
-			Drawing.drawThemeMenu()
-			Theme.redraw = false
+		if Theme.redraw == true and Tracker.waitFrames == 0 then
+			if Theme.redraw then
+				Drawing.drawThemeMenu()
+				Theme.redraw = false
+				Tracker.waitFrames = 5
+			end
+		end
+		if Tracker.waitFrames > 0 then
+			Tracker.waitFrames = Tracker.waitFrames - 1
 		end
 	end
 end

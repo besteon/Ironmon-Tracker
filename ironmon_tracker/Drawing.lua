@@ -1,5 +1,11 @@
 Drawing = {}
 
+ImageTypes = {
+    GEAR = "gear",
+    PHYSICAL = "physical",
+    SPECIAL = "special"
+}
+
 function Drawing.clearGUI()
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -310,7 +316,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	-- Settings gear
-	gui.drawImage(DATA_FOLDER .. "/images/icons/gear.png", GraphicConstants.SCREEN_WIDTH + statBoxWidth - 8, 7)
+	Drawing.drawImageAsPixels(ImageTypes.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
@@ -345,8 +351,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
 			-- Draw a mark if the feature is on
 			if Program.PCHealTrackingButtonState then
-				gui.drawLine(PCHealTrackingButton.box[1], PCHealTrackingButton.box[2], PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3], PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4], GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-				gui.drawLine(PCHealTrackingButton.box[1], PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4], PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3], PCHealTrackingButton.box[2], GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
 			end
 		end
 	end
@@ -372,8 +378,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Held item & ability
 	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
 
 	local statBoxY = 5
@@ -518,66 +524,67 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		movesString = movesString .. " (" .. nextMove .. ")"
 	end
 
-	-- Draw moves
+	local moveOffset = 7
+	local ppOffset = 82
+	local powerOffset = 102
+	local accOffset = 126
+
+	-- Draw move headers
+	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Main background"])
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+
+	-- Draw Moves categories, names, and other information
+	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
+
+		-- Move category: physical, special, or status effect (and type color?)
+	for moveIndex = 1, 4, 1 do
+		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
+		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
+
+		if Settings.tracker.SHOW_MOVE_CATEGORIES and category == MoveCategories.PHYSICAL then
+			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 3 + (distanceBetweenMoves * (moveIndex - 1)))
+		elseif Settings.tracker.SHOW_MOVE_CATEGORIES and category == MoveCategories.SPECIAL then
+			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 3 + (distanceBetweenMoves * (moveIndex - 1)))
+		end
+	end
+
+	-- Move names (longest name is 12 characters?)
+	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
+	nameOffset = nameOffset + Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, 0, 5)
 	local moveColors = {}
 	for moveIndex = 1, 4, 1 do
 		table.insert(moveColors, Drawing.moveToColor(moves[moveIndex]))
 	end
-
-	local stabColors = {}
-	for moveIndex = 1, 4, 1 do
-		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"]))
-	end
-
-	-- Move category: physical, special, or status effect
-	local moveOffset = 7
-	local physicalCatLocation = DATA_FOLDER .. "/images/icons/physical.png"
-	local specialCatLocation = DATA_FOLDER .. "/images/icons/special.png"
-	local isStatusMove = {}
-	for moveIndex = 1, 4, 1 do
-		table.insert(isStatusMove, Utils.inlineIf(moves[moveIndex].category == MoveCategories.PHYSICAL or moves[moveIndex].category == MoveCategories.SPECIAL, false, true))
-	end
-	local categories = {}
-	for moveIndex = 1, 4, 1 do
-		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
-		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
-		table.insert(categories, Utils.inlineIf(category == MoveCategories.PHYSICAL, physicalCatLocation, Utils.inlineIf(category == MoveCategories.SPECIAL, specialCatLocation, "")))
-	end
-	if Settings.tracker.SHOW_MOVE_CATEGORIES then
-		for catIndex = 0, 3, 1 do
-			if not isStatusMove[catIndex + 1] then
-				gui.drawImage(categories[catIndex + 1], GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * catIndex))
-			end
-		end
-	end
-
-	-- Draw Moves Header
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Main background"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
-
-	-- Move names (longest name is 12 characters?)
-	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
 	for moveIndex = 1, 4, 1 do
 		if moves[moveIndex].name == "Hidden Power" and not monIsEnemy then
 			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
 			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
+			if not GraphicConstants.MOVE_TYPES_ENABLED then
+				gui.drawRectangle(HiddenPowerButton.box[1] - 3, HiddenPowerButton.box[2] + 2, 2, 8, HiddenPowerButton.textcolor, HiddenPowerButton.textcolor)
+			end
 			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, HiddenPowerButton.textcolor, GraphicConstants.THEMECOLORS["Default text"]), boxBotShadow)
 		else
+			-- Draw a small colored rectangle showing the color of the move type instead of painting over the text
+			if not GraphicConstants.MOVE_TYPES_ENABLED then
+				gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + nameOffset - 3, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), 2, 8, moveColors[moveIndex], moveColors[moveIndex])
+			end
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, moveColors[moveIndex], GraphicConstants.THEMECOLORS["Default text"]), boxBotShadow)
 		end
 	end
 
 	-- Move power points
-	local ppOffset = 82
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
 	for moveIndex = 1, 4, 1 do
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)), 2, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 	end
 
 	-- Move attack power
-	local powerOffset = 102
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	local stabColors = {}
+	for moveIndex = 1, 4, 1 do
+		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"]))
+	end
 	for moveIndex = 1, 4, 1 do
 		local movePower = moves[moveIndex].power
 		if Settings.tracker.CALCULATE_VARIABLE_DAMAGE == true then
@@ -602,8 +609,6 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	-- Move accuracy
-	local accOffset = 126
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
 	for moveIndex = 1, 4, 1 do
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 	end
@@ -702,8 +707,8 @@ function Drawing.drawSettings()
 		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, GraphicConstants.THEMECOLORS[button.textColor], boxSettingsShadow)
 		-- Draw a mark if the feature is on
 		if button.optionState then
-			gui.drawLine(button.box[1], button.box[2], button.box[1] + button.box[3], button.box[2] + button.box[4], GraphicConstants.THEMECOLORS[button.optionColor])
-			gui.drawLine(button.box[1], button.box[2] + button.box[4], button.box[1] + button.box[3], button.box[2], GraphicConstants.THEMECOLORS[button.optionColor])
+			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, GraphicConstants.THEMECOLORS[button.optionColor])
+			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, GraphicConstants.THEMECOLORS[button.optionColor])
 		end
 	end
 end
@@ -746,8 +751,8 @@ function Drawing.drawThemeMenu()
 	Drawing.drawButtonBox(Theme.moveTypeEnableButton, boxThemeShadow)
 	-- Draw a mark if the feature is on
 	if GraphicConstants.MOVE_TYPES_ENABLED then
-		gui.drawLine(Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2], Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3], Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4], GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
-		gui.drawLine(Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4], Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3], Theme.moveTypeEnableButton.box[2], GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
+		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
+		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + 1, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
 	end
 	Drawing.drawText(Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] + 1 + textPadding, Theme.moveTypeEnableButton.box[2] - 2, Theme.moveTypeEnableButton.text, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.textColor], boxThemeShadow)
 
@@ -759,4 +764,108 @@ function Drawing.drawThemeMenu()
 	Drawing.drawButtonBox(Theme.closeButton, boxThemeShadow)
 	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, GraphicConstants.THEMECOLORS[Theme.closeButton.textColor], boxThemeShadow)
 	
+end
+
+function Drawing.drawImageAsPixels(imageType, x, y)
+    local imageArray = {}
+    local imageShadow = 0x00000000
+	local c = GraphicConstants.THEMECOLORS["Negative text"] -- a colored pixel
+    local e = -1 -- an empty pixel
+
+    if imageType == ImageTypes.GEAR then
+        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
+		c = GraphicConstants.THEMECOLORS["Default text"]
+        imageArray = {
+			{e,e,e,c,c,e,e,e},
+			{e,c,c,c,c,c,c,e},
+			{e,c,c,c,c,c,c,e},
+			{c,c,c,e,e,c,c,c},
+			{c,c,c,e,e,c,c,c},
+			{e,c,c,c,c,c,c,e},
+			{e,c,c,c,c,c,c,e},
+			{e,e,e,c,c,e,e,e}
+		}
+    elseif imageType == ImageTypes.PHYSICAL then
+        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+		c = GraphicConstants.THEMECOLORS["Default text"]
+        imageArray = {
+			{c,e,e,c,e,e,c},
+			{e,c,e,c,e,c,e},
+			{e,e,c,c,c,e,e},
+			{c,c,c,c,c,c,c},
+			{e,e,c,c,c,e,e},
+			{e,c,e,c,e,c,e},
+			{c,e,e,c,e,e,c}
+		}
+    elseif imageType == ImageTypes.SPECIAL then
+        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+		c = GraphicConstants.THEMECOLORS["Positive text"]
+        imageArray = {
+			{e,e,c,c,c,e,e},
+			{e,c,e,e,e,c,e},
+			{c,e,e,c,e,e,c},
+			{c,e,c,e,c,e,c},
+			{c,e,e,c,e,e,c},
+			{e,c,e,e,e,c,e},
+			{e,e,c,c,c,e,e}
+		}
+    end
+
+    for rowIndex = 1, #imageArray, 1 do
+        for colIndex = 1, #(imageArray[1]) do
+            local offsetX = colIndex - 1
+            local offsetY = rowIndex - 1
+            local color = imageArray[rowIndex][colIndex]
+            if color ~= -1 then
+                gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
+                gui.drawPixel(x + offsetX, y + offsetY, color)
+            end
+        end
+    end
+end
+
+function Drawing.getPhysicalArray()
+    local c = GraphicConstants.layoutColors["Negative text"]
+    local x = -1
+    local physicalImageArray = {
+        {c,x,x,c,x,x,c},
+        {x,c,x,c,x,c,x},
+        {x,x,c,c,c,x,x},
+        {c,c,c,c,c,c,c},
+        {x,x,c,c,c,x,x},
+        {x,c,x,c,x,c,x},
+        {c,x,x,c,x,x,c}
+    }
+    return physicalImageArray
+end
+
+function Drawing.getSpecialArray()
+    local c = GraphicConstants.layoutColors["Positive text"]
+    local x = -1
+    local specialImageArray = {
+        {x,x,c,c,c,x,x},
+        {x,c,x,x,x,c,x},
+        {c,x,x,c,x,x,c},
+        {c,x,c,x,c,x,c},
+        {c,x,x,c,x,x,c},
+        {x,c,x,x,x,c,x},
+        {x,x,c,c,c,x,x}
+    }
+    return specialImageArray
+end
+
+function Drawing.getGearArray()
+    local c = GraphicConstants.layoutColors["Default text"]
+    local x = -1
+    local gearImageArray = {
+        {x,x,x,c,c,x,x,x},
+        {x,c,c,c,c,c,c,x},
+        {x,c,c,c,c,c,c,x},
+        {c,c,c,x,x,c,c,c},
+        {c,c,c,x,x,c,c,c},
+        {x,c,c,c,c,c,c,x},
+        {x,c,c,c,c,c,c,x},
+        {x,x,x,c,c,x,x,x}
+    }
+    return gearImageArray
 end

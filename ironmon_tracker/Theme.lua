@@ -12,11 +12,22 @@ Theme.Presets = {
         "Default",
         "Cotton Candy",
         "Spaceship",
+        "Summer Beach",
+        "Blue Da Ba Dee",
+        "Preset 6",
+        "Preset 7",
+        "Preset 8",
     },
+    -- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
     PresetConfigStrings = {
         ["Default"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
-        ["Cotton Candy"] = "000000 1A85FF D41159 994F00 C0C0C0 D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
-        ["Spaceship"] = "222831 00ADB5 393E46 00ADB5 393E46 EEEEEE EEEEEE 00ADB5 7F8487 F73D93 1", -- TODO: Update/Replace this
+        ["Cotton Candy"] = "000000 1A85FF D41159 9155D9 EEEEEE D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
+        ["Spaceship"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
+        ["Summer Beach"] = "222222 5463FF E78EA9 A581E6 444444 E78EA9 B9F8D3 E78EA9 FFFBE7 40DFEF 0",
+        ["Blue Da Ba Dee"] = "FFFFFF 2EB5FF E04DBA FEFA69 55CB6B 198BFF 004881 198BFF 004881 072557 1",
+        ["Preset 6"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+        ["Preset 7"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+        ["Preset 8"] = "FFFFFF 00FF00 FF0000 FFC20A FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
     }
 }
 
@@ -91,7 +102,7 @@ function Theme.buildTrackerThemeButtons()
             box = {GraphicConstants.SCREEN_WIDTH + 10, heightOffset, 8, 8},
             textColor = "Default text",
             themeColor = colorkey,
-            onClick = function() Theme.requestNewColorFromUser(colorkey) end
+            onClick = function() Theme.openColorPickerWindow(colorkey) end
         }
 
         table.insert(Theme.themeButtons, button)
@@ -118,33 +129,36 @@ end
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
 function Theme.importThemeFromText(theme_config)
+    -- A valid string has at minimum (7 x 10) hex codes (w/ spaces) and a single bit for move types
     if theme_config == nil then
         return false
-    elseif string.len(theme_config) < 71 then -- ten total color hex codes is 70 characters, plus 1 additional for move typing
+    elseif string.len(theme_config) < 71 then
         return false
     end
 
-    -- Verify the theme config is correct and can be parsed
+    -- Verify the theme config is correct and can be parsed (each entry should be a numerical value)
+    local numHexCodes = 0
     local theme_colors = {}
-    for color_text in string.gmatch(string.sub(theme_config, 1, 69), "[^%s]+") do
-        if string.len(color_text) ~= 6 then
-            return false
+    for color_text in string.gmatch(theme_config, "[^%s]+") do
+        if string.len(color_text) == 6 then
+            local color = tonumber(color_text, 16)
+            if color < 0x000000 or color > 0xFFFFFF then
+                return false
+            end
+    
+            numHexCodes = numHexCodes + 1
+            theme_colors[numHexCodes] = color_text
         end
-        local color = tonumber(color_text, 16)
-        if color < 0x000000 or color > 0xFFFFFF then
-            return false
-        end
-
-        theme_colors[#theme_colors + 1] = color_text
     end
 
     -- Apply the imported theme config to our Settings, then load it
     local index = 1
-    for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
+    for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do -- Only use the first 10 hex codes
         Settings.theme[string.gsub(colorkey, " ", "_")] = theme_colors[index]
         index = index + 1
     end
-    Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, 71, 71) == "0", false, true)
+    Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0", false, true)
+    -- Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, 71, 71) == "0", false, true)
 
     Theme.updated = true
     Theme.loadTheme()
@@ -169,30 +183,18 @@ function Theme.exportThemeToText()
     return string.upper(exportedTheme)
 end
 
-function Theme.requestNewColorFromUser(colorkey)
-    local colorForm = forms.newform(290, 100, "Enter a new color...", function() return nil end)
-    forms.label(colorForm, colorkey .. " color:", 5, 5)
-    local textBox = forms.textbox(colorForm, string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5), 60, 35, "HEX", 5, 30)
-
-    forms.button(colorForm, "Save", function()
-        local textValue = forms.gettext(textBox)
-        if textValue == nil then
-            print("Unable to set color. The inputted color is nil.")
-            return
-        end
-    
-        Settings.theme[string.gsub(colorkey, " ", "_")] = textValue
-        Theme.updated = true
-        Theme.loadTheme()
-        forms.destroy(colorForm)
-    end, 100, 30)
+function Theme.openColorPickerWindow(colorkey)
+    local picker = ColorPicker.new(colorkey)
+    Input.currentColorPicker = picker
+    picker:show()
 end
 
 function Theme.openImportWindow()
-    local themeImportForm = forms.newform(490, 70, "Enter a Theme configuration string to import:", function() return end)
-    local themeImportTextBox = forms.textbox(themeImportForm, "[Ctrl+V to Paste here]", 400, 20, 5, 5)
-    forms.button(themeImportForm, "Import", function()
-        local formInput = forms.gettext(themeImportTextBox)
+    local form = forms.newform(465, 125, "Theme Import", function() return end)
+    forms.label(form, "Enter a theme configuration string to import (Ctrl+V to paste):", 9, 10, 300, 20)
+    local importTextBox = forms.textbox(form, "", 430, 20, nil, 10, 30)
+    forms.button(form, "Import", function()
+        local formInput = forms.gettext(importTextBox)
         if formInput ~= nil then
             -- Check if the import was successful
             if not Theme.importThemeFromText(formInput) then
@@ -200,19 +202,25 @@ function Theme.openImportWindow()
                 print(">> " .. formInput)
             end
         end
-        forms.destroy(themeImportForm)
-    end, 400, 5)
+        forms.destroy(form)
+    end, 187, 55)
 end
 
 function Theme.openExportWindow()
-    local themeExportForm = forms.newform(470, 70, "Copy (Ctrl+C) your Theme configuration below:", function() return end)
-    forms.textbox(themeExportForm, Theme.exportThemeToText(), 430, 20, 5, 5)
+    local theme_config = Theme.exportThemeToText()
+
+    local form = forms.newform(465, 125, "Theme Export", function() return end)
+    forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
+    local exportTextBox = forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
+    forms.button(form, "Close", function()
+        forms.destroy(form)
+    end, 187, 55)
 end
 
 function Theme.openPresetsWindow()
-    local presetsForm = forms.newform(350, 100, "Choose a preset...", function() return nil end)
-    forms.label(presetsForm, "Select a theme preset to use:", 5, 5)
-    local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 5, 30, 160, 30)
+    local presetsForm = forms.newform(265, 100, "Theme Presets", function() return nil end)
+    forms.label(presetsForm, "Select a predefined theme to use:", 9, 10, 250, 20)
+    local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 10, 30, 145, 30)
     forms.setdropdownitems(presetDropdown, Theme.Presets.PresetNames, false) -- Required to prevent alphabetizing the list
 
     forms.button(presetsForm, "Load", function()
@@ -220,7 +228,7 @@ function Theme.openPresetsWindow()
         Theme.updated = true
         Theme.loadTheme()
         forms.destroy(presetsForm)
-    end, 185, 30)
+    end, 165, 29)
 end
 
 -- Restores the Theme customizations to the default look-and-feel, or prompts for confirmation
@@ -251,7 +259,7 @@ function Theme.closeMenuAndSave()
 
     -- Save the Settings.ini file if any changes were made
     if Theme.updated then
-        print("Saving Theme configuration to Settings.ini, this takes a few seconds.")
+        print("Saving Theme configuration to Settings.ini, this may take a moment.")
         INI.save("Settings.ini", Settings)
         Theme.updated = false
     end
