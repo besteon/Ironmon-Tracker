@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.0b"
+TRACKER_VERSION = "0.4.0c"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -25,12 +25,10 @@ INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 -- Need to manually read the file to work around a bug in the ini parser, which
 -- does not correctly handle that the last iteration over lines() returns nil
 local file = io.open("Settings.ini")
-assert(file ~= nil)
-Settings = INI.parse(file:read("*a"), "memory")
-io.close(file)
--- If ROMS_FOLDER is left empty, Inifile.lua doesn't add it to the settings table, resulting in the ROMS_FOLDER 
--- being deleted entirely from Settings.ini if another setting is toggled in the tracker options menu
-if Settings.config.ROMS_FOLDER == nil then Settings.config.ROMS_FOLDER = "" end
+if file ~= nil then
+	Settings = INI.parse(file:read("*a"), "memory")
+	io.close(file)
+end
 
 -- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
@@ -55,19 +53,15 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
-	print("Loading...")
+	print("Waiting for ROM to be loaded...")
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
 		emu.frameadvance()
 	end
 
-	if Settings.tracker == nil then
-		print("Unable to load Settings.ini file. Either fix the error or replace with fresh file.")
-		return
-	end
-
 	Options.buildTrackerOptionsButtons()
+	Options.loadOptions()
 	Theme.buildTrackerThemeButtons()
 	Theme.loadTheme()
 

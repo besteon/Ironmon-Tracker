@@ -19,8 +19,8 @@ function Input.update()
 		Input.mousetab_prev = Input.mousetab
 
 		local joypadButtons = joypad.get()
-		-- "Settings.controls.CYCLE_VIEW" pressed
-		if joypadButtons[Settings.controls.CYCLE_VIEW] == true and Input.joypad[Settings.controls.CYCLE_VIEW] ~= joypadButtons[Settings.controls.CYCLE_VIEW] then
+		-- "Options.CONTROLS["Cycle view"]" pressed
+		if joypadButtons[Options.CONTROLS["Cycle view"]] and Input.joypad[Options.CONTROLS["Cycle view"]] ~= joypadButtons[Options.CONTROLS["Cycle view"]] then
 			if Tracker.Data.inBattle == 1 then
 				Tracker.Data.selectedPlayer = (Tracker.Data.selectedPlayer % 2) + 1
 				if Tracker.Data.selectedPlayer == 1 then
@@ -38,8 +38,8 @@ function Input.update()
 			Tracker.redraw = true
 		end
 
-		-- "Settings.controls.CYCLE_STAT" pressed, display box over next stat
-		if joypadButtons[Settings.controls.CYCLE_STAT] == true and Input.joypad[Settings.controls.CYCLE_STAT] ~= joypadButtons[Settings.controls.CYCLE_STAT] then
+		-- "Options.CONTROLS["Cycle stat"]" pressed, display box over next stat
+		if joypadButtons[Options.CONTROLS["Cycle stat"]] and Input.joypad[Options.CONTROLS["Cycle stat"]] ~= joypadButtons[Options.CONTROLS["Cycle stat"]] then
 			Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 			Tracker.controller.framesSinceInput = 0
 			Tracker.redraw = true
@@ -52,9 +52,9 @@ function Input.update()
 			end
 		end
 
-		-- "Settings.controls.NEXT_SEED"
+		-- "Options.CONTROLS["Next seed"]"
 		local allPressed = true
-		for button in string.gmatch(Settings.controls.NEXT_SEED, '([^,]+)') do
+		for button in string.gmatch(Options.CONTROLS["Next seed"], '([^,]+)') do
 			if joypadButtons[button] ~= true then
 				allPressed = false
 			end
@@ -63,8 +63,8 @@ function Input.update()
 			Main.LoadNextSeed = true
 		end
 
-		-- "Settings.controls.CYCLE_PREDICTION" pressed, cycle stat prediction for selected stat
-		if joypadButtons[Settings.controls.CYCLE_PREDICTION] == true and Input.joypad[Settings.controls.CYCLE_PREDICTION] ~= joypadButtons[Settings.controls.CYCLE_PREDICTION] then
+		-- "Options.CONTROLS["Cycle prediction"]" pressed, cycle stat prediction for selected stat
+		if joypadButtons[Options.CONTROLS["Cycle prediction"]] and Input.joypad[Options.CONTROLS["Cycle prediction"]] ~= joypadButtons[Options.CONTROLS["Cycle prediction"]] then
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				if Tracker.controller.statIndex == 1 then
 					Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
@@ -151,50 +151,22 @@ function Input.check(xmouse, ymouse)
 
 		-- Settings menu mouse input regions
 	elseif Program.state == State.SETTINGS then
-		-- Options buttons toggles
-		for _, value in pairs(Options.optionsButtons) do
-			if Input.isInRange(xmouse, ymouse, value.box[1], value.box[2], GraphicConstants.RIGHT_GAP - (value.box[3] * 2), value.box[4]) then
-				value.optionState = value.onClick()
-				Options.redraw = true
+		-- Check for input on any of the option buttons
+		for _, button in pairs(Options.optionsButtons) do
+			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], GraphicConstants.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
+				button.onClick()
 			end
 		end
 
-		-- Roms folder setting
+		-- Check for input on 'Roms Folder', 'Customize Theme', and 'Close' buttons
 		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], GraphicConstants.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
-			-- Use the standard file open dialog to get the roms folder
-			local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
-			-- Since the user had to pick a file, strip out the file name to just get the folder.
-			if file ~= "" then
-				Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
-			end
-			Options.redraw = true
-			Options.updated = true
+			Options.romsFolderOption.onClick()
 		end
-
-		-- Settings Customize button
 		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
-			-- Navigate to the Theme Customization menu
-			Theme.redraw = true
-			Program.state = State.THEME
+			Options.themeButton.onClick()
 		end
-
-		-- Settings close button
 		if Input.isInRange(xmouse, ymouse, Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4]) then
-			-- Save the Settings.ini file if any changes were made
-			if Options.updated or Theme.updated then
-				Options.updated = false
-				Theme.updated = false
-				-- Reset PC Heal tracking to count up or down from if it's at initial values
-				if Settings.tracker.SURVIVAL_COUNT_DOWN and Tracker.Data.centerHeals == 0 then
-					Tracker.Data.centerHeals = 10
-				elseif Tracker.Data.centerHeals == 10 then
-					Tracker.Data.centerHeals = 0
-				end
-				-- Save the Settings.ini file if any changes were made
-				INI.save("Settings.ini", Settings)
-			end
-			Tracker.redraw = true
-			Program.state = State.TRACKER
+			Options.closeButton.onClick()
 		end
 	elseif Program.state == State.THEME then
 		-- Check for input on 'Import', 'Export', and 'Presets' buttons

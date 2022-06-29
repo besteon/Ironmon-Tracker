@@ -58,7 +58,7 @@ Theme.presetsButton = {
 Theme.restoreDefaultsButton = {
 	text = "Restore Defaults",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 10, GraphicConstants.SCREEN_HEIGHT - 20, 74, 11},
+	box = {GraphicConstants.SCREEN_WIDTH + 10, GraphicConstants.SCREEN_HEIGHT - 20, 73, 11},
     boxColors = { "Lower box border", "Lower box background" },
     confirmReset = false,
 	onClick = function() Theme.tryRestoreDefaultTheme() end
@@ -68,7 +68,7 @@ Theme.restoreDefaultsButton = {
 Theme.closeButton = {
 	text = "Close",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 40, GraphicConstants.SCREEN_HEIGHT - 20, 30, 11},
+	box = {GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 39, GraphicConstants.SCREEN_HEIGHT - 20, 29, 11},
     boxColors = { "Lower box border", "Lower box background" },
 	onClick = function() Theme.closeMenuAndSave() end
 }
@@ -80,7 +80,7 @@ Theme.moveTypeEnableButton = {
     boxColors = { "Lower box border", "Lower box background" },
     togglecolor = "Positive text",
     onClick = function()
-        Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(Settings.theme["MOVE_TYPES_ENABLED"], false, true) -- toggle the setting
+        Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"]-- toggle the setting
         GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
         Theme.redraw = true
         Theme.updated = true
@@ -113,13 +113,26 @@ function Theme.buildTrackerThemeButtons()
     Theme.moveTypeEnableButton.box[2] = heightOffset
 end
 
--- Loads the theme defined in Settings into the Tracker's contants
+-- Loads the theme defined in Settings into the Tracker's constants
 function Theme.loadTheme()
     for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
-        GraphicConstants.THEMECOLORS[colorkey] = tonumber(Settings.theme[string.gsub(colorkey, " ", "_")], 16) + 0xFF000000
+        local color_hexval = Settings.theme[string.gsub(colorkey, " ", "_")]
+
+        -- If no theme is found, assign it based on the defaults
+        if color_hexval == nil then
+            Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5))
+            Theme.updated = true
+        else -- Otherwise update the theme that is in use with the one from Settings.ini
+            GraphicConstants.THEMECOLORS[colorkey] = tonumber(color_hexval, 16) + 0xFF000000
+        end
     end
 
-    GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+    if Settings.theme["MOVE_TYPES_ENABLED"] == nil then
+        Settings.theme["MOVE_TYPES_ENABLED"] = GraphicConstants.MOVE_TYPES_ENABLED
+        Theme.updated = true
+    else
+        GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+    end
 
     Theme.redraw = true
 end

@@ -3,7 +3,8 @@ Drawing = {}
 ImageTypes = {
     GEAR = "gear",
     PHYSICAL = "physical",
-    SPECIAL = "special"
+    SPECIAL = "special",
+	NOTEPAD = "notepad",
 }
 
 NatureTypes = {
@@ -64,7 +65,7 @@ with the RIGHT_JUSTIFIED_NUMBERS setting.
 function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
 	local new_spacing = 0
 
-	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
+	if Options["Right justified numbers"] then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
 		if number == "---" then new_spacing = 8 end
 	end
@@ -305,9 +306,11 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Heals in bag/PokéCenter heals
 	if monIsEnemy == false then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", Tracker.Data.healingItems.healing) .. " HP (" .. Tracker.Data.healingItems.numHeals .. ")", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
+		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 		
-		if (Settings.tracker.SURVIVAL_RULESET) then
+		if (Options["Track PC Heals"]) then
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
@@ -359,28 +362,17 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	for i = 1, #statLabels, 1 do
 		local natureType = Drawing.calcNatureBonus(statLabels[i], monToDraw.nature)
 		local textColor = GraphicConstants.THEMECOLORS["Default text"]
-		local natureStyle = "regular"
 		local natureSymbol = ""
 		if monIsEnemy == false and natureType == NatureTypes.POSITIVE then
-			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
-				textColor = GraphicConstants.THEMECOLORS["Positive text"]
-			end
-			if Settings.tracker.NATURE_WITH_FONT_STYLE then
-				natureStyle = "bold"
-			end
+			textColor = GraphicConstants.THEMECOLORS["Positive text"]
 			natureSymbol = "+"
 		elseif monIsEnemy == false and natureType == NatureTypes.NEGATIVE then
-			if not Settings.tracker.NATURE_WITH_FONT_STYLE then
-				textColor = GraphicConstants.THEMECOLORS["Negative text"]
-			end
-			if Settings.tracker.NATURE_WITH_FONT_STYLE then
-				natureStyle = "italic"
-			end
+			textColor = GraphicConstants.THEMECOLORS["Negative text"]
 			natureSymbol = "---"
 		end
 
 		-- Draw stat label and nature symbol next to it
-		Drawing.drawText(statOffsetX, statOffsetY, statLabels[i]:upper(), textColor, boxTopShadow, natureStyle)
+		Drawing.drawText(statOffsetX, statOffsetY, statLabels[i]:upper(), textColor, boxTopShadow)
 		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, "Franklin Gothic Medium")
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
@@ -390,7 +382,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
 		if monIsEnemy == false then
-			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(statLabels[i] == "hp", monToDraw["maxHP"], monToDraw[statLabels[i]]), 3, textColor, boxTopShadow, natureStyle)
+			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(statLabels[i] == "hp", monToDraw["maxHP"], monToDraw[statLabels[i]]), 3, textColor, boxTopShadow)
 		else
 			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then
 				Drawing.drawButtonBox(Buttons[i], boxTopShadow)
@@ -514,15 +506,15 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
 		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
 
-		if Settings.tracker.SHOW_MOVE_CATEGORIES and category == MoveCategories.PHYSICAL then
+		if Options["Show physical special icons"] and category == MoveCategories.PHYSICAL then
 			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)))
-		elseif Settings.tracker.SHOW_MOVE_CATEGORIES and category == MoveCategories.SPECIAL then
+		elseif Options["Show physical special icons"] and category == MoveCategories.SPECIAL then
 			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)))
 		end
 	end
 
 	-- Move names (longest name is 12 characters?)
-	local nameOffset = Utils.inlineIf(Settings.tracker.SHOW_MOVE_CATEGORIES, 14, moveOffset - 1)
+	local nameOffset = Utils.inlineIf(Options["Show physical special icons"], 14, moveOffset - 1)
 	nameOffset = nameOffset + Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, 0, 5)
 	local moveColors = {}
 	for moveIndex = 1, 4, 1 do
@@ -557,7 +549,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 	for moveIndex = 1, 4, 1 do
 		local movePower = moves[moveIndex].power
-		if Settings.tracker.CALCULATE_VARIABLE_DAMAGE == true then
+		if Options["Calculate variable damage"] == true then
 			local newPower = movePower
 			if movePower == "WT" and Tracker.Data.inBattle == 1 then
 				-- Calculate the power of weight moves in battle
@@ -572,9 +564,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			else
 				newPower = movePower
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex], boxBotShadow)
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, 3, stabColors[moveIndex], boxBotShadow)
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex], boxBotShadow)
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, 3, stabColors[moveIndex], boxBotShadow)
 		end
 	end
 
@@ -584,7 +576,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	-- Move effectiveness against the opponent
-	if Settings.tracker.SHOW_MOVE_EFFECTIVENESS and Tracker.Data.inBattle == 1 then
+	if Options["Show move effectiveness"] and Tracker.Data.inBattle == 1 then
 		if targetMon ~= nil then
 			for moveIndex = 1, 4, 1 do
 				local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[targetMon.pokemonID + 1])
@@ -614,7 +606,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	if Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 then
 		local note = Tracker.GetNote()
 		if note == '' then
-			gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 47, 11, 11)
+			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47)
 		else
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, note, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
@@ -675,7 +667,7 @@ function Drawing.drawSettings()
 	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
 	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folder == "" then
-		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
+		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
 	end
 
 	-- Customize button
@@ -687,9 +679,9 @@ function Drawing.drawSettings()
 		Drawing.drawButtonBox(button, boxSettingsShadow)
 		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, GraphicConstants.THEMECOLORS[button.textColor], boxSettingsShadow)
 		-- Draw a mark if the feature is on
-		if button.optionState then
-			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, GraphicConstants.THEMECOLORS[button.optionColor])
-			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, GraphicConstants.THEMECOLORS[button.optionColor])
+		if Options[button.text] then
+			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, GraphicConstants.THEMECOLORS[button.togglecolor])
+			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, GraphicConstants.THEMECOLORS[button.togglecolor])
 		end
 	end
 end
@@ -749,8 +741,8 @@ end
 
 function Drawing.drawImageAsPixels(imageType, x, y)
     local imageArray = {}
-    local imageShadow = 0x00000000
-	local c = GraphicConstants.THEMECOLORS["Negative text"] -- a colored pixel
+    local imageShadow = nil
+	local c = GraphicConstants.THEMECOLORS["Default text"] -- a colored pixel
     local e = -1 -- an empty pixel
 
     if imageType == ImageTypes.GEAR then
@@ -790,7 +782,24 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,c,e,e,e,c,e},
 			{e,e,c,c,c,e,e}
 		}
-    end
+    elseif imageType == ImageTypes.NOTEPAD then
+		 local notepadBGColor = Utils.inlineIf(Program.State == State.Options, GraphicConstants.THEMECOLORS["Upper box background"], GraphicConstants.THEMECOLORS["Lower box background"])
+        imageShadow = Drawing.calcShadowColor(notepadBGColor)
+		c = GraphicConstants.THEMECOLORS["Default text"]
+        imageArray = {
+			{e,e,e,e,e,e,e,e,e,c,c},
+			{e,e,e,e,e,e,e,e,c,e,c},
+			{c,c,c,c,c,c,c,c,c,c,e},
+			{c,e,e,e,e,e,e,c,c,e,e},
+			{c,e,c,c,c,e,c,e,c,e,e},
+			{c,e,e,e,e,e,e,e,c,e,e},
+			{c,e,c,c,c,c,c,e,c,e,e},
+			{c,e,e,e,e,e,e,e,c,e,e},
+			{c,e,c,c,c,c,c,e,c,e,e},
+			{c,e,e,e,e,e,e,e,c,e,e},
+			{c,c,c,c,c,c,c,c,c,e,e},
+		}
+	end
 
     for rowIndex = 1, #imageArray, 1 do
         for colIndex = 1, #(imageArray[1]) do
@@ -798,55 +807,11 @@ function Drawing.drawImageAsPixels(imageType, x, y)
             local offsetY = rowIndex - 1
             local color = imageArray[rowIndex][colIndex]
             if color ~= -1 then
-                gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
+				if imageShadow ~= nil then
+	                gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
+				end
                 gui.drawPixel(x + offsetX, y + offsetY, color)
             end
         end
     end
-end
-
-function Drawing.getPhysicalArray()
-    local c = GraphicConstants.layoutColors["Negative text"]
-    local x = -1
-    local physicalImageArray = {
-        {c,x,x,c,x,x,c},
-        {x,c,x,c,x,c,x},
-        {x,x,c,c,c,x,x},
-        {c,c,c,c,c,c,c},
-        {x,x,c,c,c,x,x},
-        {x,c,x,c,x,c,x},
-        {c,x,x,c,x,x,c}
-    }
-    return physicalImageArray
-end
-
-function Drawing.getSpecialArray()
-    local c = GraphicConstants.layoutColors["Positive text"]
-    local x = -1
-    local specialImageArray = {
-        {x,x,c,c,c,x,x},
-        {x,c,x,x,x,c,x},
-        {c,x,x,c,x,x,c},
-        {c,x,c,x,c,x,c},
-        {c,x,x,c,x,x,c},
-        {x,c,x,x,x,c,x},
-        {x,x,c,c,c,x,x}
-    }
-    return specialImageArray
-end
-
-function Drawing.getGearArray()
-    local c = GraphicConstants.layoutColors["Default text"]
-    local x = -1
-    local gearImageArray = {
-        {x,x,x,c,c,x,x,x},
-        {x,c,c,c,c,c,c,x},
-        {x,c,c,c,c,c,c,x},
-        {c,c,c,x,x,c,c,c},
-        {c,c,c,x,x,c,c,c},
-        {x,c,c,c,c,c,c,x},
-        {x,c,c,c,c,c,c,x},
-        {x,x,x,c,c,x,x,x}
-    }
-    return gearImageArray
 end

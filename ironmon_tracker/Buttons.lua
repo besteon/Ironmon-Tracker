@@ -57,7 +57,7 @@ HiddenPowerButton = {
 
 PCHealTrackingButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+	visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
 	text = "",
 	textcolor = "Default text",
 	box = { GraphicConstants.SCREEN_WIDTH + 89, 68, 8, 8 },
@@ -157,7 +157,7 @@ Buttons = {
 	PCHealTrackingButton,
 	{ -- PC Heal Increment Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
 		text = "+",
 		textcolor = "Positive text",
 		box = { GraphicConstants.SCREEN_WIDTH + 67, 68, 8, 4 },
@@ -169,7 +169,7 @@ Buttons = {
 	},
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.selectedPlayer == 1 and Settings.tracker.SURVIVAL_RULESET end,
+		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
 		text = "--",
 		textcolor = "Negative text",
 		box = { GraphicConstants.SCREEN_WIDTH + 67, 74, 7, 4 },
