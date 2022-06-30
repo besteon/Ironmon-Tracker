@@ -139,14 +139,18 @@ function Input.check(xmouse, ymouse)
 
 		--note box
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil and Tracker.Data.selectedPlayer == 2 then
-			Input.noteForm = forms.newform(290, 60, "Note (70 char. max)", function() Input.noteForm = nil end)
-			local textBox = forms.textbox(Input.noteForm, Tracker.GetNote(), 200, 20)
-			forms.button(Input.noteForm, "Set", function()
-				Tracker.SetNote(forms.gettext(textBox))
-				Tracker.redraw = true
+			Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+			forms.label(Input.noteForm, "Enter a note for this Pokemon (70 char. max):", 9, 10, 300, 20)
+			local noteTextBox = forms.textbox(Input.noteForm,  Tracker.GetNote(), 430, 20, nil, 10, 30)
+			forms.button(Input.noteForm, "Save", function()
+				local formInput = forms.gettext(noteTextBox)
+				if formInput ~= nil then
+					Tracker.SetNote(formInput)
+					Tracker.redraw = true
+				end
 				forms.destroy(Input.noteForm)
 				Input.noteForm = nil
-			end, 200, 0)
+			end, 187, 55)
 		end
 
 		-- Settings menu mouse input regions

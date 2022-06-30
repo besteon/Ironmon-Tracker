@@ -48,13 +48,7 @@ Options.closeButton = {
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		-- Save the Settings.ini file if any changes were made
-		if Options.updated or Theme.updated then
-			Options.updated = false
-			Theme.updated = false
-
-			-- Save the Settings.ini file if any changes were made
-			INI.save("Settings.ini", Settings)
-		end
+		Options.saveOptions()
 
 		Program.state = State.TRACKER
 		Tracker.redraw = true
@@ -184,4 +178,27 @@ function Options.loadOptions()
 	end
 
 	Options.redraw = true
+end
+
+-- Saves all in-memory Options and Theme elements into the Settings object, to be written to Settings.ini
+function Options.saveOptions()
+	-- Save the tracker's currently loaded settings into the Settings object to be saved
+	if Options.updated then
+		for _, optionKey in ipairs(Options.ORDEREDLIST) do
+			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
+		end
+	end
+
+	-- Save the tracker's currently loaded theme into the Settings object to be saved
+	if Theme.updated then
+		for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
+			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5))
+		end
+	end
+
+	if Options.updated or Theme.updated then
+		INI.save("Settings.ini", Settings)
+	end
+	Options.updated = false
+	Theme.updated = false
 end
