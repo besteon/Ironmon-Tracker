@@ -168,12 +168,14 @@ function Options.loadOptions()
 	end
 
 	for optionKey, optionValue in pairs(Options.CONTROLS) do
-		-- If no setting is found, assign it based on the defaults
-		if Settings.controls[string.gsub(optionKey, " ", "_")] == nil then
+		local controlValue = Settings.controls[string.gsub(optionKey, " ", "_")]
+
+		-- If no control is found, assign it based on the defaults
+		if controlValue == nil then
 			Settings.controls[string.gsub(optionKey, " ", "_")] = Options.CONTROLS[optionKey]
 			Options.updated = true
-		else -- Otherwise update the setting that is in use with the one from Settings.ini
-			Options[optionKey] = optionValue
+		else -- Otherwise update the control that is in use with the one from Settings.ini
+			Options.CONTROLS[optionKey] = controlValue
 		end
 	end
 
