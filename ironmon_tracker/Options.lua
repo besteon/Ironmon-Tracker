@@ -116,7 +116,7 @@ Options.optionsButtons = {}
 function Options.buildTrackerOptionsButtons()
 	local borderMargin = 5
 	local index = 1
-    local heightOffset = 10 + index * 10
+	local heightOffset = 10 + index * 10
 
 	for _, optionKey in ipairs(Options.ORDEREDLIST) do
 		local button = {
@@ -161,27 +161,27 @@ function Options.loadOptions()
 		Options.updated = true
 	end
 
-    for _, optionKey in ipairs(Options.ORDEREDLIST) do
-        local optionValue = Settings.tracker[string.gsub(optionKey, " ", "_")]
+	for _, optionKey in ipairs(Options.ORDEREDLIST) do
+		local optionValue = Settings.tracker[string.gsub(optionKey, " ", "_")]
 
-        -- If no setting is found, assign it based on the defaults
-        if optionValue == nil then
+		-- If no setting is found, assign it based on the defaults
+		if optionValue == nil then
 			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
 			Options.updated = true
 		else -- Otherwise update the setting that is in use with the one from Settings.ini
 			Options[optionKey] = optionValue
-        end
-    end
+		end
+	end
 
 	for optionKey, optionValue in pairs(Options.CONTROLS) do
-        -- If no setting is found, assign it based on the defaults
-        if Settings.controls[string.gsub(optionKey, " ", "_")] == nil then
+		-- If no setting is found, assign it based on the defaults
+		if Settings.controls[string.gsub(optionKey, " ", "_")] == nil then
 			Settings.controls[string.gsub(optionKey, " ", "_")] = Options.CONTROLS[optionKey]
 			Options.updated = true
 		else -- Otherwise update the setting that is in use with the one from Settings.ini
 			Options[optionKey] = optionValue
-        end
+		end
 	end
 
-    Options.redraw = true
+	Options.redraw = true
 end

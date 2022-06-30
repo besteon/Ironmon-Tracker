@@ -1,9 +1,9 @@
 Drawing = {}
 
 ImageTypes = {
-    GEAR = "gear",
-    PHYSICAL = "physical",
-    SPECIAL = "special",
+	GEAR = "gear",
+	PHYSICAL = "physical",
+	SPECIAL = "special",
 	NOTEPAD = "notepad",
 }
 
@@ -740,15 +740,15 @@ function Drawing.drawThemeMenu()
 end
 
 function Drawing.drawImageAsPixels(imageType, x, y)
-    local imageArray = {}
-    local imageShadow = nil
+	local imageArray = {}
+	local imageShadow = nil
 	local c = GraphicConstants.THEMECOLORS["Default text"] -- a colored pixel
-    local e = -1 -- an empty pixel
+	local e = -1 -- an empty pixel
 
-    if imageType == ImageTypes.GEAR then
-        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
+	if imageType == ImageTypes.GEAR then
+		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
-        imageArray = {
+		imageArray = {
 			{e,e,e,c,c,e,e,e},
 			{e,c,c,c,c,c,c,e},
 			{e,c,c,c,c,c,c,e},
@@ -758,10 +758,10 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,c,c,c,c,c,c,e},
 			{e,e,e,c,c,e,e,e}
 		}
-    elseif imageType == ImageTypes.PHYSICAL then
-        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	elseif imageType == ImageTypes.PHYSICAL then
+		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
-        imageArray = {
+		imageArray = {
 			{c,e,e,c,e,e,c},
 			{e,c,e,c,e,c,e},
 			{e,e,c,c,c,e,e},
@@ -770,10 +770,10 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,c,e,c,e,c,e},
 			{c,e,e,c,e,e,c}
 		}
-    elseif imageType == ImageTypes.SPECIAL then
-        imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	elseif imageType == ImageTypes.SPECIAL then
+		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
-        imageArray = {
+		imageArray = {
 			{e,e,c,c,c,e,e},
 			{e,c,e,e,e,c,e},
 			{c,e,e,c,e,e,c},
@@ -782,11 +782,11 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,c,e,e,e,c,e},
 			{e,e,c,c,c,e,e}
 		}
-    elseif imageType == ImageTypes.NOTEPAD then
+	elseif imageType == ImageTypes.NOTEPAD then
 		 local notepadBGColor = Utils.inlineIf(Program.State == State.Options, GraphicConstants.THEMECOLORS["Upper box background"], GraphicConstants.THEMECOLORS["Lower box background"])
-        imageShadow = Drawing.calcShadowColor(notepadBGColor)
+		imageShadow = Drawing.calcShadowColor(notepadBGColor)
 		c = GraphicConstants.THEMECOLORS["Default text"]
-        imageArray = {
+		imageArray = {
 			{e,e,e,e,e,e,e,e,e,c,c},
 			{e,e,e,e,e,e,e,e,c,e,c},
 			{c,c,c,c,c,c,c,c,c,c,e},
@@ -801,17 +801,17 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 		}
 	end
 
-    for rowIndex = 1, #imageArray, 1 do
-        for colIndex = 1, #(imageArray[1]) do
-            local offsetX = colIndex - 1
-            local offsetY = rowIndex - 1
-            local color = imageArray[rowIndex][colIndex]
-            if color ~= -1 then
+	for rowIndex = 1, #imageArray, 1 do
+		for colIndex = 1, #(imageArray[1]) do
+			local offsetX = colIndex - 1
+			local offsetY = rowIndex - 1
+			local color = imageArray[rowIndex][colIndex]
+			if color ~= -1 then
 				if imageShadow ~= nil then
-	                gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
+					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
 				end
-                gui.drawPixel(x + offsetX, y + offsetY, color)
-            end
-        end
-    end
+				gui.drawPixel(x + offsetX, y + offsetY, color)
+			end
+		end
+	end
 end
