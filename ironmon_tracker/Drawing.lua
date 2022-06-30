@@ -772,7 +772,7 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 		}
     elseif imageType == ImageTypes.SPECIAL then
         imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
-		c = GraphicConstants.THEMECOLORS["Positive text"]
+		c = GraphicConstants.THEMECOLORS["Default text"]
         imageArray = {
 			{e,e,c,c,c,e,e},
 			{e,c,e,e,e,c,e},
