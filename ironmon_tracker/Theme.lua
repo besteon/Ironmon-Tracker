@@ -92,7 +92,7 @@ Theme.themeButtons = {}
 
 function Theme.buildTrackerThemeButtons()
 	local index = 1
-	local heightOffset = 15 + index * 10
+	local heightOffset = 25
 	local button = {}
 
 	for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
@@ -106,7 +106,7 @@ function Theme.buildTrackerThemeButtons()
 
 		table.insert(Theme.themeButtons, button)
 		index = index + 1
-		heightOffset = 15 + index * 10
+		heightOffset = heightOffset + 10
 	end
 
 	-- Adjust the extra options positions based on the verical space left
@@ -226,9 +226,10 @@ function Theme.openExportWindow()
 end
 
 function Theme.openPresetsWindow()
-	local presetsForm = forms.newform(265, 100, "Theme Presets", function() return nil end)
-	forms.label(presetsForm, "Select a predefined theme to use:", 9, 10, 250, 20)
-	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 10, 30, 145, 30)
+	local presetsForm = forms.newform(360, 105, "Theme Presets", function() return nil end)
+	
+	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
+	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
 	forms.setdropdownitems(presetDropdown, Theme.Presets.PresetNames, false) -- Required to prevent alphabetizing the list
 
 	forms.button(presetsForm, "Load", function()
@@ -236,7 +237,7 @@ function Theme.openPresetsWindow()
 		Theme.updated = true
 		Theme.loadTheme()
 		forms.destroy(presetsForm)
-	end, 165, 29)
+	end, 212, 29)
 end
 
 -- Restores the Theme customizations to the default look-and-feel, or prompts for confirmation

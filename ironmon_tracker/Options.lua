@@ -26,7 +26,14 @@ Options = {
 		["Cycle stat"] = "L",
 		["Cycle prediction"] = "R",
 		["Next seed"] = "A,B,Start,Select",
-	}
+	},
+
+	CONTROLS_ORDERED = {
+		"Next seed",
+		"Cycle view",
+		"Cycle stat",
+		"Cycle prediction",
+	},
 }
 
 -- Update drawing the settings page if true
@@ -59,42 +66,23 @@ Options.closeButton = {
 Options.romsFolderOption = {
 	text = "Roms folder: ",
 	textColor = "Default text",
-	box = {
-		GraphicConstants.SCREEN_WIDTH + 6, -- 6 = borderMargin + 1
-		8, -- 8 = borderMargin + 3
-		8,
-		8,
-	},
-	onClick = function()
-		if Settings.config.ROMS_FOLDER == nil then
-			Settings.config.ROMS_FOLDER = ""
-		end
+	box = { GraphicConstants.SCREEN_WIDTH + 6, 8, 8, 8 },
+	onClick = function() Options.openRomPickerWindow() end
+}
 
-		-- Use the standard file open dialog to get the roms folder
-		local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
-		-- Since the user had to pick a file, strip out the file name to just get the folder.
-		if file ~= "" then
-			Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
-			if Settings.config.ROMS_FOLDER == nil then
-				Settings.config.ROMS_FOLDER = ""
-			end
-		end
-
-		Options.updated = true
-		Options.redraw = true
-	end
+Options.controlsButton = {
+	text = "Edit Controls",
+	textColor = "Default text",
+	box = { GraphicConstants.SCREEN_WIDTH + 8, 20, 57, 11 },
+	boxColors = { "Upper box border", "Upper box background" },
+	onClick = function() Options.openEditControlsWindow() end
 }
 
 -- A button to navigate to the Theme menu for customizing the Tracker's look and feel
 Options.themeButton = {
 	text = "Customize Theme",
 	textColor = "Default text",
-	box = {
-		GraphicConstants.SCREEN_WIDTH + 10,
-		GraphicConstants.SCREEN_HEIGHT - 20,
-		77,
-		11,
-	},
+	box = { GraphicConstants.SCREEN_WIDTH + 10, GraphicConstants.SCREEN_HEIGHT - 20, 77, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		-- Navigate to the Theme Customization menu
@@ -110,7 +98,7 @@ Options.optionsButtons = {}
 function Options.buildTrackerOptionsButtons()
 	local borderMargin = 5
 	local index = 1
-	local heightOffset = 10 + index * 10
+	local heightOffset = 35
 
 	for _, optionKey in ipairs(Options.ORDEREDLIST) do
 		local button = {
@@ -136,7 +124,7 @@ function Options.buildTrackerOptionsButtons()
 		}
 		table.insert(Options.optionsButtons, button)
 		index = index + 1
-		heightOffset = 10 + index * 10
+		heightOffset = heightOffset + 10
 	end
 end
 
@@ -189,6 +177,9 @@ function Options.saveOptions()
 		for _, optionKey in ipairs(Options.ORDEREDLIST) do
 			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
 		end
+		for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+			Settings.controls[string.gsub(controlKey, " ", "_")] = Options.CONTROLS[controlKey]
+		end
 	end
 
 	-- Save the tracker's currently loaded theme into the Settings object to be saved
@@ -203,4 +194,64 @@ function Options.saveOptions()
 	end
 	Options.updated = false
 	Theme.updated = false
+end
+
+function Options.openRomPickerWindow()
+	if Settings.config.ROMS_FOLDER == nil then
+		Settings.config.ROMS_FOLDER = ""
+	end
+
+	-- Use the standard file open dialog to get the roms folder
+	local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
+	-- Since the user had to pick a file, strip out the file name to just get the folder.
+	if file ~= "" then
+		Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
+		if Settings.config.ROMS_FOLDER == nil then
+			Settings.config.ROMS_FOLDER = ""
+		end
+	end
+
+	Options.updated = true
+	Options.redraw = true
+end
+
+function Options.openEditControlsWindow()
+	local form = forms.newform(435, 215, "Controller Inputs", function() return end)
+	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 9, 10, 410, 20)
+
+	local inputTextboxes = {}
+	local offsetX = 90
+	local offsetY = 35
+
+	local index = 1
+	for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+		forms.label(form, controlKey .. ":", offsetX, offsetY, 90, 20)
+		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 90, offsetY - 2)
+
+		index = index + 1
+		offsetY = offsetY + 24
+	end
+
+	-- 'Save & Close' and 'Cancel' buttons
+	forms.button(form,"Save && Close", function() 
+		index = 1
+		for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+			local controlCombination = ""
+			for txtInput in string.gmatch(forms.gettext(inputTextboxes[index]), '([^,%s]+)') do
+				-- Format "START" as "Start"
+				controlCombination = controlCombination .. txtInput:sub(1,1):upper() .. txtInput:sub(2):lower() .. ", "
+			end
+			controlCombination = controlCombination:sub(1, -3)
+
+			Options.CONTROLS[controlKey] = controlCombination
+			Options.updated = true
+			index = index + 1
+		end
+
+		forms.destroy(form)
+	end, 115, offsetY + 5, 95, 30)
+
+	forms.button(form,"Cancel", function()
+		forms.destroy(form)
+	end, 225, offsetY + 5, 65, 30)
 end

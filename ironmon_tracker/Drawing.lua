@@ -674,6 +674,10 @@ function Drawing.drawSettings()
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
+	-- Edit controls button
+	Drawing.drawButtonBox(Options.controlsButton, boxSettingsShadow)
+	Drawing.drawText(Options.controlsButton.box[1] + 3, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+
 	-- Customize button
 	Drawing.drawButtonBox(Options.themeButton, boxSettingsShadow)
 	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, GraphicConstants.THEMECOLORS[Options.themeButton.textColor], boxSettingsShadow)

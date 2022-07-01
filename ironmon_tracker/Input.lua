@@ -54,7 +54,7 @@ function Input.update()
 
 		-- "Options.CONTROLS["Next seed"]"
 		local allPressed = true
-		for button in string.gmatch(Options.CONTROLS["Next seed"], '([^,]+)') do
+		for button in string.gmatch(Options.CONTROLS["Next seed"], '([^,%s]+)') do
 			if joypadButtons[button] ~= true then
 				allPressed = false
 			end
@@ -162,9 +162,12 @@ function Input.check(xmouse, ymouse)
 			end
 		end
 
-		-- Check for input on 'Roms Folder', 'Customize Theme', and 'Close' buttons
+		-- Check for input on 'Roms Folder', 'Edit Controls', 'Customize Theme', and 'Close' buttons
 		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], GraphicConstants.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
 			Options.romsFolderOption.onClick()
+		end
+		if Input.isInRange(xmouse, ymouse, Options.controlsButton.box[1], Options.controlsButton.box[2], Options.controlsButton.box[3], Options.controlsButton.box[4]) then
+			Options.controlsButton.onClick()
 		end
 		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
 			Options.themeButton.onClick()
