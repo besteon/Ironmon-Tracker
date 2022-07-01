@@ -212,7 +212,7 @@ end
 function Drawing.drawInputOverlay()
 	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and (Tracker.Data.selectedPlayer == 2) then
 		local i = Tracker.controller.statIndex
-		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], GraphicConstants.HIGHLIGHTED, 0x000000)
+		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], GraphicConstants.THEMECOLORS["Intermediate text"], 0x000000)
 	end
 end
 
