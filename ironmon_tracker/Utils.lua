@@ -134,12 +134,12 @@ function Utils.getCenterHealColor()
 		elseif currentCount < 6 then
 			return GraphicConstants.THEMECOLORS["Intermediate text"]
 		else
-			return GraphicConstants.THEMECOLORS["Positive text"]
+			return GraphicConstants.THEMECOLORS["Default text"]
 		end
 	else
 		-- Counting upwards
 		if currentCount < 5 then
-			return GraphicConstants.THEMECOLORS["Positive text"]
+			return GraphicConstants.THEMECOLORS["Default text"]
 		elseif currentCount < 10 then
 			return GraphicConstants.THEMECOLORS["Intermediate text"]
 		else

@@ -34,7 +34,8 @@ BadgeButtons = {
 	BADGE_X_POS_START = 247,
 	BADGE_Y_POS = 138,
 	BADGE_WIDTH_LENGTH = 16,
-	badgeButtons = {}
+	badgeButtons = {},
+	xOffsets = {0, 0, 0, 0, 0, 0, 0, 0},
 }
 
 local buttonXOffset = 129
@@ -160,7 +161,7 @@ Buttons = {
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
 		text = "+",
 		textcolor = "Positive text",
-		box = { GraphicConstants.SCREEN_WIDTH + 67, 68, 8, 4 },
+		box = { GraphicConstants.SCREEN_WIDTH + 70, 67, 8, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -170,9 +171,9 @@ Buttons = {
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
-		text = "--",
+		text = "---",
 		textcolor = "Negative text",
-		box = { GraphicConstants.SCREEN_WIDTH + 67, 74, 7, 4 },
+		box = { GraphicConstants.SCREEN_WIDTH + 70, 73, 7, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
@@ -188,7 +189,7 @@ function Buttons.initializeBadgeButtons()
 			type = ButtonType.badgeButton,
 			visible = function() return Tracker.Data.selectedPlayer == 1 end,
 			box = {
-				BadgeButtons.BADGE_X_POS_START + ((i-1) * (BadgeButtons.BADGE_WIDTH_LENGTH + 1)),
+				BadgeButtons.BADGE_X_POS_START + ((i-1) * (BadgeButtons.BADGE_WIDTH_LENGTH + 1)) + BadgeButtons.xOffsets[i],
 				BadgeButtons.BADGE_Y_POS,
 				BadgeButtons.BADGE_WIDTH_LENGTH,
 				BadgeButtons.BADGE_WIDTH_LENGTH

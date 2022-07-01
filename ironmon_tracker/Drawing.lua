@@ -316,10 +316,13 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
 			
-			-- Draw the '+'', '-'', and toggle buttons for PC heal tracking
-			Drawing.drawText(Buttons[9].box[1], Buttons[9].box[2] + (Buttons[9].box[4] - 12) / 2 + 1, Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], boxTopShadow)
-			Drawing.drawText(Buttons[10].box[1], Buttons[10].box[2] + (Buttons[10].box[4] - 12) / 2 + 1, Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], boxTopShadow)
+			-- Draw the '+'', '-'', and toggle button for auto PC tracking
+			gui.drawText(Buttons[9].box[1] + 1, Buttons[9].box[2] + 1, Buttons[9].text, boxTopShadow, nil, 5, "Franklin Gothic Medium")
+			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], nil, 5, "Franklin Gothic Medium")
+			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, "Franklin Gothic Medium")
+			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, "Franklin Gothic Medium")
 			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
+
 			-- Draw a mark if the feature is on
 			if Program.PCHealTrackingButtonState then
 				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
@@ -597,8 +600,8 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		if button.visible() then
 			local addForOff = ""
 			if button.state == 0 then addForOff = "_OFF" end
-			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge"..index..addForOff..".png"
-			gui.drawImage(path,button.box[1], button.box[2])
+			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge" .. index .. addForOff .. ".png"
+			gui.drawImage(path, button.box[1], button.box[2])
 		end
 	end	
 
@@ -668,6 +671,7 @@ function Drawing.drawSettings()
 	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folder == "" then
 		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
+		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
 	-- Customize button
@@ -783,7 +787,7 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,e,c,c,c,e,e}
 		}
 	elseif imageType == ImageTypes.NOTEPAD then
-		 local notepadBGColor = Utils.inlineIf(Program.State == State.Options, GraphicConstants.THEMECOLORS["Upper box background"], GraphicConstants.THEMECOLORS["Lower box background"])
+		local notepadBGColor = Utils.inlineIf(Program.State == State.Options, GraphicConstants.THEMECOLORS["Upper box background"], GraphicConstants.THEMECOLORS["Lower box background"])
 		imageShadow = Drawing.calcShadowColor(notepadBGColor)
 		c = GraphicConstants.THEMECOLORS["Default text"]
 		imageArray = {
