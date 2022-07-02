@@ -286,7 +286,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	-- Settings gear
-	Drawing.drawImageAsPixels(ImageTypes.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7)
+	Drawing.drawImageAsPixels(ImageTypes.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7, boxTopShadow)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
@@ -510,9 +510,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
 
 		if Options["Show physical special icons"] and category == MoveCategories.PHYSICAL then
-			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)))
+			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		elseif Options["Show physical special icons"] and category == MoveCategories.SPECIAL then
-			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)))
+			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		end
 	end
 
@@ -609,7 +609,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	if Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 then
 		local note = Tracker.GetNote()
 		if note == '' then
-			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47)
+			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47, boxBotShadow)
 		else
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, note, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
@@ -670,7 +670,7 @@ function Drawing.drawSettings()
 	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
 	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folder == "" then
-		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2)
+		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
@@ -747,14 +747,12 @@ function Drawing.drawThemeMenu()
 	
 end
 
-function Drawing.drawImageAsPixels(imageType, x, y)
+function Drawing.drawImageAsPixels(imageType, x, y, imageShadow)
 	local imageArray = {}
-	local imageShadow = nil
 	local c = GraphicConstants.THEMECOLORS["Default text"] -- a colored pixel
 	local e = -1 -- an empty pixel
 
 	if imageType == ImageTypes.GEAR then
-		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
 		imageArray = {
 			{e,e,e,c,c,e,e,e},
@@ -767,7 +765,6 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,e,e,c,c,e,e,e}
 		}
 	elseif imageType == ImageTypes.PHYSICAL then
-		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
 		imageArray = {
 			{c,e,e,c,e,e,c},
@@ -779,7 +776,6 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{c,e,e,c,e,e,c}
 		}
 	elseif imageType == ImageTypes.SPECIAL then
-		imageShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 		c = GraphicConstants.THEMECOLORS["Default text"]
 		imageArray = {
 			{e,e,c,c,c,e,e},
@@ -791,8 +787,6 @@ function Drawing.drawImageAsPixels(imageType, x, y)
 			{e,e,c,c,c,e,e}
 		}
 	elseif imageType == ImageTypes.NOTEPAD then
-		local notepadBGColor = Utils.inlineIf(Program.State == State.Options, GraphicConstants.THEMECOLORS["Upper box background"], GraphicConstants.THEMECOLORS["Lower box background"])
-		imageShadow = Drawing.calcShadowColor(notepadBGColor)
 		c = GraphicConstants.THEMECOLORS["Default text"]
 		imageArray = {
 			{e,e,e,e,e,e,e,e,e,c,c},
