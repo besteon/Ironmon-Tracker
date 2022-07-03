@@ -45,7 +45,7 @@ function Program.main()
 
 		-- Update abilities in the tracker
 		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
-			Tracker.TrackAbility(ability.pokemonId, ability.abilityId)
+			Tracker.TrackAbility(ability.pokemonId, ability.abilityId, false)
 		end
 		Program.tracker.abilitiesToUpdate = {}
 
@@ -54,6 +54,9 @@ function Program.main()
 			Tracker.TrackItem(item.pokemonId, item.itemId)
 		end
 		Program.tracker.items = {}
+
+		--Track encounter count?
+
 
 		-- Execute event callbacks
 		-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
@@ -69,15 +72,16 @@ function Program.main()
 			if Tracker.Data.inBattle == 1 then
 				Program.UpdateMonPartySlots()
 			end
+			-- Refer to this for more improvement options https://github.com/Brian0255/NDS-Ironmon-Tracker/blob/main/ironmon_tracker/Program.lua
 			Program.UpdatePokemonTeamDataFromMemory()
 			Program.UpdateSelectedPokemonData()
 			Program.UpdateTargetedPokemonData()
-			Program.UpdatePrimaryMonAbilityData()
+			Program.UpdateAbilityData()
 			Program.UpdateMonStatStages()
 			Program.UpdateMonPartySlots()
 			Program.UpdateBagHealingItems()
 
-			Program.StatButtonState = Tracker.getButtonState()
+			Program.StatButtonState = Tracker.getStatMarkings(Tracker.Data.selectedPokemon.pokemonID)
 			Buttons = Program.updateButtons(Program.StatButtonState)
 
 			if Tracker.Data.selectedPlayer == 2 then
@@ -91,7 +95,6 @@ function Program.main()
 			end
 
 			Tracker.redraw = false
-			Tracker.saveData()
 		end
 
 		if Tracker.waitFrames > 0 then
@@ -127,14 +130,16 @@ function Program.UpdateSelectedPokemonData()
 		Tracker.Data.selectedPokemon = pokemonaux
 	end
 
-	if Tracker.Data.selectedPokemon ~= nil then
-		if Tracker.Data.selectedPokemon.pokemonID ~= nil then
-			Tracker.Data.selectedPokemon.moves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID + 1)
-			Tracker.Data.selectedPokemon.abilities = Tracker.getAbilities(Tracker.Data.selectedPokemon.pokemonID + 1)
-		end
-	end
+	-- TODO: Verify we don't need to do this since all the data is being tracked already.
+	-- if Tracker.Data.selectedPokemon ~= nil then
+	-- 	if Tracker.Data.selectedPokemon.pokemonID ~= nil then
+	-- 		Tracker.Data.selectedPokemon.moves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID + 1)
+	-- 		Tracker.Data.selectedPokemon.abilities = Tracker.getAbilities(Tracker.Data.selectedPokemon.pokemonID + 1)
+	-- 	end
+	-- end
 end
 
+-- TODO: Is this the "last seen pokemon" we want to try?
 function Program.UpdateTargetedPokemonData()
 	local pokemontarget = Program.getPokemonData({ player = Tracker.Data.targetPlayer, slot = Tracker.Data.targetSlot })
 	if Program.validPokemonData(pokemontarget) then
@@ -144,8 +149,53 @@ function Program.UpdateTargetedPokemonData()
 	end
 end
 
-function Program.UpdatePrimaryMonAbilityData()
-	Tracker.Data.main.ability = Program.getMainAbility()
+-- TODO: Rewrite this later
+function Program.UpdateAbilityData()
+	-- Only update ability data if new data was found [during battle]
+	if Tracker.Data.inBattle == 0 then
+		return
+	end
+
+	-- TODO: First we want to be tracking our pokemon team data and last seen pokemon. 
+	-- Then, if that data has holes, use this to update with memory reads.
+
+	-- Note which ability (of possible two) the selected Pokemon has
+	local battleAbility = Memory.readbyte(GameSettings.gBattleMons + 0x20 + ((Tracker.Data.selectedPlayer - 1) * 0x58))
+	if battleAbility ~= 0 then
+		-- Store this data somehow so we can have it permanently without tracking literally every seen pokemon
+		Tracker.Data.selectedPokemon.currentAbility = battleAbility
+	end
+
+	local slotZeroAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities)
+	local slotOneAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+	local slotTwoAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x2)
+	local slotThreeAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
+
+	local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
+	local selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
+	local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+	local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+
+	-- TODO: Check if Trace and Transform override this information (they probably do)
+	if Program.trainerPokemonTeam[selfSlotOne] ~= nil and slotZeroAbilityId ~= 0 then
+		print("T1pkmID: " .. (Program.trainerPokemonTeam[selfSlotOne].pkmID + 1) .. ", abilityId: " .. slotZeroAbilityId)
+		Tracker.TrackAbility(Program.trainerPokemonTeam[selfSlotOne].pkmID + 1, slotZeroAbilityId, true)
+	end
+	if Program.trainerPokemonTeam[selfSlotTwo] ~= nil and slotTwoAbilityId ~= 0 then
+		print("T2pkmID: " .. (Program.trainerPokemonTeam[selfSlotTwo].pkmID + 1) .. ", abilityId: " .. slotTwoAbilityId)
+		Tracker.TrackAbility(Program.trainerPokemonTeam[selfSlotTwo].pkmID + 1, slotTwoAbilityId, true)
+	end
+	if Program.enemyPokemonTeam[enemySlotOne] ~= nil and slotOneAbilityId ~= 0 then
+		print("E1pkmID: " .. (Program.enemyPokemonTeam[enemySlotOne].pkmID + 1) .. ", abilityId: " .. slotOneAbilityId)
+		Tracker.TrackAbility(Program.enemyPokemonTeam[enemySlotOne].pkmID + 1, slotOneAbilityId, false)
+	end
+	if Program.enemyPokemonTeam[enemySlotTwo] ~= nil and slotThreeAbilityId ~= 0 then
+		print("E2pkmID: " .. (Program.enemyPokemonTeam[enemySlotTwo].pkmID + 1) .. ", abilityId: " .. slotThreeAbilityId)
+		Tracker.TrackAbility(Program.enemyPokemonTeam[enemySlotTwo].pkmID + 1, slotThreeAbilityId, false)
+	end
+	
+	-- OLD CODE TO RECHECK
+	-- Tracker.Data.main.ability = Program.getMainAbility()
 end
 
 function Program.UpdateMonStatStages()
@@ -154,7 +204,6 @@ function Program.UpdateMonStatStages()
 	local battleMon = Program.getBattleMon(battleMonSlot)
 	if battleMon.statStages["HP"] ~= 0 then
 		Tracker.Data.selectedPokemon.statStages = battleMon.statStages
-		Tracker.Data.selectedPokemon.ability = battleMon.ability
 	else
 		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
 	end
@@ -198,6 +247,8 @@ function Program.BattleEnded()
 	Tracker.Data.targetedPokemon = nil
 	Tracker.redraw = true
 	Tracker.waitFrames = 60
+
+	Tracker.saveData()
 end
 
 function Program.updateButtons(state)
@@ -216,6 +267,7 @@ function Program.updateButtons(state)
 	return Buttons
 end
 
+-- TODO: Verify we don't need this anymore
 function Program.getMainAbility()
 	local abilityValue = Memory.readbyte(GameSettings.sBattlerAbilities) + 1
 	if abilityValue ~= 1 then

@@ -15,6 +15,77 @@ function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
+-- Determine if the tracked Pokémon's moves are old and if so mark with a star
+function Utils.calculateMoveStars(pokemonId, level)
+	local stars = { "", "", "", "" }
+
+	local pokemon = Tracker.Data.pokemon[pokemonId]
+	if pokemon == nil or level == nil then
+		return stars
+	end
+
+	-- For each move, count how many moves this Pokemon at this 'level' has learned already
+	local movesLearnedSince = { 0, 0, 0, 0 }
+	local allMoveLevels = PokemonData[pokemonId + 1].movelvls[GameSettings.versiongroup]
+	for _, lv in pairs(allMoveLevels) do
+		for i = 1, 4, 1 do
+			if lv > pokemon.moves[i].level and lv <= level then
+				movesLearnedSince[i] = movesLearnedSince[i] + 1
+			end
+		end
+	end
+
+	-- Determine which moves are the oldest, by ranking them against their levels learnt.
+	local moveAgeRank = { 1, 1, 1, 1 }
+	for moveIndex, move in pairs(pokemon.moves) do
+		for moveIndexCompare, moveCompare in pairs(pokemon.moves) do
+			if moveIndex ~= moveIndexCompare then
+				if move.level > moveCompare.level then
+					moveAgeRank[moveIndex] = moveAgeRank[moveIndex] + 1
+				end
+			end
+		end
+	end
+
+	-- A move is only star'd if it was possible it has been forgotten
+	for i = 1, 4, 1 do
+		if pokemon.moves[i].level ~= 1 and movesLearnedSince[i] >= moveAgeRank[i] then
+			stars[i] = "*"
+		end
+	end
+
+	return stars
+end
+
+-- Move Header format: C/T (N), where C is moves learned so far, T is total number available to learn, and N is the next level the Pokemon learns a move
+-- Example: 4/12 (25)
+function Utils.getMovesLearnedHeader(pokemonId, level)
+	if pokemonId == nil or level == nil then
+		return "0/0 (0)"
+	end
+
+	local movesLearned = 0
+	local nextMoveLevel = 0
+	local foundNextMove = false
+
+	local allMoveLevels = PokemonData[pokemonId + 1].movelvls[GameSettings.versiongroup]
+	for _, lv in pairs(allMoveLevels) do
+		if lv <= level then
+			movesLearned = movesLearned + 1
+		elseif not foundNextMove then
+			nextMoveLevel = lv
+			foundNextMove = true
+		end
+	end
+
+	local header = movesLearned .. "/" .. table.getn(allMoveLevels)
+	if foundNextMove then
+		header = header .. " (" .. nextMoveLevel .. ")"
+	end
+
+	return header
+end
+
 function Utils.netEffectiveness(move, pkmnData)
 	local effectiveness = 1.0
 

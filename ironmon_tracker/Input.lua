@@ -97,7 +97,7 @@ function Input.update()
 					Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spe]
 					Tracker.controller.framesSinceInput = 0
 				end
-				Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+				Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
 				Tracker.redraw = true
 			end
 		end
@@ -133,6 +133,16 @@ function Input.check(xmouse, ymouse)
 
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
+
+			-- local trainerPointer = 0x300500C -- FRLG
+			-- local trainerCardPointer = 0x020397a4 -- FRLG
+			-- local wrambadge = 0x2020000 + 0x800 + 0x20
+			-- -- local trainerAddress = Memory.readdword(trainerCardPointer)
+			-- print(string.format("%x", Memory.readbyte(wrambadge)))
+			-- for i = 0x0, 20 * 0x4, 0x4 do
+			-- 	-- print("badge " .. i .. " = " .. string.format("%x", Memory.readbyte(trainerAddress + i)))
+			-- end
+
 			Options.redraw = true
 			Program.state = State.SETTINGS
 		end
@@ -145,7 +155,7 @@ function Input.check(xmouse, ymouse)
 			forms.button(Input.noteForm, "Save", function()
 				local formInput = forms.gettext(noteTextBox)
 				if formInput ~= nil then
-					Tracker.SetNote(formInput)
+					Tracker.TrackNote(Tracker.Data.selectedPokemon.pokemonID, formInput)
 					Tracker.redraw = true
 				end
 				forms.destroy(Input.noteForm)

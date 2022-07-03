@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.1a"
+TRACKER_VERSION = "0.4.2"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -73,6 +73,7 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		Tracker.Clear() -- Remove on-commit
 		Tracker.loadData()
 		Buttons.initializeBadgeButtons()
 

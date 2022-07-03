@@ -45,6 +45,7 @@ Draws text for the tracker on screen with a shadow effect. Uses the Franklin Got
 
 	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
 ]]
+-- TODO: Look into Libre Franklin and Public Sans are free fonts based on Franklin Gothic
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
 	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, "Franklin Gothic Medium", style)
 	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
@@ -349,21 +350,23 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
-	local abilityString = Utils.inlineIf(monIsEnemy, "---", MiscData.ability[monToDraw["ability"] + 1])
-	if monIsEnemy then
-		for k, v in pairs(Tracker.Data.selectedPokemon.abilities) do
-			if v == monToDraw["ability"] then
-				local abilityId = monToDraw["ability"] + 1
-				abilityString = MiscData.ability[abilityId]
-			end
-		end
-	end
-
-	-- Held item & ability
+	-- Draw Pokemon's held item but only for your own Pokemon
 	if monIsEnemy == false then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
+
+	-- TODO: This is very broken since tracker struct reworks
+	-- Draw Pokemon's ability, but only if it is known to the player
+	local abilityString = MiscData.ability[1] -- "---"
+	local abilities = Tracker.getAbilities(monToDraw.pokemonID + 1)
+
+	if abilities.first ~= nil and monToDraw.currentAbility == abilities.first.ability and abilities.first.revealed then
+		abilityString = MiscData.ability[abilities.first.ability + 1]
+	elseif abilities.second ~= nil and monToDraw.currentAbility == abilities.second.ability and abilities.second.revealed then
+		abilityString = MiscData.ability[abilities.second.ability + 1]
+	end
+
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 
 	-- draw stat box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, 5, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
@@ -414,90 +417,23 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
 	local moveStartY = movesBoxStartY + 2
 
-	local monLevel = monToDraw["level"]
-	local monData = PokemonData[monToDraw["pokemonID"] + 1]
-	local moveLevels = monData.movelvls[GameSettings.versiongroup]
-
-	-- Determine if the opponent Pokémon's moves are old and mark with a star
-	local movesLearnedSinceFirst = 0
-	local movesLearnedSinceSecond = 0
-	local movesLearnedSinceThird = 0
-	local movesLearnedSinceFourth = 0
-
-	for k, v in pairs(moveLevels) do
-		if v > Tracker.Data.selectedPokemon.moves.first.level and v <= monLevel then
-			movesLearnedSinceFirst = movesLearnedSinceFirst + 1
-		end
-		if v > Tracker.Data.selectedPokemon.moves.second.level and v <= monLevel then
-			movesLearnedSinceSecond = movesLearnedSinceSecond + 1
-		end
-		if v > Tracker.Data.selectedPokemon.moves.third.level and v <= monLevel then
-			movesLearnedSinceThird = movesLearnedSinceThird + 1
-		end
-		if v > Tracker.Data.selectedPokemon.moves.fourth.level and v <= monLevel then
-			movesLearnedSinceFourth = movesLearnedSinceFourth + 1
-		end
-	end
-
-	local moveAgeRank = {
-		first = 1,
-		second = 1,
-		third = 1,
-		fourth = 1
-	}
-	for k, v in pairs(Tracker.Data.selectedPokemon.moves) do
-		for k2, v2 in pairs(Tracker.Data.selectedPokemon.moves) do
-			if k ~= k2 then
-				if v.level > v2.level then
-					moveAgeRank[k] = moveAgeRank[k] + 1
-				end
-			end
-		end
-	end
-
-	local stars = {
-		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.first.level ~= 1 and movesLearnedSinceFirst >= moveAgeRank.first) and "*" or "",
-		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.second.level ~= 1 and movesLearnedSinceSecond >= moveAgeRank.second) and "*" or "",
-		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.third.level ~= 1 and movesLearnedSinceThird >= moveAgeRank.third) and "*" or "",
-		(monIsEnemy == true and Tracker.Data.selectedPokemon.moves.fourth.level ~= 1 and movesLearnedSinceFourth >= moveAgeRank.fourth) and "*" or "",
-	}
+	local stars = Utils.calculateMoveStars(monToDraw.pokemonID, monToDraw.level)
 
 	-- Determine which moves to show based on if the tracker is showing the enemy Pokémon or the player's.
-	local moves = {
-		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.first.move], MoveData[monToDraw["move1"] + 1]),
-		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.second.move], MoveData[monToDraw["move2"] + 1]),
-		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.third.move], MoveData[monToDraw["move3"] + 1]),
-		Utils.inlineIf(monIsEnemy, MoveData[Tracker.Data.selectedPokemon.moves.fourth.move], MoveData[monToDraw["move4"] + 1]),
-	}
-
-	local distanceBetweenMoves = 10
-
-	local movelevellist = PokemonData[monToDraw["pokemonID"] + 1].movelvls -- pokemonID
-	local moveCount = 0
-	local movesLearned = 0
-	local nextMove = 0
-	local foundNextMove = false
-
-	for k, v in pairs(movelevellist[GameSettings.versiongroup]) do -- game
-		moveCount = moveCount + 1
-		if v <= monToDraw["level"] then
-			movesLearned = movesLearned + 1
+	local moves = {}
+	for i=1, 4, 1 do
+		-- If the Pokemon doesn't belong to the player, pull move data from tracked data
+		if monIsEnemy then
+			moves[i] = MoveData[Tracker.Data.pokemon[monToDraw.pokemonID].moves[i]]
 		else
-			if foundNextMove == false then
-				nextMove = v
-				foundNextMove = true
-			end
+			moves[i] = MoveData[monToDraw.moves[i]]
 		end
-	end
+	end	
+
+	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(monToDraw.pokemonID, monToDraw.level)
 
 	local moveTableHeaderHeightDiff = 14
-
-	local movesString = "Move ~  "
-	movesString = movesString .. movesLearned .. "/" .. moveCount
-	if nextMove ~= 0 then
-		movesString = movesString .. " (" .. nextMove .. ")"
-	end
-
+	local distanceBetweenMoves = 10
 	local moveOffset = 7
 	local ppOffset = 82
 	local powerOffset = 102
