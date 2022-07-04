@@ -21,7 +21,7 @@ function Tracker.InitTrackerData()
 			ability = 0
 		},
 		inBattle = 0,
-		needCheckSummary = 0,
+		needCheckSummary = Utils.inlineIf(Settings.tracker.MUST_CHECK_SUMMARY, 1, 0),
 		selectedPlayer = 1,
 		selectedSlot = 1,
 		targetPlayer = 2,
@@ -39,6 +39,7 @@ function Tracker.InitTrackerData()
 			numHeals = 0,
 		},
 		centerHeals = Utils.inlineIf(Settings.tracker.SURVIVAL_COUNT_DOWN, 10, 0),
+		badges = {0,0,0,0,0,0,0,0},
 		notes = {},
 		currentHiddenPowerType = PokemonTypes.NORMAL,
 		romHash = nil,
@@ -224,6 +225,7 @@ function Tracker.loadData()
 
 		if Tracker.Data.romHash then
 			if gameinfo.getromhash() == Tracker.Data.romHash then
+				Buttons.updateBadges()
 				print("Loaded tracker data")
 			else
 				print("New ROM detected, resetting tracker data")
@@ -232,9 +234,6 @@ function Tracker.loadData()
 		end
 	else
 		Tracker.Data = Tracker.InitTrackerData()
-		if Settings.tracker.MUST_CHECK_SUMMARY == true then
-			Tracker.Data.needCheckSummary = 1
-		end
 	end
 
 	Tracker.Data.romHash = gameinfo.getromhash()

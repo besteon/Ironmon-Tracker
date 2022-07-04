@@ -53,6 +53,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
 
 	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
+		if number == "---" then new_spacing = 8 end
 	end
 
 	gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
@@ -256,6 +257,15 @@ function Drawing.drawButtons()
 			end
 		end
 	end
+
+	for index, button in pairs(BadgeButtons.badgeButtons) do
+		if button.visible() then
+			local addForOff = ""
+			if button.state == 0 then addForOff = "_OFF" end
+			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge"..index..addForOff..".png"
+			gui.drawImage(path,button.box[1], button.box[2])
+		end
+	end	
 end
 
 function Drawing.drawInputOverlay()
@@ -386,7 +396,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	-- Drawing moves
-	local movesBoxStartY = 94
+	local movesBoxStartY = 92
 
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local moveStartY = movesBoxStartY + 3
@@ -450,7 +460,6 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local distanceBetweenMoves = 10
 
 	-- Moves Learned
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, 140, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 14, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
 	local movelevellist = PokemonData[monToDraw["pokemonID"] + 1].movelvls -- pokemonID
 	local moveCount = 0
 	local movesLearned = 0
@@ -549,9 +558,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			else
 				newPower = movePower
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, 3, stabColors[moveIndex])
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex])
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, 3, stabColors[moveIndex])
 		end
 	end
 
@@ -572,20 +581,25 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		end
 	end
 
+	-- draw badge/note box
+	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 46, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 17, GraphicConstants.LAYOUTCOLORS.BOXBORDER, GraphicConstants.LAYOUTCOLORS.BOXFILL)
+
 	Drawing.drawButtons()
 	Drawing.drawInputOverlay()
 
-	-- draw note box
-	local note = Tracker.GetNote()
-	if note == '' then
-		gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 48, 11, 11)
-	else
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 47, note)
-		--work around limitation of drawText not having width limit: paint over any spillover
-		local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
-		local y = 141
-		gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
-		gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+	-- draw note box, only for enemy pokemon
+	if Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 then
+		local note = Tracker.GetNote()
+		if note == '' then
+			gui.drawImage(DATA_FOLDER .. "/images/icons/editnote.png", GraphicConstants.SCREEN_WIDTH + borderMargin + 2, movesBoxStartY + 49, 11, 11)
+		else
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 49, note)
+			--work around limitation of drawText not having width limit: paint over any spillover
+			local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
+			local y = 141
+			gui.drawLine(x, 141, x, y + 12, GraphicConstants.LAYOUTCOLORS.BOXBORDER)
+			gui.drawRectangle(x + 1, y, 12, 12, 0xFF000000, 0xFF000000)
+		end
 	end
 end
 

@@ -477,7 +477,7 @@ PokemonData = {
 		evolution = "28",
 		bst = "290",
 		movelvls = { { 11, 20, 28, 35, 41, 46, 50 }, { 10, 18, 25, 31, 36, 40, 43, 45 } },
-		weight = 66.6
+		weight = 4.2
 	},
 	{
 		name = "Persian",
@@ -525,7 +525,7 @@ PokemonData = {
 		evolution = EvolutionTypes.FIRE,
 		bst = "350",
 		movelvls = { { 7, 13, 19, 25, 31, 37, 43, 49 }, { 7, 13, 19, 25, 31, 37, 43, 49 } },
-		weight = 22.7
+		weight = 19.0
 	},
 	{
 		name = "Arcanine",

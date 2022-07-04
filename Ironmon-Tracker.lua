@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.3.4"
+TRACKER_VERSION = "0.3.5"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -10,7 +10,8 @@ PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant locat
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
-if string.sub(client.getversion(), 1) ~= "2.8" then
+-- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
+if client.getversion == nil or client.getversion() ~= "2.8" then
 	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
 	-- Bounce out... Don't pass Go! Don't collect $200.
 	return
@@ -23,7 +24,13 @@ DATA_FOLDER = "ironmon_tracker"
 INI = dofile(DATA_FOLDER .. "/Inifile.lua")
 -- Need to manually read the file to work around a bug in the ini parser, which
 -- does not correctly handle that the last iteration over lines() returns nil
-Settings = INI.parse(io.open("Settings.ini"):read("*a"), "memory")
+local file = io.open("Settings.ini")
+assert(file ~= nil)
+Settings = INI.parse(file:read("*a"), "memory")
+io.close(file)
+-- If ROMS_FOLDER is left empty, Inifile.lua doesn't add it to the settings table, resulting in the ROMS_FOLDER 
+-- being deleted entirely from Settings.ini if another setting is toggled in the tracker options menu
+if Settings.config.ROMS_FOLDER == nil then Settings.config.ROMS_FOLDER = "" end
 
 -- Import all scripts before starting the main loop
 dofile(DATA_FOLDER .. "/PokemonData.lua")
@@ -46,18 +53,15 @@ Main.LoadNextSeed = false
 
 -- Main loop
 function Main.Run()
-	print("Waiting 5s before loading...")
-	local frames = 0
-	local waitBeforeHook = 300
-	while frames < waitBeforeHook do
-		emu.frameadvance()
-		frames = frames + 1
-	end
 	print("Loading...")
+	local romLoaded = false
+	while not romLoaded do
+		if gameinfo.getromname() ~= "Null" then romLoaded = true end
+		emu.frameadvance()
+	end
 
 	Options.buildTrackerOptionsButtons()
 	GameSettings.initialize()
-
 	if GameSettings.game == 0 then
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
@@ -66,6 +70,7 @@ function Main.Run()
 		end
 	else
 		Tracker.loadData()
+		Buttons.initializeBadgeButtons()
 
 		client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
 		gui.defaultTextBackground(0)
@@ -101,6 +106,16 @@ function Main.Run()
 		-- event.onmemoryread(Program.HandleBattleScriptSynchronizeActivates, GameSettings.BattleScriptSynchronizeActivates, "HandleBattleScriptSynchronizeActivates")
 		--event.onmemoryread(Program.Handle, GameSettings., "")
 
+		-- Badge events (Keep disabled: doesn't work in Bizhawk 2.8; confirmed fixed in 2.9 dev)
+		-- event.onmemoryread(Program.HandleBadgeOneObtained, GameSettings.ObtainBadgeOne, "HandleBadgeOneObtained")
+		-- event.onmemoryread(Program.HandleBadgeTwoObtained, GameSettings.ObtainBadgeTwo, "HandleBadgeTwoObtained")
+		-- event.onmemoryread(Program.HandleBadgeThreeObtained, GameSettings.ObtainBadgeThree, "HandleBadgeThreeObtained")
+		-- event.onmemoryread(Program.HandleBadgeFourObtained, GameSettings.ObtainBadgeFour, "HandleBadgeFourObtained")
+		-- event.onmemoryread(Program.HandleBadgeFiveObtained, GameSettings.ObtainBadgeFive, "HandleBadgeFiveObtained")
+		-- event.onmemoryread(Program.HandleBadgeSixObtained, GameSettings.ObtainBadgeSix, "HandleBadgeSixObtained")
+		-- event.onmemoryread(Program.HandleBadgeSevenObtained, GameSettings.ObtainBadgeSeven, "HandleBadgeSevenObtained")
+		-- event.onmemoryread(Program.HandleBadgeEightObtained, GameSettings.ObtainBadgeEight, "HandleBadgeEightObtained")
+
 		-- For some reason if I put this onmemory read before the ability event ones, it doesn't work. No idea why, probably just Bizhawk things.
 		-- event.onmemoryread(Program.HandleWeHopeToSeeYouAgain, GameSettings.WeHopeToSeeYouAgain)
 		-- event.onmemoryread(Program.HandleTrainerSentOutPkmn, GameSettings.TrainerSentOutPkmn)
@@ -122,21 +137,21 @@ function Main.LoadNext()
 	userdata.clear()
 	print "Reset tracker"
 
-	if Settings.config.ROMS_FOLDER == nil then
+	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
 		print("ROMS_FOLDER unspecified. Set this in Settings.ini to automatically switch ROM.")
-		Main.LoadNextSeed = false
-		Main.Run()
-		return
+		Main.CloseROM()
 	end
 
-	client.SetSoundOn(false)
 	local romname = gameinfo.getromname()
-	client.closerom()
-	
 	-- Split the ROM name into its prefix and numerical values
 	local romprefix = string.match(romname, '[^0-9]+')
 	local romnumber = string.match(romname, '[0-9]+')
 	if romprefix == nil then romprefix = "" end
+
+	if romnumber == nil then
+		print("Unable to load next ROM file: no numbers in current ROM name.\nClosing current ROM: " .. romname)
+		Main.CloseROM()
+	end
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
@@ -153,18 +168,26 @@ function Main.LoadNext()
 		filecheck = io.open(nextrompath,"r")
 		if filecheck == nil then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("Unable to locate next ROM file to load. Current ROM: " .. romname)
-			Main.LoadNextSeed = false
-			Main.Run()
+			print("Unable to locate next ROM file to load.\nClosing current ROM: " .. romname)
+			Main.CloseROM()
 		else
 			io.close(filecheck)
 		end
 	end
 
+	client.SetSoundOn(false)
+	client.closerom()
+	print("Loading next ROM: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
+	Main.LoadNextSeed = false
+	Main.Run()
 
+end
+
+function Main.CloseROM()
 	if gameinfo.getromname() ~= "Null" then
+		client.closerom()
 		Main.LoadNextSeed = false
 		Main.Run()
 	end

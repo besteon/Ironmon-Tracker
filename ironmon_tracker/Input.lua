@@ -116,6 +116,16 @@ function Input.check(xmouse, ymouse)
 			end
 		end
 
+		--badges
+		for index, button in pairs(BadgeButtons.badgeButtons) do
+			if button.visible() then
+				if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
+					button:onclick()
+					Tracker.redraw = true
+				end
+			end
+		end
+
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
 			Options.redraw = true
@@ -123,7 +133,7 @@ function Input.check(xmouse, ymouse)
 		end
 
 		--note box
-		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil then
+		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil and Tracker.Data.selectedPlayer == 2 then
 			Input.noteForm = forms.newform(290, 60, "Note (70 char. max)", function() Input.noteForm = nil end)
 			local textBox = forms.textbox(Input.noteForm, Tracker.GetNote(), 200, 20)
 			forms.button(Input.noteForm, "Set", function()
