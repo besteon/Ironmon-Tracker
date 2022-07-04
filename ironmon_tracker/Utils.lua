@@ -69,6 +69,7 @@ function Utils.isSTAB(move, pkmnData)
 	return false
 end
 
+-- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.
 function Utils.calculateWeightBasedDamage(weight)
 	if weight < 10.0 then
 		return "20"
