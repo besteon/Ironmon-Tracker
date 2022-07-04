@@ -21,7 +21,7 @@ function Tracker.InitTrackerData()
 			ability = 0
 		},
 		inBattle = 0,
-		needCheckSummary = 0,
+		needCheckSummary = Utils.inlineIf(Settings.tracker.MUST_CHECK_SUMMARY, 1, 0),
 		selectedPlayer = 1,
 		selectedSlot = 1,
 		targetPlayer = 2,
@@ -234,9 +234,6 @@ function Tracker.loadData()
 		end
 	else
 		Tracker.Data = Tracker.InitTrackerData()
-		if Settings.tracker.MUST_CHECK_SUMMARY == true then
-			Tracker.Data.needCheckSummary = 1
-		end
 	end
 
 	Tracker.Data.romHash = gameinfo.getromhash()

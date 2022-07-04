@@ -53,6 +53,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, style)
 
 	if Settings.tracker.RIGHT_JUSTIFIED_NUMBERS then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
+		if number == "---" then new_spacing = 8 end
 	end
 
 	gui.drawText(x + 1 + new_spacing, y + 1, number, "black", nil, 9, "Franklin Gothic Medium", style)
@@ -557,9 +558,9 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 			else
 				newPower = movePower
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, stabColors[moveIndex])
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, 3, stabColors[moveIndex])
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, stabColors[moveIndex])
+			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, 3, stabColors[moveIndex])
 		end
 	end
 

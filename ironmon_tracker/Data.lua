@@ -398,6 +398,7 @@ MiscData = {
 		"White Smoke",
 		"Pure Power",
 		"Shell Armor",
+		"Cacophony", -- Unused in game but still takes this slot
 		"Air Lock"
 	}
 }
