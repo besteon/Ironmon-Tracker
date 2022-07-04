@@ -207,6 +207,15 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
 		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
 	end
+
+	for index, button in pairs(BadgeButtons.badgeButtons) do
+		if button.visible() then
+			local addForOff = ""
+			if button.state == 0 then addForOff = "_OFF" end
+			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge"..index..addForOff..".png"
+			gui.drawImage(path,button.box[1], button.box[2])
+		end
+	end	
 end
 
 function Drawing.drawInputOverlay()
