@@ -9,6 +9,12 @@ ButtonType = {
 	-- backgroundcolor : {1,2} background color
 	-- textcolor : text color
 	-- onclick : function triggered when the button is clicked.
+
+	badgeButton = 0,
+	--visible : condition on when button should be visible
+	--box : defines button dimensions
+	--state : on or off
+	--onclick : function triggered when badge button is clicked
 }
 
 StatButtonStates = {
@@ -21,6 +27,14 @@ StatButtonColors = {
 	GraphicConstants.LAYOUTCOLORS.NEUTRAL,
 	GraphicConstants.LAYOUTCOLORS.DECREASE,
 	GraphicConstants.LAYOUTCOLORS.INCREASE
+}
+
+BadgeButtons = {
+	BADGE_GAME_PREFIX = "",
+	BADGE_X_POS_START = 247,
+	BADGE_Y_POS = 139,
+	BADGE_WIDTH_LENGTH = 16,
+	badgeButtons = {}
 }
 
 local buttonXOffset = 129
@@ -216,3 +230,37 @@ Buttons = {
 		end
 	}
 }
+
+function Buttons.initializeBadgeButtons()
+	BadgeButtons.badgeButtons = {}
+	for i = 1,8,1 do
+		local badgeButton = {
+			type = ButtonType.badgeButton,
+			visible = function() return Tracker.Data.selectedPlayer == 1 end,
+			box = {
+				BadgeButtons.BADGE_X_POS_START + ((i-1) * (BadgeButtons.BADGE_WIDTH_LENGTH + 1)),
+				BadgeButtons.BADGE_Y_POS,
+				BadgeButtons.BADGE_WIDTH_LENGTH,
+				BadgeButtons.BADGE_WIDTH_LENGTH
+			},
+			badgeIndex = i,
+			state = Tracker.Data.badges[i],
+			onclick = function(self)
+				-- When badge is clicked, toggle it on/off
+				Tracker.Data.badges[self.badgeIndex] = (Tracker.Data.badges[self.badgeIndex] + 1) % 2
+				self:updateState()
+			end,
+			updateState = function(self)
+				self.state = Tracker.Data.badges[self.badgeIndex]
+			end
+		}
+		table.insert(BadgeButtons.badgeButtons,badgeButton)
+	end
+end
+
+-- Updates the states of the buttons to match those in the Tracker
+function Buttons.updateBadges()
+	for i, button in pairs(BadgeButtons.badgeButtons) do
+		button:updateState()
+	end
+end
