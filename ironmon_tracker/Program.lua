@@ -592,7 +592,6 @@ function Program.HandleExit()
 	end
 end
 
--- TODO: Code this later since its currently unused
 function Program.HandleAbilityActivate(abilityId)
 	local abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
 	local enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
