@@ -73,7 +73,8 @@ function GameSettings.initialize()
 	if gamecode == 0x42504545 then
 		print("Emerald ROM Detected")
 		BadgeButtons.BADGE_GAME_PREFIX = "RSE"
-		
+		BadgeButtons.xOffsets = {1, 1, 0, 0, 1, 1, 1, 1}
+
 		GameSettings.game = 2
 		GameSettings.gamename = "Pokemon Emerald (U)"
 		GameSettings.version = GameSettings.VERSIONS.E
@@ -142,6 +143,7 @@ function GameSettings.initialize()
 	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
 		print("Firered v1.1 ROM Detected")
 		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
+		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
 
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
@@ -211,7 +213,8 @@ function GameSettings.initialize()
 	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
 		print("Firered v1.0 ROM Detected")
 		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		
+		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -280,7 +283,8 @@ function GameSettings.initialize()
 	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
 		print("Leaf Green v1.1 ROM Detected")
 		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		
+		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG
@@ -349,7 +353,8 @@ function GameSettings.initialize()
 	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
 		print("Leaf Green v1.0 ROM Detected")
 		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		
+		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
+
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.version = GameSettings.VERSIONS.FRLG

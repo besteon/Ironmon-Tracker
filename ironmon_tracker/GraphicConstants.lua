@@ -4,6 +4,7 @@ GraphicConstants = {
 	RIGHT_GAP = 150,
 	SCREEN_HEIGHT = 160,
 	SCREEN_WIDTH = 240,
+	MOVE_TYPES_ENABLED = true,
 
 	TYPECOLORS = {
 		normal = 0xFFA8A878,
@@ -27,12 +28,30 @@ GraphicConstants = {
 		unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 	},
 
-	LAYOUTCOLORS = {
-		BOXFILL = 0xFF222222,
-		BOXBORDER = 0xFFAAAAAA,
-		NEUTRAL = 0xFFFFFFFF,
-		INCREASE = 0xFF00FF00,
-		DECREASE = 0xFFFF0000,
-		HIGHLIGHT = "yellow",
-	}
+	-- 'Default' Theme, but will get replaced by what's in Settings.ini
+	THEMECOLORS = {
+		["Default text"] = 0xFFFFFFFF,
+		["Positive text"] = 0xFF00FF00,
+		["Negative text"] = 0xFFFF0000,
+		["Intermediate text"] = 0xFFFFFF00,
+		["Header text"] = 0xFFFFFFFF,
+		["Upper box border"] = 0xFFAAAAAA,
+		["Upper box background"] = 0xFF222222,
+		["Lower box border"] = 0xFFAAAAAA,
+		["Lower box background"] = 0xFF222222,
+		["Main background"] = 0xFF000000,
+	},
+
+	THEMECOLORS_ORDERED = {
+		"Default text",
+		"Positive text",
+		"Negative text",
+		"Intermediate text",
+		"Header text",
+		"Upper box border",
+		"Upper box background",
+		"Lower box border",
+		"Lower box background",
+		"Main background",
+	},
 }
