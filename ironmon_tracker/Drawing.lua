@@ -261,7 +261,7 @@ function Drawing.drawButtonBox(button, shadowcolor)
 end
 
 function Drawing.drawPokemonView(pokemon, opposingPokemon)
-	if pokemon == nil then
+	if pokemon == nil or not Tracker.Data.hasCheckedSummary then
 		pokemon = Tracker.getDefaultPokemon()
 	end
 	-- Ability data currently isn't known until the pokemon enters its first battle
@@ -374,10 +374,10 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 	if Tracker.Data.isViewingOwn then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.item[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	elseif pokemon.ability.revealed then
 		-- TODO: This somehow needs to function to allow users to clear on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.item[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
 
 	-- draw stat box

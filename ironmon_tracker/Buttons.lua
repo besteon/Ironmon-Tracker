@@ -52,7 +52,7 @@ local HiddenPowerState = 0
 
 HiddenPowerButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.needCheckSummary == 0 and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
+	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
 	text = "Hidden Power",
 	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
 	box = { 0, 0, 65, 10 },

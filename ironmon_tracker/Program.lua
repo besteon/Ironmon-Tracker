@@ -296,7 +296,7 @@ function Program.updateBattleDataFromMemory()
 			end
 
 			-- If the pokemon doesn't have an ability yet, look it up
-			if pokemon.ability == nil then
+			if pokemon.ability == nil or pokemon.ability.id == 0 then
 				pokemon.ability = {
 					id = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1)),
 					-- id = Memory.readbyte(GameSettings.gBattleMons + 0x20), -- This is the 0 or 1 of the two possible abilities
@@ -375,15 +375,17 @@ end
 
 -- This is called by event.onmemoryexecute
 function Program.HandleShowSummary()
-	Tracker.Data.needCheckSummary = 0
+	-- Confirms the player has checked the summary of the pokemon, now we can reveal information about it
+	Tracker.Data.hasCheckedSummary = true
 	Program.waitFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
 -- Triggers when pokemon in the player's team are switched around
 function Program.HandleSwitchSelectedMons()
+	-- Usually the case of swapping to a new pokemon that was just caught
 	if Options["Hide stats until summary shown"] then
-		Tracker.Data.needCheckSummary = 1
+		Tracker.Data.hasCheckedSummary = false
 	end
 	Program.waitFrames = 30
 end
@@ -686,7 +688,7 @@ function Program.getBagHealingItems(pokemonMaxHP)
 		if quantity > 0 then
 			local healing = 0
 			if item.type == HealingType.Constant then
-				local percentage = ((item.amount / maxHP) * 100)
+				local percentage = ((item.amount / pokemonMaxHP) * 100)
 				if percentage > 100 then
 					percentage = 100
 				end

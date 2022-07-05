@@ -75,7 +75,7 @@ function Tracker.InitTrackerData()
 		isViewingOwn = true,
 		
 		inBattle = false,
-		needCheckSummary = Utils.inlineIf(Options["Hide stats until summary shown"], 1, 0),
+		hasCheckedSummary = not Options["Hide stats until summary shown"]
 
 		items = {}, -- Currently unused
 		healingItems = {
@@ -149,7 +149,7 @@ function Tracker.TrackItem(pokemonID, itemId)
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
 	-- Implement later if this information ends up mattering
 end
 
@@ -162,29 +162,29 @@ function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
 	if isRevealed == nil then isRevealed = false end
 
 	-- If no ability is being tracked for this Pokemon, add it as the first ability
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	if tackedPokemon.abilities == nil then
-		tackedPokemon.abilities = {
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if trackedPokemon.abilities == nil then
+		trackedPokemon.abilities = {
 			{
 				id = abilityId,
 				revealed = isRevealed
 			}
 		}
 	-- If exactly one ability is being tracked and its 'abilityId'
-	elseif tackedPokemon.abilities[1].id == abilityId then
+	elseif trackedPokemon.abilities[1].id == abilityId then
 		-- Don't overwrite known ability information with isRevealed=false
 		if isRevealed then
-			tackedPokemon.abilities[1].revealed = true
+			trackedPokemon.abilities[1].revealed = true
 		end
-	elseif tackedPokemon.abilities[2] == nil then
-		tackedPokemon.abilities[2] = {
+	elseif trackedPokemon.abilities[2] == nil then
+		trackedPokemon.abilities[2] = {
 			id = abilityId,
 			revealed = isRevealed
 		}
-	elseif tackedPokemon.abilities[2].id == abilityId then
+	elseif trackedPokemon.abilities[2].id == abilityId then
 		-- Don't overwrite known ability information with isRevealed=false
 		if isRevealed then
-			tackedPokemon.abilities[2].revealed = true
+			trackedPokemon.abilities[2].revealed = true
 		end
 	end
 end
@@ -194,8 +194,8 @@ function Tracker.TrackStatMarkings(pokemonID, statmarkings)
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	tackedPokemon.statmarkings = statmarkings
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	trackedPokemon.statmarkings = statmarkings
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
@@ -205,9 +205,9 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	end
 
 	-- If no move data exist, set this as the first move
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	if tackedPokemon.moves == nil then
-		tackedPokemon.moves = {
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if trackedPokemon.moves == nil then
+		trackedPokemon.moves = {
 			{ id = moveId, level = level },
 			{ id = 1, level = 1 },
 			{ id = 1, level = 1 },
@@ -218,7 +218,7 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 		local moveSeen = false
 		local moveCount = 0
 		local whichMove = 0
-		for key, value in pairs(tackedPokemon.moves) do
+		for key, value in pairs(trackedPokemon.moves) do
 			moveCount = moveCount + 1
 			if value.id == moveId then
 				moveSeen = true
@@ -228,16 +228,16 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 
 		-- If the move has already been seen, update its level (do we even need this?)
 		if moveSeen then
-			tackedPokemon.moves[whichMove] = {
+			trackedPokemon.moves[whichMove] = {
 				id = moveId,
 				level = level
 			}
 		-- Otherwise it's a new move, shift all the moves down and get rid of the fourth move
 		else
-			tackedPokemon.moves[4] = tackedPokemon.moves[3]
-			tackedPokemon.moves[3] = tackedPokemon.moves[2]
-			tackedPokemon.moves[2] = tackedPokemon.moves[1]
-			tackedPokemon.moves[1] = {
+			trackedPokemon.moves[4] = trackedPokemon.moves[3]
+			trackedPokemon.moves[3] = trackedPokemon.moves[2]
+			trackedPokemon.moves[2] = trackedPokemon.moves[1]
+			trackedPokemon.moves[1] = {
 				id = moveId,
 				level = level
 			}
@@ -251,13 +251,13 @@ function Tracker.TrackEncounter(pokemonID, numEncounters)
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	if tackedPokemon.encounters == nil then
-		tackedPokemon.encounters = 1
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if trackedPokemon.encounters == nil then
+		trackedPokemon.encounters = 1
 	elseif numEncounters ~= nil then
-		tackedPokemon.encounters = numEncounters
+		trackedPokemon.encounters = numEncounters
 	else
-		tackedPokemon.encounters = tackedPokemon.encounters + 1
+		trackedPokemon.encounters = trackedPokemon.encounters + 1
 	end
 end
 
@@ -273,8 +273,8 @@ function Tracker.TrackNote(pokemonID, note)
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 	
-	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	tackedPokemon.note = note
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	trackedPokemon.note = note
 end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
@@ -375,10 +375,10 @@ function Tracker.getDefaultPokemon()
 		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 		statStages = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 },
 		moves = {
-			{ id = 0, level = 0, pp = 0 },
-			{ id = 0, level = 0, pp = 0 },
-			{ id = 0, level = 0, pp = 0 },
-			{ id = 0, level = 0, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
 		},
 	}
 
