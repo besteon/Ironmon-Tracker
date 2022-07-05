@@ -75,7 +75,7 @@ function Tracker.InitTrackerData()
 		isViewingOwn = true,
 		
 		inBattle = false,
-		hasCheckedSummary = not Options["Hide stats until summary shown"]
+		hasCheckedSummary = not Options["Hide stats until summary shown"],
 
 		items = {}, -- Currently unused
 		healingItems = {
