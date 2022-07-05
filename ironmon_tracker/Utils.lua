@@ -147,4 +147,4 @@ function Utils.getCenterHealColor()
 			return GraphicConstants.THEMECOLORS["Negative text"]
 		end
 	end
-end 
+end
