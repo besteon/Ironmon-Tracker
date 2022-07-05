@@ -58,7 +58,7 @@ Options.closeButton = {
 		Options.saveOptions()
 
 		Program.state = State.TRACKER
-		Tracker.redraw = true
+		Program.waitFrames = 1
 	end
 }
 
@@ -88,6 +88,7 @@ Options.themeButton = {
 		-- Navigate to the Theme Customization menu
 		Program.state = State.THEME
 		Theme.redraw = true
+		Program.waitFrames = 1
 	end
 }
 
@@ -120,6 +121,7 @@ function Options.buildTrackerOptionsButtons()
 				
 				Options.updated = true
 				Options.redraw = true
+				Program.waitFrames = 1
 			end
 		}
 		table.insert(Options.optionsButtons, button)
@@ -168,6 +170,7 @@ function Options.loadOptions()
 	end
 
 	Options.redraw = true
+	Program.waitFrames = 1
 end
 
 -- Saves all in-memory Options and Theme elements into the Settings object, to be written to Settings.ini
@@ -213,6 +216,7 @@ function Options.openRomPickerWindow()
 
 	Options.updated = true
 	Options.redraw = true
+	Program.waitFrames = 1
 end
 
 function Options.openEditControlsWindow()

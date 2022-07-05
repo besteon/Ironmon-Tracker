@@ -52,7 +52,7 @@ local HiddenPowerState = 0
 
 HiddenPowerButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.selectedPlayer == 1 and Utils.playerHasMove("Hidden Power") and Tracker.Data.needCheckSummary == 0 end,
+	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.needCheckSummary == 0 and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
 	text = "Hidden Power",
 	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
 	box = { 0, 0, 65, 10 },
@@ -66,7 +66,7 @@ HiddenPowerButton = {
 
 PCHealTrackingButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
+	visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 	text = "",
 	textcolor = "Default text",
 	box = { GraphicConstants.SCREEN_WIDTH + 89, 68, 8, 8 },
@@ -80,7 +80,7 @@ PCHealTrackingButton = {
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 9, 8, 8 },
@@ -89,26 +89,32 @@ Buttons = {
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
 			Buttons[1].text = StatButtonStates[Program.StatButtonState.hp]
 			Buttons[1].textcolor = StatButtonColors[Program.StatButtonState.hp]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
-	{ -- ATT button
+	{ -- ATK button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 19, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
-			Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
-			Buttons[2].text = StatButtonStates[Program.StatButtonState.att]
-			Buttons[2].textcolor = StatButtonColors[Program.StatButtonState.att]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			Program.StatButtonState.atk = ((Program.StatButtonState.atk + 1) % 3) + 1
+			Buttons[2].text = StatButtonStates[Program.StatButtonState.atk]
+			Buttons[2].textcolor = StatButtonColors[Program.StatButtonState.atk]
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
 	{ -- DEF button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 29, 8, 8 },
@@ -117,12 +123,15 @@ Buttons = {
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
 			Buttons[3].text = StatButtonStates[Program.StatButtonState.def]
 			Buttons[3].textcolor = StatButtonColors[Program.StatButtonState.def]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
 	{ -- SPA button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 39, 8, 8 },
@@ -131,12 +140,15 @@ Buttons = {
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
 			Buttons[4].text = StatButtonStates[Program.StatButtonState.spa]
 			Buttons[4].textcolor = StatButtonColors[Program.StatButtonState.spa]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
 	{ -- SPD button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 49, 8, 8 },
@@ -145,12 +157,15 @@ Buttons = {
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
 			Buttons[5].text = StatButtonStates[Program.StatButtonState.spd]
 			Buttons[5].textcolor = StatButtonColors[Program.StatButtonState.spd]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
 	{ -- SPE button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 end,
+		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 59, 8, 8 },
@@ -159,14 +174,17 @@ Buttons = {
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
 			Buttons[6].text = StatButtonStates[Program.StatButtonState.spe]
 			Buttons[6].textcolor = StatButtonColors[Program.StatButtonState.spe]
-			Tracker.TrackStatMarkings(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+			end
 		end
 	},
 	HiddenPowerButton,
 	PCHealTrackingButton,
 	{ -- PC Heal Increment Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
+		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = "+",
 		textcolor = "Positive text",
 		box = { GraphicConstants.SCREEN_WIDTH + 70, 67, 8, 4 },
@@ -178,7 +196,7 @@ Buttons = {
 	},
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.selectedPlayer == 1 and Options["Track PC Heals"] end,
+		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = "---",
 		textcolor = "Negative text",
 		box = { GraphicConstants.SCREEN_WIDTH + 70, 73, 7, 4 },
@@ -195,7 +213,7 @@ function Buttons.initializeBadgeButtons()
 	for i = 1,8,1 do
 		local badgeButton = {
 			type = ButtonType.badgeButton,
-			visible = function() return Tracker.Data.selectedPlayer == 1 end,
+			visible = function() return Tracker.Data.isViewingOwn end,
 			box = {
 				BadgeButtons.BADGE_X_POS_START + ((i-1) * (BadgeButtons.BADGE_WIDTH_LENGTH + 1)) + BadgeButtons.xOffsets[i],
 				BadgeButtons.BADGE_Y_POS,

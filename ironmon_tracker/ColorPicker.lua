@@ -67,6 +67,7 @@ function ColorPicker:setColor()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitFrames = 0
 end
 
 function ColorPicker:RGB_to_Hex()
@@ -176,6 +177,7 @@ function ColorPicker:onClose()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.originalColor)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitFrames = 1
 	Program.state = State.THEME
 	Input.currentColorPicker = nil
 	forms.destroyall()
@@ -261,6 +263,7 @@ function ColorPicker:convertHSVtoColorPicker()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitFrames = 0
 end
 
 function ColorPicker:HSV_to_RGB()

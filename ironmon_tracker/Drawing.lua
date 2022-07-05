@@ -220,7 +220,7 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 end
 
 function Drawing.drawInputOverlay()
-	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and (Tracker.Data.selectedPlayer == 2) then
+	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and not Tracker.Data.isViewingOwn then
 		local i = Tracker.controller.statIndex
 		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], GraphicConstants.THEMECOLORS["Intermediate text"], 0x000000)
 	end
@@ -260,7 +260,15 @@ function Drawing.drawButtonBox(button, shadowcolor)
 	gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], bordercolor, fillcolor)
 end
 
-function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
+function Drawing.drawPokemonView(pokemon, opposingPokemon)
+	if pokemon == nil then
+		pokemon = Tracker.getDefaultPokemon()
+	end
+	-- Ability data currently isn't known until the pokemon enters its first battle
+	if pokemon.ability == nil then
+		pokemon.ability = { id = 0, revealed = false }
+	end
+
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
 
@@ -272,12 +280,14 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
 	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Upper box background"])
 
-	Drawing.drawPokemonIcon(monToDraw["pokemonID"], GraphicConstants.SCREEN_WIDTH + 5, 5)
+	Drawing.drawPokemonIcon(pokemon.pokemonID, GraphicConstants.SCREEN_WIDTH + 5, 5)
 
 	local colorbar = GraphicConstants.THEMECOLORS["Default text"]
-	if monToDraw["curHP"] / monToDraw["maxHP"] <= 0.2 then
+	if pokemon.stats.hp == 0 then
+		colorbar = GraphicConstants.THEMECOLORS["Default text"]
+	elseif pokemon.curHP / pokemon.stats.hp <= 0.2 then
 		colorbar = GraphicConstants.THEMECOLORS["Negative text"]
-	elseif monToDraw["curHP"] / monToDraw["maxHP"] <= 0.5 then
+	elseif pokemon.curHP / pokemon.stats.hp <= 0.5 then
 		colorbar = GraphicConstants.THEMECOLORS["Intermediate text"]
 	end
 
@@ -286,35 +296,41 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local boxTopShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
 	local boxBotShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 
-	local currentHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["curHP"])
-	local maxHP = Utils.inlineIf(monIsEnemy, "?", monToDraw["maxHP"])
+	-- Don't show hp values if the pokemon doesn't belong to the player, or if it doesn't exist
+	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.curHP)
+	local maxHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.stats.hp)
 
 	local pkmnStatOffsetX = 36
 	local pkmnStatStartY = 5
 	local pkmnStatOffsetY = 10
 	-- Base Pokémon details
 	-- Pokémon name
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[monToDraw["pokemonID"] + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[pokemon.pokemonID + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	-- Settings gear
 	Drawing.drawImageAsPixels(ImageTypes.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7, boxTopShadow)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
 	-- Level and evolution
-	local levelDetails = "Lv." .. monToDraw.level
-	local evolutionDetails = " (" .. PokemonData[monToDraw["pokemonID"] + 1].evolution .. ")"
-	if Tracker.Data.selectedPokemon.friendship >= 220 and PokemonData[monToDraw["pokemonID"] + 1].evolution == EvolutionTypes.FRIEND then
-		-- Let the player know that evolution is right around the corner!
+	local levelDetails = "Lv." .. pokemon.level
+	local evolutionDetails = " (" .. PokemonData[pokemon.pokemonID + 1].evolution .. ")"
+	local evoTextColor = GraphicConstants.THEMECOLORS["Default text"]
+
+	-- If the evolution is happening soon (next level or friendship is ready, change font color)
+	if string.format("%d", pokemon.level + 1) == PokemonData[pokemon.pokemonID + 1].evolution then
+		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
+	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
 		evolutionDetails = " (SOON)"
+		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
 	end
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, evoTextColor, boxTopShadow)
 
 	-- draw heal-info box
 	local infoBoxHeight = 23
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
 
-	-- Heals in bag/PokéCenter heals
-	if monIsEnemy == false then
+	-- If viewing own pokemon, Heals in bag/PokéCenter heals
+	if Tracker.Data.isViewingOwn then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
 		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
@@ -339,6 +355,10 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
 			end
 		end
+	else
+		local encounterText = "Encounters: " .. Tracker.getEncounters(pokemon.pokemonID)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, encounterText, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+
 	end
 
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
@@ -350,23 +370,15 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
-	-- Draw Pokemon's held item but only for your own Pokemon
-	if monIsEnemy == false then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[monToDraw["heldItem"] + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	-- Draw Pokemon's held item and ability but only for your own Pokemon
+
+	if Tracker.Data.isViewingOwn then
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.item[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	elseif pokemon.ability.revealed then
+		-- TODO: This somehow needs to function to allow users to clear on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.item[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
-
-	-- TODO: This is very broken since tracker struct reworks
-	-- Draw Pokemon's ability, but only if it is known to the player
-	local abilityString = MiscData.ability[1] -- "---"
-	local abilities = Tracker.getAbilities(monToDraw.pokemonID + 1)
-
-	if abilities.first ~= nil and monToDraw.currentAbility == abilities.first.ability and abilities.first.revealed then
-		abilityString = MiscData.ability[abilities.first.ability + 1]
-	elseif abilities.second ~= nil and monToDraw.currentAbility == abilities.second.ability and abilities.second.revealed then
-		abilityString = MiscData.ability[abilities.second.ability + 1]
-	end
-
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 
 	-- draw stat box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, 5, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
@@ -375,13 +387,13 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	local statOffsetY = 7
 
 	for i = 1, #statLabels, 1 do
-		local natureType = Drawing.calcNatureBonus(statLabels[i], monToDraw.nature)
+		local natureType = Drawing.calcNatureBonus(statLabels[i], pokemon.nature)
 		local textColor = GraphicConstants.THEMECOLORS["Default text"]
 		local natureSymbol = ""
-		if monIsEnemy == false and natureType == NatureTypes.POSITIVE then
+		if Tracker.Data.isViewingOwn and natureType == NatureTypes.POSITIVE then
 			textColor = GraphicConstants.THEMECOLORS["Positive text"]
 			natureSymbol = "+"
-		elseif monIsEnemy == false and natureType == NatureTypes.NEGATIVE then
+		elseif Tracker.Data.isViewingOwn and natureType == NatureTypes.NEGATIVE then
 			textColor = GraphicConstants.THEMECOLORS["Negative text"]
 			natureSymbol = "---"
 		end
@@ -391,13 +403,13 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, "Franklin Gothic Medium")
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
-		if Tracker.Data.inBattle == 1 then
-			Drawing.drawStatusLevel(statOffsetX + 25 - 5, statOffsetY, monToDraw.statStages[statLabels[i]:upper()])
+		if Tracker.Data.inBattle then
+			Drawing.drawStatusLevel(statOffsetX + 25 - 5, statOffsetY, pokemon.statStages[statLabels[i]:upper()])
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
-		if monIsEnemy == false then
-			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(statLabels[i] == "hp", monToDraw["maxHP"], monToDraw[statLabels[i]]), 3, textColor, boxTopShadow)
+		if Tracker.Data.isViewingOwn then
+			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(pokemon.stats[statLabels[i]] == 0, "---", pokemon.stats[statLabels[i]]), 3, textColor, boxTopShadow)
 		else
 			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then
 				Drawing.drawButtonBox(Buttons[i], boxTopShadow)
@@ -408,7 +420,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	Drawing.drawText(statOffsetX, statOffsetY, "BST", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[monToDraw["pokemonID"] + 1].bst, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[pokemon.pokemonID + 1].bst, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 
 	-- Drawing moves
 	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
@@ -417,20 +429,28 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
 	local moveStartY = movesBoxStartY + 2
 
-	local stars = Utils.calculateMoveStars(monToDraw.pokemonID, monToDraw.level)
+	local stars = { "", "", "", "" }
+	if not Tracker.Data.isViewingOwn then
+		stars = Utils.calculateMoveStars(pokemon.pokemonID, pokemon.level)
+	end
 
 	-- Determine which moves to show based on if the tracker is showing the enemy Pokémon or the player's.
 	local moves = {}
-	for i=1, 4, 1 do
-		-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-		if monIsEnemy then
-			moves[i] = MoveData[Tracker.Data.pokemon[monToDraw.pokemonID].moves[i]]
+	for moveIndex = 1, 4, 1 do
+		if Tracker.Data.isViewingOwn then
+			moves[moveIndex] = MoveData[pokemon.moves[moveIndex].id]
 		else
-			moves[i] = MoveData[monToDraw.moves[i]]
+			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
+			local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
+			if trackedMoves ~= nil and trackedMoves[moveIndex] ~= nil then
+				moves[moveIndex] = MoveData[trackedMoves[moveIndex].id]
+			else
+				moves[moveIndex] = MoveData[1]
+			end
 		end
 	end	
 
-	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(monToDraw.pokemonID, monToDraw.level)
+	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
 
 	local moveTableHeaderHeightDiff = 14
 	local distanceBetweenMoves = 10
@@ -469,7 +489,7 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 		table.insert(moveColors, Drawing.moveToColor(moves[moveIndex]))
 	end
 	for moveIndex = 1, 4, 1 do
-		if moves[moveIndex].name == "Hidden Power" and not monIsEnemy then
+		if moves[moveIndex].name == "Hidden Power" and Tracker.Data.isViewingOwn then
 			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
 			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
 			if not GraphicConstants.MOVE_TYPES_ENABLED then
@@ -487,26 +507,32 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 
 	-- Move power points
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), Utils.inlineIf(monIsEnemy or moves[moveIndex].pp == NOPP, moves[moveIndex].pp, Utils.getbits(monToDraw.pp, (moveIndex - 1) * 8, 8)), 2, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+		local ppText = moves[moveIndex].pp -- Set to move's max PP value
+		-- check if any pp has been used and it should be revealed
+		if Tracker.Data.isViewingOwn and moves[moveIndex].pp ~= NOPP then
+			ppText = pokemon.moves[moveIndex].pp
+		end
+		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), ppText, 2, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 	end
 
 	-- Move attack power
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
-		table.insert(stabColors, Utils.inlineIf(Utils.isSTAB(moves[moveIndex], PokemonData[monToDraw["pokemonID"] + 1]) and Tracker.Data.inBattle == 1 and moves[moveIndex].power ~= NOPOWER, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"]))
+		local showStabColor = Tracker.Data.inBattle and moves[moveIndex].power ~= NOPOWER and Utils.isSTAB(moves[moveIndex], PokemonData[pokemon.pokemonID + 1])
+		table.insert(stabColors, Utils.inlineIf(showStabColor, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"]))
 	end
 	for moveIndex = 1, 4, 1 do
 		local movePower = moves[moveIndex].power
-		if Options["Calculate variable damage"] == true then
+		if Options["Calculate variable damage"] then
 			local newPower = movePower
-			if movePower == "WT" and Tracker.Data.inBattle == 1 then
+			if movePower == "WT" and Tracker.Data.inBattle and opposingPokemon ~= nil then
 				-- Calculate the power of weight moves in battle
-				local targetWeight = PokemonData[targetMon["pokemonID"] + 1].weight
+				local targetWeight = PokemonData[opposingPokemon.pokemonID + 1].weight
 				newPower = Utils.calculateWeightBasedDamage(targetWeight)
-			elseif movePower == "<HP" and not monIsEnemy then
+			elseif movePower == "<HP" and Tracker.Data.isViewingOwn then
 				-- Calculate the power of flail & reversal moves for player only
 				newPower = Utils.calculateLowHPBasedDamage(currentHP, maxHP)
-			elseif movePower == ">HP" and not monIsEnemy then
+			elseif movePower == ">HP" and Tracker.Data.isViewingOwn then
 				-- Calculate the power of water spout & eruption moves for the player only
 				newPower = Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 			else
@@ -524,15 +550,13 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end
 
 	-- Move effectiveness against the opponent
-	if Options["Show move effectiveness"] and Tracker.Data.inBattle == 1 then
-		if targetMon ~= nil then
-			for moveIndex = 1, 4, 1 do
-				local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[targetMon.pokemonID + 1])
-				if effectiveness == 0 then
-					Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
-				else
-					Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
-				end
+	if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil then
+		for moveIndex = 1, 4, 1 do
+			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[opposingPokemon.pokemonID + 1])
+			if effectiveness == 0 then
+				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
+			else
+				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
 			end
 		end
 	end
@@ -551,12 +575,12 @@ function Drawing.DrawTracker(monToDraw, monIsEnemy, targetMon)
 	end	
 
 	-- Draw note box, but only for enemy pokemon
-	if Tracker.Data.inBattle == 1 and Tracker.Data.selectedPlayer == 2 then
-		local note = Tracker.GetNote()
-		if note == '' then
+	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
+		local noteText = Tracker.getNote(pokemon.pokemonID)
+		if noteText == "" then
 			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47, boxBotShadow)
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, note, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, noteText, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
 			local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
 			local y = movesBoxStartY + 44
@@ -580,18 +604,6 @@ function Drawing.drawSettingStateButton(index, state)
 	-- gui.drawRectangle()
 end
 
-function Drawing.truncateRomsFolder(folder)
-	if folder then
-		if string.len(folder) > 10 then
-			return "..." .. string.sub(folder, string.len(folder) - 10)
-		else
-			return folder
-		end
-	else
-		return ""
-	end
-end
-
 function Drawing.drawSettings()
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
@@ -612,9 +624,9 @@ function Drawing.drawSettings()
 	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, GraphicConstants.THEMECOLORS[Options.closeButton.textColor], boxSettingsShadow)
 
 	-- Roms folder setting
-	local folder = Drawing.truncateRomsFolder(Settings.config.ROMS_FOLDER)
-	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folder, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
-	if folder == "" then
+	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
+	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
+	if folderText == "" then
 		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end

@@ -73,7 +73,7 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
-		Tracker.Clear() -- Remove on-commit
+		--Tracker.Clear() -- Remove on-commit
 		Tracker.loadData()
 		Buttons.initializeBadgeButtons()
 
@@ -181,6 +181,7 @@ function Main.LoadNext()
 		end
 	end
 
+	Tracker.Clear() -- clear tracker data so it doesn't carry over to the next seed
 	client.SetSoundOn(false)
 	client.closerom()
 	print("Loading next ROM: " .. nextromname)

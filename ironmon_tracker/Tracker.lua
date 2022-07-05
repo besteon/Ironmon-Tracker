@@ -2,7 +2,6 @@ Tracker = {}
 
 Tracker.userDataKey = "ironmon_tracker_data"
 
-Tracker.redraw = true
 Tracker.waitFrames = 0
 
 Tracker.controller = {
@@ -13,13 +12,13 @@ Tracker.controller = {
 
 Tracker.Data = {}
 
---[[Example 'pokemon' = {
+--[[Tracked Pokemon Example: allPokemon = {
 	213 = {-- Shuckle
 		abilities = {
 			{ id = 3, revealed = false }, -- Drizzle
 			{ id = 6, revealed = false }, -- Sturdy
 		},
-		statmarkings = { hp = 1, att = 1, def = 1, spa = 1, spd = 1, spe = 1 },
+		statmarkings = { hp = 1, atk = 1, def = 1, spa = 1, spd = 1, spe = 1 },
 		moves = {
 			{ id = 7, level = 13 }, -- Fire Punch
 			{ id = 10, level = 1 }, -- Scratch
@@ -32,65 +31,51 @@ Tracker.Data = {}
 }
 ]]--
 
--- an ordered list of Pokemon that are owned by the player, either in their team or in PC
-ownPokemon = {
-	{
-		pkmID = 213,
-		otID = 12345, -- 0 - 65535
-		personality = 00000000+00000000+00000000+00000000, --https://bulbapedia.bulbagarden.net/wiki/Personality_value
-		curHP = 20
-		--maxHP derived from stats.hp
-		level = 20,
-		heldItem = 5,
-		ability = { abilityId = 3, revealed = true }, -- Drizzle
-		nature = 13, -- Serious, calculated by [p mod 25 + 1]
-		stats = { hp = 100, att = 25, def = 50, spa = 15, spd = 45, spe = 80 },
-		statStages = { hp = 6, att = 6, def = 6, spa = 6, spd = 6, spe = 6 },
-		moves = { -- moveid gets data about move name, level is the randomizer level learned, and pp is current available pp
-			{ id = 7, level = 13, pp = 3 }, -- Fire Punch
-			{ id = 10, level = 1, pp = 30 }, -- Scratch
-			{ id = 16, level = 1, pp = 21 }, -- Gust
-			{ id = 32, level = 5, pp = 2 }, -- Horn Drill
+-- a list of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
+-- A second set is temporarily stored for "otherPokemon" which belong to trainers or wilds
+--[[Storage Pokemon Example: ownPokemon = {
+	["12345678123456781234567812345678"(personality)] = {
+		pokemonID = Utils.getbits(growth1, 0, 16),
+		friendship = Utils.getbits(growth3, 72, 8),
+		heldItem = Utils.getbits(growth1, 16, 16),
+		level = Memory.readbyte(startAddress + 84),
+		nature = personality % 25,
+		ability = { id = 3, revealed = true }, -- Drizzle
+		status = status_result,
+		sleep_turns = sleep_turns_result,
+		curHP = Memory.readword(startAddress + 86),
+		stats = {
+			hp = Memory.readword(startAddress + 88), -- aka, maxHP
+			atk = Memory.readword(startAddress + 90),
+			def = Memory.readword(startAddress + 92),
+			spa = Memory.readword(startAddress + 96),
+			spd = Memory.readword(startAddress + 98),
+			spe = Memory.readword(startAddress + 94),
+		},
+		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+		moves = {
+			{ id = Utils.getbits(attack1, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 0, 8) },
+			{ id = Utils.getbits(attack1, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 8, 8) },
+			{ id = Utils.getbits(attack2, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 16, 8) },
+			{ id = Utils.getbits(attack2, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
 	},
-}
-
--- Used as a pointer to tell the tracker what prokemon to show information for, pulled from the 'ownPokemon' list if 'isViewingOwn' = true
--- Was the selectedPlayer variable
--- compareindex represents the selected pokemon being fought. This is the "relative enemy" of the pokemon being viewed. Used for move effectiveness
-pokemonViewIndex = 1
-isViewingOwn = true
-compareViewIndex = 1
-
--- TODO: Create a struct to keep tracked information about your full pokemon team (and pc pokemon?)
--- ^ Use personality trait for track uniqueness? v
--- TODO: Create a struct to store info for last seen pokemon (targeted)
+}]]--
 
 function Tracker.InitTrackerData()
 	local trackerData = {
-		pokemon = {},  -- Used to track information about all pokemon seen thus far
+		allPokemon = {},  -- Used to track information about all pokemon seen thus far
 		ownPokemon = {},
 		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
-		ownMainIndex = 1, -- Used to point to which 'ownPokemon' is currently set to your main
-		pokemonViewIndex = 1, -- Used to point to which ownPokemon/otherPokemon is currently being drawn
-		compareViewIndex = 1, -- Used to point to which otherPokemon/ownPokemon that the drawn pokemon is being compared to, for calculations
+
+		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
+		otherTeam = { 0, 0, 0, 0, 0, 0 },
+		ownViewSlot = 1, -- During battle, this references which of your own six pokemon are being used
+		otherViewSlot = 1, -- During battle, this references which of the other six pokemon are being used
 		isViewingOwn = true,
 		
-		inBattle = 0,
+		inBattle = false,
 		needCheckSummary = Utils.inlineIf(Options["Hide stats until summary shown"], 1, 0),
-
-		selectedPokemon = {},
-		targetedPokemon = {},
-
-		selectedPlayer = 1,
-		selectedSlot = 1,
-		targetPlayer = 2,
-		targetSlot = 1,
-
-		selfSlotOne = 1, -- Are these four used for your main/doubles partner mons, and for enemy mons?
-		selfSlotTwo = 1,
-		enemySlotOne = 1,
-		enemySlotTwo = 1,
 
 		items = {}, -- Currently unused
 		healingItems = {
@@ -112,104 +97,117 @@ function Tracker.Clear()
 	Tracker.Data = Tracker.InitTrackerData()
 end
 
-function Tracker.addOwnPokemon(pokemonData, isNewMain)
-	if pokemonData == nil then
-		return
+-- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
+function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
+	if pokemonData == nil or personality == nil then return end
+	if isOwn == nil then isOwn = true end
+
+	if isOwn and Tracker.Data.ownPokemon == nil then
+		Tracker.Data.ownPokemon = {}
+	elseif not isOwn and Tracker.Data.otherPokemon == nil then
+		Tracker.Data.otherPokemon = {}
 	end
 
-	table.insert(pokemonData, Tracker.Data.ownPokemon)
+	-- If the Pokemon already exists, update the parts of it that you can; otherwise add it.
+	local pokemon = nil
+	if isOwn then
+		pokemon = Tracker.Data.ownPokemon[personality]
+	else
+		pokemon = Tracker.Data.otherPokemon[personality]
+	end
 
-	if isNewMain then
-		Tracker.Data.ownMainIndex = table.getn(Tracker.Data.ownPokemon)
-		if Tracker.Data.isViewingOwn then
-			Tracker.Data.pokemonViewIndex = Tracker.Data.ownMainIndex
+	if pokemon ~= nil then
+		for k, v in pairs(pokemonData) do
+			-- Update each pokemon key if it exists between both Pokemon
+			-- TODO: This double-check required to prevent encounter flag from being added, unsure if it screws up anything
+			if pokemonData[k] ~= nil and pokemon[k] ~= nil then
+				pokemon[k] = pokemonData[k]
+			end
+		end
+	else 
+		if isOwn then
+			Tracker.Data.ownPokemon[personality] = pokemonData
 		else
-			Tracker.Data.compareViewIndex = Tracker.Data.ownMainIndex
+			Tracker.Data.otherPokemon[personality] = pokemonData
 		end
 	end
 end
 
-function Tracker.addOtherPokemon(pokemonData, isDoublesPartner)
-	if pokemonData == nil then
-		return
-	end
+function Tracker.getPokemon(slotNumber, isOwn)
+	if slotNumber == nil then return nil end
+	if isOwn == nil then isOwn = true end
 
-	if Tracker.Data.otherPokemon == nil then
-		Tracker.Data.otherPokemon = {}
-	end
+	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
+	if personality == nil or personality == 0 then return nil end
 
-	if not isDoublesPartner then
-		Tracker.Data.otherPokemon[1] = pokemonData
-	else
-		Tracker.Data.otherPokemon[2] = pokemonData
-	end
-end
-
-function Tracker.swapViews()
-	local tempViewIndex = Tracker.Data.pokemonViewIndex
-	Tracker.Data.pokemonViewIndex = Tracker.Data.compareViewIndex
-	Tracker.Data.compareViewIndex = tempViewIndex
-	Tracker.Data.isViewingOwn = not isViewingOwn
+	return Utils.inlineIf(isOwn, Tracker.Data.ownPokemon[personality], Tracker.Data.otherPokemon[personality])
 end
 
 -- Currently unused
-function Tracker.TrackItem(pokemonId, itemId)
-	-- if Tracker.Data.pokemon[pokemonId] == nil then
-	-- 	Tracker.Data.pokemon[pokemonId] = {}
-	-- end
+function Tracker.TrackItem(pokemonID, itemId)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
+	end
+
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	-- Implement later if this information ends up mattering
 end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
 -- isRevealed: set to true only when the player is supposed to know the ability exists for that Pokemon
-function Tracker.TrackAbility(pokemonId, abilityId, isRevealed)
-	if Tracker.Data.pokemon[pokemonId] == nil then
-		Tracker.Data.pokemon[pokemonId] = {}
+function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
 	end
+	if isRevealed == nil then isRevealed = false end
 
 	-- If no ability is being tracked for this Pokemon, add it as the first ability
-	if Tracker.Data.pokemon[pokemonId].abilities == nil then
-		Tracker.Data.pokemon[pokemonId].abilities = {
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if tackedPokemon.abilities == nil then
+		tackedPokemon.abilities = {
 			{
 				id = abilityId,
 				revealed = isRevealed
 			}
 		}
 	-- If exactly one ability is being tracked and its 'abilityId'
-	elseif Tracker.Data.pokemon[pokemonId].abilities[1].id == abilityId then
+	elseif tackedPokemon.abilities[1].id == abilityId then
 		-- Don't overwrite known ability information with isRevealed=false
 		if isRevealed then
-			Tracker.Data.pokemon[pokemonId].abilities[1].revealed = true
+			tackedPokemon.abilities[1].revealed = true
 		end
-	elseif Tracker.Data.pokemon[pokemonId].abilities[2] == nil then
-		Tracker.Data.pokemon[pokemonId].abilities[2] = {
+	elseif tackedPokemon.abilities[2] == nil then
+		tackedPokemon.abilities[2] = {
 			id = abilityId,
 			revealed = isRevealed
 		}
-	elseif Tracker.Data.pokemon[pokemonId].abilities[2].id == abilityId then
+	elseif tackedPokemon.abilities[2].id == abilityId then
 		-- Don't overwrite known ability information with isRevealed=false
 		if isRevealed then
-			Tracker.Data.pokemon[pokemonId].abilities[2].revealed = true
+			tackedPokemon.abilities[2].revealed = true
 		end
 	end
 end
 
-function Tracker.TrackStatMarkings(pokemonId, statmarkings)
-	if Tracker.Data.pokemon[pokemonId] == nil then
-		Tracker.Data.pokemon[pokemonId] = {}
+function Tracker.TrackStatMarkings(pokemonID, statmarkings)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
-	Tracker.Data.pokemon[pokemonId].statmarkings = statmarkings
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	tackedPokemon.statmarkings = statmarkings
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
-function Tracker.TrackMove(pokemonId, moveId, level)
-	if Tracker.Data.pokemon[pokemonId] == nil then
-		Tracker.Data.pokemon[pokemonId] = {}
+function Tracker.TrackMove(pokemonID, moveId, level)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
 	-- If no move data exist, set this as the first move
-	if Tracker.Data.pokemon[pokemonId].moves == nil then
-		Tracker.Data.pokemon[pokemonId].moves = {
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if tackedPokemon.moves == nil then
+		tackedPokemon.moves = {
 			{ id = moveId, level = level },
 			{ id = 1, level = 1 },
 			{ id = 1, level = 1 },
@@ -220,7 +218,7 @@ function Tracker.TrackMove(pokemonId, moveId, level)
 		local moveSeen = false
 		local moveCount = 0
 		local whichMove = 0
-		for key, value in pairs(Tracker.Data.pokemon[pokemonId].moves) do
+		for key, value in pairs(tackedPokemon.moves) do
 			moveCount = moveCount + 1
 			if value.id == moveId then
 				moveSeen = true
@@ -230,58 +228,40 @@ function Tracker.TrackMove(pokemonId, moveId, level)
 
 		-- If the move has already been seen, update its level (do we even need this?)
 		if moveSeen then
-			Tracker.Data.pokemon[pokemonId].moves[whichMove] = {
+			tackedPokemon.moves[whichMove] = {
 				id = moveId,
 				level = level
 			}
-		-- Otherwise, shift all the moves down and get rid of the fourth move
+		-- Otherwise it's a new move, shift all the moves down and get rid of the fourth move
 		else
-			Tracker.Data.pokemon[pokemonId].moves[4] = Tracker.Data.pokemon[pokemonId].moves[3]
-			Tracker.Data.pokemon[pokemonId].moves[3] = Tracker.Data.pokemon[pokemonId].moves[2]
-			Tracker.Data.pokemon[pokemonId].moves[2] = Tracker.Data.pokemon[pokemonId].moves[1]
-			Tracker.Data.pokemon[pokemonId].moves[1] = {
+			tackedPokemon.moves[4] = tackedPokemon.moves[3]
+			tackedPokemon.moves[3] = tackedPokemon.moves[2]
+			tackedPokemon.moves[2] = tackedPokemon.moves[1]
+			tackedPokemon.moves[1] = {
 				id = moveId,
 				level = level
 			}
-
-			-- if moveCount == 1 then
-			-- 	Tracker.Data.moves[pokemonId].second = {
-			-- 		move = moveId,
-			-- 		level = level
-			-- 	}
-			-- elseif moveCount == 2 then
-			-- 	Tracker.Data.moves[pokemonId].third = {
-			-- 		move = moveId,
-			-- 		level = level
-			-- 	}
-			-- elseif moveCount == 3 then
-			-- 	Tracker.Data.moves[pokemonId].fourth = {
-			-- 		move = moveId,
-			-- 		level = level
-			-- 	}
-			-- elseif moveCount == 4 then
-				-- replace with above uncommented code
-			-- end
 		end
 	end
 end
 
 -- numEncounters: (optional) used to overwrite the number of encounters
-function Tracker.TrackEncounter(pokemonId, numEncounters)
-	if Tracker.Data.pokemon[pokemonId] == nil then
-		Tracker.Data.pokemon[pokemonId] = {}
+function Tracker.TrackEncounter(pokemonID, numEncounters)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
-	if Tracker.Data.pokemon[pokemonId].encounters == nil then
-		Tracker.Data.pokemon[pokemonId].encounters = 1
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if tackedPokemon.encounters == nil then
+		tackedPokemon.encounters = 1
 	elseif numEncounters ~= nil then
-		Tracker.Data.pokemon[pokemonId].encounters = numEncounters
+		tackedPokemon.encounters = numEncounters
 	else
-		Tracker.Data.pokemon[pokemonId].encounters = Tracker.Data.pokemon[pokemonId].encounters + 1
+		tackedPokemon.encounters = tackedPokemon.encounters + 1
 	end
 end
 
-function Tracker.TrackNote(pokemonId, note)
+function Tracker.TrackNote(pokemonID, note)
 	if note == nil then
 		return
 	elseif string.len(note) > 70 then
@@ -289,16 +269,17 @@ function Tracker.TrackNote(pokemonId, note)
 		note = string.sub(note, 1, 70)
 	end
 
-	if Tracker.Data.pokemon[pokemonId] == nil then
-		Tracker.Data.pokemon[pokemonId] = {}
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
 	end
-		
-	Tracker.Data.pokemon[pokemonId].note = note
+	
+	local tackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	tackedPokemon.note = note
 end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
-function Tracker.getMoves(pokemonId)
-	if pokemonId == nil or Tracker.Data.pokemon[pokemonId] == nil or Tracker.Data.pokemon[pokemonId].moves == nil then
+function Tracker.getMoves(pokemonID)
+	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].moves == nil then
 		return {
 			{ id = 1, level = 1 },
 			{ id = 1, level = 1 },
@@ -306,39 +287,48 @@ function Tracker.getMoves(pokemonId)
 			{ id = 1, level = 1 },
 		}
 	else
-		return Tracker.Data.pokemon[pokemonId].moves
+		return Tracker.Data.allPokemon[pokemonID].moves
 	end
 end
 
+-- Currently unused, but likely going to want to use it via ability-note-taking
 -- If the Pokemon is being tracked, return information on abilities; otherwise a default ability value = 1 & false
-function Tracker.getAbilities(pokemonId)
-	if pokemonId == nil or Tracker.Data.pokemon[pokemonId] == nil or Tracker.Data.pokemon[pokemonId].abilities == nil then
+function Tracker.getAbilities(pokemonID)
+	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].abilities == nil then
 		return {
 			{ id = 1, revealed = false },
 		}
 	else
-		return Tracker.Data.pokemon[pokemonId].abilities
+		return Tracker.Data.allPokemon[pokemonID].abilities
 	end
 end
 
 -- If the Pokemon is being tracked, return information on statmarkings; otherwise default stat values = 1
-function Tracker.getStatMarkings(pokemonId)
-	if pokemonId == nil or Tracker.Data.pokemon[pokemonId] == nil or Tracker.Data.pokemon[pokemonId].statmarkings == nil then
-		return { hp = 1, att = 1, def = 1, spa = 1, spd = 1, spe = 1 }
+function Tracker.getStatMarkings(pokemonID)
+	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].statmarkings == nil then
+		return { hp = 1, atk = 1, def = 1, spa = 1, spd = 1, spe = 1 }
 	else
-		return Tracker.Data.pokemon[pokemonId].statmarkings
+		return Tracker.Data.allPokemon[pokemonID].statmarkings
+	end
+end
+
+-- If the Pokemon is being tracked, return its encounter count; otherwise default encounter value = 0
+function Tracker.getEncounters(pokemonID)
+	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].encounters == nil then
+		return 0
+	else
+		return Tracker.Data.allPokemon[pokemonID].encounters
 	end
 end
 
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
-function Tracker.getNote(pokemonId)
-	if pokemonId == nil or Tracker.Data.pokemon[pokemonId] == nil or Tracker.Data.pokemon[pokemonId].note == nil then
+function Tracker.getNote(pokemonID)
+	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].note == nil then
 		return ""
 	else
-		return Tracker.Data.pokemon[pokemonId].note
+		return Tracker.Data.allPokemon[pokemonID].note
 	end
 end
-
 
 function Tracker.saveData()
 	local dataString = pickle(Tracker.Data)
@@ -368,5 +358,29 @@ function Tracker.loadData()
 	end
 
 	Tracker.Data.romHash = gameinfo.getromhash()
-	Tracker.redraw = true
+	Program.waitFrames = 0
+end
+
+function Tracker.getDefaultPokemon()
+	local blankPokemon = {
+		pokemonID = 0,
+		friendship = 0,
+		heldItem = 0,
+		level = 0,
+		nature = 0, 
+		ability = nil, -- Must be nil and not { id = 0, revealed = false }
+		status = 0,
+		sleep_turns = 0,
+		curHP = 0,
+		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+		statStages = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 },
+		moves = {
+			{ id = 0, level = 0, pp = 0 },
+			{ id = 0, level = 0, pp = 0 },
+			{ id = 0, level = 0, pp = 0 },
+			{ id = 0, level = 0, pp = 0 },
+		},
+	}
+
+	return blankPokemon
 end
