@@ -128,23 +128,23 @@ end
 -- Returns the text color for PC heal tracking
 function Utils.getCenterHealColor()
 	local currentCount = Tracker.Data.centerHeals
-	if Settings.tracker.SURVIVAL_COUNT_DOWN then
+	if Options["PC heals count downward"] then
 		-- Counting downwards
 		if currentCount < 1 then
-			return GraphicConstants.LAYOUTCOLORS.DECREASE
+			return GraphicConstants.THEMECOLORS["Negative text"]
 		elseif currentCount < 6 then
-			return GraphicConstants.LAYOUTCOLORS.HIGHLIGHT
+			return GraphicConstants.THEMECOLORS["Intermediate text"]
 		else
-			return GraphicConstants.LAYOUTCOLORS.INCREASE
+			return GraphicConstants.THEMECOLORS["Default text"]
 		end
 	else
 		-- Counting upwards
 		if currentCount < 5 then
-			return GraphicConstants.LAYOUTCOLORS.INCREASE
+			return GraphicConstants.THEMECOLORS["Default text"]
 		elseif currentCount < 10 then
-			return GraphicConstants.LAYOUTCOLORS.HIGHLIGHT
+			return GraphicConstants.THEMECOLORS["Intermediate text"]
 		else
-			return GraphicConstants.LAYOUTCOLORS.DECREASE
+			return GraphicConstants.THEMECOLORS["Negative text"]
 		end
 	end
 end

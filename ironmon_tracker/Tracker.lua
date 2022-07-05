@@ -21,7 +21,7 @@ function Tracker.InitTrackerData()
 			ability = 0
 		},
 		inBattle = 0,
-		needCheckSummary = Utils.inlineIf(Settings.tracker.MUST_CHECK_SUMMARY, 1, 0),
+		needCheckSummary = Utils.inlineIf(Options["Hide stats until summary shown"], 1, 0),
 		selectedPlayer = 1,
 		selectedSlot = 1,
 		targetPlayer = 2,
@@ -38,7 +38,7 @@ function Tracker.InitTrackerData()
 			healing = 0,
 			numHeals = 0,
 		},
-		centerHeals = Utils.inlineIf(Settings.tracker.SURVIVAL_COUNT_DOWN, 10, 0),
+		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
 		badges = {0,0,0,0,0,0,0,0},
 		notes = {},
 		currentHiddenPowerType = PokemonTypes.NORMAL,

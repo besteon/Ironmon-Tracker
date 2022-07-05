@@ -6,34 +6,30 @@ Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https:
 
 For more information on ironMON, see <http://ironmon.gg>
 
-Only Emerald, Leaf Green, and Fire Red (Generation 3 games) are supported. If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/Ironmon-Tracker/issues) or DM me on Discord. You can find me on the Ironmon Discord server.
+Only Emerald, Leaf Green, and Fire Red (Generation 3 games) are supported. If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/UTDZac-Tracker/issues) or DM me on Discord. You can find me on the Ironmon Discord server.
 
-This project is based on MKDasher's PokemonBizhawkLua project.
-<https://github.com/mkdasher/PokemonBizhawkLua>
+This project is based on [Besteon's Ironmon Tracker](https://github.com/besteon/Ironmon-Tracker), which is based on [MKDasher's PokemonBizhawkLua project](https://github.com/mkdasher/PokemonBizhawkLua).
 
 ## Installation
 
 0. If you haven't used BizHawk before, [download the emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher).
    - **IMPORTANT**: _Run BizHawk once and **close** it_, then start it again before continuing! This ensures that BizHawk sets itself up properly on your system. Otherwise, the tracker may get some odd errors when trying to start it during your first use of BizHawk.
-1. Download the project from the [releases](https://github.com/besteon/Ironmon-Tracker/releases/) section. The main branch has additional changes and may be broken.
-   - If you are feeling adventurous and wish to help us in finding bugs, you are more than welcome to clone the main branch. If the tracker crashes, please provide the log dump from the Lua Console to us via Discord or the [Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
+1. **Download** the project from the [releases](https://github.com/UTDZac/Ironmon-Tracker/releases/) section. The main branch has additional changes and may be broken.
+   - If you are feeling adventurous and wish to help us in finding bugs, you are more than welcome to clone the main branch. If the tracker crashes, please provide the log dump from the Lua Console to us via Discord or the [Issues](https://github.com/UTDZac/Ironmon-Tracker/issues) tab.
 2. Unzip the project anywhere you like. We recommend using the `Lua` folder where you installed BizHawk. The ironmon_tracker folder must be in the same directory as Ironmon_Tracker.lua.
-3. Configure your settings in the `Settings.ini` file. Provide a location where you have installed your seeds in the `ROMS_FOLDER` setting. Configure your controller buttons if you wish.
-4. Load your ROM in [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (use **version v2.8** or later for maximum compatibility)
-5. Open the Lua Console (Tools -> Lua Console). Click on the folder icon and open `Ironmon_Tracker.lua` in the location you extracted it to.
+3. Load your ROM in [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (use **version v2.8** or later for maximum compatibility)
+4. Open the Lua Console (Tools -> Lua Console). Click on the folder icon and open `Ironmon_Tracker.lua` in the location you extracted it to.
    - If you installed the tracker in Bizhawk's `Lua` folder, this location is shown by default and you should see the `Ironmon_Tracker.lua` file right away.
+5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you have installed your seeds in the `ROMS_FOLDER` setting. Click the Customize button to edit your tracker's theme.
 
 If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent help menu from displaying.
 
 ## Latest Changes
 
-![PCHeals](https://user-images.githubusercontent.com/106463662/173881486-532b1e9e-e316-4df5-893d-c1c772a4006d.png)
+- **_NEW!!_ Full Theme Customization**
 
-- **_NEW!!_ PokéCenter Heal Tracking**: The new Survival IronMon ruleset requires tracking the number of visits to the Pokémon Centers (and other full party healing visits like Mom, etc.) for healing. When between 5-9 visits, the number is yellow, and 10 visits is red.
-  - Turn this on by selecting the new "Survival ruleset" option in the settings menu or in the Settings.ini file.
-  - To enable automatic tracking of PokéCenter-like heals, click the empty box to the right of the PC Heals number, a green "X" will appear to indicate that automatic tracking is on. It is advisable to **NOT** enable this until after the first non-rival fight as per the survival ironmon ruleset.
-  - You can also use the + or - buttons on the left of the PC Heals number to add/subtract counts manually. This can be useful if you do not want automatic tracking or to correct any accidental counts.
-  - As always with a new feature there may be issues that we haven't found yet. If you notice any issues then please let us know on Discord or in the [GitHub Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
+!![image](https://user-images.githubusercontent.com/4258818/176304453-8768604b-e125-4d5e-b3bf-609012f4178a.png)
+![image](https://user-images.githubusercontent.com/4258818/176306783-74d8dd92-7d06-45a1-a566-0acf3b709099.png)
 
 ## Features
 

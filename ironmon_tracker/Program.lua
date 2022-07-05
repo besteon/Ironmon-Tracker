@@ -1,6 +1,7 @@
 State = {
 	TRACKER = "Tracker",
 	SETTINGS = "Settings",
+	THEME = "Theme",
 }
 
 Program = {
@@ -101,6 +102,17 @@ function Program.main()
 			Drawing.drawSettings()
 			Options.redraw = false
 		end
+	elseif Program.state == State.THEME then
+		if Theme.redraw == true and Tracker.waitFrames == 0 then
+			if Theme.redraw then
+				Drawing.drawThemeMenu()
+				Theme.redraw = false
+				Tracker.waitFrames = 5
+			end
+		end
+		if Tracker.waitFrames > 0 then
+			Tracker.waitFrames = Tracker.waitFrames - 1
+		end
 	end
 end
 
@@ -144,7 +156,7 @@ function Program.UpdateMonStatStages()
 		Tracker.Data.selectedPokemon.statStages = battleMon.statStages
 		Tracker.Data.selectedPokemon.ability = battleMon.ability
 	else
-		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
 	end
 end
 
@@ -181,7 +193,7 @@ end
 function Program.BattleEnded()
 	Tracker.Data.selfSlotOne = 1
 	Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
-	Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPEED = 6, SPATK = 6, SPDEF = 6, ACC = 6, EVASION = 6 }
+	Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
 
 	Tracker.Data.targetedPokemon = nil
 	Tracker.redraw = true
@@ -220,7 +232,7 @@ function Program.HandleTrainerSentOutPkmn()
 	Tracker.Data.inBattle = 1
 	Tracker.Data.selectedSlot = 1
 
-	if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
+	if Options["Auto swap to enemy"] then
 		Tracker.Data.selectedPlayer = 2
 		Tracker.Data.targetPlayer = 1
 		Tracker.Data.targetSlot = 1
@@ -253,7 +265,7 @@ function Program.HandleSwitchSelectedMons()
 	Tracker.redraw = true
 	Tracker.waitFrames = 30
 
-	if Settings.tracker.MUST_CHECK_SUMMARY == true then
+	if Options["Hide stats until summary shown"] == true then
 		Tracker.Data.needCheckSummary = 1
 	end
 end
@@ -274,8 +286,8 @@ function Program.HandleUpdatePoisonStepCounter()
 end
 
 function Program.HandleHealPlayerParty()
-	if Program.PCHealTrackingButtonState and Settings.tracker.SURVIVAL_RULESET then
-		if Settings.tracker.SURVIVAL_COUNT_DOWN then
+	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
+		if Options["PC heals count downward"] then
 			-- Automatically count down
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
@@ -305,7 +317,7 @@ function Program.HandleDoPokeballSendOutAnimation()
 		Program.transformedPokemon.isTransformed = false
 	end
 
-	if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
+	if Options["Auto swap to enemy"] then
 		Tracker.Data.selectedPlayer = 2
 		Tracker.Data.targetPlayer = 1
 		Tracker.Data.targetSlot = 1
@@ -430,7 +442,7 @@ function Program.HandleMove()
 		if attackerValue == 1 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
 			level = Program.enemyPokemonTeam[enemySlotOne].level
-			if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
+			if Options["Auto swap to enemy"] then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotOne
 				Tracker.Data.targetPlayer = 1
@@ -439,7 +451,7 @@ function Program.HandleMove()
 		elseif attackerValue == 3 then
 			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
 			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Settings.tracker.AUTO_SWAP_TO_ENEMY == true then
+			if Options["Auto swap to enemy"] then
 				Tracker.Data.selectedPlayer = 2
 				Tracker.Data.selectedSlot = enemySlotTwo
 				Tracker.Data.targetPlayer = 1
@@ -639,9 +651,9 @@ function Program.getBattleMon(index)
 			HP = Memory.readbyte(base + 0x18),
 			ATK = Memory.readbyte(base + 0x19),
 			DEF = Memory.readbyte(base + 0x1A),
-			SPEED = Memory.readbyte(base + 0x1B),
-			SPATK = Memory.readbyte(base + 0x1C),
-			SPDEF = Memory.readbyte(base + 0x1D),
+			SPE = Memory.readbyte(base + 0x1B),
+			SPA = Memory.readbyte(base + 0x1C),
+			SPD = Memory.readbyte(base + 0x1D),
 			ACC = Memory.readbyte(base + 0x1E),
 			EVASION = Memory.readbyte(base + 0x1F)
 		},
