@@ -12,60 +12,11 @@ Tracker.controller = {
 
 Tracker.Data = {}
 
---[[Tracked Pokemon Example: allPokemon = {
-	213 = {-- Shuckle
-		abilities = {
-			{ id = 3, revealed = false }, -- Drizzle
-			{ id = 6, revealed = false }, -- Sturdy
-		},
-		statmarkings = { hp = 1, atk = 1, def = 1, spa = 1, spd = 1, spe = 1 },
-		moves = {
-			{ id = 7, level = 13 }, -- Fire Punch
-			{ id = 10, level = 1 }, -- Scratch
-			{ id = 16, level = 1 }, -- Gust
-			{ id = 32, level = 5 }, -- Horn Drill
-		},
-		encounters = 1, -- Number of times this Pokemon has been encountered throughout the entire game
-		note = "very fast shuckle",
-	},
-}
-]]--
-
--- a list of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
--- A second set is temporarily stored for "otherPokemon" which belong to trainers or wilds
---[[Storage Pokemon Example: ownPokemon = {
-	["12345678123456781234567812345678"(personality)] = {
-		pokemonID = Utils.getbits(growth1, 0, 16),
-		friendship = Utils.getbits(growth3, 72, 8),
-		heldItem = Utils.getbits(growth1, 16, 16),
-		level = Memory.readbyte(startAddress + 84),
-		nature = personality % 25,
-		ability = { id = 3, revealed = true }, -- Drizzle
-		status = status_result,
-		sleep_turns = sleep_turns_result,
-		curHP = Memory.readword(startAddress + 86),
-		stats = {
-			hp = Memory.readword(startAddress + 88), -- aka, maxHP
-			atk = Memory.readword(startAddress + 90),
-			def = Memory.readword(startAddress + 92),
-			spa = Memory.readword(startAddress + 96),
-			spd = Memory.readword(startAddress + 98),
-			spe = Memory.readword(startAddress + 94),
-		},
-		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
-		moves = {
-			{ id = Utils.getbits(attack1, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 0, 8) },
-			{ id = Utils.getbits(attack1, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 8, 8) },
-			{ id = Utils.getbits(attack2, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 16, 8) },
-			{ id = Utils.getbits(attack2, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 24, 8) },
-		},
-	},
-}]]--
-
 function Tracker.InitTrackerData()
 	local trackerData = {
+		trainerID = 0,
 		allPokemon = {},  -- Used to track information about all pokemon seen thus far
-		ownPokemon = {},
+		ownPokemon = {}, -- a set of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
 		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
 
 		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
@@ -77,7 +28,7 @@ function Tracker.InitTrackerData()
 		inBattle = false,
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 
-		items = {}, -- Currently unused
+		items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
 		healingItems = {
 			healing = 0,
 			numHeals = 0,
@@ -245,19 +196,21 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	end
 end
 
--- numEncounters: (optional) used to overwrite the number of encounters
-function Tracker.TrackEncounter(pokemonID, numEncounters)
+-- isTrainerPokemon: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
+function Tracker.TrackEncounter(pokemonID, isTrainerPokemon)
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 
 	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
 	if trackedPokemon.encounters == nil then
-		trackedPokemon.encounters = 1
-	elseif numEncounters ~= nil then
-		trackedPokemon.encounters = numEncounters
+		trackedPokemon.encounters = { wild = 0, trainer = 0 }
+	end
+
+	if isTrainerPokemon then
+		trackedPokemon.encounters.trainer = trackedPokemon.encounters.trainer + 1
 	else
-		trackedPokemon.encounters = trackedPokemon.encounters + 1
+		trackedPokemon.encounters.wild = trackedPokemon.encounters.wild + 1
 	end
 end
 
@@ -296,7 +249,7 @@ end
 function Tracker.getAbilities(pokemonID)
 	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].abilities == nil then
 		return {
-			{ id = 1, revealed = false },
+			{ id = 0, revealed = false },
 		}
 	else
 		return Tracker.Data.allPokemon[pokemonID].abilities
@@ -312,12 +265,14 @@ function Tracker.getStatMarkings(pokemonID)
 	end
 end
 
--- If the Pokemon is being tracked, return its encounter count; otherwise default encounter value = 0
-function Tracker.getEncounters(pokemonID)
+-- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
+function Tracker.getEncounters(pokemonID, isTrainerPokemon)
 	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].encounters == nil then
 		return 0
+	elseif isTrainerPokemon then
+		return Tracker.Data.allPokemon[pokemonID].encounters.trainer
 	else
-		return Tracker.Data.allPokemon[pokemonID].encounters
+		return Tracker.Data.allPokemon[pokemonID].encounters.wild
 	end
 end
 

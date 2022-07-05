@@ -133,9 +133,11 @@ function Input.check(xmouse, ymouse)
 
 		--note box
 		if not Tracker.Data.isViewingOwn and Input.noteForm == nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
-			Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
-			forms.label(Input.noteForm, "Enter a note for this Pokemon (70 char. max):", 9, 10, 300, 20)
 			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			local pokemonName = Utils.inlineIf(pokemon ~= nil, PokemonData[pokemon.pokemonID + 1].name, "this Pokemon")
+			
+			Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+			forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
 			local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 			forms.button(Input.noteForm, "Save", function()
 				local formInput = forms.gettext(noteTextBox)

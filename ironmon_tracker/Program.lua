@@ -48,7 +48,7 @@ function Program.main()
 
 		-- Update abilities in the tracker
 		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
-			Tracker.TrackAbility(ability.pokemonID, ability.abilityId, false)
+			Tracker.TrackAbility(ability.pokemonID, ability.abilityId, ability.isRevealed)
 		end
 		Program.tracker.abilitiesToUpdate = {}
 
@@ -57,8 +57,6 @@ function Program.main()
 			Tracker.TrackItem(item.pokemonID, item.itemId)
 		end
 		Program.tracker.items = {}
-
-		-- TODO: Track encounter count?
 
 		-- Execute event callbacks
 		-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
@@ -108,7 +106,6 @@ function Program.main()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
-		-- TODO: Double check later if still need "Theme.redraw"
 		if Theme.redraw and Program.waitFrames == 0 then
 			Drawing.drawThemeMenu()
 			Theme.redraw = false
@@ -122,7 +119,9 @@ end
 -- Checks if any updates to own/other pokemon data are required based on a few conditions
 -- 1) A move was used, 2) Pokemon levels up, 3) Walking around deals poison damage or changes friendship, 4) ...?
 function Program.updatePokemonTeamsFromMemory()
-	local recentPokemon = Tracker.getPokemon(1, false) -- Potentially the last wild pokemon we fought
+	-- Lookup data on the last pokemon we fought (for purposes of it being a wild pokemon and we catch it)
+	local recentPokemon = Tracker.getPokemon(1, false)
+	local recentPersonality = Tracker.Data.otherTeam[1]
 
 	-- Check for updates to each pokemon team
 	local addressOffset = 0
@@ -130,18 +129,25 @@ function Program.updatePokemonTeamsFromMemory()
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		Tracker.Data.ownTeam[i] = personality
 		
-		-- TODO: verify if you dont have a pokemon in this team's slot, the personality = 0
 		if personality ~= 0 then
-			-- print("i[" .. i .. "]'s personality = " .. personality)
 			local newPokemonData = Program.readNewPokemonFromMemory(GameSettings.pstats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
 				-- First check if the new pokemon being added is the one that was just caught (the wild pokemon)
-				if recentPokemon ~= nil and recentPokemon.personality == personality and recentPokemon.ability ~= nil then
+				if recentPokemon ~= nil and recentPersonality == personality and recentPokemon.ability ~= nil then
 					newPokemonData.ability = { 
 						id = recentPokemon.ability.id, 
-						revealed = true }
+						revealed = true,
+					}
+					-- update tracked ability data for when we encounter this pokemon in the future
+					Tracker.TrackAbility(newPokemonData.pokemonID, newPokemonData.ability.id, newPokemonData.ability.revealed)
 				end
+
+				if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
+					Tracker.Data.trainerID = newPokemonData.trainerID
+				end
+				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
+				newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
@@ -151,18 +157,11 @@ function Program.updatePokemonTeamsFromMemory()
 			personality = Memory.readdword(GameSettings.estats + addressOffset)
 			Tracker.Data.otherTeam[i] = personality
 
-			-- TODO: verify if you dont have a pokemon in this team's slot, the personality = 0
 			if personality ~= 0 then
-				-- print("i[" .. i .. "]'s E's personality = " .. personality)
 				newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
 
 				if Program.validPokemonData(newPokemonData) then
 					Tracker.addUpdatePokemon(newPokemonData, personality, false)
-				end
-
-				-- Replace move information for opposing pokemon, only used the tracked moves
-				if Tracker.Data.otherPokemon[personality] ~= nil then
-					Tracker.Data.otherPokemon[personality].moves = Tracker.getMoves(Tracker.Data.otherPokemon[personality].pokemonID)
 				end
 			end
 		end
@@ -252,8 +251,8 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		},
 
 		-- Unused data that can be added back in later
-		-- trainerId = Utils.getbits(otid, 0, 16), -- Unused
-		-- secretId = Utils.getbits(otid, 16, 16), -- Unused
+		trainerID = Utils.getbits(otid, 0, 16), -- Unused
+		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
 		-- experience = Utils.getbits(growth2, 32, 31), -- Unused
 		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
 		-- iv = misc2,
@@ -292,7 +291,7 @@ function Program.updateBattleDataFromMemory()
 			-- If the pokemon belongs to a trainer, increment encounters (TODO: currently counts wild encounters, unsure if worth keeping?)
 			if i ~= 1 and (pokemon.hasBeenEncountered == nil or not pokemon.hasBeenEncountered) then
 				pokemon.hasBeenEncountered = true
-				Tracker.TrackEncounter(pokemon.pokemonID)
+				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
 			end
 
 			-- If the pokemon doesn't have an ability yet, look it up
@@ -595,28 +594,25 @@ end
 
 -- TODO: Code this later since its currently unused
 function Program.HandleAbilityActivate(abilityId)
-	local slotZeroAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities)
-	local slotOneAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
-	local slotTwoAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x2)
-	local slotThreeAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
-
-	local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-	local selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
-	local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+	local abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+	local enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+	local pokemon = Tracker.getPokemon(enemySlotMemory, false)
 
 	local pkmnId = 1
-	if slotZeroAbilityId == abilityId then
-		pkmnId = Program.trainerPokemonTeam[selfSlotOne].pkmID + 1
-	elseif slotOneAbilityId == abilityId then
-		pkmnId = Program.enemyPokemonTeam[enemySlotOne].pkmID + 1
-	elseif slotTwoAbilityId == abilityId then
-		pkmnId = Program.trainerPokemonTeam[selfSlotTwo].pkmID + 1
-	elseif slotThreeAbilityId == abilityId then
-		pkmnId = Program.enemyPokemonTeam[enemySlotTwo].pkmID + 1
+	if abilityIdMemory == abilityId then
+		pkmnId = pokemon.pokemonID
+	else
+		abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
+		enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+		pokemon = Tracker.getPokemon(enemySlotMemory, false)
+	
+		if abilityIdMemory == abilityId then
+			pkmnId = pokemon.pokemonID
+		end
 	end
 
-	table.insert(Program.tracker.abilitiesToUpdate, { pokemonID = pkmnId, abilityId = abilityId })
+	-- Since this ability activated on screen, reveal it
+	table.insert(Program.tracker.abilitiesToUpdate, { pokemonID = pkmnId, abilityId = abilityId, isRevealed = true })
 
 	Program.waitFrames = 30
 end

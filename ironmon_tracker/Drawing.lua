@@ -317,7 +317,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local evoTextColor = GraphicConstants.THEMECOLORS["Default text"]
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
-	if string.format("%d", pokemon.level + 1) == PokemonData[pokemon.pokemonID + 1].evolution then
+	if Tracker.Data.isViewingOwn and string.format("%d", pokemon.level + 1) == PokemonData[pokemon.pokemonID + 1].evolution then
 		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
 	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
 		evolutionDetails = " (SOON)"
@@ -356,9 +356,17 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			end
 		end
 	else
-		local encounterText = "Encounters: " .. Tracker.getEncounters(pokemon.pokemonID)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, encounterText, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-
+		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
+			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID)
+			if encounterText > 9999 then encounterText = 9999 end
+			if Tracker.Data.trainerID ~= pokemon.trainerID then
+				encounterText = "Seen on trainers: " .. encounterText
+			else
+				encounterText = "Seen in wild: " .. encounterText
+			end
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, encounterText, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+		end
 	end
 
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
@@ -371,13 +379,31 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
 	-- Draw Pokemon's held item and ability but only for your own Pokemon
-
+	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 	if Tracker.Data.isViewingOwn then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	elseif pokemon.ability.revealed then
+		-- If the ability exists on the current pokemon data, and is known to the player, then draw it
 		-- TODO: This somehow needs to function to allow users to clear on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	else
+		-- Otherwise, check if any / how many of the tracked abilities are known about this pokemon
+		local bothRevealed = trackedAbilities[1].revealed and (trackedAbilities[2] ~= nil and trackedAbilities[2].revealed)
+		local abilityOffsetY = pkmnStatStartY + (pkmnStatOffsetY * 4)
+		if not bothRevealed then
+			for _, trackedAbility in pairs(trackedAbilities) do
+				-- When drawing an ability, if both aren't revealed, mark the one with a '?' to indicate uncertainty
+				if trackedAbility.revealed then
+					Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, abilityOffsetY, MiscData.ability[trackedAbility.id + 1] .. "?", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+				end
+			end
+		else
+			for _, trackedAbility in pairs(trackedAbilities) do
+				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, abilityOffsetY, MiscData.ability[trackedAbility.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+				abilityOffsetY = abilityOffsetY - pkmnStatOffsetY -- For now, draw the second ability above the first, in the held item slot
+			end
+		end
 	end
 
 	-- draw stat box
@@ -435,13 +461,13 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 
 	-- Determine which moves to show based on if the tracker is showing the enemy Pokémon or the player's.
+	-- If the Pokemon doesn't belong to the player, pull move data from tracked data
+	local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
 	local moves = {}
 	for moveIndex = 1, 4, 1 do
 		if Tracker.Data.isViewingOwn then
 			moves[moveIndex] = MoveData[pokemon.moves[moveIndex].id]
 		else
-			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-			local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
 			if trackedMoves ~= nil and trackedMoves[moveIndex] ~= nil then
 				moves[moveIndex] = MoveData[trackedMoves[moveIndex].id]
 			else
@@ -509,8 +535,16 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	for moveIndex = 1, 4, 1 do
 		local ppText = moves[moveIndex].pp -- Set to move's max PP value
 		-- check if any pp has been used and it should be revealed
-		if Tracker.Data.isViewingOwn and moves[moveIndex].pp ~= NOPP then
-			ppText = pokemon.moves[moveIndex].pp
+		if moves[moveIndex].pp ~= NOPP then
+			if Tracker.Data.isViewingOwn then
+				ppText = pokemon.moves[moveIndex].pp
+			elseif Options["Track enemy PP usage"] then
+				for _, move in pairs(pokemon.moves) do
+					if (tonumber(move.id) - 1) == tonumber(moves[moveIndex].id) then
+						ppText = move.pp
+					end
+				end
+			end
 		end
 		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), ppText, 2, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 	end

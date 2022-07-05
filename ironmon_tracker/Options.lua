@@ -6,6 +6,7 @@ Options = {
 	["Show physical special icons"] = true,
 	["Show move effectiveness"] = true,
 	["Calculate variable damage"] = true,
+	["Track enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
 
@@ -17,6 +18,7 @@ Options = {
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",
+		"Track enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
 	},
