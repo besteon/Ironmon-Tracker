@@ -39,19 +39,31 @@ function Program.main()
 	if Program.state == State.TRACKER then
 		-- Update moves in the tracker
 		for _, move in ipairs(Program.tracker.movesToUpdate) do
-			Tracker.TrackMove(move.pokemonID, move.moveId, move.level)
+			local pokemon = Tracker.getPokemon(move.enemySlot, false)
+
+			if pokemon ~= nil then
+				Tracker.TrackMove(pokemon.pokemonID, move.moveId, pokemon.level)
+			end
 		end
 		Program.tracker.movesToUpdate = {}
 
 		-- Update abilities in the tracker
 		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
-			Tracker.TrackAbility(ability.pokemonID, ability.abilityId, ability.isRevealed)
+			local pokemon = Tracker.getPokemon(ability.enemySlot, false)
+
+			if pokemon ~= nil then
+				Tracker.TrackAbility(pokemon.pokemonID, ability.abilityId, ability.isRevealed)
+			end
 		end
 		Program.tracker.abilitiesToUpdate = {}
 
 		-- Update items in the tracker
 		for _, item in ipairs(Program.tracker.itemsToUpdate) do
-			Tracker.TrackItem(item.pokemonID, item.itemId)
+			local pokemon = Tracker.getPokemon(item.enemySlot, false)
+
+			if pokemon ~= nil then
+				Tracker.TrackItem(pokemon.pokemonID, item.itemId)
+			end
 		end
 		Program.tracker.items = {}
 
@@ -67,6 +79,8 @@ function Program.main()
 		if Program.frameCounter == 3600 then
 			Tracker.saveData()
 			Program.frameCounter = 0
+		else
+			Program.frameCounter = Program.frameCounter + 1
 		end
 
 		-- Only redraw the UI when an event has occurred which requires the UI to be redrawn.
@@ -95,7 +109,6 @@ function Program.main()
 			Program.waitFrames = 30
 		elseif Program.waitFrames > 0 then
 			Program.waitFrames = Program.waitFrames - 1
-			Program.frameCounter = Program.frameCounter + 1
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
@@ -131,13 +144,22 @@ function Program.updatePokemonTeamsFromMemory()
 
 			if Program.validPokemonData(newPokemonData) then
 				-- First check if the new pokemon being added is the one that was just caught (the wild pokemon)
-				if recentPokemon ~= nil and recentPersonality == personality and recentPokemon.ability ~= nil then
-					newPokemonData.ability = { 
-						id = recentPokemon.ability.id, 
-						revealed = true,
-					}
-					-- update tracked ability data for when we encounter this pokemon in the future
-					Tracker.TrackAbility(newPokemonData.pokemonID, newPokemonData.ability.id, newPokemonData.ability.revealed)
+				if recentPokemon ~= nil and recentPersonality == personality then
+					-- Update tracked ability data for when we encounter this pokemon in the future
+					if recentPokemon.ability ~= nil then
+						newPokemonData.ability = { 
+							id = recentPokemon.ability.id, 
+							revealed = true,
+						}
+						Tracker.TrackAbility(recentPokemon.pokemonID, recentPokemon.ability.id, true)
+					end
+
+					-- Update tracked moved data for when we encounter this pokemon in the future
+					if recentPokemon.moves ~= nil then
+						for _, move in pairs(recentPokemon.moves) do
+							Tracker.TrackMove(recentPokemon.pokemonID, move.id, recentPokemon.level)
+						end
+					end
 				end
 
 				if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
@@ -239,7 +261,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 			spd = Memory.readword(startAddress + 98),
 			spe = Memory.readword(startAddress + 94),
 		},
-		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6 },
+		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
 		moves = {
 			{ id = Utils.getbits(attack1, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 0, 8) },
 			{ id = Utils.getbits(attack1, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 8, 8) },
@@ -305,7 +327,7 @@ function Program.updateBattleDataFromMemory()
 			pokemon.statStages.hp = Memory.readbyte(startAddress + 0x18)
 			if pokemon.statStages.hp ~= 0 then
 				pokemon.statStages = {
-					hp = pokemon.statStages,
+					hp = pokemon.statStages.hp,
 					atk = Memory.readbyte(startAddress + 0x19),
 					def = Memory.readbyte(startAddress + 0x1A),
 					spe = Memory.readbyte(startAddress + 0x1B),
@@ -444,17 +466,19 @@ function Program.HandleMove()
 		end
 
 		-- Check if the primary pokemon is attacking, or if its the doubles partner attacking
+		local enemySlotMemory = nil
 		if attackerValue == 1 then
-			Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+			enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 		elseif attackerValue == 3 then
-			Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+			enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 		end
-
-		pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if enemySlotMemory ~= nil then
+			Tracker.Data.otherViewSlot = enemySlotMemory
+		end
 
 		-- Stop tracking moves temporarily while transformed
 		if not Program.transformedPokemon.isTransformed then
-			table.insert(Program.tracker.movesToUpdate, { pokemonID = pokemon.pokemonID, moveId = moveId, level = pokemon.level })
+			table.insert(Program.tracker.movesToUpdate, { enemySlot = enemySlotMemory, moveId = moveId })
 		elseif moveId == 19 or moveId == 47 then
 			-- Account for niche scenario of force-switch moves being used while transformed
 			Program.transformedPokemon.forceSwitch = true
@@ -487,6 +511,7 @@ function Program.HandleDoPokeballSendOutAnimation()
 		Tracker.Data.isViewingOwn = false
 	end
 
+	-- Reset the controller's position when a new pokemon is sent out
 	Tracker.controller.statIndex = 6
 	Program.waitFrames = 90
 end
@@ -545,6 +570,33 @@ function Program.HandleBattleScriptSynchronizeActivates()
 	Program.HandleAbilityActivate(28)
 end
 
+function Program.HandleCheckIfWaterAbsorbCancelsWater()
+	Program.HandleAbilityActivate(11)
+end
+
+-- Only checks abilities from opposing Pokemon
+function Program.HandleAbilityActivate(abilityId)
+	local abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+	local enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+
+	-- If it's not the first Pokemon, check the doubles partner
+	if abilityIdMemory ~= abilityId then
+		abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
+		enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+		
+		-- If it's not the other Pokemon either (somehow), then don't track the ability
+		if abilityIdMemory ~= abilityId then
+			enemySlotMemory = nil
+			abilityId = 0
+		end
+	end
+
+	-- Since this ability activated on screen, reveal it
+	table.insert(Program.tracker.abilitiesToUpdate, { enemySlot = enemySlotMemory, abilityId = abilityId, isRevealed = true })
+
+	Program.waitFrames = 90
+end
+
 -- END ABILITY EVENT HANDLERS
 
 function Program.obtainBadge(badgeNumber)
@@ -589,30 +641,6 @@ function Program.HandleExit()
 	end
 end
 
-function Program.HandleAbilityActivate(abilityId)
-	local abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
-	local enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-	local pokemon = Tracker.getPokemon(enemySlotMemory, false)
-
-	local pkmnId = 1
-	if abilityIdMemory == abilityId then
-		pkmnId = pokemon.pokemonID
-	else
-		abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
-		enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-		pokemon = Tracker.getPokemon(enemySlotMemory, false)
-	
-		if abilityIdMemory == abilityId then
-			pkmnId = pokemon.pokemonID
-		end
-	end
-
-	-- Since this ability activated on screen, reveal it
-	table.insert(Program.tracker.abilitiesToUpdate, { pokemonID = pkmnId, abilityId = abilityId, isRevealed = true })
-
-	Program.waitFrames = 30
-end
-
 -- Currently unused
 function Program.HandleWeHopeToSeeYouAgain()
 	Program.waitFrames = 30
@@ -636,16 +664,19 @@ end
 function Program.validPokemonData(pokemonData)
 	if pokemonData == nil then return false end
 
-	if pokemonData.pokemonID == nil or pokemonData.pokemonID < 0 or pokemonData.pokemonID > 412 then
+	-- If the Pokemon exists, but it's ID is invalid
+	if pokemonData.pokemonID ~= nil and (pokemonData.pokemonID < 0 or pokemonData.pokemonID > 412) then
 		return false
 	end
 
-	if pokemonData.heldItem == nil or pokemonData.heldItem < 0 or pokemonData.heldItem > 376 then
+	-- If the Pokemon is holding an item, and that item is invalid
+	if pokemonData.heldItem ~= nil and (pokemonData.heldItem < 0 or pokemonData.heldItem > 376) then
 		return false
 	end
 
+	-- For each of the Pokemon's moves, is that move invalid
 	for _, move in pairs(pokemonData.moves) do
-		if move.id < 0 or move.id > 354 then
+		if move.id < 1 or move.id > 355 then -- offset with +1 since that is being added to moveId when we read data from memory
 			return false
 		end
 	end

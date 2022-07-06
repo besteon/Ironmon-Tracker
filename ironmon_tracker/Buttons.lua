@@ -38,14 +38,6 @@ BadgeButtons = {
 	xOffsets = {0, 0, 0, 0, 0, 0, 0, 0},
 }
 
-BadgeButtons = {
-	BADGE_GAME_PREFIX = "",
-	BADGE_X_POS_START = 247,
-	BADGE_Y_POS = 139,
-	BADGE_WIDTH_LENGTH = 16,
-	badgeButtons = {}
-}
-
 local buttonXOffset = 129
 
 local HiddenPowerState = 0

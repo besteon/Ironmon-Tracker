@@ -288,7 +288,7 @@ function Tracker.getDefaultPokemon()
 		sleep_turns = 0,
 		curHP = 0,
 		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
-		statStages = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 },
+		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
 		moves = {
 			{ id = 1, level = 1, pp = 0 },
 			{ id = 1, level = 1, pp = 0 },

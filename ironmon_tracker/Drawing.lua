@@ -385,24 +385,15 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	elseif pokemon.ability.revealed then
 		-- If the ability exists on the current pokemon data, and is known to the player, then draw it
-		-- TODO: Eventually, this area somehow needs to function to allow users to click on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	else
 		-- Otherwise, check if any / how many of the tracked abilities are known about this pokemon
-		local bothRevealed = trackedAbilities[1].revealed and (trackedAbilities[2] ~= nil and trackedAbilities[2].revealed)
-		local abilityOffsetY = pkmnStatStartY + (pkmnStatOffsetY * 4)
-		if not bothRevealed then
-			for _, trackedAbility in pairs(trackedAbilities) do
-				-- When drawing an ability, if both aren't revealed, mark the one with a '?' to indicate uncertainty
-				if trackedAbility.revealed then
-					Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, abilityOffsetY, MiscData.ability[trackedAbility.id + 1] .. "?", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-				end
-			end
-		else
-			for _, trackedAbility in pairs(trackedAbilities) do
-				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, abilityOffsetY, MiscData.ability[trackedAbility.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-				abilityOffsetY = abilityOffsetY - pkmnStatOffsetY -- For now, draw the second ability above the first, in the held item slot
-			end
+		-- TODO: Eventually, this area somehow needs to function to allow users to click on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
+		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then 
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.ability[trackedAbilities[2].id + 1] .. " /", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		end
+		if trackedAbilities[1].revealed then
+			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[trackedAbilities[1].id + 1] .. " ?", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 		end
 	end
 
@@ -430,7 +421,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Tracker.Data.inBattle then
-			Drawing.drawStatusLevel(statOffsetX + 25 - 5, statOffsetY, pokemon.statStages[statLabels[i]:upper()])
+			Drawing.drawStatusLevel(statOffsetX + 25 - 5, statOffsetY, pokemon.statStages[statLabels[i]])
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
