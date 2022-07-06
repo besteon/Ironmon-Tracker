@@ -11,7 +11,7 @@ print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
 -- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
-if client.getversion == nil or client.getversion() ~= "2.8" then
+if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversion() ~= "2.9") then
 	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
 	-- Bounce out... Don't pass Go! Don't collect $200.
 	return
@@ -94,37 +94,7 @@ function Main.Run()
 		event.onmemoryexecute(Program.HandleUpdatePoisonStepCounter, GameSettings.UpdatePoisonStepCounter, "HandleUpdatePoisonStepCounter")
 		event.onmemoryexecute(Program.HandleHealPlayerParty, GameSettings.HealPlayerParty, "HandleHealPlayerParty")
 
-		-- Ability events
-		-- event.onmemoryread(Program.HandleBattleScriptDrizzleActivates, GameSettings.BattleScriptDrizzleActivates, "HandleBattleScriptDrizzleActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptSpeedBoostActivates, GameSettings.BattleScriptSpeedBoostActivates, "HandleBattleScriptSpeedBoostActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptTraceActivates, GameSettings.BattleScriptTraceActivates, "HandleBattleScriptTraceActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptRainDishActivates, GameSettings.BattleScriptRainDishActivates, "HandleBattleScriptRainDishActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptSandstreamActivates, GameSettings.BattleScriptSandstreamActivates, "HandleBattleScriptSandstreamActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptShedSkinActivates, GameSettings.BattleScriptShedSkinActivates, "HandleBattleScriptShedSkinActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptIntimidateActivates, GameSettings.BattleScriptIntimidateActivates, "HandleBattleScriptIntimidateActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptDroughtActivates, GameSettings.BattleScriptDroughtActivates, "HandleBattleScriptDroughtActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptStickyHoldActivates, GameSettings.BattleScriptStickyHoldActivates, "HandleBattleScriptStickyHoldActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptColorChangeActivates, GameSettings.BattleScriptColorChangeActivates, "HandleBattleScriptColorChangeActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptRoughSkinActivates, GameSettings.BattleScriptRoughSkinActivates, "HandleBattleScriptRoughSkinActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptCuteCharmActivates, GameSettings.BattleScriptCuteCharmActivates, "HandleBattleScriptCuteCharmActivates")
-		-- event.onmemoryread(Program.HandleBattleScriptSynchronizeActivates, GameSettings.BattleScriptSynchronizeActivates, "HandleBattleScriptSynchronizeActivates")
-		-- TEMPLATE: event.onmemoryread(Program.Handle, GameSettings., "")
-
-		-- Badge events (Keep disabled: doesn't work in Bizhawk 2.8; confirmed fixed in 2.9 dev)
-		-- event.onmemoryread(Program.HandleBadgeOneObtained, GameSettings.ObtainBadgeOne, "HandleBadgeOneObtained")
-		-- event.onmemoryread(Program.HandleBadgeTwoObtained, GameSettings.ObtainBadgeTwo, "HandleBadgeTwoObtained")
-		-- event.onmemoryread(Program.HandleBadgeThreeObtained, GameSettings.ObtainBadgeThree, "HandleBadgeThreeObtained")
-		-- event.onmemoryread(Program.HandleBadgeFourObtained, GameSettings.ObtainBadgeFour, "HandleBadgeFourObtained")
-		-- event.onmemoryread(Program.HandleBadgeFiveObtained, GameSettings.ObtainBadgeFive, "HandleBadgeFiveObtained")
-		-- event.onmemoryread(Program.HandleBadgeSixObtained, GameSettings.ObtainBadgeSix, "HandleBadgeSixObtained")
-		-- event.onmemoryread(Program.HandleBadgeSevenObtained, GameSettings.ObtainBadgeSeven, "HandleBadgeSevenObtained")
-		-- event.onmemoryread(Program.HandleBadgeEightObtained, GameSettings.ObtainBadgeEight, "HandleBadgeEightObtained")
-
-		-- For some reason if I put this onmemory read before the ability event ones, it doesn't work. No idea why, probably just Bizhawk things.
-		-- event.onmemoryread(Program.HandleWeHopeToSeeYouAgain, GameSettings.WeHopeToSeeYouAgain)
-		-- event.onmemoryread(Program.HandleTrainerSentOutPkmn, GameSettings.TrainerSentOutPkmn)
-
-		-- Item events
+		Main.LoadEventReads()
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
@@ -135,6 +105,42 @@ function Main.Run()
 
 		Main.LoadNext()
 	end
+end
+
+-- Adding eventual support for when Bizhawk 2.9 users load up the tracker, where 'onmemoryread' events are fixed.
+function Main.LoadEventReads()
+	if client.getversion() ~= "2.9" then return end
+
+	-- Ability activated events
+	event.onmemoryread(Program.HandleBattleScriptDrizzleActivates, GameSettings.BattleScriptDrizzleActivates, "HandleBattleScriptDrizzleActivates")
+	event.onmemoryread(Program.HandleBattleScriptSpeedBoostActivates, GameSettings.BattleScriptSpeedBoostActivates, "HandleBattleScriptSpeedBoostActivates")
+	event.onmemoryread(Program.HandleBattleScriptTraceActivates, GameSettings.BattleScriptTraceActivates, "HandleBattleScriptTraceActivates")
+	event.onmemoryread(Program.HandleBattleScriptRainDishActivates, GameSettings.BattleScriptRainDishActivates, "HandleBattleScriptRainDishActivates")
+	event.onmemoryread(Program.HandleBattleScriptSandstreamActivates, GameSettings.BattleScriptSandstreamActivates, "HandleBattleScriptSandstreamActivates")
+	event.onmemoryread(Program.HandleBattleScriptShedSkinActivates, GameSettings.BattleScriptShedSkinActivates, "HandleBattleScriptShedSkinActivates")
+	event.onmemoryread(Program.HandleBattleScriptIntimidateActivates, GameSettings.BattleScriptIntimidateActivates, "HandleBattleScriptIntimidateActivates")
+	event.onmemoryread(Program.HandleBattleScriptDroughtActivates, GameSettings.BattleScriptDroughtActivates, "HandleBattleScriptDroughtActivates")
+	event.onmemoryread(Program.HandleBattleScriptStickyHoldActivates, GameSettings.BattleScriptStickyHoldActivates, "HandleBattleScriptStickyHoldActivates")
+	event.onmemoryread(Program.HandleBattleScriptColorChangeActivates, GameSettings.BattleScriptColorChangeActivates, "HandleBattleScriptColorChangeActivates")
+	event.onmemoryread(Program.HandleBattleScriptRoughSkinActivates, GameSettings.BattleScriptRoughSkinActivates, "HandleBattleScriptRoughSkinActivates")
+	event.onmemoryread(Program.HandleBattleScriptCuteCharmActivates, GameSettings.BattleScriptCuteCharmActivates, "HandleBattleScriptCuteCharmActivates")
+	event.onmemoryread(Program.HandleBattleScriptSynchronizeActivates, GameSettings.BattleScriptSynchronizeActivates, "HandleBattleScriptSynchronizeActivates")
+
+	-- Badge get events
+	event.onmemoryread(Program.HandleBadgeOneObtained, GameSettings.ObtainBadgeOne, "HandleBadgeOneObtained")
+	event.onmemoryread(Program.HandleBadgeTwoObtained, GameSettings.ObtainBadgeTwo, "HandleBadgeTwoObtained")
+	event.onmemoryread(Program.HandleBadgeThreeObtained, GameSettings.ObtainBadgeThree, "HandleBadgeThreeObtained")
+	event.onmemoryread(Program.HandleBadgeFourObtained, GameSettings.ObtainBadgeFour, "HandleBadgeFourObtained")
+	event.onmemoryread(Program.HandleBadgeFiveObtained, GameSettings.ObtainBadgeFive, "HandleBadgeFiveObtained")
+	event.onmemoryread(Program.HandleBadgeSixObtained, GameSettings.ObtainBadgeSix, "HandleBadgeSixObtained")
+	event.onmemoryread(Program.HandleBadgeSevenObtained, GameSettings.ObtainBadgeSeven, "HandleBadgeSevenObtained")
+	event.onmemoryread(Program.HandleBadgeEightObtained, GameSettings.ObtainBadgeEight, "HandleBadgeEightObtained")
+
+	-- Other events, unsure if needed, leaving them excluded for now
+	-- event.onmemoryread(Program.HandleWeHopeToSeeYouAgain, GameSettings.WeHopeToSeeYouAgain)
+	-- event.onmemoryread(Program.HandleTrainerSentOutPkmn, GameSettings.TrainerSentOutPkmn)
+
+	-- Item events
 end
 
 function Main.LoadNext()

@@ -363,7 +363,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			if Tracker.Data.trainerID ~= pokemon.trainerID then
 				encounterText = "Seen on trainers: " .. encounterText
 			else
-				encounterText = "Seen in wild: " .. encounterText
+				encounterText = "Seen in the wild: " .. encounterText
 			end
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, encounterText, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 		end
