@@ -21,31 +21,23 @@ function Tracker.InitTrackerData()
 
 		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
 		otherTeam = { 0, 0, 0, 0, 0, 0 },
-		ownViewSlot = 1, -- During battle, this references which of your own six pokemon are being used
-		otherViewSlot = 1, -- During battle, this references which of the other six pokemon are being used
+		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
+		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
 		isViewingOwn = true,
-		
 		inBattle = false,
-		hasCheckedSummary = not Options["Hide stats until summary shown"],
 
-		items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
+		hasCheckedSummary = not Options["Hide stats until summary shown"],
+		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
+		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
 		healingItems = {
 			healing = 0,
 			numHeals = 0,
 		},
-		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
 		badges = {0,0,0,0,0,0,0,0},
 		currentHiddenPowerType = PokemonTypes.NORMAL,
 		romHash = nil,
 	}
 	return trackerData
-end
-
-function Tracker.Clear()
-	if userdata.containskey(Tracker.userDataKey) then
-		userdata.remove(Tracker.userDataKey)
-	end
-	Tracker.Data = Tracker.InitTrackerData()
 end
 
 -- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
@@ -70,7 +62,6 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 	if pokemon ~= nil then
 		for k, v in pairs(pokemonData) do
 			-- Update each pokemon key if it exists between both Pokemon
-			-- TODO: This double-check required to prevent encounter flag from being added, unsure if it screws up anything
 			if pokemonData[k] ~= nil and pokemon[k] ~= nil then
 				pokemon[k] = pokemonData[k]
 			end
@@ -96,11 +87,11 @@ end
 
 -- Currently unused
 function Tracker.TrackItem(pokemonID, itemId)
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
+	-- if Tracker.Data.allPokemon[pokemonID] == nil then
+	-- 	Tracker.Data.allPokemon[pokemonID] = {}
+	-- end
 
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	-- local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
 	-- Implement later if this information ends up mattering
 end
 
@@ -285,6 +276,30 @@ function Tracker.getNote(pokemonID)
 	end
 end
 
+function Tracker.getDefaultPokemon()
+	local blankPokemon = {
+		pokemonID = 0,
+		friendship = 0,
+		heldItem = 0,
+		level = 0,
+		nature = 0, 
+		ability = nil, -- Must be nil and not { id = 0, revealed = false }
+		status = 0,
+		sleep_turns = 0,
+		curHP = 0,
+		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+		statStages = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 },
+		moves = {
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+			{ id = 1, level = 1, pp = 0 },
+		},
+	}
+
+	return blankPokemon
+end
+
 function Tracker.saveData()
 	local dataString = pickle(Tracker.Data)
 	userdata.set(Tracker.userDataKey, dataString)
@@ -316,26 +331,9 @@ function Tracker.loadData()
 	Program.waitFrames = 0
 end
 
-function Tracker.getDefaultPokemon()
-	local blankPokemon = {
-		pokemonID = 0,
-		friendship = 0,
-		heldItem = 0,
-		level = 0,
-		nature = 0, 
-		ability = nil, -- Must be nil and not { id = 0, revealed = false }
-		status = 0,
-		sleep_turns = 0,
-		curHP = 0,
-		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
-		statStages = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 },
-		moves = {
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
-		},
-	}
-
-	return blankPokemon
+function Tracker.Clear()
+	if userdata.containskey(Tracker.userDataKey) then
+		userdata.remove(Tracker.userDataKey)
+	end
+	Tracker.Data = Tracker.InitTrackerData()
 end

@@ -1,6 +1,3 @@
--- TODO: Currently closing and reloading tracking mid-battle prevents it from loading opposing pokemon data
--- TODO: Abilities don't seem to save using battle data (neither during battle nor after battle)
-
 State = {
 	TRACKER = "Tracker",
 	SETTINGS = "Settings",
@@ -66,8 +63,8 @@ function Program.main()
 		end
 		Program.eventCallbacks = {}
 
-		-- Only save tracker data every 5 seconds (improves performance)
-		if Program.frameCounter == 300 then
+		-- Only save tracker data every minute (60 frames * 60 seconds), improves performance
+		if Program.frameCounter == 3600 then
 			Tracker.saveData()
 			Program.frameCounter = 0
 		end
@@ -76,7 +73,7 @@ function Program.main()
 		-- TODO: Separate out the concept of when to redraw and when to recalculate pokemon data from memory.
 		if Program.waitFrames == 0 then
 			Program.updatePokemonTeamsFromMemory()
-			Program.updateBattleDataFromMemory()
+			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
 			Program.calculateBagHealingItems()
 
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
@@ -274,7 +271,7 @@ function Program.updateBattleDataFromMemory()
 	end
 
 	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-	if attackerValue % 2 == 1 then -- Primary enemy pokemon
+	if attackerValue == 1 then -- Primary enemy pokemon
 		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 	elseif attackerValue == 3 then -- Secondary enemy pokemon (doubles partner)
 		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
@@ -288,7 +285,7 @@ function Program.updateBattleDataFromMemory()
 	for i=1, 2, 1 do
 		local pokemon = Utils.inlineIf(i == 1, Tracker.getPokemon(Tracker.Data.ownViewSlot, true), Tracker.getPokemon(Tracker.Data.otherViewSlot, false))
 		if pokemon ~= nil then
-			-- If the pokemon belongs to a trainer, increment encounters (TODO: currently counts wild encounters, unsure if worth keeping?)
+			-- If the pokemon belongs to a trainer, increment encounters
 			if i ~= 1 and (pokemon.hasBeenEncountered == nil or not pokemon.hasBeenEncountered) then
 				pokemon.hasBeenEncountered = true
 				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
@@ -429,7 +426,7 @@ end
 -- This is called by event.onmemoryexecute
 function Program.HandleEndBattle()
 	Program.endBattle()
-	Program.waitFrames = 60
+	Program.waitFrames = 30
 
 	-- table.insert(Program.eventCallbacks, Program.BattleEnded)
 end

@@ -73,7 +73,6 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
-		--Tracker.Clear() -- Remove on-commit
 		Tracker.loadData()
 		Buttons.initializeBadgeButtons()
 
@@ -140,7 +139,8 @@ end
 
 function Main.LoadNext()
 	userdata.clear()
-	print "Reset tracker"
+	Tracker.Clear() -- clear tracker data so it doesn't carry over to the next seed
+	print("Loading the next ROM. Tracker data has reset.")
 
 	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
 		print("ROMS_FOLDER unspecified. Set this in the Tracker's options menu, or the Settings.ini file, to automatically switch ROM.")
@@ -181,10 +181,9 @@ function Main.LoadNext()
 		end
 	end
 
-	Tracker.Clear() -- clear tracker data so it doesn't carry over to the next seed
 	client.SetSoundOn(false)
 	client.closerom()
-	print("Loading next ROM: " .. nextromname)
+	print("ROM Loaded: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
 	Main.LoadNextSeed = false

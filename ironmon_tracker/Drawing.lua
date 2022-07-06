@@ -385,7 +385,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	elseif pokemon.ability.revealed then
 		-- If the ability exists on the current pokemon data, and is known to the player, then draw it
-		-- TODO: This somehow needs to function to allow users to clear on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
+		-- TODO: Eventually, this area somehow needs to function to allow users to click on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	else
 		-- Otherwise, check if any / how many of the tracked abilities are known about this pokemon
