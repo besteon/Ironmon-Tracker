@@ -188,7 +188,9 @@ function Program.updatePokemonTeamsFromMemory()
 		-- end
 	end
 
-	if not Tracker.Data.inBattle and lastBattleStatus == 0 then
+	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
+	local opposingPokemon = Tracker.getPokemon(1, false)
+	if not Tracker.Data.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
 		Program.beginNewBattle()
 	elseif Tracker.Data.inBattle and lastBattleStatus ~= 0 then
 		Program.endBattle()
@@ -350,9 +352,11 @@ function Program.updateBattleDataFromMemory()
 
 	-- Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	for _, move in pairs(opposingPokemon.moves) do
-		if move.pp ~= tonumber(MoveData[move.id].pp) then
-			Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
+	if opposingPokemon ~= nil then
+		for _, move in pairs(opposingPokemon.moves) do
+			if move.pp ~= tonumber(MoveData[move.id].pp) then
+				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
+			end
 		end
 	end
 end
