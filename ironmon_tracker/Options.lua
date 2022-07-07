@@ -117,7 +117,7 @@ function Options.buildTrackerOptionsButtons()
 
 				if optionKey == "PC heals count downward" then
 					-- If PC Heal tracking switched, invert the count
-					Tracker.Data.centerHeals = 10 - Tracker.Data.centerHeals
+					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
 				elseif optionKey == "Hide stats until summary shown" then
 					-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
 					Tracker.Data.hasCheckedSummary = not Options["Hide stats until summary shown"]

@@ -159,20 +159,18 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 		}
 	else
 		-- First check if the move has been seen before
-		local moveSeen = false
-		local moveCount = 0
-		local whichMove = 0
+		local moveIndexSeen = 0
 		for key, value in pairs(trackedPokemon.moves) do
-			moveCount = moveCount + 1
 			if value.id == moveId then
-				moveSeen = true
-				whichMove = key
+				moveIndexSeen = key
 			end
 		end
 
 		-- If the move has already been seen, update its level (do we even need this?)
-		if moveSeen then
-			trackedPokemon.moves[whichMove] = {
+		if moveIndexSeen ~= 0 then
+			-- TODO: Maybe we only update if the information on the level at which the Pokemon knows the move is more helpful
+			-- For example, if the new level is lower than the current known level? Unsure if this breaks anything
+			trackedPokemon.moves[moveIndexSeen] = {
 				id = moveId,
 				level = level
 			}
@@ -221,6 +219,19 @@ function Tracker.TrackNote(pokemonID, note)
 	
 	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
 	trackedPokemon.note = note
+end
+
+function Tracker.isTrackingMove(pokemonID, moveId, level)
+	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	if trackedPokemon == nil or trackedPokemon.moves == nil then return false end
+
+	for _, move in pairs(trackedPokemon.moves) do
+		if move.id == moveId and move.level == level then
+			return true
+		end
+	end
+
+	return false
 end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1

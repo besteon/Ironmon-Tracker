@@ -347,13 +347,14 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], nil, 5, "Franklin Gothic Medium")
 			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, "Franklin Gothic Medium")
 			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, "Franklin Gothic Medium")
-			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
 
+			-- TODO: Removing ability to automatically track PC Heals, as the event is no longer being tracked.
+			-- Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
 			-- Draw a mark if the feature is on
-			if Program.PCHealTrackingButtonState then
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-			end
+			-- if Program.PCHealTrackingButtonState then
+			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+			-- end
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then

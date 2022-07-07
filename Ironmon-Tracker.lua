@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.2"
+TRACKER_VERSION = "0.4.2c"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -60,6 +60,8 @@ function Main.Run()
 		emu.frameadvance()
 	end
 
+	-- print("Gamecode: " .. string.format("%x", memory.read_u32_be(0x0000AC, "ROM")) .. ", Game Version: " .. string.format("%x", memory.read_u32_be(0x0000BC, "ROM")))
+
 	Options.buildTrackerOptionsButtons()
 	Options.loadOptions()
 	Theme.buildTrackerThemeButtons()
@@ -81,20 +83,22 @@ function Main.Run()
 
 		event.onloadstate(Tracker.loadData, "OnLoadState")
 
+		-- Removed all event watches to improve performances. Most have workarounds.
+		
 		-- Core events
-		event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld, "HandleEndBattle")
-		event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle, "HandleMove")
-		event.onmemoryexecute(Program.HandleDoPokeballSendOutAnimation, GameSettings.DoPokeballSendOutAnimation, "HandleDoPokeballSendOutAnimation")
+		-- event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld, "HandleEndBattle")
+		-- event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle, "HandleMove")
+		-- event.onmemoryexecute(Program.HandleDoPokeballSendOutAnimation, GameSettings.DoPokeballSendOutAnimation, "HandleDoPokeballSendOutAnimation")
 
-		-- Additional events to re-render on
-		event.onmemoryexecute(Program.HandleShowSummary, GameSettings.ShowPokemonSummaryScreen, "HandleShowSummary")
-		event.onmemoryexecute(Program.HandleCalculateMonStats, GameSettings.CalculateMonStats, "HandleHandleCalculateMonStats")
-		event.onmemoryexecute(Program.HandleDisplayMonLearnedMove, GameSettings.DisplayMonLearnedMove, "HandleDisplayMonLearnedMove")
-		event.onmemoryexecute(Program.HandleSwitchSelectedMons, GameSettings.SwitchSelectedMons, "HandleSwitchSelectedMons")
-		event.onmemoryexecute(Program.HandleUpdatePoisonStepCounter, GameSettings.UpdatePoisonStepCounter, "HandleUpdatePoisonStepCounter")
-		event.onmemoryexecute(Program.HandleHealPlayerParty, GameSettings.HealPlayerParty, "HandleHealPlayerParty")
+		-- -- Additional events to re-render on
+		-- event.onmemoryexecute(Program.HandleShowSummary, GameSettings.ShowPokemonSummaryScreen, "HandleShowSummary")
+		-- event.onmemoryexecute(Program.HandleCalculateMonStats, GameSettings.CalculateMonStats, "HandleHandleCalculateMonStats")
+		-- event.onmemoryexecute(Program.HandleDisplayMonLearnedMove, GameSettings.DisplayMonLearnedMove, "HandleDisplayMonLearnedMove")
+		-- event.onmemoryexecute(Program.HandleSwitchSelectedMons, GameSettings.SwitchSelectedMons, "HandleSwitchSelectedMons")
+		-- event.onmemoryexecute(Program.HandleUpdatePoisonStepCounter, GameSettings.UpdatePoisonStepCounter, "HandleUpdatePoisonStepCounter")
+		-- event.onmemoryexecute(Program.HandleHealPlayerParty, GameSettings.HealPlayerParty, "HandleHealPlayerParty")
 
-		Main.LoadEventReads()
+		-- Main.LoadEventReads()
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
@@ -126,17 +130,6 @@ function Main.LoadEventReads()
 	event.onmemoryread(Program.HandleBattleScriptCuteCharmActivates, GameSettings.BattleScriptCuteCharmActivates, "HandleBattleScriptCuteCharmActivates")
 	event.onmemoryread(Program.HandleBattleScriptSynchronizeActivates, GameSettings.BattleScriptSynchronizeActivates, "HandleBattleScriptSynchronizeActivates")
 
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d9411, "Main.HandleNewAbility1")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d941f, "Main.HandleNewAbility2")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d9467, "Main.HandleNewAbility3")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d94b4, "Main.HandleNewAbility4")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d94c2, "Main.HandleNewAbility5")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d94d0, "Main.HandleNewAbility6")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d94de, "Main.HandleNewAbility7")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d9562, "Main.HandleNewAbility8")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d6ebf, "Main.HandleNewAbility9")
-	-- event.onmemoryread(Main.HandleNewAbility, 0x081d72b5, "Main.HandleNewAbility10")
-
 	-- Badge get events
 	event.onmemoryread(Program.HandleBadgeOneObtained, GameSettings.ObtainBadgeOne, "HandleBadgeOneObtained")
 	event.onmemoryread(Program.HandleBadgeTwoObtained, GameSettings.ObtainBadgeTwo, "HandleBadgeTwoObtained")
@@ -152,20 +145,6 @@ function Main.LoadEventReads()
 	-- event.onmemoryread(Program.HandleTrainerSentOutPkmn, GameSettings.TrainerSentOutPkmn)
 
 	-- Item events
-end
-
-function Main.HandleNewAbility()
-	print("One of the new abilities has been activated")
--- 0x081d9411 g 00000000 BattleScript_SturdyPreventsOHKO
--- 0x081d941f g 00000000 BattleScript_DampStopsExplosion
--- 0x081d9467 g 00000000 BattleScript_FlashFireBoost
--- 0x081d94b4 g 00000000 BattleScript_ObliviousPreventsAttraction
--- 0x081d94c2 g 00000000 BattleScript_FlinchPrevention
--- 0x081d94d0 g 00000000 BattleScript_OwnTempoPrevents
--- 0x081d94de g 00000000 BattleScript_SoundproofProtected
--- 0x081d9562 g 00000000 BattleScript_MoveUsedLoafingAround
--- 0x081d6ebf g 00000000 BattleScript_ImmunityProtected
--- 0x081d72b5 g 00000000 BattleScript_LimberProtected
 end
 
 function Main.LoadNext()

@@ -18,6 +18,7 @@ GameSettings = {
 	gBattlerPartyIndexesEnemySlotOne = 0,
 	gBattlerPartyIndexesSelfSlotTwo = 0,
 	gBattlerPartyIndexesEnemySlotTwo = 0,
+	gBattleOutcome = 0, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
 	ShowPokemonSummaryScreen = 0,
 	CalculateMonStats = 0,
@@ -58,10 +59,48 @@ GameSettings = {
 	bagPocket_Items_Size = 0,
 	bagPocket_Berries_Size = 0,
 }
-GameSettings.VERSIONS = {
-	RS = 1,
-	E = 2,
-	FRLG = 3
+
+-- Mapped by key=gamecode
+GameSettings.GAMES = {
+	[0x41585645] = {
+		GAME_NUMBER = 1,
+		GAME_NAME = "Pokemon Ruby (U)",
+		VERSION_GROUP = 1,
+		BADGE_PREFIX = "RSE",
+		BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+		-- Rev0: Game Version: 0x00410000
+		-- Rev2: Game Version: 0x023F0000
+	},
+	[0x41585045] = {
+		GAME_NUMBER = 1,
+		GAME_NAME = "Pokemon Sapphire (U)",
+		VERSION_GROUP = 1,
+		BADGE_PREFIX = "RSE",
+		BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+		-- Rev0: Game Version: 0x00550000
+		-- Rev2: Game Version: 0x02530000
+	},
+	[0x42504545] = {
+		GAME_NUMBER = 2,
+		GAME_NAME = "Pokemon Emerald (U)",
+		VERSION_GROUP = 1,
+		BADGE_PREFIX = "RSE",
+		BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+	},
+	[0x42505245] = {
+		GAME_NUMBER = 3,
+		GAME_NAME = "Pokemon FireRed (U)",
+		VERSION_GROUP = 2,
+		BADGE_PREFIX = "FRLG",
+		BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+	},
+	[0x42504745] = {
+		GAME_NUMBER = 3,
+		GAME_NAME = "Pokemon LeafGreen (U)",
+		VERSION_GROUP = 2,
+		BADGE_PREFIX = "FRLG",
+		BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+	},
 }
 
 function GameSettings.initialize()
@@ -77,7 +116,6 @@ function GameSettings.initialize()
 
 		GameSettings.game = 2
 		GameSettings.gamename = "Pokemon Emerald (U)"
-		GameSettings.version = GameSettings.VERSIONS.E
 		GameSettings.versiongroup = 1
 
 		GameSettings.StartWildBattle = 0x080b0698
@@ -92,6 +130,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02024070
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02024072
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02024074
+		GameSettings.gBattleOutcome = 0x0202433a
 		GameSettings.gBattleMons = 0x02024084
 		GameSettings.ShowPokemonSummaryScreen = 0x081bf8ec
 		GameSettings.CalculateMonStats = 0x08068d0c
@@ -147,7 +186,6 @@ function GameSettings.initialize()
 
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
 
 		GameSettings.StartWildBattle = 0x0807f718
@@ -163,6 +201,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
 		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.ShowPokemonSummaryScreen = 0x08134570
 		GameSettings.CalculateMonStats = 0x0803e490
 		GameSettings.DisplayMonLearnedMove = 0x0812687c
@@ -217,7 +256,6 @@ function GameSettings.initialize()
 
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon FireRed (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
 
 		GameSettings.StartWildBattle = 0x0807f704
@@ -233,6 +271,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
 		GameSettings.ShowPokemonSummaryScreen = 0x081344f8
+		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.CalculateMonStats = 0x0803e47c
 		GameSettings.DisplayMonLearnedMove = 0x08126804
@@ -287,7 +326,6 @@ function GameSettings.initialize()
 
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
 
 		GameSettings.StartWildBattle = 0x0807f6ec
@@ -302,6 +340,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.ShowPokemonSummaryScreen = 0x08134548
 		GameSettings.CalculateMonStats = 0x0803e490
@@ -357,7 +396,6 @@ function GameSettings.initialize()
 
 		GameSettings.game = 3
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
 		GameSettings.versiongroup = 2
 
 		GameSettings.StartWildBattle = 0x0807f6d8
@@ -372,6 +410,7 @@ function GameSettings.initialize()
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
+		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.ShowPokemonSummaryScreen = 0x081344d0
 		GameSettings.CalculateMonStats = 0x0803e47c
@@ -430,4 +469,7 @@ function GameSettings.initialize()
 		GameSettings.pstats = pstats[GameSettings.game]
 		GameSettings.estats = estats[GameSettings.game]
 	end
+end
+
+function GameSettings.loadFRLG()
 end
