@@ -5,8 +5,10 @@ State = {
 }
 
 Program = {
-	waitFrames = 0,
-	frameCounter = 0,
+	pokemonDataFrames = 0,
+	itemCheckFrames = 0,
+	waitToDrawFrames = 0,
+	saveDataFrames = 3600,
 	state = State.TRACKER,
 	PCHealTrackingButtonState = false,
 }
@@ -37,58 +39,11 @@ function Program.main()
 	Input.update()
 
 	if Program.state == State.TRACKER then
-		-- Update moves in the tracker
-		for _, move in ipairs(Program.tracker.movesToUpdate) do
-			local pokemon = Tracker.getPokemon(move.enemySlot, false)
+		Program.updatedTrackedAndCurrentData()
 
-			if pokemon ~= nil then
-				Tracker.TrackMove(pokemon.pokemonID, move.moveId, pokemon.level)
-			end
-		end
-		Program.tracker.movesToUpdate = {}
-
-		-- Update abilities in the tracker
-		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
-			local pokemon = Tracker.getPokemon(ability.enemySlot, false)
-
-			if pokemon ~= nil then
-				Tracker.TrackAbility(pokemon.pokemonID, ability.abilityId, ability.isRevealed)
-			end
-		end
-		Program.tracker.abilitiesToUpdate = {}
-
-		-- Update items in the tracker
-		for _, item in ipairs(Program.tracker.itemsToUpdate) do
-			local pokemon = Tracker.getPokemon(item.enemySlot, false)
-
-			if pokemon ~= nil then
-				Tracker.TrackItem(pokemon.pokemonID, item.itemId)
-			end
-		end
-		Program.tracker.items = {}
-
-		-- Execute event callbacks
-		-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
-		-- For example, the working directory in the context becomes the directory of EmuHawk.exe instead of the directory of the main Lua script
-		for _, callback in ipairs(Program.eventCallbacks) do
-			callback()
-		end
-		Program.eventCallbacks = {}
-
-		-- Only save tracker data every minute (60 frames * 60 seconds), improves performance
-		if Program.frameCounter == 3600 then
-			Tracker.saveData()
-			Program.frameCounter = 0
-		else
-			Program.frameCounter = Program.frameCounter + 1
-		end
-
-		-- Only redraw the UI when an event has occurred which requires the UI to be redrawn.
-		-- TODO: Separate out the concept of when to redraw and when to recalculate pokemon data from memory.
-		if Program.waitFrames == 0 then
-			Program.updatePokemonTeamsFromMemory()
-			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
-			Program.calculateBagHealingItems()
+		-- Only draw the Tracker screen every half second (60 frames/sec)
+		if Program.waitToDrawFrames == 0 then
+			Program.waitToDrawFrames = 30
 
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
@@ -104,11 +59,16 @@ function Program.main()
 			else
 				Drawing.drawPokemonView(opposingPokemon, ownersPokemon)
 			end
+		else
+			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
+		end
 
-			-- Only update Tracker data and perform Drawing every 30 frames (half a second)
-			Program.waitFrames = 30
-		elseif Program.waitFrames > 0 then
-			Program.waitFrames = Program.waitFrames - 1
+		-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
+		if Program.saveDataFrames == 0 then
+			Program.saveDataFrames = 3600
+			Tracker.saveData()
+		else
+			Program.saveDataFrames = Program.saveDataFrames - 1
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
@@ -116,14 +76,68 @@ function Program.main()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
-		if Theme.redraw and Program.waitFrames == 0 then
+		if Theme.redraw and Program.waitToDrawFrames == 0 then
+			Program.waitToDrawFrames = 5
 			Drawing.drawThemeMenu()
 			Theme.redraw = false
-			Program.waitFrames = 5
-		elseif Program.waitFrames > 0 then
-			Program.waitFrames = Program.waitFrames - 1
+		elseif Program.waitToDrawFrames > 0 then
+			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
 	end
+end
+
+function Program.updatedTrackedAndCurrentData()
+		-- Update moves in the tracker
+		for _, move in ipairs(Program.tracker.movesToUpdate) do
+			local pokemon = Tracker.getPokemon(move.enemySlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackMove(pokemon.pokemonID, move.moveId, pokemon.level)
+			end
+		end
+		Program.tracker.movesToUpdate = {}
+
+		-- Update abilities in the tracker
+		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
+			local pokemon = Tracker.getPokemon(ability.enemySlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackAbility(pokemon.pokemonID, ability.abilityId, ability.isRevealed)
+			end
+		end
+		Program.tracker.abilitiesToUpdate = {}
+
+		-- Update items in the tracker
+		for _, item in ipairs(Program.tracker.itemsToUpdate) do
+			local pokemon = Tracker.getPokemon(item.enemySlot, false)
+			if pokemon ~= nil then
+				Tracker.TrackItem(pokemon.pokemonID, item.itemId)
+			end
+		end
+		Program.tracker.items = {}
+
+		-- Execute event callbacks
+		-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
+		-- For example, the working directory in the context becomes the directory of EmuHawk.exe instead of the directory of the main Lua script
+		for _, callback in ipairs(Program.eventCallbacks) do
+			callback()
+		end
+		Program.eventCallbacks = {}
+
+		-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
+		if Program.pokemonDataFrames == 0 then
+			Program.pokemonDataFrames = 30
+			Program.updatePokemonTeamsFromMemory()
+			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
+		else
+			Program.pokemonDataFrames = Program.pokemonDataFrames - 1
+		end
+
+		-- Only update "Heals in Bag" information every 20 seconds (20 seconds * 60 frames/sec)
+		if Program.itemCheckFrames == 0 then
+			Program.itemCheckFrames = 1200
+			Program.calculateBagHealingItemsFromMemory()
+		else
+			Program.itemCheckFrames = Program.itemCheckFrames - 1
+		end
 end
 
 -- Checks if any updates to own/other pokemon data are required based on a few conditions
@@ -138,17 +152,18 @@ function Program.updatePokemonTeamsFromMemory()
 	for i = 1, 6, 1 do
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		Tracker.Data.ownTeam[i] = personality
-		
+
 		if personality ~= 0 then
 			local newPokemonData = Program.readNewPokemonFromMemory(GameSettings.pstats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
 				-- First check if the new pokemon being added is the one that was just caught (the wild pokemon)
 				if recentPokemon ~= nil and recentPersonality == personality then
+					-- TODO: This tracks data in the case of a catch & release, with no intent to view pokemon data. This shouldnt happen.
 					-- Update tracked ability data for when we encounter this pokemon in the future
 					if recentPokemon.ability ~= nil then
-						newPokemonData.ability = { 
-							id = recentPokemon.ability.id, 
+						newPokemonData.ability = {
+							id = recentPokemon.ability.id,
 							revealed = true,
 						}
 						Tracker.TrackAbility(recentPokemon.pokemonID, recentPokemon.ability.id, true)
@@ -162,6 +177,7 @@ function Program.updatePokemonTeamsFromMemory()
 					end
 				end
 
+				-- Sets the player's trainerID as soon as they get their first Pokemon
 				if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
 					Tracker.Data.trainerID = newPokemonData.trainerID
 				end
@@ -201,7 +217,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	local growth2 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword)
+	-- local growth2 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
 	local growth3 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
 	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
@@ -243,23 +259,29 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		status_result = 6
 	end
 
+	-- TODO: Can likely improve this further using memory.read_bytes_as_array but would require testing to verify
+	local level_and_currenthp = Memory.readdword(startAddress + 84)
+	local maxhp_and_atk = Memory.readdword(startAddress + 88)
+	local def_and_speed = Memory.readdword(startAddress + 92)
+	local spatk_and_spdef = Memory.readdword(startAddress + 96)
+
 	local pokemonData = {
 		pokemonID = Utils.getbits(growth1, 0, 16),
 		friendship = Utils.getbits(growth3, 72, 8),
 		heldItem = Utils.getbits(growth1, 16, 16),
-		level = Memory.readbyte(startAddress + 84),
+		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
 		ability = nil, -- Leave unset, since this currently can only be found via in-battle data
 		status = status_result,
 		sleep_turns = sleep_turns_result,
-		curHP = Memory.readword(startAddress + 86),
+		curHP = Utils.getbits(level_and_currenthp, 16, 16),
 		stats = {
-			hp = Memory.readword(startAddress + 88), -- aka, maxHP
-			atk = Memory.readword(startAddress + 90),
-			def = Memory.readword(startAddress + 92),
-			spa = Memory.readword(startAddress + 96),
-			spd = Memory.readword(startAddress + 98),
-			spe = Memory.readword(startAddress + 94),
+			hp = Utils.getbits(maxhp_and_atk, 0, 16),
+			atk = Utils.getbits(maxhp_and_atk, 16, 16),
+			def = Utils.getbits(def_and_speed, 0, 16),
+			spa = Utils.getbits(spatk_and_spdef, 0, 16),
+			spd = Utils.getbits(spatk_and_spdef, 16, 16),
+			spe = Utils.getbits(def_and_speed, 16, 16),
 		},
 		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
 		moves = {
@@ -317,24 +339,26 @@ function Program.updateBattleDataFromMemory()
 			if pokemon.ability == nil or pokemon.ability.id == 0 then
 				pokemon.ability = {
 					id = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1)),
-					-- id = Memory.readbyte(GameSettings.gBattleMons + 0x20), -- This is the 0 or 1 of the two possible abilities
 					revealed = (i == 1), -- If this Pokemon belongs to the player, it's ability is revealed
 				}
 				Tracker.TrackAbility(pokemon.pokemonID, pokemon.ability.id, pokemon.ability.revealed)
 			end
 
 			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
-			pokemon.statStages.hp = Memory.readbyte(startAddress + 0x18)
+			local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
+			local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
+
+			pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
 			if pokemon.statStages.hp ~= 0 then
 				pokemon.statStages = {
 					hp = pokemon.statStages.hp,
-					atk = Memory.readbyte(startAddress + 0x19),
-					def = Memory.readbyte(startAddress + 0x1A),
-					spe = Memory.readbyte(startAddress + 0x1B),
-					spa = Memory.readbyte(startAddress + 0x1C),
-					spd = Memory.readbyte(startAddress + 0x1D),
-					acc = Memory.readbyte(startAddress + 0x1E),
-					eva = Memory.readbyte(startAddress + 0x1F),
+					atk = Utils.getbits(hp_atk_def_speed, 8, 8),
+					def = Utils.getbits(hp_atk_def_speed, 16, 8),
+					spa = Utils.getbits(spatk_spdef_acc_evasion, 0, 8),
+					spd = Utils.getbits(spatk_spdef_acc_evasion, 8, 8),
+					spe = Utils.getbits(hp_atk_def_speed, 24, 8),
+					acc = Utils.getbits(spatk_spdef_acc_evasion, 16, 8),
+					eva = Utils.getbits(spatk_spdef_acc_evasion, 24, 8),
 				}
 			else
 				-- Unsure if this reset is necessary, or what the if condition is checking for
@@ -395,7 +419,7 @@ end
 function Program.HandleShowSummary()
 	-- Confirms the player has checked the summary of the pokemon, now we can reveal information about it
 	Tracker.Data.hasCheckedSummary = true
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
@@ -405,17 +429,17 @@ function Program.HandleSwitchSelectedMons()
 	if Options["Hide stats until summary shown"] then
 		Tracker.Data.hasCheckedSummary = false
 	end
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
 function Program.HandleCalculateMonStats()
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
 function Program.HandleDisplayMonLearnedMove()
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
@@ -423,7 +447,7 @@ function Program.HandleUpdatePoisonStepCounter()
 	local pokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	-- Only update the tracker for poison damage if the lead Pokémon is poisoned
 	if pokemon ~= nil and pokemon.status == 2 then
-		Program.waitFrames = 30
+		Program.waitToDrawFrames = 30
 	end
 end
 
@@ -439,16 +463,16 @@ function Program.HandleHealPlayerParty()
 			-- Automatically count up
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		end		
+		end
 	end
 	-- This goes here so mon hp always gets updated on PC heal
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
 function Program.HandleEndBattle()
 	Program.endBattle()
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 
 	-- table.insert(Program.eventCallbacks, Program.BattleEnded)
 end
@@ -492,7 +516,7 @@ function Program.HandleMove()
 		end
 	end
 
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- This is called by event.onmemoryexecute
@@ -513,7 +537,7 @@ function Program.HandleDoPokeballSendOutAnimation()
 
 	-- Reset the controller's position when a new pokemon is sent out
 	Tracker.controller.statIndex = 6
-	Program.waitFrames = 90
+	Program.waitToDrawFrames = 90
 end
 
 -- ABILITY EVENT HANDLERS
@@ -583,7 +607,7 @@ function Program.HandleAbilityActivate(abilityId)
 	if abilityIdMemory ~= abilityId then
 		abilityIdMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
 		enemySlotMemory = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-		
+
 		-- If it's not the other Pokemon either (somehow), then don't track the ability
 		if abilityIdMemory ~= abilityId then
 			enemySlotMemory = nil
@@ -594,7 +618,7 @@ function Program.HandleAbilityActivate(abilityId)
 	-- Since this ability activated on screen, reveal it
 	table.insert(Program.tracker.abilitiesToUpdate, { enemySlot = enemySlotMemory, abilityId = abilityId, isRevealed = true })
 
-	Program.waitFrames = 90
+	Program.waitToDrawFrames = 90
 end
 
 -- END ABILITY EVENT HANDLERS
@@ -603,7 +627,7 @@ function Program.obtainBadge(badgeNumber)
 	if badgeNumber >= 1 and badgeNumber <= 8 then
 		Tracker.Data.badges[badgeNumber] = 1 -- Marks badge as obtained
 		Buttons.updateBadges()
-		Program.waitFrames = 30
+		Program.waitToDrawFrames = 30
 	else
 		print("Unable to track obtaining badge #" .. badgeNumber)
 	end
@@ -643,7 +667,7 @@ end
 
 -- Currently unused
 function Program.HandleWeHopeToSeeYouAgain()
-	Program.waitFrames = 30
+	Program.waitToDrawFrames = 30
 end
 
 -- Currently unused
@@ -657,7 +681,7 @@ function Program.HandleTrainerSentOutPkmn()
 	end
 
 	Tracker.controller.statIndex = 6
-	Program.waitFrames = 100
+	Program.waitToDrawFrames = 100
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move is real.
@@ -684,43 +708,51 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
-function Program.calculateBagHealingItems()
+function Program.calculateBagHealingItemsFromMemory()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.Data.ownPokemon[Tracker.Data.ownTeam[1]]
+	local leadPokemon = Tracker.getPokemon(1, true)
 	if leadPokemon ~= nil then
-		local healingItems = Program.getBagHealingItems(leadPokemon.stats.hp)
+		local healingItems = Program.getBagHealingItemsFromMemory(leadPokemon.stats.hp)
 		if healingItems ~= nil then
 			Tracker.Data.healingItems = healingItems
 		end
 	end
 end
 
-function Program.getBagHealingItems(pokemonMaxHP)
+function Program.getBagHealingItemsFromMemory(pokemonMaxHP)
 	local totals = {
 		healing = 0,
 		numHeals = 0,
 	}
-	-- Need a null check before getting maxHP
+
+	-- Check for potential divide-by-zero errors
 	if pokemonMaxHP == nil or pokemonMaxHP == 0 then
 		return totals
 	end
 
-	for _, item in pairs(MiscData.healingItems) do
-		local quantity = Program.getNumItemsFromMemory(item.pocket, item.id)
-		if quantity > 0 then
-			local healing = 0
-			if item.type == HealingType.Constant then
-				local percentage = ((item.amount / pokemonMaxHP) * 100)
+	-- Formatted as: healingItemsInBag[itemID] = quantity
+	local healingItemsInBag = Program.getHealingItemsFromMemory()
+	if healingItemsInBag == nil then
+		return totals
+	end
+
+	-- for _, item in pairs(MiscData.healingItems) do
+	for itemID, quantity in pairs(healingItemsInBag) do
+		local healItemData = MiscData.healingItems[itemID]
+		if healItemData ~= nil and quantity > 0 then
+			local healingPercentage = 0
+			if healItemData.type == HealingType.Constant then
+				local percentage = healItemData.amount / pokemonMaxHP * 100
 				if percentage > 100 then
 					percentage = 100
 				end
-				healing = percentage * quantity
-			elseif item.type == HealingType.Percentage then
-				healing = item.amount * quantity
+				healingPercentage = percentage * quantity
+			elseif healItemData.type == HealingType.Percentage then
+				healingPercentage = healItemData.amount * quantity
 			end
 			-- Healing is in a percentage compared to the mon's max HP
-			totals.healing = totals.healing + healing
+			totals.healing = totals.healing + healingPercentage
 			totals.numHeals = totals.numHeals + quantity
 		end
 	end
@@ -733,7 +765,7 @@ function Program.getBagHealingItems(pokemonMaxHP)
 	return totals
 end
 
--- Currently unused
+-- Currently unused. Requires a rewrite to use the new Program.getHealingItemsFromMemory() function
 function Program.getBagStatusItems()
 	local statusItems = {
 		poison = 0,
@@ -771,6 +803,7 @@ function Program.getBagStatusItems()
 	return statusItems
 end
 
+-- Unused for the time being.
 function Program.getNumItemsFromMemory(pocket, itemId)
 	local pockets = {
 		[BagPocket.Items] = {
@@ -793,4 +826,48 @@ function Program.getNumItemsFromMemory(pocket, itemId)
 		end
 	end
 	return 0
+end
+
+function Program.getHealingItemsFromMemory()
+	--battle can be set a few frames before item bag for battle gets updated, need to check this value as well
+	-- local startAddress = Utils.inlineIf(Tracker.Data.inBattle, GameSettings.itemStartBattle, GameSettings.itemStartNoBattle)
+	-- local itemid_and_quantity = Memory.readdword(GameSettings.bagPocket_Items)
+	-- local itemid = Utils.getbits(itemid_and_quantity, 0, 16)
+	-- local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+	-- if quantity > 1000 or itemid > 600 then
+	-- 	startAddress = GameSettings.itemStartNoBattle
+	-- end
+
+	-- I believe this key has to be looked-up each time, as the ptr changes periodically
+	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+
+	local healingItems = {}
+
+	-- TODO: Definitely need to update this based on the battle-check info above^ Issue #37
+	-- local addressesToScan = { startAddress, }
+	local addressesToScan = {
+		GameSettings.bagPocket_Items,
+		GameSettings.bagPocket_Berries,
+	}
+
+	for _, address in pairs(addressesToScan) do
+		local size = Utils.inlineIf(address == GameSettings.bagPocket_Items, GameSettings.bagPocket_Items_Size, GameSettings.bagPocket_Berries_Size)
+		-- currentAddress = address
+		-- local keepScanning = true
+		for i = 0, (size - 1), 1 do
+			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
+			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
+			-- print((address + i * 0x4) .. " -> " ..itemid_and_quantity .. ", id: " .. itemID .. ", q: " .. bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key))
+			if itemID ~= 0 then
+				local quantity = bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key)
+				healingItems[itemID] = quantity
+			-- else
+				-- keepScanning = false
+			end
+		end
+	end
+
+	return healingItems
 end

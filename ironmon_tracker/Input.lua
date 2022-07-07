@@ -25,17 +25,17 @@ function Input.update()
 				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
 
-			Program.waitFrames = 1
+			Program.waitToDrawFrames = 0
 		end
 
 		-- "Options.CONTROLS["Cycle stat"]" pressed, display box over next stat
 		if joypadButtons[Options.CONTROLS["Cycle stat"]] and Input.joypad[Options.CONTROLS["Cycle stat"]] ~= joypadButtons[Options.CONTROLS["Cycle stat"]] then
 			Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 			Tracker.controller.framesSinceInput = 0
-			Program.waitFrames = 1
+			Program.waitToDrawFrames = 0
 		else
 			if Tracker.controller.framesSinceInput == Tracker.controller.boxVisibleFrames - 1 then
-				Program.waitFrames = 1
+				Program.waitToDrawFrames = 0
 			end
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				Tracker.controller.framesSinceInput = Tracker.controller.framesSinceInput + 1
@@ -91,7 +91,7 @@ function Input.update()
 				if pokemon ~= nil then
 					Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
 				end
-				Program.waitFrames = 1
+				Program.waitToDrawFrames = 0
 			end
 		end
 
@@ -108,7 +108,7 @@ function Input.check(xmouse, ymouse)
 				if Buttons[i].type == ButtonType.singleButton then
 					if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 						Buttons[i].onclick()
-						Program.waitFrames = 1
+						Program.waitToDrawFrames = 0
 					end
 				end
 			end
@@ -119,7 +119,7 @@ function Input.check(xmouse, ymouse)
 			if button.visible() then
 				if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
 					button:onclick()
-					Program.waitFrames = 1
+					Program.waitToDrawFrames = 0
 				end
 			end
 		end
@@ -127,7 +127,7 @@ function Input.check(xmouse, ymouse)
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
 			Options.redraw = true
-			Program.waitFrames = 1
+			Program.waitToDrawFrames = 0
 			Program.state = State.SETTINGS
 		end
 
@@ -144,7 +144,7 @@ function Input.check(xmouse, ymouse)
 				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 				if formInput ~= nil and pokemon ~= nil then
 					Tracker.TrackNote(pokemon.pokemonID, formInput)
-					Program.waitFrames = 1
+					Program.waitToDrawFrames = 0
 				end
 				forms.destroy(Input.noteForm)
 				Input.noteForm = nil

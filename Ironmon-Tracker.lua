@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.2a"
+TRACKER_VERSION = "0.4.2"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -213,7 +213,9 @@ function Main.LoadNext()
 	end
 
 	client.SetSoundOn(false)
-	client.closerom()
+	if client.getversion() ~= "2.9" then
+		client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+	end
 	print("ROM Loaded: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)

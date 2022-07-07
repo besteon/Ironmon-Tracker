@@ -2,8 +2,6 @@ Tracker = {}
 
 Tracker.userDataKey = "ironmon_tracker_data"
 
-Tracker.waitFrames = 0
-
 Tracker.controller = {
 	statIndex = 1,
 	framesSinceInput = 120,
@@ -51,7 +49,6 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 		Tracker.Data.otherPokemon = {}
 	end
 
-	-- If the Pokemon already exists, update the parts of it that you can; otherwise add it.
 	local pokemon = nil
 	if isOwn then
 		pokemon = Tracker.Data.ownPokemon[personality]
@@ -59,6 +56,7 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 		pokemon = Tracker.Data.otherPokemon[personality]
 	end
 
+	-- If the Pokemon already exists, update the parts of it that you can; otherwise add it.
 	if pokemon ~= nil then
 		for k, v in pairs(pokemonData) do
 			-- Update each pokemon key if it exists between both Pokemon
@@ -82,7 +80,11 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
 	if personality == nil or personality == 0 then return nil end
 
-	return Utils.inlineIf(isOwn, Tracker.Data.ownPokemon[personality], Tracker.Data.otherPokemon[personality])
+	if isOwn then
+		return Tracker.Data.ownPokemon[personality]
+	else
+		return Tracker.Data.otherPokemon[personality]
+	end
 end
 
 -- Currently unused
@@ -328,7 +330,7 @@ function Tracker.loadData()
 	end
 
 	Tracker.Data.romHash = gameinfo.getromhash()
-	Program.waitFrames = 0
+	Program.waitToDrawFrames = 0
 end
 
 function Tracker.Clear()

@@ -86,7 +86,7 @@ Theme.moveTypeEnableButton = {
 		GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
 		Theme.redraw = true
 		Theme.updated = true
-		Program.waitFrames = 1
+		Program.waitToDrawFrames = 0
 	end
 }
 
@@ -138,7 +138,7 @@ function Theme.loadTheme()
 	end
 
 	Theme.redraw = true
-	Program.waitFrames = 1
+	Program.waitToDrawFrames = 0
 end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
@@ -259,7 +259,7 @@ function Theme.tryRestoreDefaultTheme()
 		Theme.restoreDefaultsButton.confirmReset = true
 
 		Theme.redraw = true
-		Program.waitFrames = 1
+		Program.waitToDrawFrames = 0
 	end
 end
 
@@ -273,6 +273,6 @@ function Theme.closeMenuAndSave()
 
 	-- Inform the Tracker Program to load the Options screen
 	Options.redraw = true
-	Program.waitFrames = 1
+	Program.waitToDrawFrames = 0
 	Program.state = State.SETTINGS
 end
