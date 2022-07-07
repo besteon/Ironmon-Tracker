@@ -261,8 +261,14 @@ function Drawing.drawButtonBox(button, shadowcolor)
 end
 
 function Drawing.drawPokemonView(pokemon, opposingPokemon)
-	if pokemon == nil or not Tracker.Data.hasCheckedSummary then
+	if pokemon == nil then
 		pokemon = Tracker.getDefaultPokemon()
+	elseif not Tracker.Data.hasCheckedSummary then
+		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
+		local defaultPokemon = Tracker.getDefaultPokemon()
+		defaultPokemon.pokemonID = pokemon.pokemonID
+		defaultPokemon.level = pokemon.level
+		pokemon = defaultPokemon
 	end
 	-- Ability data currently isn't known until the pokemon enters its first battle
 	if pokemon.ability == nil then
@@ -317,7 +323,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local evoTextColor = GraphicConstants.THEMECOLORS["Default text"]
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
-	if Tracker.Data.isViewingOwn and string.format("%d", pokemon.level + 1) == PokemonData[pokemon.pokemonID + 1].evolution then
+	if Tracker.Data.isViewingOwn and PokemonData[pokemon.pokemonID + 1].evolution ~= EvolutionTypes.NONE and string.format("%d", pokemon.level + 1) >= PokemonData[pokemon.pokemonID + 1].evolution then
 		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
 	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
 		evolutionDetails = " (SOON)"

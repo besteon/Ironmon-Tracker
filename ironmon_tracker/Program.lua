@@ -88,6 +88,14 @@ function Program.updateTrackedAndCurrentData()
 		Program.updatePokemonTeamsFromMemory()
 		Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
 
+		-- Check for if summary screen is being shown
+		if not Tracker.Data.hasCheckedSummary then
+			local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
+			if summaryCheck ~= 0 then
+				Tracker.Data.hasCheckedSummary = true
+			end
+		end
+
 		-- Use this to check if the opposing Pokemon changes
 		if Tracker.Data.inBattle and viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
 			-- print("Opposing pokemon swapped! " .. viewingWhichPokemon .. " -> " .. Tracker.Data.otherViewSlot)
@@ -103,7 +111,7 @@ function Program.updateTrackedAndCurrentData()
 			-- Reset the controller's position when a new pokemon is sent out
 			Tracker.controller.statIndex = 6
 			-- Delay drawing the new pokemon, because of send out animation
-			Program.waitToDrawFrames = 30
+			Program.waitToDrawFrames = 60
 		end
 	else
 		Program.pokemonDataFrames = Program.pokemonDataFrames - 1
@@ -327,6 +335,16 @@ function Program.updateBattleDataFromMemory()
 				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
 			end
 
+			-- If the player's Pokemon doesn't have an ability yet, look it up
+			local newAbilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities)
+			if i == 1 and (pokemon.ability == nil or pokemon.ability.id ~= newAbilityFromMemory) then
+				pokemon.ability = {
+					id = newAbilityFromMemory,
+					revealed = true,
+				}
+				Tracker.TrackAbility(pokemon.pokemonID, pokemon.ability.id, pokemon.ability.revealed)
+			end
+
 			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
 			local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
 			local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
@@ -409,13 +427,6 @@ function Program.updateButtons(state)
 	Buttons[5].textcolor = StatButtonColors[state["spd"]]
 	Buttons[6].textcolor = StatButtonColors[state["spe"]]
 	return Buttons
-end
-
--- This is called by event.onmemoryexecute
--- TODO: Nonfunctional. Find a way to implement this without a Bizhawk 'event'
-function Program.HandleShowSummary()
-	-- Confirms the player has checked the summary of the pokemon, now we can reveal information about it
-	Tracker.Data.hasCheckedSummary = true
 end
 
 -- This is called by event.onmemoryexecute

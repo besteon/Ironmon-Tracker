@@ -6,6 +6,7 @@ GameSettings = {
 	version = 0,
 
 	versiongroup = 0,
+	sMonSummaryScreen = 0,
 	StartWildBattle = 0,
 	TrainerSentOutPkmn = 0,
 	BeginBattleIntro = 0,
@@ -118,6 +119,7 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon Emerald (U)"
 		GameSettings.versiongroup = 1
 
+		GameSettings.sMonSummaryScreen = 0x203cf1c
 		GameSettings.StartWildBattle = 0x080b0698
 		GameSettings.TrainerSentOutPkmn = 0x085cbbe7
 		GameSettings.BeginBattleIntro = 0x08039ECC
@@ -188,6 +190,7 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.versiongroup = 2
 
+		GameSettings.sMonSummaryScreen = 0x203b140
 		GameSettings.StartWildBattle = 0x0807f718
 		GameSettings.TrainerSentOutPkmn = 0x083fd421
 		GameSettings.BeginBattleIntro = 0x080123d4
@@ -258,6 +261,7 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon FireRed (U)"
 		GameSettings.versiongroup = 2
 
+		GameSettings.sMonSummaryScreen = 0x203b140
 		GameSettings.StartWildBattle = 0x0807f704
 		GameSettings.TrainerSentOutPkmn = 0x083fd3b1
 		GameSettings.BeginBattleIntro = 0x080123c0
@@ -328,6 +332,7 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.versiongroup = 2
 
+		GameSettings.sMonSummaryScreen = 0x203b140
 		GameSettings.StartWildBattle = 0x0807f6ec
 		GameSettings.TrainerSentOutPkmn = 0x083fd25d
 		GameSettings.BeginBattleIntro = 0x080123d4
@@ -398,6 +403,7 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Pokemon LeafGreen (U)"
 		GameSettings.versiongroup = 2
 
+		GameSettings.sMonSummaryScreen = 0x203b140
 		GameSettings.StartWildBattle = 0x0807f6d8
 		GameSettings.TrainerSentOutPkmn = 0x083fd1ed
 		GameSettings.BeginBattleIntro = 0x080123c0
