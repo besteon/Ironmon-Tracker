@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.2c"
+TRACKER_VERSION = "0.4.2d"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -85,21 +85,6 @@ function Main.Run()
 
 		-- Removed all event watches to improve performances. Most have workarounds.
 		
-		-- Core events
-		-- event.onmemoryexecute(Program.HandleEndBattle, GameSettings.ReturnFromBattleToOverworld, "HandleEndBattle")
-		-- event.onmemoryexecute(Program.HandleMove, GameSettings.ChooseMoveUsedParticle, "HandleMove")
-		-- event.onmemoryexecute(Program.HandleDoPokeballSendOutAnimation, GameSettings.DoPokeballSendOutAnimation, "HandleDoPokeballSendOutAnimation")
-
-		-- -- Additional events to re-render on
-		-- event.onmemoryexecute(Program.HandleShowSummary, GameSettings.ShowPokemonSummaryScreen, "HandleShowSummary")
-		-- event.onmemoryexecute(Program.HandleCalculateMonStats, GameSettings.CalculateMonStats, "HandleHandleCalculateMonStats")
-		-- event.onmemoryexecute(Program.HandleDisplayMonLearnedMove, GameSettings.DisplayMonLearnedMove, "HandleDisplayMonLearnedMove")
-		-- event.onmemoryexecute(Program.HandleSwitchSelectedMons, GameSettings.SwitchSelectedMons, "HandleSwitchSelectedMons")
-		-- event.onmemoryexecute(Program.HandleUpdatePoisonStepCounter, GameSettings.UpdatePoisonStepCounter, "HandleUpdatePoisonStepCounter")
-		-- event.onmemoryexecute(Program.HandleHealPlayerParty, GameSettings.HealPlayerParty, "HandleHealPlayerParty")
-
-		-- Main.LoadEventReads()
-
 		event.onexit(Program.HandleExit, "HandleExit")
 
 		while Main.LoadNextSeed == false do
@@ -109,42 +94,6 @@ function Main.Run()
 
 		Main.LoadNext()
 	end
-end
-
--- Adding eventual support for when Bizhawk 2.9 users load up the tracker, where 'onmemoryread' events are fixed.
-function Main.LoadEventReads()
-	if client.getversion() ~= "2.9" then return end
-
-	-- Ability activated events
-	event.onmemoryread(Program.HandleBattleScriptDrizzleActivates, GameSettings.BattleScriptDrizzleActivates, "HandleBattleScriptDrizzleActivates")
-	event.onmemoryread(Program.HandleBattleScriptSpeedBoostActivates, GameSettings.BattleScriptSpeedBoostActivates, "HandleBattleScriptSpeedBoostActivates")
-	event.onmemoryread(Program.HandleBattleScriptTraceActivates, GameSettings.BattleScriptTraceActivates, "HandleBattleScriptTraceActivates")
-	event.onmemoryread(Program.HandleBattleScriptRainDishActivates, GameSettings.BattleScriptRainDishActivates, "HandleBattleScriptRainDishActivates")
-	event.onmemoryread(Program.HandleBattleScriptSandstreamActivates, GameSettings.BattleScriptSandstreamActivates, "HandleBattleScriptSandstreamActivates")
-	event.onmemoryread(Program.HandleBattleScriptShedSkinActivates, GameSettings.BattleScriptShedSkinActivates, "HandleBattleScriptShedSkinActivates")
-	event.onmemoryread(Program.HandleBattleScriptIntimidateActivates, GameSettings.BattleScriptIntimidateActivates, "HandleBattleScriptIntimidateActivates")
-	event.onmemoryread(Program.HandleBattleScriptDroughtActivates, GameSettings.BattleScriptDroughtActivates, "HandleBattleScriptDroughtActivates")
-	event.onmemoryread(Program.HandleBattleScriptStickyHoldActivates, GameSettings.BattleScriptStickyHoldActivates, "HandleBattleScriptStickyHoldActivates")
-	event.onmemoryread(Program.HandleBattleScriptColorChangeActivates, GameSettings.BattleScriptColorChangeActivates, "HandleBattleScriptColorChangeActivates")
-	event.onmemoryread(Program.HandleBattleScriptRoughSkinActivates, GameSettings.BattleScriptRoughSkinActivates, "HandleBattleScriptRoughSkinActivates")
-	event.onmemoryread(Program.HandleBattleScriptCuteCharmActivates, GameSettings.BattleScriptCuteCharmActivates, "HandleBattleScriptCuteCharmActivates")
-	event.onmemoryread(Program.HandleBattleScriptSynchronizeActivates, GameSettings.BattleScriptSynchronizeActivates, "HandleBattleScriptSynchronizeActivates")
-
-	-- Badge get events
-	event.onmemoryread(Program.HandleBadgeOneObtained, GameSettings.ObtainBadgeOne, "HandleBadgeOneObtained")
-	event.onmemoryread(Program.HandleBadgeTwoObtained, GameSettings.ObtainBadgeTwo, "HandleBadgeTwoObtained")
-	event.onmemoryread(Program.HandleBadgeThreeObtained, GameSettings.ObtainBadgeThree, "HandleBadgeThreeObtained")
-	event.onmemoryread(Program.HandleBadgeFourObtained, GameSettings.ObtainBadgeFour, "HandleBadgeFourObtained")
-	event.onmemoryread(Program.HandleBadgeFiveObtained, GameSettings.ObtainBadgeFive, "HandleBadgeFiveObtained")
-	event.onmemoryread(Program.HandleBadgeSixObtained, GameSettings.ObtainBadgeSix, "HandleBadgeSixObtained")
-	event.onmemoryread(Program.HandleBadgeSevenObtained, GameSettings.ObtainBadgeSeven, "HandleBadgeSevenObtained")
-	event.onmemoryread(Program.HandleBadgeEightObtained, GameSettings.ObtainBadgeEight, "HandleBadgeEightObtained")
-
-	-- Other events, unsure if needed, leaving them excluded for now
-	-- event.onmemoryread(Program.HandleWeHopeToSeeYouAgain, GameSettings.WeHopeToSeeYouAgain)
-	-- event.onmemoryread(Program.HandleTrainerSentOutPkmn, GameSettings.TrainerSentOutPkmn)
-
-	-- Item events
 end
 
 function Main.LoadNext()

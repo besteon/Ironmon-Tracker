@@ -89,7 +89,7 @@ function Program.updateTrackedAndCurrentData()
 		Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
 
 		-- Check for if summary screen is being shown
-		if not Tracker.Data.hasCheckedSummary then
+		if not Tracker.Data.hasCheckedSummary and GameSettings.sMonSummaryScreen ~= 0 then
 			local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
 			if summaryCheck ~= 0 then
 				Tracker.Data.hasCheckedSummary = true
@@ -117,9 +117,9 @@ function Program.updateTrackedAndCurrentData()
 		Program.pokemonDataFrames = Program.pokemonDataFrames - 1
 	end
 
-	-- Only update "Heals in Bag" information every 15 seconds (15 seconds * 60 frames/sec)
+	-- Only update "Heals in Bag" information every 5 seconds (5 seconds * 60 frames/sec)
 	if Program.itemCheckFrames == 0 then
-		Program.itemCheckFrames = 900
+		Program.itemCheckFrames = 300
 		Program.calculateBagHealingItemsFromMemory()
 	else
 		Program.itemCheckFrames = Program.itemCheckFrames - 1
@@ -618,6 +618,7 @@ function Program.getHealingItemsFromMemory()
 	-- end
 
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
+	if GameSettings.gSaveBlock2ptr == 0 then return nil end -- safety check since ruby/sapphire ptr location is unknown
 	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
 	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
 

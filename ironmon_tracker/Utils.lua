@@ -194,7 +194,7 @@ function Utils.pokemonHasMove(pokemon, moveName)
 	if pokemon == nil or moveName == nil then return false end
 
 	for _, move in pairs(pokemon.moves) do
-		if moveName == MoveData[move.id + 1].name then
+		if moveName == MoveData[move.id].name then
 			return true
 		end
 	end
