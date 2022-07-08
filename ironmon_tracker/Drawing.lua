@@ -208,15 +208,6 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
 		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
 	end
-
-	for index, button in pairs(BadgeButtons.badgeButtons) do
-		if button.visible() then
-			local addForOff = ""
-			if button.state == 0 then addForOff = "_OFF" end
-			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge"..index..addForOff..".png"
-			gui.drawImage(path,button.box[1], button.box[2])
-		end
-	end	
 end
 
 function Drawing.drawInputOverlay()
@@ -586,7 +577,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		for moveIndex = 1, 4, 1 do
 			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[opposingPokemon.pokemonID + 1])
 			if effectiveness == 0 then
-				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
+				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 6, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
 			else
 				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
 			end
