@@ -28,8 +28,7 @@ If you want to use your controller to toggle stat prediction markers on opponent
 
 - **_NEW!!_ Ruby/Sapphire Support & Optimization Improvements**
 
-![image](https://user-images.githubusercontent.com/4258818/176304453-8768604b-e125-4d5e-b3bf-609012f4178a.png)
-![image](https://user-images.githubusercontent.com/4258818/176306783-74d8dd92-7d06-45a1-a566-0acf3b709099.png)
+![image](https://i.imgur.com/HWox6fV.png)
 
 ## Features
 
