@@ -161,6 +161,10 @@ function ColorPicker:show()
 
 	-- Required when Bizhawk configuration is set to pause the game when any menu opens, blocks mouse inputs
 	client.unpause()
+
+	-- Changes the tracker screen back to the main screen so you can see theme updates live
+	Program.state = State.TRACKER
+	Program.waitToDrawFrames = 0
 end
 
 function ColorPicker:onClick() 

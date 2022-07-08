@@ -336,7 +336,7 @@ function Tracker.loadData()
 		if Tracker.Data.romHash then
 			if gameinfo.getromhash() == Tracker.Data.romHash then
 				Buttons.updateBadges()
-				print("Loaded tracker data")
+				print("Tracker data successfully loaded from save-state.")
 			else
 				print("New ROM detected, resetting tracker data")
 				Tracker.Data = Tracker.InitTrackerData()

@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.4.2e"
+TRACKER_VERSION = "0.5.0"
 
 -- A frequently used placeholder when a data field is not applicable
 PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
@@ -59,8 +59,6 @@ function Main.Run()
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
 		emu.frameadvance()
 	end
-
-	-- print("Gamecode: " .. string.format("%x", memory.read_u32_be(0x0000AC, "ROM")) .. ", Game Version: " .. string.format("%x", memory.read_u32_be(0x0000BC, "ROM")))
 
 	Options.buildTrackerOptionsButtons()
 	Options.loadOptions()

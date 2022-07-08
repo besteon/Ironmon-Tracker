@@ -450,8 +450,6 @@ function Program.handleAttackMove(moveId, slotNumber, isOwn)
 	if slotNumber == nil or slotNumber < 1 or slotNumber > 6 then slotNumber = 1 end
 	if isOwn == nil then isOwn = true end
 
-	-- if moveId < 1 or moveId > 355 then print("[INVALID] MoveId: " .. moveId) end
-
 	-- For now, only handle moves from opposing Pokemon
 	if not isOwn then
 		-- Update view to the Pokemon that attacked; don't know if this is still needed
@@ -638,7 +636,6 @@ function Program.getHealingItemsFromMemory()
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			-- print((address + i * 0x4) .. " -> " ..itemid_and_quantity .. ", id: " .. itemID .. ", q: " .. bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key))
 			if itemID ~= 0 then
 				local quantity = bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key)
 				healingItems[itemID] = quantity
