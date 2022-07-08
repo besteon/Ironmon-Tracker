@@ -238,7 +238,7 @@ function Drawing.calcShadowColor(color)
 	local scale = 0x10 -- read as: 6.25%
 	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
 	if isDarkBG then
-		scale = 0xB0 -- read as: 69%
+		scale = 0x90 -- read as: 56.25%
 	end
 	-- scale RGB values down to make them darker
 	r = r - r * scale / 0x100

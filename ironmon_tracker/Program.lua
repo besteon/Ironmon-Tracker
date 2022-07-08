@@ -125,8 +125,6 @@ function Program.updateTrackedAndCurrentData()
 	end
 end
 
--- Checks if any updates to own/other pokemon data are required based on a few conditions
--- 1) A move was used, 2) Pokemon levels up, 3) Walking around deals poison damage or changes friendship, 4) ...?
 function Program.updatePokemonTeamsFromMemory()
 	-- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
@@ -258,7 +256,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		status_result = 6
 	end
 
-	-- TODO: Can likely improve this further using memory.read_bytes_as_array but would require testing to verify
+	-- Can likely improve this further using memory.read_bytes_as_array but would require testing to verify
 	local level_and_currenthp = Memory.readdword(startAddress + 84)
 	local maxhp_and_atk = Memory.readdword(startAddress + 88)
 	local def_and_speed = Memory.readdword(startAddress + 92)
@@ -605,7 +603,8 @@ function Program.getBagStatusItems()
 end
 
 function Program.getHealingItemsFromMemory()
-	--battle can be set a few frames before item bag for battle gets updated, need to check this value as well
+	-- TODO: Definitely need to update this based on the battle-check info below Issue #37
+	-- battle can be set a few frames before item bag for battle gets updated, need to check this value as well
 	-- local startAddress = Utils.inlineIf(Tracker.Data.inBattle, GameSettings.itemStartBattle, GameSettings.itemStartNoBattle)
 	-- local itemid_and_quantity = Memory.readdword(GameSettings.bagPocket_Items)
 	-- local itemid = Utils.getbits(itemid_and_quantity, 0, 16)
@@ -621,8 +620,6 @@ function Program.getHealingItemsFromMemory()
 
 	local healingItems = {}
 
-	-- TODO: Definitely need to update this based on the battle-check info above^ Issue #37
-	-- local addressesToScan = { startAddress, }
 	local addressesToScan = {
 		GameSettings.bagPocket_Items,
 		GameSettings.bagPocket_Berries,
@@ -630,8 +627,6 @@ function Program.getHealingItemsFromMemory()
 
 	for _, address in pairs(addressesToScan) do
 		local size = Utils.inlineIf(address == GameSettings.bagPocket_Items, GameSettings.bagPocket_Items_Size, GameSettings.bagPocket_Berries_Size)
-		-- currentAddress = address
-		-- local keepScanning = true
 		for i = 0, (size - 1), 1 do
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
@@ -639,8 +634,6 @@ function Program.getHealingItemsFromMemory()
 			if itemID ~= 0 then
 				local quantity = bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key)
 				healingItems[itemID] = quantity
-			-- else
-				-- keepScanning = false
 			end
 		end
 	end
