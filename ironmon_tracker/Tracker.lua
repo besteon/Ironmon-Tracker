@@ -60,7 +60,8 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 	if pokemon ~= nil then
 		-- If the Pokemon evolved (or otherwise changed), clear it's ability; to be updated later in battle
 		if pokemonData.pokemonID ~= pokemon.pokemonID then
-			pokemonData.ability = { id = 0, revealed = false }
+			pokemonData.ability = nil
+			pokemon.ability = nil
 		end
 
 		-- Update each pokemon key if it exists between both Pokemon
@@ -69,7 +70,7 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 				pokemon[k] = pokemonData[k]
 			end
 		end
-	else 
+	else
 		if isOwn then
 			Tracker.Data.ownPokemon[personality] = pokemonData
 		else

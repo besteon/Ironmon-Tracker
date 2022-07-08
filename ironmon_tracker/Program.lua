@@ -98,7 +98,6 @@ function Program.updateTrackedAndCurrentData()
 
 		-- Use this to check if the opposing Pokemon changes
 		if Tracker.Data.inBattle and viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
-			-- print("Opposing pokemon swapped! " .. viewingWhichPokemon .. " -> " .. Tracker.Data.otherViewSlot)
 			-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
 			if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
 				Program.transformedPokemon.isTransformed = false
@@ -111,7 +110,7 @@ function Program.updateTrackedAndCurrentData()
 			-- Reset the controller's position when a new pokemon is sent out
 			Tracker.controller.statIndex = 6
 			-- Delay drawing the new pokemon, because of send out animation
-			Program.waitToDrawFrames = 60
+			Program.waitToDrawFrames = 30
 		end
 	else
 		Program.pokemonDataFrames = Program.pokemonDataFrames - 1
@@ -335,14 +334,14 @@ function Program.updateBattleDataFromMemory()
 				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
 			end
 
-			-- If the player's Pokemon doesn't have an ability yet, look it up
-			local newAbilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities)
-			if i == 1 and (pokemon.ability == nil or pokemon.ability.id ~= newAbilityFromMemory) then
+			-- If the Pokemon doesn't have an ability yet, look it up (only works in battle)
+			local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
+			if pokemon.ability == nil and abilityFromMemory ~= 0 then
 				pokemon.ability = {
-					id = newAbilityFromMemory,
-					revealed = true,
+					id = abilityFromMemory,
+					revealed = (i == 1),
 				}
-				Tracker.TrackAbility(pokemon.pokemonID, pokemon.ability.id, pokemon.ability.revealed)
+				-- Tracker.TrackAbility(pokemon.pokemonID, pokemon.ability.id, pokemon.ability.revealed)
 			end
 
 			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
@@ -389,7 +388,7 @@ function Program.beginNewBattle()
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	Tracker.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
-	Program.waitToDrawFrames = 90 -- Delay drawing the new pokemon, because of send out animation
+	Program.waitToDrawFrames = 120 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 end
 
 -- This should be called every time the player finishes a battle (wild pokemon or trainer battle)

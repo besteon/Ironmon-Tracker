@@ -270,10 +270,6 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		defaultPokemon.level = pokemon.level
 		pokemon = defaultPokemon
 	end
-	-- Ability data currently isn't known until the pokemon enters its first battle
-	if pokemon.ability == nil then
-		pokemon.ability = { id = 0, revealed = false }
-	end
 
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
@@ -323,7 +319,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local evoTextColor = GraphicConstants.THEMECOLORS["Default text"]
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
-	if Tracker.Data.isViewingOwn and PokemonData[pokemon.pokemonID + 1].evolution ~= EvolutionTypes.NONE and string.format("%d", pokemon.level + 1) >= PokemonData[pokemon.pokemonID + 1].evolution then
+	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolve(pokemon) then
 		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
 	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
 		evolutionDetails = " (SOON)"
@@ -387,12 +383,16 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 	-- Draw Pokemon's held item and ability but only for your own Pokemon
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+	local abilityString = MiscData.ability[1]
+	if pokemon.ability ~= nil and pokemon.ability.revealed then
+		abilityString = MiscData.ability[pokemon.ability.id + 1]
+	end
 	if Tracker.Data.isViewingOwn then
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-	elseif pokemon.ability.revealed then
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	elseif pokemon.ability ~= nil and pokemon.ability.revealed then
 		-- If the ability exists on the current pokemon data, and is known to the player, then draw it
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[pokemon.ability.id + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	else
 		-- Otherwise, check if any / how many of the tracked abilities are known about this pokemon
 		-- TODO: Eventually, this area somehow needs to function to allow users to click on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability

@@ -201,6 +201,19 @@ function Utils.pokemonHasMove(pokemon, moveName)
 	return false
 end
 
+function Utils.isReadyToEvolve(pokemon)
+	local evoType = PokemonData[pokemon.pokemonID + 1].evolution
+
+	if evoType == EvolutionTypes.NONE then
+		return false
+	end
+	
+	-- TODO: Handle condition of "37/WTR" with regex
+	evoType = tonumber(evoType, 10) -- becomes nil if not a decimal number
+
+	return evoType ~= nil and (pokemon.level + 1) >= evoType
+end
+
 -- Returns the text color for PC heal tracking
 function Utils.getCenterHealColor()
 	local currentCount = Tracker.Data.centerHeals

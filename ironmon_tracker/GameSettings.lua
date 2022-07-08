@@ -100,6 +100,15 @@ function GameSettings.setGameAsRuby(gameversion)
 	if gameversion == 0x00410000 then
 		print("ROM Detected: Pokemon Ruby v1.0")
 
+		-- Possible memory addresses for checking if the Pokemon's summary has been viewed by the player
+		-- 08089fcc l 00000038 PokemonMenu_Summary
+		-- 080954dc l 00000068 Task_ShowSummaryScreen
+		-- 0809d8bc g 00000134 ShowPokemonSummaryScreen
+		-- 0809d9f0 g 0000002c ShowSelectMovePokemonSummaryScreen
+		-- 0809df00 l 00000144 LoadPokemonSummaryScreenGraphics
+		-- 0809f678 l 0000003a SummaryScreen_GetPokemon
+		-- 08e7274c g 000000fc gMenuSummaryGfx
+		-- 08e72848 g 00000018 gMenuSummaryPal
 		GameSettings.sMonSummaryScreen = 0x00000000
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
