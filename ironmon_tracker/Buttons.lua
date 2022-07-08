@@ -65,7 +65,17 @@ PCHealTrackingButton = {
 	boxColors = { "Upper box border", "Upper box background" },
 	togglecolor = "Positive text",
 	onclick = function() 
-		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState 
+		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState
+	end
+}
+
+AbilityTrackingButton = {
+	type = ButtonType.singleButton,
+	text = "",
+	textcolor = "Default text",
+	box = { GraphicConstants.SCREEN_WIDTH + 88, 40, 16, 16 },
+	onclick = function() 
+		Buttons.openAbilityNoteWindow()
 	end
 }
 
@@ -232,4 +242,70 @@ function Buttons.updateBadges()
 	for i, button in pairs(BadgeButtons.badgeButtons) do
 		button:updateState()
 	end
+end
+
+function Buttons.openAbilityNoteWindow()
+	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	if pokemon == nil then return end
+
+	local pokemonName = PokemonData[pokemon.pokemonID + 1].name .. ":"
+	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+
+	local abilityForm = forms.newform(255, 170, "Track Ability", function() return nil end)
+	
+	forms.label(abilityForm, "Select one or both abilities for " .. pokemonName, 14, 10, 220, 20)
+	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 45, 30, 145, 30)
+	forms.setdropdownitems(abilityOneDropdown, MiscData.ability, true) -- true = alphabetize list
+	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 45, 60, 145, 30)
+	forms.setdropdownitems(abilityTwoDropdown, MiscData.ability, true) -- true = alphabetize list
+
+	if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
+		forms.settext(abilityOneDropdown, MiscData.ability[trackedAbilities[1].id + 1])
+	end
+	if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
+		forms.settext(abilityTwoDropdown, MiscData.ability[trackedAbilities[2].id + 1])
+	end
+
+	forms.button(abilityForm, "Save && Close", function()
+		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if pokemon ~= nil then
+			local abilityOneText = forms.gettext(abilityOneDropdown)
+			local abilityTwoText = forms.gettext(abilityTwoDropdown)
+			local abilityOneId = 0
+			local abilityTwoId = 0
+
+			-- If only one ability was entered in
+			if abilityOneText == MiscData.ability[1] then
+				abilityOneText = abilityTwoText
+			end
+
+			-- TODO: Eventually put all this code in as a Tracker function()
+			-- Lookup ability id's from the master list of ability pokemon data
+			for id, ability in pairs(MiscData.ability) do
+				if abilityOneText == ability then
+					abilityOneId = id - 1
+				elseif abilityTwoText == ability then
+					abilityTwoId = id - 1
+				end
+			end
+
+			local trackedPokemon = Tracker.Data.allPokemon[pokemon.pokemonID]
+			trackedPokemon.abilities = {
+				{ id = abilityOneId, revealed = abilityOneId ~= 0 },
+				{ id = abilityTwoId, revealed = abilityTwoId ~= 0 },
+			}
+		end
+
+		client.unpause()
+		Program.waitToDrawFrames = 0
+		forms.destroy(abilityForm)
+	end, 15, 95, 85, 25)
+	forms.button(abilityForm, "Clear", function()
+		forms.settext(abilityOneDropdown, MiscData.ability[1])
+		forms.settext(abilityTwoDropdown, MiscData.ability[1])
+	end, 105, 95, 55, 25)
+	forms.button(abilityForm, "Cancel", function()
+		client.unpause()
+		forms.destroy(abilityForm)
+	end, 165, 95, 55, 25)
 end

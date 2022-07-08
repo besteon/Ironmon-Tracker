@@ -132,23 +132,33 @@ function Input.check(xmouse, ymouse)
 		end
 
 		--note box
-		if not Tracker.Data.isViewingOwn and Input.noteForm == nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
-			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-			local pokemonName = Utils.inlineIf(pokemon ~= nil, PokemonData[pokemon.pokemonID + 1].name, "this Pokemon")
-			
-			Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
-			forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
-			local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-			forms.button(Input.noteForm, "Save", function()
-				local formInput = forms.gettext(noteTextBox)
+		if not Tracker.Data.isViewingOwn then
+			-- Check if clicked anywhere near the abilities area
+			if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 37, 35, 63, 22) then
+				AbilityTrackingButton.onclick()
+
+			-- Check if clicked near the original note taking area near the bottom
+			elseif Input.noteForm == nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
 				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-				if formInput ~= nil and pokemon ~= nil then
-					Tracker.TrackNote(pokemon.pokemonID, formInput)
-					Program.waitToDrawFrames = 0
+				local pokemonName = "this Pokemon"
+				if pokemon ~= nil then
+					pokemonName = PokemonData[pokemon.pokemonID + 1].name
 				end
-				forms.destroy(Input.noteForm)
-				Input.noteForm = nil
-			end, 187, 55)
+				
+				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
+				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
+				forms.button(Input.noteForm, "Save", function()
+					local formInput = forms.gettext(noteTextBox)
+					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+					if formInput ~= nil and pokemon ~= nil then
+						Tracker.TrackNote(pokemon.pokemonID, formInput)
+						Program.waitToDrawFrames = 0
+					end
+					forms.destroy(Input.noteForm)
+					Input.noteForm = nil
+				end, 187, 55)
+			end
 		end
 
 		-- Settings menu mouse input regions

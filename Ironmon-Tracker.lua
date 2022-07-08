@@ -80,9 +80,6 @@ function Main.Run()
 		gui.defaultTextBackground(0)
 
 		event.onloadstate(Tracker.loadData, "OnLoadState")
-
-		-- Removed all event watches to improve performances. Most have workarounds.
-		
 		event.onexit(Program.HandleExit, "HandleExit")
 
 		while Main.LoadNextSeed == false do

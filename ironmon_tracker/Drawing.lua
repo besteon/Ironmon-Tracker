@@ -374,25 +374,27 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 	-- Draw Pokemon's held item and ability but only for your own Pokemon
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-	local abilityString = MiscData.ability[1]
-	if pokemon.ability ~= nil and pokemon.ability.revealed then
-		abilityString = MiscData.ability[pokemon.ability.id + 1]
-	end
 	if Tracker.Data.isViewingOwn then
+		local abilityStringBot = MiscData.ability[1]
+		if pokemon.ability ~= nil and pokemon.ability.revealed then
+			abilityStringBot = MiscData.ability[pokemon.ability.id + 1]
+		end
+
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-	elseif pokemon.ability ~= nil and pokemon.ability.revealed then
-		-- If the ability exists on the current pokemon data, and is known to the player, then draw it
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityString, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	else
-		-- Otherwise, check if any / how many of the tracked abilities are known about this pokemon
-		-- TODO: Eventually, this area somehow needs to function to allow users to click on the ability text and set ability, similar to "Notes"; can use the Item line for 2nd ability
-		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then 
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.ability[trackedAbilities[2].id + 1] .. " /", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		local abilityStringTop = MiscData.ability[1]
+		local abilityStringBot = MiscData.ability[1]
+		if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
+			abilityStringBot = MiscData.ability[trackedAbilities[1].id + 1] .. " ?"
 		end
-		if trackedAbilities[1].revealed then
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), MiscData.ability[trackedAbilities[1].id + 1] .. " ?", GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
+			abilityStringTop = MiscData.ability[trackedAbilities[2].id + 1] .. " /"
+			abilityStringBot = abilityStringBot:sub(1, -3)
 		end
+
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
 
 	-- draw stat box
@@ -597,8 +599,14 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		end
 	end	
 
-	-- Draw note box, but only for enemy pokemon
+	-- Draw note boxes, but only for enemy pokemon
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
+		-- Draw notepad icon near abilities area, for manually tracking the abilities
+		if (trackedAbilities[1] == nil or not trackedAbilities[1].revealed) and (trackedAbilities[2] == nil or not trackedAbilities[2].revealed) then
+			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
+		end
+
+		-- Draw original notepad icon at the bottom for taking written notes
 		local noteText = Tracker.getNote(pokemon.pokemonID)
 		if noteText == "" then
 			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47, boxBotShadow)
