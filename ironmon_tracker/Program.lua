@@ -109,8 +109,9 @@ function Program.updateTrackedAndCurrentData()
 		
 			-- Reset the controller's position when a new pokemon is sent out
 			Tracker.controller.statIndex = 6
+
 			-- Delay drawing the new pokemon, because of send out animation
-			Program.waitToDrawFrames = 30
+			Program.waitToDrawFrames = 0
 		end
 	else
 		Program.pokemonDataFrames = Program.pokemonDataFrames - 1
@@ -128,6 +129,7 @@ end
 function Program.updatePokemonTeamsFromMemory()
 	-- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+	local isOpposingPokemonWild = false
 
 	-- Check for updates to each pokemon team
 	local addressOffset = 0
@@ -159,6 +161,9 @@ function Program.updatePokemonTeamsFromMemory()
 			newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
+				if Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 then
+					isOpposingPokemonWild = Tracker.Data.trainerID == newPokemonData.trainerID
+				end
 				Tracker.addUpdatePokemon(newPokemonData, personality, false)
 			end
 		end
@@ -196,9 +201,9 @@ function Program.updatePokemonTeamsFromMemory()
 	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 	local opposingPokemon = Tracker.getPokemon(1, false)
 	if not Tracker.Data.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
-		Program.beginNewBattle()
+		Program.beginNewBattle(isOpposingPokemonWild)
 	elseif Tracker.Data.inBattle and lastBattleStatus ~= 0 then
-		Program.endBattle()
+		Program.endBattle(isOpposingPokemonWild)
 	end
 end
 
@@ -377,8 +382,9 @@ function Program.updateBattleDataFromMemory()
 end
 
 -- This should be called every time the player gets into a battle (wild pokemon or trainer battle)
-function Program.beginNewBattle()
+function Program.beginNewBattle(isWild)
 	if Tracker.Data.inBattle then return end
+	if isWild == nil then isWild = false end
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Tracker.Data.inBattle = true
@@ -386,12 +392,15 @@ function Program.beginNewBattle()
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	Tracker.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
-	Program.waitToDrawFrames = 120 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
+
+	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
+	Program.waitToDrawFrames = Utils.inlineIf(isWild, 150, 250)
 end
 
 -- This should be called every time the player finishes a battle (wild pokemon or trainer battle)
-function Program.endBattle()
+function Program.endBattle(isWild)
 	if not Tracker.Data.inBattle then return end
+	if isWild == nil then isWild = false end
 
 	Tracker.Data.inBattle = false
 	Tracker.Data.isViewingOwn = true
@@ -407,7 +416,9 @@ function Program.endBattle()
 			pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 		end
 	end
-	Program.waitToDrawFrames = 90 -- Delay drawing the new pokemon
+
+	 -- Delay drawing the return to viewing your pokemon screen
+	Program.waitToDrawFrames = Utils.inlineIf(isWild, 70, 150)
 end
 
 function Program.updateButtons(state)
