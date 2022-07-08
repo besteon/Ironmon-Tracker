@@ -437,12 +437,28 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	Drawing.drawText(statOffsetX, statOffsetY, "BST", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[pokemon.pokemonID + 1].bst, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 
+	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
+
+	local moveTableHeaderHeightDiff = 13
+	local movesBoxStartY = 92
+	local moveStartY = movesBoxStartY + 2
+	local distanceBetweenMoves = 10
+	local moveOffset = 7
+	local ppOffset = 82
+	local powerOffset = 102
+	local accOffset = 126
+
+	-- Draw move headers
+	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Main background"])
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+
 	-- Drawing moves
 	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
-	local movesBoxStartY = 92
 	-- draw moves box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
-	local moveStartY = movesBoxStartY + 2
 
 	local stars = { "", "", "", "" }
 	if not Tracker.Data.isViewingOwn then
@@ -463,23 +479,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 				moves[moveIndex] = MoveData[1]
 			end
 		end
-	end	
-
-	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
-
-	local moveTableHeaderHeightDiff = 14
-	local distanceBetweenMoves = 10
-	local moveOffset = 7
-	local ppOffset = 82
-	local powerOffset = 102
-	local accOffset = 126
-
-	-- Draw move headers
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Main background"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	end
 
 	-- Draw Moves categories, names, and other information
 	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
@@ -577,7 +577,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		for moveIndex = 1, 4, 1 do
 			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[opposingPokemon.pokemonID + 1])
 			if effectiveness == 0 then
-				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 6, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
+				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 7, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
 			else
 				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
 			end

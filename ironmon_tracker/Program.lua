@@ -417,7 +417,7 @@ function Program.endBattle(isWild)
 		end
 	end
 
-	 -- Delay drawing the return to viewing your pokemon screen
+	-- Delay drawing the return to viewing your pokemon screen
 	Program.waitToDrawFrames = Utils.inlineIf(isWild, 70, 150)
 end
 

@@ -93,26 +93,26 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	end
 end
 
+function Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if Tracker.Data.allPokemon[pokemonID] == nil then
+		Tracker.Data.allPokemon[pokemonID] = {}
+	end
+	return Tracker.Data.allPokemon[pokemonID]
+end
+
 -- Currently unused
 function Tracker.TrackItem(pokemonID, itemId)
-	-- if Tracker.Data.allPokemon[pokemonID] == nil then
-	-- 	Tracker.Data.allPokemon[pokemonID] = {}
-	-- end
-
-	-- local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	-- local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	-- Implement later if this information ends up mattering
 end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
 -- isRevealed: set to true only when the player is supposed to know the ability exists for that Pokemon
 function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
 	if isRevealed == nil then isRevealed = false end
 
 	-- If no ability is being tracked for this Pokemon, add it as the first ability
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.abilities == nil then
 		trackedPokemon.abilities = {
 			{
@@ -140,22 +140,14 @@ function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
 end
 
 function Tracker.TrackStatMarkings(pokemonID, statmarkings)
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
-
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.statmarkings = statmarkings
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackMove(pokemonID, moveId, level)
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
-
 	-- If no move data exist, set this as the first move
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
 		trackedPokemon.moves = {
 			{ id = moveId, level = level },
@@ -195,11 +187,7 @@ end
 
 -- isTrainerPokemon: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
 function Tracker.TrackEncounter(pokemonID, isTrainerPokemon)
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
-
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		trackedPokemon.encounters = { wild = 0, trainer = 0 }
 	end
@@ -212,24 +200,22 @@ function Tracker.TrackEncounter(pokemonID, isTrainerPokemon)
 end
 
 function Tracker.TrackNote(pokemonID, note)
-	if note == nil then
-		return
-	elseif string.len(note) > 70 then
+	if note == nil then return end
+	
+	if string.len(note) > 70 then
 		print("Pokemon's note truncated to 70 characters.")
 		note = string.sub(note, 1, 70)
 	end
 
-	if Tracker.Data.allPokemon[pokemonID] == nil then
-		Tracker.Data.allPokemon[pokemonID] = {}
-	end
-	
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.note = note
 end
 
 function Tracker.isTrackingMove(pokemonID, moveId, level)
-	local trackedPokemon = Tracker.Data.allPokemon[pokemonID]
-	if trackedPokemon == nil or trackedPokemon.moves == nil then return false end
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.moves == nil then
+		return false
+	end
 
 	for _, move in pairs(trackedPokemon.moves) do
 		if move.id == moveId and move.level == level then
@@ -242,7 +228,8 @@ end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
 function Tracker.getMoves(pokemonID)
-	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].moves == nil then
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.moves == nil then
 		return {
 			{ id = 1, level = 1 },
 			{ id = 1, level = 1 },
@@ -250,48 +237,52 @@ function Tracker.getMoves(pokemonID)
 			{ id = 1, level = 1 },
 		}
 	else
-		return Tracker.Data.allPokemon[pokemonID].moves
+		return trackedPokemon.moves
 	end
 end
 
 -- Currently unused, but likely going to want to use it via ability-note-taking
 -- If the Pokemon is being tracked, return information on abilities; otherwise a default ability value = 1 & false
 function Tracker.getAbilities(pokemonID)
-	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].abilities == nil then
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.abilities == nil then
 		return {
 			{ id = 0, revealed = false },
 		}
 	else
-		return Tracker.Data.allPokemon[pokemonID].abilities
+		return trackedPokemon.abilities
 	end
 end
 
 -- If the Pokemon is being tracked, return information on statmarkings; otherwise default stat values = 1
 function Tracker.getStatMarkings(pokemonID)
-	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].statmarkings == nil then
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.statmarkings == nil then
 		return { hp = 1, atk = 1, def = 1, spa = 1, spd = 1, spe = 1 }
 	else
-		return Tracker.Data.allPokemon[pokemonID].statmarkings
+		return trackedPokemon.statmarkings
 	end
 end
 
 -- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
 function Tracker.getEncounters(pokemonID, isTrainerPokemon)
-	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].encounters == nil then
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.encounters == nil then
 		return 0
-	elseif isTrainerPokemon then
-		return Tracker.Data.allPokemon[pokemonID].encounters.trainer
+	elseif isTrainerPokemon ~= nil and isTrainerPokemon then
+		return trackedPokemon.encounters.trainer
 	else
-		return Tracker.Data.allPokemon[pokemonID].encounters.wild
+		return trackedPokemon.encounters.wild
 	end
 end
 
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 function Tracker.getNote(pokemonID)
-	if pokemonID == nil or Tracker.Data.allPokemon[pokemonID] == nil or Tracker.Data.allPokemon[pokemonID].note == nil then
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.note == nil then
 		return ""
 	else
-		return Tracker.Data.allPokemon[pokemonID].note
+		return trackedPokemon.note
 	end
 end
 

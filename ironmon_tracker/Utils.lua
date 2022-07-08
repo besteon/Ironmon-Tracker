@@ -24,8 +24,8 @@ function Utils.calculateMoveStars(pokemonID, level)
 	end
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
-	local pokemon = Tracker.Data.allPokemon[pokemonID]
-	if pokemon == nil or pokemon.moves == nil then
+	local pokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if pokemon.moves == nil then
 		return stars
 	end
 
