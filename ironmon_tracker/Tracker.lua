@@ -139,6 +139,30 @@ function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
 	end
 end
 
+-- Used to automatically track certain abilities that are known and revealed always (e.g. Drought)
+-- TODO: Do not use, because there is currently a 4~ second delay between when a Pokemon shows up and when the game memory data for its ability is updated.
+function Tracker.trackIfObviousAbility(pokemonID, abilityId)
+	if pokemonID == nil or pokemonID == 0 or abilityId == nil or abilityId == 0 then return false end
+
+	local shouldTrackAbility = false
+
+	-- Drizzle, Intimidate, Trace, Stand Stream, Drought
+	if abilityId == 2 or abilityId == 22 or abilityId == 36 or abilityId == 45 or abilityId == 70 then
+		shouldTrackAbility = true
+	end
+
+	-- Shedinja & Wonder Guard
+	if pokemonID == 303 and abilityId == 25 then
+		shouldTrackAbility = true
+	end
+
+	if shouldTrackAbility then
+		Tracker.TrackAbility(pokemonID, abilityId, true)
+	end
+
+	return shouldTrackAbility
+end
+
 function Tracker.TrackStatMarkings(pokemonID, statmarkings)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.statmarkings = statmarkings

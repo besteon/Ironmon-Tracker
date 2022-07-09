@@ -1,5 +1,9 @@
 Drawing = {}
 
+Drawing.CONSTANTS = {
+	FONT_FAMILY = "Franklin Gothic Medium",
+}
+
 ImageTypes = {
 	GEAR = "gear",
 	PHYSICAL = "physical",
@@ -47,8 +51,10 @@ Draws text for the tracker on screen with a shadow effect. Uses the Franklin Got
 ]]
 -- TODO: Look into Libre Franklin and Public Sans are free fonts based on Franklin Gothic
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, "Franklin Gothic Medium", style)
-	gui.drawText(x, y, text, color, nil, 9, "Franklin Gothic Medium", style)
+	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
+	gui.drawText(x, y, text, color, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
+	-- gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
+	-- gui.drawText(x, y, text, color, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
 end
 
 --[[
@@ -336,10 +342,10 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
 			
 			-- Draw the '+'', '-'', and toggle button for auto PC tracking
-			gui.drawText(Buttons[9].box[1] + 1, Buttons[9].box[2] + 1, Buttons[9].text, boxTopShadow, nil, 5, "Franklin Gothic Medium")
-			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], nil, 5, "Franklin Gothic Medium")
-			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, "Franklin Gothic Medium")
-			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, "Franklin Gothic Medium")
+			gui.drawText(Buttons[9].box[1] + 1, Buttons[9].box[2] + 1, Buttons[9].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
+			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
+			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
+			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 
 			-- TODO: Removing ability to automatically track PC Heals, as the event is no longer being tracked.
 			-- Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
@@ -384,13 +390,14 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	else
 		local abilityStringTop = MiscData.ability[1]
-		local abilityStringBot = MiscData.ability[1]
+		local abilityStringBot = abilityStringTop
 		if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
-			abilityStringBot = MiscData.ability[trackedAbilities[1].id + 1] .. "*"
+			abilityStringTop = MiscData.ability[trackedAbilities[1].id + 1] .. " /"
+			abilityStringBot = "?"
 		end
 		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
-			abilityStringTop = MiscData.ability[trackedAbilities[2].id + 1] .. " /"
-			abilityStringBot = abilityStringBot:sub(1, -2) -- Remove asterisk, as that represents uncertainty for the Pokemon have just one or two abilities
+			abilityStringBot = MiscData.ability[trackedAbilities[2].id + 1]
+			-- abilityStringTop = abilityStringBot:sub(1, -2) -- Remove asterisk, as that represents uncertainty for the Pokemon have just one or two abilities
 		end
 
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
@@ -417,7 +424,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 		-- Draw stat label and nature symbol next to it
 		Drawing.drawText(statOffsetX, statOffsetY, statLabels[i]:upper(), textColor, boxTopShadow)
-		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, "Franklin Gothic Medium")
+		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Tracker.Data.inBattle then

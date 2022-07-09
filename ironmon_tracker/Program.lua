@@ -312,15 +312,17 @@ function Program.updateBattleDataFromMemory()
 
 	-- First update which own/other slots are being viewed
 	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
-		Tracker.Data.ownViewSlot = 1
+	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+
+	-- Secondary enemy pokemon (likely the doubles battle partner)
+	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+	if attackerValue % 2 == 3 then
+		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 	end
 
-	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-	if attackerValue == 1 then -- Primary enemy pokemon
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-	elseif attackerValue == 3 then -- Secondary enemy pokemon (doubles partner)
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
+	-- Verify the view slots are within bounds
+	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
+		Tracker.Data.ownViewSlot = 1
 	end
 	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
 		Tracker.Data.otherViewSlot = 1
@@ -344,7 +346,7 @@ function Program.updateBattleDataFromMemory()
 					id = abilityFromMemory,
 					revealed = (i == 1),
 				}
-				-- Tracker.TrackAbility(pokemon.pokemonID, pokemon.ability.id, pokemon.ability.revealed)
+				-- Tracker.trackIfObviousAbility(pokemon.pokemonID, pokemon.ability.id)
 			end
 
 			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
