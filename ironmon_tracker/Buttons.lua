@@ -73,7 +73,7 @@ AbilityTrackingButton = {
 	type = ButtonType.singleButton,
 	text = "",
 	textcolor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 88, 40, 16, 16 },
+	box = { GraphicConstants.SCREEN_WIDTH + 88, 43, 16, 16 },
 	onclick = function() 
 		Buttons.openAbilityNoteWindow()
 	end
@@ -251,12 +251,12 @@ function Buttons.openAbilityNoteWindow()
 	local pokemonName = PokemonData[pokemon.pokemonID + 1].name .. ":"
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
-	local abilityForm = forms.newform(255, 170, "Track Ability", function() return nil end)
+	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
 	
-	forms.label(abilityForm, "Select one or both abilities for " .. pokemonName, 14, 10, 220, 20)
-	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 45, 30, 145, 30)
+	forms.label(abilityForm, "Select one or both abilities for " .. pokemonName, 64, 10, 220, 20)
+	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, MiscData.ability, true) -- true = alphabetize list
-	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 45, 60, 145, 30)
+	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 95, 60, 145, 30)
 	forms.setdropdownitems(abilityTwoDropdown, MiscData.ability, true) -- true = alphabetize list
 
 	if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
@@ -299,13 +299,13 @@ function Buttons.openAbilityNoteWindow()
 		client.unpause()
 		Program.waitToDrawFrames = 0
 		forms.destroy(abilityForm)
-	end, 15, 95, 85, 25)
+	end, 65, 95, 85, 25)
 	forms.button(abilityForm, "Clear", function()
 		forms.settext(abilityOneDropdown, MiscData.ability[1])
 		forms.settext(abilityTwoDropdown, MiscData.ability[1])
-	end, 105, 95, 55, 25)
+	end, 160, 95, 55, 25)
 	forms.button(abilityForm, "Cancel", function()
 		client.unpause()
 		forms.destroy(abilityForm)
-	end, 165, 95, 55, 25)
+	end, 225, 95, 55, 25)
 end

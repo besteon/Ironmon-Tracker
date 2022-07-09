@@ -386,11 +386,11 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		local abilityStringTop = MiscData.ability[1]
 		local abilityStringBot = MiscData.ability[1]
 		if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
-			abilityStringBot = MiscData.ability[trackedAbilities[1].id + 1] .. " ?"
+			abilityStringBot = MiscData.ability[trackedAbilities[1].id + 1] .. "*"
 		end
 		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
 			abilityStringTop = MiscData.ability[trackedAbilities[2].id + 1] .. " /"
-			abilityStringBot = abilityStringBot:sub(1, -3)
+			abilityStringBot = abilityStringBot:sub(1, -2) -- Remove asterisk, as that represents uncertainty for the Pokemon have just one or two abilities
 		end
 
 		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
@@ -609,7 +609,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		-- Draw original notepad icon at the bottom for taking written notes
 		local noteText = Tracker.getNote(pokemon.pokemonID)
 		if noteText == "" then
-			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 47, boxBotShadow)
+			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 49, boxBotShadow)
 		else
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, noteText, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
