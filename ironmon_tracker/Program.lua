@@ -6,6 +6,7 @@ State = {
 
 Program = {
 	pokemonDataFrames = 0,
+	battleDataDelayFrames = 0,
 	itemCheckFrames = 0,
 	waitToDrawFrames = 0,
 	saveDataFrames = 3600,
@@ -78,21 +79,6 @@ function Program.main()
 			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
 	end
-end
-
--- Returns true only if the player hasn't completed the catching tutorial
-function Program.isInCatchingTutorial()
-	if Program.hasCompletedTutorial then return false end
-
-	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
-	if tutorialFlag == 3 then
-		Program.inCatchingTutorial = true
-	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
-		Program.inCatchingTutorial = false
-		Program.hasCompletedTutorial = true
-	end
-
-	return Program.inCatchingTutorial
 end
 
 function Program.updateTrackedAndCurrentData()
@@ -360,14 +346,20 @@ function Program.updateBattleDataFromMemory()
 				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
 			end
 
-			-- If the Pokemon doesn't have an ability yet, look it up (only works in battle)
-			local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
-			if pokemon.ability == nil and abilityFromMemory ~= 0 then
-				pokemon.ability = {
-					id = abilityFromMemory,
-					revealed = (i == 1),
-				}
-				-- Tracker.trackIfObviousAbility(pokemon.pokemonID, pokemon.ability.id)
+			-- Required delay between reading ability data from battle, as it takes N frames for old battle values to be cleared out
+			if Program.battleDataDelayFrames > 0 then
+				Program.battleDataDelayFrames = Program.battleDataDelayFrames - 30
+			else
+				-- If the Pokemon doesn't have an ability yet, look it up (only works in battle)
+				local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
+				if pokemon.ability == nil and abilityFromMemory ~= 0 then
+					pokemon.ability = {
+						id = abilityFromMemory,
+						revealed = (i == 1),
+					}
+					-- Don't use yet as it spoils the Pokemon's ability before the animation goes off
+					-- Tracker.trackIfObviousAbility(pokemon.pokemonID, pokemon.ability.id)
+				end
 			end
 
 			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
@@ -408,6 +400,8 @@ end
 function Program.beginNewBattle(isWild)
 	if Tracker.Data.inBattle then return end
 	if isWild == nil then isWild = false end
+
+	Program.battleDataDelayFrames = 360
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Tracker.Data.inBattle = true
@@ -515,6 +509,21 @@ function Program.HandleExit()
 	if Input.noteForm then
 		forms.destroy(Input.noteForm)
 	end
+end
+
+-- Returns true only if the player hasn't completed the catching tutorial
+function Program.isInCatchingTutorial()
+	if Program.hasCompletedTutorial then return false end
+
+	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
+	if tutorialFlag == 3 then
+		Program.inCatchingTutorial = true
+	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
+		Program.inCatchingTutorial = false
+		Program.hasCompletedTutorial = true
+	end
+
+	return Program.inCatchingTutorial
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move is real.
