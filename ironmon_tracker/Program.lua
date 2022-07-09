@@ -11,6 +11,8 @@ Program = {
 	saveDataFrames = 3600,
 	state = State.TRACKER,
 	PCHealTrackingButtonState = false,
+	inCatchingTutorial = false,
+	hasCompletedTutorial = false,
 }
 
 Program.StatButtonState = {
@@ -78,6 +80,21 @@ function Program.main()
 	end
 end
 
+-- Returns true only if the player hasn't completed the catching tutorial
+function Program.isInCatchingTutorial()
+	if Program.hasCompletedTutorial then return false end
+
+	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
+	if tutorialFlag == 3 then
+		Program.inCatchingTutorial = true
+	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
+		Program.inCatchingTutorial = false
+		Program.hasCompletedTutorial = true
+	end
+
+	return Program.inCatchingTutorial
+end
+
 function Program.updateTrackedAndCurrentData()
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.pokemonDataFrames == 0 then
@@ -85,14 +102,18 @@ function Program.updateTrackedAndCurrentData()
 
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
-		Program.updatePokemonTeamsFromMemory()
-		Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
+		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
-		-- Check for if summary screen is being shown
-		if not Tracker.Data.hasCheckedSummary and GameSettings.sMonSummaryScreen ~= 0 then
-			local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
-			if summaryCheck ~= 0 then
-				Tracker.Data.hasCheckedSummary = true
+		if not Program.inCatchingTutorial then -- Don't update/track data while in the catching tutorial
+			Program.updatePokemonTeamsFromMemory()
+			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
+
+			-- Check for if summary screen is being shown
+			if not Tracker.Data.hasCheckedSummary and GameSettings.sMonSummaryScreen ~= 0 then
+				local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
+				if summaryCheck ~= 0 then
+					Tracker.Data.hasCheckedSummary = true
+				end
 			end
 		end
 

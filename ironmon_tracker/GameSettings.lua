@@ -6,6 +6,7 @@ GameSettings = {
 	estats = 0,
 
 	sMonSummaryScreen = 0x00000000,
+	sSpecialFlags = 0x00000000, -- [3 = In catching turtorial, 0 = Not in catching turtorial]
 	sBattlerAbilities = 0x00000000,
 	gBattlerAttacker = 0x00000000,
 	gBattlerPartyIndexesSelfSlotOne = 0x00000000,
@@ -110,6 +111,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		-- 08e7274c g 000000fc gMenuSummaryGfx
 		-- 08e72848 g 00000018 gMenuSummaryPal
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -130,6 +132,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		print("ROM Detected: Pokemon Ruby v1.1")
 
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -150,6 +153,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		print("ROM Detected: Pokemon Ruby v1.2")
 
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -174,6 +178,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -194,6 +199,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -214,6 +220,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
 		GameSettings.sMonSummaryScreen = 0x00000000
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -237,6 +244,7 @@ function GameSettings.setGameAsEmerald(gameversion)
 	print("ROM Detected: Pokemon Emerald")
 
 	GameSettings.sMonSummaryScreen = 0x0203cf1c
+	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
 	GameSettings.gBattlerAttacker = 0x0202420B
 	GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
@@ -260,6 +268,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		print("ROM Detected: Pokemon Fire Red v1.1")
 
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -280,6 +289,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		print("ROM Detected: Pokemon Fire Red v1.0")
 
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -304,6 +314,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -324,6 +335,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
