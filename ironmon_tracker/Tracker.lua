@@ -117,10 +117,10 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 		}
 	end
 
-	-- If no ability is being tracked for this Pokemon, add it as the first ability, otherwise try adding as second ability
+	-- Only add as second ability if it's different than the first ability
 	if trackedPokemon.abilities[1].id == 0 then
 		trackedPokemon.abilities[1].id = abilityId
-	elseif trackedPokemon.abilities[2].id == 0 then
+	elseif trackedPokemon.abilities[2].id == 0 and trackedPokemon.abilities[1].id ~= abilityId then
 		trackedPokemon.abilities[2].id = abilityId
 	end
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
@@ -147,7 +147,7 @@ function Tracker.checkAbilityTriggeredFromMemory(pokemonID)
 	end
 
 	if abilityId ~= nil then
-		-- print("[DEBUG] Tracking: " .. abilityId .. " = " .. MiscData.ability[abilityId + 1])
+		-- print("[DEBUG] Tracking: " .. abilityId .. " = " .. MiscData.ability[abilityId + 1] .. " for p:" .. pokemonID)
 		Tracker.TrackAbility(pokemonID, abilityId)
 	end
 end

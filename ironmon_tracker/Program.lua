@@ -95,10 +95,16 @@ function Program.updateTrackedAndCurrentData()
 			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
 
 			-- Check for if summary screen is being shown
-			if not Tracker.Data.hasCheckedSummary and GameSettings.sMonSummaryScreen ~= 0 then
+			if not Tracker.Data.hasCheckedSummary then
 				local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
-				if summaryCheck ~= 0 then
-					Tracker.Data.hasCheckedSummary = true
+				if GameSettings.game == 1 then -- Ruby/Sapphire specifically check for value of 101, not non-zero
+					if summaryCheck == 101 then
+						Tracker.Data.hasCheckedSummary = true
+					end
+				else
+					if summaryCheck ~= 0 then
+						Tracker.Data.hasCheckedSummary = true
+					end
 				end
 			end
 		end
@@ -340,7 +346,7 @@ function Program.updateBattleDataFromMemory()
 				end
 
 				-- Check if any battle message were displayed that inform the player about an enemy ability being used
-				-- TODO: Not all games/versions supported, currently only: Fire Red v1.1
+				-- TODO: Not all games/versions supported, currently only: Fire Red v1.0 & v1.1 (1.0 is only lightly tested)
 				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then
 					Tracker.checkAbilityTriggeredFromMemory(pokemon.pokemonID)
 				end
