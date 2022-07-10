@@ -182,27 +182,10 @@ function Program.updatePokemonTeamsFromMemory()
 	-- Lookup data on the last pokemon we fought (for purposes of it being a wild pokemon and we catch it)
 	local lastSeenPersonality = Tracker.Data.otherTeam[1]
 	local lastSeenPokemon = Tracker.Data.ownPokemon[lastSeenPersonality]
-	if lastBattleStatus == 7 and lastSeenPokemon ~= nil and (lastSeenPokemon.ability == nil or lastSeenPokemon.ability.id == 0) then
-		local abilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
 
-		if lastSeenPokemon.ability == nil or lastSeenPokemon.ability.id == 0 then
-			lastSeenPokemon.ability = {
-				id = abilityId,
-				revealed = true,
-			}
-
-			-- TODO: This tracks data in the case of a catch & release, with no intent to view pokemon data. This shouldnt happen.
-			-- Update tracked ability data for when we encounter this pokemon in the future
-			-- Tracker.TrackAbility(recentPokemon.pokemonID, recentPokemon.ability.id, true)
-		end
-
-		-- TODO: This tracks data in the case of a catch & release, with no intent to view pokemon data. This shouldnt happen.
-		-- Update tracked moved data for when we encounter this pokemon in the future
-		-- if recentPokemon.moves ~= nil then
-		-- 	for _, move in pairs(recentPokemon.moves) do
-		-- 		Tracker.TrackMove(recentPokemon.pokemonID, move.id, recentPokemon.level)
-		-- 	end
-		-- end
+	if lastBattleStatus == 7 and lastSeenPokemon ~= nil and (lastSeenPokemon.abilityId == nil or lastSeenPokemon.abilityId == 0) then
+		local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+		lastSeenPokemon.abilityId = abilityFromMemory
 	end
 
 	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
@@ -281,7 +264,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
-		ability = nil, -- Leave unset, since this currently can only be found via in-battle data
+		abilityId = nil, -- Leave unset, since this currently can only be found via in-battle data
 		status = status_result,
 		sleep_turns = sleep_turns_result,
 		curHP = Utils.getbits(level_and_currenthp, 16, 16),
@@ -350,15 +333,16 @@ function Program.updateBattleDataFromMemory()
 			if Program.battleDataDelayFrames > 0 then
 				Program.battleDataDelayFrames = Program.battleDataDelayFrames - 30
 			else
-				-- If the Pokemon doesn't have an ability yet, look it up (only works in battle)
-				local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
-				if pokemon.ability == nil and abilityFromMemory ~= 0 then
-					pokemon.ability = {
-						id = abilityFromMemory,
-						revealed = (i == 1),
-					}
-					-- Don't use yet as it spoils the Pokemon's ability before the animation goes off
-					-- Tracker.trackIfObviousAbility(pokemon.pokemonID, pokemon.ability.id)
+				-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
+				if pokemon.abilityId == nil or pokemon.abilityId == 0 then
+					local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
+					pokemon.abilityId = abilityFromMemory
+				end
+
+				-- Check if any battle message were displayed that inform the player about an enemy ability being used
+				-- TODO: Not all games/versions supported, currently only: Fire Red v1.1
+				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then
+					Tracker.checkAbilityTriggeredFromMemory(pokemon.pokemonID)
 				end
 			end
 

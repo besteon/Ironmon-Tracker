@@ -378,31 +378,27 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
 	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
-	-- Draw Pokemon's held item and ability but only for your own Pokemon
+	-- Draw Pokemon's held item and ability
+	local abilityStringTop = MiscData.ability[1]
+	local abilityStringBot = MiscData.ability[1]
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-	if Tracker.Data.isViewingOwn then
-		local abilityStringBot = MiscData.ability[1]
-		if pokemon.ability ~= nil and pokemon.ability.revealed then
-			abilityStringBot = MiscData.ability[pokemon.ability.id + 1]
-		end
 
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), MiscData.item[pokemon.heldItem + 1], GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	if Tracker.Data.isViewingOwn then
+		abilityStringTop = MiscData.item[pokemon.heldItem + 1]
+		if pokemon.abilityId ~= nil then
+			abilityStringBot = MiscData.ability[pokemon.abilityId + 1]
+		end
 	else
-		local abilityStringTop = MiscData.ability[1]
-		local abilityStringBot = abilityStringTop
-		if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
+		if trackedAbilities[1].id ~= 0 then
 			abilityStringTop = MiscData.ability[trackedAbilities[1].id + 1] .. " /"
 			abilityStringBot = "?"
 		end
-		if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
+		if trackedAbilities[2].id ~= 0 then
 			abilityStringBot = MiscData.ability[trackedAbilities[2].id + 1]
-			-- abilityStringTop = abilityStringBot:sub(1, -2) -- Remove asterisk, as that represents uncertainty for the Pokemon have just one or two abilities
 		end
-
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 	end
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
 
 	-- draw stat box
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, 5, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
@@ -609,7 +605,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Draw note boxes, but only for enemy pokemon
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
 		-- Draw notepad icon near abilities area, for manually tracking the abilities
-		if (trackedAbilities[1] == nil or not trackedAbilities[1].revealed) and (trackedAbilities[2] == nil or not trackedAbilities[2].revealed) then
+		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
 			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
 		end
 

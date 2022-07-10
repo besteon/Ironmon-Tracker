@@ -259,10 +259,10 @@ function Buttons.openAbilityNoteWindow()
 	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 95, 60, 145, 30)
 	forms.setdropdownitems(abilityTwoDropdown, MiscData.ability, true) -- true = alphabetize list
 
-	if trackedAbilities[1] ~= nil and trackedAbilities[1].revealed then
+	if trackedAbilities[1].id ~= 0 then
 		forms.settext(abilityOneDropdown, MiscData.ability[trackedAbilities[1].id + 1])
 	end
-	if trackedAbilities[2] ~= nil and trackedAbilities[2].revealed then
+	if trackedAbilities[2].id ~= 0 then
 		forms.settext(abilityTwoDropdown, MiscData.ability[trackedAbilities[2].id + 1])
 	end
 
@@ -291,8 +291,8 @@ function Buttons.openAbilityNoteWindow()
 
 			local trackedPokemon = Tracker.Data.allPokemon[pokemon.pokemonID]
 			trackedPokemon.abilities = {
-				{ id = abilityOneId, revealed = abilityOneId ~= 0 },
-				{ id = abilityTwoId, revealed = abilityTwoId ~= 0 },
+				{ id = abilityOneId },
+				{ id = abilityTwoId },
 			}
 		end
 

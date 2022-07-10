@@ -14,6 +14,7 @@ GameSettings = {
 	gBattlerPartyIndexesSelfSlotTwo = 0x00000000,
 	gBattlerPartyIndexesEnemySlotTwo = 0x00000000,
 	gBattleMons = 0x00000000,
+	gBattlescriptCurrInstr = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
 	gSaveBlock1 = 0x00000000,
@@ -62,6 +63,50 @@ GameSettings.GAMES = {
 		BADGE_PREFIX = "FRLG",
 		BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 	},
+}
+
+-- Maps the BattleScript memory addresses to their respective abilityId's
+-- FIRE RED 1.1
+GameSettings.ABILITIES = {
+	[0x081d92ef] = 2, -- BattleScript_DrizzleActivates
+	[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7
+	-- [0x00000000] = 5, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Sturdy
+	-- [0x00000000] = 6, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Damp
+	-- [0x00000000] = 7, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Limber
+	-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static
+	-- [0x00000000] = 10, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Volt Absorb
+	-- [0x00000000] = 11, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Water Absorb
+	-- [0x00000000] = 12, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Oblivious
+	-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+	-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+	[0x081d950f] = 16, -- BattleScript_ColorChangeActivates + 0x3
+	-- [0x00000000] = 17, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Immunity
+	-- [0x00000000] = 18, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Flash Fire
+	-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust
+	-- [0x00000000] = 20, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Own Tempo -- No trigger on your own mon
+	-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups
+	[0x081d937d] = 22, -- BattleScript_DoIntimidateActivationAnim
+	[0x081d9523] = 24, -- BattleScript_RoughSkinActivates + 0x10
+	-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate
+	-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore
+	-- [0x00000000] = 28, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Synchronize
+	-- [0x00000000] = 29, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Clear Body
+	[0x081d9311] = 36, -- BattleScript_TraceActivates
+	-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 -- BattleScript_ApplySecondaryEffect
+	-- [0x00000000] = 43, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Soundproof
+	-- [0x00000000] = 44, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Rain Dish
+	[0x081d932f] = 45, -- BattleScript_SandstreamActivates
+	-- [0x00000000] = 49, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Flame Body
+	-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye
+	-- [0x00000000] = 52, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Hyper Cutter
+	[0x081d9567] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+	-- [0x00000000] = 56, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cute Charm
+	-- [0x00000000] = 60, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Sticky Hold
+	[0x081d9346] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+	-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze
+	[0x081d93e9] = 70, -- BattleScript_DroughtActivates
+	-- [0x00000000] = 72, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Vital Spirit
+	-- [0x00000000] = 73, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 White Smoke
 }
 
 function GameSettings.initialize()
@@ -276,6 +321,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c

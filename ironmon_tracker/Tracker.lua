@@ -60,8 +60,8 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 	if pokemon ~= nil then
 		-- If the Pokemon evolved (or otherwise changed), clear it's ability; to be updated later in battle
 		if pokemonData.pokemonID ~= pokemon.pokemonID then
-			pokemonData.ability = nil
-			pokemon.ability = nil
+			pokemonData.abilityId = nil
+			pokemon.abilityId = nil
 		end
 
 		-- Update each pokemon key if it exists between both Pokemon
@@ -107,60 +107,49 @@ function Tracker.TrackItem(pokemonID, itemId)
 end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
--- isRevealed: set to true only when the player is supposed to know the ability exists for that Pokemon
-function Tracker.TrackAbility(pokemonID, abilityId, isRevealed)
-	if isRevealed == nil then isRevealed = false end
-
-	-- If no ability is being tracked for this Pokemon, add it as the first ability
+function Tracker.TrackAbility(pokemonID, abilityId)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+
 	if trackedPokemon.abilities == nil then
 		trackedPokemon.abilities = {
-			{
-				id = abilityId,
-				revealed = isRevealed
-			}
+			{ id = 0 },
+			{ id = 0 },
 		}
-	-- If exactly one ability is being tracked and its 'abilityId'
-	elseif trackedPokemon.abilities[1].id == abilityId then
-		-- Don't overwrite known ability information with isRevealed=false
-		if isRevealed then
-			trackedPokemon.abilities[1].revealed = true
-		end
-	elseif trackedPokemon.abilities[2] == nil then
-		trackedPokemon.abilities[2] = {
-			id = abilityId,
-			revealed = isRevealed
-		}
-	elseif trackedPokemon.abilities[2].id == abilityId then
-		-- Don't overwrite known ability information with isRevealed=false
-		if isRevealed then
-			trackedPokemon.abilities[2].revealed = true
-		end
 	end
+
+	-- If no ability is being tracked for this Pokemon, add it as the first ability, otherwise try adding as second ability
+	if trackedPokemon.abilities[1].id == 0 then
+		trackedPokemon.abilities[1].id = abilityId
+	elseif trackedPokemon.abilities[2].id == 0 then
+		trackedPokemon.abilities[2].id = abilityId
+	end
+	-- If this pokemon already has two abilities being tracked, simply do nothing.
 end
 
--- Used to automatically track certain abilities that are known and revealed always (e.g. Drought)
--- TODO: Do not use, because there is currently a 4~ second delay between when a Pokemon shows up and when the game memory data for its ability is updated.
-function Tracker.trackIfObviousAbility(pokemonID, abilityId)
-	if pokemonID == nil or pokemonID == 0 or abilityId == nil or abilityId == 0 then return false end
+-- Used to automatically track certain abilities that are shown in the battle script dialog
+function Tracker.checkAbilityTriggeredFromMemory(pokemonID)
+	if pokemonID == nil or pokemonID == 0 then return end
 
-	local shouldTrackAbility = false
-
-	-- Drizzle, Intimidate, Trace, Stand Stream, Drought
-	if abilityId == 2 or abilityId == 22 or abilityId == 36 or abilityId == 45 or abilityId == 70 then
-		shouldTrackAbility = true
+	-- If both abilities are already tracked
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.abilities ~= nil and trackedPokemon.abilities[1].id ~= 0 and trackedPokemon.abilities[2].id ~= 0 then
+		return		
 	end
 
-	-- Shedinja & Wonder Guard
-	if pokemonID == 303 and abilityId == 25 then
-		shouldTrackAbility = true
+	local abilityId = nil
+	if pokemonID == 303 then -- SHEDINJA (WONDER GUARD)
+		abilityId = 25
+	else
+		local bsInstr = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+		-- print("[DEBUG] " .. pokemonID .. ": " .. bizstring.hex(bsInstr))
+
+		abilityId = GameSettings.ABILITIES[bsInstr]
 	end
 
-	if shouldTrackAbility then
-		Tracker.TrackAbility(pokemonID, abilityId, true)
+	if abilityId ~= nil then
+		-- print("[DEBUG] Tracking: " .. abilityId .. " = " .. MiscData.ability[abilityId + 1])
+		Tracker.TrackAbility(pokemonID, abilityId)
 	end
-
-	return shouldTrackAbility
 end
 
 function Tracker.TrackStatMarkings(pokemonID, statmarkings)
@@ -271,7 +260,8 @@ function Tracker.getAbilities(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.abilities == nil then
 		return {
-			{ id = 0, revealed = false },
+			{ id = 0 },
+			{ id = 0 },
 		}
 	else
 		return trackedPokemon.abilities
@@ -317,7 +307,7 @@ function Tracker.getDefaultPokemon()
 		heldItem = 0,
 		level = 0,
 		nature = 0, 
-		ability = nil, -- Must be nil and not { id = 0, revealed = false }
+		abilityId = 0,
 		status = 0,
 		sleep_turns = 0,
 		curHP = 0,
