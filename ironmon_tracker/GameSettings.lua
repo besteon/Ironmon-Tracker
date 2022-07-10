@@ -82,7 +82,7 @@ GameSettings.FR_ONEZERO_ABILITIES = {
 	[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
 	[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
 	[0x081d94ce] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-	[0x081d9416] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body
+	[0x081d9416] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
 	[0x081d92a1] = 36, -- BattleScript_TraceActivates + 0x0 Trace
 	[0x081d9476] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
 	[0x081d92ae] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
@@ -119,7 +119,7 @@ GameSettings.FR_ONEONE_ABILITIES = {
 	-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
 	-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
 	[0x081d953e] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-	[0x081d9486] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body
+	[0x081d9486] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
 	[0x081d9311] = 36, -- BattleScript_TraceActivates + 0x0 Trace
 	-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
 	[0x081D94E6] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
@@ -136,6 +136,62 @@ GameSettings.FR_ONEONE_ABILITIES = {
 	[0x081d93e9] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 	[0x081D6A44] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 	-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
+}
+
+GameSettings.LG_ONEZERO_ABILITIES = {
+	[0x081d925b] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+	[0x081d9276] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+	[0x081d937d] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+	[0x081d938b] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+	[0x081d7221] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+	[0x081d9420] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+	[0x081d947b] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+	[0x081d6e2b] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+	[0x081d93d6] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+	[0x081d943c] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+	[0x081d92e9] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+	[0x081d948f] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+	[0x081d94aa] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+	[0x081d93f2] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+	[0x081d927d] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+	[0x081d9452] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+	[0x081d928a] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+	[0x081d929b] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+	[0x081d9460] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+	[0x081d94d3] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+	[0x081d94a3] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+	[0x081d946a] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+	[0x081d92b2] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+	[0x081d9355] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+	[0x081d69b0] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+}
+
+GameSettings.LG_ONEONE_ABILITIES = {
+	[0x081d92cb] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+	[0x081d92e6] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+	[0x081d93ed] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+	[0x081d93fb] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+	[0x081d7291] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+	[0x081d9490] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+	[0x081d94eb] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+	[0x081d6e9b] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+	[0x081d9446] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+	[0x081d94ac] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+	[0x081d9359] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+	[0x081d94ff] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+	[0x081d951a] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+	[0x081d9462] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+	[0x081d92ed] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+	[0x081d94c2] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+	[0x081d92fa] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+	[0x081d930b] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+	[0x081d94d0] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+	[0x081d9543] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+	[0x081d9513] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+	[0x081d94da] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+	[0x081d9322] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+	[0x081d93c5] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+	[0x081d6a20] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 }
 
 function GameSettings.initialize()
@@ -384,6 +440,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 	if gameversion == 0x01800000 then
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
+		GameSettings.ABILITIES = GameSettings.LG_ONEONE_ABILITIES
+
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -393,6 +451,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -405,6 +464,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 	elseif gameversion == 0x00810000 then
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
+		GameSettings.ABILITIES = GameSettings.LG_ONEZERO_ABILITIES
+
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -414,6 +475,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
