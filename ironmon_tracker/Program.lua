@@ -345,10 +345,17 @@ function Program.updateBattleDataFromMemory()
 					pokemon.abilityId = abilityFromMemory
 				end
 
-				-- Check if any battle message were displayed that inform the player about an enemy ability being used
-				-- TODO: Not all games/versions supported, currently only: Fire Red v1.0 & v1.1 (1.0 is only lightly tested)
-				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then
-					Tracker.checkAbilityTriggeredFromMemory(pokemon.pokemonID)
+				-- Only bother reading game memory for ability if neither of its possible abilities are being tracked
+				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then -- TODO: Not all games/versions supported
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					if trackedAbilities[1].id == 0 or trackedAbilities[2].id == 0 then
+						local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+
+						-- Only track the triggered ability if it belongs to the enemy Pokemon (matches it's real ability)
+						if GameSettings.ABILITIES[battleMsg] == pokemon.abilityId then
+							Tracker.TrackAbility(pokemon.pokemonID, pokemon.abilityId)
+						end
+					end
 				end
 			end
 

@@ -126,32 +126,6 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
 end
 
--- Used to automatically track certain abilities that are shown in the battle script dialog
-function Tracker.checkAbilityTriggeredFromMemory(pokemonID)
-	if pokemonID == nil or pokemonID == 0 then return end
-
-	-- If both abilities are already tracked
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.abilities ~= nil and trackedPokemon.abilities[1].id ~= 0 and trackedPokemon.abilities[2].id ~= 0 then
-		return		
-	end
-
-	local abilityId = nil
-	if pokemonID == 303 then -- SHEDINJA (WONDER GUARD)
-		abilityId = 25
-	else
-		local bsInstr = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-		-- print("[DEBUG] " .. pokemonID .. ": " .. bizstring.hex(bsInstr))
-
-		abilityId = GameSettings.ABILITIES[bsInstr]
-	end
-
-	if abilityId ~= nil then
-		-- print("[DEBUG] Tracking: " .. abilityId .. " = " .. MiscData.ability[abilityId + 1] .. " for p:" .. pokemonID)
-		Tracker.TrackAbility(pokemonID, abilityId)
-	end
-end
-
 function Tracker.TrackStatMarkings(pokemonID, statmarkings)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.statmarkings = statmarkings
