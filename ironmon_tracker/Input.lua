@@ -19,8 +19,8 @@ function Input.update()
 		Input.mousetab_prev = Input.mousetab
 
 		local joypadButtons = joypad.get()
-		-- "Options.CONTROLS["Cycle view"]" pressed
-		if joypadButtons[Options.CONTROLS["Cycle view"]] and Input.joypad[Options.CONTROLS["Cycle view"]] ~= joypadButtons[Options.CONTROLS["Cycle view"]] then
+		-- "Options.CONTROLS["Toggle view"]" pressed
+		if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.joypad[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
 			if Tracker.Data.inBattle then
 				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
@@ -28,8 +28,8 @@ function Input.update()
 			Program.waitToDrawFrames = 0
 		end
 
-		-- "Options.CONTROLS["Cycle stat"]" pressed, display box over next stat
-		if joypadButtons[Options.CONTROLS["Cycle stat"]] and Input.joypad[Options.CONTROLS["Cycle stat"]] ~= joypadButtons[Options.CONTROLS["Cycle stat"]] then
+		-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
+		if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.joypad[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
 			Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 			Tracker.controller.framesSinceInput = 0
 			Program.waitToDrawFrames = 0
@@ -42,9 +42,9 @@ function Input.update()
 			end
 		end
 
-		-- "Options.CONTROLS["Next seed"]"
+		-- "Options.CONTROLS["Load next seed"]"
 		local allPressed = true
-		for button in string.gmatch(Options.CONTROLS["Next seed"], '([^,%s]+)') do
+		for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
 			if joypadButtons[button] ~= true then
 				allPressed = false
 			end
@@ -53,8 +53,8 @@ function Input.update()
 			Main.LoadNextSeed = true
 		end
 
-		-- "Options.CONTROLS["Cycle prediction"]" pressed, cycle stat prediction for selected stat
-		if joypadButtons[Options.CONTROLS["Cycle prediction"]] and Input.joypad[Options.CONTROLS["Cycle prediction"]] ~= joypadButtons[Options.CONTROLS["Cycle prediction"]] then
+		-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat
+		if joypadButtons[Options.CONTROLS["Mark stat"]] and Input.joypad[Options.CONTROLS["Mark stat"]] ~= joypadButtons[Options.CONTROLS["Mark stat"]] then
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				if Tracker.controller.statIndex == 1 then
 					Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1

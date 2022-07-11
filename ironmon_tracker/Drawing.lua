@@ -532,7 +532,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		if moves[moveIndex].pp ~= NOPP then
 			if Tracker.Data.isViewingOwn then
 				ppText = pokemon.moves[moveIndex].pp
-			elseif Options["Track enemy PP usage"] then
+			elseif Options["Count enemy PP usage"] then
 				for _, move in pairs(pokemon.moves) do
 					if (tonumber(move.id) - 1) == tonumber(moves[moveIndex].id) then
 						ppText = move.pp
@@ -662,7 +662,7 @@ function Drawing.drawSettings()
 	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folderText == "" then
 		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
-		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
+		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
 	-- Edit controls button

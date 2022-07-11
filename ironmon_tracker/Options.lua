@@ -6,7 +6,7 @@ Options = {
 	["Show physical special icons"] = true,
 	["Show move effectiveness"] = true,
 	["Calculate variable damage"] = true,
-	["Track enemy PP usage"] = true,
+	["Count enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
 
@@ -18,23 +18,23 @@ Options = {
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",
-		"Track enemy PP usage",
+		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
 	},
 
 	CONTROLS = {
-		["Cycle view"] = "Start",
-		["Cycle stat"] = "L",
-		["Cycle prediction"] = "R",
-		["Next seed"] = "A,B,Start,Select",
+		["Load next seed"] = "A, B, Start, Select",
+		["Toggle view"] = "Start",
+		["Cycle through stats"] = "L",
+		["Mark stat"] = "R",
 	},
 
 	CONTROLS_ORDERED = {
-		"Next seed",
-		"Cycle view",
-		"Cycle stat",
-		"Cycle prediction",
+		"Load next seed",
+		"Toggle view",
+		"Cycle through stats",
+		"Mark stat",
 	},
 }
 
@@ -225,8 +225,8 @@ function Options.openRomPickerWindow()
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(435, 215, "Controller Inputs", function() return end)
-	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 9, 10, 410, 20)
+	local form = forms.newform(435, 180, "Controller Inputs", function() return end)
+	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
 	local offsetX = 90
@@ -234,8 +234,8 @@ function Options.openEditControlsWindow()
 
 	local index = 1
 	for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
-		forms.label(form, controlKey .. ":", offsetX, offsetY, 90, 20)
-		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 90, offsetY - 2)
+		forms.label(form, controlKey .. ":", offsetX, offsetY, 105, 20)
+		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 110, offsetY - 2)
 
 		index = index + 1
 		offsetY = offsetY + 24
@@ -258,9 +258,9 @@ function Options.openEditControlsWindow()
 		end
 
 		forms.destroy(form)
-	end, 115, offsetY + 5, 95, 30)
+	end, 120, offsetY + 5, 95, 30)
 
 	forms.button(form,"Cancel", function()
 		forms.destroy(form)
-	end, 225, offsetY + 5, 65, 30)
+	end, 230, offsetY + 5, 65, 30)
 end

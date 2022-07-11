@@ -68,6 +68,7 @@ GameSettings.GAMES = {
 -- Maps the BattleScript memory addresses to their respective abilityId's
 GameSettings.ABILITIES = {}
 
+-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
 GameSettings.FR_ONEZERO_ABILITIES = {
 	[0x081d927f] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 	[0x081d929a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -77,7 +78,7 @@ GameSettings.FR_ONEZERO_ABILITIES = {
 	[0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
 	[0x081d949f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
 	[0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-	[0x081d93fa] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+	[0x081d93f8] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
 	[0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 	[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
 	[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
@@ -96,6 +97,7 @@ GameSettings.FR_ONEZERO_ABILITIES = {
 	[0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 }
 
+-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 GameSettings.FR_ONEONE_ABILITIES = {
 	[0x081d92ef] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 	[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -138,6 +140,7 @@ GameSettings.FR_ONEONE_ABILITIES = {
 	-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
 }
 
+-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 GameSettings.LG_ONEZERO_ABILITIES = {
 	[0x081d925b] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 	[0x081d9276] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -166,6 +169,7 @@ GameSettings.LG_ONEZERO_ABILITIES = {
 	[0x081d69b0] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 }
 
+-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 GameSettings.LG_ONEONE_ABILITIES = {
 	[0x081d92cb] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 	[0x081d92e6] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
