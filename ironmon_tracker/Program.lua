@@ -345,8 +345,10 @@ function Program.updateBattleDataFromMemory()
 					pokemon.abilityId = abilityFromMemory
 				end
 
-				-- Only bother reading game memory for ability if neither of its possible abilities are being tracked
-				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then -- TODO: Not all games/versions supported
+				-- Only bother reading game memory for enemy ability if neither of its possible abilities are being tracked
+				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and pokemon.abilityId ~= Tracker.getPokemon(Tracker.Data.ownViewSlot, true).abilityId then -- TODO: Not all games/versions supported
+					-- ^ TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
+
 					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 					if trackedAbilities[1].id == 0 or trackedAbilities[2].id == 0 then
 						local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
