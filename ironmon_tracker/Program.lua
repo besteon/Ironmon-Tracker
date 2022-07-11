@@ -456,19 +456,19 @@ end
 -- This is called by event.onmemoryexecute
 -- TODO: Nonfunctional. Find a way to get this information without a Bizhawk 'event'
 -- Triggers when an event causes the players entire party to get healed, usually Pokecenter or NPC
-function Program.HandleHealPlayerParty()
-	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
-		if Options["PC heals count downward"] then
-			-- Automatically count down
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
-			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-		else
-			-- Automatically count up
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
-			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		end
-	end
-end
+-- function Program.HandleHealPlayerParty()
+-- 	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
+-- 		if Options["PC heals count downward"] then
+-- 			-- Automatically count down
+-- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+-- 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+-- 		else
+-- 			-- Automatically count up
+-- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+-- 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+-- 		end
+-- 	end
+-- end
 
 function Program.handleAttackMove(moveId, slotNumber, isOwn)
 	if moveId == nil then return end
@@ -607,42 +607,42 @@ function Program.getBagHealingItemsFromMemory(pokemonMaxHP)
 end
 
 -- Currently unused. Requires a rewrite to use the new Program.getHealingItemsFromMemory() function
-function Program.getBagStatusItems()
-	local statusItems = {
-		poison = 0,
-		burn = 0,
-		freeze = 0,
-		sleep = 0,
-		paralyze = 0,
-		confuse = 0,
-		all = 0,
-	}
+-- function Program.getBagStatusItems()
+-- 	local statusItems = {
+-- 		poison = 0,
+-- 		burn = 0,
+-- 		freeze = 0,
+-- 		sleep = 0,
+-- 		paralyze = 0,
+-- 		confuse = 0,
+-- 		all = 0,
+-- 	}
 
-	for _, item in pairs(MiscData.statusItems) do
-		local quantity = Program.getNumItemsFromMemory(item.pocket, item.id)
-		if quantity > 0 then
-			print(item.name)
-			if item.type == StatusType.Poison then
-				statusItems.poison = statusItems.poison + quantity
-			elseif item.type == StatusType.Burn then
-				statusItems.burn = statusItems.burn + quantity
-			elseif item.type == StatusType.Freeze then
-				statusItems.freeze = statusItems.freeze + quantity
-			elseif item.type == StatusType.Sleep then
-				statusItems.sleep = statusItems.sleep + quantity
-			elseif item.type == StatusType.Paralyze then
-				statusItems.paralyze = statusItems.paralyze + quantity
-			elseif item.type == StatusType.Confuse then
-				statusItems.confuse = statusItems.confuse + quantity
-			elseif item.type == StatusType.All then
-				statusItems.all = statusItems.all + quantity
-			end
-			print(statusItems)
-		end
-	end
+-- 	for _, item in pairs(MiscData.statusItems) do
+-- 		local quantity = Program.getNumItemsFromMemory(item.pocket, item.id)
+-- 		if quantity > 0 then
+-- 			print(item.name)
+-- 			if item.type == StatusType.Poison then
+-- 				statusItems.poison = statusItems.poison + quantity
+-- 			elseif item.type == StatusType.Burn then
+-- 				statusItems.burn = statusItems.burn + quantity
+-- 			elseif item.type == StatusType.Freeze then
+-- 				statusItems.freeze = statusItems.freeze + quantity
+-- 			elseif item.type == StatusType.Sleep then
+-- 				statusItems.sleep = statusItems.sleep + quantity
+-- 			elseif item.type == StatusType.Paralyze then
+-- 				statusItems.paralyze = statusItems.paralyze + quantity
+-- 			elseif item.type == StatusType.Confuse then
+-- 				statusItems.confuse = statusItems.confuse + quantity
+-- 			elseif item.type == StatusType.All then
+-- 				statusItems.all = statusItems.all + quantity
+-- 			end
+-- 			print(statusItems)
+-- 		end
+-- 	end
 
-	return statusItems
-end
+-- 	return statusItems
+-- end
 
 function Program.getHealingItemsFromMemory()
 	-- TODO: Definitely need to update this based on the battle-check info below Issue #37

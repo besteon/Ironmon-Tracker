@@ -221,6 +221,13 @@ function GameSettings.initialize()
 		GameSettings.gamename = "Unsupported game, unable to load ROM."
 	end
 
+	-- Allow garbage collection to clean out these globals, probably a better way to implement this?
+	GameSettings.GAMES = nil
+	GameSettings.FR_ONEZERO_ABILITIES = nil
+	GameSettings.FR_ONEONE_ABILITIES = nil
+	GameSettings.LG_ONEZERO_ABILITIES = nil
+	GameSettings.LG_ONEONE_ABILITIES = nil
+
 	if GameSettings.game > 0 then
 		GameSettings.pstats = pstats[GameSettings.game]
 		GameSettings.estats = estats[GameSettings.game]
