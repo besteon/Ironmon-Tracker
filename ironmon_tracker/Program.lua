@@ -97,8 +97,8 @@ function Program.updateTrackedAndCurrentData()
 			-- Check for if summary screen is being shown
 			if not Tracker.Data.hasCheckedSummary then
 				local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
-				if GameSettings.game == 1 then -- Ruby/Sapphire specifically check for value of 101, not non-zero
-					if summaryCheck == 101 then
+				if GameSettings.game == 1 then -- Ruby/Sapphire uses a different memory address and checks for a specific value
+					if summaryCheck == GameSettings.summaryCheckValue then
 						Tracker.Data.hasCheckedSummary = true
 					end
 				else
@@ -656,9 +656,11 @@ function Program.getHealingItemsFromMemory()
 	-- end
 
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
-	if GameSettings.gSaveBlock2ptr == 0 then return nil end -- safety check since ruby/sapphire ptr location is unknown
-	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+	local key = nil -- Ruby/Sapphire don't have an encryption key
+	if GameSettings.bagEncryptionKeyOffset ~= 0 then
+    	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+    	key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+	end
 
 	local healingItems = {}
 
@@ -673,8 +675,9 @@ function Program.getHealingItemsFromMemory()
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 then
-				local quantity = bit.bxor(Utils.getbits(itemid_and_quantity, 16, 16), key)
+			if itemID ~= 0 and MiscData.healingItems[itemID] ~= nil then
+				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+				if key ~= nil then quantity = bit.bxor(quantity, key) end
 				healingItems[itemID] = quantity
 			end
 		end
