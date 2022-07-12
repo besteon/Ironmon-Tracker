@@ -5,6 +5,8 @@ GameSettings = {
 	pstats = 0,
 	estats = 0,
 
+	summaryCheckValue = 0, -- The value to check sMonSummaryScreen against (for Ruby/Sapphire)
+
 	sMonSummaryScreen = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching turtorial, 0 = Not in catching turtorial]
 	sBattlerAbilities = 0x00000000,
@@ -120,6 +122,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	if gameversion == 0x00410000 then
 		print("ROM Detected: Pokemon Ruby v1.0")
 
+		GameSettings.summaryCheckValue = 69 --nice
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -141,6 +144,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x01400000 then
 		print("ROM Detected: Pokemon Ruby v1.1")
 
+		GameSettings.summaryCheckValue = 101
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -162,6 +166,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x023F0000 then
 		print("ROM Detected: Pokemon Ruby v1.2")
 
+		GameSettings.summaryCheckValue = 101
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -188,6 +193,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	if gameversion == 0x00550000 then
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
+		GameSettings.summaryCheckValue = 69
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -209,6 +215,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x1540000 then
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
+		GameSettings.summaryCheckValue = 101
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -230,6 +237,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x02530000 then
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
+		GameSettings.summaryCheckValue = 101
 		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
