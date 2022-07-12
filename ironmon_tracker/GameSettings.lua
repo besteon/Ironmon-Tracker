@@ -116,6 +116,7 @@ function GameSettings.setGameInfo(gamecode)
 end
 
 function GameSettings.setGameAsRuby(gameversion)
+	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00410000 then
 		print("ROM Detected: Pokemon Ruby v1.0")
 
@@ -183,6 +184,7 @@ function GameSettings.setGameAsRuby(gameversion)
 end
 
 function GameSettings.setGameAsSapphire(gameversion)
+	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00550000 then
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
@@ -261,6 +263,7 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 	GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 	GameSettings.gBattleMons = 0x02024084
+	GameSettings.gBattlescriptCurrInstr = 0x02024214
 	GameSettings.gBattleOutcome = 0x0202433a
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -270,6 +273,35 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
 	GameSettings.bagPocket_Items_Size = 30
 	GameSettings.bagPocket_Berries_Size = 46
+
+	-- https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
+	GameSettings.ABILITIES = {
+		[0x082db430] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+		[0x082db44b] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+		[0x082db552] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+		[0x082db560] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+		[0x082d9362] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+		[0x082db5f5] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+		[0x082db650] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+		[0x082d8f63] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+		[0x082db5b1] = 18, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+		[0x082db611] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+		[0x082db4be] = 22, -- BattleScript_PauseIntimidateActivates + 0x0 Intimidate
+		[0x082db664] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+		[0x082db67f] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+		[0x082db5c7] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+		[0x082db452] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+		[0x082db627] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+		[0x082db45f] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+		[0x082db470] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+		[0x082db635] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+		[0x082db6cc] = 54, -- BattleScript_MoveUsedLoafingAroundMsg + 0x5 Truant
+		[0x082db678] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+		[0x082db63f] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+		[0x082db487] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+		[0x082db52a] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+		[0x082d8ad7] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+	}
 end
 
 function GameSettings.setGameAsFireRed(gameversion)

@@ -341,7 +341,7 @@ function Program.updateBattleDataFromMemory()
 			else
 				-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
 				if pokemon.abilityId == nil or pokemon.abilityId == 0 then
-					local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + Utils.inlineIf(i == 1, 0x0, 0x1))
+					local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(i == 1, 0x0, 0x58))
 					pokemon.abilityId = abilityFromMemory
 				end
 
@@ -400,7 +400,7 @@ function Program.beginNewBattle(isWild)
 	if Tracker.Data.inBattle then return end
 	if isWild == nil then isWild = false end
 
-	Program.battleDataDelayFrames = 360
+	Program.battleDataDelayFrames = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Tracker.Data.inBattle = true
