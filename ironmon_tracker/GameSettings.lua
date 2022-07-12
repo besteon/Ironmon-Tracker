@@ -134,9 +134,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x01400000 then
 		print("ROM Detected: Pokemon Ruby v1.1")
@@ -155,9 +155,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x023F0000 then
 		print("ROM Detected: Pokemon Ruby v1.2")
@@ -176,9 +176,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	end
 end
@@ -202,9 +202,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x1540000 then
 		print("ROM Detected: Pokemon Sapphire v1.1")
@@ -223,9 +223,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x02530000 then
 		print("ROM Detected: Pokemon Sapphire v1.2")
@@ -244,9 +244,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gSaveBlock2ptr = 0x00000000
 		GameSettings.bagEncryptionKeyOffset = 0x00
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x000
-		GameSettings.bagPocket_Items_Size = 30 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
 		GameSettings.bagPocket_Berries_Size = 46
 	end
 end
