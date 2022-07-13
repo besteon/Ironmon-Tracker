@@ -131,6 +131,32 @@ function Input.check(xmouse, ymouse)
 			Program.state = State.SETTINGS
 		end
 
+		local pokemonMoves = nil
+		local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+		if pokemonViewed ~= nil then
+			if not Tracker.Data.isViewingOwn then
+				pokemonMoves = Tracker.getMoves(pokemonViewed.pokemonID) -- tracked moves only
+			elseif Tracker.Data.hasCheckedSummary then
+				pokemonMoves = pokemonViewed.moves
+			end
+		end
+
+		-- move info lookup, only if pokemon exists and the user should know about its moves already
+		if pokemonMoves ~= nil then
+			local moveOffsetX = GraphicConstants.SCREEN_WIDTH + 7
+			local moveOffsetY = 95
+			for moveIndex = 1, 4, 1 do
+				if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+					InfoScreen.infoLookup = pokemonMoves[moveIndex].id
+					InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
+					InfoScreen.redraw = true
+					Program.state = State.INFOSCREEN
+					break
+				end
+				moveOffsetY = moveOffsetY + 10
+			end
+		end
+
 		--note box
 		if not Tracker.Data.isViewingOwn then
 			-- Check if clicked anywhere near the abilities area
@@ -160,8 +186,13 @@ function Input.check(xmouse, ymouse)
 				end, 187, 55)
 			end
 		end
-
-		-- Settings menu mouse input regions
+	-- Info Screen mouse input regions
+	elseif Program.state == State.INFOSCREEN then
+		-- Check for input on 'Close' button
+		if Input.isInRange(xmouse, ymouse, InfoScreen.closeButton.box[1], InfoScreen.closeButton.box[2], InfoScreen.closeButton.box[3], InfoScreen.closeButton.box[4]) then
+			InfoScreen.closeButton.onClick()
+		end
+	-- Settings menu mouse input regions
 	elseif Program.state == State.SETTINGS then
 		-- Check for input on any of the option buttons
 		for _, button in pairs(Options.optionsButtons) do

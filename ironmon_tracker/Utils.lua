@@ -91,7 +91,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	return header
 end
 
-function Utils.netEffectiveness(move, pkmnData)
+function Utils.netEffectiveness(move, types)
 	local effectiveness = 1.0
 
 	-- TODO: Do we want to handle Hidden Power's varied type in this? We could analyze the IV of the Pokémon and determine the type...
@@ -99,28 +99,28 @@ function Utils.netEffectiveness(move, pkmnData)
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
 	if move.power == NOPOWER then
 		if move.category ~= MoveCategories.STATUS then
-			if move.type == PokemonTypes.NORMAL and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+			if move.type == PokemonTypes.NORMAL and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.FIGHTING and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+			elseif move.type == PokemonTypes.FIGHTING and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.PSYCHIC and (pkmnData.type[1] == PokemonTypes.DARK or pkmnData.type[2] == PokemonTypes.DARK) then
+			elseif move.type == PokemonTypes.PSYCHIC and (types[1] == PokemonTypes.DARK or types[2] == PokemonTypes.DARK) then
 				return 0.0
-			elseif move.type == PokemonTypes.GROUND and (pkmnData.type[1] == PokemonTypes.FLYING or pkmnData.type[2] == PokemonTypes.FLYING) then
+			elseif move.type == PokemonTypes.GROUND and (types[1] == PokemonTypes.FLYING or types[2] == PokemonTypes.FLYING) then
 				return 0.0
-			elseif move.type == PokemonTypes.GHOST and (pkmnData.type[1] == PokemonTypes.NORMAL or pkmnData.type[2] == PokemonTypes.NORMAL) then
+			elseif move.type == PokemonTypes.GHOST and (types[1] == PokemonTypes.NORMAL or types[2] == PokemonTypes.NORMAL) then
 				return 0.0
 			end
 		end
 		return 1.0
 	end
 
-	if move["name"] == "Future Sight" or move["name"] == "Doom Desire" then
+	local moveType = move.type
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonTypes.UNKNOWN then
 		return 1.0
 	end
 
-	for _, type in ipairs(pkmnData["type"]) do
-		local moveType = move["type"]
-		if move["name"] == "Hidden Power" and Tracker.Data.isViewingOwn then
+	for _, type in ipairs(types) do
+		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
 		if moveType ~= "---" then
@@ -132,12 +132,16 @@ function Utils.netEffectiveness(move, pkmnData)
 	return effectiveness
 end
 
-function Utils.isSTAB(move, pkmnData)
-	for _, type in ipairs(pkmnData["type"]) do
-		local moveType = move.type
-		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
-			moveType = Tracker.Data.currentHiddenPowerType
-		end
+function Utils.isSTAB(move, types)
+	if move == nil or types == nil or move.power == NOPOWER then return false end
+
+	local moveType = move.type
+	if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
+		moveType = Tracker.Data.currentHiddenPowerType
+	end
+
+	-- Check if the move's type matches any of the 'types' provided
+	for _, type in ipairs(types) do
 		if moveType == type then
 			return true
 		end
@@ -248,4 +252,24 @@ function Utils.truncateRomsFolder(folder)
 	else
 		return ""
 	end
+end
+
+function Utils.getWordWrapLines(str, limit)
+	if str == nil or str == "" then return {} end
+	
+	local lines, here, limit = {}, 1, limit or 72
+	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
+	
+	str:gsub("(%s+)()(%S+)()",
+		function(sp, st, word, fi) -- Function gets called once for every space found.
+			-- If at the end of a line, start a new table index
+			if fi-here > limit then
+				here = st
+				lines[#lines + 1] = word
+			else -- otherwise add to the current table index.
+				lines[#lines] = lines[#lines] .. " " .. word
+			end
+		end)
+	
+	return lines
 end

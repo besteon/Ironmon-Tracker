@@ -228,8 +228,7 @@ function Tracker.getMoves(pokemonID)
 	end
 end
 
--- Currently unused, but likely going to want to use it via ability-note-taking
--- If the Pokemon is being tracked, return information on abilities; otherwise a default ability value = 1 & false
+-- If the Pokemon is being tracked, return information on abilities; otherwise a default ability values = 0
 function Tracker.getAbilities(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.abilities == nil then

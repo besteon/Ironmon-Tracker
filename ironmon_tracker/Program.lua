@@ -1,5 +1,6 @@
 State = {
 	TRACKER = "Tracker",
+	INFOSCREEN = "InfoScreen",
 	SETTINGS = "Settings",
 	THEME = "Theme",
 }
@@ -64,6 +65,11 @@ function Program.main()
 			Tracker.saveData()
 		else
 			Program.saveDataFrames = Program.saveDataFrames - 1
+		end
+	elseif Program.state == State.INFOSCREEN then
+		if InfoScreen.redraw then
+			Drawing.drawInfoScreen()
+			InfoScreen.redraw = false
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
@@ -658,8 +664,8 @@ function Program.getHealingItemsFromMemory()
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
 	local key = nil -- Ruby/Sapphire don't have an encryption key
 	if GameSettings.bagEncryptionKeyOffset ~= 0 then
-    	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-    	key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+		key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
 	end
 
 	local healingItems = {}

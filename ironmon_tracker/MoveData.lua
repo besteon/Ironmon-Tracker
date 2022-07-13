@@ -75,11 +75,14 @@ MoveData = {
 	{ --- Empty entry for move ID 0
 		id = "---",
 		name = "---",
-		type = "---",
-		power = "",
+		type = PokemonTypes.UNKNOWN,
+		power = NOPOWER,
 		pp = NOPP,
-		accuracy = "",
+		accuracy = PLACEHOLDER,
 		category = MoveCategories.NONE,
+		iscontact = false,
+		priority = "0",
+		summary = "",
 	},
 	{ -- Begin Gen 1 Moves
 		id = "1",
@@ -89,6 +92,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "2",
@@ -98,6 +103,8 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
 	},
 	{
 		id = "3",
@@ -107,6 +114,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "4",
@@ -116,6 +125,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "5",
@@ -125,6 +136,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "6",
@@ -134,6 +147,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Scatters coins equal to five times the user's level each time.",
 	},
 	{
 		id = "7",
@@ -143,6 +157,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has a 10% chance of burning the opponent.",
 	},
 	{
 		id = "8",
@@ -152,6 +168,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has a 10% chance of freezing the opponent."
 	},
 	{
 		id = "9",
@@ -161,6 +179,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has a 10% chance of paralyzing the opponent.",
 	},
 	{
 		id = "10",
@@ -170,6 +190,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "11",
@@ -179,6 +201,8 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "12",
@@ -188,6 +212,8 @@ MoveData = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Accuracy is (30 + X)%, where X is the number of levels the user is above the opponent.",
 	},
 	{
 		id = "13",
@@ -197,6 +223,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Does nothing on the turn it is selected. Deals damage on the following turn.",
 	},
 	{
 		id = "14",
@@ -206,6 +233,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Attack stat by two stages.",
 	},
 	{
 		id = "15",
@@ -215,6 +243,8 @@ MoveData = {
 		pp = "30",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "16",
@@ -224,6 +254,7 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals double damage if opponent is using Fly or Bounce.",
 	},
 	{
 		id = "17",
@@ -233,6 +264,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "18",
@@ -242,6 +275,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		priority = "-6",
+		summary = "Forces target to switch out with another random Pokemon. Fails against Suction Cups or Ingrain.",
 	},
 	{
 		id = "19",
@@ -251,6 +286,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Attacks on 2nd turn. Can still be hit by Gust, Sky Uppercut, Thunder, Twister, and Whirlwind.",
 	},
 	{
 		id = "20",
@@ -260,6 +297,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "75",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
 	},
 	{
 		id = "21",
@@ -269,6 +308,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "75",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "22",
@@ -278,6 +319,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "23",
@@ -287,6 +330,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage with 30% chance of causing the target to flinch. Double damage against Minimize.",
 	},
 	{
 		id = "24",
@@ -296,6 +341,8 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage twice, each hit able to be critical.",
 	},
 	{
 		id = "25",
@@ -305,6 +352,8 @@ MoveData = {
 		pp = "5",
 		accuracy = "75",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "26",
@@ -314,6 +363,8 @@ MoveData = {
 		pp = "25",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
 	},
 	{
 		id = "27",
@@ -323,6 +374,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 30% chance of causing the target to flinch.",
 	},
 	{
 		id = "28",
@@ -332,6 +385,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
 	},
 	{
 		id = "29",
@@ -341,6 +395,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 30% chance of causing the target to flinch.",
 	},
 	{
 		id = "30",
@@ -350,6 +406,8 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "31",
@@ -359,6 +417,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "32",
@@ -368,6 +428,8 @@ MoveData = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Accuracy is (30 + X)%, where X is the number of levels the user is above the opponent.",
 	},
 	{
 		id = "33",
@@ -377,6 +439,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "34",
@@ -386,6 +450,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 30% chance of paralyzing the target.",
 	},
 	{
 		id = "35",
@@ -395,6 +461,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
 	},
 	{
 		id = "36",
@@ -404,6 +472,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "The user receives recoil damage equal to 1/4 of the damage dealt.",
 	},
 	{
 		id = "37",
@@ -413,6 +483,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
 	},
 	{
 		id = "38",
@@ -422,6 +494,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "The user receives recoil damage equal to 1/3 of the damage dealt.",
 	},
 	{
 		id = "39",
@@ -431,6 +505,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the Defense stat of all adjacent opponents by one stage.",
 	},
 	{
 		id = "40",
@@ -440,6 +515,7 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 30% chance of poisoning the target.",
 	},
 	{
 		id = "41",
@@ -449,6 +525,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage twice, each hit able to be critical. Final hit has a 20% chance of poisoning the target.",
 	},
 	{
 		id = "42",
@@ -458,6 +535,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "43",
@@ -467,6 +545,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the Defense stat of all adjacent opponents by one stage.",
 	},
 	{
 		id = "44",
@@ -476,6 +555,8 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has a 30% chance of causing the target to flinch.",
 	},
 	{
 		id = "45",
@@ -485,6 +566,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the Attack stat of all adjacent opponents by one stage.",
 	},
 	{
 		id = "46",
@@ -494,6 +576,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		priority = "-6",
+		summary = "Forces target to switch out with another random Pokemon. Fails against Soundproof, Suction Cups or Ingrain.",
 	},
 	{
 		id = "47",
@@ -503,6 +587,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "55",
 		category = MoveCategories.STATUS,
+		summary = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit or Soundproof.",
 	},
 	{
 		id = "48",
@@ -512,6 +597,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "55",
 		category = MoveCategories.STATUS,
+		summary = "Causes the target to become confused. Fails against Soundproof or Own Tempo.",
 	},
 	{
 		id = "49",
@@ -521,6 +607,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "Always inflicts exactly 20 HP damage if it hits.",
 	},
 	{
 		id = "50",
@@ -530,6 +617,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "55",
 		category = MoveCategories.STATUS,
+		summary = "Disables the last move used by the target for 2-5 turns.",
 	},
 	{
 		id = "51",
@@ -539,6 +627,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 10% chance of lowering the target's Defense stat by one stage.",
 	},
 	{
 		id = "52",
@@ -548,6 +637,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of burning the target.",
 	},
 	{
 		id = "53",
@@ -557,6 +647,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of burning the target.",
 	},
 	{
 		id = "54",
@@ -566,6 +657,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "For five turns, enemy Pokemon cannot lower stats of Pokemon on your team.",
 	},
 	{
 		id = "55",
@@ -575,6 +667,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "56",
@@ -584,6 +677,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "80",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "57",
@@ -593,6 +687,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals double damage if opponent is using Dive.",
 	},
 	{
 		id = "58",
@@ -602,6 +697,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of freezing the target.",
 	},
 	{
 		id = "59",
@@ -611,6 +707,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "70",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of freezing the target.",
 	},
 	{
 		id = "60",
@@ -620,6 +717,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of confusing the target.",
 	},
 	{
 		id = "61",
@@ -629,6 +727,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
 	},
 	{
 		id = "62",
@@ -638,6 +737,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of lowering the target's Attack stat by one stage.",
 	},
 	{
 		id = "63",
@@ -647,6 +747,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "The user must recharge on the following turn after use.",
 	},
 	{
 		id = "64",
@@ -656,6 +757,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "65",
@@ -665,6 +768,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "66",
@@ -674,6 +779,8 @@ MoveData = {
 		pp = "25",
 		accuracy = "80",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage, and the user receives recoil damage equal to 25% of the damage done.",
 	},
 	{
 		id = "67",
@@ -683,6 +790,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals between 20-120 damage dependent on the weight of the target.",
 	},
 	{
 		id = "68",
@@ -692,6 +801,9 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "-5",
+		summary = "If hit by a Physical move, deals twice the damage received back to the user.",
 	},
 	{
 		id = "69",
@@ -701,6 +813,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals exact damage equal to the user's level.",
 	},
 	{
 		id = "70",
@@ -710,6 +824,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "71",
@@ -719,6 +835,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "50% of the damage dealt is restored to the user as HP.",
 	},
 	{
 		id = "72",
@@ -728,6 +845,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "50% of the damage dealt is restored to the user as HP.",
 	},
 	{
 		id = "73",
@@ -737,6 +855,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.STATUS,
+		summary = "Drains 1/8 of the target's HP at the end of each turn.",
 	},
 	{
 		id = "74",
@@ -746,6 +865,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Special Attack stat by one stage.",
 	},
 	{
 		id = "75",
@@ -755,6 +875,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "95",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
 	},
 	{
 		id = "76",
@@ -764,6 +885,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain.",
 	},
 	{
 		id = "77",
@@ -773,6 +895,7 @@ MoveData = {
 		pp = "35",
 		accuracy = "75",
 		category = MoveCategories.STATUS,
+		summary = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
 	},
 	{
 		id = "78",
@@ -782,6 +905,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "75",
 		category = MoveCategories.STATUS,
+		summary = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
 	},
 	{
 		id = "79",
@@ -791,6 +915,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "75",
 		category = MoveCategories.STATUS,
+		summary = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
 	},
 	{
 		id = "80",
@@ -800,6 +925,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
 	},
 	{
 		id = "81",
@@ -809,6 +936,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "95",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the targets' Speed stat by one stage.",
 	},
 	{
 		id = "82",
@@ -818,6 +946,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Always inflicts exactly 40 HP damage if it hits.",
 	},
 	{
 		id = "83",
@@ -827,6 +956,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "70",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
 	},
 	{
 		id = "84",
@@ -836,6 +966,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of paralyzing the target.",
 	},
 	{
 		id = "85",
@@ -845,6 +976,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of paralyzing the target.",
 	},
 	{
 		id = "86",
@@ -854,6 +986,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
 	},
 	{
 		id = "87",
@@ -863,6 +996,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "70",
 		category = MoveCategories.SPECIAL,
+		summary = "30% chance to paralyze. Can hit Fly and Bounce. Always hits during rain, 50% accuracy in sun.",
 	},
 	{
 		id = "88",
@@ -872,6 +1006,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "89",
@@ -881,6 +1016,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals double damage if opponent is using Dig.",
 	},
 	{
 		id = "90",
@@ -890,6 +1026,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveCategories.PHYSICAL,
+		summary = "Is 1% more accurate for each level above the target. Affects Pokemon using Dig.",
 	},
 	{
 		id = "91",
@@ -899,6 +1036,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude.",
 	},
 	{
 		id = "92",
@@ -908,6 +1047,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "85",
 		category = MoveCategories.STATUS,
+		summary = "Poisons the target, losing increasing amounts of the their max HP at the end of each turn.",
 	},
 	{
 		id = "93",
@@ -917,6 +1057,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of confusing the target.",
 	},
 	{
 		id = "94",
@@ -926,6 +1067,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of lowering the target's Special Defense by one stage.",
 	},
 	{
 		id = "95",
@@ -935,6 +1077,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "60",
 		category = MoveCategories.STATUS,
+		summary = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
 	},
 	{
 		id = "96",
@@ -944,6 +1087,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Attack by one stage.",
 	},
 	{
 		id = "97",
@@ -953,6 +1097,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Speed by two stages.",
 	},
 	{
 		id = "98",
@@ -962,6 +1107,9 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "+1",
+		summary = "Has a priority of +1, so it is used before most other moves.",
 	},
 	{
 		id = "99",
@@ -971,6 +1119,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "When used consecutively, Attack stat increases by one stage when damaged by an attack.",
 	},
 	{
 		id = "100",
@@ -980,6 +1130,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Flees from wild Pokemon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain.",
 	},
 	{
 		id = "101",
@@ -989,6 +1140,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals exact damage equal to the user's level.",
 	},
 	{
 		id = "102",
@@ -998,6 +1150,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Copies the target's last used move. Fails against Sketch, Transform, Metronome, or a move already learned.",
 	},
 	{
 		id = "103",
@@ -1007,6 +1160,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "85",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the target's Defense stat by two stat stages. Fails against Soundproof ability.",
 	},
 	{
 		id = "104",
@@ -1016,6 +1170,7 @@ MoveData = {
 		pp = "15",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's evasion by one stage.",
 	},
 	{
 		id = "105",
@@ -1025,6 +1180,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Restores up to 50% of the user's maximum HP.",
 	},
 	{
 		id = "106",
@@ -1034,6 +1190,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Defense stat by one stage.",
 	},
 	{
 		id = "107",
@@ -1043,6 +1200,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases evasion by one stage. Will now receive x2 damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
 	},
 	{
 		id = "108",
@@ -1052,6 +1210,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Lowers the target's accuracy stat by one stage.",
 	},
 	{
 		id = "109",
@@ -1061,6 +1220,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Causes the target to become confused for 2-5 turns. 50% chance to damage self (40 power Physical).",
 	},
 	{
 		id = "110",
@@ -1070,6 +1230,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Defense by one stage.",
 	},
 	{
 		id = "111",
@@ -1079,6 +1240,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Defense by one stage. Also doubles the power of user's Rollout and Ice Ball.",
 	},
 	{
 		id = "112",
@@ -1088,6 +1250,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Defense by two stages.",
 	},
 	{
 		id = "113",
@@ -1097,6 +1260,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "For 5 turns, halves the damage done to user's team by Special moves.",
 	},
 	{
 		id = "114",
@@ -1106,6 +1270,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Resets the stat stages of all active Pokémon on the field to 0.",
 	},
 	{
 		id = "115",
@@ -1115,6 +1280,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "For 5 turns, halves the damage done to user's team by Physical moves.",
 	},
 	{
 		id = "116",
@@ -1124,6 +1290,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's critical hit ratio by two stages. (+2 stages = 1/4 or 25%)",
 	},
 	{
 		id = "117",
@@ -1133,6 +1300,9 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "0", -- Leaving this hear since it's different in later gens
+		summary = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.",
 	},
 	{
 		id = "118",
@@ -1142,6 +1312,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Randomly selects a move to use, and a random target if necessary.",
 	},
 	{
 		id = "119",
@@ -1151,6 +1322,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Uses the last move targeted at the user by a Pokemon still on the field.",
 	},
 	{
 		id = "120",
@@ -1160,6 +1332,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "The target's Defense is halved, effectively doubling the power of this move.",
 	},
 	{
 		id = "121",
@@ -1169,6 +1342,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "75",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "122",
@@ -1178,6 +1352,8 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 30% chance of paralyzing the target.",
 	},
 	{
 		id = "123",
@@ -1187,6 +1363,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "70",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 40% chance of poisoning the target.",
 	},
 	{
 		id = "124",
@@ -1196,6 +1373,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 30% chance of poisoning the target.",
 	},
 	{
 		id = "125",
@@ -1205,6 +1383,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 10% chance of causing the target to flinch.",
 	},
 	{
 		id = "126",
@@ -1214,6 +1393,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "85",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of burning the target.",
 	},
 	{
 		id = "127",
@@ -1223,6 +1403,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has no secondary effect.",
 	},
 	{
 		id = "128",
@@ -1232,6 +1414,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "75",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
 	},
 	{
 		id = "129",
@@ -1241,6 +1425,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.PHYSICAL,
+		summary = "Bypasses accuracy checks to always hit, except for during moves like Dig, Dive, or Fly.",
 	},
 	{
 		id = "130",
@@ -1250,6 +1435,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Raises the user's Defense by one stage. On the following turn, it deals damage.",
 	},
 	{
 		id = "131",
@@ -1259,6 +1446,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "132",
@@ -1268,6 +1456,8 @@ MoveData = {
 		pp = "35",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 10% chance of lowering the target's Speed by one stage.",
 	},
 	{
 		id = "133",
@@ -1277,6 +1467,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Special Defense by two stages.",
 	},
 	{
 		id = "134",
@@ -1286,6 +1477,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
 	},
 	{
 		id = "135",
@@ -1295,6 +1487,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Restores up to 50% of the user's maximum HP. Can be used outside of battle.",
 	},
 	{
 		id = "136",
@@ -1304,6 +1497,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
 	},
 	{
 		id = "137",
@@ -1313,6 +1508,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "75",
 		category = MoveCategories.STATUS,
+		summary = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
 	},
 	{
 		id = "138",
@@ -1322,6 +1518,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Fails if target is not asleep. 50% of the damage dealt is restored to the user as HP.",
 	},
 	{
 		id = "139",
@@ -1331,6 +1528,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "55",
 		category = MoveCategories.STATUS,
+		summary = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
 	},
 	{
 		id = "140",
@@ -1340,6 +1538,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "141",
@@ -1349,6 +1548,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "50% of the damage dealt is restored to the user as HP.",
 	},
 	{
 		id = "142",
@@ -1358,6 +1559,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "75",
 		category = MoveCategories.STATUS,
+		summary = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
 	},
 	{
 		id = "143",
@@ -1367,6 +1569,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "Attacks on 2nd turn, 30% chance to flinch target. Has increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
 	},
 	{
 		id = "144",
@@ -1376,6 +1579,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Turns into the target, copying everything, even stat changes, except the current and max HP.",
 	},
 	{
 		id = "145",
@@ -1385,6 +1589,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
 	},
 	{
 		id = "146",
@@ -1394,6 +1599,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 20% chance of confusing the target.",
 	},
 	{
 		id = "147",
@@ -1403,6 +1610,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
+		summary = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
 	},
 	{
 		id = "148",
@@ -1412,6 +1620,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "70",
 		category = MoveCategories.STATUS,
+		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
 	},
 	{
 		id = "149",
@@ -1421,6 +1630,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveCategories.SPECIAL,
+		summary = "Deals exact damage of a random amount between 50% and 150% of the user's level.",
 	},
 	{
 		id = "150",
@@ -1430,6 +1640,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Deals no damage and has no effect whatsoever.",
 	},
 	{
 		id = "151",
@@ -1439,6 +1650,7 @@ MoveData = {
 		pp = "40",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Defense by two stages.",
 	},
 	{
 		id = "152",
@@ -1448,6 +1660,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "85",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
+		summary = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
 	},
 	{
 		id = "153",
@@ -1457,6 +1671,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "The target's Defense is halved, effectively doubling the power of this move.",
 	},
 	{
 		id = "154",
@@ -1466,6 +1681,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
 	},
 	{
 		id = "155",
@@ -1475,6 +1692,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage twice, each hit able to be critical.",
 	},
 	{
 		id = "156",
@@ -1484,6 +1702,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Restores HP to full while going to sleep for 2 turns. Fails if user has Insomnia or Vital Spirit.",
 	},
 	{
 		id = "157",
@@ -1493,6 +1712,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 30% chance of causing each target to flinch.",
 	},
 	{
 		id = "158",
@@ -1502,6 +1722,8 @@ MoveData = {
 		pp = "15",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has a 10% chance of causing the target to flinch.",
 	},
 	{
 		id = "159",
@@ -1511,6 +1733,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Increases the user's Attack stat by one stage.",
 	},
 	{
 		id = "160",
@@ -1520,6 +1743,7 @@ MoveData = {
 		pp = "30",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "Changes the user's type to match the type of one of the user's moves (including Conversion itself).",
 	},
 	{
 		id = "161",
@@ -1529,6 +1753,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		summary = "Deals damage and has a 20% chance of either paralyzing, freezing, or burning the target.",
 	},
 	{
 		id = "162",
@@ -1538,6 +1763,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals exact damage equal to 50% of the target's current HP, minimum of 1.",
 	},
 	{
 		id = "163",
@@ -1547,6 +1774,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
 	},
 	{
 		id = "164",
@@ -1556,6 +1785,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		summary = "User loses 25% of max HP to hide behind a substitute, which prevents the effects of most attacks.",
 	},
 	{
 		id = "165",
@@ -1565,6 +1795,8 @@ MoveData = {
 		pp = "1",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		summary = "Hits as neutral damage, even through Wonder Guard. User receives recoil damage equal to 1/4 of damage dealt.",
 	},
 	{ -- Begin Gen 2 Moves
 		id = "166",
@@ -1583,6 +1815,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "168",
@@ -1592,6 +1825,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "169",
@@ -1628,6 +1862,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "173",
@@ -1655,6 +1890,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "176",
@@ -1691,6 +1927,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "180",
@@ -1718,6 +1955,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+3",
 	},
 	{
 		id = "183",
@@ -1727,6 +1965,9 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "+1",
+		summary = "Has a priority of +1, so it is used before most other moves.",
 	},
 	{
 		id = "184",
@@ -1853,6 +2094,7 @@ MoveData = {
 		pp = "5",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+3",
 	},
 	{
 		id = "198",
@@ -1880,6 +2122,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "201",
@@ -1907,6 +2150,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+3",
 	},
 	{
 		id = "204",
@@ -1925,6 +2169,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "206",
@@ -1934,6 +2179,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "207",
@@ -1961,6 +2207,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "210",
@@ -1970,6 +2217,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "211",
@@ -1979,6 +2227,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "212",
@@ -2024,6 +2273,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "217",
@@ -2042,6 +2292,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "219",
@@ -2087,6 +2338,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "50",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "224",
@@ -2096,6 +2348,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "225",
@@ -2132,6 +2385,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "229",
@@ -2141,6 +2395,7 @@ MoveData = {
 		pp = "40",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "230",
@@ -2159,6 +2414,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "75",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "232",
@@ -2168,6 +2424,7 @@ MoveData = {
 		pp = "35",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "233",
@@ -2177,6 +2434,8 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "-1",
 	},
 	{
 		id = "234",
@@ -2222,6 +2481,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "80",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "239",
@@ -2258,6 +2518,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "243",
@@ -2267,6 +2528,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		priority = "-5",
+		summary = "If hit by a Special move, deals twice the damage received back to the user.",
 	},
 	{
 		id = "244",
@@ -2285,6 +2548,9 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "+1",
+		summary = "Has a priority of +1, so it is used before most other moves.",
 	},
 	{
 		id = "246",
@@ -2294,6 +2560,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "247",
@@ -2321,6 +2588,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "250",
@@ -2348,6 +2616,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		priority = "+1",
 	},
 	{
 		id = "253",
@@ -2447,6 +2716,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "264",
@@ -2456,6 +2726,8 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "-3",
 	},
 	{
 		id = "265",
@@ -2465,6 +2737,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "266",
@@ -2474,6 +2747,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+3",
 	},
 	{
 		id = "267",
@@ -2510,6 +2784,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+5",
 	},
 	{
 		id = "271",
@@ -2564,6 +2839,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "277",
@@ -2573,6 +2849,7 @@ MoveData = {
 		pp = "15",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+4",
 	},
 	{
 		id = "278",
@@ -2591,6 +2868,8 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
+		priority = "-4",
 	},
 	{
 		id = "280",
@@ -2600,6 +2879,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "281",
@@ -2618,6 +2898,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "283",
@@ -2627,6 +2908,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "284",
@@ -2681,6 +2963,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
+		priority = "+4",
 	},
 	{
 		id = "290",
@@ -2699,6 +2982,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "292",
@@ -2708,6 +2992,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "293",
@@ -2771,6 +3056,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "90",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "300",
@@ -2789,6 +3075,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "90",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "302",
@@ -2798,6 +3085,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "303",
@@ -2825,6 +3113,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "306",
@@ -2834,6 +3123,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "95",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "307",
@@ -2861,6 +3151,7 @@ MoveData = {
 		pp = "10",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "310",
@@ -2870,6 +3161,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "311",
@@ -2915,6 +3207,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "90",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "316",
@@ -3005,6 +3298,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "326",
@@ -3023,6 +3317,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "90",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "328",
@@ -3041,6 +3336,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveCategories.SPECIAL,
+		summary = "Accuracy is (30 + X)%, where X is the number of levels the user is above the opponent.",
 	},
 	{
 		id = "330",
@@ -3068,6 +3364,7 @@ MoveData = {
 		pp = "20",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "333",
@@ -3113,6 +3410,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "338",
@@ -3140,6 +3438,7 @@ MoveData = {
 		pp = "5",
 		accuracy = "85",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "341",
@@ -3158,6 +3457,7 @@ MoveData = {
 		pp = "25",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
+		iscontact = true,
 	},
 	{
 		id = "343",
@@ -3176,6 +3476,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "345",
@@ -3212,6 +3513,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
+		iscontact = true,
 	},
 	{
 		id = "349",
