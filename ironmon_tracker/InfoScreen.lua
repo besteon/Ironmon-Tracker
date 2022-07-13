@@ -16,8 +16,8 @@ InfoScreen.closeButton = {
 	text = "Close",
 	textColor = "Default text",
 	box = {
-		GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 39,
-		GraphicConstants.SCREEN_HEIGHT - 20,
+		GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 38,
+		GraphicConstants.SCREEN_HEIGHT - 19,
 		29,
 		11,
 	},
