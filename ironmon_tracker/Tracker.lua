@@ -320,6 +320,10 @@ function Tracker.loadData()
 				Tracker.Data = Tracker.InitTrackerData()
 			end
 		end
+
+		-- Update the visuals for the hidden power info based on the loaded data
+		local hiddenPowerType = Tracker.Data.currentHiddenPowerType
+		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
 	else
 		Tracker.Data = Tracker.InitTrackerData()
 	end
