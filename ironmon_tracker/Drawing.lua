@@ -749,7 +749,7 @@ function Drawing.drawInfoScreen()
 	local boxInfoTopShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
 	local boxInfoBotShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
 
-	local offsetX = GraphicConstants.SCREEN_WIDTH + borderMargin + 3
+	local offsetX = GraphicConstants.SCREEN_WIDTH + borderMargin + 1
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + borderMargin + 3
 	local linespacing = 10
@@ -762,7 +762,7 @@ function Drawing.drawInfoScreen()
 		-- local pokemon
 		-- table.insert(infoToShow, )
 	elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
-		local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+		-- local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 
 		-- Only draw valid move data
 		local moveId = InfoScreen.infoLookup -- moveId = 1 is blank move data
@@ -793,18 +793,18 @@ function Drawing.drawInfoScreen()
 
 		-- TYPE ICON & CATEGORY
 		offsetY = offsetY + 1
-		gui.drawRectangle(offsetX + 102, offsetY, 31, 13, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
-		Drawing.drawTypeIcon(move.type, offsetX + 103, offsetY + 1)
+		gui.drawRectangle(offsetX + 105, offsetY, 31, 13, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
+		Drawing.drawTypeIcon(move.type, offsetX + 106, offsetY + 1)
 		offsetY = offsetY + linespacing
 
-		-- CONTACT
+		-- CATEGORY
 		local categoryInfo = ""
 		if move.category == MoveCategories.PHYSICAL then
 			categoryInfo = categoryInfo .. "Physical"
-			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, offsetX + 127, botOffsetY - linespacing - 13, boxInfoTopShadow)
+			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 		elseif move.category == MoveCategories.SPECIAL then
 			categoryInfo = categoryInfo .. "Special"
-			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, offsetX + 127, botOffsetY - linespacing - 13, boxInfoTopShadow)
+			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 		elseif move.category == MoveCategories.STATUS then
 			categoryInfo = categoryInfo .. "Status"
 		else categoryInfo = categoryInfo .. "—" end
@@ -825,12 +825,12 @@ function Drawing.drawInfoScreen()
 		offsetY = offsetY + linespacing
 
 		-- POWER
-		local isStab = Utils.isSTAB(move, PokemonData[pokemonViewed.pokemonID + 1].type)
+		-- local isStab = Utils.isSTAB(move, PokemonData[pokemonViewed.pokemonID + 1].type)
 		local powerInfo = move.power
 		if move.power == NOPOWER then
 			powerInfo = "—"
-		elseif isStab then
-			Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. " stab)", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
+		-- elseif isStab then
+		-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
 		end
 		Drawing.drawText(offsetX, offsetY, "Power:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, powerInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
@@ -858,7 +858,7 @@ function Drawing.drawInfoScreen()
 
 		-- SUMMARY
 		if move.summary ~= nil then
-			local wrappedSummary = Utils.getWordWrapLines(move.summary, 32)
+			local wrappedSummary = Utils.getWordWrapLines(move.summary, 31)
 			
 			for _, line in pairs(wrappedSummary) do
 				Drawing.drawText(offsetX, botOffsetY, line, GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
