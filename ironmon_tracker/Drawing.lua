@@ -866,6 +866,14 @@ function Drawing.drawInfoScreen()
 			end
 		end
 
+		-- Easter egg for the move "Splash"
+		if moveId == 151 then
+			Drawing.drawPokemonIcon(129, offsetX + 16, botOffsetY + 8)
+			Drawing.drawPokemonIcon(129, offsetX + 40, botOffsetY - 8)
+			Drawing.drawPokemonIcon(129, offsetX + 75, botOffsetY + 2)
+			Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
+		end
+
 		-- Cancel/close button
 		Drawing.drawButtonBox(InfoScreen.closeButton, boxInfoBotShadow)
 		Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, GraphicConstants.THEMECOLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)

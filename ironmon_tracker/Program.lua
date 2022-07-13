@@ -34,9 +34,10 @@ Program.transformedPokemon = {
 function Program.main()
 	Input.update()
 
-	if Program.state == State.TRACKER then
-		Program.updateTrackedAndCurrentData()
+	-- Updating data on pokemon should be unrelated to which screen is being displayed, otherwise the Tracker wouldn't know a battle ended in the Theme menu for example.
+	Program.updateTrackedAndCurrentData()
 
+	if Program.state == State.TRACKER then
 		-- Only draw the Tracker screen every half second (60 frames/sec)
 		if Program.waitToDrawFrames == 0 then
 			Program.waitToDrawFrames = 30
@@ -55,17 +56,9 @@ function Program.main()
 			else
 				Drawing.drawPokemonView(opposingPokemon, ownersPokemon)
 			end
-		else
-			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
 
-		-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
-		if Program.saveDataFrames == 0 then
-			Program.saveDataFrames = 3600
-			Tracker.saveData()
-		else
-			Program.saveDataFrames = Program.saveDataFrames - 1
-		end
+		Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 	elseif Program.state == State.INFOSCREEN then
 		if InfoScreen.redraw then
 			Drawing.drawInfoScreen()
@@ -81,7 +74,7 @@ function Program.main()
 			Program.waitToDrawFrames = 5
 			Drawing.drawThemeMenu()
 			Theme.redraw = false
-		elseif Program.waitToDrawFrames > 0 then
+		elseif Program.waitToDrawFrames > 0 then -- Required because of Theme.redraw check
 			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
 	end
@@ -132,17 +125,23 @@ function Program.updateTrackedAndCurrentData()
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.waitToDrawFrames = 0
 		end
-	else
-		Program.pokemonDataFrames = Program.pokemonDataFrames - 1
 	end
 
 	-- Only update "Heals in Bag" information every 5 seconds (5 seconds * 60 frames/sec)
 	if Program.itemCheckFrames == 0 then
 		Program.itemCheckFrames = 300
 		Program.calculateBagHealingItemsFromMemory()
-	else
-		Program.itemCheckFrames = Program.itemCheckFrames - 1
 	end
+
+	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
+	if Program.saveDataFrames == 0 then
+		Program.saveDataFrames = 3600
+		Tracker.saveData()
+	end
+
+	Program.pokemonDataFrames = Program.pokemonDataFrames - 1
+	Program.itemCheckFrames = Program.itemCheckFrames - 1
+	Program.saveDataFrames = Program.saveDataFrames - 1
 end
 
 function Program.updatePokemonTeamsFromMemory()
@@ -437,6 +436,11 @@ function Program.endBattle(isWild)
 		if pokemon ~= nil then
 			pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 		end
+	end
+
+	-- Handles a common case of looking up a move, then moving on with combat. When over, the move info screen should go away.
+	if Program.state == State.INFOSCREEN then
+		Program.state = State.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen

@@ -385,7 +385,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
-		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
+		summary = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
 	},
 	{
 		id = "29",
@@ -803,7 +803,7 @@ MoveData = {
 		category = MoveCategories.PHYSICAL,
 		iscontact = true,
 		priority = "-- 5",
-		summary = "If hit by a Physical move, deals twice the damage received back to the user.",
+		summary = "If hit by a Physical category move, deals twice the damage received back to the user.",
 	},
 	{
 		id = "69",
@@ -1210,7 +1210,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveCategories.STATUS,
-		summary = "Lowers the target's accuracy stat by one stage.",
+		summary = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
 	},
 	{
 		id = "109",
@@ -1476,7 +1476,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveCategories.STATUS,
-		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
+		summary = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
 	},
 	{
 		id = "135",
@@ -1619,7 +1619,7 @@ MoveData = {
 		pp = "20",
 		accuracy = "70",
 		category = MoveCategories.STATUS,
-		summary = "Decreases the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50%...)",
+		summary = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
 	},
 	{
 		id = "149",
@@ -2238,7 +2238,7 @@ MoveData = {
 		pp = "10",
 		accuracy = PLACEHOLDER,
 		category = MoveCategories.STATUS,
-		summary = "Restores up to 50% of the user's max HP.",
+		summary = "Restores up to 50% of the user's max HP. Can be used outside of battle.",
 	},
 	{
 		id = "209",
@@ -2383,7 +2383,7 @@ MoveData = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
-		summary = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power. Can hit Pokemon using Dig.",
+		summary = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit Pokemon using Dig.",
 	},
 	{
 		id = "223",
@@ -2604,7 +2604,7 @@ MoveData = {
 		accuracy = "100",
 		category = MoveCategories.SPECIAL,
 		priority = "-- 5",
-		summary = "If hit by a Special move, deals twice the damage received back to the user.",
+		summary = "If hit by a Special category move, deals twice the damage received back to the user.",
 	},
 	{
 		id = "244",
