@@ -105,7 +105,7 @@ function Input.check(xmouse, ymouse)
 		---@diagnostic disable-next-line: deprecated
 		for i = 1, table.getn(Buttons), 1 do
 			if Buttons[i].visible() then
-				if Buttons[i].type == ButtonType.singleButton then
+				if Buttons[i].type == ButtonType.singleButton and Buttons[i].text ~= "Hidden Power" then -- Move HP clicking logic to info screen
 					if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 						Buttons[i].onclick()
 						Program.waitToDrawFrames = 0
@@ -188,6 +188,12 @@ function Input.check(xmouse, ymouse)
 		end
 	-- Info Screen mouse input regions
 	elseif Program.state == State.INFOSCREEN then
+		-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
+		if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
+			HiddenPowerButton.onclick()
+			InfoScreen.redraw = true
+		end
+
 		-- Check for input on 'Close' button
 		if Input.isInRange(xmouse, ymouse, InfoScreen.closeButton.box[1], InfoScreen.closeButton.box[2], InfoScreen.closeButton.box[3], InfoScreen.closeButton.box[4]) then
 			InfoScreen.closeButton.onClick()

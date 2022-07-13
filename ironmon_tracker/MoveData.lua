@@ -2541,7 +2541,7 @@ MoveData = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveCategories.PHYSICAL,
-		summary = "Power varies between 30 and 70. Type is dependent on IVs, but Fighting type for most enemy Pokemon. Regardless of type, it can be Countered by not Mirror Coat.",
+		summary = "Power and type vary with IVs, power ranges from 30 to 70. Counter will always work against this move, but never Mirror Coat.",
 	},
 	{
 		id = "238",

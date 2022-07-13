@@ -773,6 +773,8 @@ function Drawing.drawInfoScreen()
 		end
 
 		local move = MoveData[moveId]
+		local moveType = move.type
+		local moveCat = move.category
 
 		-- Before drawing view boxes, check if extra space is needed for 'Priority' information
 		if move.priority ~= nil and move.priority ~= "0" then
@@ -791,21 +793,28 @@ function Drawing.drawInfoScreen()
 		gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 11, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 		gui.drawText(offsetX - 1, offsetY - 3, moveName, GraphicConstants.THEMECOLORS["Default text"], nil, 11, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 
-		-- TYPE ICON & CATEGORY
+		-- If the move is Hidden Power, use its tracked type/category instead
+		if moveId == 237 + 1 then
+			moveType = Tracker.Data.currentHiddenPowerType
+			moveCat = MoveTypeCategories[moveType]
+			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
+		end
+		
+		-- TYPE ICON
 		offsetY = offsetY + 1
 		gui.drawRectangle(offsetX + 105, offsetY, 31, 13, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
-		Drawing.drawTypeIcon(move.type, offsetX + 106, offsetY + 1)
+		Drawing.drawTypeIcon(moveType, offsetX + 106, offsetY + 1)
 		offsetY = offsetY + linespacing
 
 		-- CATEGORY
 		local categoryInfo = ""
-		if move.category == MoveCategories.PHYSICAL then
+		if moveCat == MoveCategories.PHYSICAL then
 			categoryInfo = categoryInfo .. "Physical"
 			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
-		elseif move.category == MoveCategories.SPECIAL then
+		elseif moveCat == MoveCategories.SPECIAL then
 			categoryInfo = categoryInfo .. "Special"
 			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
-		elseif move.category == MoveCategories.STATUS then
+		elseif moveCat == MoveCategories.STATUS then
 			categoryInfo = categoryInfo .. "Status"
 		else categoryInfo = categoryInfo .. "—" end
 		Drawing.drawText(offsetX, offsetY, "Category:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
