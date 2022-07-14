@@ -816,7 +816,7 @@ function Drawing.drawInfoScreen()
 			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 		elseif moveCat == MoveCategories.STATUS then
 			categoryInfo = categoryInfo .. "Status"
-		else categoryInfo = categoryInfo .. "—" end
+		else categoryInfo = categoryInfo .. "---" end
 		Drawing.drawText(offsetX, offsetY, "Category:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, categoryInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing
@@ -828,7 +828,7 @@ function Drawing.drawInfoScreen()
 		offsetY = offsetY + linespacing
 
 		-- PP
-		local ppInfo = Utils.inlineIf(move.pp == NOPP, "—", move.pp)
+		local ppInfo = Utils.inlineIf(move.pp == NOPP, "---", move.pp)
 		Drawing.drawText(offsetX, offsetY, "PP:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, ppInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing
@@ -837,7 +837,7 @@ function Drawing.drawInfoScreen()
 		-- local isStab = Utils.isSTAB(move, PokemonData[pokemonViewed.pokemonID + 1].type)
 		local powerInfo = move.power
 		if move.power == NOPOWER then
-			powerInfo = "—"
+			powerInfo = "---"
 		-- elseif isStab then
 		-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
 		end
