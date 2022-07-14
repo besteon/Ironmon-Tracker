@@ -5,10 +5,8 @@ GameSettings = {
 	pstats = 0,
 	estats = 0,
 
-	summaryCheckValue = 0, -- The value to check sMonSummaryScreen against (for Ruby/Sapphire)
-
 	sMonSummaryScreen = 0x00000000,
-	sSpecialFlags = 0x00000000, -- [3 = In catching turtorial, 0 = Not in catching turtorial]
+	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 	sBattlerAbilities = 0x00000000,
 	gBattlerAttacker = 0x00000000,
 	gBattlerPartyIndexesSelfSlotOne = 0x00000000,
@@ -20,8 +18,8 @@ GameSettings = {
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
 	gSaveBlock1 = 0x00000000,
-	gSaveBlock2ptr = 0x00000000,
-	bagEncryptionKeyOffset = 0x00,
+	gSaveBlock2ptr = 0x00000000, -- Currently not needed in Ruby/Sapphire
+	bagEncryptionKeyOffset = 0x00, -- Not needed in Ruby/Sapphire
 	bagPocket_Items = 0x0,
 	bagPocket_Berries = 0x0,
 	bagPocket_Items_Size = 0,
@@ -122,8 +120,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	if gameversion == 0x00410000 then
 		print("ROM Detected: Pokemon Ruby v1.0")
 
-		GameSettings.summaryCheckValue = 69 --nice
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -135,8 +132,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -144,8 +139,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x01400000 then
 		print("ROM Detected: Pokemon Ruby v1.1")
 
-		GameSettings.summaryCheckValue = 101
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -157,8 +151,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -166,8 +158,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x023F0000 then
 		print("ROM Detected: Pokemon Ruby v1.2")
 
-		GameSettings.summaryCheckValue = 101
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -179,8 +170,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -193,8 +182,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	if gameversion == 0x00550000 then
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
-		GameSettings.summaryCheckValue = 69
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -206,8 +194,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -215,8 +201,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x1540000 then
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
-		GameSettings.summaryCheckValue = 101
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -228,8 +213,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -237,8 +220,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x02530000 then
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
-		GameSettings.summaryCheckValue = 101
-		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -250,8 +232,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gSaveBlock2ptr = 0x00000000
-		GameSettings.bagEncryptionKeyOffset = 0x00
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
