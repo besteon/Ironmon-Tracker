@@ -96,14 +96,8 @@ function Program.updateTrackedAndCurrentData()
 			-- Check for if summary screen is being shown
 			if not Tracker.Data.hasCheckedSummary then
 				local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
-				if GameSettings.game == 1 then -- Ruby/Sapphire uses a different memory address and checks for a specific value
-					if summaryCheck == GameSettings.summaryCheckValue then
-						Tracker.Data.hasCheckedSummary = true
-					end
-				else
-					if summaryCheck ~= 0 then
-						Tracker.Data.hasCheckedSummary = true
-					end
+				if summaryCheck ~= 0 then
+					Tracker.Data.hasCheckedSummary = true
 				end
 			end
 		end
