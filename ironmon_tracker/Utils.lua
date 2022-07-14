@@ -15,7 +15,83 @@ function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
-function Utils.netEffectiveness(move, pkmnData)
+-- Determine if the tracked Pokémon's moves are old and if so mark with a star
+function Utils.calculateMoveStars(pokemonID, level)
+	local stars = { "", "", "", "" }
+
+	if pokemonID == nil or pokemonID == 0 or level == nil or level == 1 then
+		return stars
+	end
+
+	-- If nothing has been tracked thus far for this Pokemon, return no stars
+	local pokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if pokemon.moves == nil then
+		return stars
+	end
+
+	-- For each move, count how many moves this Pokemon at this 'level' has learned already
+	local movesLearnedSince = { 0, 0, 0, 0 }
+	local allMoveLevels = PokemonData[pokemonID + 1].movelvls[GameSettings.versiongroup]
+	for _, lv in pairs(allMoveLevels) do
+		for moveIndex, move in pairs(pokemon.moves) do
+			if lv > move.level and lv <= level then
+				movesLearnedSince[moveIndex] = movesLearnedSince[moveIndex] + 1
+			end
+		end
+	end
+
+	-- Determine which moves are the oldest, by ranking them against their levels learnt.
+	local moveAgeRank = { 1, 1, 1, 1 }
+	for moveIndex, move in pairs(pokemon.moves) do
+		for moveIndexCompare, moveCompare in pairs(pokemon.moves) do
+			if moveIndex ~= moveIndexCompare then
+				if move.level > moveCompare.level then
+					moveAgeRank[moveIndex] = moveAgeRank[moveIndex] + 1
+				end
+			end
+		end
+	end
+
+	-- A move is only star'd if it was possible it has been forgotten
+	for moveIndex, move in pairs(pokemon.moves) do
+		if move.level ~= 1 and movesLearnedSince[moveIndex] >= moveAgeRank[moveIndex] then
+			stars[moveIndex] = "*"
+		end
+	end
+
+	return stars
+end
+
+-- Move Header format: C/T (N), where C is moves learned so far, T is total number available to learn, and N is the next level the Pokemon learns a move
+-- Example: 4/12 (25)
+function Utils.getMovesLearnedHeader(pokemonID, level)
+	if pokemonID == nil or pokemonID == 0 or level == nil then
+		return "0/0 (0)"
+	end
+
+	local movesLearned = 0
+	local nextMoveLevel = 0
+	local foundNextMove = false
+
+	local allMoveLevels = PokemonData[pokemonID + 1].movelvls[GameSettings.versiongroup]
+	for _, lv in pairs(allMoveLevels) do
+		if lv <= level then
+			movesLearned = movesLearned + 1
+		elseif not foundNextMove then
+			nextMoveLevel = lv
+			foundNextMove = true
+		end
+	end
+
+	local header = movesLearned .. "/" .. table.getn(allMoveLevels)
+	if foundNextMove then
+		header = header .. " (" .. nextMoveLevel .. ")"
+	end
+
+	return header
+end
+
+function Utils.netEffectiveness(move, types)
 	local effectiveness = 1.0
 
 	-- TODO: Do we want to handle Hidden Power's varied type in this? We could analyze the IV of the Pokémon and determine the type...
@@ -23,28 +99,28 @@ function Utils.netEffectiveness(move, pkmnData)
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
 	if move.power == NOPOWER then
 		if move.category ~= MoveCategories.STATUS then
-			if move.type == PokemonTypes.NORMAL and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+			if move.type == PokemonTypes.NORMAL and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.FIGHTING and (pkmnData.type[1] == PokemonTypes.GHOST or pkmnData.type[2] == PokemonTypes.GHOST) then
+			elseif move.type == PokemonTypes.FIGHTING and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.PSYCHIC and (pkmnData.type[1] == PokemonTypes.DARK or pkmnData.type[2] == PokemonTypes.DARK) then
+			elseif move.type == PokemonTypes.PSYCHIC and (types[1] == PokemonTypes.DARK or types[2] == PokemonTypes.DARK) then
 				return 0.0
-			elseif move.type == PokemonTypes.GROUND and (pkmnData.type[1] == PokemonTypes.FLYING or pkmnData.type[2] == PokemonTypes.FLYING) then
+			elseif move.type == PokemonTypes.GROUND and (types[1] == PokemonTypes.FLYING or types[2] == PokemonTypes.FLYING) then
 				return 0.0
-			elseif move.type == PokemonTypes.GHOST and (pkmnData.type[1] == PokemonTypes.NORMAL or pkmnData.type[2] == PokemonTypes.NORMAL) then
+			elseif move.type == PokemonTypes.GHOST and (types[1] == PokemonTypes.NORMAL or types[2] == PokemonTypes.NORMAL) then
 				return 0.0
 			end
 		end
 		return 1.0
 	end
 
-	if move["name"] == "Future Sight" or move["name"] == "Doom Desire" then
+	local moveType = move.type
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonTypes.UNKNOWN then
 		return 1.0
 	end
 
-	for _, type in ipairs(pkmnData["type"]) do
-		local moveType = move["type"]
-		if move["name"] == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
+	for _, type in ipairs(types) do
+		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
 		if moveType ~= "---" then
@@ -56,12 +132,16 @@ function Utils.netEffectiveness(move, pkmnData)
 	return effectiveness
 end
 
-function Utils.isSTAB(move, pkmnData)
-	for _, type in ipairs(pkmnData["type"]) do
-		local moveType = move.type
-		if move.name == "Hidden Power" and Tracker.Data.selectedPlayer == 1 then
-			moveType = Tracker.Data.currentHiddenPowerType
-		end
+function Utils.isSTAB(move, types)
+	if move == nil or types == nil or move.power == NOPOWER then return false end
+
+	local moveType = move.type
+	if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
+		moveType = Tracker.Data.currentHiddenPowerType
+	end
+
+	-- Check if the move's type matches any of the 'types' provided
+	for _, type in ipairs(types) do
 		if moveType == type then
 			return true
 		end
@@ -114,15 +194,28 @@ function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	return tostring(roundedPower)
 end
 
-function Utils.playerHasMove(moveName)
-	local pokemon = Tracker.Data.selectedPokemon 
-	local currentMoves = {pokemon["move1"],pokemon["move2"],pokemon["move3"],pokemon["move4"]}
-	for index, move in pairs(currentMoves) do
-		if MoveData[move+1].name == moveName then
+function Utils.pokemonHasMove(pokemon, moveName)
+	if pokemon == nil or moveName == nil then return false end
+
+	for _, move in pairs(pokemon.moves) do
+		if moveName == MoveData[move.id].name then
 			return true
 		end
 	end
 	return false
+end
+
+function Utils.isReadyToEvolve(pokemon)
+	local evoType = PokemonData[pokemon.pokemonID + 1].evolution
+
+	if evoType == EvolutionTypes.NONE then
+		return false
+	end
+	
+	-- TODO: Handle condition of "37/WTR" with regex
+	evoType = tonumber(evoType, 10) -- becomes nil if not a decimal number
+
+	return evoType ~= nil and (pokemon.level + 1) >= evoType
 end
 
 -- Returns the text color for PC heal tracking
@@ -147,4 +240,36 @@ function Utils.getCenterHealColor()
 			return GraphicConstants.THEMECOLORS["Negative text"]
 		end
 	end
+end
+
+function Utils.truncateRomsFolder(folder)
+	if folder then
+		if string.len(folder) > 10 then
+			return "..." .. string.sub(folder, string.len(folder) - 10)
+		else
+			return folder
+		end
+	else
+		return ""
+	end
+end
+
+function Utils.getWordWrapLines(str, limit)
+	if str == nil or str == "" then return {} end
+	
+	local lines, here, limit = {}, 1, limit or 72
+	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
+	
+	str:gsub("(%s+)()(%S+)()",
+		function(sp, st, word, fi) -- Function gets called once for every space found.
+			-- If at the end of a line, start a new table index
+			if fi-here > limit then
+				here = st
+				lines[#lines + 1] = word
+			else -- otherwise add to the current table index.
+				lines[#lines] = lines[#lines] .. " " .. word
+			end
+		end)
+	
+	return lines
 end

@@ -19,42 +19,32 @@ function Input.update()
 		Input.mousetab_prev = Input.mousetab
 
 		local joypadButtons = joypad.get()
-		-- "Options.CONTROLS["Cycle view"]" pressed
-		if joypadButtons[Options.CONTROLS["Cycle view"]] and Input.joypad[Options.CONTROLS["Cycle view"]] ~= joypadButtons[Options.CONTROLS["Cycle view"]] then
-			if Tracker.Data.inBattle == 1 then
-				Tracker.Data.selectedPlayer = (Tracker.Data.selectedPlayer % 2) + 1
-				if Tracker.Data.selectedPlayer == 1 then
-					Tracker.Data.selectedSlot = 1
-					Tracker.Data.targetPlayer = 2
-					Tracker.Data.targetSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-				elseif Tracker.Data.selectedPlayer == 2 then
-					local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-					Tracker.Data.selectedSlot = enemySlotOne
-					Tracker.Data.targetPlayer = 1
-					Tracker.Data.targetSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-				end
+		-- "Options.CONTROLS["Toggle view"]" pressed
+		if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.joypad[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
+			if Tracker.Data.inBattle then
+				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
 
-			Tracker.redraw = true
+			Program.waitToDrawFrames = 0
 		end
 
-		-- "Options.CONTROLS["Cycle stat"]" pressed, display box over next stat
-		if joypadButtons[Options.CONTROLS["Cycle stat"]] and Input.joypad[Options.CONTROLS["Cycle stat"]] ~= joypadButtons[Options.CONTROLS["Cycle stat"]] then
+		-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
+		if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.joypad[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
 			Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 			Tracker.controller.framesSinceInput = 0
-			Tracker.redraw = true
+			Program.waitToDrawFrames = 0
 		else
 			if Tracker.controller.framesSinceInput == Tracker.controller.boxVisibleFrames - 1 then
-				Tracker.redraw = true
+				Program.waitToDrawFrames = 0
 			end
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				Tracker.controller.framesSinceInput = Tracker.controller.framesSinceInput + 1
 			end
 		end
 
-		-- "Options.CONTROLS["Next seed"]"
+		-- "Options.CONTROLS["Load next seed"]"
 		local allPressed = true
-		for button in string.gmatch(Options.CONTROLS["Next seed"], '([^,%s]+)') do
+		for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
 			if joypadButtons[button] ~= true then
 				allPressed = false
 			end
@@ -63,8 +53,8 @@ function Input.update()
 			Main.LoadNextSeed = true
 		end
 
-		-- "Options.CONTROLS["Cycle prediction"]" pressed, cycle stat prediction for selected stat
-		if joypadButtons[Options.CONTROLS["Cycle prediction"]] and Input.joypad[Options.CONTROLS["Cycle prediction"]] ~= joypadButtons[Options.CONTROLS["Cycle prediction"]] then
+		-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat
+		if joypadButtons[Options.CONTROLS["Mark stat"]] and Input.joypad[Options.CONTROLS["Mark stat"]] ~= joypadButtons[Options.CONTROLS["Mark stat"]] then
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				if Tracker.controller.statIndex == 1 then
 					Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
@@ -72,9 +62,9 @@ function Input.update()
 					Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.hp]
 					Tracker.controller.framesSinceInput = 0
 				elseif Tracker.controller.statIndex == 2 then
-					Program.StatButtonState.att = ((Program.StatButtonState.att + 1) % 3) + 1
-					Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.att]
-					Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.att]
+					Program.StatButtonState.atk = ((Program.StatButtonState.atk + 1) % 3) + 1
+					Buttons[Tracker.controller.statIndex].text = StatButtonStates[Program.StatButtonState.atk]
+					Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.atk]
 					Tracker.controller.framesSinceInput = 0
 				elseif Tracker.controller.statIndex == 3 then
 					Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
@@ -97,8 +87,11 @@ function Input.update()
 					Buttons[Tracker.controller.statIndex].textcolor = StatButtonColors[Program.StatButtonState.spe]
 					Tracker.controller.framesSinceInput = 0
 				end
-				Tracker.TrackStatPrediction(Tracker.Data.selectedPokemon.pokemonID, Program.StatButtonState)
-				Tracker.redraw = true
+				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+				if pokemon ~= nil then
+					Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
+				end
+				Program.waitToDrawFrames = 0
 			end
 		end
 
@@ -112,10 +105,10 @@ function Input.check(xmouse, ymouse)
 		---@diagnostic disable-next-line: deprecated
 		for i = 1, table.getn(Buttons), 1 do
 			if Buttons[i].visible() then
-				if Buttons[i].type == ButtonType.singleButton then
+				if Buttons[i].type == ButtonType.singleButton and Buttons[i].text ~= "Hidden Power" then -- Move HP clicking logic to info screen
 					if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 						Buttons[i].onclick()
-						Tracker.redraw = true
+						Program.waitToDrawFrames = 0
 					end
 				end
 			end
@@ -126,7 +119,7 @@ function Input.check(xmouse, ymouse)
 			if button.visible() then
 				if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
 					button:onclick()
-					Tracker.redraw = true
+					Program.waitToDrawFrames = 0
 				end
 			end
 		end
@@ -134,26 +127,78 @@ function Input.check(xmouse, ymouse)
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
 			Options.redraw = true
+			Program.waitToDrawFrames = 0
 			Program.state = State.SETTINGS
 		end
 
-		--note box
-		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) and Input.noteForm == nil and Tracker.Data.selectedPlayer == 2 then
-			Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
-			forms.label(Input.noteForm, "Enter a note for this Pokemon (70 char. max):", 9, 10, 300, 20)
-			local noteTextBox = forms.textbox(Input.noteForm,  Tracker.GetNote(), 430, 20, nil, 10, 30)
-			forms.button(Input.noteForm, "Save", function()
-				local formInput = forms.gettext(noteTextBox)
-				if formInput ~= nil then
-					Tracker.SetNote(formInput)
-					Tracker.redraw = true
-				end
-				forms.destroy(Input.noteForm)
-				Input.noteForm = nil
-			end, 187, 55)
+		local pokemonMoves = nil
+		local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+		if pokemonViewed ~= nil then
+			if not Tracker.Data.isViewingOwn then
+				pokemonMoves = Tracker.getMoves(pokemonViewed.pokemonID) -- tracked moves only
+			elseif Tracker.Data.hasCheckedSummary then
+				pokemonMoves = pokemonViewed.moves
+			end
 		end
 
-		-- Settings menu mouse input regions
+		-- move info lookup, only if pokemon exists and the user should know about its moves already
+		if pokemonMoves ~= nil then
+			local moveOffsetX = GraphicConstants.SCREEN_WIDTH + 7
+			local moveOffsetY = 95
+			for moveIndex = 1, 4, 1 do
+				if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+					InfoScreen.infoLookup = pokemonMoves[moveIndex].id
+					InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
+					InfoScreen.redraw = true
+					Program.state = State.INFOSCREEN
+					break
+				end
+				moveOffsetY = moveOffsetY + 10
+			end
+		end
+
+		--note box
+		if not Tracker.Data.isViewingOwn then
+			-- Check if clicked anywhere near the abilities area
+			if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 37, 35, 63, 22) then
+				AbilityTrackingButton.onclick()
+
+			-- Check if clicked near the original note taking area near the bottom
+			elseif Input.noteForm == nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
+				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+				local pokemonName = "this Pokemon"
+				if pokemon ~= nil then
+					pokemonName = PokemonData[pokemon.pokemonID + 1].name
+				end
+				
+				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
+				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
+				forms.button(Input.noteForm, "Save", function()
+					local formInput = forms.gettext(noteTextBox)
+					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+					if formInput ~= nil and pokemon ~= nil then
+						Tracker.TrackNote(pokemon.pokemonID, formInput)
+						Program.waitToDrawFrames = 0
+					end
+					forms.destroy(Input.noteForm)
+					Input.noteForm = nil
+				end, 187, 55)
+			end
+		end
+	-- Info Screen mouse input regions
+	elseif Program.state == State.INFOSCREEN then
+		-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
+		if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
+			HiddenPowerButton.onclick()
+			InfoScreen.redraw = true
+		end
+
+		-- Check for input on 'Close' button
+		if Input.isInRange(xmouse, ymouse, InfoScreen.closeButton.box[1], InfoScreen.closeButton.box[2], InfoScreen.closeButton.box[3], InfoScreen.closeButton.box[4]) then
+			InfoScreen.closeButton.onClick()
+		end
+	-- Settings menu mouse input regions
 	elseif Program.state == State.SETTINGS then
 		-- Check for input on any of the option buttons
 		for _, button in pairs(Options.optionsButtons) do

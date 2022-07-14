@@ -1,433 +1,539 @@
 GameSettings = {
 	game = 0,
 	gamename = "",
+	versiongroup = 0,
 	pstats = 0,
 	estats = 0,
-	version = 0,
 
-	versiongroup = 0,
-	StartWildBattle = 0,
-	TrainerSentOutPkmn = 0,
-	BeginBattleIntro = 0,
-	ReturnFromBattleToOverworld = 0,
-	ChooseMoveUsedParticle = 0,
-	gChosenMove = 0,
-	lastusedabilityaddress = 0,
-	attackeraddress = 0,
-	gBattlerPartyIndexesSelfSlotOne = 0,
-	gBattlerPartyIndexesEnemySlotOne = 0,
-	gBattlerPartyIndexesSelfSlotTwo = 0,
-	gBattlerPartyIndexesEnemySlotTwo = 0,
+	summaryCheckValue = 0, -- The value to check sMonSummaryScreen against (for Ruby/Sapphire)
 
-	ShowPokemonSummaryScreen = 0,
-	CalculateMonStats = 0,
-	SwitchSelectedMons = 0,
-	UpdatePoisonStepCounter = 0,
-	WeHopeToSeeYouAgain = 0,
-	DoPokeballSendOutAnimation = 0,
-	HealPlayerParty = 0,
+	sMonSummaryScreen = 0x00000000,
+	sSpecialFlags = 0x00000000, -- [3 = In catching turtorial, 0 = Not in catching turtorial]
+	sBattlerAbilities = 0x00000000,
+	gBattlerAttacker = 0x00000000,
+	gBattlerPartyIndexesSelfSlotOne = 0x00000000,
+	gBattlerPartyIndexesEnemySlotOne = 0x00000000,
+	gBattlerPartyIndexesSelfSlotTwo = 0x00000000,
+	gBattlerPartyIndexesEnemySlotTwo = 0x00000000,
+	gBattleMons = 0x00000000,
+	gBattlescriptCurrInstr = 0x00000000,
+	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
-	BattleScriptDrizzleActivates = 0,
-	BattleScriptSpeedBoostActivates = 0,
-	BattleScriptTraceActivates = 0,
-	BattleScriptRainDishActivates = 0,
-	BattleScriptSandstreamActivates = 0,
-	BattleScriptShedSkinActivates = 0,
-	BattleScriptIntimidateActivates = 0,
-	BattleScriptDroughtActivates = 0,
-	BattleScriptStickyHoldActivates = 0,
-	BattleScriptColorChangeActivates = 0,
-	BattleScriptRoughSkinActivates = 0,
-	BattleScriptCuteCharmActivates = 0,
-	BattleScriptSynchronizeActivates = 0,
-
-	ObtainBadgeOne = 0,
-	ObtainBadgeTwo = 0,
-	ObtainBadgeThree = 0,
-	ObtainBadgeFour = 0,
-	ObtainBadgeFive = 0,
-	ObtainBadgeSix = 0,
-	ObtainBadgeSeven = 0,
-	ObtainBadgeEight = 0,
-
-	gSaveBlock1 = 0,
-	gSaveBlock2ptr = 0,
-	bagEncryptionKeyOffset = 0,
-	bagPocket_Items = 0,
-	bagPocket_Berries = 0,
+	gSaveBlock1 = 0x00000000,
+	gSaveBlock2ptr = 0x00000000,
+	bagEncryptionKeyOffset = 0x00,
+	bagPocket_Items = 0x0,
+	bagPocket_Berries = 0x0,
 	bagPocket_Items_Size = 0,
 	bagPocket_Berries_Size = 0,
 }
-GameSettings.VERSIONS = {
-	RS = 1,
-	E = 2,
-	FRLG = 3
-}
+
+-- Maps the BattleScript memory addresses to their respective abilityId's, this is set later when game is loaded
+GameSettings.ABILITIES = {}
+
+-- Moved the 1st/2nd/3rd values to game info, leaving others here if more games get added
+-- local pstats = { 0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4 } -- Player stats
+-- local estats = { 0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C } -- Enemy stats
 
 function GameSettings.initialize()
 	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
 	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
-	local pstats = { 0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4 } -- Player stats
-	local estats = { 0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C } -- Enemy stats
 
-	if gamecode == 0x42504545 then
-		print("Emerald ROM Detected")
-		BadgeButtons.BADGE_GAME_PREFIX = "RSE"
-		BadgeButtons.xOffsets = {1, 1, 0, 0, 1, 1, 1, 1}
+	GameSettings.setGameInfo(gamecode)
 
-		GameSettings.game = 2
-		GameSettings.gamename = "Pokemon Emerald (U)"
-		GameSettings.version = GameSettings.VERSIONS.E
-		GameSettings.versiongroup = 1
-
-		GameSettings.StartWildBattle = 0x080b0698
-		GameSettings.TrainerSentOutPkmn = 0x085cbbe7
-		GameSettings.BeginBattleIntro = 0x08039ECC
-		GameSettings.ReturnFromBattleToOverworld = 0x0803DF70
-		GameSettings.sBattlerAbilities = 0x0203aba4
-		GameSettings.ChooseMoveUsedParticle = 0x0814f8f8
-		GameSettings.gChosenMove = 0x020241EC
-		GameSettings.gBattlerAttacker = 0x0202420B
-		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
-		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02024070
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02024072
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02024074
-		GameSettings.gBattleMons = 0x02024084
-		GameSettings.ShowPokemonSummaryScreen = 0x081bf8ec
-		GameSettings.CalculateMonStats = 0x08068d0c
-		GameSettings.DisplayMonLearnedMove = 0x081b7910
-		GameSettings.SwitchSelectedMons = 0x081b3938
-		GameSettings.UpdatePoisonStepCounter = 0x0809cb94
-		GameSettings.WeHopeToSeeYouAgain = 0x082727db
-		GameSettings.DoPokeballSendOutAnimation = 0x080753e8
-		GameSettings.HealPlayerParty = 0x080f9180
-
-		GameSettings.BattleScriptDrizzleActivates = 0x082db430
-		GameSettings.BattleScriptSpeedBoostActivates = 0x082db444
-		GameSettings.BattleScriptTraceActivates = 0x082db452
-		GameSettings.BattleScriptRainDishActivates = 0x082db45c
-		GameSettings.BattleScriptSandstreamActivates = 0x082db470
-		GameSettings.BattleScriptShedSkinActivates = 0x082db484
-		GameSettings.BattleScriptIntimidateActivates = 0x082db4c1
-		GameSettings.BattleScriptDroughtActivates = 0x082db52a
-		GameSettings.BattleScriptStickyHoldActivates = 0x082db63f
-		GameSettings.BattleScriptColorChangeActivates = 0x082db64d
-		GameSettings.BattleScriptRoughSkinActivates = 0x082db654
-		GameSettings.BattleScriptCuteCharmActivates = 0x082db66f
-		GameSettings.BattleScriptSynchronizeActivates = 0x082db67f
-
-		-- RustboroCity_Gym_EventScript_RoxanneDefeated
-		GameSettings.ObtainBadgeOne = 0x08212f66
-		-- DewfordTown_Gym_EventScript_BrawlyDefeated
-		GameSettings.ObtainBadgeTwo = 0x081fc7f7
-		-- MauvilleCity_Gym_EventScript_WattsonDefeated
-		GameSettings.ObtainBadgeThree = 0x0820df2b
-		-- LavaridgeTown_Gym_1F_EventScript_FlanneryDefeated
-		GameSettings.ObtainBadgeFour = 0x081fe7c1
-		-- PetalburgCity_Gym_Text_NormanDefeat (unsure about this one)
-		GameSettings.ObtainBadgeFive = 0x08206107
-		-- FortreeCity_Gym_EventScript_WinonaDefeated
-		GameSettings.ObtainBadgeSix = 0x082165fd
-		-- MossdeepCity_Gym_EventScript_TateAndLizaDefeated
-		GameSettings.ObtainBadgeSeven = 0x082208d1
-		-- SootopolisCity_Gym_1F_EventScript_JuanDefeated
-		GameSettings.ObtainBadgeEight = 0x08224f82
-
-		GameSettings.gSaveBlock1 = 0x02025a00
-		GameSettings.gSaveBlock2ptr = 0x03005d90
-		GameSettings.bagEncryptionKeyOffset = 0xAC
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
-		GameSettings.bagPocket_Items_Size = 30
-		GameSettings.bagPocket_Berries_Size = 46
-	elseif gamecode == 0x42505245 and gameversion == 0x01670000 then
-		print("Firered v1.1 ROM Detected")
-		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
-
-		GameSettings.game = 3
-		GameSettings.gamename = "Pokemon FireRed (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
-		GameSettings.versiongroup = 2
-
-		GameSettings.StartWildBattle = 0x0807f718
-		GameSettings.TrainerSentOutPkmn = 0x083fd421
-		GameSettings.BeginBattleIntro = 0x080123d4
-		GameSettings.ReturnFromBattleToOverworld = 0x08015b6c
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.ChooseMoveUsedParticle = 0x080d86dc
-		GameSettings.gChosenMove = 0x02023d4c
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
-		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.ShowPokemonSummaryScreen = 0x08134570
-		GameSettings.CalculateMonStats = 0x0803e490
-		GameSettings.DisplayMonLearnedMove = 0x0812687c
-		GameSettings.SwitchSelectedMons = 0x08122ed4
-		GameSettings.UpdatePoisonStepCounter = 0x080a062c
-		GameSettings.WeHopeToSeeYouAgain = 0x081a5589
-		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
-		GameSettings.HealPlayerParty = 0x080a006c
-
-		GameSettings.BattleScriptDrizzleActivates = 0x081d92ef
-		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9303
-		GameSettings.BattleScriptTraceActivates = 0x081d9311
-		GameSettings.BattleScriptRainDishActivates = 0x081d931b
-		GameSettings.BattleScriptSandstreamActivates = 0x081d932f
-		GameSettings.BattleScriptShedSkinActivates = 0x081d9343
-		GameSettings.BattleScriptIntimidateActivates = 0x081d9380
-		GameSettings.BattleScriptDroughtActivates = 0x081d93e9
-		GameSettings.BattleScriptStickyHoldActivates = 0x081d94fe
-		GameSettings.BattleScriptColorChangeActivates = 0x081d950c
-		GameSettings.BattleScriptRoughSkinActivates = 0x081d9513
-		GameSettings.BattleScriptCuteCharmActivates = 0x081d952e
-		GameSettings.BattleScriptSynchronizeActivates = 0x081d953e
-
-		-- PewterCity_Gym_EventScript_DefeatedBrock
-		GameSettings.ObtainBadgeOne = 0x0816a63d
-		-- CeruleanCity_Gym_EventScript_MistyDefeated
-		GameSettings.ObtainBadgeTwo = 0x0816ab4b
-		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
-		GameSettings.ObtainBadgeThree = 0x0816b9f4
-		-- CeladonCity_Gym_EventScript_DefeatedErika
-		GameSettings.ObtainBadgeFour = 0x0816d118
-		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
-		GameSettings.ObtainBadgeFive = 0x0816d5f8
-		-- SaffronCity_Gym_EventScript_DefeatedSabrina
-		GameSettings.ObtainBadgeSix = 0x0816ee82
-		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
-		GameSettings.ObtainBadgeSeven = 0x0816da7e
-		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
-		GameSettings.ObtainBadgeEight = 0x08169f7c
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.bagEncryptionKeyOffset = 0xF20
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
-	elseif gamecode == 0x42505245 and gameversion == 0x00680000 then
-		print("Firered v1.0 ROM Detected")
-		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
-
-		GameSettings.game = 3
-		GameSettings.gamename = "Pokemon FireRed (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
-		GameSettings.versiongroup = 2
-
-		GameSettings.StartWildBattle = 0x0807f704
-		GameSettings.TrainerSentOutPkmn = 0x083fd3b1
-		GameSettings.BeginBattleIntro = 0x080123c0
-		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.ChooseMoveUsedParticle = 0x080d86c8
-		GameSettings.gChosenMove = 0x02023d4c
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
-		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
-		GameSettings.ShowPokemonSummaryScreen = 0x081344f8
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.CalculateMonStats = 0x0803e47c
-		GameSettings.DisplayMonLearnedMove = 0x08126804
-		GameSettings.SwitchSelectedMons = 0x08122e5c
-		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
-		GameSettings.WeHopeToSeeYouAgain = 0x081a5511
-		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
-		GameSettings.HealPlayerParty = 0x080a0058
-
-		GameSettings.BattleScriptDrizzleActivates = 0x081d927f
-		GameSettings.BattleScriptSpeedBoostActivates = 0x081d9293
-		GameSettings.BattleScriptTraceActivates = 0x081d92a1
-		GameSettings.BattleScriptRainDishActivates = 0x081d92ab
-		GameSettings.BattleScriptSandstreamActivates = 0x081d92bf
-		GameSettings.BattleScriptShedSkinActivates = 0x081d92d3
-		GameSettings.BattleScriptIntimidateActivates = 0x081d9310
-		GameSettings.BattleScriptDroughtActivates = 0x081d9379
-		GameSettings.BattleScriptStickyHoldActivates = 0x081d948e
-		GameSettings.BattleScriptColorChangeActivates = 0x081d949c
-		GameSettings.BattleScriptRoughSkinActivates = 0x081d94a3
-		GameSettings.BattleScriptCuteCharmActivates = 0x081d94be
-		GameSettings.BattleScriptSynchronizeActivates = 0x081d94ce
-
-		-- PewterCity_Gym_EventScript_DefeatedBrock
-		GameSettings.ObtainBadgeOne = 0x0816a5c5
-		-- CeruleanCity_Gym_EventScript_MistyDefeated
-		GameSettings.ObtainBadgeTwo = 0x0816aad3
-		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
-		GameSettings.ObtainBadgeThree = 0x0816b97c
-		-- CeladonCity_Gym_EventScript_DefeatedErika
-		GameSettings.ObtainBadgeFour = 0x0816d0a0
-		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
-		GameSettings.ObtainBadgeFive = 0x0816d580
-		-- SaffronCity_Gym_EventScript_DefeatedSabrina
-		GameSettings.ObtainBadgeSix = 0x0816ee0a
-		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
-		GameSettings.ObtainBadgeSeven = 0x0816da06
-		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
-		GameSettings.ObtainBadgeEight = 0x08169f04
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.bagEncryptionKeyOffset = 0xF20
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
-	elseif gamecode == 0x42504745 and gameversion == 0x01800000 then
-		print("Leaf Green v1.1 ROM Detected")
-		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
-
-		GameSettings.game = 3
-		GameSettings.gamename = "Pokemon LeafGreen (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
-		GameSettings.versiongroup = 2
-
-		GameSettings.StartWildBattle = 0x0807f6ec
-		GameSettings.TrainerSentOutPkmn = 0x083fd25d
-		GameSettings.BeginBattleIntro = 0x080123d4
-		GameSettings.ReturnFromBattleToOverworld = 0x08015b6c
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.ChooseMoveUsedParticle = 0x080d86b0
-		GameSettings.gChosenMove = 0x02023d4c
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
-		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.ShowPokemonSummaryScreen = 0x08134548
-		GameSettings.CalculateMonStats = 0x0803e490
-		GameSettings.DisplayMonLearnedMove = 0x08126854
-		GameSettings.SwitchSelectedMons = 0x08122eac
-		GameSettings.UpdatePoisonStepCounter = 0x0806d7b0
-		GameSettings.WeHopeToSeeYouAgain = 0x081a5565
-		GameSettings.DoPokeballSendOutAnimation = 0x0804a94c
-		GameSettings.HealPlayerParty = 0x080a0040
-
-		GameSettings.BattleScriptDrizzleActivates = 0x081d92cb
-		GameSettings.BattleScriptSpeedBoostActivates = 0x081d92df
-		GameSettings.BattleScriptTraceActivates = 0x081d92ed
-		GameSettings.BattleScriptRainDishActivates = 0x081d92f7
-		GameSettings.BattleScriptSandstreamActivates = 0x081d930b
-		GameSettings.BattleScriptShedSkinActivates = 0x081d931f
-		GameSettings.BattleScriptIntimidateActivates = 0x081d935c
-		GameSettings.BattleScriptDroughtActivates = 0x081d93c5
-		GameSettings.BattleScriptStickyHoldActivates = 0x081d94da
-		GameSettings.BattleScriptColorChangeActivates = 0x081d94e8
-		GameSettings.BattleScriptRoughSkinActivates = 0x081d94ef
-		GameSettings.BattleScriptCuteCharmActivates = 0x081d950a
-		GameSettings.BattleScriptSynchronizeActivates = 0x081d951a
-
-		-- PewterCity_Gym_EventScript_DefeatedBrock
-		GameSettings.ObtainBadgeOne = 0x0816a619
-		-- CeruleanCity_Gym_EventScript_MistyDefeated
-		GameSettings.ObtainBadgeTwo = 0x0816ab27
-		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
-		GameSettings.ObtainBadgeThree = 0x0816b9d0
-		-- CeladonCity_Gym_EventScript_DefeatedErika
-		GameSettings.ObtainBadgeFour = 0x0816d0f4
-		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
-		GameSettings.ObtainBadgeFive = 0x0816d5d4
-		-- SaffronCity_Gym_EventScript_DefeatedSabrina
-		GameSettings.ObtainBadgeSix = 0x0816ee5e
-		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
-		GameSettings.ObtainBadgeSeven = 0x0816da5a
-		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
-		GameSettings.ObtainBadgeEight = 0x08169f58
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.bagEncryptionKeyOffset = 0xF20
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
-	elseif gamecode == 0x42504745 and gameversion == 0x00810000 then
-		print("Leaf Green v1.0 ROM Detected")
-		BadgeButtons.BADGE_GAME_PREFIX = "FRLG"
-		BadgeButtons.xOffsets = {0, -2, -2, 0, 1, 1, 0, 1}
-
-		GameSettings.game = 3
-		GameSettings.gamename = "Pokemon LeafGreen (U)"
-		GameSettings.version = GameSettings.VERSIONS.FRLG
-		GameSettings.versiongroup = 2
-
-		GameSettings.StartWildBattle = 0x0807f6d8
-		GameSettings.TrainerSentOutPkmn = 0x083fd1ed
-		GameSettings.BeginBattleIntro = 0x080123c0
-		GameSettings.ReturnFromBattleToOverworld = 0x08015b58
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.ChooseMoveUsedParticle = 0x080d869c
-		GameSettings.gChosenMove = 0x02023d4c
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
-		GameSettings.gBattlerPartyIndexesEnemySlotOne = 0x02023bd0
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = 0x02023bcd2
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = 0x02023bd4
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.ShowPokemonSummaryScreen = 0x081344d0
-		GameSettings.CalculateMonStats = 0x0803e47c
-		GameSettings.DisplayMonLearnedMove = 0x081267dc
-		GameSettings.SwitchSelectedMons = 0x08122e34
-		GameSettings.UpdatePoisonStepCounter = 0x0806d79c
-		GameSettings.WeHopeToSeeYouAgain = 0x081a54ed
-		GameSettings.DoPokeballSendOutAnimation = 0x0804a938
-		GameSettings.HealPlayerParty = 0x080a002c
-
-		GameSettings.BattleScriptDrizzleActivates = 0x081d925b
-		GameSettings.BattleScriptSpeedBoostActivates = 0x081d926f
-		GameSettings.BattleScriptTraceActivates = 0x081d927d
-		GameSettings.BattleScriptRainDishActivates = 0x081d9287
-		GameSettings.BattleScriptSandstreamActivates = 0x081d929b
-		GameSettings.BattleScriptShedSkinActivates = 0x081d92af
-		GameSettings.BattleScriptIntimidateActivates = 0x081d92ec
-		GameSettings.BattleScriptDroughtActivates = 0x081d9355
-		GameSettings.BattleScriptStickyHoldActivates = 0x081d946a
-		GameSettings.BattleScriptColorChangeActivates = 0x081d9478
-		GameSettings.BattleScriptRoughSkinActivates = 0x081d947f
-		GameSettings.BattleScriptCuteCharmActivates = 0x081d949a
-		GameSettings.BattleScriptSynchronizeActivates = 0x081d94aa
-
-		-- PewterCity_Gym_EventScript_DefeatedBrock
-		GameSettings.ObtainBadgeOne = 0x0816a5a1
-		-- CeruleanCity_Gym_EventScript_MistyDefeated
-		GameSettings.ObtainBadgeTwo = 0x0816aaaf
-		-- VermilionCity_Gym_EventScript_DefeatedLtSurge
-		GameSettings.ObtainBadgeThree = 0x0816b958
-		-- CeladonCity_Gym_EventScript_DefeatedErika
-		GameSettings.ObtainBadgeFour = 0x0816d07c
-		-- FuchsiaCity_Gym_EventScript_DefeatedKoga
-		GameSettings.ObtainBadgeFive = 0x0816d55c
-		-- SaffronCity_Gym_EventScript_DefeatedSabrina
-		GameSettings.ObtainBadgeSix = 0x0816ede6
-		-- CinnabarIsland_Gym_EventScript_DefeatedBlaine
-		GameSettings.ObtainBadgeSeven = 0x0816d9e2
-		-- ViridianCity_Gym_EventScript_DefeatedGiovanni
-		GameSettings.ObtainBadgeEight = 0x08169ee0
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.bagEncryptionKeyOffset = 0xF20
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
-	else
-		GameSettings.game = 0
-		GameSettings.gamename = "Unsupported game"
-		GameSettings.encountertable = 0
+	if gamecode == 0x41585645 then
+		GameSettings.setGameAsRuby(gameversion)
+	elseif gamecode == 0x41585045 then
+		GameSettings.setGameAsSapphire(gameversion)
+	elseif gamecode == 0x42504545 then
+		GameSettings.setGameAsEmerald(gameversion)
+	elseif gamecode == 0x42505245 then
+		GameSettings.setGameAsFireRed(gameversion)
+	elseif gamecode == 0x42504745 then
+		GameSettings.setGameAsLeafGreen(gameversion)
 	end
+end
 
-	if GameSettings.game > 0 then
-		GameSettings.pstats = pstats[GameSettings.game]
-		GameSettings.estats = estats[GameSettings.game]
+function GameSettings.setGameInfo(gamecode)
+	-- Mapped by key=gamecode
+	local games = {
+		[0x41585645] = {
+			GAME_NUMBER = 1,
+			GAME_NAME = "Pokemon Ruby (U)",
+			VERSION_GROUP = 1,
+			PSTATS = 0x3004360,
+			ESTATS = 0x30045C0,
+			BADGE_PREFIX = "RSE",
+			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+		},
+		[0x41585045] = {
+			GAME_NUMBER = 1,
+			GAME_NAME = "Pokemon Sapphire (U)",
+			VERSION_GROUP = 1,
+			PSTATS = 0x3004360,
+			ESTATS = 0x30045C0,
+			BADGE_PREFIX = "RSE",
+			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+		},
+		[0x42504545] = {
+			GAME_NUMBER = 2,
+			GAME_NAME = "Pokemon Emerald (U)",
+			VERSION_GROUP = 1,
+			PSTATS = 0x20244EC,
+			ESTATS = 0x2024744,
+			BADGE_PREFIX = "RSE",
+			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
+		},
+		[0x42505245] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon FireRed (U)",
+			VERSION_GROUP = 2,
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42504745] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon LeafGreen (U)",
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			VERSION_GROUP = 2,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+	}
+
+	if games[gamecode] ~= nil then
+		GameSettings.game = games[gamecode].GAME_NUMBER
+		GameSettings.gamename = games[gamecode].GAME_NAME
+		GameSettings.pstats = games[gamecode].PSTATS
+		GameSettings.estats = games[gamecode].ESTATS
+		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
+		BadgeButtons.BADGE_GAME_PREFIX = games[gamecode].BADGE_PREFIX
+		BadgeButtons.xOffsets = games[gamecode].BADGE_XOFFSETS
+	else
+		GameSettings.gamename = "Unsupported game, unable to load ROM."
+	end
+end
+
+function GameSettings.setGameAsRuby(gameversion)
+	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
+	if gameversion == 0x00410000 then
+		print("ROM Detected: Pokemon Ruby v1.0")
+
+		GameSettings.summaryCheckValue = 69 --nice
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	elseif gameversion == 0x01400000 then
+		print("ROM Detected: Pokemon Ruby v1.1")
+
+		GameSettings.summaryCheckValue = 101
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	elseif gameversion == 0x023F0000 then
+		print("ROM Detected: Pokemon Ruby v1.2")
+
+		GameSettings.summaryCheckValue = 101
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	end
+end
+
+function GameSettings.setGameAsSapphire(gameversion)
+	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
+	if gameversion == 0x00550000 then
+		print("ROM Detected: Pokemon Sapphire v1.0")
+
+		GameSettings.summaryCheckValue = 69
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	elseif gameversion == 0x1540000 then
+		print("ROM Detected: Pokemon Sapphire v1.1")
+
+		GameSettings.summaryCheckValue = 101
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	elseif gameversion == 0x02530000 then
+		print("ROM Detected: Pokemon Sapphire v1.2")
+
+		GameSettings.summaryCheckValue = 101
+		GameSettings.sMonSummaryScreen = 0x03001770 + 0x004 -- gMain + callback2 offset
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gSaveBlock2ptr = 0x00000000
+		GameSettings.bagEncryptionKeyOffset = 0x00
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
+		GameSettings.bagPocket_Berries_Size = 46
+	end
+end
+
+function GameSettings.setGameAsEmerald(gameversion)
+	print("ROM Detected: Pokemon Emerald")
+
+	GameSettings.sMonSummaryScreen = 0x0203cf1c
+	GameSettings.sSpecialFlags = 0x020375fc
+	GameSettings.sBattlerAbilities = 0x0203aba4
+	GameSettings.gBattlerAttacker = 0x0202420B
+	GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
+	GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+	GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+	GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+	GameSettings.gBattleMons = 0x02024084
+	GameSettings.gBattlescriptCurrInstr = 0x02024214
+	GameSettings.gBattleOutcome = 0x0202433a
+
+	GameSettings.gSaveBlock1 = 0x02025a00
+	GameSettings.gSaveBlock2ptr = 0x03005d90
+	GameSettings.bagEncryptionKeyOffset = 0xAC
+	GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
+	GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
+	GameSettings.bagPocket_Items_Size = 30
+	GameSettings.bagPocket_Berries_Size = 46
+
+	-- https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
+	GameSettings.ABILITIES = {
+		[0x082db430] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+		[0x082db44b] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+		[0x082db552] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+		[0x082db560] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+		[0x082d9362] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+		[0x082db5f5] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+		[0x082db650] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+		[0x082d8f63] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+		[0x082db5b1] = 18, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+		[0x082db611] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+		[0x082db4be] = 22, -- BattleScript_PauseIntimidateActivates + 0x0 Intimidate
+		[0x082db664] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+		[0x082db67f] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+		[0x082db5c7] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+		[0x082db452] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+		[0x082db627] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+		[0x082db45f] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+		[0x082db470] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+		[0x082db635] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+		[0x082db6cc] = 54, -- BattleScript_MoveUsedLoafingAroundMsg + 0x5 Truant
+		[0x082db678] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+		[0x082db63f] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+		[0x082db487] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+		[0x082db52a] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+		[0x082d8ad7] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+	}
+end
+
+function GameSettings.setGameAsFireRed(gameversion)
+	if gameversion == 0x01670000 then
+		print("ROM Detected: Pokemon Fire Red v1.1")
+
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		GameSettings.ABILITIES = {
+			[0x081d92ef] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081d9411] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081d941f] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081d72b5] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
+			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
+			[0x081d94b4] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+			[0x081d950f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081d6ebf] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081d9470] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust
+			[0x081d94d0] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+			[0x081d937d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081d9523] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
+			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
+			[0x081d953e] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081d9486] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081d9311] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
+			[0x081D94E6] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081D931E] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081d932f] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			[0x081D94F4] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081d9567] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081d9537] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081d94fe] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081d9346] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
+			[0x081d93e9] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081D6A44] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
+		}
+	elseif gameversion == 0x00680000 then
+		print("ROM Detected: Pokemon Fire Red v1.0")
+
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
+		GameSettings.ABILITIES = {
+			[0x081d927f] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081d929a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081d93a1] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081d93af] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081d7245] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			[0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			[0x081d949f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081d93f8] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+			[0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			[0x081d94ce] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081d9416] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081d92a1] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			[0x081d9476] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081d92ae] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081d92bf] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			[0x081d9484] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081d94f7] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081d94c7] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081d948e] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081d92d6] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			[0x081d9379] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+		}
+	end
+end
+
+function GameSettings.setGameAsLeafGreen(gameversion)
+	if gameversion == 0x01800000 then
+		print("ROM Detected: Pokemon Leaf Green v1.1")
+
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
+		GameSettings.ABILITIES = {
+			[0x081d92cb] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081d92e6] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081d93ed] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081d93fb] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081d7291] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			[0x081d9490] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			[0x081d94eb] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081d6e9b] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081d9446] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			[0x081d94ac] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			[0x081d9359] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081d94ff] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			[0x081d951a] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081d9462] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081d92ed] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			[0x081d94c2] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081d92fa] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081d930b] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			[0x081d94d0] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081d9543] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081d9513] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081d94da] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081d9322] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			[0x081d93c5] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081d6a20] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+		}
+	elseif gameversion == 0x00810000 then
+		print("ROM Detected: Pokemon Leaf Green v1.0")
+
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gSaveBlock2ptr = 0x0300500c
+		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
+		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
+		GameSettings.ABILITIES = {
+			[0x081d925b] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081d9276] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081d937d] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081d938b] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081d7221] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			[0x081d9420] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			[0x081d947b] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081d6e2b] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081d93d6] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			[0x081d943c] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			[0x081d92e9] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081d948f] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			[0x081d94aa] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081d93f2] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081d927d] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			[0x081d9452] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081d928a] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081d929b] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			[0x081d9460] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081d94d3] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081d94a3] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081d946a] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081d92b2] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			[0x081d9355] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081d69b0] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+		}
 	end
 end

@@ -16,6 +16,8 @@ Theme.Presets = {
 		"Calico Cat",
 		"Cotton Candy",
 		"USS Galactic",
+		"Simple Monotone",
+		"Neon Lights",
 	},
 	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
 	PresetConfigStrings = {
@@ -27,6 +29,8 @@ Theme.Presets = {
 		["Calico Cat"] = "4A3432 E07E3D 8A9298 E07E3D FCFCF0 8A9298 FCFCF0 E07E3D FBCA8C 0F0601 0",
 		["Cotton Candy"] = "000000 1A85FF D41159 9155D9 EEEEEE D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
 		["USS Galactic"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
+		["Simple Monotone"] = "222222 01B910 FE5958 555555 FFFFFF 000000 FFFFFF 000000 FFFFFF 555555 0",
+		["Neon Lights"] = "FFFFFF 38FF12 FF00E3 FFF100 FFFFFF 00F5FB 000000 001EFF 000000 000000 1",
 	}
 }
 
@@ -84,6 +88,7 @@ Theme.moveTypeEnableButton = {
 		GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
 		Theme.redraw = true
 		Theme.updated = true
+		Program.waitToDrawFrames = 0
 	end
 }
 
@@ -135,6 +140,7 @@ function Theme.loadTheme()
 	end
 
 	Theme.redraw = true
+	Program.waitToDrawFrames = 0
 end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
@@ -236,6 +242,7 @@ function Theme.openPresetsWindow()
 		Theme.importThemeFromText(Theme.Presets.PresetConfigStrings[forms.gettext(presetDropdown)])
 		Theme.updated = true
 		Theme.loadTheme()
+		client.unpause()
 		forms.destroy(presetsForm)
 	end, 212, 29)
 end
@@ -255,6 +262,7 @@ function Theme.tryRestoreDefaultTheme()
 		Theme.restoreDefaultsButton.confirmReset = true
 
 		Theme.redraw = true
+		Program.waitToDrawFrames = 0
 	end
 end
 
@@ -268,5 +276,6 @@ function Theme.closeMenuAndSave()
 
 	-- Inform the Tracker Program to load the Options screen
 	Options.redraw = true
+	Program.waitToDrawFrames = 0
 	Program.state = State.SETTINGS
 end

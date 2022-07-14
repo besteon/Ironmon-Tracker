@@ -1204,7 +1204,7 @@ PokemonData = {
 		type = { PokemonTypes.NORMAL, PokemonTypes.EMPTY },
 		evolution = EvolutionTypes.NONE,
 		bst = "540",
-		movelvls = { { 6, 10, 15, 19, 24, 28, 28, 33, 37, 42, 46, 51 }, { 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53 } },
+		movelvls = { { 6, 10, 15, 19, 24, 28, 28, 33, 37, 42, 46, 51 }, { 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53 } },
 		weight = 460.0
 	},
 	{

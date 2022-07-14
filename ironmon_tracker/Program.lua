@@ -1,25 +1,25 @@
 State = {
 	TRACKER = "Tracker",
+	INFOSCREEN = "InfoScreen",
 	SETTINGS = "Settings",
 	THEME = "Theme",
 }
 
 Program = {
-	trainerPokemonTeam = {},
-	enemyPokemonTeam = {},
+	pokemonDataFrames = 0,
+	battleDataDelayFrames = 0,
+	itemCheckFrames = 0,
+	waitToDrawFrames = 0,
+	saveDataFrames = 3600,
 	state = State.TRACKER,
 	PCHealTrackingButtonState = false,
-}
-
-Program.tracker = {
-	movesToUpdate = {},
-	abilitiesToUpdate = {},
-	itemsToUpdate = {},
+	inCatchingTutorial = false,
+	hasCompletedTutorial = false,
 }
 
 Program.StatButtonState = {
 	hp = 1,
-	att = 1,
+	atk = 1,
 	def = 1,
 	spa = 1,
 	spd = 1,
@@ -31,71 +31,38 @@ Program.transformedPokemon = {
 	forceSwitch = false,
 }
 
-Program.eventCallbacks = {}
-
 function Program.main()
 	Input.update()
 
+	-- Updating data on pokemon should be unrelated to which screen is being displayed, otherwise the Tracker wouldn't know a battle ended in the Theme menu for example.
+	Program.updateTrackedAndCurrentData()
+
 	if Program.state == State.TRACKER then
-		-- Update moves in the tracker
-		for _, move in ipairs(Program.tracker.movesToUpdate) do
-			Tracker.TrackMove(move.pokemonId, move.move, move.level)
-		end
-		Program.tracker.movesToUpdate = {}
+		-- Only draw the Tracker screen every half second (60 frames/sec)
+		if Program.waitToDrawFrames == 0 then
+			Program.waitToDrawFrames = 30
 
-		-- Update abilities in the tracker
-		for _, ability in ipairs(Program.tracker.abilitiesToUpdate) do
-			Tracker.TrackAbility(ability.pokemonId, ability.abilityId)
-		end
-		Program.tracker.abilitiesToUpdate = {}
+			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
-		-- Update items in the tracker
-		for _, item in ipairs(Program.tracker.itemsToUpdate) do
-			Tracker.TrackItem(item.pokemonId, item.itemId)
-		end
-		Program.tracker.items = {}
-
-		-- Execute event callbacks
-		-- We do this during the next main loop instead of the callback itself because Bizhawk callback function context is JANK
-		-- For example, the working directory in the context becomes the directory of EmuHawk.exe instead of the directory of the main Lua script
-		for _, callback in ipairs(Program.eventCallbacks) do
-			callback()
-		end
-		Program.eventCallbacks = {}
-
-		-- Only redraw the UI when an event has occurred which requires the UI to be redrawn.
-		-- TODO: This could be more granular for even more performance gains. In general, drawing to the UI is very cheap but reading values from emulated memory is very expensive
-		if Tracker.redraw == true and Tracker.waitFrames == 0 then
-			if Tracker.Data.inBattle == 1 then
-				Program.UpdateMonPartySlots()
+			if opposingPokemon ~= nil then
+				Program.StatButtonState = Tracker.getStatMarkings(opposingPokemon.pokemonID)
+				Buttons = Program.updateButtons(Program.StatButtonState)
 			end
-			Program.UpdatePokemonTeamDataFromMemory()
-			Program.UpdateSelectedPokemonData()
-			Program.UpdateTargetedPokemonData()
-			Program.UpdatePrimaryMonAbilityData()
-			Program.UpdateMonStatStages()
-			Program.UpdateMonPartySlots()
-			Program.UpdateBagHealingItems()
 
-			Program.StatButtonState = Tracker.getButtonState()
-			Buttons = Program.updateButtons(Program.StatButtonState)
-
-			if Tracker.Data.selectedPlayer == 2 then
-				Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
+			-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
+			if Tracker.Data.isViewingOwn then
+				Drawing.drawPokemonView(ownersPokemon, opposingPokemon)
 			else
-				if Tracker.Data.needCheckSummary == 0 then
-					Drawing.DrawTracker(Tracker.Data.selectedPokemon, false, Tracker.Data.targetedPokemon)
-				else
-					Drawing.DrawTracker(Tracker.Data.selectedPokemon, true, Tracker.Data.targetedPokemon)
-				end
+				Drawing.drawPokemonView(opposingPokemon, ownersPokemon)
 			end
-
-			Tracker.redraw = false
-			Tracker.saveData()
 		end
 
-		if Tracker.waitFrames > 0 then
-			Tracker.waitFrames = Tracker.waitFrames - 1
+		Program.waitToDrawFrames = Program.waitToDrawFrames - 1
+	elseif Program.state == State.INFOSCREEN then
+		if InfoScreen.redraw then
+			Drawing.drawInfoScreen()
+			InfoScreen.redraw = false
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
@@ -103,444 +70,147 @@ function Program.main()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
-		if Theme.redraw == true and Tracker.waitFrames == 0 then
-			if Theme.redraw then
-				Drawing.drawThemeMenu()
-				Theme.redraw = false
-				Tracker.waitFrames = 5
+		if Theme.redraw and Program.waitToDrawFrames == 0 then
+			Program.waitToDrawFrames = 5
+			Drawing.drawThemeMenu()
+			Theme.redraw = false
+		elseif Program.waitToDrawFrames > 0 then -- Required because of Theme.redraw check
+			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
+		end
+	end
+end
+
+function Program.updateTrackedAndCurrentData()
+	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
+	if Program.pokemonDataFrames == 0 then
+		Program.pokemonDataFrames = 30
+
+		local viewingWhichPokemon = Tracker.Data.otherViewSlot
+
+		Program.inCatchingTutorial = Program.isInCatchingTutorial()
+
+		if not Program.inCatchingTutorial then -- Don't update/track data while in the catching tutorial
+			Program.updatePokemonTeamsFromMemory()
+			Program.updateBattleDataFromMemory() -- This will only read memory data if in battle.
+
+			-- Check for if summary screen is being shown
+			if not Tracker.Data.hasCheckedSummary then
+				local summaryCheck = Memory.readbyte(GameSettings.sMonSummaryScreen)
+				if GameSettings.game == 1 then -- Ruby/Sapphire uses a different memory address and checks for a specific value
+					if summaryCheck == GameSettings.summaryCheckValue then
+						Tracker.Data.hasCheckedSummary = true
+					end
+				else
+					if summaryCheck ~= 0 then
+						Tracker.Data.hasCheckedSummary = true
+					end
+				end
 			end
 		end
-		if Tracker.waitFrames > 0 then
-			Tracker.waitFrames = Tracker.waitFrames - 1
-		end
-	end
-end
 
-function Program.UpdatePokemonTeamDataFromMemory()
-	Program.trainerPokemonTeam = Program.getTrainerData(1)
-	Program.enemyPokemonTeam = Program.getTrainerData(2)
-end
-
-function Program.UpdateSelectedPokemonData()
-	local pokemonaux = Program.getPokemonData({ player = Tracker.Data.selectedPlayer, slot = Tracker.Data.selectedSlot })
-	if Program.validPokemonData(pokemonaux) then
-		Tracker.Data.selectedPokemon = pokemonaux
-	end
-
-	if Tracker.Data.selectedPokemon ~= nil then
-		if Tracker.Data.selectedPokemon.pokemonID ~= nil then
-			Tracker.Data.selectedPokemon.moves = Tracker.getMoves(Tracker.Data.selectedPokemon.pokemonID + 1)
-			Tracker.Data.selectedPokemon.abilities = Tracker.getAbilities(Tracker.Data.selectedPokemon.pokemonID + 1)
-		end
-	end
-end
-
-function Program.UpdateTargetedPokemonData()
-	local pokemontarget = Program.getPokemonData({ player = Tracker.Data.targetPlayer, slot = Tracker.Data.targetSlot })
-	if Program.validPokemonData(pokemontarget) then
-		Tracker.Data.targetedPokemon = pokemontarget
-	else
-		Tracker.Data.targetedPokemon = nil
-	end
-end
-
-function Program.UpdatePrimaryMonAbilityData()
-	Tracker.Data.main.ability = Program.getMainAbility()
-end
-
-function Program.UpdateMonStatStages()
-	-- TODO: Update for double battles
-	local battleMonSlot = Tracker.Data.selectedPlayer - 1
-	local battleMon = Program.getBattleMon(battleMonSlot)
-	if battleMon.statStages["HP"] ~= 0 then
-		Tracker.Data.selectedPokemon.statStages = battleMon.statStages
-		Tracker.Data.selectedPokemon.ability = battleMon.ability
-	else
-		Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
-	end
-end
-
-function Program.UpdateMonPartySlots()
-	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-	Tracker.Data.selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	Tracker.Data.enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-	Tracker.Data.selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
-	Tracker.Data.enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-
-	if attackerValue % 2 == 1 then
-		if attackerValue == 1 then
-			Tracker.Data.selectedSlot = Tracker.Data.enemySlotOne
-			Tracker.Data.targetSlot = Tracker.Data.selfSlotOne
-		elseif attackerValue == 3 then
-			Tracker.Data.selectedSlot = Tracker.Data.enemySlotTwo
-			Tracker.Data.targetSlot = Tracker.Data.selfSlotOne
-		end
-	end
-
-	if Tracker.Data.selectedPlayer == 1 then
-		Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
-		Tracker.Data.targetSlot = Tracker.Data.enemySlotOne
-	end
-end
-
-function Program.UpdateBagHealingItems()
-	local healingItems = Program.getBagHealingItems(Tracker.Data.selectedPokemon)
-	if healingItems ~= nil then
-		Tracker.Data.healingItems = healingItems
-	end
-end
-
-function Program.BattleEnded()
-	Tracker.Data.selfSlotOne = 1
-	Tracker.Data.selectedSlot = Tracker.Data.selfSlotOne
-	Tracker.Data.selectedPokemon.statStages = { HP = 6, ATK = 6, DEF = 6, SPE = 6, SPA = 6, SPD = 6, ACC = 6, EVASION = 6 }
-
-	Tracker.Data.targetedPokemon = nil
-	Tracker.redraw = true
-	Tracker.waitFrames = 60
-end
-
-function Program.updateButtons(state)
-	Buttons[1].text = StatButtonStates[state["hp"]]
-	Buttons[2].text = StatButtonStates[state["att"]]
-	Buttons[3].text = StatButtonStates[state["def"]]
-	Buttons[4].text = StatButtonStates[state["spa"]]
-	Buttons[5].text = StatButtonStates[state["spd"]]
-	Buttons[6].text = StatButtonStates[state["spe"]]
-	Buttons[1].textcolor = StatButtonColors[state["hp"]]
-	Buttons[2].textcolor = StatButtonColors[state["att"]]
-	Buttons[3].textcolor = StatButtonColors[state["def"]]
-	Buttons[4].textcolor = StatButtonColors[state["spa"]]
-	Buttons[5].textcolor = StatButtonColors[state["spd"]]
-	Buttons[6].textcolor = StatButtonColors[state["spe"]]
-	return Buttons
-end
-
-function Program.getMainAbility()
-	local abilityValue = Memory.readbyte(GameSettings.sBattlerAbilities) + 1
-	if abilityValue ~= 1 then
-		return abilityValue
-	else
-		return Tracker.Data.main.ability
-	end
-	-- Set main pokemon's ability. TODO: Update when main pokemon changes
-	return abilityValue
-end
-
-function Program.HandleTrainerSentOutPkmn()
-	Tracker.controller.statIndex = 6
-	Tracker.Data.inBattle = 1
-	Tracker.Data.selectedSlot = 1
-
-	if Options["Auto swap to enemy"] then
-		Tracker.Data.selectedPlayer = 2
-		Tracker.Data.targetPlayer = 1
-		Tracker.Data.targetSlot = 1
-	end
-
-	Tracker.waitFrames = 100
-	Tracker.redraw = true
-end
-
-function Program.HandleEndBattle()
-	Tracker.Data.inBattle = 0
-	Tracker.Data.selectedPlayer = 1
-	Tracker.Data.selectedSlot = 1
-	Tracker.Data.targetPlayer = 2
-	Tracker.Data.targetSlot = 1
-
-	Tracker.Data.targetedPokemon = nil
-
-	Tracker.redraw = true
-
-	table.insert(Program.eventCallbacks, Program.BattleEnded)
-end
-
-function Program.HandleShowSummary()
-	Tracker.Data.needCheckSummary = 0
-	Tracker.redraw = true
-end
-
-function Program.HandleSwitchSelectedMons()
-	Tracker.redraw = true
-	Tracker.waitFrames = 30
-
-	if Options["Hide stats until summary shown"] == true then
-		Tracker.Data.needCheckSummary = 1
-	end
-end
-
-function Program.HandleCalculateMonStats()
-	Tracker.redraw = true
-end
-
-function Program.HandleDisplayMonLearnedMove()
-	Tracker.redraw = true
-end
-
-function Program.HandleUpdatePoisonStepCounter()
-	-- Only update the tracker for poison damage if the lead Pokémon is poisoned
-	if Tracker.Data.selectedPokemon.status == 2 then
-		Tracker.redraw = true
-	end
-end
-
-function Program.HandleHealPlayerParty()
-	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
-		if Options["PC heals count downward"] then
-			-- Automatically count down
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
-			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-		else
-			-- Automatically count up
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
-			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		end		
-	end
-	-- This goes here so mon hp always gets updated on PC heal
-	Tracker.redraw = true
-end
-
-function Program.HandleWeHopeToSeeYouAgain()
-	Tracker.redraw = true
-end
-
-function Program.HandleDoPokeballSendOutAnimation()
-	if Tracker.Data.inBattle == 0 then
-		Tracker.Data.selectedSlot = 1
-		Tracker.Data.targetPlayer = 2
-		Tracker.Data.targetSlot = 1
-	end
-
-	if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
-		-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
-		Program.transformedPokemon.isTransformed = false
-	end
-
-	if Options["Auto swap to enemy"] then
-		Tracker.Data.selectedPlayer = 2
-		Tracker.Data.targetPlayer = 1
-		Tracker.Data.targetSlot = 1
-	end
-
-	Tracker.controller.statIndex = 6
-	Tracker.Data.inBattle = 1
-	Tracker.waitFrames = 90
-	Tracker.redraw = true
-end
-
--- ABILITY EVENT HANDLERS
-
-function Program.HandleBattleScriptDrizzleActivates()
-	Program.HandleAbilityActivate(2)
-end
-
-function Program.HandleBattleScriptSpeedBoostActivates()
-	Program.HandleAbilityActivate(3)
-end
-
-function Program.HandleBattleScriptTraceActivates()
-	Program.HandleAbilityActivate(36)
-end
-
-function Program.HandleBattleScriptRainDishActivates()
-	Program.HandleAbilityActivate(44)
-end
-
-function Program.HandleBattleScriptSandstreamActivates()
-	Program.HandleAbilityActivate(45)
-end
-
-function Program.HandleBattleScriptShedSkinActivates()
-	Program.HandleAbilityActivate(61)
-end
-
-function Program.HandleBattleScriptIntimidateActivates()
-	Program.HandleAbilityActivate(22)
-end
-
-function Program.HandleBattleScriptDroughtActivates()
-	Program.HandleAbilityActivate(70)
-end
-
-function Program.HandleBattleScriptStickyHoldActivates()
-	Program.HandleAbilityActivate(60)
-end
-
-function Program.HandleBattleScriptColorChangeActivates()
-	Program.HandleAbilityActivate(16)
-end
-
-function Program.HandleBattleScriptRoughSkinActivates()
-	Program.HandleAbilityActivate(24)
-end
-
-function Program.HandleBattleScriptCuteCharmActivates()
-	Program.HandleAbilityActivate(56)
-end
-
-function Program.HandleBattleScriptSynchronizeActivates()
-	Program.HandleAbilityActivate(28)
-end
-
--- END ABILITY EVENT HANDLERS
-
-function Program.obtainBadge(badgeNumber)
-	if badgeNumber >= 1 and badgeNumber <= 8 then
-		Tracker.Data.badges[badgeNumber] = 1 -- Marks badge as obtained
-		Buttons.updateBadges()
-		Tracker.redraw = true
-	else
-		print("Unable to track obtaining badge #" .. badgeNumber)
-	end
-end
-
-function Program.HandleBadgeOneObtained()
-	Program.obtainBadge(1)
-end
-function Program.HandleBadgeTwoObtained()
-	Program.obtainBadge(2)
-end
-function Program.HandleBadgeThreeObtained()
-	Program.obtainBadge(3)
-end
-function Program.HandleBadgeFourObtained()
-	Program.obtainBadge(4)
-end
-function Program.HandleBadgeFiveObtained()
-	Program.obtainBadge(5)
-end
-function Program.HandleBadgeSixObtained()
-	Program.obtainBadge(6)
-end
-function Program.HandleBadgeSevenObtained()
-	Program.obtainBadge(7)
-end
-function Program.HandleBadgeEightObtained()
-	Program.obtainBadge(8)
-end
-
-function Program.HandleExit()
-	Drawing.clearGUI()
-	if Input.noteForm then
-		forms.destroy(Input.noteForm)
-	end
-end
-
-function Program.HandleMove()
-	local moveValue = Memory.readword(GameSettings.gChosenMove) + 1
-	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-
-	if attackerValue % 2 == 1 then -- Opponent pokemon
-		local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-
-		local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-		local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-
-		local pokemonId = 1
-		local level = 1
-		if attackerValue == 1 then
-			pokemonId = Program.enemyPokemonTeam[enemySlotOne].pkmID
-			level = Program.enemyPokemonTeam[enemySlotOne].level
+		-- Use this to check if the opposing Pokemon changes
+		if Tracker.Data.inBattle and viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
+			-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
+			if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
+				Program.transformedPokemon.isTransformed = false
+			end
+		
 			if Options["Auto swap to enemy"] then
-				Tracker.Data.selectedPlayer = 2
-				Tracker.Data.selectedSlot = enemySlotOne
-				Tracker.Data.targetPlayer = 1
-				Tracker.Data.targetSlot = selfSlotOne
+				Tracker.Data.isViewingOwn = false
 			end
-		elseif attackerValue == 3 then
-			pokemonId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
-			level = Program.enemyPokemonTeam[enemySlotTwo].level
-			if Options["Auto swap to enemy"] then
-				Tracker.Data.selectedPlayer = 2
-				Tracker.Data.selectedSlot = enemySlotTwo
-				Tracker.Data.targetPlayer = 1
-				Tracker.Data.targetSlot = selfSlotOne
-			end
-		end
+		
+			-- Reset the controller's position when a new pokemon is sent out
+			Tracker.controller.statIndex = 6
 
-		-- Stop tracking moves temporarily while transformed
-		if not Program.transformedPokemon.isTransformed then
-			table.insert(Program.tracker.movesToUpdate, { pokemonId = pokemonId + 1, move = moveValue, level = level })
-		elseif moveValue == 19 or moveValue == 47 then
-			-- Account for niche scenario of force-switch moves being used while transformed
-			Program.transformedPokemon.forceSwitch = true
-		elseif Program.transformedPokemon.forceSwitch then
-			-- Reset when another move is used
-			Program.transformedPokemon.forceSwitch = false
-		end
-		-- This comes after so transform itself gets tracked
-		if moveValue == 145 then
-			Program.transformedPokemon.isTransformed = true
+			-- Delay drawing the new pokemon, because of send out animation
+			Program.waitToDrawFrames = 0
 		end
 	end
 
-	Tracker.redraw = true
-	Tracker.waitFrames = 30
+	-- Only update "Heals in Bag" information every 5 seconds (5 seconds * 60 frames/sec)
+	if Program.itemCheckFrames == 0 then
+		Program.itemCheckFrames = 300
+		Program.calculateBagHealingItemsFromMemory()
+	end
+
+	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
+	if Program.saveDataFrames == 0 then
+		Program.saveDataFrames = 3600
+		Tracker.saveData()
+	end
+
+	Program.pokemonDataFrames = Program.pokemonDataFrames - 1
+	Program.itemCheckFrames = Program.itemCheckFrames - 1
+	Program.saveDataFrames = Program.saveDataFrames - 1
 end
 
-function Program.HandleAbilityActivate(abilityId)
-	local slotZeroAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities)
-	local slotOneAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
-	local slotTwoAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x2)
-	local slotThreeAbilityId = Memory.readbyte(GameSettings.sBattlerAbilities + 0x3)
+function Program.updatePokemonTeamsFromMemory()
+	-- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+	local isOpposingPokemonWild = false
 
-	local selfSlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	local enemySlotOne = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-	local selfSlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
-	local enemySlotTwo = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-
-	local pkmnId = 0
-	if slotZeroAbilityId == abilityId then
-		pkmnId = Program.trainerPokemonTeam[selfSlotOne].pkmID
-	elseif slotOneAbilityId == abilityId then
-		pkmnId = Program.enemyPokemonTeam[enemySlotOne].pkmID
-	elseif slotTwoAbilityId == abilityId then
-		pkmnId = Program.trainerPokemonTeam[selfSlotTwo].pkmID
-	elseif slotThreeAbilityId == abilityId then
-		pkmnId = Program.enemyPokemonTeam[enemySlotTwo].pkmID
-	end
-
-	table.insert(Program.tracker.abilitiesToUpdate, { pokemonId = pkmnId + 1, abilityId = abilityId })
-
-	Tracker.redraw = true
-end
-
-function Program.getTrainerData(index)
-	local trainerdata = {}
-	local st = 0
-	if index == 1 then
-		st = GameSettings.pstats
-	else
-		st = GameSettings.estats
-	end
+	-- Check for updates to each pokemon team
+	local addressOffset = 0
 	for i = 1, 6, 1 do
-		local start = st + 100 * (i - 1)
-		local personality = Memory.readdword(start)
-		local magicword = bit.bxor(personality, Memory.readdword(start + 4))
-		local growthoffset = (TableData.growth[(personality % 24) + 1] - 1) * 12
-		local growth = bit.bxor(Memory.readdword(start + 32 + growthoffset), magicword)
-		trainerdata[i] = {
-			pkmID = Utils.getbits(growth, 0, 16),
-			curHP = Memory.readword(start + 86),
-			maxHP = Memory.readword(start + 88),
-			level = Memory.readbyte(start + 84)
-		}
+		-- Lookup information on the player's Pokemon first
+		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
+		Tracker.Data.ownTeam[i] = personality
+
+		if personality ~= 0 then
+			local newPokemonData = Program.readNewPokemonFromMemory(GameSettings.pstats + addressOffset, personality)
+
+			if Program.validPokemonData(newPokemonData) then
+				-- Sets the player's trainerID as soon as they get their first Pokemon
+				if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
+					Tracker.Data.trainerID = newPokemonData.trainerID
+				end
+				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
+				newPokemonData.trainerID = nil
+
+				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+			end
+		end
+
+		-- Then lookup information on the opposing Pokemon
+		personality = Memory.readdword(GameSettings.estats + addressOffset)
+		Tracker.Data.otherTeam[i] = personality
+
+		if personality ~= 0 then
+			newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
+
+			if Program.validPokemonData(newPokemonData) then
+				if Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 then
+					isOpposingPokemonWild = Tracker.Data.trainerID == newPokemonData.trainerID
+				end
+				Tracker.addUpdatePokemon(newPokemonData, personality, false)
+			end
+		end
+
+		addressOffset = addressOffset + 100
 	end
-	return trainerdata
+
+	-- If the pokemon doesn't have an ability yet, look it up
+	-- Lookup data on the last pokemon we fought (for purposes of it being a wild pokemon and we catch it)
+	local lastSeenPersonality = Tracker.Data.otherTeam[1]
+	local lastSeenPokemon = Tracker.Data.ownPokemon[lastSeenPersonality]
+
+	if lastBattleStatus == 7 and lastSeenPokemon ~= nil and (lastSeenPokemon.abilityId == nil or lastSeenPokemon.abilityId == 0) then
+		local abilityFromMemory = Memory.readbyte(GameSettings.sBattlerAbilities + 0x1)
+		lastSeenPokemon.abilityId = abilityFromMemory
+	end
+
+	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
+	local opposingPokemon = Tracker.getPokemon(1, false)
+	if not Tracker.Data.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
+		Program.beginNewBattle(isOpposingPokemonWild)
+	elseif Tracker.Data.inBattle and lastBattleStatus ~= 0 then
+		Program.endBattle(isOpposingPokemonWild)
+	end
 end
 
-function Program.getPokemonData(index)
-	local start
-	if index.player == 1 then
-		start = GameSettings.pstats + 100 * (index.slot - 1)
-	else
-		start = GameSettings.estats + 100 * (index.slot - 1)
-	end
-
-	local personality = Memory.readdword(start)
-	local otid = Memory.readdword(start + 4)
-	local magicword = bit.bxor(personality, otid)
+function Program.readNewPokemonFromMemory(startAddress, personality)
+	local otid = Memory.readdword(startAddress + 4)
+	local magicword = bit.bxor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
 	local aux          = personality % 24
 	local growthoffset = (TableData.growth[aux + 1] - 1) * 12
@@ -548,26 +218,31 @@ function Program.getPokemonData(index)
 	local effortoffset = (TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (TableData.misc[aux + 1] - 1) * 12
 
-	local growth1 = bit.bxor(Memory.readdword(start + 32 + growthoffset), magicword)
-	local growth2 = bit.bxor(Memory.readdword(start + 32 + growthoffset + 4), magicword)
-	local growth3 = bit.bxor(Memory.readdword(start + 32 + growthoffset + 8), magicword)
-	local attack1 = bit.bxor(Memory.readdword(start + 32 + attackoffset), magicword)
-	local attack2 = bit.bxor(Memory.readdword(start + 32 + attackoffset + 4), magicword)
-	local attack3 = bit.bxor(Memory.readdword(start + 32 + attackoffset + 8), magicword)
-	local effort1 = bit.bxor(Memory.readdword(start + 32 + effortoffset), magicword)
-	local effort2 = bit.bxor(Memory.readdword(start + 32 + effortoffset + 4), magicword)
-	local effort3 = bit.bxor(Memory.readdword(start + 32 + effortoffset + 8), magicword)
-	local misc1   = bit.bxor(Memory.readdword(start + 32 + miscoffset), magicword)
-	local misc2   = bit.bxor(Memory.readdword(start + 32 + miscoffset + 4), magicword)
-	local misc3   = bit.bxor(Memory.readdword(start + 32 + miscoffset + 8), magicword)
+	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
+	-- local growth2 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
+	local growth3 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
+	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
+	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
+	local attack3 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
 
-	local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
-			+ Utils.addhalves(attack1) + Utils.addhalves(attack2) + Utils.addhalves(attack3)
-			+ Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
-			+ Utils.addhalves(misc1) + Utils.addhalves(misc2) + Utils.addhalves(misc3)
-	cs = cs % 65536
+	-- Unused data memory reads
+	-- local effort1 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	-- local effort2 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
+	-- local effort3 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
+	-- local misc1   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+	-- local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	-- local misc3   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
-	local status_aux = Memory.readdword(start + 80)
+	-- Checksum, currently unused
+	-- local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
+	-- 		+ Utils.addhalves(attack1) + Utils.addhalves(attack2) + Utils.addhalves(attack3)
+	-- 		+ Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
+	-- 		+ Utils.addhalves(misc1) + Utils.addhalves(misc2) + Utils.addhalves(misc3)
+	-- cs = cs % 65536
+
+	-- Determine status condition
+	local status_aux = Memory.readdword(startAddress + 80)
 	local sleep_turns_result = 0
 	local status_result = 0
 	if status_aux == 0 then
@@ -587,135 +262,348 @@ function Program.getPokemonData(index)
 		status_result = 6
 	end
 
-	return {
+	-- Can likely improve this further using memory.read_bytes_as_array but would require testing to verify
+	local level_and_currenthp = Memory.readdword(startAddress + 84)
+	local maxhp_and_atk = Memory.readdword(startAddress + 88)
+	local def_and_speed = Memory.readdword(startAddress + 92)
+	local spatk_and_spdef = Memory.readdword(startAddress + 96)
+
+	local pokemonData = {
+		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = Utils.getbits(growth1, 0, 16),
 		heldItem = Utils.getbits(growth1, 16, 16),
-		experience = Utils.getbits(growth2, 32, 31),
 		friendship = Utils.getbits(growth3, 72, 8),
-		pokerus = Utils.getbits(misc1, 0, 8),
-		tid = Utils.getbits(otid, 0, 16),
-		sid = Utils.getbits(otid, 16, 16),
-		iv = misc2,
-		ev1 = effort1,
-		ev2 = effort2,
-		level = Memory.readbyte(start + 84),
+		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
-		pp = attack3,
-		move1 = Utils.getbits(attack1, 0, 16),
-		move2 = Utils.getbits(attack1, 16, 16),
-		move3 = Utils.getbits(attack2, 0, 16),
-		move4 = Utils.getbits(attack2, 16, 16),
-		curHP = Memory.readword(start + 86),
-		maxHP = Memory.readword(start + 88),
-		atk = Memory.readword(start + 90),
-		def = Memory.readword(start + 92),
-		spe = Memory.readword(start + 94),
-		spa = Memory.readword(start + 96),
-		spd = Memory.readword(start + 98),
+		abilityId = nil, -- Leave unset, since this currently can only be found via in-battle data
 		status = status_result,
 		sleep_turns = sleep_turns_result,
-		ability = 0,
+		curHP = Utils.getbits(level_and_currenthp, 16, 16),
+		stats = {
+			hp = Utils.getbits(maxhp_and_atk, 0, 16),
+			atk = Utils.getbits(maxhp_and_atk, 16, 16),
+			def = Utils.getbits(def_and_speed, 0, 16),
+			spa = Utils.getbits(spatk_and_spdef, 0, 16),
+			spd = Utils.getbits(spatk_and_spdef, 16, 16),
+			spe = Utils.getbits(def_and_speed, 16, 16),
+		},
+		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+		moves = {
+			{ id = Utils.getbits(attack1, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 0, 8) },
+			{ id = Utils.getbits(attack1, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 8, 8) },
+			{ id = Utils.getbits(attack2, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 16, 8) },
+			{ id = Utils.getbits(attack2, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 24, 8) },
+		},
+
+		-- Unused data that can be added back in later
+		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
+		-- experience = Utils.getbits(growth2, 32, 31), -- Unused
+		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
+		-- iv = misc2,
+		-- ev1 = effort1,
+		-- ev2 = effort2,
 	}
+
+	return pokemonData
 end
 
-function Program.validPokemonData(pokemonData)
-	if pokemonData["pokemonID"] < 0 or pokemonData["pokemonID"] > 412 or pokemonData["heldItem"] < 0 or pokemonData["heldItem"] > 376 then
-		return false
-	elseif pokemonData["move1"] < 0 or pokemonData["move2"] < 0 or pokemonData["move3"] < 0 or pokemonData["move4"] < 0 then
-		return false
-	elseif pokemonData["move1"] > 354 or pokemonData["move2"] > 354 or pokemonData["move3"] > 354 or pokemonData["move4"] > 354 then
-		return false
-	else
-		return true
+-- Updates viewslots for display, increment encounter count, update abilities if they don't exist already, as well as any stat stage changes
+function Program.updateBattleDataFromMemory()
+	if not Tracker.Data.inBattle then return end
+
+	-- First update which own/other slots are being viewed
+	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
+	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
+
+	-- Secondary enemy pokemon (likely the doubles battle partner)
+	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+	if attackerValue % 2 == 3 then
+		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 	end
-end
 
-function Program.getBattleMon(index)
-	local base = GameSettings.gBattleMons + (index * 0x58)
+	-- Verify the view slots are within bounds
+	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
+		Tracker.Data.ownViewSlot = 1
+	end
+	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
+		Tracker.Data.otherViewSlot = 1
+	end
 
-	return {
-		-- species = Memory.readword(base + 0x0),
-		-- attack = Memory.readword(base + 0x2),
-		-- defense = Memory.readword(base + 0x4),
-		-- speed = Memory.readword(base + 0x6),
-		-- spAttack = Memory.readword(base + 0x8),
-		-- spDefense = Memory.readword(base + 0xA),
-		-- moves = {
-		-- 	[1] = Memory.readword(base + 0xC),
-		-- 	[2] = Memory.readword(base + 0xE),
-		-- 	[3] = Memory.readword(base + 0x10),
-		-- 	[4] = Memory.readword(base + 0x12)
-		-- },
-		-- IVs, isEgg, abilityNum excluded
-		statStages = {
-			HP = Memory.readbyte(base + 0x18),
-			ATK = Memory.readbyte(base + 0x19),
-			DEF = Memory.readbyte(base + 0x1A),
-			SPE = Memory.readbyte(base + 0x1B),
-			SPA = Memory.readbyte(base + 0x1C),
-			SPD = Memory.readbyte(base + 0x1D),
-			ACC = Memory.readbyte(base + 0x1E),
-			EVASION = Memory.readbyte(base + 0x1F)
-		},
-		ability = Memory.readbyte(base + 0x20),
-		friendship = Memory.readbyte(base + 0x2B),
-	}
-end
+	-- Then update ability/statstage data for each of the viewed pokemon
+	-- [i=1] is own pokemon, [i=2] is other pokemon
+	for i=1, 2, 1 do
+		local pokemon = Utils.inlineIf(i == 1, Tracker.getPokemon(Tracker.Data.ownViewSlot, true), Tracker.getPokemon(Tracker.Data.otherViewSlot, false))
+		if pokemon ~= nil then
+			-- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
+			if i ~= 1 and (pokemon.hasBeenEncountered == nil or not pokemon.hasBeenEncountered) then
+				pokemon.hasBeenEncountered = true
+				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
+			end
 
-function Program.getNumItems(pocket, itemId)
-	local pockets = {
-		[BagPocket.Items] = {
-			addr = GameSettings.bagPocket_Items,
-			size = GameSettings.bagPocket_Items_Size,
-		},
-		[BagPocket.Berries] = {
-			addr = GameSettings.bagPocket_Berries,
-			size = GameSettings.bagPocket_Berries_Size,
-		},
-	}
+			-- Required delay between reading ability data from battle, as it takes N frames for old battle values to be cleared out
+			if Program.battleDataDelayFrames > 0 then
+				Program.battleDataDelayFrames = Program.battleDataDelayFrames - 30
+			else
+				-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
+				if pokemon.abilityId == nil or pokemon.abilityId == 0 then
+					local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(i == 1, 0x0, 0x58))
+					pokemon.abilityId = abilityFromMemory
+				end
 
-	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-	local key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
-	for i = 0x0, pockets[pocket].size * 0x4, 0x4 do
-		local id = Memory.readword(pockets[pocket].addr + i)
-		if id == itemId then
-			local quantity = bit.bxor(Memory.readword(pockets[pocket].addr + i + 0x2), key)
-			return quantity
+				-- Only bother reading game memory for enemy ability if neither of its possible abilities are being tracked
+				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and pokemon.abilityId ~= Tracker.getPokemon(Tracker.Data.ownViewSlot, true).abilityId then -- TODO: Not all games/versions supported
+					-- ^ TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
+
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					if trackedAbilities[1].id == 0 or trackedAbilities[2].id == 0 then
+						local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+
+						-- Only track the triggered ability if it belongs to the enemy Pokemon (matches it's real ability)
+						if GameSettings.ABILITIES[battleMsg] == pokemon.abilityId then
+							Tracker.TrackAbility(pokemon.pokemonID, pokemon.abilityId)
+						end
+					end
+				end
+			end
+
+			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
+			local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
+			local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
+
+			pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
+			if pokemon.statStages.hp ~= 0 then
+				pokemon.statStages = {
+					hp = pokemon.statStages.hp,
+					atk = Utils.getbits(hp_atk_def_speed, 8, 8),
+					def = Utils.getbits(hp_atk_def_speed, 16, 8),
+					spa = Utils.getbits(spatk_spdef_acc_evasion, 0, 8),
+					spd = Utils.getbits(spatk_spdef_acc_evasion, 8, 8),
+					spe = Utils.getbits(hp_atk_def_speed, 24, 8),
+					acc = Utils.getbits(spatk_spdef_acc_evasion, 16, 8),
+					eva = Utils.getbits(spatk_spdef_acc_evasion, 24, 8),
+				}
+			else
+				-- Unsure if this reset is necessary, or what the if condition is checking for
+				pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
+			end
 		end
 	end
-	return 0
+
+	-- Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
+	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	if opposingPokemon ~= nil then
+		for _, move in pairs(opposingPokemon.moves) do
+			if move.pp ~= tonumber(MoveData[move.id].pp) then
+				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
+			end
+		end
+	end
 end
 
-function Program.getBagHealingItems(pkmn)
+-- This should be called every time the player gets into a battle (wild pokemon or trainer battle)
+function Program.beginNewBattle(isWild)
+	if Tracker.Data.inBattle then return end
+	if isWild == nil then isWild = false end
+
+	Program.battleDataDelayFrames = 60
+
+	-- If this is a new battle, reset views and other pokemon tracker info
+	Tracker.Data.inBattle = true
+	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+	Tracker.Data.ownViewSlot = 1
+	Tracker.Data.otherViewSlot = 1
+	Tracker.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
+
+	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
+	Program.waitToDrawFrames = Utils.inlineIf(isWild, 150, 250)
+end
+
+-- This should be called every time the player finishes a battle (wild pokemon or trainer battle)
+function Program.endBattle(isWild)
+	if not Tracker.Data.inBattle then return end
+	if isWild == nil then isWild = false end
+
+	Tracker.Data.inBattle = false
+	Tracker.Data.isViewingOwn = true
+	Tracker.Data.ownViewSlot = 1
+	Tracker.Data.otherViewSlot = 1
+	Tracker.Data.otherPokemon = nil
+	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
+
+	-- Reset stat stage changes for the pokemon team
+	for i=1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, true)
+		if pokemon ~= nil then
+			pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
+		end
+	end
+
+	-- Handles a common case of looking up a move, then moving on with combat. When over, the move info screen should go away.
+	if Program.state == State.INFOSCREEN then
+		Program.state = State.TRACKER
+	end
+
+	-- Delay drawing the return to viewing your pokemon screen
+	Program.waitToDrawFrames = Utils.inlineIf(isWild, 70, 150)
+end
+
+function Program.updateButtons(state)
+	Buttons[1].text = StatButtonStates[state["hp"]]
+	Buttons[2].text = StatButtonStates[state["atk"]]
+	Buttons[3].text = StatButtonStates[state["def"]]
+	Buttons[4].text = StatButtonStates[state["spa"]]
+	Buttons[5].text = StatButtonStates[state["spd"]]
+	Buttons[6].text = StatButtonStates[state["spe"]]
+	Buttons[1].textcolor = StatButtonColors[state["hp"]]
+	Buttons[2].textcolor = StatButtonColors[state["atk"]]
+	Buttons[3].textcolor = StatButtonColors[state["def"]]
+	Buttons[4].textcolor = StatButtonColors[state["spa"]]
+	Buttons[5].textcolor = StatButtonColors[state["spd"]]
+	Buttons[6].textcolor = StatButtonColors[state["spe"]]
+	return Buttons
+end
+
+-- This is called by event.onmemoryexecute
+-- TODO: Nonfunctional. Find a way to get this information without a Bizhawk 'event'
+-- Triggers when an event causes the players entire party to get healed, usually Pokecenter or NPC
+-- function Program.HandleHealPlayerParty()
+-- 	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
+-- 		if Options["PC heals count downward"] then
+-- 			-- Automatically count down
+-- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+-- 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+-- 		else
+-- 			-- Automatically count up
+-- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+-- 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+-- 		end
+-- 	end
+-- end
+
+function Program.handleAttackMove(moveId, slotNumber, isOwn)
+	if moveId == nil then return end
+	if slotNumber == nil or slotNumber < 1 or slotNumber > 6 then slotNumber = 1 end
+	if isOwn == nil then isOwn = true end
+
+	-- For now, only handle moves from opposing Pokemon
+	if not isOwn then
+		-- Update view to the Pokemon that attacked; don't know if this is still needed
+		-- Tracker.Data.otherViewSlot = slotNumber
+
+		-- Stop tracking moves temporarily while transformed
+		if not Program.transformedPokemon.isTransformed then
+			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+			if pokemon ~= nil then
+				if not Tracker.isTrackingMove(pokemon.pokemonID, moveId, pokemon.level) then
+					Tracker.TrackMove(pokemon.pokemonID, moveId, pokemon.level)
+				end
+			end
+		elseif moveId == 19 or moveId == 47 then
+			-- Account for niche scenario of force-switch moves being used while transformed
+			Program.transformedPokemon.forceSwitch = true
+		elseif Program.transformedPokemon.forceSwitch then
+			-- Reset when another move is used
+			Program.transformedPokemon.forceSwitch = false
+		end
+
+		-- This comes after so transform itself gets tracked
+		if moveId == 145 then
+			Program.transformedPokemon.isTransformed = true
+		end
+	end
+end
+
+function Program.HandleExit()
+	Drawing.clearGUI()
+	if Input.noteForm then
+		forms.destroy(Input.noteForm)
+	end
+end
+
+-- Returns true only if the player hasn't completed the catching tutorial
+function Program.isInCatchingTutorial()
+	if Program.hasCompletedTutorial then return false end
+
+	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
+	if tutorialFlag == 3 then
+		Program.inCatchingTutorial = true
+	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
+		Program.inCatchingTutorial = false
+		Program.hasCompletedTutorial = true
+	end
+
+	return Program.inCatchingTutorial
+end
+
+-- Pokemon is valid if it has a valid id, helditem, and each move is real.
+function Program.validPokemonData(pokemonData)
+	if pokemonData == nil then return false end
+
+	-- If the Pokemon exists, but it's ID is invalid
+	if pokemonData.pokemonID ~= nil and (pokemonData.pokemonID < 0 or pokemonData.pokemonID > 412) then
+		return false
+	end
+
+	-- If the Pokemon is holding an item, and that item is invalid
+	if pokemonData.heldItem ~= nil and (pokemonData.heldItem < 0 or pokemonData.heldItem > 376) then
+		return false
+	end
+
+	-- For each of the Pokemon's moves, is that move invalid
+	for _, move in pairs(pokemonData.moves) do
+		if move.id < 1 or move.id > 355 then -- offset with +1 since that is being added to moveId when we read data from memory
+			return false
+		end
+	end
+
+	return true
+end
+
+function Program.calculateBagHealingItemsFromMemory()
+	if not Tracker.Data.isViewingOwn then return end
+
+	local leadPokemon = Tracker.getPokemon(1, true)
+	if leadPokemon ~= nil then
+		local healingItems = Program.getBagHealingItemsFromMemory(leadPokemon.stats.hp)
+		if healingItems ~= nil then
+			Tracker.Data.healingItems = healingItems
+		end
+	end
+end
+
+function Program.getBagHealingItemsFromMemory(pokemonMaxHP)
 	local totals = {
 		healing = 0,
 		numHeals = 0,
 	}
-	-- Need a null check before getting maxHP
-	if pkmn == nil then
+
+	-- Check for potential divide-by-zero errors
+	if pokemonMaxHP == nil or pokemonMaxHP == 0 then
 		return totals
 	end
 
-	local maxHP = pkmn["maxHP"]
-	if maxHP == 0 then
+	-- Formatted as: healingItemsInBag[itemID] = quantity
+	local healingItemsInBag = Program.getHealingItemsFromMemory()
+	if healingItemsInBag == nil then
 		return totals
 	end
 
-	for _, item in pairs(MiscData.healingItems) do
-		local quantity = Program.getNumItems(item.pocket, item.id)
-		if quantity > 0 then
-			local healing = 0
-			if item.type == HealingType.Constant then
-				local percentage = ((item.amount / maxHP) * 100)
+	-- for _, item in pairs(MiscData.healingItems) do
+	for itemID, quantity in pairs(healingItemsInBag) do
+		local healItemData = MiscData.healingItems[itemID]
+		if healItemData ~= nil and quantity > 0 then
+			local healingPercentage = 0
+			if healItemData.type == HealingType.Constant then
+				local percentage = healItemData.amount / pokemonMaxHP * 100
 				if percentage > 100 then
 					percentage = 100
 				end
-				healing = percentage * quantity
-			elseif item.type == HealingType.Percentage then
-				healing = item.amount * quantity
+				healingPercentage = percentage * quantity
+			elseif healItemData.type == HealingType.Percentage then
+				healingPercentage = healItemData.amount * quantity
 			end
 			-- Healing is in a percentage compared to the mon's max HP
-			totals.healing = totals.healing + healing
+			totals.healing = totals.healing + healingPercentage
 			totals.numHeals = totals.numHeals + quantity
 		end
 	end
@@ -728,39 +616,82 @@ function Program.getBagHealingItems(pkmn)
 	return totals
 end
 
-function Program.getBagStatusItems()
-	local statusItems = {
-		poison = 0,
-		burn = 0,
-		freeze = 0,
-		sleep = 0,
-		paralyze = 0,
-		confuse = 0,
-		all = 0,
+-- Currently unused. Requires a rewrite to use the new Program.getHealingItemsFromMemory() function
+-- function Program.getBagStatusItems()
+-- 	local statusItems = {
+-- 		poison = 0,
+-- 		burn = 0,
+-- 		freeze = 0,
+-- 		sleep = 0,
+-- 		paralyze = 0,
+-- 		confuse = 0,
+-- 		all = 0,
+-- 	}
+
+-- 	for _, item in pairs(MiscData.statusItems) do
+-- 		local quantity = Program.getNumItemsFromMemory(item.pocket, item.id)
+-- 		if quantity > 0 then
+-- 			print(item.name)
+-- 			if item.type == StatusType.Poison then
+-- 				statusItems.poison = statusItems.poison + quantity
+-- 			elseif item.type == StatusType.Burn then
+-- 				statusItems.burn = statusItems.burn + quantity
+-- 			elseif item.type == StatusType.Freeze then
+-- 				statusItems.freeze = statusItems.freeze + quantity
+-- 			elseif item.type == StatusType.Sleep then
+-- 				statusItems.sleep = statusItems.sleep + quantity
+-- 			elseif item.type == StatusType.Paralyze then
+-- 				statusItems.paralyze = statusItems.paralyze + quantity
+-- 			elseif item.type == StatusType.Confuse then
+-- 				statusItems.confuse = statusItems.confuse + quantity
+-- 			elseif item.type == StatusType.All then
+-- 				statusItems.all = statusItems.all + quantity
+-- 			end
+-- 			print(statusItems)
+-- 		end
+-- 	end
+
+-- 	return statusItems
+-- end
+
+function Program.getHealingItemsFromMemory()
+	-- TODO: Definitely need to update this based on the battle-check info below Issue #37
+	-- battle can be set a few frames before item bag for battle gets updated, need to check this value as well
+	-- local startAddress = Utils.inlineIf(Tracker.Data.inBattle, GameSettings.itemStartBattle, GameSettings.itemStartNoBattle)
+	-- local itemid_and_quantity = Memory.readdword(GameSettings.bagPocket_Items)
+	-- local itemid = Utils.getbits(itemid_and_quantity, 0, 16)
+	-- local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+	-- if quantity > 1000 or itemid > 600 then
+	-- 	startAddress = GameSettings.itemStartNoBattle
+	-- end
+
+	-- I believe this key has to be looked-up each time, as the ptr changes periodically
+	local key = nil -- Ruby/Sapphire don't have an encryption key
+	if GameSettings.bagEncryptionKeyOffset ~= 0 then
+		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+		key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+	end
+
+	local healingItems = {}
+
+	local addressesToScan = {
+		GameSettings.bagPocket_Items,
+		GameSettings.bagPocket_Berries,
 	}
 
-	for _, item in pairs(MiscData.statusItems) do
-		local quantity = Program.getNumItems(item.pocket, item.id)
-		if quantity > 0 then
-			print(item.name)
-			if item.type == StatusType.Poison then
-				statusItems.poison = statusItems.poison + quantity
-			elseif item.type == StatusType.Burn then
-				statusItems.burn = statusItems.burn + quantity
-			elseif item.type == StatusType.Freeze then
-				statusItems.freeze = statusItems.freeze + quantity
-			elseif item.type == StatusType.Sleep then
-				statusItems.sleep = statusItems.sleep + quantity
-			elseif item.type == StatusType.Paralyze then
-				statusItems.paralyze = statusItems.paralyze + quantity
-			elseif item.type == StatusType.Confuse then
-				statusItems.confuse = statusItems.confuse + quantity
-			elseif item.type == StatusType.All then
-				statusItems.all = statusItems.all + quantity
+	for _, address in pairs(addressesToScan) do
+		local size = Utils.inlineIf(address == GameSettings.bagPocket_Items, GameSettings.bagPocket_Items_Size, GameSettings.bagPocket_Berries_Size)
+		for i = 0, (size - 1), 1 do
+			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
+			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
+			if itemID ~= 0 and MiscData.healingItems[itemID] ~= nil then
+				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+				if key ~= nil then quantity = bit.bxor(quantity, key) end
+				healingItems[itemID] = quantity
 			end
-			print(statusItems)
 		end
 	end
 
-	return statusItems
+	return healingItems
 end

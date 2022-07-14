@@ -67,6 +67,7 @@ function ColorPicker:setColor()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitToDrawFrames = 0
 end
 
 function ColorPicker:RGB_to_Hex()
@@ -160,6 +161,10 @@ function ColorPicker:show()
 
 	-- Required when Bizhawk configuration is set to pause the game when any menu opens, blocks mouse inputs
 	client.unpause()
+
+	-- Changes the tracker screen back to the main screen so you can see theme updates live
+	Program.state = State.TRACKER
+	Program.waitToDrawFrames = 0
 end
 
 function ColorPicker:onClick() 
@@ -176,6 +181,7 @@ function ColorPicker:onClose()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.originalColor)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitToDrawFrames = 0
 	Program.state = State.THEME
 	Input.currentColorPicker = nil
 	forms.destroyall()
@@ -261,6 +267,7 @@ function ColorPicker:convertHSVtoColorPicker()
 	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
+	Program.waitToDrawFrames = 0
 end
 
 function ColorPicker:HSV_to_RGB()

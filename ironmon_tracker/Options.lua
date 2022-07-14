@@ -6,6 +6,7 @@ Options = {
 	["Show physical special icons"] = true,
 	["Show move effectiveness"] = true,
 	["Calculate variable damage"] = true,
+	["Count enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
 
@@ -17,22 +18,23 @@ Options = {
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",
+		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
 	},
 
 	CONTROLS = {
-		["Cycle view"] = "Start",
-		["Cycle stat"] = "L",
-		["Cycle prediction"] = "R",
-		["Next seed"] = "A,B,Start,Select",
+		["Load next seed"] = "A, B, Start, Select",
+		["Toggle view"] = "Start",
+		["Cycle through stats"] = "L",
+		["Mark stat"] = "R",
 	},
 
 	CONTROLS_ORDERED = {
-		"Next seed",
-		"Cycle view",
-		"Cycle stat",
-		"Cycle prediction",
+		"Load next seed",
+		"Toggle view",
+		"Cycle through stats",
+		"Mark stat",
 	},
 }
 
@@ -58,7 +60,7 @@ Options.closeButton = {
 		Options.saveOptions()
 
 		Program.state = State.TRACKER
-		Tracker.redraw = true
+		Program.waitToDrawFrames = 0
 	end
 }
 
@@ -88,6 +90,7 @@ Options.themeButton = {
 		-- Navigate to the Theme Customization menu
 		Program.state = State.THEME
 		Theme.redraw = true
+		Program.waitToDrawFrames = 0
 	end
 }
 
@@ -112,14 +115,18 @@ function Options.buildTrackerOptionsButtons()
 				Options[optionKey] = not Options[optionKey]
 				Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
 
-				-- If PC Heal tracking switched, invert the count
 				if optionKey == "PC heals count downward" then
-					Tracker.Data.centerHeals = 10 - Tracker.Data.centerHeals
+					-- If PC Heal tracking switched, invert the count
+					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+				elseif optionKey == "Hide stats until summary shown" then
+					-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
+					Tracker.Data.hasCheckedSummary = not Options["Hide stats until summary shown"]
 				end
 
 				
 				Options.updated = true
 				Options.redraw = true
+				Program.waitToDrawFrames = 0
 			end
 		}
 		table.insert(Options.optionsButtons, button)
@@ -168,6 +175,7 @@ function Options.loadOptions()
 	end
 
 	Options.redraw = true
+	Program.waitToDrawFrames = 0
 end
 
 -- Saves all in-memory Options and Theme elements into the Settings object, to be written to Settings.ini
@@ -213,11 +221,12 @@ function Options.openRomPickerWindow()
 
 	Options.updated = true
 	Options.redraw = true
+	Program.waitToDrawFrames = 0
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(435, 215, "Controller Inputs", function() return end)
-	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 9, 10, 410, 20)
+	local form = forms.newform(435, 180, "Controller Inputs", function() return end)
+	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
 	local offsetX = 90
@@ -225,8 +234,8 @@ function Options.openEditControlsWindow()
 
 	local index = 1
 	for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
-		forms.label(form, controlKey .. ":", offsetX, offsetY, 90, 20)
-		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 90, offsetY - 2)
+		forms.label(form, controlKey .. ":", offsetX, offsetY, 105, 20)
+		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 110, offsetY - 2)
 
 		index = index + 1
 		offsetY = offsetY + 24
@@ -249,9 +258,9 @@ function Options.openEditControlsWindow()
 		end
 
 		forms.destroy(form)
-	end, 115, offsetY + 5, 95, 30)
+	end, 120, offsetY + 5, 95, 30)
 
 	forms.button(form,"Cancel", function()
 		forms.destroy(form)
-	end, 225, offsetY + 5, 65, 30)
+	end, 230, offsetY + 5, 65, 30)
 end
