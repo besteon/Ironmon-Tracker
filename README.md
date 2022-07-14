@@ -18,7 +18,7 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
    - If you are feeling adventurous and wish to help us in finding bugs, you are more than welcome to clone the main branch. If the tracker crashes, please provide the log dump from the Lua Console to us via Discord or the [Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
 2. Unzip the project anywhere you like. We recommend extracting the full folder and all of its contents directly into the `Lua` folder where you installed BizHawk. Note: The `ironmon_tracker` folder must be in the same directory as `Ironmon_Tracker.lua`.
 3. Load your ROM in [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (use **version v2.8** or later for maximum compatibility)
-4. Open the Lua Console in the Bizhawk program: Tools -> Lua Console). Then click File -> Open Session... and open `Ironmon_Tracker.lua` in the location you extracted it to.
+4. Open the Lua Console in the Bizhawk program: Tools -> Lua Console). Then click the little folder icon to "Open a file" and select the `Ironmon_Tracker.lua` file in the location you extracted it to. Be careful not to click the New file icon.
    - If you installed the tracker in Bizhawk's `Lua` folder, this location is shown by default and you should see the `Ironmon_Tracker.lua` file right away.
 5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you keep your ROMs by clicking on the `ROMS_FOLDER` setting. Additionally, you can customize the tracker's look-and-feel through the `Customize Theme` button.
 
