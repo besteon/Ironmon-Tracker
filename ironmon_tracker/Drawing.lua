@@ -846,7 +846,7 @@ function Drawing.drawInfoScreen()
 		offsetY = offsetY + linespacing
 
 		-- ACCURACY
-		local accuracyInfo = Utils.inlineIf(move.accuracy == PLACEHOLDER, "—", move.accuracy .. "%")
+		local accuracyInfo = Utils.inlineIf(move.accuracy == PLACEHOLDER, "---", move.accuracy .. "%")
 		Drawing.drawText(offsetX, offsetY, "Accuracy:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, accuracyInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing
