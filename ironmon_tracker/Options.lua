@@ -225,7 +225,7 @@ function Options.openRomPickerWindow()
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(435, 180, "Controller Inputs", function() return end)
+	local form = forms.newform(435, 215, "Controller Inputs", function() return end)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
