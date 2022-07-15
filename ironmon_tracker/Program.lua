@@ -42,6 +42,11 @@ function Program.main()
 		if Program.waitToDrawFrames == 0 then
 			Program.waitToDrawFrames = 30
 
+			-- Update current PC Heal count if auto-tracked (Currently only Ruby/Sapphire)
+			if GameSettings.game == 1 and Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
+				Program.updatePCHeals()
+			end
+
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
@@ -77,6 +82,29 @@ function Program.main()
 		elseif Program.waitToDrawFrames > 0 then -- Required because of Theme.redraw check
 			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
+	end
+end
+
+-- TODO: Figure out decryption of gameStats to get this working in FRLG/Emerald
+function Program.updatePCHeals()
+	-- Checks the gameStats for total number of PC heals
+	-- Currently checks the total number of heals from pokecenters and from mom
+	local gameStat_UsedPokecenter = Memory.readdword(GameSettings.gameStats + 15 * 0x4)
+	local gameStat_RestedAtHome = Memory.readdword(GameSettings.gameStats + 16 * 0x4)
+	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
+
+	-- Determine if heals need to be auto-updated
+	if combinedHeals ~= Tracker.Data.gameStatsHeals then
+		if Options["PC heals count downward"] then
+			-- Automatically count down
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		else
+			-- Automatically count up
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+		end
+		Tracker.Data.gameStatsHeals = combinedHeals
 	end
 end
 
