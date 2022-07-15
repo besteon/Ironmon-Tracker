@@ -959,3 +959,13 @@ function Drawing.drawImageAsPixels(imageType, x, y, imageShadow)
 		end
 	end
 end
+
+--sets the form location relative to the game window
+--this function does what the built in forms.setlocation function supposed to do
+--currently that function is bugged and should be fixed in 2.9
+function Drawing.setFormLocation(handel,x,y)
+	local ribbonHight = 64 -- so we are below the ribbon menu 
+	local actualLocation = client.transformPoint(x,y)
+	forms.setproperty(Input.noteForm, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(Input.noteForm, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
+end
