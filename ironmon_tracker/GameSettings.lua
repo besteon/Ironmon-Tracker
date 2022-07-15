@@ -20,6 +20,7 @@ GameSettings = {
 	gSaveBlock1 = 0x00000000,
 	gSaveBlock2ptr = 0x00000000, -- Currently not needed in Ruby/Sapphire
 	bagEncryptionKeyOffset = 0x00, -- Not needed in Ruby/Sapphire
+	gameStats = 0x0,
 	bagPocket_Items = 0x0,
 	bagPocket_Berries = 0x0,
 	bagPocket_Items_Size = 0,
@@ -132,6 +133,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -151,6 +153,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -170,6 +173,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -194,6 +198,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -213,6 +218,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -232,6 +238,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1540
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
 		GameSettings.bagPocket_Items_Size = 20 -- TODO: Unsure if these two values are accurate for Ruby/Sapphire
@@ -257,6 +264,7 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.gSaveBlock1 = 0x02025a00
 	GameSettings.gSaveBlock2ptr = 0x03005d90
 	GameSettings.bagEncryptionKeyOffset = 0xAC
+	GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x159C
 	GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
 	GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
 	GameSettings.bagPocket_Items_Size = 30
@@ -311,6 +319,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1200
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
 		GameSettings.bagPocket_Items_Size = 42
@@ -376,6 +385,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1200
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
 		GameSettings.bagPocket_Items_Size = 42
@@ -431,6 +441,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1200
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
 		GameSettings.bagPocket_Items_Size = 42
@@ -482,6 +493,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.bagEncryptionKeyOffset = 0xF20
+		GameSettings.gameStats = GameSettings.gSaveBlock1 + 0x1200
 		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
 		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
 		GameSettings.bagPocket_Items_Size = 42
