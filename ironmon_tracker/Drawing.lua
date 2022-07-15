@@ -768,7 +768,7 @@ function Drawing.drawInfoScreen()
 		local moveId = InfoScreen.infoLookup -- moveId = 1 is blank move data
 		if moveId <= 1 or moveId > 355 then
 			Program.state = State.TRACKER
-			Program.waitToDrawFrames = 0
+			Program.frames.waitToDraw = 0
 			return
 		end
 

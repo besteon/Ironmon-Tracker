@@ -297,7 +297,7 @@ function Buttons.openAbilityNoteWindow()
 		end
 
 		client.unpause()
-		Program.waitToDrawFrames = 0
+		Program.frames.waitToDraw = 0
 		forms.destroy(abilityForm)
 	end, 65, 95, 85, 25)
 	forms.button(abilityForm, "Clear", function()
