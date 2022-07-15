@@ -91,6 +91,47 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	return header
 end
 
+function Utils.getDetailedEvolutionsInfo(evoMethod)
+	if evoMethod == nil or evoMethod == EvolutionTypes.NONE then
+		return { "---" }
+	end
+
+	if evoMethod == EvolutionTypes.FRIEND then
+		return { "220 Friendship" }
+	elseif evoMethod == EvolutionTypes.STONES then
+		return { "5 Diff. Stones" }
+	elseif evoMethod == EvolutionTypes.THUNDER then
+		return { "Thunder Stone" }
+	elseif evoMethod == EvolutionTypes.FIRE then
+		return { "Fire Stone" }
+	elseif evoMethod == EvolutionTypes.WATER then
+		return { "Water Stone" }
+	elseif evoMethod == EvolutionTypes.MOON then
+		return { "Moon Stone" }
+	elseif evoMethod == EvolutionTypes.LEAF then
+		return { "Leaf Stone" }
+	elseif evoMethod == EvolutionTypes.SUN then
+		return { "Sun Stone" }
+	elseif evoMethod == EvolutionTypes.LEAF_SUN then
+		return {
+			"Leaf Stone or",
+			"Sun Stone",
+		}
+	elseif evoMethod == "37/WTR" then
+		return {
+			"Level 37 or",
+			"Water Stone",
+		}
+	elseif evoMethod == "30/WTR" then
+		return {
+			"Level 30 or",
+			"Water Stone",
+		}
+	else -- Otherwise, the evo is just a level
+		return { "Level " .. evoMethod }
+	end
+end
+
 function Utils.netEffectiveness(move, types)
 	local effectiveness = 1.0
 
@@ -205,17 +246,18 @@ function Utils.pokemonHasMove(pokemon, moveName)
 	return false
 end
 
-function Utils.isReadyToEvolve(pokemon)
-	local evoType = PokemonData[pokemon.pokemonID + 1].evolution
+-- Checks if the pokemon is ready to evolve based on level only
+function Utils.isReadyToEvolveByLevel(pokemon)
+	local evoMethod = PokemonData[pokemon.pokemonID + 1].evolution
 
-	if evoType == EvolutionTypes.NONE then
+	if evoMethod == EvolutionTypes.NONE then
 		return false
 	end
-	
-	-- TODO: Handle condition of "37/WTR" with regex
-	evoType = tonumber(evoType, 10) -- becomes nil if not a decimal number
 
-	return evoType ~= nil and (pokemon.level + 1) >= evoType
+	evoMethod = string.match(evoMethod, "(.-)/") -- Handle condition of "37/WTR" with regex
+	evoMethod = tonumber(evoMethod, 10) -- becomes nil if not a decimal number
+
+	return evoMethod ~= nil and (pokemon.level + 1) >= evoMethod
 end
 
 -- Returns the text color for PC heal tracking
