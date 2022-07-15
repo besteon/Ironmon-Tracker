@@ -348,13 +348,15 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 
-			-- TODO: Removing ability to automatically track PC Heals, as the event is no longer being tracked.
-			-- Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
-			-- Draw a mark if the feature is on
-			-- if Program.PCHealTrackingButtonState then
-			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-			-- end
+			-- Auto-tracking PC Heals button (Only works in Ruby/Sapphire atm)
+			if GameSettings.game == 1 then
+				Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
+				-- Draw a mark if the feature is on
+				if Program.PCHealTrackingButtonState then
+					gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+					gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+				end
+			end
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
