@@ -305,3 +305,13 @@ function Utils.readTableFromFile(filename)
 
 	return tableData
 end
+
+--sets the form location relative to the game window
+--this function does what the built in forms.setlocation function supposed to do
+--currently that function is bugged and should be fixed in 2.9
+function Utils.setFormLocation(handle,x,y)
+	local ribbonHight = 64 -- so we are below the ribbon menu 
+	local actualLocation = client.transformPoint(x,y)
+	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
+end

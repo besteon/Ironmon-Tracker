@@ -170,11 +170,17 @@ function Input.check(xmouse, ymouse)
 				if pokemon ~= nil then
 					pokemonName = PokemonData[pokemon.pokemonID + 1].name
 				end
-				
+				--forms buttons and textbox initial  width is wrong width its being set in setproperty Width
+				--had to change it after the initial value because the built in functions use UIHelper.Scale which mess everything
+				local actualGameSize = client.transformPoint(GraphicConstants.SCREEN_WIDTH,0)
 				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+				local formWidth = client.screenwidth() - actualGameSize['x'] + 15
+				forms.setproperty(Input.noteForm,"Width",formWidth)
+				Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH,50)
 				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
 				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-				forms.button(Input.noteForm, "Save", function()
+				forms.setproperty(noteTextBox,"Width",formWidth - 40)
+				local btn = forms.button(Input.noteForm, "Save", function()
 					local formInput = forms.gettext(noteTextBox)
 					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 					if formInput ~= nil and pokemon ~= nil then
@@ -184,6 +190,8 @@ function Input.check(xmouse, ymouse)
 					forms.destroy(Input.noteForm)
 					Input.noteForm = nil
 				end, 187, 55)
+				local defualtBtnWidth = 75
+				forms.setproperty(btn,"Left",formWidth / 2 - defualtBtnWidth/2)
 			end
 		end
 	-- Info Screen mouse input regions
