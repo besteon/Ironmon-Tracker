@@ -273,3 +273,35 @@ function Utils.getWordWrapLines(str, limit)
 	
 	return lines
 end
+
+function Utils.writeTableToFile(table, filename)
+	local file = io.open(filename, "w")
+
+	if file ~= nil then
+		local dataString = pickle(Tracker.Data)
+
+		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end --append a trailing \n if one is absent
+		for dataLine in dataString:gmatch("(.-)\n") do
+			file:write(dataLine)
+		end
+		file:close()
+	else
+		print("[ERROR] Unable to create auto-save file: " .. filename)
+	end
+end
+
+function Utils.readTableFromFile(filename)	
+	local tableData = nil
+	local file = io.open(filename, "r")
+
+	if file ~= nil then
+		local dataString = file:read("*a")
+
+		if dataString ~= nil and dataString ~= "" then
+			tableData = unpickle(dataString)
+		end
+		file:close()
+	end
+
+	return tableData
+end

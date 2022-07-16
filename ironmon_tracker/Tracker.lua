@@ -298,43 +298,40 @@ function Tracker.getDefaultPokemon()
 end
 
 function Tracker.saveData()
-	local dataString = pickle(Tracker.Data)
-	userdata.set(Tracker.userDataKey, dataString)
+	local filename = Utils.inlineIf(GameSettings.gamename == "", "Auto-Save", GameSettings.gamename)
+	filename = filename .. ".trackerdata"
+	Utils.writeTableToFile(Tracker.Data, filename)
 end
 
 function Tracker.loadData()
-	if userdata.containskey(Tracker.userDataKey) then
-		local serializedTable = userdata.get(Tracker.userDataKey)
-		local trackerData = unpickle(serializedTable)
-		Tracker.Data = Tracker.InitTrackerData()
-		for k, v in pairs(trackerData) do
-			Tracker.Data[k] = v
-		end
+	local romHash = gameinfo.getromhash()
 
-		if Tracker.Data.romHash then
-			if gameinfo.getromhash() == Tracker.Data.romHash then
-				Buttons.updateBadges()
-				print("Tracker data successfully loaded.")
-			else
-				print("New ROM detected, resetting tracker data")
-				Tracker.Data = Tracker.InitTrackerData()
+	-- Initialize empty Tracker data, to potentially populate with data from .trackerdata save file
+	Tracker.Data = Tracker.InitTrackerData()
+	Tracker.Data.romHash = romHash
+
+	local filename = Utils.inlineIf(GameSettings.gamename == "", "Auto-Save", GameSettings.gamename)
+	filename = filename .. ".trackerdata"
+	local trackerData = Utils.readTableFromFile(filename)
+
+	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
+	if trackerData ~= nil then
+		if trackerData.romHash and trackerData.romHash == romHash then
+			for k, v in pairs(trackerData) do
+				Tracker.Data[k] = v
 			end
+			print("Tracker data loaded from file: " .. filename)
+		else
+			print("New ROM detected. Initializing new Tracker data")
 		end
-
-		-- Update the visuals for the hidden power info based on the loaded data
-		local hiddenPowerType = Tracker.Data.currentHiddenPowerType
-		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
-	else
-		Tracker.Data = Tracker.InitTrackerData()
 	end
 
-	Tracker.Data.romHash = gameinfo.getromhash()
-	Program.waitToDrawFrames = 0
+	-- Update the visuals for some Tracker elements based on the loaded data
+	Buttons.updateBadges()
+	local hiddenPowerType = Tracker.Data.currentHiddenPowerType
+	HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
 end
 
-function Tracker.Clear()
-	if userdata.containskey(Tracker.userDataKey) then
-		userdata.remove(Tracker.userDataKey)
-	end
+function Tracker.clearData()
 	Tracker.Data = Tracker.InitTrackerData()
 end
