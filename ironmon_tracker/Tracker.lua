@@ -25,6 +25,7 @@ function Tracker.InitTrackerData()
 		inBattle = false,
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
+		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
 		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
 		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
 		healingItems = {
