@@ -115,14 +115,15 @@ function Input.check(xmouse, ymouse)
 		end
 
 		--badges
-		for index, button in pairs(BadgeButtons.badgeButtons) do
-			if button.visible() then
-				if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
-					button:onclick()
-					Program.frames.waitToDraw = 0
-				end
-			end
-		end
+		-- TODO: Disabling this feature to click on badges as it is now done automatically, which overrides any manual toggles. Might add back in later with an Option.
+		-- for index, button in pairs(BadgeButtons.badgeButtons) do
+		-- 	if button.visible() then
+		-- 		if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
+		-- 			button:onclick()
+		-- 			Program.frames.waitToDraw = 0
+		-- 		end
+		-- 	end
+		-- end
 
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then

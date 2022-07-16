@@ -14,10 +14,10 @@ Program = {
 }
 
 Program.frames = {
-	pokemonData = 0,
-	battleDataDelay = 0,
-	itemCheck = 0,
 	waitToDraw = 0,
+	battleDataDelay = 0,
+	half_sec_update = 30,
+	three_sec_update = 180,
 	saveData = 3600,
 }
 
@@ -45,8 +45,6 @@ function Program.main()
 		-- Only draw the Tracker screen every half second (60 frames/sec)
 		if Program.frames.waitToDraw == 0 then
 			Program.frames.waitToDraw = 30
-
-			Program.updatePCHeals()
 
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
@@ -88,8 +86,8 @@ end
 
 function Program.updateTrackedAndCurrentData()
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
-	if Program.frames.pokemonData == 0 then
-		Program.frames.pokemonData = 30
+	if Program.frames.half_sec_update == 0 then
+		Program.frames.half_sec_update = 30
 
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
@@ -125,12 +123,16 @@ function Program.updateTrackedAndCurrentData()
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.frames.waitToDraw = 0
 		end
+
 	end
 
-	-- Only update "Heals in Bag" information every 5 seconds (5 seconds * 60 frames/sec)
-	if Program.frames.itemCheck == 0 then
-		Program.frames.itemCheck = 300
-		Program.calculateBagHealingItemsFromMemory()
+	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
+	if Program.frames.three_sec_update == 0 then
+		Program.frames.three_sec_update = 180
+
+		Program.updateBagHealingItemsFromMemory()
+		Program.updatePCHealsFromMemory()
+		Program.updateBadgesObtainedFromMemory()
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
@@ -139,8 +141,8 @@ function Program.updateTrackedAndCurrentData()
 		Tracker.saveData()
 	end
 
-	Program.frames.pokemonData = Program.frames.pokemonData - 1
-	Program.frames.itemCheck = Program.frames.itemCheck - 1
+	Program.frames.half_sec_update = Program.frames.half_sec_update - 1
+	Program.frames.three_sec_update = Program.frames.three_sec_update - 1
 	Program.frames.saveData = Program.frames.saveData - 1
 end
 
@@ -403,14 +405,15 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 
-		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+		-- TODO: Disabling this for now as it triggers when your pokemon or enemy pokemon trigger Focus Punch animation. Similar concern to tracking abilitys info and revealing too much
+		-- if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
+		-- 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 			
-			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
-				Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
-			end
-		end
+		-- 	-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
+		-- 	if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+		-- 		Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
+		-- 	end
+		-- end
 	end
 end
 
@@ -479,7 +482,7 @@ function Program.updateButtons(state)
 	return Buttons
 end
 
-function Program.updatePCHeals()
+function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local gameStatsAddr = 0x0
 	if GameSettings.game == 1 then
@@ -522,6 +525,26 @@ function Program.updatePCHeals()
 				if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
 			end
 		end
+	end
+end
+
+function Program.updateBadgesObtainedFromMemory()
+	local badgeBits = nil
+	if GameSettings.game == 1 then -- Ruby/Sapphire
+		badgeBits = Utils.getbits(Memory.readword(GameSettings.gSaveBlock1 + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 2 then -- Emerald
+		local saveblock1Addr = Memory.readdword(GameSettings.gSaveBlock1ptr)
+		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
+	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
+		local saveblock1Addr = Memory.readdword(GameSettings.gSaveBlock1ptr)
+		badgeBits = Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
+	end
+
+	if badgeBits ~= nil then
+		for i = 1, 8, 1 do
+			Tracker.Data.badges[i] = Utils.getbits(badgeBits, i - 1, 1)
+		end
+		Buttons.updateBadges()
 	end
 end
 
@@ -604,19 +627,19 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
-function Program.calculateBagHealingItemsFromMemory()
+function Program.updateBagHealingItemsFromMemory()
 	if not Tracker.Data.isViewingOwn then return end
 
 	local leadPokemon = Tracker.getPokemon(1, true)
 	if leadPokemon ~= nil then
-		local healingItems = Program.getBagHealingItemsFromMemory(leadPokemon.stats.hp)
+		local healingItems = Program.calcBagHealingItemsFromMemory(leadPokemon.stats.hp)
 		if healingItems ~= nil then
 			Tracker.Data.healingItems = healingItems
 		end
 	end
 end
 
-function Program.getBagHealingItemsFromMemory(pokemonMaxHP)
+function Program.calcBagHealingItemsFromMemory(pokemonMaxHP)
 	local totals = {
 		healing = 0,
 		numHeals = 0,
