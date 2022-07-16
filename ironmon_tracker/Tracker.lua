@@ -297,32 +297,32 @@ function Tracker.getDefaultPokemon()
 	return blankPokemon
 end
 
-function Tracker.saveData()
-	local filename = Utils.inlineIf(GameSettings.gamename == "", "Auto-Save", GameSettings.gamename)
-	filename = filename .. ".trackerdata"
-	Utils.writeTableToFile(Tracker.Data, filename)
+function Tracker.saveData(filepath)
+	filepath = filepath or GameSettings.getTrackerAutoSaveName()
+	Utils.writeTableToFile(Tracker.Data, filepath)
 end
 
-function Tracker.loadData()
-	local romHash = gameinfo.getromhash()
+function Tracker.loadData(filepath)
+	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 
 	-- Initialize empty Tracker data, to potentially populate with data from .trackerdata save file
 	Tracker.Data = Tracker.InitTrackerData()
-	Tracker.Data.romHash = romHash
+	Tracker.Data.romHash = gameinfo.getromhash()
 
-	local filename = Utils.inlineIf(GameSettings.gamename == "", "Auto-Save", GameSettings.gamename)
-	filename = filename .. ".trackerdata"
-	local trackerData = Utils.readTableFromFile(filename)
+	local trackerData = Utils.readTableFromFile(filepath)
 
 	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
 	if trackerData ~= nil then
-		if trackerData.romHash and trackerData.romHash == romHash then
+		if trackerData.romHash and trackerData.romHash == Tracker.Data.romHash then
 			for k, v in pairs(trackerData) do
 				Tracker.Data[k] = v
 			end
+			local fileNameIndex = string.match(filepath, "^.*()\\")
+			local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
+
 			print("Tracker data loaded from file: " .. filename)
 		else
-			print("New ROM detected. Initializing new Tracker data")
+			print("No Tracker data found for this ROM. Initializing new data.")
 		end
 	end
 

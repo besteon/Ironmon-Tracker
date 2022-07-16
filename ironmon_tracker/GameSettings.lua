@@ -4,6 +4,7 @@ GameSettings = {
 	versiongroup = 0,
 	pstats = 0,
 	estats = 0,
+	fileExtension = ".tdat",
 
 	sMonSummaryScreen = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
@@ -515,5 +516,14 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 			[0x081d9355] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081d69b0] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
+	end
+end
+
+function GameSettings.getTrackerAutoSaveName()
+	if GameSettings.gamename == "" then
+		return "AutoSave" .. GameSettings.fileExtension
+	else
+		-- Remove trailing " (U)" from game name
+		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. GameSettings.fileExtension
 	end
 end
