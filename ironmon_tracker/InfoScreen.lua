@@ -39,7 +39,7 @@ InfoScreen.closeButton = {
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function()
 		Program.state = State.TRACKER
-		Program.waitToDrawFrames = 0
+		Program.frames.waitToDraw = 0
 	end
 }
 

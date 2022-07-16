@@ -349,13 +349,13 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
 
-			-- TODO: Removing ability to automatically track PC Heals, as the event is no longer being tracked.
-			-- Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
+			-- Auto-tracking PC Heals button
+			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
 			-- Draw a mark if the feature is on
-			-- if Program.PCHealTrackingButtonState then
-			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-			-- 	gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-			-- end
+			if Program.PCHealTrackingButtonState then
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+			end
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
@@ -667,9 +667,15 @@ function Drawing.drawSettings()
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
-	-- Edit controls button
+	-- 'Controls', 'Save Data', 'Load Data' buttons
 	Drawing.drawButtonBox(Options.controlsButton, boxSettingsShadow)
-	Drawing.drawText(Options.controlsButton.box[1] + 3, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.controlsButton.box[1] + 1, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+
+	Drawing.drawButtonBox(Options.saveTrackerDataButton, boxSettingsShadow)
+	Drawing.drawText(Options.saveTrackerDataButton.box[1] + 1, Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.saveTrackerDataButton.textColor], boxSettingsShadow)
+
+	Drawing.drawButtonBox(Options.loadTrackerDataButton, boxSettingsShadow)
+	Drawing.drawText(Options.loadTrackerDataButton.box[1] + 1, Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.loadTrackerDataButton.textColor], boxSettingsShadow)
 
 	-- Customize button
 	Drawing.drawButtonBox(Options.themeButton, boxSettingsShadow)
@@ -779,7 +785,6 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local offsetY = 0 + borderMargin + 3
 	local linespacing = 10
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
-
 
 	local pokemon = PokemonData[pokemonID + 1] -- +1 necessary because the first entry is blank Pokemon Data
 

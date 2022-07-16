@@ -60,7 +60,7 @@ Options.closeButton = {
 		Options.saveOptions()
 
 		Program.state = State.TRACKER
-		Program.waitToDrawFrames = 0
+		Program.frames.waitToDraw = 0
 	end
 }
 
@@ -73,11 +73,27 @@ Options.romsFolderOption = {
 }
 
 Options.controlsButton = {
-	text = "Edit Controls",
+	text = "Controls",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 8, 20, 57, 11 },
+	box = { GraphicConstants.SCREEN_WIDTH + 8, 20, 37, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function() Options.openEditControlsWindow() end
+}
+
+Options.saveTrackerDataButton = {
+	text = "Save Data",
+	textColor = "Default text",
+	box = { GraphicConstants.SCREEN_WIDTH + 49, 20, 44, 11 },
+	boxColors = { "Upper box border", "Upper box background" },
+	onClick = function() Options.openSaveDataPrompt() end
+}
+
+Options.loadTrackerDataButton = {
+	text = "Load Data",
+	textColor = "Default text",
+	box = { GraphicConstants.SCREEN_WIDTH + 97, 20, 44, 11 },
+	boxColors = { "Upper box border", "Upper box background" },
+	onClick = function() Options.openLoadDataPrompt() end
 }
 
 -- A button to navigate to the Theme menu for customizing the Tracker's look and feel
@@ -90,7 +106,7 @@ Options.themeButton = {
 		-- Navigate to the Theme Customization menu
 		Program.state = State.THEME
 		Theme.redraw = true
-		Program.waitToDrawFrames = 0
+		Program.frames.waitToDraw = 0
 	end
 }
 
@@ -126,7 +142,7 @@ function Options.buildTrackerOptionsButtons()
 				
 				Options.updated = true
 				Options.redraw = true
-				Program.waitToDrawFrames = 0
+				Program.frames.waitToDraw = 0
 			end
 		}
 		table.insert(Options.optionsButtons, button)
@@ -175,7 +191,7 @@ function Options.loadOptions()
 	end
 
 	Options.redraw = true
-	Program.waitToDrawFrames = 0
+	Program.frames.waitToDraw = 0
 end
 
 -- Saves all in-memory Options and Theme elements into the Settings object, to be written to Settings.ini
@@ -210,7 +226,8 @@ function Options.openRomPickerWindow()
 	end
 
 	-- Use the standard file open dialog to get the roms folder
-	local file = forms.openfile(nil, Settings.config.ROMS_FOLDER)
+	local filterOptions = "ROM File (*.GBA)|*.GBA|All files (*.*)|*.*"
+	local file = forms.openfile("SELECT ANY ROM IN YOUR ROMS FOLDER, THEN HIT OK", Settings.config.ROMS_FOLDER, filterOptions)
 	-- Since the user had to pick a file, strip out the file name to just get the folder.
 	if file ~= "" then
 		Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
@@ -221,11 +238,11 @@ function Options.openRomPickerWindow()
 
 	Options.updated = true
 	Options.redraw = true
-	Program.waitToDrawFrames = 0
+	Program.frames.waitToDraw = 0
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(435, 215, "Controller Inputs", function() return end)
+	local form = forms.newform(445, 215, "Controller Inputs", function() return end)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
@@ -263,4 +280,38 @@ function Options.openEditControlsWindow()
 	forms.button(form,"Cancel", function()
 		forms.destroy(form)
 	end, 230, offsetY + 5, 65, 30)
+end
+
+function Options.openSaveDataPrompt()
+	local suggestedFileName = gameinfo.getromname()
+
+	local form = forms.newform(290, 130, "Save Tracker Data", function() return end)
+	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
+	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
+	forms.label(form, ".TDAT", 219, 32, 45, 20)
+	forms.button(form, "Save Data", function()
+		local formInput = forms.gettext(saveTextBox)
+		if formInput ~= nil and formInput ~= "" then
+			if formInput:sub(-5):lower() ~= GameSettings.fileExtension then
+				formInput = formInput .. GameSettings.fileExtension
+			end
+			Tracker.saveData(formInput)
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 55, 60)
+	forms.button(form, "Cancel", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 140, 60)
+end
+
+function Options.openLoadDataPrompt()
+	local suggestedFileName = gameinfo.getromname() .. GameSettings.fileExtension
+	local filterOptions = "Tracker Data (*.TDAT)|*.TDAT|All files (*.*)|*.*"
+
+	local filepath = forms.openfile(suggestedFileName, "/", filterOptions)
+	if filepath ~= "" then
+		Tracker.loadData(filepath)
+	end
 end

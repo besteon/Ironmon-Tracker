@@ -93,8 +93,7 @@ function Main.Run()
 end
 
 function Main.LoadNext()
-	userdata.clear()
-	Tracker.Clear() -- clear tracker data so it doesn't carry over to the next seed
+	Tracker.clearData()
 	print("Loading the next ROM. Tracker data has reset.")
 
 	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then

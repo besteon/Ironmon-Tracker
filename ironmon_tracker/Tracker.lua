@@ -25,6 +25,7 @@ function Tracker.InitTrackerData()
 		inBattle = false,
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
+		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
 		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
 		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
 		healingItems = {
@@ -297,44 +298,47 @@ function Tracker.getDefaultPokemon()
 	return blankPokemon
 end
 
-function Tracker.saveData()
-	local dataString = pickle(Tracker.Data)
-	userdata.set(Tracker.userDataKey, dataString)
+function Tracker.saveData(filepath)
+	filepath = filepath or GameSettings.getTrackerAutoSaveName()
+	Utils.writeTableToFile(Tracker.Data, filepath)
 end
 
-function Tracker.loadData()
-	if userdata.containskey(Tracker.userDataKey) then
-		local serializedTable = userdata.get(Tracker.userDataKey)
-		local trackerData = unpickle(serializedTable)
-		Tracker.Data = Tracker.InitTrackerData()
-		for k, v in pairs(trackerData) do
-			Tracker.Data[k] = v
-		end
+function Tracker.loadData(filepath)
+	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 
-		if Tracker.Data.romHash then
-			if gameinfo.getromhash() == Tracker.Data.romHash then
-				Buttons.updateBadges()
-				print("Tracker data successfully loaded.")
-			else
-				print("New ROM detected, resetting tracker data")
-				Tracker.Data = Tracker.InitTrackerData()
-			end
-		end
-
-		-- Update the visuals for the hidden power info based on the loaded data
-		local hiddenPowerType = Tracker.Data.currentHiddenPowerType
-		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
-	else
-		Tracker.Data = Tracker.InitTrackerData()
-	end
-
+	-- Initialize empty Tracker data, to potentially populate with data from .trackerdata save file
+	Tracker.Data = Tracker.InitTrackerData()
 	Tracker.Data.romHash = gameinfo.getromhash()
-	Program.waitToDrawFrames = 0
+
+	-- Loose safety check to ensure a valid data file is loaded
+	local trackerData = nil
+	if filepath:sub(-5):lower() ~= GameSettings.fileExtension then
+		print("[ERROR] Unable to load Tracker data from selected file.")
+	else
+		trackerData = Utils.readTableFromFile(filepath)
+	end
+
+	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
+	if trackerData ~= nil then
+		if trackerData.romHash and trackerData.romHash == Tracker.Data.romHash then
+			for k, v in pairs(trackerData) do
+				Tracker.Data[k] = v
+			end
+			local fileNameIndex = string.match(filepath, "^.*()\\")
+			local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
+
+			print("Tracker data loaded from file: " .. filename)
+		else
+			print("No Tracker data found for this ROM. Initializing new data.")
+		end
+	end
+
+	-- Update the visuals for some Tracker elements based on the loaded data
+	Buttons.updateBadges()
+	local hiddenPowerType = Tracker.Data.currentHiddenPowerType
+	HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
 end
 
-function Tracker.Clear()
-	if userdata.containskey(Tracker.userDataKey) then
-		userdata.remove(Tracker.userDataKey)
-	end
+function Tracker.clearData()
 	Tracker.Data = Tracker.InitTrackerData()
 end

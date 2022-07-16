@@ -25,17 +25,17 @@ function Input.update()
 				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
 
-			Program.waitToDrawFrames = 0
+			Program.frames.waitToDraw = 0
 		end
 
 		-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
 		if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.joypad[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
 			Tracker.controller.statIndex = (Tracker.controller.statIndex % 6) + 1
 			Tracker.controller.framesSinceInput = 0
-			Program.waitToDrawFrames = 0
+			Program.frames.waitToDraw = 0
 		else
 			if Tracker.controller.framesSinceInput == Tracker.controller.boxVisibleFrames - 1 then
-				Program.waitToDrawFrames = 0
+				Program.frames.waitToDraw = 0
 			end
 			if Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames then
 				Tracker.controller.framesSinceInput = Tracker.controller.framesSinceInput + 1
@@ -91,7 +91,7 @@ function Input.update()
 				if pokemon ~= nil then
 					Tracker.TrackStatMarkings(pokemon.pokemonID, Program.StatButtonState)
 				end
-				Program.waitToDrawFrames = 0
+				Program.frames.waitToDraw = 0
 			end
 		end
 
@@ -108,7 +108,7 @@ function Input.check(xmouse, ymouse)
 				if Buttons[i].type == ButtonType.singleButton and Buttons[i].text ~= "Hidden Power" then -- Move HP clicking logic to info screen
 					if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 						Buttons[i].onclick()
-						Program.waitToDrawFrames = 0
+						Program.frames.waitToDraw = 0
 					end
 				end
 			end
@@ -119,7 +119,7 @@ function Input.check(xmouse, ymouse)
 			if button.visible() then
 				if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
 					button:onclick()
-					Program.waitToDrawFrames = 0
+					Program.frames.waitToDraw = 0
 				end
 			end
 		end
@@ -127,7 +127,7 @@ function Input.check(xmouse, ymouse)
 		-- settings gear
 		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
 			Options.redraw = true
-			Program.waitToDrawFrames = 0
+			Program.frames.waitToDraw = 0
 			Program.state = State.SETTINGS
 		end
 
@@ -178,20 +178,28 @@ function Input.check(xmouse, ymouse)
 				if pokemon ~= nil then
 					pokemonName = PokemonData[pokemon.pokemonID + 1].name
 				end
-				
+				--forms buttons and textbox initial  width is wrong width its being set in setproperty Width
+				--had to change it after the initial value because the built in functions use UIHelper.Scale which mess everything
+				local actualGameSize = client.transformPoint(GraphicConstants.SCREEN_WIDTH,0)
 				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+				local formWidth = client.screenwidth() - actualGameSize['x']  - client.borderwidth() - 5
+				forms.setproperty(Input.noteForm,"Width",formWidth)
+				Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH + 5,50)
 				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
 				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-				forms.button(Input.noteForm, "Save", function()
+				forms.setproperty(noteTextBox,"Width",formWidth - 40)
+				local btn = forms.button(Input.noteForm, "Save", function()
 					local formInput = forms.gettext(noteTextBox)
 					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 					if formInput ~= nil and pokemon ~= nil then
 						Tracker.TrackNote(pokemon.pokemonID, formInput)
-						Program.waitToDrawFrames = 0
+						Program.frames.waitToDraw = 0
 					end
 					forms.destroy(Input.noteForm)
 					Input.noteForm = nil
 				end, 187, 55)
+				local defualtBtnWidth = 75
+				forms.setproperty(btn,"Left",formWidth / 2 - defualtBtnWidth/2)
 			end
 		end
 	-- Info Screen mouse input regions
@@ -230,6 +238,12 @@ function Input.check(xmouse, ymouse)
 		end
 		if Input.isInRange(xmouse, ymouse, Options.controlsButton.box[1], Options.controlsButton.box[2], Options.controlsButton.box[3], Options.controlsButton.box[4]) then
 			Options.controlsButton.onClick()
+		end
+		if Input.isInRange(xmouse, ymouse, Options.saveTrackerDataButton.box[1], Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.box[3], Options.saveTrackerDataButton.box[4]) then
+			Options.saveTrackerDataButton.onClick()
+		end
+		if Input.isInRange(xmouse, ymouse, Options.loadTrackerDataButton.box[1], Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.box[3], Options.loadTrackerDataButton.box[4]) then
+			Options.loadTrackerDataButton.onClick()
 		end
 		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
 			Options.themeButton.onClick()
