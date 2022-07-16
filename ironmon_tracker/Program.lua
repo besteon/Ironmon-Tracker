@@ -42,8 +42,8 @@ function Program.main()
 		if Program.waitToDrawFrames == 0 then
 			Program.waitToDrawFrames = 30
 
-			-- Update current PC Heal count if auto-tracked (Currently only Ruby/Sapphire)
-			if GameSettings.game == 1 and Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
+			-- Update current PC Heal count if auto-tracked
+			if Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
 				Program.updatePCHeals()
 			end
 
@@ -82,29 +82,6 @@ function Program.main()
 		elseif Program.waitToDrawFrames > 0 then -- Required because of Theme.redraw check
 			Program.waitToDrawFrames = Program.waitToDrawFrames - 1
 		end
-	end
-end
-
--- TODO: Figure out decryption of gameStats to get this working in FRLG/Emerald
-function Program.updatePCHeals()
-	-- Checks the gameStats for total number of PC heals
-	-- Currently checks the total number of heals from pokecenters and from mom
-	local gameStat_UsedPokecenter = Memory.readdword(GameSettings.gameStats + 15 * 0x4)
-	local gameStat_RestedAtHome = Memory.readdword(GameSettings.gameStats + 16 * 0x4)
-	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
-
-	-- Determine if heals need to be auto-updated
-	if combinedHeals ~= Tracker.Data.gameStatsHeals then
-		if Options["PC heals count downward"] then
-			-- Automatically count down
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
-			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-		else
-			-- Automatically count up
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
-			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		end
-		Tracker.Data.gameStatsHeals = combinedHeals
 	end
 end
 
@@ -485,22 +462,49 @@ function Program.updateButtons(state)
 	return Buttons
 end
 
--- This is called by event.onmemoryexecute
--- TODO: Nonfunctional. Find a way to get this information without a Bizhawk 'event'
--- Triggers when an event causes the players entire party to get healed, usually Pokecenter or NPC
--- function Program.HandleHealPlayerParty()
--- 	if Program.PCHealTrackingButtonState and Options["Track PC Heals"] then
--- 		if Options["PC heals count downward"] then
--- 			-- Automatically count down
--- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
--- 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
--- 		else
--- 			-- Automatically count up
--- 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
--- 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
--- 		end
--- 	end
--- end
+function Program.updatePCHeals()
+	-- Auto-tracking of PC heals
+	local gameStatsAddr = 0x0
+	if GameSettings.game == 1 then
+		-- Ruby/Sapphire doesn't have gSaveBlock1Ptr and just uses gSaveBlock1 directly
+		gameStatsAddr = GameSettings.gSaveBlock1 + GameSettings.gameStatsOffset
+	else
+		-- Seems like in FRLG/Emerald we need to refresh the pointer's address similarly to the encryption key
+		local saveblock1PtrAddr = Memory.readdword(GameSettings.gSaveBlock1ptr)
+		gameStatsAddr = saveblock1PtrAddr + GameSettings.gameStatsOffset
+	end
+	
+	-- Currently checks the total number of heals from pokecenters and from mom
+	-- Does not include whiteouts, as those don't increment either of these gamestats
+	local gameStat_UsedPokecenter = Memory.readdword(gameStatsAddr + 15 * 0x4)
+	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
+	local gameStat_RestedAtHome = Memory.readdword(gameStatsAddr + 16 * 0x4)
+
+	if GameSettings.EncryptionKeyOffset ~= 0 then
+		-- Need to decrypt the data in FRLG/Emerald
+		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+		local key = Memory.readdword(saveBlock2addr + GameSettings.EncryptionKeyOffset)
+		gameStat_UsedPokecenter = bit.bxor(gameStat_UsedPokecenter, key)
+		gameStat_RestedAtHome = bit.bxor(gameStat_RestedAtHome, key)
+	end
+
+	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
+
+	-- Determine if the tracked heals need to be updated
+	if combinedHeals ~= Tracker.Data.gameStatsHeals then
+		local healsToUpdate = combinedHeals - Tracker.Data.gameStatsHeals
+		if Options["PC heals count downward"] then
+			-- Automatically count down
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals - healsToUpdate
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+		else
+			-- Automatically count up
+			Tracker.Data.centerHeals = Tracker.Data.centerHeals + healsToUpdate
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+		end
+		Tracker.Data.gameStatsHeals = combinedHeals
+	end
+end
 
 function Program.handleAttackMove(moveId, slotNumber, isOwn)
 	if moveId == nil then return end
@@ -689,9 +693,9 @@ function Program.getHealingItemsFromMemory()
 
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
 	local key = nil -- Ruby/Sapphire don't have an encryption key
-	if GameSettings.bagEncryptionKeyOffset ~= 0 then
+	if GameSettings.EncryptionKeyOffset ~= 0 then
 		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-		key = Memory.readword(saveBlock2addr + GameSettings.bagEncryptionKeyOffset)
+		key = Memory.readword(saveBlock2addr + GameSettings.EncryptionKeyOffset)
 	end
 
 	local healingItems = {}
