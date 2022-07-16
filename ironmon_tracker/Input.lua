@@ -157,6 +157,14 @@ function Input.check(xmouse, ymouse)
 			end
 		end
 
+		-- pokemon info lookup
+		if pokemonViewed ~= nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 5, 5, 32, 29) then
+			InfoScreen.infoLookup = pokemonViewed.pokemonID
+			InfoScreen.viewScreen = InfoScreen.SCREENS.POKEMON_INFO
+			InfoScreen.redraw = true
+			Program.state = State.INFOSCREEN
+		end
+
 		--note box
 		if not Tracker.Data.isViewingOwn then
 			-- Check if clicked anywhere near the abilities area
@@ -196,10 +204,19 @@ function Input.check(xmouse, ymouse)
 		end
 	-- Info Screen mouse input regions
 	elseif Program.state == State.INFOSCREEN then
-		-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
-		if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
-			HiddenPowerButton.onclick()
-			InfoScreen.redraw = true
+		if InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO then
+			-- The arrow buttons near the Pokemon icon that allow navgiating to the 'next' or 'previous' Pokemon in order.
+			if Input.isInRange(xmouse, ymouse, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], InfoScreen.nextButton.box[3], InfoScreen.nextButton.box[4]) then
+				InfoScreen.nextButton.onClick()
+			elseif Input.isInRange(xmouse, ymouse, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], InfoScreen.prevButton.box[3], InfoScreen.prevButton.box[4]) then
+				InfoScreen.prevButton.onClick()
+			end
+		elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
+			-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
+			if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
+				HiddenPowerButton.onclick()
+				InfoScreen.redraw = true
+			end
 		end
 
 		-- Check for input on 'Close' button
