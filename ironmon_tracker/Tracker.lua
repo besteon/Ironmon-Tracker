@@ -309,7 +309,13 @@ function Tracker.loadData(filepath)
 	Tracker.Data = Tracker.InitTrackerData()
 	Tracker.Data.romHash = gameinfo.getromhash()
 
-	local trackerData = Utils.readTableFromFile(filepath)
+	-- Loose safety check to ensure a valid data file is loaded
+	local trackerData = nil
+	if filepath:sub(-5):lower() ~= GameSettings.fileExtension then
+		print("[ERROR] Unable to load Tracker data from selected file.")
+	else
+		trackerData = Utils.readTableFromFile(filepath)
+	end
 
 	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
 	if trackerData ~= nil then

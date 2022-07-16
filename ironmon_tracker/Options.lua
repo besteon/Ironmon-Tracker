@@ -292,7 +292,6 @@ function Options.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			print(formInput:sub(-5):lower())
 			if formInput:sub(-5):lower() ~= GameSettings.fileExtension then
 				formInput = formInput .. GameSettings.fileExtension
 			end
