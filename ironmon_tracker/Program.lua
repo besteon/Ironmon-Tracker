@@ -47,7 +47,7 @@ function Program.main()
 			Program.frames.waitToDraw = 30
 
 			-- Update current PC Heal count if auto-tracked
-			if Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
+			if Options["Track PC Heals"] then
 				Program.updatePCHeals()
 			end
 
@@ -501,19 +501,21 @@ function Program.updatePCHeals()
 
 	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
 
-	-- Determine if the tracked heals need to be updated
 	if combinedHeals ~= Tracker.Data.gameStatsHeals then
-		local healsToUpdate = combinedHeals - Tracker.Data.gameStatsHeals
-		if Options["PC heals count downward"] then
-			-- Automatically count down
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals - healsToUpdate
-			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-		else
-			-- Automatically count up
-			Tracker.Data.centerHeals = Tracker.Data.centerHeals + healsToUpdate
-			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		end
+		-- Update the local tally if there is a new heal
 		Tracker.Data.gameStatsHeals = combinedHeals
+		if Program.PCHealTrackingButtonState then
+			-- Only change the displayed count when the auto-tracking is enabled
+			if Options["PC heals count downward"] then
+				-- Automatically count down
+				Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
+				if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+			else
+				-- Automatically count up
+				Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
+				if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+			end
+		end
 	end
 end
 
