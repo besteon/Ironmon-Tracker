@@ -329,7 +329,7 @@ function Tracker.loadData()
 	end
 
 	Tracker.Data.romHash = gameinfo.getromhash()
-	Program.waitToDrawFrames = 0
+	Program.frames.waitToDraw = 0
 end
 
 function Tracker.Clear()
