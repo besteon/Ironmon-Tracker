@@ -666,9 +666,15 @@ function Drawing.drawSettings()
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
-	-- Edit controls button
+	-- 'Controls', 'Save Data', 'Load Data' buttons
 	Drawing.drawButtonBox(Options.controlsButton, boxSettingsShadow)
-	Drawing.drawText(Options.controlsButton.box[1] + 3, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.controlsButton.box[1] + 1, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+
+	Drawing.drawButtonBox(Options.saveTrackerDataButton, boxSettingsShadow)
+	Drawing.drawText(Options.saveTrackerDataButton.box[1] + 1, Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.saveTrackerDataButton.textColor], boxSettingsShadow)
+
+	Drawing.drawButtonBox(Options.loadTrackerDataButton, boxSettingsShadow)
+	Drawing.drawText(Options.loadTrackerDataButton.box[1] + 1, Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.loadTrackerDataButton.textColor], boxSettingsShadow)
 
 	-- Customize button
 	Drawing.drawButtonBox(Options.themeButton, boxSettingsShadow)

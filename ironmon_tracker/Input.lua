@@ -222,6 +222,12 @@ function Input.check(xmouse, ymouse)
 		if Input.isInRange(xmouse, ymouse, Options.controlsButton.box[1], Options.controlsButton.box[2], Options.controlsButton.box[3], Options.controlsButton.box[4]) then
 			Options.controlsButton.onClick()
 		end
+		if Input.isInRange(xmouse, ymouse, Options.saveTrackerDataButton.box[1], Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.box[3], Options.saveTrackerDataButton.box[4]) then
+			Options.saveTrackerDataButton.onClick()
+		end
+		if Input.isInRange(xmouse, ymouse, Options.loadTrackerDataButton.box[1], Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.box[3], Options.loadTrackerDataButton.box[4]) then
+			Options.loadTrackerDataButton.onClick()
+		end
 		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
 			Options.themeButton.onClick()
 		end
