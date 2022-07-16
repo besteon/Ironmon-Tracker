@@ -313,7 +313,7 @@ function Tracker.loadData(filepath)
 	-- Loose safety check to ensure a valid data file is loaded
 	local trackerData = nil
 	if filepath:sub(-5):lower() ~= GameSettings.fileExtension then
-		print("[ERROR] Unable to load Tracker data from selected file.")
+		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 	else
 		trackerData = Utils.readTableFromFile(filepath)
 	end

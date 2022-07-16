@@ -405,6 +405,15 @@ function Program.updateBattleDataFromMemory()
 				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
 			end
 		end
+
+		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
+			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+			
+			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
+			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+				Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
+			end
+		end
 	end
 end
 

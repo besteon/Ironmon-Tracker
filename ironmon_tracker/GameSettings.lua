@@ -16,6 +16,7 @@ GameSettings = {
 	gBattlerPartyIndexesEnemySlotTwo = 0x00000000,
 	gBattleMons = 0x00000000,
 	gBattlescriptCurrInstr = 0x00000000,
+	BattleScript_FocusPunchSetUp = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
 	gSaveBlock1 = 0x00000000,
@@ -261,6 +262,7 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 	GameSettings.gBattleMons = 0x02024084
 	GameSettings.gBattlescriptCurrInstr = 0x02024214
+	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10 -- TODO: offset for this game is untested
 	GameSettings.gBattleOutcome = 0x0202433a
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -317,6 +319,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -384,6 +387,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -441,6 +445,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -494,6 +499,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
