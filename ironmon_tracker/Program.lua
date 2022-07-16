@@ -46,10 +46,7 @@ function Program.main()
 		if Program.frames.waitToDraw == 0 then
 			Program.frames.waitToDraw = 30
 
-			-- Update current PC Heal count if auto-tracked
-			if Options["Track PC Heals"] then
-				Program.updatePCHeals()
-			end
+			Program.updatePCHeals()
 
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
@@ -474,7 +471,7 @@ function Program.updateButtons(state)
 end
 
 function Program.updatePCHeals()
-	-- Auto-tracking of PC heals
+	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local gameStatsAddr = 0x0
 	if GameSettings.game == 1 then
 		-- Ruby/Sapphire doesn't have gSaveBlock1Ptr and just uses gSaveBlock1 directly
@@ -504,8 +501,8 @@ function Program.updatePCHeals()
 	if combinedHeals ~= Tracker.Data.gameStatsHeals then
 		-- Update the local tally if there is a new heal
 		Tracker.Data.gameStatsHeals = combinedHeals
-		if Program.PCHealTrackingButtonState then
-			-- Only change the displayed count when the auto-tracking is enabled
+		-- Only change the displayed PC Heals count when the option is on and auto-tracking is enabled
+		if Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
 			if Options["PC heals count downward"] then
 				-- Automatically count down
 				Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
