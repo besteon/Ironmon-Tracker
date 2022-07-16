@@ -176,7 +176,7 @@ function Input.check(xmouse, ymouse)
 				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
 				local formWidth = client.screenwidth() - actualGameSize['x'] + 15
 				forms.setproperty(Input.noteForm,"Width",formWidth)
-				Drawing.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH,50)
+				Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH,50)
 				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
 				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 				forms.setproperty(noteTextBox,"Width",formWidth - 40)
