@@ -25,8 +25,8 @@ GameSettings = {
 	gameStatsOffset = 0x0,
 	EncryptionKeyOffset = 0x00, -- Doesn't exist in Ruby/Sapphire
 	badgeOffset = 0x0,
-	bagPocket_Items = 0x0,
-	bagPocket_Berries = 0x0,
+	bagPocket_Items_offset = 0x0,
+	bagPocket_Berries_offset = 0x0,
 	bagPocket_Items_Size = 0,
 	bagPocket_Berries_Size = 0,
 }
@@ -139,8 +139,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x01400000 then
@@ -160,8 +160,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x023F0000 then
@@ -181,8 +181,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	end
@@ -207,8 +207,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x1540000 then
@@ -228,8 +228,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x02530000 then
@@ -249,8 +249,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x740
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	end
@@ -278,8 +278,8 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.gameStatsOffset = 0x159C
 	GameSettings.EncryptionKeyOffset = 0xAC
 	GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-	GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x560
-	GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x790
+	GameSettings.bagPocket_Items_offset = 0x560
+	GameSettings.bagPocket_Berries_offset = 0x790
 	GameSettings.bagPocket_Items_Size = 30
 	GameSettings.bagPocket_Berries_Size = 46
 
@@ -336,8 +336,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gameStatsOffset = 0x1200
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_offset = 0x310
+		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
@@ -405,8 +405,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gameStatsOffset = 0x1200
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_offset = 0x310
+		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
@@ -464,8 +464,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gameStatsOffset = 0x1200
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_offset = 0x310
+		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
@@ -519,8 +519,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gameStatsOffset = 0x1200
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items = GameSettings.gSaveBlock1 + 0x310
-		GameSettings.bagPocket_Berries = GameSettings.gSaveBlock1 + 0x54c
+		GameSettings.bagPocket_Items_offset = 0x310
+		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 

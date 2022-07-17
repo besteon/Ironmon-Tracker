@@ -741,14 +741,12 @@ function Program.getHealingItemsFromMemory()
 	end
 
 	local healingItems = {}
-
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
-		GameSettings.bagPocket_Items,
-		GameSettings.bagPocket_Berries,
+		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
+		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
 	}
-
-	for _, address in pairs(addressesToScan) do
-		local size = Utils.inlineIf(address == GameSettings.bagPocket_Items, GameSettings.bagPocket_Items_Size, GameSettings.bagPocket_Berries_Size)
+	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
