@@ -530,13 +530,12 @@ end
 
 function Program.updateBadgesObtainedFromMemory()
 	local badgeBits = nil
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
-		badgeBits = Utils.getbits(Memory.readword(GameSettings.gSaveBlock1 + GameSettings.badgeOffset), 7, 8)
+		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
 	elseif GameSettings.game == 2 then -- Emerald
-		local saveblock1Addr = Memory.readdword(GameSettings.gSaveBlock1ptr)
 		badgeBits = Utils.getbits(Memory.readword(saveblock1Addr + GameSettings.badgeOffset), 7, 8)
 	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
-		local saveblock1Addr = Memory.readdword(GameSettings.gSaveBlock1ptr)
 		badgeBits = Memory.readbyte(saveblock1Addr + GameSettings.badgeOffset)
 	end
 
@@ -741,14 +740,12 @@ function Program.getHealingItemsFromMemory()
 	end
 
 	local healingItems = {}
-
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
-		GameSettings.bagPocket_Items,
-		GameSettings.bagPocket_Berries,
+		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
+		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
 	}
-
-	for _, address in pairs(addressesToScan) do
-		local size = Utils.inlineIf(address == GameSettings.bagPocket_Items, GameSettings.bagPocket_Items_Size, GameSettings.bagPocket_Berries_Size)
+	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
