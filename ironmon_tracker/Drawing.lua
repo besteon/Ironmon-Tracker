@@ -4,6 +4,8 @@ Drawing.CONSTANTS = {
 	FONT_FAMILY = "Franklin Gothic Medium",
 }
 
+Drawing.pokemonStadiumExtension = ""
+
 ImageTypes = {
 	GEAR = "gear",
 	PHYSICAL = "physical",
@@ -23,11 +25,20 @@ end
 
 function Drawing.drawPokemonIcon(id, x, y)
 	id = id or 0
-	if id < 0 or id > 412 then
+	if id < 0 or id > #PokemonData+1 then
 		id = 0 -- Blank Pokemon data/icon
 	end
 
-	gui.drawImage(DATA_FOLDER .. "/images/pokemon/" .. id .. ".gif", x, y, 32, 32)
+	local extension = ".gif"
+	local folderToUse = "pokemon"
+
+	if Options["Pokemon Stadium portraits"] and Drawing.pokemonSadiumExtension ~= "invalid" then 
+		extension = Drawing.pokemonStadiumExtension
+		folderToUse = "pokemonStadium"
+		y = y + 4
+	end
+
+	gui.drawImage(DATA_FOLDER .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
