@@ -369,17 +369,3 @@ function Utils.fileExists(path)
 	local file = io.open(path,"r")
 	if file ~= nil then io.close(file) return true else return false end
 end
-
-function Utils.figureOutPokemonStadiumExtension()
-	local path = DATA_FOLDER .. "/images/pokemonStadium/1"
-	--Try GIF first, then PNG.
-	local gifPath = path..".gif"
-	local pngPath = path..".png"
-	if Utils.fileExists(gifPath) then
-		Drawing.pokemonStadiumExtension = ".gif"
-	elseif Utils.fileExists(pngPath) then
-		Drawing.pokemonStadiumExtension = ".png"
-	else
-		Drawing.pokemonStadiumExtension = "invalid"
-	end
-end
