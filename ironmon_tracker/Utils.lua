@@ -372,17 +372,14 @@ end
 
 function Utils.figureOutPokemonStadiumExtension()
 	local path = DATA_FOLDER .. "/images/pokemonStadium/1"
-	--Try .gif first, then .png
+	--Try GIF first, then PNG.
 	local gifPath = path..".gif"
 	local pngPath = path..".png"
 	if Utils.fileExists(gifPath) then
-		print("GIF was found.")
 		Drawing.pokemonStadiumExtension = ".gif"
 	elseif Utils.fileExists(pngPath) then
-		print("PNG was found.")
 		Drawing.pokemonStadiumExtension = ".png"
 	else
-		print("Nothing found.")
 		Drawing.pokemonStadiumExtension = "invalid"
 	end
 end
