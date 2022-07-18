@@ -802,6 +802,8 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData[pokemonID + 1] -- +1 necessary because the first entry is blank Pokemon Data
+	local pokemonViewed = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local isViewedPokemonOwn = pokemonViewed.pokemonID == pokemonID
 
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
@@ -870,12 +872,25 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local boxWidth = 16
 	local boxHeight = 13
 	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local boxColIndex = (i - 1) % 8 -- 8 possible columns
-		local boxRowIndex = Utils.inlineIf(i <= 8, 0, 1) -- 2 possible rows
+		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
+		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
+		local nextBoxTextC = Utils.inlineIf(isViewedPokemonOwn and moveLvl <= pokemonViewed.level, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"])
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
-		gui.drawRectangle(offsetX + 5 + (boxColIndex * boxWidth) + 1, botOffsetY + 1 + (boxRowIndex * boxHeight) + 1, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(offsetX + 5 + (boxColIndex * boxWidth), botOffsetY + 1 + (boxRowIndex * boxHeight), boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
-		Drawing.drawText(offsetX + 7 + (boxColIndex * boxWidth) + lvlSpacing, botOffsetY + 2 + (boxRowIndex * boxHeight), moveLvl, GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
+
+		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
+		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+		if isViewedPokemonOwn and moveLvl <= pokemonViewed.level then
+			gui.drawRectangle(offsetX + nextBoxX + 6, botOffsetY + nextBoxY + 2, boxWidth - 2, boxHeight - 2, GraphicConstants.THEMECOLORS["Lower box border"], boxInfoBotShadow)
+			-- gui.drawRectangle(offsetX + nextBoxX + 7, botOffsetY + nextBoxY + 3, boxWidth - 4, boxHeight - 4, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+		end
+
+		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextC, boxInfoBotShadow)
+		
+		-- Check off learned moves if the pokemon being viewed is the player's lead pokemon
+		-- if isViewedPokemonOwn and moveLvl <= pokemonViewed.level then
+		-- 	gui.drawLine(offsetX + nextBoxX + 11, botOffsetY + nextBoxY + 9, offsetX + nextBoxX + 13, botOffsetY + nextBoxY + 12, GraphicConstants.THEMECOLORS["Positive text"])
+		-- 	gui.drawLine(offsetX + nextBoxX + 13, botOffsetY + nextBoxY + 12, offsetX + nextBoxX + 9 + boxWidth, botOffsetY + nextBoxY + 6, GraphicConstants.THEMECOLORS["Positive text"])
+		-- end
 	end
 	botOffsetY = botOffsetY + (linespacing * 3)
 

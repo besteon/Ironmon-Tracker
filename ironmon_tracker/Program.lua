@@ -431,6 +431,11 @@ function Program.beginNewBattle(isWild)
 	Tracker.Data.otherViewSlot = 1
 	Tracker.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
 
+	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
+	if Program.state == State.INFOSCREEN then
+		Program.state = State.TRACKER
+	end
+
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
@@ -456,7 +461,7 @@ function Program.endBattle(isWild)
 		end
 	end
 
-	-- Handles a common case of looking up a move, then moving on with combat. When over, the move info screen should go away.
+	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.state == State.INFOSCREEN then
 		Program.state = State.TRACKER
 	end
