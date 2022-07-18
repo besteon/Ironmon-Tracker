@@ -106,7 +106,7 @@ function InfoScreen.openMoveInfoWindow()
 
 		for id, data in pairs(MoveData) do
 			if data.name == moveName then
-				moveId = id - 0 -- subtract 1 because MoveData's first element is blank data
+				moveId = id
 			end
 		end
 
