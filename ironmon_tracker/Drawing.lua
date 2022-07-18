@@ -9,11 +9,84 @@ Drawing.PORTAIT_FOLDER_EXTENSIONS = {
 	pokemonStadium = ".png"
 }
 
-ImageTypes = {
-	GEAR = "gear",
-	PHYSICAL = "physical",
-	SPECIAL = "special",
-	NOTEPAD = "notepad",
+Drawing.PIXEL_IMAGES = {
+	GEAR = {
+		{0,0,0,1,1,0,0,0},
+		{0,1,1,1,1,1,1,0},
+		{0,1,1,1,1,1,1,0},
+		{1,1,1,0,0,1,1,1},
+		{1,1,1,0,0,1,1,1},
+		{0,1,1,1,1,1,1,0},
+		{0,1,1,1,1,1,1,0},
+		{0,0,0,1,1,0,0,0}
+	},
+	PHYSICAL = {
+		{1,0,0,1,0,0,1},
+		{0,1,0,1,0,1,0},
+		{0,0,1,1,1,0,0},
+		{1,1,1,1,1,1,1},
+		{0,0,1,1,1,0,0},
+		{0,1,0,1,0,1,0},
+		{1,0,0,1,0,0,1}
+	},
+	SPECIAL = {
+		{0,0,1,1,1,0,0},
+		{0,1,0,0,0,1,0},
+		{1,0,0,1,0,0,1},
+		{1,0,1,0,1,0,1},
+		{1,0,0,1,0,0,1},
+		{0,1,0,0,0,1,0},
+		{0,0,1,1,1,0,0}
+	},
+	NOTEPAD = {
+		{0,0,0,0,0,0,0,0,0,1,1},
+		{0,0,0,0,0,0,0,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,0},
+		{1,0,0,0,0,0,0,1,1,0,0},
+		{1,0,1,1,1,0,1,0,1,0,0},
+		{1,0,0,0,0,0,0,0,1,0,0},
+		{1,0,1,1,1,1,1,0,1,0,0},
+		{1,0,0,0,0,0,0,0,1,0,0},
+		{1,0,1,1,1,1,1,0,1,0,0},
+		{1,0,0,0,0,0,0,0,1,0,0},
+		{1,1,1,1,1,1,1,1,1,0,0},
+	},
+	MAGNIFYING_GLASS = {
+		{0,0,1,1,1,0,0,0,0,0},
+		{0,1,0,0,0,1,0,0,0,0},
+		{1,0,0,0,0,0,1,0,0,0},
+		{1,0,0,0,0,0,1,0,0,0},
+		{1,0,0,0,0,0,1,0,0,0},
+		{0,1,0,0,0,1,0,0,0,0},
+		{0,0,1,1,1,0,1,0,0,0},
+		{0,0,0,0,0,0,0,1,1,0},
+		{0,0,0,0,0,0,0,1,1,1},
+		{0,0,0,0,0,0,0,0,1,1},
+	},
+	PREVIOUS_BUTTON = {
+		{0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,1,1,0,0,0,0,0},
+		{0,0,1,1,0,0,0,0,0,0},
+		{0,1,1,0,0,0,0,0,0,0},
+		{1,1,1,1,1,1,1,1,1,0},
+		{1,1,1,1,1,1,1,1,1,0},
+		{0,1,1,0,0,0,0,0,0,0},
+		{0,0,1,1,0,0,0,0,0,0},
+		{0,0,0,1,1,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0},
+	},
+	NEXT_BUTTON = {
+		{0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,1,1,0,0,0},
+		{0,0,0,0,0,0,1,1,0,0},
+		{0,0,0,0,0,0,0,1,1,0},
+		{0,1,1,1,1,1,1,1,1,1},
+		{0,1,1,1,1,1,1,1,1,1},
+		{0,0,0,0,0,0,0,1,1,0},
+		{0,0,0,0,0,0,1,1,0,0},
+		{0,0,0,0,0,1,1,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0},
+	},
 }
 
 NatureTypes = {
@@ -323,7 +396,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Pokémon name
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[pokemon.pokemonID + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	-- Settings gear
-	Drawing.drawImageAsPixels(ImageTypes.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7, boxTopShadow)
+	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7, boxTopShadow)
 	-- HP
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
 	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
@@ -512,9 +585,9 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
 
 		if Options["Show physical special icons"] and category == MoveCategories.PHYSICAL then
-			Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
+			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		elseif Options["Show physical special icons"] and category == MoveCategories.SPECIAL then
-			Drawing.drawImageAsPixels(ImageTypes.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
+			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		end
 	end
 
@@ -623,13 +696,13 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
 		-- Draw notepad icon near abilities area, for manually tracking the abilities
 		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
-			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
+			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
 		end
 
 		-- Draw original notepad icon at the bottom for taking written notes
 		local noteText = Tracker.getNote(pokemon.pokemonID)
 		if noteText == "" then
-			Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 49, boxBotShadow)
+			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 49, boxBotShadow)
 		else
 			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, noteText, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
@@ -678,7 +751,7 @@ function Drawing.drawSettings()
 	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
 	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folderText == "" then
-		Drawing.drawImageAsPixels(ImageTypes.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
+		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
 		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
@@ -802,6 +875,8 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData[pokemonID + 1] -- +1 necessary because the first entry is blank Pokemon Data
+	local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
@@ -816,13 +891,10 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 	gui.drawText(offsetX - 1, offsetY, pokemonName, GraphicConstants.THEMECOLORS["Default text"], nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 
-	-- NAVIGATION ARROWS
-	Drawing.drawButtonBox(InfoScreen.nextButton, boxInfoTopShadow)
-	gui.drawText(InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2] - 2, InfoScreen.nextButton.text, boxInfoTopShadow, nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(InfoScreen.nextButton.box[1] - 1, InfoScreen.nextButton.box[2] - 3, InfoScreen.nextButton.text, GraphicConstants.THEMECOLORS[InfoScreen.nextButton.textColor], nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	Drawing.drawButtonBox(InfoScreen.prevButton, boxInfoTopShadow)
-	gui.drawText(InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2] - 2, InfoScreen.prevButton.text, boxInfoTopShadow, nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(InfoScreen.prevButton.box[1] - 1, InfoScreen.prevButton.box[2] - 3, InfoScreen.prevButton.text, GraphicConstants.THEMECOLORS[InfoScreen.prevButton.textColor], nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
+	-- NAVIGATION BUTTONS
+	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PREVIOUS_BUTTON, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NEXT_BUTTON, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -832,7 +904,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
 	end
-	Drawing.drawPokemonIcon(pokemonID, offsetX + 106, offsetY + 2)
+	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
 	Drawing.drawTypeIcon(pokemon.type[1], offsetX + 106, offsetY + 37)
 	Drawing.drawTypeIcon(pokemon.type[2], offsetX + 106, offsetY + 49)
 	offsetY = offsetY + 11 + linespacing
@@ -870,12 +942,24 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local boxWidth = 16
 	local boxHeight = 13
 	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local boxColIndex = (i - 1) % 8 -- 8 possible columns
-		local boxRowIndex = Utils.inlineIf(i <= 8, 0, 1) -- 2 possible rows
+		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
+		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
-		gui.drawRectangle(offsetX + 5 + (boxColIndex * boxWidth) + 1, botOffsetY + 1 + (boxRowIndex * boxHeight) + 1, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(offsetX + 5 + (boxColIndex * boxWidth), botOffsetY + 1 + (boxRowIndex * boxHeight), boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
-		Drawing.drawText(offsetX + 7 + (boxColIndex * boxWidth) + lvlSpacing, botOffsetY + 2 + (boxRowIndex * boxHeight), moveLvl, GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
+
+		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
+		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+
+		-- Indicate which moves have already been learned if the pokemon being viewed is one of the ones in battle (yours/enemy)
+		local nextBoxTextColor
+		if not isTargetTheViewedPokemonn then
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Default text"]
+		elseif moveLvl <= pokemonViewed.level then
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Negative text"]
+		else
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Positive text"]
+		end
+
+		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + (linespacing * 3)
 
@@ -966,6 +1050,9 @@ function Drawing.drawMoveInfoScreen(moveId)
 		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
 	end
 	
+	-- NAVIGATION BUTTONS
+	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], boxInfoTopShadow)
+
 	-- TYPE ICON
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -977,10 +1064,10 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local categoryInfo = ""
 	if moveCat == MoveCategories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
-		Drawing.drawImageAsPixels(ImageTypes.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 	elseif moveCat == MoveCategories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
-		Drawing.drawImageAsPixels(ImageTypes.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 	elseif moveCat == MoveCategories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
 	else categoryInfo = categoryInfo .. "---" end
@@ -1055,72 +1142,17 @@ function Drawing.drawMoveInfoScreen(moveId)
 	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, GraphicConstants.THEMECOLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)
 end
 
-function Drawing.drawImageAsPixels(imageType, x, y, imageShadow)
-	local imageArray = {}
-	local c = GraphicConstants.THEMECOLORS["Default text"] -- a colored pixel
-	local e = -1 -- an empty pixel
-
-	if imageType == ImageTypes.GEAR then
-		c = GraphicConstants.THEMECOLORS["Default text"]
-		imageArray = {
-			{e,e,e,c,c,e,e,e},
-			{e,c,c,c,c,c,c,e},
-			{e,c,c,c,c,c,c,e},
-			{c,c,c,e,e,c,c,c},
-			{c,c,c,e,e,c,c,c},
-			{e,c,c,c,c,c,c,e},
-			{e,c,c,c,c,c,c,e},
-			{e,e,e,c,c,e,e,e}
-		}
-	elseif imageType == ImageTypes.PHYSICAL then
-		c = GraphicConstants.THEMECOLORS["Default text"]
-		imageArray = {
-			{c,e,e,c,e,e,c},
-			{e,c,e,c,e,c,e},
-			{e,e,c,c,c,e,e},
-			{c,c,c,c,c,c,c},
-			{e,e,c,c,c,e,e},
-			{e,c,e,c,e,c,e},
-			{c,e,e,c,e,e,c}
-		}
-	elseif imageType == ImageTypes.SPECIAL then
-		c = GraphicConstants.THEMECOLORS["Default text"]
-		imageArray = {
-			{e,e,c,c,c,e,e},
-			{e,c,e,e,e,c,e},
-			{c,e,e,c,e,e,c},
-			{c,e,c,e,c,e,c},
-			{c,e,e,c,e,e,c},
-			{e,c,e,e,e,c,e},
-			{e,e,c,c,c,e,e}
-		}
-	elseif imageType == ImageTypes.NOTEPAD then
-		c = GraphicConstants.THEMECOLORS["Default text"]
-		imageArray = {
-			{e,e,e,e,e,e,e,e,e,c,c},
-			{e,e,e,e,e,e,e,e,c,e,c},
-			{c,c,c,c,c,c,c,c,c,c,e},
-			{c,e,e,e,e,e,e,c,c,e,e},
-			{c,e,c,c,c,e,c,e,c,e,e},
-			{c,e,e,e,e,e,e,e,c,e,e},
-			{c,e,c,c,c,c,c,e,c,e,e},
-			{c,e,e,e,e,e,e,e,c,e,e},
-			{c,e,c,c,c,c,c,e,c,e,e},
-			{c,e,e,e,e,e,e,e,c,e,e},
-			{c,c,c,c,c,c,c,c,c,e,e},
-		}
-	end
-
+function Drawing.drawImageAsPixels(imageArray, x, y, imageShadow)
 	for rowIndex = 1, #imageArray, 1 do
 		for colIndex = 1, #(imageArray[1]) do
 			local offsetX = colIndex - 1
 			local offsetY = rowIndex - 1
-			local color = imageArray[rowIndex][colIndex]
-			if color ~= -1 then
+			
+			if imageArray[rowIndex][colIndex] ~= 0 then
 				if imageShadow ~= nil then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
 				end
-				gui.drawPixel(x + offsetX, y + offsetY, color)
+				gui.drawPixel(x + offsetX, y + offsetY, GraphicConstants.THEMECOLORS["Default text"])
 			end
 		end
 	end
