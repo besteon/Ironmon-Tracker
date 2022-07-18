@@ -76,7 +76,6 @@ function Main.Run()
 	else
 		Tracker.loadData()
 		Buttons.initializeBadgeButtons()
-		Utils.figureOutPokemonStadiumExtension()
 		client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
 		gui.defaultTextBackground(0)
 
