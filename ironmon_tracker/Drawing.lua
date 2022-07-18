@@ -32,7 +32,7 @@ function Drawing.drawPokemonIcon(id, x, y)
 	local extension = ".gif"
 	local folderToUse = "pokemon"
 
-	if Options["Pokemon Stadium portraits"] and Drawing.pokemonSadiumExtension ~= "invalid" then 
+	if Options["Pokemon Stadium portraits"] and Drawing.pokemonStadiumExtension ~= "invalid" then 
 		extension = Drawing.pokemonStadiumExtension
 		folderToUse = "pokemonStadium"
 		y = y + 4
