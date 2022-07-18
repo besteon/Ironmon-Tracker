@@ -9,6 +9,7 @@ Options = {
 	["Count enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
+	["Pokemon Stadium portraits"] = false,
 
 	-- Used to always display the Options in a set order in the menu
 	ORDEREDLIST = {
@@ -21,6 +22,7 @@ Options = {
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
+		"Pokemon Stadium portraits"
 	},
 
 	CONTROLS = {
