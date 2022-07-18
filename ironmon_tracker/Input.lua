@@ -173,34 +173,8 @@ function Input.check(xmouse, ymouse)
 				AbilityTrackingButton.onclick()
 
 			-- Check if clicked near the original note taking area near the bottom
-			elseif Input.noteForm == nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
-				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-				local pokemonName = "this Pokemon"
-				if pokemon ~= nil then
-					pokemonName = PokemonData[pokemon.pokemonID + 1].name
-				end
-				--forms buttons and textbox initial  width is wrong width its being set in setproperty Width
-				--had to change it after the initial value because the built in functions use UIHelper.Scale which mess everything
-				local actualGameSize = client.transformPoint(GraphicConstants.SCREEN_WIDTH,0)
-				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
-				local formWidth = client.screenwidth() - actualGameSize['x']  - client.borderwidth() - 5
-				forms.setproperty(Input.noteForm,"Width",formWidth)
-				Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH + 5,50)
-				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
-				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-				forms.setproperty(noteTextBox,"Width",formWidth - 40)
-				local btn = forms.button(Input.noteForm, "Save", function()
-					local formInput = forms.gettext(noteTextBox)
-					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-					if formInput ~= nil and pokemon ~= nil then
-						Tracker.TrackNote(pokemon.pokemonID, formInput)
-						Program.frames.waitToDraw = 0
-					end
-					forms.destroy(Input.noteForm)
-					Input.noteForm = nil
-				end, 187, 55)
-				local defualtBtnWidth = 75
-				forms.setproperty(btn,"Left",formWidth / 2 - defualtBtnWidth/2)
+			elseif Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
+				NotepadTrackingButton.onclick()
 			end
 		end
 	-- Info Screen mouse input regions

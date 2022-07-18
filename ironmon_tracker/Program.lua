@@ -582,9 +582,7 @@ end
 
 function Program.HandleExit()
 	Drawing.clearGUI()
-	if Input.noteForm then
-		forms.destroy(Input.noteForm)
-	end
+	forms.destroyall()
 end
 
 -- Returns true only if the player hasn't completed the catching tutorial
