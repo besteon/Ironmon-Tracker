@@ -183,12 +183,13 @@ function Input.check(xmouse, ymouse)
 				--had to change it after the initial value because the built in functions use UIHelper.Scale which mess everything
 				local actualGameSize = client.transformPoint(GraphicConstants.SCREEN_WIDTH,0)
 				Input.noteForm = forms.newform(465, 125, "Leave a Note", function() Input.noteForm = nil end)
+				Utils.setFormLocation(Input.noteForm, 100, 50)
 				local formWidth = client.screenwidth() - actualGameSize['x']  - client.borderwidth() - 5
-				forms.setproperty(Input.noteForm,"Width",formWidth)
-				Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH + 5,50)
+				-- forms.setproperty(Input.noteForm,"Width",formWidth)
+				-- Utils.setFormLocation(Input.noteForm,GraphicConstants.SCREEN_WIDTH + 5,50)
 				forms.label(Input.noteForm, "Enter a note for " .. pokemonName .. " (70 char. max):", 9, 10, 300, 20)
 				local noteTextBox = forms.textbox(Input.noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-				forms.setproperty(noteTextBox,"Width",formWidth - 40)
+				-- forms.setproperty(noteTextBox,"Width",formWidth - 40)
 				local btn = forms.button(Input.noteForm, "Save", function()
 					local formInput = forms.gettext(noteTextBox)
 					local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
@@ -200,7 +201,7 @@ function Input.check(xmouse, ymouse)
 					Input.noteForm = nil
 				end, 187, 55)
 				local defualtBtnWidth = 75
-				forms.setproperty(btn,"Left",formWidth / 2 - defualtBtnWidth/2)
+				-- forms.setproperty(btn,"Left",formWidth / 2 - defualtBtnWidth/2)
 			end
 		end
 	-- Info Screen mouse input regions
@@ -211,12 +212,16 @@ function Input.check(xmouse, ymouse)
 				InfoScreen.nextButton.onClick()
 			elseif Input.isInRange(xmouse, ymouse, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], InfoScreen.prevButton.box[3], InfoScreen.prevButton.box[4]) then
 				InfoScreen.prevButton.onClick()
+			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], InfoScreen.lookupPokemonButton.box[3], InfoScreen.lookupPokemonButton.box[4]) then
+				InfoScreen.lookupPokemonButton.onClick()
 			end
 		elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
 			-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
 			if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
 				HiddenPowerButton.onclick()
 				InfoScreen.redraw = true
+			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], InfoScreen.lookupMoveButton.box[3], InfoScreen.lookupMoveButton.box[4]) then
+				InfoScreen.lookupMoveButton.onClick()
 			end
 		end
 

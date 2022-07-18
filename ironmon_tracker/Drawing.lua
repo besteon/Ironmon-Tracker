@@ -10,10 +10,13 @@ Drawing.PORTAIT_FOLDER_EXTENSIONS = {
 }
 
 ImageTypes = {
-	GEAR = "gear",
-	PHYSICAL = "physical",
-	SPECIAL = "special",
-	NOTEPAD = "notepad",
+	GEAR = 1,
+	PHYSICAL = 2,
+	SPECIAL = 3,
+	NOTEPAD = 4,
+	MAGNIFYING_GLASS = 5,
+	PREVIOUS_BUTTON = 6,
+	NEXT_BUTTON = 7,
 }
 
 NatureTypes = {
@@ -802,8 +805,8 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData[pokemonID + 1] -- +1 necessary because the first entry is blank Pokemon Data
-	local pokemonViewed = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local isViewedPokemonOwn = pokemonViewed.pokemonID == pokemonID
+	local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 
 	-- Fill background and margins
 	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
@@ -818,13 +821,10 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 	gui.drawText(offsetX - 1, offsetY, pokemonName, GraphicConstants.THEMECOLORS["Default text"], nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
 
-	-- NAVIGATION ARROWS
-	Drawing.drawButtonBox(InfoScreen.nextButton, boxInfoTopShadow)
-	gui.drawText(InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2] - 2, InfoScreen.nextButton.text, boxInfoTopShadow, nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(InfoScreen.nextButton.box[1] - 1, InfoScreen.nextButton.box[2] - 3, InfoScreen.nextButton.text, GraphicConstants.THEMECOLORS[InfoScreen.nextButton.textColor], nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	Drawing.drawButtonBox(InfoScreen.prevButton, boxInfoTopShadow)
-	gui.drawText(InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2] - 2, InfoScreen.prevButton.text, boxInfoTopShadow, nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(InfoScreen.prevButton.box[1] - 1, InfoScreen.prevButton.box[2] - 3, InfoScreen.prevButton.text, GraphicConstants.THEMECOLORS[InfoScreen.prevButton.textColor], nil, 13, Drawing.CONSTANTS.FONT_FAMILY, "bold")
+	-- NAVIGATION BUTTONS
+	Drawing.drawImageAsPixels(ImageTypes.MAGNIFYING_GLASS, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(ImageTypes.PREVIOUS_BUTTON, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(ImageTypes.NEXT_BUTTON, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -834,7 +834,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
 	end
-	Drawing.drawPokemonIcon(pokemonID, offsetX + 106, offsetY + 2)
+	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
 	Drawing.drawTypeIcon(pokemon.type[1], offsetX + 106, offsetY + 37)
 	Drawing.drawTypeIcon(pokemon.type[2], offsetX + 106, offsetY + 49)
 	offsetY = offsetY + 11 + linespacing
@@ -874,23 +874,22 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
 		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
-		local nextBoxTextC = Utils.inlineIf(isViewedPokemonOwn and moveLvl <= pokemonViewed.level, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"])
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 
 		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
 		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
-		if isViewedPokemonOwn and moveLvl <= pokemonViewed.level then
-			gui.drawRectangle(offsetX + nextBoxX + 6, botOffsetY + nextBoxY + 2, boxWidth - 2, boxHeight - 2, GraphicConstants.THEMECOLORS["Lower box border"], boxInfoBotShadow)
-			-- gui.drawRectangle(offsetX + nextBoxX + 7, botOffsetY + nextBoxY + 3, boxWidth - 4, boxHeight - 4, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+
+		-- Indicate which moves have already been learned if the pokemon being viewed is one of the ones in battle (yours/enemy)
+		local nextBoxTextColor
+		if not isTargetTheViewedPokemonn then
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Default text"]
+		elseif moveLvl <= pokemonViewed.level then
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Negative text"]
+		else
+			nextBoxTextColor = GraphicConstants.THEMECOLORS["Positive text"]
 		end
 
-		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextC, boxInfoBotShadow)
-		
-		-- Check off learned moves if the pokemon being viewed is the player's lead pokemon
-		-- if isViewedPokemonOwn and moveLvl <= pokemonViewed.level then
-		-- 	gui.drawLine(offsetX + nextBoxX + 11, botOffsetY + nextBoxY + 9, offsetX + nextBoxX + 13, botOffsetY + nextBoxY + 12, GraphicConstants.THEMECOLORS["Positive text"])
-		-- 	gui.drawLine(offsetX + nextBoxX + 13, botOffsetY + nextBoxY + 12, offsetX + nextBoxX + 9 + boxWidth, botOffsetY + nextBoxY + 6, GraphicConstants.THEMECOLORS["Positive text"])
-		-- end
+		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + (linespacing * 3)
 
@@ -981,6 +980,9 @@ function Drawing.drawMoveInfoScreen(moveId)
 		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
 	end
 	
+	-- NAVIGATION BUTTONS
+	Drawing.drawImageAsPixels(ImageTypes.MAGNIFYING_GLASS, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], boxInfoTopShadow)
+
 	-- TYPE ICON
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -1123,6 +1125,48 @@ function Drawing.drawImageAsPixels(imageType, x, y, imageShadow)
 			{c,e,c,c,c,c,c,e,c,e,e},
 			{c,e,e,e,e,e,e,e,c,e,e},
 			{c,c,c,c,c,c,c,c,c,e,e},
+		}
+	elseif imageType == ImageTypes.MAGNIFYING_GLASS then
+		c = GraphicConstants.THEMECOLORS["Default text"]
+		imageArray = {
+			{e,e,c,c,c,e,e,e,e,e},
+			{e,c,e,e,e,c,e,e,e,e},
+			{c,e,e,e,e,e,c,e,e,e},
+			{c,e,e,e,e,e,c,e,e,e},
+			{c,e,e,e,e,e,c,e,e,e},
+			{e,c,e,e,e,c,e,e,e,e},
+			{e,e,c,c,c,e,c,e,e,e},
+			{e,e,e,e,e,e,e,c,c,e},
+			{e,e,e,e,e,e,e,c,c,c},
+			{e,e,e,e,e,e,e,e,c,c},
+		}
+	elseif imageType == ImageTypes.PREVIOUS_BUTTON then
+		c = GraphicConstants.THEMECOLORS["Default text"]
+		imageArray = {
+			{e,e,e,e,e,e,e,e,e,e},
+			{e,e,e,c,c,e,e,e,e,e},
+			{e,e,c,c,e,e,e,e,e,e},
+			{e,c,c,e,e,e,e,e,e,e},
+			{c,c,c,c,c,c,c,c,c,e},
+			{c,c,c,c,c,c,c,c,c,e},
+			{e,c,c,e,e,e,e,e,e,e},
+			{e,e,c,c,e,e,e,e,e,e},
+			{e,e,e,c,c,e,e,e,e,e},
+			{e,e,e,e,e,e,e,e,e,e},
+		}
+	elseif imageType == ImageTypes.NEXT_BUTTON then
+		c = GraphicConstants.THEMECOLORS["Default text"]
+		imageArray = {
+			{e,e,e,e,e,e,e,e,e,e},
+			{e,e,e,e,e,c,c,e,e,e},
+			{e,e,e,e,e,e,c,c,e,e},
+			{e,e,e,e,e,e,e,c,c,e},
+			{e,c,c,c,c,c,c,c,c,c},
+			{e,c,c,c,c,c,c,c,c,c},
+			{e,e,e,e,e,e,e,c,c,e},
+			{e,e,e,e,e,e,c,c,e,e},
+			{e,e,e,e,e,c,c,e,e,e},
+			{e,e,e,e,e,e,e,e,e,e},
 		}
 	end
 
