@@ -156,6 +156,7 @@ end
 -- Loads the options defined in Settings.ini into the Tracker's constants
 function Options.loadOptions()
 	-- If no Settings.ini file was present, or sections were missing, define them here
+	if Settings == nil then Settings = {} end
 	if Settings.config == nil then Settings.config = {} end
 	if Settings.tracker == nil then Settings.tracker = {} end
 	if Settings.controls == nil then Settings.controls = {} end

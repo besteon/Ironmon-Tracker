@@ -313,6 +313,68 @@ end
 function Program.updateBattleDataFromMemory()
 	if not Tracker.Data.inBattle then return end
 
+	Program.updateViewSlotsFromMemory()
+
+	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
+	if Program.frames.battleDataDelay > 0 then
+		Program.frames.battleDataDelay = Program.frames.battleDataDelay - 30
+		return
+	end
+
+	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+
+	if leadPokemon ~= nil and opposingPokemon ~= nil then
+		Program.updateAbilityDataFromMemory(leadPokemon, true)
+		Program.updateAbilityDataFromMemory(opposingPokemon, false)
+	
+		Program.updateStatStagesDataFromMemory(leadPokemon, true)
+		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
+
+		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
+		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
+			opposingPokemon.hasBeenEncountered = true
+			Tracker.TrackEncounter(opposingPokemon.pokemonID, Tracker.Data.trainerID ~= opposingPokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
+		end
+
+		-- ABILITIES: TODO: Not all games/versions supported
+		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then
+			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+
+			-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
+			if opposingPokemon.abilityId ~= leadPokemon.abilityId then
+				-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
+				if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
+					Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
+				end
+			end
+
+			-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
+			if GameSettings.ABILITIES[battleMsg] == 36 and leadPokemon.abilityId == 36 then -- 36 = Trace
+				Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
+			end
+		end
+
+		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
+		for _, move in pairs(opposingPokemon.moves) do
+			if move.pp ~= tonumber(MoveData[move.id].pp) then
+				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
+			end
+		end
+
+		-- TODO: Disabling this for now as it triggers when your pokemon or enemy pokemon trigger Focus Punch animation. Similar concern to tracking abilitys info and revealing too much
+		-- if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
+		-- 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+			
+		-- 	-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
+		-- 	if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+		-- 		Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
+		-- 	end
+		-- end
+	end
+end
+
+function Program.updateViewSlotsFromMemory()
 	-- First update which own/other slots are being viewed
 	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
@@ -330,90 +392,41 @@ function Program.updateBattleDataFromMemory()
 	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
 		Tracker.Data.otherViewSlot = 1
 	end
+end
 
-	-- Then update ability/statstage data for each of the viewed pokemon
-	-- [i=1] is own pokemon, [i=2] is other pokemon
-	for i=1, 2, 1 do
-		local pokemon = Utils.inlineIf(i == 1, Tracker.getPokemon(Tracker.Data.ownViewSlot, true), Tracker.getPokemon(Tracker.Data.otherViewSlot, false))
-		if pokemon ~= nil then
-			-- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
-			if i ~= 1 and (pokemon.hasBeenEncountered == nil or not pokemon.hasBeenEncountered) then
-				pokemon.hasBeenEncountered = true
-				Tracker.TrackEncounter(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
-			end
+function Program.updateAbilityDataFromMemory(pokemon, isOwn)
+	-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
+	if pokemon.abilityId == nil or pokemon.abilityId == 0 then
+		local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(isOwn, 0x0, 0x58))
+		pokemon.abilityId = abilityFromMemory
 
-			-- Required delay between reading ability data from battle, as it takes N frames for old battle values to be cleared out
-			if Program.frames.battleDataDelay > 0 then
-				Program.frames.battleDataDelay = Program.frames.battleDataDelay - 30
-			else
-				-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
-				if pokemon.abilityId == nil or pokemon.abilityId == 0 then
-					local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(i == 1, 0x0, 0x58))
-					pokemon.abilityId = abilityFromMemory
-
-					-- Save information on enemy ability as "last seen ability" to be used for when you catch this Pokemon to add to your own team
-					if i ~= 1 then
-						Program.lastSeenEnemyAbilityId = pokemon.abilityId
-					end
-				end
-
-				-- Only bother reading game memory for enemy ability if neither of its possible abilities are being tracked
-				if i ~= 1 and GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and pokemon.abilityId ~= Tracker.getPokemon(Tracker.Data.ownViewSlot, true).abilityId then -- TODO: Not all games/versions supported
-					-- ^ TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
-
-					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-					if trackedAbilities[1].id == 0 or trackedAbilities[2].id == 0 then
-						local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-
-						-- Only track the triggered ability if it belongs to the enemy Pokemon (matches it's real ability)
-						if GameSettings.ABILITIES[battleMsg] == pokemon.abilityId then
-							Tracker.TrackAbility(pokemon.pokemonID, pokemon.abilityId)
-						end
-					end
-				end
-			end
-
-			local startAddress = GameSettings.gBattleMons + Utils.inlineIf(i == 1, 0x0, 0x58)
-			local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
-			local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
-
-			pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
-			if pokemon.statStages.hp ~= 0 then
-				pokemon.statStages = {
-					hp = pokemon.statStages.hp,
-					atk = Utils.getbits(hp_atk_def_speed, 8, 8),
-					def = Utils.getbits(hp_atk_def_speed, 16, 8),
-					spa = Utils.getbits(spatk_spdef_acc_evasion, 0, 8),
-					spd = Utils.getbits(spatk_spdef_acc_evasion, 8, 8),
-					spe = Utils.getbits(hp_atk_def_speed, 24, 8),
-					acc = Utils.getbits(spatk_spdef_acc_evasion, 16, 8),
-					eva = Utils.getbits(spatk_spdef_acc_evasion, 24, 8),
-				}
-			else
-				-- Unsure if this reset is necessary, or what the if condition is checking for
-				pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
-			end
+		-- Save information on enemy ability as "last seen ability" to be used for when you catch this Pokemon to add to your own team
+		if not isOwn then
+			Program.lastSeenEnemyAbilityId = pokemon.abilityId
 		end
 	end
+end
 
-	-- Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	if opposingPokemon ~= nil then
-		for _, move in pairs(opposingPokemon.moves) do
-			if move.pp ~= tonumber(MoveData[move.id].pp) then
-				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
-			end
-		end
+function Program.updateStatStagesDataFromMemory(pokemon, isOwn)
+	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
+	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
+	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
 
-		-- TODO: Disabling this for now as it triggers when your pokemon or enemy pokemon trigger Focus Punch animation. Similar concern to tracking abilitys info and revealing too much
-		-- if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-		-- 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-			
-		-- 	-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-		-- 	if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
-		-- 		Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
-		-- 	end
-		-- end
+	pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
+	if pokemon.statStages.hp ~= 0 then
+		pokemon.statStages = {
+			hp = pokemon.statStages.hp,
+			atk = Utils.getbits(hp_atk_def_speed, 8, 8),
+			def = Utils.getbits(hp_atk_def_speed, 16, 8),
+			spa = Utils.getbits(spatk_spdef_acc_evasion, 0, 8),
+			spd = Utils.getbits(spatk_spdef_acc_evasion, 8, 8),
+			spe = Utils.getbits(hp_atk_def_speed, 24, 8),
+			acc = Utils.getbits(spatk_spdef_acc_evasion, 16, 8),
+			eva = Utils.getbits(spatk_spdef_acc_evasion, 24, 8),
+		}
+	else
+		-- Unsure if this reset is necessary, or what the if condition is checking for
+		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 end
 
