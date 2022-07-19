@@ -326,6 +326,7 @@ function Buttons.openNotePadWindow()
 	if pokemon == nil then return end
 
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() return end)
+	Utils.setFormLocation(noteForm, 100, 50)
 	forms.label(noteForm, "Enter a note for " .. PokemonData[pokemon.pokemonID + 1].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 	
@@ -339,20 +340,4 @@ function Buttons.openNotePadWindow()
 		forms.destroy(noteForm)
 		client.unpause()
 	end, 187, 55)
-
-	Utils.setFormLocation(noteForm, GraphicConstants.SCREEN_WIDTH + 5, 50)
-
-	-- Rescale form and it's elements based on actual client screen (it could be magnified or resized)
-	local actualGameSize = client.transformPoint(GraphicConstants.SCREEN_WIDTH, 0)
-	local formWidth = client.screenwidth() - actualGameSize['x']  - client.borderwidth() - 5
-	local defualtBtnWidth = 75
-	-- print(forms.getproperty(noteForm, "Width"))
-	-- print(forms.getproperty(noteTextBox, "Width"))
-	-- print(forms.getproperty(saveButton, "Left"))
-	forms.setproperty(noteForm, "Width", formWidth)
-	forms.setproperty(noteTextBox, "Width", formWidth - 40)
-	forms.setproperty(saveButton,"Left", formWidth / 2 - defualtBtnWidth/2)
-
-	print("screen width: " .. client.screenwidth() .. " and border width: " .. client.borderwidth())
-	print("transformed-X: " .. actualGameSize['x'] .. " and transformed-Y: " .. actualGameSize['y'])
 end
