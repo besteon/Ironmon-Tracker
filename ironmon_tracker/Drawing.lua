@@ -1,94 +1,5 @@
 Drawing = {}
 
-Drawing.CONSTANTS = {
-	FONT_FAMILY = "Franklin Gothic Medium",
-}
-
-Drawing.PORTAIT_FOLDER_EXTENSIONS = {
-	pokemon = ".gif",
-	pokemonStadium = ".png"
-}
-
-Drawing.PIXEL_IMAGES = {
-	GEAR = {
-		{0,0,0,1,1,0,0,0},
-		{0,1,1,1,1,1,1,0},
-		{0,1,1,1,1,1,1,0},
-		{1,1,1,0,0,1,1,1},
-		{1,1,1,0,0,1,1,1},
-		{0,1,1,1,1,1,1,0},
-		{0,1,1,1,1,1,1,0},
-		{0,0,0,1,1,0,0,0}
-	},
-	PHYSICAL = {
-		{1,0,0,1,0,0,1},
-		{0,1,0,1,0,1,0},
-		{0,0,1,1,1,0,0},
-		{1,1,1,1,1,1,1},
-		{0,0,1,1,1,0,0},
-		{0,1,0,1,0,1,0},
-		{1,0,0,1,0,0,1}
-	},
-	SPECIAL = {
-		{0,0,1,1,1,0,0},
-		{0,1,0,0,0,1,0},
-		{1,0,0,1,0,0,1},
-		{1,0,1,0,1,0,1},
-		{1,0,0,1,0,0,1},
-		{0,1,0,0,0,1,0},
-		{0,0,1,1,1,0,0}
-	},
-	NOTEPAD = {
-		{0,0,0,0,0,0,0,0,0,1,1},
-		{0,0,0,0,0,0,0,0,1,0,1},
-		{1,1,1,1,1,1,1,1,1,1,0},
-		{1,0,0,0,0,0,0,1,1,0,0},
-		{1,0,1,1,1,0,1,0,1,0,0},
-		{1,0,0,0,0,0,0,0,1,0,0},
-		{1,0,1,1,1,1,1,0,1,0,0},
-		{1,0,0,0,0,0,0,0,1,0,0},
-		{1,0,1,1,1,1,1,0,1,0,0},
-		{1,0,0,0,0,0,0,0,1,0,0},
-		{1,1,1,1,1,1,1,1,1,0,0},
-	},
-	MAGNIFYING_GLASS = {
-		{0,0,1,1,1,0,0,0,0,0},
-		{0,1,0,0,0,1,0,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{1,0,0,0,0,0,1,0,0,0},
-		{0,1,0,0,0,1,0,0,0,0},
-		{0,0,1,1,1,0,1,0,0,0},
-		{0,0,0,0,0,0,0,1,1,0},
-		{0,0,0,0,0,0,0,1,1,1},
-		{0,0,0,0,0,0,0,0,1,1},
-	},
-	PREVIOUS_BUTTON = {
-		{0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,1,1,0,0,0,0,0},
-		{0,0,1,1,0,0,0,0,0,0},
-		{0,1,1,0,0,0,0,0,0,0},
-		{1,1,1,1,1,1,1,1,1,0},
-		{1,1,1,1,1,1,1,1,1,0},
-		{0,1,1,0,0,0,0,0,0,0},
-		{0,0,1,1,0,0,0,0,0,0},
-		{0,0,0,1,1,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0},
-	},
-	NEXT_BUTTON = {
-		{0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,1,1,0,0,0},
-		{0,0,0,0,0,0,1,1,0,0},
-		{0,0,0,0,0,0,0,1,1,0},
-		{0,1,1,1,1,1,1,1,1,1},
-		{0,1,1,1,1,1,1,1,1,1},
-		{0,0,0,0,0,0,0,1,1,0},
-		{0,0,0,0,0,0,1,1,0,0},
-		{0,0,0,0,0,1,1,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0},
-	},
-}
-
 NatureTypes = {
 	POSITIVE = 1,
 	NEGATIVE = -1,
@@ -96,7 +7,7 @@ NatureTypes = {
 }
 
 function Drawing.clearGUI()
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, 0xFF000000, 0xFF000000)
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
 
 function Drawing.drawPokemonIcon(id, x, y)
@@ -113,7 +24,7 @@ function Drawing.drawPokemonIcon(id, x, y)
 		y = y + 4
 	end
 
-	extension = Drawing.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
+	extension = Constants.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
 
 	gui.drawImage(DATA_FOLDER .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
 end
@@ -139,10 +50,10 @@ Draws text for the tracker on screen with a shadow effect. Uses the Franklin Got
 ]]
 -- TODO: Look into Libre Franklin and Public Sans are free fonts based on Franklin Gothic
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
-	gui.drawText(x, y, text, color, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
-	-- gui.drawText(x + 1, y + 1, text, shadowcolor, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
-	-- gui.drawText(x, y, text, color, nil, 9, Drawing.CONSTANTS.FONT_FAMILY, style)
+	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
+	gui.drawText(x, y, text, color, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
+	-- gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.FONT.SIZE, Drawing.Constants.FONT.FAMILY, style)
+	-- gui.drawText(x, y, text, color, nil, Constants.FONT.SIZE, Drawing.Constants.FONT.FAMILY, style)
 end
 
 --[[
@@ -198,10 +109,6 @@ function Drawing.drawChevronDown(x, y, width, height, thickness, color)
 	end
 end
 
-function Drawing.moveToColor(move)
-	return GraphicConstants.TYPECOLORS[move["type"]]
-end
-
 function Drawing.calcNatureBonus(stat, nature)
 	local natureType = NatureTypes.NEUTRAL
 
@@ -246,68 +153,68 @@ end
 
 function Drawing.drawStatusLevel(x, y, value)
 	if value == 0 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, Theme.COLORS["Negative text"])
 	elseif value == 1 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 2 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 3 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronDown(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 4 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 5 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 7 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 8 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 9 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
+		Drawing.drawChevronUp(x, y, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Default text"])
 	elseif value == 10 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
+		Drawing.drawChevronUp(x, y, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Positive text"])
 	elseif value == 11 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Default text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
+		Drawing.drawChevronUp(x, y, 4, 2, 1, Theme.COLORS["Default text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Positive text"])
 	elseif value == 12 then
-		Drawing.drawChevronUp(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
+		Drawing.drawChevronUp(x, y, 4, 2, 1, Theme.COLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Positive text"])
 	end
 end
 
 function Drawing.drawMoveEffectiveness(x, y, value)
 	if value == 2 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Positive text"])
 	elseif value == 4 then
-		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
-		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 4, 4, 2, 1, Theme.COLORS["Positive text"])
+		Drawing.drawChevronUp(x, y + 2, 4, 2, 1, Theme.COLORS["Positive text"])
 	elseif value == 0.5 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Negative text"])
 	elseif value == 0.25 then
-		Drawing.drawChevronDown(x, y, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
-		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, GraphicConstants.THEMECOLORS["Negative text"])
+		Drawing.drawChevronDown(x, y, 4, 2, 1, Theme.COLORS["Negative text"])
+		Drawing.drawChevronDown(x, y + 2, 4, 2, 1, Theme.COLORS["Negative text"])
 	end
 end
 
 function Drawing.drawInputOverlay()
 	if (Tracker.controller.framesSinceInput < Tracker.controller.boxVisibleFrames) and not Tracker.Data.isViewingOwn then
 		local i = Tracker.controller.statIndex
-		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], GraphicConstants.THEMECOLORS["Intermediate text"], 0x000000)
+		gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Theme.COLORS["Intermediate text"], 0x000000)
 	end
 end
 
@@ -336,8 +243,8 @@ function Drawing.calcShadowColor(color)
 end
 
 function Drawing.drawButtonBox(button, shadowcolor)
-	local bordercolor = Utils.inlineIf(button.boxColors ~= nil, GraphicConstants.THEMECOLORS[button.boxColors[1]], GraphicConstants.THEMECOLORS["Upper box border"])
-	local fillcolor = Utils.inlineIf(button.boxColors ~= nil, GraphicConstants.THEMECOLORS[button.boxColors[2]], GraphicConstants.THEMECOLORS["Upper box background"])
+	local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
+	local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
 
 	if shadowcolor ~= nil then
 		gui.drawRectangle(button.box[1] + 1, button.box[2] + 1, button.box[3], button.box[4], shadowcolor, fillcolor)
@@ -357,33 +264,33 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 
 	-- Fill background and margins
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
 	local borderMargin = 5
 	local statBoxWidth = 101
 	local statBoxHeight = 52
 
 	-- Draw top box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, statBoxWidth - borderMargin, statBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 
-	Drawing.drawPokemonIcon(pokemon.pokemonID, GraphicConstants.SCREEN_WIDTH + 5, -1)
-	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[1], GraphicConstants.SCREEN_WIDTH + 6, 33)
-	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[2], GraphicConstants.SCREEN_WIDTH + 6, 45)
+	Drawing.drawPokemonIcon(pokemon.pokemonID, Constants.SCREEN.WIDTH + 5, -1)
+	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[1], Constants.SCREEN.WIDTH + 6, 33)
+	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[2], Constants.SCREEN.WIDTH + 6, 45)
 
-	local colorbar = GraphicConstants.THEMECOLORS["Default text"]
+	local colorbar = Theme.COLORS["Default text"]
 	if pokemon.stats.hp == 0 then
-		colorbar = GraphicConstants.THEMECOLORS["Default text"]
+		colorbar = Theme.COLORS["Default text"]
 	elseif pokemon.curHP / pokemon.stats.hp <= 0.2 then
-		colorbar = GraphicConstants.THEMECOLORS["Negative text"]
+		colorbar = Theme.COLORS["Negative text"]
 	elseif pokemon.curHP / pokemon.stats.hp <= 0.5 then
-		colorbar = GraphicConstants.THEMECOLORS["Intermediate text"]
+		colorbar = Theme.COLORS["Intermediate text"]
 	end
 
 	-- calculate shadows based on the location of the text (top or bot box)
-	local bgHeaderShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Main background"])
-	local boxTopShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
-	local boxBotShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	local bgHeaderShadow = Drawing.calcShadowColor(Theme.COLORS["Main background"])
+	local boxTopShadow = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxBotShadow = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
 
 	-- Don't show hp values if the pokemon doesn't belong to the player, or if it doesn't exist
 	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.curHP)
@@ -394,55 +301,55 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local pkmnStatOffsetY = 10
 	-- Base Pokémon details
 	-- Pokémon name
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[pokemon.pokemonID + 1].name, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[pokemon.pokemonID + 1].name, Theme.COLORS["Default text"], boxTopShadow)
 	-- Settings gear
-	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.GEAR, GraphicConstants.SCREEN_WIDTH + statBoxWidth - 9, 7, boxTopShadow)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + statBoxWidth - 9, 7, boxTopShadow)
 	-- HP
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
 	-- Level and evolution
 	local levelDetails = "Lv." .. pokemon.level
 	local evolutionDetails = " (" .. PokemonData[pokemon.pokemonID + 1].evolution .. ")"
-	local evoTextColor = GraphicConstants.THEMECOLORS["Default text"]
+	local evoTextColor = Theme.COLORS["Default text"]
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
 	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemon) then
-		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
+		evoTextColor = Theme.COLORS["Positive text"]
 	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
 		evolutionDetails = " (SOON)"
-		evoTextColor = GraphicConstants.THEMECOLORS["Positive text"]
+		evoTextColor = Theme.COLORS["Positive text"]
 	end
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, evoTextColor, boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, evoTextColor, boxTopShadow)
 
 	-- draw heal-info box
 	local infoBoxHeight = 23
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin + statBoxHeight, statBoxWidth - borderMargin, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- If viewing own pokemon, Heals in bag/PokéCenter heals
 	if Tracker.Data.isViewingOwn then
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, "Heals in Bag:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Heals in Bag:", Theme.COLORS["Default text"], boxTopShadow)
 		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
 		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
-		Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", Theme.COLORS["Default text"], boxTopShadow)
 		
 		if (Options["Track PC Heals"]) then
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, "PC Heals:", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], boxTopShadow)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
+			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
 			
 			-- Draw the '+'', '-'', and toggle button for auto PC tracking
-			gui.drawText(Buttons[9].box[1] + 1, Buttons[9].box[2] + 1, Buttons[9].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
-			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, GraphicConstants.THEMECOLORS[Buttons[9].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
-			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
-			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, GraphicConstants.THEMECOLORS[Buttons[10].textcolor], nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
+			gui.drawText(Buttons[9].box[1] + 1, Buttons[9].box[2] + 1, Buttons[9].text, boxTopShadow, nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(Buttons[9].box[1], Buttons[9].box[2], Buttons[9].text, Theme.COLORS[Buttons[9].textcolor], nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(Buttons[10].box[1] + 1, Buttons[10].box[2] + 1, Buttons[10].text, boxTopShadow, nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, Theme.COLORS[Buttons[10].textcolor], nil, 5, Constants.FONT.FAMILY)
 
 			-- Auto-tracking PC Heals button
 			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
 			-- Draw a mark if the feature is on
 			if Program.PCHealTrackingButtonState then
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, GraphicConstants.THEMECOLORS[PCHealTrackingButton.togglecolor])
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, Theme.COLORS[PCHealTrackingButton.togglecolor])
+				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, Theme.COLORS[PCHealTrackingButton.togglecolor])
 			end
 		end
 	else
@@ -455,18 +362,18 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			else
 				encounterText = "Seen in the wild: " .. encounterText
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 6, 57, encounterText, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+			Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, encounterText, Theme.COLORS["Default text"], boxTopShadow)
 		end
 	end
 
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 35, 67, "4", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 35, 67, "4", Theme.COLORS["Default text"], boxTopShadow)
 	-- local statusItems = Program.getBagStatusItems()
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF, boxTopShadow)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 57, statusItems.burn, 0xFFFF0000, boxTopShadow)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF, boxTopShadow)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 60, 67, statusItems.sleep, "white", boxTopShadow)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
-	-- Drawing.drawText(GraphicConstants.SCREEN_WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF, boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 70, 57, statusItems.burn, 0xFFFF0000, boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF, boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 60, 67, statusItems.sleep, "white", boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
+	-- Drawing.drawText(Constants.SCREEN.WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
 
 	-- Draw Pokemon's held item and ability
 	local abilityStringTop = MiscData.ability[1]
@@ -487,30 +394,30 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			abilityStringBot = MiscData.ability[trackedAbilities[2].id + 1]
 		end
 	end
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, GraphicConstants.THEMECOLORS["Intermediate text"], boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], boxTopShadow)
 
 	-- draw stat box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + statBoxWidth, 5, GraphicConstants.RIGHT_GAP - statBoxWidth - borderMargin, 75, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + statBoxWidth, 5, Constants.SCREEN.RIGHT_GAP - statBoxWidth - borderMargin, 75, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 	local statLabels = {"hp", "atk", "def", "spa", "spd", "spe"}
-	local statOffsetX = GraphicConstants.SCREEN_WIDTH + statBoxWidth + 1
+	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
 	local statOffsetY = 7
 
 	for i = 1, #statLabels, 1 do
 		local natureType = Drawing.calcNatureBonus(statLabels[i], pokemon.nature)
-		local textColor = GraphicConstants.THEMECOLORS["Default text"]
+		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
 		if Tracker.Data.isViewingOwn and natureType == NatureTypes.POSITIVE then
-			textColor = GraphicConstants.THEMECOLORS["Positive text"]
+			textColor = Theme.COLORS["Positive text"]
 			natureSymbol = "+"
 		elseif Tracker.Data.isViewingOwn and natureType == NatureTypes.NEGATIVE then
-			textColor = GraphicConstants.THEMECOLORS["Negative text"]
+			textColor = Theme.COLORS["Negative text"]
 			natureSymbol = "---"
 		end
 
 		-- Draw stat label and nature symbol next to it
 		Drawing.drawText(statOffsetX, statOffsetY, statLabels[i]:upper(), textColor, boxTopShadow)
-		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, Drawing.CONSTANTS.FONT_FAMILY)
+		gui.drawText(statOffsetX + 25 - 10 + 1, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.FONT.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Tracker.Data.inBattle then
@@ -523,14 +430,14 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		else
 			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then
 				Drawing.drawButtonBox(Buttons[i], boxTopShadow)
-				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + Utils.inlineIf(Buttons[i].text == "--", 0, 1), Buttons[i].text, GraphicConstants.THEMECOLORS[Buttons[i].textcolor], boxTopShadow)
+				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + Utils.inlineIf(Buttons[i].text == "--", 0, 1), Buttons[i].text, Theme.COLORS[Buttons[i].textcolor], boxTopShadow)
 			end
 		end
 		statOffsetY = statOffsetY + 10
 	end
 
-	Drawing.drawText(statOffsetX, statOffsetY, "BST", GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
-	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[pokemon.pokemonID + 1].bst, GraphicConstants.THEMECOLORS["Default text"], boxTopShadow)
+	Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[pokemon.pokemonID + 1].bst, Theme.COLORS["Default text"], boxTopShadow)
 
 	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
 
@@ -544,16 +451,16 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local accOffset = 126
 
 	-- Draw move headers
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Main background"])
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
+	gui.defaultTextBackground(Theme.COLORS["Main background"])
+	Drawing.drawText(Constants.SCREEN.WIDTH + moveOffset - 2, moveStartY - moveTableHeaderHeightDiff, movesString, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + ppOffset, moveStartY - moveTableHeaderHeightDiff, "PP", Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + powerOffset, moveStartY - moveTableHeaderHeightDiff, "Pow", Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + accOffset, moveStartY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
 
 	-- Drawing moves
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	-- draw moves box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 46, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, movesBoxStartY, Constants.SCREEN.RIGHT_GAP - (2 * borderMargin), 46, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	local stars = { "", "", "", "" }
 	if not Tracker.Data.isViewingOwn then
@@ -577,7 +484,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 
 	-- Draw Moves categories, names, and other information
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 
 		-- Move category: physical, special, or status effect (and type color?)
 	for moveIndex = 1, 4, 1 do
@@ -585,33 +492,33 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
 
 		if Options["Show physical special icons"] and category == MoveCategories.PHYSICAL then
-			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PHYSICAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
+			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, Constants.SCREEN.WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		elseif Options["Show physical special icons"] and category == MoveCategories.SPECIAL then
-			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.SPECIAL, GraphicConstants.SCREEN_WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
+			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, Constants.SCREEN.WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		end
 	end
 
 	-- Move names (longest name is 12 characters?)
 	local nameOffset = Utils.inlineIf(Options["Show physical special icons"], 14, moveOffset - 1)
-	nameOffset = nameOffset + Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, 0, 5)
+	nameOffset = nameOffset + Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, 0, 5)
 	local moveColors = {}
 	for moveIndex = 1, 4, 1 do
-		table.insert(moveColors, Drawing.moveToColor(moves[moveIndex]))
+		table.insert(moveColors, Constants.COLORS.MOVETYPE[moves[moveIndex].type])
 	end
 	for moveIndex = 1, 4, 1 do
 		if moves[moveIndex].name == "Hidden Power" and Tracker.Data.isViewingOwn then
-			HiddenPowerButton.box[1] = GraphicConstants.SCREEN_WIDTH + nameOffset
+			HiddenPowerButton.box[1] = Constants.SCREEN.WIDTH + nameOffset
 			HiddenPowerButton.box[2] = moveStartY + (distanceBetweenMoves * (moveIndex - 1))
-			if not GraphicConstants.MOVE_TYPES_ENABLED then
+			if not Theme.MOVE_TYPES_ENABLED then
 				gui.drawRectangle(HiddenPowerButton.box[1] - 3, HiddenPowerButton.box[2] + 2, 2, 7, HiddenPowerButton.textcolor, HiddenPowerButton.textcolor)
 			end
-			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, HiddenPowerButton.textcolor, GraphicConstants.THEMECOLORS["Default text"]), boxBotShadow)
+			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, HiddenPowerButton.textcolor, Theme.COLORS["Default text"]), boxBotShadow)
 		else
 			-- Draw a small colored rectangle showing the color of the move type instead of painting over the text
-			if not GraphicConstants.MOVE_TYPES_ENABLED and moves[moveIndex].name ~= "---" then
-				gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + nameOffset - 3, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), 2, 7, moveColors[moveIndex], moveColors[moveIndex])
+			if not Theme.MOVE_TYPES_ENABLED and moves[moveIndex].name ~= "---" then
+				gui.drawRectangle(Constants.SCREEN.WIDTH + nameOffset - 3, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), 2, 7, moveColors[moveIndex], moveColors[moveIndex])
 			end
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, moveColors[moveIndex], GraphicConstants.THEMECOLORS["Default text"]), boxBotShadow)
+			Drawing.drawText(Constants.SCREEN.WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, moveColors[moveIndex], Theme.COLORS["Default text"]), boxBotShadow)
 		end
 	end
 
@@ -630,14 +537,14 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 				end
 			end
 		end
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), ppText, 2, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+		Drawing.drawNumber(Constants.SCREEN.WIDTH + ppOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), ppText, 2, Theme.COLORS["Default text"], boxBotShadow)
 	end
 
 	-- Move attack power
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
 		local showStabColor = Tracker.Data.inBattle and Utils.isSTAB(moves[moveIndex], PokemonData[pokemon.pokemonID + 1].type)
-		table.insert(stabColors, Utils.inlineIf(showStabColor, GraphicConstants.THEMECOLORS["Positive text"], GraphicConstants.THEMECOLORS["Default text"]))
+		table.insert(stabColors, Utils.inlineIf(showStabColor, Theme.COLORS["Positive text"], Theme.COLORS["Default text"]))
 	end
 	for moveIndex = 1, 4, 1 do
 		local movePower = moves[moveIndex].power
@@ -656,15 +563,15 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			else
 				newPower = movePower
 			end
-			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, 3, stabColors[moveIndex], boxBotShadow)
+			Drawing.drawNumber(Constants.SCREEN.WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), newPower, 3, stabColors[moveIndex], boxBotShadow)
 		else
-			Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, 3, stabColors[moveIndex], boxBotShadow)
+			Drawing.drawNumber(Constants.SCREEN.WIDTH + powerOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), movePower, 3, stabColors[moveIndex], boxBotShadow)
 		end
 	end
 
 	-- Move accuracy
 	for moveIndex = 1, 4, 1 do
-		Drawing.drawNumber(GraphicConstants.SCREEN_WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+		Drawing.drawNumber(Constants.SCREEN.WIDTH + accOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].accuracy, 3, Theme.COLORS["Default text"], boxBotShadow)
 	end
 
 	-- Move effectiveness against the opponent
@@ -672,9 +579,9 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		for moveIndex = 1, 4, 1 do
 			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[opposingPokemon.pokemonID + 1].type)
 			if effectiveness == 0 then
-				Drawing.drawText(GraphicConstants.SCREEN_WIDTH + powerOffset - 7, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", GraphicConstants.THEMECOLORS["Negative text"], boxBotShadow)
+				Drawing.drawText(Constants.SCREEN.WIDTH + powerOffset - 7, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", Theme.COLORS["Negative text"], boxBotShadow)
 			else
-				Drawing.drawMoveEffectiveness(GraphicConstants.SCREEN_WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
+				Drawing.drawMoveEffectiveness(Constants.SCREEN.WIDTH + powerOffset - 5, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), effectiveness)
 			end
 		end
 	end
@@ -682,7 +589,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	Drawing.drawInputOverlay()
 
 	-- Draw badge/note box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 44, GraphicConstants.RIGHT_GAP - (2 * borderMargin), 19, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, movesBoxStartY + 44, Constants.SCREEN.RIGHT_GAP - (2 * borderMargin), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	for index, button in pairs(BadgeButtons.badgeButtons) do
 		if button.visible() then
 			local addForOff = ""
@@ -696,20 +603,20 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
 		-- Draw notepad icon near abilities area, for manually tracking the abilities
 		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
-			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
+			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, AbilityTrackingButton.box[1], AbilityTrackingButton.box[2], boxTopShadow)
 		end
 
 		-- Draw original notepad icon at the bottom for taking written notes
 		local noteText = Tracker.getNote(pokemon.pokemonID)
 		if noteText == "" then
-			Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, GraphicConstants.SCREEN_WIDTH + borderMargin + 3, movesBoxStartY + 49, boxBotShadow)
+			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + borderMargin + 3, movesBoxStartY + 49, boxBotShadow)
 		else
-			Drawing.drawText(GraphicConstants.SCREEN_WIDTH + borderMargin, movesBoxStartY + 48, noteText, GraphicConstants.THEMECOLORS["Default text"], boxBotShadow)
+			Drawing.drawText(Constants.SCREEN.WIDTH + borderMargin, movesBoxStartY + 48, noteText, Theme.COLORS["Default text"], boxBotShadow)
 			--work around limitation of drawText not having width limit: paint over any spillover
-			local x = GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 5
+			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 5
 			local y = movesBoxStartY + 44
-			gui.drawLine(x, y, x, y + 14, GraphicConstants.THEMECOLORS["Lower box border"])
-			gui.drawRectangle(x + 1, y, 12, 14, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+			gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
+			gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 		end
 	end
 end
@@ -730,107 +637,107 @@ end
 
 function Drawing.drawSettings()
 	-- Fill background and margins
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 
 	local borderMargin = 5
-	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
 
 	-- set the color for text/number shadows for the top boxes
-	local boxSettingsShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
+	local boxSettingsShadow = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
 
 	-- Settings view box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Cancel/close button
 	Drawing.drawButtonBox(Options.closeButton, boxSettingsShadow)
-	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, GraphicConstants.THEMECOLORS[Options.closeButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Theme.COLORS[Options.closeButton.textColor], boxSettingsShadow)
 
 	-- Roms folder setting
 	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
-	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, Theme.COLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	if folderText == "" then
-		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NOTEPAD, GraphicConstants.SCREEN_WIDTH + 60, borderMargin + 2, boxSettingsShadow)
-		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', GraphicConstants.THEMECOLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, borderMargin + 2, boxSettingsShadow)
+		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', Theme.COLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
 	end
 
 	-- 'Controls', 'Save Data', 'Load Data' buttons
 	Drawing.drawButtonBox(Options.controlsButton, boxSettingsShadow)
-	Drawing.drawText(Options.controlsButton.box[1] + 1, Options.controlsButton.box[2], Options.controlsButton.text, GraphicConstants.THEMECOLORS[Options.controlsButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.controlsButton.box[1] + 1, Options.controlsButton.box[2], Options.controlsButton.text, Theme.COLORS[Options.controlsButton.textColor], boxSettingsShadow)
 
 	Drawing.drawButtonBox(Options.saveTrackerDataButton, boxSettingsShadow)
-	Drawing.drawText(Options.saveTrackerDataButton.box[1] + 1, Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.saveTrackerDataButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.saveTrackerDataButton.box[1] + 1, Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.text, Theme.COLORS[Options.saveTrackerDataButton.textColor], boxSettingsShadow)
 
 	Drawing.drawButtonBox(Options.loadTrackerDataButton, boxSettingsShadow)
-	Drawing.drawText(Options.loadTrackerDataButton.box[1] + 1, Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.text, GraphicConstants.THEMECOLORS[Options.loadTrackerDataButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.loadTrackerDataButton.box[1] + 1, Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.text, Theme.COLORS[Options.loadTrackerDataButton.textColor], boxSettingsShadow)
 
 	-- Customize button
 	Drawing.drawButtonBox(Options.themeButton, boxSettingsShadow)
-	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, GraphicConstants.THEMECOLORS[Options.themeButton.textColor], boxSettingsShadow)
+	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, Theme.COLORS[Options.themeButton.textColor], boxSettingsShadow)
 
 	-- Draw toggleable settings
 	for _, button in pairs(Options.optionsButtons) do
 		Drawing.drawButtonBox(button, boxSettingsShadow)
-		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, GraphicConstants.THEMECOLORS[button.textColor], boxSettingsShadow)
+		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, Theme.COLORS[button.textColor], boxSettingsShadow)
 		-- Draw a mark if the feature is on
 		if Options[button.text] then
-			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, GraphicConstants.THEMECOLORS[button.togglecolor])
-			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, GraphicConstants.THEMECOLORS[button.togglecolor])
+			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, Theme.COLORS[button.togglecolor])
+			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, Theme.COLORS[button.togglecolor])
 		end
 	end
 end
 
 function Drawing.drawThemeMenu()
 	-- Fill background and margins
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 
 	local borderMargin = 5
-	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
 
 	-- set the color for text/number shadows for the bottom box values
-	local boxThemeShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	local boxThemeShadow = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
 
 	-- Draw Theme menu view box
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- Draw Import, Export, Presets buttons
 	Drawing.drawButtonBox(Theme.importThemeButton, boxThemeShadow)
-	Drawing.drawText(Theme.importThemeButton.box[1] + 3, Theme.importThemeButton.box[2], Theme.importThemeButton.text, GraphicConstants.THEMECOLORS[Theme.importThemeButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.importThemeButton.box[1] + 3, Theme.importThemeButton.box[2], Theme.importThemeButton.text, Theme.COLORS[Theme.importThemeButton.textColor], boxThemeShadow)
 	Drawing.drawButtonBox(Theme.exportThemeButton, boxThemeShadow)
-	Drawing.drawText(Theme.exportThemeButton.box[1] + 3, Theme.exportThemeButton.box[2], Theme.exportThemeButton.text, GraphicConstants.THEMECOLORS[Theme.exportThemeButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.exportThemeButton.box[1] + 3, Theme.exportThemeButton.box[2], Theme.exportThemeButton.text, Theme.COLORS[Theme.exportThemeButton.textColor], boxThemeShadow)
 	Drawing.drawButtonBox(Theme.presetsButton, boxThemeShadow)
-	Drawing.drawText(Theme.presetsButton.box[1] + 3, Theme.presetsButton.box[2], Theme.presetsButton.text, GraphicConstants.THEMECOLORS[Theme.presetsButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.presetsButton.box[1] + 3, Theme.presetsButton.box[2], Theme.presetsButton.text, Theme.COLORS[Theme.presetsButton.textColor], boxThemeShadow)
 
 	-- Draw each theme element and its color picker
 	local textPadding = 1
 	for _, button in pairs(Theme.themeButtons) do
 		if button.themeColor ~= nil then
 			-- fill in the box with the current defined color
-			gui.drawEllipse(button.box[1] - 1, button.box[2], button.box[3], button.box[4], 0xFF000000, GraphicConstants.THEMECOLORS[button.themeColor]) -- black border
+			gui.drawEllipse(button.box[1] - 1, button.box[2], button.box[3], button.box[4], 0xFF000000, Theme.COLORS[button.themeColor]) -- black border
 			-- Draw the hex code to the side 
-			Drawing.drawText(button.box[1] + button.box[3] + textPadding, button.box[2] - 2, string.upper(string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[button.themeColor]), 5)), GraphicConstants.THEMECOLORS[button.textColor], boxThemeShadow)
-			Drawing.drawText(button.box[1] + button.box[3] + textPadding + 36, button.box[2] - 2, button.text, GraphicConstants.THEMECOLORS[button.textColor], boxThemeShadow)
+			Drawing.drawText(button.box[1] + button.box[3] + textPadding, button.box[2] - 2, string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5)), Theme.COLORS[button.textColor], boxThemeShadow)
+			Drawing.drawText(button.box[1] + button.box[3] + textPadding + 36, button.box[2] - 2, button.text, Theme.COLORS[button.textColor], boxThemeShadow)
 		else
 		end
 	end
 	Drawing.drawButtonBox(Theme.moveTypeEnableButton, boxThemeShadow)
 	-- Draw a mark if the feature is on
-	if GraphicConstants.MOVE_TYPES_ENABLED then
-		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
-		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + 1, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.togglecolor])
+	if Theme.MOVE_TYPES_ENABLED then
+		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.COLORS[Theme.moveTypeEnableButton.togglecolor])
+		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.COLORS[Theme.moveTypeEnableButton.togglecolor])
 	end
-	Drawing.drawText(Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] + 1 + textPadding, Theme.moveTypeEnableButton.box[2] - 2, Theme.moveTypeEnableButton.text, GraphicConstants.THEMECOLORS[Theme.moveTypeEnableButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] + 1 + textPadding, Theme.moveTypeEnableButton.box[2] - 2, Theme.moveTypeEnableButton.text, Theme.COLORS[Theme.moveTypeEnableButton.textColor], boxThemeShadow)
 
 	-- Draw Restore Defaults button
 	Drawing.drawButtonBox(Theme.restoreDefaultsButton, boxThemeShadow)
-	Drawing.drawText(Theme.restoreDefaultsButton.box[1] + 3, Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.text, GraphicConstants.THEMECOLORS[Theme.restoreDefaultsButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.restoreDefaultsButton.box[1] + 3, Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.text, Theme.COLORS[Theme.restoreDefaultsButton.textColor], boxThemeShadow)
 	
 	-- Draw Close button
 	Drawing.drawButtonBox(Theme.closeButton, boxThemeShadow)
-	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, GraphicConstants.THEMECOLORS[Theme.closeButton.textColor], boxThemeShadow)
+	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, Theme.COLORS[Theme.closeButton.textColor], boxThemeShadow)
 	
 end
 
@@ -860,15 +767,15 @@ end
 
 function Drawing.drawPokemonInfoScreen(pokemonID)
 	local borderMargin = 5
-	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
 
 	-- set the color for text/number shadows for the top boxes
-	local bgHeaderShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Main background"])
-	local boxInfoTopShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
-	local boxInfoBotShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	local bgHeaderShadow = Drawing.calcShadowColor(Theme.COLORS["Main background"])
+	local boxInfoTopShadow = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxInfoBotShadow = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local offsetX = GraphicConstants.SCREEN_WIDTH + borderMargin + 1
+	local offsetX = Constants.SCREEN.WIDTH + borderMargin + 1
 	local offsetColumnX = offsetX + 43
 	local offsetY = 0 + borderMargin + 3
 	local linespacing = 10
@@ -879,30 +786,30 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 
 	-- Fill background and margins
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
 	-- Draw top view box
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Upper box background"])
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, botOffsetY - linespacing - 8, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = pokemon.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(offsetX - 1, offsetY, pokemonName, GraphicConstants.THEMECOLORS["Default text"], nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
+	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
 
 	-- NAVIGATION BUTTONS
-	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], boxInfoTopShadow)
-	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PREVIOUS_BUTTON, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], boxInfoTopShadow)
-	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.NEXT_BUTTON, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PREVIOUS_BUTTON, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NEXT_BUTTON, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
-	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
+	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	if pokemon.type[2] ~= PokemonTypes.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
-		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
+		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
 	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
 	Drawing.drawTypeIcon(pokemon.type[1], offsetX + 106, offsetY + 37)
@@ -910,34 +817,34 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + 11 + linespacing
 
 	-- BST
-	Drawing.drawText(offsetX, offsetY, "BST:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, pokemon.bst, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "BST:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, pokemon.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
 	local weightInfo = pokemon.weight .. " kg"
-	Drawing.drawText(offsetX, offsetY, "Weight:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, weightInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Weight:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, weightInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- EVOLUTION
 	local possibleEvolutions = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
-	Drawing.drawText(offsetX, offsetY, "Evolution:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[1], GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Evolution:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[1], Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 	if possibleEvolutions[2] ~= nil then
-		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 	offsetY = offsetY + linespacing
 
 	-- Draw bottom view box and header
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	botOffsetY = offsetY + 3
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	botOffsetY = botOffsetY + 1
 
 	-- MOVES LEVEL BOXES
-	Drawing.drawText(offsetX, botOffsetY, "New Move Levels:", GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "New Move Levels:", Theme.COLORS["Default text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
@@ -947,16 +854,16 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 
 		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 		-- Indicate which moves have already been learned if the pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
 		if not isTargetTheViewedPokemonn then
-			nextBoxTextColor = GraphicConstants.THEMECOLORS["Default text"]
+			nextBoxTextColor = Theme.COLORS["Default text"]
 		elseif moveLvl <= pokemonViewed.level then
-			nextBoxTextColor = GraphicConstants.THEMECOLORS["Negative text"]
+			nextBoxTextColor = Theme.COLORS["Negative text"]
 		else
-			nextBoxTextColor = GraphicConstants.THEMECOLORS["Positive text"]
+			nextBoxTextColor = Theme.COLORS["Positive text"]
 		end
 
 		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
@@ -982,7 +889,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 			table.insert(weaknesses, moveType)
 		end
 	end
-	Drawing.drawText(offsetX, botOffsetY, "Weak to:", GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Default text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 3
 
 	if #weaknesses == 0 then -- If the Pokemon has no weakness, like Sableye
@@ -992,10 +899,10 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local typeOffsetX = offsetX + 6
 	for _, weakType in pairs(weaknesses) do
 		gui.drawRectangle(typeOffsetX, botOffsetY, 31, 13, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box border"])
+		gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box border"])
 		Drawing.drawTypeIcon(weakType, typeOffsetX, botOffsetY)
 		typeOffsetX = typeOffsetX + 31
-		if typeOffsetX > GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 30 then
+		if typeOffsetX > Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 30 then
 			typeOffsetX = offsetX + 6
 			botOffsetY = botOffsetY + 13
 		end
@@ -1003,20 +910,20 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	
 	-- Cancel/close button
 	Drawing.drawButtonBox(InfoScreen.closeButton, boxInfoBotShadow)
-	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, GraphicConstants.THEMECOLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)	
+	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, Theme.COLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)	
 end
 
 function Drawing.drawMoveInfoScreen(moveId)
 	local borderMargin = 5
-	local rightEdge = GraphicConstants.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = GraphicConstants.SCREEN_HEIGHT - (2 * borderMargin)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
 
 	-- set the color for text/number shadows for the top boxes
-	local bgHeaderShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Main background"])
-	local boxInfoTopShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Upper box background"])
-	local boxInfoBotShadow = Drawing.calcShadowColor(GraphicConstants.THEMECOLORS["Lower box background"])
+	local bgHeaderShadow = Drawing.calcShadowColor(Theme.COLORS["Main background"])
+	local boxInfoTopShadow = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxInfoBotShadow = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local offsetX = GraphicConstants.SCREEN_WIDTH + borderMargin + 1
+	local offsetX = Constants.SCREEN.WIDTH + borderMargin + 1
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + borderMargin + 3
 	local linespacing = 10
@@ -1032,31 +939,31 @@ function Drawing.drawMoveInfoScreen(moveId)
 	end
 
 	-- Fill background and margins
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH, 0, GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP, GraphicConstants.SCREEN_HEIGHT, GraphicConstants.THEMECOLORS["Main background"], GraphicConstants.THEMECOLORS["Main background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
 	-- Draw top view box
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Upper box background"])
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, borderMargin, rightEdge, botOffsetY - linespacing - 8, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box background"])
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- MOVE NAME
 	local moveName = move.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
-	gui.drawText(offsetX - 1, offsetY - 3, moveName, GraphicConstants.THEMECOLORS["Default text"], nil, 12, Drawing.CONSTANTS.FONT_FAMILY, "bold")
+	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
 
 	-- If the move is Hidden Power, use its tracked type/category instead
 	if moveId == 237 + 1 then
 		moveType = Tracker.Data.currentHiddenPowerType
 		moveCat = MoveTypeCategories[moveType]
-		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 	
 	-- NAVIGATION BUTTONS
-	Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], boxInfoTopShadow)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], boxInfoTopShadow)
 
 	-- TYPE ICON
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
-	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, GraphicConstants.THEMECOLORS["Upper box border"], GraphicConstants.THEMECOLORS["Upper box border"])
+	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	Drawing.drawTypeIcon(moveType, offsetX + 106, offsetY + 1)
 	offsetY = offsetY + linespacing
 
@@ -1064,27 +971,27 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local categoryInfo = ""
 	if moveCat == MoveCategories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
-		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 	elseif moveCat == MoveCategories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
-		Drawing.drawImageAsPixels(Drawing.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
 	elseif moveCat == MoveCategories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
 	else categoryInfo = categoryInfo .. "---" end
-	Drawing.drawText(offsetX, offsetY, "Category:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, categoryInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Category:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, categoryInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- CONTACT
 	local contactInfo = Utils.inlineIf(move.iscontact ~= nil and move.iscontact, "Yes", "No")
-	Drawing.drawText(offsetX, offsetY, "Contact:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, contactInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Contact:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, contactInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PP
 	local ppInfo = Utils.inlineIf(move.pp == NOPP, "---", move.pp)
-	Drawing.drawText(offsetX, offsetY, "PP:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, ppInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "PP:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, ppInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
@@ -1093,29 +1000,29 @@ function Drawing.drawMoveInfoScreen(moveId)
 	if move.power == NOPOWER then
 		powerInfo = "---"
 	-- elseif isStab then
-	-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", GraphicConstants.THEMECOLORS["Positive text"], boxInfoTopShadow)
+	-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
-	Drawing.drawText(offsetX, offsetY, "Power:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, powerInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, powerInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
 	local accuracyInfo = Utils.inlineIf(move.accuracy == PLACEHOLDER, "---", move.accuracy .. "%")
-	Drawing.drawText(offsetX, offsetY, "Accuracy:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, accuracyInfo, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, "Accuracy:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, accuracyInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PRIORITY: Only take up a line on the screen if priority information is helpful (exists and is non-zero)
 	if move.priority ~= nil and move.priority ~= "0" then
-		Drawing.drawText(offsetX, offsetY, "Priority:", GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
-		Drawing.drawText(offsetColumnX, offsetY, move.priority, GraphicConstants.THEMECOLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX, offsetY, "Priority:", Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetColumnX, offsetY, move.priority, Theme.COLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing
 	end
 
 	-- Draw bottom view box and header
-	gui.defaultTextBackground(GraphicConstants.THEMECOLORS["Lower box background"])
-	Drawing.drawText(offsetX - 3, botOffsetY - linespacing - 1, "Summary:", GraphicConstants.THEMECOLORS["Header text"], bgHeaderShadow)
-	gui.drawRectangle(GraphicConstants.SCREEN_WIDTH + borderMargin, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, GraphicConstants.THEMECOLORS["Lower box border"], GraphicConstants.THEMECOLORS["Lower box background"])
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	Drawing.drawText(offsetX - 3, botOffsetY - linespacing - 1, "Summary:", Theme.COLORS["Header text"], bgHeaderShadow)
+	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	botOffsetY = botOffsetY + 1
 	linespacing = linespacing + 1
 
@@ -1124,7 +1031,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 		local wrappedSummary = Utils.getWordWrapLines(move.summary, 31)
 		
 		for _, line in pairs(wrappedSummary) do
-			Drawing.drawText(offsetX, botOffsetY, line, GraphicConstants.THEMECOLORS["Default text"], boxInfoBotShadow)
+			Drawing.drawText(offsetX, botOffsetY, line, Theme.COLORS["Default text"], boxInfoBotShadow)
 			botOffsetY = botOffsetY + linespacing
 		end
 	end
@@ -1139,7 +1046,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 
 	-- Cancel/close button
 	Drawing.drawButtonBox(InfoScreen.closeButton, boxInfoBotShadow)
-	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, GraphicConstants.THEMECOLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)
+	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, Theme.COLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)
 end
 
 function Drawing.drawImageAsPixels(imageArray, x, y, imageShadow)
@@ -1152,7 +1059,7 @@ function Drawing.drawImageAsPixels(imageArray, x, y, imageShadow)
 				if imageShadow ~= nil then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
 				end
-				gui.drawPixel(x + offsetX, y + offsetY, GraphicConstants.THEMECOLORS["Default text"])
+				gui.drawPixel(x + offsetX, y + offsetY, Theme.COLORS["Default text"])
 			end
 		end
 	end

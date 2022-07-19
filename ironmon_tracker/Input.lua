@@ -13,7 +13,7 @@ function Input.update()
 		Input.mousetab = input.getmouse()
 		if Input.mousetab["Left"] and not Input.mousetab_prev["Left"] then
 			local xmouse = Input.mousetab["X"]
-			local ymouse = Input.mousetab["Y"] + GraphicConstants.UP_GAP
+			local ymouse = Input.mousetab["Y"] + Constants.SCREEN.UP_GAP
 			Input.check(xmouse, ymouse)
 		end
 		Input.mousetab_prev = Input.mousetab
@@ -126,7 +126,7 @@ function Input.check(xmouse, ymouse)
 		-- end
 
 		-- settings gear
-		if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 101 - 8, 7, 7, 7) then
+		if Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 101 - 8, 7, 7, 7) then
 			Options.redraw = true
 			Program.frames.waitToDraw = 0
 			Program.state = State.SETTINGS
@@ -144,7 +144,7 @@ function Input.check(xmouse, ymouse)
 
 		-- move info lookup, only if pokemon exists and the user should know about its moves already
 		if pokemonMoves ~= nil then
-			local moveOffsetX = GraphicConstants.SCREEN_WIDTH + 7
+			local moveOffsetX = Constants.SCREEN.WIDTH + 7
 			local moveOffsetY = 95
 			for moveIndex = 1, 4, 1 do
 				if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
@@ -159,7 +159,7 @@ function Input.check(xmouse, ymouse)
 		end
 
 		-- pokemon info lookup
-		if pokemonViewed ~= nil and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 5, 5, 32, 29) then
+		if pokemonViewed ~= nil and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 5, 5, 32, 29) then
 			InfoScreen.infoLookup = pokemonViewed.pokemonID
 			InfoScreen.viewScreen = InfoScreen.SCREENS.POKEMON_INFO
 			InfoScreen.redraw = true
@@ -169,11 +169,11 @@ function Input.check(xmouse, ymouse)
 		--note box
 		if not Tracker.Data.isViewingOwn then
 			-- Check if clicked anywhere near the abilities area
-			if Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 37, 35, 63, 22) then
+			if Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 37, 35, 63, 22) then
 				AbilityTrackingButton.onclick()
 
 			-- Check if clicked near the original note taking area near the bottom
-			elseif Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 6, 141, GraphicConstants.RIGHT_GAP - 12, 12) then
+			elseif Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 6, 141, Constants.SCREEN.RIGHT_GAP - 12, 12) then
 				NotepadTrackingButton.onclick()
 			end
 		end
@@ -190,7 +190,7 @@ function Input.check(xmouse, ymouse)
 			end
 		elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
 			-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
-			if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, GraphicConstants.SCREEN_WIDTH + 111, 8, 31, 13) then
+			if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 111, 8, 31, 13) then
 				HiddenPowerButton.onclick()
 				InfoScreen.redraw = true
 			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], InfoScreen.lookupMoveButton.box[3], InfoScreen.lookupMoveButton.box[4]) then
@@ -206,13 +206,13 @@ function Input.check(xmouse, ymouse)
 	elseif Program.state == State.SETTINGS then
 		-- Check for input on any of the option buttons
 		for _, button in pairs(Options.optionsButtons) do
-			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], GraphicConstants.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
+			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], Constants.SCREEN.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
 				button.onClick()
 			end
 		end
 
 		-- Check for input on 'Roms Folder', 'Edit Controls', 'Customize Theme', and 'Close' buttons
-		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], GraphicConstants.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
+		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Constants.SCREEN.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
 			Options.romsFolderOption.onClick()
 		end
 		if Input.isInRange(xmouse, ymouse, Options.controlsButton.box[1], Options.controlsButton.box[2], Options.controlsButton.box[3], Options.controlsButton.box[4]) then
@@ -244,11 +244,11 @@ function Input.check(xmouse, ymouse)
 
 		-- Check for input on any of the theme config buttons
 		for _, button in pairs(Theme.themeButtons) do
-			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], GraphicConstants.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
+			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], Constants.SCREEN.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
 				button.onClick()
 			end
 		end
-		if Input.isInRange(xmouse, ymouse, Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2], GraphicConstants.RIGHT_GAP - (Theme.moveTypeEnableButton.box[3] * 2), Theme.moveTypeEnableButton.box[4]) then
+		if Input.isInRange(xmouse, ymouse, Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2], Constants.SCREEN.RIGHT_GAP - (Theme.moveTypeEnableButton.box[3] * 2), Theme.moveTypeEnableButton.box[4]) then
 			Theme.moveTypeEnableButton.onClick()
 		end
 

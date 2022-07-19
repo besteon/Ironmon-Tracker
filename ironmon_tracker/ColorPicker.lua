@@ -35,8 +35,8 @@ function ColorPicker.new(colorkey)
 
 	self.colorkey = colorkey
 
-	self.color = string.format("%X",GraphicConstants.THEMECOLORS[colorkey])
-	self.originalColor  = "0x"..string.format("%X",GraphicConstants.THEMECOLORS[colorkey])
+	self.color = string.format("%X", Theme.COLORS[colorkey])
+	self.originalColor  = "0x"..string.format("%X",Theme.COLORS[colorkey])
 
 	self.draggingColor = false
 	self.draggingValueSlider = false
@@ -64,7 +64,7 @@ function ColorPicker:setColor()
 	self:HSV_to_RGB()
 	self.color = self:RGB_to_Hex()
 	self.color = "0xFF"..self.color
-	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
+	Theme.COLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
 	Program.frames.waitToDraw = 0
@@ -178,7 +178,7 @@ function ColorPicker:onSave()
 end
 
 function ColorPicker:onClose()
-	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.originalColor)
+	Theme.COLORS[self.colorkey] = tonumber(self.originalColor)
 	Theme.updated = true
 	Theme.redraw = true
 	Program.frames.waitToDraw = 0
@@ -264,7 +264,7 @@ function ColorPicker:convertHSVtoColorPicker()
 	local relativeY = math.sin(angle) * (self.circleRadius)*sat
 	self.ellipsesPos = {relativeX+self.circleCenter[1],relativeY+self.circleCenter[2]}
 	self:drawMainCanvas()
-	GraphicConstants.THEMECOLORS[self.colorkey] = tonumber(self.color)
+	Theme.COLORS[self.colorkey] = tonumber(self.color)
 	Theme.updated = true
 	Theme.redraw = true
 	Program.frames.waitToDraw = 0

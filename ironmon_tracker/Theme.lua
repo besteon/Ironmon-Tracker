@@ -1,26 +1,22 @@
-Theme = {}
-
--- Update drawing the theme page if true
-Theme.redraw = true
-
--- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
-Theme.updated = false
-
-Theme.Presets = {
-	PresetNames = {
-		"Default Theme",
-		"Fire Red",
-		"Leaf Green",
-		"Beach Getaway",
-		"Blue Da Ba Dee",
-		"Calico Cat",
-		"Cotton Candy",
-		"USS Galactic",
-		"Simple Monotone",
-		"Neon Lights",
+Theme = {
+	-- 'Default' Theme, but will get replaced by what's in Settings.ini
+	COLORS = {
+		["Default text"] = 0xFFFFFFFF,
+		["Positive text"] = 0xFF00FF00,
+		["Negative text"] = 0xFFFF0000,
+		["Intermediate text"] = 0xFFFFFF00,
+		["Header text"] = 0xFFFFFFFF,
+		["Upper box border"] = 0xFFAAAAAA,
+		["Upper box background"] = 0xFF222222,
+		["Lower box border"] = 0xFFAAAAAA,
+		["Lower box background"] = 0xFF222222,
+		["Main background"] = 0xFF000000,
 	},
+	-- If move types are enabled then the Move Names themselves will be drawn with a color representing their type.
+	MOVE_TYPES_ENABLED = true,
+	
 	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
-	PresetConfigStrings = {
+	PRESET_STRINGS = {
 		["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
 		["Fire Red"] = "FFFFFF 55CB6B 62C7FE FEFA69 FEFA69 FF1920 81000E FF1920 81000E 58050D 0",
 		["Leaf Green"] = "FFFFFF 62C7FE FE7573 FEFA69 FEFA69 55CB6B 006200 55CB6B 006200 053A04 0",
@@ -31,13 +27,19 @@ Theme.Presets = {
 		["USS Galactic"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
 		["Simple Monotone"] = "222222 01B910 FE5958 555555 FFFFFF 000000 FFFFFF 000000 FFFFFF 555555 0",
 		["Neon Lights"] = "FFFFFF 38FF12 FF00E3 FFF100 FFFFFF 00F5FB 000000 001EFF 000000 000000 1",
-	}
+	},
 }
+
+-- Update drawing the theme page if true
+Theme.redraw = true
+
+-- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
+Theme.updated = false
 
 Theme.importThemeButton = {
 	text = "Import",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 10, 8, 34, 11},
+	box = {Constants.SCREEN.WIDTH + 10, 8, 34, 11},
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function() Theme.openImportWindow() end
 }
@@ -45,7 +47,7 @@ Theme.importThemeButton = {
 Theme.exportThemeButton = {
 	text = "Export",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 57, 8, 33, 11},
+	box = {Constants.SCREEN.WIDTH + 57, 8, 33, 11},
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function() Theme.openExportWindow() end
 }
@@ -53,7 +55,7 @@ Theme.exportThemeButton = {
 Theme.presetsButton = {
 	text = "Presets",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 103, 8, 37, 11},
+	box = {Constants.SCREEN.WIDTH + 103, 8, 37, 11},
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function() Theme.openPresetsWindow() end
 }
@@ -62,7 +64,7 @@ Theme.presetsButton = {
 Theme.restoreDefaultsButton = {
 	text = "Restore Defaults",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 10, GraphicConstants.SCREEN_HEIGHT - 20, 73, 11},
+	box = {Constants.SCREEN.WIDTH + 10, Constants.SCREEN.HEIGHT - 20, 73, 11},
 	boxColors = { "Lower box border", "Lower box background" },
 	confirmReset = false,
 	onClick = function() Theme.tryRestoreDefaultTheme() end
@@ -72,7 +74,7 @@ Theme.restoreDefaultsButton = {
 Theme.closeButton = {
 	text = "Close",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 39, GraphicConstants.SCREEN_HEIGHT - 20, 29, 11},
+	box = {Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 39, Constants.SCREEN.HEIGHT - 20, 29, 11},
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function() Theme.closeMenuAndSave() end
 }
@@ -80,12 +82,12 @@ Theme.closeButton = {
 Theme.moveTypeEnableButton = {
 	text = "Color move names by type",
 	textColor = "Default text",
-	box = {GraphicConstants.SCREEN_WIDTH + 9, 125, 8, 8},
+	box = {Constants.SCREEN.WIDTH + 9, 125, 8, 8},
 	boxColors = { "Lower box border", "Lower box background" },
 	togglecolor = "Positive text",
 	onClick = function()
 		Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"]-- toggle the setting
-		GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+		Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
 		Theme.redraw = true
 		Theme.updated = true
 		Program.frames.waitToDraw = 0
@@ -100,10 +102,10 @@ function Theme.buildTrackerThemeButtons()
 	local heightOffset = 25
 	local button = {}
 
-	for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
+	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
 		button = {
 			text = colorkey,
-			box = {GraphicConstants.SCREEN_WIDTH + 10, heightOffset, 8, 8},
+			box = {Constants.SCREEN.WIDTH + 10, heightOffset, 8, 8},
 			textColor = "Default text",
 			themeColor = colorkey,
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
@@ -120,23 +122,23 @@ end
 
 -- Loads the theme defined in Settings into the Tracker's constants
 function Theme.loadTheme()
-	for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
+	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
 		local color_hexval = Settings.theme[string.gsub(colorkey, " ", "_")]
 
 		-- If no theme is found, assign it based on the defaults
 		if color_hexval == nil then
-			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5))
+			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 			Theme.updated = true
 		else -- Otherwise update the theme that is in use with the one from Settings.ini
-			GraphicConstants.THEMECOLORS[colorkey] = tonumber(color_hexval, 16) + 0xFF000000
+			Theme.COLORS[colorkey] = tonumber(color_hexval, 16) + 0xFF000000
 		end
 	end
 
 	if Settings.theme["MOVE_TYPES_ENABLED"] == nil then
-		Settings.theme["MOVE_TYPES_ENABLED"] = GraphicConstants.MOVE_TYPES_ENABLED
+		Settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 		Theme.updated = true
 	else
-		GraphicConstants.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+		Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
 	end
 
 	Theme.redraw = true
@@ -170,7 +172,7 @@ function Theme.importThemeFromText(theme_config)
 
 	-- Apply as much of the imported theme config to our Settings as possible (must remain compatible with gen4/gen5 Tracker), then load it
 	local index = 1
-	for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do -- Only use the first 10 hex codes
+	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do -- Only use the first 10 hex codes
 		Settings.theme[string.gsub(colorkey, " ", "_")] = theme_colors[index]
 		index = index + 1
 	end
@@ -186,13 +188,13 @@ end
 function Theme.exportThemeToText()
 	-- Build base theme config string
 	local exportedTheme = ""
-	for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
+	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
 		-- Format each color code as "AABBCC", instead of "0xAABBCC" or "0xFFAABBCC"
-		exportedTheme = exportedTheme .. string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5) .. " "
+		exportedTheme = exportedTheme .. string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5) .. " "
 	end
 
 	-- Append other theme config options at the end
-	exportedTheme = exportedTheme .. Utils.inlineIf(GraphicConstants.MOVE_TYPES_ENABLED, 1, 0)
+	exportedTheme = exportedTheme .. Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, 1, 0)
 
 	return string.upper(exportedTheme)
 end
@@ -238,10 +240,10 @@ function Theme.openPresetsWindow()
 	Utils.setFormLocation(presetsForm, 100, 50)
 	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, Theme.Presets.PresetNames, false) -- Required to prevent alphabetizing the list
+	forms.setdropdownitems(presetDropdown, Constants.ORDERED_LISTS.THEMEPRESETS, false) -- Required to prevent alphabetizing the list
 
 	forms.button(presetsForm, "Load", function()
-		Theme.importThemeFromText(Theme.Presets.PresetConfigStrings[forms.gettext(presetDropdown)])
+		Theme.importThemeFromText(Theme.PRESET_STRINGS[forms.gettext(presetDropdown)])
 		Theme.updated = true
 		Theme.loadTheme()
 		client.unpause()
@@ -257,7 +259,7 @@ function Theme.tryRestoreDefaultTheme()
 		Theme.restoreDefaultsButton.textColor = "Default text"
 		Theme.restoreDefaultsButton.confirmReset = false
 
-		Theme.importThemeFromText(Theme.Presets.PresetConfigStrings["Default Theme"])
+		Theme.importThemeFromText(Theme.PRESET_STRINGS["Default Theme"])
 	else
 		Theme.restoreDefaultsButton.text = "   Are you sure?"
 		Theme.restoreDefaultsButton.textColor = "Negative text"

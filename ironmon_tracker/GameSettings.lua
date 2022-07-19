@@ -4,7 +4,6 @@ GameSettings = {
 	versiongroup = 0,
 	pstats = 0,
 	estats = 0,
-	fileExtension = ".tdat",
 
 	sMonSummaryScreen = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
@@ -557,9 +556,9 @@ end
 
 function GameSettings.getTrackerAutoSaveName()
 	if GameSettings.gamename == "" then
-		return "AutoSave" .. GameSettings.fileExtension
+		return "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
 	else
 		-- Remove trailing " (U)" from game name
-		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. GameSettings.fileExtension
+		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
 	end
 end

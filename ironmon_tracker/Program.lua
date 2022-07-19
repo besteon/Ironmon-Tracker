@@ -321,14 +321,14 @@ function Program.updateBattleDataFromMemory()
 		return
 	end
 
-	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
-	if leadPokemon ~= nil and opposingPokemon ~= nil then
-		Program.updateAbilityDataFromMemory(leadPokemon, true)
+	if ownersPokemon ~= nil and opposingPokemon ~= nil then
+		Program.updateAbilityDataFromMemory(ownersPokemon, true)
 		Program.updateAbilityDataFromMemory(opposingPokemon, false)
 	
-		Program.updateStatStagesDataFromMemory(leadPokemon, true)
+		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
@@ -342,7 +342,7 @@ function Program.updateBattleDataFromMemory()
 			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 			-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
-			if opposingPokemon.abilityId ~= leadPokemon.abilityId then
+			if opposingPokemon.abilityId ~= ownersPokemon.abilityId then
 				-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
 				if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
 					Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
@@ -350,7 +350,7 @@ function Program.updateBattleDataFromMemory()
 			end
 
 			-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
-			if GameSettings.ABILITIES[battleMsg] == 36 and leadPokemon.abilityId == 36 then -- 36 = Trace
+			if GameSettings.ABILITIES[battleMsg] == 36 and ownersPokemon.abilityId == 36 then -- 36 = Trace
 				Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 			end
 		end

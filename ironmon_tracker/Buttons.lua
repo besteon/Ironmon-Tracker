@@ -31,9 +31,6 @@ StatButtonColors = {
 
 BadgeButtons = {
 	BADGE_GAME_PREFIX = "",
-	BADGE_X_POS_START = 247,
-	BADGE_Y_POS = 138,
-	BADGE_WIDTH_LENGTH = 16,
 	badgeButtons = {},
 	xOffsets = {0, 0, 0, 0, 0, 0, 0, 0},
 }
@@ -46,12 +43,12 @@ HiddenPowerButton = {
 	type = ButtonType.singleButton,
 	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
 	text = "Hidden Power",
-	textcolor = GraphicConstants.TYPECOLORS[HiddenPowerTypeList[HiddenPowerState+1]],
+	textcolor = Constants.COLORS.MOVETYPE[HiddenPowerTypeList[HiddenPowerState+1]],
 	box = { 0, 0, 65, 10 },
 	onclick = function()
 		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
 		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
-		HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[newType]
+		HiddenPowerButton.textcolor = Constants.COLORS.MOVETYPE[newType]
 		Tracker.Data.currentHiddenPowerType = newType
 	end
 }
@@ -61,7 +58,7 @@ PCHealTrackingButton = {
 	visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 	text = "",
 	textcolor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 89, 68, 8, 8 },
+	box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
 	boxColors = { "Upper box border", "Upper box background" },
 	togglecolor = "Positive text",
 	onclick = function() 
@@ -73,7 +70,7 @@ AbilityTrackingButton = {
 	type = ButtonType.singleButton,
 	text = "",
 	textcolor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 88, 43, 16, 16 },
+	box = { Constants.SCREEN.WIDTH + 88, 43, 16, 16 },
 	onclick = function() 
 		Buttons.openAbilityNoteWindow()
 	end
@@ -83,7 +80,7 @@ NotepadTrackingButton = {
 	type = ButtonType.singleButton,
 	text = "",
 	textcolor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 6, 141, 16, 16 },
+	box = { Constants.SCREEN.WIDTH + 6, 141, 16, 16 },
 	onclick = function() 
 		Buttons.openNotePadWindow()
 	end
@@ -95,7 +92,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 9, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 9, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.hp = ((Program.StatButtonState.hp + 1) % 3) + 1
@@ -112,7 +109,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 19, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 19, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.atk = ((Program.StatButtonState.atk + 1) % 3) + 1
@@ -129,7 +126,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 29, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 29, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.def = ((Program.StatButtonState.def + 1) % 3) + 1
@@ -146,7 +143,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 39, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 39, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spa = ((Program.StatButtonState.spa + 1) % 3) + 1
@@ -163,7 +160,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 49, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 49, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spd = ((Program.StatButtonState.spd + 1) % 3) + 1
@@ -180,7 +177,7 @@ Buttons = {
 		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
-		box = { GraphicConstants.SCREEN_WIDTH + buttonXOffset, 59, 8, 8 },
+		box = { Constants.SCREEN.WIDTH + buttonXOffset, 59, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onclick = function()
 			Program.StatButtonState.spe = ((Program.StatButtonState.spe + 1) % 3) + 1
@@ -199,7 +196,7 @@ Buttons = {
 		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = "+",
 		textcolor = "Positive text",
-		box = { GraphicConstants.SCREEN_WIDTH + 70, 67, 8, 4 },
+		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -211,7 +208,7 @@ Buttons = {
 		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = "---",
 		textcolor = "Negative text",
-		box = { GraphicConstants.SCREEN_WIDTH + 70, 73, 7, 4 },
+		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
 		onclick = function() 
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
@@ -227,10 +224,10 @@ function Buttons.initializeBadgeButtons()
 			type = ButtonType.badgeButton,
 			visible = function() return Tracker.Data.isViewingOwn end,
 			box = {
-				BadgeButtons.BADGE_X_POS_START + ((i-1) * (BadgeButtons.BADGE_WIDTH_LENGTH + 1)) + BadgeButtons.xOffsets[i],
-				BadgeButtons.BADGE_Y_POS,
-				BadgeButtons.BADGE_WIDTH_LENGTH,
-				BadgeButtons.BADGE_WIDTH_LENGTH
+				Constants.SCREEN.BADGE_X_POS + ((i-1) * (Constants.SCREEN.BADGE_WIDTH + 1)) + BadgeButtons.xOffsets[i],
+				Constants.SCREEN.BADGE_Y_POS,
+				Constants.SCREEN.BADGE_WIDTH,
+				Constants.SCREEN.BADGE_WIDTH
 			},
 			badgeIndex = i,
 			state = Tracker.Data.badges[i],

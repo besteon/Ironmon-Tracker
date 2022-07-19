@@ -11,32 +11,11 @@ Options = {
 	["PC heals count downward"] = true,
 	["Pokemon Stadium portraits"] = false,
 
-	-- Used to always display the Options in a set order in the menu
-	ORDEREDLIST = {
-		"Auto swap to enemy",
-		"Hide stats until summary shown",
-		"Right justified numbers",
-		"Show physical special icons",
-		"Show move effectiveness",
-		"Calculate variable damage",
-		"Count enemy PP usage",
-		"Track PC Heals",
-		"PC heals count downward",
-		"Pokemon Stadium portraits"
-	},
-
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",
 		["Toggle view"] = "Start",
 		["Cycle through stats"] = "L",
 		["Mark stat"] = "R",
-	},
-
-	CONTROLS_ORDERED = {
-		"Load next seed",
-		"Toggle view",
-		"Cycle through stats",
-		"Mark stat",
 	},
 }
 
@@ -51,8 +30,8 @@ Options.closeButton = {
 	text = "Close",
 	textColor = "Default text",
 	box = {
-		GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 39,
-		GraphicConstants.SCREEN_HEIGHT - 20,
+		Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 39,
+		Constants.SCREEN.HEIGHT - 20,
 		29,
 		11,
 	},
@@ -70,14 +49,14 @@ Options.closeButton = {
 Options.romsFolderOption = {
 	text = "Roms folder: ",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 6, 8, 8, 8 },
+	box = { Constants.SCREEN.WIDTH + 6, 8, 8, 8 },
 	onClick = function() Options.openRomPickerWindow() end
 }
 
 Options.controlsButton = {
 	text = "Controls",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 8, 20, 37, 11 },
+	box = { Constants.SCREEN.WIDTH + 8, 20, 37, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function() Options.openEditControlsWindow() end
 }
@@ -85,7 +64,7 @@ Options.controlsButton = {
 Options.saveTrackerDataButton = {
 	text = "Save Data",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 49, 20, 44, 11 },
+	box = { Constants.SCREEN.WIDTH + 49, 20, 44, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function() Options.openSaveDataPrompt() end
 }
@@ -93,7 +72,7 @@ Options.saveTrackerDataButton = {
 Options.loadTrackerDataButton = {
 	text = "Load Data",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 97, 20, 44, 11 },
+	box = { Constants.SCREEN.WIDTH + 97, 20, 44, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function() Options.openLoadDataPrompt() end
 }
@@ -102,7 +81,7 @@ Options.loadTrackerDataButton = {
 Options.themeButton = {
 	text = "Customize Theme",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 10, GraphicConstants.SCREEN_HEIGHT - 20, 77, 11 },
+	box = { Constants.SCREEN.WIDTH + 10, Constants.SCREEN.HEIGHT - 20, 77, 11 },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		-- Navigate to the Theme Customization menu
@@ -121,11 +100,11 @@ function Options.buildTrackerOptionsButtons()
 	local index = 1
 	local heightOffset = 35
 
-	for _, optionKey in ipairs(Options.ORDEREDLIST) do
+	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
 		local button = {
 			text = optionKey,
 			textColor = "Default text",
-			box = {	GraphicConstants.SCREEN_WIDTH + borderMargin + 3, heightOffset, 8, 8 },
+			box = {	Constants.SCREEN.WIDTH + borderMargin + 3, heightOffset, 8, 8 },
 			boxColors = { "Upper box border", "Upper box background" },
 			togglecolor = "Positive text",
 			onClick = function()
@@ -169,7 +148,7 @@ function Options.loadOptions()
 		Options.updated = true
 	end
 
-	for _, optionKey in ipairs(Options.ORDEREDLIST) do
+	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
 		local optionValue = Settings.tracker[string.gsub(optionKey, " ", "_")]
 
 		-- If no setting is found, assign it based on the defaults
@@ -201,18 +180,18 @@ end
 function Options.saveOptions()
 	-- Save the tracker's currently loaded settings into the Settings object to be saved
 	if Options.updated then
-		for _, optionKey in ipairs(Options.ORDEREDLIST) do
+		for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
 			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
 		end
-		for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+		for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
 			Settings.controls[string.gsub(controlKey, " ", "_")] = Options.CONTROLS[controlKey]
 		end
 	end
 
 	-- Save the tracker's currently loaded theme into the Settings object to be saved
 	if Theme.updated then
-		for _, colorkey in ipairs(GraphicConstants.THEMECOLORS_ORDERED) do
-			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", GraphicConstants.THEMECOLORS[colorkey]), 5))
+		for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 		end
 	end
 
@@ -254,7 +233,7 @@ function Options.openEditControlsWindow()
 	local offsetY = 35
 
 	local index = 1
-	for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+	for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
 		forms.label(form, controlKey .. ":", offsetX, offsetY, 105, 20)
 		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 110, offsetY - 2)
 
@@ -265,7 +244,7 @@ function Options.openEditControlsWindow()
 	-- 'Save & Close' and 'Cancel' buttons
 	forms.button(form,"Save && Close", function() 
 		index = 1
-		for _, controlKey in ipairs(Options.CONTROLS_ORDERED) do
+		for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
 			local controlCombination = ""
 			for txtInput in string.gmatch(forms.gettext(inputTextboxes[index]), '([^,%s]+)') do
 				-- Format "START" as "Start"
@@ -297,8 +276,8 @@ function Options.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			if formInput:sub(-5):lower() ~= GameSettings.fileExtension then
-				formInput = formInput .. GameSettings.fileExtension
+			if formInput:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
+				formInput = formInput .. Constants.TRACKER_DATA_EXTENSION
 			end
 			Tracker.saveData(formInput)
 		end
@@ -312,7 +291,7 @@ function Options.openSaveDataPrompt()
 end
 
 function Options.openLoadDataPrompt()
-	local suggestedFileName = gameinfo.getromname() .. GameSettings.fileExtension
+	local suggestedFileName = gameinfo.getromname() .. Constants.TRACKER_DATA_EXTENSION
 	local filterOptions = "Tracker Data (*.TDAT)|*.TDAT|All files (*.*)|*.*"
 
 	local filepath = forms.openfile(suggestedFileName, "/", filterOptions)

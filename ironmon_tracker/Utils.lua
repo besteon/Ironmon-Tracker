@@ -266,20 +266,20 @@ function Utils.getCenterHealColor()
 	if Options["PC heals count downward"] then
 		-- Counting downwards
 		if currentCount < 1 then
-			return GraphicConstants.THEMECOLORS["Negative text"]
+			return Theme.COLORS["Negative text"]
 		elseif currentCount < 6 then
-			return GraphicConstants.THEMECOLORS["Intermediate text"]
+			return Theme.COLORS["Intermediate text"]
 		else
-			return GraphicConstants.THEMECOLORS["Default text"]
+			return Theme.COLORS["Default text"]
 		end
 	else
 		-- Counting upwards
 		if currentCount < 5 then
-			return GraphicConstants.THEMECOLORS["Default text"]
+			return Theme.COLORS["Default text"]
 		elseif currentCount < 10 then
-			return GraphicConstants.THEMECOLORS["Intermediate text"]
+			return Theme.COLORS["Intermediate text"]
 		else
-			return GraphicConstants.THEMECOLORS["Negative text"]
+			return Theme.COLORS["Negative text"]
 		end
 	end
 end

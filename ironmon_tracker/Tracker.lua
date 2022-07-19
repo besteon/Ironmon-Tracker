@@ -1,7 +1,5 @@
 Tracker = {}
 
-Tracker.userDataKey = "ironmon_tracker_data"
-
 Tracker.controller = {
 	statIndex = 1,
 	framesSinceInput = 120,
@@ -312,7 +310,7 @@ function Tracker.loadData(filepath)
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local trackerData = nil
-	if filepath:sub(-5):lower() ~= GameSettings.fileExtension then
+	if filepath:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 	else
 		trackerData = Utils.readTableFromFile(filepath)
@@ -336,7 +334,7 @@ function Tracker.loadData(filepath)
 	-- Update the visuals for some Tracker elements based on the loaded data
 	Buttons.updateBadges()
 	local hiddenPowerType = Tracker.Data.currentHiddenPowerType
-	HiddenPowerButton.textcolor = GraphicConstants.TYPECOLORS[hiddenPowerType]
+	HiddenPowerButton.textcolor = Constants.COLORS.MOVETYPE[hiddenPowerType]
 end
 
 function Tracker.clearData()
