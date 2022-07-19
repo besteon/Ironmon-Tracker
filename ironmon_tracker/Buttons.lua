@@ -262,6 +262,7 @@ function Buttons.openAbilityNoteWindow()
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
 	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
+	Utils.setFormLocation(abilityForm, 100, 50)
 	
 	forms.label(abilityForm, "Select one or both abilities for " .. pokemonName, 64, 10, 220, 20)
 	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)

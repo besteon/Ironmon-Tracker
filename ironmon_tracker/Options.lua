@@ -229,7 +229,7 @@ function Options.openRomPickerWindow()
 
 	-- Use the standard file open dialog to get the roms folder
 	local filterOptions = "ROM File (*.GBA)|*.GBA|All files (*.*)|*.*"
-	local file = forms.openfile("SELECT ANY ROM IN YOUR ROMS FOLDER, THEN HIT OK", Settings.config.ROMS_FOLDER, filterOptions)
+	local file = forms.openfile("SELECT A ROM", Settings.config.ROMS_FOLDER, filterOptions)
 	-- Since the user had to pick a file, strip out the file name to just get the folder.
 	if file ~= "" then
 		Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
@@ -245,6 +245,7 @@ end
 
 function Options.openEditControlsWindow()
 	local form = forms.newform(445, 215, "Controller Inputs", function() return end)
+	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
@@ -288,6 +289,7 @@ function Options.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
 	local form = forms.newform(290, 130, "Save Tracker Data", function() return end)
+	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
 	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
 	forms.label(form, ".TDAT", 219, 32, 45, 20)
