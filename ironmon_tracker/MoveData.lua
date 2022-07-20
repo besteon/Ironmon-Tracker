@@ -31,23 +31,23 @@ MoveData.HiddenPowerTypeList = {
 
 --Mapping of move types to move categories for gens 1-3
 MoveData.TypeToCategory = {
-	[PokemonData.Types.NORMAL] 		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.FIGHTING]	= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.FLYING]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.POISON]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.GROUND]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.ROCK]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.BUG]			= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.GHOST]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.STEEL]		= MoveData.Categories.PHYSICAL,
-	[PokemonData.Types.FIRE]		= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.WATER]		= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.GRASS]		= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.ELECTRIC]	= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.PSYCHIC]		= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.ICE]			= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.DRAGON]		= MoveData.Categories.SPECIAL,
-	[PokemonData.Types.DARK]		= MoveData.Categories.SPECIAL,
+	[PokemonData.Types.NORMAL]   = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.FIGHTING] = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.FLYING]   = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.POISON]   = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.GROUND]   = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.ROCK]     = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.BUG]      = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.GHOST]    = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.STEEL]    = MoveData.Categories.PHYSICAL,
+	[PokemonData.Types.FIRE]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.WATER]    = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.GRASS]    = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.ELECTRIC] = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.PSYCHIC]  = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
 }
 
 MoveData.TypeToEffectiveness = {
@@ -310,7 +310,7 @@ MoveData.Moves = {
 		accuracy = "75",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "21",
@@ -474,7 +474,7 @@ MoveData.Moves = {
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "36",
@@ -968,7 +968,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "70",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "84",
@@ -1008,7 +1008,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "70",
 		category = MoveData.Categories.SPECIAL,
-		summary = "30% chance to paralyze. Can hit Fly and Bounce. Always hits during rain. Accuracy is 50 in when sunny.",
+		summary = "30% chance to paralyze. Can hit Fly and Bounce. Always hits during the rain. Accuracy is 50 when sunny.",
 	},
 	{
 		id = "88",
@@ -1049,7 +1049,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude.",
+		summary = "Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude. Can be used outside of battle.",
 	},
 	{
 		id = "92",
@@ -1142,7 +1142,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Flees from wild Pokemon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain.",
+		summary = "Flees from wild Pokemon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.",
 	},
 	{
 		id = "101",
@@ -1426,7 +1426,7 @@ MoveData.Moves = {
 		accuracy = "75",
 		category = MoveData.Categories.SPECIAL,
 		iscontact = true,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "129",
@@ -1498,7 +1498,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Restores up to 50% of the user's max HP. Can be used outside of battle.",
+		summary = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
 	},
 	{
 		id = "136",
@@ -1983,7 +1983,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 3",
-		summary = "Protects user from all effects of moves for the turn, including damage. Using this move consectuively halves its success rate each time.",
+		summary = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
 	},
 	{
 		id = "183",
@@ -2075,7 +2075,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Creates a hazard for the enemy team (can stack 3 times). Switching out deals 1/8, 1/6, or 1/4 max HP in damage to Pokemon without Flying or Levitate.",
+		summary = "Creates a hazard for the enemy team (can stack 3 times). Switching out deals 1/8, 1/6, or 1/4 max HP in damage to an enemy without Flying or Levitate.",
 	},
 	{
 		id = "192",
@@ -2136,7 +2136,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 3",
-		summary = "Protects user from all effects of moves for the turn, including damage. Using this move consectuively halves its success rate each time.",
+		summary = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
 	},
 	{
 		id = "198",
@@ -2219,7 +2219,7 @@ MoveData.Moves = {
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Deals damage over 5 turns, doubling in power each consectutive hit. Base power is doubled if the user had previously used Defense Curl.",
+		summary = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
 	},
 	{
 		id = "206",
@@ -2250,7 +2250,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Restores up to 50% of the user's max HP. Can be used outside of battle.",
+		summary = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
 	},
 	{
 		id = "209",
@@ -2479,7 +2479,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Lowers the evasion of all adjacent opponents by one stage.",
+		summary = "Lowers the evasion of all adjacent opponents by one stage. Can be used outside of battle to attract a wild Pokemon.",
 	},
 	{
 		id = "231",
@@ -2690,7 +2690,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "70",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Deals double damage if opponent is using Dive.",
+		summary = "Deals damage (doubled if opponent using Dive) and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "251",
@@ -2876,7 +2876,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "User charges up, doubling the damage dealt by the next move it uses but only for Electric moves.",
+		summary = "User charges up, empowering the next move it uses. If that next move is Electric, damage dealt will be doubled.",
 	},
 	{
 		id = "269",
@@ -3219,7 +3219,7 @@ MoveData.Moves = {
 		accuracy = "90",
 		category = MoveData.Categories.SPECIAL,
 		iscontact = true,
-		summary = "Deals damage over 5 turns, doubling in power each consectutive hit. Base power is doubled if the user had previously used Defense Curl.",
+		summary = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
 	},
 	{
 		id = "302",
@@ -3405,7 +3405,7 @@ MoveData.Moves = {
 		pp = "40",
 		accuracy = "85",
 		category = MoveData.Categories.STATUS,
-		summary = "Deals lowers the target's Special Defense stat by two stages. Fails against Pokemon with Soundproof.",
+		summary = "Lowers the target's Special Defense stat by two stages. Fails against Pokemon with Soundproof.",
 	},
 	{
 		id = "320",
@@ -3497,7 +3497,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "70",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns.",
+		summary = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
 	},
 	{
 		id = "329",

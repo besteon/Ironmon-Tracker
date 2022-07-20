@@ -190,7 +190,7 @@ function Input.check(xmouse, ymouse)
 			end
 		elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
 			-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
-			if HiddenPowerButton.visible and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 111, 8, 31, 13) then
+			if HiddenPowerButton.visible() and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 111, 8, 31, 13) then
 				HiddenPowerButton.onclick()
 				InfoScreen.redraw = true
 			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], InfoScreen.lookupMoveButton.box[3], InfoScreen.lookupMoveButton.box[4]) then
