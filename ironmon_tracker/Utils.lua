@@ -31,7 +31,7 @@ function Utils.calculateMoveStars(pokemonID, level)
 
 	-- For each move, count how many moves this Pokemon at this 'level' has learned already
 	local movesLearnedSince = { 0, 0, 0, 0 }
-	local allMoveLevels = PokemonData[pokemonID + 1].movelvls[GameSettings.versiongroup]
+	local allMoveLevels = PokemonData.Pokemon[pokemonID].movelvls[GameSettings.versiongroup]
 	for _, lv in pairs(allMoveLevels) do
 		for moveIndex, move in pairs(pokemon.moves) do
 			if lv > move.level and lv <= level then
@@ -73,7 +73,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	local nextMoveLevel = 0
 	local foundNextMove = false
 
-	local allMoveLevels = PokemonData[pokemonID + 1].movelvls[GameSettings.versiongroup]
+	local allMoveLevels = PokemonData.Pokemon[pokemonID].movelvls[GameSettings.versiongroup]
 	for _, lv in pairs(allMoveLevels) do
 		if lv <= level then
 			movesLearned = movesLearned + 1
@@ -92,27 +92,27 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 end
 
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil or evoMethod == EvolutionTypes.NONE then
-		return { "---" }
+	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
+		return { Constants.BLANKLINE }
 	end
 
-	if evoMethod == EvolutionTypes.FRIEND then
+	if evoMethod == PokemonData.Evolutions.FRIEND then
 		return { "220 Friendship" }
-	elseif evoMethod == EvolutionTypes.STONES then
+	elseif evoMethod == PokemonData.Evolutions.STONES then
 		return { "5 Diff. Stones" }
-	elseif evoMethod == EvolutionTypes.THUNDER then
+	elseif evoMethod == PokemonData.Evolutions.THUNDER then
 		return { "Thunder Stone" }
-	elseif evoMethod == EvolutionTypes.FIRE then
+	elseif evoMethod == PokemonData.Evolutions.FIRE then
 		return { "Fire Stone" }
-	elseif evoMethod == EvolutionTypes.WATER then
+	elseif evoMethod == PokemonData.Evolutions.WATER then
 		return { "Water Stone" }
-	elseif evoMethod == EvolutionTypes.MOON then
+	elseif evoMethod == PokemonData.Evolutions.MOON then
 		return { "Moon Stone" }
-	elseif evoMethod == EvolutionTypes.LEAF then
+	elseif evoMethod == PokemonData.Evolutions.LEAF then
 		return { "Leaf Stone" }
-	elseif evoMethod == EvolutionTypes.SUN then
+	elseif evoMethod == PokemonData.Evolutions.SUN then
 		return { "Sun Stone" }
-	elseif evoMethod == EvolutionTypes.LEAF_SUN then
+	elseif evoMethod == PokemonData.Evolutions.LEAF_SUN then
 		return {
 			"Leaf Stone or",
 			"Sun Stone",
@@ -138,17 +138,17 @@ function Utils.netEffectiveness(move, types)
 	-- TODO: Do we want to handle Hidden Power's varied type in this? We could analyze the IV of the Pokémon and determine the type...
 
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
-	if move.power == NOPOWER then
-		if move.category ~= MoveCategories.STATUS then
-			if move.type == PokemonTypes.NORMAL and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
+	if move.power == Constants.NO_POWER then
+		if move.category ~= MoveData.Categories.STATUS then
+			if move.type == PokemonData.Types.NORMAL and (types[1] == PokemonData.Types.GHOST or types[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.FIGHTING and (types[1] == PokemonTypes.GHOST or types[2] == PokemonTypes.GHOST) then
+			elseif move.type == PokemonData.Types.FIGHTING and (types[1] == PokemonData.Types.GHOST or types[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif move.type == PokemonTypes.PSYCHIC and (types[1] == PokemonTypes.DARK or types[2] == PokemonTypes.DARK) then
+			elseif move.type == PokemonData.Types.PSYCHIC and (types[1] == PokemonData.Types.DARK or types[2] == PokemonData.Types.DARK) then
 				return 0.0
-			elseif move.type == PokemonTypes.GROUND and (types[1] == PokemonTypes.FLYING or types[2] == PokemonTypes.FLYING) then
+			elseif move.type == PokemonData.Types.GROUND and (types[1] == PokemonData.Types.FLYING or types[2] == PokemonData.Types.FLYING) then
 				return 0.0
-			elseif move.type == PokemonTypes.GHOST and (types[1] == PokemonTypes.NORMAL or types[2] == PokemonTypes.NORMAL) then
+			elseif move.type == PokemonData.Types.GHOST and (types[1] == PokemonData.Types.NORMAL or types[2] == PokemonData.Types.NORMAL) then
 				return 0.0
 			end
 		end
@@ -156,7 +156,7 @@ function Utils.netEffectiveness(move, types)
 	end
 
 	local moveType = move.type
-	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonTypes.UNKNOWN then
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN then
 		return 1.0
 	end
 
@@ -164,9 +164,9 @@ function Utils.netEffectiveness(move, types)
 		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
 			moveType = Tracker.Data.currentHiddenPowerType
 		end
-		if moveType ~= "---" then
-			if EffectiveData[moveType][type] ~= nil then
-				effectiveness = effectiveness * EffectiveData[moveType][type]
+		if moveType ~= Constants.BLANKLINE then
+			if MoveData.TypeToEffectiveness[moveType][type] ~= nil then
+				effectiveness = effectiveness * MoveData.TypeToEffectiveness[moveType][type]
 			end
 		end
 	end
@@ -174,7 +174,7 @@ function Utils.netEffectiveness(move, types)
 end
 
 function Utils.isSTAB(move, types)
-	if move == nil or types == nil or move.power == NOPOWER then return false end
+	if move == nil or types == nil or move.power == Constants.NO_POWER then return false end
 
 	local moveType = move.type
 	if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
@@ -239,7 +239,7 @@ function Utils.pokemonHasMove(pokemon, moveName)
 	if pokemon == nil or moveName == nil then return false end
 
 	for _, move in pairs(pokemon.moves) do
-		if moveName == MoveData[move.id].name then
+		if moveName == MoveData.Moves[move.id].name then
 			return true
 		end
 	end
@@ -247,17 +247,17 @@ function Utils.pokemonHasMove(pokemon, moveName)
 end
 
 -- Checks if the pokemon is ready to evolve based on level only
-function Utils.isReadyToEvolveByLevel(pokemon)
-	local evoMethod = PokemonData[pokemon.pokemonID + 1].evolution
+function Utils.isReadyToEvolveByLevel(evoMethod, level)
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	if evoMethod == EvolutionTypes.NONE then
+	if evoMethod == PokemonData.Evolutions.NONE then
 		return false
 	end
 
 	evoMethod = string.match(evoMethod, "(.-)/") -- Handle condition of "37/WTR" with regex
 	evoMethod = tonumber(evoMethod, 10) -- becomes nil if not a decimal number
 
-	return evoMethod ~= nil and (pokemon.level + 1) >= evoMethod
+	return evoMethod ~= nil and (level + 1) >= evoMethod
 end
 
 -- Returns the text color for PC heal tracking
@@ -266,20 +266,20 @@ function Utils.getCenterHealColor()
 	if Options["PC heals count downward"] then
 		-- Counting downwards
 		if currentCount < 1 then
-			return GraphicConstants.THEMECOLORS["Negative text"]
+			return Theme.COLORS["Negative text"]
 		elseif currentCount < 6 then
-			return GraphicConstants.THEMECOLORS["Intermediate text"]
+			return Theme.COLORS["Intermediate text"]
 		else
-			return GraphicConstants.THEMECOLORS["Default text"]
+			return Theme.COLORS["Default text"]
 		end
 	else
 		-- Counting upwards
 		if currentCount < 5 then
-			return GraphicConstants.THEMECOLORS["Default text"]
+			return Theme.COLORS["Default text"]
 		elseif currentCount < 10 then
-			return GraphicConstants.THEMECOLORS["Intermediate text"]
+			return Theme.COLORS["Intermediate text"]
 		else
-			return GraphicConstants.THEMECOLORS["Negative text"]
+			return Theme.COLORS["Negative text"]
 		end
 	end
 end

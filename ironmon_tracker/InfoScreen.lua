@@ -15,7 +15,7 @@ InfoScreen.infoLookup = 0 -- Either a PokemonID or a MoveID
 InfoScreen.lookupMoveButton = {
 	text = "?",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 98, 20, 10, 10, },
+	box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		InfoScreen.openMoveInfoWindow()
@@ -26,7 +26,7 @@ InfoScreen.lookupMoveButton = {
 InfoScreen.lookupPokemonButton = {
 	text = "?",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 92, 9, 10, 10, },
+	box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		InfoScreen.openPokemonInfoWindow()
@@ -37,7 +37,7 @@ InfoScreen.lookupPokemonButton = {
 InfoScreen.nextButton = {
 	text = ">",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 98, 20, 10, 10, },
+	box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		InfoScreen.showNextPokemon()
@@ -48,7 +48,7 @@ InfoScreen.nextButton = {
 InfoScreen.prevButton = {
 	text = "<",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + 86, 20, 10, 10, },
+	box = { Constants.SCREEN.WIDTH + 86, 20, 10, 10, },
 	boxColors = { "Upper box border", "Upper box background" },
 	onClick = function()
 		InfoScreen.showNextPokemon(-1)
@@ -59,7 +59,7 @@ InfoScreen.prevButton = {
 InfoScreen.closeButton = {
 	text = "Close",
 	textColor = "Default text",
-	box = { GraphicConstants.SCREEN_WIDTH + GraphicConstants.RIGHT_GAP - 38, GraphicConstants.SCREEN_HEIGHT - 19, 29, 11, },
+	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 38, Constants.SCREEN.HEIGHT - 19, 29, 11, },
 	boxColors = { "Lower box border", "Lower box background" },
 	onClick = function()
 		Program.state = State.TRACKER
@@ -85,10 +85,10 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	local moveName = MoveData[InfoScreen.infoLookup].name -- infoLookup = moveId
+	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
-	for id, data in pairs(MoveData) do
-		if data.name ~= "---" then
+	for id, data in pairs(MoveData.Moves) do
+		if data.name ~= Constants.BLANKLINE then
 			table.insert(allmovesData, data.name)
 		end
 	end
@@ -104,7 +104,7 @@ function InfoScreen.openMoveInfoWindow()
 		local moveName = forms.gettext(moveDropdown)
 		local moveId
 
-		for id, data in pairs(MoveData) do
+		for id, data in pairs(MoveData.Moves) do
 			if data.name == moveName then
 				moveId = id
 			end
@@ -121,10 +121,10 @@ function InfoScreen.openMoveInfoWindow()
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	local pokemonName = PokemonData[InfoScreen.infoLookup + 1].name -- infoLookup = pokemonID
+	local pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name -- infoLookup = pokemonID
 	local pokedexData = {}
-	for id, data in pairs(PokemonData) do
-		if data.bst ~= "---" then
+	for id, data in pairs(PokemonData.Pokemon) do
+		if data.bst ~= Constants.BLANKLINE then
 			table.insert(pokedexData, data.name)
 		end
 	end
@@ -140,9 +140,9 @@ function InfoScreen.openPokemonInfoWindow()
 		local pokemonName = forms.gettext(pokedexDropdown)
 		local pokemonId
 
-		for id, data in pairs(PokemonData) do
+		for id, data in pairs(PokemonData.Pokemon) do
 			if data.name == pokemonName then
-				pokemonId = id - 1 -- subtract 1 because PokemonData's first element is blank data
+				pokemonId = id
 			end
 		end
 

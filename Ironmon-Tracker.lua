@@ -2,10 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 -- The latest version of the tracker. Should be updated with each PR.
-TRACKER_VERSION = "0.5.2"
-
--- A frequently used placeholder when a data field is not applicable
-PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
+TRACKER_VERSION = "0.5.3"
 
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
@@ -31,12 +28,12 @@ if file ~= nil then
 end
 
 -- Import all scripts before starting the main loop
+dofile(DATA_FOLDER .. "/Constants.lua")
 dofile(DATA_FOLDER .. "/PokemonData.lua")
 dofile(DATA_FOLDER .. "/MoveData.lua")
-dofile(DATA_FOLDER .. "/Data.lua")
+dofile(DATA_FOLDER .. "/MiscData.lua")
 dofile(DATA_FOLDER .. "/Memory.lua")
 dofile(DATA_FOLDER .. "/GameSettings.lua")
-dofile(DATA_FOLDER .. "/GraphicConstants.lua")
 dofile(DATA_FOLDER .. "/InfoScreen.lua")
 dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Theme.lua")
@@ -76,7 +73,7 @@ function Main.Run()
 	else
 		Tracker.loadData()
 		Buttons.initializeBadgeButtons()
-		client.SetGameExtraPadding(0, GraphicConstants.UP_GAP, GraphicConstants.RIGHT_GAP, GraphicConstants.DOWN_GAP)
+		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
 
 		event.onexit(Program.HandleExit, "HandleExit")
