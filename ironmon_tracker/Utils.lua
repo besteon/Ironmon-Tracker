@@ -286,8 +286,8 @@ end
 
 function Utils.truncateRomsFolder(folder)
 	if folder then
-		if string.len(folder) > 10 then
-			return "..." .. string.sub(folder, string.len(folder) - 10)
+		if string.len(folder) > 12 then
+			return "..." .. string.sub(folder, string.len(folder) - 12)
 		else
 			return folder
 		end

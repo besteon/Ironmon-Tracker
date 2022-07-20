@@ -36,88 +36,94 @@ Theme.redraw = true
 -- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
 Theme.updated = false
 
-Theme.importThemeButton = {
-	text = "Import",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + 10, 8, 34, 11},
-	boxColors = { "Lower box border", "Lower box background" },
-	onClick = function() Theme.openImportWindow() end
+Theme.buttons = {
+	importTheme = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Import",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 9, 8, 31, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		onClick = function() Theme.openImportWindow() end
+	},
+	exportTheme = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Export",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 59, 8, 30, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		onClick = function() Theme.openExportWindow() end
+	},
+	presets = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Presets",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 107, 8, 34, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		onClick = function() Theme.openPresetsWindow() end
+	},
+	moveTypeEnabled = {
+		type = Constants.BUTTON_TYPES.CHECKBOX,
+		text = "Color move names by type",
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + 10, 125, Constants.SCREEN.RIGHT_GAP - 12, 11 },
+		box = { Constants.SCREEN.WIDTH + 9, 125, 8, 8 },
+		boxColors = { "Lower box border", "Lower box background" },
+		toggleState = Settings.theme["MOVE_TYPES_ENABLED"],
+		togglecolor = "Positive text",
+		onClick = function(self)
+			Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"] -- toggle the setting
+			self.toggleState = Settings.theme["MOVE_TYPES_ENABLED"]
+			Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
+			Theme.redraw = true
+			Theme.updated = true
+			Program.frames.waitToDraw = 0
+		end
+	},
+	restoreDefaults = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Restore Defaults",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 9, 140, 70, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		confirmReset = false,
+		onClick = function() Theme.tryRestoreDefaultTheme() end
+	},
+	close = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Close",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		onClick = function() Theme.closeMenuAndSave() end
+	},
 }
 
-Theme.exportThemeButton = {
-	text = "Export",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + 57, 8, 33, 11},
-	boxColors = { "Lower box border", "Lower box background" },
-	onClick = function() Theme.openExportWindow() end
-}
-
-Theme.presetsButton = {
-	text = "Presets",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + 103, 8, 37, 11},
-	boxColors = { "Lower box border", "Lower box background" },
-	onClick = function() Theme.openPresetsWindow() end
-}
-
--- A button to navigate to the Theme menu for customizing the Tracker's look and feel
-Theme.restoreDefaultsButton = {
-	text = "Restore Defaults",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + 10, Constants.SCREEN.HEIGHT - 20, 73, 11},
-	boxColors = { "Lower box border", "Lower box background" },
-	confirmReset = false,
-	onClick = function() Theme.tryRestoreDefaultTheme() end
-}
-
--- A button to close the settings page and save the settings if any changes occurred
-Theme.closeButton = {
-	text = "Close",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 39, Constants.SCREEN.HEIGHT - 20, 29, 11},
-	boxColors = { "Lower box border", "Lower box background" },
-	onClick = function() Theme.closeMenuAndSave() end
-}
-
-Theme.moveTypeEnableButton = {
-	text = "Color move names by type",
-	textColor = "Default text",
-	box = {Constants.SCREEN.WIDTH + 9, 125, 8, 8},
-	boxColors = { "Lower box border", "Lower box background" },
-	togglecolor = "Positive text",
-	onClick = function()
-		Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"]-- toggle the setting
-		Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
-		Theme.redraw = true
-		Theme.updated = true
-		Program.frames.waitToDraw = 0
-	end
-}
-
--- Stores the theme elements in the Settings.ini file into configurable toggles in the Tracker
-Theme.themeButtons = {}
-
-function Theme.buildTrackerThemeButtons()
+function Theme.initialize()
 	local index = 1
 	local heightOffset = 25
 	local button = {}
 
 	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
 		button = {
+			type = Constants.BUTTON_TYPES.COLORPICKER,
 			text = colorkey,
-			box = {Constants.SCREEN.WIDTH + 10, heightOffset, 8, 8},
+			clickableArea = { Constants.SCREEN.WIDTH + 10, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 11 },
+			box = { Constants.SCREEN.WIDTH + 10, heightOffset, 8, 8 },
 			textColor = "Default text",
 			themeColor = colorkey,
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
 		}
 
-		table.insert(Theme.themeButtons, button)
+		Theme.buttons[colorkey] = button
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.moveTypeEnableButton.box[2] = heightOffset
+	Theme.buttons.moveTypeEnabled.clickableArea[2] = heightOffset
+	Theme.buttons.moveTypeEnabled.box[2] = heightOffset
+
+	Theme.loadTheme()
 end
 
 -- Loads the theme defined in Settings into the Tracker's constants
@@ -254,16 +260,17 @@ end
 -- Restores the Theme customizations to the default look-and-feel, or prompts for confirmation
 -- A follow through onclick would be required to reset to default
 function Theme.tryRestoreDefaultTheme()
-	if Theme.restoreDefaultsButton.confirmReset then
-		Theme.restoreDefaultsButton.text = "Restore Defaults"
-		Theme.restoreDefaultsButton.textColor = "Default text"
-		Theme.restoreDefaultsButton.confirmReset = false
+	local defaultBtn = Theme.buttons.restoreDefaults
+	if defaultBtn.confirmReset then
+		defaultBtn.text = "Restore Defaults"
+		defaultBtn.textColor = "Default text"
+		defaultBtn.confirmReset = false
 
 		Theme.importThemeFromText(Theme.PRESET_STRINGS["Default Theme"])
 	else
-		Theme.restoreDefaultsButton.text = "   Are you sure?"
-		Theme.restoreDefaultsButton.textColor = "Negative text"
-		Theme.restoreDefaultsButton.confirmReset = true
+		defaultBtn.text = "   Are you sure?"
+		defaultBtn.textColor = "Negative text"
+		defaultBtn.confirmReset = true
 
 		Theme.redraw = true
 		Program.frames.waitToDraw = 0
@@ -271,11 +278,12 @@ function Theme.tryRestoreDefaultTheme()
 end
 
 function Theme.closeMenuAndSave()
+	local defaultBtn = Theme.buttons.restoreDefaults
 	-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
-	if Theme.restoreDefaultsButton.confirmReset then
-		Theme.restoreDefaultsButton.text = "Restore Defaults"
-		Theme.restoreDefaultsButton.textColor = "Default text"
-		Theme.restoreDefaultsButton.confirmReset = false
+	if defaultBtn.confirmReset then
+		defaultBtn.text = "Restore Defaults"
+		defaultBtn.textColor = "Default text"
+		defaultBtn.confirmReset = false
 	end
 
 	-- Inform the Tracker Program to load the Options screen

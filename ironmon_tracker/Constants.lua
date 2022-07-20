@@ -21,6 +21,14 @@ Constants.FONT = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
+Constants.BUTTON_TYPES = {
+	FULL_BORDER = 1,
+	NO_BORDER = 2,
+	CHECKBOX = 3,
+	COLORPICKER = 4,
+	IMAGE = 5,
+}
+
 Constants.TRACKER_DATA_EXTENSION = ".tdat"
 Constants.PORTAIT_FOLDER_EXTENSIONS = {
 	pokemon = ".gif",

@@ -1,6 +1,6 @@
 -- Button attributes:
 -- type : button Type
--- visible() : when the button is visible / active on screen
+-- isVisible() : when the button is visible / active on screen
 
 ButtonType = {
 	singleButton = 0,
@@ -41,27 +41,28 @@ local HiddenPowerState = 0
 
 HiddenPowerButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
 	text = "Hidden Power",
 	textcolor = Constants.COLORS.MOVETYPE[MoveData.HiddenPowerTypeList[HiddenPowerState + 1]],
-	box = { 0, 0, 65, 10 },
-	onclick = function()
+	box = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
+	isVisible = function() return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
+	onclick = function(self)
 		HiddenPowerState = (HiddenPowerState + 1) % #MoveData.HiddenPowerTypeList
 		local newType = MoveData.HiddenPowerTypeList[HiddenPowerState + 1]
 		HiddenPowerButton.textcolor = Constants.COLORS.MOVETYPE[newType]
 		Tracker.Data.currentHiddenPowerType = newType
+		InfoScreen.redraw = true
 	end
 }
 
 PCHealTrackingButton = {
 	type = ButtonType.singleButton,
-	visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 	text = "",
 	textcolor = "Default text",
 	box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
 	boxColors = { "Upper box border", "Upper box background" },
 	togglecolor = "Positive text",
-	onclick = function() 
+	isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+	onclick = function(self) 
 		Program.PCHealTrackingButtonState = not Program.PCHealTrackingButtonState
 	end
 }
@@ -89,7 +90,7 @@ NotepadTrackingButton = {
 Buttons = {
 	{ -- HP button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 9, 8, 8 },
@@ -106,7 +107,7 @@ Buttons = {
 	},
 	{ -- ATK button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 19, 8, 8 },
@@ -123,7 +124,7 @@ Buttons = {
 	},
 	{ -- DEF button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 29, 8, 8 },
@@ -140,7 +141,7 @@ Buttons = {
 	},
 	{ -- SPA button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 39, 8, 8 },
@@ -157,7 +158,7 @@ Buttons = {
 	},
 	{ -- SPD button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 49, 8, 8 },
@@ -174,7 +175,7 @@ Buttons = {
 	},
 	{ -- SPE button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
 		text = "",
 		textcolor = "Default text",
 		box = { Constants.SCREEN.WIDTH + buttonXOffset, 59, 8, 8 },
@@ -193,7 +194,7 @@ Buttons = {
 	PCHealTrackingButton,
 	{ -- PC Heal Increment Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = "+",
 		textcolor = "Positive text",
 		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
@@ -205,7 +206,7 @@ Buttons = {
 	},
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
-		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		text = Constants.BLANKLINE,
 		textcolor = "Negative text",
 		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
@@ -222,7 +223,7 @@ function Buttons.initializeBadgeButtons()
 	for i = 1,8,1 do
 		local badgeButton = {
 			type = ButtonType.badgeButton,
-			visible = function() return Tracker.Data.isViewingOwn end,
+			isVisible = function() return Tracker.Data.isViewingOwn end,
 			box = {
 				Constants.SCREEN.BADGE_X_POS + ((i-1) * (Constants.SCREEN.BADGE_WIDTH + 1)) + BadgeButtons.xOffsets[i],
 				Constants.SCREEN.BADGE_Y_POS,
@@ -330,7 +331,7 @@ function Buttons.openNotePadWindow()
 
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() return end)
 	Utils.setFormLocation(noteForm, 100, 50)
-	forms.label(noteForm, "Enter a note for " .. PokemonData[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
+	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 	
 	local saveButton = forms.button(noteForm, "Save", function()

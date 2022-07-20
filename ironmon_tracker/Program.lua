@@ -70,13 +70,13 @@ function Program.main()
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
-			Drawing.drawSettings()
+			Drawing.drawOptionsScreen()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
 		if Theme.redraw and Program.frames.waitToDraw == 0 then
 			Program.frames.waitToDraw = 5
-			Drawing.drawThemeMenu()
+			Drawing.drawThemeScreen()
 			Theme.redraw = false
 		elseif Program.frames.waitToDraw > 0 then -- Required because of Theme.redraw check
 			Program.frames.waitToDraw = Program.frames.waitToDraw - 1
@@ -189,7 +189,7 @@ function Program.updatePokemonTeamsFromMemory()
 				if not Tracker.Data.inBattle then
 					for _, move in pairs(newPokemonData.moves) do
 						if move.id ~= 0 then
-							move.pp = MoveData.Moves[move.id].pp -- set value to max PP
+							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
 						end
 					end
 				end

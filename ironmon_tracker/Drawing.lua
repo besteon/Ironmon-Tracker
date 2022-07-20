@@ -231,14 +231,57 @@ function Drawing.calcShadowColor(color)
 	return (0xFF000000 + color_hexval)
 end
 
-function Drawing.drawButtonBox(button, shadowcolor)
-	local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
-	local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
+function Drawing.drawButton(button, shadowcolor)
+	if button == nil or button.box == nil then return end
 
-	if shadowcolor ~= nil then
-		gui.drawRectangle(button.box[1] + 1, button.box[2] + 1, button.box[3], button.box[4], shadowcolor, fillcolor)
+	-- Don't draw the button if it's currently not visible
+	if button.isVisible ~= nil and not button:isVisible() then
+		return
 	end
-	gui.drawRectangle(button.box[1], button.box[2], button.box[3], button.box[4], bordercolor, fillcolor)
+
+	local x = button.box[1]
+	local y = button.box[2]
+	local width = button.box[3]
+	local height = button.box[4]
+
+	if button.type == Constants.BUTTON_TYPES.FULL_BORDER or button.type == Constants.BUTTON_TYPES.CHECKBOX then
+		local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
+		local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
+
+		-- Draw the box's shadow and the box border
+		if shadowcolor ~= nil then
+			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
+		end
+		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
+
+		-- Draw the box's text
+		if button.type == Constants.BUTTON_TYPES.FULL_BORDER then
+			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		else -- button.type == Constants.BUTTON_TYPES.CHECKBOX
+			Drawing.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
+
+			-- Draw a mark if the checkbox button is toggled on
+			if button.toggleState ~= nil and button.toggleState then
+				gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[button.togglecolor])
+				gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[button.togglecolor])
+			end
+		end
+	elseif button.type == Constants.BUTTON_TYPES.NO_BORDER then
+		if button.text ~= nil and button.text ~= "" then
+			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
+	elseif button.type == Constants.BUTTON_TYPES.COLORPICKER and button.themeColor ~= nil then
+		local hexCodeText = string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5))
+		-- Draw a colored circle with a black border
+		gui.drawEllipse(x - 1, y, width, height, 0xFF000000, Theme.COLORS[button.themeColor])
+		-- Draw the hex code to the side, and the text label for it
+		Drawing.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[button.textColor], shadowcolor)
+		Drawing.drawText(x + width + 37, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
+	elseif button.type == Constants.BUTTON_TYPES.IMAGE then
+		if button.image ~= nil then
+			Drawing.drawImageAsPixels(button.image, x, y, shadowcolor)
+		end
+	end
 end
 
 function Drawing.drawPokemonView(pokemon, opposingPokemon)
@@ -341,12 +384,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			gui.drawText(Buttons[10].box[1], Buttons[10].box[2], Buttons[10].text, Theme.COLORS[Buttons[10].textcolor], nil, 5, Constants.FONT.FAMILY)
 
 			-- Auto-tracking PC Heals button
-			Drawing.drawButtonBox(PCHealTrackingButton, boxTopShadow)
-			-- Draw a mark if the feature is on
-			if Program.PCHealTrackingButtonState then
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, Theme.COLORS[PCHealTrackingButton.togglecolor])
-				gui.drawLine(PCHealTrackingButton.box[1] + 1, PCHealTrackingButton.box[2] + PCHealTrackingButton.box[4] - 1, PCHealTrackingButton.box[1] + PCHealTrackingButton.box[3] - 1, PCHealTrackingButton.box[2] + 1, Theme.COLORS[PCHealTrackingButton.togglecolor])
-			end
+			Drawing.drawButton(PCHealTrackingButton, boxTopShadow)
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
@@ -418,9 +456,9 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		if Tracker.Data.isViewingOwn then
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(pokemon.stats[statLabels[i]] == 0, Constants.BLANKLINE, pokemon.stats[statLabels[i]]), 3, textColor, boxTopShadow)
 		else
-			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then
-				Drawing.drawButtonBox(Buttons[i], boxTopShadow)
-				Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + Utils.inlineIf(Buttons[i].text == "--", 0, 1), Buttons[i].text, Theme.COLORS[Buttons[i].textcolor], boxTopShadow)
+			if Buttons[i].isVisible() and Buttons[i].type == ButtonType.singleButton then
+				Drawing.drawButton(Buttons[i], boxTopShadow)
+				-- Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + Utils.inlineIf(Buttons[i].text == "--", 0, 1), Buttons[i].text, Theme.COLORS[Buttons[i].textcolor], boxTopShadow)
 			end
 		end
 		statOffsetY = statOffsetY + 10
@@ -586,7 +624,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Draw badge/note box
 	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, movesBoxStartY + 44, Constants.SCREEN.RIGHT_GAP - (2 * borderMargin), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	for index, button in pairs(BadgeButtons.badgeButtons) do
-		if button.visible() then
+		if button.isVisible() then
 			local addForOff = ""
 			if button.state == 0 then addForOff = "_OFF" end
 			local path = DATA_FOLDER .. "/images/badges/" .. BadgeButtons.BADGE_GAME_PREFIX .. "_badge" .. index .. addForOff .. ".png"
@@ -616,124 +654,43 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 end
 
-function Drawing.drawSettingStateButton(index, state)
-	-- for i = 1, table.getn(Buttons), 1 do
-	-- 	if Buttons[i].visible() then
-	-- 		if Buttons[i].type == ButtonType.singleButton then
-	-- 			gui.drawRectangle(Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4], Buttons[i].backgroundcolor[1], Buttons[i].backgroundcolor[2])
-	-- 			local extraY = 1
-	-- 			if Buttons[i].text == "--" then extraY = 0 end
-	-- 			Drawing.drawText(Buttons[i].box[1], Buttons[i].box[2] + (Buttons[i].box[4] - 12) / 2 + extraY, Buttons[i].text, Buttons[i].textcolor)
-	-- 		end
-	-- 	end
-	-- end
-	-- gui.drawRectangle()
-end
-
-function Drawing.drawSettings()
+function Drawing.drawOptionsScreen()
 	-- Fill background and margins
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+
+	-- Draw Settings screen view box
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + 5, 5, Constants.SCREEN.RIGHT_GAP - 10, Constants.SCREEN.HEIGHT - 10, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	local borderMargin = 5
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
-
-	-- set the color for text/number shadows for the top boxes
-	local boxSettingsShadow = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
-
-	-- Settings view box
-	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
-
-	-- Cancel/close button
-	Drawing.drawButtonBox(Options.closeButton, boxSettingsShadow)
-	Drawing.drawText(Options.closeButton.box[1] + 3, Options.closeButton.box[2], Options.closeButton.text, Theme.COLORS[Options.closeButton.textColor], boxSettingsShadow)
-
-	-- Roms folder setting
-	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
-	Drawing.drawText(Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Options.romsFolderOption.text .. folderText, Theme.COLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
-	if folderText == "" then
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, borderMargin + 2, boxSettingsShadow)
-		Drawing.drawText(Options.romsFolderOption.box[1] + 65, Options.romsFolderOption.box[2], '(Click a file to set)', Theme.COLORS[Options.romsFolderOption.textColor], boxSettingsShadow)
+	-- Draw all buttons
+	local shadowcolor = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	for _, button in pairs(Options.buttons) do
+		Drawing.drawButton(button, shadowcolor)
 	end
-
-	-- 'Controls', 'Save Data', 'Load Data' buttons
-	Drawing.drawButtonBox(Options.controlsButton, boxSettingsShadow)
-	Drawing.drawText(Options.controlsButton.box[1] + 1, Options.controlsButton.box[2], Options.controlsButton.text, Theme.COLORS[Options.controlsButton.textColor], boxSettingsShadow)
-
-	Drawing.drawButtonBox(Options.saveTrackerDataButton, boxSettingsShadow)
-	Drawing.drawText(Options.saveTrackerDataButton.box[1] + 1, Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.text, Theme.COLORS[Options.saveTrackerDataButton.textColor], boxSettingsShadow)
-
-	Drawing.drawButtonBox(Options.loadTrackerDataButton, boxSettingsShadow)
-	Drawing.drawText(Options.loadTrackerDataButton.box[1] + 1, Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.text, Theme.COLORS[Options.loadTrackerDataButton.textColor], boxSettingsShadow)
-
-	-- Customize button
-	Drawing.drawButtonBox(Options.themeButton, boxSettingsShadow)
-	Drawing.drawText(Options.themeButton.box[1] + 3, Options.themeButton.box[2], Options.themeButton.text, Theme.COLORS[Options.themeButton.textColor], boxSettingsShadow)
-
-	-- Draw toggleable settings
-	for _, button in pairs(Options.optionsButtons) do
-		Drawing.drawButtonBox(button, boxSettingsShadow)
-		Drawing.drawText(button.box[1] + button.box[3] + 1, button.box[2] - 1, button.text, Theme.COLORS[button.textColor], boxSettingsShadow)
-		-- Draw a mark if the feature is on
-		if Options[button.text] then
-			gui.drawLine(button.box[1] + 1, button.box[2] + 1, button.box[1] + button.box[3] - 1, button.box[2] + button.box[4] - 1, Theme.COLORS[button.togglecolor])
-			gui.drawLine(button.box[1] + 1, button.box[2] + button.box[4] - 1, button.box[1] + button.box[3] - 1, button.box[2] + 1, Theme.COLORS[button.togglecolor])
-		end
+	
+	-- Draw Roms folder location, or the notepad icon if it's not set
+	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
+	if folderText ~= "" then
+		Drawing.drawText(Options.buttons.romsFolder.box[1] + 54, Options.buttons.romsFolder.box[2], folderText, Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
+	else
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, shadowcolor)
+		Drawing.drawText(Options.buttons.romsFolder.box[1] + 65, Options.buttons.romsFolder.box[2], "(Click a file to set)", Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
 	end
 end
 
-function Drawing.drawThemeMenu()
+function Drawing.drawThemeScreen()
 	-- Fill background and margins
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+
+	-- Draw Theme screen view box
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + 5, 5, Constants.SCREEN.RIGHT_GAP - 10, Constants.SCREEN.HEIGHT - 10, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
-	local borderMargin = 5
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * borderMargin)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * borderMargin)
-
-	-- set the color for text/number shadows for the bottom box values
-	local boxThemeShadow = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
-
-	-- Draw Theme menu view box
-	gui.drawRectangle(Constants.SCREEN.WIDTH + borderMargin, borderMargin, rightEdge, bottomEdge, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
-
-	-- Draw Import, Export, Presets buttons
-	Drawing.drawButtonBox(Theme.importThemeButton, boxThemeShadow)
-	Drawing.drawText(Theme.importThemeButton.box[1] + 3, Theme.importThemeButton.box[2], Theme.importThemeButton.text, Theme.COLORS[Theme.importThemeButton.textColor], boxThemeShadow)
-	Drawing.drawButtonBox(Theme.exportThemeButton, boxThemeShadow)
-	Drawing.drawText(Theme.exportThemeButton.box[1] + 3, Theme.exportThemeButton.box[2], Theme.exportThemeButton.text, Theme.COLORS[Theme.exportThemeButton.textColor], boxThemeShadow)
-	Drawing.drawButtonBox(Theme.presetsButton, boxThemeShadow)
-	Drawing.drawText(Theme.presetsButton.box[1] + 3, Theme.presetsButton.box[2], Theme.presetsButton.text, Theme.COLORS[Theme.presetsButton.textColor], boxThemeShadow)
-
-	-- Draw each theme element and its color picker
-	local textPadding = 1
-	for _, button in pairs(Theme.themeButtons) do
-		if button.themeColor ~= nil then
-			-- fill in the box with the current defined color
-			gui.drawEllipse(button.box[1] - 1, button.box[2], button.box[3], button.box[4], 0xFF000000, Theme.COLORS[button.themeColor]) -- black border
-			-- Draw the hex code to the side 
-			Drawing.drawText(button.box[1] + button.box[3] + textPadding, button.box[2] - 2, string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5)), Theme.COLORS[button.textColor], boxThemeShadow)
-			Drawing.drawText(button.box[1] + button.box[3] + textPadding + 36, button.box[2] - 2, button.text, Theme.COLORS[button.textColor], boxThemeShadow)
-		else
-		end
+	-- Draw all buttons
+	local shadowcolor = Drawing.calcShadowColor(Theme.COLORS["Lower box background"])
+	for name, button in pairs(Theme.buttons) do
+		Drawing.drawButton(button, shadowcolor)
 	end
-	Drawing.drawButtonBox(Theme.moveTypeEnableButton, boxThemeShadow)
-	-- Draw a mark if the feature is on
-	if Theme.MOVE_TYPES_ENABLED then
-		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.COLORS[Theme.moveTypeEnableButton.togglecolor])
-		gui.drawLine(Theme.moveTypeEnableButton.box[1] + 1, Theme.moveTypeEnableButton.box[2] + Theme.moveTypeEnableButton.box[4] - 1, Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] - 1, Theme.moveTypeEnableButton.box[2] + 1, Theme.COLORS[Theme.moveTypeEnableButton.togglecolor])
-	end
-	Drawing.drawText(Theme.moveTypeEnableButton.box[1] + Theme.moveTypeEnableButton.box[3] + 1 + textPadding, Theme.moveTypeEnableButton.box[2] - 2, Theme.moveTypeEnableButton.text, Theme.COLORS[Theme.moveTypeEnableButton.textColor], boxThemeShadow)
-
-	-- Draw Restore Defaults button
-	Drawing.drawButtonBox(Theme.restoreDefaultsButton, boxThemeShadow)
-	Drawing.drawText(Theme.restoreDefaultsButton.box[1] + 3, Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.text, Theme.COLORS[Theme.restoreDefaultsButton.textColor], boxThemeShadow)
-	
-	-- Draw Close button
-	Drawing.drawButtonBox(Theme.closeButton, boxThemeShadow)
-	Drawing.drawText(Theme.closeButton.box[1] + 3, Theme.closeButton.box[2], Theme.closeButton.text, Theme.COLORS[Theme.closeButton.textColor], boxThemeShadow)
-	
 end
 
 function Drawing.drawInfoScreen()
@@ -792,11 +749,6 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local pokemonName = pokemon.name:upper()
 	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
 	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
-
-	-- NAVIGATION BUTTONS
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], boxInfoTopShadow)
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PREVIOUS_BUTTON, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], boxInfoTopShadow)
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NEXT_BUTTON, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -902,10 +854,12 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 			botOffsetY = botOffsetY + 13
 		end
 	end
-	
-	-- Cancel/close button
-	Drawing.drawButtonBox(InfoScreen.closeButton, boxInfoBotShadow)
-	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, Theme.COLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)	
+
+	-- Draw all buttons
+	local shadowcolor = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	for _, button in pairs(InfoScreen.buttons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
 end
 
 function Drawing.drawMoveInfoScreen(moveId)
@@ -946,15 +900,12 @@ function Drawing.drawMoveInfoScreen(moveId)
 	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
 
 	-- If the move is Hidden Power, use its tracked type/category instead
-	if moveId == 237 + 1 then
+	if moveId == 237 then -- 237 = Hidden Power
 		moveType = Tracker.Data.currentHiddenPowerType
 		moveCat = MoveData.TypeToCategory[moveType]
 		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 	
-	-- NAVIGATION BUTTONS
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.MAGNIFYING_GLASS, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], boxInfoTopShadow)
-
 	-- TYPE ICON
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -1031,17 +982,19 @@ function Drawing.drawMoveInfoScreen(moveId)
 		end
 	end
 
-	-- Easter egg for the move "Splash"
-	if moveId == 151 then
+	-- Draw all buttons
+	local shadowcolor = Drawing.calcShadowColor(Theme.COLORS["Upper box background"])
+	for _, button in pairs(InfoScreen.buttons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
+	
+	-- Easter egg
+	if moveId == 150 then -- 150 = Splash
 		Drawing.drawPokemonIcon(129, offsetX + 16, botOffsetY + 8)
 		Drawing.drawPokemonIcon(129, offsetX + 40, botOffsetY - 8)
 		Drawing.drawPokemonIcon(129, offsetX + 75, botOffsetY + 2)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
-
-	-- Cancel/close button
-	Drawing.drawButtonBox(InfoScreen.closeButton, boxInfoBotShadow)
-	Drawing.drawText(InfoScreen.closeButton.box[1] + 3, InfoScreen.closeButton.box[2], InfoScreen.closeButton.text, Theme.COLORS[InfoScreen.closeButton.textColor], boxInfoBotShadow)
 end
 
 function Drawing.drawImageAsPixels(imageArray, x, y, imageShadow)

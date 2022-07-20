@@ -100,11 +100,10 @@ function Input.update()
 end
 
 function Input.check(xmouse, ymouse)
-	-- Tracker input regions
 	if Program.state == State.TRACKER then
 		---@diagnostic disable-next-line: deprecated
 		for i = 1, table.getn(Buttons), 1 do
-			if Buttons[i].visible() then
+			if Buttons[i].isVisible() then
 				if Buttons[i].type == ButtonType.singleButton and Buttons[i].text ~= "Hidden Power" then -- Move HP clicking logic to info screen
 					if Input.isInRange(xmouse, ymouse, Buttons[i].box[1], Buttons[i].box[2], Buttons[i].box[3], Buttons[i].box[4]) then
 						Buttons[i].onclick()
@@ -117,7 +116,7 @@ function Input.check(xmouse, ymouse)
 		--badges
 		-- TODO: Disabling this feature to click on badges as it is now done automatically, which overrides any manual toggles. Might add back in later with an Option.
 		-- for index, button in pairs(BadgeButtons.badgeButtons) do
-		-- 	if button.visible() then
+		-- 	if button.isVisible() then
 		-- 		if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4]) then
 		-- 			button:onclick()
 		-- 			Program.frames.waitToDraw = 0
@@ -177,88 +176,19 @@ function Input.check(xmouse, ymouse)
 				NotepadTrackingButton.onclick()
 			end
 		end
-	-- Info Screen mouse input regions
 	elseif Program.state == State.INFOSCREEN then
-		if InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO then
-			-- The arrow buttons near the Pokemon icon that allow navgiating to the 'next' or 'previous' Pokemon in order.
-			if Input.isInRange(xmouse, ymouse, InfoScreen.nextButton.box[1], InfoScreen.nextButton.box[2], InfoScreen.nextButton.box[3], InfoScreen.nextButton.box[4]) then
-				InfoScreen.nextButton.onClick()
-			elseif Input.isInRange(xmouse, ymouse, InfoScreen.prevButton.box[1], InfoScreen.prevButton.box[2], InfoScreen.prevButton.box[3], InfoScreen.prevButton.box[4]) then
-				InfoScreen.prevButton.onClick()
-			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupPokemonButton.box[1], InfoScreen.lookupPokemonButton.box[2], InfoScreen.lookupPokemonButton.box[3], InfoScreen.lookupPokemonButton.box[4]) then
-				InfoScreen.lookupPokemonButton.onClick()
-			end
-		elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
-			-- Check area where the type icon is shown on the info screen; visible check to confirm the player's Pokemon has the Hidden Power move
-			if HiddenPowerButton.visible() and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 111, 8, 31, 13) then
-				HiddenPowerButton.onclick()
-				InfoScreen.redraw = true
-			elseif Input.isInRange(xmouse, ymouse, InfoScreen.lookupMoveButton.box[1], InfoScreen.lookupMoveButton.box[2], InfoScreen.lookupMoveButton.box[3], InfoScreen.lookupMoveButton.box[4]) then
-				InfoScreen.lookupMoveButton.onClick()
-			end
-		end
+		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.buttons)
 
-		-- Check for input on 'Close' button
-		if Input.isInRange(xmouse, ymouse, InfoScreen.closeButton.box[1], InfoScreen.closeButton.box[2], InfoScreen.closeButton.box[3], InfoScreen.closeButton.box[4]) then
-			InfoScreen.closeButton.onClick()
+		-- Check area where the type icon is shown on the info screen; visible check is to confirm the player's Pokemon has the Hidden Power move
+		if InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
+			if HiddenPowerButton.isVisible() and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 111, 8, 31, 13) then
+				HiddenPowerButton:onclick()
+			end
 		end
-	-- Settings menu mouse input regions
 	elseif Program.state == State.SETTINGS then
-		-- Check for input on any of the option buttons
-		for _, button in pairs(Options.optionsButtons) do
-			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], Constants.SCREEN.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
-				button.onClick()
-			end
-		end
-
-		-- Check for input on 'Roms Folder', 'Edit Controls', 'Customize Theme', and 'Close' buttons
-		if Input.isInRange(xmouse, ymouse, Options.romsFolderOption.box[1], Options.romsFolderOption.box[2], Constants.SCREEN.RIGHT_GAP - (Options.romsFolderOption.box[3] * 2), Options.romsFolderOption.box[4]) then
-			Options.romsFolderOption.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Options.controlsButton.box[1], Options.controlsButton.box[2], Options.controlsButton.box[3], Options.controlsButton.box[4]) then
-			Options.controlsButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Options.saveTrackerDataButton.box[1], Options.saveTrackerDataButton.box[2], Options.saveTrackerDataButton.box[3], Options.saveTrackerDataButton.box[4]) then
-			Options.saveTrackerDataButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Options.loadTrackerDataButton.box[1], Options.loadTrackerDataButton.box[2], Options.loadTrackerDataButton.box[3], Options.loadTrackerDataButton.box[4]) then
-			Options.loadTrackerDataButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Options.themeButton.box[1], Options.themeButton.box[2], Options.themeButton.box[3], Options.themeButton.box[4]) then
-			Options.themeButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Options.closeButton.box[1], Options.closeButton.box[2], Options.closeButton.box[3], Options.closeButton.box[4]) then
-			Options.closeButton.onClick()
-		end
+		Input.checkButtonsClicked(xmouse, ymouse, Options.buttons)
 	elseif Program.state == State.THEME then
-		-- Check for input on 'Import', 'Export', and 'Presets' buttons
-		if Input.isInRange(xmouse, ymouse, Theme.importThemeButton.box[1], Theme.importThemeButton.box[2], Theme.importThemeButton.box[3], Theme.importThemeButton.box[4]) then
-			Theme.importThemeButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Theme.exportThemeButton.box[1], Theme.exportThemeButton.box[2], Theme.exportThemeButton.box[3], Theme.exportThemeButton.box[4]) then
-			Theme.exportThemeButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Theme.presetsButton.box[1], Theme.presetsButton.box[2], Theme.presetsButton.box[3], Theme.presetsButton.box[4]) then
-			Theme.presetsButton.onClick()
-		end
-
-		-- Check for input on any of the theme config buttons
-		for _, button in pairs(Theme.themeButtons) do
-			if Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], Constants.SCREEN.RIGHT_GAP - (button.box[3] * 2), button.box[4]) then
-				button.onClick()
-			end
-		end
-		if Input.isInRange(xmouse, ymouse, Theme.moveTypeEnableButton.box[1], Theme.moveTypeEnableButton.box[2], Constants.SCREEN.RIGHT_GAP - (Theme.moveTypeEnableButton.box[3] * 2), Theme.moveTypeEnableButton.box[4]) then
-			Theme.moveTypeEnableButton.onClick()
-		end
-
-		-- Check for input on 'Restore Defaults' and 'Close' buttons
-		if Input.isInRange(xmouse, ymouse, Theme.restoreDefaultsButton.box[1], Theme.restoreDefaultsButton.box[2], Theme.restoreDefaultsButton.box[3], Theme.restoreDefaultsButton.box[4]) then
-			Theme.restoreDefaultsButton.onClick()
-		end
-		if Input.isInRange(xmouse, ymouse, Theme.closeButton.box[1], Theme.closeButton.box[2], Theme.closeButton.box[3], Theme.closeButton.box[4]) then
-			Theme.closeButton.onClick()
-		end
+		Input.checkButtonsClicked(xmouse, ymouse, Theme.buttons)
 	end
 end
 
@@ -276,4 +206,21 @@ function Input.isInRange(xmouse, ymouse, x, y, xregion, yregion)
 		end
 	end
 	return false
+end
+
+function Input.checkButtonsClicked(xmouse, ymouse, buttons)
+	for _, button in pairs(buttons) do
+		local isAreaClicked = false
+
+		-- If the button has an override for which area to check for mouse clicks, use that
+		if button.clickableArea ~= nil then
+			isAreaClicked = Input.isInRange(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
+		else
+			isAreaClicked = Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
+		end
+
+		if isAreaClicked then
+			button:onClick()
+		end
+	end
 end
