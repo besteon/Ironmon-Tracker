@@ -358,7 +358,7 @@ function Program.updateBattleDataFromMemory()
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 		for _, move in pairs(opposingPokemon.moves) do
-			if move.pp ~= tonumber(MoveData.Moves[move.id].pp) then
+			if move.pp < tonumber(MoveData.Moves[move.id].pp) then
 				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
 			end
 		end
