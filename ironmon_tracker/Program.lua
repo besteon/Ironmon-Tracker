@@ -184,6 +184,16 @@ function Program.updatePokemonTeamsFromMemory()
 				if Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 then
 					isOpposingPokemonWild = Tracker.Data.trainerID == newPokemonData.trainerID
 				end
+
+				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
+				if not Tracker.Data.inBattle then
+					for _, move in pairs(newPokemonData.moves) do
+						if move.id ~= 0 then
+							move.pp = MoveData.Moves[move.id].pp -- set value to max PP
+						end
+					end
+				end
+
 				Tracker.addUpdatePokemon(newPokemonData, personality, false)
 			end
 		end
