@@ -43,11 +43,11 @@ HiddenPowerButton = {
 	type = ButtonType.singleButton,
 	visible = function() return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power") end,
 	text = "Hidden Power",
-	textcolor = Constants.COLORS.MOVETYPE[HiddenPowerTypeList[HiddenPowerState+1]],
+	textcolor = Constants.COLORS.MOVETYPE[MoveData.HiddenPowerTypeList[HiddenPowerState + 1]],
 	box = { 0, 0, 65, 10 },
 	onclick = function()
-		HiddenPowerState = (HiddenPowerState + 1) % #HiddenPowerTypeList
-		local newType = HiddenPowerTypeList[HiddenPowerState + 1]
+		HiddenPowerState = (HiddenPowerState + 1) % #MoveData.HiddenPowerTypeList
+		local newType = MoveData.HiddenPowerTypeList[HiddenPowerState + 1]
 		HiddenPowerButton.textcolor = Constants.COLORS.MOVETYPE[newType]
 		Tracker.Data.currentHiddenPowerType = newType
 	end
@@ -206,7 +206,7 @@ Buttons = {
 	{ -- PC Heal Decrement Button
 		type = ButtonType.singleButton,
 		visible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
-		text = "---",
+		text = Constants.BLANKLINE,
 		textcolor = "Negative text",
 		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
 		onclick = function() 
@@ -255,23 +255,28 @@ function Buttons.openAbilityNoteWindow()
 	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	if pokemon == nil then return end
 
-	local pokemonName = PokemonData[pokemon.pokemonID + 1].name .. ":"
+	local abilityList = {}
+	table.insert(abilityList, Constants.BLANKLINE)
+	for _, abilityName in pairs(MiscData.Abilities) do
+		table.insert(abilityList, abilityName)
+	end
+
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
 	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
 	Utils.setFormLocation(abilityForm, 100, 50)
 	
-	forms.label(abilityForm, "Select one or both abilities for " .. pokemonName, 64, 10, 220, 20)
+	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
 	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
-	forms.setdropdownitems(abilityOneDropdown, MiscData.ability, true) -- true = alphabetize list
+	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
 	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 95, 60, 145, 30)
-	forms.setdropdownitems(abilityTwoDropdown, MiscData.ability, true) -- true = alphabetize list
+	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
 
 	if trackedAbilities[1].id ~= 0 then
-		forms.settext(abilityOneDropdown, MiscData.ability[trackedAbilities[1].id + 1])
+		forms.settext(abilityOneDropdown, MiscData.Abilities[trackedAbilities[1].id])
 	end
 	if trackedAbilities[2].id ~= 0 then
-		forms.settext(abilityTwoDropdown, MiscData.ability[trackedAbilities[2].id + 1])
+		forms.settext(abilityTwoDropdown, MiscData.Abilities[trackedAbilities[2].id])
 	end
 
 	forms.button(abilityForm, "Save && Close", function()
@@ -283,17 +288,18 @@ function Buttons.openAbilityNoteWindow()
 			local abilityTwoId = 0
 
 			-- If only one ability was entered in
-			if abilityOneText == MiscData.ability[1] then
+			if abilityOneText == Constants.BLANKLINE then
 				abilityOneText = abilityTwoText
+				abilityTwoText = Constants.BLANKLINE
 			end
 
 			-- TODO: Eventually put all this code in as a Tracker function()
 			-- Lookup ability id's from the master list of ability pokemon data
-			for id, ability in pairs(MiscData.ability) do
-				if abilityOneText == ability then
-					abilityOneId = id - 1
-				elseif abilityTwoText == ability then
-					abilityTwoId = id - 1
+			for id, abilityName in pairs(MiscData.Abilities) do
+				if abilityOneText == abilityName then
+					abilityOneId = id
+				elseif abilityTwoText == abilityName then
+					abilityTwoId = id
 				end
 			end
 
@@ -309,8 +315,8 @@ function Buttons.openAbilityNoteWindow()
 		forms.destroy(abilityForm)
 	end, 65, 95, 85, 25)
 	forms.button(abilityForm, "Clear", function()
-		forms.settext(abilityOneDropdown, MiscData.ability[1])
-		forms.settext(abilityTwoDropdown, MiscData.ability[1])
+		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
+		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
 	end, 160, 95, 55, 25)
 	forms.button(abilityForm, "Cancel", function()
 		client.unpause()
@@ -324,7 +330,7 @@ function Buttons.openNotePadWindow()
 
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() return end)
 	Utils.setFormLocation(noteForm, 100, 50)
-	forms.label(noteForm, "Enter a note for " .. PokemonData[pokemon.pokemonID + 1].name .. " (70 char. max):", 9, 10, 300, 20)
+	forms.label(noteForm, "Enter a note for " .. PokemonData[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 	
 	local saveButton = forms.button(noteForm, "Save", function()

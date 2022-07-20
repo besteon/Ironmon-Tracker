@@ -12,7 +12,7 @@ end
 
 function Drawing.drawPokemonIcon(id, x, y)
 	id = id or 0
-	if id < 0 or id > #PokemonData+1 then
+	if id < 0 or id > #PokemonData.Pokemon then
 		id = 0 -- Blank Pokemon data/icon
 	end
 
@@ -37,33 +37,22 @@ end
 
 --[[
 Draws text for the tracker on screen with a shadow effect. Uses the Franklin Gothic Medium family with a 9 point size.
-
 	x, y: integer -> pixel position for the text
-
 	text: string -> the text to output to the screen
-
 	color: string or integer -> the color for the text
-
 	shadowcolor: string or integer -> the color for the shadow effect drawn behind the text
-
 	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
 ]]
--- TODO: Look into Libre Franklin and Public Sans are free fonts based on Franklin Gothic
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
 	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
 	gui.drawText(x, y, text, color, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
-	-- gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.FONT.SIZE, Drawing.Constants.FONT.FAMILY, style)
-	-- gui.drawText(x, y, text, color, nil, Constants.FONT.SIZE, Drawing.Constants.FONT.FAMILY, style)
 end
 
 --[[
 Function that will add a space to a number so that the all the hundreds, tens and ones units are aligned if used
 with the RIGHT_JUSTIFIED_NUMBERS setting.
-
 	x, y: integer -> pixel position for the text
-
 	number: string | number -> number to draw (stats, move power, pp...)
-
 	spacing: number -> the number of digits the number can hold max; e.g. use 3 for a number that can be up to 3 digits.
 		Move power, accuracy, and stats should have a 3 for `spacing`.
 		PP should have 2 for `spacing`.
@@ -73,7 +62,7 @@ function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
 
 	if Options["Right justified numbers"] then
 		new_spacing = (spacing - string.len(tostring(number))) * 5
-		if number == "---" then new_spacing = 8 end
+		if number == Constants.BLANKLINE then new_spacing = 8 end
 	end
 
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
@@ -253,7 +242,7 @@ function Drawing.drawButtonBox(button, shadowcolor)
 end
 
 function Drawing.drawPokemonView(pokemon, opposingPokemon)
-	if pokemon == nil then
+	if pokemon == nil or pokemon.pokemonID == 0 then
 		pokemon = Tracker.getDefaultPokemon()
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
@@ -261,6 +250,13 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 		defaultPokemon.pokemonID = pokemon.pokemonID
 		defaultPokemon.level = pokemon.level
 		pokemon = defaultPokemon
+	end
+
+	local pokemonInfo
+	if pokemon.pokemonID ~= 0 then
+		pokemonInfo = PokemonData.Pokemon[pokemon.pokemonID]
+	else
+		pokemonInfo = PokemonData.BlankPokemon
 	end
 
 	-- Fill background and margins
@@ -275,8 +271,8 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 
 	Drawing.drawPokemonIcon(pokemon.pokemonID, Constants.SCREEN.WIDTH + 5, -1)
-	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[1], Constants.SCREEN.WIDTH + 6, 33)
-	Drawing.drawTypeIcon(PokemonData[pokemon.pokemonID + 1].type[2], Constants.SCREEN.WIDTH + 6, 45)
+	Drawing.drawTypeIcon(pokemonInfo.type[1], Constants.SCREEN.WIDTH + 6, 33)
+	Drawing.drawTypeIcon(pokemonInfo.type[2], Constants.SCREEN.WIDTH + 6, 45)
 
 	local colorbar = Theme.COLORS["Default text"]
 	if pokemon.stats.hp == 0 then
@@ -301,7 +297,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	local pkmnStatOffsetY = 10
 	-- Base Pokémon details
 	-- Pokémon name
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, PokemonData[pokemon.pokemonID + 1].name, Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemonInfo.name, Theme.COLORS["Default text"], boxTopShadow)
 	-- Settings gear
 	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + statBoxWidth - 9, 7, boxTopShadow)
 	-- HP
@@ -309,13 +305,13 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
 	-- Level and evolution
 	local levelDetails = "Lv." .. pokemon.level
-	local evolutionDetails = " (" .. PokemonData[pokemon.pokemonID + 1].evolution .. ")"
+	local evolutionDetails = " (" .. pokemonInfo.evolution .. ")"
 	local evoTextColor = Theme.COLORS["Default text"]
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
-	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemon) then
+	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemonInfo.evolution, pokemon.level) then
 		evoTextColor = Theme.COLORS["Positive text"]
-	elseif pokemon.friendship >= 220 and PokemonData[pokemon.pokemonID + 1].evolution == EvolutionTypes.FRIEND then
+	elseif pokemon.friendship >= 220 and pokemonInfo.evolution == PokemonData.Evolutions.FRIEND then
 		evolutionDetails = " (SOON)"
 		evoTextColor = Theme.COLORS["Positive text"]
 	end
@@ -355,43 +351,37 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
 			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, Tracker.Data.trainerID ~= pokemon.trainerID)
+			local isWild = Tracker.Data.trainerID == pokemon.trainerID
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
 			if encounterText > 9999 then encounterText = 9999 end
-			if Tracker.Data.trainerID ~= pokemon.trainerID then
-				encounterText = "Seen on trainers: " .. encounterText
-			else
+			if isWild then
 				encounterText = "Seen in the wild: " .. encounterText
+			else
+				encounterText = "Seen on trainers: " .. encounterText
 			end
 			Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, encounterText, Theme.COLORS["Default text"], boxTopShadow)
 		end
 	end
 
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 35, 67, "4", Theme.COLORS["Default text"], boxTopShadow)
-	-- local statusItems = Program.getBagStatusItems()
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, statusItems.poison, 0xFFFF00FF, boxTopShadow)
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 70, 57, statusItems.burn, 0xFFFF0000, boxTopShadow)
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 80, 57, statusItems.freeze, 0xFF0000FF, boxTopShadow)
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 60, 67, statusItems.sleep, "white", boxTopShadow)
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 70, 67, statusItems.paralyze, "yellow", boxTopShadow)
-	-- Drawing.drawText(Constants.SCREEN.WIDTH + 80, 67, statusItems.all, 0xFFFF00FF, boxTopShadow)
-
 	-- Draw Pokemon's held item and ability
-	local abilityStringTop = MiscData.ability[1]
-	local abilityStringBot = MiscData.ability[1]
+	local abilityStringTop = Constants.BLANKLINE
+	local abilityStringBot = Constants.BLANKLINE
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
 	if Tracker.Data.isViewingOwn then
-		abilityStringTop = MiscData.item[pokemon.heldItem + 1]
-		if pokemon.abilityId ~= nil then
-			abilityStringBot = MiscData.ability[pokemon.abilityId + 1]
+		if pokemon.heldItem ~= nil and pokemon.heldItem ~= 0 then
+			abilityStringTop = MiscData.Items[pokemon.heldItem]
+		end
+		if pokemon.abilityId ~= nil and pokemon.abilityId ~= 0 then
+			abilityStringBot = MiscData.Abilities[pokemon.abilityId]
 		end
 	else
 		if trackedAbilities[1].id ~= 0 then
-			abilityStringTop = MiscData.ability[trackedAbilities[1].id + 1] .. " /"
+			abilityStringTop = MiscData.Abilities[trackedAbilities[1].id] .. " /"
 			abilityStringBot = "?"
 		end
 		if trackedAbilities[2].id ~= 0 then
-			abilityStringBot = MiscData.ability[trackedAbilities[2].id + 1]
+			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
 		end
 	end
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], boxTopShadow)
@@ -412,7 +402,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			natureSymbol = "+"
 		elseif Tracker.Data.isViewingOwn and natureType == NatureTypes.NEGATIVE then
 			textColor = Theme.COLORS["Negative text"]
-			natureSymbol = "---"
+			natureSymbol = Constants.BLANKLINE
 		end
 
 		-- Draw stat label and nature symbol next to it
@@ -426,7 +416,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
 		if Tracker.Data.isViewingOwn then
-			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(pokemon.stats[statLabels[i]] == 0, "---", pokemon.stats[statLabels[i]]), 3, textColor, boxTopShadow)
+			Drawing.drawNumber(statOffsetX + 25, statOffsetY, Utils.inlineIf(pokemon.stats[statLabels[i]] == 0, Constants.BLANKLINE, pokemon.stats[statLabels[i]]), 3, textColor, boxTopShadow)
 		else
 			if Buttons[i].visible() and Buttons[i].type == ButtonType.singleButton then
 				Drawing.drawButtonBox(Buttons[i], boxTopShadow)
@@ -437,7 +427,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 
 	Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], boxTopShadow)
-	Drawing.drawText(statOffsetX + 25, statOffsetY, PokemonData[pokemon.pokemonID + 1].bst, Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(statOffsetX + 25, statOffsetY, pokemonInfo.bst, Theme.COLORS["Default text"], boxTopShadow)
 
 	local movesString = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
 
@@ -470,15 +460,20 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Determine which moves to show based on if the tracker is showing the enemy Pokémon or the player's.
 	-- If the Pokemon doesn't belong to the player, pull move data from tracked data
 	local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
-	local moves = {}
+	local moves = {
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+	}
 	for moveIndex = 1, 4, 1 do
 		if Tracker.Data.isViewingOwn then
-			moves[moveIndex] = MoveData[pokemon.moves[moveIndex].id]
-		else
-			if trackedMoves ~= nil and trackedMoves[moveIndex] ~= nil then
-				moves[moveIndex] = MoveData[trackedMoves[moveIndex].id]
-			else
-				moves[moveIndex] = MoveData[1]
+			if pokemon.moves[moveIndex] ~= nil and pokemon.moves[moveIndex].id ~= 0 then
+				moves[moveIndex] = MoveData.Moves[pokemon.moves[moveIndex].id]
+			end
+		elseif trackedMoves ~= nil then
+			 if trackedMoves[moveIndex] ~= nil and trackedMoves[moveIndex].id ~= 0 then
+				moves[moveIndex] = MoveData.Moves[trackedMoves[moveIndex].id]
 			end
 		end
 	end
@@ -488,12 +483,12 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 
 		-- Move category: physical, special, or status effect (and type color?)
 	for moveIndex = 1, 4, 1 do
-		local currentHiddenPowerCat = MoveTypeCategories[Tracker.Data.currentHiddenPowerType]
+		local currentHiddenPowerCat = MoveData.TypeToCategory[Tracker.Data.currentHiddenPowerType]
 		local category = Utils.inlineIf(moves[moveIndex].name == "Hidden Power", currentHiddenPowerCat, moves[moveIndex].category)
 
-		if Options["Show physical special icons"] and category == MoveCategories.PHYSICAL then
+		if Options["Show physical special icons"] and category == MoveData.Categories.PHYSICAL then
 			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, Constants.SCREEN.WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
-		elseif Options["Show physical special icons"] and category == MoveCategories.SPECIAL then
+		elseif Options["Show physical special icons"] and category == MoveData.Categories.SPECIAL then
 			Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, Constants.SCREEN.WIDTH + moveOffset, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), boxBotShadow)
 		end
 	end
@@ -515,7 +510,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			Drawing.drawText(HiddenPowerButton.box[1], HiddenPowerButton.box[2] + (HiddenPowerButton.box[4] - 12) / 2 + 1, HiddenPowerButton.text, Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, HiddenPowerButton.textcolor, Theme.COLORS["Default text"]), boxBotShadow)
 		else
 			-- Draw a small colored rectangle showing the color of the move type instead of painting over the text
-			if not Theme.MOVE_TYPES_ENABLED and moves[moveIndex].name ~= "---" then
+			if not Theme.MOVE_TYPES_ENABLED and moves[moveIndex].name ~= Constants.BLANKLINE then
 				gui.drawRectangle(Constants.SCREEN.WIDTH + nameOffset - 3, moveStartY + 2 + (distanceBetweenMoves * (moveIndex - 1)), 2, 7, moveColors[moveIndex], moveColors[moveIndex])
 			end
 			Drawing.drawText(Constants.SCREEN.WIDTH + nameOffset, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), moves[moveIndex].name .. stars[moveIndex], Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, moveColors[moveIndex], Theme.COLORS["Default text"]), boxBotShadow)
@@ -526,12 +521,12 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	for moveIndex = 1, 4, 1 do
 		local ppText = moves[moveIndex].pp -- Set to move's max PP value
 		-- check if any pp has been used and it should be revealed
-		if moves[moveIndex].pp ~= NOPP then
+		if moves[moveIndex].pp ~= Constants.NO_PP then
 			if Tracker.Data.isViewingOwn then
 				ppText = pokemon.moves[moveIndex].pp
 			elseif Options["Count enemy PP usage"] then
 				for _, move in pairs(pokemon.moves) do
-					if (tonumber(move.id) - 1) == tonumber(moves[moveIndex].id) then
+					if tonumber(move.id) == tonumber(moves[moveIndex].id) then
 						ppText = move.pp
 					end
 				end
@@ -543,7 +538,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Move attack power
 	local stabColors = {}
 	for moveIndex = 1, 4, 1 do
-		local showStabColor = Tracker.Data.inBattle and Utils.isSTAB(moves[moveIndex], PokemonData[pokemon.pokemonID + 1].type)
+		local showStabColor = Tracker.Data.inBattle and Utils.isSTAB(moves[moveIndex], pokemonInfo.type)
 		table.insert(stabColors, Utils.inlineIf(showStabColor, Theme.COLORS["Positive text"], Theme.COLORS["Default text"]))
 	end
 	for moveIndex = 1, 4, 1 do
@@ -552,7 +547,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			local newPower = movePower
 			if movePower == "WT" and Tracker.Data.inBattle and opposingPokemon ~= nil then
 				-- Calculate the power of weight moves in battle
-				local targetWeight = PokemonData[opposingPokemon.pokemonID + 1].weight
+				local targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
 				newPower = Utils.calculateWeightBasedDamage(targetWeight)
 			elseif movePower == "<HP" and Tracker.Data.isViewingOwn then
 				-- Calculate the power of flail & reversal moves for player only
@@ -577,7 +572,7 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	-- Move effectiveness against the opponent
 	if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil then
 		for moveIndex = 1, 4, 1 do
-			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData[opposingPokemon.pokemonID + 1].type)
+			local effectiveness = Utils.netEffectiveness(moves[moveIndex], PokemonData.Pokemon[opposingPokemon.pokemonID].type)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + powerOffset - 7, moveStartY + (distanceBetweenMoves * (moveIndex - 1)), "X", Theme.COLORS["Negative text"], boxBotShadow)
 			else
@@ -745,7 +740,7 @@ function Drawing.drawInfoScreen()
 	if InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO then
 		-- Only draw valid pokemon data
 		local pokemonID = InfoScreen.infoLookup -- pokemonID = 0 is blank move data
-		if pokemonID <= 0 or pokemonID > 412 then
+		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
 			Program.state = State.TRACKER
 			Program.waitToDrawFrames = 0
 			return
@@ -755,7 +750,7 @@ function Drawing.drawInfoScreen()
 	elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
 		-- Only draw valid move data
 		local moveId = InfoScreen.infoLookup -- moveId = 1 is blank move data
-		if moveId <= 1 or moveId > 355 then
+		if moveId < 1 or moveId > #MoveData.Moves then
 			Program.state = State.TRACKER
 			Program.waitToDrawFrames = 0
 			return
@@ -781,7 +776,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local linespacing = 10
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
-	local pokemon = PokemonData[pokemonID + 1] -- +1 necessary because the first entry is blank Pokemon Data
+	local pokemon = PokemonData.Pokemon[pokemonID]
 	local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 
@@ -807,7 +802,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	if pokemon.type[2] ~= PokemonTypes.EMPTY then
+	if pokemon.type[2] ~= PokemonData.Types.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
@@ -877,12 +872,12 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 
 	-- WEAK TO
 	local weaknesses = {}
-	for moveType, typeEffectiveness in pairs(EffectiveData) do
+	for moveType, typeEffectiveness in pairs(MoveData.TypeToEffectiveness) do
 		local effectiveness = 1
-		if pokemon.type[1] ~= PokemonTypes.EMPTY and typeEffectiveness[pokemon.type[1]] ~= nil then
+		if pokemon.type[1] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[1]] ~= nil then
 			effectiveness = effectiveness * typeEffectiveness[pokemon.type[1]]
 		end
-		if pokemon.type[2] ~= PokemonTypes.EMPTY and typeEffectiveness[pokemon.type[2]] ~= nil then
+		if pokemon.type[2] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[2]] ~= nil then
 			effectiveness = effectiveness * typeEffectiveness[pokemon.type[2]]
 		end
 		if effectiveness > 1 then
@@ -893,7 +888,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + linespacing + 3
 
 	if #weaknesses == 0 then -- If the Pokemon has no weakness, like Sableye
-		table.insert(weaknesses, PokemonTypes.UNKNOWN)
+		table.insert(weaknesses, PokemonData.Types.UNKNOWN)
 	end
 
 	local typeOffsetX = offsetX + 6
@@ -929,7 +924,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local linespacing = 10
 	local botOffsetY = offsetY + (linespacing * 7) - 2 + 9
 
-	local move = MoveData[moveId]
+	local move = MoveData.Moves[moveId]
 	local moveType = move.type
 	local moveCat = move.category
 
@@ -953,7 +948,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	-- If the move is Hidden Power, use its tracked type/category instead
 	if moveId == 237 + 1 then
 		moveType = Tracker.Data.currentHiddenPowerType
-		moveCat = MoveTypeCategories[moveType]
+		moveCat = MoveData.TypeToCategory[moveType]
 		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 	
@@ -969,15 +964,15 @@ function Drawing.drawMoveInfoScreen(moveId)
 
 	-- CATEGORY
 	local categoryInfo = ""
-	if moveCat == MoveCategories.PHYSICAL then
+	if moveCat == MoveData.Categories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
 		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
-	elseif moveCat == MoveCategories.SPECIAL then
+	elseif moveCat == MoveData.Categories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
 		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
-	elseif moveCat == MoveCategories.STATUS then
+	elseif moveCat == MoveData.Categories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
-	else categoryInfo = categoryInfo .. "---" end
+	else categoryInfo = categoryInfo .. Constants.BLANKLINE end
 	Drawing.drawText(offsetX, offsetY, "Category:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, categoryInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
@@ -989,16 +984,16 @@ function Drawing.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- PP
-	local ppInfo = Utils.inlineIf(move.pp == NOPP, "---", move.pp)
+	local ppInfo = Utils.inlineIf(move.pp == Constants.NO_PP, Constants.BLANKLINE, move.pp)
 	Drawing.drawText(offsetX, offsetY, "PP:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, ppInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	-- local isStab = Utils.isSTAB(move, PokemonData[pokemonViewed.pokemonID + 1].type)
+	-- local isStab = Utils.isSTAB(move, PokemonData.Pokemon[pokemonViewed.pokemonID].type)
 	local powerInfo = move.power
-	if move.power == NOPOWER then
-		powerInfo = "---"
+	if move.power == Constants.NO_POWER then
+		powerInfo = Constants.BLANKLINE
 	-- elseif isStab then
 	-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
@@ -1007,7 +1002,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
-	local accuracyInfo = Utils.inlineIf(move.accuracy == PLACEHOLDER, "---", move.accuracy .. "%")
+	local accuracyInfo = move.accuracy .. Utils.inlineIf(move.accuracy ~= Constants.BLANKLINE, "%", "")
 	Drawing.drawText(offsetX, offsetY, "Accuracy:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, accuracyInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing

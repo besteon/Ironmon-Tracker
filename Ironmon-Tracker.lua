@@ -4,9 +4,6 @@
 -- The latest version of the tracker. Should be updated with each PR.
 TRACKER_VERSION = "0.5.3"
 
--- A frequently used placeholder when a data field is not applicable
-PLACEHOLDER = "---" -- TODO: Consider moving into a better global constant location? Placed here for now to ensure it is available to all subscripts.
-
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
 -- Check the version of BizHawk that is running
@@ -31,12 +28,12 @@ if file ~= nil then
 end
 
 -- Import all scripts before starting the main loop
+dofile(DATA_FOLDER .. "/Constants.lua")
 dofile(DATA_FOLDER .. "/PokemonData.lua")
 dofile(DATA_FOLDER .. "/MoveData.lua")
-dofile(DATA_FOLDER .. "/Data.lua")
+dofile(DATA_FOLDER .. "/MiscData.lua")
 dofile(DATA_FOLDER .. "/Memory.lua")
 dofile(DATA_FOLDER .. "/GameSettings.lua")
-dofile(DATA_FOLDER .. "/Constants.lua")
 dofile(DATA_FOLDER .. "/InfoScreen.lua")
 dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Theme.lua")

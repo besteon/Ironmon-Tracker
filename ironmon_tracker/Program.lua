@@ -215,10 +215,10 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local magicword = bit.bxor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
 	local aux          = personality % 24
-	local growthoffset = (TableData.growth[aux + 1] - 1) * 12
-	local attackoffset = (TableData.attack[aux + 1] - 1) * 12
-	local effortoffset = (TableData.effort[aux + 1] - 1) * 12
-	local miscoffset   = (TableData.misc[aux + 1] - 1) * 12
+	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
+	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
+	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -291,10 +291,10 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		},
 		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
 		moves = {
-			{ id = Utils.getbits(attack1, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 0, 8) },
-			{ id = Utils.getbits(attack1, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 8, 8) },
-			{ id = Utils.getbits(attack2, 0, 16) + 1, level = 1, pp = Utils.getbits(attack3, 16, 8) },
-			{ id = Utils.getbits(attack2, 16, 16) + 1, level = 1, pp = Utils.getbits(attack3, 24, 8) },
+			{ id = Utils.getbits(attack1, 0, 16), level = 1, pp = Utils.getbits(attack3, 0, 8) },
+			{ id = Utils.getbits(attack1, 16, 16), level = 1, pp = Utils.getbits(attack3, 8, 8) },
+			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
+			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
 
 		-- Unused data that can be added back in later
@@ -334,7 +334,8 @@ function Program.updateBattleDataFromMemory()
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
 			opposingPokemon.hasBeenEncountered = true
-			Tracker.TrackEncounter(opposingPokemon.pokemonID, Tracker.Data.trainerID ~= opposingPokemon.trainerID) -- equal IDs = wild pokemon, nonequal = trainer
+			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
+			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 		end
 
 		-- ABILITIES: TODO: Not all games/versions supported
@@ -357,7 +358,7 @@ function Program.updateBattleDataFromMemory()
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 		for _, move in pairs(opposingPokemon.moves) do
-			if move.pp ~= tonumber(MoveData[move.id].pp) then
+			if move.pp ~= tonumber(MoveData.Moves[move.id].pp) then
 				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
 			end
 		end
@@ -368,7 +369,7 @@ function Program.updateBattleDataFromMemory()
 			
 		-- 	-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
 		-- 	if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
-		-- 		Program.handleAttackMove(264 + 1, Tracker.Data.otherViewSlot, false)
+		-- 		Program.handleAttackMove(264, Tracker.Data.otherViewSlot, false)
 		-- 	end
 		-- end
 	end
@@ -583,7 +584,7 @@ function Program.handleAttackMove(moveId, slotNumber, isOwn)
 					Tracker.TrackMove(pokemon.pokemonID, moveId, pokemon.level)
 				end
 			end
-		elseif moveId == 19 or moveId == 47 then
+		elseif moveId == 18 or moveId == 46 then -- 18 = Whirlwind, 46 = Roar
 			-- Account for niche scenario of force-switch moves being used while transformed
 			Program.transformedPokemon.forceSwitch = true
 		elseif Program.transformedPokemon.forceSwitch then
@@ -592,7 +593,7 @@ function Program.handleAttackMove(moveId, slotNumber, isOwn)
 		end
 
 		-- This comes after so transform itself gets tracked
-		if moveId == 145 then
+		if moveId == 144 then -- 144 = Transform
 			Program.transformedPokemon.isTransformed = true
 		end
 	end
@@ -623,7 +624,7 @@ function Program.validPokemonData(pokemonData)
 	if pokemonData == nil then return false end
 
 	-- If the Pokemon exists, but it's ID is invalid
-	if pokemonData.pokemonID ~= nil and (pokemonData.pokemonID < 0 or pokemonData.pokemonID > 412) then
+	if pokemonData.pokemonID ~= nil and (pokemonData.pokemonID < 0 or pokemonData.pokemonID > #PokemonData.Pokemon) then
 		return false
 	end
 
@@ -634,7 +635,7 @@ function Program.validPokemonData(pokemonData)
 
 	-- For each of the Pokemon's moves, is that move invalid
 	for _, move in pairs(pokemonData.moves) do
-		if move.id < 1 or move.id > 355 then -- offset with +1 since that is being added to moveId when we read data from memory
+		if move.id < 1 or move.id > #MoveData.Moves then
 			return false
 		end
 	end
@@ -673,16 +674,16 @@ function Program.calcBagHealingItemsFromMemory(pokemonMaxHP)
 
 	-- for _, item in pairs(MiscData.healingItems) do
 	for itemID, quantity in pairs(healingItemsInBag) do
-		local healItemData = MiscData.healingItems[itemID]
+		local healItemData = MiscData.HealingItems[itemID]
 		if healItemData ~= nil and quantity > 0 then
 			local healingPercentage = 0
-			if healItemData.type == HealingType.Constant then
+			if healItemData.type == MiscData.HealingType.Constant then
 				local percentage = healItemData.amount / pokemonMaxHP * 100
 				if percentage > 100 then
 					percentage = 100
 				end
 				healingPercentage = percentage * quantity
-			elseif healItemData.type == HealingType.Percentage then
+			elseif healItemData.type == MiscData.HealingType.Percentage then
 				healingPercentage = healItemData.amount * quantity
 			end
 			-- Healing is in a percentage compared to the mon's max HP
@@ -699,55 +700,7 @@ function Program.calcBagHealingItemsFromMemory(pokemonMaxHP)
 	return totals
 end
 
--- Currently unused. Requires a rewrite to use the new Program.getHealingItemsFromMemory() function
--- function Program.getBagStatusItems()
--- 	local statusItems = {
--- 		poison = 0,
--- 		burn = 0,
--- 		freeze = 0,
--- 		sleep = 0,
--- 		paralyze = 0,
--- 		confuse = 0,
--- 		all = 0,
--- 	}
-
--- 	for _, item in pairs(MiscData.statusItems) do
--- 		local quantity = Program.getNumItemsFromMemory(item.pocket, item.id)
--- 		if quantity > 0 then
--- 			print(item.name)
--- 			if item.type == StatusType.Poison then
--- 				statusItems.poison = statusItems.poison + quantity
--- 			elseif item.type == StatusType.Burn then
--- 				statusItems.burn = statusItems.burn + quantity
--- 			elseif item.type == StatusType.Freeze then
--- 				statusItems.freeze = statusItems.freeze + quantity
--- 			elseif item.type == StatusType.Sleep then
--- 				statusItems.sleep = statusItems.sleep + quantity
--- 			elseif item.type == StatusType.Paralyze then
--- 				statusItems.paralyze = statusItems.paralyze + quantity
--- 			elseif item.type == StatusType.Confuse then
--- 				statusItems.confuse = statusItems.confuse + quantity
--- 			elseif item.type == StatusType.All then
--- 				statusItems.all = statusItems.all + quantity
--- 			end
--- 			print(statusItems)
--- 		end
--- 	end
-
--- 	return statusItems
--- end
-
 function Program.getHealingItemsFromMemory()
-	-- TODO: Definitely need to update this based on the battle-check info below Issue #37
-	-- battle can be set a few frames before item bag for battle gets updated, need to check this value as well
-	-- local startAddress = Utils.inlineIf(Tracker.Data.inBattle, GameSettings.itemStartBattle, GameSettings.itemStartNoBattle)
-	-- local itemid_and_quantity = Memory.readdword(GameSettings.bagPocket_Items)
-	-- local itemid = Utils.getbits(itemid_and_quantity, 0, 16)
-	-- local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-	-- if quantity > 1000 or itemid > 600 then
-	-- 	startAddress = GameSettings.itemStartNoBattle
-	-- end
-
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
 	local key = nil -- Ruby/Sapphire don't have an encryption key
 	if GameSettings.EncryptionKeyOffset ~= 0 then
@@ -766,7 +719,7 @@ function Program.getHealingItemsFromMemory()
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 and MiscData.healingItems[itemID] ~= nil then
+			if itemID ~= 0 and MiscData.HealingItems[itemID] ~= nil then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
 				if key ~= nil then quantity = bit.bxor(quantity, key) end
 				healingItems[itemID] = quantity

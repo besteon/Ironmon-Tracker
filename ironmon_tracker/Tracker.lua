@@ -31,7 +31,7 @@ function Tracker.InitTrackerData()
 			numHeals = 0,
 		},
 		badges = {0,0,0,0,0,0,0,0},
-		currentHiddenPowerType = PokemonTypes.NORMAL,
+		currentHiddenPowerType = PokemonData.Types.NORMAL,
 		romHash = nil,
 	}
 	return trackerData
@@ -137,9 +137,9 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	if trackedPokemon.moves == nil then
 		trackedPokemon.moves = {
 			{ id = moveId, level = level },
-			{ id = 1, level = 1 },
-			{ id = 1, level = 1 },
-			{ id = 1, level = 1 },
+			{ id = 0, level = 1 },
+			{ id = 0, level = 1 },
+			{ id = 0, level = 1 },
 		}
 	else
 		-- First check if the move has been seen before
@@ -171,17 +171,17 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	end
 end
 
--- isTrainerPokemon: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
-function Tracker.TrackEncounter(pokemonID, isTrainerPokemon)
+-- isWild: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
+function Tracker.TrackEncounter(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		trackedPokemon.encounters = { wild = 0, trainer = 0 }
 	end
 
-	if isTrainerPokemon then
-		trackedPokemon.encounters.trainer = trackedPokemon.encounters.trainer + 1
-	else
+	if isWild then
 		trackedPokemon.encounters.wild = trackedPokemon.encounters.wild + 1
+	else
+		trackedPokemon.encounters.trainer = trackedPokemon.encounters.trainer + 1
 	end
 end
 
@@ -217,10 +217,10 @@ function Tracker.getMoves(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
 		return {
-			{ id = 1, level = 1 },
-			{ id = 1, level = 1 },
-			{ id = 1, level = 1 },
-			{ id = 1, level = 1 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
 		}
 	else
 		return trackedPokemon.moves
@@ -251,14 +251,14 @@ function Tracker.getStatMarkings(pokemonID)
 end
 
 -- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
-function Tracker.getEncounters(pokemonID, isTrainerPokemon)
+function Tracker.getEncounters(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		return 0
-	elseif isTrainerPokemon ~= nil and isTrainerPokemon then
-		return trackedPokemon.encounters.trainer
-	else
+	elseif isWild then
 		return trackedPokemon.encounters.wild
+	else
+		return trackedPokemon.encounters.trainer
 	end
 end
 
@@ -286,10 +286,10 @@ function Tracker.getDefaultPokemon()
 		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
 		moves = {
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
-			{ id = 1, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
 		},
 	}
 

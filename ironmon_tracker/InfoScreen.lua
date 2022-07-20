@@ -85,10 +85,10 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	local moveName = MoveData[InfoScreen.infoLookup].name -- infoLookup = moveId
+	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
-	for id, data in pairs(MoveData) do
-		if data.name ~= "---" then
+	for id, data in pairs(MoveData.Moves) do
+		if data.name ~= Constants.BLANKLINE then
 			table.insert(allmovesData, data.name)
 		end
 	end
@@ -104,7 +104,7 @@ function InfoScreen.openMoveInfoWindow()
 		local moveName = forms.gettext(moveDropdown)
 		local moveId
 
-		for id, data in pairs(MoveData) do
+		for id, data in pairs(MoveData.Moves) do
 			if data.name == moveName then
 				moveId = id
 			end
@@ -121,10 +121,10 @@ function InfoScreen.openMoveInfoWindow()
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	local pokemonName = PokemonData[InfoScreen.infoLookup + 1].name -- infoLookup = pokemonID
+	local pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name -- infoLookup = pokemonID
 	local pokedexData = {}
-	for id, data in pairs(PokemonData) do
-		if data.bst ~= "---" then
+	for id, data in pairs(PokemonData.Pokemon) do
+		if data.bst ~= Constants.BLANKLINE then
 			table.insert(pokedexData, data.name)
 		end
 	end
@@ -140,9 +140,9 @@ function InfoScreen.openPokemonInfoWindow()
 		local pokemonName = forms.gettext(pokedexDropdown)
 		local pokemonId
 
-		for id, data in pairs(PokemonData) do
+		for id, data in pairs(PokemonData.Pokemon) do
 			if data.name == pokemonName then
-				pokemonId = id - 1 -- subtract 1 because PokemonData's first element is blank data
+				pokemonId = id
 			end
 		end
 
