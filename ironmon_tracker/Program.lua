@@ -693,11 +693,6 @@ function Program.calcBagHealingItemsFromMemory(pokemonMaxHP)
 		end
 	end
 
-	-- Sanity checking, because for some reason gSaveBlock2Ptr
-	if totals.healing > 1000000 then
-		return nil
-	end
-
 	return totals
 end
 
