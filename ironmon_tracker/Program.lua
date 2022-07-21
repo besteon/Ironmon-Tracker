@@ -360,15 +360,16 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 
-		-- TODO: Disabling this for now as it triggers when your pokemon or enemy pokemon trigger Focus Punch animation. Similar concern to tracking abilitys info and revealing too much
-		-- if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-		-- 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
+			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
+			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 			
-		-- 	-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-		-- 	if battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
-		-- 		Program.handleAttackMove(264, Tracker.Data.otherViewSlot, false)
-		-- 	end
-		-- end
+			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
+			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
+				Program.handleAttackMove(264, Tracker.Data.otherViewSlot, false)
+			end
+		end
 	end
 end
 
