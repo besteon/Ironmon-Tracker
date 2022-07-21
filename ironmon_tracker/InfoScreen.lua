@@ -11,60 +11,66 @@ InfoScreen.SCREENS = {
 InfoScreen.viewScreen = nil
 InfoScreen.infoLookup = 0 -- Either a PokemonID or a MoveID
 
--- A button to choose any Move from the full move list to be viewed on the info screen
-InfoScreen.lookupMoveButton = {
-	text = "?",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		InfoScreen.openMoveInfoWindow()
-	end
-}
-
--- A button to choose any Pokemon from the Pokedex to be viewed on the info screen
-InfoScreen.lookupPokemonButton = {
-	text = "?",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		InfoScreen.openPokemonInfoWindow()
-	end
-}
-
--- A button to navigate to the next Pokemon being viewed on the info screen
-InfoScreen.nextButton = {
-	text = ">",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		InfoScreen.showNextPokemon()
-	end
-}
-
--- A button to navigate to the previous Pokemon being viewed on the info screen
-InfoScreen.prevButton = {
-	text = "<",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 86, 20, 10, 10, },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		InfoScreen.showNextPokemon(-1)
-	end
-}
-
--- A button to close the info screen
-InfoScreen.closeButton = {
-	text = "Close",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 38, Constants.SCREEN.HEIGHT - 19, 29, 11, },
-	boxColors = { "Lower box border", "Lower box background" },
-	onClick = function()
-		Program.state = State.TRACKER
-		Program.frames.waitToDraw = 0
-	end
+InfoScreen.buttons = {
+	lookupMove = {
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
+		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 90, 20, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.openMoveInfoWindow()
+		end
+	},
+	lookupPokemon = {
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
+		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.openPokemonInfoWindow()
+		end
+	},
+	nextPokemon = {
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
+		image = Constants.PIXEL_IMAGES.NEXT_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.showNextPokemon()
+		end
+	},
+	previousPokemon = {
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
+		image = Constants.PIXEL_IMAGES.PREVIOUS_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 86, 20, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.showNextPokemon(-1)
+		end
+	},
+	close = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Close",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 116, 141, 25, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		onClick = function(self)
+			Program.state = State.TRACKER
+			Program.frames.waitToDraw = 0
+		end
+	},
 }
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
@@ -98,6 +104,8 @@ function InfoScreen.openMoveInfoWindow()
 	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
+	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
 	forms.settext(moveDropdown, moveName)
 
 	forms.button(moveLookup, "Look up", function()
@@ -134,6 +142,8 @@ function InfoScreen.openPokemonInfoWindow()
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
+	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
 	forms.button(pokedexLookup, "Look up", function()

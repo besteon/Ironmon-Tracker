@@ -10,6 +10,7 @@ Constants.SCREEN = {
 	UP_GAP = 0,
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
+	MARGIN = 5,
 	BADGE_X_POS = 247,
 	BADGE_Y_POS = 138,
 	BADGE_WIDTH = 16,
@@ -25,6 +26,22 @@ Constants.TRACKER_DATA_EXTENSION = ".tdat"
 Constants.PORTAIT_FOLDER_EXTENSIONS = {
 	pokemon = ".gif",
 	pokemonStadium = ".png"
+}
+
+Constants.BUTTON_TYPES = {
+	FULL_BORDER = 1,
+	NO_BORDER = 2,
+	CHECKBOX = 3,
+	COLORPICKER = 4,
+	IMAGE = 5,
+	PIXELIMAGE = 6,
+	STAT_STAGE = 7,
+}
+
+Constants.STAT_STATES = {
+	[0] = { text = "", textColor = "Default text" },
+	[1] = { text = "+", textColor = "Positive text" },
+	[2] = { text = "--", textColor = "Negative text" },
 }
 
 Constants.COLORS = {
@@ -52,6 +69,14 @@ Constants.COLORS = {
 }
 
 Constants.ORDERED_LISTS = {
+	STATSTAGES = {
+		"hp",
+		"atk",
+		"def",
+		"spa",
+		"spd",
+		"spe",
+	},
 	OPTIONS = {
 		"Auto swap to enemy",
 		"Hide stats until summary shown",

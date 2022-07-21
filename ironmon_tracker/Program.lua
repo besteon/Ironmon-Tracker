@@ -7,7 +7,6 @@ State = {
 
 Program = {
 	state = State.TRACKER,
-	PCHealTrackingButtonState = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	lastSeenEnemyAbilityId = 0,
@@ -19,15 +18,6 @@ Program.frames = {
 	half_sec_update = 30,
 	three_sec_update = 180,
 	saveData = 3600,
-}
-
-Program.StatButtonState = {
-	hp = 1,
-	atk = 1,
-	def = 1,
-	spa = 1,
-	spd = 1,
-	spe = 1
 }
 
 Program.transformedPokemon = {
@@ -46,13 +36,10 @@ function Program.main()
 		if Program.frames.waitToDraw == 0 then
 			Program.frames.waitToDraw = 30
 
+			TrackerScreen.updateButtonStates()
+
 			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-			if opposingPokemon ~= nil then
-				Program.StatButtonState = Tracker.getStatMarkings(opposingPokemon.pokemonID)
-				Buttons = Program.updateButtons(Program.StatButtonState)
-			end
 
 			-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 			if Tracker.Data.isViewingOwn then
@@ -70,13 +57,13 @@ function Program.main()
 		end
 	elseif Program.state == State.SETTINGS then
 		if Options.redraw then
-			Drawing.drawSettings()
+			Drawing.drawOptionsScreen()
 			Options.redraw = false
 		end
 	elseif Program.state == State.THEME then
 		if Theme.redraw and Program.frames.waitToDraw == 0 then
 			Program.frames.waitToDraw = 5
-			Drawing.drawThemeMenu()
+			Drawing.drawThemeScreen()
 			Theme.redraw = false
 		elseif Program.frames.waitToDraw > 0 then -- Required because of Theme.redraw check
 			Program.frames.waitToDraw = Program.frames.waitToDraw - 1
@@ -118,7 +105,7 @@ function Program.updateTrackedAndCurrentData()
 			end
 		
 			-- Reset the controller's position when a new pokemon is sent out
-			Tracker.controller.statIndex = 6
+			Input.controller.statIndex = 6
 
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.frames.waitToDraw = 0
@@ -189,7 +176,7 @@ function Program.updatePokemonTeamsFromMemory()
 				if not Tracker.Data.inBattle then
 					for _, move in pairs(newPokemonData.moves) do
 						if move.id ~= 0 then
-							move.pp = MoveData.Moves[move.id].pp -- set value to max PP
+							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
 						end
 					end
 				end
@@ -368,7 +355,7 @@ function Program.updateBattleDataFromMemory()
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 		for _, move in pairs(opposingPokemon.moves) do
-			if move.pp < tonumber(MoveData.Moves[move.id].pp) then
+			if move.id ~= 0 and move.pp < tonumber(MoveData.Moves[move.id].pp) then
 				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
 			end
 		end
@@ -454,7 +441,7 @@ function Program.beginNewBattle(isWild)
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
-	Tracker.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
+	Input.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.state == State.INFOSCREEN then
@@ -496,22 +483,6 @@ function Program.endBattle(isWild)
 	Program.frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
 end
 
-function Program.updateButtons(state)
-	Buttons[1].text = StatButtonStates[state["hp"]]
-	Buttons[2].text = StatButtonStates[state["atk"]]
-	Buttons[3].text = StatButtonStates[state["def"]]
-	Buttons[4].text = StatButtonStates[state["spa"]]
-	Buttons[5].text = StatButtonStates[state["spd"]]
-	Buttons[6].text = StatButtonStates[state["spe"]]
-	Buttons[1].textcolor = StatButtonColors[state["hp"]]
-	Buttons[2].textcolor = StatButtonColors[state["atk"]]
-	Buttons[3].textcolor = StatButtonColors[state["def"]]
-	Buttons[4].textcolor = StatButtonColors[state["spa"]]
-	Buttons[5].textcolor = StatButtonColors[state["spd"]]
-	Buttons[6].textcolor = StatButtonColors[state["spe"]]
-	return Buttons
-end
-
 function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
@@ -535,7 +506,7 @@ function Program.updatePCHealsFromMemory()
 		-- Update the local tally if there is a new heal
 		Tracker.Data.gameStatsHeals = combinedHeals
 		-- Only change the displayed PC Heals count when the option is on and auto-tracking is enabled
-		if Options["Track PC Heals"] and Program.PCHealTrackingButtonState then
+		if Options["Track PC Heals"] and TrackerScreen.buttons.PCHealAutoTracking.toggleState then
 			if Options["PC heals count downward"] then
 				-- Automatically count down
 				Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
@@ -564,7 +535,6 @@ function Program.updateBadgesObtainedFromMemory()
 		for i = 1, 8, 1 do
 			Tracker.Data.badges[i] = Utils.getbits(badgeBits, i - 1, 1)
 		end
-		Buttons.updateBadges()
 	end
 end
 
@@ -621,7 +591,7 @@ function Program.isInCatchingTutorial()
 	return Program.inCatchingTutorial
 end
 
--- Pokemon is valid if it has a valid id, helditem, and each move is real.
+-- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
 function Program.validPokemonData(pokemonData)
 	if pokemonData == nil then return false end
 
@@ -635,9 +605,9 @@ function Program.validPokemonData(pokemonData)
 		return false
 	end
 
-	-- For each of the Pokemon's moves, is that move invalid
+	-- For each of the Pokemon's moves that isn't blank, is that move real
 	for _, move in pairs(pokemonData.moves) do
-		if move.id < 1 or move.id > #MoveData.Moves then
+		if move.id < 0 or move.id > #MoveData.Moves then -- 0 = blank move id
 			return false
 		end
 	end

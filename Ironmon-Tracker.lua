@@ -39,7 +39,7 @@ dofile(DATA_FOLDER .. "/Options.lua")
 dofile(DATA_FOLDER .. "/Theme.lua")
 dofile(DATA_FOLDER .. "/ColorPicker.lua")
 dofile(DATA_FOLDER .. "/Utils.lua")
-dofile(DATA_FOLDER .. "/Buttons.lua")
+dofile(DATA_FOLDER .. "/TrackerScreen.lua")
 dofile(DATA_FOLDER .. "/Input.lua")
 dofile(DATA_FOLDER .. "/Drawing.lua")
 dofile(DATA_FOLDER .. "/Program.lua")
@@ -58,12 +58,8 @@ function Main.Run()
 		emu.frameadvance()
 	end
 
-	Options.buildTrackerOptionsButtons()
-	Options.loadOptions()
-	Theme.buildTrackerThemeButtons()
-	Theme.loadTheme()
-
 	GameSettings.initialize()
+
 	if GameSettings.game == 0 then
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
@@ -71,8 +67,11 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		Options.initialize()
+		Theme.initialize()
 		Tracker.loadData()
-		Buttons.initializeBadgeButtons()
+		TrackerScreen.initialize()
+
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
 
