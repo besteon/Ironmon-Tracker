@@ -514,7 +514,7 @@ end
 function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
-	local gameStatsAddr = saveBlock1Addr GameSettings.gameStatsOffset
+	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 	
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
@@ -522,10 +522,8 @@ function Program.updatePCHealsFromMemory()
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Memory.readdword(gameStatsAddr + 16 * 0x4)
 
-	if GameSettings.EncryptionKeyOffset ~= 0 then
-		-- Need to decrypt the data in FRLG/Emerald
-		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-		local key = Memory.readdword(saveBlock2addr + GameSettings.EncryptionKeyOffset)
+	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
+	if key ~= nil then 
 		gameStat_UsedPokecenter = bit.bxor(gameStat_UsedPokecenter, key)
 		gameStat_RestedAtHome = bit.bxor(gameStat_RestedAtHome, key)
 	end
@@ -705,11 +703,7 @@ end
 
 function Program.getHealingItemsFromMemory()
 	-- I believe this key has to be looked-up each time, as the ptr changes periodically
-	local key = nil -- Ruby/Sapphire don't have an encryption key
-	if GameSettings.EncryptionKeyOffset ~= 0 then
-		local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-		key = Memory.readword(saveBlock2addr + GameSettings.EncryptionKeyOffset)
-	end
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 
 	local healingItems = {}
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
