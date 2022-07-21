@@ -303,7 +303,7 @@ function Utils.pokemonHasMove(pokemon, moveName)
 	if pokemon == nil or moveName == nil then return false end
 
 	for _, move in pairs(pokemon.moves) do
-		if moveName == MoveData.Moves[move.id].name then
+		if move.id ~= 0 and moveName == MoveData.Moves[move.id].name then
 			return true
 		end
 	end

@@ -644,7 +644,7 @@ function Drawing.drawInfoScreen()
 		Drawing.drawPokemonInfoScreen(pokemonID)
 	elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
 		-- Only draw valid move data
-		local moveId = InfoScreen.infoLookup -- moveId = 1 is blank move data
+		local moveId = InfoScreen.infoLookup -- moveId = 0 is blank move data
 		if moveId < 1 or moveId > #MoveData.Moves then
 			Program.state = State.TRACKER
 			Program.waitToDrawFrames = 0

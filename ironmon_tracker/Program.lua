@@ -355,7 +355,7 @@ function Program.updateBattleDataFromMemory()
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 		for _, move in pairs(opposingPokemon.moves) do
-			if move.pp < tonumber(MoveData.Moves[move.id].pp) then
+			if move.id ~= 0 and move.pp < tonumber(MoveData.Moves[move.id].pp) then
 				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
 			end
 		end
@@ -599,7 +599,7 @@ function Program.isInCatchingTutorial()
 	return Program.inCatchingTutorial
 end
 
--- Pokemon is valid if it has a valid id, helditem, and each move is real.
+-- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
 function Program.validPokemonData(pokemonData)
 	if pokemonData == nil then return false end
 
@@ -613,9 +613,9 @@ function Program.validPokemonData(pokemonData)
 		return false
 	end
 
-	-- For each of the Pokemon's moves, is that move invalid
+	-- For each of the Pokemon's moves that isn't blank, is that move real
 	for _, move in pairs(pokemonData.moves) do
-		if move.id < 1 or move.id > #MoveData.Moves then
+		if move.id < 0 or move.id > #MoveData.Moves then -- 0 = blank move id
 			return false
 		end
 	end
