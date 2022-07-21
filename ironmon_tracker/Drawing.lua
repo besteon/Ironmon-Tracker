@@ -217,116 +217,70 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 	end
 
 	-- Add in Pokedex information about the Pokemon
-	local pokedexInfo
-	if pokemon.pokemonID ~= 0 then
-		pokedexInfo = PokemonData.Pokemon[pokemon.pokemonID]
-	else
-		pokedexInfo = PokemonData.BlankPokemon
-	end
-
+	local pokedexInfo = Utils.inlineIf(pokemon.pokemonID ~= 0, PokemonData.Pokemon[pokemon.pokemonID], PokemonData.BlankPokemon)
 	for key, value in pairs(pokedexInfo) do
 		pokemon[key] = value
 	end
 
-	-- Fill background and margins
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
-	local boxHeight = 52
+	Drawing.drawPokemonInfoArea(pokemon)
+	Drawing.drawStatsArea(pokemon)
+	Drawing.drawMovesArea(pokemon, opposingPokemon)
+	Drawing.drawBadgeNoteArea(pokemon)
+end
 
-	-- Draw top box
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, boxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+function Drawing.drawPokemonInfoArea(pokemon)
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+
+	-- Draw top box view
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	Drawing.drawPokemonIcon(pokemon.pokemonID, Constants.SCREEN.WIDTH + 5, -1)
-	Drawing.drawTypeIcon(pokemon.type[1], Constants.SCREEN.WIDTH + 6, 33)
-	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + 6, 45)
+	-- POKEMON ICON & TYPES
+	Drawing.drawPokemonIcon(pokemon.pokemonID, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1)
+	Drawing.drawTypeIcon(pokemon.type[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
+	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
 
-	local colorbar = Theme.COLORS["Default text"]
-	if pokemon.stats.hp == 0 then
-		colorbar = Theme.COLORS["Default text"]
-	elseif pokemon.curHP / pokemon.stats.hp <= 0.2 then
-		colorbar = Theme.COLORS["Negative text"]
-	elseif pokemon.curHP / pokemon.stats.hp <= 0.5 then
-		colorbar = Theme.COLORS["Intermediate text"]
-	end
+	-- SETTINGS GEAR
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + 92, 7, shadowcolor)
 
-	-- calculate shadows based on the location of the text (top or bot box)
-	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
-	local boxBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	-- POKEMON INFORMATION
+	local pkmnStatOffsetX = 36
+	local pkmnStatStartY = 5
+	local pkmnStatOffsetY = 10
 
 	-- Don't show hp values if the pokemon doesn't belong to the player, or if it doesn't exist
 	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.curHP)
 	local maxHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.stats.hp)
-
-	local pkmnStatOffsetX = 36
-	local pkmnStatStartY = 5
-	local pkmnStatOffsetY = 10
-	-- Base Pokémon details
-	-- Pokémon name
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemon.name, Theme.COLORS["Default text"], boxTopShadow)
-	-- Settings gear
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + 92, 7, boxTopShadow)
-	-- HP
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], boxTopShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), currentHP .. "/" .. maxHP, colorbar, boxTopShadow)
-	-- Level and evolution
-	local levelDetails = "Lv." .. pokemon.level
-	local evolutionDetails = " (" .. pokemon.evolution .. ")"
-	local evoTextColor = Theme.COLORS["Default text"]
+	local hpText = currentHP .. "/" .. maxHP
+	local hpTextColor = Theme.COLORS["Default text"]
+	if pokemon.stats.hp == 0 then
+		hpTextColor = Theme.COLORS["Default text"]
+	elseif pokemon.curHP / pokemon.stats.hp <= 0.2 then
+		hpTextColor = Theme.COLORS["Negative text"]
+	elseif pokemon.curHP / pokemon.stats.hp <= 0.5 then
+		hpTextColor = Theme.COLORS["Intermediate text"]
+	end
 
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
+	local evoDetails = "(" .. pokemon.evolution .. ")"
+	local levelEvoTextColor = Theme.COLORS["Default text"]
 	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemon.evolution, pokemon.level) then
-		evoTextColor = Theme.COLORS["Positive text"]
+		levelEvoTextColor = Theme.COLORS["Positive text"]
 	elseif pokemon.friendship >= 220 and pokemon.evolution == PokemonData.Evolutions.FRIEND then
-		evolutionDetails = " (SOON)"
-		evoTextColor = Theme.COLORS["Positive text"]
+		evoDetails = "(SOON)"
+		levelEvoTextColor = Theme.COLORS["Positive text"]
 	end
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelDetails .. evolutionDetails, evoTextColor, boxTopShadow)
+	local levelEvoText = "Lv." .. pokemon.level .. " " .. evoDetails
 
-	-- draw heal-info box
-	local infoBoxHeight = 23
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + boxHeight, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	-- DRAW POKEMON INFO
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemon.name, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), hpText, hpTextColor, shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, levelEvoTextColor, shadowcolor)
 
-	-- If viewing own pokemon, Heals in bag/PokéCenter heals
-	if Tracker.Data.isViewingOwn then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Heals in Bag:", Theme.COLORS["Default text"], boxTopShadow)
-		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
-		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", Theme.COLORS["Default text"], boxTopShadow)
-		
-		if (Options["Track PC Heals"]) then
-			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], boxTopShadow)
-			-- Right-align the PC Heals number
-			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
-			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), boxTopShadow)
-			
-			-- Draw the '+'', '-'', and toggle button for auto PC tracking
-			local incBtn = TrackerScreen.buttons.PCHealIncrement
-			local decBtn = TrackerScreen.buttons.PCHealDecrement
-			gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, boxTopShadow, nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, boxTopShadow, nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.FONT.FAMILY)
-
-			-- Auto-tracking PC Heals button
-			Drawing.drawButton(TrackerScreen.buttons.PCHealAutoTracking, boxTopShadow)
-		end
-	else
-		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
-			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
-			local isWild = Tracker.Data.trainerID == pokemon.trainerID
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
-			if encounterText > 9999 then encounterText = 9999 end
-			if isWild then
-				encounterText = "Seen in the wild: " .. encounterText
-			else
-				encounterText = "Seen on trainers: " .. encounterText
-			end
-			Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, encounterText, Theme.COLORS["Default text"], boxTopShadow)
-		end
-	end
-
-	-- Draw Pokemon's held item and ability
+	-- HELD ITEM AND ABILITIES
 	local abilityStringTop = Constants.BLANKLINE
 	local abilityStringBot = Constants.BLANKLINE
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -347,22 +301,62 @@ function Drawing.drawPokemonView(pokemon, opposingPokemon)
 			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
 		end
 	end
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], boxTopShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], boxTopShadow)
+	
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- Draw notepad icon near abilities area, for manually tracking the abilities
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
 		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
-			Drawing.drawButton(TrackerScreen.buttons.AbilityTracking, boxTopShadow)
+			Drawing.drawButton(TrackerScreen.buttons.AbilityTracking, shadowcolor)
 		end
 	end
 
-	Drawing.drawStatsArea(pokemon, boxTopShadow)
-	Drawing.drawMovesArea(pokemon, opposingPokemon, boxBotShadow)
-	Drawing.drawBadgeNoteArea(pokemon, boxBotShadow)
+	-- HEALS INFO / ENCOUNTER INFO
+	local infoBoxHeight = 23
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	if Tracker.Data.isViewingOwn then
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Heals in Bag:", Theme.COLORS["Default text"], shadowcolor)
+		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
+		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", Theme.COLORS["Default text"], shadowcolor)
+		
+		if (Options["Track PC Heals"]) then
+			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], shadowcolor)
+			-- Right-align the PC Heals number
+			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
+			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), shadowcolor)
+			
+			-- Draw the '+'', '-'', and toggle button for auto PC tracking
+			local incBtn = TrackerScreen.buttons.PCHealIncrement
+			local decBtn = TrackerScreen.buttons.PCHealDecrement
+			gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.FONT.FAMILY)
+			gui.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.FONT.FAMILY)
+
+			-- Auto-tracking PC Heals button
+			Drawing.drawButton(TrackerScreen.buttons.PCHealAutoTracking, shadowcolor)
+		end
+	else
+		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
+			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
+			local isWild = Tracker.Data.trainerID == pokemon.trainerID
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
+			if encounterText > 9999 then encounterText = 9999 end
+			if isWild then
+				encounterText = "Seen in the wild: " .. encounterText
+			else
+				encounterText = "Seen on trainers: " .. encounterText
+			end
+			Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, encounterText, Theme.COLORS["Default text"], shadowcolor)
+		end
+	end
 end
 
 function Drawing.drawStatsArea(pokemon, shadowcolor)
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local statBoxWidth = 101
 	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
 	local statOffsetY = 7
@@ -405,17 +399,15 @@ function Drawing.drawStatsArea(pokemon, shadowcolor)
 	end
 
 	-- Draw BST
-	local bstText = PokemonData.BlankPokemon.bst
-	if pokemon.pokemonID ~= 0 then
-		bstText = PokemonData.Pokemon[pokemon.pokemonID].bst
-	end
 	Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawText(statOffsetX + 25, statOffsetY, bstText, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(statOffsetX + 25, statOffsetY, pokemon.bst, Theme.COLORS["Default text"], shadowcolor)
 
+	-- If controller is in use and highlighting any stats, draw that
 	Drawing.drawInputOverlay()
 end
 
-function Drawing.drawMovesArea(pokemon, opposingPokemon, shadowcolor)
+function Drawing.drawMovesArea(pokemon, opposingPokemon)
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
 	local movesLearnedHeader = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
 	local moveTableHeaderHeightDiff = 13
@@ -549,7 +541,8 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon, shadowcolor)
 	end
 end
 
-function Drawing.drawBadgeNoteArea(pokemon, shadowcolor)
+function Drawing.drawBadgeNoteArea(pokemon)
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	-- Draw the border box for the Stats area
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 136, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	
