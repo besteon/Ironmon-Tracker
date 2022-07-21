@@ -359,10 +359,20 @@ function Utils.setFormLocation(handle,x,y)
 end
 
 function Utils.getSaveBlock1Addr()
-	if GameSettings.game == 1 then -- Ruby/Sapphire dont have ptr
+	if GameSettings.game == 1 then -- Ruby/Sapphire don't have ptr
 		return GameSettings.gSaveBlock1
 	end
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
+end
+
+function Utils.getEncryptionKey(size)
+	-- Gets the current game's encryption key
+	-- Size is the number of bytes to return an encryption key of
+	if GameSettings.game == 1 then -- Ruby/Sapphire don't have an encryption key
+		return nil
+	end
+	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
+	return Memory.read(saveBlock2addr + GameSettings.EncryptionKeyOffset, size)
 end
 
 function Utils.fileExists(path)
