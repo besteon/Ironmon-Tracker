@@ -513,15 +513,8 @@ end
 
 function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
-	local gameStatsAddr = 0x0
-	if GameSettings.game == 1 then
-		-- Ruby/Sapphire doesn't have gSaveBlock1Ptr and just uses gSaveBlock1 directly
-		gameStatsAddr = GameSettings.gSaveBlock1 + GameSettings.gameStatsOffset
-	else
-		-- Seems like in FRLG/Emerald we need to refresh the pointer's address similarly to the encryption key
-		local saveblock1PtrAddr = Memory.readdword(GameSettings.gSaveBlock1ptr)
-		gameStatsAddr = saveblock1PtrAddr + GameSettings.gameStatsOffset
-	end
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local gameStatsAddr = saveBlock1Addr GameSettings.gameStatsOffset
 	
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
