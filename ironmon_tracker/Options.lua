@@ -25,108 +25,105 @@ Options.redraw = true
 -- Tracks if settings were modified so we know if we need to update Settings.ini or not.
 Options.updated = false
 
--- A button to close the settings page and save the settings if any changes occurred
-Options.closeButton = {
-	text = "Close",
-	textColor = "Default text",
-	box = {
-		Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 39,
-		Constants.SCREEN.HEIGHT - 20,
-		29,
-		11,
+Options.buttons = {
+	romsFolder = {
+		type = Constants.BUTTON_TYPES.NO_BORDER,
+		text = "Roms folder: ",
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + 6, 8, Constants.SCREEN.RIGHT_GAP - 12, 11 },
+		box = { Constants.SCREEN.WIDTH + 6, 8, 11, 11 },
+		onClick = function() Options.openRomPickerWindow() end
 	},
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		-- Save the Settings.ini file if any changes were made
-		Options.saveOptions()
-
-		Program.state = State.TRACKER
-		Program.frames.waitToDraw = 0
-	end
+	controls = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Controls",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 8, 20, 37, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function() Options.openEditControlsWindow() end
+	},
+	saveTrackerData = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Save Data",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 49, 20, 44, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function() Options.openSaveDataPrompt() end
+	},
+	loadTrackerData = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Load Data",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 97, 20, 44, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function() Options.openLoadDataPrompt() end
+	},
+	customizeTheme = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Customize Theme",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 9, 140, 74, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function()
+			-- Navigate to the Theme Customization menu
+			Program.state = State.THEME
+			Theme.redraw = true
+			Program.frames.waitToDraw = 0
+		end
+	},
+	close = {
+		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		text = "Close",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function()
+			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
+			Options.saveOptions()
+			Program.state = State.TRACKER
+			Program.frames.waitToDraw = 0
+		end
+	},
 }
 
--- Not a visible button, but is used by the Input script to see if clicks occurred on the setting
-Options.romsFolderOption = {
-	text = "Roms folder: ",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 6, 8, 8, 8 },
-	onClick = function() Options.openRomPickerWindow() end
-}
+function Options.initialize()
+	-- First load all of the option settings from the Settings.ini file
+	Options.loadOptions()
 
-Options.controlsButton = {
-	text = "Controls",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 8, 20, 37, 11 },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function() Options.openEditControlsWindow() end
-}
-
-Options.saveTrackerDataButton = {
-	text = "Save Data",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 49, 20, 44, 11 },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function() Options.openSaveDataPrompt() end
-}
-
-Options.loadTrackerDataButton = {
-	text = "Load Data",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 97, 20, 44, 11 },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function() Options.openLoadDataPrompt() end
-}
-
--- A button to navigate to the Theme menu for customizing the Tracker's look and feel
-Options.themeButton = {
-	text = "Customize Theme",
-	textColor = "Default text",
-	box = { Constants.SCREEN.WIDTH + 10, Constants.SCREEN.HEIGHT - 20, 77, 11 },
-	boxColors = { "Upper box border", "Upper box background" },
-	onClick = function()
-		-- Navigate to the Theme Customization menu
-		Program.state = State.THEME
-		Theme.redraw = true
-		Program.frames.waitToDraw = 0
-	end
-}
-
--- Stores the options in the Settings.ini file into configurable toggles in the Tracker
-Options.optionsButtons = {}
-
---[[]]
-function Options.buildTrackerOptionsButtons()
-	local borderMargin = 5
 	local index = 1
 	local heightOffset = 35
 
 	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
 		local button = {
+			type = Constants.BUTTON_TYPES.CHECKBOX,
 			text = optionKey,
 			textColor = "Default text",
-			box = {	Constants.SCREEN.WIDTH + borderMargin + 3, heightOffset, 8, 8 },
+			clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+			box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, heightOffset, 8, 8 },
 			boxColors = { "Upper box border", "Upper box background" },
-			togglecolor = "Positive text",
-			onClick = function()
+			toggleState = Options[optionKey],
+			toggleColor = "Positive text",
+			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
-				Options[optionKey] = not Options[optionKey]
-				Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
+				Options[self.text] = not Options[self.text]
+				self.toggleState = Options[self.text]
+				Settings.tracker[string.gsub(self.text, " ", "_")] = Options[self.text]
 
-				if optionKey == "PC heals count downward" then
+				if self.text == "PC heals count downward" then
 					-- If PC Heal tracking switched, invert the count
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				elseif optionKey == "Hide stats until summary shown" then
+				elseif self.text == "Hide stats until summary shown" then
 					-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
 					Tracker.Data.hasCheckedSummary = not Options["Hide stats until summary shown"]
 				end
 
-				
 				Options.updated = true
 				Options.redraw = true
 				Program.frames.waitToDraw = 0
 			end
 		}
-		table.insert(Options.optionsButtons, button)
+
+		Options.buttons[optionKey] = button
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
@@ -221,6 +218,7 @@ function Options.openRomPickerWindow()
 	Options.updated = true
 	Options.redraw = true
 	Program.frames.waitToDraw = 0
+	Options.saveOptions() -- Save these changes to the file to avoid case where user resets before clicking the Close button
 end
 
 function Options.openEditControlsWindow()
@@ -257,10 +255,13 @@ function Options.openEditControlsWindow()
 			index = index + 1
 		end
 
+		Options.saveOptions() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+		client.unpause()
 		forms.destroy(form)
 	end, 120, offsetY + 5, 95, 30)
 
 	forms.button(form,"Cancel", function()
+		client.unpause()
 		forms.destroy(form)
 	end, 230, offsetY + 5, 65, 30)
 end

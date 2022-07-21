@@ -2,6 +2,8 @@ GameSettings = {
 	game = 0,
 	gamename = "",
 	versiongroup = 0,
+	badgePrefix = "",
+	badgeXOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 },
 	pstats = 0,
 	estats = 0,
 
@@ -112,8 +114,8 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.pstats = games[gamecode].PSTATS
 		GameSettings.estats = games[gamecode].ESTATS
 		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
-		BadgeButtons.BADGE_GAME_PREFIX = games[gamecode].BADGE_PREFIX
-		BadgeButtons.xOffsets = games[gamecode].BADGE_XOFFSETS
+		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
+		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
 	else
 		GameSettings.gamename = "Unsupported game, unable to load ROM."
 	end
