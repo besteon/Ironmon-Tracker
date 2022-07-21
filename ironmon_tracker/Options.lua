@@ -87,7 +87,9 @@ Options.buttons = {
 }
 
 function Options.initialize()
-	local borderMargin = 5
+	-- First load all of the option settings from the Settings.ini file
+	Options.loadOptions()
+
 	local index = 1
 	local heightOffset = 35
 
@@ -96,21 +98,21 @@ function Options.initialize()
 			type = Constants.BUTTON_TYPES.CHECKBOX,
 			text = optionKey,
 			textColor = "Default text",
-			clickableArea = { Constants.SCREEN.WIDTH + borderMargin + 3, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 11 },
-			box = {	Constants.SCREEN.WIDTH + borderMargin + 3, heightOffset, 8, 8 },
+			clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+			box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, heightOffset, 8, 8 },
 			boxColors = { "Upper box border", "Upper box background" },
 			toggleState = Options[optionKey],
-			togglecolor = "Positive text",
+			toggleColor = "Positive text",
 			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
-				Options[optionKey] = not Options[optionKey]
-				self.toggleState = Options[optionKey]
-				Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
+				Options[self.text] = not Options[self.text]
+				self.toggleState = Options[self.text]
+				Settings.tracker[string.gsub(self.text, " ", "_")] = Options[self.text]
 
-				if optionKey == "PC heals count downward" then
+				if self.text == "PC heals count downward" then
 					-- If PC Heal tracking switched, invert the count
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				elseif optionKey == "Hide stats until summary shown" then
+				elseif self.text == "Hide stats until summary shown" then
 					-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
 					Tracker.Data.hasCheckedSummary = not Options["Hide stats until summary shown"]
 				end
@@ -125,8 +127,6 @@ function Options.initialize()
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
-
-	Options.loadOptions()
 end
 
 -- Loads the options defined in Settings.ini into the Tracker's constants

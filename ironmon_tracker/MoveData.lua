@@ -1590,7 +1590,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Turns into the target, copying everything, even stat changes, except the current and max HP.",
+		summary = "Turns into the target by copying everything about it (even stat changes), except the current and max HP. Each move's PP will become 5.",
 	},
 	{
 		id = "145",

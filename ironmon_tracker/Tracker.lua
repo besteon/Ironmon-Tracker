@@ -1,11 +1,5 @@
 Tracker = {}
 
-Tracker.controller = {
-	statIndex = 1,
-	framesSinceInput = 120,
-	boxVisibleFrames = 120,
-}
-
 Tracker.Data = {}
 
 function Tracker.InitTrackerData()
@@ -125,9 +119,18 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
 end
 
-function Tracker.TrackStatMarkings(pokemonID, statmarkings)
+function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	trackedPokemon.statmarkings = statmarkings
+
+	if trackedPokemon.statmarkings == nil then
+		trackedPokemon.statmarkings = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
+	end
+
+	if trackedPokemon.statmarkings[statStage] ~= nil then
+		trackedPokemon.statmarkings[statStage] = statState
+	else
+		print("[ERROR] stat stage does not exist: " .. statStage)
+	end
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
@@ -244,7 +247,7 @@ end
 function Tracker.getStatMarkings(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.statmarkings == nil then
-		return { hp = 1, atk = 1, def = 1, spa = 1, spd = 1, spe = 1 }
+		return { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
 	else
 		return trackedPokemon.statmarkings
 	end
@@ -332,9 +335,8 @@ function Tracker.loadData(filepath)
 	end
 
 	-- Update the visuals for some Tracker elements based on the loaded data
-	Buttons.updateBadges()
 	local hiddenPowerType = Tracker.Data.currentHiddenPowerType
-	HiddenPowerButton.textcolor = Constants.COLORS.MOVETYPE[hiddenPowerType]
+	TrackerScreen.buttons.HiddenPower.textColor = Constants.COLORS.MOVETYPE[hiddenPowerType]
 end
 
 function Tracker.clearData()

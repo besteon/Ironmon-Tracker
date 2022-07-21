@@ -15,6 +15,70 @@ function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
+
+-- Returns '0' if neutral nature, '-1' if negative nature, and '1' if positive nature
+function Utils.calcNatureBonus(stat, nature)
+	if nature % 6 == 0 then
+		return 0
+	elseif stat == "atk" then
+		if nature < 5 then
+			return 1
+		elseif nature % 5 == 0 then
+			return -1
+		end
+	elseif stat == "def" then
+		if nature > 4 and nature < 10 then
+			return 1
+		elseif nature % 5 == 1 then
+			return -1
+		end
+	elseif stat == "spe" then
+		if nature > 9 and nature < 15 then
+			return 1
+		elseif nature % 5 == 2 then
+			return -1
+		end
+	elseif stat == "spa" then
+		if nature > 14 and nature < 20 then
+			return 1
+		elseif nature % 5 == 3 then
+			return -1
+		end
+	elseif stat == "spd" then
+		if nature > 19 then
+			return 1
+		elseif nature % 5 == 4 then
+			return -1
+		end
+	else
+		return 0
+	end
+end
+
+-- Returns a slightly darkened color
+function Utils.calcShadowColor(color)
+	local color_hexval = (color - 0xFF000000)
+
+	-- get the RGB values of the color 
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
+
+	local scale = 0x10 -- read as: 6.25%
+	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
+	if isDarkBG then
+		scale = 0x90 -- read as: 56.25%
+	end
+	-- scale RGB values down to make them darker
+	r = r - r * scale / 0x100
+	g = g - g * scale / 0x100
+	b = b - b * scale / 0x100
+
+	-- build color with new hex values
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	return (0xFF000000 + color_hexval)
+end
+
 -- Determine if the tracked Pokémon's moves are old and if so mark with a star
 function Utils.calculateMoveStars(pokemonID, level)
 	local stars = { "", "", "", "" }

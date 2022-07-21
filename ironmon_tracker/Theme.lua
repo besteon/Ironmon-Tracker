@@ -69,7 +69,7 @@ Theme.buttons = {
 		box = { Constants.SCREEN.WIDTH + 9, 125, 8, 8 },
 		boxColors = { "Lower box border", "Lower box background" },
 		toggleState = Settings.theme["MOVE_TYPES_ENABLED"],
-		togglecolor = "Positive text",
+		toggleColor = "Positive text",
 		onClick = function(self)
 			Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"] -- toggle the setting
 			self.toggleState = Settings.theme["MOVE_TYPES_ENABLED"]
@@ -99,6 +99,9 @@ Theme.buttons = {
 }
 
 function Theme.initialize()
+	-- First load all of the theme settings from the Settings.ini file
+	Theme.loadTheme()
+
 	local index = 1
 	local heightOffset = 25
 	local button = {}
@@ -122,8 +125,6 @@ function Theme.initialize()
 	-- Adjust the extra options positions based on the verical space left
 	Theme.buttons.moveTypeEnabled.clickableArea[2] = heightOffset
 	Theme.buttons.moveTypeEnabled.box[2] = heightOffset
-
-	Theme.loadTheme()
 end
 
 -- Loads the theme defined in Settings into the Tracker's constants
@@ -247,6 +248,8 @@ function Theme.openPresetsWindow()
 	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
 	forms.setdropdownitems(presetDropdown, Constants.ORDERED_LISTS.THEMEPRESETS, false) -- Required to prevent alphabetizing the list
+	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
 	forms.button(presetsForm, "Load", function()
 		Theme.importThemeFromText(Theme.PRESET_STRINGS[forms.gettext(presetDropdown)])

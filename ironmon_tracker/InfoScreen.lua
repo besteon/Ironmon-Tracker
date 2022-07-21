@@ -13,55 +13,51 @@ InfoScreen.infoLookup = 0 -- Either a PokemonID or a MoveID
 
 InfoScreen.buttons = {
 	lookupMove = {
-		type = Constants.BUTTON_TYPES.IMAGE,
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 90, 20, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
 		onClick = function(self)
-			if self:isVisible() then
-				InfoScreen.openMoveInfoWindow()
-			end
+			if not self:isVisible() then return end
+			InfoScreen.openMoveInfoWindow()
 		end
 	},
 	lookupPokemon = {
-		type = Constants.BUTTON_TYPES.IMAGE,
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
 		onClick = function(self)
-			if self:isVisible() then
-				InfoScreen.openPokemonInfoWindow()
-			end
+			if not self:isVisible() then return end
+			InfoScreen.openPokemonInfoWindow()
 		end
 	},
 	nextPokemon = {
-		type = Constants.BUTTON_TYPES.IMAGE,
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.NEXT_BUTTON,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
 		onClick = function(self)
-			if self:isVisible() then
-				InfoScreen.showNextPokemon()
-			end
+			if not self:isVisible() then return end
+			InfoScreen.showNextPokemon()
 		end
 	},
 	previousPokemon = {
-		type = Constants.BUTTON_TYPES.IMAGE,
+		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.PREVIOUS_BUTTON,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 86, 20, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
 		onClick = function(self)
-			if self:isVisible() then
-				InfoScreen.showNextPokemon(-1)
-			end
+			if not self:isVisible() then return end
+			InfoScreen.showNextPokemon(-1)
 		end
 	},
 	close = {
@@ -108,6 +104,8 @@ function InfoScreen.openMoveInfoWindow()
 	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
+	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
 	forms.settext(moveDropdown, moveName)
 
 	forms.button(moveLookup, "Look up", function()
@@ -144,6 +142,8 @@ function InfoScreen.openPokemonInfoWindow()
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
+	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
 	forms.button(pokedexLookup, "Look up", function()
