@@ -148,6 +148,9 @@ function Theme.loadTheme()
 		Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
 	end
 
+	-- Update the button state for the checkbox
+	Theme.buttons.moveTypeEnabled.toggleState = Settings.theme["MOVE_TYPES_ENABLED"]
+
 	Theme.redraw = true
 	Program.frames.waitToDraw = 0
 end
@@ -253,8 +256,6 @@ function Theme.openPresetsWindow()
 
 	forms.button(presetsForm, "Load", function()
 		Theme.importThemeFromText(Theme.PRESET_STRINGS[forms.gettext(presetDropdown)])
-		Theme.updated = true
-		Theme.loadTheme()
 		client.unpause()
 		forms.destroy(presetsForm)
 	end, 212, 29)

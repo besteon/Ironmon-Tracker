@@ -2856,7 +2856,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 3",
-		summary = "This is an increased priority move. The user redirects all targeted moves by enemy Pokemon to itself.",
+		summary = "This is an increased priority move. The user redirects all targeted moves from enemy Pokemon to itself.",
 	},
 	{
 		id = "267",
