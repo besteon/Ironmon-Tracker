@@ -18,6 +18,9 @@ GameSettings = {
 	gBattleMons = 0x00000000,
 	gBattlescriptCurrInstr = 0x00000000,
 	BattleScript_FocusPunchSetUp = 0x00000000,
+	BattleScript_LearnMoveLoop = 0x00000000,
+	BattleScript_LearnMoveReturn = 0x00000000,
+	gMoveToLearn = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
 	gSaveBlock1 = 0x00000000,
@@ -135,6 +138,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f61
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -156,6 +163,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -177,6 +188,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -203,6 +218,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ef1
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -224,6 +243,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -245,6 +268,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -271,6 +298,9 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.gBattleMons = 0x02024084
 	GameSettings.gBattlescriptCurrInstr = 0x02024214
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
+	GameSettings.BattleScript_LearnMoveLoop = 0x082dabd9 -- BattleScript_TryLearnMoveLoop
+	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
+	GameSettings.gMoveToLearn = 0x020244e2
 	GameSettings.gBattleOutcome = 0x0202433a
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -329,6 +359,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -398,6 +431,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a11
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
+		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -457,6 +493,9 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a5d
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8aaf
+		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -512,6 +551,9 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d89ed
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
+		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
 		GameSettings.gSaveBlock1 = 0x0202552c

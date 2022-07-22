@@ -103,6 +103,21 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.state == State.THEME then
 		Input.checkButtonsClicked(xmouse, ymouse, Theme.buttons)
 	end
+
+	-- Check if mouse clicked on the game screen itself
+	-- Clicked on a new move learned, show info
+	if Input.isInRange(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
+		-- Only lookup/show move if not editing settings
+		if Program.state == State.TRACKER or Program.state == State.INFOSCREEN then
+			local moveId = Program.getLearnedMoveId()
+			if moveId ~= nil then
+				InfoScreen.infoLookup = moveId
+				InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
+				InfoScreen.redraw = true
+				Program.state = State.INFOSCREEN
+			end
+		end
+	end
 end
 
 --[[
