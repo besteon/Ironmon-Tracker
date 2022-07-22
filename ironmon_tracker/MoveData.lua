@@ -2584,7 +2584,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Changes weather to Rain for 5 turns. Water moves boosted by 50% and Fire moves weakened by 50%. Thunder ignores accuracy and evasion.",
+		summary = "Changes weather to Rain for 5 turns. Water moves are boosted by 50% and Fire moves are weakened by 50%. Thunder ignores accuracy and evasion.",
 	},
 	{
 		id = "241",
@@ -2594,7 +2594,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Changes weather to Sunny for 5 turns. Fire moves boosted by 50% and Water moves weakened by 50%. Thunder accuracy becomes 50%.",
+		summary = "Changes weather to Sunny for 5 turns. Fire moves are boosted by 50% and Water moves are weakened by 50%. Thunder accuracy becomes 50%.",
 	},
 	{
 		id = "242",

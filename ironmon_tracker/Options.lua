@@ -30,8 +30,8 @@ Options.buttons = {
 		type = Constants.BUTTON_TYPES.NO_BORDER,
 		text = "Roms folder: ",
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 6, 8, Constants.SCREEN.RIGHT_GAP - 12, 11 },
-		box = { Constants.SCREEN.WIDTH + 6, 8, 11, 11 },
+		clickableArea = { Constants.SCREEN.WIDTH + 6, 7, Constants.SCREEN.RIGHT_GAP - 12, 11 },
+		box = { Constants.SCREEN.WIDTH + 6, 7, 11, 11 },
 		onClick = function() Options.openRomPickerWindow() end
 	},
 	controls = {

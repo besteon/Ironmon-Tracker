@@ -591,8 +591,11 @@ function Drawing.drawOptionsScreen()
 		Drawing.drawText(Options.buttons.romsFolder.box[1] + 54, Options.buttons.romsFolder.box[2], folderText, Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
 	else
 		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, shadowcolor)
-		Drawing.drawText(Options.buttons.romsFolder.box[1] + 65, Options.buttons.romsFolder.box[2], "(Click a file to set)", Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
+		Drawing.drawText(Options.buttons.romsFolder.box[1] + 65, Options.buttons.romsFolder.box[2], "(Click a file to set)", Theme.COLORS["Intermediate text"], shadowcolor)
 	end
+
+	-- Draw version number, TODO: Someone add a fun easter egg for clicking on it multiple times
+	Drawing.drawText(Constants.SCREEN.WIDTH + 86, 142, "v." .. TRACKER_VERSION, Theme.COLORS["Default text"], shadowcolor)
 end
 
 function Drawing.drawThemeScreen()

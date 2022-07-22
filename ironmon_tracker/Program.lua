@@ -336,22 +336,19 @@ function Program.updateBattleDataFromMemory()
 			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 		end
 
-		-- ABILITIES: TODO: Not all games/versions supported
-		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 then
-			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
-			-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
-			if opposingPokemon.abilityId ~= ownersPokemon.abilityId then
-				-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
-				if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
-					Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
-				end
-			end
-
-			-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
-			if GameSettings.ABILITIES[battleMsg] == 36 and ownersPokemon.abilityId == 36 then -- 36 = Trace
+		-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
+		if opposingPokemon.abilityId ~= ownersPokemon.abilityId then
+			-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
+			if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
 				Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 			end
+		end
+
+		-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
+		if GameSettings.ABILITIES[battleMsg] == 36 and ownersPokemon.abilityId == 36 then -- 36 = Trace
+			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 		end
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
@@ -361,8 +358,7 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 
-		if GameSettings.gBattlescriptCurrInstr ~= 0x00000000 and GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-			local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
 			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
 			
@@ -578,6 +574,18 @@ end
 function Program.HandleExit()
 	Drawing.clearGUI()
 	forms.destroyall()
+end
+
+function Program.getLearnedMoveId()
+	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+
+	-- If the battle message relates to learning a new move, read in that move id
+	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
+		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
+		return moveToLearnId
+	else
+		return nil
+	end
 end
 
 -- Returns true only if the player hasn't completed the catching tutorial
