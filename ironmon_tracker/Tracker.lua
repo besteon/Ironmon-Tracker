@@ -2,10 +2,13 @@ Tracker = {}
 
 Tracker.Data = {}
 
-function Tracker.InitTrackerData()
-	local trackerData = {
+function Tracker.initializeBlankData()
+	Tracker.Data = {
+		version = TRACKER_VERSION,
+		romHash = nil,
+
 		trainerID = 0,
-		allPokemon = {},  -- Used to track information about all pokemon seen thus far
+		allPokemon = {}, -- Used to track information about all pokemon seen thus far
 		ownPokemon = {}, -- a set of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
 		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
 
@@ -24,11 +27,10 @@ function Tracker.InitTrackerData()
 			healing = 0,
 			numHeals = 0,
 		},
-		badges = {0,0,0,0,0,0,0,0},
-		currentHiddenPowerType = PokemonData.Types.NORMAL,
-		romHash = nil,
+		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
+			[0] = PokemonData.Types.NORMAL,
+		},
 	}
-	return trackerData
 end
 
 -- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
@@ -200,6 +202,16 @@ function Tracker.TrackNote(pokemonID, note)
 	trackedPokemon.note = note
 end
 
+function Tracker.TrackHiddenPowerType(moveType)
+	if moveType == nil then return end
+
+	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+
+	if viewedPokemon.personality ~= 0 then
+		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
+	end
+end
+
 function Tracker.isTrackingMove(pokemonID, moveId, level)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
@@ -275,9 +287,22 @@ function Tracker.getNote(pokemonID)
 	end
 end
 
+-- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
+function Tracker.getHiddenPowerType()
+	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
+
+	if hiddenPowerType ~= nil then
+		return hiddenPowerType
+	else
+		return PokemonData.Types.NORMAL
+	end
+end
+
 function Tracker.getDefaultPokemon()
-	local blankPokemon = {
+	return {
 		pokemonID = 0,
+		personality = 0,
 		friendship = 0,
 		heldItem = 0,
 		level = 0,
@@ -295,8 +320,6 @@ function Tracker.getDefaultPokemon()
 			{ id = 0, level = 1, pp = 0 },
 		},
 	}
-
-	return blankPokemon
 end
 
 function Tracker.saveData(filepath)
@@ -307,38 +330,35 @@ end
 function Tracker.loadData(filepath)
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 
-	-- Initialize empty Tracker data, to potentially populate with data from .trackerdata save file
-	Tracker.Data = Tracker.InitTrackerData()
+	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
+	Tracker.initializeBlankData()
 	Tracker.Data.romHash = gameinfo.getromhash()
 
 	-- Loose safety check to ensure a valid data file is loaded
-	local trackerData = nil
+	local fileData = nil
 	if filepath:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 	else
-		trackerData = Utils.readTableFromFile(filepath)
+		fileData = Utils.readTableFromFile(filepath)
 	end
 
 	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
-	if trackerData ~= nil then
-		if trackerData.romHash and trackerData.romHash == Tracker.Data.romHash then
-			for k, v in pairs(trackerData) do
+	if fileData ~= nil and fileData.romHash ~= nil and fileData.romHash == Tracker.Data.romHash then
+		for k, v in pairs(fileData) do
+			-- Only add data elements if the current Tracker data schema uses it
+			if Tracker.Data[k] ~= nil then
 				Tracker.Data[k] = v
 			end
-			local fileNameIndex = string.match(filepath, "^.*()\\")
-			local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
-
-			print("Tracker data loaded from file: " .. filename)
-		else
-			print("No Tracker data found for this ROM. Initializing new data.")
 		end
-	end
+		local fileNameIndex = string.match(filepath, "^.*()\\")
+		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
 
-	-- Update the visuals for some Tracker elements based on the loaded data
-	local hiddenPowerType = Tracker.Data.currentHiddenPowerType
-	TrackerScreen.buttons.HiddenPower.textColor = Constants.COLORS.MOVETYPE[hiddenPowerType]
+		print("Tracker data loaded from file: " .. filename)
+	else
+		print("No Tracker data found for this ROM. Initializing new data.")
+	end
 end
 
 function Tracker.clearData()
-	Tracker.Data = Tracker.InitTrackerData()
+	Tracker.initializeBlankData()
 end

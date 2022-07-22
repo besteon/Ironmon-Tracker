@@ -92,12 +92,6 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkAnyMovesClicked(xmouse, ymouse, pokemon)
 	elseif Program.state == State.INFOSCREEN then
 		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.buttons)
-
-		-- Check area where the type icon is shown on the info screen; visible check is to confirm the player's Pokemon has the Hidden Power move
-		local hpBtn = TrackerScreen.buttons.HiddenPower
-		if InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO and hpBtn.isVisible() then
-			Input.checkButtonsClicked(xmouse, ymouse, { hpBtn })
-		end
 	elseif Program.state == State.SETTINGS then
 		Input.checkButtonsClicked(xmouse, ymouse, Options.buttons)
 	elseif Program.state == State.THEME then

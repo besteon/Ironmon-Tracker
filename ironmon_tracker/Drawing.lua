@@ -205,7 +205,7 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 end
 
-function Drawing.drawPokemonView(pokemon, opposingPokemon)
+function Drawing.drawMainTrackerScreen(pokemon, opposingPokemon)
 	if pokemon == nil or pokemon.pokemonID == 0 then
 		pokemon = Tracker.getDefaultPokemon()
 	elseif not Tracker.Data.hasCheckedSummary then
@@ -461,16 +461,18 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 
 		-- Base move data to draw, but much of it will be updated
 		local moveName = moveData.name .. stars[moveIndex]
-		local moveTypeColor = Constants.COLORS.MOVETYPE[moveData.type]
+		local moveType = moveData.type
+		local moveTypeColor = Constants.COLORS.MOVETYPE[moveType]
 		local moveCategory = moveData.category
 		local movePPText = moveData.pp
 		local movePower = moveData.power
 		local movePowerColor = Theme.COLORS["Default text"]
 
-		-- IF HIDDEN POWER
+		-- HIDDEN POWER TYPE UPDATE
 		if Tracker.Data.isViewingOwn and moveData.name == "Hidden Power" then
-			moveTypeColor = TrackerScreen.buttons.HiddenPower.textColor
-			moveCategory = MoveData.TypeToCategory[Tracker.Data.currentHiddenPowerType]
+			moveType = Tracker.getHiddenPowerType()
+			moveTypeColor = Constants.COLORS.MOVETYPE[moveType]
+			moveCategory = MoveData.TypeToCategory[moveType]
 		end
 
 		-- MOVE CATEGORY
@@ -503,7 +505,7 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE POWER
-		if Tracker.Data.inBattle and Utils.isSTAB(moveData, pokemon.type) then
+		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, pokemon.type) then
 			movePowerColor = Theme.COLORS["Positive text"]
 		end
 
@@ -523,7 +525,7 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil then
-			local effectiveness = Utils.netEffectiveness(moveData, PokemonData.Pokemon[opposingPokemon.pokemonID].type)
+			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].type)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
 			else
@@ -812,11 +814,14 @@ function Drawing.drawMoveInfoScreen(moveId)
 	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
 	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
 
-	-- If the move is Hidden Power, use its tracked type/category instead
-	if moveId == 237 and TrackerScreen.buttons.HiddenPower:isVisible() then -- 237 = Hidden Power
-		moveType = Tracker.Data.currentHiddenPowerType
-		moveCat = MoveData.TypeToCategory[moveType]
-		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
+	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
+	if moveId == 237 then -- 237 = Hidden Power
+		local pokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+		if Utils.pokemonHasMove(pokemon, "Hidden Power") then
+			moveType = Tracker.getHiddenPowerType()
+			moveCat = MoveData.TypeToCategory[moveType]
+			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
+		end
 	end
 	
 	-- TYPE ICON
@@ -854,12 +859,9 @@ function Drawing.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	-- local isStab = Utils.isSTAB(move, PokemonData.Pokemon[pokemonViewed.pokemonID].type)
 	local powerInfo = move.power
 	if move.power == Constants.NO_POWER then
 		powerInfo = Constants.BLANKLINE
-	-- elseif isStab then
-	-- 	Drawing.drawText(offsetColumnX + 20, offsetY, "(" .. (tonumber(move.power) * 1.5) .. ")", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, powerInfo, Theme.COLORS["Default text"], boxInfoTopShadow)

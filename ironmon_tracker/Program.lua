@@ -43,9 +43,9 @@ function Program.main()
 
 			-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 			if Tracker.Data.isViewingOwn then
-				Drawing.drawPokemonView(ownersPokemon, opposingPokemon)
+				Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
 			else
-				Drawing.drawPokemonView(opposingPokemon, ownersPokemon)
+				Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
 			end
 		end
 
@@ -268,6 +268,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
 	local pokemonData = {
+		personality = personality,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = Utils.getbits(growth1, 0, 16),
 		heldItem = Utils.getbits(growth1, 16, 16),
@@ -531,8 +532,11 @@ function Program.updateBadgesObtainedFromMemory()
 	end
 
 	if badgeBits ~= nil then
-		for i = 1, 8, 1 do
-			Tracker.Data.badges[i] = Utils.getbits(badgeBits, i - 1, 1)
+		for index = 1, 8, 1 do
+			local badgeName = "badge" .. index
+			local badgeButton = TrackerScreen.buttons[badgeName]
+			local badgeState = Utils.getbits(badgeBits, index - 1, 1)
+			badgeButton:updateState(badgeState)
 		end
 	end
 end

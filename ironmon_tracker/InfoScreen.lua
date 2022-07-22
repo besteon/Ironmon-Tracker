@@ -71,6 +71,37 @@ InfoScreen.buttons = {
 			Program.frames.waitToDraw = 0
 		end
 	},
+	HiddenPower = {
+		type = Constants.BUTTON_TYPES.NO_BORDER,
+		clickableArea = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
+		box = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+
+			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
+			local pokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			if Utils.pokemonHasMove(pokemon, "Hidden Power") then
+
+				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
+				local oldType = Tracker.getHiddenPowerType()
+				local typeId = 0
+				if oldType ~= nil then
+					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do
+						if hptype == oldType then
+							typeId = index
+							break
+						end
+					end
+				end
+
+				-- Then use the next index in sequence [1 -> 2], [2 -> 3], ... [N -> 1]
+				typeId = (typeId % #MoveData.HiddenPowerTypeList) + 1
+				Tracker.TrackHiddenPowerType(MoveData.HiddenPowerTypeList[typeId])
+				InfoScreen.redraw = true
+			end
+		end
+	},
 }
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
