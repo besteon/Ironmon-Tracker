@@ -1,29 +1,6 @@
 TrackerScreen = {}
 
 TrackerScreen.buttons = {
-	HiddenPower = {
-		type = Constants.BUTTON_TYPES.NO_BORDER,
-		text = "Hidden Power",
-		textColor = Constants.COLORS.MOVETYPE[MoveData.HiddenPowerTypeList[1]],
-		clickableArea = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
-		box = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
-		hpstate = 0,
-		isVisible = function() 
-			return Tracker.Data.isViewingOwn and Tracker.Data.hasCheckedSummary and Utils.pokemonHasMove(Tracker.getPokemon(Tracker.Data.ownViewSlot, true), "Hidden Power")
-		end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-
-			-- Don't trigger clicks unless its on the move info screen. Eventually separate button visuals and click logic
-			if InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
-				self.hpstate = (self.hpstate + 1) % #MoveData.HiddenPowerTypeList
-				local newType = MoveData.HiddenPowerTypeList[self.hpstate + 1]
-				self.textColor = Constants.COLORS.MOVETYPE[newType]
-				Tracker.Data.currentHiddenPowerType = newType
-				InfoScreen.redraw = true
-			end
-		end
-	},
 	PCHealAutoTracking = {
 		type = Constants.BUTTON_TYPES.CHECKBOX,
 		text = "",
@@ -143,14 +120,12 @@ function TrackerScreen.initialize()
 			image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
 			box = { xOffset, Constants.SCREEN.BADGE_Y_POS, Constants.SCREEN.BADGE_WIDTH, Constants.SCREEN.BADGE_WIDTH },
 			badgeIndex = index,
-			badgeState = Tracker.Data.badges[index],
+			badgeState = 0,
 			isVisible = function() return Tracker.Data.isViewingOwn end,
-			updateState = function(self)
-				local prevState = self.badgeState
-				self.badgeState = Tracker.Data.badges[self.badgeIndex]
-
+			updateState = function(self, state)
 				-- Update image path if the state has changed
-				if self.badgeState ~= prevState then
+				if self.badgeState ~= state then
+					self.badgeState = state
 					local badgeOffText = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
 					self.image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText .. ".png"
 				end
@@ -170,12 +145,6 @@ function TrackerScreen.updateButtonStates()
 			TrackerScreen.buttons[statKey].text = Constants.STAT_STATES[statValue].text
 			TrackerScreen.buttons[statKey].textColor = Constants.STAT_STATES[statValue].textColor
 		end
-	end
-
-	for index = 1, 8, 1 do
-		local badgeName = "badge" .. index
-		local badgeButton = TrackerScreen.buttons[badgeName]
-		badgeButton:updateState()
 	end
 end
 

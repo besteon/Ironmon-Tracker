@@ -127,7 +127,7 @@ MoveData.Moves = {
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "4",
@@ -138,7 +138,7 @@ MoveData.Moves = {
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "5",
@@ -430,7 +430,7 @@ MoveData.Moves = {
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "32",
@@ -547,7 +547,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "43",
@@ -1457,7 +1457,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "132",
@@ -1549,7 +1549,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "85",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "141",
@@ -1693,7 +1693,7 @@ MoveData.Moves = {
 		accuracy = "80",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "155",
@@ -2146,7 +2146,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "80",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "199",
@@ -2856,7 +2856,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 3",
-		summary = "This is an increased priority move. The user redirects all targeted moves by enemy Pokemon to itself.",
+		summary = "This is an increased priority move. The user redirects all targeted moves from enemy Pokemon to itself.",
 	},
 	{
 		id = "267",
@@ -3127,7 +3127,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "293",
@@ -3527,7 +3527,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "332",
@@ -3548,7 +3548,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "334",
@@ -3723,7 +3723,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "80",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Hits 2-5 times in one turn. Odds: 37.5% / 37.5% / 12.5% / 12.5%",
+		summary = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
 	},
 	{
 		id = "351",

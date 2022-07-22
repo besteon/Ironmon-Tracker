@@ -65,7 +65,14 @@ function unpickle(s)
 	if type(s) ~= "string" then
 		error("can't unpickle a " .. type(s) .. ", only strings")
 	end
+
 	local gentables = loadstring("return " .. s)
+
+	-- Check if the data in the file is not in the form of Lua code
+	if gentables == nil or gentables == "" then
+		return nil
+	end
+
 	local tables = gentables()
 
 	for tnum = 1, table.getn(tables) do
