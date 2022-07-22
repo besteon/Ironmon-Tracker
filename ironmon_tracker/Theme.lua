@@ -227,6 +227,7 @@ function Theme.openImportWindow()
 			if not Theme.importThemeFromText(formInput) then
 				print("Error importing Theme Config string:")
 				print(">> " .. formInput)
+				Main.DisplayError("The config string you entered is invalid.\n\nPlease enter a valid config string.")
 			end
 		end
 		forms.destroy(form)

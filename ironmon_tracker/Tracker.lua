@@ -338,6 +338,7 @@ function Tracker.loadData(filepath)
 	local fileData = nil
 	if filepath:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
+		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 	else
 		fileData = Utils.readTableFromFile(filepath)
 	end

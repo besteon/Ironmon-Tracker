@@ -120,7 +120,8 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
 		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
 	else
-		GameSettings.gamename = "Unsupported game, unable to load ROM."
+		GameSettings.gamename = "Unsupported game"
+		Main.DisplayError("This game is unsupported.\n\nOnly RSE/FRLG English versions are currently supported.")
 	end
 end
 
