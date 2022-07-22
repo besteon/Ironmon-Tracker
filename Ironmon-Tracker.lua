@@ -9,7 +9,7 @@ print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 -- Check the version of BizHawk that is running
 -- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
 if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversion() ~= "2.9") then
-	print("This version of BizHawk is not supported. Please update to version 2.8 or higher.")
+	print("This version of BizHawk is not supported.\nPlease update to version 2.8 or higher.")
 	-- Bounce out... Don't pass Go! Don't collect $200.
 	return
 end
@@ -48,6 +48,19 @@ dofile(DATA_FOLDER .. "/Tracker.lua")
 
 Main = {}
 Main.LoadNextSeed = false
+
+-- Displays a given error message in a pop-up dialogue box
+function Main.DisplayError(errMessage)
+	client.pause()
+	local form = forms.newform(400, 130, "[v" .. TRACKER_VERSION .. "] Woops, there's been an error!", function() return end)
+	Utils.setFormLocation(form, 100, 50)
+	forms.label(form, errMessage,  18, 10, 400, 50)
+	forms.button(form, "Close", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 155, 70)
+	return
+end
 
 -- Main loop
 function Main.Run()
@@ -88,11 +101,13 @@ end
 
 function Main.LoadNext()
 	Tracker.clearData()
-	print("Loading the next ROM. Tracker data has reset.")
+	print("Tracker data has been reset.\nAttempting to load next ROM...")
 
 	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
-		print("ROMS_FOLDER unspecified. Set this in the Tracker's options menu, or the Settings.ini file, to automatically switch ROM.")
-		Main.CloseROM()
+		print("ERROR: ROMS_FOLDER unspecified\n")
+		Main.DisplayError("ROMS_FOLDER unspecified.\n\nSet this in the Tracker's options menu, or the Settings.ini file.")
+		Main.LoadNextSeed = false
+		Main.Run()
 	end
 
 	local romname = gameinfo.getromname()
@@ -103,8 +118,10 @@ function Main.LoadNext()
 	if romprefix == nil then romprefix = "" end
 
 	if romnumber == nil then
-		print("Unable to load next ROM file: no numbers in current ROM name.\nClosing current ROM: " .. romname)
-		Main.CloseROM()
+		print("ERROR: No number in ROM name\n")
+		Main.DisplayError("Unable to load next ROM: no numbers in current ROM name.\n\nCurrent ROM: " .. romname .. ".gba")
+		Main.LoadNextSeed = false
+		Main.Run()
 	end
 
 	-- Increment to the next ROM and determine its full file path
@@ -122,8 +139,10 @@ function Main.LoadNext()
 		filecheck = io.open(nextrompath,"r")
 		if filecheck == nil then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("Unable to locate next ROM file to load.\nClosing current ROM: " .. romname)
-			Main.CloseROM()
+			print("ERROR: Next ROM not found\n")
+			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
+			Main.LoadNextSeed = false
+			Main.Run()
 		else
 			io.close(filecheck)
 		end
@@ -138,14 +157,6 @@ function Main.LoadNext()
 	client.SetSoundOn(true)
 	Main.LoadNextSeed = false
 	Main.Run()
-end
-
-function Main.CloseROM()
-	if gameinfo.getromname() ~= "Null" then
-		client.closerom()
-		Main.LoadNextSeed = false
-		Main.Run()
-	end
 end
 
 Main.Run()
