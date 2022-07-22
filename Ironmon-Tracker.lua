@@ -58,7 +58,6 @@ function Main.DisplayError(errMessage)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
-		-- return
 	end, 155, 70)
 	return
 end
