@@ -193,7 +193,7 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.BUTTON_TYPES.PIXELIMAGE then
 		if button.image ~= nil then
-			Drawing.drawImageAsPixels(button.image, x, y, shadowcolor)
+			Drawing.drawImageAsPixels(button.image, x, y, Theme.COLORS["Default text"], shadowcolor)
 		end
 	elseif button.type == Constants.BUTTON_TYPES.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
@@ -243,7 +243,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
 
 	-- SETTINGS GEAR
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + 92, 7, shadowcolor)
+	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + 92, 7, Theme.COLORS["Default text"], shadowcolor)
 
 	-- POKEMON INFORMATION
 	local pkmnStatOffsetX = 36
@@ -478,9 +478,9 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 		-- MOVE CATEGORY
 		if Options["Show physical special icons"] then
 			if moveCategory == MoveData.Categories.PHYSICAL then
-				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			elseif moveCategory == MoveData.Categories.SPECIAL then
-				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			end
 		end
 
@@ -590,7 +590,7 @@ function Drawing.drawOptionsScreen()
 	if folderText ~= "" then
 		Drawing.drawText(Options.buttons.romsFolder.box[1] + 54, Options.buttons.romsFolder.box[2], folderText, Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
 	else
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, shadowcolor)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(Options.buttons.romsFolder.box[1] + 65, Options.buttons.romsFolder.box[2], "(Click a file to set)", Theme.COLORS["Intermediate text"], shadowcolor)
 	end
 
@@ -838,10 +838,10 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local categoryInfo = ""
 	if moveCat == MoveData.Categories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
 	else categoryInfo = categoryInfo .. Constants.BLANKLINE end
@@ -913,17 +913,17 @@ function Drawing.drawMoveInfoScreen(moveId)
 	end
 end
 
-function Drawing.drawImageAsPixels(imageArray, x, y, imageShadow)
+function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 	for rowIndex = 1, #imageArray, 1 do
 		for colIndex = 1, #(imageArray[1]) do
-			local offsetX = colIndex - 1
-			local offsetY = rowIndex - 1
-			
 			if imageArray[rowIndex][colIndex] ~= 0 then
-				if imageShadow ~= nil then
-					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, imageShadow)
+				local offsetX = colIndex - 1
+				local offsetY = rowIndex - 1
+	
+				if shadowcolor ~= nil then
+					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
-				gui.drawPixel(x + offsetX, y + offsetY, Theme.COLORS["Default text"])
+				gui.drawPixel(x + offsetX, y + offsetY, color)
 			end
 		end
 	end

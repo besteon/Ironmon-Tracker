@@ -56,7 +56,8 @@ function Utils.calcNatureBonus(stat, nature)
 end
 
 -- Returns a slightly darkened color
-function Utils.calcShadowColor(color)
+function Utils.calcShadowColor(color, scale)
+	scale = scale or 0.92
 	local color_hexval = (color - 0xFF000000)
 
 	-- get the RGB values of the color 
@@ -76,11 +77,27 @@ function Utils.calcShadowColor(color)
 	b = b - b * scale / 0x100
 	]]--
 
-	r = math.max(r * 0.92, 0)
-	g = math.max(g * 0.92, 0)
-	b = math.max(b * 0.92, 0)
+	r = math.max(r * scale, 0)
+	g = math.max(g * scale, 0)
+	b = math.max(b * scale, 0)
 
 	-- build color with new hex values
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	return (0xFF000000 + color_hexval)
+end
+
+function Utils.calcGrayscale(color, scale)
+	scale = scale or 0.80
+	local color_hexval = (color - 0xFF000000)
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
+	local gray = 0.2989 * r + 0.5870 * g + 0.1140 * b -- CCIR 601 spec weights
+
+	r = math.max(gray * scale + r * (1 - scale), 0)
+	g = math.max(gray * scale + g * (1 - scale), 0)
+	b = math.max(gray * scale + b * (1 - scale), 0)
+
 	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
 	return (0xFF000000 + color_hexval)
 end
@@ -242,7 +259,7 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, ownMoveTypes)
-	if move == nil or opposingTypes == nil or move.power == Constants.NO_POWER then
+	if move == nil or ownMoveTypes == nil or move.power == Constants.NO_POWER then
 		return false
 	end
 
