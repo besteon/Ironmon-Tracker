@@ -64,6 +64,7 @@ function Utils.calcShadowColor(color)
 	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
 	local b = bit.band(color_hexval, 0x0000FF)
 
+	--[[
 	local scale = 0x10 -- read as: 6.25%
 	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
 	if isDarkBG then
@@ -73,6 +74,11 @@ function Utils.calcShadowColor(color)
 	r = r - r * scale / 0x100
 	g = g - g * scale / 0x100
 	b = b - b * scale / 0x100
+	]]--
+
+	r = math.max(r * 0.92, 0)
+	g = math.max(g * 0.92, 0)
+	b = math.max(b * 0.92, 0)
 
 	-- build color with new hex values
 	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 

@@ -595,7 +595,7 @@ function Drawing.drawOptionsScreen()
 	end
 
 	-- Draw version number, TODO: Someone add a fun easter egg for clicking on it multiple times
-	Drawing.drawText(Constants.SCREEN.WIDTH + 86, 142, "v." .. TRACKER_VERSION, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 87, 142, "v" .. TRACKER_VERSION, Theme.COLORS["Default text"], shadowcolor)
 end
 
 function Drawing.drawThemeScreen()
