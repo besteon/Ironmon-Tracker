@@ -333,17 +333,8 @@ function Program.updateBattleDataFromMemory()
 		end
 
 		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-
-		-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
-		if opposingPokemon.abilityId ~= ownersPokemon.abilityId then
-			-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
-			if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
-				Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
-			end
-		end
-
-		-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
-		if GameSettings.ABILITIES[battleMsg] == 36 and ownersPokemon.abilityId == 36 then -- 36 = Trace
+		-- Auto-track opponent abilities if they go off
+		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon, ownersPokemon) then
 			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 		end
 
@@ -364,6 +355,80 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 	end
+end
+
+function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
+	-- Checks if ability should be auto-tracked
+	local enemyAbility = enemyPokemon.abilityId
+	local playerAbility = playerPokemon.abilityId
+
+	-- Abilities to check via battler read
+	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
+	local battlerAbilitiesMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+
+	if battlerAbilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
+		if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
+			-- Enemy is the one that used Clear Body / White Smoke
+			return true
+		end
+	elseif battlerAbilitiesMsg == enemyAbility then
+		if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+			-- Enemy is using Synchronize on the player
+			return true
+		elseif battler % 2 == 1 then
+			-- Enemy is the one that used the ability
+			return true
+		end
+	elseif battlerAbilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
+		-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+		return true
+	end
+	
+	-- Abilities to check via attacker read
+	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	local attackerAbilitiesMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
+
+	if attackerAbilitiesMsg == enemyAbility then
+		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
+		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
+			-- This is a slight workaround that works only if the player doesn't also have the ability
+			return enemyAbility ~= playerAbility
+		elseif (enemyAbility == 44 or enemyAbility == 54) and attacker % 2 == 1 then -- 44 = Rain Dish, 54 = Truant
+			-- Attacker value becomes ability user (self-activated ability)
+			-- Untested for if both player and enemy have Rain Dish, but in theory this should work
+			return true
+		elseif attacker % 2 == 0 then
+			-- Player activated enemy's ability
+			return true
+		end
+	end
+	
+	-- Abilities not covered by just battler or attacker
+	local otherAbilitiesMsg = GameSettings.ABILITIES.OTHER[battleMsg]
+	-- Statuses: 1 (Sleep), 2 (Poison), 3 (Burn), 4 (Freeze), 5 (Paralysis), 6 (Toxic)
+	local playerStatus = playerPokemon.status
+	if otherAbilitiesMsg == enemyAbility and attacker % 2 == 0 then -- Double-check that player activated it
+		if enemyAbility == 9 and playerStatus == 5 then
+			-- 9 = Static
+			return true
+		elseif enemyAbility == 27 and (playerStatus == 1 or playerStatus == 2 or playerStatus == 5) then
+			-- 27 = Effect Spore
+			return true
+		elseif enemyAbility == 38 and playerStatus == 2 then
+			-- 38 = Poison Point
+			return true
+		elseif enemyAbility == 49 and playerStatus == 3 then
+			-- 49 = Flame Body
+			return true
+		end
+	elseif otherAbilitiesMsg == enemyAbility and enemyAbility ~= playerAbility then
+		return true
+	elseif otherAbilitiesMsg == 22 and enemyAbility == 52 then -- 22 = Intimidate, 52 = Hyper Cutter
+		-- Enemy has Hyper Cutter and it blocked Intimidate (which doesn't run BattleScript_AbilityNoSpecificStatLoss)
+		return true
+	end
+
+	return false
 end
 
 function Program.updateViewSlotsFromMemory()
