@@ -99,8 +99,7 @@ function Inifile.parse(name, backend)
 	})
 end
 
-function Inifile.save(name, t, backend)
-	backend = backend or defaultBackend
+function Inifile.save(name, t)
 	local contents = {}
 
 	-- Get our metadata if it exists
@@ -116,7 +115,7 @@ function Inifile.save(name, t, backend)
 	-- If there are comments before sections,
 	-- write them out now
 	if comments and comments[comments] then
-		for i, v in ipairs(comments[comments]) do
+		for _, v in ipairs(comments[comments]) do
 			table.insert(contents, (";%s"):format(v))
 		end
 		table.insert(contents, "")
@@ -138,7 +137,7 @@ function Inifile.save(name, t, backend)
 		-- Write our comments out again, sadly we have only achieved
 		-- section-accuracy so far
 		if comments and comments[section] then
-			for i, v in ipairs(comments[section]) do
+			for _, v in ipairs(comments[section]) do
 				table.insert(contents, (";%s"):format(v))
 			end
 		end

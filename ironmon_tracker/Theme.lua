@@ -17,7 +17,7 @@ Theme = {
 	},
 	-- If move types are enabled then the Move Names themselves will be drawn with a color representing their type.
 	MOVE_TYPES_ENABLED = true,
-	
+
 	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
 	PRESET_STRINGS = {
 		["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
@@ -96,10 +96,9 @@ Theme.buttons = {
 function Theme.initialize()
 	local index = 1
 	local heightOffset = 25
-	local button = {}
 
 	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
-		button = {
+		Theme.buttons[colorkey] = {
 			type = Constants.BUTTON_TYPES.COLORPICKER,
 			text = colorkey,
 			clickableArea = { Constants.SCREEN.WIDTH + 10, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 11 },
@@ -109,7 +108,6 @@ function Theme.initialize()
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
 		}
 
-		Theme.buttons[colorkey] = button
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
@@ -139,7 +137,7 @@ function Theme.importThemeFromText(theme_config)
 			if color < 0x000000 or color > 0xFFFFFF then
 				return false
 			end
-	
+
 			numHexCodes = numHexCodes + 1
 			theme_colors[numHexCodes] = color_text
 		end
@@ -208,7 +206,7 @@ function Theme.openExportWindow()
 	local form = forms.newform(465, 125, "Theme Export", function() return end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
-	local exportTextBox = forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
+	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
 	forms.button(form, "Close", function()
 		forms.destroy(form)
 	end, 187, 55)

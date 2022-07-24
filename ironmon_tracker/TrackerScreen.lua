@@ -76,12 +76,11 @@ TrackerScreen.buttons = {
 }
 
 function TrackerScreen.initialize()
-	local index = 1
 	local heightOffset = 9
 
 	-- Buttons for stat markings tracked by the user
 	for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
-		local button = {
+		TrackerScreen.buttons[statKey] = {
 			type = Constants.BUTTON_TYPES.STAT_STAGE,
 			text = "",
 			textColor = "Default text",
@@ -105,8 +104,6 @@ function TrackerScreen.initialize()
 			end
 		}
 
-		TrackerScreen.buttons[statKey] = button
-		index = index + 1
 		heightOffset = heightOffset + 10
 	end
 
@@ -163,7 +160,7 @@ function TrackerScreen.openAbilityNoteWindow()
 
 	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
 	Utils.setFormLocation(abilityForm, 100, 50)
-	
+
 	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
 	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
@@ -182,8 +179,8 @@ function TrackerScreen.openAbilityNoteWindow()
 	end
 
 	forms.button(abilityForm, "Save && Close", function()
-		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if pokemon ~= nil then
+		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if pokemonViewed ~= nil then
 			local abilityOneText = forms.gettext(abilityOneDropdown)
 			local abilityTwoText = forms.gettext(abilityTwoDropdown)
 			local abilityOneId = 0
@@ -205,7 +202,7 @@ function TrackerScreen.openAbilityNoteWindow()
 				end
 			end
 
-			local trackedPokemon = Tracker.Data.allPokemon[pokemon.pokemonID]
+			local trackedPokemon = Tracker.Data.allPokemon[pokemonViewed.pokemonID]
 			trackedPokemon.abilities = {
 				{ id = abilityOneId },
 				{ id = abilityTwoId },
@@ -234,12 +231,12 @@ function TrackerScreen.openNotePadWindow()
 	Utils.setFormLocation(noteForm, 100, 50)
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-	
-	local saveButton = forms.button(noteForm, "Save", function()
+
+	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
-		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if formInput ~= nil and pokemon ~= nil then
-			Tracker.TrackNote(pokemon.pokemonID, formInput)
+		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if formInput ~= nil and pokemonViewed ~= nil then
+			Tracker.TrackNote(pokemonViewed.pokemonID, formInput)
 			Program.redraw(true)
 		end
 		forms.destroy(noteForm)

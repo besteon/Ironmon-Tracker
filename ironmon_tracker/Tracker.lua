@@ -17,7 +17,7 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 		Tracker.Data.otherPokemon = {}
 	end
 
-	local pokemon = nil
+	local pokemon
 	if isOwn then
 		pokemon = Tracker.Data.ownPokemon[personality]
 	else
@@ -33,9 +33,9 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 		end
 
 		-- Update each pokemon key if it exists between both Pokemon
-		for k, v in pairs(pokemonData) do
-			if pokemonData[k] ~= nil and pokemon[k] ~= nil then
-				pokemon[k] = pokemonData[k]
+		for key, _ in pairs(pokemonData) do
+			if pokemonData[key] ~= nil and pokemon[key] ~= nil then
+				pokemon[key] = pokemonData[key]
 			end
 		end
 	else
@@ -66,12 +66,6 @@ function Tracker.getOrCreateTrackedPokemon(pokemonID)
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
 	return Tracker.Data.allPokemon[pokemonID]
-end
-
--- Currently unused
-function Tracker.TrackItem(pokemonID, itemId)
-	-- local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	-- Implement later if this information ends up mattering
 end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
@@ -165,7 +159,7 @@ end
 
 function Tracker.TrackNote(pokemonID, note)
 	if note == nil then return end
-	
+
 	if string.len(note) > 70 then
 		print("Pokemon's note truncated to 70 characters.")
 		note = string.sub(note, 1, 70)
@@ -279,7 +273,7 @@ function Tracker.getDefaultPokemon()
 		friendship = 0,
 		heldItem = 0,
 		level = 0,
-		nature = 0, 
+		nature = 0,
 		abilityId = 0,
 		status = 0,
 		sleep_turns = 0,

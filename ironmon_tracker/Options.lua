@@ -157,7 +157,7 @@ function Options.openEditControlsWindow()
 	end
 
 	-- 'Save & Close' and 'Cancel' buttons
-	forms.button(form,"Save && Close", function() 
+	forms.button(form,"Save && Close", function()
 		index = 1
 		for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
 			local controlCombination = ""

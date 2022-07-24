@@ -102,7 +102,7 @@ function Main.LoadNext()
 	end
 
 	local romname = gameinfo.getromname()
-	
+
 	-- Split the ROM name into its prefix and numerical values
 	local romprefix = string.match(romname, '[^0-9]+')
 	local romnumber = string.match(romname, '[0-9]+')
@@ -245,7 +245,7 @@ function Main.SaveSettings()
 		settings.theme[encodedKey] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 	end
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
-	
+
 	Inifile.save(Main.SettingsFile, settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false

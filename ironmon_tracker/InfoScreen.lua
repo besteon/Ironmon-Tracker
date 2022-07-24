@@ -63,7 +63,7 @@ InfoScreen.buttons = {
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, 141, 25, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
-		onClick = function(self)
+		onClick = function()
 			Program.changeScreenView(Program.SCREENS.TRACKER)
 		end
 	},
@@ -105,7 +105,7 @@ function InfoScreen.showNextPokemon(delta)
 	delta = delta or 1 -- default to just showing the next pokemon
 	local nextPokemonId = InfoScreen.infoLookup + delta
 
-	if nextPokemonId < 1 then 
+	if nextPokemonId < 1 then
 		nextPokemonId = 411
 	elseif nextPokemonId > 251 and nextPokemonId < 277 then
 		nextPokemonId = Utils.inlineIf(delta > 0, 277, 251)
@@ -120,7 +120,7 @@ end
 function InfoScreen.openMoveInfoWindow()
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
-	for id, data in pairs(MoveData.Moves) do
+	for _, data in pairs(MoveData.Moves) do
 		if data.name ~= Constants.BLANKLINE then
 			table.insert(allmovesData, data.name)
 		end
@@ -136,11 +136,11 @@ function InfoScreen.openMoveInfoWindow()
 	forms.settext(moveDropdown, moveName)
 
 	forms.button(moveLookup, "Look up", function()
-		local moveName = forms.gettext(moveDropdown)
+		local moveNameFromForm = forms.gettext(moveDropdown)
 		local moveId
 
 		for id, data in pairs(MoveData.Moves) do
-			if data.name == moveName then
+			if data.name == moveNameFromForm then
 				moveId = id
 			end
 		end
@@ -158,7 +158,7 @@ end
 function InfoScreen.openPokemonInfoWindow()
 	local pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name -- infoLookup = pokemonID
 	local pokedexData = {}
-	for id, data in pairs(PokemonData.Pokemon) do
+	for _, data in pairs(PokemonData.Pokemon) do
 		if data.bst ~= Constants.BLANKLINE then
 			table.insert(pokedexData, data.name)
 		end
@@ -174,11 +174,11 @@ function InfoScreen.openPokemonInfoWindow()
 	forms.settext(pokedexDropdown, pokemonName)
 
 	forms.button(pokedexLookup, "Look up", function()
-		local pokemonName = forms.gettext(pokedexDropdown)
+		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId
 
 		for id, data in pairs(PokemonData.Pokemon) do
-			if data.name == pokemonName then
+			if data.name == pokemonNameFromForm then
 				pokemonId = id
 			end
 		end

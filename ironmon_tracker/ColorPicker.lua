@@ -71,7 +71,7 @@ end
 
 function ColorPicker:RGB_to_Hex()
 	--%02x: 0 means replace " "s with "0"s, 2 is width, x means hex
-	return string.format("%02x%02x%02x", 
+	return string.format("%02x%02x%02x",
 		self.red,
 		self.green,
 		self.blue)
@@ -104,8 +104,6 @@ function ColorPicker:updateCirclePreview()
 		end
 		self:setColor()
 		forms.settext(self.colorTextBox,string.sub(self.color,5))
-		local path = Main.DataFolder.."/images//colorPicker/HSVwheel3.png"
-		local gradientPath = Main.DataFolder.."/images//colorPicker/HSVgradient.png"
 		self.ellipsesPos = {x,y}
 		self:drawMainCanvas()
 	end
@@ -165,7 +163,7 @@ function ColorPicker:show()
 	Program.changeScreenView(Program.SCREENS.TRACKER)
 end
 
-function ColorPicker:onClick() 
+function ColorPicker:onClick()
 	self:updateCirclePreview()
 end
 
@@ -199,7 +197,7 @@ function ColorPicker:handleInput()
 		if self.draggingColor then
 			self:updateCirclePreview()
 		elseif self.draggingValueSlider then
-			self:updateVSlider() 
+			self:updateVSlider()
 		else
 			local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
 			if not self.draggingColor then
@@ -207,7 +205,7 @@ function ColorPicker:handleInput()
 				if distanceToCenter >= 0 and distanceToCenter <= self.circleRadius then
 					self.draggingColor = true
 					self:updateCirclePreview()
-				end 
+				end
 			end
 			if not self.draggingValueSlider then
 				local sliderPos = {self.constants.SLIDER_X_POS,self.constants.SLIDER_Y_POS}
@@ -232,7 +230,7 @@ function ColorPicker:mouseInRange(pos,size)
 	x >= pos[1] and x < pos[1] + width and y >= pos[2] and y < pos[2] + height
 end
 
-function ColorPicker:distance(point1, point2)
+function ColorPicker.distance(point1, point2)
 	local x1 = point1[1]
 	local y1 = point1[2]
 	local x2 = point2[1]
@@ -313,10 +311,8 @@ function ColorPicker:RGB_to_HSL()
 
 	-- short circuit saturation and hue if it's grey to prevent divide by 0
 	if max == min then
-		s = 0
-		h = self.hue or 0
 		self.hue, self.sat, self.val = 0, 0, l*100
-		return 
+		return
 	end
 
 	-- Get saturation

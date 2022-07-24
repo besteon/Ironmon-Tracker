@@ -128,7 +128,7 @@ end
 
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 	for _, button in pairs(buttons) do
-		local isAreaClicked = false
+		local isAreaClicked
 
 		-- If the button has an override for which area to check for mouse clicks, use that
 		if button.clickableArea ~= nil then

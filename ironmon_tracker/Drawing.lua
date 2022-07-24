@@ -10,15 +10,13 @@ function Drawing.drawPokemonIcon(id, x, y)
 		id = 0 -- Blank Pokemon data/icon
 	end
 
-	local extension = ".gif"
 	local folderToUse = "pokemon"
-
 	if Options["Pokemon Stadium portraits"] then
 		folderToUse = "pokemonStadium"
 		y = y + 4
 	end
 
-	extension = Constants.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
+	local extension = Constants.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
 
 	gui.drawImage(Main.DataFolder .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
 end
@@ -62,20 +60,8 @@ function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
 end
 
--- Currently unused
-function Drawing.drawTriangleRight(x, y, size, color)
-	gui.drawRectangle(x, y, size, size, color)
-	gui.drawPolygon({ { 4 + x, 4 + y }, { 4 + x, y + size - 4 }, { x + size - 4, y + size / 2 } }, color, color)
-end
-
--- Currently unused
-function Drawing.drawTriangleLeft(x, y, size, color)
-	gui.drawRectangle(x, y, size, size, color)
-	gui.drawPolygon({ { x + size - 4, 4 + y }, { x + size - 4, y + size - 4 }, { 4 + x, y + size / 2 } }, color, color)
-end
-
 function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor)
-	color = Theme.COLORS["Default text"]
+	local color = Theme.COLORS["Default text"]
 	local i = 0
 	if direction == "up" then
 		if hasColor then
@@ -301,7 +287,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
 		end
 	end
-	
+
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
 
@@ -321,13 +307,13 @@ function Drawing.drawPokemonInfoArea(pokemon)
 		local healPercentage = math.min(9999, Tracker.Data.healingItems.healing)
 		local healCount = math.min(99, Tracker.Data.healingItems.numHeals)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", healPercentage) .. " HP (" .. healCount .. ")", Theme.COLORS["Default text"], shadowcolor)
-		
+
 		if (Options["Track PC Heals"]) then
 			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], shadowcolor)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(Tracker.Data.centerHeals))) * 5 + 75
 			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), shadowcolor)
-			
+
 			-- Draw the '+'', '-'', and toggle button for auto PC tracking
 			local incBtn = TrackerScreen.buttons.PCHealIncrement
 			local decBtn = TrackerScreen.buttons.PCHealDecrement
@@ -355,7 +341,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	end
 end
 
-function Drawing.drawStatsArea(pokemon, shadowcolor)
+function Drawing.drawStatsArea(pokemon)
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local statBoxWidth = 101
 	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
@@ -547,7 +533,7 @@ function Drawing.drawBadgeNoteArea(pokemon)
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	-- Draw the border box for the Stats area
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 136, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
-	
+
 	for index = 1, 8, 1 do
 		local badgeName = "badge" .. index
 		local badgeButton = TrackerScreen.buttons[badgeName]
@@ -584,7 +570,7 @@ function Drawing.drawOptionsScreen()
 	for _, button in pairs(Options.buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
-	
+
 	-- Draw Roms folder location, or the notepad icon if it's not set
 	local folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
 	if folderText ~= "" then
@@ -608,7 +594,7 @@ function Drawing.drawThemeScreen()
 
 	-- Draw all buttons
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-	for name, button in pairs(Theme.buttons) do
+	for _, button in pairs(Theme.buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
 end
@@ -640,7 +626,6 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 
 	-- set the color for text/number shadows for the top boxes
-	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
@@ -824,7 +809,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 		end
 	end
-	
+
 	-- TYPE ICON
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -878,7 +863,6 @@ function Drawing.drawMoveInfoScreen(moveId)
 	if move.priority ~= nil and move.priority ~= "0" then
 		Drawing.drawText(offsetX, offsetY, "Priority:", Theme.COLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, move.priority, Theme.COLORS["Default text"], boxInfoTopShadow)
-		offsetY = offsetY + linespacing
 	end
 
 	-- Draw bottom view box and header
@@ -891,7 +875,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	-- SUMMARY
 	if move.summary ~= nil then
 		local wrappedSummary = Utils.getWordWrapLines(move.summary, 31)
-		
+
 		for _, line in pairs(wrappedSummary) do
 			Drawing.drawText(offsetX, botOffsetY, line, Theme.COLORS["Default text"], boxInfoBotShadow)
 			botOffsetY = botOffsetY + linespacing
@@ -901,7 +885,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.buttons.lookupMove, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.buttons.close, boxInfoBotShadow)
-	
+
 	-- Easter egg
 	if moveId == 150 then -- 150 = Splash
 		Drawing.drawPokemonIcon(129, offsetX + 16, botOffsetY + 8)
@@ -917,7 +901,7 @@ function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 			if imageArray[rowIndex][colIndex] ~= 0 then
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
-	
+
 				if shadowcolor ~= nil then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end

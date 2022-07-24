@@ -98,11 +98,11 @@ function Program.updateTrackedAndCurrentData()
 			if Program.isTransformed then
 				Program.isTransformed = false
 			end
-		
+
 			if Options["Auto swap to enemy"] then
 				Tracker.Data.isViewingOwn = false
 			end
-		
+
 			-- Reset the controller's position when a new pokemon is sent out
 			Input.controller.statIndex = 6
 
@@ -164,7 +164,7 @@ function Program.updatePokemonTeamsFromMemory()
 		Tracker.Data.otherTeam[i] = personality
 
 		if personality ~= 0 then
-			newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
+			local newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
 				if Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 then
@@ -213,8 +213,8 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local aux          = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
+	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	-- local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -324,7 +324,7 @@ function Program.updateBattleDataFromMemory()
 	if ownersPokemon ~= nil and opposingPokemon ~= nil then
 		Program.updateAbilityDataFromMemory(ownersPokemon, true)
 		Program.updateAbilityDataFromMemory(opposingPokemon, false)
-	
+
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
@@ -360,7 +360,7 @@ function Program.updateBattleDataFromMemory()
 		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
 			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-			
+
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
 			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
 				Program.handleAttackMove(264, Tracker.Data.otherViewSlot, false)
@@ -488,7 +488,7 @@ function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
-	
+
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 	local gameStat_UsedPokecenter = Memory.readdword(gameStatsAddr + 15 * 0x4)
@@ -496,7 +496,7 @@ function Program.updatePCHealsFromMemory()
 	local gameStat_RestedAtHome = Memory.readdword(gameStatsAddr + 16 * 0x4)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
-	if key ~= nil then 
+	if key ~= nil then
 		gameStat_UsedPokecenter = bit.bxor(gameStat_UsedPokecenter, key)
 		gameStat_RestedAtHome = bit.bxor(gameStat_RestedAtHome, key)
 	end
@@ -542,17 +542,13 @@ function Program.updateBadgesObtainedFromMemory()
 	end
 end
 
-function Program.handleAttackMove(moveId, slotNumber, isOwn)
+function Program.handleAttackMove(moveId, isOwn)
 	if moveId == nil then return end
-	if slotNumber == nil or slotNumber < 1 or slotNumber > 6 then slotNumber = 1 end
 	if isOwn == nil then isOwn = true end
 
 	-- For now, only handle moves from opposing Pokemon
 	-- Don't track moves if opponent is transformed
 	if not isOwn and not Program.isTransformed then
-		-- Update view to the Pokemon that attacked; don't know if this is still needed
-		-- Tracker.Data.otherViewSlot = slotNumber
-		
 		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 		if pokemon ~= nil then
 			if not Tracker.isTrackingMove(pokemon.pokemonID, moveId, pokemon.level) then

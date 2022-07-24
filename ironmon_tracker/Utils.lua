@@ -60,7 +60,6 @@ function Utils.calcShadowColor(color, scale)
 	scale = scale or 0.92
 	local color_hexval = (color - 0xFF000000)
 
-	-- get the RGB values of the color 
 	local r = bit.rshift(color_hexval, 16)
 	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
 	local b = bit.band(color_hexval, 0x0000FF)
@@ -82,7 +81,7 @@ function Utils.calcShadowColor(color, scale)
 	b = math.max(b * scale, 0)
 
 	-- build color with new hex values
-	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -99,7 +98,7 @@ function Utils.calcGrayscale(color, scale)
 	g = math.max(gray * scale + g * (1 - scale), 0)
 	b = math.max(gray * scale + b * (1 - scale), 0)
 
-	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -312,8 +311,8 @@ end
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	local basePower = (150 * currentHP) / maxHP
-	if basePower < 1 then 
-		basePower = 1 
+	if basePower < 1 then
+		basePower = 1
 	end
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
@@ -382,10 +381,12 @@ end
 
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
-	
-	local lines, here, limit = {}, 1, limit or 72
+	limit = limit or 72
+
+	local lines = {}
+	local here = 1
 	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
-	
+
 	str:gsub("(%s+)()(%S+)()",
 		function(sp, st, word, fi) -- Function gets called once for every space found.
 			-- If at the end of a line, start a new table index
@@ -396,7 +397,7 @@ function Utils.getWordWrapLines(str, limit)
 				lines[#lines] = lines[#lines] .. " " .. word
 			end
 		end)
-	
+
 	return lines
 end
 
@@ -404,7 +405,7 @@ function Utils.writeTableToFile(table, filename)
 	local file = io.open(filename, "w")
 
 	if file ~= nil then
-		local dataString = pickle(Tracker.Data)
+		local dataString = Pickle.pickle(table)
 
 		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end --append a trailing \n if one is absent
 		for dataLine in dataString:gmatch("(.-)\n") do
@@ -416,7 +417,7 @@ function Utils.writeTableToFile(table, filename)
 	end
 end
 
-function Utils.readTableFromFile(filename)	
+function Utils.readTableFromFile(filename)
 	local tableData = nil
 	local file = io.open(filename, "r")
 
@@ -424,7 +425,7 @@ function Utils.readTableFromFile(filename)
 		local dataString = file:read("*a")
 
 		if dataString ~= nil and dataString ~= "" then
-			tableData = unpickle(dataString)
+			tableData = Pickle.unpickle(dataString)
 		end
 		file:close()
 	end
@@ -436,7 +437,7 @@ end
 --this function does what the built in forms.setlocation function supposed to do
 --currently that function is bugged and should be fixed in 2.9
 function Utils.setFormLocation(handle,x,y)
-	local ribbonHight = 64 -- so we are below the ribbon menu 
+	local ribbonHight = 64 -- so we are below the ribbon menu
 	local actualLocation = client.transformPoint(x,y)
 	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
