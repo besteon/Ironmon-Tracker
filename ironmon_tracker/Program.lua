@@ -10,6 +10,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	lastSeenEnemyAbilityId = 0,
+	isTransformed = false,
 }
 
 Program.frames = {
@@ -18,11 +19,6 @@ Program.frames = {
 	half_sec_update = 30,
 	three_sec_update = 180,
 	saveData = 3600,
-}
-
-Program.transformedPokemon = {
-	isTransformed = false,
-	forceSwitch = false,
 }
 
 function Program.main()
@@ -95,9 +91,9 @@ function Program.updateTrackedAndCurrentData()
 
 		-- Use this to check if the opposing Pokemon changes
 		if Tracker.Data.inBattle and viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
-			-- Reset the transform tracking disable unless player was force-switched by roar/whirlwind
-			if Program.transformedPokemon.isTransformed and not Program.transformedPokemon.forceSwitch then
-				Program.transformedPokemon.isTransformed = false
+			-- Reset the transform tracking disable
+			if Program.isTransformed then
+				Program.isTransformed = false
 			end
 		
 			if Options["Auto swap to enemy"] then
@@ -462,6 +458,11 @@ function Program.endBattle(isWild)
 	Tracker.Data.otherPokemon = nil
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
 
+	-- Reset the transform tracking disable
+	if Program.isTransformed then
+		Program.isTransformed = false
+	end
+
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do
 		local pokemon = Tracker.getPokemon(i, true)
@@ -544,29 +545,20 @@ function Program.handleAttackMove(moveId, slotNumber, isOwn)
 	if isOwn == nil then isOwn = true end
 
 	-- For now, only handle moves from opposing Pokemon
-	if not isOwn then
+	-- Don't track moves if opponent is transformed
+	if not isOwn and not Program.isTransformed then
 		-- Update view to the Pokemon that attacked; don't know if this is still needed
 		-- Tracker.Data.otherViewSlot = slotNumber
-
-		-- Stop tracking moves temporarily while transformed
-		if not Program.transformedPokemon.isTransformed then
-			local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-			if pokemon ~= nil then
-				if not Tracker.isTrackingMove(pokemon.pokemonID, moveId, pokemon.level) then
-					Tracker.TrackMove(pokemon.pokemonID, moveId, pokemon.level)
-				end
+		
+		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if pokemon ~= nil then
+			if not Tracker.isTrackingMove(pokemon.pokemonID, moveId, pokemon.level) then
+				Tracker.TrackMove(pokemon.pokemonID, moveId, pokemon.level)
 			end
-		elseif moveId == 18 or moveId == 46 then -- 18 = Whirlwind, 46 = Roar
-			-- Account for niche scenario of force-switch moves being used while transformed
-			Program.transformedPokemon.forceSwitch = true
-		elseif Program.transformedPokemon.forceSwitch then
-			-- Reset when another move is used
-			Program.transformedPokemon.forceSwitch = false
 		end
-
-		-- This comes after so transform itself gets tracked
+		-- This comes after the move tracking so transform itself gets tracked
 		if moveId == 144 then -- 144 = Transform
-			Program.transformedPokemon.isTransformed = true
+			Program.isTransformed = true
 		end
 	end
 end
