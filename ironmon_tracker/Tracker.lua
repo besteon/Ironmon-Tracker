@@ -1,36 +1,9 @@
 Tracker = {}
-
 Tracker.Data = {}
 
-function Tracker.initializeBlankData()
-	Tracker.Data = {
-		version = TRACKER_VERSION,
-		romHash = nil,
-
-		trainerID = 0,
-		allPokemon = {}, -- Used to track information about all pokemon seen thus far
-		ownPokemon = {}, -- a set of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
-		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
-
-		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
-		otherTeam = { 0, 0, 0, 0, 0, 0 },
-		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
-		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
-		isViewingOwn = true,
-		inBattle = false,
-
-		hasCheckedSummary = not Options["Hide stats until summary shown"],
-		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
-		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
-		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
-		healingItems = {
-			healing = 0,
-			numHeals = 0,
-		},
-		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
-			[0] = PokemonData.Types.NORMAL,
-		},
-	}
+function Tracker.initialize()
+	local filepath = GameSettings.getTrackerAutoSaveName()
+	Tracker.loadData(filepath)
 end
 
 -- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
@@ -322,6 +295,37 @@ function Tracker.getDefaultPokemon()
 	}
 end
 
+function Tracker.resetData()
+	Tracker.Data = {
+		version = Main.TrackerVersion,
+		romHash = nil,
+
+		trainerID = 0,
+		allPokemon = {}, -- Used to track information about all pokemon seen thus far
+		ownPokemon = {}, -- a set of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
+		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
+
+		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
+		otherTeam = { 0, 0, 0, 0, 0, 0 },
+		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
+		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
+		isViewingOwn = true,
+		inBattle = false,
+
+		hasCheckedSummary = not Options["Hide stats until summary shown"],
+		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
+		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
+		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
+		healingItems = {
+			healing = 0,
+			numHeals = 0,
+		},
+		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
+			[0] = PokemonData.Types.NORMAL,
+		},
+	}
+end
+
 function Tracker.saveData(filepath)
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	Utils.writeTableToFile(Tracker.Data, filepath)
@@ -331,7 +335,7 @@ function Tracker.loadData(filepath)
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
-	Tracker.initializeBlankData()
+	Tracker.resetData()
 	Tracker.Data.romHash = gameinfo.getromhash()
 
 	-- Loose safety check to ensure a valid data file is loaded
@@ -358,8 +362,4 @@ function Tracker.loadData(filepath)
 	else
 		print("No Tracker data found for this ROM. Initializing new data.")
 	end
-end
-
-function Tracker.clearData()
-	Tracker.initializeBlankData()
 end

@@ -14,7 +14,7 @@ TrackerScreen.buttons = {
 			if not self:isVisible() then return end
 
 			self.toggleState = not self.toggleState
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	PCHealIncrement = {
@@ -29,7 +29,7 @@ TrackerScreen.buttons = {
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	PCHealDecrement = {
@@ -44,7 +44,7 @@ TrackerScreen.buttons = {
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	AbilityTracking = {
@@ -101,7 +101,7 @@ function TrackerScreen.initialize()
 				if pokemon ~= nil then
 					Tracker.TrackStatMarking(pokemon.pokemonID, self.statStage, self.statState)
 				end
-				Program.frames.waitToDraw = 0
+				Program.redraw(true)
 			end
 		}
 
@@ -117,7 +117,7 @@ function TrackerScreen.initialize()
 
 		local badgeButton = {
 			type = Constants.BUTTON_TYPES.IMAGE,
-			image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
+			image = Main.DataFolder .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
 			box = { xOffset, Constants.SCREEN.BADGE_Y_POS, Constants.SCREEN.BADGE_WIDTH, Constants.SCREEN.BADGE_WIDTH },
 			badgeIndex = index,
 			badgeState = 0,
@@ -127,7 +127,7 @@ function TrackerScreen.initialize()
 				if self.badgeState ~= state then
 					self.badgeState = state
 					local badgeOffText = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
-					self.image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText .. ".png"
+					self.image = Main.DataFolder .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText .. ".png"
 				end
 			end
 		}
@@ -213,7 +213,7 @@ function TrackerScreen.openAbilityNoteWindow()
 		end
 
 		client.unpause()
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 		forms.destroy(abilityForm)
 	end, 65, 95, 85, 25)
 	forms.button(abilityForm, "Clear", function()
@@ -240,7 +240,7 @@ function TrackerScreen.openNotePadWindow()
 		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 		if formInput ~= nil and pokemon ~= nil then
 			Tracker.TrackNote(pokemon.pokemonID, formInput)
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 		forms.destroy(noteForm)
 		client.unpause()

@@ -1,4 +1,7 @@
 Theme = {
+	-- Tracks if any theme elements were modified so we know if we need to save them to the Settings.ini file
+	settingsUpdated = false,
+
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
 		["Default text"] = 0xFFFFFFFF,
@@ -29,12 +32,6 @@ Theme = {
 		["Neon Lights"] = "FFFFFF 38FF12 FF00E3 FFF100 FFFFFF 00F5FB 000000 001EFF 000000 000000 1",
 	},
 }
-
--- Update drawing the theme page if true
-Theme.redraw = true
-
--- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
-Theme.updated = false
 
 Theme.buttons = {
 	importTheme = {
@@ -73,9 +70,8 @@ Theme.buttons = {
 		onClick = function(self)
 			self.toggleState = not self.toggleState -- toggle the setting
 			Theme.MOVE_TYPES_ENABLED = self.toggleState
-			Theme.redraw = true
-			Theme.updated = true
-			Program.frames.waitToDraw = 0
+			Theme.settingsUpdated = true
+			Program.redraw(true)
 		end
 	},
 	restoreDefaults = {
@@ -160,9 +156,8 @@ function Theme.importThemeFromText(theme_config)
 	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
 	Theme.buttons.moveTypeEnabled.toggleState = enableMoveTypes
 
-	Theme.redraw = true
-	Theme.updated = true
-	Program.frames.waitToDraw = 0
+	Theme.settingsUpdated = true
+	Program.redraw(true)
 
 	return true
 end
@@ -250,22 +245,18 @@ function Theme.tryRestoreDefaultTheme()
 		defaultBtn.textColor = "Negative text"
 		defaultBtn.confirmReset = true
 
-		Theme.redraw = true
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 	end
 end
 
 function Theme.closeThemeScreen()
-	local defaultBtn = Theme.buttons.restoreDefaults
 	-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
+	local defaultBtn = Theme.buttons.restoreDefaults
 	if defaultBtn.confirmReset then
 		defaultBtn.text = "Restore Defaults"
 		defaultBtn.textColor = "Default text"
 		defaultBtn.confirmReset = false
 	end
 
-	-- Inform the Tracker Program to load the Options screen
-	Options.redraw = true
-	Program.frames.waitToDraw = 0
-	Program.state = State.SETTINGS
+	Program.changeScreenView(Program.SCREENS.SETTINGS)
 end

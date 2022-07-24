@@ -1,70 +1,73 @@
-State = {
-	TRACKER = "Tracker",
-	INFOSCREEN = "InfoScreen",
-	SETTINGS = "Settings",
-	THEME = "Theme",
-}
-
 Program = {
-	state = State.TRACKER,
+	currentScreen = 1,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	lastSeenEnemyAbilityId = 0,
 	isTransformed = false,
+	frames = {
+		waitToDraw = 0,
+		battleDataDelay = 0,
+		half_sec_update = 30,
+		three_sec_update = 180,
+		saveData = 3600,
+	},
 }
 
-Program.frames = {
-	waitToDraw = 0,
-	battleDataDelay = 0,
-	half_sec_update = 30,
-	three_sec_update = 180,
-	saveData = 3600,
+Program.SCREENS = {
+	TRACKER = 1,
+	INFO = 2,
+	SETTINGS = 3,
+	THEME = 4,
 }
+
+Program.currentScreen = Program.SCREENS.TRACKER
 
 function Program.main()
-	Input.update()
+	Input.checkForInput()
 
-	-- Updating data on pokemon should be unrelated to which screen is being displayed, otherwise the Tracker wouldn't know a battle ended in the Theme menu for example.
 	Program.updateTrackedAndCurrentData()
 
-	if Program.state == State.TRACKER then
-		-- Only draw the Tracker screen every half second (60 frames/sec)
-		if Program.frames.waitToDraw == 0 then
-			Program.frames.waitToDraw = 30
+	Program.redraw()
+end
 
-			TrackerScreen.updateButtonStates()
-
-			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-			-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-			if Tracker.Data.isViewingOwn then
-				Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
-			else
-				Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
-			end
-		end
-
-		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
-	elseif Program.state == State.INFOSCREEN then
-		if InfoScreen.redraw then
-			Drawing.drawInfoScreen()
-			InfoScreen.redraw = false
-		end
-	elseif Program.state == State.SETTINGS then
-		if Options.redraw then
-			Drawing.drawOptionsScreen()
-			Options.redraw = false
-		end
-	elseif Program.state == State.THEME then
-		if Theme.redraw and Program.frames.waitToDraw == 0 then
-			Program.frames.waitToDraw = 5
-			Drawing.drawThemeScreen()
-			Theme.redraw = false
-		elseif Program.frames.waitToDraw > 0 then -- Required because of Theme.redraw check
-			Program.frames.waitToDraw = Program.frames.waitToDraw - 1
-		end
+-- 'forced' = true will force a draw, skipping the normal frame wait time
+function Program.redraw(forced)
+	if forced then
+		Program.frames.waitToDraw = 0
 	end
+
+	-- Only redraw the screen every half second (60 frames/sec)
+	if Program.frames.waitToDraw > 0 then
+		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
+		return
+	end
+
+	Program.frames.waitToDraw = 30
+
+	if Program.currentScreen == Program.SCREENS.TRACKER then
+		TrackerScreen.updateButtonStates()
+
+		local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+		local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+
+		-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
+		if Tracker.Data.isViewingOwn then
+			Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
+		else
+			Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
+		end
+	elseif Program.currentScreen == Program.SCREENS.INFO then
+		Drawing.drawInfoScreen()
+	elseif Program.currentScreen == Program.SCREENS.SETTINGS then
+		Drawing.drawOptionsScreen()
+	elseif Program.currentScreen == Program.SCREENS.THEME then
+		Drawing.drawThemeScreen()
+	end
+end
+
+function Program.changeScreenView(screen)
+	Program.currentScreen = screen
+	Program.redraw(true)
 end
 
 function Program.updateTrackedAndCurrentData()
@@ -437,8 +440,8 @@ function Program.beginNewBattle(isWild)
 	Input.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
-	if Program.state == State.INFOSCREEN then
-		Program.state = State.TRACKER
+	if Program.currentScreen == Program.SCREENS.INFO then
+		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -472,8 +475,8 @@ function Program.endBattle(isWild)
 	end
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
-	if Program.state == State.INFOSCREEN then
-		Program.state = State.TRACKER
+	if Program.currentScreen == Program.SCREENS.INFO then
+		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen

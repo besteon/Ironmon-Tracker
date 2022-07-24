@@ -20,13 +20,13 @@ function Drawing.drawPokemonIcon(id, x, y)
 
 	extension = Constants.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
 
-	gui.drawImage(DATA_FOLDER .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
+	gui.drawImage(Main.DataFolder .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
 	if type == nil or type == "" then return end
 
-	gui.drawImage(DATA_FOLDER .. "/images/types/" .. type .. ".png", x, y, 30, 12)
+	gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
 end
 
 --[[
@@ -595,7 +595,7 @@ function Drawing.drawOptionsScreen()
 	end
 
 	-- Draw version number, TODO: Someone add a fun easter egg for clicking on it multiple times
-	Drawing.drawText(Constants.SCREEN.WIDTH + 87, 142, "v" .. TRACKER_VERSION, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 87, 142, "v" .. Main.TrackerVersion, Theme.COLORS["Default text"], shadowcolor)
 end
 
 function Drawing.drawThemeScreen()
@@ -618,8 +618,7 @@ function Drawing.drawInfoScreen()
 		-- Only draw valid pokemon data
 		local pokemonID = InfoScreen.infoLookup -- pokemonID = 0 is blank move data
 		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
-			Program.state = State.TRACKER
-			Program.waitToDrawFrames = 0
+			Program.changeScreenView(Program.SCREENS.TRACKER)
 			return
 		end
 
@@ -628,8 +627,7 @@ function Drawing.drawInfoScreen()
 		-- Only draw valid move data
 		local moveId = InfoScreen.infoLookup -- moveId = 0 is blank move data
 		if moveId < 1 or moveId > #MoveData.Moves then
-			Program.state = State.TRACKER
-			Program.waitToDrawFrames = 0
+			Program.changeScreenView(Program.SCREENS.TRACKER)
 			return
 		end
 

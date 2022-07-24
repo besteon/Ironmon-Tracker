@@ -10,7 +10,7 @@ Input.controller = {
 	boxVisibleFrames = 120,
 }
 
-function Input.update()
+function Input.checkForInput()
 	if Input.currentColorPicker ~= nil then
 		Input.currentColorPicker:handleInput()
 	else
@@ -36,17 +36,17 @@ function Input.checkJoypadInput(joypadButtons)
 		if Tracker.Data.inBattle then
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 		end
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 	end
 
 	-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
 	if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.prevJoypadInput[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
 		Input.controller.statIndex = (Input.controller.statIndex % 6) + 1
 		Input.controller.framesSinceInput = 0
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 	else
 		if Input.controller.framesSinceInput == Input.controller.boxVisibleFrames - 1 then
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 		if Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
 			Input.controller.framesSinceInput = Input.controller.framesSinceInput + 1
@@ -77,24 +77,22 @@ function Input.checkJoypadInput(joypadButtons)
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
-	if Program.state == State.TRACKER then
+	if Program.currentScreen == Program.SCREENS.TRACKER then
 		Input.checkButtonsClicked(xmouse, ymouse, TrackerScreen.buttons)
 
 		-- settings gear TODO: Turn this into a button
 		if Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 93, 7, 7, 7) then
-			Options.redraw = true
-			Program.frames.waitToDraw = 0
-			Program.state = State.SETTINGS
+			Program.changeScreenView(Program.SCREENS.SETTINGS)
 		end
 
 		local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 		Input.checkPokemonIconClicked(xmouse, ymouse, pokemon)
 		Input.checkAnyMovesClicked(xmouse, ymouse, pokemon)
-	elseif Program.state == State.INFOSCREEN then
+	elseif Program.currentScreen == Program.SCREENS.INFO then
 		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.buttons)
-	elseif Program.state == State.SETTINGS then
+	elseif Program.currentScreen == Program.SCREENS.SETTINGS then
 		Input.checkButtonsClicked(xmouse, ymouse, Options.buttons)
-	elseif Program.state == State.THEME then
+	elseif Program.currentScreen == Program.SCREENS.THEME then
 		Input.checkButtonsClicked(xmouse, ymouse, Theme.buttons)
 	end
 
@@ -102,13 +100,12 @@ function Input.checkMouseInput(xmouse, ymouse)
 	-- Clicked on a new move learned, show info
 	if Input.isInRange(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
 		-- Only lookup/show move if not editing settings
-		if Program.state == State.TRACKER or Program.state == State.INFOSCREEN then
+		if Program.currentScreen == Program.SCREENS.TRACKER or Program.currentScreen == Program.SCREENS.INFO then
 			local moveId = Program.getLearnedMoveId()
 			if moveId ~= nil then
 				InfoScreen.infoLookup = moveId
 				InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
-				InfoScreen.redraw = true
-				Program.state = State.INFOSCREEN
+				Program.changeScreenView(Program.SCREENS.INFO)
 			end
 		end
 	end
@@ -151,8 +148,7 @@ function Input.checkPokemonIconClicked(xmouse, ymouse, pokemon)
 	if pokemon ~= nil and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 5, 5, 32, 29) then
 		InfoScreen.infoLookup = pokemon.pokemonID
 		InfoScreen.viewScreen = InfoScreen.SCREENS.POKEMON_INFO
-		InfoScreen.redraw = true
-		Program.state = State.INFOSCREEN
+		Program.changeScreenView(Program.SCREENS.INFO)
 	end
 end
 
@@ -175,8 +171,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse, pokemon)
 			if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
 				InfoScreen.infoLookup = pokemonMoves[moveIndex].id
 				InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
-				InfoScreen.redraw = true
-				Program.state = State.INFOSCREEN
+				Program.changeScreenView(Program.SCREENS.INFO)
 				break
 			end
 			moveOffsetY = moveOffsetY + 10

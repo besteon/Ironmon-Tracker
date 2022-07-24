@@ -1,15 +1,12 @@
-InfoScreen = {}
-
--- Update drawing the info screen if true
-InfoScreen.redraw = true
-
-InfoScreen.SCREENS = {
-    POKEMON_INFO = "PokemonInfo",
-	MOVE_INFO = "MoveInfo",
+InfoScreen = {
+	viewScreen = 1,
+	infoLookup = 0 -- Either a PokemonID or a MoveID
 }
 
-InfoScreen.viewScreen = nil
-InfoScreen.infoLookup = 0 -- Either a PokemonID or a MoveID
+InfoScreen.SCREENS = {
+    POKEMON_INFO = 1,
+	MOVE_INFO = 2,
+}
 
 InfoScreen.buttons = {
 	lookupMove = {
@@ -67,8 +64,7 @@ InfoScreen.buttons = {
 		box = { Constants.SCREEN.WIDTH + 116, 141, 25, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		onClick = function(self)
-			Program.state = State.TRACKER
-			Program.frames.waitToDraw = 0
+			Program.changeScreenView(Program.SCREENS.TRACKER)
 		end
 	},
 	HiddenPower = {
@@ -98,7 +94,7 @@ InfoScreen.buttons = {
 				-- Then use the next index in sequence [1 -> 2], [2 -> 3], ... [N -> 1]
 				typeId = (typeId % #MoveData.HiddenPowerTypeList) + 1
 				Tracker.TrackHiddenPowerType(MoveData.HiddenPowerTypeList[typeId])
-				InfoScreen.redraw = true
+				Program.redraw(true)
 			end
 		end
 	},
@@ -118,7 +114,7 @@ function InfoScreen.showNextPokemon(delta)
 	end
 
 	InfoScreen.infoLookup = nextPokemonId
-	InfoScreen.redraw = true
+	Program.redraw(true)
 end
 
 function InfoScreen.openMoveInfoWindow()
@@ -151,7 +147,7 @@ function InfoScreen.openMoveInfoWindow()
 
 		if moveId ~= nil and moveId ~= 0 then
 			InfoScreen.infoLookup = moveId
-			InfoScreen.redraw = true
+			Program.redraw(true)
 		end
 		client.unpause()
 		forms.destroy(moveLookup)
@@ -189,7 +185,7 @@ function InfoScreen.openPokemonInfoWindow()
 
 		if pokemonId ~= nil and pokemonId ~= 0 then
 			InfoScreen.infoLookup = pokemonId
-			InfoScreen.redraw = true
+			Program.redraw(true)
 		end
 		client.unpause()
 		forms.destroy(pokedexLookup)

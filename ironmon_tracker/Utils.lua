@@ -86,6 +86,7 @@ function Utils.calcShadowColor(color, scale)
 	return (0xFF000000 + color_hexval)
 end
 
+-- scale is a value between 0 and 1; 0 doesn't alter the color at all, and 1 is pure grayscale (no saturation)
 function Utils.calcGrayscale(color, scale)
 	scale = scale or 0.80
 	local color_hexval = (color - 0xFF000000)
@@ -220,7 +221,7 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 end
 
 -- moveType required for Hidden Power tracked type
-function Utils.netEffectiveness(move, moveType, opposingTypes)
+function Utils.netEffectiveness(move, moveType, comparedTypes)
 	local effectiveness = 1.0
 
 	-- If type is unknown or typeless
@@ -231,15 +232,15 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
 	if move.power == Constants.NO_POWER then
 		if move.category ~= MoveData.Categories.STATUS then
-			if moveType == PokemonData.Types.NORMAL and (opposingTypes[1] == PokemonData.Types.GHOST or opposingTypes[2] == PokemonData.Types.GHOST) then
+			if moveType == PokemonData.Types.NORMAL and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif moveType == PokemonData.Types.FIGHTING and (opposingTypes[1] == PokemonData.Types.GHOST or opposingTypes[2] == PokemonData.Types.GHOST) then
+			elseif moveType == PokemonData.Types.FIGHTING and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif moveType == PokemonData.Types.PSYCHIC and (opposingTypes[1] == PokemonData.Types.DARK or opposingTypes[2] == PokemonData.Types.DARK) then
+			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
 				return 0.0
-			elseif moveType == PokemonData.Types.GROUND and (opposingTypes[1] == PokemonData.Types.FLYING or opposingTypes[2] == PokemonData.Types.FLYING) then
+			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
 				return 0.0
-			elseif moveType == PokemonData.Types.GHOST and (opposingTypes[1] == PokemonData.Types.NORMAL or opposingTypes[2] == PokemonData.Types.NORMAL) then
+			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then
 				return 0.0
 			end
 		end
@@ -247,7 +248,7 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 	end
 
 	-- Check effectiveness against each opposing type
-	for _, type in ipairs(opposingTypes) do
+	for _, type in ipairs(comparedTypes) do
 		local effectiveValue = MoveData.TypeToEffectiveness[moveType][type]
 		if effectiveValue ~= nil then
 			effectiveness = effectiveness * effectiveValue
@@ -258,13 +259,13 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 end
 
 -- moveType required for Hidden Power tracked type
-function Utils.isSTAB(move, moveType, ownMoveTypes)
-	if move == nil or ownMoveTypes == nil or move.power == Constants.NO_POWER then
+function Utils.isSTAB(move, moveType, comparedTypes)
+	if move == nil or comparedTypes == nil or move.power == Constants.NO_POWER then
 		return false
 	end
 
 	-- Check if the move's type matches any of the 'types' provided
-	for _, type in ipairs(ownMoveTypes) do
+	for _, type in ipairs(comparedTypes) do
 		if moveType == type then
 			return true
 		end

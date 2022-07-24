@@ -65,9 +65,8 @@ function ColorPicker:setColor()
 	self.color = self:RGB_to_Hex()
 	self.color = "0xFF"..self.color
 	Theme.COLORS[self.colorkey] = tonumber(self.color)
-	Theme.updated = true
-	Theme.redraw = true
-	Program.frames.waitToDraw = 0
+	Theme.settingsUpdated = true
+	Program.redraw(true)
 end
 
 function ColorPicker:RGB_to_Hex()
@@ -105,8 +104,8 @@ function ColorPicker:updateCirclePreview()
 		end
 		self:setColor()
 		forms.settext(self.colorTextBox,string.sub(self.color,5))
-		local path = DATA_FOLDER.."/images//colorPicker/HSVwheel3.png"
-		local gradientPath = DATA_FOLDER.."/images//colorPicker/HSVgradient.png"
+		local path = Main.DataFolder.."/images//colorPicker/HSVwheel3.png"
+		local gradientPath = Main.DataFolder.."/images//colorPicker/HSVgradient.png"
 		self.ellipsesPos = {x,y}
 		self:drawMainCanvas()
 	end
@@ -127,8 +126,8 @@ end
 
 function ColorPicker:drawMainCanvas()
 	forms.clear(self.mainCanvas,0x00000000)
-	local wheelPath = DATA_FOLDER.."/images//colorPicker/HSVwheel3.png"
-	local gradientPath = DATA_FOLDER.."/images//colorPicker/HSVgradient.png"
+	local wheelPath = Main.DataFolder.."/images//colorPicker/HSVwheel3.png"
+	local gradientPath = Main.DataFolder.."/images//colorPicker/HSVgradient.png"
 	forms.drawRectangle(self.mainCanvas,0,0,250,300,nil,0xFF404040)
 	forms.drawImage(self.mainCanvas,wheelPath,10,10,150,150)
 	forms.drawImage(self.mainCanvas,gradientPath,self.constants.SLIDER_X_POS,self.constants.SLIDER_Y_POS,self.constants.SLIDER_WIDTH,self.constants.SLIDER_HEIGHT)
@@ -163,8 +162,7 @@ function ColorPicker:show()
 	client.unpause()
 
 	-- Changes the tracker screen back to the main screen so you can see theme updates live
-	Program.state = State.TRACKER
-	Program.frames.waitToDraw = 0
+	Program.changeScreenView(Program.SCREENS.TRACKER)
 end
 
 function ColorPicker:onClick() 
@@ -179,10 +177,8 @@ end
 
 function ColorPicker:onClose()
 	Theme.COLORS[self.colorkey] = tonumber(self.originalColor)
-	Theme.updated = true
-	Theme.redraw = true
-	Program.frames.waitToDraw = 0
-	Program.state = State.THEME
+	Theme.settingsUpdated = true
+	Program.changeScreenView(Program.SCREENS.THEME)
 	Input.currentColorPicker = nil
 	forms.destroyall()
 end
@@ -265,9 +261,8 @@ function ColorPicker:convertHSVtoColorPicker()
 	self.ellipsesPos = {relativeX+self.circleCenter[1],relativeY+self.circleCenter[2]}
 	self:drawMainCanvas()
 	Theme.COLORS[self.colorkey] = tonumber(self.color)
-	Theme.updated = true
-	Theme.redraw = true
-	Program.frames.waitToDraw = 0
+	Theme.settingsUpdated = true
+	Program.redraw(true)
 end
 
 function ColorPicker:HSV_to_RGB()

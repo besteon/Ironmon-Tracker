@@ -1,4 +1,7 @@
 Options = {
+	-- Tracks if any option elements were modified so we know if we need to save them to the Settings.ini file
+	settingsUpdated = false,
+
 	ROMS_FOLDER = "",
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
@@ -20,12 +23,6 @@ Options = {
 		["Mark stat"] = "R",
 	},
 }
-
--- Update drawing the settings page if true
-Options.redraw = true
-
--- Tracks if settings were modified so we know if we need to update Settings.ini or not.
-Options.updated = false
 
 Options.buttons = {
 	romsFolder = {
@@ -67,10 +64,7 @@ Options.buttons = {
 		box = { Constants.SCREEN.WIDTH + 9, 140, 74, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onClick = function()
-			-- Navigate to the Theme Customization menu
-			Program.state = State.THEME
-			Theme.redraw = true
-			Program.frames.waitToDraw = 0
+			Program.changeScreenView(Program.SCREENS.THEME)
 		end
 	},
 	close = {
@@ -82,8 +76,7 @@ Options.buttons = {
 		onClick = function()
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.state = State.TRACKER
-			Program.frames.waitToDraw = 0
+			Program.changeScreenView(Program.SCREENS.TRACKER)
 		end
 	},
 }
@@ -115,9 +108,8 @@ function Options.initialize()
 					Tracker.Data.hasCheckedSummary = not Options["Hide stats until summary shown"]
 				end
 
-				Options.updated = true
-				Options.redraw = true
-				Program.frames.waitToDraw = 0
+				Options.settingsUpdated = true
+				Program.redraw(true)
 			end
 		}
 
@@ -138,10 +130,11 @@ function Options.openRomPickerWindow()
 			Options.ROMS_FOLDER = ""
 		end
 
-		Options.updated = true
-		Options.redraw = true
-		Program.frames.waitToDraw = 0
-		Main.SaveSettings() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+		Options.settingsUpdated = true
+		Program.redraw(true)
+
+		-- Save these changes to the file to avoid case where user resets before clicking the Close button
+		Main.SaveSettings()
 	end
 end
 
@@ -175,7 +168,7 @@ function Options.openEditControlsWindow()
 			controlCombination = controlCombination:sub(1, -3)
 
 			Options.CONTROLS[controlKey] = controlCombination
-			Options.updated = true
+			Options.settingsUpdated = true
 			index = index + 1
 		end
 
