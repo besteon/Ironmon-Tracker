@@ -586,7 +586,7 @@ function Drawing.drawOptionsScreen()
 	end
 	
 	-- Draw Roms folder location, or the notepad icon if it's not set
-	local folderText = Utils.truncateRomsFolder(Settings.config.ROMS_FOLDER)
+	local folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
 	if folderText ~= "" then
 		Drawing.drawText(Options.buttons.romsFolder.box[1] + 54, Options.buttons.romsFolder.box[2], folderText, Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
 	else

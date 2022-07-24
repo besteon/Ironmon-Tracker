@@ -1,4 +1,6 @@
 Options = {
+	ROMS_FOLDER = "",
+
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
 	["Auto swap to enemy"] = true,
 	["Hide stats until summary shown"] = false,
@@ -79,7 +81,7 @@ Options.buttons = {
 		boxColors = { "Upper box border", "Upper box background" },
 		onClick = function()
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			Options.saveOptions()
+			Main.SaveSettings()
 			Program.state = State.TRACKER
 			Program.frames.waitToDraw = 0
 		end
@@ -87,9 +89,6 @@ Options.buttons = {
 }
 
 function Options.initialize()
-	-- First load all of the option settings from the Settings.ini file
-	Options.loadOptions()
-
 	local index = 1
 	local heightOffset = 35
 
@@ -107,7 +106,6 @@ function Options.initialize()
 				-- Toggle the setting and store the change to be saved later in Settings.ini
 				Options[self.text] = not Options[self.text]
 				self.toggleState = Options[self.text]
-				Settings.tracker[string.gsub(self.text, " ", "_")] = Options[self.text]
 
 				if self.text == "PC heals count downward" then
 					-- If PC Heal tracking switched, invert the count
@@ -129,96 +127,22 @@ function Options.initialize()
 	end
 end
 
--- Loads the options defined in Settings.ini into the Tracker's constants
-function Options.loadOptions()
-	-- If no Settings.ini file was present, or sections were missing, define them here
-	if Settings == nil then Settings = {} end
-	if Settings.config == nil then Settings.config = {} end
-	if Settings.tracker == nil then Settings.tracker = {} end
-	if Settings.controls == nil then Settings.controls = {} end
-	if Settings.theme == nil then Settings.theme = {} end
-
-	-- If ROMS_FOLDER is left empty, Inifile.lua doesn't add it to the settings table, resulting in the ROMS_FOLDER 
-	-- being deleted entirely from Settings.ini if another setting is toggled in the tracker options menu
-	if Settings.config.ROMS_FOLDER == nil then
-		Settings.config.ROMS_FOLDER = ""
-		Options.updated = true
-	end
-
-	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
-		local optionValue = Settings.tracker[string.gsub(optionKey, " ", "_")]
-
-		-- If no setting is found, assign it based on the defaults
-		if optionValue == nil then
-			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
-			Options.updated = true
-		else -- Otherwise update the setting that is in use with the one from Settings.ini
-			Options[optionKey] = optionValue
-		end
-	end
-
-	for optionKey, optionValue in pairs(Options.CONTROLS) do
-		local controlValue = Settings.controls[string.gsub(optionKey, " ", "_")]
-
-		-- If no control is found, assign it based on the defaults
-		if controlValue == nil then
-			Settings.controls[string.gsub(optionKey, " ", "_")] = Options.CONTROLS[optionKey]
-			Options.updated = true
-		else -- Otherwise update the control that is in use with the one from Settings.ini
-			Options.CONTROLS[optionKey] = controlValue
-		end
-	end
-
-	Options.redraw = true
-	Program.frames.waitToDraw = 0
-end
-
--- Saves all in-memory Options and Theme elements into the Settings object, to be written to Settings.ini
-function Options.saveOptions()
-	-- Save the tracker's currently loaded settings into the Settings object to be saved
-	if Options.updated then
-		for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
-			Settings.tracker[string.gsub(optionKey, " ", "_")] = Options[optionKey]
-		end
-		for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
-			Settings.controls[string.gsub(controlKey, " ", "_")] = Options.CONTROLS[controlKey]
-		end
-	end
-
-	-- Save the tracker's currently loaded theme into the Settings object to be saved
-	if Theme.updated then
-		for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
-			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
-		end
-	end
-
-	if Options.updated or Theme.updated then
-		INI.save("Settings.ini", Settings)
-	end
-	Options.updated = false
-	Theme.updated = false
-end
-
 function Options.openRomPickerWindow()
-	if Settings.config.ROMS_FOLDER == nil then
-		Settings.config.ROMS_FOLDER = ""
-	end
-
 	-- Use the standard file open dialog to get the roms folder
 	local filterOptions = "ROM File (*.GBA)|*.GBA|All files (*.*)|*.*"
-	local file = forms.openfile("SELECT A ROM", Settings.config.ROMS_FOLDER, filterOptions)
-	-- Since the user had to pick a file, strip out the file name to just get the folder.
+	local file = forms.openfile("SELECT A ROM", Options.ROMS_FOLDER, filterOptions)
 	if file ~= "" then
-		Settings.config.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
-		if Settings.config.ROMS_FOLDER == nil then
-			Settings.config.ROMS_FOLDER = ""
+		-- Since the user had to pick a file, strip out the file name to just get the folder.
+		Options.ROMS_FOLDER = string.sub(file, 0, string.match(file, "^.*()\\") - 1)
+		if Options.ROMS_FOLDER == nil then
+			Options.ROMS_FOLDER = ""
 		end
-	end
 
-	Options.updated = true
-	Options.redraw = true
-	Program.frames.waitToDraw = 0
-	Options.saveOptions() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+		Options.updated = true
+		Options.redraw = true
+		Program.frames.waitToDraw = 0
+		Main.SaveSettings() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+	end
 end
 
 function Options.openEditControlsWindow()
@@ -255,7 +179,7 @@ function Options.openEditControlsWindow()
 			index = index + 1
 		end
 
-		Options.saveOptions() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+		Main.SaveSettings() -- Save these changes to the file to avoid case where user resets before clicking the Close button
 		client.unpause()
 		forms.destroy(form)
 	end, 120, offsetY + 5, 95, 30)

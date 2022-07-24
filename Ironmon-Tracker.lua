@@ -3,6 +3,8 @@
 
 -- The latest version of the tracker. Should be updated with each PR.
 TRACKER_VERSION = "0.5.3"
+-- Root folder for the project data and sub scripts
+DATA_FOLDER = "ironmon_tracker"
 
 print("\nIronmon-Tracker v" .. TRACKER_VERSION)
 
@@ -14,20 +16,13 @@ if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversi
 	return
 end
 
--- Root folder for the project data and sub scripts
-DATA_FOLDER = "ironmon_tracker"
-
--- Get the user settings saved on disk and create the base Settings object
-INI = dofile(DATA_FOLDER .. "/Inifile.lua")
--- Need to manually read the file to work around a bug in the ini parser, which
--- does not correctly handle that the last iteration over lines() returns nil
-local file = io.open("Settings.ini")
-if file ~= nil then
-	Settings = INI.parse(file:read("*a"), "memory")
-	io.close(file)
-end
+Main = {
+	Settings = {},
+	LoadNextSeed = false,
+}
 
 -- Import all scripts before starting the main loop
+dofile(DATA_FOLDER .. "/Inifile.lua")
 dofile(DATA_FOLDER .. "/Constants.lua")
 dofile(DATA_FOLDER .. "/PokemonData.lua")
 dofile(DATA_FOLDER .. "/MoveData.lua")
@@ -46,24 +41,22 @@ dofile(DATA_FOLDER .. "/Program.lua")
 dofile(DATA_FOLDER .. "/Pickle.lua")
 dofile(DATA_FOLDER .. "/Tracker.lua")
 
-Main = {}
-Main.LoadNextSeed = false
-
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
 	client.pause()
 	local form = forms.newform(400, 130, "[v" .. TRACKER_VERSION .. "] Woops, there's been an error!", function() return end)
 	Utils.setFormLocation(form, 100, 50)
-	forms.label(form, errMessage,  18, 10, 400, 50)
+	forms.label(form, errMessage, 18, 10, 400, 50)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
 	end, 155, 70)
-	return
 end
 
 -- Main loop
 function Main.Run()
+	Main.LoadSettings()
+
 	print("Waiting for ROM to be loaded...")
 	local romLoaded = false
 	while not romLoaded do
@@ -103,7 +96,7 @@ function Main.LoadNext()
 	Tracker.clearData()
 	print("Tracker data has been reset.\nAttempting to load next ROM...")
 
-	if Settings.config.ROMS_FOLDER == nil or Settings.config.ROMS_FOLDER == "" then
+	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
 		print("ERROR: ROMS_FOLDER unspecified\n")
 		Main.DisplayError("ROMS_FOLDER unspecified.\n\nSet this in the Tracker's options menu, or the Settings.ini file.")
 		Main.LoadNextSeed = false
@@ -116,17 +109,11 @@ function Main.LoadNext()
 	local romprefix = string.match(romname, '[^0-9]+')
 	local romnumber = string.match(romname, '[0-9]+')
 	if romprefix == nil then romprefix = "" end
-
-	if romnumber == nil then
-		print("ERROR: No number in ROM name\n")
-		Main.DisplayError("Unable to load next ROM: no numbers in current ROM name.\n\nCurrent ROM: " .. romname .. ".gba")
-		Main.LoadNextSeed = false
-		Main.Run()
-	end
+	if romnumber == nil then romnumber = "0" end
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
-	local nextrompath = Settings.config.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+	local nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
 	local filecheck = io.open(nextrompath,"r")
@@ -135,7 +122,7 @@ function Main.LoadNext()
 		io.close(filecheck)
 	else
 		nextromname = nextromname:gsub(" ", "_")
-		nextrompath = Settings.config.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+		nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
 		filecheck = io.open(nextrompath,"r")
 		if filecheck == nil then
 			-- This means there doesn't exist a ROM file with spaces or underscores
@@ -157,6 +144,113 @@ function Main.LoadNext()
 	client.SetSoundOn(true)
 	Main.LoadNextSeed = false
 	Main.Run()
+end
+
+-- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
+function Main.LoadSettings()
+	local settings = nil
+
+	-- Need to manually read the file to work around a bug in the ini parser, which
+	-- does not correctly handle that the last iteration over lines() returns nil
+	local file = io.open("Settings.ini")
+	if file ~= nil then
+		settings = Inifile.parse(file:read("*a"), "memory")
+		io.close(file)
+	end
+
+	-- If a Settings.ini file exists with data, use that; otherwise just use defaults
+	if settings == nil then
+		return false
+	end
+
+	-- [CONFIG]
+	if settings.config ~= nil then
+		if settings.config.ROMS_FOLDER ~= nil then
+			Options.ROMS_FOLDER = settings.config.ROMS_FOLDER
+		end
+	end
+
+	-- [TRACKER]
+	if settings.tracker ~= nil then
+		for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
+			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+	
+			if optionValue ~= nil then
+				Options[optionKey] = optionValue
+			end
+		end
+	end
+
+	-- [CONTROLS]
+	if settings.controls ~= nil then
+		for optionKey, _ in pairs(Options.CONTROLS) do
+			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+	
+			if controlValue ~= nil then
+				Options.CONTROLS[optionKey] = controlValue
+			end
+		end
+	end
+
+	-- [THEME]
+	if settings.theme ~= nil then
+		for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+			local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+	
+			if color_hexval ~= nil then
+				Theme.COLORS[colorkey] = 0xFF000000 + tonumber(color_hexval, 16)
+			end
+		end
+
+		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
+		if enableMoveTypes ~= nil then
+			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
+			Theme.buttons.moveTypeEnabled.toggleState = enableMoveTypes
+		end
+	end
+
+	return true
+end
+
+-- Saves the user settings on to disk
+function Main.SaveSettings()
+	-- Don't bother saving to a file if nothing has changed
+	if not Options.updated and not Theme.updated then
+		return
+	end
+
+	local settings = {
+		config = {},
+		tracker = {},
+		controls = {},
+		theme = {},
+	}
+
+	-- [CONFIG]
+	settings.config.ROMS_FOLDER = Options.ROMS_FOLDER
+
+	-- [TRACKER]
+	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
+		local encodedKey = string.gsub(optionKey, " ", "_")
+		settings.tracker[encodedKey] = Options[optionKey]
+	end
+
+	-- [CONTROLS]
+	for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
+		local encodedKey = string.gsub(controlKey, " ", "_")
+		settings.controls[encodedKey] = Options.CONTROLS[controlKey]
+	end
+
+	-- [THEME]
+	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+		local encodedKey = string.gsub(colorkey, " ", "_")
+		settings.theme[encodedKey] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
+	end
+	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
+	
+	Inifile.save("Settings.ini", settings)
+	Options.updated = false
+	Theme.updated = false
 end
 
 Main.Run()

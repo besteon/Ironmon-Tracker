@@ -1,4 +1,4 @@
-local inifile = {
+Inifile = {
 	_VERSION = "inifile 1.0",
 	_DESCRIPTION = "Inifile is a simple, complete ini parser for lua",
 	_URL = "http://docs.bartbes.com/inifile",
@@ -52,7 +52,7 @@ if love then
 	defaultBackend = "love"
 end
 
-function inifile.parse(name, backend)
+function Inifile.parse(name, backend)
 	backend = backend or defaultBackend
 	local t = {}
 	local section
@@ -90,16 +90,16 @@ function inifile.parse(name, backend)
 		end
 	end
 
-	-- Store our metadata in the __inifile field in the metatable
+	-- Store our metadata in the __Inifile field in the metatable
 	return setmetatable(t, {
-		__inifile = {
+		__Inifile = {
 			comments = comments,
 			sectionorder = sectionorder,
 		}
 	})
 end
 
-function inifile.save(name, t, backend)
+function Inifile.save(name, t, backend)
 	backend = backend or defaultBackend
 	local contents = {}
 
@@ -107,7 +107,7 @@ function inifile.save(name, t, backend)
 	local metadata = getmetatable(t)
 	local comments, sectionorder
 
-	if metadata then metadata = metadata.__inifile end
+	if metadata then metadata = metadata.__Inifile end
 	if metadata then
 		comments = metadata.comments
 		sectionorder = metadata.sectionorder
@@ -181,5 +181,3 @@ function inifile.save(name, t, backend)
 	file:write(table.concat(contents, "\n"))
 	io.close(file)
 end
-
-return inifile
