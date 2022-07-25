@@ -142,6 +142,7 @@ function TrackerScreen.updateButtonStates()
 
 		for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
 			local statValue = statMarkings[statKey]
+			TrackerScreen.buttons[statKey].statState = statValue
 			TrackerScreen.buttons[statKey].text = Constants.STAT_STATES[statValue].text
 			TrackerScreen.buttons[statKey].textColor = Constants.STAT_STATES[statValue].textColor
 		end
