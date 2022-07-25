@@ -54,7 +54,7 @@ function GameSettings.initialize()
 	elseif gamecode == 0x41585045 then
 		GameSettings.setGameAsSapphire(gameversion)
 	elseif gamecode == 0x42504545 then
-		GameSettings.setGameAsEmerald(gameversion)
+		GameSettings.setGameAsEmerald()
 	elseif gamecode == 0x42505245 then
 		GameSettings.setGameAsFireRed(gameversion)
 	elseif gamecode == 0x42504745 then
@@ -292,7 +292,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	end
 end
 
-function GameSettings.setGameAsEmerald(gameversion)
+function GameSettings.setGameAsEmerald()
 	print("ROM Detected: Pokemon Emerald")
 
 	GameSettings.gBaseStats = 0x083203cc

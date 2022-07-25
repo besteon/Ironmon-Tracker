@@ -1,4 +1,4 @@
-local inifile = {
+Inifile = {
 	_VERSION = "inifile 1.0",
 	_DESCRIPTION = "Inifile is a simple, complete ini parser for lua",
 	_URL = "http://docs.bartbes.com/inifile",
@@ -52,7 +52,7 @@ if love then
 	defaultBackend = "love"
 end
 
-function inifile.parse(name, backend)
+function Inifile.parse(name, backend)
 	backend = backend or defaultBackend
 	local t = {}
 	local section
@@ -90,24 +90,23 @@ function inifile.parse(name, backend)
 		end
 	end
 
-	-- Store our metadata in the __inifile field in the metatable
+	-- Store our metadata in the __Inifile field in the metatable
 	return setmetatable(t, {
-		__inifile = {
+		__Inifile = {
 			comments = comments,
 			sectionorder = sectionorder,
 		}
 	})
 end
 
-function inifile.save(name, t, backend)
-	backend = backend or defaultBackend
+function Inifile.save(name, t)
 	local contents = {}
 
 	-- Get our metadata if it exists
 	local metadata = getmetatable(t)
 	local comments, sectionorder
 
-	if metadata then metadata = metadata.__inifile end
+	if metadata then metadata = metadata.__Inifile end
 	if metadata then
 		comments = metadata.comments
 		sectionorder = metadata.sectionorder
@@ -116,7 +115,7 @@ function inifile.save(name, t, backend)
 	-- If there are comments before sections,
 	-- write them out now
 	if comments and comments[comments] then
-		for i, v in ipairs(comments[comments]) do
+		for _, v in ipairs(comments[comments]) do
 			table.insert(contents, (";%s"):format(v))
 		end
 		table.insert(contents, "")
@@ -138,7 +137,7 @@ function inifile.save(name, t, backend)
 		-- Write our comments out again, sadly we have only achieved
 		-- section-accuracy so far
 		if comments and comments[section] then
-			for i, v in ipairs(comments[section]) do
+			for _, v in ipairs(comments[section]) do
 				table.insert(contents, (";%s"):format(v))
 			end
 		end
@@ -181,5 +180,3 @@ function inifile.save(name, t, backend)
 	file:write(table.concat(contents, "\n"))
 	io.close(file)
 end
-
-return inifile
