@@ -57,6 +57,10 @@ function GameSettings.initialize()
 		GameSettings.setGameAsEmerald()
 	elseif gamecode == 0x42505245 then
 		GameSettings.setGameAsFireRed(gameversion)
+	elseif gamecode == 0x42505253 then
+		GameSettings.setGameAsFireRedSpanish(gameversion)
+	elseif gamecode == 0x42505246 then
+		GameSettings.setGameAsFireRedFrench(gameversion)
 	elseif gamecode == 0x42504745 then
 		GameSettings.setGameAsLeafGreen(gameversion)
 	end
@@ -95,6 +99,24 @@ function GameSettings.setGameInfo(gamecode)
 		[0x42505245] = {
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon FireRed (U)",
+			VERSION_GROUP = 2,
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42505253] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Rojo Fuego (Spain)",
+			VERSION_GROUP = 2,
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42505246] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Rouge Feu (France)",
 			VERSION_GROUP = 2,
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
@@ -489,6 +511,164 @@ function GameSettings.setGameAsFireRed(gameversion)
 	end
 end
 
+function GameSettings.setGameAsFireRedSpanish(gameversion)
+	if gameversion == 0x005A0000 then
+		print("ROM Detected: Pokemon Rojo Fuego")
+		GameSettings.gBaseStats = 0x082547f4
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
+		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74 --seems like they are same as fr but not sure
+		--this section is not tested but everything was the same so lets hope 
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
+		GameSettings.gSaveBlock1ptr = 0x03004F58
+		GameSettings.gSaveBlock2ptr = 0x03004F5C
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.EncryptionKeyOffset = 0xF20
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
+		--so take what you get from firered v1.v and find where drizzle is
+		GameSettings.ABILITIES = {
+			[0x081d8db1] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081D8DCC] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081D8ED3] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081D8EE1] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081D6D77] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
+			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
+			[0x081D8F76] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+			[0x081D8FD1] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081D6981] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081D8F32] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust
+			[0x081D8F92] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+			[0x081D8E3F] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081D8FE5] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
+			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
+			[0x081D9000] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081D8F48] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081D8DD3] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
+			[0x081D8FA8] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081D8DE0] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081D8DF1] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			[0x081D8FB6] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081D9029] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081D8FF9] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081D8FC0] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081D8E08] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
+			[0x081D8EAB] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081D6506] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
+		}
+	end
+end
+
+function GameSettings.setGameAsFireRedFrench(gameversion)
+	if gameversion == 0x00670000 then
+		print("ROM Detected: Pokemon Rouge Feu")
+		GameSettings.gBaseStats = 0x082547f4
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
+		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74 --seems like they are same as fr but not sure
+		--this section is not tested but everything was the same so lets hope 
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
+		GameSettings.gSaveBlock1ptr = 0x03004F58
+		GameSettings.gSaveBlock2ptr = 0x03004F5C
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.EncryptionKeyOffset = 0xF20
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
+		--so take what you get from firered v1.v and find where drizzle is
+		GameSettings.ABILITIES = {
+			[0x081d7a51] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081D7A6C] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081D7B73] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081D7B81] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081D5A17] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
+			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
+			[0x081D7C16] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+			[0x081D7C71] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081D5621] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081D7BD2] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust
+			[0x081D7C32] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+			[0x081D7ADF] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081D7C85] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
+			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
+			[0x081D7CA0] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081D7BE8] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081D7A73] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
+			[0x081D7C48] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081D7A80] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081D7A91] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			[0x081D7C56] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081D7CC9] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081D7C99] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081D7C60] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081D7AA8] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
+			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
+		}
+	end
+end
+
 function GameSettings.setGameAsLeafGreen(gameversion)
 	if gameversion == 0x01800000 then
 		print("ROM Detected: Pokemon Leaf Green v1.1")
@@ -614,6 +794,12 @@ end
 function GameSettings.getTrackerAutoSaveName()
 	if GameSettings.gamename == "" then
 		return "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	elseif GameSettings.gamename:sub(-8) == " (Spain)" then -- spain
+		-- Remove trailing " (spain)" from game name
+		return GameSettings.gamename:sub(1, -9) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	elseif GameSettings.gamename:sub(-9) == " (France)" then
+		-- Remove trailing " (france)" from game name
+		return GameSettings.gamename:sub(1, -10) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
 	else
 		-- Remove trailing " (U)" from game name
 		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
