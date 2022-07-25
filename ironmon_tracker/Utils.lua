@@ -407,9 +407,11 @@ function Utils.writeTableToFile(table, filename)
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
 
-		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end --append a trailing \n if one is absent
+		--append a trailing \n if one is absent
+		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
 			file:write(dataLine)
+			file:write("\n")
 		end
 		file:close()
 	else
