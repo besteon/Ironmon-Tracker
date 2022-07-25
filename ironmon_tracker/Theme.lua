@@ -1,4 +1,7 @@
 Theme = {
+	-- Tracks if any theme elements were modified so we know if we need to save them to the Settings.ini file
+	settingsUpdated = false,
+
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
 		["Default text"] = 0xFFFFFFFF,
@@ -14,7 +17,7 @@ Theme = {
 	},
 	-- If move types are enabled then the Move Names themselves will be drawn with a color representing their type.
 	MOVE_TYPES_ENABLED = true,
-	
+
 	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
 	PRESET_STRINGS = {
 		["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
@@ -29,12 +32,6 @@ Theme = {
 		["Neon Lights"] = "FFFFFF 38FF12 FF00E3 FFF100 FFFFFF 00F5FB 000000 001EFF 000000 000000 1",
 	},
 }
-
--- Update drawing the theme page if true
-Theme.redraw = true
-
--- Tracks if any theme elements were modified so we know if we need to update Settings.ini or not.
-Theme.updated = false
 
 Theme.buttons = {
 	importTheme = {
@@ -68,15 +65,13 @@ Theme.buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + 10, 125, Constants.SCREEN.RIGHT_GAP - 12, 11 },
 		box = { Constants.SCREEN.WIDTH + 9, 125, 8, 8 },
 		boxColors = { "Lower box border", "Lower box background" },
-		toggleState = Settings.theme["MOVE_TYPES_ENABLED"],
+		toggleState = Theme.MOVE_TYPES_ENABLED,
 		toggleColor = "Positive text",
 		onClick = function(self)
-			Settings.theme["MOVE_TYPES_ENABLED"] = not Settings.theme["MOVE_TYPES_ENABLED"] -- toggle the setting
-			self.toggleState = Settings.theme["MOVE_TYPES_ENABLED"]
-			Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
-			Theme.redraw = true
-			Theme.updated = true
-			Program.frames.waitToDraw = 0
+			self.toggleState = not self.toggleState -- toggle the setting
+			Theme.MOVE_TYPES_ENABLED = self.toggleState
+			Theme.settingsUpdated = true
+			Program.redraw(true)
 		end
 	},
 	restoreDefaults = {
@@ -94,20 +89,16 @@ Theme.buttons = {
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
-		onClick = function() Theme.closeMenuAndSave() end
+		onClick = function() Theme.closeThemeScreen() end
 	},
 }
 
 function Theme.initialize()
-	-- First load all of the theme settings from the Settings.ini file
-	Theme.loadTheme()
-
 	local index = 1
 	local heightOffset = 25
-	local button = {}
 
 	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
-		button = {
+		Theme.buttons[colorkey] = {
 			type = Constants.BUTTON_TYPES.COLORPICKER,
 			text = colorkey,
 			clickableArea = { Constants.SCREEN.WIDTH + 10, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 11 },
@@ -117,7 +108,6 @@ function Theme.initialize()
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
 		}
 
-		Theme.buttons[colorkey] = button
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
@@ -127,33 +117,6 @@ function Theme.initialize()
 	Theme.buttons.moveTypeEnabled.box[2] = heightOffset
 end
 
--- Loads the theme defined in Settings into the Tracker's constants
-function Theme.loadTheme()
-	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
-		local color_hexval = Settings.theme[string.gsub(colorkey, " ", "_")]
-
-		-- If no theme is found, assign it based on the defaults
-		if color_hexval == nil then
-			Settings.theme[string.gsub(colorkey, " ", "_")] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
-			Theme.updated = true
-		else -- Otherwise update the theme that is in use with the one from Settings.ini
-			Theme.COLORS[colorkey] = tonumber(color_hexval, 16) + 0xFF000000
-		end
-	end
-
-	if Settings.theme["MOVE_TYPES_ENABLED"] == nil then
-		Settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
-		Theme.updated = true
-	else
-		Theme.MOVE_TYPES_ENABLED = Settings.theme["MOVE_TYPES_ENABLED"]
-	end
-
-	-- Update the button state for the checkbox
-	Theme.buttons.moveTypeEnabled.toggleState = Settings.theme["MOVE_TYPES_ENABLED"]
-
-	Theme.redraw = true
-	Program.frames.waitToDraw = 0
-end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
@@ -174,22 +137,25 @@ function Theme.importThemeFromText(theme_config)
 			if color < 0x000000 or color > 0xFFFFFF then
 				return false
 			end
-	
+
 			numHexCodes = numHexCodes + 1
 			theme_colors[numHexCodes] = color_text
 		end
 	end
 
-	-- Apply as much of the imported theme config to our Settings as possible (must remain compatible with gen4/gen5 Tracker), then load it
+	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
 	local index = 1
 	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do -- Only use the first 10 hex codes
-		Settings.theme[string.gsub(colorkey, " ", "_")] = theme_colors[index]
+		Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
 		index = index + 1
 	end
-	Settings.theme["MOVE_TYPES_ENABLED"] = Utils.inlineIf(string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0", false, true)
 
-	Theme.updated = true
-	Theme.loadTheme()
+	local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
+	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
+	Theme.buttons.moveTypeEnabled.toggleState = enableMoveTypes
+
+	Theme.settingsUpdated = true
+	Program.redraw(true)
 
 	return true
 end
@@ -240,7 +206,7 @@ function Theme.openExportWindow()
 	local form = forms.newform(465, 125, "Theme Export", function() return end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
-	local exportTextBox = forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
+	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
 	forms.button(form, "Close", function()
 		forms.destroy(form)
 	end, 187, 55)
@@ -277,22 +243,18 @@ function Theme.tryRestoreDefaultTheme()
 		defaultBtn.textColor = "Negative text"
 		defaultBtn.confirmReset = true
 
-		Theme.redraw = true
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 	end
 end
 
-function Theme.closeMenuAndSave()
-	local defaultBtn = Theme.buttons.restoreDefaults
+function Theme.closeThemeScreen()
 	-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
+	local defaultBtn = Theme.buttons.restoreDefaults
 	if defaultBtn.confirmReset then
 		defaultBtn.text = "Restore Defaults"
 		defaultBtn.textColor = "Default text"
 		defaultBtn.confirmReset = false
 	end
 
-	-- Inform the Tracker Program to load the Options screen
-	Options.redraw = true
-	Program.frames.waitToDraw = 0
-	Program.state = State.SETTINGS
+	Program.changeScreenView(Program.SCREENS.SETTINGS)
 end
