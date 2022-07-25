@@ -106,7 +106,7 @@ function GameSettings.setGameInfo(gamecode)
 		},
 		[0x42505253] = {
 			GAME_NUMBER = 3,
-			GAME_NAME = "Pokemon Rojo Fuego (fr spanish)",
+			GAME_NAME = "Pokemon Rojo Fuego (Spain)",
 			VERSION_GROUP = 2,
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
@@ -115,7 +115,7 @@ function GameSettings.setGameInfo(gamecode)
 		},
 		[0x42505246] = {
 			GAME_NUMBER = 3,
-			GAME_NAME = "Pokemon Rouge Feu (fr french)",
+			GAME_NAME = "Pokemon Rouge Feu (France)",
 			VERSION_GROUP = 2,
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
@@ -503,7 +503,8 @@ end
 
 function GameSettings.setGameAsFireRedSpanish(gameversion)
 	if gameversion == 0x005A0000 then
-		print("ROM Detected: Pokemon Rojo Fuego (fr spanish)")
+		print("ROM Detected: Pokemon Rojo Fuego")
+		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
 		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
@@ -581,7 +582,8 @@ end
 
 function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
-		print("ROM Detected: Pokemon Rojo Fuego (fr french)")
+		print("ROM Detected: Pokemon Rouge Feu")
+		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
 		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
@@ -780,6 +782,12 @@ end
 function GameSettings.getTrackerAutoSaveName()
 	if GameSettings.gamename == "" then
 		return "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	elseif GameSettings.gamename:sub(-8) == " (Spain)" then -- spain
+		-- Remove trailing " (spain)" from game name
+		return GameSettings.gamename:sub(1, -9) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	elseif GameSettings.gamename:sub(-9) == " (France)" then
+		-- Remove trailing " (france)" from game name
+		return GameSettings.gamename:sub(1, -10) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
 	else
 		-- Remove trailing " (U)" from game name
 		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
