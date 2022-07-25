@@ -210,7 +210,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local aux          = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
@@ -220,13 +220,13 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	-- Unused data memory reads
 	-- local effort1 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
 	-- local effort2 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
 	-- local misc1   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
-	-- local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 	-- local misc3   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
@@ -235,6 +235,10 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	-- 		+ Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
 	-- 		+ Utils.addhalves(misc1) + Utils.addhalves(misc2) + Utils.addhalves(misc3)
 	-- cs = cs % 65536
+
+	local species = Utils.getbits(growth1, 0, 16) -- Pokemon's Pokedex ID
+	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
+	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
 
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
@@ -266,12 +270,12 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local pokemonData = {
 		personality = personality,
 		trainerID = Utils.getbits(otid, 0, 16),
-		pokemonID = Utils.getbits(growth1, 0, 16),
+		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
 		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
-		abilityId = nil, -- Leave unset, since this currently can only be found via in-battle data
+		abilityId = abilityId,
 		status = status_result,
 		sleep_turns = sleep_turns_result,
 		curHP = Utils.getbits(level_and_currenthp, 16, 16),
@@ -319,9 +323,10 @@ function Program.updateBattleDataFromMemory()
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
 	if ownersPokemon ~= nil and opposingPokemon ~= nil then
-		Program.updateAbilityDataFromMemory(ownersPokemon, true)
-		Program.updateAbilityDataFromMemory(opposingPokemon, false)
-	
+		-- TODO: Supposedly we no longer need these, given new ability info recently discovered. Leaving this here just in-case
+		-- Program.updateAbilityDataFromMemory(ownersPokemon, true)
+		-- Program.updateAbilityDataFromMemory(opposingPokemon, false)
+
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 

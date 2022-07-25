@@ -7,6 +7,7 @@ GameSettings = {
 	pstats = 0,
 	estats = 0,
 
+	gBaseStats = 0x00000000,
 	sMonSummaryScreen = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 	sBattlerAbilities = 0x00000000,
@@ -130,6 +131,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	if gameversion == 0x00410000 then
 		print("ROM Detected: Pokemon Ruby v1.0")
 
+		GameSettings.gBaseStats = 0x081fec18
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -155,6 +157,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x01400000 then
 		print("ROM Detected: Pokemon Ruby v1.1")
 
+		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -180,6 +183,7 @@ function GameSettings.setGameAsRuby(gameversion)
 	elseif gameversion == 0x023F0000 then
 		print("ROM Detected: Pokemon Ruby v1.2")
 
+		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -210,6 +214,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	if gameversion == 0x00550000 then
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
+		GameSettings.gBaseStats = 0x081feba8
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -235,6 +240,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x1540000 then
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
+		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -260,6 +266,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 	elseif gameversion == 0x02530000 then
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
+		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -288,6 +295,7 @@ end
 function GameSettings.setGameAsEmerald(gameversion)
 	print("ROM Detected: Pokemon Emerald")
 
+	GameSettings.gBaseStats = 0x083203cc
 	GameSettings.sMonSummaryScreen = 0x0203cf1c
 	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
@@ -349,6 +357,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 	if gameversion == 0x01670000 then
 		print("ROM Detected: Pokemon Fire Red v1.1")
 
+		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -421,6 +430,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 	elseif gameversion == 0x00680000 then
 		print("ROM Detected: Pokemon Fire Red v1.0")
 
+		GameSettings.gBaseStats = 0x08254784
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -483,6 +493,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 	if gameversion == 0x01800000 then
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
+		GameSettings.gBaseStats = 0x082547d0
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -541,6 +552,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 	elseif gameversion == 0x00810000 then
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
+		GameSettings.gBaseStats = 0x08254760
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
