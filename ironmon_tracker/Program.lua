@@ -1,70 +1,81 @@
-State = {
-	TRACKER = "Tracker",
-	INFOSCREEN = "InfoScreen",
-	SETTINGS = "Settings",
-	THEME = "Theme",
-}
-
 Program = {
-	state = State.TRACKER,
+	currentScreen = 1,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
-	lastSeenEnemyAbilityId = 0,
 	isTransformed = false,
+	friendshipRequired = 220,
+	frames = {
+		waitToDraw = 0,
+		battleDataDelay = 0,
+		half_sec_update = 30,
+		three_sec_update = 180,
+		saveData = 3600,
+	},
 }
 
-Program.frames = {
-	waitToDraw = 0,
-	battleDataDelay = 0,
-	half_sec_update = 30,
-	three_sec_update = 180,
-	saveData = 3600,
+Program.SCREENS = {
+	TRACKER = 1,
+	INFO = 2,
+	SETTINGS = 3,
+	THEME = 4,
 }
+
+function Program.initialize()
+	Program.currentScreen = Program.SCREENS.TRACKER
+
+	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
+	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
+	if friendshipRequired > 1 and friendshipRequired <= 220 then
+		Program.friendshipRequired = friendshipRequired
+	end
+end
 
 function Program.main()
-	Input.update()
+	Input.checkForInput()
 
-	-- Updating data on pokemon should be unrelated to which screen is being displayed, otherwise the Tracker wouldn't know a battle ended in the Theme menu for example.
 	Program.updateTrackedAndCurrentData()
 
-	if Program.state == State.TRACKER then
-		-- Only draw the Tracker screen every half second (60 frames/sec)
-		if Program.frames.waitToDraw == 0 then
-			Program.frames.waitToDraw = 30
+	Program.redraw()
+end
 
-			TrackerScreen.updateButtonStates()
-
-			local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-			-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-			if Tracker.Data.isViewingOwn then
-				Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
-			else
-				Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
-			end
-		end
-
-		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
-	elseif Program.state == State.INFOSCREEN then
-		if InfoScreen.redraw then
-			Drawing.drawInfoScreen()
-			InfoScreen.redraw = false
-		end
-	elseif Program.state == State.SETTINGS then
-		if Options.redraw then
-			Drawing.drawOptionsScreen()
-			Options.redraw = false
-		end
-	elseif Program.state == State.THEME then
-		if Theme.redraw and Program.frames.waitToDraw == 0 then
-			Program.frames.waitToDraw = 5
-			Drawing.drawThemeScreen()
-			Theme.redraw = false
-		elseif Program.frames.waitToDraw > 0 then -- Required because of Theme.redraw check
-			Program.frames.waitToDraw = Program.frames.waitToDraw - 1
-		end
+-- 'forced' = true will force a draw, skipping the normal frame wait time
+function Program.redraw(forced)
+	if forced then
+		Program.frames.waitToDraw = 0
 	end
+
+	-- Only redraw the screen every half second (60 frames/sec)
+	if Program.frames.waitToDraw > 0 then
+		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
+		return
+	end
+
+	Program.frames.waitToDraw = 30
+
+	if Program.currentScreen == Program.SCREENS.TRACKER then
+		TrackerScreen.updateButtonStates()
+
+		local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+		local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+
+		-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
+		if Tracker.Data.isViewingOwn then
+			Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
+		else
+			Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
+		end
+	elseif Program.currentScreen == Program.SCREENS.INFO then
+		Drawing.drawInfoScreen()
+	elseif Program.currentScreen == Program.SCREENS.SETTINGS then
+		Drawing.drawOptionsScreen()
+	elseif Program.currentScreen == Program.SCREENS.THEME then
+		Drawing.drawThemeScreen()
+	end
+end
+
+function Program.changeScreenView(screen)
+	Program.currentScreen = screen
+	Program.redraw(true)
 end
 
 function Program.updateTrackedAndCurrentData()
@@ -95,11 +106,11 @@ function Program.updateTrackedAndCurrentData()
 			if Program.isTransformed then
 				Program.isTransformed = false
 			end
-		
+
 			if Options["Auto swap to enemy"] then
 				Tracker.Data.isViewingOwn = false
 			end
-		
+
 			-- Reset the controller's position when a new pokemon is sent out
 			Input.controller.statIndex = 6
 
@@ -161,7 +172,7 @@ function Program.updatePokemonTeamsFromMemory()
 		Tracker.Data.otherTeam[i] = personality
 
 		if personality ~= 0 then
-			newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
+			local newPokemonData = Program.readNewPokemonFromMemory(GameSettings.estats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
 				if Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 then
@@ -184,16 +195,6 @@ function Program.updatePokemonTeamsFromMemory()
 		addressOffset = addressOffset + 100
 	end
 
-	-- If the pokemon doesn't have an ability yet, look it up
-	-- Lookup data on the last pokemon we fought (for purposes of it being a wild pokemon and we catch it)
-	local lastSeenPersonality = Tracker.Data.otherTeam[1]
-	local lastSeenPokemon = Tracker.Data.ownPokemon[lastSeenPersonality]
-
-	if lastBattleStatus == 7 and lastSeenPokemon ~= nil and Program.lastSeenEnemyAbilityId ~= 0 then
-		lastSeenPokemon.abilityId = Program.lastSeenEnemyAbilityId
-		Program.lastSeenEnemyAbilityId = 0
-	end
-
 	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 	local opposingPokemon = Tracker.getPokemon(1, false)
 	if not Tracker.Data.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
@@ -210,7 +211,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local aux          = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
@@ -220,13 +221,13 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	-- Unused data memory reads
 	-- local effort1 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
 	-- local effort2 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
 	-- local misc1   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
-	-- local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 	-- local misc3   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
@@ -235,6 +236,10 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	-- 		+ Utils.addhalves(effort1) + Utils.addhalves(effort2) + Utils.addhalves(effort3)
 	-- 		+ Utils.addhalves(misc1) + Utils.addhalves(misc2) + Utils.addhalves(misc3)
 	-- cs = cs % 65536
+
+	local species = Utils.getbits(growth1, 0, 16) -- Pokemon's Pokedex ID
+	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
+	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
 
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
@@ -266,12 +271,12 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local pokemonData = {
 		personality = personality,
 		trainerID = Utils.getbits(otid, 0, 16),
-		pokemonID = Utils.getbits(growth1, 0, 16),
+		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
 		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
-		abilityId = nil, -- Leave unset, since this currently can only be found via in-battle data
+		abilityId = abilityId,
 		status = status_result,
 		sleep_turns = sleep_turns_result,
 		curHP = Utils.getbits(level_and_currenthp, 16, 16),
@@ -319,9 +324,6 @@ function Program.updateBattleDataFromMemory()
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
 	if ownersPokemon ~= nil and opposingPokemon ~= nil then
-		Program.updateAbilityDataFromMemory(ownersPokemon, true)
-		Program.updateAbilityDataFromMemory(opposingPokemon, false)
-	
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
@@ -341,17 +343,17 @@ function Program.updateBattleDataFromMemory()
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 		for _, move in pairs(opposingPokemon.moves) do
 			if move.id ~= 0 and move.pp < tonumber(MoveData.Moves[move.id].pp) then
-				Program.handleAttackMove(move.id, Tracker.Data.otherViewSlot, false)
+				Program.handleAttackMove(move.id, false)
 			end
 		end
 
 		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
 			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-			
+
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
 			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
-				Program.handleAttackMove(264, Tracker.Data.otherViewSlot, false)
+				Program.handleAttackMove(264, false)
 			end
 		end
 	end
@@ -451,19 +453,6 @@ function Program.updateViewSlotsFromMemory()
 	end
 end
 
-function Program.updateAbilityDataFromMemory(pokemon, isOwn)
-	-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
-	if pokemon.abilityId == nil or pokemon.abilityId == 0 then
-		local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(isOwn, 0x0, 0x58))
-		pokemon.abilityId = abilityFromMemory
-
-		-- Save information on enemy ability as "last seen ability" to be used for when you catch this Pokemon to add to your own team
-		if not isOwn then
-			Program.lastSeenEnemyAbilityId = pokemon.abilityId
-		end
-	end
-end
-
 function Program.updateStatStagesDataFromMemory(pokemon, isOwn)
 	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
 	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
@@ -502,8 +491,8 @@ function Program.beginNewBattle(isWild)
 	Input.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
-	if Program.state == State.INFOSCREEN then
-		Program.state = State.TRACKER
+	if Program.currentScreen == Program.SCREENS.INFO then
+		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -537,8 +526,8 @@ function Program.endBattle(isWild)
 	end
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
-	if Program.state == State.INFOSCREEN then
-		Program.state = State.TRACKER
+	if Program.currentScreen == Program.SCREENS.INFO then
+		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
@@ -550,7 +539,7 @@ function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
-	
+
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 	local gameStat_UsedPokecenter = Memory.readdword(gameStatsAddr + 15 * 0x4)
@@ -558,7 +547,7 @@ function Program.updatePCHealsFromMemory()
 	local gameStat_RestedAtHome = Memory.readdword(gameStatsAddr + 16 * 0x4)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
-	if key ~= nil then 
+	if key ~= nil then
 		gameStat_UsedPokecenter = bit.bxor(gameStat_UsedPokecenter, key)
 		gameStat_RestedAtHome = bit.bxor(gameStat_RestedAtHome, key)
 	end
@@ -604,17 +593,13 @@ function Program.updateBadgesObtainedFromMemory()
 	end
 end
 
-function Program.handleAttackMove(moveId, slotNumber, isOwn)
+function Program.handleAttackMove(moveId, isOwn)
 	if moveId == nil then return end
-	if slotNumber == nil or slotNumber < 1 or slotNumber > 6 then slotNumber = 1 end
 	if isOwn == nil then isOwn = true end
 
 	-- For now, only handle moves from opposing Pokemon
 	-- Don't track moves if opponent is transformed
 	if not isOwn and not Program.isTransformed then
-		-- Update view to the Pokemon that attacked; don't know if this is still needed
-		-- Tracker.Data.otherViewSlot = slotNumber
-		
 		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 		if pokemon ~= nil then
 			if not Tracker.isTrackingMove(pokemon.pokemonID, moveId, pokemon.level) then

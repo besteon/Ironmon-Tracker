@@ -14,7 +14,7 @@ TrackerScreen.buttons = {
 			if not self:isVisible() then return end
 
 			self.toggleState = not self.toggleState
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	PCHealIncrement = {
@@ -29,7 +29,7 @@ TrackerScreen.buttons = {
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	PCHealDecrement = {
@@ -44,7 +44,7 @@ TrackerScreen.buttons = {
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-			Program.frames.waitToDraw = 0
+			Program.redraw(true)
 		end
 	},
 	AbilityTracking = {
@@ -76,12 +76,11 @@ TrackerScreen.buttons = {
 }
 
 function TrackerScreen.initialize()
-	local index = 1
 	local heightOffset = 9
 
 	-- Buttons for stat markings tracked by the user
 	for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
-		local button = {
+		TrackerScreen.buttons[statKey] = {
 			type = Constants.BUTTON_TYPES.STAT_STAGE,
 			text = "",
 			textColor = "Default text",
@@ -101,12 +100,10 @@ function TrackerScreen.initialize()
 				if pokemon ~= nil then
 					Tracker.TrackStatMarking(pokemon.pokemonID, self.statStage, self.statState)
 				end
-				Program.frames.waitToDraw = 0
+				Program.redraw(true)
 			end
 		}
 
-		TrackerScreen.buttons[statKey] = button
-		index = index + 1
 		heightOffset = heightOffset + 10
 	end
 
@@ -117,7 +114,7 @@ function TrackerScreen.initialize()
 
 		local badgeButton = {
 			type = Constants.BUTTON_TYPES.IMAGE,
-			image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
+			image = Main.DataFolder .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
 			box = { xOffset, Constants.SCREEN.BADGE_Y_POS, Constants.SCREEN.BADGE_WIDTH, Constants.SCREEN.BADGE_WIDTH },
 			badgeIndex = index,
 			badgeState = 0,
@@ -127,7 +124,7 @@ function TrackerScreen.initialize()
 				if self.badgeState ~= state then
 					self.badgeState = state
 					local badgeOffText = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
-					self.image = DATA_FOLDER .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText .. ".png"
+					self.image = Main.DataFolder .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText .. ".png"
 				end
 			end
 		}
@@ -163,7 +160,7 @@ function TrackerScreen.openAbilityNoteWindow()
 
 	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
 	Utils.setFormLocation(abilityForm, 100, 50)
-	
+
 	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
 	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
@@ -182,8 +179,8 @@ function TrackerScreen.openAbilityNoteWindow()
 	end
 
 	forms.button(abilityForm, "Save && Close", function()
-		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if pokemon ~= nil then
+		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if pokemonViewed ~= nil then
 			local abilityOneText = forms.gettext(abilityOneDropdown)
 			local abilityTwoText = forms.gettext(abilityTwoDropdown)
 			local abilityOneId = 0
@@ -205,7 +202,7 @@ function TrackerScreen.openAbilityNoteWindow()
 				end
 			end
 
-			local trackedPokemon = Tracker.Data.allPokemon[pokemon.pokemonID]
+			local trackedPokemon = Tracker.Data.allPokemon[pokemonViewed.pokemonID]
 			trackedPokemon.abilities = {
 				{ id = abilityOneId },
 				{ id = abilityTwoId },
@@ -213,7 +210,7 @@ function TrackerScreen.openAbilityNoteWindow()
 		end
 
 		client.unpause()
-		Program.frames.waitToDraw = 0
+		Program.redraw(true)
 		forms.destroy(abilityForm)
 	end, 65, 95, 85, 25)
 	forms.button(abilityForm, "Clear", function()
@@ -234,13 +231,13 @@ function TrackerScreen.openNotePadWindow()
 	Utils.setFormLocation(noteForm, 100, 50)
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
-	
-	local saveButton = forms.button(noteForm, "Save", function()
+
+	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
-		local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if formInput ~= nil and pokemon ~= nil then
-			Tracker.TrackNote(pokemon.pokemonID, formInput)
-			Program.frames.waitToDraw = 0
+		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if formInput ~= nil and pokemonViewed ~= nil then
+			Tracker.TrackNote(pokemonViewed.pokemonID, formInput)
+			Program.redraw(true)
 		end
 		forms.destroy(noteForm)
 		client.unpause()
