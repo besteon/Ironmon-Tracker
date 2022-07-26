@@ -132,7 +132,7 @@ function Program.updateTrackedAndCurrentData()
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
 	if Program.frames.saveData == 0 then
 		Program.frames.saveData = 3600
-		Tracker.saveData()
+		--Tracker.saveData()
 	end
 
 	Program.frames.half_sec_update = Program.frames.half_sec_update - 1
@@ -363,45 +363,102 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	-- Checks if ability should be auto-tracked
 	local enemyAbility = enemyPokemon.abilityId
 	local playerAbility = playerPokemon.abilityId
-
 	-- Abilities to check via battler read
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
+	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+
+	--print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
 	local battlerAbilitiesMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
-	if battlerAbilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
-		if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
-			-- Enemy is the one that used Clear Body / White Smoke
-			return true
+	if battlerAbilitiesMsg ~= nil then
+		if type(battlerAbilitiesMsg) == "number" then
+			if battlerAbilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
+				if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
+					-- Enemy is the one that used Clear Body / White Smoke
+					return true
+				end
+			elseif battlerAbilitiesMsg == enemyAbility then
+				if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+					-- Enemy is using Synchronize on the player
+					return true
+				elseif battler % 2 == 1 then
+					-- Enemy is the one that used the ability
+					return true
+				end
+			elseif battlerAbilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
+				-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+				return true
+			end
+		elseif #battlerAbilitiesMsg > 1 then
+			for i, ability in ipairs(battlerAbilitiesMsg) do
+				if ability == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
+					if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
+						-- Enemy is the one that used Clear Body / White Smoke
+						return true
+					end
+				elseif ability == enemyAbility then
+					if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+						-- Enemy is using Synchronize on the player
+						return true
+					elseif battler % 2 == 1 then
+						-- Enemy is the one that used the ability
+						return true
+					end
+				elseif ability == 36 and playerAbility == 36 then -- 36 = Trace
+					-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+					return true
+				end
+			end
 		end
-	elseif battlerAbilitiesMsg == enemyAbility then
-		if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-			-- Enemy is using Synchronize on the player
-			return true
-		elseif battler % 2 == 1 then
-			-- Enemy is the one that used the ability
-			return true
-		end
-	elseif battlerAbilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
-		-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
-		return true
 	end
 	
 	-- Abilities to check via attacker read
-	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 	local attackerAbilitiesMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
+	if attackerAbilitiesMsg ~= nil then
+		if type(attackerAbilitiesMsg) == "number" then
+			if attackerAbilitiesMsg == enemyAbility then
+				-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
+				if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
+					-- This is a slight workaround that works only if the player doesn't also have the ability
+					return enemyAbility ~= playerAbility
+				elseif attacker % 2 == 0 then
+					-- Player activated enemy's ability
+					return true
+				end
+			end
+		elseif #attackerAbilitiesMsg > 1 then
+			for i, ability in ipairs(attackerAbilitiesMsg) do
+				if ability == enemyAbility then
+					if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
+						-- This is a slight workaround that works only if the player doesn't also have the ability
+						return enemyAbility ~= playerAbility
+					elseif attacker % 2 == 0 then
+						-- Player activated enemy's ability
+						return true
+					end
+				end
+			end
+		end
+	end
 
-	if attackerAbilitiesMsg == enemyAbility then
-		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-			-- This is a slight workaround that works only if the player doesn't also have the ability
-			return enemyAbility ~= playerAbility
-		elseif (enemyAbility == 44 or enemyAbility == 54) and attacker % 2 == 1 then -- 44 = Rain Dish, 54 = Truant
-			-- Attacker value becomes ability user (self-activated ability)
-			-- Untested for if both player and enemy have Rain Dish, but in theory this should work
-			return true
-		elseif attacker % 2 == 0 then
-			-- Player activated enemy's ability
-			return true
+	local reverseAttackerAbilitiesMsg = GameSettings.ABILITIES.REVERSEATTACKER[battleMsg]
+	if reverseAttackerAbilitiesMsg ~= nil then
+		if type(reverseAttackerAbilitiesMsg) == "number" then
+			if reverseAttackerAbilitiesMsg == enemyAbility then
+				if attacker % 2 == 1 then
+					-- Enemy activated enemy's ability
+					return true
+				end
+			elseif #reverseAttackerAbilitiesMsg > 1 then
+				for i, ability in ipairs(reverseAttackerAbilitiesMsg) do
+					if ability == enemyAbility then
+						if attacker % 2 == 1 then
+							-- Enemy activated enemy's ability
+							return true
+						end
+					end
+				end
+			end
 		end
 	end
 	
