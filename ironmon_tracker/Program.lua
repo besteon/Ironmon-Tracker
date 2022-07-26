@@ -428,21 +428,6 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 		end
 	end
 
-	-- Absorbing ability check
-	-- 0x081d93be = BattleScript_MoveHPDrain, +0x14 for message
-	-- -> Sets battler to 1, attacker is 0
-	-- -> Message for hp recovery
-	-- 0x081d93e1 = BattleScript_MonMadeMoveUseless, +0x7 for message
-	-- -> Sets battler to 0, attacker is 0
-	-- -> Message for nullifying
-	-- print(battleMsg)
-	-- if battleMsg == 0x081d93d2 or battleMsg == 0x081d93e8 then
-	-- 	print("Enemy Ability   = " .. MiscData.Abilities[enemyAbility])
-	-- 	print("Player Ability  = " .. MiscData.Abilities[playerAbility])
-	-- 	print("Battler  = " .. Memory.readbyte(GameSettings.gBattleScriptingBattler))
-	-- 	print("Attacker = " .. Memory.readbyte(GameSettings.gBattlerAttacker))
-	-- end
-
 	return false
 end
 
