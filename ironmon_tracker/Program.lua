@@ -359,6 +359,58 @@ function Program.updateBattleDataFromMemory()
 	end
 end
 
+function Program.checkBattlerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
+	if abilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
+		if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
+			-- Enemy is the one that used Clear Body / White Smoke
+			return true
+		end
+	elseif abilitiesMsg == enemyAbility then
+		if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+			-- Enemy is using Synchronize on the player
+			return true
+		elseif battler % 2 == 1 then
+			if (enemyAbility == 9 or enemyAbility == 27 or enemyAbility == 38) then
+				if attacker % 2 == 0 then
+					return true
+				else
+					return false
+				end
+			end
+			-- Enemy is the one that used the ability
+			return true
+		end
+	elseif abilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
+		-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+		return true
+	end
+	return false
+end
+
+function Program.checkAttackerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
+	if abilitiesMsg == enemyAbility then
+		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
+		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
+			-- This is a slight workaround that works only if the player doesn't also have the ability
+			return enemyAbility ~= playerAbility
+		elseif attacker % 2 == 0 then
+			-- Player activated enemy's ability
+			return true
+		end
+	end
+	return false
+end
+
+function Program.checkReverseAttackerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
+	if reverseAttackerAbilitiesMsg == enemyAbility then
+		if attacker % 2 == 1 then
+			-- Enemy activated enemy's ability
+			return true
+		end
+	end
+	return false
+end
+
 function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	-- Checks if ability should be auto-tracked
 	local enemyAbility = enemyPokemon.abilityId
@@ -372,40 +424,12 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 
 	if battlerAbilitiesMsg ~= nil then
 		if type(battlerAbilitiesMsg) == "number" then
-			if battlerAbilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
-				if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
-					-- Enemy is the one that used Clear Body / White Smoke
-					return true
-				end
-			elseif battlerAbilitiesMsg == enemyAbility then
-				if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-					-- Enemy is using Synchronize on the player
-					return true
-				elseif battler % 2 == 1 then
-					-- Enemy is the one that used the ability
-					return true
-				end
-			elseif battlerAbilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
-				-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+			if Program.checkBattlerAbility(battlerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
 				return true
 			end
 		elseif #battlerAbilitiesMsg > 1 then
 			for i, ability in ipairs(battlerAbilitiesMsg) do
-				if ability == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
-					if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
-						-- Enemy is the one that used Clear Body / White Smoke
-						return true
-					end
-				elseif ability == enemyAbility then
-					if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-						-- Enemy is using Synchronize on the player
-						return true
-					elseif battler % 2 == 1 then
-						-- Enemy is the one that used the ability
-						return true
-					end
-				elseif ability == 36 and playerAbility == 36 then -- 36 = Trace
-					-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+				if Program.checkBattlerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
 					return true
 				end
 			end
@@ -416,26 +440,13 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	local attackerAbilitiesMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
 	if attackerAbilitiesMsg ~= nil then
 		if type(attackerAbilitiesMsg) == "number" then
-			if attackerAbilitiesMsg == enemyAbility then
-				-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-				if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-					-- This is a slight workaround that works only if the player doesn't also have the ability
-					return enemyAbility ~= playerAbility
-				elseif attacker % 2 == 0 then
-					-- Player activated enemy's ability
-					return true
-				end
+			if Program.checkAttackerAbility(attackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
+				return true
 			end
 		elseif #attackerAbilitiesMsg > 1 then
 			for i, ability in ipairs(attackerAbilitiesMsg) do
-				if ability == enemyAbility then
-					if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-						-- This is a slight workaround that works only if the player doesn't also have the ability
-						return enemyAbility ~= playerAbility
-					elseif attacker % 2 == 0 then
-						-- Player activated enemy's ability
-						return true
-					end
+				if Program.checkAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
+					return true
 				end
 			end
 		end
@@ -445,17 +456,13 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	if reverseAttackerAbilitiesMsg ~= nil then
 		if type(reverseAttackerAbilitiesMsg) == "number" then
 			if reverseAttackerAbilitiesMsg == enemyAbility then
-				if attacker % 2 == 1 then
-					-- Enemy activated enemy's ability
+				if Program.checkReverseAttackerAbility(reverseAttackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
 					return true
 				end
 			elseif #reverseAttackerAbilitiesMsg > 1 then
 				for i, ability in ipairs(reverseAttackerAbilitiesMsg) do
-					if ability == enemyAbility then
-						if attacker % 2 == 1 then
-							-- Enemy activated enemy's ability
-							return true
-						end
+					if Program.checkReverseAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
+						return true
 					end
 				end
 			end

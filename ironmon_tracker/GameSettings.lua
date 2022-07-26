@@ -416,12 +416,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
-<<<<<<< Updated upstream
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
-=======
->>>>>>> Stashed changes
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
