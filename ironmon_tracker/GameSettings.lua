@@ -446,12 +446,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d9346] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d94f4] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
 				[0x081d93e9] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-				[0x081D9274] = {9,27}, -- BattleScript_MoveEffectParalysis + 0x0 Static/Effect Spore (Paralyze) 1
-				[0x081D9279] = {9,27}, -- BattleScript_MoveEffectParalysis + 0x5 Static/Effect Spore (Paralyze) 2
-				[0x081D922B] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 1
-				[0x081D9230] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 2
-				[0x081D9247] = {38,27}, -- Poison Point/Effect Spore (Poison) 1
-				[0x081D924C] = {38,27}, -- Poison Point/Effect Spore (Poison) 1
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d9411] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
@@ -471,24 +465,29 @@ function GameSettings.setGameAsFireRed(gameversion)
 				-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
 				-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
 			},
-			REVERSEATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player, but logic is the reverse of the abilities in ATTACKER
+			REVERSE_ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player, but logic is the reverse of the abilities in ATTACKER
 				[0x081D6F2A] = {15,72}, -- BattleScript_RestCantSleep + 0x8 Vital Spirit/Insomnia (Self)
 				[0x081D931E] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
 				[0x081d9567] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
 			},
+			STATUS_INFLICT = {
+				--Contact abilities depend on Battler of 1/3, and also Attacker of 0/2
+				[0x081D9274] = {9,27,28}, -- BattleScript_MoveEffectParalysis + 0x0 Static/Effect Spore (Paralyze) 1
+				[0x081D9279] = {9,27,28}, -- BattleScript_MoveEffectParalysis + 0x5 Static/Effect Spore (Paralyze) 2
+				[0x081D922B] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 1
+				[0x081D9230] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 2
+				[0x081D9247] = {38,27,28}, -- Poison Point/Effect Spore (Poison) 1
+				[0x081D924C] = {38,27,28}, -- Poison Point/Effect Spore (Poison) 1
+				[0x081D925B] = {49,28}, -- Flame Body
+				[0x081D9256] = {49,28}, -- Flame Body
+			},
 			OTHER = {
-				[0x081D91EB] = 49, -- Flame Body
 				-- Unsure how to determine these yet, so only track when only enemy has it
 				[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
 				-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
 				-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust (not sure if this even pops up a message)
 
 			},
-			-- Keeping these here for now for reference (these are the original placeholders for these abilities)
-			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
-			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
-			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
-			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
 		}
 	elseif gameversion == 0x00680000 then
 		print("ROM Detected: Pokemon Fire Red v1.0")

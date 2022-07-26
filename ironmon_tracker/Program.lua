@@ -370,14 +370,6 @@ function Program.checkBattlerAbility(abilitiesMsg,enemyAbility,playerAbility,bat
 			-- Enemy is using Synchronize on the player
 			return true
 		elseif battler % 2 == 1 then
-			if (enemyAbility == 9 or enemyAbility == 27 or enemyAbility == 38) then
-				if attacker % 2 == 0 then
-					return true
-				else
-					return false
-				end
-			end
-			-- Enemy is the one that used the ability
 			return true
 		end
 	elseif abilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
@@ -411,6 +403,12 @@ function Program.checkReverseAttackerAbility(abilitiesMsg,enemyAbility,playerAbi
 	return false
 end
 
+function Program.checkContactAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
+	if attacker % 2 == 0 and battler % 2 == 1 then
+		return true
+	end
+	return false
+end
 function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	-- Checks if ability should be auto-tracked
 	local enemyAbility = enemyPokemon.abilityId
@@ -419,7 +417,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 
-	--print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
+	print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
 	local battlerAbilitiesMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
 	if battlerAbilitiesMsg ~= nil then
@@ -452,18 +450,35 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
 		end
 	end
 
-	local reverseAttackerAbilitiesMsg = GameSettings.ABILITIES.REVERSEATTACKER[battleMsg]
+	local reverseAttackerAbilitiesMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
 	if reverseAttackerAbilitiesMsg ~= nil then
 		if type(reverseAttackerAbilitiesMsg) == "number" then
 			if reverseAttackerAbilitiesMsg == enemyAbility then
 				if Program.checkReverseAttackerAbility(reverseAttackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
 					return true
 				end
-			elseif #reverseAttackerAbilitiesMsg > 1 then
-				for i, ability in ipairs(reverseAttackerAbilitiesMsg) do
-					if Program.checkReverseAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
-						return true
-					end
+			end
+		elseif #reverseAttackerAbilitiesMsg > 1 then
+			for i, ability in ipairs(reverseAttackerAbilitiesMsg) do
+				if Program.checkReverseAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
+					return true
+				end
+			end
+		end
+	end
+
+	local contactAbilitiesMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
+	if contactAbilitiesMsg ~= nil then
+		if type(contactAbilitiesMsg) == "number" then
+			if contactAbilitiesMsg == enemyAbility then
+				if Program.checkContactAbility(contactAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
+					return true
+				end
+			end
+		elseif #contactAbilitiesMsg > 1 then
+			for i, ability in ipairs(contactAbilitiesMsg) do
+				if Program.checkContactAbility(ability,enemyAbility,playerAbility,battler,attacker) then
+					return true
 				end
 			end
 		end
