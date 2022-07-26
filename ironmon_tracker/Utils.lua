@@ -184,7 +184,11 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
-		return { "220 Friendship" }
+		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
+			return { Program.friendshipRequired .. " Friendship" }
+		else
+			return { "220 Friendship" }
+		end
 	elseif evoMethod == PokemonData.Evolutions.STONES then
 		return { "5 Diff. Stones" }
 	elseif evoMethod == PokemonData.Evolutions.THUNDER then
@@ -407,9 +411,11 @@ function Utils.writeTableToFile(table, filename)
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
 
-		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end --append a trailing \n if one is absent
+		--append a trailing \n if one is absent
+		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
 			file:write(dataLine)
+			file:write("\n")
 		end
 		file:close()
 	else

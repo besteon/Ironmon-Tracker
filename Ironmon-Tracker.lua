@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 Main = {
-	TrackerVersion = "0.5.3", -- The latest version of the tracker. Should be updated with each PR.
+	TrackerVersion = "0.5.4", -- The latest version of the tracker. Should be updated with each PR.
 	DataFolder = "ironmon_tracker", -- Root folder for the project data and sub scripts
 	SettingsFile = "Settings.ini", -- Location of the Settings file (typically in the root folder)
 	MetaSettings = {},
@@ -71,6 +71,7 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		Program.initialize()
 		Options.initialize()
 		Theme.initialize()
 		Tracker.initialize()
@@ -202,7 +203,7 @@ function Main.LoadSettings()
 		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
 		if enableMoveTypes ~= nil then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-			Theme.buttons.moveTypeEnabled.toggleState = enableMoveTypes
+			Theme.buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
 	end
 

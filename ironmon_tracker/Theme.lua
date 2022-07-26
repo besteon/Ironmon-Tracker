@@ -60,16 +60,16 @@ Theme.buttons = {
 	},
 	moveTypeEnabled = {
 		type = Constants.BUTTON_TYPES.CHECKBOX,
-		text = "Color move names by type",
+		text = "Show color bar for move types",
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 10, 125, Constants.SCREEN.RIGHT_GAP - 12, 11 },
-		box = { Constants.SCREEN.WIDTH + 9, 125, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 9, 125, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 8, 125, 8, 8 },
 		boxColors = { "Lower box border", "Lower box background" },
-		toggleState = Theme.MOVE_TYPES_ENABLED,
+		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
 		toggleColor = "Positive text",
 		onClick = function(self)
 			self.toggleState = not self.toggleState -- toggle the setting
-			Theme.MOVE_TYPES_ENABLED = self.toggleState
+			Theme.MOVE_TYPES_ENABLED = not Theme.MOVE_TYPES_ENABLED
 			Theme.settingsUpdated = true
 			Program.redraw(true)
 		end
@@ -101,8 +101,8 @@ function Theme.initialize()
 		Theme.buttons[colorkey] = {
 			type = Constants.BUTTON_TYPES.COLORPICKER,
 			text = colorkey,
-			clickableArea = { Constants.SCREEN.WIDTH + 10, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 11 },
-			box = { Constants.SCREEN.WIDTH + 10, heightOffset, 8, 8 },
+			clickableArea = { Constants.SCREEN.WIDTH + 9, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+			box = { Constants.SCREEN.WIDTH + 9, heightOffset, 8, 8 },
 			textColor = "Default text",
 			themeColor = colorkey,
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
@@ -113,8 +113,8 @@ function Theme.initialize()
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.buttons.moveTypeEnabled.clickableArea[2] = heightOffset
-	Theme.buttons.moveTypeEnabled.box[2] = heightOffset
+	Theme.buttons.moveTypeEnabled.clickableArea[2] = heightOffset + 1
+	Theme.buttons.moveTypeEnabled.box[2] = heightOffset + 1
 end
 
 
@@ -152,7 +152,7 @@ function Theme.importThemeFromText(theme_config)
 
 	local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
 	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-	Theme.buttons.moveTypeEnabled.toggleState = enableMoveTypes
+	Theme.buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 
 	Theme.settingsUpdated = true
 	Program.redraw(true)

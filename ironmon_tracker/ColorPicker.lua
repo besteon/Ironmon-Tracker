@@ -81,7 +81,7 @@ function ColorPicker:updateCirclePreview()
 	local circleCenter = self.circleCenter
 	local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
 	local x,y = clickPos[1],clickPos[2]
-	local distanceToRadius = self:distance(clickPos,circleCenter)
+	local distanceToRadius = ColorPicker.distance(clickPos,circleCenter)
 	if distanceToRadius > self.circleRadius then
 		local ratio = distanceToRadius/self.circleRadius
 		x = (x-85)/ratio
@@ -201,7 +201,7 @@ function ColorPicker:handleInput()
 		else
 			local clickPos = {forms.getMouseX(self.mainCanvas),forms.getMouseY(self.mainCanvas)}
 			if not self.draggingColor then
-				local distanceToCenter = self:distance(clickPos,self.circleCenter)
+				local distanceToCenter = ColorPicker.distance(clickPos,self.circleCenter)
 				if distanceToCenter >= 0 and distanceToCenter <= self.circleRadius then
 					self.draggingColor = true
 					self:updateCirclePreview()
@@ -241,7 +241,7 @@ function ColorPicker.distance(point1, point2)
 end
 
 function ColorPicker:pointInRange(point)
-	local distanceToRadius = self:distance(point,self.circleRadiusPosition)
+	local distanceToRadius = ColorPicker.distance(point,self.circleRadiusPosition)
 	if distanceToRadius <= self.radius then
 		return true
 	else

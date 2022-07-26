@@ -2,8 +2,8 @@ Program = {
 	currentScreen = 1,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
-	lastSeenEnemyAbilityId = 0,
 	isTransformed = false,
+	friendshipRequired = 220,
 	frames = {
 		waitToDraw = 0,
 		battleDataDelay = 0,
@@ -20,7 +20,15 @@ Program.SCREENS = {
 	THEME = 4,
 }
 
-Program.currentScreen = Program.SCREENS.TRACKER
+function Program.initialize()
+	Program.currentScreen = Program.SCREENS.TRACKER
+
+	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
+	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
+	if friendshipRequired > 1 and friendshipRequired <= 220 then
+		Program.friendshipRequired = friendshipRequired
+	end
+end
 
 function Program.main()
 	Input.checkForInput()
@@ -187,16 +195,6 @@ function Program.updatePokemonTeamsFromMemory()
 		addressOffset = addressOffset + 100
 	end
 
-	-- If the pokemon doesn't have an ability yet, look it up
-	-- Lookup data on the last pokemon we fought (for purposes of it being a wild pokemon and we catch it)
-	local lastSeenPersonality = Tracker.Data.otherTeam[1]
-	local lastSeenPokemon = Tracker.Data.ownPokemon[lastSeenPersonality]
-
-	if lastBattleStatus == 7 and lastSeenPokemon ~= nil and Program.lastSeenEnemyAbilityId ~= 0 then
-		lastSeenPokemon.abilityId = Program.lastSeenEnemyAbilityId
-		Program.lastSeenEnemyAbilityId = 0
-	end
-
 	-- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 	local opposingPokemon = Tracker.getPokemon(1, false)
 	if not Tracker.Data.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
@@ -214,7 +212,6 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
@@ -327,10 +324,6 @@ function Program.updateBattleDataFromMemory()
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
 	if ownersPokemon ~= nil and opposingPokemon ~= nil then
-		-- TODO: Supposedly we no longer need these, given new ability info recently discovered. Leaving this here just in-case
-		-- Program.updateAbilityDataFromMemory(ownersPokemon, true)
-		-- Program.updateAbilityDataFromMemory(opposingPokemon, false)
-
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
@@ -392,19 +385,6 @@ function Program.updateViewSlotsFromMemory()
 	end
 	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
 		Tracker.Data.otherViewSlot = 1
-	end
-end
-
-function Program.updateAbilityDataFromMemory(pokemon, isOwn)
-	-- If the Pokemon doesn't have an ability yet, look it up and save it (only works in battle)
-	if pokemon.abilityId == nil or pokemon.abilityId == 0 then
-		local abilityFromMemory = Memory.readbyte(GameSettings.gBattleMons + 0x20 + Utils.inlineIf(isOwn, 0x0, 0x58))
-		pokemon.abilityId = abilityFromMemory
-
-		-- Save information on enemy ability as "last seen ability" to be used for when you catch this Pokemon to add to your own team
-		if not isOwn then
-			Program.lastSeenEnemyAbilityId = pokemon.abilityId
-		end
 	end
 end
 

@@ -13,7 +13,7 @@ InfoScreen.buttons = {
 		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 90, 20, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
 		onClick = function(self)
@@ -37,7 +37,7 @@ InfoScreen.buttons = {
 		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.NEXT_BUTTON,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 98, 20, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 99, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
 		onClick = function(self)
@@ -49,7 +49,7 @@ InfoScreen.buttons = {
 		type = Constants.BUTTON_TYPES.PIXELIMAGE,
 		image = Constants.PIXEL_IMAGES.PREVIOUS_BUTTON,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 86, 20, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 85, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
 		onClick = function(self)
