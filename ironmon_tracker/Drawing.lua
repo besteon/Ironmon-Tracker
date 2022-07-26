@@ -254,7 +254,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	local levelEvoTextColor = Theme.COLORS["Default text"]
 	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemon.evolution, pokemon.level) then
 		levelEvoTextColor = Theme.COLORS["Positive text"]
-	elseif pokemon.friendship >= 220 and pokemon.evolution == PokemonData.Evolutions.FRIEND then
+	elseif pokemon.friendship >= Program.friendshipRequired and pokemon.evolution == PokemonData.Evolutions.FRIEND then
 		evoDetails = "(SOON)"
 		levelEvoTextColor = Theme.COLORS["Positive text"]
 	end
@@ -693,7 +693,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + 1
 
 	-- MOVES LEVEL BOXES
-	Drawing.drawText(offsetX, botOffsetY, "New Move Levels:", Theme.COLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "New move levels:", Theme.COLORS["Default text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13

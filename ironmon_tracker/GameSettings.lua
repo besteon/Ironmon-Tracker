@@ -24,6 +24,8 @@ GameSettings = {
 	gMoveToLearn = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
+	FriendshipRequiredToEvo = 0x00000000,
+
 	gSaveBlock1 = 0x00000000,
 	gSaveBlock1ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
 	gSaveBlock2ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
@@ -149,8 +151,8 @@ function GameSettings.setGameInfo(gamecode)
 end
 
 function GameSettings.setGameAsRuby(gameversion)
-	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00410000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym
 		print("ROM Detected: Pokemon Ruby v1.0")
 
 		GameSettings.gBaseStats = 0x081fec18
@@ -169,6 +171,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -177,6 +181,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x01400000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev1.sym
 		print("ROM Detected: Pokemon Ruby v1.1")
 
 		GameSettings.gBaseStats = 0x081fec30
@@ -195,6 +200,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -203,6 +210,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x023F0000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev2.sym
 		print("ROM Detected: Pokemon Ruby v1.2")
 
 		GameSettings.gBaseStats = 0x081fec30
@@ -221,6 +229,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -232,8 +242,8 @@ function GameSettings.setGameAsRuby(gameversion)
 end
 
 function GameSettings.setGameAsSapphire(gameversion)
-	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00550000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire.sym
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
 		GameSettings.gBaseStats = 0x081feba8
@@ -252,6 +262,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -260,6 +272,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x1540000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev1.sym
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
 		GameSettings.gBaseStats = 0x081febc0
@@ -278,6 +291,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -286,6 +301,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x02530000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev2.sym
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
 		GameSettings.gBaseStats = 0x081febc0
@@ -303,6 +319,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -333,6 +351,8 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
 	GameSettings.gMoveToLearn = 0x020244e2
 	GameSettings.gBattleOutcome = 0x0202433a
+	
+	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
 	GameSettings.gSaveBlock1 = 0x02025a00
 	GameSettings.gSaveBlock1ptr = 0x03005d8c
@@ -395,6 +415,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
@@ -469,6 +491,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
@@ -531,6 +555,8 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
@@ -597,6 +623,8 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
+
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
 		GameSettings.gSaveBlock2ptr = 0x03004F5C
@@ -662,6 +690,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
@@ -720,6 +750,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008

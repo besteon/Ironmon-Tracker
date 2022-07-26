@@ -3,6 +3,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	isTransformed = false,
+	friendshipRequired = 220,
 	frames = {
 		waitToDraw = 0,
 		battleDataDelay = 0,
@@ -19,7 +20,15 @@ Program.SCREENS = {
 	THEME = 4,
 }
 
-Program.currentScreen = Program.SCREENS.TRACKER
+function Program.initialize()
+	Program.currentScreen = Program.SCREENS.TRACKER
+
+	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
+	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
+	if friendshipRequired > 1 and friendshipRequired <= 220 then
+		Program.friendshipRequired = friendshipRequired
+	end
+end
 
 function Program.main()
 	Input.checkForInput()

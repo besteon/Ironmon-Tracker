@@ -184,7 +184,11 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
-		return { "220 Friendship" }
+		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
+			return { Program.friendshipRequired .. " Friendship" }
+		else
+			return { "220 Friendship" }
+		end
 	elseif evoMethod == PokemonData.Evolutions.STONES then
 		return { "5 Diff. Stones" }
 	elseif evoMethod == PokemonData.Evolutions.THUNDER then
