@@ -7,6 +7,7 @@ GameSettings = {
 	pstats = 0,
 	estats = 0,
 
+	gBaseStats = 0x00000000,
 	sMonSummaryScreen = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 	sBattlerAbilities = 0x00000000,
@@ -22,6 +23,8 @@ GameSettings = {
 	BattleScript_LearnMoveReturn = 0x00000000,
 	gMoveToLearn = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+
+	FriendshipRequiredToEvo = 0x00000000,
 
 	gSaveBlock1 = 0x00000000,
 	gSaveBlock1ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
@@ -53,9 +56,13 @@ function GameSettings.initialize()
 	elseif gamecode == 0x41585045 then
 		GameSettings.setGameAsSapphire(gameversion)
 	elseif gamecode == 0x42504545 then
-		GameSettings.setGameAsEmerald(gameversion)
+		GameSettings.setGameAsEmerald()
 	elseif gamecode == 0x42505245 then
 		GameSettings.setGameAsFireRed(gameversion)
+	elseif gamecode == 0x42505253 then
+		GameSettings.setGameAsFireRedSpanish(gameversion)
+	elseif gamecode == 0x42505246 then
+		GameSettings.setGameAsFireRedFrench(gameversion)
 	elseif gamecode == 0x42504745 then
 		GameSettings.setGameAsLeafGreen(gameversion)
 	end
@@ -100,6 +107,24 @@ function GameSettings.setGameInfo(gamecode)
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
+		[0x42505253] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Rojo Fuego (Spain)",
+			VERSION_GROUP = 2,
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42505246] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Rouge Feu (France)",
+			VERSION_GROUP = 2,
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
 		[0x42504745] = {
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon LeafGreen (U)",
@@ -126,10 +151,11 @@ function GameSettings.setGameInfo(gamecode)
 end
 
 function GameSettings.setGameAsRuby(gameversion)
-	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00410000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym
 		print("ROM Detected: Pokemon Ruby v1.0")
 
+		GameSettings.gBaseStats = 0x081fec18
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -145,6 +171,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -153,8 +181,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x01400000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev1.sym
 		print("ROM Detected: Pokemon Ruby v1.1")
 
+		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -169,6 +199,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -178,8 +210,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x023F0000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev2.sym
 		print("ROM Detected: Pokemon Ruby v1.2")
 
+		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -194,6 +228,8 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -206,10 +242,11 @@ function GameSettings.setGameAsRuby(gameversion)
 end
 
 function GameSettings.setGameAsSapphire(gameversion)
-	-- TODO: Add in ability auto-tracking: https://github.com/pret/pokeruby/tree/symbols
 	if gameversion == 0x00550000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire.sym
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
+		GameSettings.gBaseStats = 0x081feba8
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -225,6 +262,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -233,8 +272,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x1540000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev1.sym
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
+		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -249,6 +290,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -258,8 +301,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
 	elseif gameversion == 0x02530000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev2.sym
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
+		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
@@ -274,6 +319,8 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -285,9 +332,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 	end
 end
 
-function GameSettings.setGameAsEmerald(gameversion)
+function GameSettings.setGameAsEmerald()
 	print("ROM Detected: Pokemon Emerald")
 
+	GameSettings.gBaseStats = 0x083203cc
 	GameSettings.sMonSummaryScreen = 0x0203cf1c
 	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
@@ -303,6 +351,8 @@ function GameSettings.setGameAsEmerald(gameversion)
 	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
 	GameSettings.gMoveToLearn = 0x020244e2
 	GameSettings.gBattleOutcome = 0x0202433a
+	
+	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
 	GameSettings.gSaveBlock1 = 0x02025a00
 	GameSettings.gSaveBlock1ptr = 0x03005d8c
@@ -349,6 +399,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 	if gameversion == 0x01670000 then
 		print("ROM Detected: Pokemon Fire Red v1.1")
 
+		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -364,6 +415,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
@@ -421,6 +474,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 	elseif gameversion == 0x00680000 then
 		print("ROM Detected: Pokemon Fire Red v1.0")
 
+		GameSettings.gBaseStats = 0x08254784
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -437,6 +491,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
@@ -510,10 +566,145 @@ function GameSettings.setGameAsFireRed(gameversion)
 	end
 end
 
+function GameSettings.setGameAsFireRedSpanish(gameversion)
+	if gameversion == 0x005A0000 then
+		print("ROM Detected: Pokemon Rojo Fuego")
+		GameSettings.gBaseStats = 0x082547f4
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
+		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74 --seems like they are same as fr but not sure
+		--this section is not tested but everything was the same so lets hope 
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
+
+		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
+		GameSettings.gSaveBlock1ptr = 0x03004F58
+		GameSettings.gSaveBlock2ptr = 0x03004F5C
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.EncryptionKeyOffset = 0xF20
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
+		--so take what you get from firered v1.v and find where drizzle is
+		GameSettings.ABILITIES = {
+			[0x081d8db1] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081D8DCC] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081D8ED3] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081D8EE1] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081D6D77] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			[0x081D8F76] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			[0x081D8FD1] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081D6981] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081D8F32] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			[0x081D8F92] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			[0x081D8E3F] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081D8FE5] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			[0x081D9000] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081D8F48] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081D8DD3] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			[0x081D8FA8] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081D8DE0] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081D8DF1] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			[0x081D8FB6] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081D9029] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081D8FF9] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081D8FC0] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081D8E08] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			[0x081D8EAB] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081D6506] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+		}
+	end
+end
+
+function GameSettings.setGameAsFireRedFrench(gameversion)
+	if gameversion == 0x00670000 then
+		print("ROM Detected: Pokemon Rouge Feu")
+		GameSettings.gBaseStats = 0x082547f4
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
+		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74 --seems like they are same as fr but not sure
+		--this section is not tested but everything was the same so lets hope 
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
+
+		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
+		GameSettings.gSaveBlock1ptr = 0x03004F58
+		GameSettings.gSaveBlock2ptr = 0x03004F5C
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.EncryptionKeyOffset = 0xF20
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
+		--so take what you get from firered v1.v and find where drizzle is
+		GameSettings.ABILITIES = {
+			[0x081d7a51] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+			[0x081D7A6C] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+			[0x081D7B73] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+			[0x081D7B81] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+			[0x081D5A17] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			[0x081D7C16] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			[0x081D7C71] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+			[0x081D5621] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			[0x081D7BD2] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
+			[0x081D7C32] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			[0x081D7ADF] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+			[0x081D7C85] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+			[0x081D7CA0] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+			[0x081D7BE8] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+			[0x081D7A73] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+			[0x081D7C48] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
+			[0x081D7A80] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+			[0x081D7A91] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+			[0x081D7C56] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+			[0x081D7CC9] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+			[0x081D7C99] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+			[0x081D7C60] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+			[0x081D7AA8] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+		}
+	end
+end
+
 function GameSettings.setGameAsLeafGreen(gameversion)
 	if gameversion == 0x01800000 then
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
+		GameSettings.gBaseStats = 0x082547d0
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -529,6 +720,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8aaf
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
@@ -572,6 +765,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 	elseif gameversion == 0x00810000 then
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
+		GameSettings.gBaseStats = 0x08254760
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -587,6 +781,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
 		GameSettings.gSaveBlock1ptr = 0x03005008
@@ -631,10 +827,8 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	if GameSettings.gamename == "" then
-		return "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
-	else
-		-- Remove trailing " (U)" from game name
-		return GameSettings.gamename:sub(1, -5) .. " AutoSave" .. Constants.TRACKER_DATA_EXTENSION
-	end
+	local filenameEnding = "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+
+	-- Remove trailing " (___)" from game name
+	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
 end

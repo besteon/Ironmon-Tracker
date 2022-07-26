@@ -56,14 +56,15 @@ function Utils.calcNatureBonus(stat, nature)
 end
 
 -- Returns a slightly darkened color
-function Utils.calcShadowColor(color)
+function Utils.calcShadowColor(color, scale)
+	scale = scale or 0.92
 	local color_hexval = (color - 0xFF000000)
 
-	-- get the RGB values of the color 
 	local r = bit.rshift(color_hexval, 16)
 	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
 	local b = bit.band(color_hexval, 0x0000FF)
 
+	--[[
 	local scale = 0x10 -- read as: 6.25%
 	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
 	if isDarkBG then
@@ -73,9 +74,31 @@ function Utils.calcShadowColor(color)
 	r = r - r * scale / 0x100
 	g = g - g * scale / 0x100
 	b = b - b * scale / 0x100
+	]]--
+
+	r = math.max(r * scale, 0)
+	g = math.max(g * scale, 0)
+	b = math.max(b * scale, 0)
 
 	-- build color with new hex values
-	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b 
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
+	return (0xFF000000 + color_hexval)
+end
+
+-- scale is a value between 0 and 1; 0 doesn't alter the color at all, and 1 is pure grayscale (no saturation)
+function Utils.calcGrayscale(color, scale)
+	scale = scale or 0.80
+	local color_hexval = (color - 0xFF000000)
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
+	local gray = 0.2989 * r + 0.5870 * g + 0.1140 * b -- CCIR 601 spec weights
+
+	r = math.max(gray * scale + r * (1 - scale), 0)
+	g = math.max(gray * scale + g * (1 - scale), 0)
+	b = math.max(gray * scale + b * (1 - scale), 0)
+
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -161,7 +184,11 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
-		return { "220 Friendship" }
+		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
+			return { Program.friendshipRequired .. " Friendship" }
+		else
+			return { "220 Friendship" }
+		end
 	elseif evoMethod == PokemonData.Evolutions.STONES then
 		return { "5 Diff. Stones" }
 	elseif evoMethod == PokemonData.Evolutions.THUNDER then
@@ -197,7 +224,7 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 end
 
 -- moveType required for Hidden Power tracked type
-function Utils.netEffectiveness(move, moveType, opposingTypes)
+function Utils.netEffectiveness(move, moveType, comparedTypes)
 	local effectiveness = 1.0
 
 	-- If type is unknown or typeless
@@ -208,15 +235,15 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
 	if move.power == Constants.NO_POWER then
 		if move.category ~= MoveData.Categories.STATUS then
-			if moveType == PokemonData.Types.NORMAL and (opposingTypes[1] == PokemonData.Types.GHOST or opposingTypes[2] == PokemonData.Types.GHOST) then
+			if moveType == PokemonData.Types.NORMAL and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif moveType == PokemonData.Types.FIGHTING and (opposingTypes[1] == PokemonData.Types.GHOST or opposingTypes[2] == PokemonData.Types.GHOST) then
+			elseif moveType == PokemonData.Types.FIGHTING and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
-			elseif moveType == PokemonData.Types.PSYCHIC and (opposingTypes[1] == PokemonData.Types.DARK or opposingTypes[2] == PokemonData.Types.DARK) then
+			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
 				return 0.0
-			elseif moveType == PokemonData.Types.GROUND and (opposingTypes[1] == PokemonData.Types.FLYING or opposingTypes[2] == PokemonData.Types.FLYING) then
+			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
 				return 0.0
-			elseif moveType == PokemonData.Types.GHOST and (opposingTypes[1] == PokemonData.Types.NORMAL or opposingTypes[2] == PokemonData.Types.NORMAL) then
+			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then
 				return 0.0
 			end
 		end
@@ -224,7 +251,7 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 	end
 
 	-- Check effectiveness against each opposing type
-	for _, type in ipairs(opposingTypes) do
+	for _, type in ipairs(comparedTypes) do
 		local effectiveValue = MoveData.TypeToEffectiveness[moveType][type]
 		if effectiveValue ~= nil then
 			effectiveness = effectiveness * effectiveValue
@@ -235,13 +262,13 @@ function Utils.netEffectiveness(move, moveType, opposingTypes)
 end
 
 -- moveType required for Hidden Power tracked type
-function Utils.isSTAB(move, moveType, ownMoveTypes)
-	if move == nil or opposingTypes == nil or move.power == Constants.NO_POWER then
+function Utils.isSTAB(move, moveType, comparedTypes)
+	if move == nil or comparedTypes == nil or move.power == Constants.NO_POWER then
 		return false
 	end
 
 	-- Check if the move's type matches any of the 'types' provided
-	for _, type in ipairs(ownMoveTypes) do
+	for _, type in ipairs(comparedTypes) do
 		if moveType == type then
 			return true
 		end
@@ -288,8 +315,8 @@ end
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	local basePower = (150 * currentHP) / maxHP
-	if basePower < 1 then 
-		basePower = 1 
+	if basePower < 1 then
+		basePower = 1
 	end
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
@@ -358,10 +385,12 @@ end
 
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
-	
-	local lines, here, limit = {}, 1, limit or 72
+	limit = limit or 72
+
+	local lines = {}
+	local here = 1
 	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
-	
+
 	str:gsub("(%s+)()(%S+)()",
 		function(sp, st, word, fi) -- Function gets called once for every space found.
 			-- If at the end of a line, start a new table index
@@ -372,7 +401,7 @@ function Utils.getWordWrapLines(str, limit)
 				lines[#lines] = lines[#lines] .. " " .. word
 			end
 		end)
-	
+
 	return lines
 end
 
@@ -380,11 +409,13 @@ function Utils.writeTableToFile(table, filename)
 	local file = io.open(filename, "w")
 
 	if file ~= nil then
-		local dataString = pickle(Tracker.Data)
+		local dataString = Pickle.pickle(table)
 
-		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end --append a trailing \n if one is absent
+		--append a trailing \n if one is absent
+		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
 			file:write(dataLine)
+			file:write("\n")
 		end
 		file:close()
 	else
@@ -392,7 +423,7 @@ function Utils.writeTableToFile(table, filename)
 	end
 end
 
-function Utils.readTableFromFile(filename)	
+function Utils.readTableFromFile(filename)
 	local tableData = nil
 	local file = io.open(filename, "r")
 
@@ -400,7 +431,7 @@ function Utils.readTableFromFile(filename)
 		local dataString = file:read("*a")
 
 		if dataString ~= nil and dataString ~= "" then
-			tableData = unpickle(dataString)
+			tableData = Pickle.unpickle(dataString)
 		end
 		file:close()
 	end
@@ -412,7 +443,7 @@ end
 --this function does what the built in forms.setlocation function supposed to do
 --currently that function is bugged and should be fixed in 2.9
 function Utils.setFormLocation(handle,x,y)
-	local ribbonHight = 64 -- so we are below the ribbon menu 
+	local ribbonHight = 64 -- so we are below the ribbon menu
 	local actualLocation = client.transformPoint(x,y)
 	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
