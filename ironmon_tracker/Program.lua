@@ -241,6 +241,10 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
 	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
 
+	if abilityId < 0 or abilityId > #MiscData.Abilities then
+		abilityId = 0
+	end
+
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
 	local sleep_turns_result = 0
