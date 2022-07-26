@@ -777,7 +777,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
 	local linespacing = 10
-	local botOffsetY = offsetY + (linespacing * 7) - 2 + 9
+	local botOffsetY = offsetY + (linespacing * 7) + 7
 
 	local move = MoveData.Moves[moveId]
 	local moveType = move.type
@@ -821,10 +821,10 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local categoryInfo = ""
 	if moveCat == MoveData.Categories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetX + 130, botOffsetY - linespacing - 13, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetColumnX + 36, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetX + 130, botOffsetY - linespacing - 13, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetColumnX + 33, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
 	else categoryInfo = categoryInfo .. Constants.BLANKLINE end
