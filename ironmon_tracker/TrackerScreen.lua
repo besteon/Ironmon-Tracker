@@ -158,7 +158,10 @@ function TrackerScreen.openAbilityNoteWindow()
 
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
-	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local abilityForm = forms.newform(360, 170, "Track Ability", function() client.unpause() end)
 	Utils.setFormLocation(abilityForm, 100, 50)
 
 	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
@@ -227,7 +230,10 @@ function TrackerScreen.openNotePadWindow()
 	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	if pokemon == nil then return end
 
-	local noteForm = forms.newform(465, 125, "Leave a Note", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
 	Utils.setFormLocation(noteForm, 100, 50)
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)

@@ -182,7 +182,10 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = forms.newform(465, 125, "Theme Import", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(465, 125, "Theme Import", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a theme configuration string to import (Ctrl+V to paste):", 9, 10, 300, 20)
 	local importTextBox = forms.textbox(form, "", 430, 20, nil, 10, 30)
@@ -201,9 +204,12 @@ function Theme.openImportWindow()
 end
 
 function Theme.openExportWindow()
+	forms.destroyall()
+	client.pause()
+
 	local theme_config = Theme.exportThemeToText()
 
-	local form = forms.newform(465, 125, "Theme Export", function() return end)
+	local form = forms.newform(465, 125, "Theme Export", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
 	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
@@ -213,7 +219,10 @@ function Theme.openExportWindow()
 end
 
 function Theme.openPresetsWindow()
-	local presetsForm = forms.newform(360, 105, "Theme Presets", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local presetsForm = forms.newform(360, 105, "Theme Presets", function() client.unpause() end)
 	Utils.setFormLocation(presetsForm, 100, 50)
 	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)

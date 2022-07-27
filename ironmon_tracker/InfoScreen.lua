@@ -126,7 +126,10 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	local moveLookup = forms.newform(360, 105, "Move Look up", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
 	Utils.setFormLocation(moveLookup, 100, 50)
 	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
@@ -164,7 +167,10 @@ function InfoScreen.openPokemonInfoWindow()
 		end
 	end
 
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
 	Utils.setFormLocation(pokedexLookup, 100, 50)
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)

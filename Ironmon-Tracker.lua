@@ -41,8 +41,10 @@ dofile(Main.DataFolder .. "/Tracker.lua")
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
+	forms.destroyall()
 	client.pause()
-	local form = forms.newform(400, 130, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() return end)
+
+	local form = forms.newform(400, 130, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, errMessage, 18, 10, 400, 50)
 	forms.button(form, "Close", function()

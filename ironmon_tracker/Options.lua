@@ -139,7 +139,10 @@ function Options.openRomPickerWindow()
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(445, 215, "Controller Inputs", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
@@ -186,7 +189,10 @@ end
 function Options.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
-	local form = forms.newform(290, 130, "Save Tracker Data", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
 	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
