@@ -26,12 +26,6 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 
 	-- If the Pokemon already exists, update the parts of it that you can; otherwise add it.
 	if pokemon ~= nil then
-		-- If the Pokemon evolved (or otherwise changed), clear it's ability; to be updated later in battle
-		if pokemonData.pokemonID ~= pokemon.pokemonID then
-			pokemonData.abilityId = nil
-			pokemon.abilityId = nil
-		end
-
 		-- Update each pokemon key if it exists between both Pokemon
 		for key, _ in pairs(pokemonData) do
 			if pokemonData[key] ~= nil and pokemon[key] ~= nil then
