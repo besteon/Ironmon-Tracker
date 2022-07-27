@@ -410,6 +410,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
@@ -431,45 +432,62 @@ function GameSettings.setGameAsFireRed(gameversion)
 
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
-			[0x081d92ef] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
-			[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-			[0x081d9411] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-			[0x081d941f] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-			[0x081d72b5] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
-			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
-			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
-			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
-			[0x081d94b4] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
-			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
-			[0x081d950f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-			[0x081d6ebf] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-			[0x081d9470] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
-			-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust
-			[0x081d94d0] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
-			[0x081d937d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
-			[0x081d9523] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
-			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
-			[0x081d953e] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-			[0x081d9486] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-			[0x081d9311] = 36, -- BattleScript_TraceActivates + 0x0 Trace
-			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
-			[0x081D94E6] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
-			[0x081D931E] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-			[0x081d932f] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
-			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
-			[0x081D94F4] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
-			[0x081d9567] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
-			[0x081d9537] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-			[0x081d94fe] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-			[0x081d9346] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
-			[0x081d93e9] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-			[0x081D6A44] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
-			-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
+			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081d92ef] = 2, -- BatdtleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				[0x081d72b5] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+				[0x081d94b4] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+				[0x081d6ebf] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+				[0x081d94d0] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d953e] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
+				[0x081d9486] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
+				[0x081d9311] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+				[0x081d932f] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d9346] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d94f4] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+				[0x081d93e9] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081d9411] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+				[0x081d941f] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+				[0x081d950f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d9470] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+				[0x081d9523] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081d94e6] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof (Is immune to own sound moves too)
+				[0x081d9537] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d94fe] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081d9442] = {10,11}, -- BattleScript_MonMadeMoveUseless + 0x14 Volt/Water Absorb 1
+				[0x081D9458] = {10,11}, -- BattleScript_MoveHPDrain + 0x7 Volt/Water Absorb 2
+				[0x081d6a44] = {15,72}, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit/Insomnia (Attacking)
+				
+				-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
+				-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
+				-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+				-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			},
+			REVERSE_ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player, but logic is the reverse of the abilities in ATTACKER
+				[0x081D6F2A] = {15,72}, -- BattleScript_RestCantSleep + 0x8 Vital Spirit/Insomnia (Self)
+				[0x081D931E] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d9567] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
+			},
+			STATUS_INFLICT = {
+				--Contact abilities depend on Battler of 1/3, and also Attacker of 0/2
+				[0x081D9274] = {9,27,28}, -- BattleScript_MoveEffectParalysis + 0x0 Static/Effect Spore (Paralyze) 1
+				[0x081D9279] = {9,27,28}, -- BattleScript_MoveEffectParalysis + 0x5 Static/Effect Spore (Paralyze) 2
+				[0x081D922B] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 1
+				[0x081D9230] = 27, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 2
+				[0x081D9247] = {38,27,28}, -- Poison Point/Effect Spore (Poison) 1
+				[0x081D924C] = {38,27,28}, -- Poison Point/Effect Spore (Poison) 1
+				[0x081D925B] = {49,28}, -- Flame Body
+				[0x081D9256] = {49,28}, -- Flame Body
+			},
+			OTHER = {
+				-- Unsure how to determine these yet, so only track when only enemy has it
+				[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+				-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+				-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust (not sure if this even pops up a message)
+
+			},
 		}
 	elseif gameversion == 0x00680000 then
 		print("ROM Detected: Pokemon Fire Red v1.0")
@@ -485,6 +503,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a11
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
@@ -506,31 +525,61 @@ function GameSettings.setGameAsFireRed(gameversion)
 
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
 		GameSettings.ABILITIES = {
-			[0x081d927f] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
-			[0x081d929a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-			[0x081d93a1] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-			[0x081d93af] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-			[0x081d7245] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
-			[0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			[0x081d949f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-			[0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-			[0x081d93f8] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
-			[0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-			[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
-			[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			[0x081d94ce] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-			[0x081d9416] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-			[0x081d92a1] = 36, -- BattleScript_TraceActivates + 0x0 Trace
-			[0x081d9476] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
-			[0x081d92ae] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-			[0x081d92bf] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-			[0x081d9484] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
-			[0x081d94f7] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
-			[0x081d94c7] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-			[0x081d948e] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-			[0x081d92d6] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-			[0x081d9379] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-			[0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081d927f] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081d929a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				[0x081d7245] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+				[0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+				[0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+				[0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d94ce] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested) [sets battler to target]
+				[0x081d9416] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body (29) & White Smoke (73)
+				[0x081d92a1] = 36, -- BattleScript_TraceActivates + 0x0 Trace
+				[0x081d92bf] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d92d6] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d9484] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
+				[0x081d9379] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+				-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081d93a1] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
+				[0x081d93af] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
+				[0x081d949f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d93f8] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+				[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081d9476] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof (Is immune to own sound moves too)
+				[0x081d92ae] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d94f7] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
+				[0x081d94c7] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d948e] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
+				-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
+				-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
+				-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
+				-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+				-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			},
+			OTHER = {
+				-- Contact-based status-afflicting abilities addresses found from reading battleMsg when ability activated
+				-- Will need to test if unique to these abilities
+				-- Static (9), Effect Spore (27), Poison Point (38), Flame Body (49)
+				-- TODO: FIgure out *where* these addresses correspond to
+				[0x081D9209] = 9, -- Static
+				[0x081D91C0] = 27, -- Effect Spore
+				[0x081D91DC] = 38, -- Poison Point
+				[0x081D91EB] = 49, -- Flame Body
+				-- Unsure how to determine these yet, so only track when only enemy has it
+				[0x081d930d] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+				-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
+				-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust (not sure if this even pops up a message)
+
+			},
+			-- Keeping these here for now for reference (these are the original placeholders for these abilities)
+			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
+			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
+			-- [0x00000000] = 49, -- BattleScript_MoveEffectBurn + 0x0 Flame Body 081D9256 and/or 081D925B -- Likely: BattleScript_ApplySecondaryEffect
 		}
 	end
 end
