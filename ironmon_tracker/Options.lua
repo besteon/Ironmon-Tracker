@@ -24,9 +24,9 @@ Options = {
 	},
 }
 
-Options.buttons = {
+Options.Buttons = {
 	romsFolder = {
-		type = Constants.BUTTON_TYPES.NO_BORDER,
+		type = Constants.ButtonTypes.NO_BORDER,
 		text = "Roms folder: ",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 6, 7, Constants.SCREEN.RIGHT_GAP - 12, 11 },
@@ -34,7 +34,7 @@ Options.buttons = {
 		onClick = function() Options.openRomPickerWindow() end
 	},
 	controls = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Controls",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 8, 20, 37, 11 },
@@ -42,7 +42,7 @@ Options.buttons = {
 		onClick = function() Options.openEditControlsWindow() end
 	},
 	saveTrackerData = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Save Data",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 49, 20, 44, 11 },
@@ -50,7 +50,7 @@ Options.buttons = {
 		onClick = function() Options.openSaveDataPrompt() end
 	},
 	loadTrackerData = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Load Data",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 97, 20, 44, 11 },
@@ -58,17 +58,17 @@ Options.buttons = {
 		onClick = function() Options.openLoadDataPrompt() end
 	},
 	customizeTheme = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Customize Theme",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 9, 140, 74, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
 		onClick = function()
-			Program.changeScreenView(Program.SCREENS.THEME)
+			Program.changeScreenView(Program.Screens.THEME)
 		end
 	},
 	close = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Close",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
@@ -76,7 +76,7 @@ Options.buttons = {
 		onClick = function()
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.SCREENS.TRACKER)
+			Program.changeScreenView(Program.Screens.TRACKER)
 		end
 	},
 }
@@ -85,9 +85,9 @@ function Options.initialize()
 	local index = 1
 	local heightOffset = 35
 
-	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
-		local button = {
-			type = Constants.BUTTON_TYPES.CHECKBOX,
+	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
+		Options.Buttons[optionKey] = {
+			type = Constants.ButtonTypes.CHECKBOX,
 			text = optionKey,
 			textColor = "Default text",
 			clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 8 },
@@ -113,7 +113,6 @@ function Options.initialize()
 			end
 		}
 
-		Options.buttons[optionKey] = button
 		index = index + 1
 		heightOffset = heightOffset + 10
 	end
@@ -139,7 +138,10 @@ function Options.openRomPickerWindow()
 end
 
 function Options.openEditControlsWindow()
-	local form = forms.newform(445, 215, "Controller Inputs", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
@@ -148,7 +150,7 @@ function Options.openEditControlsWindow()
 	local offsetY = 35
 
 	local index = 1
-	for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
+	for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
 		forms.label(form, controlKey .. ":", offsetX, offsetY, 105, 20)
 		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 110, offsetY - 2)
 
@@ -159,7 +161,7 @@ function Options.openEditControlsWindow()
 	-- 'Save & Close' and 'Cancel' buttons
 	forms.button(form,"Save && Close", function()
 		index = 1
-		for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
+		for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
 			local controlCombination = ""
 			for txtInput in string.gmatch(forms.gettext(inputTextboxes[index]), '([^,%s]+)') do
 				-- Format "START" as "Start"
@@ -186,7 +188,10 @@ end
 function Options.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
-	local form = forms.newform(290, 130, "Save Tracker Data", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
 	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
@@ -194,8 +199,8 @@ function Options.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			if formInput:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
-				formInput = formInput .. Constants.TRACKER_DATA_EXTENSION
+			if formInput:sub(-5):lower() ~= Constants.Extensions.TRACKED_DATA then
+				formInput = formInput .. Constants.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(formInput)
 		end
@@ -209,7 +214,7 @@ function Options.openSaveDataPrompt()
 end
 
 function Options.openLoadDataPrompt()
-	local suggestedFileName = gameinfo.getromname() .. Constants.TRACKER_DATA_EXTENSION
+	local suggestedFileName = gameinfo.getromname() .. Constants.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.TDAT|All files (*.*)|*.*"
 
 	local filepath = forms.openfile(suggestedFileName, "/", filterOptions)
