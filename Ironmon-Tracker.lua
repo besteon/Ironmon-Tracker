@@ -175,7 +175,7 @@ function Main.LoadSettings()
 
 	-- [TRACKER]
 	if settings.tracker ~= nil then
-		for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
+		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 			if optionKey ~= nil then
 				local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
 				Options[optionKey] = optionValue
@@ -195,7 +195,7 @@ function Main.LoadSettings()
 
 	-- [THEME]
 	if settings.theme ~= nil then
-		for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+		for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 			if colorkey ~= nil then
 				local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
 				Theme.COLORS[colorkey] = 0xFF000000 + tonumber(color_hexval, 16)
@@ -205,7 +205,7 @@ function Main.LoadSettings()
 		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
 		if enableMoveTypes ~= nil then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-			Theme.buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+			Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
 	end
 
@@ -231,19 +231,19 @@ function Main.SaveSettings()
 	settings.config.ROMS_FOLDER = Options.ROMS_FOLDER
 
 	-- [TRACKER]
-	for _, optionKey in ipairs(Constants.ORDERED_LISTS.OPTIONS) do
+	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 		local encodedKey = string.gsub(optionKey, " ", "_")
 		settings.tracker[encodedKey] = Options[optionKey]
 	end
 
 	-- [CONTROLS]
-	for _, controlKey in ipairs(Constants.ORDERED_LISTS.CONTROLS) do
+	for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
 		local encodedKey = string.gsub(controlKey, " ", "_")
 		settings.controls[encodedKey] = Options.CONTROLS[controlKey]
 	end
 
 	-- [THEME]
-	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		local encodedKey = string.gsub(colorkey, " ", "_")
 		settings.theme[encodedKey] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 	end

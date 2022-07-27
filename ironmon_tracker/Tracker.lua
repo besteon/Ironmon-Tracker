@@ -64,6 +64,8 @@ end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackAbility(pokemonID, abilityId)
+	if pokemonID == nil or abilityId == nil then return end
+	
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 
 	if trackedPokemon.abilities == nil then
@@ -74,9 +76,9 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 	end
 
 	-- Only add as second ability if it's different than the first ability
-	if trackedPokemon.abilities[1].id == 0 then
+	if trackedPokemon.abilities[1].id == nil or trackedPokemon.abilities[1].id == 0 then
 		trackedPokemon.abilities[1].id = abilityId
-	elseif trackedPokemon.abilities[2].id == 0 and trackedPokemon.abilities[1].id ~= abilityId then
+	elseif (trackedPokemon.abilities[2].id == nil or trackedPokemon.abilities[2].id == 0) and trackedPokemon.abilities[1].id ~= abilityId then
 		trackedPokemon.abilities[2].id = abilityId
 	end
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
@@ -328,7 +330,7 @@ function Tracker.loadData(filepath)
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local fileData = nil
-	if filepath:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
+	if filepath:sub(-5):lower() ~= Constants.Extensions.TRACKED_DATA then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 	else
