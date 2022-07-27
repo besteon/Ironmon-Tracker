@@ -343,9 +343,10 @@ function Program.updateBattleDataFromMemory()
 		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon.abilityId, ownersPokemon.abilityId) then
 			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 			-- Testing prints to give more info on when the tracker tracks an ability
-			print("Ability  = " .. MiscData.Abilities[opposingPokemon.abilityId])
+			print("\nAbility  = " .. MiscData.Abilities[opposingPokemon.abilityId])
 			print("Battler  = " .. Memory.readbyte(GameSettings.gBattleScriptingBattler))
 			print("Attacker = " .. Memory.readbyte(GameSettings.gBattlerAttacker))
+			print("BattlerTarget = " .. Memory.readbyte(GameSettings.gBattlerTarget))
 		end
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
@@ -372,17 +373,17 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 
 	-- Abilities to check via battler read
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
+	
 	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+	if battlerMsg ~= nil and battlerMsg[enemyAbility] and battler % 2 == 1 then
+		-- Enemy is the one that used the ability
+		return true
+	end
+	
 	local reverseBattlerMsg = GameSettings.ABILITIES.REVERSE_BATTLER[battleMsg]
-
-	if battlerMsg ~= nil then
-		if battlerMsg[enemyAbility] and battler % 2 == 1 then
-			-- Enemy is the one that used the ability
-			return true
-		end
-	elseif reverseBattlerMsg ~= nil and battler % 2 == 0 then 
+	if reverseBattlerMsg ~= nil and battler % 2 == 0 then 
 		if reverseBattlerMsg[enemyAbility] then
-			-- Vital Spirit / Insomnia set battler to player
+			-- Some abilities set battler to the opposing pokemon
 			return true
 		elseif reverseBattlerMsg[36] and playerAbility == 36 then -- 36 = Trace
 			-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
@@ -392,13 +393,20 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	
 	-- Abilities to check via attacker read
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	
 	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
-	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
-
 	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
-		-- Player activated enemy's ability
-		return true
-	elseif reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+		if enemyAbility == 26 and Memory.readbyte(GameSettings.gMoveResultFlags) == 9 then -- 26 = Levitate
+			-- Enemy's Levitate went off
+			return true
+		else
+			-- Player activated enemy's ability
+			return true
+		end
+	end
+
+	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
+	if reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
 		-- Attacker value becomes ability user (self-activated ability)
 		return true
 	end
@@ -414,21 +422,11 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	end
 	
 	-- Abilities not covered by the above checks
+	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+	
 	local otherMsg = GameSettings.ABILITIES.OTHER[battleMsg]
-	local intimidateAbilities = { -- Abilities that block Intimidate
-		[29] = true, -- Clear Body
-		[52] = true, -- Hyper Cutter
-		[73] = true, -- White Smoke
-	}
-
-	if otherMsg ~= nil then
-		if otherMsg[enemyAbility] and enemyAbility ~= playerAbility then
-			-- TODO: figure out how to determine it was enemy's ablity that went off
-			return true
-		elseif otherMsg[22] and intimidateAbilities[enemyAbility] then -- 22 = Intimidate
-			-- Enemy has Hyper Cutter and it blocked player's Intimidate (doesn't run normal Hyper Cutter script)
-			return true
-		end
+	if otherMsg ~= nil and otherMsg[enemyAbility] and battlerTarget % 2 == 1 then
+		return true
 	end
 
 	return false
