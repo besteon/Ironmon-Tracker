@@ -241,8 +241,15 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
 	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
 
+	-- If the ability doesn't exist somehow (likely because of an evo & personality mismatch), check the other ability
 	if abilityId < 0 or abilityId > #MiscData.Abilities then
-		abilityId = 0
+		abilityNum = 1 - abilityNum
+		abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
+
+		-- If it still doesn't exist, just don't display anything
+		if abilityId < 0 or abilityId > #MiscData.Abilities then
+			abilityId = 0
+		end
 	end
 
 	-- Determine status condition
