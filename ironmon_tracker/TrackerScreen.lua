@@ -75,6 +75,21 @@ TrackerScreen.Buttons = {
 	},
 }
 
+TrackerScreen.CarouselTypes = {
+    BADGES = 1,
+	NOTES = 2,
+	ROUTE_INFO = 3,
+	LAST_DAMAGE = 4,
+}
+
+TrackerScreen.CurrentCarousel = {
+	TrackerScreen.CarouselTypes.BADGES,
+	TrackerScreen.CarouselTypes.NOTES,
+}
+
+TrackerScreen.CarouselDefinitions = {}
+-- TrackerScreen.carouselIndex = 1 -- ? might be able to auto-calculate this
+
 function TrackerScreen.initialize()
 	-- Buttons for stat markings tracked by the user
 	local heightOffset = 9
@@ -129,6 +144,11 @@ function TrackerScreen.initialize()
 			end
 		}
 	end
+
+	-- Define each Carousel Item
+	local badgeCarousel = {}
+
+	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.BADGES] = badgeCarousel
 end
 
 function TrackerScreen.updateButtonStates()
