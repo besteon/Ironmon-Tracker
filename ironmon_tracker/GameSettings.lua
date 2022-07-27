@@ -511,11 +511,13 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d927f] = { [2]  = true, }, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d929a] = { [3]  = true, }, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d94ce] = { [28] = true, }, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (sets battler to target)
-				[0x081d92a1] = { [36] = true, }, -- BattleScript_TraceActivates + 0x0 Trace
 				[0x081d92bf] = { [45] = true, }, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d92d6] = { [61] = true, }, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-				[0x081d9484] = { [52] = true, }, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
 				[0x081d9379] = { [70] = true, }, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d9484] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye 
+					[52] = true, -- Hyper Cutter
+				},
 				[0x081d9416] = { -- BattleScript_AbilityNoStatLoss + 0x0 
 					[29] = true, -- Clear Body
 					[73] = true, -- White Smoke
@@ -531,15 +533,24 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[72] = true, -- Vital Spirit
 				},
 			},
+			REVERSE_BATTLER = { -- Abilities like the above, but want to check opposite battler value
+				[0x081d92a1] = { [36] = true, }, -- BattleScript_TraceActivates + 0x0 Trace
+				[0x081d69d4] = {  -- BattleScript_CantMakeAsleep + 0x8
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d93a1] = { [5]  = true, }, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-				[0x081d93af] = { [6]  = true, }, -- BattleScript_DampStopsExplosion + 0x0 Damp
+				[0x081d9444] = { [12] = true, }, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
 				[0x081d949f] = { [16] = true, }, -- BattleScript_ColorChangeActivates + 0x3 Color Change
 				[0x081d93f8] = { [18] = true, }, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+				[0x081d9460] = { [20] = true, }, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d940E] = { [21] = true, }, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d94b3] = { [24] = true, }, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d9476] = { [43] = true, }, -- BattleScript_SoundproofProtected + 0x8 Soundproof (Is immune to own sound moves too)
 				[0x081d94c7] = { [56] = true, }, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d948e] = { [60] = true, }, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081d6a3F] = { [64] = true, }, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze
 				[0x081d93d2] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -548,41 +559,60 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
+				[0x081d9428] = { -- BattleScript_BRNPrevention + 0x8
+					[28] = true, -- Synchronize
+					[41] = true, -- Water Veil
+				},
+				[0x081d9434] = { -- BattleScript_PRLZPrevention + 0x8 
+					[7]  = true, -- Limber
+					[28] = true, -- Synchronize
+				},
+				[0x081d9440] = { -- BattleScript_PSNPrevention + 0x8
+					[17] = true, -- Immunity
+					[28] = true, -- Synchronize
+				},
 			},
-			REVERSE_ATTACKER = { -- Abilities like the above, but attacker value is set to ability user
+			REVERSE_ATTACKER = { -- Abilities like the above, but want to check opposite attacker value
 				[0x081d92ae] = { [44] = true, }, -- BattleScript_RainDishActivates + 0x3 Rain Dish
 				[0x081d94f7] = { [54] = true, }, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				[0x081d8b97] = { [64] = true, }, -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 			},
-			CONTACT_STATUS = { -- Need to be checked with both battler and attacker
+			STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
+				[0x081d91c0] = { [27] = true, }, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore
 				[0x081d9209] = { -- BattleScript_MoveEffectParalysis + 0x7
 					[9]  = true, -- Static
 					[27] = true, -- Effect Spore
+					[28] = true, -- Synchronize
 				},
-				[0x081d91c0] = { [27] = true, }, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore
 				[0x081d91dc] = { -- BattleScript_MoveEffectPoison + 0x7
 					[27] = true, -- Effect Spore
+					[28] = true, -- Synchronize
 					[38] = true, -- Poison Point
 				},
-				[0x081d91eb] = { [49] = true, }, -- BattleScript_MoveEffectBurn + 0x7 Flame Body
+				[0x081d91eb] = { -- BattleScript_MoveEffectBurn + 0x7
+					[28] = true, -- Synchronize
+					[49] = true, -- Flame Body
+				},
 			},
 			OTHER = { -- Unsure how to determine these yet, so only track when only enemy has it
+				[0x081d93af] = { [6]  = true, }, -- BattleScript_DampStopsExplosion + 0x0 Damp
 				[0x081d930d] = { [22] = true, }, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+				[0x081d9476] = { [43] = true, }, -- BattleScript_SoundproofProtected + 0x8 Soundproof
 			},
 		-- TODO: Add these
 			-- [0x00000000] = 26, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Levitate -- No clean trigger to use
-			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
-			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
-			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
-			-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
 		-- Keeping these here for now for reference (these are the original placeholders for these abilities)
+			-- [0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
 			-- [0x081d7245] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			-- [0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			-- [0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+			-- [0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+			-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
+			-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
 			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
 			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
-			-- [0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			-- [0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-			-- [0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
-			-- [0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
 			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
 			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
