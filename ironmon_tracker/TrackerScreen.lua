@@ -79,7 +79,7 @@ TrackerScreen.CarouselTypes = {
     BADGES = 1,
 	NOTES = 2,
 	ROUTE_INFO = 3,
-	LAST_DAMAGE = 4,
+	LAST_ATTACK = 4,
 }
 
 TrackerScreen.CurrentCarousel = {
@@ -145,10 +145,36 @@ function TrackerScreen.initialize()
 		}
 	end
 
-	-- Define each Carousel Item
-	local badgeCarousel = {}
-
+	-- Define each Carousel Item, must will have blank data that will be populated later with contextual data
+	local badgeCarousel = {
+		isVisible = function() return not Tracker.Data.inBattle end,
+		framesToShow = 180, -- 3 seconds
+		content = {},
+	}
+	for index = 1, 8, 1 do
+		local badgeName = "badge" .. index
+		local badgeButton = TrackerScreen.Buttons[badgeName]
+		table.insert(badgeCarousel.content, badgeButton)
+	end
 	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.BADGES] = badgeCarousel
+
+	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.NOTES] = {
+		isVisible = function() return true end,
+		framesToShow = 240, -- 4 seconds
+		content = {},
+	}
+
+	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
+		isVisible = function() return Tracker.Data.inBattle end,
+		framesToShow = 240, -- 4 seconds
+		content = {}, -- TODO: If against wild pokemon, reveal route table; otherwise show total # trainers in route
+	}
+
+	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
+		isVisible = function() return Tracker.Data.inBattle and Program.lastEnemyAttack ~= nil end,
+		framesToShow = 240, -- 4 seconds
+		content = {},
+	}
 end
 
 function TrackerScreen.updateButtonStates()

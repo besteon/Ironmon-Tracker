@@ -3,6 +3,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	isTransformed = false,
+	lastEnemyAttack = nil -- { moveId = 0, damage = 0, }
 	friendshipRequired = 220,
 	frames = {
 		waitToDraw = 0,
