@@ -342,7 +342,6 @@ function Program.updateBattleDataFromMemory()
 		-- Auto-track opponent abilities if they go off
 		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon.abilityId, ownersPokemon.abilityId) then
 			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
-			-- Testing prints to give more info on when the tracker tracks an ability
 		end
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
@@ -364,39 +363,26 @@ function Program.updateBattleDataFromMemory()
 	end
 end
 
-function Program.checkBattlerAbility(enemyAbility,playerAbility,battler,attacker)
-	if enemyAbility == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
-		if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
-			-- Enemy is the one that used Clear Body / White Smoke
-			return true
-		end
-	elseif  enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-			-- Enemy is using Synchronize on the player
-		return true
-	elseif battler % 2 == 1 then
-		return true
-	end
-	--elseif abilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
-		-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
-		--return true
-	--end
-	return false
-end
+function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
+	-- Checks if ability should be auto-tracked
 
-function Program.checkAttackerAbility(enemyAbility,playerAbility,battler,attacker)
-	local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
-	
-	-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-	if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-		-- This is a slight workaround that works only if the player doesn't also have the ability
-		return enemyAbility ~= playerAbility
-	elseif enemyAbility == 26 then
-		if moveFlags == 9 and attacker % 2 == 0 then
+	-- Abilities to check via battler read
+	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
+	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+
+	if battlerMsg ~= nil then
+		if battlerMsg[enemyAbility] then
+			if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+				-- Enemy is using Synchronize on the player
+				return true
+			elseif battler % 2 == 1 then
+				-- Enemy is the one that used the ability
+				return true
+			end
+		elseif battlerMsg[36] and battler % 2 == 0 then -- 36 = Trace
+			-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
 			return true
 		end
-	elseif attacker % 2 == 0 then
-		-- Player activated enemy's ability
-		return true
 	end
 	return false
 end
@@ -434,44 +420,43 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	end
 	
 	-- Abilities to check via attacker read
-	local attackerAbilitiesMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
-	if attackerAbilitiesMsg ~= nil then
-		if attackerAbilitiesMsg[enemyAbility] then
-			if Program.checkAttackerAbility(enemyAbility,playerAbility,battler,attacker) then
-				return true
-			end
+	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
+	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
+
+	if attackerMsg ~= nil and attackerMsg[enemyAbility] then
+		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
+		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
+			-- This is a slight workaround that works only if the player doesn't also have the ability
+			return enemyAbility ~= playerAbility
+		elseif attacker % 2 == 0 then
+			-- Player activated enemy's ability
+			return true
 		end
+	elseif reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+		-- Attacker value becomes ability user (self-activated ability)
+		-- Untested for if both player and enemy have Rain Dish, but in theory this should work
+		return true
 	end
 
-	local reverseAttackerAbilitiesMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
-	if reverseAttackerAbilitiesMsg ~= nil then
-		if reverseAttackerAbilitiesMsg[enemyAbility] then
-			if Program.checkReverseAttackerAbility(reverseAttackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
-				return true
-			end
-		end
-	end
+	-- Contact-based status-inflicting abilities
+	local contactStatusMsg = GameSettings.ABILITIES.CONTACT_STATUS[battleMsg]
 
-	local statusInflictMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
-	if statusInflictMsg  ~= nil then
-		if statusInflictMsg[enemyAbility] then
-			if Program.checkContactAbility(statusInflictMsg ,enemyAbility,playerAbility,battler,attacker) then
-				return true
-			end
+	if contactStatusMsg ~= nil and contactStatusMsg[enemyAbility] then
+		if battler % 2 == 1 and attacker % 2 == 0 then
+			-- Player activated enemy's contact-based status ability
+			return true
 		end
 	end
 	
-	-- Abilities not covered by just battler or attacker
-	local otherAbilitiesMsg = GameSettings.ABILITIES.OTHER[battleMsg]
-	local intimidateAbilities = { -- Abilities that block Intimidate
-		[29] = true, -- Clear Body
-		[52] = true, -- Hyper Cutter
-		[73] = true, -- White Smoke
-	}
-	if otherAbilitiesMsg ~= nil then
-		if otherAbilitiesMsg[enemyAbility] and playerAbility ~= enemyAbility then
+	-- Abilities not covered by the above checks (just Intimidate right now)
+	local otherMsg = GameSettings.ABILITIES.OTHER[battleMsg]
+
+	if otherMsg ~= nil then
+		if otherMsg[enemyAbility] and enemyAbility ~= playerAbility then
+			-- TODO: figure out how to determine it was enemy's ablity that went off
 			return true
-		elseif otherAbilitiesMsg[22] and intimidateAbilities[enemyAbility] then -- 22 = Intimidate
+		elseif otherMsg[22] and enemyAbility == 52 then -- 22 = Intimidate, 52 = Hyper Cutter
 			-- Enemy has Hyper Cutter and it blocked player's Intimidate (doesn't run normal Hyper Cutter script)
 			return true
 		elseif otherAbilitiesMsg[6] then

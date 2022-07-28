@@ -580,12 +580,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 				-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
-				[0x081d93a1] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-				[0x081d93af] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-				[0x081d949f] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d93f8] = 18, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
-				[0x081d94b3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d92ae] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
 				[0x081d94f7] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
 				[0x081d94c7] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d948e] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
@@ -595,6 +589,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 				-- [0x00000000] = 64, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Liquid Ooze (Difficult: multiple addresses)
 				-- [0x00000000] = 21, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Suction Cups (untested)
 				-- [0x00000000] = 51, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Keen Eye (untested)
+				[0x081d948e] = { [60] = true, }, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081d93d2] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 			},
 			OTHER = {
 				-- Contact-based status-afflicting abilities addresses found from reading battleMsg when ability activated
@@ -610,8 +606,17 @@ function GameSettings.setGameAsFireRed(gameversion)
 				-- [0x00000000] = 13, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Cloud Nine
 				-- [0x00000000] = 19, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Shield Dust (not sure if this even pops up a message)
 
+				[0x081d91dc] = { -- BattleScript_MoveEffectPoison + 0x7
 			},
 			-- Keeping these here for now for reference (these are the original placeholders for these abilities)
+			-- [0x081d7245] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+			-- [0x081d9442] = 10, -- BattleScript_MonMadeMoveUseless - 0xE Volt Absorb 081D9442 and/or 081D942F TODO: these dont work
+			-- [0x081d9452] = 11, -- BattleScript_MonMadeMoveUseless + 0x1 Water Absorb 081D9452 and/or 081D9458 TODO: these dont work
+			-- [0x081d9444] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
+			-- [0x081d6e4f] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
+			-- [0x081d69d4] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			-- [0x00000000] = 15, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Insomnia
+			-- [0x081d9460] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 			-- [0x00000000] = 9, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Static -- Likely: BattleScript_ApplySecondaryEffect
 			-- [0x00000000] = 27, -- BattleScript_xxxxxxxxxxxxxxxxxxx + 0x0 Effect Spore -- Likely: BattleScript_ApplySecondaryEffect
 			-- [0x081d924c] = 38, -- BattleScript_MoveEffectPoison + 0x7 Poison Point 081D9247 and/or 081D924C-- BattleScript_ApplySecondaryEffect
