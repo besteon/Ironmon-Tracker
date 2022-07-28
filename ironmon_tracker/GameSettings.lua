@@ -437,12 +437,14 @@ function GameSettings.setGameAsFireRed(gameversion)
 			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
 				[0x081d92ef] = {[2] = true}, -- BatdtleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d930a] = {[3] = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-				[0x081d72b5] = {[7] = true}, -- BattleScript_LimberProtected + 0x0 Limber (untested)
+
 				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
 				[0x081d6ebf] = {[17] = true}, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
 				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d9486] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-				[0x081d9311] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace
+				
+				[0x081d9311] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace 1
+				[0x081d9317] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace 2
 				[0x081d932f] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9346] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 
@@ -452,6 +454,10 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 
 				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+			},
+			REVERSE_BATTLER = {
+				[0x081D94A4] = {[7] = true}, -- BattleScript_PRLZPrevention + 0x12 Limber
+				--Synchronize here, test next
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d9411] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy

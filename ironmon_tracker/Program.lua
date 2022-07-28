@@ -369,17 +369,19 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Abilities to check via battler read
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 
-	--print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
+	print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker .. ";" .. battlerTarget)
 
+	-- Abilities to check via battler read
 	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
 	if battlerMsg ~= nil then
-		if battlerMsg[enemyAbility] then
-			if battlerMsg[36] and battler % 2 == 0 then -- 36 = Trace
-				-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
-				return true
-			elseif enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+		if battlerMsg[playerAbility] and playerAbility == 36 and battler % 2 == 0 then -- 36 = Trace
+			-- Track the enemy's ability if the player's Pokemon uses its Trace ability
+			return true
+		elseif battlerMsg[enemyAbility] then
+			if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
 				-- Enemy is using Synchronize on the player
 				return true
 			elseif battler % 2 == 1 then
@@ -388,9 +390,17 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 			end
 		end
 	end
+
+	-- Abilities to check for when ally is the battler
+	local reverseBattlerMsg = GameSettings.ABILITIES.REVERSE_BATTLER[battleMsg]
+
+	if reverseBattlerMsg ~= nil then
+		if reverseBattlerMsg[enemyAbility] and battler % 2 == 0 then
+			return true
+		end
+	end
 	
 	-- Abilities to check via attacker read
-	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
 	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
 
@@ -426,9 +436,8 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 		elseif otherMsg[22] and enemyAbility == 52 then -- 22 = Intimidate, 52 = Hyper Cutter
 			-- Enemy has Hyper Cutter and it blocked player's Intimidate (doesn't run normal Hyper Cutter script)
 			return true
-		elseif otherAbilitiesMsg[6] then
-			local dampUser = Memory.readbyte(GameSettings.gBattlerTarget)
-			return dampUser % 2 == 1
+		elseif otherMsg[6] then
+			return battlerTarget % 2 == 1
 		end
 	end
 	return false
