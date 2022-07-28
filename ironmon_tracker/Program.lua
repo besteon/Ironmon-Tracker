@@ -363,44 +363,6 @@ function Program.updateBattleDataFromMemory()
 	end
 end
 
-function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
-	-- Checks if ability should be auto-tracked
-
-	-- Abilities to check via battler read
-	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
-	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
-
-	if battlerMsg ~= nil then
-		if battlerMsg[enemyAbility] then
-			if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-				-- Enemy is using Synchronize on the player
-				return true
-			elseif battler % 2 == 1 then
-				-- Enemy is the one that used the ability
-				return true
-			end
-		elseif battlerMsg[36] and battler % 2 == 0 then -- 36 = Trace
-			-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
-			return true
-		end
-	end
-	return false
-end
-
-function Program.checkReverseAttackerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if attacker % 2 == 1 then
-		-- Enemy activated enemy's ability
-		return true
-	end
-	return false
-end
-
-function Program.checkContactAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if attacker % 2 == 0 and battler % 2 == 1 then
-		return true
-	end
-	return false
-end
 
 function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Checks if ability should be auto-tracked
@@ -408,12 +370,20 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 
-	print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
+	--print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
 
-	local battlerAbilitiesMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
-	if battlerAbilitiesMsg ~= nil then
-		if battlerAbilitiesMsg[enemyAbility] then
-			if Program.checkBattlerAbility(enemyAbility,playerAbility,battler,attacker) then
+	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+
+	if battlerMsg ~= nil then
+		if battlerMsg[enemyAbility] then
+			if battlerMsg[36] and battler % 2 == 0 then -- 36 = Trace
+				-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
+				return true
+			elseif enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+				-- Enemy is using Synchronize on the player
+				return true
+			elseif battler % 2 == 1 then
+				-- Enemy is the one that used the ability
 				return true
 			end
 		end
@@ -426,10 +396,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 
 	if attackerMsg ~= nil and attackerMsg[enemyAbility] then
 		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-			-- This is a slight workaround that works only if the player doesn't also have the ability
-			return enemyAbility ~= playerAbility
-		elseif attacker % 2 == 0 then
+		if attacker % 2 == 0 then
 			-- Player activated enemy's ability
 			return true
 		end
@@ -440,7 +407,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	end
 
 	-- Contact-based status-inflicting abilities
-	local contactStatusMsg = GameSettings.ABILITIES.CONTACT_STATUS[battleMsg]
+	local contactStatusMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
 
 	if contactStatusMsg ~= nil and contactStatusMsg[enemyAbility] then
 		if battler % 2 == 1 and attacker % 2 == 0 then

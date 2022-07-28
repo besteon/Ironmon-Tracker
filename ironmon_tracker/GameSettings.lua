@@ -434,17 +434,15 @@ function GameSettings.setGameAsFireRed(gameversion)
 
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
 				[0x081d92ef] = {[2] = true}, -- BatdtleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d930a] = {[3] = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-
 				[0x081d72b5] = {[7] = true}, -- BattleScript_LimberProtected + 0x0 Limber (untested)
 				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
 				[0x081d6ebf] = {[17] = true}, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
 				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d9486] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
 				[0x081d9311] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace
-
 				[0x081d932f] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9346] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 
@@ -519,7 +517,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			OTHER = {
-				-- Unsure how to determine these yet, so only track when only enemy has it
 				[0x081d930d] = {[22] = true}, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
 				[0x081D941f] = {[6] = true}, -- BattleScript_DampStopsExplosion + 0x0 Damp 1
 				[0x081D9425] = {[6] = true}, -- BattleScript_DampStopsExplosion + 0x6 Damp 2
@@ -608,7 +605,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d92ae] = { [44] = true, }, -- BattleScript_RainDishActivates + 0x3 Rain Dish
 				[0x081d94f7] = { [54] = true, }, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
 			},
-			CONTACT_STATUS = { -- Need to be checked with both battler and attacker
+			STATUS_INFLICT = { -- Need to be checked with both battler and attacker
 				[0x081d9209] = { -- BattleScript_MoveEffectParalysis + 0x7
 					[9]  = true, -- Static
 					[27] = true, -- Effect Spore
