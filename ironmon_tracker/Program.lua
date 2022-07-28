@@ -3,14 +3,15 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	isTransformed = false,
-	lastEnemyAttack = nil -- { moveId = 0, damage = 0, }
+	lastEnemyAttack = nil, -- { moveId = 0, damage = 0, }
 	friendshipRequired = 220,
-	frames = {
+	Frames = {
 		waitToDraw = 0,
 		battleDataDelay = 0,
 		half_sec_update = 30,
 		three_sec_update = 180,
 		saveData = 3600,
+		carouselActive = 0,
 	},
 }
 
@@ -42,16 +43,16 @@ end
 -- 'forced' = true will force a draw, skipping the normal frame wait time
 function Program.redraw(forced)
 	if forced then
-		Program.frames.waitToDraw = 0
+		Program.Frames.waitToDraw = 0
 	end
 
 	-- Only redraw the screen every half second (60 frames/sec)
-	if Program.frames.waitToDraw > 0 then
-		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
+	if Program.Frames.waitToDraw > 0 then
+		Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
 		return
 	end
 
-	Program.frames.waitToDraw = 30
+	Program.Frames.waitToDraw = 30
 
 	if Program.currentScreen == Program.Screens.TRACKER then
 		TrackerScreen.updateButtonStates()
@@ -81,8 +82,8 @@ end
 
 function Program.updateTrackedAndCurrentData()
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
-	if Program.frames.half_sec_update == 0 then
-		Program.frames.half_sec_update = 30
+	if Program.Frames.half_sec_update == 0 then
+		Program.Frames.half_sec_update = 30
 
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
@@ -116,14 +117,14 @@ function Program.updateTrackedAndCurrentData()
 			Input.controller.statIndex = 6
 
 			-- Delay drawing the new pokemon, because of send out animation
-			Program.frames.waitToDraw = 0
+			Program.Frames.waitToDraw = 0
 		end
 
 	end
 
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
-	if Program.frames.three_sec_update == 0 then
-		Program.frames.three_sec_update = 180
+	if Program.Frames.three_sec_update == 0 then
+		Program.Frames.three_sec_update = 180
 
 		Program.updateBagHealingItemsFromMemory()
 		Program.updatePCHealsFromMemory()
@@ -131,14 +132,15 @@ function Program.updateTrackedAndCurrentData()
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
-	if Program.frames.saveData == 0 then
-		Program.frames.saveData = 3600
+	if Program.Frames.saveData == 0 then
+		Program.Frames.saveData = 3600
 		Tracker.saveData()
 	end
 
-	Program.frames.half_sec_update = Program.frames.half_sec_update - 1
-	Program.frames.three_sec_update = Program.frames.three_sec_update - 1
-	Program.frames.saveData = Program.frames.saveData - 1
+	Program.Frames.half_sec_update = Program.Frames.half_sec_update - 1
+	Program.Frames.three_sec_update = Program.Frames.three_sec_update - 1
+	Program.Frames.saveData = Program.Frames.saveData - 1
+	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
 end
 
 function Program.updatePokemonTeamsFromMemory()
@@ -327,8 +329,8 @@ function Program.updateBattleDataFromMemory()
 	Program.updateViewSlotsFromMemory()
 
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
-	if Program.frames.battleDataDelay > 0 then
-		Program.frames.battleDataDelay = Program.frames.battleDataDelay - 30
+	if Program.Frames.battleDataDelay > 0 then
+		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30
 		return
 	end
 
@@ -428,7 +430,7 @@ function Program.beginNewBattle(isWild)
 	if Tracker.Data.inBattle then return end
 	if isWild == nil then isWild = false end
 
-	Program.frames.battleDataDelay = 60
+	Program.Frames.battleDataDelay = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Tracker.Data.inBattle = true
@@ -443,7 +445,7 @@ function Program.beginNewBattle(isWild)
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
+	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
 
 -- This should be called every time the player finishes a battle (wild pokemon or trainer battle)
@@ -478,8 +480,8 @@ function Program.endBattle(isWild)
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
-	Program.frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
-	Program.frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
+	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
+	Program.Frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
 end
 
 function Program.updatePCHealsFromMemory()

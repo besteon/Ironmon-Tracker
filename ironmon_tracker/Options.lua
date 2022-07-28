@@ -82,9 +82,7 @@ Options.Buttons = {
 }
 
 function Options.initialize()
-	local index = 1
 	local heightOffset = 35
-
 	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 		Options.Buttons[optionKey] = {
 			type = Constants.ButtonTypes.CHECKBOX,
@@ -113,8 +111,18 @@ function Options.initialize()
 			end
 		}
 
-		index = index + 1
 		heightOffset = heightOffset + 10
+	end
+
+	-- Check if the Toggle View controller button is not default, and update the tip message if so.
+	local toggleViewValue = Options.CONTROLS["Toggle view"]
+	if toggleViewValue ~= "Start" then
+		for index, tipMessage in ipairs(Constants.OrderedLists.TIPS) do
+			if tipMessage == "Switch Pokemon views by pressing Start." then
+				Constants.OrderedLists.TIPS[index] = tipMessage:gsub("Start", toggleViewValue)
+				break
+			end
+		end
 	end
 end
 

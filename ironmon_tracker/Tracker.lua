@@ -56,9 +56,12 @@ function Tracker.getPokemon(slotNumber, isOwn)
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
+
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
+
 	return Tracker.Data.allPokemon[pokemonID]
 end
 
@@ -155,11 +158,6 @@ end
 
 function Tracker.TrackNote(pokemonID, note)
 	if note == nil then return end
-
-	if string.len(note) > 70 then
-		print("Pokemon's note truncated to 70 characters.")
-		note = string.sub(note, 1, 70)
-	end
 
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.note = note

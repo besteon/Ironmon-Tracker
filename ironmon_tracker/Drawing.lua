@@ -213,7 +213,7 @@ function Drawing.drawMainTrackerScreen(pokemon, opposingPokemon)
 	Drawing.drawPokemonInfoArea(pokemon)
 	Drawing.drawStatsArea(pokemon)
 	Drawing.drawMovesArea(pokemon, opposingPokemon)
-	Drawing.drawBadgeNoteArea(pokemon)
+	Drawing.drawCarouselArea(pokemon)
 end
 
 function Drawing.drawPokemonInfoArea(pokemon)
@@ -529,32 +529,35 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 	end
 end
 
-function Drawing.drawBadgeNoteArea(pokemon)
+function Drawing.drawCarouselArea(pokemon)
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+
 	-- Draw the border box for the Stats area
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 136, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 19, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
-	for index = 1, 8, 1 do
-		local badgeName = "badge" .. index
-		local badgeButton = TrackerScreen.Buttons[badgeName]
-		Drawing.drawButton(badgeButton, shadowcolor)
-	end
+	local carousel = TrackerScreen.getCurrentCarouselItem()
+	for _, content in pairs(carousel.getContentList(pokemon)) do
+		if content.type == Constants.ButtonTypes.IMAGE or content.type == Constants.ButtonTypes.PIXELIMAGE then
+			Drawing.drawButton(content, shadowcolor)
+		elseif type(content) == "string" then
+			local wrappedNote = Utils.getWordWrapLines(content, 34) -- was 31
 
-	-- Draw note boxes, but only for enemy pokemon
-	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
-		-- Draw original notepad icon at the bottom for taking written notes
-		local noteText = Tracker.getNote(pokemon.pokemonID)
-		if noteText == "" then
-			Drawing.drawButton(TrackerScreen.Buttons.NotepadTracking, shadowcolor)
-		else
-			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 141, noteText, Theme.COLORS["Default text"], shadowcolor)
-			--work around limitation of drawText not having width limit: paint over any spillover
-			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
-			local y = 137
-			gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
-			gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+			if #wrappedNote == 1 then
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, wrappedNote[1], Theme.COLORS["Default text"], shadowcolor)
+			elseif #wrappedNote >= 2 then
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 136, wrappedNote[1], Theme.COLORS["Default text"], shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 145, wrappedNote[2], Theme.COLORS["Default text"], shadowcolor)
+				gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
+				gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
+			end
 		end
 	end
+
+	--work around limitation of drawText not having width limit: paint over any spillover
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+	local y = 137
+	gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
+	gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 end
 
 function Drawing.drawOptionsScreen()

@@ -386,10 +386,13 @@ end
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72
+	
+	local firstSpace = str:find("(%s+)()(%S+)()")
+	if firstSpace == nil then return { str } end
 
 	local lines = {}
 	local here = 1
-	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
+	lines[1] = string.sub(str, 1, firstSpace - 1)  -- Put the first word of the string in the first index of the table.
 
 	str:gsub("(%s+)()(%S+)()",
 		function(sp, st, word, fi) -- Function gets called once for every space found.

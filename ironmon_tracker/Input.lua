@@ -61,7 +61,7 @@ function Input.checkJoypadInput(joypadButtons)
 		end
 	end
 	if allPressed == true then
-		Main.LoadNextSeed = true
+		Main.loadNextSeed = true
 	end
 
 	-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat
@@ -128,17 +128,20 @@ end
 
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 	for _, button in pairs(buttons) do
-		local isAreaClicked
+		-- Only check for clicks on the button if it's visible (no function implies visibility)
+		if button.isVisible == nil or button:isVisible() then
+			local isAreaClicked
 
-		-- If the button has an override for which area to check for mouse clicks, use that
-		if button.clickableArea ~= nil then
-			isAreaClicked = Input.isInRange(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
-		else
-			isAreaClicked = Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
-		end
+			-- If the button has an override for which area to check for mouse clicks, use that
+			if button.clickableArea ~= nil then
+				isAreaClicked = Input.isInRange(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
+			else
+				isAreaClicked = Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
+			end
 
-		if isAreaClicked and button.onClick ~= nil then
-			button:onClick()
+			if isAreaClicked and button.onClick ~= nil then
+				button:onClick()
+			end
 		end
 	end
 end

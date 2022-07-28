@@ -67,7 +67,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 141, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 141, 16, 16 },
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			TrackerScreen.openNotePadWindow()
@@ -82,13 +82,9 @@ TrackerScreen.CarouselTypes = {
 	LAST_ATTACK = 4,
 }
 
-TrackerScreen.CurrentCarousel = {
-	TrackerScreen.CarouselTypes.BADGES,
-	TrackerScreen.CarouselTypes.NOTES,
-}
-
-TrackerScreen.CarouselDefinitions = {}
--- TrackerScreen.carouselIndex = 1 -- ? might be able to auto-calculate this
+TrackerScreen.carouselIndex = 1
+TrackerScreen.tipMessageIndex = 0
+TrackerScreen.CarouselItems = {}
 
 function TrackerScreen.initialize()
 	-- Buttons for stat markings tracked by the user
@@ -133,7 +129,7 @@ function TrackerScreen.initialize()
 			box = { xOffset, 138, badgeWidth, badgeWidth },
 			badgeIndex = index,
 			badgeState = 0,
-			isVisible = function() return Tracker.Data.isViewingOwn end,
+			isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.BADGES end,
 			updateState = function(self, state)
 				-- Update image path if the state has changed
 				if self.badgeState ~= state then
@@ -145,36 +141,91 @@ function TrackerScreen.initialize()
 		}
 	end
 
-	-- Define each Carousel Item, must will have blank data that will be populated later with contextual data
-	local badgeCarousel = {
+	TrackerScreen.buildCarousel()
+end
+
+-- Define each Carousel Item, must will have blank data that will be populated later with contextual data
+function TrackerScreen.buildCarousel()
+	--  BADGE
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
+		type = TrackerScreen.CarouselTypes.BADGES,
 		isVisible = function() return not Tracker.Data.inBattle end,
-		framesToShow = 180, -- 3 seconds
-		content = {},
+		framesToShow = 210,
+		getContentList = function()
+			local badgeButtons = {}
+			for index = 1, 8, 1 do
+				local badgeName = "badge" .. index
+				table.insert(badgeButtons, TrackerScreen.Buttons[badgeName])
+			end
+			return badgeButtons
+		end,
 	}
-	for index = 1, 8, 1 do
-		local badgeName = "badge" .. index
-		local badgeButton = TrackerScreen.Buttons[badgeName]
-		table.insert(badgeCarousel.content, badgeButton)
-	end
-	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.BADGES] = badgeCarousel
 
-	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.NOTES] = {
+	-- NOTES
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
+		type = TrackerScreen.CarouselTypes.NOTES,
 		isVisible = function() return true end,
-		framesToShow = 240, -- 4 seconds
-		content = {},
+		framesToShow = 240,
+		getContentList = function(pokemon)
+			-- If the player doesn't have a Pokemon, display something else useful instead
+			if pokemon.pokemonID == 0 then
+				return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
+			end
+
+			local noteText = Tracker.getNote(pokemon.pokemonID)
+			if noteText ~= nil and noteText ~= "" then
+				return { noteText }
+			else
+				return { TrackerScreen.Buttons.NotepadTracking }
+			end
+		end,
 	}
 
-	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
+	-- ROUTE INFO
+	-- If against wild pokemon, reveal route table; otherwise show total # trainers in route
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
+		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle end,
-		framesToShow = 240, -- 4 seconds
-		content = {}, -- TODO: If against wild pokemon, reveal route table; otherwise show total # trainers in route
+		framesToShow = 240,
+		getContentList = function()
+			return { "ROUTE INFO placeholder" }
+		end,
 	}
 
-	TrackerScreen.CarouselDefinitions[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
+	-- LAST ATTACK
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
+		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		isVisible = function() return Tracker.Data.inBattle and Program.lastEnemyAttack ~= nil end,
-		framesToShow = 240, -- 4 seconds
-		content = {},
+		framesToShow = 240,
+		getContentList = function()
+			return { "LAST ATTACK placeholder" }
+		end,
 	}
+end
+
+-- Returns the current visible carousel. If unavailable, looks up the next visible carousel
+function TrackerScreen.getCurrentCarouselItem()
+	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
+
+	-- Check if the current carousel's time has expired, or if it shouldn't be shown
+	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > carousel.framesToShow then
+		TrackerScreen.carouselIndex = (TrackerScreen.carouselIndex % #TrackerScreen.CarouselItems) + 1
+		Program.Frames.carouselActive = 0
+
+		-- When carousel switches to the Notes display, prepare the next tip message to display
+		if TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES then
+			local numTips = #Constants.OrderedLists.TIPS
+			if TrackerScreen.tipMessageIndex == numTips then
+				TrackerScreen.tipMessageIndex = 2 -- Skip "helpful tip" message if that's next up
+			else
+				TrackerScreen.tipMessageIndex = (TrackerScreen.tipMessageIndex % #Constants.OrderedLists.TIPS) + 1
+			end
+		end
+
+		return TrackerScreen.getCurrentCarouselItem()
+	end
+
+	return carousel
 end
 
 function TrackerScreen.updateButtonStates()
@@ -274,7 +325,7 @@ function TrackerScreen.openAbilityNoteWindow()
 end
 
 function TrackerScreen.openNotePadWindow()
-	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 	if pokemon == nil then return end
 
 	forms.destroyall()
@@ -287,7 +338,7 @@ function TrackerScreen.openNotePadWindow()
 
 	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
-		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 		if formInput ~= nil and pokemonViewed ~= nil then
 			Tracker.TrackNote(pokemonViewed.pokemonID, formInput)
 			Program.redraw(true)
