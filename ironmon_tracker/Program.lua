@@ -3,7 +3,6 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	isTransformed = false,
-	lastEnemyAttack = nil, -- { moveId = 0, damage = 0, }
 	friendshipRequired = 220,
 	Frames = {
 		waitToDraw = 0,
@@ -12,6 +11,13 @@ Program = {
 		three_sec_update = 180,
 		saveData = 3600,
 		carouselActive = 0,
+	},
+	BattleTurn = {
+		turnCount = -1,
+		prevDamageTotal = 0,
+		damageReceived = 0,
+		lastMoveId = 0,
+		enemyIsAttacking = false,
 	},
 }
 
@@ -370,10 +376,40 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 
-		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
-			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+		-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
+		local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+		local currDamageTotal = Memory.readword(GameSettings.gTakenDmg)
+		local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
 
+		-- As a new turn starts, note the previous amount of total damage
+		if currentTurn ~= Program.BattleTurn.turnCount then
+			Program.BattleTurn.turnCount = currentTurn
+			Program.BattleTurn.prevDamageTotal = currDamageTotal
+			Program.BattleTurn.enemyIsAttacking = false
+		end
+
+		local damageDelta = currDamageTotal - Program.BattleTurn.prevDamageTotal
+		if damageDelta ~= 0 then
+			Program.BattleTurn.prevDamageTotal = currDamageTotal
+
+			-- If the player's Pokemon receives damage from the enemy, find out what move caused it
+			if attackerValue % 2 ~= 0 then
+				local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
+				if enemyMoveId ~= 0 then
+					-- If a new move is being used, reset the damage from the last move
+					if not Program.BattleTurn.enemyIsAttacking then
+						Program.BattleTurn.damageReceived = 0
+						Program.BattleTurn.enemyIsAttacking = true
+					end
+
+					Program.BattleTurn.lastMoveId = enemyMoveId
+					Program.BattleTurn.damageReceived = Program.BattleTurn.damageReceived + damageDelta
+				end
+			end
+		end
+		-- print("delta: " .. damageDelta .. ", totalDamage: " .. currDamageTotal)
+
+		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
 			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
 				Program.handleAttackMove(264, false)
@@ -465,6 +501,10 @@ function Program.endBattle(isWild)
 	if Program.isTransformed then
 		Program.isTransformed = false
 	end
+
+	-- Reset last attack information
+	Program.BattleTurn.turnCount = -1
+	Program.BattleTurn.lastMoveId = 0
 
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do

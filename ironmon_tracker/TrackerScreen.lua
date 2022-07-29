@@ -76,10 +76,10 @@ TrackerScreen.Buttons = {
 }
 
 TrackerScreen.CarouselTypes = {
-    BADGES = 1,
-	NOTES = 2,
-	ROUTE_INFO = 3,
-	LAST_ATTACK = 4,
+    BADGES = 1, -- Outside of battle
+	NOTES = 2, -- During new game intro or inside of battle
+	LAST_ATTACK = 3, -- During battle, only between turns
+	ROUTE_INFO = 4, -- During battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -164,8 +164,8 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return true end,
-		framesToShow = 240,
+		isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
+		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
 			if pokemon.pokemonID == 0 then
@@ -181,26 +181,43 @@ function TrackerScreen.buildCarousel()
 		end,
 	}
 
+	-- LAST ATTACK
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
+		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
+		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
+		isVisible = function() return Tracker.Data.inBattle and (not Program.BattleTurn.enemyIsAttacking) and Program.BattleTurn.lastMoveId ~= 0 end,
+		framesToShow = 180,
+		getContentList = function()
+			-- TODO: Currently this only records last move used for damaging moves
+			if Program.BattleTurn.lastMoveId > 0 and Program.BattleTurn.lastMoveId <= #MoveData.Moves then
+				local moveInfo = MoveData.Moves[Program.BattleTurn.lastMoveId]
+				if Program.BattleTurn.damageReceived > 0 then
+					return { moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage" }
+				else
+					return { "Last move: " .. moveInfo.name }
+				end
+			else
+				return { "Waiting for a new move to be used." }
+			end
+		end,
+	}
+
 	-- ROUTE INFO
 	-- If against wild pokemon, reveal route table; otherwise show total # trainers in route
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle end,
-		framesToShow = 240,
+		framesToShow = 210,
 		getContentList = function()
 			return { "ROUTE INFO placeholder" }
 		end,
 	}
 
-	-- LAST ATTACK
-	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
-		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
-		isVisible = function() return Tracker.Data.inBattle and Program.lastEnemyAttack ~= nil end,
-		framesToShow = 240,
-		getContentList = function()
-			return { "LAST ATTACK placeholder" }
-		end,
-	}
+	-- Easter Egg for the "-69th" seed
+	local romnumber = string.match(gameinfo.getromname(), '[0-9]+')
+	if romnumber ~= nil and romnumber ~= "" and romnumber:sub(-2) == "69" then
+		table.insert(Constants.OrderedLists.TIPS, "This seed ends in 69. Nice.")
+	end
 end
 
 -- Returns the current visible carousel. If unavailable, looks up the next visible carousel
@@ -209,11 +226,12 @@ function TrackerScreen.getCurrentCarouselItem()
 
 	-- Check if the current carousel's time has expired, or if it shouldn't be shown
 	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > carousel.framesToShow then
-		TrackerScreen.carouselIndex = (TrackerScreen.carouselIndex % #TrackerScreen.CarouselItems) + 1
+		local nextCarousel = TrackerScreen.getNextVisibleCarouselItem(TrackerScreen.carouselIndex)
+		TrackerScreen.carouselIndex = nextCarousel.type
 		Program.Frames.carouselActive = 0
 
 		-- When carousel switches to the Notes display, prepare the next tip message to display
-		if TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES then
+		if nextCarousel ~= carousel and TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES then
 			local numTips = #Constants.OrderedLists.TIPS
 			if TrackerScreen.tipMessageIndex == numTips then
 				TrackerScreen.tipMessageIndex = 2 -- Skip "helpful tip" message if that's next up
@@ -222,7 +240,19 @@ function TrackerScreen.getCurrentCarouselItem()
 			end
 		end
 
-		return TrackerScreen.getCurrentCarouselItem()
+		return nextCarousel
+	end
+
+	return carousel
+end
+
+function TrackerScreen.getNextVisibleCarouselItem(startIndex)
+	local nextIndex = (startIndex % #TrackerScreen.CarouselItems) + 1
+	local carousel = TrackerScreen.CarouselItems[nextIndex]
+
+	while (nextIndex ~= startIndex and not carousel.isVisible()) do
+		nextIndex = (nextIndex % #TrackerScreen.CarouselItems) + 1
+		carousel = TrackerScreen.CarouselItems[nextIndex]
 	end
 
 	return carousel
