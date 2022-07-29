@@ -10,7 +10,7 @@ MoveData.Categories = {
 
 --List of pokemon types used to cycle through types when the Hidden Power button is clicked
 MoveData.HiddenPowerTypeList = {
-	PokemonData.Types.NORMAL,
+	PokemonData.Types.UNKNOWN,
 	PokemonData.Types.FIGHTING,
 	PokemonData.Types.FLYING,
 	PokemonData.Types.POISON,
@@ -48,6 +48,7 @@ MoveData.TypeToCategory = {
 	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.UNKNOWN]  = MoveData.Categories.NONE,
 }
 
 MoveData.TypeToEffectiveness = {

@@ -286,7 +286,7 @@ function Tracker.getHiddenPowerType()
 	if hiddenPowerType ~= nil then
 		return hiddenPowerType
 	else
-		return PokemonData.Types.NORMAL
+		return MoveData.HiddenPowerTypeList[1]
 	end
 end
 
@@ -339,7 +339,7 @@ function Tracker.resetData()
 			numHeals = 0,
 		},
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
-			[0] = PokemonData.Types.NORMAL,
+			[0] = MoveData.HiddenPowerTypeList[1],
 		},
 	}
 end
