@@ -1212,7 +1212,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Increases evasion by one stage. Will now receive x2 damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
+		summary = "Increases evasion by one stage. User will now receive double damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
 	},
 	{
 		id = "108",
@@ -2355,7 +2355,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power ranges between 102 (min friendship of 0) and 0 (max friendship of 255). If the user's friendship is 128 or greater, Return is stronger.",
+		summary = "Power ranges between 0 (max friendship of 255) and 102 (min friendship of 0). If the user's friendship is 128 or greater, Return is stronger.",
 	},
 	{
 		id = "219",
