@@ -2,7 +2,7 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 Main = {
-	TrackerVersion = "0.5.4", -- The latest version of the tracker. Should be updated with each PR.
+	TrackerVersion = "0.6.0", -- The latest version of the tracker. Should be updated with each PR.
 	DataFolder = "ironmon_tracker", -- Root folder for the project data and sub scripts
 	SettingsFile = "Settings.ini", -- Location of the Settings file (typically in the root folder)
 	MetaSettings = {},

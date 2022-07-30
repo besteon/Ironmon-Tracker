@@ -143,7 +143,7 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 end
 
 -- isWild: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
-function Tracker.TrackEncounter(pokemonID, isWild)
+function Tracker.TrackEncounter(pokemonID, mapId, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		trackedPokemon.encounters = { wild = 0, trainer = 0 }
@@ -151,6 +151,21 @@ function Tracker.TrackEncounter(pokemonID, isWild)
 
 	if isWild then
 		trackedPokemon.encounters.wild = trackedPokemon.encounters.wild + 1
+
+		if Tracker.Data.encounterTable[mapId] ~= nil then
+			local hasEncounteredBefore = false
+			for _, encounterID in pairs(Tracker.Data.encounterTable[mapId]) do
+				if pokemonID == encounterID then
+					hasEncounteredBefore = true
+					break
+				end
+			end
+			if not hasEncounteredBefore then
+				table.insert(Tracker.Data.encounterTable[mapId], pokemonID)
+			end
+		else
+			Tracker.Data.encounterTable[mapId] = { pokemonID }
+		end
 	else
 		trackedPokemon.encounters.trainer = trackedPokemon.encounters.trainer + 1
 	end
@@ -227,12 +242,17 @@ function Tracker.getStatMarkings(pokemonID)
 end
 
 -- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
-function Tracker.getEncounters(pokemonID, isWild)
+function Tracker.getEncounters(pokemonID, mapId, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		return 0
 	elseif isWild then
-		return trackedPokemon.encounters.wild
+		if mapId ~= 0 and Tracker.Data.encounterTable[mapId] ~= nil then
+			-- The number of unique Pokemon encountered on this route
+			return #Tracker.Data.encounterTable[mapId]
+		else
+			return trackedPokemon.encounters.wild
+		end
 	else
 		return trackedPokemon.encounters.trainer
 	end
@@ -284,6 +304,7 @@ function Tracker.getDefaultPokemon()
 end
 
 function Tracker.resetData()
+	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
 		romHash = nil,
@@ -310,6 +331,8 @@ function Tracker.resetData()
 		},
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
 			[0] = PokemonData.Types.NORMAL,
+		},
+		encounterTable = { -- key: mapId, value: list of unique pokemonIDs
 		},
 	}
 end

@@ -140,8 +140,9 @@ function GameSettings.setGameInfo(gamecode)
 		},
 	}
 
-	local routeinfo = { -- key:GAME_NUMBER
+	local routeinfo = { -- key: GAME_NUMBER
 		-- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
+		-- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 		[3] = { -- key: routeId (mapLayoutId)
 			[12] = {}, -- CERULEAN CITY GYM
 			[15] = {}, -- CELADON CITY GYM

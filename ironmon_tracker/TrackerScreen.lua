@@ -50,10 +50,9 @@ TrackerScreen.Buttons = {
 	AbilityTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		text = "",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 22 },
-		box = { Constants.SCREEN.WIDTH + 88, 43, 16, 16 },
+		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not self:isVisible() then return end
@@ -63,14 +62,29 @@ TrackerScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		text = "",
+		text = "Click to leave a note",
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 141, 138, 12 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 141, 16, 16 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			TrackerScreen.openNotePadWindow()
+		end
+	},
+	RouteInfo = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAP_PINDROP,
+		text = "",
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 8, 12 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.infoLookup = Program.CurrentRoute.mapId
+			InfoScreen.viewScreen = InfoScreen.Screens.ROUTE_INFO
+			Program.changeScreenView(Program.Screens.INFO)
 		end
 	},
 }
@@ -79,7 +93,7 @@ TrackerScreen.CarouselTypes = {
     BADGES = 1, -- Outside of battle
 	NOTES = 2, -- During new game intro or inside of battle
 	LAST_ATTACK = 3, -- During battle, only between turns
-	ROUTE_INFO = 4, -- During battle
+	ROUTE_INFO = 4, -- During battle, only if encounter is a wild pokemon
 }
 
 TrackerScreen.carouselIndex = 1
@@ -203,13 +217,18 @@ function TrackerScreen.buildCarousel()
 	}
 
 	-- ROUTE INFO
-	-- If against wild pokemon, reveal route table; otherwise show total # trainers in route
+	-- TODO: If against wild pokemon, reveal route table; otherwise show total # trainers in route
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function() return Tracker.Data.inBattle end,
+		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
 		framesToShow = 210,
-		getContentList = function()
-			return { "ROUTE INFO placeholder" }
+		getContentList = function(pokemon)
+			local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
+			local seenEncounters = Tracker.getEncounters(pokemon.pokemonID, Program.CurrentRoute.mapId, true)
+			local totalPossible = #routeInfo[Constants.EncounterTypes.GRASS]
+			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. seenEncounters .. "/" .. totalPossible .. " unique Pokemon"
+
+			return { TrackerScreen.Buttons.RouteInfo } 
 		end,
 	}
 

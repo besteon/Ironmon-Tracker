@@ -181,6 +181,9 @@ function Drawing.drawButton(button, shadowcolor)
 		if button.image ~= nil then
 			Drawing.drawImageAsPixels(button.image, x, y, Theme.COLORS["Default text"], shadowcolor)
 		end
+		if button.text ~= nil and button.text ~= "" then
+			Drawing.drawText(x + width + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
 			if button.text == Constants.STAT_STATES[2].text then
@@ -329,7 +332,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
 			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
 			local isWild = Tracker.Data.trainerID == pokemon.trainerID
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, 0, isWild)
 			if encounterText > 9999 then encounterText = 9999 end
 			if isWild then
 				encounterText = "Seen in the wild: " .. encounterText
@@ -540,13 +543,13 @@ function Drawing.drawCarouselArea(pokemon)
 		if content.type == Constants.ButtonTypes.IMAGE or content.type == Constants.ButtonTypes.PIXELIMAGE then
 			Drawing.drawButton(content, shadowcolor)
 		elseif type(content) == "string" then
-			local wrappedNote = Utils.getWordWrapLines(content, 34) -- was 31
+			local wrappedText = Utils.getWordWrapLines(content, 34) -- was 31
 
-			if #wrappedNote == 1 then
-				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, wrappedNote[1], Theme.COLORS["Default text"], shadowcolor)
-			elseif #wrappedNote >= 2 then
-				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 136, wrappedNote[1], Theme.COLORS["Default text"], shadowcolor)
-				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 145, wrappedNote[2], Theme.COLORS["Default text"], shadowcolor)
+			if #wrappedText == 1 then
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
+			elseif #wrappedText >= 2 then
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 136, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 145, wrappedText[2], Theme.COLORS["Default text"], shadowcolor)
 				gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
 				gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
 			end
@@ -605,23 +608,26 @@ end
 
 function Drawing.drawInfoScreen()
 	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
-		-- Only draw valid pokemon data
-		local pokemonID = InfoScreen.infoLookup -- pokemonID = 0 is blank move data
-		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
+		-- Only draw valid pokemon data, pokemonID = 0 is blank move data
+		if InfoScreen.infoLookup < 1 or InfoScreen.infoLookup > #PokemonData.Pokemon then
 			Program.changeScreenView(Program.Screens.TRACKER)
 			return
 		end
-
-		Drawing.drawPokemonInfoScreen(pokemonID)
+		Drawing.drawPokemonInfoScreen(InfoScreen.infoLookup)
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO then
-		-- Only draw valid move data
-		local moveId = InfoScreen.infoLookup -- moveId = 0 is blank move data
-		if moveId < 1 or moveId > #MoveData.Moves then
+		-- Only draw valid move data, moveId = 0 is blank move data
+		if InfoScreen.infoLookup < 1 or InfoScreen.infoLookup > #MoveData.Moves then
 			Program.changeScreenView(Program.Screens.TRACKER)
 			return
 		end
-
-		Drawing.drawMoveInfoScreen(moveId)
+		Drawing.drawMoveInfoScreen(InfoScreen.infoLookup)
+	elseif InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
+		-- Only draw valid route data
+		if GameSettings.RouteInfo[Program.CurrentRoute.mapId] == nil or GameSettings.RouteInfo[Program.CurrentRoute.mapId] == {} then
+			Program.changeScreenView(Program.Screens.TRACKER)
+			return
+		end
+		Drawing.drawRouteInfoScreen(InfoScreen.infoLookup)
 	end
 end
 
@@ -897,6 +903,36 @@ function Drawing.drawMoveInfoScreen(moveId)
 		Drawing.drawPokemonIcon(129, offsetX + 75, botOffsetY + 2)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
+end
+
+function Drawing.drawRouteInfoScreen(mapId)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+
+	-- set the color for text/number shadows for the top boxes
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
+	local offsetColumnX = offsetX + 43
+	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
+	local linespacing = 10
+	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
+
+	local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
+
+	-- Fill background and margins
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+
+	-- Draw top view box
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	-- Draw all buttons
+	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxInfoTopShadow)
+	-- Drawing.drawButton(InfoScreen.Buttons.nextRoute, boxInfoTopShadow)
+	-- Drawing.drawButton(InfoScreen.Buttons.previousRoute, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
 end
 
 function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)

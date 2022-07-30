@@ -1,11 +1,13 @@
 InfoScreen = {
 	viewScreen = 1,
-	infoLookup = 0 -- Either a PokemonID or a MoveID
+	infoLookup = 0 -- Either a PokemonID, a MoveId, an AbilityId, or a MapId
 }
 
 InfoScreen.Screens = {
     POKEMON_INFO = 1,
 	MOVE_INFO = 2,
+	ABILITY_INFO = 3,
+	ROUTE_INFO = 4,
 }
 
 InfoScreen.Buttons = {
@@ -31,6 +33,19 @@ InfoScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.openPokemonInfoWindow()
+		end
+	},
+	lookupRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 130, 9, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			print("TODO: replace this with prompt for map id")
+			-- Extend the functionality of the next/prev buttons below to work for this too
 		end
 	},
 	nextPokemon = {
