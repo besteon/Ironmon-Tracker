@@ -63,6 +63,16 @@ Constants.MoveTypeColors = {
 	unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 }
 
+Constants.EncounterTypes = {
+	GRASS = 1,
+	SURFING = 2,
+	ROCKSMASH = 3,
+	STATIC = 10,
+	OLDROD = 11,
+	GOODROD = 12,
+	SUPERROD = 13,
+}
+
 Constants.OrderedLists = {
 	STATSTAGES = {
 		"hp",
