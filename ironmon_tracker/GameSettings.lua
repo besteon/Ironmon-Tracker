@@ -144,6 +144,142 @@ function GameSettings.setGameInfo(gamecode)
 
 		-- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 		[3] = { -- key: routeId (mapLayoutId)
+			[78] = { -- PALLET TOWN
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = {116,98}, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = {98,116}, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+				},
+			},
+			[79] = { -- VIRIDIAN CITY
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = {54,79}, rate = 1.00, minLv = 20, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = 60, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = 61, rate = 0.40, minLv = 20, maxLv = 30, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+				},
+			},
+			[80] = {}, -- PEWTER CITY
+			[81] = { -- CERULEAN CITY
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = {116,98}, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = {98,116}, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+				},
+			},
+			[82] = {}, -- LAVENDER TOWN
+			[83] = { -- VERMILION CITY
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = {116,98}, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = {98,116}, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {98,116}, rate = 0.04, minLv = 25, maxLv = 30, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+				},
+			},
+			[84] = { -- CELADON CITY
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = {54,79}, rate = 0.99, minLv = 5, maxLv = 40, },
+					{ pokemonID = 109, rate = 0.01, minLv = 30, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = 129, rate = 0.99, minLv = 15, maxLv = 35, },
+					{ pokemonID = 88, rate = 0.01, minLv = 30, maxLv = 40, },
+				},
+			},
+			[85] = { -- FUCHSIA CITY
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = {54,79}, rate = 1.00, minLv = 20, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = 118, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = 119, rate = 0.40, minLv = 20, maxLv = 30, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+				},
+			},
+			[86] = { -- CINNABAR ISLAND
+				[Constants.EncounterTypes.SURFING] = {
+					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
+				},
+				[Constants.EncounterTypes.OLDROD] = {
+					{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+				},
+				[Constants.EncounterTypes.GOODROD] = {
+					{ pokemonID = {116,98}, rate = 0.60, minLv = 5, maxLv = 15, },
+					{ pokemonID = {98,116}, rate = 0.20, minLv = 5, maxLv = 15, },
+					{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+				},
+				[Constants.EncounterTypes.SUPERROD] = {
+					{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+					{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+				},
+			},
+			[87] = {}, -- INDIGO_PLATEAU_EXTERIOR
+			[88] = {}, -- SAFFRON_CITY_CONNECTION
 			[89] = { -- ROUTE 1
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.50, minLv = 2, maxLv = 5, },
@@ -189,7 +325,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[93] = { -- ROUTE 5
@@ -266,7 +402,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[99] = { -- ROUTE 11
@@ -289,7 +425,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[100] = { -- ROUTE 12
@@ -313,7 +449,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 				[Constants.EncounterTypes.STATIC] = {
 					{ pokemonID = 143, rate = 1.00, minLv = 30, maxLv = 30, },
@@ -342,7 +478,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[102] = { -- ROUTE 14
@@ -409,7 +545,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[108] = { -- ROUTE 20
@@ -427,7 +563,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[109] = { -- ROUTE 21 (North)
@@ -448,7 +584,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[110] = { -- ROUTE 22
@@ -509,8 +645,8 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 13, rate = 0.20, minLv = 7, maxLv = 7, },
 					{ pokemonID = 16, rate = 0.15, minLv = 11, maxLv = 13, },
 					{ pokemonID = 63, rate = 0.15, minLv = 8, maxLv = 12, },
-					{ pokemonID = {14,11}, rate = 0.4, minLv = 8, maxLv = 8, },
-					{ pokemonID = {11,14}, rate = 0.1, minLv = 8, maxLv = 8, },
+					{ pokemonID = {14,11}, rate = 0.04, minLv = 8, maxLv = 8, },
+					{ pokemonID = {11,14}, rate = 0.01, minLv = 8, maxLv = 8, },
 				},
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
@@ -526,7 +662,7 @@ function GameSettings.setGameInfo(gamecode)
 				[Constants.EncounterTypes.SUPERROD] = {
 					{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
 					{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
-					{ pokemonID = {54,79}, rate = 0.1, minLv = 25, maxLv = 35, },
+					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
 			[113] = { -- ROUTE 25
@@ -536,8 +672,8 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 13, rate = 0.20, minLv = 8, maxLv = 8, },
 					{ pokemonID = 16, rate = 0.15, minLv = 11, maxLv = 13, },
 					{ pokemonID = 63, rate = 0.15, minLv = 9, maxLv = 12, },
-					{ pokemonID = {14,11}, rate = 0.4, minLv = 9, maxLv = 9, },
-					{ pokemonID = {11,14}, rate = 0.1, minLv = 9, maxLv = 9, },
+					{ pokemonID = {14,11}, rate = 0.04, minLv = 9, maxLv = 9, },
+					{ pokemonID = {11,14}, rate = 0.01, minLv = 9, maxLv = 9, },
 				},
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = {54,79}, rate = 1.00, minLv = 20, maxLv = 40, },
@@ -557,7 +693,44 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[999] = { -- ROUTE 
+			[114] = { -- MT MOON 1F
+				[Constants.EncounterTypes.GRASS] = {
+					{ pokemonID = 41, rate = 0.69, minLv = 7, maxLv = 10, },
+					{ pokemonID = 74, rate = 0.25, minLv = 7, maxLv = 9, },
+					{ pokemonID = 46, rate = 0.05, minLv = 8, maxLv = 8, },
+					{ pokemonID = 35, rate = 0.01, minLv = 8, maxLv = 8, },
+				},
+			},
+			[115] = { -- MT MOON B1F
+				[Constants.EncounterTypes.GRASS] = {
+					{ pokemonID = 46, rate = 1.00, minLv = 5, maxLv = 10, },
+				},
+			},
+			[116] = { -- MT MOON B2F
+				[Constants.EncounterTypes.GRASS] = {
+					{ pokemonID = 41, rate = 0.49, minLv = 8, maxLv = 11, },
+					{ pokemonID = 74, rate = 0.30, minLv = 9, maxLv = 10, },
+					{ pokemonID = 46, rate = 0.15, minLv = 10, maxLv = 12, },
+					{ pokemonID = 35, rate = 0.06, minLv = 10, maxLv = 12, },
+				},
+			},
+			[117] = { -- VIRIDIAN FOREST
+				[Constants.EncounterTypes.GRASS] = {
+					{ pokemonID = 10, rate = 0.40, minLv = 3, maxLv = 5, },
+					{ pokemonID = 13, rate = 0.40, minLv = 3, maxLv = 5, },
+					{ pokemonID = {14,11}, rate = 0.10, minLv = 4, maxLv = 6, },
+					{ pokemonID = {11,14}, rate = 0.05, minLv = 5, maxLv = 5, },
+					{ pokemonID = 25, rate = 0.05, minLv = 3, maxLv = 5, },
+				},
+			},
+			[118] = {}, -- SSANNE EXTERIOR
+			[119] = {}, -- SSANNE 1F CORRIDOR
+			[120] = {}, -- SSANNE 2F CORRIDOR
+			[121] = {}, -- SSANNE 3F CORRIDOR
+			[122] = {}, -- SSANNE B1F CORRIDOR
+			[123] = {}, -- SSANNE DECK
+
+			[999] = { -- ROUTE
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 00, rate = 0.45, minLv = 00, maxLv = 00, },
 				},
@@ -1260,7 +1433,7 @@ function GameSettings.getTrackerAutoSaveName()
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
 end
 
---[[]
+--[[
 #define LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_1F 1
 #define LAYOUT_PALLET_TOWN_PLAYERS_HOUSE_2F 2
 #define LAYOUT_PALLET_TOWN_RIVALS_HOUSE 3
@@ -1321,28 +1494,7 @@ end
 #define LAYOUT_RUSTBORO_CITY_FLAT1_1F 74
 #define LAYOUT_RUSTBORO_CITY_FLAT1_2F 75
 #define LAYOUT_RS_SAFARI_ZONE_REST_HOUSE 77
-#define LAYOUT_PALLET_TOWN 78
-#define LAYOUT_VIRIDIAN_CITY 79
-#define LAYOUT_PEWTER_CITY 80
-#define LAYOUT_CERULEAN_CITY 81
-#define LAYOUT_LAVENDER_TOWN 82
-#define LAYOUT_VERMILION_CITY 83
-#define LAYOUT_CELADON_CITY 84
-#define LAYOUT_FUCHSIA_CITY 85
-#define LAYOUT_CINNABAR_ISLAND 86
-#define LAYOUT_INDIGO_PLATEAU_EXTERIOR 87
-#define LAYOUT_SAFFRON_CITY_CONNECTION 88
 
-#define LAYOUT_MT_MOON_1F 114
-#define LAYOUT_MT_MOON_B1F 115
-#define LAYOUT_MT_MOON_B2F 116
-#define LAYOUT_VIRIDIAN_FOREST 117
-#define LAYOUT_SSANNE_EXTERIOR 118
-#define LAYOUT_SSANNE_1F_CORRIDOR 119
-#define LAYOUT_SSANNE_2F_CORRIDOR 120
-#define LAYOUT_SSANNE_3F_CORRIDOR 121
-#define LAYOUT_SSANNE_B1F_CORRIDOR 122
-#define LAYOUT_SSANNE_DECK 123
 #define LAYOUT_DIGLETTS_CAVE_B1F 124
 #define LAYOUT_VICTORY_ROAD_1F 125
 #define LAYOUT_VICTORY_ROAD_2F 126
@@ -1602,4 +1754,6 @@ end
 #define LAYOUT_TRAINER_TOWER_8F_KNOCKOUT 381
 #define LAYOUT_SEVEN_ISLAND_HOUSE_ROOM1 382
 #define LAYOUT_ONE_ISLAND_KINDLE_ROAD_EMBER_SPA 383
+
+
 ]]

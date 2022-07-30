@@ -64,13 +64,13 @@ Constants.MoveTypeColors = {
 }
 
 Constants.EncounterTypes = {
-	GRASS = 1,
-	SURFING = 2,
-	ROCKSMASH = 3,
-	STATIC = 10,
-	OLDROD = 11,
-	GOODROD = 12,
-	SUPERROD = 13,
+	GRASS = "Walking",
+	SURFING = "Surfing",
+	ROCKSMASH = "Rock Smash",
+	STATIC = "Interact",
+	OLDROD = "Old Rod",
+	GOODROD = "Good Rod",
+	SUPERROD = "Super Rod",
 }
 
 Constants.OrderedLists = {
