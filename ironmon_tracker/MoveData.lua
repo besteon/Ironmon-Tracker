@@ -2335,7 +2335,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power ranges between 0 (min friendship of 0) and 102 (max friendship of 255). If the user's friendship is 127 or less, Frustration is stronger.",
+		summary = "Power ranges between 1 and 102, strongest at friendship of 255. If the user's friendship is 127 or less, Frustration is stronger.",
 	},
 	{
 		id = "217",
@@ -2356,7 +2356,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power ranges between 0 (max friendship of 255) and 102 (min friendship of 0). If the user's friendship is 128 or greater, Return is stronger.",
+		summary = "Power ranges between 1 and 102, strongest at friendship of 0. If the user's friendship is 128 or greater, Return is stronger.",
 	},
 	{
 		id = "219",
