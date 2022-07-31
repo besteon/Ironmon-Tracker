@@ -418,6 +418,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gCurrentMove = 0x002023d4a
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
@@ -437,35 +438,36 @@ function GameSettings.setGameAsFireRed(gameversion)
 			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
 				[0x081d92ef] = {[2] = true}, -- BatdtleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d930a] = {[3] = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-
-				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-				[0x081d6ebf] = {[17] = true}, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d93e1] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x0 Intimidate Fail
+				[0x081d93c9] = {[22] = true}, -- BattleScript_DoIntimidateActivationAnim + 0x3d Intimidate Succeed
 				[0x081d9486] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-				
+				[0x081d948c] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x6 Clear Body & White Smoke		
 				[0x081d9311] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace 1
-				[0x081d9317] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace 2
+				[0x081d9317] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace 2
 				[0x081d932f] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
+				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
 				[0x081d9346] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 
-				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[52] = true, -- Hyper Cutter
-					[51] = true,
-				},
 
-				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d6ebf] = {[17] = true}, -- BattleScript_ImmunityProtected + 0x0 Immunity (TODO)
+				
 			},
 			REVERSE_BATTLER = {
 				[0x081D94A4] = {[7] = true}, -- BattleScript_PRLZPrevention + 0x12 Limber
-				--Synchronize here, test next
+				[0x081d93e1] = { -- BattleScript_IntimidateAbilityFail + 0x0
+					[29] = true, -- Clear Body
+					[73] = true, -- White Smoke
+					[52] = true, -- Hyper Cutter
+				}, 
+				--Synchronize here, test where enemy procs allied flamebody/static and tries to rebound
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
-				[0x081d9411] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-				[0x081d950f] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d9470] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
-				[0x081d9523] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081d9411] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy 1
+				[0x081d9417] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy 2
 				[0x081d9442] = { -- BattleScript_MonMadeMoveUseless + 0x14 
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -474,6 +476,17 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
+				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d9523] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081d8c07] = {[64] = true}, -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+			  [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				
+				[0x081d950f] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d9470] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				
 				[0x081d6a44] = { -- BattleScript_CantMakeAsleep + 0x8
 					[15] = true, -- Vital Spirit (Attacking)
 					[72] = true, -- Insomnia (Attacking)
@@ -482,15 +495,16 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081D69B3] = {[26] = true}, -- BattleScript_Pausex20 + 0x0 Levitate ; Actually checking gMoveResultFlags during this message
 			},
 			REVERSE_ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player, but logic is the reverse of the abilities in ATTACKER
+				[0x081d9567] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
+
 				[0x081D6F2A] = { -- BattleScript_RestCantSleep + 0x8
 					[15] = true, -- Vital Spirit (self)
 					[72] = true, -- Insomnia (self)
 				},
 				[0x081D931E] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-				[0x081d9567] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
-				[0x081d8c07] = {[64] = true}, -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 			},
 			STATUS_INFLICT = { --Contact abilities depend on an enemy Battler, and and allied Attacker
+				--136155724;20;38;1;0;1
 				[0x081D9274] = { -- BattleScript_MoveEffectParalysis + 0x0
 					[9] = true,  -- Static
 					[27] = true, -- Effect Spore
@@ -512,6 +526,25 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[38] = true, -- Poison Point
 					[27] = true, -- Effect Spore
 					[28] = true, -- Synchronize
+					-- A)81d924c;28;38;1;0;1 Enemy Poison Point posioned me
+					-- B)81d924c;28;38;0;0;1 Allied synchronize poisoned them
+					-- C)81d924c;28;66;1;1;0 enemy poisonpowdered me
+					-- D)81d924c;28;66;0;1;0 My synchronize triggered off of it
+					-- B)81d924c;66;28;0;0;1 I poisoned enemy (PSN Powder)
+					-- A)81d924c;66;28;1;0;1 Enemy synchronize triggered off of it
+					-- D)81d924c;38;28;0;1;0 My poison point poisoned them
+					-- C)81d924c;38;28;1;1;0 Their synchronize poisoned me back
+					-- Synchronize triggering off of poison point/flamebody is logically equivalent to will o wisp etc.
+					-- BATTLER is always 1 when the enemy's abilitygoes off, and then it needs either an attacker of 0, or ???
+					-- ??? can't be current move, it remains the attacking move through all of this.
+
+
+
+					-- I think this is indistinguishable from using a poison move
+					-- 1) I am the attacker, opponent is the target, but their effect is taking place (Poison Point/Synchronize/Flame Body)
+					-- 2) Opponent is the attacker, I am the the target. My effect takes place, but then their effect takes place on top of it (Synchronize/Immunity/Water Veil)
+					-- This will look indistinguisable from the enemy just using a move of that effect against me.
+					-- Can log the attacker, battler, and turn that the message was logged. And if, when one of the messages is seen, there exists details here for the same attacker+battler+turn, we know this is the Synchronize taking effect
 				}, 
 				[0x081D925B] = { --BattleScript_MoveEffectBurn + 0x7
 					[49] = true, -- Flame Body
@@ -523,7 +556,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			OTHER = {
-				[0x081d930d] = {[22] = true}, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
+
+
 				[0x081D941f] = {[6] = true}, -- BattleScript_DampStopsExplosion + 0x0 Damp 1
 				[0x081D9425] = {[6] = true}, -- BattleScript_DampStopsExplosion + 0x6 Damp 2
 				[0x081d94e6] = {[43] = true}, -- BattleScript_SoundproofProtected + 0x8 Soundproof (Is immune to own sound moves too)

@@ -11,6 +11,11 @@ Program = {
 		three_sec_update = 180,
 		saveData = 3600,
 	},
+	SyncData = {
+		turnCount = 0,
+		attacker = -1,
+		battlerTarget = -1,
+	}
 }
 
 Program.SCREENS = {
@@ -370,9 +375,16 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
+	local currentTurn = Memory.readbyte(0x03004f90 + 0x13) 	
+	local memoryAddr = "0x0" .. string.format('%x',battleMsg)
+	print( memoryAddr .. ";" .. moveFlags .. ";" .. battler .. ";" .. attacker .. ";" .. battlerTarget)
 
-	print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker .. ";" .. battlerTarget)
-
+	if Program.SyncData.turnCount < currentTurn then
+		Program.SyncData.turnCount = currentTurn
+		Program.SyncData.attacker = -1
+		Program.SyncData.battlerTarget = -1
+	end
 	-- Abilities to check via battler read
 	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
@@ -406,11 +418,11 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 
 	if attackerMsg ~= nil and attackerMsg[enemyAbility] then
 		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-		if attacker % 2 == 0 then
+		if attacker % 2 == 0 and battlerTarget % 2 == 1 then
 			-- Player activated enemy's ability
 			return true
 		end
-	elseif reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+	elseif reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 and battlerTarget % 2 == 0 then
 		-- Attacker value becomes ability user (self-activated ability)
 		-- Untested for if both player and enemy have Rain Dish, but in theory this should work
 		return true
@@ -419,10 +431,22 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Contact-based status-inflicting abilities
 	local contactStatusMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
 
-	if contactStatusMsg ~= nil and contactStatusMsg[enemyAbility] then
-		if battler % 2 == 1 and attacker % 2 == 0 then
-			-- Player activated enemy's contact-based status ability
-			return true
+	if contactStatusMsg ~= nil then
+		-- Log allied pokemon contact status ability trigger for Synchronize
+		if contactStatusMsg[enemyAbility] then
+			if battler % 2 == 1 then
+				if (battlerTarget % 2 == 1 and attacker % 2 == 0) or (Program.SyncData.attacker == attacker and Program.SyncData.battlerTarget == battlerTarget) then
+					-- Player activated enemy's contact-based status ability
+					Program.SyncData.attacker = attacker
+					Program.SyncData.battlerTarget = battlerTarget
+					return true
+				end
+			end
+		end
+		if contactStatusMsg[playerAbility] then
+			Program.SyncData.turnCount = currentTurn
+			Program.SyncData.attacker = attacker
+			Program.SyncData.battlerTarget = battlerTarget
 		end
 	end
 	
@@ -432,9 +456,6 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	if otherMsg ~= nil then
 		if otherMsg[enemyAbility] and enemyAbility ~= playerAbility then
 			-- TODO: figure out how to determine it was enemy's ablity that went off
-			return true
-		elseif otherMsg[22] and enemyAbility == 52 then -- 22 = Intimidate, 52 = Hyper Cutter
-			-- Enemy has Hyper Cutter and it blocked player's Intimidate (doesn't run normal Hyper Cutter script)
 			return true
 		elseif otherMsg[6] then
 			return battlerTarget % 2 == 1
@@ -505,6 +526,11 @@ function Program.beginNewBattle(isWild)
 		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
+
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
@@ -526,6 +552,11 @@ function Program.endBattle(isWild)
 	if Program.isTransformed then
 		Program.isTransformed = false
 	end
+
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
 
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do
