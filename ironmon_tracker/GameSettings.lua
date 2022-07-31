@@ -800,7 +800,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	local filenameEnding = "AutoSave" .. Constants.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
