@@ -143,7 +143,7 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 end
 
 -- isWild: If trainerIDs are equal, then its a wild pokemon; otherwise Pokemon belongs to a Foe trainer
-function Tracker.TrackEncounter(pokemonID, mapId, isWild)
+function Tracker.TrackEncounter(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		trackedPokemon.encounters = { wild = 0, trainer = 0 }
@@ -151,23 +151,30 @@ function Tracker.TrackEncounter(pokemonID, mapId, isWild)
 
 	if isWild then
 		trackedPokemon.encounters.wild = trackedPokemon.encounters.wild + 1
-
-		if Tracker.Data.encounterTable[mapId] ~= nil then
-			local hasEncounteredBefore = false
-			for _, encounterID in pairs(Tracker.Data.encounterTable[mapId]) do
-				if pokemonID == encounterID then
-					hasEncounteredBefore = true
-					break
-				end
-			end
-			if not hasEncounteredBefore then
-				table.insert(Tracker.Data.encounterTable[mapId], pokemonID)
-			end
-		else
-			Tracker.Data.encounterTable[mapId] = { pokemonID }
-		end
 	else
 		trackedPokemon.encounters.trainer = trackedPokemon.encounters.trainer + 1
+	end
+end
+
+-- encounterType: Constants.EncounterTypes
+function Tracker.TrackRouteEncounter(mapId, encounterType, pokemonID)
+	if Tracker.Data.encounterTable[mapId] == nil then
+		Tracker.Data.encounterTable[mapId] = {}
+	end
+
+	if Tracker.Data.encounterTable[mapId][encounterType] == nil then
+		Tracker.Data.encounterTable[mapId][encounterType] = { pokemonID }
+	else
+		local hasEncounteredBefore = false
+		for _, encounterID in pairs(Tracker.Data.encounterTable[mapId][encounterType]) do
+			if pokemonID == encounterID then
+				hasEncounteredBefore = true
+				break
+			end
+		end
+		if not hasEncounteredBefore then
+			table.insert(Tracker.Data.encounterTable[mapId][encounterType], pokemonID)
+		end
 	end
 end
 
@@ -242,7 +249,7 @@ function Tracker.getStatMarkings(pokemonID)
 end
 
 -- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
-function Tracker.getEncounters(pokemonID, mapId, isWild)
+function Tracker.getEncounters(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.encounters == nil then
 		return 0
@@ -255,6 +262,14 @@ function Tracker.getEncounters(pokemonID, mapId, isWild)
 		end
 	else
 		return trackedPokemon.encounters.trainer
+	end
+end
+
+function Tracker.getRouteEncounters(mapId)
+	if mapId == 0 or Tracker.Data.encounterTable[mapId] == nil then
+		return {}
+	else
+		return Tracker.Data.encounterTable[mapId]
 	end
 end
 
@@ -332,7 +347,7 @@ function Tracker.resetData()
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
 			[0] = PokemonData.Types.NORMAL,
 		},
-		encounterTable = { -- key: mapId, value: list of unique pokemonIDs
+		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
 		},
 	}
 end

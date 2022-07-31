@@ -82,7 +82,10 @@ TrackerScreen.Buttons = {
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			InfoScreen.infoLookup = Program.CurrentRoute.mapId
+			InfoScreen.infoLookup = { 
+				mapId = Program.CurrentRoute.mapId,
+				encounterType = Constants.EncounterTypes.GRASS,
+			}
 			InfoScreen.viewScreen = InfoScreen.Screens.ROUTE_INFO
 			Program.changeScreenView(Program.Screens.INFO)
 		end
@@ -218,15 +221,17 @@ function TrackerScreen.buildCarousel()
 
 	-- ROUTE INFO
 	-- TODO: If against wild pokemon, reveal route table; otherwise show total # trainers in route
+	-- TODO: Handle something more than just grass
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
 		framesToShow = 210,
 		getContentList = function(pokemon)
 			local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
-			local seenEncounters = Tracker.getEncounters(pokemon.pokemonID, Program.CurrentRoute.mapId, true)
+			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId)
+			local totalSeen = #routeEncounters[Constants.EncounterTypes.GRASS]
 			local totalPossible = #routeInfo[Constants.EncounterTypes.GRASS]
-			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. seenEncounters .. "/" .. totalPossible .. " unique Pokemon"
+			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. totalSeen .. "/" .. totalPossible .. " unique Pokemon"
 
 			return { TrackerScreen.Buttons.RouteInfo } 
 		end,

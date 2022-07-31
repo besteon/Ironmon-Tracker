@@ -35,19 +35,6 @@ InfoScreen.Buttons = {
 			InfoScreen.openPokemonInfoWindow()
 		end
 	},
-	lookupRoute = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 130, 9, 10, 10, },
-		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			print("TODO: replace this with prompt for map id")
-			-- Extend the functionality of the next/prev buttons below to work for this too
-		end
-	},
 	nextPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NEXT_BUTTON,
@@ -70,6 +57,31 @@ InfoScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.showNextPokemon(-1)
+		end
+	},
+	lookupRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 132, 109, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.openRouteInfoWindow()
+		end
+	},
+	lookupNextEncounterTable = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Next Table",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 96, 8, 45, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		onClick = function()
+			local mapId = InfoScreen.infoLookup.mapId
+			local encounterType = InfoScreen.infoLookup.encounterType
+			InfoScreen.infoLookup.encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+			Program.redraw(true)
 		end
 	},
 	close = {
@@ -211,4 +223,45 @@ function InfoScreen.openPokemonInfoWindow()
 		client.unpause()
 		forms.destroy(pokedexLookup)
 	end, 212, 29)
+end
+
+function InfoScreen.openRouteInfoWindow()
+	print("TODO: replace this with prompt for map id")
+end
+
+-- 'nextType' must start as nil for recursive function to work
+
+
+function InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+	local routeInfo = GameSettings.RouteInfo[mapId]
+	if routeInfo == nil or encounterType == nil then return encounterType end
+
+	local orderedTypes = {
+		Constants.EncounterTypes.GRASS,
+		Constants.EncounterTypes.SURFING,
+		Constants.EncounterTypes.STATIC,
+		Constants.EncounterTypes.ROCKSMASH,
+		Constants.EncounterTypes.SUPERROD,
+		Constants.EncounterTypes.GOODROD,
+		Constants.EncounterTypes.OLDROD,
+	}
+
+	local startingIndex = 0
+	for index, etype in ipairs(orderedTypes) do
+		if encounterType == etype then
+			startingIndex = index
+			break
+		end
+	end
+
+	local nextIndex = (startingIndex % #orderedTypes) + 1
+	while startingIndex ~= nextIndex do
+		encounterType = orderedTypes[nextIndex]
+		if routeInfo[encounterType] ~= nil and routeInfo[encounterType] ~= {} then
+			break
+		end
+		nextIndex = (nextIndex % #orderedTypes) + 1
+	end
+
+	return encounterType
 end

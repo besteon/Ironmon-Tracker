@@ -332,7 +332,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
 			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
 			local isWild = Tracker.Data.trainerID == pokemon.trainerID
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, 0, isWild)
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
 			if encounterText > 9999 then encounterText = 9999 end
 			if isWild then
 				encounterText = "Seen in the wild: " .. encounterText
@@ -608,26 +608,31 @@ end
 
 function Drawing.drawInfoScreen()
 	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
+		local pokemonID = InfoScreen.infoLookup
 		-- Only draw valid pokemon data, pokemonID = 0 is blank move data
-		if InfoScreen.infoLookup < 1 or InfoScreen.infoLookup > #PokemonData.Pokemon then
+		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
 			Program.changeScreenView(Program.Screens.TRACKER)
-			return
+		else
+			Drawing.drawPokemonInfoScreen(pokemonID)
 		end
-		Drawing.drawPokemonInfoScreen(InfoScreen.infoLookup)
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO then
+		local moveId = InfoScreen.infoLookup
 		-- Only draw valid move data, moveId = 0 is blank move data
-		if InfoScreen.infoLookup < 1 or InfoScreen.infoLookup > #MoveData.Moves then
+		if moveId < 1 or moveId > #MoveData.Moves then
 			Program.changeScreenView(Program.Screens.TRACKER)
-			return
+		else
+			Drawing.drawMoveInfoScreen(moveId)
 		end
-		Drawing.drawMoveInfoScreen(InfoScreen.infoLookup)
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
+		local mapId = InfoScreen.infoLookup.mapId
+		local encounterType = InfoScreen.infoLookup.encounterType
+
 		-- Only draw valid route data
-		if GameSettings.RouteInfo[Program.CurrentRoute.mapId] == nil or GameSettings.RouteInfo[Program.CurrentRoute.mapId] == {} then
+		if GameSettings.RouteInfo[mapId] == nil or GameSettings.RouteInfo[mapId] == {} then
 			Program.changeScreenView(Program.Screens.TRACKER)
-			return
+		else
+			Drawing.drawRouteInfoScreen(mapId, encounterType)
 		end
-		Drawing.drawRouteInfoScreen(InfoScreen.infoLookup)
 	end
 end
 
@@ -905,33 +910,76 @@ function Drawing.drawMoveInfoScreen(moveId)
 	end
 end
 
-function Drawing.drawRouteInfoScreen(mapId)
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+function Drawing.drawRouteInfoScreen(mapId, encounterType)
+	mapId = 126 -- TODO: REMOVE THIS
 
-	-- set the color for text/number shadows for the top boxes
+	encounterType = encounterType or Constants.EncounterTypes.GRASS
+	local routeInfo = GameSettings.RouteInfo[mapId]
+	if routeInfo[encounterType] == nil or routeInfo[encounterType] == {} then
+		encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+	end
+
+	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
-	local offsetColumnX = offsetX + 43
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
-	local linespacing = 10
-	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
-	local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
+	local routeEncounters = Tracker.getRouteEncounters(mapId)
+	local hiddenPokemonId = 252 -- Question mark icon
+
+	local totalPossible = 0
+	totalPossible = #routeInfo[encounterType]
+
+	local botOffsetY = offsetY + 34 * math.ceil(totalPossible / 4) + 7
 
 	-- Fill background and margins
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
 	-- Draw top view box
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	-- LABEL AND NEXT TERRAIN
+	local encounterText = "From " .. encounterType .. ":"
+	Drawing.drawText(offsetX, offsetY, encounterText, Theme.COLORS["Default text"], boxInfoTopShadow)
+	offsetY = offsetY + 12
+
+	-- POKEMON SEEN
+	local pokeOffsetX = offsetX + 1
+	for pokeIndex=1, totalPossible, 1 do
+		-- gui.drawRectangle(pokeOffsetX, offsetY, 34, 34, boxInfoTopShadow)
+		-- gui.drawRectangle(pokeOffsetX - 1, offsetY - 1, 34, 34, Theme.COLORS["Upper box border"])
+
+		local pokemonID = hiddenPokemonId
+		if routeEncounters[encounterType] ~= nil and routeEncounters[encounterType][pokeIndex] ~= nil then
+			pokemonID = routeEncounters[encounterType][pokeIndex]
+		end
+
+		if Options["Pokemon Stadium portraits"] then
+			 -- Don't really understand why it's different here vs main screen
+			Drawing.drawPokemonIcon(pokemonID, pokeOffsetX, offsetY - 4)
+		else
+			Drawing.drawPokemonIcon(pokemonID, pokeOffsetX, offsetY)
+		end
+
+		pokeOffsetX = pokeOffsetX + 34
+		if pokeOffsetX > Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 40 then
+			pokeOffsetX = offsetX + 1
+			offsetY = offsetY + 34
+		end
+	end
+
+	-- Draw bottom view box (for percentages)
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	Drawing.drawText(offsetX - 3, botOffsetY + 7, "Chance to Encounter:", Theme.COLORS["Header text"], bgHeaderShadow)
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, botOffsetY + 18, rightEdge, bottomEdge - botOffsetY - 13, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxInfoTopShadow)
-	-- Drawing.drawButton(InfoScreen.Buttons.nextRoute, boxInfoTopShadow)
-	-- Drawing.drawButton(InfoScreen.Buttons.previousRoute, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.lookupNextEncounterTable, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
 end
 

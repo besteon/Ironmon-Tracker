@@ -355,16 +355,16 @@ function Program.updateBattleDataFromMemory()
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
 			opposingPokemon.hasBeenEncountered = true
 			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
+			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 
-			-- https://github.com/pret/pokefirered/blob/7b913802ab5745ea7529b634ebca6a147fe1c560/include/global.fieldmap.h#L164-L183
-			-- TODO: Replace with GameSettings.gMapHeader
-			GameSettings.gMapHeader = 0x02036dfc
-			Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- mapLayoutId
 
-			Tracker.TrackEncounter(opposingPokemon.pokemonID, Program.CurrentRoute.mapId, isWild)
-
-			-- print("m: " .. Program.CurrentRoute.mapId)
 			if isWild then
+				-- https://github.com/pret/pokefirered/blob/7b913802ab5745ea7529b634ebca6a147fe1c560/include/global.fieldmap.h#L164-L183
+				-- TODO: Replace with GameSettings.gMapHeader
+				GameSettings.gMapHeader = 0x02036dfc
+				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- mapLayoutId
+				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Constants.EncounterTypes.GRASS, opposingPokemon.pokemonID)
+				
 				-- TODO: Allow for checks on other terrain types besides just GRASS
 				local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
 				Program.CurrentRoute.hasInfo = (routeInfo ~= nil and routeInfo ~= {} and routeInfo[Constants.EncounterTypes.GRASS] ~= nil)
