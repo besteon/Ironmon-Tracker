@@ -21,6 +21,7 @@ Program = {
 	},
 	CurrentRoute = {
 		mapId = 0,
+		encounterArea = RouteData.EncounterArea.GRASS,
 		hasInfo = false,
 	},
 }
@@ -363,10 +364,10 @@ function Program.updateBattleDataFromMemory()
 				-- TODO: Replace with GameSettings.gMapHeader
 				GameSettings.gMapHeader = 0x02036dfc
 				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- mapLayoutId
-				local encounterArea = nil or RouteData.EncounterArea.GRASS -- TODO: Allow for checks on other terrain areas besides just GRASS
-				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, encounterArea, opposingPokemon.pokemonID)
+				Program.CurrentRoute.encounterArea = RouteData.EncounterArea.GRASS -- TODO: Allow for checks on other terrain areas besides just GRASS
+				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 				
-				Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, encounterArea)
+				Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 			end
 		end
 
@@ -493,6 +494,7 @@ function Program.beginNewBattle(isWild)
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
+		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
@@ -532,6 +534,7 @@ function Program.endBattle(isWild)
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
+		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 

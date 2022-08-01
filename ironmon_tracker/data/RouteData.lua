@@ -5,6 +5,8 @@ RouteData = {}
 --        encounterArea = ('table')
 RouteData.Info = {}
 
+RouteData.AvailableRoutes = {}
+
 RouteData.EncounterArea = {
 	GRASS = "Walking",
 	SURFING = "Surfing",
@@ -47,8 +49,8 @@ function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRoute(mapId) then return nil end
 
 	local startingIndex = 0
-	for index, etype in ipairs(RouteData.OrderedEncounters) do
-		if encounterArea == etype then
+	for index, area in ipairs(RouteData.OrderedEncounters) do
+		if encounterArea == area then
 			startingIndex = index
 			break
 		end
@@ -69,7 +71,7 @@ end
 function RouteData.getPokemonForEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
 
-	local pIndex = RouteData.getIndexForGameVersion()
+	local pIndex = RouteData.getPokemonIndexForGameVersion()
 	local pokemonEncounters = {}
 	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
 		local pokemonID
@@ -83,8 +85,28 @@ function RouteData.getPokemonForEncounterArea(mapId, encounterArea)
 	return pokemonEncounters
 end
 
+function RouteData.getPokemonRatesAndLevels(mapId, encounterArea)
+	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
+
+	local pIndex = RouteData.getPokemonIndexForGameVersion()
+	local ratesAndLevels = {}
+	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
+		local pokemonID
+		if type(encounter.pokemonID) == "number" then
+			pokemonID = encounter.pokemonID
+		else -- pokemonID = {ID, ID}
+			pokemonID = encounter.pokemonID[pIndex]
+		end
+		ratesAndLevels[pokemonID] = {
+			rate = encounter.rate,
+			maxLv = encounter.maxLv,
+		}
+	end
+	return ratesAndLevels
+end
+
 -- Different game versions have different Pokemon appear in an encounterArea: pokemonID = {ID, ID}
-function RouteData.getIndexForGameVersion()
+function RouteData.getPokemonIndexForGameVersion()
 	if GameSettings.versioncolor == "LeafGreen" or GameSettings.versioncolor == "Sapphire" then
 		return 2
 	else
@@ -1034,4 +1056,18 @@ function RouteData.setupRouteInfoAsFRLG()
 		[217] = { name = "Champion's Room", },
 		[228] = { name = "Saffron City Dojo", },
 	}
+
+	-- Populate with a list of names of the routes that have encounter data
+	RouteData.AvailableRoutes = {}
+	for mapId=1, 228, 1 do
+		local route = RouteData.Info[mapId]
+		if route ~= nil and route.name ~= nil then
+			for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
+				if RouteData.hasRouteEncounterArea(mapId, encounterArea) then
+					table.insert(RouteData.AvailableRoutes, route.name)
+					break
+				end
+			end
+		end
+	end
 end

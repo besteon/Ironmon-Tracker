@@ -268,17 +268,11 @@ function TrackerScreen.buildCarousel()
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			local routeInfo = RouteData.Info[Program.CurrentRoute.mapId]
-			local encounterArea = RouteData.EncounterArea.GRASS
-			local totalPossible = #routeInfo[encounterArea]
-			if totalPossible == 0 then
-				encounterArea = RouteData.getNextAvailableEncounterArea(Program.CurrentRoute.mapId, encounterArea)
-				totalPossible = #routeInfo[encounterArea]
-			end
-
-			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId, encounterArea)
+			local totalPossible = #routeInfo[Program.CurrentRoute.encounterArea]
+			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
-			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. totalSeen .. "/" .. totalPossible .. " unique " .. Constants.Words.POKEMON
+			TrackerScreen.Buttons.RouteInfo.text = Program.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
 
 			return { TrackerScreen.Buttons.RouteInfo } 
 		end,

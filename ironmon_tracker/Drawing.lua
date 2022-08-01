@@ -33,13 +33,16 @@ function Drawing.drawText(x, y, text, color, shadowcolor, style)
 end
 
 function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
-	local new_spacing = 0
-
 	if Options["Right justified numbers"] then
-		new_spacing = (spacing - string.len(tostring(number))) * 5
-		if number == Constants.BLANKLINE then new_spacing = 8 end
+		Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
+	else
+		Drawing.drawText(x, y, number, color, shadowcolor, style)
 	end
+end
 
+function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
+	local new_spacing = (spacing - string.len(tostring(number))) * 5
+	if number == Constants.BLANKLINE then new_spacing = 8 end
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
 end
 
@@ -756,7 +759,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	end
 	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Default text"], boxInfoBotShadow)
 	if hasSevereWeakness then
-		Drawing.drawText(offsetX + 38, botOffsetY, "(Bars = x4 weak)", Theme.COLORS["Negative text"], boxInfoBotShadow)
+		Drawing.drawText(offsetColumnX, botOffsetY, "(white bars = x4 weak)", Theme.COLORS["Default text"], boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + linespacing + 3
 
@@ -772,8 +775,14 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 
 		if effectiveness > 2 then
 			-- gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Negative text"])
-			gui.drawRectangle(typeOffsetX, botOffsetY, 29, 1, Theme.COLORS["Negative text"])
-			gui.drawRectangle(typeOffsetX, botOffsetY + 10, 29, 1, Theme.COLORS["Negative text"])
+			local barColor = 0xFFFFFFFF
+			gui.drawLine(typeOffsetX, botOffsetY, typeOffsetX + 29, botOffsetY, barColor)
+			gui.drawLine(typeOffsetX, botOffsetY + 1, typeOffsetX + 29, botOffsetY + 1, barColor)
+			gui.drawLine(typeOffsetX, botOffsetY + 10, typeOffsetX + 29, botOffsetY + 10, barColor)
+			gui.drawLine(typeOffsetX, botOffsetY + 11, typeOffsetX + 29, botOffsetY + 11, barColor)
+
+			-- gui.drawRectangle(typeOffsetX, botOffsetY, 29, 1, Theme.COLORS["Negative text"])
+			-- gui.drawRectangle(typeOffsetX, botOffsetY + 10, 29, 1, Theme.COLORS["Negative text"])
 		end
 
 		typeOffsetX = typeOffsetX + 31
@@ -946,7 +955,7 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 
 	if InfoScreen.revealOriginalRoute then
 		local originalShownText = "Showing original " .. Constants.Words.POKEMON .. " data"
-		Drawing.drawText(boxX + 3, boxTopY + 16, originalShownText, Theme.COLORS["Positive text"], boxTopShadow)
+		Drawing.drawText(boxX + 6, boxTopY + 16, originalShownText, Theme.COLORS["Positive text"], boxTopShadow)
 	else
 		Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)
 	end
@@ -958,9 +967,19 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- POKEMON SEEN
-	-- RouteData.getEncounterRatesString(mapId, encounterArea)
+	local ratesAndLevels = RouteData.getPokemonRatesAndLevels(mapId, encounterArea)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
+		local x = iconButton.box[1]
+		local y = iconButton.box[2]
 		Drawing.drawButton(iconButton, boxBotShadow)
+
+		local pokeRateAndLevel = ratesAndLevels[iconButton.pokemonID]
+		if pokeRateAndLevel ~= nil then
+			local rateText = (pokeRateAndLevel.rate * 100) .. "%"
+			local rateOffset = Utils.inlineIf(pokeRateAndLevel.rate == 1, 5, 10)
+			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
+			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Default text"], boxBotShadow)
+		end
 	end
 
 	-- Draw all buttons

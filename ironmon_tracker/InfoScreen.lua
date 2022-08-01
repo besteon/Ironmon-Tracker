@@ -115,7 +115,7 @@ InfoScreen.Buttons = {
 			if InfoScreen.prevScreen > 0 then
 				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
 			else
-				InfoScreen.revealOriginalRoute = false
+				InfoScreen.clearScreenData()
 				Program.changeScreenView(Program.Screens.TRACKER)
 			end
 		end
@@ -163,6 +163,14 @@ function InfoScreen.changeScreenView(screen, info)
 	Program.changeScreenView(Program.Screens.INFO)
 end
 
+function InfoScreen.clearScreenData()
+	InfoScreen.viewScreen = 0
+	InfoScreen.prevScreen = 0
+	InfoScreen.infoLookup = 0
+	InfoScreen.prevScreenInfo = 0
+	InfoScreen.revealOriginalRoute = false
+end
+
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
 function InfoScreen.showNextPokemon(delta)
 	delta = delta or 1 -- default to just showing the next pokemon
@@ -208,6 +216,7 @@ function InfoScreen.openMoveInfoWindow()
 		for id, data in pairs(MoveData.Moves) do
 			if data.name == moveNameFromForm then
 				moveId = id
+				break
 			end
 		end
 
@@ -218,7 +227,6 @@ function InfoScreen.openMoveInfoWindow()
 		client.unpause()
 		forms.destroy(moveLookup)
 	end, 212, 29)
-
 end
 
 function InfoScreen.openPokemonInfoWindow()
@@ -249,6 +257,7 @@ function InfoScreen.openPokemonInfoWindow()
 		for id, data in pairs(PokemonData.Pokemon) do
 			if data.name == pokemonNameFromForm then
 				pokemonId = id
+				break
 			end
 		end
 
@@ -262,9 +271,45 @@ function InfoScreen.openPokemonInfoWindow()
 end
 
 function InfoScreen.openRouteInfoWindow()
-	print("TODO: replace this with prompt for map id")
-	-- if changing route views, then
-	InfoScreen.revealOriginalRoute = false
+	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
+
+	forms.destroyall()
+	client.pause()
+
+	local routeLookup = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
+	Utils.setFormLocation(routeLookup, 100, 50)
+	forms.label(routeLookup, "Choose a Route to look up:", 49, 10, 250, 20)
+	local routeDropdown = forms.dropdown(routeLookup, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
+	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
+	forms.setproperty(routeDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(routeDropdown, "AutoCompleteMode", "Append")
+	forms.settext(routeDropdown, routeName)
+
+	forms.button(routeLookup, "Look up", function()
+		local routeNameFromForm = forms.gettext(routeDropdown)
+		local mapId
+
+		for id, data in pairs(RouteData.Info) do
+			if data.name == routeNameFromForm then
+				mapId = id
+				break
+			end
+		end
+
+		if mapId ~= nil and mapId ~= 0 then
+			local encounterArea = RouteData.EncounterArea.GRASS
+			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then
+				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
+			end
+
+			InfoScreen.infoLookup.mapId = mapId
+			InfoScreen.infoLookup.encounterArea = encounterArea
+			InfoScreen.revealOriginalRoute = false
+			Program.redraw(true)
+		end
+		client.unpause()
+		forms.destroy(routeLookup)
+	end, 212, 29)
 end
 
 function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
@@ -281,7 +326,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	local startY = Constants.SCREEN.MARGIN + 45
+	local startY = Constants.SCREEN.MARGIN + 48
 	local offsetX = 0
 	local offsetY = 0
 	local iconWidth = 32
@@ -296,7 +341,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 		local x = startX + offsetX
 		local y = startY + offsetY
 		if Options["Pokemon Stadium portraits"] then
-			y = y - 4 -- Don't really understand why it's different here vs main screen
+			y = y - 4
 		end
 
 		iconButtons[index] = {
@@ -312,7 +357,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			end,
 			pokemonID = pokemonID,
 			box = { x, y, iconWidth, iconWidth },
-			isVisible = function() return true end,
+			isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 			onClick = function(self)
 				if not self:isVisible() then return end
 				if self.pokemonID ~= 252 then

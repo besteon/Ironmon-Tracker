@@ -22,9 +22,9 @@ end
 -- Import all scripts before starting the main loop
 dofile(Main.DataFolder .. "/Inifile.lua")
 dofile(Main.DataFolder .. "/Constants.lua")
-dofile(Main.DataFolder .. "/PokemonData.lua") -- TODO: "/data/MiscData.lua" after update from 'main'
-dofile(Main.DataFolder .. "/MoveData.lua") -- TODO: "/data/MiscData.lua" after update from 'main'
-dofile(Main.DataFolder .. "/MiscData.lua") -- TODO: "/data/MiscData.lua" after update from 'main'
+dofile(Main.DataFolder .. "/PokemonData.lua") -- TODO: "/data/MiscData.lua" after bugfix updates to 'main'
+dofile(Main.DataFolder .. "/MoveData.lua") -- TODO: "/data/MiscData.lua" after bugfix updates to 'main'
+dofile(Main.DataFolder .. "/MiscData.lua") -- TODO: "/data/MiscData.lua" after bugfix updates to 'main'
 dofile(Main.DataFolder .. "/data/RouteData.lua")
 dofile(Main.DataFolder .. "/Memory.lua")
 dofile(Main.DataFolder .. "/GameSettings.lua")
