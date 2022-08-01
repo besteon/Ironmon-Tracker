@@ -226,7 +226,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "13",
@@ -442,7 +442,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "33",
@@ -1039,7 +1039,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
 	},
 	{
 		id = "91",
@@ -1870,7 +1870,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Causes a sleeping target to losing 1/4 of the their max HP at the end of each turn.",
+		summary = "Causes a sleeping target to lose 1/4 of the their max HP at the end of each turn that they remain asleep.",
 	},
 	{
 		id = "172",
@@ -3508,7 +3508,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.SPECIAL,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "330",
