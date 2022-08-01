@@ -440,33 +440,39 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d930a] = {[3] = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d93e1] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x0 Intimidate Fail
 				[0x081d93c9] = {[22] = true}, -- BattleScript_DoIntimidateActivationAnim + 0x3d Intimidate Succeed
-				[0x081d9486] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
 				[0x081d948c] = {[29] = true}, -- BattleScript_AbilityNoStatLoss + 0x6 Clear Body & White Smoke		
-				[0x081d9311] = {[36] = true}, -- BattleScript_TraceActivates + 0x0 Trace 1
 				[0x081d9317] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace 2
 				[0x081d932f] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
-				},
-				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
 				[0x081d9346] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-
-
-				[0x081d6ebf] = {[17] = true}, -- BattleScript_ImmunityProtected + 0x0 Immunity (TODO, also check if a poison pokemon has it (venomoth))
-				
+				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+				[51] = true, -- Keen Eye
+				[52] = true, -- Hyper Cutter 
+			},
 			},
 			REVERSE_BATTLER = {
 				[0x081D94A4] = {[7] = true}, -- BattleScript_PRLZPrevention + 0x12 Limber
+				[0x081d94b0] = {[17] = true}, -- BattleScript_PSNPrevention + 0x6 Immunity
+				[0x081d9498] = {[41] = true}, -- BattleScript_BRNPrevention + 0x8 Water Veil
 				[0x081d93e1] = { -- BattleScript_IntimidateAbilityFail + 0x0
 					[29] = true, -- Clear Body
-					[73] = true, -- White Smoke
 					[52] = true, -- Hyper Cutter
+					[73] = true, -- White Smoke
 				}, 
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
-				[0x081d9411] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy 1
 				[0x081d9417] = {[5] = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy 2
+				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081d950f] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d9470] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
+				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
+				[0x081d9523] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081D69B3] = {[26] = true}, -- BattleScript_Pausex20 + 0x0 Levitate ; Actually checking gMoveResultFlags during this message
+				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081d8c07] = {[64] = true}, -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+			  [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
 				[0x081d9442] = { -- BattleScript_MonMadeMoveUseless + 0x14 
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -475,17 +481,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081d94b4] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
-				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-				[0x081d9523] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d8c07] = {[64] = true}, -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-			  [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d950f] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d9470] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x1 Flash Fire
-				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-				[0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
-				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-				[0x081D69B3] = {[26] = true}, -- BattleScript_Pausex20 + 0x0 Levitate ; Actually checking gMoveResultFlags during this message
 
 				[0x081d6a44] = { -- BattleScript_CantMakeAsleep + 0x8
 					[15] = true, -- Vital Spirit (Attacking)
@@ -493,8 +488,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			REVERSE_ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player, but logic is the reverse of the abilities in ATTACKER
-				[0x081d9567] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant (attacker has the ability)
 				[0x081D931E] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d9567] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
 
 				[0x081D6F2A] = { -- BattleScript_RestCantSleep + 0x8
 					[15] = true, -- Vital Spirit (self)
@@ -502,35 +497,20 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			STATUS_INFLICT = { --Contact abilities depend on an enemy Battler, and and allied Attacker
-				[0x081D9274] = { -- BattleScript_MoveEffectParalysis + 0x0
-					[9] = true,  -- Static
-					[27] = true, -- Effect Spore
-					[28] = true, -- Synchronize
-				}, 
+				[0x081D9230] = {[27]=true}, -- BattleScript_MoveEffectSleep + 0x6 Effect Spore (Sleep) 2
 				[0x081D9279] = { -- BattleScript_MoveEffectParalysis + 0x5
 					[9] = true,  -- Static
 					[27] = true, -- Effect Spore
 					[28] = true, -- Synchronize
-				}, 
-				[0x081D922B] = {[27]=true}, -- BattleScript_MoveEffectSleep + 0x1 Effect Spore (Sleep) 1
-				[0x081D9230] = {[27]=true}, -- BattleScript_MoveEffectSleep + 0x6 Effect Spore (Sleep) 2
-				[0x081D9247] = { -- BattleScript_MoveEffectPoison + 0x2
-					[38] = true, -- Poison Point
-					[27] = true, -- Effect Spore
-					[28] = true, -- Synchronize
 				},
 				[0x081D924C] = { -- BattleScript_MoveEffectPoison + 0x7
-					[38] = true, -- Poison Point
 					[27] = true, -- Effect Spore
 					[28] = true, -- Synchronize
+					[38] = true, -- Poison Point
 				}, 
 				[0x081D925B] = { --BattleScript_MoveEffectBurn + 0x7
-					[49] = true, -- Flame Body
 					[28] = true, -- Synchronize
-				},
-				[0x081D9256] = { --BattleScript_MoveEffectBurn + 0x2
 					[49] = true, -- Flame Body
-					[28] = true, -- Synchronize
 				},
 			},
 			BATTLE_TARGET = {

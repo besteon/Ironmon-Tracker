@@ -138,7 +138,7 @@ function Program.updateTrackedAndCurrentData()
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
 	if Program.frames.saveData == 0 then
 		Program.frames.saveData = 3600
-		--Tracker.saveData()
+		Tracker.saveData()
 	end
 
 	Program.frames.half_sec_update = Program.frames.half_sec_update - 1
