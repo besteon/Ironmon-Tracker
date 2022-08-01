@@ -6,9 +6,29 @@ Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https:
 
 For more information on ironMON, see <http://ironmon.gg>
 
-Only Emerald, Leaf Green, and Fire Red (Generation 3 games) are supported. If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/Ironmon-Tracker/issues) or DM me on Discord. You can find me on the Ironmon Discord server.
+If you find any bugs or have feature requests, feel free to create a [GitHub issue](https://github.com/besteon/Ironmon-Tracker/issues) or let us know in the Ironmon Discord server.
 
 This project is based on [MKDasher's PokemonBizhawkLua project](https://github.com/mkdasher/PokemonBizhawkLua).
+
+## Supported Games
+
+The following games are currently supported:
+
+- Pokémon Ruby (U)
+  - v1.0, v1.1, v1.2
+- Pokémon Sapphire (U)
+  - v1.0, v1.1, v1.2
+- Pokémon Emerald (U)
+- Pokémon FireRed (U)
+  - v1.0, v1.1
+- Pokémon LeafGreen (U)
+  - v1.0, v1.1
+- Pokémon Rojo Fuego (Spain)
+- Pokémon Rouge Feu (France)
+
+With more non-english version support potentially coming in the future!
+
+For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
 
 ## Installation
 
@@ -18,14 +38,16 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
    - If you are feeling adventurous and wish to help us in finding bugs, you are more than welcome to clone the main branch. If the tracker crashes, please provide the log dump from the Lua Console to us via Discord or the [Issues](https://github.com/besteon/Ironmon-Tracker/issues) tab.
 2. Unzip the project anywhere you like. We recommend extracting the full folder and all of its contents directly into the `Lua` folder where you installed BizHawk. Note: The `ironmon_tracker` folder must be in the same directory as `Ironmon-Tracker.lua`.
 3. Load your ROM in [Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (use **version v2.8** or later for maximum compatibility)
-4. Open the Lua Console in the Bizhawk program: Tools -> Lua Console). Then click the little folder icon to "Open a file" and select the `Ironmon-Tracker.lua` file in the location you extracted it to. Be careful not to click the New file icon.
+4. Open the Lua Console in the Bizhawk program: `Tools -> Lua Console`). Then click the little folder icon to "Open a file" (or use `Script -> Open Script`) and select the `Ironmon-Tracker.lua` file in the location you extracted it to.
+   - Be careful not to click the New file icon, Bizhawk does not warn you about overwriting scripts so it's easy to do so by mistake.
    - If you installed the tracker in Bizhawk's `Lua` folder, this location is shown by default and you should see the `Ironmon-Tracker.lua` file right away.
-5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you keep your ROMs by clicking on the `ROMS_FOLDER` setting. Additionally, you can customize the tracker's look-and-feel through the `Customize Theme` button.
+5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you keep your ROMs by clicking on the note next to where it says `Roms folder`. Additionally, you can customize the tracker's look-and-feel through the `Customize Theme` button.
 
-If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent help menu from displaying.
+If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent the help menu from displaying.
 
 ## Latest Changes
 
+- **_NEW!!_ Spanish/French support for FireRed**
 - **_NEW!!_ Ruby/Sapphire Support, Move Info Look-up, & Optimization Improvements**
 
 ![image](https://user-images.githubusercontent.com/4258818/178802567-feb55355-a278-410b-8565-5216a56f44ec.png)
@@ -33,7 +55,7 @@ If you want to use your controller to toggle stat prediction markers on opponent
 ## Features
 
 - **Your Pokémon**: Your Pokémon's stats, moves, ability, and more are tracked in real-time as you play! As you learn new moves and use them, level up, and use items, the tracker updates the appropriate information. It will also tell you the level or condition it needs to evolve, the number of moves it will learn, and the next level a move will be learned. All data is sourced from [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Main_Page) except some evolution requirements based on the use of the randomizer.
-- **Pokemon Info Look-up**: Click on the icon of your Pokémon or an enemy Pokémon to learn more details about them. This provides easy access to handy info like BST, Evolution(s), Weaknesses, and when the Pokémon learns each new move as it levels up.
+- **Pokémon Info Look-up**: Click on the icon of your Pokémon or an enemy Pokémon to learn more details about them. This provides easy access to handy info like BST, Evolution(s), Weaknesses, and when the Pokémon learns each new move as it levels up.
 - **Stat modifying moves**: If your opponent or you use a stat modifying move, like `Growl`, up and down chevrons are displayed next to the affected stat on the target. Up to three chevrons are displayed, and change color when the fourth, fifth, and sixth stack are applied.
 - **Enemy abilities**: Click on the area where the enemy abilties are shown to change them, allowing you to take notes on which one or two abilities the Pokémon has. In some games, the abilities are automatically tracked for you.
 - **Enemy moveset**: Enemy Pokémon moves are unknown AND they change as the various Pokémon level up throughout the game! The tracker will display moves a Pokémon has as they use them, along with the basic PP, power, and accuracy information. When you encounter the same Pokémon type later in the game, old moves are marked with a `*` at the end of the name. This allows you to know that the move may still be known or may be replaced by a new move.
@@ -73,14 +95,10 @@ Fix: Download the Tracker again from the release and replace your existing files
 
 Error: `Can't have lua running in two host threads at a time!`
 
-Cause: Outdated version of Bizhawk
+Cause 1: Outdated version of Bizhawk.
 
-Fix: Use [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) version 2.8 or higher
+Fix: Use [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) version 2.8 or higher.
 
----
+Cause 2: Having the "Autoload Last Slot" toggle turned on in `File -> Load State` when quick-loading seeds with savestates.
 
-Error: `NullHawk does not implement memory domains NLua.Exceptions.LuaException: unprotected error in call to Lua API (0)`
-
-Cause: The `ROMS_FOLDER` path specified in `Settings.ini` is not correct, or there is no next rom available in the sequence.
-
-Fix: Make sure you have specified a `ROMS_FOLDER` location. This can be done through the gear icon on the tracker itself.
+Fix: Disable the "Autoload Last Slot" toggle.
