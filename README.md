@@ -41,7 +41,7 @@ For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com
 4. Open the Lua Console in the Bizhawk program: `Tools -> Lua Console`). Then click the little folder icon to "Open a file" (or use `Script -> Open Script`) and select the `Ironmon-Tracker.lua` file in the location you extracted it to.
    - Be careful not to click the New file icon, Bizhawk does not warn you about overwriting scripts so it's easy to do so by mistake.
    - If you installed the tracker in Bizhawk's `Lua` folder, this location is shown by default and you should see the `Ironmon-Tracker.lua` file right away.
-5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you keep your ROMs by clicking on the note next to where it says `Roms folder`. Additionally, you can customize the tracker's look-and-feel through the `Customize Theme` button.
+5. Configure the settings for the Tracker by clicking the gear/cog icon near the top of the tracker window. From here, provide a location where you keep your ROMs by clicking on the note icon next to where it says `Roms folder`. Additionally, you can customize the tracker's look-and-feel through the `Customize Theme` button.
 
 If you want to use your controller to toggle stat prediction markers on opponent Pokémon, set Button Mode in the in-game options to LR to prevent the help menu from displaying.
 
