@@ -11,6 +11,12 @@ Program = {
 		three_sec_update = 180,
 		saveData = 3600,
 	},
+	SyncData = {
+		turnCount = 0,
+		battler = -1,
+		attacker = -1,
+		battlerTarget = -1,
+	}
 }
 
 Program.SCREENS = {
@@ -340,7 +346,7 @@ function Program.updateBattleDataFromMemory()
 
 		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 		-- Auto-track opponent abilities if they go off
-		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon, ownersPokemon) then
+		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon.abilityId, ownersPokemon.abilityId) then
 			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 		end
 
@@ -363,156 +369,99 @@ function Program.updateBattleDataFromMemory()
 	end
 end
 
-function Program.checkBattlerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if abilitiesMsg == 29 then -- 29 = Clear Body, script is shared with White Smoke (73) so check first
-		if (enemyAbility == 29 or enemyAbility == 73) and battler % 2 == 1 then
-			-- Enemy is the one that used Clear Body / White Smoke
-			return true
-		end
-	elseif abilitiesMsg == enemyAbility then
-		if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-			-- Enemy is using Synchronize on the player
-			return true
-		elseif battler % 2 == 1 then
-			return true
-		end
-	elseif abilitiesMsg == 36 and playerAbility == 36 then -- 36 = Trace
-		-- Also track the enemy's ability if the player's Pokemon uses its Trace ability
-		return true
-	end
-	return false
-end
 
-function Program.checkAttackerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if abilitiesMsg == enemyAbility then
-		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-		if enemyAbility == 6 or enemyAbility == 43 then -- 6 = Damp, 43 = Soundproof
-			-- This is a slight workaround that works only if the player doesn't also have the ability
-			return enemyAbility ~= playerAbility
-		elseif attacker % 2 == 0 then
-			-- Player activated enemy's ability
-			return true
-		end
-	end
-	return false
-end
-
-function Program.checkReverseAttackerAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if reverseAttackerAbilitiesMsg == enemyAbility then
-		if attacker % 2 == 1 then
-			-- Enemy activated enemy's ability
-			return true
-		end
-	end
-	return false
-end
-
-function Program.checkContactAbility(abilitiesMsg,enemyAbility,playerAbility,battler,attacker)
-	if attacker % 2 == 0 and battler % 2 == 1 then
-		return true
-	end
-	return false
-end
-function Program.autoTrackAbilitiesCheck(battleMsg, enemyPokemon, playerPokemon)
+function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Checks if ability should be auto-tracked
-	local enemyAbility = enemyPokemon.abilityId
-	local playerAbility = playerPokemon.abilityId
 	-- Abilities to check via battler read
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
+	local currentTurn = Memory.readbyte(0x03004f90 + 0x13) 	
+	local memoryAddr = "0x0" .. string.format('%x',battleMsg)
+	print( memoryAddr .. ";" .. moveFlags .. ";" .. battler .. ";" .. attacker .. ";" .. battlerTarget)
 
-	print( battleMsg .. ";" .. playerAbility .. ";" .. enemyAbility .. ";" .. battler .. ";" .. attacker)
-	local battlerAbilitiesMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+	if Program.SyncData.turnCount < currentTurn then
+		Program.SyncData.turnCount = currentTurn
+		Program.SyncData.battler = -1
+		Program.SyncData.attacker = -1
+		Program.SyncData.battlerTarget = -1
+	end
+	-- Abilities to check via battler read
+	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
-	if battlerAbilitiesMsg ~= nil then
-		if type(battlerAbilitiesMsg) == "number" then
-			if Program.checkBattlerAbility(battlerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
+	if battlerMsg ~= nil then
+		if battlerMsg[playerAbility] and playerAbility == 36 and battler % 2 == 0 then -- 36 = Trace
+			-- Track the enemy's ability if the player's Pokemon uses its Trace ability
+			return true
+		elseif battlerMsg[enemyAbility] then
+			if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
+				-- Enemy is using Synchronize on the player
+				return true
+			elseif battler % 2 == 1 then
+				-- Enemy is the one that used the ability
 				return true
 			end
-		elseif #battlerAbilitiesMsg > 1 then
-			for i, ability in ipairs(battlerAbilitiesMsg) do
-				if Program.checkBattlerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
-					return true
-				end
-			end
+		end
+	end
+
+	-- Abilities to check for when ally is the battler
+	local reverseBattlerMsg = GameSettings.ABILITIES.REVERSE_BATTLER[battleMsg]
+
+	if reverseBattlerMsg ~= nil then
+		if reverseBattlerMsg[enemyAbility] and battler % 2 == 0 then
+			return true
 		end
 	end
 	
 	-- Abilities to check via attacker read
-	local attackerAbilitiesMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
-	if attackerAbilitiesMsg ~= nil then
-		if type(attackerAbilitiesMsg) == "number" then
-			if Program.checkAttackerAbility(attackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
-				return true
-			end
-		elseif #attackerAbilitiesMsg > 1 then
-			for i, ability in ipairs(attackerAbilitiesMsg) do
-				if Program.checkAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
+	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
+	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
+
+	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
+		if enemyAbility == 26 and moveFlags == 9 then
+				-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
+			return true
+		elseif battlerTarget % 2 == 1 then
+			-- Otherwise, player activated enemy's ability
+			return true
+		end
+	end
+	if reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+		--Owner of the ability is logged as the attacker
+		return true
+	end
+
+	-- Contact-based status-inflicting abilities
+	local contactStatusMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
+
+	if contactStatusMsg ~= nil then
+		-- Log allied pokemon contact status ability trigger for Synchronize
+		if contactStatusMsg[enemyAbility] then
+			if battler % 2 == 1 then
+				if (battlerTarget % 2 == 1 and attacker % 2 == 0) or (Program.SyncData.attacker == attacker and Program.SyncData.battlerTarget == battlerTarget and Program.SyncData.battler ~= battler) then
+					-- Player activated enemy's contact-based status ability
 					return true
 				end
 			end
 		end
-	end
-
-	local reverseAttackerAbilitiesMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
-	if reverseAttackerAbilitiesMsg ~= nil then
-		if type(reverseAttackerAbilitiesMsg) == "number" then
-			if reverseAttackerAbilitiesMsg == enemyAbility then
-				if Program.checkReverseAttackerAbility(reverseAttackerAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
-					return true
-				end
-			end
-		elseif #reverseAttackerAbilitiesMsg > 1 then
-			for i, ability in ipairs(reverseAttackerAbilitiesMsg) do
-				if Program.checkReverseAttackerAbility(ability,enemyAbility,playerAbility,battler,attacker) then
-					return true
-				end
-			end
-		end
-	end
-
-	local contactAbilitiesMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
-	if contactAbilitiesMsg ~= nil then
-		if type(contactAbilitiesMsg) == "number" then
-			if contactAbilitiesMsg == enemyAbility then
-				if Program.checkContactAbility(contactAbilitiesMsg,enemyAbility,playerAbility,battler,attacker) then
-					return true
-				end
-			end
-		elseif #contactAbilitiesMsg > 1 then
-			for i, ability in ipairs(contactAbilitiesMsg) do
-				if Program.checkContactAbility(ability,enemyAbility,playerAbility,battler,attacker) then
-					return true
-				end
-			end
+		if contactStatusMsg[playerAbility] and attacker % 2 == 1 then
+			Program.SyncData.turnCount = currentTurn
+			Program.SyncData.battler = battler
+			Program.SyncData.attacker = attacker
+			Program.SyncData.battlerTarget = battlerTarget
 		end
 	end
 	
-	-- Abilities not covered by just battler or attacker
-	local otherAbilitiesMsg = GameSettings.ABILITIES.OTHER[battleMsg]
-	-- Statuses: 1 (Sleep), 2 (Poison), 3 (Burn), 4 (Freeze), 5 (Paralysis), 6 (Toxic)
-	local playerStatus = playerPokemon.status
-	if otherAbilitiesMsg == enemyAbility and attacker % 2 == 0 then -- Double-check that player activated it
-		if enemyAbility == 9 and playerStatus == 5 then
-			-- 9 = Static
-			return true
-		elseif enemyAbility == 27 and (playerStatus == 1 or playerStatus == 2 or playerStatus == 5) then
-			-- 27 = Effect Spore
-			return true
-		elseif enemyAbility == 38 and playerStatus == 2 then
-			-- 38 = Poison Point
-			return true
-		elseif enemyAbility == 49 and playerStatus == 3 then
-			-- 49 = Flame Body
+	-- Abilities not covered by the above checks (just Intimidate right now)
+	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
+
+	if battleTargetMsg ~= nil then
+		if battleTargetMsg[enemyAbility] and enemyAbility ~= playerAbility and battlerTarget % 2 == 1 then
+			-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
 			return true
 		end
-	elseif otherAbilitiesMsg == enemyAbility and enemyAbility ~= playerAbility then
-		return true
-	elseif otherAbilitiesMsg == 22 and enemyAbility == 52 then -- 22 = Intimidate, 52 = Hyper Cutter
-		-- Enemy has Hyper Cutter and it blocked Intimidate (which doesn't run BattleScript_AbilityNoSpecificStatLoss)
-		return true
 	end
-
 	return false
 end
 
@@ -578,6 +527,11 @@ function Program.beginNewBattle(isWild)
 		Program.currentScreen = Program.SCREENS.TRACKER
 	end
 
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
+
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
@@ -599,6 +553,11 @@ function Program.endBattle(isWild)
 	if Program.isTransformed then
 		Program.isTransformed = false
 	end
+
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
 
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do
