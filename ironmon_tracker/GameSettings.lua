@@ -599,7 +599,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 			[0x081D8EAB] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081D6506] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
-		dofile(Main.DataFolder .. "/SpainData.lua")
+		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
 		SpainData.updateToSpainData()
 	end
 end
@@ -668,7 +668,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
-		dofile(Main.DataFolder .. "/FranceData.lua")
+		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
 		FranceData.updateToFranceData()
 	end
 end
