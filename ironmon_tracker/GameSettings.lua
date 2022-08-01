@@ -159,7 +159,7 @@ function GameSettings.setGameInfo(gamecode)
 		RouteData.setupRouteInfo(GameSettings.game)
 	else
 		GameSettings.gamename = "Unsupported game"
-		Main.DisplayError("This game is unsupported.\n\nOnly RSE/FRLG English versions are currently supported.")
+		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
 	end
 end
 
