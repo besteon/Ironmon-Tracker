@@ -13,7 +13,7 @@ Program = {
 	},
 }
 
-Program.SCREENS = {
+Program.Screens = {
 	TRACKER = 1,
 	INFO = 2,
 	SETTINGS = 3,
@@ -21,7 +21,7 @@ Program.SCREENS = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.SCREENS.TRACKER
+	Program.currentScreen = Program.Screens.TRACKER
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -52,7 +52,7 @@ function Program.redraw(forced)
 
 	Program.frames.waitToDraw = 30
 
-	if Program.currentScreen == Program.SCREENS.TRACKER then
+	if Program.currentScreen == Program.Screens.TRACKER then
 		TrackerScreen.updateButtonStates()
 
 		local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
@@ -64,11 +64,11 @@ function Program.redraw(forced)
 		else
 			Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
 		end
-	elseif Program.currentScreen == Program.SCREENS.INFO then
+	elseif Program.currentScreen == Program.Screens.INFO then
 		Drawing.drawInfoScreen()
-	elseif Program.currentScreen == Program.SCREENS.SETTINGS then
+	elseif Program.currentScreen == Program.Screens.SETTINGS then
 		Drawing.drawOptionsScreen()
-	elseif Program.currentScreen == Program.SCREENS.THEME then
+	elseif Program.currentScreen == Program.Screens.THEME then
 		Drawing.drawThemeScreen()
 	end
 end
@@ -241,8 +241,15 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
 	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
 
+	-- If the ability doesn't exist somehow, check the other ability
 	if abilityId < 0 or abilityId > #MiscData.Abilities then
-		abilityId = 0
+		abilityNum = 1 - abilityNum
+		abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
+
+		-- If it still doesn't exist, assign to 0 so that it displays as a BLANKLINE
+		if abilityId < 0 or abilityId > #MiscData.Abilities then
+			abilityId = 0
+		end
 	end
 
 	-- Determine status condition
@@ -490,8 +497,8 @@ function Program.beginNewBattle(isWild)
 	Input.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
-	if Program.currentScreen == Program.SCREENS.INFO then
-		Program.currentScreen = Program.SCREENS.TRACKER
+	if Program.currentScreen == Program.Screens.INFO then
+		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -525,8 +532,8 @@ function Program.endBattle(isWild)
 	end
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
-	if Program.currentScreen == Program.SCREENS.INFO then
-		Program.currentScreen = Program.SCREENS.TRACKER
+	if Program.currentScreen == Program.Screens.INFO then
+		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
@@ -557,7 +564,7 @@ function Program.updatePCHealsFromMemory()
 		-- Update the local tally if there is a new heal
 		Tracker.Data.gameStatsHeals = combinedHeals
 		-- Only change the displayed PC Heals count when the option is on and auto-tracking is enabled
-		if Options["Track PC Heals"] and TrackerScreen.buttons.PCHealAutoTracking.toggleState then
+		if Options["Track PC Heals"] and TrackerScreen.Buttons.PCHealAutoTracking.toggleState then
 			if Options["PC heals count downward"] then
 				-- Automatically count down
 				Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
@@ -585,7 +592,7 @@ function Program.updateBadgesObtainedFromMemory()
 	if badgeBits ~= nil then
 		for index = 1, 8, 1 do
 			local badgeName = "badge" .. index
-			local badgeButton = TrackerScreen.buttons[badgeName]
+			local badgeButton = TrackerScreen.Buttons[badgeName]
 			local badgeState = Utils.getbits(badgeBits, index - 1, 1)
 			badgeButton:updateState(badgeState)
 		end

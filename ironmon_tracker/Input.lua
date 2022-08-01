@@ -69,43 +69,43 @@ function Input.checkJoypadInput(joypadButtons)
 		if Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
 			Input.controller.framesSinceInput = 0
 
-			local statKey = Constants.ORDERED_LISTS.STATSTAGES[Input.controller.statIndex]
-			local statButton = TrackerScreen.buttons[statKey]
+			local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
+			local statButton = TrackerScreen.Buttons[statKey]
 			statButton:onClick()
 		end
 	end
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
-	if Program.currentScreen == Program.SCREENS.TRACKER then
-		Input.checkButtonsClicked(xmouse, ymouse, TrackerScreen.buttons)
+	if Program.currentScreen == Program.Screens.TRACKER then
+		Input.checkButtonsClicked(xmouse, ymouse, TrackerScreen.Buttons)
 
 		-- settings gear TODO: Turn this into a button
 		if Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 93, 7, 7, 7) then
-			Program.changeScreenView(Program.SCREENS.SETTINGS)
+			Program.changeScreenView(Program.Screens.SETTINGS)
 		end
 
 		local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
 		Input.checkPokemonIconClicked(xmouse, ymouse, pokemon)
 		Input.checkAnyMovesClicked(xmouse, ymouse, pokemon)
-	elseif Program.currentScreen == Program.SCREENS.INFO then
-		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.buttons)
-	elseif Program.currentScreen == Program.SCREENS.SETTINGS then
-		Input.checkButtonsClicked(xmouse, ymouse, Options.buttons)
-	elseif Program.currentScreen == Program.SCREENS.THEME then
-		Input.checkButtonsClicked(xmouse, ymouse, Theme.buttons)
+	elseif Program.currentScreen == Program.Screens.INFO then
+		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.SETTINGS then
+		Input.checkButtonsClicked(xmouse, ymouse, Options.Buttons)
+	elseif Program.currentScreen == Program.Screens.THEME then
+		Input.checkButtonsClicked(xmouse, ymouse, Theme.Buttons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
 	-- Clicked on a new move learned, show info
 	if Input.isInRange(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
 		-- Only lookup/show move if not editing settings
-		if Program.currentScreen == Program.SCREENS.TRACKER or Program.currentScreen == Program.SCREENS.INFO then
+		if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
 			local moveId = Program.getLearnedMoveId()
 			if moveId ~= nil then
 				InfoScreen.infoLookup = moveId
-				InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
-				Program.changeScreenView(Program.SCREENS.INFO)
+				InfoScreen.viewScreen = InfoScreen.Screens.MOVE_INFO
+				Program.changeScreenView(Program.Screens.INFO)
 			end
 		end
 	end
@@ -147,8 +147,8 @@ function Input.checkPokemonIconClicked(xmouse, ymouse, pokemon)
 	-- pokemon info lookup TODO: Turn this into a button
 	if pokemon ~= nil and Input.isInRange(xmouse, ymouse, Constants.SCREEN.WIDTH + 5, 5, 32, 29) then
 		InfoScreen.infoLookup = pokemon.pokemonID
-		InfoScreen.viewScreen = InfoScreen.SCREENS.POKEMON_INFO
-		Program.changeScreenView(Program.SCREENS.INFO)
+		InfoScreen.viewScreen = InfoScreen.Screens.POKEMON_INFO
+		Program.changeScreenView(Program.Screens.INFO)
 	end
 end
 
@@ -170,8 +170,8 @@ function Input.checkAnyMovesClicked(xmouse, ymouse, pokemon)
 		for moveIndex = 1, 4, 1 do
 			if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
 				InfoScreen.infoLookup = pokemonMoves[moveIndex].id
-				InfoScreen.viewScreen = InfoScreen.SCREENS.MOVE_INFO
-				Program.changeScreenView(Program.SCREENS.INFO)
+				InfoScreen.viewScreen = InfoScreen.Screens.MOVE_INFO
+				Program.changeScreenView(Program.Screens.INFO)
 				break
 			end
 			moveOffsetY = moveOffsetY + 10

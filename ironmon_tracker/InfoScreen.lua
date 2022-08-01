@@ -3,75 +3,75 @@ InfoScreen = {
 	infoLookup = 0 -- Either a PokemonID or a MoveID
 }
 
-InfoScreen.SCREENS = {
+InfoScreen.Screens = {
     POKEMON_INFO = 1,
 	MOVE_INFO = 2,
 }
 
-InfoScreen.buttons = {
+InfoScreen.Buttons = {
 	lookupMove = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.openMoveInfoWindow()
 		end
 	},
 	lookupPokemon = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.MAGNIFYING_GLASS,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.openPokemonInfoWindow()
 		end
 	},
 	nextPokemon = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.NEXT_BUTTON,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NEXT_BUTTON,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 99, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.showNextPokemon()
 		end
 	},
 	previousPokemon = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.PREVIOUS_BUTTON,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.PREVIOUS_BUTTON,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 85, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO end,
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.showNextPokemon(-1)
 		end
 	},
 	close = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Close",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, 141, 25, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		onClick = function()
-			Program.changeScreenView(Program.SCREENS.TRACKER)
+			Program.changeScreenView(Program.Screens.TRACKER)
 		end
 	},
 	HiddenPower = {
-		type = Constants.BUTTON_TYPES.NO_BORDER,
+		type = Constants.ButtonTypes.NO_BORDER,
 		clickableArea = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
 		box = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO end,
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 
@@ -126,7 +126,10 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	local moveLookup = forms.newform(360, 105, "Move Look up", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
 	Utils.setFormLocation(moveLookup, 100, 50)
 	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
@@ -164,7 +167,10 @@ function InfoScreen.openPokemonInfoWindow()
 		end
 	end
 
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
 	Utils.setFormLocation(pokedexLookup, 100, 50)
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)

@@ -681,6 +681,8 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 			[0x081D8EAB] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081D6506] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
+		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
+		SpainData.updateToSpainData()
 	end
 end
 
@@ -748,6 +750,8 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
+		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
+		FranceData.updateToFranceData()
 	end
 end
 
@@ -878,7 +882,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = "AutoSave" .. Constants.TRACKER_DATA_EXTENSION
+	local filenameEnding = "AutoSave" .. Constants.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding

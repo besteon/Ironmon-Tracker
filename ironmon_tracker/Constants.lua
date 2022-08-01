@@ -11,24 +11,21 @@ Constants.SCREEN = {
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
 	MARGIN = 5,
-	BADGE_X_POS = 247,
-	BADGE_Y_POS = 138,
-	BADGE_WIDTH = 16,
 }
 
-Constants.FONT = {
+Constants.Font = {
 	SIZE = 9,
 	FAMILY = "Franklin Gothic Medium",
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
-Constants.TRACKER_DATA_EXTENSION = ".tdat"
-Constants.PORTAIT_FOLDER_EXTENSIONS = {
-	pokemon = ".gif",
-	pokemonStadium = ".png"
+Constants.Extensions = {
+	TRACKED_DATA = ".tdat",
+	POKEMON_PIXELED = ".gif",
+	POKEMON_STADIUM = ".png",
 }
 
-Constants.BUTTON_TYPES = {
+Constants.ButtonTypes = {
 	FULL_BORDER = 1,
 	NO_BORDER = 2,
 	CHECKBOX = 3,
@@ -44,31 +41,29 @@ Constants.STAT_STATES = {
 	[2] = { text = "--", textColor = "Negative text" },
 }
 
-Constants.COLORS = {
-	MOVETYPE = {
-		normal = 0xFFA8A878,
-		fighting = 0xFFC03028,
-		flying = 0xFFA890F0,
-		poison = 0xFFA040A0,
-		ground = 0xFFE0C068,
-		rock = 0xFFB8A038,
-		bug = 0xFFA8B820,
-		ghost = 0xFF705898,
-		steel = 0xFFB8B8D0,
-		fire = 0xFFF08030,
-		water = 0xFF6890F0,
-		grass = 0xFF78C850,
-		electric = 0xFFF8D030,
-		psychic = 0xFFF85888,
-		ice = 0xFF98D8D8,
-		dragon = 0xFF7038F8,
-		dark = 0xFF705848,
-		fairy = 0xFFEE99AC,
-		unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
-	},
+Constants.MoveTypeColors = {
+	normal = 0xFFA8A878,
+	fighting = 0xFFC03028,
+	flying = 0xFFA890F0,
+	poison = 0xFFA040A0,
+	ground = 0xFFE0C068,
+	rock = 0xFFB8A038,
+	bug = 0xFFA8B820,
+	ghost = 0xFF705898,
+	steel = 0xFFB8B8D0,
+	fire = 0xFFF08030,
+	water = 0xFF6890F0,
+	grass = 0xFF78C850,
+	electric = 0xFFF8D030,
+	psychic = 0xFFF85888,
+	ice = 0xFF98D8D8,
+	dragon = 0xFF7038F8,
+	dark = 0xFF705848,
+	fairy = 0xFFEE99AC,
+	unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 }
 
-Constants.ORDERED_LISTS = {
+Constants.OrderedLists = {
 	STATSTAGES = {
 		"hp",
 		"atk",
@@ -121,7 +116,7 @@ Constants.ORDERED_LISTS = {
 	},
 }
 
-Constants.PIXEL_IMAGES = {
+Constants.PixelImages = {
 	GEAR = {
 		{0,0,0,1,1,0,0,0},
 		{0,1,1,1,1,1,1,0},
