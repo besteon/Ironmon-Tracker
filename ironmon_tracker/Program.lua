@@ -13,6 +13,7 @@ Program = {
 	},
 	SyncData = {
 		turnCount = 0,
+		battler = -1,
 		attacker = -1,
 		battlerTarget = -1,
 	}
@@ -382,6 +383,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
+		Program.SyncData.battler = -1
 		Program.SyncData.attacker = -1
 		Program.SyncData.battlerTarget = -1
 	end
@@ -416,15 +418,17 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
 	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
 
-	if attackerMsg ~= nil and attackerMsg[enemyAbility] then
-		-- TODO: Figure out determining whether enemy/player Soundproof or Damp went off
-		if attacker % 2 == 0 and battlerTarget % 2 == 1 then
-			-- Player activated enemy's ability
+	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
+		if enemyAbility == 26 and moveFlags == 9 then
+				-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
+			return true
+		elseif battlerTarget % 2 == 1 then
+			-- Otherwise, player activated enemy's ability
 			return true
 		end
-	elseif reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 and battlerTarget % 2 == 0 then
-		-- Attacker value becomes ability user (self-activated ability)
-		-- Untested for if both player and enemy have Rain Dish, but in theory this should work
+	end
+	if reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+		--Owner of the ability is logged as the attacker
 		return true
 	end
 
@@ -435,30 +439,27 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 		-- Log allied pokemon contact status ability trigger for Synchronize
 		if contactStatusMsg[enemyAbility] then
 			if battler % 2 == 1 then
-				if (battlerTarget % 2 == 1 and attacker % 2 == 0) or (Program.SyncData.attacker == attacker and Program.SyncData.battlerTarget == battlerTarget) then
+				if (battlerTarget % 2 == 1 and attacker % 2 == 0) or (Program.SyncData.attacker == attacker and Program.SyncData.battlerTarget == battlerTarget and Program.SyncData.battler ~= battler) then
 					-- Player activated enemy's contact-based status ability
-					Program.SyncData.attacker = attacker
-					Program.SyncData.battlerTarget = battlerTarget
 					return true
 				end
 			end
 		end
-		if contactStatusMsg[playerAbility] then
+		if contactStatusMsg[playerAbility] and attacker % 2 == 1 then
 			Program.SyncData.turnCount = currentTurn
+			Program.SyncData.battler = battler
 			Program.SyncData.attacker = attacker
 			Program.SyncData.battlerTarget = battlerTarget
 		end
 	end
 	
 	-- Abilities not covered by the above checks (just Intimidate right now)
-	local otherMsg = GameSettings.ABILITIES.OTHER[battleMsg]
+	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
 
-	if otherMsg ~= nil then
-		if otherMsg[enemyAbility] and enemyAbility ~= playerAbility then
-			-- TODO: figure out how to determine it was enemy's ablity that went off
+	if battleTargetMsg ~= nil then
+		if battleTargetMsg[enemyAbility] and enemyAbility ~= playerAbility and battlerTarget % 2 == 1 then
+			-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
 			return true
-		elseif otherMsg[6] then
-			return battlerTarget % 2 == 1
 		end
 	end
 	return false
