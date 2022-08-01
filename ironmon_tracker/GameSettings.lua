@@ -144,15 +144,15 @@ function GameSettings.setGameInfo(gamecode)
 		-- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 		-- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 		[3] = { -- key: routeId (mapLayoutId)
-			[12] = {}, -- CERULEAN CITY GYM
-			[15] = {}, -- CELADON CITY GYM
-			[20] = {}, -- FUCHSIA CITY GYM
-			[25] = {}, -- VERMILION CITY GYM
-			[28] = {}, -- PEWTER CITY GYM
-			[34] = {}, -- SAFFRON CITY GYM
-			[36] = {}, -- CINNABAR ISLAND GYM
-			[37] = {}, -- VIRIDIAN CITY GYM
-			[78] = { -- PALLET TOWN
+			[12] = { name = "Cerulean City Gym", }, 
+			[15] = { name = "Celadon City Gym", },
+			[20] = { name = "Fuchsia City Gym", },
+			[25] = { name = "Vermilion City Gym", },
+			[28] = { name = "Pewter City Gym", },
+			[34] = { name = "Saffron City Gym", },
+			[36] = { name = "Cinnabar Island Gym", },
+			[37] = { name = "Viridian City Gym", },
+			[78] = { name = "Pallet Town",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -172,7 +172,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[79] = { -- VIRIDIAN CITY
+			[79] = { name = "Viridian City",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = {54,79}, rate = 1.00, minLv = 20, maxLv = 40, },
 				},
@@ -191,8 +191,8 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[80] = {}, -- PEWTER CITY
-			[81] = { -- CERULEAN CITY
+			[80] = { name = "Pewter City", },
+			[81] = { name = "Cerulean City",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -210,8 +210,8 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[82] = {}, -- LAVENDER TOWN
-			[83] = { -- VERMILION CITY
+			[82] = { name = "Lavender Town", },
+			[83] = { name = "Vermilion City",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -231,7 +231,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[84] = { -- CELADON CITY
+			[84] = { name = "Celadon City",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = {54,79}, rate = 0.99, minLv = 5, maxLv = 40, },
 					{ pokemonID = 109, rate = 0.01, minLv = 30, maxLv = 40, },
@@ -247,7 +247,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 88, rate = 0.01, minLv = 30, maxLv = 40, },
 				},
 			},
-			[85] = { -- FUCHSIA CITY
+			[85] = { name = "Fuchsia City",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = {54,79}, rate = 1.00, minLv = 20, maxLv = 40, },
 				},
@@ -266,7 +266,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[86] = { -- CINNABAR ISLAND
+			[86] = { name = "Cinnabar Island",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -286,15 +286,15 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[87] = {}, -- INDIGO_PLATEAU_EXTERIOR
-			[88] = {}, -- SAFFRON_CITY_CONNECTION
-			[89] = { -- ROUTE 1
+			[87] = { name = "Indigo Plateau Ext.", },
+			[88] = { name = "Saffron City Conn.", },
+			[89] = { name = "Route 1",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.50, minLv = 2, maxLv = 5, },
 					{ pokemonID = 19, rate = 0.50, minLv = 2, maxLv = 4, },
 				},
 			},
-			[90] = { -- ROUTE 2
+			[90] = { name = "Route 2",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.45, minLv = 2, maxLv = 5, },
 					{ pokemonID = 19, rate = 0.45, minLv = 2, maxLv = 5, },
@@ -302,7 +302,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 13, rate = 0.05, minLv = 4, maxLv = 5, },
 				},
 			},
-			[91] = { -- ROUTE 3
+			[91] = { name = "Route 3",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 21, rate = 0.35, minLv = 6, maxLv = 8, },
 					{ pokemonID = 16, rate = 0.30, minLv = 6, maxLv = 7, },
@@ -312,7 +312,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {29,32}, rate = 0.01, minLv = 6, maxLv = 6, },
 				},
 			},
-			[92] = { -- ROUTE 4
+			[92] = { name = "Route 4",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 19, rate = 0.35, minLv = 8, maxLv = 12, },
 					{ pokemonID = 21, rate = 0.35, minLv = 8, maxLv = 12, },
@@ -336,14 +336,14 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[93] = { -- ROUTE 5
+			[93] = { name = "Route 5",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.40, minLv = 13, maxLv = 16, },
 					{ pokemonID = 52, rate = 0.35, minLv = 10, maxLv = 16, },
 					{ pokemonID = {43,69}, rate = 0.25, minLv = 13, maxLv = 16, },
 				},
 			},
-			[94] = { -- ROUTE 6
+			[94] = { name = "Route 6",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.40, minLv = 13, maxLv = 16, },
 					{ pokemonID = 52, rate = 0.35, minLv = 10, maxLv = 16, },
@@ -367,7 +367,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[95] = { -- ROUTE 7
+			[95] = { name = "Route 7",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 52, rate = 0.40, minLv = 17, maxLv = 20, },
 					{ pokemonID = 16, rate = 0.30, minLv = 19, maxLv = 22, },
@@ -375,7 +375,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {58,37}, rate = 0.10, minLv = 18, maxLv = 20, },
 				},
 			},
-			[96] = { -- ROUTE 8
+			[96] = { name = "Route 8",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 16, rate = 0.30, minLv = 18, maxLv = 20, },
 					{ pokemonID = 52, rate = 0.30, minLv = 18, maxLv = 20, },
@@ -383,14 +383,14 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {58,37}, rate = 0.20, minLv = 15, maxLv = 18, },
 				},
 			},
-			[97] = { -- ROUTE 9
+			[97] = { name = "Route 9",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 19, rate = 0.40, minLv = 14, maxLv = 17, },
 					{ pokemonID = 21, rate = 0.35, minLv = 13, maxLv = 17, },
 					{ pokemonID = {23,27}, rate = 0.25, minLv = 11, maxLv = 17, },
 				},
 			},
-			[98] = { -- ROUTE 10
+			[98] = { name = "Route 10",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 100, rate = 0.40, minLv = 14, maxLv = 17, },
 					{ pokemonID = 21, rate = 0.35, minLv = 13, maxLv = 17, },
@@ -413,7 +413,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[99] = { -- ROUTE 11
+			[99] = { name = "Route 11",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {23,27}, rate = 0.40, minLv = 12, maxLv = 15, },
 					{ pokemonID = 21, rate = 0.35, minLv = 13, maxLv = 17, },
@@ -436,7 +436,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[100] = { -- ROUTE 12
+			[100] = { name = "Route 12",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.35, minLv = 22, maxLv = 26, },
 					{ pokemonID = 16, rate = 0.30, minLv = 23, maxLv = 27, },
@@ -463,7 +463,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 143, rate = 1.00, minLv = 30, maxLv = 30, },
 				},
 			},
-			[101] = { -- ROUTE 13
+			[101] = { name = "Route 13",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.35, minLv = 22, maxLv = 26, },
 					{ pokemonID = 48, rate = 0.30, minLv = 24, maxLv = 26, },
@@ -489,7 +489,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[102] = { -- ROUTE 14
+			[102] = { name = "Route 14",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.35, minLv = 22, maxLv = 26, },
 					{ pokemonID = 48, rate = 0.30, minLv = 24, maxLv = 26, },
@@ -499,7 +499,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {44,70}, rate = 0.05, minLv = 30, maxLv = 30, },
 				},
 			},
-			[103] = { -- ROUTE 15
+			[103] = { name = "Route 15",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.35, minLv = 22, maxLv = 26, },
 					{ pokemonID = 48, rate = 0.30, minLv = 24, maxLv = 26, },
@@ -509,7 +509,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 132, rate = 0.05, minLv = 25, maxLv = 25, },
 				},
 			},
-			[104] = { -- ROUTE 16
+			[104] = { name = "Route 16",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 84, rate = 0.35, minLv = 18, maxLv = 22, },
 					{ pokemonID = 19, rate = 0.30, minLv = 18, maxLv = 22, },
@@ -520,7 +520,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 143, rate = 1.00, minLv = 30, maxLv = 30, },
 				},
 			},
-			[105] = { -- ROUTE 17
+			[105] = { name = "Route 17",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 84, rate = 0.35, minLv = 24, maxLv = 28, },
 					{ pokemonID = 21, rate = 0.30, minLv = 20, maxLv = 22, },
@@ -529,7 +529,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 22, rate = 0.05, minLv = 25, maxLv = 27, },
 				},
 			},
-			[106] = { -- ROUTE 18
+			[106] = { name = "Route 18",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 84, rate = 0.35, minLv = 24, maxLv = 28, },
 					{ pokemonID = 21, rate = 0.30, minLv = 20, maxLv = 22, },
@@ -538,7 +538,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 19, rate = 0.05, minLv = 22, maxLv = 22, },
 				},
 			},
-			[107] = { -- ROUTE 19
+			[107] = { name = "Route 19",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -556,7 +556,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[108] = { -- ROUTE 20
+			[108] = { name = "Route 20",
 				[Constants.EncounterTypes.SURFING] = {
 					{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
 				},
@@ -574,7 +574,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[109] = { -- ROUTE 21 (North)
+			[109] = { name = "Route 21",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 114, rate = 1.00, minLv = 17, maxLv = 28, },
 				},
@@ -595,7 +595,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[110] = { -- ROUTE 22
+			[110] = { name = "Route 22",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 19, rate = 0.45, minLv = 2, maxLv = 5, },
 					{ pokemonID = 56, rate = 0.45, minLv = 2, maxLv = 5, },
@@ -619,7 +619,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[111] = { -- ROUTE 23
+			[111] = { name = "Route 23",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 56, rate = 0.30, minLv = 32, maxLv = 34, },
 					{ pokemonID = 22, rate = 0.25, minLv = 40, maxLv = 44, },
@@ -646,7 +646,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[112] = { -- ROUTE 24
+			[112] = { name = "Route 24",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.25, minLv = 12, maxLv = 14, },
 					{ pokemonID = 10, rate = 0.20, minLv = 7, maxLv = 7, },
@@ -673,7 +673,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 				},
 			},
-			[113] = { -- ROUTE 25
+			[113] = { name = "Route 25",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {43,69}, rate = 0.25, minLv = 12, maxLv = 14, },
 					{ pokemonID = 10, rate = 0.20, minLv = 8, maxLv = 8, },
@@ -701,7 +701,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 				},
 			},
-			[114] = { -- MT MOON 1F
+			[114] = { name = "Mt. Moon 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 41, rate = 0.69, minLv = 7, maxLv = 10, },
 					{ pokemonID = 74, rate = 0.25, minLv = 7, maxLv = 9, },
@@ -709,12 +709,12 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 35, rate = 0.01, minLv = 8, maxLv = 8, },
 				},
 			},
-			[115] = { -- MT MOON B1F
+			[115] = { name = "Mt. Moon B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 46, rate = 1.00, minLv = 5, maxLv = 10, },
 				},
 			},
-			[116] = { -- MT MOON B2F
+			[116] = { name = "Mt. Moon B2F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 41, rate = 0.49, minLv = 8, maxLv = 11, },
 					{ pokemonID = 74, rate = 0.30, minLv = 9, maxLv = 10, },
@@ -722,7 +722,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 35, rate = 0.06, minLv = 10, maxLv = 12, },
 				},
 			},
-			[117] = { -- VIRIDIAN FOREST
+			[117] = { name = "Viridian Forest",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 10, rate = 0.40, minLv = 3, maxLv = 5, },
 					{ pokemonID = 13, rate = 0.40, minLv = 3, maxLv = 5, },
@@ -737,13 +737,13 @@ function GameSettings.setGameInfo(gamecode)
 			[121] = {}, -- SSANNE 3F CORRIDOR
 			[122] = {}, -- SSANNE B1F CORRIDOR
 			[123] = {}, -- SSANNE DECK
-			[124] = { -- DIGLETTS CAVE B1F
+			[124] = { name = "Diglett's Cave B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 50, rate = 0.95, minLv = 15, maxLv = 22, },
 					{ pokemonID = 51, rate = 0.05, minLv = 29, maxLv = 31, },
 				},
 			},
-			[125] = { -- VICTORY ROAD 1F
+			[125] = { name = "Victory Road 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 95, rate = 0.30, minLv = 40, maxLv = 46, },
 					{ pokemonID = 66, rate = 0.20, minLv = 32, maxLv = 32, },
@@ -755,7 +755,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 105, rate = 0.05, minLv = 44, maxLv = 46, },
 				},
 			},
-			[126] = { -- VICTORY ROAD 2F
+			[126] = { name = "Victory Road 2F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 66, rate = 0.20, minLv = 34, maxLv = 34, },
 					{ pokemonID = 74, rate = 0.20, minLv = 34, maxLv = 34, },
@@ -768,7 +768,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 105, rate = 0.05, minLv = 46, maxLv = 48, },
 				},
 			},
-			[127] = { -- VICTORY ROAD 3F
+			[127] = { name = "Victory Road 3F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 95, rate = 0.30, minLv = 40, maxLv = 46, },
 					{ pokemonID = 66, rate = 0.20, minLv = 32, maxLv = 32, },
@@ -782,7 +782,7 @@ function GameSettings.setGameInfo(gamecode)
 			},
 			[128] = {}, -- LAYOUT_ROCKET_HIDEOUT_B1F
 			[132] = {}, -- LAYOUT_SILPH_CO_1F
-			[143] = { -- POKEMON MANSION 1F
+			[143] = { name = "Pokemon Mansion 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 					{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -792,7 +792,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 				},
 			},
-			[144] = { -- POKEMON MANSION 2F
+			[144] = { name = "Pokemon Mansion 2F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 					{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -802,7 +802,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 				},
 			},
-			[145] = { -- POKEMON MANSION 3F
+			[145] = { name = "Pokemon Mansion 3F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 					{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -812,7 +812,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 				},
 			},
-			[146] = { -- POKEMON MANSION B1F
+			[146] = { name = "Pokemon Mansion B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 20, rate = 0.30, minLv = 34, maxLv = 38, },
 					{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -827,7 +827,7 @@ function GameSettings.setGameInfo(gamecode)
 			[148] = {}, -- SAFARI ZONE EAST
 			[149] = {}, -- SAFARI ZONE NORTH
 			[150] = {}, -- SAFARI ZONE WEST
-			[151] = { -- CERULEAN CAVE 1F
+			[151] = { name = "Cerulean Cave 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 47, rate = 0.25, minLv = 49, maxLv = 58, },
 					{ pokemonID = 82, rate = 0.20, minLv = 49, maxLv = 49, },
@@ -861,7 +861,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 75, rate = 0.35, minLv = 40, maxLv = 55, },
 				},
 			},
-			[152] = { -- CERULEAN CAVE 2F
+			[152] = { name = "Cerulean Cave 2F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 42, rate = 0.25, minLv = 49, maxLv = 58, },
 					{ pokemonID = 67, rate = 0.20, minLv = 49, maxLv = 49, },
@@ -877,7 +877,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 75, rate = 0.35, minLv = 40, maxLv = 55, },
 				},
 			},
-			[153] = { -- CERULEAN CAVE B1F
+			[153] = { name = "Cerulean Cave B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 64, rate = 0.25, minLv = 58, maxLv = 67, },
 					{ pokemonID = 132, rate = 0.25, minLv = 58, maxLv = 67, },
@@ -914,7 +914,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 150, rate = 1.00, minLv = 70, maxLv = 70, },
 				},
 			},
-			[154] = { -- ROCK TUNNEL 1F
+			[154] = { name = "Rock Tunnel 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 74, rate = 0.35, minLv = 15, maxLv = 17, },
 					{ pokemonID = 41, rate = 0.30, minLv = 15, maxLv = 16, },
@@ -923,7 +923,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 95, rate = 0.05, minLv = 13, maxLv = 15, },
 				},
 			},
-			[155] = { -- ROCK TUNNEL B1F
+			[155] = { name = "Rock Tunnel B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 74, rate = 0.35, minLv = 15, maxLv = 17, },
 					{ pokemonID = 41, rate = 0.30, minLv = 15, maxLv = 16, },
@@ -936,14 +936,14 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 75, rate = 0.05, minLv = 25, maxLv = 40, },
 				},
 			},
-			[156] = { -- SEAFOAM ISLANDS 1F
+			[156] = { name = "Seafoam Islands 1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {54,79}, rate = 0.55, minLv = 26, maxLv = 33, },
 					{ pokemonID = 41, rate = 0.34, minLv = 22, maxLv = 26, },
 					{ pokemonID = 42, rate = 0.11, minLv = 26, maxLv = 30, },
 				},
 			},
-			[157] = { -- SEAFOAM ISLANDS B1F
+			[157] = { name = "Seafoam Islands B1F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {54,79}, rate = 0.40, minLv = 29, maxLv = 31, },
 					{ pokemonID = 41, rate = 0.34, minLv = 22, maxLv = 26, },
@@ -952,7 +952,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {55,80}, rate = 0.05, minLv = 33, maxLv = 35, },
 				},
 			},
-			[158] = { -- SEAFOAM ISLANDS B2F
+			[158] = { name = "Seafoam Islands B2F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = {54,79}, rate = 0.40, minLv = 30, maxLv = 32, },
 					{ pokemonID = 41, rate = 0.20, minLv = 22, maxLv = 24, },
@@ -961,7 +961,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {55,80}, rate = 0.10, minLv = 32, maxLv = 34, },
 				},
 			},
-			[159] = { -- SEAFOAM ISLANDS B3F
+			[159] = { name = "Seafoam Islands B3F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 86, rate = 0.40, minLv = 30, maxLv = 32, },
 					{ pokemonID = {54,79}, rate = 0.20, minLv = 30, maxLv = 32, },
@@ -991,7 +991,7 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = {54,79}, rate = 0.04, minLv = 15, maxLv = 25, },
 				},
 			},
-			[160] = { -- SEAFOAM ISLANDS B4F
+			[160] = { name = "Seafoam Islands B4F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 86, rate = 0.50, minLv = 30, maxLv = 34, },
 					{ pokemonID = 42, rate = 0.15, minLv = 26, maxLv = 30, },
@@ -1025,28 +1025,28 @@ function GameSettings.setGameInfo(gamecode)
 			},
 			[161] = {}, -- POKEMON TOWER 1F
 			[162] = {}, -- POKEMON TOWER 2F
-			[163] = { -- POKEMON TOWER 3F
+			[163] = { name = "Pokemon Tower 3F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 92, rate = 0.90, minLv = 13, maxLv = 19, },
 					{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 					{ pokemonID = 93, rate = 0.01, minLv = 20, maxLv = 20, },
 				},
 			},
-			[164] = { -- POKEMON TOWER 4F
+			[164] = { name = "Pokemon Tower 4F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
 					{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 					{ pokemonID = 93, rate = 0.05, minLv = 20, maxLv = 20, },
 				},
 			},
-			[165] = { -- POKEMON TOWER 5F
+			[165] = { name = "Pokemon Tower 5F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
 					{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 					{ pokemonID = 93, rate = 0.05, minLv = 20, maxLv = 20, },
 				},
 			},
-			[166] = { -- POKEMON TOWER 6F
+			[166] = { name = "Pokemon Tower 6F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 92, rate = 0.85, minLv = 17, maxLv = 19, },
 					{ pokemonID = 104, rate = 0.09, minLv = 17, maxLv = 19, },
@@ -1056,14 +1056,14 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 105, rate = 1.00, minLv = 30, maxLv = 30, },
 				},
 			},
-			[167] = { -- POKEMON TOWER 7F
+			[167] = { name = "Pokemon Tower 7F",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 92, rate = 0.75, minLv = 15, maxLv = 19, },
 					{ pokemonID = 93, rate = 0.15, minLv = 23, maxLv = 25, },
 					{ pokemonID = 104, rate = 0.10, minLv = 17, maxLv = 19, },
 				},
 			},
-			[168] = { -- POWER PLANT
+			[168] = { name = "Power Plant",
 				[Constants.EncounterTypes.GRASS] = {
 					{ pokemonID = 81, rate = 0.30, minLv = 22, maxLv = 25, },
 					{ pokemonID = 100, rate = 0.30, minLv = 22, maxLv = 25, },
@@ -1075,12 +1075,12 @@ function GameSettings.setGameInfo(gamecode)
 					{ pokemonID = 145, rate = 1.00, minLv = 50, maxLv = 50, },
 				},
 			},
-			[213] = {}, -- LORELEIS ROOM
-			[214] = {}, -- BRUNOS ROOM
-			[215] = {}, -- AGATHAS ROOM
-			[216] = {}, -- LANCES ROOM
-			[217] = {}, -- CHAMPIONS ROOM
-			[228] = {}, -- SAFFRON CITY DOJO
+			[213] = { name = "Lorelei's Room", },
+			[214] = { name = "Bruno's Room", },
+			[215] = { name = "Agatha's Room", },
+			[216] = { name = "Lance's Room", },
+			[217] = { name = "Champion's Room", },
+			[228] = { name = "Saffron City Dojo", },
 		},
 	}
 

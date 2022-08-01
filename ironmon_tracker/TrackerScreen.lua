@@ -1,6 +1,46 @@
 TrackerScreen = {}
 
 TrackerScreen.Buttons = {
+	PokemonIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		getIconPath = function(self)
+			local pokemonID = 0
+			local pokemon = Tracker.getViewedPokemon()
+			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= #PokemonData.Pokemon then
+				pokemonID = pokemon.pokemonID
+			end
+			local folderToUse = "pokemon"
+			local extension = Constants.Extensions.POKEMON_PIXELED
+			if Options["Pokemon Stadium portraits"] then
+				folderToUse = "pokemonStadium"
+				extension = Constants.Extensions.POKEMON_STADIUM
+			end
+			return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. pokemonID .. extension
+		end,
+		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local pokemon = Tracker.getViewedPokemon()
+			local pokemonID = 0
+			if pokemon ~= nil then
+				pokemonID = pokemon.pokemonID
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonID)
+		end
+	},
+	SettingsGear = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.GEAR,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 92, 7, 7, 7 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			Program.changeScreenView(Program.Screens.SETTINGS)
+		end
+	},
 	PCHealAutoTracking = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text = "",
@@ -82,12 +122,11 @@ TrackerScreen.Buttons = {
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			InfoScreen.infoLookup = { 
+			local routeInfo = { 
 				mapId = Program.CurrentRoute.mapId,
 				encounterType = Constants.EncounterTypes.GRASS,
 			}
-			InfoScreen.viewScreen = InfoScreen.Screens.ROUTE_INFO
-			Program.changeScreenView(Program.Screens.INFO)
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
 	},
 }
@@ -181,7 +220,8 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
+		-- isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
+		isVisible = function() return false end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -379,7 +419,7 @@ function TrackerScreen.openAbilityNoteWindow()
 end
 
 function TrackerScreen.openNotePadWindow()
-	local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+	local pokemon = Tracker.getViewedPokemon()
 	if pokemon == nil then return end
 
 	forms.destroyall()
@@ -392,7 +432,7 @@ function TrackerScreen.openNotePadWindow()
 
 	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
-		local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+		local pokemonViewed = Tracker.getViewedPokemon()
 		if formInput ~= nil and pokemonViewed ~= nil then
 			Tracker.TrackNote(pokemonViewed.pokemonID, formInput)
 			Program.redraw(true)

@@ -55,6 +55,14 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	end
 end
 
+function Tracker.getViewedPokemon()
+	if Tracker.Data.isViewingOwn then
+		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	else
+		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	end
+end
+
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
 

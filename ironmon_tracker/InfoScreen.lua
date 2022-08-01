@@ -1,12 +1,14 @@
 InfoScreen = {
-	viewScreen = 1,
-	infoLookup = 0 -- Either a PokemonID, a MoveId, an AbilityId, or a MapId
+	viewScreen = 0,
+	prevScreen = 0,
+	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterType}'
+	prevScreenInfo = 0,
 }
 
 InfoScreen.Screens = {
-    POKEMON_INFO = 1,
+    POKEMON_INFO = 1, -- TODO: Find a way to show a weakness is x4, helpful for newer players, and immune with the arrows
 	MOVE_INFO = 2,
-	ABILITY_INFO = 3,
+	ABILITY_INFO = 3, -- TODO: Implement this, helpful for newer players
 	ROUTE_INFO = 4,
 }
 
@@ -63,7 +65,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 132, 109, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 133, 8, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
@@ -71,13 +73,15 @@ InfoScreen.Buttons = {
 			InfoScreen.openRouteInfoWindow()
 		end
 	},
-	lookupNextEncounterTable = {
+	showMoreRouteEncounters = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Next Table",
+		text = "More...",
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 96, 8, 45, 11 },
-		boxColors = { "Upper box border", "Upper box background" },
-		onClick = function()
+		box = { Constants.SCREEN.WIDTH + 83, 141, 30, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
 			local mapId = InfoScreen.infoLookup.mapId
 			local encounterType = InfoScreen.infoLookup.encounterType
 			InfoScreen.infoLookup.encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
@@ -86,12 +90,19 @@ InfoScreen.Buttons = {
 	},
 	close = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Close",
+		text = "Back",
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 116, 141, 25, 11 },
+		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
-		onClick = function()
-			Program.changeScreenView(Program.Screens.TRACKER)
+		isVisible = function() return true end,
+		onClick = function(self)
+			InfoScreen.viewScreen = 0
+			InfoScreen.infoLookup = 0
+			if InfoScreen.prevScreen > 0 then
+				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+			else
+				Program.changeScreenView(Program.Screens.TRACKER)
+			end
 		end
 	},
 	HiddenPower = {
@@ -126,6 +137,16 @@ InfoScreen.Buttons = {
 		end
 	},
 }
+
+InfoScreen.TemporaryButtons = {}
+
+function InfoScreen.changeScreenView(screen, info)
+	InfoScreen.prevScreen = InfoScreen.viewScreen
+	InfoScreen.prevScreenInfo = InfoScreen.infoLookup
+	InfoScreen.viewScreen = screen
+	InfoScreen.infoLookup = info
+	Program.changeScreenView(Program.Screens.INFO)
+end
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
 function InfoScreen.showNextPokemon(delta)
@@ -229,9 +250,6 @@ function InfoScreen.openRouteInfoWindow()
 	print("TODO: replace this with prompt for map id")
 end
 
--- 'nextType' must start as nil for recursive function to work
-
-
 function InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
 	local routeInfo = GameSettings.RouteInfo[mapId]
 	if routeInfo == nil or encounterType == nil then return encounterType end
@@ -264,4 +282,61 @@ function InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
 	end
 
 	return encounterType
+end
+
+function InfoScreen.getPokemonButtonsForRouteEncounter(mapId, encounterType)
+	encounterType = encounterType or Constants.encounterType.GRASS
+	local routeInfo = GameSettings.RouteInfo[mapId]
+	local routeEncounters = Tracker.getRouteEncounters(mapId)
+	local totalPossible = #routeInfo[encounterType]
+
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
+	local startY = Constants.SCREEN.MARGIN + 45
+	local offsetX = 0
+	local offsetY = 0
+	local iconWidth = 32
+
+	local iconButtons = {}
+	for index=1, totalPossible, 1 do
+		local pokemonID = 252  -- Question mark icon
+		if routeEncounters[encounterType] ~= nil and routeEncounters[encounterType][index] ~= nil then
+			pokemonID = routeEncounters[encounterType][index]
+		end
+
+		local x = startX + offsetX
+		local y = startY + offsetY
+		if Options["Pokemon Stadium portraits"] then
+			y = y - 4 -- Don't really understand why it's different here vs main screen
+		end
+
+		iconButtons[index] = {
+			type = Constants.ButtonTypes.POKEMON_ICON,
+			getIconPath = function(self)
+				local folderToUse = "pokemon"
+				local extension = Constants.Extensions.POKEMON_PIXELED
+				if Options["Pokemon Stadium portraits"] then
+					folderToUse = "pokemonStadium"
+					extension = Constants.Extensions.POKEMON_STADIUM
+				end
+				return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. self.pokemonID .. extension
+			end,
+			pokemonID = pokemonID,
+			box = { x, y, iconWidth, iconWidth },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if not self:isVisible() then return end
+				if self.pokemonID ~= 252 then
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
+				end
+			end
+		}
+
+		offsetX = offsetX + iconWidth + 2
+		if (startX + offsetX) > Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - iconWidth then
+			offsetX = 0
+			offsetY = offsetY + iconWidth + 2
+		end
+	end
+
+	return iconButtons
 end

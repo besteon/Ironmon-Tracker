@@ -27,28 +27,11 @@ function Drawing.drawTypeIcon(type, x, y)
 	gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
 end
 
---[[
-Draws text for the tracker on screen with a shadow effect. Uses the Franklin Gothic Medium family with a 9 point size.
-	x, y: integer -> pixel position for the text
-	text: string -> the text to output to the screen
-	color: string or integer -> the color for the text
-	shadowcolor: string or integer -> the color for the shadow effect drawn behind the text
-	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
-]]
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
 	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 end
 
---[[
-Function that will add a space to a number so that the all the hundreds, tens and ones units are aligned if used
-with the RIGHT_JUSTIFIED_NUMBERS setting.
-	x, y: integer -> pixel position for the text
-	number: string | number -> number to draw (stats, move power, pp...)
-	spacing: number -> the number of digits the number can hold max; e.g. use 3 for a number that can be up to 3 digits.
-		Move power, accuracy, and stats should have a 3 for `spacing`.
-		PP should have 2 for `spacing`.
-]]
 function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
 	local new_spacing = 0
 
@@ -184,6 +167,14 @@ function Drawing.drawButton(button, shadowcolor)
 		if button.text ~= nil and button.text ~= "" then
 			Drawing.drawText(x + width + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
+	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
+		local imagePath = button:getIconPath()
+		if imagePath ~= nil then
+			if Options["Pokemon Stadium portraits"] then
+				y = y + 4
+			end
+			gui.drawImage(imagePath, x, y, width, height)
+		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
 			if button.text == Constants.STAT_STATES[2].text then
@@ -227,12 +218,12 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON ICON & TYPES
-	Drawing.drawPokemonIcon(pokemon.pokemonID, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1)
+	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
 	Drawing.drawTypeIcon(pokemon.type[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
 
 	-- SETTINGS GEAR
-	Drawing.drawImageAsPixels(Constants.PixelImages.GEAR, Constants.SCREEN.WIDTH + 92, 7, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, shadowcolor)
 
 	-- POKEMON INFORMATION
 	local pkmnStatOffsetX = 36
@@ -624,13 +615,17 @@ function Drawing.drawInfoScreen()
 			Drawing.drawMoveInfoScreen(moveId)
 		end
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
-		local mapId = InfoScreen.infoLookup.mapId
-		local encounterType = InfoScreen.infoLookup.encounterType
-
 		-- Only draw valid route data
+		local mapId = InfoScreen.infoLookup.mapId
 		if GameSettings.RouteInfo[mapId] == nil or GameSettings.RouteInfo[mapId] == {} then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
+			local encounterType = InfoScreen.infoLookup.encounterType or Constants.EncounterTypes.GRASS
+			local routeInfo = GameSettings.RouteInfo[mapId]
+			if routeInfo[encounterType] == nil or routeInfo[encounterType] == {} then
+				encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+			end
+			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForRouteEncounter(mapId, encounterType)
 			Drawing.drawRouteInfoScreen(mapId, encounterType)
 		end
 	end
@@ -651,7 +646,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local pokemonViewed = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingOwn, Tracker.Data.ownViewSlot, Tracker.Data.otherViewSlot), Tracker.Data.isViewingOwn)
+	local pokemonViewed = Tracker.getViewedPokemon()
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 
 	-- Fill background and margins
@@ -911,76 +906,43 @@ function Drawing.drawMoveInfoScreen(moveId)
 end
 
 function Drawing.drawRouteInfoScreen(mapId, encounterType)
-	mapId = 126 -- TODO: REMOVE THIS
-
-	encounterType = encounterType or Constants.EncounterTypes.GRASS
-	local routeInfo = GameSettings.RouteInfo[mapId]
-	if routeInfo[encounterType] == nil or routeInfo[encounterType] == {} then
-		encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
-	end
-
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
-	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
-	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
-
-	local routeEncounters = Tracker.getRouteEncounters(mapId)
-	local hiddenPokemonId = 252 -- Question mark icon
-
-	local totalPossible = 0
-	totalPossible = #routeInfo[encounterType]
-
-	local botOffsetY = offsetY + 34 * math.ceil(totalPossible / 4) + 7
+	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local boxWidth = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local boxTopY = Constants.SCREEN.MARGIN
+	local boxTopHeight = 30
+	local botBoxY = boxTopY + boxTopHeight + 12
+	local botBoxHeight = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - botBoxY
 
 	-- Fill background and margins
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 
-	-- Draw top view box
+	-- TOP BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	gui.drawRectangle(boxX, boxTopY, boxWidth, boxTopHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	-- LABEL AND NEXT TERRAIN
-	local encounterText = "From " .. encounterType .. ":"
-	Drawing.drawText(offsetX, offsetY, encounterText, Theme.COLORS["Default text"], boxInfoTopShadow)
-	offsetY = offsetY + 12
+	-- ROUTE NAME
+	local routeName = GameSettings.RouteInfo[mapId].name
+	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 2, Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(boxX + 12, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
+
+	-- BOT BOX VIEW
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	local encounterHeaderText = "Pokemon seen by " .. encounterType
+	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
+	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- POKEMON SEEN
-	local pokeOffsetX = offsetX + 1
-	for pokeIndex=1, totalPossible, 1 do
-		-- gui.drawRectangle(pokeOffsetX, offsetY, 34, 34, boxInfoTopShadow)
-		-- gui.drawRectangle(pokeOffsetX - 1, offsetY - 1, 34, 34, Theme.COLORS["Upper box border"])
-
-		local pokemonID = hiddenPokemonId
-		if routeEncounters[encounterType] ~= nil and routeEncounters[encounterType][pokeIndex] ~= nil then
-			pokemonID = routeEncounters[encounterType][pokeIndex]
-		end
-
-		if Options["Pokemon Stadium portraits"] then
-			 -- Don't really understand why it's different here vs main screen
-			Drawing.drawPokemonIcon(pokemonID, pokeOffsetX, offsetY - 4)
-		else
-			Drawing.drawPokemonIcon(pokemonID, pokeOffsetX, offsetY)
-		end
-
-		pokeOffsetX = pokeOffsetX + 34
-		if pokeOffsetX > Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 40 then
-			pokeOffsetX = offsetX + 1
-			offsetY = offsetY + 34
-		end
+	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
+		Drawing.drawButton(iconButton, boxBotShadow)
 	end
 
-	-- Draw bottom view box (for percentages)
-	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	Drawing.drawText(offsetX - 3, botOffsetY + 7, "Chance to Encounter:", Theme.COLORS["Header text"], bgHeaderShadow)
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, botOffsetY + 18, rightEdge, bottomEdge - botOffsetY - 13, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
-
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.Buttons.lookupNextEncounterTable, boxInfoBotShadow)
-	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxInfoBotShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.showMoreRouteEncounters, boxBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxBotShadow)
 end
 
 function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
