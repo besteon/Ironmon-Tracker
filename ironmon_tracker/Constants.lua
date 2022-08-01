@@ -19,6 +19,11 @@ Constants.Font = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
+Constants.Words = {
+	POKEMON = "Pok\233mon",
+	POKE = "Pok\233",
+}
+
 Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
 	POKEMON_PIXELED = ".gif",
@@ -62,16 +67,6 @@ Constants.MoveTypeColors = {
 	dark = 0xFF705848,
 	fairy = 0xFFEE99AC,
 	unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
-}
-
-Constants.EncounterTypes = {
-	GRASS = "Walking",
-	SURFING = "Surfing",
-	ROCKSMASH = "RockSmash",
-	STATIC = "Static",
-	OLDROD = "Old Rod",
-	GOODROD = "Good Rod",
-	SUPERROD = "Super Rod",
 }
 
 Constants.OrderedLists = {

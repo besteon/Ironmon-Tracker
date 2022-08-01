@@ -363,11 +363,10 @@ function Program.updateBattleDataFromMemory()
 				-- TODO: Replace with GameSettings.gMapHeader
 				GameSettings.gMapHeader = 0x02036dfc
 				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- mapLayoutId
-				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Constants.EncounterTypes.GRASS, opposingPokemon.pokemonID)
+				local encounterArea = nil or RouteData.EncounterArea.GRASS -- TODO: Allow for checks on other terrain areas besides just GRASS
+				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, encounterArea, opposingPokemon.pokemonID)
 				
-				-- TODO: Allow for checks on other terrain types besides just GRASS
-				local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
-				Program.CurrentRoute.hasInfo = (routeInfo ~= nil and routeInfo ~= {} and routeInfo[Constants.EncounterTypes.GRASS] ~= nil)
+				Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, encounterArea)
 			end
 		end
 

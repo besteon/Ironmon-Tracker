@@ -1,8 +1,9 @@
 InfoScreen = {
 	viewScreen = 0,
 	prevScreen = 0,
-	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterType}'
+	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterArea}'
 	prevScreenInfo = 0,
+	revealOriginalRoute = false,
 }
 
 InfoScreen.Screens = {
@@ -65,12 +66,25 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 133, 8, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 132, 9, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
 			InfoScreen.openRouteInfoWindow()
+		end
+	},
+	showOriginalRoute = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Show Original Route Info",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 20, Constants.SCREEN.MARGIN + 16, 100, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO and not InfoScreen.revealOriginalRoute end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.revealOriginalRoute = true
+			Program.redraw(true)
 		end
 	},
 	showMoreRouteEncounters = {
@@ -83,8 +97,8 @@ InfoScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local mapId = InfoScreen.infoLookup.mapId
-			local encounterType = InfoScreen.infoLookup.encounterType
-			InfoScreen.infoLookup.encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+			local encounterArea = InfoScreen.infoLookup.encounterArea
+			InfoScreen.infoLookup.encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 			Program.redraw(true)
 		end
 	},
@@ -101,6 +115,7 @@ InfoScreen.Buttons = {
 			if InfoScreen.prevScreen > 0 then
 				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
 			else
+				InfoScreen.revealOriginalRoute = false
 				Program.changeScreenView(Program.Screens.TRACKER)
 			end
 		end
@@ -248,47 +263,22 @@ end
 
 function InfoScreen.openRouteInfoWindow()
 	print("TODO: replace this with prompt for map id")
+	-- if changing route views, then
+	InfoScreen.revealOriginalRoute = false
 end
 
-function InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
-	local routeInfo = GameSettings.RouteInfo[mapId]
-	if routeInfo == nil or encounterType == nil then return encounterType end
+function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
+	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
 
-	local orderedTypes = {
-		Constants.EncounterTypes.GRASS,
-		Constants.EncounterTypes.SURFING,
-		Constants.EncounterTypes.STATIC,
-		Constants.EncounterTypes.ROCKSMASH,
-		Constants.EncounterTypes.SUPERROD,
-		Constants.EncounterTypes.GOODROD,
-		Constants.EncounterTypes.OLDROD,
-	}
+	local routeInfo = RouteData.Info[mapId]
+	local totalPossible = #routeInfo[encounterArea]
 
-	local startingIndex = 0
-	for index, etype in ipairs(orderedTypes) do
-		if encounterType == etype then
-			startingIndex = index
-			break
-		end
+	local routeEncounters
+	if InfoScreen.revealOriginalRoute then
+		routeEncounters = RouteData.getPokemonForEncounterArea(mapId, encounterArea)
+	else
+		routeEncounters = Tracker.getRouteEncounters(mapId, encounterArea)
 	end
-
-	local nextIndex = (startingIndex % #orderedTypes) + 1
-	while startingIndex ~= nextIndex do
-		encounterType = orderedTypes[nextIndex]
-		if routeInfo[encounterType] ~= nil and routeInfo[encounterType] ~= {} then
-			break
-		end
-		nextIndex = (nextIndex % #orderedTypes) + 1
-	end
-
-	return encounterType
-end
-
-function InfoScreen.getPokemonButtonsForRouteEncounter(mapId, encounterType)
-	encounterType = encounterType or Constants.encounterType.GRASS
-	local routeInfo = GameSettings.RouteInfo[mapId]
-	local routeEncounters = Tracker.getRouteEncounters(mapId)
-	local totalPossible = #routeInfo[encounterType]
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
 	local startY = Constants.SCREEN.MARGIN + 45
@@ -299,8 +289,8 @@ function InfoScreen.getPokemonButtonsForRouteEncounter(mapId, encounterType)
 	local iconButtons = {}
 	for index=1, totalPossible, 1 do
 		local pokemonID = 252  -- Question mark icon
-		if routeEncounters[encounterType] ~= nil and routeEncounters[encounterType][index] ~= nil then
-			pokemonID = routeEncounters[encounterType][index]
+		if routeEncounters ~= nil and routeEncounters[index] ~= nil then
+			pokemonID = routeEncounters[index]
 		end
 
 		local x = startX + offsetX

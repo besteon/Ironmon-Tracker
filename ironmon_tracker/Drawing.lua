@@ -617,16 +617,15 @@ function Drawing.drawInfoScreen()
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO then
 		-- Only draw valid route data
 		local mapId = InfoScreen.infoLookup.mapId
-		if GameSettings.RouteInfo[mapId] == nil or GameSettings.RouteInfo[mapId] == {} then
+		if not RouteData.hasRoute(mapId) then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
-			local encounterType = InfoScreen.infoLookup.encounterType or Constants.EncounterTypes.GRASS
-			local routeInfo = GameSettings.RouteInfo[mapId]
-			if routeInfo[encounterType] == nil or routeInfo[encounterType] == {} then
-				encounterType = InfoScreen.getNextAvailableEncounterType(mapId, encounterType)
+			local encounterArea = InfoScreen.infoLookup.encounterArea or RouteData.EncounterArea.GRASS
+			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then
+				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 			end
-			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForRouteEncounter(mapId, encounterType)
-			Drawing.drawRouteInfoScreen(mapId, encounterType)
+			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
+			Drawing.drawRouteInfoScreen(mapId, encounterArea)
 		end
 	end
 end
@@ -703,10 +702,13 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + 1
 
 	-- MOVES LEVEL BOXES
-	Drawing.drawText(offsetX, botOffsetY, "New move levels:", Theme.COLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "Learns a move at level:", Theme.COLORS["Default text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
+	if #pokemon.movelvls[GameSettings.versiongroup] == 0 then -- If the Pokemon learns no moves at all
+		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Default text"], boxInfoBotShadow)
+	end
 	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
 		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
@@ -736,6 +738,7 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 
 	-- WEAK TO
 	local weaknesses = {}
+	local hasSevereWeakness = false
 	for moveType, typeEffectiveness in pairs(MoveData.TypeToEffectiveness) do
 		local effectiveness = 1
 		if pokemon.type[1] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[1]] ~= nil then
@@ -745,21 +748,34 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 			effectiveness = effectiveness * typeEffectiveness[pokemon.type[2]]
 		end
 		if effectiveness > 1 then
-			table.insert(weaknesses, moveType)
+			weaknesses[moveType] = effectiveness
+			if effectiveness > 2 then
+				hasSevereWeakness = true
+			end
 		end
 	end
 	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Default text"], boxInfoBotShadow)
+	if hasSevereWeakness then
+		Drawing.drawText(offsetX + 38, botOffsetY, "(Bars = x4 weak)", Theme.COLORS["Negative text"], boxInfoBotShadow)
+	end
 	botOffsetY = botOffsetY + linespacing + 3
 
-	if #weaknesses == 0 then -- If the Pokemon has no weakness, like Sableye
-		table.insert(weaknesses, PokemonData.Types.UNKNOWN)
+	if weaknesses == {} then -- If the Pokemon has no weakness, like Sableye
+		Drawing.drawText(offsetX + 6, botOffsetY, "Has no weaknesses", Theme.COLORS["Default text"], boxInfoBotShadow)
 	end
 
 	local typeOffsetX = offsetX + 6
-	for _, weakType in pairs(weaknesses) do
-		gui.drawRectangle(typeOffsetX, botOffsetY, 31, 13, boxInfoBotShadow, boxInfoBotShadow)
-		gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box border"])
+	for weakType, effectiveness in pairs(weaknesses) do
+		gui.drawRectangle(typeOffsetX, botOffsetY, 31, 13, boxInfoBotShadow)
+		gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Lower box border"])
 		Drawing.drawTypeIcon(weakType, typeOffsetX, botOffsetY)
+
+		if effectiveness > 2 then
+			-- gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Negative text"])
+			gui.drawRectangle(typeOffsetX, botOffsetY, 29, 1, Theme.COLORS["Negative text"])
+			gui.drawRectangle(typeOffsetX, botOffsetY + 10, 29, 1, Theme.COLORS["Negative text"])
+		end
+
 		typeOffsetX = typeOffsetX + 31
 		if typeOffsetX > Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - 30 then
 			typeOffsetX = offsetX + 6
@@ -905,7 +921,7 @@ function Drawing.drawMoveInfoScreen(moveId)
 	end
 end
 
-function Drawing.drawRouteInfoScreen(mapId, encounterType)
+function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local boxBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
@@ -924,17 +940,25 @@ function Drawing.drawRouteInfoScreen(mapId, encounterType)
 	gui.drawRectangle(boxX, boxTopY, boxWidth, boxTopHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- ROUTE NAME
-	local routeName = GameSettings.RouteInfo[mapId].name
-	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 2, Theme.COLORS["Default text"], boxTopShadow)
-	Drawing.drawText(boxX + 12, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
+	local routeName = RouteData.Info[mapId].name or Constants.BLANKLINE
+	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawText(boxX + 13, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
+
+	if InfoScreen.revealOriginalRoute then
+		local originalShownText = "Showing original " .. Constants.Words.POKEMON .. " data"
+		Drawing.drawText(boxX + 3, boxTopY + 16, originalShownText, Theme.COLORS["Positive text"], boxTopShadow)
+	else
+		Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)
+	end
 
 	-- BOT BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	local encounterHeaderText = "Pokemon seen by " .. encounterType
+	local encounterHeaderText = Constants.Words.POKEMON .. " seen by " .. encounterArea
 	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- POKEMON SEEN
+	-- RouteData.getEncounterRatesString(mapId, encounterArea)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
 		Drawing.drawButton(iconButton, boxBotShadow)
 	end

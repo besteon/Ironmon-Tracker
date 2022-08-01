@@ -164,24 +164,24 @@ function Tracker.TrackEncounter(pokemonID, isWild)
 	end
 end
 
--- encounterType: Constants.EncounterTypes
-function Tracker.TrackRouteEncounter(mapId, encounterType, pokemonID)
+-- encounterArea: RouteData.EncounterArea
+function Tracker.TrackRouteEncounter(mapId, encounterArea, pokemonID)
 	if Tracker.Data.encounterTable[mapId] == nil then
 		Tracker.Data.encounterTable[mapId] = {}
 	end
 
-	if Tracker.Data.encounterTable[mapId][encounterType] == nil then
-		Tracker.Data.encounterTable[mapId][encounterType] = { pokemonID }
+	if Tracker.Data.encounterTable[mapId][encounterArea] == nil then
+		Tracker.Data.encounterTable[mapId][encounterArea] = { pokemonID }
 	else
 		local hasEncounteredBefore = false
-		for _, encounterID in pairs(Tracker.Data.encounterTable[mapId][encounterType]) do
+		for _, encounterID in pairs(Tracker.Data.encounterTable[mapId][encounterArea]) do
 			if pokemonID == encounterID then
 				hasEncounteredBefore = true
 				break
 			end
 		end
 		if not hasEncounteredBefore then
-			table.insert(Tracker.Data.encounterTable[mapId][encounterType], pokemonID)
+			table.insert(Tracker.Data.encounterTable[mapId][encounterArea], pokemonID)
 		end
 	end
 end
@@ -273,11 +273,13 @@ function Tracker.getEncounters(pokemonID, isWild)
 	end
 end
 
-function Tracker.getRouteEncounters(mapId)
+function Tracker.getRouteEncounters(mapId, encounterArea)
 	if mapId == 0 or Tracker.Data.encounterTable[mapId] == nil then
 		return {}
+	elseif encounterArea == nil or Tracker.Data.encounterTable[mapId][encounterArea] == nil then
+		return {}
 	else
-		return Tracker.Data.encounterTable[mapId]
+		return Tracker.Data.encounterTable[mapId][encounterArea]
 	end
 end
 

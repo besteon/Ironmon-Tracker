@@ -124,7 +124,7 @@ TrackerScreen.Buttons = {
 			if not self:isVisible() then return end
 			local routeInfo = { 
 				mapId = Program.CurrentRoute.mapId,
-				encounterType = Constants.EncounterTypes.GRASS,
+				encounterArea = RouteData.EncounterArea.GRASS,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
@@ -260,18 +260,25 @@ function TrackerScreen.buildCarousel()
 	}
 
 	-- ROUTE INFO
-	-- TODO: If against wild pokemon, reveal route table; otherwise show total # trainers in route
+	-- TODO: If against wild pokemon, reveal route table; otherwise show something else (total # trainers?)
 	-- TODO: Handle something more than just grass
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
-		framesToShow = 210,
+		framesToShow = 180,
 		getContentList = function(pokemon)
-			local routeInfo = GameSettings.RouteInfo[Program.CurrentRoute.mapId]
-			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId)
-			local totalSeen = #routeEncounters[Constants.EncounterTypes.GRASS]
-			local totalPossible = #routeInfo[Constants.EncounterTypes.GRASS]
-			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. totalSeen .. "/" .. totalPossible .. " unique Pokemon"
+			local routeInfo = RouteData.Info[Program.CurrentRoute.mapId]
+			local encounterArea = RouteData.EncounterArea.GRASS
+			local totalPossible = #routeInfo[encounterArea]
+			if totalPossible == 0 then
+				encounterArea = RouteData.getNextAvailableEncounterArea(Program.CurrentRoute.mapId, encounterArea)
+				totalPossible = #routeInfo[encounterArea]
+			end
+
+			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId, encounterArea)
+			local totalSeen = #routeEncounters
+
+			TrackerScreen.Buttons.RouteInfo.text = "Seen " .. totalSeen .. "/" .. totalPossible .. " unique " .. Constants.Words.POKEMON
 
 			return { TrackerScreen.Buttons.RouteInfo } 
 		end,
