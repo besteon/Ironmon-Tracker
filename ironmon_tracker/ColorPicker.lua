@@ -160,7 +160,7 @@ function ColorPicker:show()
 	client.unpause()
 
 	-- Changes the tracker screen back to the main screen so you can see theme updates live
-	Program.changeScreenView(Program.SCREENS.TRACKER)
+	Program.changeScreenView(Program.Screens.TRACKER)
 end
 
 function ColorPicker:onClick()
@@ -176,7 +176,7 @@ end
 function ColorPicker:onClose()
 	Theme.COLORS[self.colorkey] = tonumber(self.originalColor)
 	Theme.settingsUpdated = true
-	Program.changeScreenView(Program.SCREENS.THEME)
+	Program.changeScreenView(Program.Screens.THEME)
 	Input.currentColorPicker = nil
 	forms.destroyall()
 end

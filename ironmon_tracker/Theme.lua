@@ -33,9 +33,9 @@ Theme = {
 	},
 }
 
-Theme.buttons = {
+Theme.Buttons = {
 	importTheme = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Import",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 9, 8, 31, 11 },
@@ -43,7 +43,7 @@ Theme.buttons = {
 		onClick = function() Theme.openImportWindow() end
 	},
 	exportTheme = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Export",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 59, 8, 30, 11 },
@@ -51,7 +51,7 @@ Theme.buttons = {
 		onClick = function() Theme.openExportWindow() end
 	},
 	presets = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Presets",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 107, 8, 34, 11 },
@@ -59,7 +59,7 @@ Theme.buttons = {
 		onClick = function() Theme.openPresetsWindow() end
 	},
 	moveTypeEnabled = {
-		type = Constants.BUTTON_TYPES.CHECKBOX,
+		type = Constants.ButtonTypes.CHECKBOX,
 		text = "Show color bar for move types",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 9, 125, Constants.SCREEN.RIGHT_GAP - 12, 10 },
@@ -75,7 +75,7 @@ Theme.buttons = {
 		end
 	},
 	restoreDefaults = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Restore Defaults",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 9, 140, 70, 11 },
@@ -84,7 +84,7 @@ Theme.buttons = {
 		onClick = function() Theme.tryRestoreDefaultTheme() end
 	},
 	close = {
-		type = Constants.BUTTON_TYPES.FULL_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Close",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
@@ -97,9 +97,9 @@ function Theme.initialize()
 	local index = 1
 	local heightOffset = 25
 
-	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
-		Theme.buttons[colorkey] = {
-			type = Constants.BUTTON_TYPES.COLORPICKER,
+	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
+		Theme.Buttons[colorkey] = {
+			type = Constants.ButtonTypes.COLORPICKER,
 			text = colorkey,
 			clickableArea = { Constants.SCREEN.WIDTH + 9, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 			box = { Constants.SCREEN.WIDTH + 9, heightOffset, 8, 8 },
@@ -113,8 +113,8 @@ function Theme.initialize()
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.buttons.moveTypeEnabled.clickableArea[2] = heightOffset + 1
-	Theme.buttons.moveTypeEnabled.box[2] = heightOffset + 1
+	Theme.Buttons.moveTypeEnabled.clickableArea[2] = heightOffset + 1
+	Theme.Buttons.moveTypeEnabled.box[2] = heightOffset + 1
 end
 
 
@@ -145,14 +145,14 @@ function Theme.importThemeFromText(theme_config)
 
 	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
 	local index = 1
-	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do -- Only use the first 10 hex codes
+	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first 10 hex codes
 		Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
 		index = index + 1
 	end
 
 	local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
 	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-	Theme.buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+	Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 
 	Theme.settingsUpdated = true
 	Program.redraw(true)
@@ -164,7 +164,7 @@ end
 function Theme.exportThemeToText()
 	-- Build base theme config string
 	local exportedTheme = ""
-	for _, colorkey in ipairs(Constants.ORDERED_LISTS.THEMECOLORS) do
+	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		-- Format each color code as "AABBCC", instead of "0xAABBCC" or "0xFFAABBCC"
 		exportedTheme = exportedTheme .. string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5) .. " "
 	end
@@ -182,7 +182,10 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = forms.newform(465, 125, "Theme Import", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local form = forms.newform(465, 125, "Theme Import", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a theme configuration string to import (Ctrl+V to paste):", 9, 10, 300, 20)
 	local importTextBox = forms.textbox(form, "", 430, 20, nil, 10, 30)
@@ -201,9 +204,12 @@ function Theme.openImportWindow()
 end
 
 function Theme.openExportWindow()
+	forms.destroyall()
+	client.pause()
+
 	local theme_config = Theme.exportThemeToText()
 
-	local form = forms.newform(465, 125, "Theme Export", function() return end)
+	local form = forms.newform(465, 125, "Theme Export", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
 	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
@@ -213,11 +219,14 @@ function Theme.openExportWindow()
 end
 
 function Theme.openPresetsWindow()
-	local presetsForm = forms.newform(360, 105, "Theme Presets", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local presetsForm = forms.newform(360, 105, "Theme Presets", function() client.unpause() end)
 	Utils.setFormLocation(presetsForm, 100, 50)
 	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, Constants.ORDERED_LISTS.THEMEPRESETS, false) -- Required to prevent alphabetizing the list
+	forms.setdropdownitems(presetDropdown, Constants.OrderedLists.THEMEPRESETS, false) -- Required to prevent alphabetizing the list
 	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
@@ -231,7 +240,7 @@ end
 -- Restores the Theme customizations to the default look-and-feel, or prompts for confirmation
 -- A follow through onclick would be required to reset to default
 function Theme.tryRestoreDefaultTheme()
-	local defaultBtn = Theme.buttons.restoreDefaults
+	local defaultBtn = Theme.Buttons.restoreDefaults
 	if defaultBtn.confirmReset then
 		defaultBtn.text = "Restore Defaults"
 		defaultBtn.textColor = "Default text"
@@ -249,12 +258,12 @@ end
 
 function Theme.closeThemeScreen()
 	-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
-	local defaultBtn = Theme.buttons.restoreDefaults
+	local defaultBtn = Theme.Buttons.restoreDefaults
 	if defaultBtn.confirmReset then
 		defaultBtn.text = "Restore Defaults"
 		defaultBtn.textColor = "Default text"
 		defaultBtn.confirmReset = false
 	end
 
-	Program.changeScreenView(Program.SCREENS.SETTINGS)
+	Program.changeScreenView(Program.Screens.SETTINGS)
 end
