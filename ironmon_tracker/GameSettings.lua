@@ -625,8 +625,8 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		
@@ -687,25 +687,25 @@ end
 function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
 		print("ROM Detected: Pokemon Rouge Feu")
-		GameSettings.gBaseStats = 0x082547f4
+		GameSettings.gBaseStats = 0x0824ebd4
 		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
-		GameSettings.sBattlerAbilities = 0x02039a30 --not used in tracker so no idea
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
-		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4 --not tested
-		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6 -- not tested
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74 --seems like they are same as fr but not sure
-		--this section is not tested but everything was the same so lets hope 
-		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
-		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
-		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
+		GameSettings.BattleScript_LearnMoveReturn = 0x081D7E3D
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
-		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
+		GameSettings.FriendshipRequiredToEvo = 0x08042d9c + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
