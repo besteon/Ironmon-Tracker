@@ -9,9 +9,15 @@ function Drawing.drawPokemonIcon(id, x, y)
 	if id < 0 or id > #PokemonData.Pokemon then
 		id = 0 -- Blank Pokemon data/icon
 	end
-
+	
 	local folderToUse = "pokemon"
 	local extension = Constants.Extensions.POKEMON_PIXELED
+	
+	if Options["Updated (Gen 7+) portraits"] then
+		folderToUse = "pokemonUpdated"
+		extension = Constants.Extensions.POKEMON_UPDATED
+	end
+
 	if Options["Pokemon Stadium portraits"] then
 		folderToUse = "pokemonStadium"
 		extension = Constants.Extensions.POKEMON_STADIUM

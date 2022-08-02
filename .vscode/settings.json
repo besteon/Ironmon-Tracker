@@ -1,3 +1,19 @@
 {
-  "Lua.diagnostics.globals": ["event", "emu", "client", "gui", "userdata", "gameinfo", "bit", "memory", "love", "joypad", "input", "forms"]
+  "Lua.diagnostics.globals": [
+    "event",
+    "emu",
+    "client",
+    "gui",
+    "userdata",
+    "gameinfo",
+    "bit",
+    "memory",
+    "love",
+    "joypad",
+    "input",
+    "forms"
+  ],
+  "files.associations": {
+    "*.anm2": "xml"
+  }
 }

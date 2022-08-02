@@ -23,6 +23,7 @@ Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
 	POKEMON_PIXELED = ".gif",
 	POKEMON_STADIUM = ".png",
+	POKEMON_UPDATED = ".png",
 }
 
 Constants.ButtonTypes = {
@@ -83,6 +84,7 @@ Constants.OrderedLists = {
 		"Track PC Heals",
 		"PC heals count downward",
 		"Pokemon Stadium portraits",
+		"Updated (Gen 7+) portraits",
 	},
 	CONTROLS = {
 		"Load next seed",

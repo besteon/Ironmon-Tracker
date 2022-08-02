@@ -15,6 +15,7 @@ Options = {
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
 	["Pokemon Stadium portraits"] = false,
+	["Updated (Gen 7+) portraits"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",
@@ -83,7 +84,7 @@ Options.Buttons = {
 
 function Options.initialize()
 	local index = 1
-	local heightOffset = 35
+	local heightOffset = 30
 
 	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 		Options.Buttons[optionKey] = {
