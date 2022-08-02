@@ -464,14 +464,17 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Abilities not covered by the above checks
 	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
 
-	if battleTargetMsg ~= nil then
-		if battleTargetMsg[enemyAbility] and battlerTarget % 2 == 1 then
-			-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
+	if battleTargetMsg ~= nil and battleTargetMsg[enemyAbility] then
+		if battlerTarget % 2 == 1 then
 			if battleTargetMsg.scope == "both" and enemyAbility ~= playerAbility then
+				-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
 				return true
 			elseif battleTargetMsg.scope == "self" then
 				return true
 			end
+		elseif battlerTarget % 2 == 0 and battleTargetMsg.scope == "other" then
+			-- Leech seed sets gBattlerTarget to mon receiving hp, so this is where we see liquid ooze
+			return true
 		end
 	end
   
