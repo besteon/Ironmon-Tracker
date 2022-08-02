@@ -102,7 +102,7 @@ TrackerScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		text = "Click to leave a note",
+		text = "Leave a note",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
@@ -124,7 +124,7 @@ TrackerScreen.Buttons = {
 			if not self:isVisible() then return end
 			local routeInfo = { 
 				mapId = Program.CurrentRoute.mapId,
-				encounterArea = RouteData.EncounterArea.GRASS,
+				encounterArea = Program.CurrentRoute.encounterArea,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
@@ -220,8 +220,8 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		-- isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
-		isVisible = function() return false end,
+		isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
+		-- isVisible = function() return false end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -261,7 +261,6 @@ function TrackerScreen.buildCarousel()
 
 	-- ROUTE INFO
 	-- TODO: If against wild pokemon, reveal route table; otherwise show something else (total # trainers?)
-	-- TODO: Handle something more than just grass
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,

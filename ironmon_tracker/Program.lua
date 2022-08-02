@@ -17,6 +17,7 @@ Program = {
 		prevDamageTotal = 0,
 		damageReceived = 0,
 		lastMoveId = 0,
+		prevAttackerValue = 0,
 		enemyIsAttacking = false,
 	},
 	CurrentRoute = {
@@ -358,16 +359,17 @@ function Program.updateBattleDataFromMemory()
 			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
 			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 
-
 			if isWild then
-				-- https://github.com/pret/pokefirered/blob/7b913802ab5745ea7529b634ebca6a147fe1c560/include/global.fieldmap.h#L164-L183
-				-- TODO: Replace with GameSettings.gMapHeader
-				GameSettings.gMapHeader = 0x02036dfc
-				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- mapLayoutId
-				Program.CurrentRoute.encounterArea = RouteData.EncounterArea.GRASS -- TODO: Allow for checks on other terrain areas besides just GRASS
-				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
-				
+				local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+				local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
+	
+				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+				Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags) -- TODO: When trainer data gets added, move out of (isWild)
 				Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
+
+				if Program.CurrentRoute.hasInfo then
+					Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
+				end
 			end
 		end
 
@@ -402,17 +404,18 @@ function Program.updateBattleDataFromMemory()
 		if currentTurn ~= Program.BattleTurn.turnCount then
 			Program.BattleTurn.turnCount = currentTurn
 			Program.BattleTurn.prevDamageTotal = currDamageTotal
+			Program.BattleTurn.prevAttackerValue = attackerValue
 			Program.BattleTurn.enemyIsAttacking = false
 		end
 
 		local damageDelta = currDamageTotal - Program.BattleTurn.prevDamageTotal
+		local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
 		if damageDelta ~= 0 then
-			Program.BattleTurn.prevDamageTotal = currDamageTotal
-
-			-- If the player's Pokemon receives damage from the enemy, find out what move caused it
-			if attackerValue % 2 ~= 0 then
-				local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
+			-- Check current and previous attackers to see if enemy attacked within the last 30 frames
+			if attackerValue % 2 ~= 0 or Program.BattleTurn.prevAttackerValue % 2 ~= 0 then
+				-- local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
 				if enemyMoveId ~= 0 then
+					print("E: " .. damageDelta .. " - " .. enemyMoveId)
 					-- If a new move is being used, reset the damage from the last move
 					if not Program.BattleTurn.enemyIsAttacking then
 						Program.BattleTurn.damageReceived = 0
@@ -421,10 +424,24 @@ function Program.updateBattleDataFromMemory()
 
 					Program.BattleTurn.lastMoveId = enemyMoveId
 					Program.BattleTurn.damageReceived = Program.BattleTurn.damageReceived + damageDelta
+					Program.BattleTurn.prevDamageTotal = currDamageTotal
 				end
+			else
+				print("P: " .. damageDelta .. " - " .. attackerValue)
+				Program.BattleTurn.prevDamageTotal = currDamageTotal
 			end
 		end
-		-- print("delta: " .. damageDelta .. ", totalDamage: " .. currDamageTotal)
+		-- Must set afterwards because of the 30 frame delay in updating battle data (too fast if animations are off)
+		Program.BattleTurn.prevAttackerValue = attackerValue
+
+		local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. attackerValue
+		Utils.printDebug(message)
+		-- TODO: attackerValue just isn't accurate enough, need to find a workaround. for determine who is attacking
+		-- 0) Dmg: 2715, Move: 337, R:4, M:337, A:1
+		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
+		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:0
+		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
+		-- 2) Dmg: 2719, Move: 337, R:4, M:337, A:0
 
 		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
@@ -523,6 +540,7 @@ function Program.endBattle(isWild)
 	-- Reset last attack information
 	Program.BattleTurn.turnCount = -1
 	Program.BattleTurn.lastMoveId = 0
+	Program.CurrentRoute.hasInfo = false
 
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do

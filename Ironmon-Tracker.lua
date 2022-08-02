@@ -85,6 +85,7 @@ function Main.Run()
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
+		client.unpause()
 		while Main.loadNextSeed == false do
 			Program.main()
 			emu.frameadvance()

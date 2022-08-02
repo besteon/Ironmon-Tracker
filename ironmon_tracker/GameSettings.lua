@@ -27,6 +27,9 @@ GameSettings = {
 	gMoveToLearn = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 
+	gMapHeader = 0x00000000,
+	gBattleTerrain = 0x00000000,
+	gBattleTypeFlags = 0x00000000,
 	FriendshipRequiredToEvo = 0x00000000,
 
 	gSaveBlock1 = 0x00000000,
@@ -186,6 +189,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -217,6 +223,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -248,6 +257,9 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -283,6 +295,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -314,6 +329,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -345,6 +363,9 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -358,6 +379,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 end
 
 function GameSettings.setGameAsEmerald()
+	-- https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
 	print("ROM Detected: Pokemon Emerald")
 
 	GameSettings.gBaseStats = 0x083203cc
@@ -379,6 +401,9 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gMoveToLearn = 0x020244e2
 	GameSettings.gBattleOutcome = 0x0202433a
 	
+	GameSettings.gMapHeader = 0x02037318
+	GameSettings.gBattleTerrain = 0x02022ff0
+	GameSettings.gBattleTypeFlags = 0x02022fec
 	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -392,7 +417,6 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.bagPocket_Items_Size = 30
 	GameSettings.bagPocket_Berries_Size = 46
 
-	-- https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
 	GameSettings.ABILITIES = {
 		[0x082db430] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 		[0x082db44b] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -424,6 +448,7 @@ end
 
 function GameSettings.setGameAsFireRed(gameversion)
 	if gameversion == 0x01670000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Fire Red v1.1")
 
 		GameSettings.gBaseStats = 0x082547f4
@@ -445,6 +470,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -458,7 +486,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
 			[0x081d92ef] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 			[0x081d930a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -501,6 +528,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 			-- [0x00000000] = 73, -- BattleScript_AbilityNoStatLoss + 0x0 White Smoke (Same address as Clear Body)
 		}
 	elseif gameversion == 0x00680000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
 		print("ROM Detected: Pokemon Fire Red v1.0")
 
 		GameSettings.gBaseStats = 0x08254784
@@ -522,6 +550,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -535,7 +566,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
 		GameSettings.ABILITIES = {
 			[0x081d927f] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 			[0x081d929a] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -568,7 +598,9 @@ end
 
 function GameSettings.setGameAsFireRedSpanish(gameversion)
 	if gameversion == 0x005A0000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rojo Fuego")
+
 		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
@@ -589,6 +621,9 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -602,7 +637,6 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
 		--so take what you get from firered v1.v and find where drizzle is
 		GameSettings.ABILITIES = {
@@ -639,7 +673,9 @@ end
 
 function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rouge Feu")
+
 		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0 -- not sure if its the real value used for.its used for rse only anyway so not that important
@@ -660,6 +696,9 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -673,7 +712,6 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
 		--so take what you get from firered v1.v and find where drizzle is
 		GameSettings.ABILITIES = {
@@ -710,6 +748,7 @@ end
 
 function GameSettings.setGameAsLeafGreen(gameversion)
 	if gameversion == 0x01800000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
 		GameSettings.gBaseStats = 0x082547d0
@@ -731,6 +770,9 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -744,7 +786,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 		GameSettings.ABILITIES = {
 			[0x081d92cb] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 			[0x081d92e6] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
@@ -773,6 +814,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 			[0x081d6a20] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
 	elseif gameversion == 0x00810000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
 		GameSettings.gBaseStats = 0x08254760
@@ -794,6 +836,9 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -807,7 +852,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
 
-		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 		GameSettings.ABILITIES = {
 			[0x081d925b] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 			[0x081d9276] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost

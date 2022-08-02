@@ -963,6 +963,9 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	-- BOT BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	local encounterHeaderText = Constants.Words.POKEMON .. " seen by " .. encounterArea
+	if encounterArea == RouteData.EncounterArea.STATIC then
+		encounterHeaderText = encounterHeaderText .. " encounters"
+	end
 	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
