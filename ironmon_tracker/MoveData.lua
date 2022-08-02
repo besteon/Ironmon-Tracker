@@ -10,7 +10,7 @@ MoveData.Categories = {
 
 --List of pokemon types used to cycle through types when the Hidden Power button is clicked
 MoveData.HiddenPowerTypeList = {
-	PokemonData.Types.NORMAL,
+	PokemonData.Types.UNKNOWN,
 	PokemonData.Types.FIGHTING,
 	PokemonData.Types.FLYING,
 	PokemonData.Types.POISON,
@@ -48,6 +48,7 @@ MoveData.TypeToCategory = {
 	[PokemonData.Types.ICE]      = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DRAGON]   = MoveData.Categories.SPECIAL,
 	[PokemonData.Types.DARK]     = MoveData.Categories.SPECIAL,
+	[PokemonData.Types.UNKNOWN]  = MoveData.Categories.NONE,
 }
 
 MoveData.TypeToEffectiveness = {
@@ -225,7 +226,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "13",
@@ -441,7 +442,7 @@ MoveData.Moves = {
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "33",
@@ -1038,7 +1039,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
 	},
 	{
 		id = "91",
@@ -1212,7 +1213,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Increases evasion by one stage. Will now receive x2 damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
+		summary = "Increases evasion by one stage. User will now receive double damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
 	},
 	{
 		id = "108",
@@ -1869,7 +1870,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Causes a sleeping target to losing 1/4 of the their max HP at the end of each turn.",
+		summary = "Causes a sleeping target to lose 1/4 of the their max HP at the end of each turn that they remain asleep.",
 	},
 	{
 		id = "172",
@@ -2334,7 +2335,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power ranges between 0 (min friendship of 0) and 102 (max friendship of 255). If the user's friendship is 127 or less, Frustration is stronger.",
+		summary = "Power ranges between 1 and 102, strongest at friendship of 255. If the user's friendship is 127 or less, Frustration is stronger.",
 	},
 	{
 		id = "217",
@@ -2355,7 +2356,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power ranges between 102 (min friendship of 0) and 0 (max friendship of 255). If the user's friendship is 128 or greater, Return is stronger.",
+		summary = "Power ranges between 1 and 102, strongest at friendship of 0. If the user's friendship is 128 or greater, Return is stronger.",
 	},
 	{
 		id = "219",
@@ -3507,7 +3508,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.SPECIAL,
-		summary = "This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
 	},
 	{
 		id = "330",
