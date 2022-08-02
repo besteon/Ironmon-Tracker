@@ -463,7 +463,7 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 		-- HIDDEN POWER TYPE UPDATE
 		if Tracker.Data.isViewingOwn and moveData.name == "Hidden Power" then
 			moveType = Tracker.getHiddenPowerType()
-			moveTypeColor = Constants.MoveTypeColors[moveType]
+			moveTypeColor = Utils.inlineIf(moveType == PokemonData.Types.UNKNOWN, Theme.COLORS["Default text"], Constants.MoveTypeColors[moveType])
 			moveCategory = MoveData.TypeToCategory[moveType]
 		end
 
