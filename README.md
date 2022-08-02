@@ -25,7 +25,7 @@ The following games are currently supported:
   - v1.0, v1.1
 - Pokémon Rojo Fuego (Spain)
 - Pokémon Rouge Feu (France)
-- Pokemon - Rosso Fuoco (Italy)
+- Pokémon Rosso Fuoco (Italy)
 
 With more non-english version support potentially coming in the future!
 

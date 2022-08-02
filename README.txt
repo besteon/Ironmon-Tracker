@@ -22,4 +22,4 @@ CURRENTLY SUPPORTED GAMES:
   - v1.0, v1.1
 - Pokémon Rojo Fuego (Spain)
 - Pokémon Rouge Feu (France)
-- Pokemon - Rosso Fuoco (Italy)
+- Pokémon Rosso Fuoco (Italy)
