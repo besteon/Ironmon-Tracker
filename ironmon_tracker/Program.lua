@@ -382,7 +382,6 @@ end
 
 function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	-- Checks if ability should be auto-tracked
-	-- Abilities to check via battler read
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
@@ -395,6 +394,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 		Program.SyncData.attacker = -1
 		Program.SyncData.battlerTarget = -1
 	end
+
 	-- Abilities to check via battler read
 	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
 
@@ -403,9 +403,9 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 			-- Track the enemy's ability if the player's Pokemon uses its Trace ability
 			return true
 		elseif battlerMsg[enemyAbility] then
-			if enemyAbility == 28 and battler % 2 == 0 then -- 28 = Synchronize, battler is set to status-target instead
-				-- Enemy is using Synchronize on the player
-				return true
+			if enemyAbility == 28 then -- 28 = Synchronize
+				-- Enemy is using Synchronize on the player, battler is set to status target instead
+				if battler % 2 == 0 then return true end
 			elseif battler % 2 == 1 then
 				-- Enemy is the one that used the ability
 				return true
@@ -427,9 +427,9 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
 
 	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
-		if enemyAbility == 26 and moveFlags == 9 then
-				-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
-			return true
+		if enemyAbility == 26 then
+			-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
+			if moveFlags == 9 then return true end
 		elseif battlerTarget % 2 == 1 then
 			-- Otherwise, player activated enemy's ability
 			return true
