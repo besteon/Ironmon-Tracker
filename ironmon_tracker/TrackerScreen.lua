@@ -378,30 +378,8 @@ function TrackerScreen.openAbilityNoteWindow()
 		if pokemonViewed ~= nil then
 			local abilityOneText = forms.gettext(abilityOneDropdown)
 			local abilityTwoText = forms.gettext(abilityTwoDropdown)
-			local abilityOneId = 0
-			local abilityTwoId = 0
 
-			-- If only one ability was entered in
-			if abilityOneText == Constants.BLANKLINE then
-				abilityOneText = abilityTwoText
-				abilityTwoText = Constants.BLANKLINE
-			end
-
-			-- TODO: Eventually put all this code in as a Tracker function()
-			-- Lookup ability id's from the master list of ability pokemon data
-			for id, abilityName in pairs(MiscData.Abilities) do
-				if abilityOneText == abilityName then
-					abilityOneId = id
-				elseif abilityTwoText == abilityName then
-					abilityTwoId = id
-				end
-			end
-
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonViewed.pokemonID]
-			trackedPokemon.abilities = {
-				{ id = abilityOneId },
-				{ id = abilityTwoId },
-			}
+			Tracker.setAbilities(pokemonViewed.pokemonID, abilityOneText, abilityTwoText)
 		end
 
 		client.unpause()

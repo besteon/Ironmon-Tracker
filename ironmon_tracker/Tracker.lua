@@ -76,7 +76,7 @@ end
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackAbility(pokemonID, abilityId)
 	if pokemonID == nil or abilityId == nil then return end
-	
+
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 
 	if trackedPokemon.abilities == nil then
@@ -246,6 +246,34 @@ function Tracker.getAbilities(pokemonID)
 	end
 end
 
+function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
+	abilityOneText = abilityOneText or Constants.BLANKLINE
+	abilityTwoText = abilityTwoText or Constants.BLANKLINE
+	local abilityOneId = 0
+	local abilityTwoId = 0
+
+	-- If only one ability was entered in
+	if abilityOneText == Constants.BLANKLINE then
+		abilityOneText = abilityTwoText
+		abilityTwoText = Constants.BLANKLINE
+	end
+
+	-- Lookup ability id's from the master list of ability pokemon data
+	for id, abilityName in pairs(MiscData.Abilities) do
+		if abilityOneText == abilityName then
+			abilityOneId = id
+		elseif abilityTwoText == abilityName then
+			abilityTwoId = id
+		end
+	end
+
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	trackedPokemon.abilities = {
+		{ id = abilityOneId },
+		{ id = abilityTwoId },
+	}
+end
+
 -- If the Pokemon is being tracked, return information on statmarkings; otherwise default stat values = 1
 function Tracker.getStatMarkings(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -301,7 +329,7 @@ function Tracker.getHiddenPowerType()
 	if hiddenPowerType ~= nil then
 		return hiddenPowerType
 	else
-		return PokemonData.Types.NORMAL
+		return MoveData.HiddenPowerTypeList[1]
 	end
 end
 
@@ -355,7 +383,7 @@ function Tracker.resetData()
 			numHeals = 0,
 		},
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
-			[0] = PokemonData.Types.NORMAL,
+			[0] = MoveData.HiddenPowerTypeList[1],
 		},
 		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
 		},

@@ -353,6 +353,9 @@ function Program.updateBattleDataFromMemory()
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
+		-- Always track your own Pokemon's ability once you decide to use it
+		Tracker.TrackAbility(ownersPokemon.pokemonID, ownersPokemon.abilityId)
+
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
 			opposingPokemon.hasBeenEncountered = true
