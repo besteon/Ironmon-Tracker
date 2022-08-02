@@ -64,6 +64,8 @@ end
 
 -- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackAbility(pokemonID, abilityId)
+	if pokemonID == nil or abilityId == nil then return end
+
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 
 	if trackedPokemon.abilities == nil then
@@ -74,9 +76,9 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 	end
 
 	-- Only add as second ability if it's different than the first ability
-	if trackedPokemon.abilities[1].id == 0 then
+	if trackedPokemon.abilities[1].id == nil or trackedPokemon.abilities[1].id == 0 then
 		trackedPokemon.abilities[1].id = abilityId
-	elseif trackedPokemon.abilities[2].id == 0 and trackedPokemon.abilities[1].id ~= abilityId then
+	elseif (trackedPokemon.abilities[2].id == nil or trackedPokemon.abilities[2].id == 0) and trackedPokemon.abilities[1].id ~= abilityId then
 		trackedPokemon.abilities[2].id = abilityId
 	end
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
@@ -216,6 +218,34 @@ function Tracker.getAbilities(pokemonID)
 	end
 end
 
+function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
+	abilityOneText = abilityOneText or Constants.BLANKLINE
+	abilityTwoText = abilityTwoText or Constants.BLANKLINE
+	local abilityOneId = 0
+	local abilityTwoId = 0
+
+	-- If only one ability was entered in
+	if abilityOneText == Constants.BLANKLINE then
+		abilityOneText = abilityTwoText
+		abilityTwoText = Constants.BLANKLINE
+	end
+
+	-- Lookup ability id's from the master list of ability pokemon data
+	for id, abilityName in pairs(MiscData.Abilities) do
+		if abilityOneText == abilityName then
+			abilityOneId = id
+		elseif abilityTwoText == abilityName then
+			abilityTwoId = id
+		end
+	end
+
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	trackedPokemon.abilities = {
+		{ id = abilityOneId },
+		{ id = abilityTwoId },
+	}
+end
+
 -- If the Pokemon is being tracked, return information on statmarkings; otherwise default stat values = 1
 function Tracker.getStatMarkings(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -256,7 +286,7 @@ function Tracker.getHiddenPowerType()
 	if hiddenPowerType ~= nil then
 		return hiddenPowerType
 	else
-		return PokemonData.Types.NORMAL
+		return MoveData.HiddenPowerTypeList[1]
 	end
 end
 
@@ -309,7 +339,7 @@ function Tracker.resetData()
 			numHeals = 0,
 		},
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
-			[0] = PokemonData.Types.NORMAL,
+			[0] = MoveData.HiddenPowerTypeList[1],
 		},
 	}
 end
@@ -328,7 +358,7 @@ function Tracker.loadData(filepath)
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local fileData = nil
-	if filepath:sub(-5):lower() ~= Constants.TRACKER_DATA_EXTENSION then
+	if filepath:sub(-5):lower() ~= Constants.Extensions.TRACKED_DATA then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 	else

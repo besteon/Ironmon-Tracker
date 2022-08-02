@@ -1,8 +1,8 @@
 TrackerScreen = {}
 
-TrackerScreen.buttons = {
+TrackerScreen.Buttons = {
 	PCHealAutoTracking = {
-		type = Constants.BUTTON_TYPES.CHECKBOX,
+		type = Constants.ButtonTypes.CHECKBOX,
 		text = "",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
@@ -18,7 +18,7 @@ TrackerScreen.buttons = {
 		end
 	},
 	PCHealIncrement = {
-		type = Constants.BUTTON_TYPES.NO_BORDER,
+		type = Constants.ButtonTypes.NO_BORDER,
 		text = "+",
 		textColor = "Positive text",
 		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
@@ -33,7 +33,7 @@ TrackerScreen.buttons = {
 		end
 	},
 	PCHealDecrement = {
-		type = Constants.BUTTON_TYPES.NO_BORDER,
+		type = Constants.ButtonTypes.NO_BORDER,
 		text = Constants.BLANKLINE,
 		textColor = "Negative text",
 		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
@@ -48,8 +48,8 @@ TrackerScreen.buttons = {
 		end
 	},
 	AbilityTracking = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.NOTEPAD,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
 		text = "",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 22 },
@@ -61,8 +61,8 @@ TrackerScreen.buttons = {
 		end
 	},
 	NotepadTracking = {
-		type = Constants.BUTTON_TYPES.PIXELIMAGE,
-		image = Constants.PIXEL_IMAGES.NOTEPAD,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
 		text = "",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 141, 138, 12 },
@@ -76,12 +76,11 @@ TrackerScreen.buttons = {
 }
 
 function TrackerScreen.initialize()
-	local heightOffset = 9
-
 	-- Buttons for stat markings tracked by the user
-	for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
-		TrackerScreen.buttons[statKey] = {
-			type = Constants.BUTTON_TYPES.STAT_STAGE,
+	local heightOffset = 9
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		TrackerScreen.Buttons[statKey] = {
+			type = Constants.ButtonTypes.STAT_STAGE,
 			text = "",
 			textColor = "Default text",
 			box = { Constants.SCREEN.WIDTH + 129, heightOffset, 8, 8 },
@@ -108,14 +107,15 @@ function TrackerScreen.initialize()
 	end
 
 	-- Buttons for each badge
+	local badgeWidth = 16
 	for index = 1, 8, 1 do
 		local badgeName = "badge" .. index
-		local xOffset = Constants.SCREEN.BADGE_X_POS + ((index-1) * (Constants.SCREEN.BADGE_WIDTH + 1)) + GameSettings.badgeXOffsets[index]
+		local xOffset = Constants.SCREEN.WIDTH + 7 + ((index-1) * (badgeWidth + 1)) + GameSettings.badgeXOffsets[index]
 
-		local badgeButton = {
-			type = Constants.BUTTON_TYPES.IMAGE,
+		TrackerScreen.Buttons[badgeName] = {
+			type = Constants.ButtonTypes.IMAGE,
 			image = Main.DataFolder .. "/images/badges/" .. GameSettings.badgePrefix .. "_badge" .. index .. "_OFF.png",
-			box = { xOffset, Constants.SCREEN.BADGE_Y_POS, Constants.SCREEN.BADGE_WIDTH, Constants.SCREEN.BADGE_WIDTH },
+			box = { xOffset, 138, badgeWidth, badgeWidth },
 			badgeIndex = index,
 			badgeState = 0,
 			isVisible = function() return Tracker.Data.isViewingOwn end,
@@ -128,7 +128,6 @@ function TrackerScreen.initialize()
 				end
 			end
 		}
-		TrackerScreen.buttons[badgeName] = badgeButton
 	end
 end
 
@@ -137,11 +136,13 @@ function TrackerScreen.updateButtonStates()
 	if opposingPokemon ~= nil then
 		local statMarkings = Tracker.getStatMarkings(opposingPokemon.pokemonID)
 
-		for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
+		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+			local button = TrackerScreen.Buttons[statKey]
 			local statValue = statMarkings[statKey]
-			TrackerScreen.buttons[statKey].statState = statValue
-			TrackerScreen.buttons[statKey].text = Constants.STAT_STATES[statValue].text
-			TrackerScreen.buttons[statKey].textColor = Constants.STAT_STATES[statValue].textColor
+
+			button.statState = statValue
+			button.text = Constants.STAT_STATES[statValue].text
+			button.textColor = Constants.STAT_STATES[statValue].textColor
 		end
 	end
 end
@@ -158,7 +159,10 @@ function TrackerScreen.openAbilityNoteWindow()
 
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
-	local abilityForm = forms.newform(360, 170, "Track Ability", function() return nil end)
+	forms.destroyall()
+	client.pause()
+
+	local abilityForm = forms.newform(360, 170, "Track Ability", function() client.unpause() end)
 	Utils.setFormLocation(abilityForm, 100, 50)
 
 	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
@@ -183,30 +187,8 @@ function TrackerScreen.openAbilityNoteWindow()
 		if pokemonViewed ~= nil then
 			local abilityOneText = forms.gettext(abilityOneDropdown)
 			local abilityTwoText = forms.gettext(abilityTwoDropdown)
-			local abilityOneId = 0
-			local abilityTwoId = 0
 
-			-- If only one ability was entered in
-			if abilityOneText == Constants.BLANKLINE then
-				abilityOneText = abilityTwoText
-				abilityTwoText = Constants.BLANKLINE
-			end
-
-			-- TODO: Eventually put all this code in as a Tracker function()
-			-- Lookup ability id's from the master list of ability pokemon data
-			for id, abilityName in pairs(MiscData.Abilities) do
-				if abilityOneText == abilityName then
-					abilityOneId = id
-				elseif abilityTwoText == abilityName then
-					abilityTwoId = id
-				end
-			end
-
-			local trackedPokemon = Tracker.Data.allPokemon[pokemonViewed.pokemonID]
-			trackedPokemon.abilities = {
-				{ id = abilityOneId },
-				{ id = abilityTwoId },
-			}
+			Tracker.setAbilities(pokemonViewed.pokemonID, abilityOneText, abilityTwoText)
 		end
 
 		client.unpause()
@@ -227,7 +209,10 @@ function TrackerScreen.openNotePadWindow()
 	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	if pokemon == nil then return end
 
-	local noteForm = forms.newform(465, 125, "Leave a Note", function() return end)
+	forms.destroyall()
+	client.pause()
+
+	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
 	Utils.setFormLocation(noteForm, 100, 50)
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)

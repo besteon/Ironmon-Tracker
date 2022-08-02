@@ -11,14 +11,14 @@ function Drawing.drawPokemonIcon(id, x, y)
 	end
 
 	local folderToUse = "pokemon"
+	local extension = Constants.Extensions.POKEMON_PIXELED
 	if Options["Pokemon Stadium portraits"] then
 		folderToUse = "pokemonStadium"
+		extension = Constants.Extensions.POKEMON_STADIUM
 		y = y + 4
 	end
 
-	local extension = Constants.PORTAIT_FOLDER_EXTENSIONS[folderToUse]
-
-	gui.drawImage(Main.DataFolder .. "/images/"..folderToUse.."/" .. id .. extension, x, y, 32, 32)
+	gui.drawImage(Main.DataFolder .. "/images/" .. folderToUse .. "/" .. id .. extension, x, y, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -36,8 +36,8 @@ Draws text for the tracker on screen with a shadow effect. Uses the Franklin Got
 	style: string -> optional; can be regular, bold, italic, underline, or strikethrough
 ]]
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
-	gui.drawText(x, y, text, color, nil, Constants.FONT.SIZE, Constants.FONT.FAMILY, style)
+	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 end
 
 --[[
@@ -119,8 +119,8 @@ end
 
 function Drawing.drawInputOverlay()
 	if not Tracker.Data.isViewingOwn and Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
-		local statKey = Constants.ORDERED_LISTS.STATSTAGES[Input.controller.statIndex]
-		local statButton = TrackerScreen.buttons[statKey]
+		local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
+		local statButton = TrackerScreen.Buttons[statKey]
 		gui.drawRectangle(statButton.box[1], statButton.box[2], statButton.box[3], statButton.box[4], Theme.COLORS["Intermediate text"], 0x000000)
 	end
 end
@@ -139,7 +139,7 @@ function Drawing.drawButton(button, shadowcolor)
 	local height = button.box[4]
 
 	-- First draw a box if
-	if button.type == Constants.BUTTON_TYPES.FULL_BORDER or button.type == Constants.BUTTON_TYPES.CHECKBOX or button.type == Constants.BUTTON_TYPES.STAT_STAGE then
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
 		local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
 		local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
 
@@ -150,11 +150,11 @@ function Drawing.drawButton(button, shadowcolor)
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 	end
 
-	if button.type == Constants.BUTTON_TYPES.FULL_BORDER or button.type == Constants.BUTTON_TYPES.NO_BORDER then
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
 		if button.text ~= nil and button.text ~= "" then
 			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
-	elseif button.type == Constants.BUTTON_TYPES.CHECKBOX then
+	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.text ~= nil and button.text ~= "" then
 			Drawing.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
@@ -164,7 +164,7 @@ function Drawing.drawButton(button, shadowcolor)
 			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[button.toggleColor])
 			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[button.toggleColor])
 		end
-	elseif button.type == Constants.BUTTON_TYPES.COLORPICKER then
+	elseif button.type == Constants.ButtonTypes.COLORPICKER then
 		if button.themeColor ~= nil then
 			local hexCodeText = string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5))
 			-- Draw a colored circle with a black border
@@ -173,15 +173,15 @@ function Drawing.drawButton(button, shadowcolor)
 			Drawing.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[button.textColor], shadowcolor)
 			Drawing.drawText(x + width + 37, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
-	elseif button.type == Constants.BUTTON_TYPES.IMAGE then
+	elseif button.type == Constants.ButtonTypes.IMAGE then
 		if button.image ~= nil then
 			gui.drawImage(button.image, x, y)
 		end
-	elseif button.type == Constants.BUTTON_TYPES.PIXELIMAGE then
+	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
 		if button.image ~= nil then
 			Drawing.drawImageAsPixels(button.image, x, y, Theme.COLORS["Default text"], shadowcolor)
 		end
-	elseif button.type == Constants.BUTTON_TYPES.STAT_STAGE then
+	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
 			if button.text == Constants.STAT_STATES[2].text then
 				y = y - 1 -- Move up the negative stat mark 1px
@@ -229,7 +229,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
 
 	-- SETTINGS GEAR
-	Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.GEAR, Constants.SCREEN.WIDTH + 92, 7, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawImageAsPixels(Constants.PixelImages.GEAR, Constants.SCREEN.WIDTH + 92, 7, Theme.COLORS["Default text"], shadowcolor)
 
 	-- POKEMON INFORMATION
 	local pkmnStatOffsetX = 36
@@ -279,11 +279,11 @@ function Drawing.drawPokemonInfoArea(pokemon)
 			abilityStringBot = MiscData.Abilities[pokemon.abilityId]
 		end
 	else
-		if trackedAbilities[1].id ~= 0 then
+		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
 			abilityStringTop = MiscData.Abilities[trackedAbilities[1].id] .. " /"
 			abilityStringBot = "?"
 		end
-		if trackedAbilities[2].id ~= 0 then
+		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
 			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
 		end
 	end
@@ -294,7 +294,7 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	-- Draw notepad icon near abilities area, for manually tracking the abilities
 	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
 		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
-			Drawing.drawButton(TrackerScreen.buttons.AbilityTracking, shadowcolor)
+			Drawing.drawButton(TrackerScreen.Buttons.AbilityTracking, shadowcolor)
 		end
 	end
 
@@ -315,15 +315,15 @@ function Drawing.drawPokemonInfoArea(pokemon)
 			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, Tracker.Data.centerHeals, Utils.getCenterHealColor(), shadowcolor)
 
 			-- Draw the '+'', '-'', and toggle button for auto PC tracking
-			local incBtn = TrackerScreen.buttons.PCHealIncrement
-			local decBtn = TrackerScreen.buttons.PCHealDecrement
-			gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.FONT.FAMILY)
-			gui.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.FONT.FAMILY)
+			local incBtn = TrackerScreen.Buttons.PCHealIncrement
+			local decBtn = TrackerScreen.Buttons.PCHealDecrement
+			gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+			gui.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
+			gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+			gui.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
 
 			-- Auto-tracking PC Heals button
-			Drawing.drawButton(TrackerScreen.buttons.PCHealAutoTracking, shadowcolor)
+			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
@@ -351,7 +351,7 @@ function Drawing.drawStatsArea(pokemon)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + statBoxWidth, 5, Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Draw the six primary stats
-	for _, statKey in ipairs(Constants.ORDERED_LISTS.STATSTAGES) do
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		local natureType = Utils.calcNatureBonus(statKey, pokemon.nature)
 		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
@@ -366,7 +366,7 @@ function Drawing.drawStatsArea(pokemon)
 
 		-- Draw stat label and nature symbol next to it
 		Drawing.drawText(statOffsetX, statOffsetY, statKey:upper(), textColor, shadowcolor)
-		gui.drawText(statOffsetX + 16, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.FONT.FAMILY)
+		gui.drawText(statOffsetX + 16, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Tracker.Data.inBattle then
@@ -379,7 +379,7 @@ function Drawing.drawStatsArea(pokemon)
 			local statValueText = Utils.inlineIf(pokemon.stats[statKey] == 0, Constants.BLANKLINE, pokemon.stats[statKey])
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
-			Drawing.drawButton(TrackerScreen.buttons[statKey], shadowcolor)
+			Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
 		end
 		statOffsetY = statOffsetY + 10
 	end
@@ -448,7 +448,7 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 		-- Base move data to draw, but much of it will be updated
 		local moveName = moveData.name .. stars[moveIndex]
 		local moveType = moveData.type
-		local moveTypeColor = Constants.COLORS.MOVETYPE[moveType]
+		local moveTypeColor = Constants.MoveTypeColors[moveType]
 		local moveCategory = moveData.category
 		local movePPText = moveData.pp
 		local movePower = moveData.power
@@ -457,16 +457,16 @@ function Drawing.drawMovesArea(pokemon, opposingPokemon)
 		-- HIDDEN POWER TYPE UPDATE
 		if Tracker.Data.isViewingOwn and moveData.name == "Hidden Power" then
 			moveType = Tracker.getHiddenPowerType()
-			moveTypeColor = Constants.COLORS.MOVETYPE[moveType]
+			moveTypeColor = Utils.inlineIf(moveType == PokemonData.Types.UNKNOWN, Theme.COLORS["Default text"], Constants.MoveTypeColors[moveType])
 			moveCategory = MoveData.TypeToCategory[moveType]
 		end
 
 		-- MOVE CATEGORY
 		if Options["Show physical special icons"] then
 			if moveCategory == MoveData.Categories.PHYSICAL then
-				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			elseif moveCategory == MoveData.Categories.SPECIAL then
-				Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			end
 		end
 
@@ -536,7 +536,7 @@ function Drawing.drawBadgeNoteArea(pokemon)
 
 	for index = 1, 8, 1 do
 		local badgeName = "badge" .. index
-		local badgeButton = TrackerScreen.buttons[badgeName]
+		local badgeButton = TrackerScreen.Buttons[badgeName]
 		Drawing.drawButton(badgeButton, shadowcolor)
 	end
 
@@ -545,7 +545,7 @@ function Drawing.drawBadgeNoteArea(pokemon)
 		-- Draw original notepad icon at the bottom for taking written notes
 		local noteText = Tracker.getNote(pokemon.pokemonID)
 		if noteText == "" then
-			Drawing.drawButton(TrackerScreen.buttons.NotepadTracking, shadowcolor)
+			Drawing.drawButton(TrackerScreen.Buttons.NotepadTracking, shadowcolor)
 		else
 			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 141, noteText, Theme.COLORS["Default text"], shadowcolor)
 			--work around limitation of drawText not having width limit: paint over any spillover
@@ -567,17 +567,18 @@ function Drawing.drawOptionsScreen()
 
 	-- Draw all buttons
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
-	for _, button in pairs(Options.buttons) do
+	for _, button in pairs(Options.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
 
 	-- Draw Roms folder location, or the notepad icon if it's not set
+	local romsButton = Options.Buttons.romsFolder
 	local folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
 	if folderText ~= "" then
-		Drawing.drawText(Options.buttons.romsFolder.box[1] + 54, Options.buttons.romsFolder.box[2], folderText, Theme.COLORS[Options.buttons.romsFolder.textColor], shadowcolor)
+		Drawing.drawText(romsButton.box[1] + 54, romsButton.box[2], folderText, Theme.COLORS[romsButton.textColor], shadowcolor)
 	else
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Options.buttons.romsFolder.box[1] + 65, Options.buttons.romsFolder.box[2], "(Click a file to set)", Theme.COLORS["Intermediate text"], shadowcolor)
+		Drawing.drawImageAsPixels(Constants.PixelImages.NOTEPAD, Constants.SCREEN.WIDTH + 60, 7, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(romsButton.box[1] + 65, romsButton.box[2], "(Click a file to set)", Theme.COLORS["Intermediate text"], shadowcolor)
 	end
 
 	-- Draw version number, TODO: Someone add a fun easter egg for clicking on it multiple times
@@ -594,26 +595,26 @@ function Drawing.drawThemeScreen()
 
 	-- Draw all buttons
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
-	for _, button in pairs(Theme.buttons) do
+	for _, button in pairs(Theme.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
 end
 
 function Drawing.drawInfoScreen()
-	if InfoScreen.viewScreen == InfoScreen.SCREENS.POKEMON_INFO then
+	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
 		-- Only draw valid pokemon data
 		local pokemonID = InfoScreen.infoLookup -- pokemonID = 0 is blank move data
 		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
-			Program.changeScreenView(Program.SCREENS.TRACKER)
+			Program.changeScreenView(Program.Screens.TRACKER)
 			return
 		end
 
 		Drawing.drawPokemonInfoScreen(pokemonID)
-	elseif InfoScreen.viewScreen == InfoScreen.SCREENS.MOVE_INFO then
+	elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO then
 		-- Only draw valid move data
 		local moveId = InfoScreen.infoLookup -- moveId = 0 is blank move data
 		if moveId < 1 or moveId > #MoveData.Moves then
-			Program.changeScreenView(Program.SCREENS.TRACKER)
+			Program.changeScreenView(Program.Screens.TRACKER)
 			return
 		end
 
@@ -649,8 +650,8 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = pokemon.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
-	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
+	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -758,10 +759,10 @@ function Drawing.drawPokemonInfoScreen(pokemonID)
 	end
 
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.buttons.lookupPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.buttons.nextPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.buttons.previousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
 end
 
 function Drawing.drawMoveInfoScreen(moveId)
@@ -797,8 +798,8 @@ function Drawing.drawMoveInfoScreen(moveId)
 
 	-- MOVE NAME
 	local moveName = move.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.FONT.FAMILY, "bold")
-	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.FONT.FAMILY, "bold")
+	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
 	if moveId == 237 then -- 237 = Hidden Power
@@ -821,10 +822,10 @@ function Drawing.drawMoveInfoScreen(moveId)
 	local categoryInfo = ""
 	if moveCat == MoveData.Categories.PHYSICAL then
 		categoryInfo = categoryInfo .. "Physical"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.PHYSICAL, offsetColumnX + 36, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.SPECIAL then
 		categoryInfo = categoryInfo .. "Special"
-		Drawing.drawImageAsPixels(Constants.PIXEL_IMAGES.SPECIAL, offsetColumnX + 33, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.STATUS then
 		categoryInfo = categoryInfo .. "Status"
 	else categoryInfo = categoryInfo .. Constants.BLANKLINE end
@@ -883,8 +884,8 @@ function Drawing.drawMoveInfoScreen(moveId)
 	end
 
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.buttons.lookupMove, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.lookupMove, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
 
 	-- Easter egg
 	if moveId == 150 then -- 150 = Splash
