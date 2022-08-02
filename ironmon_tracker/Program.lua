@@ -378,8 +378,6 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
 	local currentTurn = Memory.readbyte(0x03004f90 + 0x13) 	
-	local memoryAddr = "0x0" .. string.format('%x',battleMsg)
-	print( memoryAddr .. ";" .. moveFlags .. ";" .. battler .. ";" .. attacker .. ";" .. battlerTarget)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
@@ -457,9 +455,13 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
 
 	if battleTargetMsg ~= nil then
-		if battleTargetMsg[enemyAbility] and enemyAbility ~= playerAbility and battlerTarget % 2 == 1 then
+		if battleTargetMsg[enemyAbility] and battlerTarget % 2 == 1 then
 			-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
-			return true
+			if battleTargetMsg.scope == "both" and enemyAbility ~= playerAbility then
+				return true
+			elseif battleTargetMsg.scope == "self" then
+				return true
+			end
 		end
 	end
 	return false

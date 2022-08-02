@@ -446,9 +446,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d9346] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d93e9] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
 				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-				[51] = true, -- Keen Eye
-				[52] = true, -- Hyper Cutter 
-			},
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
 			},
 			REVERSE_BATTLER = {
 				[0x081D94A4] = {[7] = true}, -- BattleScript_PRLZPrevention + 0x12 Limber
@@ -481,7 +481,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-
 				[0x081d6a44] = { -- BattleScript_CantMakeAsleep + 0x8
 					[15] = true, -- Vital Spirit (Attacking)
 					[72] = true, -- Insomnia (Attacking)
@@ -497,7 +496,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			STATUS_INFLICT = { --Contact abilities depend on an enemy Battler, and and allied Attacker
-				[0x081D9230] = {[27]=true}, -- BattleScript_MoveEffectSleep + 0x6 Effect Spore (Sleep) 2
+				[0x081D9230] = {[27]=true}, -- BattleScript_MoveEffectSleep + 0x6 Effect Spore (Sleep)
 				[0x081D9279] = { -- BattleScript_MoveEffectParalysis + 0x5
 					[9] = true,  -- Static
 					[27] = true, -- Effect Spore
@@ -514,9 +513,18 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 			},
 			BATTLE_TARGET = {
-				[0x081D9425] = {[6] = true}, -- BattleScript_DampStopsExplosion + 0x6 Damp 2
-
-				[0x081d94e6] = {[43] = true}, -- BattleScript_SoundproofProtected + 0x8 Soundproof (Is immune to own sound moves too)
+				[0x081D9425] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
+					[6] = true,
+					scope = "both",
+				},
+				[0x081d94e6] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
+					[43] = true,
+					scope = "self",
+				}, 
+				[0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
+					[43] = true,
+					scope = "self",
+				}, 
 			},
 		}
 	elseif gameversion == 0x00680000 then
