@@ -441,7 +441,7 @@ function Program.updateBattleDataFromMemory()
 		Program.BattleTurn.prevAttackerValue = attackerValue
 
 		local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. attackerValue
-		--Utils.printDebug(message)
+		Utils.printDebug(message)
 		-- TODO: attackerValue just isn't accurate enough, need to find a workaround. for determine who is attacking
 		-- 0) Dmg: 2715, Move: 337, R:4, M:337, A:1
 		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
