@@ -324,16 +324,23 @@ function Drawing.drawPokemonInfoArea(pokemon)
 		end
 	else
 		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
+			local routeName = Constants.BLANKLINE
+			if RouteData.hasRoute(Program.CurrentRoute.mapId) then
+				routeName = RouteData.Info[Program.CurrentRoute.mapId].name or Constants.BLANKLINE
+			end
 			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
 			local isWild = Tracker.Data.trainerID == pokemon.trainerID
 			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
-			if encounterText > 9999 then encounterText = 9999 end
+			if encounterText > 999 then encounterText = 999 end
 			if isWild then
 				encounterText = "Seen in the wild: " .. encounterText
 			else
 				encounterText = "Seen on trainers: " .. encounterText
 			end
-			Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, encounterText, Theme.COLORS["Default text"], shadowcolor)
+
+			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
 		end
 	end
 end
@@ -623,7 +630,7 @@ function Drawing.drawInfoScreen()
 		if not RouteData.hasRoute(mapId) then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
-			local encounterArea = InfoScreen.infoLookup.encounterArea or RouteData.EncounterArea.GRASS
+			local encounterArea = InfoScreen.infoLookup.encounterArea or RouteData.EncounterArea.LAND
 			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then
 				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 			end
@@ -970,16 +977,15 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- POKEMON SEEN
-	local ratesAndLevels = RouteData.getPokemonRatesAndLevels(mapId, encounterArea)
+	local areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
 		local x = iconButton.box[1]
 		local y = iconButton.box[2]
 		Drawing.drawButton(iconButton, boxBotShadow)
 
-		local pokeRateAndLevel = ratesAndLevels[iconButton.pokemonID]
-		if pokeRateAndLevel ~= nil then
-			local rateText = (pokeRateAndLevel.rate * 100) .. "%"
-			local rateOffset = Utils.inlineIf(pokeRateAndLevel.rate == 1, 5, 10)
+		if areaInfo[iconButton.pokemonID] ~= nil then
+			local rateText = (areaInfo[iconButton.pokemonID].rate * 100) .. "%"
+			local rateOffset = Utils.inlineIf(areaInfo[iconButton.pokemonID].rate == 1, 5, 10)
 			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
 			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Default text"], boxBotShadow)
 		end

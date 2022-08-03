@@ -297,9 +297,9 @@ function InfoScreen.openRouteInfoWindow()
 		end
 
 		if mapId ~= nil and mapId ~= 0 then
-			local encounterArea = RouteData.EncounterArea.GRASS
+			local encounterArea = RouteData.EncounterArea.LAND
 			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then
-				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
+				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea) or RouteData.EncounterArea.LAND
 			end
 
 			InfoScreen.infoLookup.mapId = mapId
@@ -316,11 +316,14 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
 
 	local routeInfo = RouteData.Info[mapId]
-	local totalPossible = #routeInfo[encounterArea]
+	local totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 
 	local routeEncounters
 	if InfoScreen.revealOriginalRoute then
-		routeEncounters = RouteData.getPokemonForEncounterArea(mapId, encounterArea)
+		routeEncounters = {}
+		for pid, _ in pairs(RouteData.getEncounterAreaPokemon(mapId, encounterArea)) do
+			table.insert(routeEncounters, pid)
+		end
 	else
 		routeEncounters = Tracker.getRouteEncounters(mapId, encounterArea)
 	end
@@ -333,7 +336,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local iconButtons = {}
 	for index=1, totalPossible, 1 do
-		local pokemonID = 252  -- Question mark icon
+		local pokemonID = 252 -- Question mark icon
 		if routeEncounters ~= nil and routeEncounters[index] ~= nil then
 			pokemonID = routeEncounters[index]
 		end

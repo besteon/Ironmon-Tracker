@@ -123,6 +123,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon - Rosso Fuoco (Italy)",
 			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
 			BADGE_PREFIX = "FRLG",
@@ -611,6 +612,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 	if gameversion == 0x00640000 then
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon - Rosso Fuoco")
+
 		GameSettings.gBaseStats = 0x0824d864
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
@@ -623,7 +625,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleResults = 0x03004EE0
 
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
@@ -686,6 +688,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 	if gameversion == 0x005A0000 then
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rojo Fuego")
+
 		GameSettings.gBaseStats = 0x0824ff4c
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
@@ -698,7 +701,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleResults = 0x03004EE0
 
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
@@ -761,6 +764,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rouge Feu")
+		
 		GameSettings.gBaseStats = 0x0824ebd4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
@@ -773,7 +777,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleResults = 0x03004EE0
 
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
@@ -826,7 +830,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
 			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
 		}
-		
+
 		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
 		FranceData.updateToFranceData()
 	end

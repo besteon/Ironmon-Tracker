@@ -87,6 +87,25 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	RouteDetails = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAP_PINDROP,
+		text = "",
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 64, 8, 12 },
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			if not RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea) then return end
+
+			local routeInfo = { 
+				mapId = Program.CurrentRoute.mapId,
+				encounterArea = Program.CurrentRoute.encounterArea,
+			}
+			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
+		end
+	},
 	AbilityTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -112,7 +131,7 @@ TrackerScreen.Buttons = {
 			TrackerScreen.openNotePadWindow()
 		end
 	},
-	RouteInfo = {
+	RouteSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
 		text = "",
@@ -260,20 +279,20 @@ function TrackerScreen.buildCarousel()
 	}
 
 	-- ROUTE INFO
-	-- TODO: If against wild pokemon, reveal route table; otherwise show something else (total # trainers?)
+	-- TODO: If against wild pokemon, reveal route table; otherwise show something else (total num trainers?)
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			local routeInfo = RouteData.Info[Program.CurrentRoute.mapId]
-			local totalPossible = #routeInfo[Program.CurrentRoute.encounterArea]
+			local totalPossible = RouteData.countPokemonInArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
-			TrackerScreen.Buttons.RouteInfo.text = Program.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+			TrackerScreen.Buttons.RouteSummary.text = Program.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
 
-			return { TrackerScreen.Buttons.RouteInfo } 
+			return { TrackerScreen.Buttons.RouteSummary } 
 		end,
 	}
 
@@ -300,7 +319,7 @@ function TrackerScreen.getCurrentCarouselItem()
 			if TrackerScreen.tipMessageIndex == numTips then
 				TrackerScreen.tipMessageIndex = 2 -- Skip "helpful tip" message if that's next up
 			else
-				TrackerScreen.tipMessageIndex = (TrackerScreen.tipMessageIndex % #Constants.OrderedLists.TIPS) + 1
+				TrackerScreen.tipMessageIndex = (TrackerScreen.tipMessageIndex % numTips) + 1
 			end
 		end
 
@@ -311,11 +330,12 @@ function TrackerScreen.getCurrentCarouselItem()
 end
 
 function TrackerScreen.getNextVisibleCarouselItem(startIndex)
-	local nextIndex = (startIndex % #TrackerScreen.CarouselItems) + 1
+	local numItems = #TrackerScreen.CarouselItems
+	local nextIndex = (startIndex % numItems) + 1
 	local carousel = TrackerScreen.CarouselItems[nextIndex]
 
 	while (nextIndex ~= startIndex and not carousel.isVisible()) do
-		nextIndex = (nextIndex % #TrackerScreen.CarouselItems) + 1
+		nextIndex = (nextIndex % numItems) + 1
 		carousel = TrackerScreen.CarouselItems[nextIndex]
 	end
 

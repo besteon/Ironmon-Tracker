@@ -22,7 +22,7 @@ Program = {
 	},
 	CurrentRoute = {
 		mapId = 0,
-		encounterArea = RouteData.EncounterArea.GRASS,
+		encounterArea = RouteData.EncounterArea.LAND,
 		hasInfo = false,
 	},
 }
@@ -42,6 +42,9 @@ function Program.initialize()
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
 		Program.friendshipRequired = friendshipRequired
 	end
+
+	-- At some point we will want to implement this so that wild encounter data is automatic
+	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function Program.main()
