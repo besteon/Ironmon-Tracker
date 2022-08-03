@@ -27,6 +27,12 @@ function Drawing.drawTypeIcon(type, x, y)
 	gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
 end
 
+function Drawing.drawStatusIcon(status, x, y)
+	if status == nil or status == "" then return end
+
+	gui.drawImage(Main.DataFolder .. "/images/status/" .. status .. ".png", x, y, 16, 8)
+end
+
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
 	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
@@ -262,6 +268,10 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), hpText, hpTextColor, shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, levelEvoTextColor, shadowcolor)
+
+	if Tracker.Data.isViewingOwn and Tracker.Data.inBattle == false and pokemon.status ~= MiscData.StatusType.None then
+		Drawing.drawStatusIcon(MiscData.StatusCodeMap[pokemon.status], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
+	end
 
 	-- HELD ITEM AND ABILITIES
 	local abilityStringTop = Constants.BLANKLINE

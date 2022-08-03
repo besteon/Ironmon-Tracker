@@ -274,20 +274,20 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local status_aux = Memory.readdword(startAddress + 80)
 	local sleep_turns_result = 0
 	local status_result = 0
-	if status_aux == 0 then
+	if status_aux == 0 then --None
 		status_result = 0
-	elseif status_aux < 8 then
+	elseif status_aux < 8 then -- Sleep
 		sleep_turns_result = status_aux
 		status_result = 1
-	elseif status_aux == 8 then
+	elseif status_aux == 8 then -- Poison
 		status_result = 2
-	elseif status_aux == 16 then
+	elseif status_aux == 16 then -- Burn
 		status_result = 3
-	elseif status_aux == 32 then
+	elseif status_aux == 32 then -- Freeze
 		status_result = 4
-	elseif status_aux == 64 then
+	elseif status_aux == 64 then -- Paralyze
 		status_result = 5
-	elseif status_aux == 128 then
+	elseif status_aux == 128 then -- Toxic Poison
 		status_result = 6
 	end
 

@@ -23,13 +23,23 @@ MiscData.HealingType = {
 
 -- Currently unused data
 MiscData.StatusType = {
-	Poison = 0,
-	Burn = 1,
-	Freeze = 2,
-	Sleep = 3,
-	Paralyze = 4,
-	Confuse = 5,
+	None = 0,
+	Sleep = 1,
+	Poison = 2,
+	Burn = 3,
+	Freeze = 4,
+	Paralyze = 5,
+	Toxic = 6,
 	All = 100,
+}
+
+MiscData.StatusCodeMap = {
+	[MiscData.StatusType.Burn] = "BRN",
+	[MiscData.StatusType.Freeze] = "FRZ",
+	[MiscData.StatusType.Paralyze] = "PAR",
+	[MiscData.StatusType.Poison] = "PSN",
+	[MiscData.StatusType.Toxic] = "PSN",
+	[MiscData.StatusType.Sleep] = "SLP",
 }
 
 -- Currently unused data
