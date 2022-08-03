@@ -274,20 +274,20 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local status_aux = Memory.readdword(startAddress + 80)
 	local sleep_turns_result = 0
 	local status_result = 0
-	if status_aux == 0 then
+	if status_aux == 0 then --None
 		status_result = 0
-	elseif status_aux < 8 then
+	elseif status_aux < 8 then -- Sleep
 		sleep_turns_result = status_aux
 		status_result = 1
-	elseif status_aux == 8 then
+	elseif status_aux == 8 then -- Poison
 		status_result = 2
-	elseif status_aux == 16 then
+	elseif status_aux == 16 then -- Burn
 		status_result = 3
-	elseif status_aux == 32 then
+	elseif status_aux == 32 then -- Freeze
 		status_result = 4
-	elseif status_aux == 64 then
+	elseif status_aux == 64 then -- Paralyze
 		status_result = 5
-	elseif status_aux == 128 then
+	elseif status_aux == 128 then -- Toxic Poison
 		status_result = 6
 	end
 
@@ -441,7 +441,7 @@ function Program.updateBattleDataFromMemory()
 		Program.BattleTurn.prevAttackerValue = attackerValue
 
 		local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. attackerValue
-		Utils.printDebug(message)
+		--Utils.printDebug(message)
 		-- TODO: attackerValue just isn't accurate enough, need to find a workaround. for determine who is attacking
 		-- 0) Dmg: 2715, Move: 337, R:4, M:337, A:1
 		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
