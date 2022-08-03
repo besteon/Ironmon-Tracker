@@ -121,10 +121,10 @@ Constants.OrderedLists = {
 		"Neon Lights",
 	},
 	TIPS = {
-		"Helpful tips are shown down here.",
+		"Helpful tips are shown down here.", -- Skipped after it's shown once
 		"Tracked data is auto-saved after every battle.",
 		"Switch Pokemon views by pressing the 'Start' button.", -- referenced by Options.initialize()
-		"Click on any Pokemon or Move to learn more about it.",
+		"Click on any Pokemon or move to learn more about it.",
 		"Leave a note for a Pokemon by clicking here.",
 	},
 }

@@ -365,17 +365,17 @@ function Program.updateBattleDataFromMemory()
 			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
 			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 
-			if isWild then
-				local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
-				local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
-	
-				Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
-				Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags) -- TODO: When trainer data gets added, move out of (isWild)
-				Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
+			local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+			local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
 
-				if Program.CurrentRoute.hasInfo then
-					Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
-				end
+			Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
+			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
+
+			print(Program.CurrentRoute.encounterArea)
+
+			if isWild and Program.CurrentRoute.hasInfo then
+				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 			end
 		end
 
@@ -535,7 +535,7 @@ function Program.endBattle(isWild)
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
-	Tracker.Data.otherPokemon = nil
+	Tracker.Data.otherPokemon = {}
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
 
 	-- Reset the transform tracking disable

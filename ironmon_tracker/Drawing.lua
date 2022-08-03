@@ -339,8 +339,8 @@ function Drawing.drawPokemonInfoArea(pokemon)
 			end
 
 			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
-			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
-			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
 		end
 	end
 end
@@ -977,15 +977,19 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	-- POKEMON SEEN
-	local areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
+	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
+		if iconButton.pokemonID == 252 and not Options["Pokemon Stadium portraits"] then -- Question mark icon
+			iconButton.box[2] = iconButton.box[2] + 4
+		end
+
 		local x = iconButton.box[1]
 		local y = iconButton.box[2]
 		Drawing.drawButton(iconButton, boxBotShadow)
 
-		if areaInfo[iconButton.pokemonID] ~= nil then
-			local rateText = (areaInfo[iconButton.pokemonID].rate * 100) .. "%"
-			local rateOffset = Utils.inlineIf(areaInfo[iconButton.pokemonID].rate == 1, 5, 10)
+		if iconButton.rate ~= nil then -- Typically rates aren't known unless 'InfoScreen.revealOriginalRoute'
+			local rateText = (iconButton.rate * 100) .. "%"
+			local rateOffset = Utils.inlineIf(iconButton.rate == 1.00, 5, Utils.inlineIf(iconButton.rate >= 0.1, 7, 9)) -- centering
 			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
 			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Default text"], boxBotShadow)
 		end

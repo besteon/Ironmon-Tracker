@@ -318,14 +318,18 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	local routeInfo = RouteData.Info[mapId]
 	local totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 
-	local routeEncounters
+	local areaInfo
 	if InfoScreen.revealOriginalRoute then
-		routeEncounters = {}
-		for pid, _ in pairs(RouteData.getEncounterAreaPokemon(mapId, encounterArea)) do
-			table.insert(routeEncounters, pid)
-		end
+		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	else
-		routeEncounters = Tracker.getRouteEncounters(mapId, encounterArea)
+		local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
+		areaInfo = {}
+		for _, id in ipairs(trackedPokemonIDs) do
+			table.insert(areaInfo, {
+				pokemonID = id,
+				rate = nil,
+			})
+		end
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
@@ -337,8 +341,10 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	local iconButtons = {}
 	for index=1, totalPossible, 1 do
 		local pokemonID = 252 -- Question mark icon
-		if routeEncounters ~= nil and routeEncounters[index] ~= nil then
-			pokemonID = routeEncounters[index]
+		local rate = nil
+		if areaInfo ~= nil and areaInfo[index] ~= nil then
+			pokemonID = areaInfo[index].pokemonID
+			rate = areaInfo[index].rate
 		end
 
 		local x = startX + offsetX
@@ -359,6 +365,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 				return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. self.pokemonID .. extension
 			end,
 			pokemonID = pokemonID,
+			rate = rate,
 			box = { x, y, iconWidth, iconWidth },
 			isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 			onClick = function(self)
