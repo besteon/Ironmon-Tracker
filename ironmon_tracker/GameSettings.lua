@@ -12,18 +12,21 @@ GameSettings = {
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 	sBattlerAbilities = 0x00000000,
 	gBattlerAttacker = 0x00000000,
+	gBattlerTarget = 0x00000000,
 	gBattlerPartyIndexesSelfSlotOne = 0x00000000,
 	gBattlerPartyIndexesEnemySlotOne = 0x00000000,
 	gBattlerPartyIndexesSelfSlotTwo = 0x00000000,
 	gBattlerPartyIndexesEnemySlotTwo = 0x00000000,
 	gBattleMons = 0x00000000,
 	gBattlescriptCurrInstr = 0x00000000,
+	gBattleScriptingBattler = 0x00000000,
 	gBattleResults = 0x00000000,
 	BattleScript_FocusPunchSetUp = 0x00000000,
 	BattleScript_LearnMoveLoop = 0x00000000,
 	BattleScript_LearnMoveReturn = 0x00000000,
 	gMoveToLearn = 0x00000000,
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+	gMoveResultFlags = 0x00000000,
 
 	FriendshipRequiredToEvo = 0x00000000,
 
@@ -172,17 +175,20 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02024c08
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f61
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02024c68
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -310,17 +316,20 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -448,17 +457,20 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -590,17 +602,20 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ef1
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -620,17 +635,20 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -650,17 +668,20 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
@@ -683,18 +704,21 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
 	GameSettings.gBattlerAttacker = 0x0202420B
+	GameSettings.gBattlerTarget = 0x0202420c
 	GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
 	GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 	GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 	GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 	GameSettings.gBattleMons = 0x02024084
 	GameSettings.gBattlescriptCurrInstr = 0x02024214
+	GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
 	GameSettings.gBattleResults = 0x03005d10
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
 	GameSettings.BattleScript_LearnMoveLoop = 0x082dabd9 -- BattleScript_TryLearnMoveLoop
 	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
 	GameSettings.gMoveToLearn = 0x020244e2
 	GameSettings.gBattleOutcome = 0x0202433a
+	GameSettings.gMoveResultFlags = 0x0202427c
 	
 	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
@@ -981,8 +1005,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
+		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a11
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
@@ -1123,19 +1147,21 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 		
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
@@ -1273,19 +1299,21 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 		
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
@@ -1423,19 +1451,21 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7E3D
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042d9c + 0x13E -- GetEvolutionTargetSpecies (untested)
 
@@ -1574,18 +1604,21 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a5d
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8aaf
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
 
@@ -1716,18 +1749,21 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
 		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
 		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d89ed
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
