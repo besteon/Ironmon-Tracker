@@ -1360,7 +1360,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8ed9] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
 				[0x081d8f76] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
 				[0x081d8fd1] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d8f38] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d8f32] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
 				[0x081d8f92] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d8f40] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d8fe5] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
@@ -1512,7 +1512,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7b79] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
 				[0x081d7c16] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
 				[0x081d7c71] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d7bd8] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d7bd2] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
 				[0x081d7c32] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d7be0] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d7c85] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
