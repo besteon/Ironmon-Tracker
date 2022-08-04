@@ -25,6 +25,12 @@ Program = {
 		encounterArea = RouteData.EncounterArea.LAND,
 		hasInfo = false,
 	},
+	SyncData = {
+		turnCount = 0,
+		battler = -1,
+		attacker = -1,
+		battlerTarget = -1,
+	}
 }
 
 Program.Screens = {
@@ -385,23 +391,13 @@ function Program.updateBattleDataFromMemory()
 			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 
 			if isWild and Program.CurrentRoute.hasInfo then
-				
 				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 			end
 		end
 
 		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-
-		-- TODO: Hacky workaround when both active Pokemon share an ability, currently no way to know which triggered, so skip revealing anything
-		if opposingPokemon.abilityId ~= ownersPokemon.abilityId then
-			-- Only track the triggered ability if that ability belongs to the enemy Pokemon (matches its real ability)
-			if GameSettings.ABILITIES[battleMsg] == opposingPokemon.abilityId then
-				Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
-			end
-		end
-
-		-- Also track the enemy's ability if the player's Pokemon triggered its Trace ability
-		if GameSettings.ABILITIES[battleMsg] == 36 and ownersPokemon.abilityId == 36 then -- 36 = Trace
+		-- Auto-track opponent abilities if they go off
+		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon.abilityId, ownersPokemon.abilityId) then
 			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
 		end
 
@@ -457,9 +453,107 @@ function Program.processBattleTurnFromMemory()
 			Program.BattleTurn.prevDamageTotal = currDamageTotal
 		end
 	end
+end
 
-	-- local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. Program.BattleTurn.attackerValue
-	-- Utils.printDebug(message)
+-- Checks if ability should be auto-tracked. Returns true if so; false otherwise
+function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
+	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
+	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker) -- 0 or 2 if player, 1 or 3 if enemy
+	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
+	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
+
+	if Program.SyncData.turnCount < currentTurn then
+		Program.SyncData.turnCount = currentTurn
+		Program.SyncData.battler = -1
+		Program.SyncData.attacker = -1
+		Program.SyncData.battlerTarget = -1
+	end
+
+	-- Abilities to check via battler read
+	local battlerMsg = GameSettings.ABILITIES.BATTLER[battleMsg]
+
+	if battlerMsg ~= nil then
+		if battlerMsg[playerAbility] and playerAbility == 36 and battler % 2 == 0 then -- 36 = Trace
+			-- Track the enemy's ability if the player's Pokemon uses its Trace ability
+			return true
+		elseif battlerMsg[enemyAbility] then
+			if enemyAbility == 28 then -- 28 = Synchronize
+				-- Enemy is using Synchronize on the player, battler is set to status target instead
+				if battler % 2 == 0 then return true end
+			elseif battler % 2 == 1 then
+				-- Enemy is the one that used the ability
+				return true
+			end
+		end
+	end
+
+	-- Abilities to check for when ally is the battler
+	local reverseBattlerMsg = GameSettings.ABILITIES.REVERSE_BATTLER[battleMsg]
+
+	if reverseBattlerMsg ~= nil then
+		if reverseBattlerMsg[enemyAbility] and battler % 2 == 0 then
+			return true
+		end
+	end
+
+	-- Abilities to check via attacker read
+	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
+	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
+
+	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
+		if enemyAbility == 26 then
+			-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
+			if moveFlags == 9 then return true end
+		elseif battlerTarget % 2 == 1 then
+			-- Otherwise, player activated enemy's ability
+			return true
+		end
+	end
+	if reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and attacker % 2 == 1 then
+		--Owner of the ability is logged as the attacker
+		return true
+	end
+
+	-- Contact-based status-inflicting abilities
+	local statusInflictMsg = GameSettings.ABILITIES.STATUS_INFLICT[battleMsg]
+
+	if statusInflictMsg ~= nil then
+		-- Log allied pokemon contact status ability trigger for Synchronize
+		if statusInflictMsg[enemyAbility] then
+			if battler % 2 == 1 then
+				if (battlerTarget % 2 == 1 and attacker % 2 == 0) or (Program.SyncData.attacker == attacker and Program.SyncData.battlerTarget == battlerTarget and Program.SyncData.battler ~= battler) then
+					-- Player activated enemy's contact-based status ability
+					return true
+				end
+			end
+		end
+		if statusInflictMsg[playerAbility] and attacker % 2 == 1 then
+			Program.SyncData.turnCount = currentTurn
+			Program.SyncData.battler = battler
+			Program.SyncData.attacker = attacker
+			Program.SyncData.battlerTarget = battlerTarget
+		end
+	end
+
+	-- Abilities not covered by the above checks
+	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
+
+	if battleTargetMsg ~= nil and battleTargetMsg[enemyAbility] then
+		if battlerTarget % 2 == 1 then
+			if battleTargetMsg.scope == "both" and enemyAbility ~= playerAbility then
+				-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
+				return true
+			elseif battleTargetMsg.scope == "self" then
+				return true
+			end
+		elseif battlerTarget % 2 == 0 and battleTargetMsg.scope == "other" then
+			-- Leech seed sets gBattlerTarget to mon receiving hp, so this is where we see liquid ooze
+			return true
+		end
+	end
+
+	return false
 end
 
 function Program.updateViewSlotsFromMemory()
@@ -524,6 +618,11 @@ function Program.beginNewBattle(isWild)
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
+
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
@@ -550,6 +649,10 @@ function Program.endBattle(isWild)
 	Program.BattleTurn.turnCount = -1
 	Program.BattleTurn.lastMoveId = 0
 	Program.CurrentRoute.hasInfo = false
+	--Reset Synchronize tracker
+	Program.SyncData.turnCount = 0
+	Program.SyncData.attacker = -1
+	Program.SyncData.battlerTarget = -1
 
 	-- Reset stat stage changes for the pokemon team
 	for i=1, 6, 1 do
