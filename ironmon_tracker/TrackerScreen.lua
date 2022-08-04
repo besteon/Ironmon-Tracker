@@ -121,7 +121,7 @@ TrackerScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		text = "Leave a note",
+		text = "(Leave a note)",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
@@ -129,6 +129,19 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			TrackerScreen.openNotePadWindow()
+		end
+	},
+	LastAttackSummary = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SWORD_ATTACK,
+		text = "",
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 13, 13 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.LAST_ATTACK end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			-- Eventually clicking this will show a Move History screen
 		end
 	},
 	RouteSummary = {
@@ -240,7 +253,6 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
 		isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
-		-- isVisible = function() return false end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -264,22 +276,25 @@ function TrackerScreen.buildCarousel()
 		isVisible = function() return Tracker.Data.inBattle and (not Program.BattleTurn.enemyIsAttacking) and Program.BattleTurn.lastMoveId ~= 0 end,
 		framesToShow = 180,
 		getContentList = function()
-			-- TODO: Currently this only records last move used for damaging moves
+			local lastAttackMsg
+			-- Currently this only records last move used for damaging moves
 			if Program.BattleTurn.lastMoveId > 0 and Program.BattleTurn.lastMoveId <= #MoveData.Moves then
 				local moveInfo = MoveData.Moves[Program.BattleTurn.lastMoveId]
 				if Program.BattleTurn.damageReceived > 0 then
-					return { moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage" }
+					lastAttackMsg = moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage"
 				else
-					return { "Last move: " .. moveInfo.name }
+					lastAttackMsg = "Last move: " .. moveInfo.name
 				end
 			else
-				return { "Waiting for a new move to be used." }
+				lastAttackMsg = "Waiting for a new move..."
 			end
+
+			TrackerScreen.Buttons.LastAttackSummary.text = lastAttackMsg
+			return { TrackerScreen.Buttons.LastAttackSummary } 
 		end,
 	}
 
 	-- ROUTE INFO
-	-- TODO: If against wild pokemon, reveal route table; otherwise show something else (total num trainers?)
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
