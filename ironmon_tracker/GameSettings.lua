@@ -805,7 +805,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gBattleResults = 0x03004f90 -- TODO: Check what this address actually is
+		GameSettings.gBattleResults = 0x03004EE0
 		
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
@@ -876,7 +876,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gBattleResults = 0x03004f90 -- TODO: Check what this address actually is
+		GameSettings.gBattleResults = 0x03004EE0
 		
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
@@ -947,8 +947,8 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gBattleResults = 0x03004f90 -- TODO: Check what this address actually is
-		
+		GameSettings.gBattleResults = 0x03004EE0
+				
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7E3D
