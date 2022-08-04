@@ -49,6 +49,13 @@ RouteData.NatDexToIndex = {
 	[380] = 407, [381] = 408, [382] = 404, [383] = 405, [384] = 406, [385] = 409, [386] = 410,
 }
 
+-- Maps the rodId from 'gSpecialVar_ItemId' to encounterArea
+RouteData.Rods = {
+	[262] = RouteData.EncounterArea.OLDROD,
+	[263] = RouteData.EncounterArea.GOODROD,
+	[264] = RouteData.EncounterArea.SUPERROD,
+}
+
 function RouteData.setupRouteInfo(gameId)
 	local maxMapId = 0
 
@@ -332,14 +339,14 @@ end
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
 	RouteData.Info = {
-		[12] = { name = "Cerulean City Gym", }, 
-		[15] = { name = "Celadon City Gym", },
-		[20] = { name = "Fuchsia City Gym", },
-		[25] = { name = "Vermilion City Gym", },
-		[28] = { name = "Pewter City Gym", },
-		[34] = { name = "Saffron City Gym", },
-		[36] = { name = "Cinnabar Island Gym", },
-		[37] = { name = "Viridian City Gym", },
+		[12] = { name = "Cerulean Gym", }, 
+		[15] = { name = "Celadon Gym", },
+		[20] = { name = "Fuchsia Gym", },
+		[25] = { name = "Vermilion Gym", },
+		[28] = { name = "Pewter Gym", },
+		[34] = { name = "Saffron Gym", },
+		[36] = { name = "Cinnabar Gym", },
+		[37] = { name = "Viridian Gym", },
 		[78] = { name = "Pallet Town",
 			[RouteData.EncounterArea.SURFING] = {
 				{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
@@ -474,7 +481,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},
-		[87] = { name = "Indigo Plateau Ext.", },
+		[87] = { name = "Indigo Plateau", },
 		[88] = { name = "Saffron City Conn.", },
 		[89] = { name = "Route 1",
 			[RouteData.EncounterArea.LAND] = {
@@ -919,12 +926,12 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 25, rate = 0.05, minLv = 3, maxLv = 5, },
 			},
 		},
-		[118] = {}, -- SSANNE EXTERIOR
-		[119] = {}, -- SSANNE 1F CORRIDOR
-		[120] = {}, -- SSANNE 2F CORRIDOR
-		[121] = {}, -- SSANNE 3F CORRIDOR
-		[122] = {}, -- SSANNE B1F CORRIDOR
-		[123] = {}, -- SSANNE DECK
+		[118] = { name = "SS Anne Ext.", },
+		[119] = { name = "SS Anne 1F", },
+		[120] = { name = "SS Anne 2F", },
+		[121] = { name = "SS Anne 3F", },
+		[122] = { name = "SS Anne B1F", },
+		[123] = { name = "SS Anne Deck", },
 		[124] = { name = "Diglett's Cave B1F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 50, rate = 0.95, minLv = 15, maxLv = 22, },
@@ -968,8 +975,21 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 105, rate = 0.05, minLv = 44, maxLv = 46, },
 			},
 		},
-		[128] = {}, -- LAYOUT_ROCKET_HIDEOUT_B1F
-		[132] = {}, -- LAYOUT_SILPH_CO_1F
+		[128] = { name = "R. Hideout B1F", },
+		[129] = { name = "R. Hideout B2F", },
+		[130] = { name = "R. Hideout B3F", },
+		[131] = { name = "R. Hideout B4F", },
+		[132] = { name = "Silph Co. 1F", },
+		[133] = { name = "Silph Co. 2F", },
+		[134] = { name = "Silph Co. 3F", },
+		[135] = { name = "Silph Co. 4F", },
+		[136] = { name = "Silph Co. 5F", },
+		[137] = { name = "Silph Co. 6F", },
+		[138] = { name = "Silph Co. 7F", },
+		[139] = { name = "Silph Co. 8F", },
+		[140] = { name = "Silph Co. 9F", },
+		[141] = { name = "Silph Co. 10F", },
+		[142] = { name = "Silph Co. 11F", },
 		[143] = { name = Constants.Words.POKEMON .. " Mansion 1F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
@@ -1011,10 +1031,10 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {110,89}, rate = 0.05, minLv = 34, maxLv = 34, },
 			},
 		},
-		[147] = {}, -- SAFARI ZONE CENTER
-		[148] = {}, -- SAFARI ZONE EAST
-		[149] = {}, -- SAFARI ZONE NORTH
-		[150] = {}, -- SAFARI ZONE WEST
+		[147] = { name = "Safari Zone C.", },
+		[148] = { name = "Safari Zone E.", },
+		[149] = { name = "Safari Zone N.", },
+		[150] = { name = "Safari Zone W.", },
 		[151] = { name = "Cerulean Cave 1F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 47, rate = 0.25, minLv = 49, maxLv = 58, },
@@ -1211,8 +1231,8 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 144, rate = 1.00, minLv = 50, maxLv = 50, },
 			},
 		},
-		[161] = {}, -- POKEMON TOWER 1F
-		[162] = {}, -- POKEMON TOWER 2F
+		[161] = { name = Constants.Words.POKEMON .. " Tower 1F", },
+		[162] = { name = Constants.Words.POKEMON .. " Tower 2F", },
 		[163] = { name = Constants.Words.POKEMON .. " Tower 3F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.90, minLv = 13, maxLv = 19, },

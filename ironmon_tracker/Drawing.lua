@@ -956,7 +956,7 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	local boxWidth = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local boxTopY = Constants.SCREEN.MARGIN
 	local boxTopHeight = 30
-	local botBoxY = boxTopY + boxTopHeight + 12
+	local botBoxY = boxTopY + boxTopHeight + 13
 	local botBoxHeight = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - botBoxY
 
 	-- Fill background and margins
@@ -971,12 +971,7 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, Theme.COLORS["Default text"], boxTopShadow)
 	Drawing.drawText(boxX + 13, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
 
-	if InfoScreen.revealOriginalRoute then
-		local originalShownText = "Showing original " .. Constants.Words.POKEMON .. " data"
-		Drawing.drawText(boxX + 6, boxTopY + 16, originalShownText, Theme.COLORS["Positive text"], boxTopShadow)
-	else
-		Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)
-	end
+	Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)
 
 	-- BOT BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
@@ -998,7 +993,7 @@ function Drawing.drawRouteInfoScreen(mapId, encounterArea)
 		local y = iconButton.box[2]
 		Drawing.drawButton(iconButton, boxBotShadow)
 
-		if iconButton.rate ~= nil then -- Typically rates aren't known unless 'InfoScreen.revealOriginalRoute'
+		if iconButton.rate ~= nil then
 			local rateText = (iconButton.rate * 100) .. "%"
 			local rateOffset = Utils.inlineIf(iconButton.rate == 1.00, 5, Utils.inlineIf(iconButton.rate >= 0.1, 7, 9)) -- centering
 			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])

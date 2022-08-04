@@ -93,7 +93,7 @@ TrackerScreen.Buttons = {
 		text = "",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 64, 8, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not self:isVisible() then return end
@@ -237,7 +237,7 @@ function TrackerScreen.buildCarousel()
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
-		isVisible = function() return not Tracker.Data.inBattle end,
+		isVisible = function() return Tracker.Data.isViewingOwn end,
 		framesToShow = 210,
 		getContentList = function()
 			local badgeButtons = {}
@@ -252,7 +252,7 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return Tracker.Data.inBattle or Tracker.getPokemon(1, true) == nil end,
+		isVisible = function() return not Tracker.Data.isViewingOwn or Tracker.getPokemon(1, true) == nil end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -273,7 +273,7 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function() return Tracker.Data.inBattle and (not Program.BattleTurn.enemyIsAttacking) and Program.BattleTurn.lastMoveId ~= 0 end,
+		isVisible = function() return Tracker.Data.inBattle and not Program.BattleTurn.enemyIsAttacking and Program.BattleTurn.lastMoveId ~= 0 end,
 		framesToShow = 180,
 		getContentList = function()
 			local lastAttackMsg

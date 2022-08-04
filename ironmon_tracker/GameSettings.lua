@@ -204,6 +204,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -238,6 +239,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -272,6 +274,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -310,6 +313,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -344,6 +348,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -378,6 +383,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
 		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -416,6 +422,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gMapHeader = 0x02037318
 	GameSettings.gBattleTerrain = 0x02022ff0
 	GameSettings.gBattleTypeFlags = 0x02022fec
+	GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
 	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -485,6 +492,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -565,6 +573,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -636,6 +645,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -712,6 +722,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -788,6 +799,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042d9c + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -863,6 +875,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -929,6 +942,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c

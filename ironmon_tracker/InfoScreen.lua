@@ -3,7 +3,6 @@ InfoScreen = {
 	prevScreen = 0,
 	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterArea}'
 	prevScreenInfo = 0,
-	revealOriginalRoute = false,
 }
 
 InfoScreen.Screens = {
@@ -75,15 +74,18 @@ InfoScreen.Buttons = {
 		end
 	},
 	showOriginalRoute = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Show Original Route Info",
+		type = Constants.ButtonTypes.CHECKBOX,
+		text = "Show original route data",
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 20, Constants.SCREEN.MARGIN + 16, 100, 11 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 17, 104, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 18, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO and not InfoScreen.revealOriginalRoute end,
+		toggleState = false, -- When true, the original game data for the route is revealed
+		toggleColor = "Positive text",
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			InfoScreen.revealOriginalRoute = true
+			self.toggleState = not self.toggleState
 			Program.redraw(true)
 		end
 	},
@@ -168,7 +170,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreen = 0
 	InfoScreen.infoLookup = 0
 	InfoScreen.prevScreenInfo = 0
-	InfoScreen.revealOriginalRoute = false
+	InfoScreen.Buttons.showOriginalRoute.toggleState = false
 end
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
@@ -304,7 +306,7 @@ function InfoScreen.openRouteInfoWindow()
 
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
-			InfoScreen.revealOriginalRoute = false
+			InfoScreen.Buttons.showOriginalRoute.toggleState = false
 			Program.redraw(true)
 		end
 		client.unpause()
@@ -319,7 +321,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	local totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 
 	local areaInfo
-	if InfoScreen.revealOriginalRoute then
+	if InfoScreen.Buttons.showOriginalRoute.toggleState then
 		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	else
 		local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)

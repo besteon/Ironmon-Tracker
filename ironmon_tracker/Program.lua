@@ -365,17 +365,26 @@ function Program.updateBattleDataFromMemory()
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
 			opposingPokemon.hasBeenEncountered = true
+
 			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
 			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
 
-			local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 			local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
+			local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 
 			Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
+
+			local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
+			-- Utils.printDebug(battleFlags .. " - " .. fishingRod)
+			if RouteData.Rods[fishingRod] ~= nil then
+				Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
+			end
+
 			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 
 			if isWild and Program.CurrentRoute.hasInfo then
+				
 				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 			end
 		end
