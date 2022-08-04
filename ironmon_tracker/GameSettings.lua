@@ -1191,7 +1191,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gCurrentMove = 0x02023d4a
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
@@ -1337,7 +1336,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gCurrentMove = 0x02023d4a
 
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
