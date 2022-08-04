@@ -201,7 +201,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d9704] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d971f] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d97f6] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -290,19 +290,19 @@ function GameSettings.setGameAsRuby(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d983a] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d98fb] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7bde] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d9095] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -342,7 +342,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d971c] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d9737] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d980e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -431,19 +431,19 @@ function GameSettings.setGameAsRuby(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d9852] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d9913] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7bf6] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d90ad] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -483,7 +483,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d971c] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d9737] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d980e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -572,19 +572,19 @@ function GameSettings.setGameAsRuby(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d9852] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d9913] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7bf6] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d90ad] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -628,7 +628,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d9694] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d96af] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d9786] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -717,19 +717,19 @@ function GameSettings.setGameAsSapphire(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d97ca] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d988b] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7b6e] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d9025] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -769,7 +769,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d96ac] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d96c7] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d979e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -858,19 +858,19 @@ function GameSettings.setGameAsSapphire(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d97e2] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d98a3] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7b86] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d903d] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -910,7 +910,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.bagPocket_Berries_Size = 46
 
 		GameSettings.ABILITIES = {
-			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
+			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
 				[0x081d96ac] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
 				[0x081d96c7] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
 				[0x081d979e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
@@ -999,19 +999,19 @@ function GameSettings.setGameAsSapphire(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d97e2] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d98a3] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7b86] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d903d] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -1147,19 +1147,19 @@ function GameSettings.setGameAsEmerald()
 		},
 		BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 			[0x082db566] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-				[6] = true,
+				[6] = true, -- Damp
 				scope = "both",
 			},
 			[0x082db627] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-				[43] = true,
+				[43] = true, -- Soundproof
 				scope = "self",
 			},
 			[0x082d96ea] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-				[43] = true,
+				[43] = true, -- Soundproof
 				scope = "self",
 			},
 			[0x082dad5f] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-				[64] = true,
+				[64] = true, -- Liquid Ooze
 				scope = "other",
 			},
 		},
@@ -1295,19 +1295,19 @@ function GameSettings.setGameAsFireRed(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d9425] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d94e6] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d8c07] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -1440,19 +1440,19 @@ function GameSettings.setGameAsFireRed(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d93b5] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d9476] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d75ca] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d8b97] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -1590,19 +1590,19 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d681f] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d68e0] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d4a34] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d6001] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -1742,19 +1742,19 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d8ee7] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d8fa8] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d70fc] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d86c9] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -1894,19 +1894,19 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d7b87] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d7c48] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d5d9c] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7369] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -2045,19 +2045,19 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d9401] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d94c2] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d7616] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d8be3] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
@@ -2190,19 +2190,19 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 			},
 			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
 				[0x081d9391] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
-					[6] = true,
+					[6] = true, -- Damp
 					scope = "both",
 				},
 				[0x081d9452] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d75a6] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
-					[43] = true,
+					[43] = true, -- Soundproof
 					scope = "self",
 				},
 				[0x081d8b73] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
-					[64] = true,
+					[64] = true, -- Liquid Ooze
 					scope = "other",
 				},
 			},
