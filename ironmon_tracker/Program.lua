@@ -308,6 +308,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
+		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg
 		abilityId = abilityId,
 		status = status_result,
 		sleep_turns = sleep_turns_result,

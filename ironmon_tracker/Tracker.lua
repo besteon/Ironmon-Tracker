@@ -49,6 +49,15 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	if personality == nil or personality == 0 then return nil end
 
 	if isOwn then
+		if Tracker.Data.ownPokemon[personality].isEgg == 1 then
+			-- Currently viewed pokemon is still an egg
+			local nextSlot = slotNumber
+			repeat
+				-- Cycle to the next non-egg party member (you're required at least one non-egg in the party)
+				nextSlot = nextSlot + 1
+				personality = Tracker.Data.ownTeam[nextSlot]
+			until personality ~= nil and personality ~= 0 and Tracker.Data.ownPokemon[personality].isEgg == 0
+		end
 		return Tracker.Data.ownPokemon[personality]
 	else
 		return Tracker.Data.otherPokemon[personality]
