@@ -829,32 +829,113 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
 		--this was not stright forward to get so expect to find errors here 
+		-- TODO: Find addresses for the commented out scripts below
 		GameSettings.ABILITIES = {
-			[0x081d66e9] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
-			[0x081d6704] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-			[0x081d680b] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-			[0x081d6819] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-			[0x081d42b3] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
-			[0x081d68ae] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			[0x081d6909] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-			--[0x081d42b3] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested) not working in eng version
-			[0x081d686a] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
-			[0x081d581c] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-			[0x081d6777] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
-			[0x081d3ea3] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			[0x081d6938] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-			[0x081d6880] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-			[0x081d670b] = 36, -- BattleScript_TraceActivates + 0x0 Trace
-			[0x081d68e0] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
-			[0x081d5f23] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-			[0x081d6729] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-			[0x081d68ee] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
-			[0x081d3f32] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
-			[0x081d6931] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-			[0x081d68f8] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-			[0x081d430b] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-			[0x081d67e3] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-			[0x081d3e30] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081d66e9] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081d6704] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				-- [0x081d93e1] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
+				-- [0x081d93c9] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
+				[0x081d6711] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
+				[0x081d6729] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d430b] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d67e3] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d6886] = { -- BattleScript_AbilityNoStatLoss + 0x6
+					[29] = true, -- Clear Body
+					[73] = true, -- White Smoke
+				},
+				[0x081d68ee] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
+			},
+			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
+				-- [0x081d93e1] = { -- BattleScript_IntimidateAbilityFail + 0x6 (Intimidate blocked)
+				-- 	[29] = true, -- Clear Body
+				-- 	[52] = true, -- Hyper Cutter
+				-- 	[73] = true, -- White Smoke
+				-- }, 
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081d6811] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
+				[0x081d68ae] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081d6909] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d6870] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d581c] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				-- [0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
+				[0x081d3ea3] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				-- [0x081d69b3] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
+				[0x081d6931] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d68f8] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				-- [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				-- [0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d9458] = { -- BattleScript_MonMadeMoveUseless + 0x7 --> Ability nullifies move
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d94a4] = { -- BattleScript_PRLZPrevention + 0x8 
+				-- 	[7]  = true, -- Limber
+				-- 	[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
+				-- },
+				-- [0x081d94b0] = { -- BattleScript_PSNPrevention + 0x8
+				-- 	[17] = true, -- Immunity
+				-- 	[28] = true, -- Synchronize (is unable to inflict poison on other mon)
+				-- },
+				-- [0x081d9498] = { -- BattleScript_BRNPrevention + 0x8
+				-- 	[28] = true, -- Synchronize (is unable to inflict burn on other mon)
+				-- 	[41] = true, -- Water Veil
+				-- },
+				[0x081d3e30] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
+			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
+				[0x081d5f23] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d3f32] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				-- [0x081d6f2a] = { -- BattleScript_RestCantSleep + 0x8 --> Ability blocks mon's own rest attempt
+				-- 	[15] = true, -- Insomnia
+				-- 	[72] = true, -- Vital Spirit
+				-- },
+			},
+			STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
+				-- [0x081d9230] = {[27] = true}, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore (Sleep)
+				-- [0x081d9279] = { -- BattleScript_MoveEffectParalysis + 0x7
+				-- 	[9] = true,  -- Static
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- },
+				-- [0x081d924c] = { -- BattleScript_MoveEffectPoison + 0x7
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- 	[38] = true, -- Poison Point
+				-- }, 
+				-- [0x081d925b] = { --BattleScript_MoveEffectBurn + 0x7
+				-- 	[28] = true, -- Synchronize
+				-- 	[49] = true, -- Flame Body
+				-- },
+			},
+			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
+				[0x081d681f] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
+					[6] = true,
+					scope = "both",
+				},
+				[0x081d68e0] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
+					[43] = true,
+					scope = "self",
+				}, 
+				-- [0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
+				-- 	[43] = true,
+				-- 	scope = "self",
+				-- },
+				-- [0x081d8c07] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+				-- 	[64] = true,
+				-- 	scope = "other",
+				-- }, 
+			},
 		}
 		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
 		ItalyData.updateToItalyData()
@@ -900,32 +981,113 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
 		--so take what you get from firered v1.v and find where drizzle is
+		-- TODO: Find addresses for the commented out scripts below
 		GameSettings.ABILITIES = {
-			[0x081d8db1] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
-			[0x081D8DCC] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-			[0x081D8ED3] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-			[0x081D8EE1] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-			[0x081D6D77] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
-			[0x081D8F76] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			[0x081D8FD1] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-			[0x081D6981] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-			[0x081D8F32] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
-			[0x081D8F92] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-			[0x081D8E3F] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
-			[0x081D8FE5] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			[0x081D9000] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-			[0x081D8F48] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-			[0x081D8DD3] = 36, -- BattleScript_TraceActivates + 0x0 Trace
-			[0x081D8FA8] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
-			[0x081D8DE0] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-			[0x081D8DF1] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-			[0x081D8FB6] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
-			[0x081D9029] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
-			[0x081D8FF9] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-			[0x081D8FC0] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-			[0x081D8E08] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-			[0x081D8EAB] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-			[0x081D6506] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081d8db1] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081d8dcc] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				-- [0x081d93e1] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
+				-- [0x081d93c9] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
+				[0x081d8dd9] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
+				[0x081d8df1] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d8e08] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d8eab] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d8f4e] = { -- BattleScript_AbilityNoStatLoss + 0x6
+					[29] = true, -- Clear Body
+					[73] = true, -- White Smoke
+				},
+				[0x081d8fb6] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
+			},
+			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
+				-- [0x081d93e1] = { -- BattleScript_IntimidateAbilityFail + 0x6 (Intimidate blocked)
+				-- 	[29] = true, -- Clear Body
+				-- 	[52] = true, -- Hyper Cutter
+				-- 	[73] = true, -- White Smoke
+				-- }, 
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081d8ed9] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
+				[0x081d8f76] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081d8fd1] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d8f38] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d8f92] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				-- [0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
+				[0x081d8fe5] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				-- [0x081d69b3] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
+				[0x081d8ff9] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d8fc0] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				-- [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				-- [0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d9458] = { -- BattleScript_MonMadeMoveUseless + 0x7 --> Ability nullifies move
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d94a4] = { -- BattleScript_PRLZPrevention + 0x8 
+				-- 	[7]  = true, -- Limber
+				-- 	[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
+				-- },
+				-- [0x081d94b0] = { -- BattleScript_PSNPrevention + 0x8
+				-- 	[17] = true, -- Immunity
+				-- 	[28] = true, -- Synchronize (is unable to inflict poison on other mon)
+				-- },
+				-- [0x081d9498] = { -- BattleScript_BRNPrevention + 0x8
+				-- 	[28] = true, -- Synchronize (is unable to inflict burn on other mon)
+				-- 	[41] = true, -- Water Veil
+				-- },
+				[0x081d6506] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
+			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
+				[0x081d8de0] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d9029] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				-- [0x081d6f2a] = { -- BattleScript_RestCantSleep + 0x8 --> Ability blocks mon's own rest attempt
+				-- 	[15] = true, -- Insomnia
+				-- 	[72] = true, -- Vital Spirit
+				-- },
+			},
+			STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
+				-- [0x081d9230] = {[27] = true}, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore (Sleep)
+				-- [0x081d9279] = { -- BattleScript_MoveEffectParalysis + 0x7
+				-- 	[9] = true,  -- Static
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- },
+				-- [0x081d924c] = { -- BattleScript_MoveEffectPoison + 0x7
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- 	[38] = true, -- Poison Point
+				-- }, 
+				-- [0x081d925b] = { --BattleScript_MoveEffectBurn + 0x7
+				-- 	[28] = true, -- Synchronize
+				-- 	[49] = true, -- Flame Body
+				-- },
+			},
+			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
+				[0x081d8ee7] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
+					[6] = true,
+					scope = "both",
+				},
+				[0x081d8fa8] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
+					[43] = true,
+					scope = "self",
+				}, 
+				-- [0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
+				-- 	[43] = true,
+				-- 	scope = "self",
+				-- },
+				-- [0x081d8c07] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+				-- 	[64] = true,
+				-- 	scope = "other",
+				-- }, 
+			},
 		}
 		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
 		SpainData.updateToSpainData()
@@ -948,7 +1110,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
 		GameSettings.gBattleResults = 0x03004EE0
-				
+
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7E3D
@@ -971,32 +1133,113 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		--base for abilitys is fire red v1.1 looks like diff between abilitys is same
 		--so take what you get from firered v1.v and find where drizzle is
+		-- TODO: Find addresses for the commented out scripts below
 		GameSettings.ABILITIES = {
-			[0x081d7a51] = 2, -- BattleScript_DrizzleActivates + 0x0 Drizzle
-			[0x081D7A6C] = 3, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
-			[0x081D7B73] = 5, -- BattleScript_SturdyPreventsOHKO + 0x0 Sturdy
-			[0x081D7B81] = 6, -- BattleScript_DampStopsExplosion + 0x0 Damp
-			[0x081D5A17] = 7, -- BattleScript_LimberProtected + 0x0 Limber (untested)
-			[0x081D7C16] = 12, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious (untested)
-			[0x081D7C71] = 16, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-			[0x081D5621] = 17, -- BattleScript_ImmunityProtected + 0x0 Immunity (untested)
-			[0x081D7BD2] = 18, -- BattleScript_FlashFireBoost + 0x3 Flash Fire
-			[0x081D7C32] = 20, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
-			[0x081D7ADF] = 22, -- BattleScript_DoIntimidateActivationAnim + 0x0 Intimidate
-			[0x081D7C85] = 24, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			[0x081D7CA0] = 28, -- BattleScript_SynchronizeActivates + 0x0 Synchronize (untested)
-			[0x081D7BE8] = 29, -- BattleScript_AbilityNoStatLoss + 0x0 Clear Body & White Smoke
-			[0x081D7A73] = 36, -- BattleScript_TraceActivates + 0x0 Trace
-			[0x081D7C48] = 43, -- BattleScript_SoundproofProtected + 0x8 Soundproof
-			[0x081D7A80] = 44, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-			[0x081D7A91] = 45, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-			[0x081D7C56] = 52, -- BattleScript_AbilityNoSpecificStatLoss + 0x6 Hyper Cutter
-			[0x081D7CC9] = 54, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
-			[0x081D7C99] = 56, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
-			[0x081D7C60] = 60, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
-			[0x081D7AA8] = 61, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
-			[0x081D7B4B] = 70, -- BattleScript_DroughtActivates + 0x0 Drought
-			[0x081D51A6] = 72, -- BattleScript_CantMakeAsleep + 0x8 Vital Spirit
+			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081d7a51] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081d7a6c] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				-- [0x081d93e1] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
+				-- [0x081d93c9] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
+				[0x081d7a79] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
+				[0x081d7a91] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081d7aa8] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d7b4b] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081d7bee] = { -- BattleScript_AbilityNoStatLoss + 0x6
+					[29] = true, -- Clear Body
+					[73] = true, -- White Smoke
+				},
+				[0x081d7c56] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
+			},
+			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
+				-- [0x081d93e1] = { -- BattleScript_IntimidateAbilityFail + 0x6 (Intimidate blocked)
+				-- 	[29] = true, -- Clear Body
+				-- 	[52] = true, -- Hyper Cutter
+				-- 	[73] = true, -- White Smoke
+				-- }, 
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081d7b79] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
+				[0x081d7c16] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081d7c71] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081d7bd8] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d7c32] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				-- [0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
+				[0x081d7c85] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				-- [0x081d69b3] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
+				[0x081d7c99] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081d7c60] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				-- [0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				-- [0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d9458] = { -- BattleScript_MonMadeMoveUseless + 0x7 --> Ability nullifies move
+				-- 	[10] = true, -- Water Absorb
+				-- 	[11] = true, -- Volt Absorb
+				-- },
+				-- [0x081d94a4] = { -- BattleScript_PRLZPrevention + 0x8 
+				-- 	[7]  = true, -- Limber
+				-- 	[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
+				-- },
+				-- [0x081d94b0] = { -- BattleScript_PSNPrevention + 0x8
+				-- 	[17] = true, -- Immunity
+				-- 	[28] = true, -- Synchronize (is unable to inflict poison on other mon)
+				-- },
+				-- [0x081d9498] = { -- BattleScript_BRNPrevention + 0x8
+				-- 	[28] = true, -- Synchronize (is unable to inflict burn on other mon)
+				-- 	[41] = true, -- Water Veil
+				-- },
+				[0x081d51a6] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
+			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
+				[0x081d7a80] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d7cc9] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				-- [0x081d6f2a] = { -- BattleScript_RestCantSleep + 0x8 --> Ability blocks mon's own rest attempt
+				-- 	[15] = true, -- Insomnia
+				-- 	[72] = true, -- Vital Spirit
+				-- },
+			},
+			STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
+				-- [0x081d9230] = {[27] = true}, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore (Sleep)
+				-- [0x081d9279] = { -- BattleScript_MoveEffectParalysis + 0x7
+				-- 	[9] = true,  -- Static
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- },
+				-- [0x081d924c] = { -- BattleScript_MoveEffectPoison + 0x7
+				-- 	[27] = true, -- Effect Spore
+				-- 	[28] = true, -- Synchronize
+				-- 	[38] = true, -- Poison Point
+				-- }, 
+				-- [0x081d925b] = { --BattleScript_MoveEffectBurn + 0x7
+				-- 	[28] = true, -- Synchronize
+				-- 	[49] = true, -- Flame Body
+				-- },
+			},
+			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
+				[0x081d7b87] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
+					[6] = true,
+					scope = "both",
+				},
+				[0x081d7c48] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
+					[43] = true,
+					scope = "self",
+				}, 
+				-- [0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
+				-- 	[43] = true,
+				-- 	scope = "self",
+				-- },
+				-- [0x081d8c07] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+				-- 	[64] = true,
+				-- 	scope = "other",
+				-- }, 
+			},
 		}
 		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
 		FranceData.updateToFranceData()
