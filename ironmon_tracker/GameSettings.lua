@@ -1186,7 +1186,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d67c3] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
 				[0x081d6711] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
 				[0x081d6729] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
-				[0x081d430b] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081d6740] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d67e3] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
 				[0x081d6886] = { -- BattleScript_AbilityNoStatLoss + 0x6
 					[29] = true, -- Clear Body
@@ -1208,10 +1208,10 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d6811] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
 				[0x081d68ae] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
 				[0x081d6909] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
-				[0x081d6870] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
-				[0x081d581c] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081d686a] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081d68ca] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d6878] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
-				[0x081d3ea3] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081d691d] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
 				[0x081d3dad] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d6931] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d68f8] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
@@ -1236,14 +1236,14 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 					[28] = true, -- Synchronize (is unable to inflict burn on other mon)
 					[41] = true, -- Water Veil
 				},
-				[0x081d3e30] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
+				[0x081d3e3e] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
-				[0x081d5f23] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
-				[0x081d3f32] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				[0x081d6718] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081d6961] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
 				[0x081d4324] = { -- BattleScript_RestCantSleep + 0x8 --> Ability blocks mon's own rest attempt
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
