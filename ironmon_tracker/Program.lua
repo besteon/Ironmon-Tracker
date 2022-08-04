@@ -17,7 +17,7 @@ Program = {
 		prevDamageTotal = 0,
 		damageReceived = 0,
 		lastMoveId = 0,
-		prevAttackerValue = 0,
+		attackerValue = 0, -- used to more accurately tracker the current attack (check every 10 frames)
 		enemyIsAttacking = false,
 	},
 	CurrentRoute = {
@@ -96,6 +96,10 @@ function Program.changeScreenView(screen)
 end
 
 function Program.updateTrackedAndCurrentData()
+	if Program.Frames.half_sec_update % 10 == 0 then
+		Program.processBattleTurnFromMemory()
+	end
+
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.half_sec_update == 0 then
 		Program.Frames.half_sec_update = 30
@@ -134,7 +138,6 @@ function Program.updateTrackedAndCurrentData()
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.Frames.waitToDraw = 0
 		end
-
 	end
 
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
@@ -372,8 +375,6 @@ function Program.updateBattleDataFromMemory()
 			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
 
-			print(Program.CurrentRoute.encounterArea)
-
 			if isWild and Program.CurrentRoute.hasInfo then
 				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 			end
@@ -401,61 +402,54 @@ function Program.updateBattleDataFromMemory()
 			end
 		end
 
-		-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
-		local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-		local currDamageTotal = Memory.readword(GameSettings.gTakenDmg)
-		local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
-
-		-- As a new turn starts, note the previous amount of total damage
-		if currentTurn ~= Program.BattleTurn.turnCount then
-			Program.BattleTurn.turnCount = currentTurn
-			Program.BattleTurn.prevDamageTotal = currDamageTotal
-			Program.BattleTurn.prevAttackerValue = attackerValue
-			Program.BattleTurn.enemyIsAttacking = false
-		end
-
-		local damageDelta = currDamageTotal - Program.BattleTurn.prevDamageTotal
-		local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
-		if damageDelta ~= 0 then
-			-- Check current and previous attackers to see if enemy attacked within the last 30 frames
-			if attackerValue % 2 ~= 0 or Program.BattleTurn.prevAttackerValue % 2 ~= 0 then
-				-- local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
-				if enemyMoveId ~= 0 then
-					print("E: " .. damageDelta .. " - " .. enemyMoveId)
-					-- If a new move is being used, reset the damage from the last move
-					if not Program.BattleTurn.enemyIsAttacking then
-						Program.BattleTurn.damageReceived = 0
-						Program.BattleTurn.enemyIsAttacking = true
-					end
-
-					Program.BattleTurn.lastMoveId = enemyMoveId
-					Program.BattleTurn.damageReceived = Program.BattleTurn.damageReceived + damageDelta
-					Program.BattleTurn.prevDamageTotal = currDamageTotal
-				end
-			else
-				print("P: " .. damageDelta .. " - " .. attackerValue)
-				Program.BattleTurn.prevDamageTotal = currDamageTotal
-			end
-		end
-		-- Must set afterwards because of the 30 frame delay in updating battle data (too fast if animations are off)
-		Program.BattleTurn.prevAttackerValue = attackerValue
-
-		local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. attackerValue
-		Utils.printDebug(message)
-		-- TODO: attackerValue just isn't accurate enough, need to find a workaround. for determine who is attacking
-		-- 0) Dmg: 2715, Move: 337, R:4, M:337, A:1
-		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
-		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:0
-		-- 1) Dmg: 2715, Move: 337, R:4, M:337, A:1
-		-- 2) Dmg: 2719, Move: 337, R:4, M:337, A:0
-
 		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
+			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and Program.BattleTurn.attackerValue % 2 ~= 0 then
 				Program.handleAttackMove(264, false)
 			end
 		end
 	end
+end
+
+function Program.processBattleTurnFromMemory()
+	if not Tracker.Data.inBattle then return end
+
+	-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
+	Program.BattleTurn.attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+
+	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
+	local currDamageTotal = Memory.readword(GameSettings.gTakenDmg)
+
+	-- As a new turn starts, note the previous amount of total damage
+	if currentTurn ~= Program.BattleTurn.turnCount then
+		Program.BattleTurn.turnCount = currentTurn
+		Program.BattleTurn.prevDamageTotal = currDamageTotal
+		Program.BattleTurn.enemyIsAttacking = false
+	end
+
+	local damageDelta = currDamageTotal - Program.BattleTurn.prevDamageTotal
+	if damageDelta ~= 0 then
+		-- Check current and previous attackers to see if enemy attacked within the last 30 frames
+		if Program.BattleTurn.attackerValue % 2 ~= 0 then
+			local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
+			if enemyMoveId ~= 0 then
+				-- If a new move is being used, reset the damage from the last move
+				if not Program.BattleTurn.enemyIsAttacking then
+					Program.BattleTurn.damageReceived = 0
+					Program.BattleTurn.enemyIsAttacking = true
+				end
+
+				Program.BattleTurn.lastMoveId = enemyMoveId
+				Program.BattleTurn.damageReceived = Program.BattleTurn.damageReceived + damageDelta
+				Program.BattleTurn.prevDamageTotal = currDamageTotal
+			end
+		else
+			Program.BattleTurn.prevDamageTotal = currDamageTotal
+		end
+	end
+
+	-- local message = currentTurn .. ") Dmg: " .. currDamageTotal .. ", Move: " .. enemyMoveId .. ", R:" .. Program.BattleTurn.damageReceived .. ", M:" .. Program.BattleTurn.lastMoveId .. ", A:" .. Program.BattleTurn.attackerValue
+	-- Utils.printDebug(message)
 end
 
 function Program.updateViewSlotsFromMemory()
@@ -464,8 +458,7 @@ function Program.updateViewSlotsFromMemory()
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 
 	-- Secondary enemy pokemon (likely the doubles battle partner)
-	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-	if attackerValue % 2 == 3 then
+	if Program.BattleTurn.attackerValue % 2 == 3 then
 		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 	end
 

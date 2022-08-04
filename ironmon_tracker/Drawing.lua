@@ -269,7 +269,8 @@ function Drawing.drawPokemonInfoArea(pokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), hpText, hpTextColor, shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, levelEvoTextColor, shadowcolor)
 
-	if Tracker.Data.isViewingOwn and Tracker.Data.inBattle == false and pokemon.status ~= MiscData.StatusType.None then
+	-- Tracker.Data.isViewingOwn and
+	if pokemon.status ~= MiscData.StatusType.None then
 		Drawing.drawStatusIcon(MiscData.StatusCodeMap[pokemon.status], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 
