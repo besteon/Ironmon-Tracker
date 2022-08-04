@@ -200,7 +200,7 @@ function InfoScreen.openMoveInfoWindow()
 	end
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
 	Utils.setFormLocation(moveLookup, 100, 50)
@@ -241,7 +241,7 @@ function InfoScreen.openPokemonInfoWindow()
 	end
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
 	Utils.setFormLocation(pokedexLookup, 100, 50)
@@ -276,7 +276,7 @@ function InfoScreen.openRouteInfoWindow()
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local routeLookup = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
 	Utils.setFormLocation(routeLookup, 100, 50)

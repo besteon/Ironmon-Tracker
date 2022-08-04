@@ -183,7 +183,7 @@ end
 
 function Theme.openImportWindow()
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local form = forms.newform(465, 125, "Theme Import", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
@@ -205,7 +205,7 @@ end
 
 function Theme.openExportWindow()
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local theme_config = Theme.exportThemeToText()
 
@@ -220,7 +220,7 @@ end
 
 function Theme.openPresetsWindow()
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local presetsForm = forms.newform(360, 105, "Theme Presets", function() client.unpause() end)
 	Utils.setFormLocation(presetsForm, 100, 50)

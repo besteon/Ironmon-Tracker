@@ -386,7 +386,7 @@ function TrackerScreen.openAbilityNoteWindow()
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local abilityForm = forms.newform(360, 170, "Track Ability", function() client.unpause() end)
 	Utils.setFormLocation(abilityForm, 100, 50)
@@ -436,7 +436,7 @@ function TrackerScreen.openNotePadWindow()
 	if pokemon == nil then return end
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
 	Utils.setFormLocation(noteForm, 100, 50)

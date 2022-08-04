@@ -147,7 +147,7 @@ end
 
 function Options.openEditControlsWindow()
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
@@ -197,7 +197,7 @@ function Options.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
