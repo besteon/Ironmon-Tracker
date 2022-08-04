@@ -481,7 +481,7 @@ function GameSettings.setGameAsEmerald()
 			[0x082db627] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 				[43] = true,
 				scope = "self",
-			}, 
+			},
 			[0x082d96ea] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 				[43] = true,
 				scope = "self",
@@ -489,7 +489,7 @@ function GameSettings.setGameAsEmerald()
 			[0x082dad5f] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 				[64] = true,
 				scope = "other",
-			}, 
+			},
 		},
 	}
 end
@@ -558,7 +558,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[29] = true, -- Clear Body
 					[52] = true, -- Hyper Cutter
 					[73] = true, -- White Smoke
-				}, 
+				},
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d9417] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
@@ -616,7 +616,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[27] = true, -- Effect Spore
 					[28] = true, -- Synchronize
 					[38] = true, -- Poison Point
-				}, 
+				},
 				[0x081d925b] = { --BattleScript_MoveEffectBurn + 0x7
 					[28] = true, -- Synchronize
 					[49] = true, -- Flame Body
@@ -630,7 +630,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94e6] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d763a] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -638,7 +638,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d8c07] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 					[64] = true,
 					scope = "other",
-				}, 
+				},
 			},
 		}
 	elseif gameversion == 0x00680000 then
@@ -776,7 +776,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d9476] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d75ca] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -784,7 +784,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d8b97] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 					[64] = true,
 					scope = "other",
-				}, 
+				},
 			},
 		}
 	end
@@ -852,7 +852,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 					[29] = true, -- Clear Body
 					[52] = true, -- Hyper Cutter
 					[73] = true, -- White Smoke
-				}, 
+				},
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d6811] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
@@ -924,7 +924,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d68e0] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d4a34] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -1002,7 +1002,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 					[29] = true, -- Clear Body
 					[52] = true, -- Hyper Cutter
 					[73] = true, -- White Smoke
-				}, 
+				},
 			},
 			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
 				[0x081d8ed9] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
@@ -1074,7 +1074,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8fa8] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d70fc] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -1224,7 +1224,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7c48] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d5d9c] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -1372,7 +1372,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d94c2] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d7616] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -1380,7 +1380,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d8be3] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 					[64] = true,
 					scope = "other",
-				}, 
+				},
 			},
 		}
 	elseif gameversion == 0x00810000 then
@@ -1514,7 +1514,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d9452] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
 					[43] = true,
 					scope = "self",
-				}, 
+				},
 				[0x081d75a6] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
 					[43] = true,
 					scope = "self",
@@ -1522,7 +1522,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d8b73] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
 					[64] = true,
 					scope = "other",
-				}, 
+				},
 			},
 		}
 	end
