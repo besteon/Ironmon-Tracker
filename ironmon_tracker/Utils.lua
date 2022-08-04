@@ -1,12 +1,13 @@
 Utils = {}
 
-function Utils.getbits(a, b, d)
-	return bit.rshift(a, b) % bit.lshift(1, d)
+-- gets bits from least significant to most
+function Utils.getbits(value, startIndex, numBits)
+	return bit.rshift(value, startIndex) % bit.lshift(1, numBits)
 end
 
-function Utils.addhalves(a)
-	local b = Utils.getbits(a, 0, 16)
-	local c = Utils.getbits(a, 16, 16)
+function Utils.addhalves(value)
+	local b = Utils.getbits(value, 0, 16)
+	local c = Utils.getbits(value, 16, 16)
 	return b + c
 end
 
@@ -15,6 +16,12 @@ function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
+function Utils.printDebug(message)
+	if message ~= Utils.prevMessage then
+		print(message)
+		Utils.prevMessage = message
+	end
+end
 
 -- Returns '0' if neutral nature, '-1' if negative nature, and '1' if positive nature
 function Utils.calcNatureBonus(stat, nature)
@@ -386,10 +393,13 @@ end
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72
+	
+	local firstSpace = str:find("(%s+)()(%S+)()")
+	if firstSpace == nil then return { str } end
 
 	local lines = {}
 	local here = 1
-	lines[1] = string.sub(str, 1, str:find("(%s+)()(%S+)()")-1)  -- Put the first word of the string in the first index of the table.
+	lines[1] = string.sub(str, 1, firstSpace - 1)  -- Put the first word of the string in the first index of the table.
 
 	str:gsub("(%s+)()(%S+)()",
 		function(sp, st, word, fi) -- Function gets called once for every space found.

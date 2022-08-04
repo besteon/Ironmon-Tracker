@@ -2,6 +2,7 @@ GameSettings = {
 	game = 0,
 	gamename = "",
 	versiongroup = 0,
+	versioncolor = "",
 	badgePrefix = "",
 	badgeXOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 },
 	pstats = 0,
@@ -19,6 +20,7 @@ GameSettings = {
 	gBattlerPartyIndexesEnemySlotTwo = 0x00000000,
 	gBattleMons = 0x00000000,
 	gBattlescriptCurrInstr = 0x00000000,
+	gTakenDmg = 0x00000000,
 	gBattleScriptingBattler = 0x00000000,
 	gBattleResults = 0x00000000,
 	BattleScript_FocusPunchSetUp = 0x00000000,
@@ -28,6 +30,9 @@ GameSettings = {
 	gBattleOutcome = 0x00000000, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	gMoveResultFlags = 0x00000000,
 
+	gMapHeader = 0x00000000,
+	gBattleTerrain = 0x00000000,
+	gBattleTypeFlags = 0x00000000,
 	FriendshipRequiredToEvo = 0x00000000,
 
 	gSaveBlock1 = 0x00000000,
@@ -81,6 +86,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 1,
 			GAME_NAME = "Pokemon Ruby (U)",
 			VERSION_GROUP = 1,
+			VERSION_COLOR = "Ruby",
 			PSTATS = 0x3004360,
 			ESTATS = 0x30045C0,
 			BADGE_PREFIX = "RSE",
@@ -90,6 +96,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 1,
 			GAME_NAME = "Pokemon Sapphire (U)",
 			VERSION_GROUP = 1,
+			VERSION_COLOR = "Sapphire",
 			PSTATS = 0x3004360,
 			ESTATS = 0x30045C0,
 			BADGE_PREFIX = "RSE",
@@ -99,6 +106,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 2,
 			GAME_NAME = "Pokemon Emerald (U)",
 			VERSION_GROUP = 1,
+			VERSION_COLOR = "Emerald",
 			PSTATS = 0x20244EC,
 			ESTATS = 0x2024744,
 			BADGE_PREFIX = "RSE",
@@ -108,6 +116,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon FireRed (U)",
 			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
 			BADGE_PREFIX = "FRLG",
@@ -117,6 +126,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon - Rosso Fuoco (Italy)",
 			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
 			BADGE_PREFIX = "FRLG",
@@ -126,6 +136,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon Rojo Fuego (Spain)",
 			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
 			BADGE_PREFIX = "FRLG",
@@ -135,6 +146,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon Rouge Feu (France)",
 			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
 			BADGE_PREFIX = "FRLG",
@@ -143,9 +155,10 @@ function GameSettings.setGameInfo(gamecode)
 		[0x42504745] = {
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon LeafGreen (U)",
+			VERSION_GROUP = 2,
+			VERSION_COLOR = "LeafGreen",
 			PSTATS = 0x2024284,
 			ESTATS = 0x202402C,
-			VERSION_GROUP = 2,
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -154,11 +167,14 @@ function GameSettings.setGameInfo(gamecode)
 	if games[gamecode] ~= nil then
 		GameSettings.game = games[gamecode].GAME_NUMBER
 		GameSettings.gamename = games[gamecode].GAME_NAME
+		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
+		GameSettings.versioncolor = games[gamecode].VERSION_COLOR
 		GameSettings.pstats = games[gamecode].PSTATS
 		GameSettings.estats = games[gamecode].ESTATS
-		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
 		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
 		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
+
+		RouteData.setupRouteInfo(GameSettings.game)
 	else
 		GameSettings.gamename = "Unsupported game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
@@ -182,6 +198,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
@@ -190,6 +207,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02024c68
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -323,6 +344,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
@@ -331,6 +353,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -464,6 +490,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
@@ -472,6 +499,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -609,6 +640,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
@@ -617,6 +649,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -750,6 +786,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
@@ -758,6 +795,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -891,6 +932,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
@@ -899,6 +941,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x0202e828
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x02025734
@@ -1035,6 +1081,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 	GameSettings.gBattleMons = 0x02024084
 	GameSettings.gBattlescriptCurrInstr = 0x02024214
+	GameSettings.gTakenDmg = 0x020241f8
 	GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
 	GameSettings.gBattleResults = 0x03005d10
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
@@ -1044,6 +1091,10 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattleOutcome = 0x0202433a
 	GameSettings.gMoveResultFlags = 0x0202427c
 	
+	GameSettings.gMapHeader = 0x02037318
+	GameSettings.gBattleTerrain = 0x02022ff0
+	GameSettings.gBattleTypeFlags = 0x02022fec
+	GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
 	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
 
 	GameSettings.gSaveBlock1 = 0x02025a00
@@ -1183,6 +1234,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
@@ -1192,6 +1244,10 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -1328,6 +1384,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
@@ -1337,6 +1394,10 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -1462,6 +1523,7 @@ end
 
 function GameSettings.setGameAsFireRedItaly(gameversion)
 	if gameversion == 0x00640000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon - Rosso Fuoco")
 
 		GameSettings.gBaseStats = 0x0824d864
@@ -1476,6 +1538,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
@@ -1483,8 +1546,12 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gMoveResultFlags = 0x02023dcc
-		
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -1607,6 +1674,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				},
 			},
 		}
+
 		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
 		ItalyData.updateToItalyData()
 	end
@@ -1614,6 +1682,7 @@ end
 
 function GameSettings.setGameAsFireRedSpanish(gameversion)
 	if gameversion == 0x005A0000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rojo Fuego")
 
 		GameSettings.gBaseStats = 0x0824ff4c
@@ -1628,6 +1697,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
@@ -1635,8 +1705,12 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gMoveResultFlags = 0x02023dcc
-		
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -1759,6 +1833,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				},
 			},
 		}
+
 		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
 		SpainData.updateToSpainData()
 	end
@@ -1766,8 +1841,9 @@ end
 
 function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rouge Feu")
-
+		
 		GameSettings.gBaseStats = 0x0824ebd4
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
@@ -1780,6 +1856,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
@@ -1789,6 +1866,10 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042d9c + 0x13E -- GetEvolutionTargetSpecies (untested)
 
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -1911,6 +1992,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				},
 			},
 		}
+
 		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
 		FranceData.updateToFranceData()
 	end
@@ -1933,6 +2015,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
@@ -1942,6 +2025,10 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c
@@ -2078,6 +2165,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
 		GameSettings.gBattleMons = 0x02023be4
 		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
@@ -2087,6 +2175,10 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
 		GameSettings.gSaveBlock1 = 0x0202552c

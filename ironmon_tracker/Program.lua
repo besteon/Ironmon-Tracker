@@ -4,12 +4,26 @@ Program = {
 	hasCompletedTutorial = false,
 	isTransformed = false,
 	friendshipRequired = 220,
-	frames = {
+	Frames = {
 		waitToDraw = 0,
 		battleDataDelay = 0,
 		half_sec_update = 30,
 		three_sec_update = 180,
 		saveData = 3600,
+		carouselActive = 0,
+	},
+	BattleTurn = {
+		turnCount = -1,
+		prevDamageTotal = 0,
+		damageReceived = 0,
+		lastMoveId = 0,
+		attackerValue = 0, -- used to more accurately tracker the current attack (check every 10 frames)
+		enemyIsAttacking = false,
+	},
+	CurrentRoute = {
+		mapId = 0,
+		encounterArea = RouteData.EncounterArea.LAND,
+		hasInfo = false,
 	},
 	SyncData = {
 		turnCount = 0,
@@ -34,6 +48,9 @@ function Program.initialize()
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
 		Program.friendshipRequired = friendshipRequired
 	end
+
+	-- At some point we will want to implement this so that wild encounter data is automatic
+	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function Program.main()
@@ -47,16 +64,16 @@ end
 -- 'forced' = true will force a draw, skipping the normal frame wait time
 function Program.redraw(forced)
 	if forced then
-		Program.frames.waitToDraw = 0
+		Program.Frames.waitToDraw = 0
 	end
 
 	-- Only redraw the screen every half second (60 frames/sec)
-	if Program.frames.waitToDraw > 0 then
-		Program.frames.waitToDraw = Program.frames.waitToDraw - 1
+	if Program.Frames.waitToDraw > 0 then
+		Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
 		return
 	end
 
-	Program.frames.waitToDraw = 30
+	Program.Frames.waitToDraw = 30
 
 	if Program.currentScreen == Program.Screens.TRACKER then
 		TrackerScreen.updateButtonStates()
@@ -85,9 +102,13 @@ function Program.changeScreenView(screen)
 end
 
 function Program.updateTrackedAndCurrentData()
+	if Program.Frames.half_sec_update % 10 == 0 then
+		Program.processBattleTurnFromMemory()
+	end
+
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
-	if Program.frames.half_sec_update == 0 then
-		Program.frames.half_sec_update = 30
+	if Program.Frames.half_sec_update == 0 then
+		Program.Frames.half_sec_update = 30
 
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
@@ -121,14 +142,13 @@ function Program.updateTrackedAndCurrentData()
 			Input.controller.statIndex = 6
 
 			-- Delay drawing the new pokemon, because of send out animation
-			Program.frames.waitToDraw = 0
+			Program.Frames.waitToDraw = 0
 		end
-
 	end
 
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
-	if Program.frames.three_sec_update == 0 then
-		Program.frames.three_sec_update = 180
+	if Program.Frames.three_sec_update == 0 then
+		Program.Frames.three_sec_update = 180
 
 		Program.updateBagHealingItemsFromMemory()
 		Program.updatePCHealsFromMemory()
@@ -136,14 +156,15 @@ function Program.updateTrackedAndCurrentData()
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
-	if Program.frames.saveData == 0 then
-		Program.frames.saveData = 3600
+	if Program.Frames.saveData == 0 then
+		Program.Frames.saveData = 3600
 		Tracker.saveData()
 	end
 
-	Program.frames.half_sec_update = Program.frames.half_sec_update - 1
-	Program.frames.three_sec_update = Program.frames.three_sec_update - 1
-	Program.frames.saveData = Program.frames.saveData - 1
+	Program.Frames.half_sec_update = Program.Frames.half_sec_update - 1
+	Program.Frames.three_sec_update = Program.Frames.three_sec_update - 1
+	Program.Frames.saveData = Program.Frames.saveData - 1
+	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
 end
 
 function Program.updatePokemonTeamsFromMemory()
@@ -262,20 +283,20 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	local status_aux = Memory.readdword(startAddress + 80)
 	local sleep_turns_result = 0
 	local status_result = 0
-	if status_aux == 0 then
+	if status_aux == 0 then --None
 		status_result = 0
-	elseif status_aux < 8 then
+	elseif status_aux < 8 then -- Sleep
 		sleep_turns_result = status_aux
 		status_result = 1
-	elseif status_aux == 8 then
+	elseif status_aux == 8 then -- Poison
 		status_result = 2
-	elseif status_aux == 16 then
+	elseif status_aux == 16 then -- Burn
 		status_result = 3
-	elseif status_aux == 32 then
+	elseif status_aux == 32 then -- Freeze
 		status_result = 4
-	elseif status_aux == 64 then
+	elseif status_aux == 64 then -- Paralyze
 		status_result = 5
-	elseif status_aux == 128 then
+	elseif status_aux == 128 then -- Toxic Poison
 		status_result = 6
 	end
 
@@ -333,8 +354,8 @@ function Program.updateBattleDataFromMemory()
 	Program.updateViewSlotsFromMemory()
 
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
-	if Program.frames.battleDataDelay > 0 then
-		Program.frames.battleDataDelay = Program.frames.battleDataDelay - 30
+	if Program.Frames.battleDataDelay > 0 then
+		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30
 		return
 	end
 
@@ -351,8 +372,27 @@ function Program.updateBattleDataFromMemory()
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
 			opposingPokemon.hasBeenEncountered = true
+
 			local isWild = Tracker.Data.trainerID == opposingPokemon.trainerID -- equal IDs = wild pokemon, nonequal = trainer
 			Tracker.TrackEncounter(opposingPokemon.pokemonID, isWild)
+
+			local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
+			local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+
+			Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
+
+			local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
+			-- Utils.printDebug(battleFlags .. " - " .. fishingRod)
+			if RouteData.Rods[fishingRod] ~= nil then
+				Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
+			end
+
+			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
+
+			if isWild and Program.CurrentRoute.hasInfo then
+				Tracker.TrackRouteEncounter(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
+			end
 		end
 
 		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
@@ -369,25 +409,59 @@ function Program.updateBattleDataFromMemory()
 		end
 
 		if GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 then
-			-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
-			local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and attackerValue % 2 ~= 0 then
+			if battleMsg == GameSettings.BattleScript_FocusPunchSetUp and Program.BattleTurn.attackerValue % 2 ~= 0 then
 				Program.handleAttackMove(264, false)
 			end
 		end
 	end
 end
 
+function Program.processBattleTurnFromMemory()
+	if not Tracker.Data.inBattle then return end
 
+	-- attackerValue = 0 or 2 for player mons and 1 or 3 for enemy mons (2,3 are doubles partners)
+	Program.BattleTurn.attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
+
+	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
+	local currDamageTotal = Memory.readword(GameSettings.gTakenDmg)
+
+	-- As a new turn starts, note the previous amount of total damage
+	if currentTurn ~= Program.BattleTurn.turnCount then
+		Program.BattleTurn.turnCount = currentTurn
+		Program.BattleTurn.prevDamageTotal = currDamageTotal
+		Program.BattleTurn.enemyIsAttacking = false
+	end
+
+	local damageDelta = currDamageTotal - Program.BattleTurn.prevDamageTotal
+	if damageDelta ~= 0 then
+		-- Check current and previous attackers to see if enemy attacked within the last 30 frames
+		if Program.BattleTurn.attackerValue % 2 ~= 0 then
+			local enemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
+			if enemyMoveId ~= 0 then
+				-- If a new move is being used, reset the damage from the last move
+				if not Program.BattleTurn.enemyIsAttacking then
+					Program.BattleTurn.damageReceived = 0
+					Program.BattleTurn.enemyIsAttacking = true
+				end
+
+				Program.BattleTurn.lastMoveId = enemyMoveId
+				Program.BattleTurn.damageReceived = Program.BattleTurn.damageReceived + damageDelta
+				Program.BattleTurn.prevDamageTotal = currDamageTotal
+			end
+		else
+			Program.BattleTurn.prevDamageTotal = currDamageTotal
+		end
+	end
+end
+
+-- Checks if ability should be auto-tracked. Returns true if so; false otherwise
 function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
-	-- Checks if ability should be auto-tracked
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
-	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker)  -- 0 or 2 if player, 1 or 3 if enemy
+	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker) -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
-	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13) 	
+	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
@@ -422,7 +496,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 			return true
 		end
 	end
-	
+
 	-- Abilities to check via attacker read
 	local attackerMsg = GameSettings.ABILITIES.ATTACKER[battleMsg]
 	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[battleMsg]
@@ -461,7 +535,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 			Program.SyncData.battlerTarget = battlerTarget
 		end
 	end
-	
+
 	-- Abilities not covered by the above checks
 	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[battleMsg]
 
@@ -478,9 +552,8 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 			return true
 		end
 	end
-  
+
 	return false
-  
 end
 
 function Program.updateViewSlotsFromMemory()
@@ -489,8 +562,7 @@ function Program.updateViewSlotsFromMemory()
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 
 	-- Secondary enemy pokemon (likely the doubles battle partner)
-	local attackerValue = Memory.readbyte(GameSettings.gBattlerAttacker)
-	if attackerValue % 2 == 3 then
+	if Program.BattleTurn.attackerValue % 2 == 3 then
 		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 	end
 
@@ -531,7 +603,7 @@ function Program.beginNewBattle(isWild)
 	if Tracker.Data.inBattle then return end
 	if isWild == nil then isWild = false end
 
-	Program.frames.battleDataDelay = 60
+	Program.Frames.battleDataDelay = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Tracker.Data.inBattle = true
@@ -542,6 +614,7 @@ function Program.beginNewBattle(isWild)
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
+		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
@@ -551,7 +624,7 @@ function Program.beginNewBattle(isWild)
 	Program.SyncData.battlerTarget = -1
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
+	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 150, 250)
 end
 
 -- This should be called every time the player finishes a battle (wild pokemon or trainer battle)
@@ -564,7 +637,7 @@ function Program.endBattle(isWild)
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
-	Tracker.Data.otherPokemon = nil
+	Tracker.Data.otherPokemon = {}
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
 
 	-- Reset the transform tracking disable
@@ -572,6 +645,10 @@ function Program.endBattle(isWild)
 		Program.isTransformed = false
 	end
 
+	-- Reset last attack information
+	Program.BattleTurn.turnCount = -1
+	Program.BattleTurn.lastMoveId = 0
+	Program.CurrentRoute.hasInfo = false
 	--Reset Synchronize tracker
 	Program.SyncData.turnCount = 0
 	Program.SyncData.attacker = -1
@@ -587,12 +664,13 @@ function Program.endBattle(isWild)
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
+		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
-	Program.frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
-	Program.frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
+	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
+	Program.Frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
 end
 
 function Program.updatePCHealsFromMemory()

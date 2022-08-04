@@ -19,6 +19,11 @@ Constants.Font = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
+Constants.Words = {
+	POKEMON = "Pok\233mon",
+	POKE = "Pok\233",
+}
+
 Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
 	POKEMON_PIXELED = ".gif",
@@ -32,7 +37,8 @@ Constants.ButtonTypes = {
 	COLORPICKER = 4,
 	IMAGE = 5,
 	PIXELIMAGE = 6,
-	STAT_STAGE = 7,
+	POKEMON_ICON = 7,
+	STAT_STAGE = 8,
 }
 
 Constants.STAT_STATES = {
@@ -114,6 +120,12 @@ Constants.OrderedLists = {
 		"Simple Monotone",
 		"Neon Lights",
 	},
+	TIPS = {
+		"Helpful tips are shown down here.", -- Skipped after it's shown once
+		"Tracked data is auto-saved after every battle.",
+		"Switch Pokemon views by pressing the 'Start' button.", -- referenced by Options.initialize()
+		"Click on any Pokemon or move to learn more about it.",
+	},
 }
 
 Constants.PixelImages = {
@@ -193,5 +205,34 @@ Constants.PixelImages = {
 		{0,0,0,0,0,0,1,1,0,0},
 		{0,0,0,0,0,1,1,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0},
+	},
+	MAP_PINDROP = {
+		{0,0,1,1,1,1,0,0},
+		{0,1,1,1,1,1,1,0},
+		{1,1,1,0,0,1,1,1},
+		{1,1,0,0,0,0,1,1},
+		{1,1,0,0,0,0,1,1},
+		{1,1,1,0,0,1,1,1},
+		{0,1,1,1,1,1,1,0},
+		{0,1,1,1,1,1,1,0},
+		{0,0,1,1,1,1,0,0},
+		{0,0,1,1,1,1,0,0},
+		{0,0,0,1,1,0,0,0},
+		{0,0,0,1,1,0,0,0},
+	},
+	SWORD_ATTACK = {
+		{0,0,0,0,0,0,0,0,0,0,0,1,1,0},
+		{0,0,0,0,0,0,0,0,0,0,1,0,1,0},
+		{0,0,0,0,0,0,0,0,0,1,0,1,1,0},
+		{0,0,0,0,0,0,0,0,1,0,1,1,0,0},
+		{0,0,0,0,0,0,0,1,0,1,1,0,0,0},
+		{0,0,0,0,0,0,1,0,1,1,0,0,0,0},
+		{1,0,0,0,0,1,0,1,1,0,0,0,0,0},
+		{1,1,0,0,1,0,1,1,0,0,0,0,0,0},
+		{0,1,1,1,0,1,1,0,0,0,0,0,0,0},
+		{0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+		{0,1,0,1,1,0,0,0,0,0,0,0,0,0},
+		{1,0,1,0,1,1,0,0,0,0,0,0,0,0},
+		{1,1,0,0,0,1,1,0,0,0,0,0,0,0},
 	},
 }

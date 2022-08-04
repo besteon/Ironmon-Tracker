@@ -64,10 +64,21 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	end
 end
 
+function Tracker.getViewedPokemon()
+	if Tracker.Data.isViewingOwn then
+		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	else
+		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	end
+end
+
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
+
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
+
 	return Tracker.Data.allPokemon[pokemonID]
 end
 
@@ -162,13 +173,30 @@ function Tracker.TrackEncounter(pokemonID, isWild)
 	end
 end
 
+-- encounterArea: RouteData.EncounterArea
+function Tracker.TrackRouteEncounter(mapId, encounterArea, pokemonID)
+	if Tracker.Data.encounterTable[mapId] == nil then
+		Tracker.Data.encounterTable[mapId] = {}
+	end
+
+	if Tracker.Data.encounterTable[mapId][encounterArea] == nil then
+		Tracker.Data.encounterTable[mapId][encounterArea] = { pokemonID }
+	else
+		local hasEncounteredBefore = false
+		for _, encounterID in pairs(Tracker.Data.encounterTable[mapId][encounterArea]) do
+			if pokemonID == encounterID then
+				hasEncounteredBefore = true
+				break
+			end
+		end
+		if not hasEncounteredBefore then
+			table.insert(Tracker.Data.encounterTable[mapId][encounterArea], pokemonID)
+		end
+	end
+end
+
 function Tracker.TrackNote(pokemonID, note)
 	if note == nil then return end
-
-	if string.len(note) > 70 then
-		print("Pokemon's note truncated to 70 characters.")
-		note = string.sub(note, 1, 70)
-	end
 
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.note = note
@@ -271,9 +299,24 @@ function Tracker.getEncounters(pokemonID, isWild)
 	if trackedPokemon.encounters == nil then
 		return 0
 	elseif isWild then
-		return trackedPokemon.encounters.wild
+		if mapId ~= 0 and Tracker.Data.encounterTable[mapId] ~= nil then
+			-- The number of unique Pokemon encountered on this route
+			return #Tracker.Data.encounterTable[mapId]
+		else
+			return trackedPokemon.encounters.wild
+		end
 	else
 		return trackedPokemon.encounters.trainer
+	end
+end
+
+function Tracker.getRouteEncounters(mapId, encounterArea)
+	if mapId == 0 or Tracker.Data.encounterTable[mapId] == nil then
+		return {}
+	elseif encounterArea == nil or Tracker.Data.encounterTable[mapId][encounterArea] == nil then
+		return {}
+	else
+		return Tracker.Data.encounterTable[mapId][encounterArea]
 	end
 end
 
@@ -323,6 +366,7 @@ function Tracker.getDefaultPokemon()
 end
 
 function Tracker.resetData()
+	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
 		romHash = nil,
@@ -349,6 +393,8 @@ function Tracker.resetData()
 		},
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
 			[0] = MoveData.HiddenPowerTypeList[1],
+		},
+		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
 		},
 	}
 end

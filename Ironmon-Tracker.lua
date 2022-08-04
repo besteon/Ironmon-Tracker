@@ -2,11 +2,11 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 Main = {
-	TrackerVersion = "0.5.4", -- The latest version of the tracker. Should be updated with each PR.
+	TrackerVersion = "0.6.0", -- The latest version of the tracker. Should be updated with each PR.
 	DataFolder = "ironmon_tracker", -- Root folder for the project data and sub scripts
 	SettingsFile = "Settings.ini", -- Location of the Settings file (typically in the root folder)
 	MetaSettings = {},
-	LoadNextSeed = false,
+	loadNextSeed = false,
 }
 
 print("\nIronmon-Tracker v" .. Main.TrackerVersion)
@@ -22,9 +22,10 @@ end
 -- Import all scripts before starting the main loop
 dofile(Main.DataFolder .. "/Inifile.lua")
 dofile(Main.DataFolder .. "/Constants.lua")
-dofile(Main.DataFolder .. "/PokemonData.lua")
-dofile(Main.DataFolder .. "/MoveData.lua")
-dofile(Main.DataFolder .. "/MiscData.lua")
+dofile(Main.DataFolder .. "/data/PokemonData.lua")
+dofile(Main.DataFolder .. "/data/MoveData.lua")
+dofile(Main.DataFolder .. "/data/MiscData.lua")
+dofile(Main.DataFolder .. "/data/RouteData.lua")
 dofile(Main.DataFolder .. "/Memory.lua")
 dofile(Main.DataFolder .. "/GameSettings.lua")
 dofile(Main.DataFolder .. "/InfoScreen.lua")
@@ -84,7 +85,7 @@ function Main.Run()
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
-		while Main.LoadNextSeed == false do
+		while Main.loadNextSeed == false do
 			Program.main()
 			emu.frameadvance()
 		end
@@ -100,7 +101,7 @@ function Main.LoadNext()
 	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
 		print("ERROR: ROMS_FOLDER unspecified\n")
 		Main.DisplayError("ROMS_FOLDER unspecified.\n\nSet this in the Tracker's options menu, or the Settings.ini file.")
-		Main.LoadNextSeed = false
+		Main.loadNextSeed = false
 		Main.Run()
 	end
 
@@ -129,7 +130,7 @@ function Main.LoadNext()
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
-			Main.LoadNextSeed = false
+			Main.loadNextSeed = false
 			Main.Run()
 		else
 			io.close(filecheck)
@@ -143,7 +144,7 @@ function Main.LoadNext()
 	print("ROM Loaded: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
-	Main.LoadNextSeed = false
+	Main.loadNextSeed = false
 	Main.Run()
 end
 

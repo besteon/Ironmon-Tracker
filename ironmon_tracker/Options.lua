@@ -82,9 +82,7 @@ Options.Buttons = {
 }
 
 function Options.initialize()
-	local index = 1
 	local heightOffset = 35
-
 	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
 		Options.Buttons[optionKey] = {
 			type = Constants.ButtonTypes.CHECKBOX,
@@ -113,8 +111,18 @@ function Options.initialize()
 			end
 		}
 
-		index = index + 1
 		heightOffset = heightOffset + 10
+	end
+
+	-- Check if the Toggle View controller button is not default, and update the tip message if so.
+	local toggleViewValue = Options.CONTROLS["Toggle view"]
+	if toggleViewValue ~= "Start" then
+		for index, tipMessage in ipairs(Constants.OrderedLists.TIPS) do
+			if tipMessage == "Switch Pokemon views by pressing Start." then
+				Constants.OrderedLists.TIPS[index] = tipMessage:gsub("Start", toggleViewValue)
+				break
+			end
+		end
 	end
 end
 
@@ -139,7 +147,7 @@ end
 
 function Options.openEditControlsWindow()
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
@@ -189,7 +197,7 @@ function Options.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
 	forms.destroyall()
-	client.pause()
+	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
 
 	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
