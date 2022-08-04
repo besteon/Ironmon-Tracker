@@ -125,7 +125,6 @@ Constants.OrderedLists = {
 		"Tracked data is auto-saved after every battle.",
 		"Switch Pokemon views by pressing the 'Start' button.", -- referenced by Options.initialize()
 		"Click on any Pokemon or move to learn more about it.",
-		"Leave a note for a Pokemon by clicking here.",
 	},
 }
 

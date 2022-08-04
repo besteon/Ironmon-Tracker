@@ -2107,6 +2107,9 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[46] = { name = "Route 130", -- Mirage Island?
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 360, rate = 1.00, },
+		},
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
