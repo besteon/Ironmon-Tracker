@@ -85,7 +85,6 @@ function Main.Run()
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
-		client.unpause() -- TODO: apply this when a state is loaded too i think?
 		while Main.loadNextSeed == false do
 			Program.main()
 			emu.frameadvance()
