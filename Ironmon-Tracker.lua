@@ -9,6 +9,11 @@ Main = {
 	loadNextSeed = false,
 }
 
+Main.CreditsList = {
+	CreatedBy = "Besteon",
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
+}
+
 print("\nIronmon-Tracker v" .. Main.TrackerVersion)
 
 -- Check the version of BizHawk that is running
@@ -28,12 +33,16 @@ dofile(Main.DataFolder .. "/data/MiscData.lua")
 dofile(Main.DataFolder .. "/data/RouteData.lua")
 dofile(Main.DataFolder .. "/Memory.lua")
 dofile(Main.DataFolder .. "/GameSettings.lua")
-dofile(Main.DataFolder .. "/InfoScreen.lua")
+dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
 dofile(Main.DataFolder .. "/Options.lua")
 dofile(Main.DataFolder .. "/Theme.lua")
 dofile(Main.DataFolder .. "/ColorPicker.lua")
 dofile(Main.DataFolder .. "/Utils.lua")
-dofile(Main.DataFolder .. "/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
+dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
+dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
 dofile(Main.DataFolder .. "/Input.lua")
 dofile(Main.DataFolder .. "/Drawing.lua")
 dofile(Main.DataFolder .. "/Program.lua")
@@ -74,11 +83,17 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		-- Initialize everything in the proper order
 		Program.initialize()
 		Options.initialize()
 		Theme.initialize()
 		Tracker.initialize()
+
 		TrackerScreen.initialize()
+		NavigationMenu.initialize()
+		SetupScreen.initialize()
+		GameOptionsScreen.initialize()
+		TrackedDataScreen.initialize()
 
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
@@ -177,8 +192,8 @@ function Main.LoadSettings()
 	-- [TRACKER]
 	if settings.tracker ~= nil then
 		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
-			if optionKey ~= nil then
-				local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			if optionValue ~= nil then
 				Options[optionKey] = optionValue
 			end
 		end
@@ -187,8 +202,8 @@ function Main.LoadSettings()
 	-- [CONTROLS]
 	if settings.controls ~= nil then
 		for optionKey, _ in pairs(Options.CONTROLS) do
-			if optionKey ~= nil then
-				local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			if controlValue ~= nil then
 				Options.CONTROLS[optionKey] = controlValue
 			end
 		end
@@ -197,8 +212,8 @@ function Main.LoadSettings()
 	-- [THEME]
 	if settings.theme ~= nil then
 		for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
-			if colorkey ~= nil then
-				local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			if color_hexval ~= nil then
 				Theme.COLORS[colorkey] = 0xFF000000 + tonumber(color_hexval, 16)
 			end
 		end
@@ -206,7 +221,7 @@ function Main.LoadSettings()
 		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
 		if enableMoveTypes ~= nil then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-			Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
 	end
 

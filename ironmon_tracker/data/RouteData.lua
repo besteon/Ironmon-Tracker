@@ -339,6 +339,7 @@ end
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
 	RouteData.Info = {
+		[5] = { name = "Oak's Lab", }, 
 		[12] = { name = "Cerulean Gym", }, 
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },

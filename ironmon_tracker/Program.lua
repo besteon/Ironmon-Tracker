@@ -34,10 +34,13 @@ Program = {
 }
 
 Program.Screens = {
-	TRACKER = 1,
-	INFO = 2,
-	SETTINGS = 3,
-	THEME = 4,
+	TRACKER = TrackerScreen.drawScreen,
+	INFO = InfoScreen.drawScreen,
+	NAVIGATION = NavigationMenu.drawScreen,
+	SETUP = SetupScreen.drawScreen,
+	GAME_SETTINGS = GameOptionsScreen.drawScreen,
+	THEME = Theme.drawScreen,
+	MANAGE_DATA = TrackedDataScreen.drawScreen,
 }
 
 function Program.initialize()
@@ -49,7 +52,10 @@ function Program.initialize()
 		Program.friendshipRequired = friendshipRequired
 	end
 
-	-- At some point we will want to implement this so that wild encounter data is automatic
+	-- Set seed based on epoch seconds; required for other features
+	math.randomseed(os.time())
+
+	-- At some point we might want to implement this so that wild encounter data is automatic
 	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
@@ -75,25 +81,7 @@ function Program.redraw(forced)
 
 	Program.Frames.waitToDraw = 30
 
-	if Program.currentScreen == Program.Screens.TRACKER then
-		TrackerScreen.updateButtonStates()
-
-		local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-		local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-		-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-		if Tracker.Data.isViewingOwn then
-			Drawing.drawMainTrackerScreen(ownersPokemon, opposingPokemon)
-		else
-			Drawing.drawMainTrackerScreen(opposingPokemon, ownersPokemon)
-		end
-	elseif Program.currentScreen == Program.Screens.INFO then
-		Drawing.drawInfoScreen()
-	elseif Program.currentScreen == Program.Screens.SETTINGS then
-		Drawing.drawOptionsScreen()
-	elseif Program.currentScreen == Program.Screens.THEME then
-		Drawing.drawThemeScreen()
-	end
+	Drawing.drawScreen(Program.currentScreen)
 end
 
 function Program.changeScreenView(screen)
@@ -155,10 +143,12 @@ function Program.updateTrackedAndCurrentData()
 		Program.updateBadgesObtainedFromMemory()
 	end
 
-	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec)
+	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
 	if Program.Frames.saveData == 0 then
 		Program.Frames.saveData = 3600
-		Tracker.saveData()
+		if Options["Auto save tracked game data"] then
+			Tracker.saveData()
+		end
 	end
 
 	Program.Frames.half_sec_update = Program.Frames.half_sec_update - 1

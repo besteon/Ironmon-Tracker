@@ -329,6 +329,20 @@ function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	return tostring(roundedPower)
 end
 
+-- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
+function Utils.estimateIVs(pokemon)
+	if pokemon == nil or pokemon.pokemonID == 0 then
+		return 0
+	end
+
+	local sumStats = pokemon.stats.hp + pokemon.stats.atk + pokemon.stats.def + pokemon.stats.spa + pokemon.stats.spd + pokemon.stats.spe - 35 - pokemon.level
+
+	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
+	local ivGuess = (sumStats * 50 / pokemon.level) - PokemonData.Pokemon[pokemon.pokemonID].bst
+	
+	return ivGuess / 96
+end
+
 function Utils.pokemonHasMove(pokemon, moveName)
 	if pokemon == nil or moveName == nil then return false end
 

@@ -34,37 +34,29 @@ Theme = {
 }
 
 Theme.Buttons = {
-	importTheme = {
+	ImportTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Import",
-		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 9, 8, 31, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
 		onClick = function() Theme.openImportWindow() end
 	},
-	exportTheme = {
+	ExportTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Export",
-		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 59, 8, 30, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
 		onClick = function() Theme.openExportWindow() end
 	},
-	presets = {
+	Presets = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Presets",
-		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 107, 8, 34, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
 		onClick = function() Theme.openPresetsWindow() end
 	},
-	moveTypeEnabled = {
+	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text = "Show color bar for move types",
-		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 9, 125, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		box = { Constants.SCREEN.WIDTH + 8, 125, 8, 8 },
-		boxColors = { "Lower box border", "Lower box background" },
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
 		toggleColor = "Positive text",
 		onClick = function(self)
@@ -74,49 +66,58 @@ Theme.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	restoreDefaults = {
+	RestoreDefaults = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Restore Defaults",
-		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 9, 140, 70, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
 		confirmReset = false,
 		onClick = function() Theme.tryRestoreDefaultTheme() end
 	},
-	close = {
+	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Close",
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 116, 140, 25, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
-		onClick = function() Theme.closeThemeScreen() end
+		text = "Back",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+		onClick = function(self)
+			-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
+			local defaultBtn = Theme.Buttons.RestoreDefaults
+			if defaultBtn.confirmReset then
+				defaultBtn.text = "Restore Defaults"
+				defaultBtn.textColor = "Default text"
+				defaultBtn.confirmReset = false
+			end
+
+			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
+			Main.SaveSettings()
+			Program.changeScreenView(Program.Screens.NAVIGATION)
+		end
 	},
 }
 
 function Theme.initialize()
-	local index = 1
-	local heightOffset = 25
+	local startY = 25
 
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		Theme.Buttons[colorkey] = {
 			type = Constants.ButtonTypes.COLORPICKER,
 			text = colorkey,
-			clickableArea = { Constants.SCREEN.WIDTH + 9, heightOffset, Constants.SCREEN.RIGHT_GAP - 12, 10 },
-			box = { Constants.SCREEN.WIDTH + 9, heightOffset, 8, 8 },
-			textColor = "Default text",
+			clickableArea = { Constants.SCREEN.WIDTH + 9, startY, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+			box = { Constants.SCREEN.WIDTH + 9, startY, 8, 8 },
 			themeColor = colorkey,
 			onClick = function() Theme.openColorPickerWindow(colorkey) end
 		}
 
-		index = index + 1
-		heightOffset = heightOffset + 10
+		startY = startY + 10
+	end
+
+	for _, button in pairs(Theme.Buttons) do
+		button.textColor = "Default text"
+		button.boxColors = { "Lower box border", "Lower box background" }
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.Buttons.moveTypeEnabled.clickableArea[2] = heightOffset + 1
-	Theme.Buttons.moveTypeEnabled.box[2] = heightOffset + 1
+	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY + 1
+	Theme.Buttons.MoveTypeEnabled.box[2] = startY + 1
 end
-
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
@@ -152,7 +153,7 @@ function Theme.importThemeFromText(theme_config)
 
 	local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
 	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-	Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+	Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 
 	Theme.settingsUpdated = true
 	Program.redraw(true)
@@ -240,7 +241,7 @@ end
 -- Restores the Theme customizations to the default look-and-feel, or prompts for confirmation
 -- A follow through onclick would be required to reset to default
 function Theme.tryRestoreDefaultTheme()
-	local defaultBtn = Theme.Buttons.restoreDefaults
+	local defaultBtn = Theme.Buttons.RestoreDefaults
 	if defaultBtn.confirmReset then
 		defaultBtn.text = "Restore Defaults"
 		defaultBtn.textColor = "Default text"
@@ -256,14 +257,17 @@ function Theme.tryRestoreDefaultTheme()
 	end
 end
 
-function Theme.closeThemeScreen()
-	-- Revert the Restore Defaults button (ideally this would be automatic, on a timer that reverts after 4 seconds)
-	local defaultBtn = Theme.Buttons.restoreDefaults
-	if defaultBtn.confirmReset then
-		defaultBtn.text = "Restore Defaults"
-		defaultBtn.textColor = "Default text"
-		defaultBtn.confirmReset = false
-	end
+-- DRAWING FUNCTIONS
+function Theme.drawScreen()
+	Drawing.drawBackgroundAndMargins()
 
-	Program.changeScreenView(Program.Screens.SETTINGS)
+	-- Draw Theme screen view box
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + 5, 5, Constants.SCREEN.RIGHT_GAP - 10, Constants.SCREEN.HEIGHT - 10, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+
+	-- Draw all buttons
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	for _, button in pairs(Theme.Buttons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
 end

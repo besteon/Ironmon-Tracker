@@ -11,6 +11,7 @@ Constants.SCREEN = {
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
 	MARGIN = 5,
+	LINESPACING = 11,
 }
 
 Constants.Font = {
@@ -26,8 +27,6 @@ Constants.Words = {
 
 Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
-	POKEMON_PIXELED = ".gif",
-	POKEMON_STADIUM = ".png",
 }
 
 Constants.ButtonTypes = {
@@ -79,6 +78,7 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
+		"Show tips on startup",
 		"Auto swap to enemy",
 		"Hide stats until summary shown",
 		"Right justified numbers",
@@ -88,7 +88,8 @@ Constants.OrderedLists = {
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
-		"Pokemon Stadium portraits",
+		"Auto save tracked game data",
+		"Pokemon icon set",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -123,8 +124,8 @@ Constants.OrderedLists = {
 	TIPS = {
 		"Helpful tips are shown down here.", -- Skipped after it's shown once
 		"Tracked data is auto-saved after every battle.",
-		"Switch Pokemon views by pressing the 'Start' button.", -- referenced by Options.initialize()
-		"Click on any Pokemon or move to learn more about it.",
+		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
+		"Click on any " .. Constants.Words.POKEMON .. " or move to learn more about it.",
 	},
 }
 
