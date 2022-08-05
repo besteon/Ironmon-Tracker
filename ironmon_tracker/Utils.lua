@@ -369,8 +369,15 @@ function Utils.estimateIVs(pokemon)
 
 	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
 	local ivGuess = (sumStats * 50 / pokemon.level) - PokemonData.Pokemon[pokemon.pokemonID].bst
-	
-	return ivGuess / 96
+	local percentageResult = ivGuess / 96
+
+	if percentageResult < 0 then
+		return 0
+	elseif percentageResult > 1 then
+		return 1
+	else
+		return percentageResult
+	end
 end
 
 function Utils.pokemonHasMove(pokemon, moveName)
