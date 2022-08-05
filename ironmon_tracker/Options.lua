@@ -15,8 +15,8 @@ Options = {
 	["Count enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
-	["Pokemon Stadium portraits"] = false,
-	["Auto save current game data"] = true,
+	["Auto save tracked game data"] = true,
+	["Pokemon icon set"] = "1", -- Original icon set
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",
@@ -24,6 +24,26 @@ Options = {
 		["Cycle through stats"] = "L",
 		["Mark stat"] = "R",
 	},
+}
+
+Options.IconSetMap = {
+	totalCount = 2, -- TODO: change to 3 after PR
+	["1"] = {
+		name = "Original",
+		folder = "pokemon",
+		extension = ".gif",
+	},
+	["2"] = {
+		name = "Stadium",
+		folder = "pokemonStadium",
+		extension = ".png",
+	},
+	-- TODO: Add this in later after checking with Pull Request conflicts
+	-- ["3"] = {
+	-- 	name = "Gen 7+",
+	-- 	folder = "pokemonUpdated",
+	-- 	extension = ".png",
+	-- },
 }
 
 function Options.initialize()

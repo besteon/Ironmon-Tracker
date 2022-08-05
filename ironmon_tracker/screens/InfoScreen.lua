@@ -351,20 +351,17 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 		local x = startX + offsetX
 		local y = startY + offsetY
-		if Options["Pokemon Stadium portraits"] then
+
+		if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
 			y = y - 4
 		end
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			getIconPath = function(self)
-				local folderToUse = "pokemon"
-				local extension = Constants.Extensions.POKEMON_PIXELED
-				if Options["Pokemon Stadium portraits"] then
-					folderToUse = "pokemonStadium"
-					extension = Constants.Extensions.POKEMON_STADIUM
-				end
-				return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. self.pokemonID .. extension
+				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+				local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
+				return imagepath
 			end,
 			pokemonID = pokemonID,
 			rate = rate,
@@ -433,7 +430,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
 	local offsetColumnX = offsetX + 43
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
-	local linespacing = 10
+	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
@@ -599,7 +596,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
-	local linespacing = 10
+	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
 
 	local move = MoveData.Moves[moveId]
@@ -753,7 +750,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	-- POKEMON SEEN
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252 and not Options["Pokemon Stadium portraits"] then -- Question mark icon
+		if iconButton.pokemonID == 252 and Options.IconSetMap[Options["Pokemon icon set"]].name ~= "Stadium" then -- Question mark icon
 			iconButton.box[2] = iconButton.box[2] + 4
 		end
 

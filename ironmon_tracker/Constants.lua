@@ -11,6 +11,7 @@ Constants.SCREEN = {
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
 	MARGIN = 5,
+	LINESPACING = 11,
 }
 
 Constants.Font = {
@@ -26,8 +27,6 @@ Constants.Words = {
 
 Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
-	POKEMON_PIXELED = ".gif",
-	POKEMON_STADIUM = ".png",
 }
 
 Constants.ButtonTypes = {
@@ -89,8 +88,8 @@ Constants.OrderedLists = {
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
-		"Pokemon Stadium portraits",
-		"Auto save current game data",
+		"Auto save tracked game data",
+		"Pokemon icon set",
 	},
 	CONTROLS = {
 		"Load next seed",

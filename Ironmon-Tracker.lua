@@ -9,6 +9,11 @@ Main = {
 	loadNextSeed = false,
 }
 
+Main.CreditsList = {
+	CreatedBy = "Besteon",
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
+}
+
 print("\nIronmon-Tracker v" .. Main.TrackerVersion)
 
 -- Check the version of BizHawk that is running
@@ -191,6 +196,7 @@ function Main.LoadSettings()
 				local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
 				Options[optionKey] = optionValue
 			end
+			print(optionKey .. ": " .. tostring(Options[optionKey]))
 		end
 	end
 

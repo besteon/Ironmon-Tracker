@@ -1,19 +1,8 @@
---[[
-- Setup & Options
-	- Roms folder
-	- Edit Controls
-	- Pokemon Portraits (choose with set to use)
-	- [X] Show tips on startup
-	- [--] Right justified numbers
-	- [--] Track PC Heals
-	- [X] PC heals count downward
-]]
-
 SetupScreen = {
 	headerText = "Tracker Setup",
 	textColor = "Default text",
 	borderColor = "Lower box border",
-	borderFill = "Lower box background",
+	boxFillColor = "Lower box background",
 }
 
 SetupScreen.OptionKeys = {
@@ -26,7 +15,7 @@ SetupScreen.OptionKeys = {
 SetupScreen.Buttons = {
 	ChoosePortrait = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = Constants.Words.POKEMON .. " icon set:",
+		text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 13, 65, 11 },
 	},
 	PokemonIcon = {
@@ -34,14 +23,9 @@ SetupScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 19, 32, 32 },
 		pokemonID = 1,
 		getIconPath = function(self)
-			-- TODO: Rewrite this after merging Portrait PR
-			local folderToUse = "pokemon"
-			local extension = Constants.Extensions.POKEMON_PIXELED
-			if Options["Pokemon Stadium portraits"] then
-				folderToUse = "pokemonStadium"
-				extension = Constants.Extensions.POKEMON_STADIUM
-			end
-			return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. self.pokemonID .. extension
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
+			return imagepath
 		end,
 		onClick = function(self)
 			self.pokemonID = math.random(#PokemonData.Pokemon - 25)
@@ -56,7 +40,9 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.NEXT_BUTTON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 33, 10, 10, },
 		onClick = function(self)
-			Options["Pokemon Stadium portraits"] = not Options["Pokemon Stadium portraits"]
+			local nextIndex = (tonumber(Options["Pokemon icon set"]) % Options.IconSetMap.totalCount) + 1
+			Options["Pokemon icon set"] = tostring(nextIndex)
+			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
 			Program.redraw(true)
 		end
 	},
@@ -65,7 +51,9 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.PREVIOUS_BUTTON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 33, 10, 10, },
 		onClick = function(self)
-			Options["Pokemon Stadium portraits"] = not Options["Pokemon Stadium portraits"]
+			local prevIndex = (tonumber(Options["Pokemon icon set"]) - 2 ) % Options.IconSetMap.totalCount + 1
+			Options["Pokemon icon set"] = tostring(prevIndex)
+			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
 			Program.redraw(true)
 		end
 	},
@@ -78,8 +66,8 @@ SetupScreen.Buttons = {
 	},
 	EditControls = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Edit Controller",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 60, 11 },
+		text = "Edit Controls",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 53, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
 	Back = {
@@ -97,7 +85,7 @@ SetupScreen.Buttons = {
 function SetupScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = Constants.SCREEN.MARGIN + 80
-	local linespacing = 12
+	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
 		SetupScreen.Buttons[optionKey] = {
@@ -124,7 +112,7 @@ function SetupScreen.initialize()
 
 	for _, button in pairs(SetupScreen.Buttons) do
 		button.textColor = SetupScreen.textColor
-		button.boxColors = { SetupScreen.borderColor, SetupScreen.borderFill }
+		button.boxColors = { SetupScreen.borderColor, SetupScreen.boxFillColor }
 	end
 
 	SetupScreen.Buttons.PokemonIcon:onClick() -- Randomize what Pokemon icon is shown
@@ -205,16 +193,16 @@ end
 -- DRAWING FUNCTIONS
 function SetupScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[SetupScreen.borderFill])
+	gui.defaultTextBackground(Theme.COLORS[SetupScreen.boxFillColor])
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[SetupScreen.borderFill])
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[SetupScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[SetupScreen.borderColor], Theme.COLORS[SetupScreen.borderFill])
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[SetupScreen.borderColor], Theme.COLORS[SetupScreen.boxFillColor])
 
 	-- Draw header text
 	Drawing.drawText(topboxX + 37, topboxY + 2, SetupScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)

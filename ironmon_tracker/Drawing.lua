@@ -18,15 +18,14 @@ function Drawing.drawPokemonIcon(id, x, y)
 		id = 0 -- Blank Pokemon data/icon
 	end
 
-	local folderToUse = "pokemon"
-	local extension = Constants.Extensions.POKEMON_PIXELED
-	if Options["Pokemon Stadium portraits"] then
-		folderToUse = "pokemonStadium"
-		extension = Constants.Extensions.POKEMON_STADIUM
+	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. id .. iconset.extension
+
+	if iconset.name == "Stadium" then
 		y = y + 4
 	end
 
-	gui.drawImage(Main.DataFolder .. "/images/" .. folderToUse .. "/" .. id .. extension, x, y, 32, 32)
+	gui.drawImage(imagepath, x, y, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -187,7 +186,7 @@ function Drawing.drawButton(button, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
-			if Options["Pokemon Stadium portraits"] then
+			if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
 				y = y + 4
 			end
 			gui.drawImage(imagePath, x, y, width, height)

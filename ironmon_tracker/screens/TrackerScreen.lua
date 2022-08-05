@@ -9,13 +9,10 @@ TrackerScreen.Buttons = {
 			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= #PokemonData.Pokemon then
 				pokemonID = pokemon.pokemonID
 			end
-			local folderToUse = "pokemon"
-			local extension = Constants.Extensions.POKEMON_PIXELED
-			if Options["Pokemon Stadium portraits"] then
-				folderToUse = "pokemonStadium"
-				extension = Constants.Extensions.POKEMON_STADIUM
-			end
-			return Main.DataFolder .. "/images/" .. folderToUse .. "/" .. pokemonID .. extension
+			print("ok " .. Options["Pokemon icon set"])
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+			return imagepath
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },

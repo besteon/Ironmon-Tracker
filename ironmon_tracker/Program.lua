@@ -146,7 +146,7 @@ function Program.updateTrackedAndCurrentData()
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
 	if Program.Frames.saveData == 0 then
 		Program.Frames.saveData = 3600
-		if Options["Auto save current game data"] then
+		if Options["Auto save tracked game data"] then
 			Tracker.saveData()
 		end
 	end

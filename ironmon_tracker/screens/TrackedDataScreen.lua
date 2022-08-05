@@ -1,32 +1,30 @@
---[[
-- Manage Tracked Data
-	- (Explain when auto save occurs)
-	- [X] Auto save current game data
-	- Save / Load Data (manually)
-]]
-
  TrackedDataScreen = {
 	headerText = "Manage Tracked Data",
 	textColor = "Default text",
 	borderColor = "Lower box border",
-	borderFill = "Lower box background",
+	boxFillColor = "Lower box background",
+}
+
+TrackedDataScreen.Descriptions = {
+	autosave = "All of the data that is tracked while you play is auto-saved after each battle, stored as a .TDAT file",
+	manualsave = "Old auto-saved data will be lost if you start a new game on the same " .. Constants.Words.POKEMON .. " version. Use Save/Load if you want to keep it",
 }
 
 TrackedDataScreen.OptionKeys = {
-	"Auto save current game data",
+	"Auto save tracked game data",
 }
 
 TrackedDataScreen.Buttons = {
 	SaveData = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Save Data",
-		box = { Constants.SCREEN.WIDTH + 22, 80, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 19, Constants.SCREEN.MARGIN + 118, 44, 11 },
 		onClick = function() TrackedDataScreen.openSaveDataPrompt() end
 	},
 	LoadData = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Load Data",
-		box = { Constants.SCREEN.WIDTH + 78, 80, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 75, Constants.SCREEN.MARGIN + 118, 44, 11 },
 		onClick = function() TrackedDataScreen.openLoadDataPrompt() end
 	},
 	Back = {
@@ -42,9 +40,9 @@ TrackedDataScreen.Buttons = {
 }
 
 function TrackedDataScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 18
-	linespacing = 12
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8
+	local startY = Constants.SCREEN.MARGIN + 52
+	linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(TrackedDataScreen.OptionKeys) do
 		TrackedDataScreen.Buttons[optionKey] = {
@@ -65,7 +63,7 @@ function TrackedDataScreen.initialize()
 
 	for _, button in pairs(TrackedDataScreen.Buttons) do
 		button.textColor = TrackedDataScreen.textColor
-		button.boxColors = { TrackedDataScreen.borderColor, TrackedDataScreen.borderFill }
+		button.boxColors = { TrackedDataScreen.borderColor, TrackedDataScreen.boxFillColor }
 	end
 end
 
@@ -110,22 +108,39 @@ end
 -- DRAWING FUNCTIONS
 function TrackedDataScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[TrackedDataScreen.borderFill])
+	gui.defaultTextBackground(Theme.COLORS[TrackedDataScreen.boxFillColor])
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[TrackedDataScreen.borderFill])
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[TrackedDataScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[TrackedDataScreen.borderColor], Theme.COLORS[TrackedDataScreen.borderFill])
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[TrackedDataScreen.borderColor], Theme.COLORS[TrackedDataScreen.boxFillColor])
 
 	-- Draw header text
 	Drawing.drawText(topboxX + 20, topboxY + 2, TrackedDataScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
 
+	local offsetX = topboxX + 2
+	local offsetY = topboxY + 15
+
+	local wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.autosave, 35)
+	for _, line in pairs(wrappedSummary) do
+		Drawing.drawText(offsetX, offsetY, line, Theme.COLORS[TrackedDataScreen.textColor], shadowcolor)
+		offsetY = offsetY + 11
+	end
+
 	-- Draw all buttons
 	for _, button in pairs(TrackedDataScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
+	end
+
+	offsetY = offsetY + 22
+
+	wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.manualsave, 34)
+	for _, line in pairs(wrappedSummary) do
+		Drawing.drawText(offsetX, offsetY, line, Theme.COLORS[TrackedDataScreen.textColor], shadowcolor)
+		offsetY = offsetY + 11
 	end
 end

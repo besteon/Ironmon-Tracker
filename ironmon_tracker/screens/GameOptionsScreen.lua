@@ -1,18 +1,8 @@
---[[
-- Gameplay Settings
-	- [X] Auto swap to enemy
-	- [--] Hide stats until summary shown
-	- [X] Show phys/special icons
-	- [X] Show move effectiveness
-	- [X] Calculate variable damage
-	- [X] Count enemy PP usage
-]]
-
 GameOptionsScreen = {
 	headerText = "Gameplay Options",
 	textColor = "Default text",
 	borderColor = "Lower box border",
-	borderFill = "Lower box background",
+	boxFillColor = "Lower box background",
 }
 
 GameOptionsScreen.OptionKeys = {
@@ -27,13 +17,17 @@ GameOptionsScreen.OptionKeys = {
 GameOptionsScreen.Buttons = {
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Estimate IV 's",
-		ivText = " " .. Constants.BLANKLINE .. " %",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 55, 11 },
+		text = "Guess " .. Constants.Words.POKEMON .. "'s Quality",
+		ivText = "",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 105, 103, 11 },
 		onClick = function(self)
-			local IVpercentage = 100 * Utils.estimateIVsOfLeadPokemon()
-			self.ivText = " " .. string.format("%g", string.format("%.1f", IVpercentage)) .. " %" -- %g removes insignificant 0's
-			Program.redraw(true)
+			local leadPokemon = Tracker.getPokemon(1, true)
+			if leadPokemon ~= nil then
+				local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
+				local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
+				self.ivText = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
+				Program.redraw(true)
+			end
 		end
 	},
 	Back = {
@@ -41,7 +35,7 @@ GameOptionsScreen.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			GameOptionsScreen.Buttons.EstimateIVs.ivText = " " .. Constants.BLANKLINE .. " %"
+			GameOptionsScreen.Buttons.EstimateIVs.ivText = " " .. Constants.BLANKLINE .. "%"
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
 			Program.changeScreenView(Program.Screens.NAVIGATION)
@@ -52,7 +46,6 @@ GameOptionsScreen.Buttons = {
 function GameOptionsScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
 	local startY = Constants.SCREEN.MARGIN + 18
-	local linespacing = 12
 
 	for _, optionKey in ipairs(GameOptionsScreen.OptionKeys) do
 		GameOptionsScreen.Buttons[optionKey] = {
@@ -74,28 +67,28 @@ function GameOptionsScreen.initialize()
 				Options.updateSetting(self.text, self.toggleState)
 			end
 		}
-		startY = startY + linespacing
+		startY = startY + Constants.SCREEN.LINESPACING + 1
 	end
 
 	for _, button in pairs(GameOptionsScreen.Buttons) do
 		button.textColor = GameOptionsScreen.textColor
-		button.boxColors = { GameOptionsScreen.borderColor, GameOptionsScreen.borderFill }
+		button.boxColors = { GameOptionsScreen.borderColor, GameOptionsScreen.boxFillColor }
 	end
 end
 
 -- DRAWING FUNCTIONS
 function GameOptionsScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[GameOptionsScreen.borderFill])
+	gui.defaultTextBackground(Theme.COLORS[GameOptionsScreen.boxFillColor])
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[GameOptionsScreen.borderFill])
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[GameOptionsScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[GameOptionsScreen.borderColor], Theme.COLORS[GameOptionsScreen.borderFill])
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[GameOptionsScreen.borderColor], Theme.COLORS[GameOptionsScreen.boxFillColor])
 
 	-- Draw header text
 	Drawing.drawText(topboxX + 29, topboxY + 2, GameOptionsScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
@@ -106,5 +99,5 @@ function GameOptionsScreen.drawScreen()
 	end
 
 	local ivEstimate = GameOptionsScreen.Buttons.EstimateIVs
-	Drawing.drawText(ivEstimate.box[1] + ivEstimate.box[3] + 2, ivEstimate.box[2], ivEstimate.ivText, Theme.COLORS[ivEstimate.textColor], shadowcolor)
+	Drawing.drawText(topboxX + 4, ivEstimate.box[2] + ivEstimate.box[4] + 2, ivEstimate.ivText, Theme.COLORS[ivEstimate.textColor], shadowcolor)
 end
