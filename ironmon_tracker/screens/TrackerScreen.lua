@@ -278,6 +278,13 @@ function TrackerScreen.buildCarousel()
 				local moveInfo = MoveData.Moves[Program.BattleTurn.lastMoveId]
 				if Program.BattleTurn.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage"
+					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+					if Program.BattleTurn.damageReceived > ownPokemon.curHP then
+						-- Warn user that the damage taken is potentially lethal
+						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
+					else
+						TrackerScreen.Buttons.LastAttackSummary.textColor = "Default text"
+					end
 				else
 					lastAttackMsg = "Last move: " .. moveInfo.name
 				end
@@ -746,6 +753,13 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 			moveType = Tracker.getHiddenPowerType()
 			moveTypeColor = Utils.inlineIf(moveType == PokemonData.Types.UNKNOWN, Theme.COLORS["Default text"], Constants.MoveTypeColors[moveType])
 			moveCategory = MoveData.TypeToCategory[moveType]
+		end
+
+		-- WEATHER BALL MOVE UPDATE
+		if Options["Calculate variable damage"] and moveData.name == "Weather Ball" then
+			moveType, movePower = Utils.calculateWeatherBall(moveType, movePower)
+			moveCategory = MoveData.TypeToCategory[moveType]
+			moveTypeColor = Constants.MoveTypeColors[moveType]
 		end
 
 		-- MOVE CATEGORY

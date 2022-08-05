@@ -329,6 +329,36 @@ function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	return tostring(roundedPower)
 end
 
+function Utils.calculateWeatherBall(moveType, movePower)
+	if not Tracker.Data.inBattle then
+		return moveType, movePower
+	end
+
+	local weatherIds = {
+		[1] = "Rain", [5] = "Rain",
+		[8] = "Sandstorm", [24] = "Sandstorm",
+		[32] = "Harsh sunlight", [96] = "Harsh sunlight",
+		[128] = "Hail"
+	}
+	local battleWeather = Memory.readword(GameSettings.gBattleWeather)
+	local currentWeather = weatherIds[battleWeather]
+	
+	if currentWeather ~= nil then
+		if currentWeather == "Rain" then
+			moveType = PokemonData.Types.WATER
+		elseif currentWeather == "Sandstorm" then
+			moveType = PokemonData.Types.ROCK
+		elseif currentWeather == "Harsh sunlight" then
+			moveType = PokemonData.Types.FIRE
+		elseif currentWeather == "Hail" then
+			moveType = PokemonData.Types.ICE
+		end
+		movePower = 100
+	end
+
+	return moveType, movePower
+end
+
 -- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
 function Utils.estimateIVs(pokemon)
 	if pokemon == nil or pokemon.pokemonID == 0 then

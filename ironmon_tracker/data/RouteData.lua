@@ -112,6 +112,10 @@ function RouteData.countPokemonInArea(mapId, encounterArea)
 	return #areaInfo
 end
 
+function RouteData.isFishingEncounter(encounterArea)
+	return encounterArea == RouteData.EncounterArea.OLDROD or encounterArea == RouteData.EncounterArea.GOODROD or encounterArea == RouteData.EncounterArea.SUPERROD
+end
+
 function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	if terrainId < 0 or terrainId > 19 then return nil end
 	battleFlags = battleFlags or 4

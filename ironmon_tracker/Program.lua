@@ -373,7 +373,6 @@ function Program.updateBattleDataFromMemory()
 			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 
 			local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
-			-- Utils.printDebug(battleFlags .. " - " .. fishingRod)
 			if RouteData.Rods[fishingRod] ~= nil then
 				Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
 			end
@@ -658,6 +657,11 @@ function Program.endBattle(isWild)
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
+	-- If the battle was a fishing encounter, clear out the rod used from memory (not pretty, but it works)
+	if RouteData.isFishingEncounter(Program.CurrentRoute.encounterArea) then
+		Memory.writeword(GameSettings.gSpecialVar_ItemId, 0)
+	end
+
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
@@ -800,7 +804,7 @@ end
 function Program.updateBagHealingItemsFromMemory()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(1, true)
+	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	if leadPokemon ~= nil then
 		local healingItems = Program.calcBagHealingItemsFromMemory(leadPokemon.stats.hp)
 		if healingItems ~= nil then

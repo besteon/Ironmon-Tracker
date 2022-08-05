@@ -354,6 +354,8 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 		if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
 			y = y - 4
+		elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
+			y = y + 2
 		end
 
 		iconButtons[index] = {
@@ -602,6 +604,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local move = MoveData.Moves[moveId]
 	local moveType = move.type
 	local moveCat = move.category
+	local movePower = move.power
 
 	-- Before drawing view boxes, check if extra space is needed for 'Priority' information
 	if move.priority ~= nil and move.priority ~= "0" then
@@ -627,6 +630,10 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 			moveCat = MoveData.TypeToCategory[moveType]
 			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 		end
+	-- If the move is Weather Ball then update based on current weather
+	elseif Options["Calculate variable damage"] and moveId == 311 then -- 311 = Weather Ball
+		moveType, movePower = Utils.calculateWeatherBall(moveType, movePower)
+		moveCat = MoveData.TypeToCategory[moveType]
 	end
 
 	-- TYPE ICON
@@ -664,12 +671,11 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	local powerInfo = move.power
-	if move.power == Constants.NO_POWER then
-		powerInfo = Constants.BLANKLINE
+	if movePower == Constants.NO_POWER then
+		movePower = Constants.BLANKLINE
 	end
 	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, powerInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, movePower, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
