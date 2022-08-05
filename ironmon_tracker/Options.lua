@@ -27,7 +27,7 @@ Options = {
 }
 
 Options.IconSetMap = {
-	totalCount = 2, -- TODO: change to 3 after PR
+	totalCount = 3,
 	["1"] = {
 		name = "Original",
 		folder = "pokemon",
@@ -38,12 +38,11 @@ Options.IconSetMap = {
 		folder = "pokemonStadium",
 		extension = ".png",
 	},
-	-- TODO: Add this in later after checking with Pull Request conflicts
-	-- ["3"] = {
-	-- 	name = "Gen 7+",
-	-- 	folder = "pokemonUpdated",
-	-- 	extension = ".png",
-	-- },
+	["3"] = {
+		name = "Gen 7+",
+		folder = "pokemonUpdated",
+		extension = ".png",
+	},
 }
 
 function Options.initialize()
