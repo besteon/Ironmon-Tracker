@@ -279,7 +279,7 @@ function TrackerScreen.buildCarousel()
 				if Program.BattleTurn.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage"
 					if Program.BattleTurn.damageReceived > pokemon.curHP then
-						-- Warn user that the damage dealt could kill if used again
+						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Default text"
