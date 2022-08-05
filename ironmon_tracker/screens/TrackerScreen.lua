@@ -271,14 +271,15 @@ function TrackerScreen.buildCarousel()
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 		isVisible = function() return Tracker.Data.inBattle and not Program.BattleTurn.enemyIsAttacking and Program.BattleTurn.lastMoveId ~= 0 end,
 		framesToShow = 180,
-		getContentList = function(pokemon)
+		getContentList = function()
 			local lastAttackMsg
 			-- Currently this only records last move used for damaging moves
 			if Program.BattleTurn.lastMoveId > 0 and Program.BattleTurn.lastMoveId <= #MoveData.Moves then
 				local moveInfo = MoveData.Moves[Program.BattleTurn.lastMoveId]
 				if Program.BattleTurn.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage"
-					if Program.BattleTurn.damageReceived > pokemon.curHP then
+					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+					if Program.BattleTurn.damageReceived > ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else

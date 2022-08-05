@@ -25,7 +25,6 @@ The following games are currently supported:
   - v1.0, v1.1
 - Pokémon Rojo Fuego (Spain)
 - Pokémon Rouge Feu (France)
-- Pokémon Rosso Fuoco (Italy)
 
 With more non-english version support potentially coming in the future!
 
@@ -48,19 +47,19 @@ If you want to use your controller to toggle stat prediction markers on opponent
 
 ## Latest Changes
 
-- **_NEW!!_ Spanish/French support for FireRed**
-- **_NEW!!_ Ruby/Sapphire Support, Move Info Look-up, & Optimization Improvements**
+- **_NEW!!_ Route tracking and info, Full ability tracking, Notes on last damage taken, and more!**
 
-![image](https://user-images.githubusercontent.com/4258818/178802567-feb55355-a278-410b-8565-5216a56f44ec.png)
+![image](https://user-images.githubusercontent.com/4258818/181117644-8e37257e-6645-4bdb-97bb-9f4359097095.png)
 
 ## Features
 
 - **Your Pokémon**: Your Pokémon's stats, moves, ability, and more are tracked in real-time as you play! As you learn new moves and use them, level up, and use items, the tracker updates the appropriate information. It will also tell you the level or condition it needs to evolve, the number of moves it will learn, and the next level a move will be learned. All data is sourced from [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Main_Page) except some evolution requirements based on the use of the randomizer.
 - **Pokémon Info Look-up**: Click on the icon of your Pokémon or an enemy Pokémon to learn more details about them. This provides easy access to handy info like BST, Evolution(s), Weaknesses, and when the Pokémon learns each new move as it levels up.
 - **Stat modifying moves**: If your opponent or you use a stat modifying move, like `Growl`, up and down chevrons are displayed next to the affected stat on the target. Up to three chevrons are displayed, and change color when the fourth, fifth, and sixth stack are applied.
-- **Enemy abilities**: Click on the area where the enemy abilties are shown to change them, allowing you to take notes on which one or two abilities the Pokémon has. In some games, the abilities are automatically tracked for you.
+- **Enemy abilities**: Click on the area where the enemy abilties are shown to change them, allowing you to take notes on which one or two abilities the Pokémon has. In most cases, the abilities that activate on screen are automatically tracked for you.
 - **Enemy moveset**: Enemy Pokémon moves are unknown AND they change as the various Pokémon level up throughout the game! The tracker will display moves a Pokémon has as they use them, along with the basic PP, power, and accuracy information. When you encounter the same Pokémon type later in the game, old moves are marked with a `*` at the end of the name. This allows you to know that the move may still be known or may be replaced by a new move.
 - **Move Info Look-up**: Click on any move to learn more details about that move. This will often provide useful and cool details about the move you might not otherwise have known existed.
+- **Route Info Look-up**: While fighting a wild Pokémon, you can click on the route icon on the tracker to see more information about that particular route. It will show you each unique Pokémon species you've encountered thus far, as well as the original encounter rates you'd find in the base game (like in a walkthrough).
 - **Stat Prediction**: Enemy Pokémon stats are unknown, but you can mark a prediction on which stats may be high or low by adding a + or - icon to the appropriate stat. This is accomplished on the enemy Pokémon by cycling through the stats with the L button and toggling the prediction with the R button.
 - **Notes**: Click on the bottom bar to leave a note about the Pokémon you are facing!
 - **Move effectiveness**: Moves that are super effective or not very effective against the opposing Pokémon will display one or two chevrons next to the move's power stat. Moves that are completely ineffective will display a red `X`.
