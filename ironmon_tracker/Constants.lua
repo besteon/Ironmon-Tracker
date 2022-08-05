@@ -11,6 +11,7 @@ Constants.SCREEN = {
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
 	MARGIN = 5,
+	LINESPACING = 11,
 }
 
 Constants.Font = {
@@ -19,11 +20,13 @@ Constants.Font = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
+Constants.Words = {
+	POKEMON = "Pok\233mon",
+	POKE = "Pok\233",
+}
+
 Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
-	POKEMON_PIXELED = ".gif",
-	POKEMON_STADIUM = ".png",
-	POKEMON_UPDATED = ".png",
 }
 
 Constants.ButtonTypes = {
@@ -33,7 +36,8 @@ Constants.ButtonTypes = {
 	COLORPICKER = 4,
 	IMAGE = 5,
 	PIXELIMAGE = 6,
-	STAT_STAGE = 7,
+	POKEMON_ICON = 7,
+	STAT_STAGE = 8,
 }
 
 Constants.STAT_STATES = {
@@ -74,6 +78,7 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
+		"Show tips on startup",
 		"Auto swap to enemy",
 		"Hide stats until summary shown",
 		"Right justified numbers",
@@ -83,8 +88,8 @@ Constants.OrderedLists = {
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
-		"Pokemon Stadium portraits",
-		"Updated (Gen 7+) portraits",
+		"Auto save tracked game data",
+		"Pokemon icon set",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -115,6 +120,12 @@ Constants.OrderedLists = {
 		"USS Galactic",
 		"Simple Monotone",
 		"Neon Lights",
+	},
+	TIPS = {
+		"Helpful tips are shown down here.", -- Skipped after it's shown once
+		"Tracked data is auto-saved after every battle.",
+		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
+		"Click on any " .. Constants.Words.POKEMON .. " or move to learn more about it.",
 	},
 }
 
@@ -195,5 +206,34 @@ Constants.PixelImages = {
 		{0,0,0,0,0,0,1,1,0,0},
 		{0,0,0,0,0,1,1,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0},
+	},
+	MAP_PINDROP = {
+		{0,0,1,1,1,1,0,0},
+		{0,1,1,1,1,1,1,0},
+		{1,1,1,0,0,1,1,1},
+		{1,1,0,0,0,0,1,1},
+		{1,1,0,0,0,0,1,1},
+		{1,1,1,0,0,1,1,1},
+		{0,1,1,1,1,1,1,0},
+		{0,1,1,1,1,1,1,0},
+		{0,0,1,1,1,1,0,0},
+		{0,0,1,1,1,1,0,0},
+		{0,0,0,1,1,0,0,0},
+		{0,0,0,1,1,0,0,0},
+	},
+	SWORD_ATTACK = {
+		{0,0,0,0,0,0,0,0,0,0,0,1,1,0},
+		{0,0,0,0,0,0,0,0,0,0,1,0,1,0},
+		{0,0,0,0,0,0,0,0,0,1,0,1,1,0},
+		{0,0,0,0,0,0,0,0,1,0,1,1,0,0},
+		{0,0,0,0,0,0,0,1,0,1,1,0,0,0},
+		{0,0,0,0,0,0,1,0,1,1,0,0,0,0},
+		{1,0,0,0,0,1,0,1,1,0,0,0,0,0},
+		{1,1,0,0,1,0,1,1,0,0,0,0,0,0},
+		{0,1,1,1,0,1,1,0,0,0,0,0,0,0},
+		{0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+		{0,1,0,1,1,0,0,0,0,0,0,0,0,0},
+		{1,0,1,0,1,1,0,0,0,0,0,0,0,0},
+		{1,1,0,0,0,1,1,0,0,0,0,0,0,0},
 	},
 }

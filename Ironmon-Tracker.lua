@@ -2,11 +2,16 @@
 -- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
 
 Main = {
-	TrackerVersion = "0.5.4", -- The latest version of the tracker. Should be updated with each PR.
+	TrackerVersion = "0.6.0", -- The latest version of the tracker. Should be updated with each PR.
 	DataFolder = "ironmon_tracker", -- Root folder for the project data and sub scripts
 	SettingsFile = "Settings.ini", -- Location of the Settings file (typically in the root folder)
 	MetaSettings = {},
-	LoadNextSeed = false,
+	loadNextSeed = false,
+}
+
+Main.CreditsList = {
+	CreatedBy = "Besteon",
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
 }
 
 print("\nIronmon-Tracker v" .. Main.TrackerVersion)
@@ -22,17 +27,22 @@ end
 -- Import all scripts before starting the main loop
 dofile(Main.DataFolder .. "/Inifile.lua")
 dofile(Main.DataFolder .. "/Constants.lua")
-dofile(Main.DataFolder .. "/PokemonData.lua")
-dofile(Main.DataFolder .. "/MoveData.lua")
-dofile(Main.DataFolder .. "/MiscData.lua")
+dofile(Main.DataFolder .. "/data/PokemonData.lua")
+dofile(Main.DataFolder .. "/data/MoveData.lua")
+dofile(Main.DataFolder .. "/data/MiscData.lua")
+dofile(Main.DataFolder .. "/data/RouteData.lua")
 dofile(Main.DataFolder .. "/Memory.lua")
 dofile(Main.DataFolder .. "/GameSettings.lua")
-dofile(Main.DataFolder .. "/InfoScreen.lua")
+dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
 dofile(Main.DataFolder .. "/Options.lua")
 dofile(Main.DataFolder .. "/Theme.lua")
 dofile(Main.DataFolder .. "/ColorPicker.lua")
 dofile(Main.DataFolder .. "/Utils.lua")
-dofile(Main.DataFolder .. "/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
+dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
+dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
 dofile(Main.DataFolder .. "/Input.lua")
 dofile(Main.DataFolder .. "/Drawing.lua")
 dofile(Main.DataFolder .. "/Program.lua")
@@ -73,18 +83,24 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		-- Initialize everything in the proper order
 		Program.initialize()
 		Options.initialize()
 		Theme.initialize()
 		Tracker.initialize()
+
 		TrackerScreen.initialize()
+		NavigationMenu.initialize()
+		SetupScreen.initialize()
+		GameOptionsScreen.initialize()
+		TrackedDataScreen.initialize()
 
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
 
 		event.onexit(Program.HandleExit, "HandleExit")
 
-		while Main.LoadNextSeed == false do
+		while Main.loadNextSeed == false do
 			Program.main()
 			emu.frameadvance()
 		end
@@ -100,7 +116,7 @@ function Main.LoadNext()
 	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
 		print("ERROR: ROMS_FOLDER unspecified\n")
 		Main.DisplayError("ROMS_FOLDER unspecified.\n\nSet this in the Tracker's options menu, or the Settings.ini file.")
-		Main.LoadNextSeed = false
+		Main.loadNextSeed = false
 		Main.Run()
 	end
 
@@ -129,7 +145,7 @@ function Main.LoadNext()
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
-			Main.LoadNextSeed = false
+			Main.loadNextSeed = false
 			Main.Run()
 		else
 			io.close(filecheck)
@@ -143,7 +159,7 @@ function Main.LoadNext()
 	print("ROM Loaded: " .. nextromname)
 	client.openrom(nextrompath)
 	client.SetSoundOn(true)
-	Main.LoadNextSeed = false
+	Main.loadNextSeed = false
 	Main.Run()
 end
 
@@ -176,8 +192,8 @@ function Main.LoadSettings()
 	-- [TRACKER]
 	if settings.tracker ~= nil then
 		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
-			if optionKey ~= nil then
-				local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			if optionValue ~= nil then
 				Options[optionKey] = optionValue
 			end
 		end
@@ -186,8 +202,8 @@ function Main.LoadSettings()
 	-- [CONTROLS]
 	if settings.controls ~= nil then
 		for optionKey, _ in pairs(Options.CONTROLS) do
-			if optionKey ~= nil then
-				local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			if controlValue ~= nil then
 				Options.CONTROLS[optionKey] = controlValue
 			end
 		end
@@ -196,8 +212,8 @@ function Main.LoadSettings()
 	-- [THEME]
 	if settings.theme ~= nil then
 		for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
-			if colorkey ~= nil then
-				local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			if color_hexval ~= nil then
 				Theme.COLORS[colorkey] = 0xFF000000 + tonumber(color_hexval, 16)
 			end
 		end
@@ -205,7 +221,7 @@ function Main.LoadSettings()
 		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
 		if enableMoveTypes ~= nil then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-			Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
 	end
 

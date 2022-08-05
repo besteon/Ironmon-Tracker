@@ -670,7 +670,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "For five turns, enemy Pokemon cannot lower stats of Pokemon on your team.",
+		summary = "For five turns, enemy " .. Constants.Words.POKEMON .. " cannot lower stats of " .. Constants.Words.POKEMON .. " on your team.",
 	},
 	{
 		id = "55",
@@ -1143,7 +1143,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Flees from wild Pokemon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.",
+		summary = "Flees from wild " .. Constants.Words.POKEMON .. " battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.",
 	},
 	{
 		id = "101",
@@ -1283,7 +1283,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Resets the stat stages of all active Pokemon on the field to 0.",
+		summary = "Resets the stat stages of all active " .. Constants.Words.POKEMON .. " on the field to 0.",
 	},
 	{
 		id = "115",
@@ -1334,7 +1334,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Uses the last move targeted at the user by a Pokemon still on the field.",
+		summary = "Uses the last move targeted at the user by a " .. Constants.Words.POKEMON .. " still on the field.",
 	},
 	{
 		id = "120",
@@ -1850,7 +1850,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target from switching out or fleeing. A Pokemon can still flee if it has Run Away or holding a Smoke Ball.",
+		summary = "Prevents the target from switching out or fleeing. A " .. Constants.Words.POKEMON .. " can still flee if it has Run Away or holding a Smoke Ball.",
 	},
 	{
 		id = "170",
@@ -2106,7 +2106,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "If the user faints as the result of a direct attack by an enemy, that Pokemon also faints. Effect ends when user uses another move.",
+		summary = "If the user faints as the result of a direct attack by an enemy, that " .. Constants.Words.POKEMON .. " also faints. Effect ends when user uses another move.",
 	},
 	{
 		id = "195",
@@ -2116,7 +2116,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "All pokemon faint after 3 turns. Switching out or having Soundproof removes this effect.",
+		summary = "All " .. Constants.Words.POKEMON .. " faint after 3 turns. Switching out or having Soundproof removes this effect.",
 	},
 	{
 		id = "196",
@@ -2178,7 +2178,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Changes weather to Sandstorm for 5 turns. Pokemon take 1/16 of their max HP in damage, except for Steel, Ground, and Rock types.",
+		summary = "Changes weather to Sandstorm for 5 turns. " .. Constants.Words.POKEMON .. " take 1/16 of their max HP in damage, except for Steel, Ground, and Rock types.",
 	},
 	{
 		id = "202",
@@ -2294,7 +2294,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target from switching out or fleeing. A Pokemon can still flee if it has Run Away or holding a Smoke Ball.",
+		summary = "Prevents the target from switching out or fleeing. A " .. Constants.Words.POKEMON .. " can still flee if it has Run Away or holding a Smoke Ball.",
 	},
 	{
 		id = "213",
@@ -2324,7 +2324,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all Pokemon in the user's party of all status conditions. Fails against Pokemon with Soundproof.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
 	},
 	{
 		id = "216",
@@ -2396,7 +2396,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit Pokemon using Dig.",
+		summary = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit " .. Constants.Words.POKEMON .. " using Dig.",
 	},
 	{
 		id = "223",
@@ -2438,7 +2438,7 @@ MoveData.Moves = {
 		pp = "40",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Switches out the user, passing all temporary stat stage changes as well as many other effects and conditions, on to the Pokemon that replaces it in battle.",
+		summary = "Switches out the user, passing all temporary stat stage changes as well as many other effects and conditions, on to the " .. Constants.Words.POKEMON .. " that replaces it in battle.",
 	},
 	{
 		id = "227",
@@ -2459,7 +2459,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
 		iscontact = true,
-		summary = "If the target Pokemon attempts to switch out, Pursuit's power will double and hit it first.",
+		summary = "If the target " .. Constants.Words.POKEMON .. " attempts to switch out, Pursuit's power will double and hit it first.",
 	},
 	{
 		id = "229",
@@ -2575,7 +2575,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Deals damage and has a 20% chance of causing each target to flinch. Hits Pokemon using Bounce or Fly for double damage.",
+		summary = "Deals damage and has a 20% chance of causing each target to flinch. Hits " .. Constants.Words.POKEMON .. " using Bounce or Fly for double damage.",
 	},
 	{
 		id = "240",
@@ -2701,7 +2701,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Each conscious, non-statused Pokemon in the user's party does an independent attack, each one is typeless with power of 10.",
+		summary = "Each conscious, non-statused " .. Constants.Words.POKEMON .. " in the user's party does an independent attack, each one is typeless with power of 10.",
 	},
 	{ -- Begin Gen 3 Moves
 		id = "252",
@@ -2722,7 +2722,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Deals damage for 2-5 consecutive turns. Wakes up sleeping Pokemon and prevents them from falling asleep, except those with Soundproof.",
+		summary = "Deals damage for 2-5 consecutive turns. Wakes up sleeping " .. Constants.Words.POKEMON .. " and prevents them from falling asleep, except those with Soundproof.",
 	},
 	{
 		id = "254",
@@ -2772,7 +2772,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Changes weather to Hail for 5 turns. Pokemon take 1/16 of their max HP in damage, except for Ice types.",
+		summary = "Changes weather to Hail for 5 turns. " .. Constants.Words.POKEMON .. " take 1/16 of their max HP in damage, except for Ice types.",
 	},
 	{
 		id = "259",
@@ -2782,7 +2782,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target from choosing to use the same move twice in a row. Effect ends when the Pokemon switches out.",
+		summary = "Prevents the target from choosing to use the same move twice in a row. Effect ends when the " .. Constants.Words.POKEMON .. " switches out.",
 	},
 	{
 		id = "260",
@@ -2802,7 +2802,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "75",
 		category = MoveData.Categories.STATUS,
-		summary = "Inflicts a burn on the target, ineffective against Fire type Pokemon. Burned Pokemon deal half damage with Physical moves and lose 1/8 max HP each turn.",
+		summary = "Inflicts a burn on the target, ineffective against Fire type Pokemon. Burned " .. Constants.Words.POKEMON .. " deal half damage with Physical moves and lose 1/8 max HP each turn.",
 	},
 	{
 		id = "262",
@@ -2857,7 +2857,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 3",
-		summary = "This is an increased priority move. The user redirects all targeted moves from enemy Pokemon to itself.",
+		summary = "This is an increased priority move. The user redirects all targeted moves from enemy " .. Constants.Words.POKEMON .. " to itself.",
 	},
 	{
 		id = "267",
@@ -2887,7 +2887,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target Pokemon from using Status category moves: any move that isn't Physical or Special.",
+		summary = "Prevents the target " .. Constants.Words.POKEMON .. " from using Status category moves: any move that isn't Physical or Special.",
 	},
 	{
 		id = "270",
@@ -2908,7 +2908,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Switches held items with the target. This move fails if neither Pokemon are holding an item, or in a battle with a wild Pokemon.",
+		summary = "Switches held items with the target. This move fails if neither " .. Constants.Words.POKEMON .. " are holding an item, or in a battle with a wild Pokemon.",
 	},
 	{
 		id = "272",
@@ -2928,7 +2928,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "No effect on the turn used. At the end of the next turn, the Pokemon in the user's current position will be healed by half its own max HP.",
+		summary = "No effect on the turn used. At the end of the next turn, the " .. Constants.Words.POKEMON .. " in the user's current position will be healed by half its own max HP.",
 	},
 	{
 		id = "274",
@@ -2938,7 +2938,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Randomly selects an eligible move from all other moves known by Pokemon in the user's party, including fainted Pokemon.",
+		summary = "Randomly selects an eligible move from all other moves known by " .. Constants.Words.POKEMON .. " in the user's party, including fainted Pokemon.",
 	},
 	{
 		id = "275",
@@ -3013,7 +3013,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Makes the target drowsy. At the end of the next turn, the drowsy Pokemon will fall asleep.",
+		summary = "Makes the target drowsy. At the end of the next turn, the drowsy " .. Constants.Words.POKEMON .. " will fall asleep.",
 	},
 	{
 		id = "282",
@@ -3096,7 +3096,7 @@ MoveData.Moves = {
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
 		priority = "+ 4",
-		summary = "This is an increased priority move. If another Pokemon tries to use a beneficial Status category move, the user will use that move instead.",
+		summary = "This is an increased priority move. If another " .. Constants.Words.POKEMON .. " tries to use a beneficial Status category move, the user will use that move instead.",
 	},
 	{
 		id = "290",
@@ -3188,7 +3188,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Causes all other Pokemon to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
+		summary = "Causes all other " .. Constants.Words.POKEMON .. " to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
 	},
 	{
 		id = "299",
@@ -3209,7 +3209,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Reduces the power of Electric moves by 50% for all Pokemon in the battle. This effect last until the user switches out.",
+		summary = "Reduces the power of Electric moves by 50% for all " .. Constants.Words.POKEMON .. " in the battle. This effect last until the user switches out.",
 	},
 	{
 		id = "301",
@@ -3251,7 +3251,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "Deals damage to all adjacent opponents. Pokemon with Soundproof are not affected by this move.",
+		summary = "Deals damage to all adjacent opponents. " .. Constants.Words.POKEMON .. " with Soundproof are not affected by this move.",
 	},
 	{
 		id = "305",
@@ -3335,7 +3335,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all Pokemon in the user's party of all status conditions.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions.",
 	},
 	{
 		id = "313",
@@ -3406,7 +3406,7 @@ MoveData.Moves = {
 		pp = "40",
 		accuracy = "85",
 		category = MoveData.Categories.STATUS,
-		summary = "Lowers the target's Special Defense stat by two stages. Fails against Pokemon with Soundproof.",
+		summary = "Lowers the target's Special Defense stat by two stages. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
 	},
 	{
 		id = "320",
@@ -3488,7 +3488,7 @@ MoveData.Moves = {
 		accuracy = "90",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Deals damage and can hit Pokemon during the semi-invulnerable turns of Fly and Bounce.",
+		summary = "Deals damage and can hit " .. Constants.Words.POKEMON .. " during the semi-invulnerable turns of Fly and Bounce.",
 	},
 	{
 		id = "328",
@@ -3569,7 +3569,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target from switching out or fleeing. A Pokemon can still flee if it has Run Away or holding a Smoke Ball.",
+		summary = "Prevents the target from switching out or fleeing. A " .. Constants.Words.POKEMON .. " can still flee if it has Run Away or holding a Smoke Ball.",
 	},
 	{
 		id = "336",
@@ -3683,7 +3683,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = Constants.BLANKLINE,
 		category = MoveData.Categories.STATUS,
-		summary = "Reduces the power of Fire moves by 50% for all Pokemon in the battle. This effect last until the user switches out.",
+		summary = "Reduces the power of Fire moves by 50% for all " .. Constants.Words.POKEMON .. " in the battle. This effect last until the user switches out.",
 	},
 	{
 		id = "347",
