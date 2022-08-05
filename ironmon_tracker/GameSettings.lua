@@ -74,6 +74,8 @@ function GameSettings.initialize()
 		GameSettings.setGameAsFireRedSpanish(gameversion)
 	elseif gamecode == 0x42505246 then
 		GameSettings.setGameAsFireRedFrench(gameversion)
+	elseif gamecode == 0x42505244 then
+		GameSettings.setGameAsFireRedGermany(gameversion)
 	elseif gamecode == 0x42504745 then
 		GameSettings.setGameAsLeafGreen(gameversion)
 	end
@@ -145,6 +147,16 @@ function GameSettings.setGameInfo(gamecode)
 		[0x42505246] = {
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon Rouge Feu (France)",
+			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
+			PSTATS = 0x2024284,
+			ESTATS = 0x202402C,
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42505244] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Feuerrote (Germany)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
 			PSTATS = 0x2024284,
@@ -1995,6 +2007,167 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 
 		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
 		FranceData.updateToFranceData()
+	end
+end
+
+
+function GameSettings.setGameAsFireRedGermany(gameversion)
+	if gameversion == 0x00690000 then
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		print("ROM Detected: Pokemon Feuerrote")
+
+		GameSettings.gBaseStats = 0x082546a8
+		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
+		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
+		GameSettings.gBattlerPartyIndexesEnemySlotOne = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x2
+		GameSettings.gBattlerPartyIndexesSelfSlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x4
+		GameSettings.gBattlerPartyIndexesEnemySlotTwo = GameSettings.gBattlerPartyIndexesSelfSlotOne + 0x6
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gTakenDmg = 0x02023d58
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
+		GameSettings.gBattleResults = 0x03004EE0
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find 
+		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gBattleWeather = 0x02023f1c
+
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
+		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.FriendshipRequiredToEvo = 0x08042DC4 + 0x13E -- GetEvolutionTargetSpecies (untested)
+		
+		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
+		GameSettings.gSaveBlock1ptr = 0x03004F58
+		GameSettings.gSaveBlock2ptr = 0x03004F5C
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.EncryptionKeyOffset = 0xF20
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+		
+		-- Ability script addresses = FR 1.1 address + 0x4226
+		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		GameSettings.ABILITIES = {
+			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
+				[0x081DD515] = {[2]  = true}, -- BattleScript_DrizzleActivates + 0x0 Drizzle
+				[0x081DD530] = {[3]  = true}, -- BattleScript_SpeedBoostActivates + 0x7 Speed Boost
+				[0x081DD607] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
+				[0x081DD5EF] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
+				[0x081DD53D] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
+				[0x081DD555] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
+				[0x081DD56C] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
+				[0x081DD60F] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
+				[0x081DD6B2] = { -- BattleScript_AbilityNoStatLoss + 0x6
+					[29] = true, -- Clear Body
+					[73] = true, -- White Smoke
+				},
+				[0x081DD71A] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
+					[51] = true, -- Keen Eye
+					[52] = true, -- Hyper Cutter 
+				},
+			},
+			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
+				[0x081DD607] = { -- BattleScript_IntimidateAbilityFail + 0x6 (Intimidate blocked)
+					[29] = true, -- Clear Body
+					[52] = true, -- Hyper Cutter
+					[73] = true, -- White Smoke
+				},
+			},
+			ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
+				[0x081DD63D] = {[5]  = true}, -- BattleScript_SturdyPreventsOHKO + 0x6 Sturdy
+				[0x081DD6DA] = {[12] = true}, -- BattleScript_ObliviousPreventsAttraction + 0x0 Oblivious
+				[0x081DD735] = {[16] = true}, -- BattleScript_ColorChangeActivates + 0x3 Color Change
+				[0x081DD696] = {[18] = true}, -- BattleScript_FlashFireBoost + 0x9 Flash Fire
+				[0x081DD6F6] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
+				[0x081DD6A4] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
+				[0x081DD749] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
+				[0x081DABD9] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
+				[0x081DD75D] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
+				[0x081DD724] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
+				[0x081DACD5] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081DD668] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+					[10] = true, -- Water Absorb
+					[11] = true, -- Volt Absorb
+				},
+				[0x081DD67E] = { -- BattleScript_MonMadeMoveUseless + 0x7 --> Ability nullifies move
+					[10] = true, -- Water Absorb
+					[11] = true, -- Volt Absorb
+				},
+				[0x081DD6CA] = { -- BattleScript_PRLZPrevention + 0x8 
+					[7]  = true, -- Limber
+					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
+				},
+				[0x081DD6D6] = { -- BattleScript_PSNPrevention + 0x8
+					[17] = true, -- Immunity
+					[28] = true, -- Synchronize (is unable to inflict poison on other mon)
+				},
+				[0x081DD6BE] = { -- BattleScript_BRNPrevention + 0x8
+					[28] = true, -- Synchronize (is unable to inflict burn on other mon)
+					[41] = true, -- Water Veil
+				},
+				[0x081DAC6A] = { -- BattleScript_CantMakeAsleep + 0x8 --> Ability blocks attacker from inflicting sleep
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
+			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
+				[0x081DD544] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
+				[0x081DD78D] = {[54] = true}, -- BattleScript_MoveUsedLoafingAround + 0x5 Truant
+				[0x081DB150] = { -- BattleScript_RestCantSleep + 0x8 --> Ability blocks mon's own rest attempt
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				},
+			},
+			STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
+				[0x081DD456] = {[27] = true}, -- BattleScript_MoveEffectSleep + 0x7 Effect Spore (Sleep)
+				[0x081DD49F] = { -- BattleScript_MoveEffectParalysis + 0x7
+					[9] = true,  -- Static
+					[27] = true, -- Effect Spore
+					[28] = true, -- Synchronize
+				},
+				[0x081DD472] = { -- BattleScript_MoveEffectPoison + 0x7
+					[27] = true, -- Effect Spore
+					[28] = true, -- Synchronize
+					[38] = true, -- Poison Point
+				},
+				[0x081DD481] = { --BattleScript_MoveEffectBurn + 0x7
+					[28] = true, -- Synchronize
+					[49] = true, -- Flame Body
+				},
+			},
+			BATTLE_TARGET = { -- Abilities where we can use gBattlerTarget to determine enemy/player
+				[0x081DD64B] = { -- BattleScript_DampStopsExplosion + 0x6 Damp
+					[6] = true, -- Damp
+					scope = "both",
+				},
+				[0x081DD70C] = { -- BattleScript_SoundproofProtected + 0x8 Soundproof 1
+					[43] = true, -- Soundproof
+					scope = "self",
+				},
+				[0x081DB860] = { -- BattleScript_EffectHealBell + 0x29 Soundproof 2 (Enemy uses Heal Bell)
+					[43] = true, -- Soundproof
+					scope = "self",
+				},
+				[0x081DCE2D] = { -- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12 Liquid Ooze (Leech Seed)
+					[64] = true, -- Liquid Ooze
+					scope = "other",
+				},
+			},
+		}
+
+		dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
+		GermanyData.updateToGermanyData()
 	end
 end
 
