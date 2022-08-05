@@ -23,3 +23,4 @@ CURRENTLY SUPPORTED GAMES:
 - Pokémon Rojo Fuego (Spain)
 - Pokémon Rouge Feu (France)
 - Pokémon Rosso Fuoco (Italy)
+- Pokémon Feuerrote (Germany)
