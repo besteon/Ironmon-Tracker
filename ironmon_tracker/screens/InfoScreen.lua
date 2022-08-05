@@ -354,6 +354,8 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 		if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
 			y = y - 4
+		elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
+			y = y + 2
 		end
 
 		iconButtons[index] = {

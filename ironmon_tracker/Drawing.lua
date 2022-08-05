@@ -23,6 +23,8 @@ function Drawing.drawPokemonIcon(id, x, y)
 
 	if iconset.name == "Stadium" then
 		y = y + 4
+	elseif iconset.name == "Gen 7+" then
+		y = y + 2
 	end
 
 	gui.drawImage(imagepath, x, y, 32, 32)
@@ -188,6 +190,8 @@ function Drawing.drawButton(button, shadowcolor)
 		if imagePath ~= nil then
 			if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
 				y = y + 4
+			elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
+				y = y + 2
 			end
 			gui.drawImage(imagePath, x, y, width, height)
 		end
