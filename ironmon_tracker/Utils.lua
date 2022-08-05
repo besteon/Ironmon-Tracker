@@ -329,6 +329,21 @@ function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
 	return tostring(roundedPower)
 end
 
+-- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
+function Utils.estimateIVsOfLeadPokemon()
+	local leadPokemon = Tracker.getPokemon(1, true)
+	if leadPokemon == nil or leadPokemon.pokemonID == 0 then
+		return 0
+	end
+
+	local sumStats = leadPokemon.stats.hp + leadPokemon.stats.atk + leadPokemon.stats.def + leadPokemon.stats.spa + leadPokemon.stats.spd + leadPokemon.stats.spe - 35 - leadPokemon.level
+
+	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
+	local ivGuess = (sumStats * 50 / leadPokemon.level) - PokemonData.Pokemon[leadPokemon.pokemonID].bst
+	
+	return ivGuess / 96
+end
+
 function Utils.pokemonHasMove(pokemon, moveName)
 	if pokemon == nil or moveName == nil then return false end
 

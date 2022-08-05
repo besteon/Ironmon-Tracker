@@ -28,12 +28,16 @@ dofile(Main.DataFolder .. "/data/MiscData.lua")
 dofile(Main.DataFolder .. "/data/RouteData.lua")
 dofile(Main.DataFolder .. "/Memory.lua")
 dofile(Main.DataFolder .. "/GameSettings.lua")
-dofile(Main.DataFolder .. "/InfoScreen.lua")
+dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
 dofile(Main.DataFolder .. "/Options.lua")
 dofile(Main.DataFolder .. "/Theme.lua")
 dofile(Main.DataFolder .. "/ColorPicker.lua")
 dofile(Main.DataFolder .. "/Utils.lua")
-dofile(Main.DataFolder .. "/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
+dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
+dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
+dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
+dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
 dofile(Main.DataFolder .. "/Input.lua")
 dofile(Main.DataFolder .. "/Drawing.lua")
 dofile(Main.DataFolder .. "/Program.lua")
@@ -74,11 +78,17 @@ function Main.Run()
 			emu.frameadvance()
 		end
 	else
+		-- Initialize everything in the proper order
 		Program.initialize()
 		Options.initialize()
 		Theme.initialize()
 		Tracker.initialize()
+
 		TrackerScreen.initialize()
+		NavigationMenu.initialize()
+		SetupScreen.initialize()
+		GameOptionsScreen.initialize()
+		TrackedDataScreen.initialize()
 
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
@@ -206,7 +216,7 @@ function Main.LoadSettings()
 		local enableMoveTypes = settings.theme.MOVE_TYPES_ENABLED
 		if enableMoveTypes ~= nil then
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-			Theme.Buttons.moveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
 	end
 
