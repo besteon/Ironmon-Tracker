@@ -40,10 +40,10 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.NEXT_BUTTON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 33, 10, 10, },
 		onClick = function(self)
-			local nextIndex = (tonumber(Options["Pokemon icon set"]) % Options.IconSetMap.totalCount) + 1
-			Options["Pokemon icon set"] = tostring(nextIndex)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-			Program.redraw(true)
+			local currIndex = tonumber(Options["Pokemon icon set"])
+			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
+			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
+			Options.updateSetting("Pokemon icon set", nextSet)
 		end
 	},
 	CycleIconBackward = {
@@ -51,10 +51,10 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.PREVIOUS_BUTTON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 33, 10, 10, },
 		onClick = function(self)
-			local prevIndex = (tonumber(Options["Pokemon icon set"]) - 2 ) % Options.IconSetMap.totalCount + 1
-			Options["Pokemon icon set"] = tostring(prevIndex)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-			Program.redraw(true)
+			local currIndex = tonumber(Options["Pokemon icon set"])
+			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
+			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
+			Options.updateSetting("Pokemon icon set", prevSet)
 		end
 	},
 	RomsFolder = {

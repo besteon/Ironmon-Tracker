@@ -35,7 +35,7 @@ GameOptionsScreen.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			GameOptionsScreen.Buttons.EstimateIVs.ivText = " " .. Constants.BLANKLINE .. "%"
+			GameOptionsScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
 			Program.changeScreenView(Program.Screens.NAVIGATION)

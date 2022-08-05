@@ -192,19 +192,18 @@ function Main.LoadSettings()
 	-- [TRACKER]
 	if settings.tracker ~= nil then
 		for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do
-			if optionKey ~= nil then
-				local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			local optionValue = settings.tracker[string.gsub(optionKey, " ", "_")]
+			if optionValue ~= nil then
 				Options[optionKey] = optionValue
 			end
-			print(optionKey .. ": " .. tostring(Options[optionKey]))
 		end
 	end
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then
 		for optionKey, _ in pairs(Options.CONTROLS) do
-			if optionKey ~= nil then
-				local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+			if controlValue ~= nil then
 				Options.CONTROLS[optionKey] = controlValue
 			end
 		end
@@ -213,8 +212,8 @@ function Main.LoadSettings()
 	-- [THEME]
 	if settings.theme ~= nil then
 		for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
-			if colorkey ~= nil then
-				local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			local color_hexval = settings.theme[string.gsub(colorkey, " ", "_")]
+			if color_hexval ~= nil then
 				Theme.COLORS[colorkey] = 0xFF000000 + tonumber(color_hexval, 16)
 			end
 		end

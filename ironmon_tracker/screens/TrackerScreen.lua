@@ -9,7 +9,6 @@ TrackerScreen.Buttons = {
 			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= #PokemonData.Pokemon then
 				pokemonID = pokemon.pokemonID
 			end
-			print("ok " .. Options["Pokemon icon set"])
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
 			return imagepath

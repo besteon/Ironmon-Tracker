@@ -57,6 +57,5 @@ end
 function Options.updateSetting(optionKey, value)
 	Options[optionKey] = value
 	Options.settingsUpdated = true
-
 	Program.redraw(true)
 end
