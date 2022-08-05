@@ -115,6 +115,7 @@ function SetupScreen.initialize()
 		button.boxColors = { SetupScreen.borderColor, SetupScreen.boxFillColor }
 	end
 
+	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
 	SetupScreen.Buttons.PokemonIcon:onClick() -- Randomize what Pokemon icon is shown
 
 	if Options.ROMS_FOLDER ~= nil and Options.ROMS_FOLDER ~= "" then

@@ -335,7 +335,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	local startY = Constants.SCREEN.MARGIN + 48
+	local startY = Constants.SCREEN.MARGIN + 50
 	local offsetX = 0
 	local offsetY = 0
 	local iconWidth = 32
@@ -752,6 +752,10 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+
+	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
+		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Default text"], boxTopShadow)
+	end
 
 	-- POKEMON SEEN
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
