@@ -1872,8 +1872,8 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
-		GameSettings.BattleScript_LearnMoveLoop = 0x081D7DEB
-		GameSettings.BattleScript_LearnMoveReturn = 0x081D7E3D
+		GameSettings.BattleScript_LearnMoveLoop = 0x0081D71E3
+		GameSettings.BattleScript_LearnMoveReturn = 0x081D7235
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
