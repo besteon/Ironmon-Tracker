@@ -551,7 +551,7 @@ function Program.updateViewSlotsFromMemory()
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
 
 	-- Secondary enemy pokemon (likely the doubles battle partner)
-	if Program.BattleTurn.attackerValue % 2 == 3 then
+	if Program.BattleTurn.attackerValue == 3 then
 		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
 	end
 
