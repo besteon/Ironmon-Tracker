@@ -2,8 +2,13 @@ Tracker = {}
 Tracker.Data = {}
 
 function Tracker.initialize()
-	local filepath = GameSettings.getTrackerAutoSaveName()
-	Tracker.loadData(filepath)
+	if Options["Auto save tracked game data"] then
+		local filepath = GameSettings.getTrackerAutoSaveName()
+		Tracker.loadData(filepath)
+	else
+		Tracker.resetData()
+		print("Initializing new Tracker data for this game (auto-save option is disabled).")
+	end
 end
 
 -- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
@@ -369,7 +374,7 @@ function Tracker.resetData()
 	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
-		romHash = nil,
+		romHash = gameinfo.getromhash(),
 
 		trainerID = 0,
 		allPokemon = {}, -- Used to track information about all pokemon seen thus far
@@ -409,7 +414,6 @@ function Tracker.loadData(filepath)
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
 	Tracker.resetData()
-	Tracker.Data.romHash = gameinfo.getromhash()
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local fileData = nil
