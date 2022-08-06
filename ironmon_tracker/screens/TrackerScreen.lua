@@ -161,9 +161,9 @@ TrackerScreen.Buttons = {
 
 TrackerScreen.CarouselTypes = {
     BADGES = 1, -- Outside of battle
-	NOTES = 2, -- During new game intro or inside of battle
-	LAST_ATTACK = 3, -- During battle, only between turns
-	ROUTE_INFO = 4, -- During battle, only if encounter is a wild pokemon
+	LAST_ATTACK = 2, -- During battle, only between turns
+	ROUTE_INFO = 3, -- During battle, only if encounter is a wild pokemon
+	NOTES = 4, -- During new game intro or inside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -327,8 +327,12 @@ end
 function TrackerScreen.getCurrentCarouselItem()
 	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
 
+	-- Adjust rotation delay check for carousel based on the speed of emulation
+	local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	local adjustedVisibilityFrames = carousel.framesToShow * fpsMultiplier
+
 	-- Check if the current carousel's time has expired, or if it shouldn't be shown
-	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > carousel.framesToShow then
+	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > adjustedVisibilityFrames then
 		local nextCarousel = TrackerScreen.getNextVisibleCarouselItem(TrackerScreen.carouselIndex)
 		TrackerScreen.carouselIndex = nextCarousel.type
 		Program.Frames.carouselActive = 0
@@ -680,7 +684,7 @@ function TrackerScreen.drawStatsArea(pokemon)
 
 	-- Draw BST
 	Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawText(statOffsetX + 25, statOffsetY, pokemon.bst, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawNumber(statOffsetX + 25, statOffsetY, pokemon.bst, 3, Theme.COLORS["Default text"], shadowcolor)
 
 	-- If controller is in use and highlighting any stats, draw that
 	Drawing.drawInputOverlay()
