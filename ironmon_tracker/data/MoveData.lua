@@ -1840,7 +1840,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
 		iscontact = true,
-		summary = "Steals the target's held item, if it has one. An item cannot be stolen if the target has Sticky Hold.",
+		summary = "Steals the target's held item, if it has one. An item cannot be stolen if the user already has an item, or the target has Sticky Hold.",
 	},
 	{
 		id = "169",

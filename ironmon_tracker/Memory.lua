@@ -1,6 +1,7 @@
 Memory = {}
 
 function Memory.read(addr, size)
+	if addr == nil or addr <= 0x0 then return 0 end
 	local mem = ""
 	local memdomain = bit.rshift(addr, 24)
 	if memdomain == 0 then
@@ -38,6 +39,7 @@ end
 
 -- Unless absolutely necessary (looking at you fishing rods), do NOT write to memory
 function Memory.write(addr, value, size)
+	if addr == nil or addr <= 0x0 then return false end
 	local mem = ""
 	local memdomain = bit.rshift(addr, 24)
 	if memdomain == 0 then
