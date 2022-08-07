@@ -650,14 +650,14 @@ function TrackerScreen.drawStatsArea(pokemon)
 
 	-- Draw the six primary stats
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-		local natureType = Utils.calcNatureBonus(statKey, pokemon.nature)
+		local natureMultiplier = Utils.getNatureMultiplier(statKey, pokemon.nature)
 		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
 
-		if Tracker.Data.isViewingOwn and natureType == 1 then
+		if Tracker.Data.isViewingOwn and natureMultiplier == 1.1 then
 			textColor = Theme.COLORS["Positive text"]
 			natureSymbol = "+"
-		elseif Tracker.Data.isViewingOwn and natureType == -1 then
+		elseif Tracker.Data.isViewingOwn and natureMultiplier == 0.9 then
 			textColor = Theme.COLORS["Negative text"]
 			natureSymbol = Constants.BLANKLINE
 		end

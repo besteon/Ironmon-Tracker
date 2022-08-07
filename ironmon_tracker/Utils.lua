@@ -23,43 +23,32 @@ function Utils.printDebug(message)
 	end
 end
 
--- Returns '0' if neutral nature, '-1' if negative nature, and '1' if positive nature
-function Utils.calcNatureBonus(stat, nature)
-	if nature % 6 == 0 then
-		return 0
-	elseif stat == "atk" then
-		if nature < 5 then
-			return 1
-		elseif nature % 5 == 0 then
-			return -1
-		end
-	elseif stat == "def" then
-		if nature > 4 and nature < 10 then
-			return 1
-		elseif nature % 5 == 1 then
-			return -1
-		end
-	elseif stat == "spe" then
-		if nature > 9 and nature < 15 then
-			return 1
-		elseif nature % 5 == 2 then
-			return -1
-		end
-	elseif stat == "spa" then
-		if nature > 14 and nature < 20 then
-			return 1
-		elseif nature % 5 == 3 then
-			return -1
-		end
-	elseif stat == "spd" then
-		if nature > 19 then
-			return 1
-		elseif nature % 5 == 4 then
-			return -1
-		end
-	else
-		return 0
+-- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
+function Utils.getNatureMultiplier(stat, nature)
+	if nature % 6 == 0 then return 1 end
+
+	if stat == "atk" then
+		if nature < 5 then return 1.1 end
+		if nature % 5 == 0 then return 0.9 end
 	end
+	if stat == "def" then
+		if nature > 4 and nature < 10 then return 1.1 end
+		if nature % 5 == 1 then return 0.9 end
+	end
+	if stat == "spe" then
+		if nature > 9 and nature < 15 then return 1.1 end
+		if nature % 5 == 2 then return 0.9 end
+	end
+	if stat == "spa" then
+		if nature > 14 and nature < 20 then return 1.1 end
+		if nature % 5 == 3 then return 0.9 end
+	end
+	if stat == "spd" then
+		if nature > 19 then return 1.1 end
+		if nature % 5 == 4 then return 0.9 end
+	end
+
+	return 1
 end
 
 -- Returns a slightly darkened color
@@ -365,7 +354,13 @@ function Utils.estimateIVs(pokemon)
 		return 0
 	end
 
-	local sumStats = pokemon.stats.hp + pokemon.stats.atk + pokemon.stats.def + pokemon.stats.spa + pokemon.stats.spd + pokemon.stats.spe - 35 - pokemon.level
+	local atk = pokemon.stats.atk * Utils.getNatureMultiplier("atk", pokemon.nature)
+	local def = pokemon.stats.def * Utils.getNatureMultiplier("def", pokemon.nature)
+	local spa = pokemon.stats.spa * Utils.getNatureMultiplier("spa", pokemon.nature)
+	local spd = pokemon.stats.spd * Utils.getNatureMultiplier("spd", pokemon.nature)
+	local spe = pokemon.stats.spe * Utils.getNatureMultiplier("spe", pokemon.nature)
+	
+	local sumStats = pokemon.stats.hp + atk + def + spa + spd + spe - pokemon.level - 35
 
 	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
 	local ivGuess = (sumStats * 50 / pokemon.level) - PokemonData.Pokemon[pokemon.pokemonID].bst
