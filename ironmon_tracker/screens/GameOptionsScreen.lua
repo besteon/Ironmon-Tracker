@@ -17,18 +17,10 @@ GameOptionsScreen.OptionKeys = {
 GameOptionsScreen.Buttons = {
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Estimate " .. Constants.Words.POKEMON .. "'s Potential",
+		text = "  Estimate " .. Constants.Words.POKEMON .. "'s Potential",
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 105, 123, 11 },
-		onClick = function(self)
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			if leadPokemon ~= nil then
-				local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
-				local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
-				self.ivText = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
-				Program.redraw(true)
-			end
-		end
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 105, 130, 11 },
+		onClick = function() GameOptionsScreen.displayJudgeMessage() end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -74,6 +66,34 @@ function GameOptionsScreen.initialize()
 		button.textColor = GameOptionsScreen.textColor
 		button.boxColors = { GameOptionsScreen.borderColor, GameOptionsScreen.boxFillColor }
 	end
+end
+
+function GameOptionsScreen.displayJudgeMessage()
+	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	if leadPokemon ~= nil then
+		-- https://bulbapedia.bulbagarden.net/wiki/Stats_judge
+		local result
+		local ivEstimate = Utils.estimateIVs(leadPokemon) * 186
+		if ivEstimate >= 151 then
+			result = "Outstanding!!!"
+		elseif ivEstimate >= 121 and ivEstimate <= 150 then
+			result = "Quite impressive!!"
+		elseif ivEstimate >= 91 and ivEstimate <= 120 then
+			result = "Above average!"
+		else
+			result = "Decent."
+		end
+
+		GameOptionsScreen.Buttons.EstimateIVs.ivText = PokemonData.Pokemon[leadPokemon.pokemonID].name .. " is: " .. result
+
+		-- Joey's Rattata meme (saving for later)
+		-- local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
+		-- local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
+		-- message = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
+	else
+		GameOptionsScreen.Buttons.EstimateIVs.ivText = "Estimate is unavailable."
+	end
+	Program.redraw(true)
 end
 
 -- DRAWING FUNCTIONS
