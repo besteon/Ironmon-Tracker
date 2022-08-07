@@ -1,6 +1,7 @@
 Constants = {}
 
 Constants.BLANKLINE = "---"
+Constants.HIDDEN_INFO = "?"
 Constants.NO_POWER = Constants.BLANKLINE
 Constants.NO_PP = ""
 
@@ -90,6 +91,7 @@ Constants.OrderedLists = {
 		"PC heals count downward",
 		"Auto save tracked game data",
 		"Pokemon icon set",
+		"Reveal info if randomized",
 	},
 	CONTROLS = {
 		"Load next seed",

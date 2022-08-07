@@ -50,27 +50,61 @@ PokemonData.BlankPokemon = {
 	weight = 0.0,
 }
 
+PokemonData.IsRand = {
+	pokemonTypes = false,
+	pokemonAbilities = false, -- Currently unused
+}
+
 -- Reads the types and abilities for each Pokemon in the Pokedex
 function PokemonData.readDataFromMemory()
-	for pokemonID=1, 411, 1 do
-		local types = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x06)
-		local typeOne = Utils.getbits(types, 0, 8)
-		local typeTwo = Utils.getbits(types, 8, 8)
-
-		local abilities = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x16)
-		local abilityIdOne = Utils.getbits(abilities, 0, 8)
-		local abilityIdTwo = Utils.getbits(abilities, 8, 8)
-
+	-- Check if any data was randomized (assumes randomizer forces a change)
+	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
+	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
+	PokemonData.IsRand.pokemonTypes = types ~= nil and (types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON)
+	PokemonData.IsRand.pokemonAbilities = abilities ~= nil and (abilities[1] ~= 65 or types[2] ~= 65) -- 65 = Overgrow
+	
+	for pokemonID=1, #PokemonData.Pokemon, 1 do
 		local pokemonData = PokemonData.Pokemon[pokemonID]
-		pokemonData.types = {
-			PokemonData.TypeIndexMap[typeOne],
-			PokemonData.TypeIndexMap[typeTwo],
-		}
-		pokemonData.abilities = {
-			Utils.inlineIf(abilityIdOne == 0, 0, abilityIdOne),
-			Utils.inlineIf(abilityIdTwo == 0, 0, abilityIdTwo),
-		}
+
+		if PokemonData.IsRand.pokemonTypes then
+			types = PokemonData.readPokemonTypesFromMemory(pokemonID)
+			if types ~= nil then
+				pokemonData.types = types
+			end
+		end
+		if PokemonData.IsRand.pokemonAbilities or true then -- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
+			abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+			if abilities ~= nil then
+				pokemonData.abilities = abilities
+			end
+		end
 	end
+end
+
+function PokemonData.readPokemonTypesFromMemory(pokemonID)
+	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
+
+	local typesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x06)
+	local typeOne = Utils.getbits(typesData, 0, 8)
+	local typeTwo = Utils.getbits(typesData, 8, 8)
+
+	return {
+		PokemonData.TypeIndexMap[typeOne],
+		PokemonData.TypeIndexMap[typeTwo],
+	}
+end
+
+function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
+
+	local abilitiesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x16)
+	local abilityIdOne = Utils.getbits(abilitiesData, 0, 8)
+	local abilityIdTwo = Utils.getbits(abilitiesData, 8, 8)
+
+	return {
+		Utils.inlineIf(abilityIdOne == 0, 0, abilityIdOne),
+		Utils.inlineIf(abilityIdTwo == 0, 0, abilityIdTwo),
+	}
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)

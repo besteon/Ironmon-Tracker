@@ -53,6 +53,7 @@ function Program.initialize()
 	end
 
 	PokemonData.readDataFromMemory()
+	MoveData.readDataFromMemory()
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time())
