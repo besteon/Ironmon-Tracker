@@ -306,19 +306,20 @@ function Utils.calculateWeightBasedDamage(movePower, weight)
 	end
 end
 
--- For Flail & Reversal
+-- For Flail & Reversal. Decompiled code scales fraction to 48, which is why its used here.
 function Utils.calculateLowHPBasedDamage(movePower, currentHP, maxHP)
 	-- For randomized move powers, unsure what these two moves get changed to
-	local percentHP = (currentHP / maxHP) * 100
-	if percentHP < 4.17 then
+	local fractionHP = currentHP * 48 / maxHP
+
+	if fractionHP <= 1 then
 		return "200"
-	elseif percentHP < 10.42 then
+	elseif fractionHP <= 4 then
 		return "150"
-	elseif percentHP < 20.83 then
+	elseif fractionHP <= 9 then
 		return "100"
-	elseif percentHP < 35.42 then
+	elseif fractionHP <= 16 then
 		return "80"
-	elseif percentHP < 68.75 then
+	elseif fractionHP <= 32 then
 		return "40"
 	else
 		return "20"
