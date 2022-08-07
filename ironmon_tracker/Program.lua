@@ -126,8 +126,7 @@ function Program.updateTrackedAndCurrentData()
 				Tracker.Data.isViewingOwn = false
 			end
 
-			-- Reset the controller's position when a new pokemon is sent out
-			Input.controller.statIndex = 6
+			Input.resetControllerIndex()
 
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.Frames.waitToDraw = 0
@@ -599,7 +598,7 @@ function Program.beginNewBattle(isWild)
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
-	Input.controller.statIndex = 6 -- Reset the controller's position when a new pokemon is sent out
+	Input.resetControllerIndex()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then

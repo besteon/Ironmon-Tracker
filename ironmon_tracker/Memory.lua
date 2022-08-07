@@ -1,6 +1,12 @@
 Memory = {}
 
 function Memory.read(addr, size)
+	if addr == nil or addr <= 0x0 then
+		print(debug.traceback())
+		print("[ERROR] Unable to read game memory from unknown address.")
+		return 0
+	end
+
 	local mem = ""
 	local memdomain = bit.rshift(addr, 24)
 	if memdomain == 0 then
@@ -38,6 +44,12 @@ end
 
 -- Unless absolutely necessary (looking at you fishing rods), do NOT write to memory
 function Memory.write(addr, value, size)
+	if addr == nil or addr <= 0x0 then
+		print(debug.traceback())
+		print("[ERROR] Unable to write to game memory using an unknown address.")
+		return false
+	end
+
 	local mem = ""
 	local memdomain = bit.rshift(addr, 24)
 	if memdomain == 0 then

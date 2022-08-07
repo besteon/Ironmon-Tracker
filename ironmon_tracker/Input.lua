@@ -69,6 +69,10 @@ function Input.checkJoypadInput(joypadButtons)
 		if Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
 			Input.controller.framesSinceInput = 0
 
+			-- This might be redundant, but adding in the extra safety check
+			if Input.controller.statIndex < 1 then Input.controller.statIndex = 1 end
+			if Input.controller.statIndex > 6 then Input.controller.statIndex = 6 end
+
 			local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
 			local statButton = TrackerScreen.Buttons[statKey]
 			statButton:onClick()
@@ -106,6 +110,10 @@ function Input.checkMouseInput(xmouse, ymouse)
 			end
 		end
 	end
+end
+
+function Input.resetControllerIndex()
+	Input.controller.statIndex = 0
 end
 
 --[[
