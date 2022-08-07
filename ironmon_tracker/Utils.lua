@@ -258,8 +258,12 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	end
 
 	-- Check effectiveness against each opposing type
-	for _, type in ipairs(comparedTypes) do
-		local effectiveValue = MoveData.TypeToEffectiveness[moveType][type]
+	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
+	if effectiveValue ~= nil then
+		effectiveness = effectiveness * effectiveValue
+	end
+	if comparedTypes[2] ~= comparedTypes[1] then
+		effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[2]]
 		if effectiveValue ~= nil then
 			effectiveness = effectiveness * effectiveValue
 		end

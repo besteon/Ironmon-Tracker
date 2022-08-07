@@ -511,8 +511,10 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	Drawing.drawTypeIcon(pokemon.type[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
-	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
+	Drawing.drawTypeIcon(pokemon.types[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
+	if pokemon.types[2] ~= pokemon.types[1] then
+		Drawing.drawTypeIcon(pokemon.types[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
+	end
 
 	-- SETTINGS GEAR
 	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, shadowcolor)
@@ -566,8 +568,9 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		if pokemon.heldItem ~= nil and pokemon.heldItem ~= 0 then
 			abilityStringTop = MiscData.Items[pokemon.heldItem]
 		end
-		if pokemon.abilityId ~= nil and pokemon.abilityId ~= 0 then
-			abilityStringBot = MiscData.Abilities[pokemon.abilityId]
+		local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+		if abilityId ~= nil and abilityId ~= 0 then
+			abilityStringBot = MiscData.Abilities[abilityId]
 		end
 	else
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
@@ -796,7 +799,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE POWER
-		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, pokemon.type) then
+		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, pokemon.types) then
 			movePowerColor = Theme.COLORS["Positive text"]
 		end
 
@@ -816,7 +819,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil then
-			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].type)
+			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].types)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
 			else

@@ -455,13 +455,15 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	if pokemon.type[2] ~= PokemonData.Types.EMPTY then
+	if pokemon.types[2] ~= pokemon.types[1] and pokemon.types[2] ~= PokemonData.Types.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
 	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
-	Drawing.drawTypeIcon(pokemon.type[1], offsetX + 106, offsetY + 37)
-	Drawing.drawTypeIcon(pokemon.type[2], offsetX + 106, offsetY + 49)
+	Drawing.drawTypeIcon(pokemon.types[1], offsetX + 106, offsetY + 37)
+	if pokemon.types[2] ~= pokemon.types[1] then
+		Drawing.drawTypeIcon(pokemon.types[2], offsetX + 106, offsetY + 49)
+	end
 	offsetY = offsetY + 11 + linespacing
 
 	-- BST
@@ -531,11 +533,11 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local hasSevereWeakness = false
 	for moveType, typeEffectiveness in pairs(MoveData.TypeToEffectiveness) do
 		local effectiveness = 1
-		if pokemon.type[1] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[1]] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[pokemon.type[1]]
+		if typeEffectiveness[pokemon.types[1]] ~= nil then
+			effectiveness = effectiveness * typeEffectiveness[pokemon.types[1]]
 		end
-		if pokemon.type[2] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[2]] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[pokemon.type[2]]
+		if pokemon.types[2] ~= pokemon.types[1] and typeEffectiveness[pokemon.types[2]] ~= nil then
+			effectiveness = effectiveness * typeEffectiveness[pokemon.types[2]]
 		end
 		if effectiveness > 1 then
 			weaknesses[moveType] = effectiveness
