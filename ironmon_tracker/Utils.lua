@@ -301,18 +301,19 @@ function Utils.calculateWeightBasedDamage(weight)
 	end
 end
 
--- For Flail & Reversal
+-- For Flail & Reversal. Decompiled code scales fraction to 48, which is why its used here.
 function Utils.calculateLowHPBasedDamage(currentHP, maxHP)
-	local percentHP = (currentHP / maxHP) * 100
-	if percentHP < 4.17 then
+	local fractionHP = (currentHP * 48) / maxHP
+
+	if fractionHP < 1.0 then
 		return "200"
-	elseif percentHP < 10.42 then
+	elseif fractionHP < 4.0 then
 		return "150"
-	elseif percentHP < 20.83 then
+	elseif fractionHP < 9.0 then
 		return "100"
-	elseif percentHP < 35.42 then
+	elseif fractionHP < 16.0 then
 		return "80"
-	elseif percentHP < 68.75 then
+	elseif fractionHP < 32.0 then
 		return "40"
 	else
 		return "20"
@@ -321,10 +322,7 @@ end
 
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
-	local basePower = (150 * currentHP) / maxHP
-	if basePower < 1 then
-		basePower = 1
-	end
+	local basePower = math.max((150 * currentHP) / maxHP, 1)
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
 end
