@@ -372,7 +372,7 @@ FranceData.Abilities = {
     "Absorb Eau", --Absorb Eau english:Water Absorb
     "Benet", --Benet english:Oblivious
     "Ciel Gris", --Ciel Gris english:Cloud Nine
-    "Oeil Compose", --Oeil Compose english:Compound Eyes
+    "Oeil Compose", --Oeil Compose english:Compoundeyes
     "Insomnia", --Insomnia english:Insomnia
     "Deguisement", --Deguisement english:Color Change
     "Vaccin", --Vaccin english:Immunity
@@ -389,7 +389,7 @@ FranceData.Abilities = {
     "Synchro", --Synchro english:Synchronize
     "Corps Sain", --Corps Sain english:Clear Body
     "Medic Nature", --Medic Nature english:Natural Cure
-    "Paratonnerre", --Paratonnerre english:Lightning Rod
+    "Paratonnerre", --Paratonnerre english:Lightningrod
     "Serenite", --Serenite english:Serene Grace
     "Glissade", --Glissade english:Swift Swim
     "Chlorophyle", --Chlorophyle english:Chlorophyll

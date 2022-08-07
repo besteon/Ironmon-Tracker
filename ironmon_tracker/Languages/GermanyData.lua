@@ -372,7 +372,7 @@ GermanyData.Abilities = {
     "H2o-Absorber", --H2o-Absorber english:Water Absorb
     "D\246sigkeit", --Dösigkeit english:Oblivious
     "Wolke Sieben", --Wolke Sieben english:Cloud Nine
-    "Facettenauge", --Facettenauge english:Compound Eyes
+    "Facettenauge", --Facettenauge english:Compoundeyes
     "Insomnia", --Insomnia english:Insomnia
     "Farbwechsel", --Farbwechsel english:Color Change
     "Immunit\228t", --Immunität english:Immunity
@@ -389,7 +389,7 @@ GermanyData.Abilities = {
     "Synchro", --Synchro english:Synchronize
     "Neutraltorso", --Neutraltorso english:Clear Body
     "Innere Kraft", --Innere Kraft english:Natural Cure
-    "Blitzf\228nger", --Blitzfänger english:Lightning Rod
+    "Blitzf\228nger", --Blitzfänger english:Lightningrod
     "Edelmut", --Edelmut english:Serene Grace
     "Wassertempo", --Wassertempo english:Swift Swim
     "Chlorophyll", --Chlorophyll english:Chlorophyll
