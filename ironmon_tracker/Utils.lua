@@ -305,15 +305,15 @@ end
 function Utils.calculateLowHPBasedDamage(currentHP, maxHP)
 	local fractionHP = (currentHP * 48) / maxHP
 
-	if fractionHP < 1.0 then
+	if fractionHP <= 1 then
 		return "200"
-	elseif fractionHP < 4.0 then
+	elseif fractionHP <= 4 then
 		return "150"
-	elseif fractionHP < 9.0 then
+	elseif fractionHP <= 9 then
 		return "100"
-	elseif fractionHP < 16.0 then
+	elseif fractionHP <= 16 then
 		return "80"
-	elseif fractionHP < 32.0 then
+	elseif fractionHP <= 32 then
 		return "40"
 	else
 		return "20"
@@ -322,7 +322,10 @@ end
 
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
-	local basePower = math.max((150 * currentHP) / maxHP, 1)
+	local basePower = (150 * currentHP) / maxHP
+	if basePower < 1 then
+		basePower = 1
+	end
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
 end
