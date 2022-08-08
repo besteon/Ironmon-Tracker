@@ -317,6 +317,9 @@ end
 
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
+	if movePower == ">HP" then
+		movePower = "150"
+	end
 	local basePower = math.max(tonumber(movePower) * currentHP / maxHP, 1)
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)

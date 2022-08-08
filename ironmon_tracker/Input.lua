@@ -113,7 +113,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 end
 
 function Input.resetControllerIndex()
-	Input.controller.statIndex = 0
+	-- Start at the end, so when the next stat controler button is pressed it will wrap around to the 1st box
+	Input.controller.statIndex = 6
 end
 
 --[[

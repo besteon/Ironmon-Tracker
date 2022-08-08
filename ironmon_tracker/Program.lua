@@ -350,7 +350,7 @@ function Program.updateBattleDataFromMemory()
 		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
 		-- Always track your own Pokemon's ability once you decide to use it
-		Tracker.TrackAbility(ownersPokemon.pokemonID, opposingAbilityId)
+		Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then

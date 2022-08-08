@@ -1,61 +1,76 @@
--- IronMon Tracker
--- Created by besteon, based on the PokemonBizhawkLua project by MKDasher
+Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
 
-Main = {
-	TrackerVersion = "0.6.0", -- The latest version of the tracker. Should be updated with each PR.
-	DataFolder = "ironmon_tracker", -- Root folder for the project data and sub scripts
-	SettingsFile = "Settings.ini", -- Location of the Settings file (typically in the root folder)
-	MetaSettings = {},
-	loadNextSeed = false,
-}
-
-Main.CreditsList = {
+Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
 	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
 }
 
-print("\nIronmon-Tracker v" .. Main.TrackerVersion)
+-- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
+function Main.Initialize()
+	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
+	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
+	Main.MetaSettings = {}
+	Main.loadNextSeed = false
 
--- Check the version of BizHawk that is running
--- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
-if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversion() ~= "2.9") then
-	print("This version of BizHawk is not supported.\nPlease update to version 2.8 or higher.")
-	-- Bounce out... Don't pass Go! Don't collect $200.
-	return
+	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
+
+	-- Check the version of BizHawk that is running
+	-- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
+	if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversion() ~= "2.9") then
+		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
+		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
+		return false
+	end
+
+	-- Verify the tracker files are in the same folder, as often they will accidentally get separated
+	local filecheck = io.open(Main.DataFolder .. "/Inifile.lua", "r")
+	if filecheck ~= nil then
+		io.close(filecheck)
+	else
+		print("Unable to load required tracker files.\nMake sure all of the downloaded Tracker's files are still together.")
+		Main.DisplayError("Unable to load required tracker files.\n\nMake sure all of the downloaded Tracker's files are still together.")
+		return false
+	end
+
+	-- Import all scripts before starting the main loop
+	dofile(Main.DataFolder .. "/Inifile.lua")
+	dofile(Main.DataFolder .. "/Constants.lua")
+	dofile(Main.DataFolder .. "/data/PokemonData.lua")
+	dofile(Main.DataFolder .. "/data/MoveData.lua")
+	dofile(Main.DataFolder .. "/data/MiscData.lua")
+	dofile(Main.DataFolder .. "/data/RouteData.lua")
+	dofile(Main.DataFolder .. "/Memory.lua")
+	dofile(Main.DataFolder .. "/GameSettings.lua")
+	dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
+	dofile(Main.DataFolder .. "/Options.lua")
+	dofile(Main.DataFolder .. "/Theme.lua")
+	dofile(Main.DataFolder .. "/ColorPicker.lua")
+	dofile(Main.DataFolder .. "/Utils.lua")
+	dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
+	dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
+	dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
+	dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
+	dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
+	dofile(Main.DataFolder .. "/Input.lua")
+	dofile(Main.DataFolder .. "/Drawing.lua")
+	dofile(Main.DataFolder .. "/Program.lua")
+	dofile(Main.DataFolder .. "/Pickle.lua")
+	dofile(Main.DataFolder .. "/Tracker.lua")
+
+	return true
 end
-
--- Import all scripts before starting the main loop
-dofile(Main.DataFolder .. "/Inifile.lua")
-dofile(Main.DataFolder .. "/Constants.lua")
-dofile(Main.DataFolder .. "/data/PokemonData.lua")
-dofile(Main.DataFolder .. "/data/MoveData.lua")
-dofile(Main.DataFolder .. "/data/MiscData.lua")
-dofile(Main.DataFolder .. "/data/RouteData.lua")
-dofile(Main.DataFolder .. "/Memory.lua")
-dofile(Main.DataFolder .. "/GameSettings.lua")
-dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
-dofile(Main.DataFolder .. "/Options.lua")
-dofile(Main.DataFolder .. "/Theme.lua")
-dofile(Main.DataFolder .. "/ColorPicker.lua")
-dofile(Main.DataFolder .. "/Utils.lua")
-dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
-dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
-dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
-dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
-dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
-dofile(Main.DataFolder .. "/Input.lua")
-dofile(Main.DataFolder .. "/Drawing.lua")
-dofile(Main.DataFolder .. "/Program.lua")
-dofile(Main.DataFolder .. "/Pickle.lua")
-dofile(Main.DataFolder .. "/Tracker.lua")
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
 	forms.destroyall()
 	client.pause()
 
-	local form = forms.newform(400, 130, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)
-	Utils.setFormLocation(form, 100, 50)
+	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)
+
+	local actualLocation = client.transformPoint(100, 50)
+	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
+
 	forms.label(form, errMessage, 18, 10, 400, 50)
 	forms.button(form, "Close", function()
 		client.unpause()
@@ -67,7 +82,7 @@ end
 function Main.Run()
 	Main.LoadSettings()
 
-	print("Waiting for ROM to be loaded...")
+	print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
@@ -76,10 +91,10 @@ function Main.Run()
 
 	GameSettings.initialize()
 
+	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.game == 0 then
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
-			gui.text(0, 0, "Lua error: " .. GameSettings.gamename)
 			emu.frameadvance()
 		end
 	else
@@ -270,4 +285,6 @@ function Main.SaveSettings()
 	Theme.settingsUpdated = false
 end
 
-Main.Run()
+if Main.Initialize() then
+	Main.Run()
+end
