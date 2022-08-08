@@ -17,6 +17,7 @@ Options = {
 	["PC heals count downward"] = true,
 	["Auto save tracked game data"] = true,
 	["Pokemon icon set"] = "1", -- Original icon set
+	["Reveal info if randomized"] = true,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",

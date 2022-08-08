@@ -84,6 +84,46 @@ MoveData.BlankMove = {
 	summary = "",
 }
 
+MoveData.IsRand = {
+	moveType = false,
+	movePower = false,
+	moveAccuracy = false,
+	movePP = false,
+}
+
+-- Reads the Move's type, power, accuracy, and pp
+function MoveData.readDataFromMemory()
+	-- Check if any data was randomized (assumes randomizer forces a change)
+	local moveInfo = MoveData.readMoveInfoFromMemory(3) -- DoubleSlap
+	if moveInfo ~= nil then
+		MoveData.IsRand.moveType = moveInfo.type ~= PokemonData.Types.NORMAL
+		MoveData.IsRand.movePower = moveInfo.power ~= "15"
+		MoveData.IsRand.moveAccuracy = moveInfo.accuracy ~= "85"
+		MoveData.IsRand.movePP = moveInfo.pp ~= "10"
+	end
+	
+	for moveId=1, #MoveData.Moves, 1 do
+		local moveData = MoveData.Moves[moveId]
+
+		if MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP then
+			moveInfo = MoveData.readMoveInfoFromMemory(moveId)
+			if moveInfo ~= nil then
+				moveData.type = moveInfo.type
+				moveData.power = moveInfo.power
+				moveData.accuracy = moveInfo.accuracy
+				moveData.pp = moveInfo.pp
+			end
+		end
+	end
+end
+
+function MoveData.readMoveInfoFromMemory(moveId)
+	if moveId < 1 or moveId > #MoveData.Moves then return nil end
+
+	-- TODO: This will be implemented later
+	return nil
+end
+
 --[[
 The various Pokémon moves (Gen 3)
 Data pulled from Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/List_of_moves (Note that categories differ from the source for Gen 3)
