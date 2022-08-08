@@ -40,7 +40,7 @@ function Main.Initialize()
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
-	if Main.UnsupportedBizhawkVersion() then
+	if not Main.SupportedBizhawkVersion() then
 		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
 		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
 		return false
@@ -62,16 +62,27 @@ function Main.Initialize()
 	return true
 end
 
--- Returns true if Bizhawk version is older than 2.8
-function Main.UnsupportedBizhawkVersion()
+-- Checks if Bizhawk version is 2.8 or later
+function Main.SupportedBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
-	if client.getversion == nil then return true end
+	if client.getversion == nil then return false end
 
 	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
 	local major, minor = string.match(client.getversion(), "(%d+)%.(%d+)")
-	if major == nil or minor == nil then return true end
-
-	return (tonumber(major) < 2 or tonumber(minor) < 8)
+	if major ~= nil then
+		local majorNumber = tonumber(major)
+		if majorNumber > 2 then
+			-- Will allow anything v3.0 and upwards
+			return true
+		elseif majorNumber == 2 then
+			-- Is v2.x, check minor version number
+			if minor ~= nil then
+				return tonumber(minor) >= 8
+			end
+		end
+	end
+	
+	return false
 end
 
 -- Checks if a file exists
