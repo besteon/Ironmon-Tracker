@@ -12,6 +12,7 @@ GameOptionsScreen.OptionKeys = {
 	"Show move effectiveness",
 	"Calculate variable damage",
 	"Count enemy PP usage",
+	"Reveal info if randomized",
 }
 
 GameOptionsScreen.Buttons = {

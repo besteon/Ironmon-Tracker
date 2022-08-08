@@ -511,8 +511,15 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	Drawing.drawTypeIcon(pokemon.type[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
-	Drawing.drawTypeIcon(pokemon.type[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
+	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
+		-- Don't reveal randomized Pokemon types for enemies
+		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
+	else
+		Drawing.drawTypeIcon(pokemon.types[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
+		if pokemon.types[2] ~= pokemon.types[1] then
+			Drawing.drawTypeIcon(pokemon.types[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
+		end
+	end
 
 	-- SETTINGS GEAR
 	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, shadowcolor)
@@ -523,8 +530,8 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	local pkmnStatOffsetY = 10
 
 	-- Don't show hp values if the pokemon doesn't belong to the player, or if it doesn't exist
-	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.curHP)
-	local maxHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, "?", pokemon.stats.hp)
+	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, Constants.HIDDEN_INFO, pokemon.curHP)
+	local maxHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, Constants.HIDDEN_INFO, pokemon.stats.hp)
 	local hpText = currentHP .. "/" .. maxHP
 	local hpTextColor = Theme.COLORS["Default text"]
 	if pokemon.stats.hp == 0 then
@@ -566,13 +573,14 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		if pokemon.heldItem ~= nil and pokemon.heldItem ~= 0 then
 			abilityStringTop = MiscData.Items[pokemon.heldItem]
 		end
-		if pokemon.abilityId ~= nil and pokemon.abilityId ~= 0 then
-			abilityStringBot = MiscData.Abilities[pokemon.abilityId]
+		local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+		if abilityId ~= nil and abilityId ~= 0 then
+			abilityStringBot = MiscData.Abilities[abilityId]
 		end
 	else
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
 			abilityStringTop = MiscData.Abilities[trackedAbilities[1].id] .. " /"
-			abilityStringBot = "?"
+			abilityStringBot = Constants.HIDDEN_INFO
 		end
 		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
 			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
@@ -751,6 +759,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		local movePPText = moveData.pp
 		local movePower = moveData.power
 		local movePowerColor = Theme.COLORS["Default text"]
+		local moveAccuracy = moveData.accuracy
 
 		-- HIDDEN POWER TYPE UPDATE
 		if Tracker.Data.isViewingOwn and moveData.name == "Hidden Power" then
@@ -767,7 +776,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE CATEGORY
-		if Options["Show physical special icons"] then
+		if Options["Show physical special icons"] and (Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 			if moveCategory == MoveData.Categories.PHYSICAL then
 				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			elseif moveCategory == MoveData.Categories.SPECIAL then
@@ -796,27 +805,52 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE POWER
-		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, pokemon.type) then
+		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, pokemon.types) then
 			movePowerColor = Theme.COLORS["Positive text"]
 		end
 
 		if Options["Calculate variable damage"] then
-			if movePower == "WT" and Tracker.Data.inBattle and opposingPokemon ~= nil then
-				-- Calculate the power of weight moves in battle
+			if moveData.id == "67" and Tracker.Data.inBattle and opposingPokemon ~= nil then
+				-- Calculate the power of Low Kick (weight-based moves) in battle
 				local targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
-				movePower = Utils.calculateWeightBasedDamage(targetWeight)
-			elseif movePower == "<HP" and Tracker.Data.isViewingOwn then
-				-- Calculate the power of flail & reversal moves for player only
-				movePower = Utils.calculateLowHPBasedDamage(pokemon.curHP, pokemon.stats.hp)
-			elseif movePower == ">HP" and Tracker.Data.isViewingOwn then
-				-- Calculate the power of water spout & eruption moves for the player only
-				movePower = Utils.calculateHighHPBasedDamage(pokemon.curHP, pokemon.stats.hp)
+				movePower = Utils.calculateWeightBasedDamage(movePower, targetWeight)
+			elseif Tracker.Data.isViewingOwn and (moveData.id == "175" or moveData.id == "179") then
+				-- Calculate the power of Flail & Reversal moves for player only
+				movePower = Utils.calculateLowHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
+			elseif Tracker.Data.isViewingOwn and (moveData.id == "284" or moveData.id == "323") then
+				-- Calculate the power of Eruption & Water Spout moves for the player only
+				movePower = Utils.calculateHighHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
+			end
+		end
+
+		-- If move info is randomized and the user doesn't want to know about it, hide it
+		local showEffectiveness = true
+		if not Options["Reveal info if randomized"] then
+			if Tracker.Data.isViewingOwn then
+				-- Don't show effectiveness of the player's moves if the enemy types are unknown
+				showEffectiveness = not PokemonData.IsRand.pokemonTypes
+			else
+				if MoveData.IsRand.moveType then
+					moveType = PokemonData.Types.UNKNOWN
+					moveTypeColor = Theme.COLORS["Default text"]
+					showEffectiveness = false
+				end
+				if MoveData.IsRand.movePP and movePPText ~= Constants.NO_PP then
+					movePPText = Constants.HIDDEN_INFO
+				end
+				if MoveData.IsRand.movePower and movePower ~= Constants.NO_POWER then
+					movePower = Constants.HIDDEN_INFO
+					movePowerColor = Theme.COLORS["Default text"]
+				end
+				if MoveData.IsRand.moveAccuracy and moveAccuracy ~= Constants.BLANKLINE then
+					moveAccuracy = Constants.HIDDEN_INFO
+				end
 			end
 		end
 
 		-- DRAW MOVE EFFECTIVENESS
-		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil then
-			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].type)
+		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil and showEffectiveness then
+			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].types)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
 			else
@@ -828,7 +862,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset, moveOffsetY, moveName, moveTypeColor, shadowcolor)
 		Drawing.drawNumber(Constants.SCREEN.WIDTH + movePPOffset, moveOffsetY, movePPText, 2, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawNumber(Constants.SCREEN.WIDTH + movePowerOffset, moveOffsetY, movePower, 3, movePowerColor, shadowcolor)
-		Drawing.drawNumber(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY, moveData.accuracy, 3, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawNumber(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY, moveAccuracy, 3, Theme.COLORS["Default text"], shadowcolor)
 
 		moveOffsetY = moveOffsetY + 10 -- linespacing
 	end

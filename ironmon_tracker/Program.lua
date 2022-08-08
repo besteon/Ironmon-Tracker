@@ -52,6 +52,9 @@ function Program.initialize()
 		Program.friendshipRequired = friendshipRequired
 	end
 
+	PokemonData.readDataFromMemory()
+	MoveData.readDataFromMemory()
+
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time())
 
@@ -254,19 +257,7 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 	-- cs = cs % 65536
 
 	local species = Utils.getbits(growth1, 0, 16) -- Pokemon's Pokedex ID
-	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability
-	local abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
-
-	-- If the ability doesn't exist somehow, check the other ability
-	if abilityId < 0 or abilityId > #MiscData.Abilities then
-		abilityNum = 1 - abilityNum
-		abilityId = Memory.readbyte(GameSettings.gBaseStats + (species * 0x1C) + 0x16 + abilityNum)
-
-		-- If it still doesn't exist, assign to 0 so that it displays as a BLANKLINE
-		if abilityId < 0 or abilityId > #MiscData.Abilities then
-			abilityId = 0
-		end
-	end
+	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability, available in PokemonData
 
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
@@ -303,8 +294,8 @@ function Program.readNewPokemonFromMemory(startAddress, personality)
 		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
-		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg
-		abilityId = abilityId,
+		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
+		abilityNum = abilityNum,
 		status = status_result,
 		sleep_turns = sleep_turns_result,
 		curHP = Utils.getbits(level_and_currenthp, 16, 16),
@@ -355,8 +346,11 @@ function Program.updateBattleDataFromMemory()
 		Program.updateStatStagesDataFromMemory(ownersPokemon, true)
 		Program.updateStatStagesDataFromMemory(opposingPokemon, false)
 
+		local ownersAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
+		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
+
 		-- Always track your own Pokemon's ability once you decide to use it
-		Tracker.TrackAbility(ownersPokemon.pokemonID, ownersPokemon.abilityId)
+		Tracker.TrackAbility(ownersPokemon.pokemonID, opposingAbilityId)
 
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
@@ -385,8 +379,8 @@ function Program.updateBattleDataFromMemory()
 
 		local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 		-- Auto-track opponent abilities if they go off
-		if Program.autoTrackAbilitiesCheck(battleMsg, opposingPokemon.abilityId, ownersPokemon.abilityId) then
-			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingPokemon.abilityId)
+		if Program.autoTrackAbilitiesCheck(battleMsg, opposingAbilityId, ownersAbilityId) then
+			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
 		end
 
 		-- MOVES: Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it

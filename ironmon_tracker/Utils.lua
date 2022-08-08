@@ -247,8 +247,12 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	end
 
 	-- Check effectiveness against each opposing type
-	for _, type in ipairs(comparedTypes) do
-		local effectiveValue = MoveData.TypeToEffectiveness[moveType][type]
+	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
+	if effectiveValue ~= nil then
+		effectiveness = effectiveness * effectiveValue
+	end
+	if comparedTypes[2] ~= comparedTypes[1] then
+		effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[2]]
 		if effectiveValue ~= nil then
 			effectiveness = effectiveness * effectiveValue
 		end
@@ -259,7 +263,7 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == Constants.NO_POWER then
+	if move == nil or comparedTypes == nil or move.power == Constants.NO_POWER or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
@@ -274,7 +278,8 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 end
 
 -- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.
-function Utils.calculateWeightBasedDamage(weight)
+function Utils.calculateWeightBasedDamage(movePower, weight)
+	-- For randomized move powers, unsure what these two moves get changed to
 	if weight < 10.0 then
 		return "20"
 	elseif weight < 25.0 then
@@ -290,18 +295,20 @@ function Utils.calculateWeightBasedDamage(weight)
 	end
 end
 
--- For Flail & Reversal
-function Utils.calculateLowHPBasedDamage(currentHP, maxHP)
-	local percentHP = (currentHP / maxHP) * 100
-	if percentHP < 4.17 then
+-- For Flail & Reversal. Decompiled code scales fraction to 48, which is why its used here.
+function Utils.calculateLowHPBasedDamage(movePower, currentHP, maxHP)
+	-- For randomized move powers, unsure what these two moves get changed to
+	local fractionHP = currentHP * 48 / maxHP
+
+	if fractionHP <= 1 then
 		return "200"
-	elseif percentHP < 10.42 then
+	elseif fractionHP <= 4 then
 		return "150"
-	elseif percentHP < 20.83 then
+	elseif fractionHP <= 9 then
 		return "100"
-	elseif percentHP < 35.42 then
+	elseif fractionHP <= 16 then
 		return "80"
-	elseif percentHP < 68.75 then
+	elseif fractionHP <= 32 then
 		return "40"
 	else
 		return "20"
@@ -309,11 +316,8 @@ function Utils.calculateLowHPBasedDamage(currentHP, maxHP)
 end
 
 -- For Water Spout & Eruption
-function Utils.calculateHighHPBasedDamage(currentHP, maxHP)
-	local basePower = (150 * currentHP) / maxHP
-	if basePower < 1 then
-		basePower = 1
-	end
+function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
+	local basePower = math.max(tonumber(movePower) * currentHP / maxHP, 1)
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
 end
@@ -342,7 +346,7 @@ function Utils.calculateWeatherBall(moveType, movePower)
 		elseif currentWeather == "Hail" then
 			moveType = PokemonData.Types.ICE
 		end
-		movePower = 100
+		movePower = tonumber(movePower) * 2
 	end
 
 	return moveType, movePower

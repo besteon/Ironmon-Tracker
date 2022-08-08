@@ -438,6 +438,15 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local pokemonViewed = Tracker.getViewedPokemon()
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
+	local ownPokemonId = Tracker.getPokemon(Tracker.Data.ownViewSlot, true).pokemonID
+
+	local typeOne = pokemon.types[1]
+	local typeTwo = pokemon.types[2]
+	if not Options["Reveal info if randomized"] and PokemonData.IsRand.pokemonTypes and pokemonID ~= ownPokemonId then
+		-- Don't reveal randomized Pokemon types for Pokedex entries
+		typeOne = PokemonData.Types.UNKNOWN
+		typeTwo = PokemonData.Types.UNKNOWN
+	end
 
 	Drawing.drawBackgroundAndMargins()
 
@@ -455,13 +464,15 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	if pokemon.type[2] ~= PokemonData.Types.EMPTY then
+	if typeTwo ~= typeOne and typeTwo ~= PokemonData.Types.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
 	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
-	Drawing.drawTypeIcon(pokemon.type[1], offsetX + 106, offsetY + 37)
-	Drawing.drawTypeIcon(pokemon.type[2], offsetX + 106, offsetY + 49)
+	Drawing.drawTypeIcon(typeOne, offsetX + 106, offsetY + 37)
+	if typeTwo ~= typeOne then
+		Drawing.drawTypeIcon(typeTwo, offsetX + 106, offsetY + 49)
+	end
 	offsetY = offsetY + 11 + linespacing
 
 	-- BST
@@ -531,11 +542,11 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local hasSevereWeakness = false
 	for moveType, typeEffectiveness in pairs(MoveData.TypeToEffectiveness) do
 		local effectiveness = 1
-		if pokemon.type[1] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[1]] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[pokemon.type[1]]
+		if typeEffectiveness[typeOne] ~= nil then
+			effectiveness = effectiveness * typeEffectiveness[typeOne]
 		end
-		if pokemon.type[2] ~= PokemonData.Types.EMPTY and typeEffectiveness[pokemon.type[2]] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[pokemon.type[2]]
+		if typeTwo ~= typeOne and typeEffectiveness[typeTwo] ~= nil then
+			effectiveness = effectiveness * typeEffectiveness[typeTwo]
 		end
 		if effectiveness > 1 then
 			weaknesses[moveType] = effectiveness
@@ -604,7 +615,13 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local move = MoveData.Moves[moveId]
 	local moveType = move.type
 	local moveCat = move.category
+	local movePPText = move.pp
 	local movePower = move.power
+	local moveAccuracy = move.accuracy
+
+	-- Don't reveal randomized move info for moves the player's current pokemon doesn't have
+	local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local hideInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
 
 	-- Before drawing view boxes, check if extra space is needed for 'Priority' information
 	if move.priority ~= nil and move.priority ~= "0" then
@@ -637,6 +654,9 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	end
 
 	-- TYPE ICON
+	if hideInfo and MoveData.IsRand.moveType then
+		moveType = PokemonData.Types.UNKNOWN
+	end
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
@@ -644,16 +664,20 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- CATEGORY
-	local categoryInfo = ""
-	if moveCat == MoveData.Categories.PHYSICAL then
-		categoryInfo = categoryInfo .. "Physical"
+	local categoryInfo
+	if moveCat == MoveData.Categories.STATUS then
+		categoryInfo = "Status"
+	elseif hideInfo and MoveData.IsRand.moveType then
+		categoryInfo = Constants.HIDDEN_INFO
+	elseif moveCat == MoveData.Categories.PHYSICAL then
+		categoryInfo = "Physical"
 		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.SPECIAL then
-		categoryInfo = categoryInfo .. "Special"
+		categoryInfo = "Special"
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
-	elseif moveCat == MoveData.Categories.STATUS then
-		categoryInfo = categoryInfo .. "Status"
-	else categoryInfo = categoryInfo .. Constants.BLANKLINE end
+	else
+		categoryInfo = Constants.BLANKLINE
+	end
 	Drawing.drawText(offsetX, offsetY, "Category:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, categoryInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
@@ -665,23 +689,35 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- PP
-	local ppInfo = Utils.inlineIf(move.pp == Constants.NO_PP, Constants.BLANKLINE, move.pp)
+	if movePPText == Constants.NO_PP then
+		movePPText = Constants.BLANKLINE
+	elseif hideInfo and MoveData.IsRand.movePP then
+		movePPText = Constants.HIDDEN_INFO
+	end
 	Drawing.drawText(offsetX, offsetY, "PP:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, ppInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, movePPText, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
 	if movePower == Constants.NO_POWER then
 		movePower = Constants.BLANKLINE
+	elseif hideInfo and MoveData.IsRand.movePower then
+		movePower = Constants.HIDDEN_INFO
 	end
 	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, movePower, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
-	local accuracyInfo = move.accuracy .. Utils.inlineIf(move.accuracy ~= Constants.BLANKLINE, "%", "")
+	if moveAccuracy ~= Constants.BLANKLINE then
+		if hideInfo and MoveData.IsRand.moveAccuracy then
+			moveAccuracy = Constants.HIDDEN_INFO
+		else
+			moveAccuracy = moveAccuracy .. "%"
+		end
+	end
 	Drawing.drawText(offsetX, offsetY, "Accuracy:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, accuracyInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, moveAccuracy, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PRIORITY: Only take up a line on the screen if priority information is helpful (exists and is non-zero)

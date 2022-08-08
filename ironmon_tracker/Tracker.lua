@@ -1,6 +1,14 @@
 Tracker = {}
 Tracker.Data = {}
 
+-- When Tracker data changes between versions, this will force new data into the tracker
+-- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
+Tracker.ForceUpdateData = {
+	pokemonData = {
+		abilityNum = true,
+	},
+}
+
 function Tracker.initialize()
 	if Options["Auto save tracked game data"] then
 		local filepath = GameSettings.getTrackerAutoSaveName()
@@ -33,7 +41,7 @@ function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
 	if pokemon ~= nil then
 		-- Update each pokemon key if it exists between both Pokemon
 		for key, _ in pairs(pokemonData) do
-			if pokemonData[key] ~= nil and pokemon[key] ~= nil then
+			if (pokemonData[key] ~= nil and pokemon[key] ~= nil) or Tracker.ForceUpdateData.pokemonData[key] then
 				pokemon[key] = pokemonData[key]
 			end
 		end
@@ -360,7 +368,7 @@ function Tracker.getDefaultPokemon()
 		heldItem = 0,
 		level = 0,
 		nature = 0,
-		abilityId = 0,
+		abilityNum = nil, -- This will result in an abilityId of 0, or a BLANKLINE
 		status = 0,
 		sleep_turns = 0,
 		curHP = 0,
