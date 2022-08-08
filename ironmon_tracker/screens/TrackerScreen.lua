@@ -791,7 +791,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE PP
-		if moveData.pp ~= Constants.NO_PP then
+		if moveData.pp ~= "0" then
 			if Tracker.Data.isViewingOwn then
 				movePPText = pokemon.moves[moveIndex].pp
 			elseif Options["Count enemy PP usage"] then
@@ -836,16 +836,21 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 					movePowerColor = Theme.COLORS["Default text"]
 					showEffectiveness = false
 				end
-				if MoveData.IsRand.movePP and movePPText ~= Constants.NO_PP then
+				if MoveData.IsRand.movePP and movePPText ~= "0" then
 					movePPText = Constants.HIDDEN_INFO
 				end
-				if MoveData.IsRand.movePower and movePower ~= Constants.NO_POWER then
+				if MoveData.IsRand.movePower and movePower ~= "0" then
 					movePower = Constants.HIDDEN_INFO
 				end
-				if MoveData.IsRand.moveAccuracy and moveAccuracy ~= Constants.BLANKLINE then
+				if MoveData.IsRand.moveAccuracy and moveAccuracy ~= "0" then
 					moveAccuracy = Constants.HIDDEN_INFO
 				end
 			end
+		end
+
+		-- ACCURACY
+		if moveAccuracy == "0" then
+			moveAccuracy = Constants.BLANKLINE
 		end
 
 		-- DRAW MOVE EFFECTIVENESS

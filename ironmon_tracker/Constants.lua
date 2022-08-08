@@ -2,8 +2,6 @@ Constants = {}
 
 Constants.BLANKLINE = "---"
 Constants.HIDDEN_INFO = "?"
-Constants.NO_POWER = Constants.BLANKLINE
-Constants.NO_PP = ""
 
 Constants.SCREEN = {
 	HEIGHT = 160,

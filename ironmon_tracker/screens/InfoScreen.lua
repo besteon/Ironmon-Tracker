@@ -689,7 +689,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- PP
-	if movePPText == Constants.NO_PP then
+	if movePPText == "0" then
 		movePPText = Constants.BLANKLINE
 	elseif hideInfo and MoveData.IsRand.movePP then
 		movePPText = Constants.HIDDEN_INFO
@@ -699,7 +699,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	if movePower == Constants.NO_POWER then
+	if movePower == "0" then
 		movePower = Constants.BLANKLINE
 	elseif hideInfo and MoveData.IsRand.movePower then
 		movePower = Constants.HIDDEN_INFO
@@ -709,7 +709,9 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
-	if moveAccuracy ~= Constants.BLANKLINE then
+	if moveAccuracy == "0" then
+		moveAccuracy = Constants.BLANKLINE
+	else
 		if hideInfo and MoveData.IsRand.moveAccuracy then
 			moveAccuracy = Constants.HIDDEN_INFO
 		else
