@@ -40,7 +40,7 @@ function Main.Initialize()
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
-	if Main.CheckBizhawkVersion() then
+	if Main.UnsupportedBizhawkVersion() then
 		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
 		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
 		return false
@@ -49,7 +49,7 @@ function Main.Initialize()
 	-- Attempt to load the required tracker files
 	for _, file in ipairs(Main.TrackerFiles) do
 		local path = Main.DataFolder .. file
-		if Main.fileExists(path) then
+		if Main.FileExists(path) then
 			dofile(path)
 		else
 			print("Unable to load " .. path .. "\nMake sure all of the downloaded Tracker's files are still together.")
@@ -63,7 +63,7 @@ function Main.Initialize()
 end
 
 -- Checks if the current Bizhawk version is 2.8 or later
-function Main.CheckBizhawkVersion()
+function Main.UnsupportedBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
 	if client.getversion == nil then return true end
 
@@ -75,7 +75,7 @@ function Main.CheckBizhawkVersion()
 end
 
 -- Checks if a file exists
-function Main.fileExists(path)
+function Main.FileExists(path)
 	local file = io.open(path,"r")
 	if file ~= nil then
 		io.close(file)
@@ -173,11 +173,11 @@ function Main.LoadNext()
 	local nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
-	if not Main.fileExists(nextrompath) then
+	if not Main.FileExists(nextrompath) then
 		-- File doesn't exist, try again with underscores instead of spaces
 		nextromname = nextromname:gsub(" ", "_")
 		nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
-		if not Main.fileExists(nextrompath) then
+		if not Main.FileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
