@@ -83,6 +83,7 @@ NavigationMenu.Buttons = {
 				Program.redraw(true)
 			else
 				NavigationMenu.Buttons.VersionInfo.timesClicked = 0
+				NavigationMenu.Buttons.VersionInfo.textColor = NavigationMenu.textColor
 				Program.changeScreenView(Program.Screens.TRACKER)
 			end
 		end
