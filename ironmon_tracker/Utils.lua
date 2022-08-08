@@ -229,7 +229,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	end
 
 	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
-	if move.power == Constants.NO_POWER then
+	if move.power == "0" then
 		if move.category ~= MoveData.Categories.STATUS then
 			if moveType == PokemonData.Types.NORMAL and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
@@ -263,7 +263,7 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == Constants.NO_POWER or moveType == PokemonData.Types.UNKNOWN then
+	if move == nil or comparedTypes == nil or move.power == "0" or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 

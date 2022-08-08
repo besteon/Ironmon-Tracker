@@ -52,38 +52,42 @@ PokemonData.BlankPokemon = {
 
 PokemonData.IsRand = {
 	pokemonTypes = false,
-	pokemonAbilities = false, -- Currently unused
+	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
 }
 
 -- Reads the types and abilities for each Pokemon in the Pokedex
 function PokemonData.readDataFromMemory()
-	-- Check if any data was randomized (assumes randomizer forces a change)
-	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
-	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
-	PokemonData.IsRand.pokemonTypes = types ~= nil and (types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON)
-	PokemonData.IsRand.pokemonAbilities = abilities ~= nil and (abilities[1] ~= 65 or types[2] ~= 65) -- 65 = Overgrow
-	
-	for pokemonID=1, #PokemonData.Pokemon, 1 do
-		local pokemonData = PokemonData.Pokemon[pokemonID]
+	-- If any data at all was randomized, read in full Pokemon data from memory
+	if PokemonData.checkIfDataIsRandomized() then
+		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
+		for pokemonID=1, #PokemonData.Pokemon, 1 do
+			local pokemonData = PokemonData.Pokemon[pokemonID]
 
+			if PokemonData.IsRand.pokemonTypes then
+				types = PokemonData.readPokemonTypesFromMemory(pokemonID)
+				if types ~= nil then
+					pokemonData.types = types
+				end
+			end
+			if PokemonData.IsRand.pokemonAbilities or true then -- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
+				abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+				if abilities ~= nil then
+					pokemonData.abilities = abilities
+				end
+			end
+		end
+		local datalog = Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded: "
 		if PokemonData.IsRand.pokemonTypes then
-			types = PokemonData.readPokemonTypesFromMemory(pokemonID)
-			if types ~= nil then
-				pokemonData.types = types
-			end
+			datalog = datalog .. "Types, "
 		end
-		if PokemonData.IsRand.pokemonAbilities or true then -- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
-			abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-			if abilities ~= nil then
-				pokemonData.abilities = abilities
-			end
+		if PokemonData.IsRand.pokemonAbilities then
+			datalog = datalog .. "Abilities, "
 		end
+		print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
-	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
-
 	local typesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x06)
 	local typeOne = Utils.getbits(typesData, 0, 8)
 	local typeTwo = Utils.getbits(typesData, 8, 8)
@@ -95,8 +99,6 @@ function PokemonData.readPokemonTypesFromMemory(pokemonID)
 end
 
 function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
-
 	local abilitiesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x16)
 	local abilityIdOne = Utils.getbits(abilitiesData, 0, 8)
 	local abilityIdTwo = Utils.getbits(abilitiesData, 8, 8)
@@ -105,6 +107,40 @@ function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 		Utils.inlineIf(abilityIdOne == 0, 0, abilityIdOne),
 		Utils.inlineIf(abilityIdTwo == 0, 0, abilityIdTwo),
 	}
+end
+
+function PokemonData.checkIfDataIsRandomized()
+	local areTypesRandomized = false
+	local areAbilitiesRandomized = false
+
+	-- Check once if any data was randomized
+	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
+	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
+
+	if types ~= nil then
+		areTypesRandomized = types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON
+	end
+	if abilities ~= nil then
+		areAbilitiesRandomized = abilities[1] ~= 65 or abilities[2] ~= 65 -- 65 = Overgrow
+	end
+
+	-- Check twice if any data was randomized (Randomizer does *not* force a change)
+	if not areTypesRandomized or not areAbilitiesRandomized then
+		types = PokemonData.readPokemonTypesFromMemory(131) -- Lapras
+		abilities = PokemonData.readPokemonAbilitiesFromMemory(131) -- Lapras
+	
+		if types ~= nil and (types[1] ~= PokemonData.Types.WATER or types[2] ~= PokemonData.Types.ICE) then
+			areTypesRandomized = true
+		end
+		if abilities ~= nil and (abilities[1] ~= 11 or abilities[2] ~= 75) then -- 11 = Water Absorb, 75 = Shell Armor
+			areAbilitiesRandomized = true
+		end
+	end
+
+	PokemonData.IsRand.pokemonTypes = areTypesRandomized
+	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
+
+	return areTypesRandomized or areAbilitiesRandomized
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)

@@ -756,10 +756,10 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		local moveType = moveData.type
 		local moveTypeColor = Constants.MoveTypeColors[moveType]
 		local moveCategory = moveData.category
-		local movePPText = moveData.pp
-		local movePower = moveData.power
+		local movePPText = Utils.inlineIf(moveData.pp == "0", Constants.BLANKLINE, moveData.pp)
+		local movePower = Utils.inlineIf(moveData.power == "0", Constants.BLANKLINE, moveData.power)
 		local movePowerColor = Theme.COLORS["Default text"]
-		local moveAccuracy = moveData.accuracy
+		local moveAccuracy = Utils.inlineIf(moveData.accuracy == "0", Constants.BLANKLINE, moveData.accuracy)
 
 		-- HIDDEN POWER TYPE UPDATE
 		if Tracker.Data.isViewingOwn and moveData.name == "Hidden Power" then
@@ -776,7 +776,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE CATEGORY
-		if Options["Show physical special icons"] and (Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
+		if Options["Show physical special icons"] and (Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 			if moveCategory == MoveData.Categories.PHYSICAL then
 				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Default text"], shadowcolor)
 			elseif moveCategory == MoveData.Categories.SPECIAL then
@@ -791,7 +791,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE PP
-		if moveData.pp ~= Constants.NO_PP then
+		if moveData.pp ~= Constants.BLANKLINE then
 			if Tracker.Data.isViewingOwn then
 				movePPText = pokemon.moves[moveIndex].pp
 			elseif Options["Count enemy PP usage"] then
@@ -836,10 +836,10 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 					movePowerColor = Theme.COLORS["Default text"]
 					showEffectiveness = false
 				end
-				if MoveData.IsRand.movePP and movePPText ~= Constants.NO_PP then
+				if MoveData.IsRand.movePP and movePPText ~= Constants.BLANKLINE then
 					movePPText = Constants.HIDDEN_INFO
 				end
-				if MoveData.IsRand.movePower and movePower ~= Constants.NO_POWER then
+				if MoveData.IsRand.movePower and movePower ~= Constants.BLANKLINE then
 					movePower = Constants.HIDDEN_INFO
 				end
 				if MoveData.IsRand.moveAccuracy and moveAccuracy ~= Constants.BLANKLINE then
