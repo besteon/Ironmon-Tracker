@@ -1559,7 +1559,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		print("ROM Detected: Pokemon - Rosso Fuoco")
 
 		GameSettings.gBaseStats = 0x0824d864
-		GameSettings.gBattleMoves = 0x08250c74 -- needs to be updated
+		GameSettings.gBattleMoves = 0x08249ce4 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -1720,7 +1720,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		print("ROM Detected: Pokemon Rojo Fuego")
 
 		GameSettings.gBaseStats = 0x0824ff4c
-		GameSettings.gBattleMoves = 0x08250c74
+		GameSettings.gBattleMoves = 0x0824c3cc -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -1881,7 +1881,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		print("ROM Detected: Pokemon Rouge Feu")
 		
 		GameSettings.gBaseStats = 0x0824ebd4
-		GameSettings.gBattleMoves = 0x08250c74
+		GameSettings.gBattleMoves = 0x0824b054 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
@@ -2043,7 +2043,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		print("ROM Detected: Pokemon Feuerrote")
 
 		GameSettings.gBaseStats = 0x082546a8
-		GameSettings.gBattleMoves = 0x08250c74
+		GameSettings.gBattleMoves = 0x08250b28 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
