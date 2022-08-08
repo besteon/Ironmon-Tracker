@@ -64,7 +64,7 @@ end
 
 -- Checks if the current Bizhawk version is 2.8 or later
 function Main.CheckBizhawkVersion()
-	-- Older Bizhawk versions don't have a client.getversion function
+	-- Significantly older Bizhawk versions don't have a client.getversion function
 	if client.getversion == nil then return true end
 
 	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
