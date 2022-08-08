@@ -544,8 +544,3 @@ function Utils.getGameStat(statIndex)
 
 	return gameStatValue
 end
-
-function Utils.fileExists(path)
-	local file = io.open(path,"r")
-	if file ~= nil then io.close(file) return true else return false end
-end
