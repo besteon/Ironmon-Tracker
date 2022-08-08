@@ -62,7 +62,7 @@ function Main.Initialize()
 	return true
 end
 
--- Checks if the current Bizhawk version is 2.8 or later
+-- Returns true if Bizhawk version is older than 2.8
 function Main.UnsupportedBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
 	if client.getversion == nil then return true end
