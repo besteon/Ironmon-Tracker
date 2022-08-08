@@ -91,6 +91,7 @@ Constants.OrderedLists = {
 		"PC heals count downward",
 		"Auto save tracked game data",
 		"Pokemon icon set",
+		"Show last damage calcs",
 		"Reveal info if randomized",
 	},
 	CONTROLS = {
