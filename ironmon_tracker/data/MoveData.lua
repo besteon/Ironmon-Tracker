@@ -93,16 +93,8 @@ MoveData.IsRand = {
 
 -- Reads the Move's type, power, accuracy, and pp
 function MoveData.readDataFromMemory()
-	-- Check if any data was randomized (assumes randomizer forces a change)
-	local moveInfo = MoveData.readMoveInfoFromMemory(33) -- Tackle
-	if moveInfo ~= nil then
-		MoveData.IsRand.moveType = moveInfo.type ~= PokemonData.Types.NORMAL
-		MoveData.IsRand.movePower = moveInfo.power ~= "35"
-		MoveData.IsRand.moveAccuracy = moveInfo.accuracy ~= "95"
-		MoveData.IsRand.movePP = moveInfo.pp ~= "35"
-	end
-	
-	if MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP then
+	-- If any data at all was randomized, read in full move data from memory
+	if MoveData.checkIfDataIsRandomized() then
 		print("Randomized move data detected, reading from game memory...")
 		for moveId=1, #MoveData.Moves, 1 do
 			local moveData = MoveData.Moves[moveId]
@@ -110,16 +102,33 @@ function MoveData.readDataFromMemory()
 			moveInfo = MoveData.readMoveInfoFromMemory(moveId)
 			if moveInfo ~= nil then
 				moveData.type = moveInfo.type
-				moveData.power = moveInfo.power
 				moveData.accuracy = moveInfo.accuracy
 				moveData.pp = moveInfo.pp
+
+				-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
+				if not MoveData.moveHasUnusualPower(moveId) then
+					moveData.power = moveInfo.power
+				end
 
 				if moveData.power ~= "0" then
 					moveData.category = MoveData.TypeToCategory[moveData.type]
 				end
 			end
 		end
-		print(Constants.BLANKLINE .. " New move data loaded.")
+		local datalog = Constants.BLANKLINE .. " New move data loaded: "
+		if MoveData.IsRand.moveType then
+			datalog = datalog .. "Type, "
+		end
+		if MoveData.IsRand.movePower then
+			datalog = datalog .. "Power, "
+		end
+		if MoveData.IsRand.moveAccuracy then
+			datalog = datalog .. "Accuracy, "
+		end
+		if MoveData.IsRand.movePP then
+			datalog = datalog .. "PP, "
+		end
+		print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 
@@ -137,6 +146,60 @@ function MoveData.readMoveInfoFromMemory(moveId)
 		accuracy = tostring(moveAccuracy),
 		pp = tostring(movePP),
 	}
+end
+
+function MoveData.checkIfDataIsRandomized()
+	local areTypesRandomized = false
+	local arePowersRandomized = false
+	local areAccuraciesRandomized = false
+	local arePPsRandomized = false
+
+	-- Check once if any data was randomized
+	local moveInfo = MoveData.readMoveInfoFromMemory(33) -- Tackle
+	if moveInfo ~= nil then
+		areTypesRandomized = moveInfo.type ~= PokemonData.Types.NORMAL
+		arePowersRandomized = moveInfo.power ~= "35"
+		areAccuraciesRandomized = moveInfo.accuracy ~= "95"
+		arePPsRandomized = moveInfo.pp ~= "35"
+	end
+
+	-- Check twice if any data was randomized (Randomizer does *not* force a change)
+	if not areTypesRandomized or not arePowersRandomized or not areAccuraciesRandomized or not arePPsRandomized then
+		moveInfo = MoveData.readMoveInfoFromMemory(56) -- Hydro Pump
+		if moveInfo ~= nil then
+			if moveInfo.type ~= PokemonData.Types.WATER then
+				areTypesRandomized = true
+			end
+			if moveInfo.power ~= "120" then
+				arePowersRandomized = true
+			end
+			if moveInfo.accuracy ~= "80" then
+				areAccuraciesRandomized = true
+			end
+			if moveInfo.pp ~= "5" then
+				arePPsRandomized = true
+			end
+		end
+	end
+
+	MoveData.IsRand.moveType = areTypesRandomized
+	MoveData.IsRand.movePower = arePowersRandomized
+	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
+	MoveData.IsRand.movePP = arePPsRandomized
+
+	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
+end
+
+function MoveData.moveHasUnusualPower(moveId)
+	if moveId == 67 then return true end -- Low Kick power = "WT"
+	if moveId == 175 then return true end -- Flail power = "<HP"
+	if moveId == 179 then return true end -- Reversal power = "<HP"
+	if moveId == 216 then return true end -- Return power = ">FR"
+	if moveId == 217 then return true end -- Present power = "RNG"
+	if moveId == 218 then return true end -- Frustration power = "<FR"
+	if moveId == 222 then return true end -- Magnitude power = "RNG"
+
+	return false
 end
 
 --[[
