@@ -82,8 +82,6 @@ function PokemonData.readDataFromMemory()
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
-	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
-
 	local typesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x06)
 	local typeOne = Utils.getbits(typesData, 0, 8)
 	local typeTwo = Utils.getbits(typesData, 8, 8)
@@ -95,8 +93,6 @@ function PokemonData.readPokemonTypesFromMemory(pokemonID)
 end
 
 function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-	if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then return nil end
-
 	local abilitiesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x16)
 	local abilityIdOne = Utils.getbits(abilitiesData, 0, 8)
 	local abilityIdTwo = Utils.getbits(abilitiesData, 8, 8)
