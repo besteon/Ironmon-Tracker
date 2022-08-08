@@ -370,7 +370,7 @@ SpainData.Abilities = {
     "Absor. Agua", --Absor. Agua english:Water Absorb
     "Despiste", --Despiste english:Oblivious
     "Aclimataci\243n", --Aclimatación english:Cloud Nine
-    "Ojocompuesto", --Ojocompuesto english:Compound Eyes
+    "Ojocompuesto", --Ojocompuesto english:Compoundeyes
     "Insomnio", --Insomnio english:Insomnia
     "Cambio Color", --Cambio Color english:Color Change
     "Inmunidad", --Inmunidad english:Immunity
@@ -387,7 +387,7 @@ SpainData.Abilities = {
     "Sincron\237a", --Sincronía english:Synchronize
     "Cuerpo Puro", --Cuerpo Puro english:Clear Body
     "Cura Natural", --Cura Natural english:Natural Cure
-    "Pararrayos", --Pararrayos english:Lightning Rod
+    "Pararrayos", --Pararrayos english:Lightningrod
     "Dicha", --Dicha english:Serene Grace
     "Nado R\225pido", --Nado Rápido english:Swift Swim
     "Clorofila", --Clorofila english:Chlorophyll

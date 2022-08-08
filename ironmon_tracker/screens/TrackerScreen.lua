@@ -658,14 +658,14 @@ function TrackerScreen.drawStatsArea(pokemon)
 
 	-- Draw the six primary stats
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-		local natureType = Utils.calcNatureBonus(statKey, pokemon.nature)
+		local natureMultiplier = Utils.getNatureMultiplier(statKey, pokemon.nature)
 		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
 
-		if Tracker.Data.isViewingOwn and natureType == 1 then
+		if Tracker.Data.isViewingOwn and natureMultiplier == 1.1 then
 			textColor = Theme.COLORS["Positive text"]
 			natureSymbol = "+"
-		elseif Tracker.Data.isViewingOwn and natureType == -1 then
+		elseif Tracker.Data.isViewingOwn and natureMultiplier == 0.9 then
 			textColor = Theme.COLORS["Negative text"]
 			natureSymbol = Constants.BLANKLINE
 		end
@@ -833,6 +833,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 				if MoveData.IsRand.moveType then
 					moveType = PokemonData.Types.UNKNOWN
 					moveTypeColor = Theme.COLORS["Default text"]
+					movePowerColor = Theme.COLORS["Default text"]
 					showEffectiveness = false
 				end
 				if MoveData.IsRand.movePP and movePPText ~= Constants.NO_PP then
@@ -840,7 +841,6 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 				end
 				if MoveData.IsRand.movePower and movePower ~= Constants.NO_POWER then
 					movePower = Constants.HIDDEN_INFO
-					movePowerColor = Theme.COLORS["Default text"]
 				end
 				if MoveData.IsRand.moveAccuracy and moveAccuracy ~= Constants.BLANKLINE then
 					moveAccuracy = Constants.HIDDEN_INFO

@@ -6,8 +6,8 @@
 }
 
 TrackedDataScreen.Descriptions = {
-	autosave = "All of the data that is tracked while you play is auto-saved after each battle, stored as a .TDAT file",
-	manualsave = "Old auto-saved data will be lost if you start a new game on the same " .. Constants.Words.POKEMON .. " version. Use Save/Load if you want to keep it",
+	autosave = "All of the data that is tracked while you play is auto saved after each battle, stored as a .TDAT file",
+	manualsave = "Old auto saved data will be lost if you start a new game on the same " .. Constants.Words.POKEMON .. " version. If you want to keep it, use Save Data",
 }
 
 TrackedDataScreen.OptionKeys = {
@@ -18,20 +18,35 @@ TrackedDataScreen.Buttons = {
 	SaveData = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Save Data",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 19, Constants.SCREEN.MARGIN + 118, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 19, Constants.SCREEN.MARGIN + 117, 44, 11 },
 		onClick = function() TrackedDataScreen.openSaveDataPrompt() end
 	},
 	LoadData = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Load Data",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 75, Constants.SCREEN.MARGIN + 118, 44, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 75, Constants.SCREEN.MARGIN + 117, 44, 11 },
 		onClick = function() TrackedDataScreen.openLoadDataPrompt() end
+	},
+	ClearData = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = " * Clear Data *",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 63, 11 },
+		confirmReset = false,
+		onClick = function() TrackedDataScreen.tryClearData() end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
+			-- Revert the Clear Data button
+			local clearBtn = TrackedDataScreen.Buttons.ClearData
+			if clearBtn.confirmReset then
+				clearBtn.text = " * Clear Data *"
+				clearBtn.textColor = "Default text"
+				clearBtn.confirmReset = false
+			end
+
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
 			Program.changeScreenView(Program.Screens.NAVIGATION)
@@ -105,6 +120,24 @@ function TrackedDataScreen.openLoadDataPrompt()
 	end
 end
 
+function TrackedDataScreen.tryClearData()
+	local clearBtn = TrackedDataScreen.Buttons.ClearData
+	if clearBtn.confirmReset then
+		clearBtn.text = " Data Cleared!"
+		clearBtn.textColor = "Positive text"
+		clearBtn.confirmReset = false
+
+		Tracker.resetData()
+		Program.redraw(true)
+	else
+		clearBtn.text = " Are you sure?"
+		clearBtn.textColor = "Negative text"
+		clearBtn.confirmReset = true
+
+		Program.redraw(true)
+	end
+end
+
 -- DRAWING FUNCTIONS
 function TrackedDataScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
@@ -138,7 +171,7 @@ function TrackedDataScreen.drawScreen()
 
 	offsetY = offsetY + 22
 
-	wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.manualsave, 34)
+	wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.manualsave, 32)
 	for _, line in pairs(wrappedSummary) do
 		Drawing.drawText(offsetX, offsetY, line, Theme.COLORS[TrackedDataScreen.textColor], shadowcolor)
 		offsetY = offsetY + 11

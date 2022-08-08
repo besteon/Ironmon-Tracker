@@ -370,7 +370,7 @@ ItalyData.Abilities = {
     "Assorbacqua", --Assorbacqua english:Water Absorb
     "Indifferenza", --Indifferenza english:Oblivious
     "Antimeteo", --Antimeteo english:Cloud Nine
-    "Insettocchi", --Insettocchi english:Compound Eyes
+    "Insettocchi", --Insettocchi english:Compoundeyes
     "Insonnia", --Insonnia english:Insomnia
     "Cambiacolore", --Cambiacolore english:Color Change
     "Immunit\224", --Immunità english:Immunity
@@ -387,7 +387,7 @@ ItalyData.Abilities = {
     "Sincronismo", --Sincronismo english:Synchronize
     "Corpochiaro", --Corpochiaro english:Clear Body
     "Alternacura", --Alternacura english:Natural Cure
-    "Parafulmine", --Parafulmine english:Lightning Rod
+    "Parafulmine", --Parafulmine english:Lightningrod
     "Leggiadro", --Leggiadro english:Serene Grace
     "Nuotovelox", --Nuotovelox english:Swift Swim
     "Clorofilla", --Clorofilla english:Chlorophyll
