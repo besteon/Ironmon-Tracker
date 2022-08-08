@@ -366,7 +366,7 @@ function Program.updateBattleDataFromMemory()
 			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 
 			-- Check if fishing encounter, if so then get the rod that was used
-			local gameStat_FishingCaptures = Utils.getGameStat(12)
+			local gameStat_FishingCaptures = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES)
 			if gameStat_FishingCaptures ~= Tracker.Data.gameStatsFishing then
 				Tracker.Data.gameStatsFishing = gameStat_FishingCaptures
 
@@ -665,9 +665,9 @@ function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
-	local gameStat_UsedPokecenter = Utils.getGameStat(15)
+	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
-	local gameStat_RestedAtHome = Utils.getGameStat(16)
+	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
 
 	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
 

@@ -69,6 +69,13 @@ Constants.MoveTypeColors = {
 	unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 }
 
+Constants.GAME_STATS = { -- Enums for in-game stats
+	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
+	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
+	USED_POKECENTER = 15,
+	RESTED_AT_HOME = 16,
+}
+
 Constants.OrderedLists = {
 	STATSTAGES = {
 		"hp",

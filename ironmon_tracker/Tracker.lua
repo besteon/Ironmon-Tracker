@@ -414,7 +414,7 @@ function Tracker.resetData()
 		},
 		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
 		},
-		gameStatsFishing = Utils.getGameStat(12), -- Tally of fishing encounters, to track when one occurs
+		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES), -- Tally of fishing encounters, to track when one occurs
 	}
 end
 
