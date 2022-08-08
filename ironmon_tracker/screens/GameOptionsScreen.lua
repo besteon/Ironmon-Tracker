@@ -12,6 +12,7 @@ GameOptionsScreen.OptionKeys = {
 	"Show move effectiveness",
 	"Calculate variable damage",
 	"Count enemy PP usage",
+	"Show last damage calcs",
 	"Reveal info if randomized",
 }
 
@@ -20,7 +21,7 @@ GameOptionsScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Estimate " .. Constants.Words.POKEMON .. "'s Potential",
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 105, 123, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 110, 123, 11 },
 		onClick = function(self)
 			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			if leadPokemon ~= nil then
@@ -46,7 +47,7 @@ GameOptionsScreen.Buttons = {
 
 function GameOptionsScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	local startY = Constants.SCREEN.MARGIN + 18
+	local startY = Constants.SCREEN.MARGIN + 14
 
 	for _, optionKey in ipairs(GameOptionsScreen.OptionKeys) do
 		GameOptionsScreen.Buttons[optionKey] = {
