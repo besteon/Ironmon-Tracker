@@ -350,7 +350,7 @@ function Program.updateBattleDataFromMemory()
 		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
 		-- Always track your own Pokemon's ability once you decide to use it
-		Tracker.TrackAbility(ownersPokemon.pokemonID, opposingAbilityId)
+		Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 		-- ENCOUNTERS: If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
 		if opposingPokemon.hasBeenEncountered == nil or not opposingPokemon.hasBeenEncountered then
@@ -365,9 +365,15 @@ function Program.updateBattleDataFromMemory()
 			Program.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 			Program.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 
-			local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
-			if RouteData.Rods[fishingRod] ~= nil then
-				Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
+			-- Check if fishing encounter, if so then get the rod that was used
+			local gameStat_FishingCaptures = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES)
+			if gameStat_FishingCaptures ~= Tracker.Data.gameStatsFishing then
+				Tracker.Data.gameStatsFishing = gameStat_FishingCaptures
+
+				local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
+				if RouteData.Rods[fishingRod] ~= nil then
+					Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
+				end
 			end
 
 			Program.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
@@ -650,11 +656,6 @@ function Program.endBattle(isWild)
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 
-	-- If the battle was a fishing encounter, clear out the rod used from memory (not pretty, but it works)
-	if RouteData.isFishingEncounter(Program.CurrentRoute.encounterArea) then
-		Memory.writeword(GameSettings.gSpecialVar_ItemId, 0)
-	end
-
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(isWild, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(isWild, 70, 150) -- Save data after every battle
@@ -662,20 +663,11 @@ end
 
 function Program.updatePCHealsFromMemory()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
-	local saveBlock1Addr = Utils.getSaveBlock1Addr()
-	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
-
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
-	local gameStat_UsedPokecenter = Memory.readdword(gameStatsAddr + 15 * 0x4)
+	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
-	local gameStat_RestedAtHome = Memory.readdword(gameStatsAddr + 16 * 0x4)
-
-	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
-	if key ~= nil then
-		gameStat_UsedPokecenter = bit.bxor(gameStat_UsedPokecenter, key)
-		gameStat_RestedAtHome = bit.bxor(gameStat_RestedAtHome, key)
-	end
+	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
 
 	local combinedHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
 

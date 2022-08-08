@@ -317,6 +317,9 @@ end
 
 -- For Water Spout & Eruption
 function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
+	if movePower == ">HP" then
+		movePower = "150"
+	end
 	local basePower = math.max(tonumber(movePower) * currentHP / maxHP, 1)
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
@@ -526,7 +529,18 @@ function Utils.getEncryptionKey(size)
 	return Memory.read(saveBlock2addr + GameSettings.EncryptionKeyOffset, size)
 end
 
-function Utils.fileExists(path)
-	local file = io.open(path,"r")
-	if file ~= nil then io.close(file) return true else return false end
+function Utils.getGameStat(statIndex)
+	-- Reads the game stat stored at statIndex in memory
+	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
+
+	local gameStatValue = Memory.readdword(gameStatsAddr + statIndex * 0x4)
+
+	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
+	if key ~= nil then
+		gameStatValue = bit.bxor(gameStatValue, key)
+	end
+
+	return gameStatValue
 end
