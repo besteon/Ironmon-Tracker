@@ -121,5 +121,5 @@ function GameOptionsScreen.drawScreen()
 	end
 
 	local ivEstimate = GameOptionsScreen.Buttons.EstimateIVs
-	Drawing.drawText(topboxX + 4, ivEstimate.box[2] + ivEstimate.box[4] + 2, ivEstimate.ivText, Theme.COLORS[ivEstimate.textColor], shadowcolor)
+	Drawing.drawText(topboxX + 4, ivEstimate.box[2] + ivEstimate.box[4] + 1, ivEstimate.ivText, Theme.COLORS[ivEstimate.textColor], shadowcolor)
 end
