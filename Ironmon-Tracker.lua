@@ -11,53 +11,78 @@ function Main.Initialize()
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.MetaSettings = {}
 	Main.loadNextSeed = false
+	Main.TrackerFiles = { -- All of the files required by the tracker
+		"/Inifile.lua",
+		"/Constants.lua",
+		"/data/PokemonData.lua",
+		"/data/MoveData.lua",
+		"/data/MiscData.lua",
+		"/data/RouteData.lua",
+		"/Memory.lua",
+		"/GameSettings.lua",
+		"/screens/InfoScreen.lua",
+		"/Options.lua",
+		"/Theme.lua",
+		"/ColorPicker.lua",
+		"/Utils.lua",
+		"/screens/TrackerScreen.lua",
+		"/screens/NavigationMenu.lua",
+		"/screens/SetupScreen.lua",
+		"/screens/GameOptionsScreen.lua",
+		"/screens/TrackedDataScreen.lua",
+		"/Input.lua",
+		"/Drawing.lua",
+		"/Program.lua",
+		"/Pickle.lua",
+		"/Tracker.lua",
+	}
 
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
-	-- Need to also check that client.getversion is an existing function, older Bizhawk versions don't have it
-	if client.getversion == nil or (client.getversion() ~= "2.8" and client.getversion() ~= "2.9") then
+	if Main.CheckBizhawkVersion() then
 		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
 		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
 		return false
 	end
 
-	-- Verify the tracker files are in the same folder, as often they will accidentally get separated
-	local filecheck = io.open(Main.DataFolder .. "/Inifile.lua", "r")
-	if filecheck ~= nil then
-		io.close(filecheck)
-	else
-		print("Unable to load required tracker files.\nMake sure all of the downloaded Tracker's files are still together.")
-		Main.DisplayError("Unable to load required tracker files.\n\nMake sure all of the downloaded Tracker's files are still together.")
-		return false
+	-- Attempt to load the required tracker files
+	for _, file in ipairs(Main.TrackerFiles) do
+		local path = Main.DataFolder .. file
+		if Main.fileExists(path) then
+			dofile(path)
+		else
+			print("Unable to load " .. path .. "\nMake sure all of the downloaded Tracker's files are still together.")
+			Main.DisplayError("Unable to load " .. path .. "\n\nMake sure all of the downloaded Tracker's files are still together.")
+			return false
+		end
 	end
 
-	-- Import all scripts before starting the main loop
-	dofile(Main.DataFolder .. "/Inifile.lua")
-	dofile(Main.DataFolder .. "/Constants.lua")
-	dofile(Main.DataFolder .. "/data/PokemonData.lua")
-	dofile(Main.DataFolder .. "/data/MoveData.lua")
-	dofile(Main.DataFolder .. "/data/MiscData.lua")
-	dofile(Main.DataFolder .. "/data/RouteData.lua")
-	dofile(Main.DataFolder .. "/Memory.lua")
-	dofile(Main.DataFolder .. "/GameSettings.lua")
-	dofile(Main.DataFolder .. "/screens/InfoScreen.lua")
-	dofile(Main.DataFolder .. "/Options.lua")
-	dofile(Main.DataFolder .. "/Theme.lua")
-	dofile(Main.DataFolder .. "/ColorPicker.lua")
-	dofile(Main.DataFolder .. "/Utils.lua")
-	dofile(Main.DataFolder .. "/screens/TrackerScreen.lua")
-	dofile(Main.DataFolder .. "/screens/NavigationMenu.lua")
-	dofile(Main.DataFolder .. "/screens/SetupScreen.lua")
-	dofile(Main.DataFolder .. "/screens/GameOptionsScreen.lua")
-	dofile(Main.DataFolder .. "/screens/TrackedDataScreen.lua")
-	dofile(Main.DataFolder .. "/Input.lua")
-	dofile(Main.DataFolder .. "/Drawing.lua")
-	dofile(Main.DataFolder .. "/Program.lua")
-	dofile(Main.DataFolder .. "/Pickle.lua")
-	dofile(Main.DataFolder .. "/Tracker.lua")
-
+	print("Successfully loaded required tracker files")
 	return true
+end
+
+-- Checks if the current Bizhawk version is 2.8 or later
+function Main.CheckBizhawkVersion()
+	-- Older Bizhawk versions don't have a client.getversion function
+	if client.getversion == nil then return true end
+
+	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
+	local major, minor = string.match(client.getversion(), "(%d+)%.(%d+)")
+	if major == nil or minor == nil then return true end
+
+	return (tonumber(major) < 2 or tonumber(minor) < 8)
+end
+
+-- Checks if a file exists
+function Main.fileExists(path)
+	local file = io.open(path,"r")
+	if file ~= nil then
+		io.close(file)
+		return true
+	else
+		return false
+	end
 end
 
 -- Displays a given error message in a pop-up dialogue box
@@ -130,7 +155,7 @@ function Main.LoadNext()
 
 	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
 		print("ERROR: ROMS_FOLDER unspecified\n")
-		Main.DisplayError("ROMS_FOLDER unspecified.\n\nSet this in the Tracker's options menu, or the Settings.ini file.")
+		Main.DisplayError("ROMs Folder unspecified.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
 		Main.loadNextSeed = false
 		Main.Run()
 	end
@@ -148,22 +173,16 @@ function Main.LoadNext()
 	local nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
-	local filecheck = io.open(nextrompath,"r")
-	if filecheck ~= nil then
-		-- This means the file exists, so proceed with opening it.
-		io.close(filecheck)
-	else
+	if not Main.fileExists(nextrompath) then
+		-- File doesn't exist, try again with underscores instead of spaces
 		nextromname = nextromname:gsub(" ", "_")
 		nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
-		filecheck = io.open(nextrompath,"r")
-		if filecheck == nil then
+		if not Main.fileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
 			Main.loadNextSeed = false
 			Main.Run()
-		else
-			io.close(filecheck)
 		end
 	end
 

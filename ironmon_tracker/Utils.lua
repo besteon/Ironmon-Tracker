@@ -528,8 +528,3 @@ function Utils.getEncryptionKey(size)
 	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
 	return Memory.read(saveBlock2addr + GameSettings.EncryptionKeyOffset, size)
 end
-
-function Utils.fileExists(path)
-	local file = io.open(path,"r")
-	if file ~= nil then io.close(file) return true else return false end
-end
