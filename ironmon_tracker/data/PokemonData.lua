@@ -63,21 +63,25 @@ function PokemonData.readDataFromMemory()
 	PokemonData.IsRand.pokemonTypes = types ~= nil and (types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON)
 	PokemonData.IsRand.pokemonAbilities = abilities ~= nil and (abilities[1] ~= 65 or types[2] ~= 65) -- 65 = Overgrow
 	
-	for pokemonID=1, #PokemonData.Pokemon, 1 do
-		local pokemonData = PokemonData.Pokemon[pokemonID]
+	if PokemonData.IsRand.pokemonTypes or PokemonData.IsRand.pokemonAbilities then
+		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
+		for pokemonID=1, #PokemonData.Pokemon, 1 do
+			local pokemonData = PokemonData.Pokemon[pokemonID]
 
-		if PokemonData.IsRand.pokemonTypes then
-			types = PokemonData.readPokemonTypesFromMemory(pokemonID)
-			if types ~= nil then
-				pokemonData.types = types
+			if PokemonData.IsRand.pokemonTypes then
+				types = PokemonData.readPokemonTypesFromMemory(pokemonID)
+				if types ~= nil then
+					pokemonData.types = types
+				end
+			end
+			if PokemonData.IsRand.pokemonAbilities or true then -- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
+				abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+				if abilities ~= nil then
+					pokemonData.abilities = abilities
+				end
 			end
 		end
-		if PokemonData.IsRand.pokemonAbilities or true then -- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
-			abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-			if abilities ~= nil then
-				pokemonData.abilities = abilities
-			end
-		end
+		print(Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded.")
 	end
 end
 

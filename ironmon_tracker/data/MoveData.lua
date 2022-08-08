@@ -103,6 +103,7 @@ function MoveData.readDataFromMemory()
 	end
 	
 	if MoveData.IsRand.moveType or MoveData.IsRand.movePower or MoveData.IsRand.moveAccuracy or MoveData.IsRand.movePP then
+		print("Randomized move data detected, reading from game memory...")
 		for moveId=1, #MoveData.Moves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
@@ -112,8 +113,13 @@ function MoveData.readDataFromMemory()
 				moveData.power = moveInfo.power
 				moveData.accuracy = moveInfo.accuracy
 				moveData.pp = moveInfo.pp
+
+				if moveData.power ~= "0" then
+					moveData.category = MoveData.TypeToCategory[moveData.type]
+				end
 			end
 		end
+		print(Constants.BLANKLINE .. " New move data loaded.")
 	end
 end
 
