@@ -272,7 +272,6 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d98e5] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d9893] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d9938] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6f57] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d994c] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d9913] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d7053] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -421,7 +420,6 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d98fd] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d98ab] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d9950] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6f6f] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d9964] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d992b] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d706b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -570,7 +568,6 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d98fd] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d98ab] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d9950] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6f6f] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d9964] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d992b] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d706b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -723,7 +720,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d9875] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d9823] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d98c8] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6ee7] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d98dc] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98a3] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6fe3] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -872,7 +868,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d988d] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d983b] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d98e0] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6eff] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d98f4] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98bb] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6ffb] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1021,7 +1016,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d988d] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d983b] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d98e0] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6eff] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d98f4] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98bb] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6ffb] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1177,7 +1171,6 @@ function GameSettings.setGameAsEmerald()
 			[0x082db611] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 			[0x082db5bf] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 			[0x082db664] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-			[0x082d8a43] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 			[0x082db678] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 			[0x082db63f] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 			[0x082d8b42] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1333,7 +1326,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94d0] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d947e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d9523] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d69b3] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1486,7 +1478,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d9460] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d940e] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d94b3] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6943] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d94c7] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d948e] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a3f] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1645,7 +1636,6 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d68ca] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d6878] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d691d] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d3dad] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d6931] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d68f8] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d3ea9] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1807,7 +1797,6 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8f92] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d8f40] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d8fe5] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d6475] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d8ff9] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d8fc0] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6571] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -1969,7 +1958,6 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7c32] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d7be0] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d7c85] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d5115] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d7c99] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d7c60] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d5211] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -2132,7 +2120,6 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 				[0x081DD6F6] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081DD6A4] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081DD749] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081DABD9] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081DD75D] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081DD724] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081DACD5] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -2292,7 +2279,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d94ac] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d945a] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d94ff] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d698f] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d9513] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d94da] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a8b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
@@ -2445,7 +2431,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d943c] = {[20] = true}, -- BattleScript_OwnTempoPrevents + 0x0 Own Tempo
 				[0x081d93ea] = {[21] = true}, -- BattleScript_AbilityPreventsPhasingOut + 0x6 Suction Cups
 				[0x081d948f] = {[24] = true}, -- BattleScript_RoughSkinActivates + 0x10 Rough Skin
-				[0x081d691f] = {[26] = true}, -- BattleScript_HitFromAtkAnimation + 0xF Levitate ; Actually checking gMoveResultFlags during this message
 				[0x081d94a3] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d946a] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a1b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
