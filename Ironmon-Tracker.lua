@@ -12,6 +12,7 @@ function Main.Initialize()
 	Main.MetaSettings = {}
 	Main.loadNextSeed = false
 	Main.TrackerFiles = { -- All of the files required by the tracker
+		"/TestPortraits.lua",
 		"/Inifile.lua",
 		"/Constants.lua",
 		"/data/PokemonData.lua",
@@ -57,7 +58,6 @@ function Main.Initialize()
 			return false
 		end
 	end
-
 	print("Successfully loaded required tracker files")
 	return true
 end

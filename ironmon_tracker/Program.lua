@@ -1,10 +1,12 @@
 Program = {
 	currentScreen = 1,
+	testingPortraitID = TestPortraits.startIndex,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	isTransformed = false,
 	friendshipRequired = 220,
 	Frames = {
+		portraitsTestFrames = TestPortraits.framesToWait,
 		waitToDraw = 0,
 		battleDataDelay = 0,
 		half_sec_update = 30,
@@ -96,6 +98,19 @@ function Program.updateTrackedAndCurrentData()
 	if Program.Frames.half_sec_update % 10 == 0 then
 		Program.processBattleTurnFromMemory()
 	end
+	if Program.Frames.portraitsTestFrames == 0 then
+		Program.Frames.portraitsTestFrames = TestPortraits.framesToWait
+		if TestPortraits.cycle then
+			if Program.testingPortraitID == TestPortraits.endIndex then
+				Program.testingPortraitID = TestPortraits.startIndex
+			else
+				Program.testingPortraitID = Program.testingPortraitID + 1
+			end
+		end
+		Program.redraw(true)
+	end
+
+	--[[
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.half_sec_update == 0 then
@@ -135,7 +150,7 @@ function Program.updateTrackedAndCurrentData()
 			Program.Frames.waitToDraw = 0
 		end
 	end
-
+	--]]
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
 	if Program.Frames.three_sec_update == 0 then
 		Program.Frames.three_sec_update = 180
@@ -157,6 +172,7 @@ function Program.updateTrackedAndCurrentData()
 	Program.Frames.three_sec_update = Program.Frames.three_sec_update - 1
 	Program.Frames.saveData = Program.Frames.saveData - 1
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+	Program.Frames.portraitsTestFrames = Program.Frames.portraitsTestFrames - 1
 end
 
 function Program.updatePokemonTeamsFromMemory()
