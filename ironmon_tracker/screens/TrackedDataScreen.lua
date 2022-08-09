@@ -40,12 +40,9 @@ TrackedDataScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			-- Revert the Clear Data button
-			local clearBtn = TrackedDataScreen.Buttons.ClearData
-			if clearBtn.confirmReset then
-				clearBtn.text = " * Clear Data *"
-				clearBtn.textColor = "Default text"
-				clearBtn.confirmReset = false
-			end
+			TrackedDataScreen.Buttons.ClearData.text = " * Clear Data *"
+			TrackedDataScreen.Buttons.ClearData.textColor = "Default text"
+			TrackedDataScreen.Buttons.ClearData.confirmReset = false
 
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
