@@ -448,8 +448,8 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) -- 0 or 2 if player, 1 or 3 if enemy
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker) -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
-	local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
 	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
+	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
@@ -491,8 +491,8 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 
 	if attackerMsg ~= nil and attackerMsg[enemyAbility] and attacker % 2 == 0 then
 		if enemyAbility == 26 then
-			-- Levitate does not log its message, requires checking the move flags to determine that the move Missed AND Failed AND had no effect
-			if moveFlags == 9 then return true end
+			-- Levitate does not log its message, requires checking gBattleCommunication for the B_MSG_GROUND_MISS flag (4)
+			if levitateCheck == 4 then return true end
 		elseif battlerTarget % 2 == 1 then
 			-- Otherwise, player activated enemy's ability
 			return true

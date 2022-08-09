@@ -222,6 +222,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -370,6 +371,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -518,6 +520,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -670,6 +673,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -818,6 +822,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -966,6 +971,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gBattleCommunication = 0x02024d1e
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -1118,6 +1124,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattleOutcome = 0x0202433a
 	GameSettings.gMoveResultFlags = 0x0202427c
 	GameSettings.gBattleWeather = 0x020243cc
+	GameSettings.gBattleCommunication = 0x02024332
 	
 	GameSettings.gMapHeader = 0x02037318
 	GameSettings.gBattleTerrain = 0x02022ff0
@@ -1273,6 +1280,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1425,6 +1433,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1580,6 +1589,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1741,6 +1751,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1903,6 +1914,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2064,6 +2076,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2226,6 +2239,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2378,6 +2392,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleCommunication = 0x02023e82
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
