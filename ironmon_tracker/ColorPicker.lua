@@ -144,7 +144,6 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	forms.destroyall()
 	self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 
@@ -178,7 +177,8 @@ function ColorPicker:onClose()
 	Theme.settingsUpdated = true
 	Program.changeScreenView(Program.Screens.THEME)
 	Input.currentColorPicker = nil
-	forms.destroyall()
+	forms.destroy(self.mainForm)
+	client.unpause()
 end
 
 function ColorPicker:handleInput()

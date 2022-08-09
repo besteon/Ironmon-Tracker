@@ -134,6 +134,15 @@ function Program.updateTrackedAndCurrentData()
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.Frames.waitToDraw = 0
 		end
+
+		-- If the lead Pokemon changes, then update the animated Pokemon picture box
+		if Options["Animated Pokemon popout"] then
+			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
+				-- Drawing.setAnimatedPokemon(leadPokemon.pokemonID)
+				Drawing.setAnimatedPokemon(131)
+			end
+		end
 	end
 
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)

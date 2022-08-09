@@ -1,5 +1,11 @@
 Drawing = {}
 
+Drawing.AnimatedPokemon = {
+	formWindow = 0, -- form id to draw the animated Pokemon image
+	pictureBox = 0,
+	pokemonID = 0,
+}
+
 function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -229,5 +235,33 @@ function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 				gui.drawPixel(x + offsetX, y + offsetY, color)
 			end
 		end
+	end
+end
+
+function Drawing.setupAnimatedPictureBox()
+	Drawing.destroyAnimatedPictureBox()
+
+	local formWindow = forms.newform(250, 250, "Animated Pokemon", function() client.unpause() end)
+	Utils.setFormLocation(formWindow, 150, 50)
+
+	local pictureBox = forms.pictureBox(formWindow, 70, 20, 120, 120)
+	forms.setproperty(formWindow, "BackColor", 0xFF000000)
+
+	Drawing.AnimatedPokemon.formWindow = formWindow
+	Drawing.AnimatedPokemon.pictureBox = pictureBox
+	Drawing.AnimatedPokemon.pokemonID = 0
+end
+
+function Drawing.setAnimatedPokemon(pokemonID)
+	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
+		local imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. pokemonID .. ".gif"
+		forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
+		Drawing.AnimatedPokemon.pokemonID = pokemonID
+	end
+end
+
+function Drawing.destroyAnimatedPictureBox()
+	if Drawing.AnimatedPokemon.formWindow ~= nil and Drawing.AnimatedPokemon.formWindow ~= 0 then
+		forms.destroy(Drawing.AnimatedPokemon.formWindow)
 	end
 end

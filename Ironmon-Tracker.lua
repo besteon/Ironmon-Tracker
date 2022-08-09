@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -98,7 +98,6 @@ end
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
-	forms.destroyall()
 	client.pause()
 
 	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)

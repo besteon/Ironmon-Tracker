@@ -10,6 +10,7 @@ SetupScreen.OptionKeys = {
 	"Right justified numbers",
 	"Track PC Heals",
 	"PC heals count downward",
+	"Animated Pokemon popout",
 }
 
 SetupScreen.Buttons = {
@@ -84,7 +85,7 @@ SetupScreen.Buttons = {
 
 function SetupScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 80
+	local startY = Constants.SCREEN.MARGIN + 75
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
@@ -102,6 +103,15 @@ function SetupScreen.initialize()
 				-- If PC Heal tracking switched, invert the count
 				if self.text == SetupScreen.OptionKeys[4] then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+				end
+
+				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
+				if self.text == SetupScreen.OptionKeys[5] then
+					if self.toggleState then
+						Drawing.setupAnimatedPictureBox()
+					else
+						Drawing.destroyAnimatedPictureBox()
+					end
 				end
 
 				Options.updateSetting(self.text, self.toggleState)
@@ -144,9 +154,6 @@ function SetupScreen.openRomPickerWindow()
 end
 
 function SetupScreen.openEditControlsWindow()
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
 	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)

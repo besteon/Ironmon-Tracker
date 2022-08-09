@@ -82,9 +82,6 @@ end
 function TrackedDataScreen.openSaveDataPrompt()
 	local suggestedFileName = gameinfo.getromname()
 
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
 	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)

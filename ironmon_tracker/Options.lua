@@ -19,6 +19,7 @@ Options = {
 	["Pokemon icon set"] = "1", -- Original icon set
 	["Show last damage calcs"] = true,
 	["Reveal info if randomized"] = true,
+	["Animated Pokemon popout"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",
@@ -52,6 +53,10 @@ function Options.initialize()
 	local toggleViewValue = Options.CONTROLS["Toggle view"]
 	if toggleViewValue ~= "Start" then
 		Constants.OrderedLists.TIPS[3] = Constants.OrderedLists.TIPS[3]:gsub("Start", toggleViewValue)
+	end
+
+	if Options["Animated Pokemon popout"] then
+		Drawing.setupAnimatedPictureBox()
 	end
 end
 
