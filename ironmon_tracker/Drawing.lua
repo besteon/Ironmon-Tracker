@@ -257,6 +257,11 @@ function Drawing.setAnimatedPokemon(pokemonID)
 		local imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. pokemonID .. ".gif"
 		if Main.FileExists(imagepath) then
 			forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
+		else
+			local pokemonData = PokemonData.Pokemon[pokemonID]
+			if pokemonData ~= nil then
+				imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. pokemonData.name:lower() .. ".gif"
+			end
 		end
 		Drawing.AnimatedPokemon.pokemonID = pokemonID
 	end
