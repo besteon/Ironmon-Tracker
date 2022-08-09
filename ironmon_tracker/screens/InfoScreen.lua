@@ -792,7 +792,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
-		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Default text"], boxTopShadow)
+		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Default text"], boxBotShadow)
 	end
 
 	-- POKEMON SEEN
