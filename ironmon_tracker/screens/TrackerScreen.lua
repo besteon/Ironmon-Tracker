@@ -441,8 +441,11 @@ function TrackerScreen.openNotePadWindow()
 	local pokemon = Tracker.getViewedPokemon()
 	if pokemon == nil then return end
 
+	Program.destroyActiveForm()
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
+	Program.activeFormId = noteForm
 	Utils.setFormLocation(noteForm, 100, 50)
+
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
 

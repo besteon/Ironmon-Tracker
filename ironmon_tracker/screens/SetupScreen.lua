@@ -154,8 +154,11 @@ function SetupScreen.openRomPickerWindow()
 end
 
 function SetupScreen.openEditControlsWindow()
+	Program.destroyActiveForm()
 	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
+	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}

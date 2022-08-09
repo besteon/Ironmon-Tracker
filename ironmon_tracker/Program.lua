@@ -4,6 +4,7 @@ Program = {
 	hasCompletedTutorial = false,
 	isTransformed = false,
 	friendshipRequired = 220,
+	activeFormId = 0,
 	Frames = {
 		waitToDraw = 0,
 		battleDataDelay = 0,
@@ -92,6 +93,13 @@ function Program.changeScreenView(screen)
 	Program.redraw(true)
 end
 
+function Program.destroyActiveForm()
+	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
+		forms.destroy(Program.activeFormId)
+		Program.activeFormId = 0
+	end
+end
+
 function Program.updateTrackedAndCurrentData()
 	if Program.Frames.half_sec_update % 10 == 0 then
 		Program.processBattleTurnFromMemory()
@@ -139,8 +147,7 @@ function Program.updateTrackedAndCurrentData()
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
-				-- Drawing.setAnimatedPokemon(leadPokemon.pokemonID)
-				Drawing.setAnimatedPokemon(131)
+				Drawing.setAnimatedPokemon(leadPokemon.pokemonID)
 			end
 		end
 	end

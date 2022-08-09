@@ -144,7 +144,9 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
+	Program.destroyActiveForm()
 	self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
+	Program.activeFormId = self.mainForm
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 
 	self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)

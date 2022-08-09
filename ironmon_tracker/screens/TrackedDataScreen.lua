@@ -80,10 +80,13 @@ function TrackedDataScreen.initialize()
 end
 
 function TrackedDataScreen.openSaveDataPrompt()
+	Program.destroyActiveForm()
+	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+
 	local suggestedFileName = gameinfo.getromname()
 
-	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
-	Utils.setFormLocation(form, 100, 50)
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
 	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
 	forms.label(form, ".TDAT", 219, 32, 45, 20)
