@@ -55,7 +55,7 @@ function GameOptionsScreen.initialize()
 
 				-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
 				if self.text == GameOptionsScreen.OptionKeys[2] then
-					Tracker.Data.hasCheckedSummary = not Options[self.text]
+					Tracker.Data.hasCheckedSummary = Options[self.text]
 				end
 
 				Options.updateSetting(self.text, self.toggleState)
