@@ -449,7 +449,6 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker) -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
-	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
@@ -459,9 +458,12 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	end
 
 	--Levitate doesn't get a message, so it gets checked independently
-	if enemyAbility == 26 and attacker % 2 == 0 and levitateCheck == 4 then
+	if enemyAbility == 26 and attacker % 2 == 0 then
+		local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
+		if levitateCheck == 4 then
 		-- Requires checking gBattleCommunication for the B_MSG_GROUND_MISS flag (4)
-		return true
+			return true
+		end
 	end
 	
 	-- Abilities to check via battler read
