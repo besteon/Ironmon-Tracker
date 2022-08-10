@@ -242,9 +242,13 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.destroyAnimatedPictureBox()
 
 	local formWindow = forms.newform(252, 252, "Animated Pokemon", function() client.unpause() end)
-	Utils.setFormLocation(formWindow, 150, 50)
+	forms.setproperty(formWindow, "AllowTransparency", true)
+	forms.setproperty(formWindow, "BackColor", Constants.TransparencyColor)
+	forms.setproperty(formWindow, "TransparencyKey", Constants.TransparencyColor)
+	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT)
 
 	local pictureBox = forms.pictureBox(formWindow, 1, 1, 200, 200)
+	forms.setproperty(pictureBox, "SizeMode", 3)
 
 	Drawing.AnimatedPokemon.formWindow = formWindow
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
@@ -264,14 +268,9 @@ function Drawing.setAnimatedPokemon(pokemonID)
 
 		-- images stored as names currently, was easier to implement
 		local lowerPokemonName = pokemonData.name:lower()
-		local imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
+		local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
 		if Main.FileExists(imagepath) then
-			-- local pictureBackColor = forms.getproperty(Drawing.AnimatedPokemon.formWindow, "BackColor")
-			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "AllowTransparency", true)
-			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "BackColor", Constants.TransparencyColor)
-			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "TransparencyKey", Constants.TransparencyColor)
 			forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
-			-- TODO: Some of the may be redundant, investigate later
 		end
 	end
 end

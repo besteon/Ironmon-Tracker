@@ -7,6 +7,7 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
+	Main.Directory = os.getenv("PWD") or io.popen("cd"):read() -- Working directory, used for absolute paths
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.MetaSettings = {}
