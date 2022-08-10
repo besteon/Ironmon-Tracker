@@ -241,11 +241,10 @@ end
 function Drawing.setupAnimatedPictureBox()
 	Drawing.destroyAnimatedPictureBox()
 
-	local formWindow = forms.newform(250, 250, "Animated Pokemon", function() client.unpause() end)
+	local formWindow = forms.newform(252, 252, "Animated Pokemon", function() client.unpause() end)
 	Utils.setFormLocation(formWindow, 150, 50)
 
-	local pictureBox = forms.pictureBox(formWindow, 70, 20, 120, 120)
-	forms.setproperty(formWindow, "BackColor", 0xFF000000)
+	local pictureBox = forms.pictureBox(formWindow, 1, 1, 200, 200)
 
 	Drawing.AnimatedPokemon.formWindow = formWindow
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
@@ -253,20 +252,27 @@ function Drawing.setupAnimatedPictureBox()
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
-	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
-		local imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. pokemonID .. ".gif"
-		if Main.FileExists(imagepath) then
-			forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
-		else
-			local pokemonData = PokemonData.Pokemon[pokemonID]
-			if pokemonData ~= nil then
-				imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. pokemonData.name:lower() .. ".gif"
-				if Main.FileExists(imagepath) then
-					forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
-				end
-			end
-		end
+	-- Don't bother setting the image if its the same one
+	if pokemonID == nil or pokemonID == Drawing.AnimatedPokemon.pokemonID then
+		return
+	end
+
+	local pokemonData = PokemonData.Pokemon[pokemonID]
+	if pokemonData ~= nil then
+		-- Track this ID so we don't have to preform as many checks later
 		Drawing.AnimatedPokemon.pokemonID = pokemonID
+
+		-- images stored as names currently, was easier to implement
+		local lowerPokemonName = pokemonData.name:lower()
+		local imagepath = Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
+		if Main.FileExists(imagepath) then
+			-- local pictureBackColor = forms.getproperty(Drawing.AnimatedPokemon.formWindow, "BackColor")
+			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "AllowTransparency", true)
+			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "BackColor", Constants.TransparencyColor)
+			forms.setproperty(Drawing.AnimatedPokemon.formWindow, "TransparencyKey", Constants.TransparencyColor)
+			forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
+			-- TODO: Some of the may be redundant, investigate later
+		end
 	end
 end
 

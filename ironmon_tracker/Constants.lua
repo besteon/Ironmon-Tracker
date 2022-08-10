@@ -1,5 +1,7 @@
 Constants = {}
 
+Constants.TransparencyColor = "Black" -- Used near the bottom of Drawing.lua
+
 Constants.BLANKLINE = "---"
 Constants.HIDDEN_INFO = "?"
 
