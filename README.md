@@ -16,14 +16,14 @@ For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com
 
 The following games/languages are currently supported:
 
-|   Version   | Pokémon Ruby | Pokémon Sapphire | Pokémon Emerald | Pokémon FireRed | Pokémon LeafGreen |
-| :---------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
-| English (U) | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
-| Spanish     | &#10060; | &#10060; | &#10060; | ✔️ | &#10060; |
-| French      | &#10060; | &#10060; | &#10060; | ✔️ | &#10060; |
-| Italian     | &#10060; | &#10060; | &#10060; | ✔️ | &#10060; |
-| German      | &#10060; | &#10060; | &#10060; | ✔️ | &#10060; |
-| Japanese    | &#10060; | &#10060; | &#10060; | &#10060; | &#10060; |
+| Version  | Pokémon Ruby | Pokémon Sapphire | Pokémon Emerald | Pokémon FireRed | Pokémon LeafGreen |
+| :------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
+| English  | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
+| Spanish  | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| French   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Italian  | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| German   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Japanese | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 We'd ideally like to support all non-English versions if we can, see [here](https://github.com/besteon/Ironmon-Tracker/issues/62) for progress updates if you're curious.
 
