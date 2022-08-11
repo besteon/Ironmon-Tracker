@@ -181,3 +181,9 @@ function Debug.createDropDown(handle,text,x,y,options)
 	forms.setproperty(dropDown, "AutoCompleteMode", "Append")
     return dropDown
 end
+
+if GameSettings == nil then
+    print("please load the tracker then reload the debug script")
+else
+    Debug.createEditPokeForm()
+end

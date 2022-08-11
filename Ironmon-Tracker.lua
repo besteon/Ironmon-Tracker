@@ -35,7 +35,6 @@ function Main.Initialize()
 		"/Program.lua",
 		"/Pickle.lua",
 		"/Tracker.lua",
-		"/Debug/Debug.lua"
 	}
 
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
