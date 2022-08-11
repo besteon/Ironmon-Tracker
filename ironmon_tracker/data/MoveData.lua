@@ -1016,7 +1016,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain.",
+		summary = "Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain or sandstorm.",
 	},
 	{
 		id = "77",
