@@ -56,7 +56,7 @@ function Options.initialize()
 	end
 
 	if Options["Animated Pokemon popout"] then
-		Drawing.setupAnimatedPictureBox()
+		Drawing.AnimatedPokemon:create()
 	end
 end
 

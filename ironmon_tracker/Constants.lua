@@ -1,7 +1,8 @@
 Constants = {}
 
--- Use OBS Chroma Key, Custom, same color as below. Similarity=333, Smoothness and Key spill both 1
-Constants.TransparencyColor = "#04F404" -- Used near the bottom of Drawing.lua
+-- Use OBS Chroma Key 'Magenta', or same color as below with the following values:
+-- Similarity = 300 | Smoothness = 80 | Key Color Spill Reduction = 100
+Constants.TransparencyColor = "Magenta" -- Used near the bottom of Drawing.lua
 
 Constants.BLANKLINE = "---"
 Constants.HIDDEN_INFO = "?"

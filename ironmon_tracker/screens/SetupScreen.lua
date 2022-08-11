@@ -108,9 +108,9 @@ function SetupScreen.initialize()
 				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
 				if self.text == SetupScreen.OptionKeys[5] then
 					if self.toggleState then
-						Drawing.setupAnimatedPictureBox()
+						Drawing.AnimatedPokemon:create()
 					else
-						Drawing.destroyAnimatedPictureBox()
+						Drawing.AnimatedPokemon:destroy()
 					end
 				end
 
