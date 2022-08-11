@@ -147,7 +147,6 @@ function Program.updateTrackedAndCurrentData()
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
-				Drawing.setAnimatedPokemon(leadPokemon.pokemonID)
 				Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 			end
 		end

@@ -24,7 +24,6 @@ Constants.Font = {
 }
 
 Constants.Words = {
-	POKEMON_NEW = "Pokémon",
 	POKEMON = "Pok\233mon",
 	POKE = "Pok\233",
 }
