@@ -241,14 +241,14 @@ end
 function Drawing.setupAnimatedPictureBox()
 	Drawing.destroyAnimatedPictureBox()
 
-	local formWindow = forms.newform(252, 252, "Animated Pokemon", function() client.unpause() end)
+	local formWindow = forms.newform(251, 250, "Animated Pokemon", function() client.unpause() end)
 	forms.setproperty(formWindow, "AllowTransparency", true)
 	forms.setproperty(formWindow, "BackColor", Constants.TransparencyColor)
 	forms.setproperty(formWindow, "TransparencyKey", Constants.TransparencyColor)
 	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT)
 
-	local pictureBox = forms.pictureBox(formWindow, 1, 1, 200, 200)
-	forms.setproperty(pictureBox, "SizeMode", 3)
+	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
+	forms.setproperty(pictureBox, "AutoSize", 2) -- AutoImage
 
 	Drawing.AnimatedPokemon.formWindow = formWindow
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
@@ -256,21 +256,35 @@ function Drawing.setupAnimatedPictureBox()
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
-	-- Don't bother setting the image if its the same one
-	if pokemonID == nil or pokemonID == Drawing.AnimatedPokemon.pokemonID then
-		return
-	end
+	if pokemonID == nil or pokemonID == 0 then return end
 
-	local pokemonData = PokemonData.Pokemon[pokemonID]
-	if pokemonData ~= nil then
-		-- Track this ID so we don't have to preform as many checks later
-		Drawing.AnimatedPokemon.pokemonID = pokemonID
+	-- Only set the image if it's a different one
+	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
+		local pokemonData = PokemonData.Pokemon[pokemonID]
+		if pokemonData ~= nil then
+			-- Track this ID so we don't have to preform as many checks later
+			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
-		-- images stored as names currently, was easier to implement
-		local lowerPokemonName = pokemonData.name:lower()
-		local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
-		if Main.FileExists(imagepath) then
-			forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
+			local lowerPokemonName = pokemonData.name:lower() -- images stored as names currently, was easier to implement
+			local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
+			if Main.FileExists(imagepath) then
+				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "Left", 1)
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "Top", 1)
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "Width", 1)
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "Height", 1)
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "ImageLocation", imagepath)
+			end
+		end
+	else -- If the image is the same, then attempt to relocate it based on it's height
+		local imageY = tonumber(forms.getproperty(Drawing.AnimatedPokemon.pictureBox, "Top"))
+		local imageHeight = tonumber(forms.getproperty(Drawing.AnimatedPokemon.pictureBox, "Height"))
+		if imageY ~= nil and imageHeight ~= nil and imageHeight ~= 1 then -- only relocate exactly once, 1=starting height of the box
+			local bottomUpY = 250 - imageHeight - 40 -- 250 is the height of the form, 40 is because idk; it draws too far i guess
+			-- If picture box hasn't been relocated yet, move it such that it's drawn from the bottom up
+			if bottomUpY ~= imageY then
+				forms.setproperty(Drawing.AnimatedPokemon.pictureBox, "Top", bottomUpY)
+			end
 		end
 	end
 end
