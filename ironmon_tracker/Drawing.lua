@@ -10,6 +10,7 @@ Drawing.AnimatedPokemon = {
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	formWindow = 0,
 	pictureBox = 0,
+	addonMissing = 0,
 	pokemonID = 0,
 }
 
@@ -175,13 +176,15 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.text ~= nil and button.text ~= "" then
-			Drawing.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
+			local textColor = Utils.inlineIf(button.disabled, "Negative text", button.textColor)
+			Drawing.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[textColor], shadowcolor)
 		end
 
 		-- Draw a mark if the checkbox button is toggled on
 		if button.toggleState ~= nil and button.toggleState then
-			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[button.toggleColor])
-			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[button.toggleColor])
+			local toggleColor = Utils.inlineIf(button.disabled, "Negative text", button.toggleColor)
+			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[toggleColor])
+			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[toggleColor])
 		end
 	elseif button.type == Constants.ButtonTypes.COLORPICKER then
 		if button.themeColor ~= nil then
@@ -257,8 +260,13 @@ function Drawing.setupAnimatedPictureBox()
 	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
 	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
 
+	local addonMissing = forms.label(formWindow, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
+	forms.setproperty(addonMissing, "BackColor", "White")
+	forms.setproperty(addonMissing, "Visible", false)
+
 	Drawing.AnimatedPokemon.formWindow = formWindow
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
+	Drawing.AnimatedPokemon.addonMissing = addonMissing
 	Drawing.AnimatedPokemon.pokemonID = 0
 end
 
@@ -278,11 +286,15 @@ function Drawing.setAnimatedPokemon(pokemonID)
 			local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
 			if Main.FileExists(imagepath) then
 				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+				forms.setproperty(pictureBox, "ImageLocation", "")
 				forms.setproperty(pictureBox, "Left", 1)
 				forms.setproperty(pictureBox, "Top", 1)
 				forms.setproperty(pictureBox, "Width", 1)
 				forms.setproperty(pictureBox, "Height", 1)
 				forms.setproperty(pictureBox, "ImageLocation", imagepath)
+				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", false)
+			else
+				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", true)
 			end
 		end
 	else

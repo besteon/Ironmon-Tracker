@@ -131,6 +131,12 @@ function SetupScreen.initialize()
 	if Options.ROMS_FOLDER ~= nil and Options.ROMS_FOLDER ~= "" then
 		SetupScreen.Buttons.RomsFolder.folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
 	end
+
+	local animatedAddonInstalled = Main.FileExists(Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
+	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
+	if not animatedAddonInstalled and animatedBtnOption ~= nil then
+		animatedBtnOption.disabled = true
+	end
 end
 
 function SetupScreen.openRomPickerWindow()
