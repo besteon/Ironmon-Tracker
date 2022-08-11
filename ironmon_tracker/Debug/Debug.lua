@@ -1,7 +1,7 @@
 Debug = {}
 
 function Debug.createEditPokeForm()
-    local editPoke = forms.newform()
+    local editPoke = forms.newform(200,300)
     local y = 5
     local x = 5
     local pokedexData = {}
@@ -33,7 +33,7 @@ function Debug.createEditPokeForm()
     local partyNum = Debug.createDropDown(editPoke,"party Num:",x,y,{"1","2","3","4","5","6"})
     y = y + 25
     local ability = Debug.createDropDown(editPoke,"ability:",x,y,{"Unchange","1","2"})
-    local enemy = forms.checkbox(editPoke,"openent ",x ,y +30)
+    local enemy = forms.checkbox(editPoke,"opponent ",x ,y +30)
     local formTable = {
         ["mainForm"] = editPoke,
         ["specie"] = specie,
