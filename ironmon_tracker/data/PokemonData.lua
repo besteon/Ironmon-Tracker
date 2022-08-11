@@ -1155,7 +1155,7 @@ PokemonData.Pokemon = {
 		types = { PokemonData.Types.PSYCHIC, PokemonData.Types.EMPTY },
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "460",
-		movelvls = { { 9, 13, 17, 21, 21, 25, 29, 33, 37, 41, 45, 49, 53 }, { 8, 12, 15, 19, 19, 22, 26, 29, 33, 36, 40, 43, 47, 50 } },
+		movelvls = { { 5, 9, 13, 17, 21, 21, 25, 29, 33, 37, 41, 45, 49, 53 }, { 5, 8, 12, 15, 19, 19, 22, 26, 29, 33, 36, 40, 43, 47, 50 } },
 		weight = 54.5
 	},
 	{
