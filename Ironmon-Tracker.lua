@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
+﻿Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -35,6 +35,7 @@ function Main.Initialize()
 		"/Program.lua",
 		"/Pickle.lua",
 		"/Tracker.lua",
+		"/Debug/Debug.lua"
 	}
 
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
