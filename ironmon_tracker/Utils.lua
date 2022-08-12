@@ -401,8 +401,7 @@ function Utils.isReadyToEvolveByLevel(evoMethod, level)
 		return false
 	end
 
-	evoMethod = string.match(evoMethod, "(.-)/") -- Handle condition of "37/WTR" with regex
-	evoMethod = tonumber(evoMethod, 10) -- becomes nil if not a decimal number
+	evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
 
 	return evoMethod ~= nil and (level + 1) >= evoMethod
 end
