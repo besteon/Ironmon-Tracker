@@ -145,7 +145,7 @@ function ColorPicker:show()
 	if self.colorkey == nil then return end
 
 	Program.destroyActiveForm()
-	Drawing.AnimatedPokemon:hide() -- animated gif spazzes out, temporarily hide it
+	Drawing.AnimatedPokemon:destroy() -- animated gif spazzes out, temporarily destroy it
 	self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
 	Program.activeFormId = self.mainForm
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
@@ -181,7 +181,7 @@ function ColorPicker:onClose()
 	Program.changeScreenView(Program.Screens.THEME)
 	Input.currentColorPicker = nil
 	forms.destroy(self.mainForm)
-	Drawing.AnimatedPokemon:show()
+	Drawing.AnimatedPokemon:create()
 	client.unpause()
 end
 

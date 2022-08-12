@@ -8,10 +8,12 @@ Drawing.AnimatedPokemon = {
 	create = function(self) Drawing.setupAnimatedPictureBox() end,
 	destroy = function(self) forms.destroy(self.formWindow) end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
+	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
 	formWindow = 0,
 	pictureBox = 0,
 	addonMissing = 0,
 	pokemonID = 0,
+	requiresRelocating = false,
 }
 
 function Drawing.clearGUI()
@@ -259,6 +261,7 @@ function Drawing.setupAnimatedPictureBox()
 
 	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
 	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
+	forms.setproperty(pictureBox, "Visible", false)
 
 	local addonMissing = forms.label(formWindow, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
 	forms.setproperty(addonMissing, "BackColor", "White")
@@ -268,6 +271,7 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
 	Drawing.AnimatedPokemon.addonMissing = addonMissing
 	Drawing.AnimatedPokemon.pokemonID = 0
+	Drawing.AnimatedPokemon.requiresRelocating = true
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
@@ -275,7 +279,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
-	-- Only set the image if it's a different one
+	
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 		local pokemonData = PokemonData.Pokemon[pokemonID]
 		if pokemonData ~= nil then
@@ -286,33 +290,43 @@ function Drawing.setAnimatedPokemon(pokemonID)
 			local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
 			if Main.FileExists(imagepath) then
 				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+				forms.setproperty(pictureBox, "Visible", false)
 				forms.setproperty(pictureBox, "ImageLocation", "")
 				forms.setproperty(pictureBox, "Left", 1)
 				forms.setproperty(pictureBox, "Top", 1)
 				forms.setproperty(pictureBox, "Width", 1)
 				forms.setproperty(pictureBox, "Height", 1)
 				forms.setproperty(pictureBox, "ImageLocation", imagepath)
+				Drawing.AnimatedPokemon.requiresRelocating = true
+
 				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", false)
 			else
 				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", true)
 			end
 		end
-	else
-		-- If the image is the same, then attempt to relocate it based on it's height
-		local imageY = tonumber(forms.getproperty(pictureBox, "Top"))
-		local imageHeight = tonumber(forms.getproperty(pictureBox, "Height"))
-		local imageWidth = tonumber(forms.getproperty(pictureBox, "Width"))
+	end
+end
 
-		-- Only relocate exactly once, 1=starting height of the box
-		if imageY ~= nil and imageHeight ~= nil and imageHeight ~= 1 then
-			local bottomUpY = Drawing.AnimatedPokemon.POPUP_HEIGHT - imageHeight - 40
-			local leftRightX = (Drawing.AnimatedPokemon.POPUP_WIDTH - imageWidth) / 2
+-- When the image is first set, the image size (width/height) is unknown. It requires a few frames before it can be updated
+function Drawing.relocateAnimatedPokemon()
+	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
-			-- If picture box hasn't been relocated yet, move it such that it's drawn from the bottom up
-			if bottomUpY ~= imageY then
-				forms.setproperty(pictureBox, "Top", bottomUpY)
-				forms.setproperty(pictureBox, "Left", leftRightX)
-			end
+	-- If the image is the same, then attempt to relocate it based on it's height
+	local imageY = tonumber(forms.getproperty(pictureBox, "Top"))
+	local imageHeight = tonumber(forms.getproperty(pictureBox, "Height"))
+	local imageWidth = tonumber(forms.getproperty(pictureBox, "Width"))
+
+	-- Only relocate exactly once, 1=starting height of the box
+	if imageY ~= nil and imageHeight ~= nil then
+		local bottomUpY = Drawing.AnimatedPokemon.POPUP_HEIGHT - imageHeight - 40
+		local leftRightX = (Drawing.AnimatedPokemon.POPUP_WIDTH - imageWidth) / 2
+
+		-- If picture box hasn't been relocated yet, move it such that it's drawn from the bottom up
+		if bottomUpY ~= imageY then
+			forms.setproperty(pictureBox, "Top", bottomUpY)
+			forms.setproperty(pictureBox, "Left", leftRightX)
+			forms.setproperty(pictureBox, "Visible", true)
+			Drawing.AnimatedPokemon.requiresRelocating = (imageHeight == 1) -- Keep updating until the height is known
 		end
 	end
 end

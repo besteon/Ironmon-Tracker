@@ -101,8 +101,21 @@ function Program.destroyActiveForm()
 end
 
 function Program.updateTrackedAndCurrentData()
+	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.half_sec_update % 10 == 0 then
 		Program.processBattleTurnFromMemory()
+
+		-- If the lead Pokemon changes, then update the animated Pokemon picture box
+		if Options["Animated Pokemon popout"] then
+			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
+				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
+					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
+				elseif Drawing.AnimatedPokemon.requiresRelocating then
+					Drawing.AnimatedPokemon:relocatePokemon()
+				end
+			end
+		end
 	end
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
@@ -141,14 +154,6 @@ function Program.updateTrackedAndCurrentData()
 
 			-- Delay drawing the new pokemon, because of send out animation
 			Program.Frames.waitToDraw = 0
-		end
-
-		-- If the lead Pokemon changes, then update the animated Pokemon picture box
-		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
-				Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
-			end
 		end
 	end
 
