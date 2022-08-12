@@ -37,9 +37,10 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Route tracking and info, Full ability tracking, Notes on last damage taken, and more!**
+- **_NEW!!_ Animated Pokémon Popout, Support for Randomized Pokémon Types & Moves (try it!)**
 
-![image](https://user-images.githubusercontent.com/4258818/183269070-4ab20627-1364-47c1-ba99-b20115cc5609.png)
+![image](https://user-images.githubusercontent.com/4258818/184241184-77186359-247e-422c-ace3-3cd4bf905bf5.png)
+![image](https://user-images.githubusercontent.com/4258818/183508785-68ac2986-80c3-4f4a-85ee-b21e260450bf.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

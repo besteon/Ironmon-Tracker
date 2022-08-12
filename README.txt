@@ -1,5 +1,8 @@
 Thank you for using Ironmon-Tracker!
 
+For more information on installing the Tracker and learning about its features, visit the Wiki:
+https://github.com/besteon/Ironmon-Tracker/wiki
+
 This tool REQUIRES the Bizhawk emulator v2.8 or greater. You can find the emulator at https://tasvideos.org/BizHawk/ReleaseHistory.
 Older versions have had issues and are not supported.
 
