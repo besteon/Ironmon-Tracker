@@ -449,6 +449,7 @@ function Program.autoTrackAbilitiesCheck(battleMsg, enemyAbility, playerAbility)
 	local attacker = Memory.readbyte(GameSettings.gBattlerAttacker) -- 0 or 2 if player, 1 or 3 if enemy
 	local battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 	local currentTurn = Memory.readbyte(GameSettings.gBattleResults + 0x13)
+	--print(battleMsg .. "; " .. battler .. ";" .. attacker .. ";" .. battlerTarget)
 
 	if Program.SyncData.turnCount < currentTurn then
 		Program.SyncData.turnCount = currentTurn
