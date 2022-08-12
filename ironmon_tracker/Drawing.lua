@@ -1,6 +1,7 @@
 Drawing = {}
 
 Drawing.AnimatedPokemon = {
+	TRANSPARENCY_COLOR = "Magenta",
 	POPUP_WIDTH = 250,
 	POPUP_HEIGHT = 250,
 	show = function(self) forms.setproperty(self.pictureBox, "Visible", true) end,
@@ -255,8 +256,8 @@ function Drawing.setupAnimatedPictureBox()
 
 	local formWindow = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
 	forms.setproperty(formWindow, "AllowTransparency", true)
-	forms.setproperty(formWindow, "BackColor", Constants.TransparencyColor)
-	forms.setproperty(formWindow, "TransparencyKey", Constants.TransparencyColor)
+	forms.setproperty(formWindow, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	forms.setproperty(formWindow, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT)
 
 	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
