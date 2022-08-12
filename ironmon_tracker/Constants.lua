@@ -98,6 +98,7 @@ Constants.OrderedLists = {
 		"Pokemon icon set",
 		"Show last damage calcs",
 		"Reveal info if randomized",
+		"Animated Pokemon popout",
 	},
 	CONTROLS = {
 		"Load next seed",

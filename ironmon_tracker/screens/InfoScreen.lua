@@ -191,6 +191,11 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
+	Program.destroyActiveForm()
+	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
+	Program.activeFormId = moveLookup
+	Utils.setFormLocation(moveLookup, 100, 50)
+
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
 	for _, data in pairs(MoveData.Moves) do
@@ -199,11 +204,6 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
-	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
-	Utils.setFormLocation(moveLookup, 100, 50)
 	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
@@ -232,6 +232,11 @@ function InfoScreen.openMoveInfoWindow()
 end
 
 function InfoScreen.openPokemonInfoWindow()
+	Program.destroyActiveForm()
+	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
+	Program.activeFormId = pokedexLookup
+	Utils.setFormLocation(pokedexLookup, 100, 50)
+
 	local pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name -- infoLookup = pokemonID
 	local pokedexData = {}
 	for _, data in pairs(PokemonData.Pokemon) do
@@ -240,11 +245,6 @@ function InfoScreen.openPokemonInfoWindow()
 		end
 	end
 
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Utils.setFormLocation(pokedexLookup, 100, 50)
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
@@ -273,13 +273,13 @@ function InfoScreen.openPokemonInfoWindow()
 end
 
 function InfoScreen.openRouteInfoWindow()
+	Program.destroyActiveForm()
+	local routeLookup = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
+	Program.activeFormId = routeLookup
+	Utils.setFormLocation(routeLookup, 100, 50)
+
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
-	local routeLookup = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
-	Utils.setFormLocation(routeLookup, 100, 50)
 	forms.label(routeLookup, "Choose a Route to look up:", 49, 10, 250, 20)
 	local routeDropdown = forms.dropdown(routeLookup, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
