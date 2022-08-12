@@ -245,7 +245,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d97f6] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d97de] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d972c] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e76] = {[43] = true}, -- BattleScript_1D7E73 + 0x3 Soundproof 3 (Perish Song)
 				[0x081d9744] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d975b] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d97fe] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -394,7 +394,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d980e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d97f6] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d9744] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e8e] = {[43] = true}, -- BattleScript_1D7E73 + 0x3 Soundproof 3 (Perish Song)
 				[0x081d975c] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9773] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d9816] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -543,7 +543,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d980e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d97f6] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d9744] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e8e] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d975c] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9773] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d9816] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -696,7 +696,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d9786] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d976e] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d96bc] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e06] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d96d4] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d96eb] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d978e] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -845,7 +845,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d979e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d9786] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d96d4] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e1e] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d96ec] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9703] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d97a6] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -994,7 +994,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d979e] = {[22] = true}, -- BattleScript_1D97F0 + 0x6 Intimidate Fail
 				[0x081d9786] = {[22] = true}, -- BattleScript_1D97A1 + 0x3d Intimidate Succeed
 				[0x081d96d4] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081d7e1e] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d96ec] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d9703] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d97a6] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
