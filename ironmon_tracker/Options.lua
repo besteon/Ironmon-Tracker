@@ -55,9 +55,7 @@ function Options.initialize()
 		Constants.OrderedLists.TIPS[3] = Constants.OrderedLists.TIPS[3]:gsub("Start", toggleViewValue)
 	end
 
-	if Options["Animated Pokemon popout"] then
-		Drawing.AnimatedPokemon:create()
-	end
+	Drawing.AnimatedPokemon:create()
 end
 
 function Options.updateSetting(optionKey, value)

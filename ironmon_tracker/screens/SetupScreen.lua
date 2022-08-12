@@ -99,6 +99,7 @@ function SetupScreen.initialize()
 			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
 				self.toggleState = not self.toggleState
+				Options.updateSetting(self.text, self.toggleState)
 
 				-- If PC Heal tracking switched, invert the count
 				if self.text == SetupScreen.OptionKeys[4] then
@@ -113,8 +114,6 @@ function SetupScreen.initialize()
 						Drawing.AnimatedPokemon:destroy()
 					end
 				end
-
-				Options.updateSetting(self.text, self.toggleState)
 			end
 		}
 		startY = startY + linespacing

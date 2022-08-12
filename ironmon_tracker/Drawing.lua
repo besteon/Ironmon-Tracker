@@ -252,6 +252,8 @@ function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 end
 
 function Drawing.setupAnimatedPictureBox()
+	if not Options["Animated Pokemon popout"] then return end
+
 	Drawing.AnimatedPokemon:destroy()
 
 	local formWindow = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
