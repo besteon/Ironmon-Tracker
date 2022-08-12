@@ -1618,7 +1618,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d67db] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
 				[0x081d67c3] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
 				[0x081d6711] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081D4CF9] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d6729] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d6740] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d67e3] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -1780,7 +1780,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8ea3] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
 				[0x081d8e8b] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
 				[0x081d8dd9] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081D7E3D] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d8df1] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d8e08] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d8eab] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -1942,7 +1942,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7b43] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
 				[0x081d7b2b] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
 				[0x081d7a79] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081D6061] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081d7a91] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081d7aa8] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081d7b4b] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
@@ -2105,7 +2105,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 				[0x081DD607] = {[22] = true}, -- BattleScript_IntimidateAbilityFail + 0x6 Intimidate Fail
 				[0x081DD5EF] = {[22] = true}, -- BattleScript_IntimidateActivationAnimLoop + 0x3d Intimidate Succeed
 				[0x081DD53D] = {[36] = true}, -- BattleScript_TraceActivates + 0x6 Trace
-				--[0x081D78FF] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
+				[0x081DBB25] = {[43] = true}, -- BattleScript_PerishSongNotAffected + 0x3 Soundproof 3 (Perish Song)
 				[0x081DD555] = {[45] = true}, -- BattleScript_SandstreamActivates + 0x0 Sand Stream
 				[0x081DD56C] = {[61] = true}, -- BattleScript_ShedSkinActivates + 0x3 Shed Skin
 				[0x081DD60F] = {[70] = true}, -- BattleScript_DroughtActivates + 0x0 Drought
