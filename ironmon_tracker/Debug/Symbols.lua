@@ -11,8 +11,9 @@ function Symbols.printSymbols(symbolArr,symbolFile,key)
                 break;
             end
         end
+        symbolFile:seek("set")
         if found == false then
-            print(sym .. "= 0x could not find")
+            print(sym .. " = 0x could not find")
         end
     end
 end
@@ -27,7 +28,8 @@ local symbolPath = {
 
 -- add what symbols you want to search 
 local symbolSearch = {
-    "BattleScript_DrizzleActivates" --example of symbol to search
+    "BattleScript_DrizzleActivates", --example of symbol to search
+    "gSaveBlock1"
 }
 
 
