@@ -10,6 +10,7 @@ SetupScreen.OptionKeys = {
 	"Right justified numbers",
 	"Track PC Heals",
 	"PC heals count downward",
+	"Animated Pokemon popout",
 }
 
 SetupScreen.Buttons = {
@@ -84,7 +85,7 @@ SetupScreen.Buttons = {
 
 function SetupScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 80
+	local startY = Constants.SCREEN.MARGIN + 75
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
@@ -98,13 +99,21 @@ function SetupScreen.initialize()
 			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
 				self.toggleState = not self.toggleState
+				Options.updateSetting(self.text, self.toggleState)
 
 				-- If PC Heal tracking switched, invert the count
 				if self.text == SetupScreen.OptionKeys[4] then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
 				end
 
-				Options.updateSetting(self.text, self.toggleState)
+				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
+				if self.text == SetupScreen.OptionKeys[5] then
+					if self.toggleState then
+						Drawing.AnimatedPokemon:create()
+					else
+						Drawing.AnimatedPokemon:destroy()
+					end
+				end
 			end
 		}
 		startY = startY + linespacing
@@ -120,6 +129,12 @@ function SetupScreen.initialize()
 
 	if Options.ROMS_FOLDER ~= nil and Options.ROMS_FOLDER ~= "" then
 		SetupScreen.Buttons.RomsFolder.folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
+	end
+
+	local animatedAddonInstalled = Main.FileExists(Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
+	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
+	if not animatedAddonInstalled and animatedBtnOption ~= nil then
+		animatedBtnOption.disabled = true
 	end
 end
 
@@ -144,11 +159,11 @@ function SetupScreen.openRomPickerWindow()
 end
 
 function SetupScreen.openEditControlsWindow()
-	forms.destroyall()
-	-- client.pause() -- Removing for now as a full game pause can be a bit distracting
-
+	Program.destroyActiveForm()
 	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
+	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+
 	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}

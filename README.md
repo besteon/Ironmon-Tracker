@@ -14,23 +14,18 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
 
 For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
 
-The following games are currently supported:
+The following games/languages are currently supported:
 
-- Pokémon Ruby (U)
-  - v1.0, v1.1, v1.2
-- Pokémon Sapphire (U)
-  - v1.0, v1.1, v1.2
-- Pokémon Emerald (U)
-- Pokémon FireRed (U)
-  - v1.0, v1.1
-- Pokémon LeafGreen (U)
-  - v1.0, v1.1
-- Pokémon Rojo Fuego (Spain)
-- Pokémon Rouge Feu (France)
-- Pokémon Rosso Fuoco (Italy)
-- Pokémon Feuerrote (Germany)
+| Version  | Pokémon Ruby | Pokémon Sapphire | Pokémon Emerald | Pokémon FireRed | Pokémon LeafGreen |
+| :------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
+| English  | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
+| Spanish  | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| French   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Italian  | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| German   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Japanese | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-With more non-english version support potentially coming in the future!
+We'd ideally like to support all non-English versions if we can, see [here](https://github.com/besteon/Ironmon-Tracker/issues/62) for progress updates if you're curious.
 
 ## Installation
 
@@ -42,34 +37,17 @@ With more non-english version support potentially coming in the future!
 
 ## Latest Changes
 
-- **_NEW!!_ Route tracking and info, Full ability tracking, Notes on last damage taken, and more!**
+- **_NEW!!_ Animated Pokémon Popout, Support for Randomized Pokémon Types & Moves (try it!)**
 
-![image](https://user-images.githubusercontent.com/4258818/183269070-4ab20627-1364-47c1-ba99-b20115cc5609.png)
+![image](https://user-images.githubusercontent.com/4258818/184241184-77186359-247e-422c-ace3-3cd4bf905bf5.png)
+![image](https://user-images.githubusercontent.com/4258818/183508785-68ac2986-80c3-4f4a-85ee-b21e260450bf.png)
+
+See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
 ## Full Feature List
 
-A full feature list is available on the [project's Wiki](https://github.com/besteon/Ironmon-Tracker/wiki/Feature-List).
+See the project's Wiki for a full [feature list](https://github.com/besteon/Ironmon-Tracker/wiki/Feature-List).
 
-## FAQ
+## FAQ & Troubleshooting
 
-### Common errors and solutions
-
----
-
-Error: `Nothing happens and no error messages or output is shown in the Lua Console`
-
-Cause: The `Ironmon-Tracker.lua` script was erased or overwritten. This often occurs when clicking the NEW button instead of OPEN.
-
-Fix: Download the Tracker again from the release and replace your existing files.
-
----
-
-Error: `Can't have lua running in two host threads at a time!`
-
-Cause 1: Outdated version of Bizhawk.
-
-Fix: Use [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) version 2.8 or higher.
-
-Cause 2: Having the "Autoload Last Slot" toggle turned on in `File -> Load State` when quick-loading seeds with savestates.
-
-Fix: Disable the "Autoload Last Slot" toggle.
+See the project's Wiki for [FAQ / Troubleshooting](https://github.com/besteon/Ironmon-Tracker/wiki/FAQ---Troubleshooting)

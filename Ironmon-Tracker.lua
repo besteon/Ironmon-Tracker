@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -7,6 +7,7 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
+	Main.Directory = os.getenv("PWD") or io.popen("cd"):read() -- Working directory, used for absolute paths
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.MetaSettings = {}
@@ -98,7 +99,6 @@ end
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
-	forms.destroyall()
 	client.pause()
 
 	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)
