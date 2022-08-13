@@ -222,6 +222,7 @@ end
 -- moveType required for Hidden Power tracked type
 function Utils.netEffectiveness(move, moveType, comparedTypes)
 	local effectiveness = 1.0
+
 	-- If type is unknown or typeless
 	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
@@ -247,7 +248,6 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 
 	-- Check effectiveness against each opposing type
 	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
-
 	if effectiveValue ~= nil then
 		effectiveness = effectiveness * effectiveValue
 	end
