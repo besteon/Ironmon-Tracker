@@ -2,6 +2,7 @@ Options = {
 	-- Tracks if any option elements were modified so we know if we need to save them to the Settings.ini file
 	settingsUpdated = false,
 
+	FIRST_RUN = true,
 	ROMS_FOLDER = "",
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini

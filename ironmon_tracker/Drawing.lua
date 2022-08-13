@@ -293,7 +293,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
 			local lowerPokemonName = pokemonData.name:lower()
-			local imagepath = Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
+			local imagepath = Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
 			if Main.FileExists(imagepath) then
 				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
 				forms.setproperty(pictureBox, "Visible", false)
