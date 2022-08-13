@@ -544,3 +544,11 @@ function Utils.getGameStat(statIndex)
 
 	return gameStatValue
 end
+
+function Utils.getWorkingDirectory()
+	if Main.Directory ~= nil then
+		return Main.Directory .. "/"
+	else
+		return ""
+	end
+end

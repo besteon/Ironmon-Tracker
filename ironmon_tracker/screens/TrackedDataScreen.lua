@@ -111,7 +111,12 @@ function TrackedDataScreen.openLoadDataPrompt()
 	local suggestedFileName = gameinfo.getromname() .. Constants.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.TDAT|All files (*.*)|*.*"
 
-	local filepath = forms.openfile(suggestedFileName, Main.Directory, filterOptions)
+	local workingDir = Utils.getWorkingDirectory()
+	if workingDir ~= "" then
+		workingDir = workingDir:sub(1, -2) -- remove trailing "/"
+	end
+
+	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
 		Tracker.loadData(filepath)
 	end

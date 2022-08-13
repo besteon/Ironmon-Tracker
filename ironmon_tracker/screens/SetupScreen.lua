@@ -131,7 +131,7 @@ function SetupScreen.initialize()
 		SetupScreen.Buttons.RomsFolder.folderText = Utils.truncateRomsFolder(Options.ROMS_FOLDER)
 	end
 
-	local animatedAddonInstalled = Main.FileExists(Main.Directory .. "/" .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
+	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
 	if not animatedAddonInstalled and animatedBtnOption ~= nil then
 		animatedBtnOption.disabled = true
