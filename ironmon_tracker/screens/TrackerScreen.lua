@@ -847,7 +847,12 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil and showEffectiveness then
-			local effectiveness = Utils.netEffectiveness(moveData, moveType, PokemonData.Pokemon[opposingPokemon.pokemonID].types)
+			local typesData = Memory.readword(GameSettings.gBattleMons + ((Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
+			local types = {
+				PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
+				PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
+			}
+			local effectiveness = Utils.netEffectiveness(moveData, moveType, types)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
 			else
