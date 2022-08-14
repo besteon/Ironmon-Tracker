@@ -812,7 +812,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		local ownTypes = pokemon.types
 		local enemyTypes = {}
 		if opposingPokemon ~= nil then
-			local enemyTypes = opposingPokemon.types
+			enemyTypes = PokemonData.Pokemon[opposingPokemon.pokemonID].types
 		end
 		if Tracker.Data.inBattle then
 			local ownTypesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
