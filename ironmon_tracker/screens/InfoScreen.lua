@@ -153,6 +153,26 @@ InfoScreen.Buttons = {
 			end
 		end
 	},
+	NotepadTracking = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		getContentList = function(pokemonId)
+			local noteText = Tracker.getNote(pokemonId)
+			if noteText ~= nil and noteText ~= "" then
+				return noteText
+			else
+				return "(Leave a Note)"
+			end
+		end,
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 142, 110, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 142, 11, 11 },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			TrackerScreen.openNotePadWindow(InfoScreen.infoLookup)
+		end,
+	}
 }
 
 InfoScreen.TemporaryButtons = {}
@@ -530,7 +550,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
-	botOffsetY = botOffsetY + (linespacing * 3)
+	botOffsetY = botOffsetY + (linespacing * 3) - 2
 
 	-- If the moves-to-learn only takes up one row, move up the weakness data
 	if #pokemon.movelvls[GameSettings.versiongroup] <= 8 then
@@ -590,11 +610,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		end
 	end
 
-	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+		-- Draw all buttons
+		Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
+		Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
+		Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
+		Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+		InfoScreen.drawNotepadArea()
 end
 
 function InfoScreen.drawMoveInfoScreen(moveId)
@@ -818,4 +839,23 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.showMoreRouteEncounters, boxBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.close, boxBotShadow)
+end
+function InfoScreen.drawNotepadArea()
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
+	local wrappedText = Utils.getWordWrapLines(noteText, 27)
+	if #wrappedText == 1 then
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
+	elseif #wrappedText >= 2 then
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 138, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 137, wrappedText[2], Theme.COLORS["Default text"], shadowcolor)
+		gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
+		gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
+	end
+	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+	local y = 109
+	gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
+	gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+
 end

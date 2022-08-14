@@ -341,8 +341,8 @@ end
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 function Tracker.getNote(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.note == nil then
-		return ""
+	if trackedPokemon == nil or trackedPokemon.note == nil then
+			return ""
 	else
 		return trackedPokemon.note
 	end
