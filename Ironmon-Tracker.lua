@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.0a" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1a" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -7,7 +7,6 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
-	Main.Directory = os.getenv("PWD") or io.popen("cd"):read() -- Working directory, used for absolute paths
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.MetaSettings = {}
@@ -59,6 +58,22 @@ function Main.Initialize()
 		end
 	end
 
+	Main.LoadSettings()
+
+	if Options.FIRST_RUN then
+		Options.FIRST_RUN = false
+		Main.SaveSettings(true)
+
+		local firstRunErrMsg = "It looks like this is your first time using the Tracker. If so, please close and re-open Bizhawk before continuing."
+		firstRunErrMsg = firstRunErrMsg .. "\n\nOtherwise, be sure to overwrite your old Tracker files for new releases."
+		print(firstRunErrMsg)
+		Main.DisplayError(firstRunErrMsg)
+		--return false -- Let the program keep running, it may/not still crash at io.popen, but at least the user knows why and how to fix
+	end
+
+	-- Working directory, used for absolute paths
+	Main.Directory = os.getenv("PWD") or io.popen("cd"):read()
+
 	print("Successfully loaded required tracker files")
 	return true
 end
@@ -101,23 +116,21 @@ end
 function Main.DisplayError(errMessage)
 	client.pause()
 
-	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an error!", function() client.unpause() end)
+	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an issue!", function() client.unpause() end)
 
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
-	forms.label(form, errMessage, 18, 10, 400, 50)
+	forms.label(form, errMessage, 18, 10, 350, 65)
 	forms.button(form, "Close", function()
 		client.unpause()
 		forms.destroy(form)
-	end, 155, 70)
+	end, 155, 80)
 end
 
 -- Main loop
 function Main.Run()
-	Main.LoadSettings()
-
 	print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
 	local romLoaded = false
 	while not romLoaded do
@@ -229,6 +242,9 @@ function Main.LoadSettings()
 
 	-- [CONFIG]
 	if settings.config ~= nil then
+		if settings.config.FIRST_RUN ~= nil then
+			Options.FIRST_RUN = settings.config.FIRST_RUN
+		end
 		if settings.config.ROMS_FOLDER ~= nil then
 			Options.ROMS_FOLDER = settings.config.ROMS_FOLDER
 		end
@@ -274,9 +290,9 @@ function Main.LoadSettings()
 end
 
 -- Saves the user settings on to disk
-function Main.SaveSettings()
+function Main.SaveSettings(forced)
 	-- Don't bother saving to a file if nothing has changed
-	if not Options.settingsUpdated and not Theme.settingsUpdated then
+	if not forced and not Options.settingsUpdated and not Theme.settingsUpdated then
 		return
 	end
 
@@ -289,6 +305,7 @@ function Main.SaveSettings()
 	if settings.theme == nil then settings.theme = {} end
 
 	-- [CONFIG]
+	settings.config.FIRST_RUN = Options.FIRST_RUN
 	settings.config.ROMS_FOLDER = Options.ROMS_FOLDER
 
 	-- [TRACKER]
