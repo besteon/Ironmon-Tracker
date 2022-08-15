@@ -160,7 +160,7 @@ function Program.updateTrackedAndCurrentData()
 	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
 	if Program.Frames.three_sec_update == 0 then
 		Program.Frames.three_sec_update = 180
-
+		
 		Program.updateBagHealingItemsFromMemory()
 		Program.updatePCHealsFromMemory()
 		Program.updateBadgesObtainedFromMemory()
@@ -388,12 +388,23 @@ function Program.updateBattleDataFromMemory()
 
 			-- Check if fishing encounter, if so then get the rod that was used
 			local gameStat_FishingCaptures = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES)
-			if gameStat_FishingCaptures ~= Tracker.Data.gameStatsFishing then
+			if gameStat_FishingCaptures > Tracker.Data.gameStatsFishing then
 				Tracker.Data.gameStatsFishing = gameStat_FishingCaptures
 
 				local fishingRod = Memory.readword(GameSettings.gSpecialVar_ItemId)
 				if RouteData.Rods[fishingRod] ~= nil then
 					Program.CurrentRoute.encounterArea = RouteData.Rods[fishingRod]
+				end
+			end
+
+			-- Check if rock smash encounter, if so then check encounter happened
+			local gameStat_UsedRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH)
+			if gameStat_UsedRockSmash > Tracker.Data.gameStatsRockSmash then
+				Tracker.Data.gameStatsRockSmash = gameStat_UsedRockSmash
+
+				local rockSmashResult = Memory.readword(GameSettings.gSpecialVar_Result)
+				if rockSmashResult == 1 then
+					Program.CurrentRoute.encounterArea = RouteData.EncounterArea.ROCKSMASH
 				end
 			end
 
