@@ -610,13 +610,13 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		end
 	end
 
-		-- Draw all buttons
-		Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
-		Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
-		Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
-		Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
-		InfoScreen.drawNotepadArea()
-		Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
+	-- Draw all buttons
+	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	InfoScreen.drawNotepadArea()
+	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
 
 end
 
