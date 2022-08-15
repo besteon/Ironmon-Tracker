@@ -1439,10 +1439,616 @@ function RouteData.setupRouteInfoAsFRLG()
 		[216] = { name = "Lance's Room", },
 		[217] = { name = "Champion's Room", },
 		[228] = { name = "Saffron City Dojo", },
+
+		-- [[Sevii Isles]]
+		[230] = { name = "One Island",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[232] = { name = "Three Island", }, -- Only trainers here
+		[233] = { name = "Four Island",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = {194,183}, rate = 0.70, minLv = 5, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.30, minLv = 5, maxLv = 35, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = 60, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 61, rate = 0.40, minLv = 20, maxLv = 30, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+			},
+		},
+		[234] = { name = "Five Island",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.65, minLv = 5, maxLv = 40, },
+				{ pokemonID = 187, rate = 0.30, minLv = 5, maxLv = 15, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[237] = { name = "Kindle Road",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 77, rate = 0.30, minLv = 31, maxLv = 34, },
+				{ pokemonID = 21, rate = 0.25, minLv = 30, maxLv = 32, },
+				{ pokemonID = 22, rate = 0.10, minLv = 36, maxLv = 36, },
+				{ pokemonID = 52, rate = 0.10, minLv = 31, maxLv = 31, },
+				{ pokemonID = 74, rate = 0.10, minLv = 31, maxLv = 31, },
+				{ pokemonID = 53, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = 78, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 34, maxLv = 34, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.95, minLv = 5, maxLv = 30, },
+				{ pokemonID = 75, rate = 0.05, minLv = 25, maxLv = 40, },
+			},
+		},
+		[238] = { name = "Treasure Beach",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 21, rate = 0.30, minLv = 31, maxLv = 31, },
+				{ pokemonID = 114, rate = 0.30, minLv = 33, maxLv = 35, },
+				{ pokemonID = 22, rate = 0.20, minLv = 36, maxLv = 40, },
+				{ pokemonID = 52, rate = 0.10, minLv = 31, maxLv = 31, },
+				{ pokemonID = 53, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 31, maxLv = 31, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[239] = { name = "Cape Brink",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = {43,69}, rate = 0.30, minLv = 30, maxLv = 32, },
+				{ pokemonID = 21, rate = 0.20, minLv = 31, maxLv = 31, },
+				{ pokemonID = {44,70}, rate = 0.15, minLv = 36, maxLv = 38, },
+				{ pokemonID = 22, rate = 0.10, minLv = 36, maxLv = 36, },
+				{ pokemonID = 52, rate = 0.10, minLv = 31, maxLv = 31, },
+				{ pokemonID = 53, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 31, maxLv = 31, },
+				{ pokemonID = {55,80}, rate = 0.05, minLv = 37, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = {54,79}, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = {55,80}, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = 60, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 61, rate = 0.40, minLv = 20, maxLv = 30, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+			},
+		},
+		[240] = { name = "Bond Bridge", -- 007, license to kill your sub-500BST survival run
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 16, rate = 0.30, minLv = 29, maxLv = 32, },
+				{ pokemonID = {43,69}, rate = 0.20, minLv = 31, maxLv = 31, },
+				{ pokemonID = 17, rate = 0.15, minLv = 34, maxLv = 40, },
+				{ pokemonID = {44,70}, rate = 0.10, minLv = 36, maxLv = 36, },
+				{ pokemonID = 52, rate = 0.10, minLv = 31, maxLv = 31, },
+				{ pokemonID = 48, rate = 0.05, minLv = 34, maxLv = 34, },
+				{ pokemonID = 53, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 31, maxLv = 31, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = nil, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[241] = { name = "Three Island Port",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 206, rate = 1.00, minLv = 5, maxLv = 35, },
+			},
+		},
+		[246] = { name = "Resort Gorgeous",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.65, minLv = 5, maxLv = 40, },
+				{ pokemonID = 187, rate = 0.30, minLv = 5, maxLv = 15, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[247] = { name = "Water Labyrinth",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.65, minLv = 5, maxLv = 40, },
+				{ pokemonID = 187, rate = 0.30, minLv = 5, maxLv = 15, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[248] = { name = "Five Isle Meadow",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 161, rate = 0.30, minLv = 10, maxLv = 15, },
+				{ pokemonID = 16, rate = 0.20, minLv = 44, maxLv = 44, },
+				{ pokemonID = 17, rate = 0.15, minLv = 48, maxLv = 50, },
+				{ pokemonID = 187, rate = 0.15, minLv = 10, maxLv = 15, },
+				{ pokemonID = 52, rate = 0.10, minLv = 41, maxLv = 41, },
+				{ pokemonID = 53, rate = 0.05, minLv = 47, maxLv = 50, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.65, minLv = 5, maxLv = 40, },
+				{ pokemonID = 187, rate = 0.30, minLv = 5, maxLv = 15, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[249] = { name = "Memorial Pillar",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 187, rate = 1.00, minLv = 6, maxLv = 16, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.65, minLv = 5, maxLv = 40, },
+				{ pokemonID = 187, rate = 0.30, minLv = 5, maxLv = 15, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[250] = { name = "Outcast Island",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[251] = { name = "Green Path",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[252] = { name = "Water Path",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 161, rate = 0.30, minLv = 10, maxLv = 15, },
+				{ pokemonID = 21, rate = 0.20, minLv = 44, maxLv = 44, },
+				{ pokemonID = 22, rate = 0.15, minLv = 48, maxLv = 50, },
+				{ pokemonID = {43,69}, rate = 0.10, minLv = 44, maxLv = 44, },
+				{ pokemonID = 52, rate = 0.10, minLv = 41, maxLv = 41, },
+				{ pokemonID = {44,70}, rate = 0.05, minLv = 48, maxLv = 48, },
+				{ pokemonID = 53, rate = 0.05, minLv = 47, maxLv = 50, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[253] = { name = "Ruin Valley",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 177, rate = 0.25, minLv = 15, maxLv = 20, },
+				{ pokemonID = 21, rate = 0.20, minLv = 44, maxLv = 44, },
+				{ pokemonID = 22, rate = 0.10, minLv = 49, maxLv = 49, },
+				{ pokemonID = 52, rate = 0.10, minLv = 43, maxLv = 43, },
+				{ pokemonID = 193, rate = 0.10, minLv = 18, maxLv = 18, },
+				{ pokemonID = {194,183}, rate = 0.10, minLv = 15, maxLv = 15, },
+				{ pokemonID = 53, rate = 0.05, minLv = 49, maxLv = 52, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+				{ pokemonID = 202, rate = 0.05, minLv = 25, maxLv = 25, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = {194,183}, rate = 1.00, minLv = 5, maxLv = 25, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = 60, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 61, rate = 0.40, minLv = 20, maxLv = 30, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+			},
+		},
+		[254] = { name = "Trainer Tower",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[255] = { name = "Canyon Entrance",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 161, rate = 0.30, minLv = 10, maxLv = 15, },
+				{ pokemonID = 21, rate = 0.20, minLv = 44, maxLv = 44, },
+				{ pokemonID = 22, rate = 0.15, minLv = 48, maxLv = 50, },
+				{ pokemonID = 231, rate = 0.15, minLv = 10, maxLv = 15, },
+				{ pokemonID = 52, rate = 0.10, minLv = 41, maxLv = 41, },
+				{ pokemonID = 53, rate = 0.05, minLv = 47, maxLv = 50, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+			},
+		},
+		[256] = { name = "Sevault Canyon",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 74, rate = 0.20, minLv = 46, maxLv = 46, },
+				{ pokemonID = 231, rate = 0.20, minLv = 20, maxLv = 20, },
+				{ pokemonID = 22, rate = {0.10, 0.15}, minLv = 50, maxLv = 50, },
+				{ pokemonID = 52, rate = 0.10, minLv = 43, maxLv = 43, },
+				{ pokemonID = 104, rate = 0.10, minLv = 46, maxLv = 46, },
+				{ pokemonID = 105, rate = 0.10, minLv = 52, maxLv = 52, },
+				{ pokemonID = 53, rate = 0.05, minLv = 49, maxLv = 52, },
+				{ pokemonID = 95, rate = 0.05, minLv = 54, maxLv = 54, },
+				{ pokemonID = {227,-1}, rate = 0.05, minLv = 30, maxLv = 30, },
+				{ pokemonID = 246, rate = 0.05, minLv = 15, maxLv = 20, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
+		[257] = { name = "Tanoby Ruins",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = {0.95, 0.90}, minLv = 5, maxLv = 40, },
+				{ pokemonID = 73, rate = 0.05, minLv = 35, maxLv = 40, },
+				{ pokemonID = {-1,226}, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {211,223}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[270] = { name = "Berry Forest",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 17, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = {44,70}, rate = 0.20, minLv = 35, maxLv = 35, },
+				{ pokemonID = 16, rate = 0.10, minLv = 32, maxLv = 32, },
+				{ pokemonID = {43,69}, rate = 0.10, minLv = 30, maxLv = 30, },
+				{ pokemonID = 48, rate = 0.10, minLv = 34, maxLv = 34, },
+				{ pokemonID = 96, rate = 0.10, minLv = 34, maxLv = 34, },
+				{ pokemonID = 49, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 31, maxLv = 31, },
+				{ pokemonID = 97, rate = 0.05, minLv = 37, maxLv = 40, },
+				{ pokemonID = 102, rate = 0.05, minLv = 35, maxLv = 35, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = {54,79}, rate = 0.95, minLv = 5, maxLv = 40, },
+				{ pokemonID = {55,80}, rate = 0.05, minLv = 35, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = 118, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = 60, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = 118, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 119, rate = 0.40, minLv = 20, maxLv = 30, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+			},
+		},
+		-- One Island: Mt. Ember [[Start]]
+		-- Serebii's Pokéarth is pretty wrong about this place for some reason, basing off bulbapedia instead which is mostly more accurate
+		-- https://bulbapedia.bulbagarden.net/wiki/Mt._Ember#Pok.C3.A9mon
+		[280] = { name = "Mt. Ember Base",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 77, rate = 0.35, minLv = 30, maxLv = 36, },
+				{ pokemonID = 22, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 21, rate = {0.15, 0.10}, minLv = 30, maxLv = 32, },
+				{ pokemonID = 66, rate = 0.10, minLv = 35, maxLv = 35, },
+				{ pokemonID = 74, rate = 0.10, minLv = 33, maxLv = 33, },
+				{ pokemonID = 78, rate = 0.05, minLv = 39, maxLv = 42, },
+				{ pokemonID = {-1,126}, rate = 0.05, minLv = 38, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.95, minLv = 5, maxLv = 30, },
+				{ pokemonID = 75, rate = 0.05, minLv = 25, maxLv = 40, },
+			},
+		},
+		[281] = { name = "Mt. Ember Summit",
+			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 146, rate = 1.00, minLv = 50, maxLv = 50, },
+			},
+		},
+		[282] = { name = "Summit Path 1F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 66, rate = 0.50, minLv = 31, maxLv = 39, },
+				{ pokemonID = 74, rate = 0.50, minLv = 29, maxLv = 37, },
+			},
+		},
+		[283] = { name = "Summit Path 2F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 66, rate = 0.40, minLv = 32, maxLv = 36, },
+				{ pokemonID = 74, rate = 0.40, minLv = 30, maxLv = 34, },
+				{ pokemonID = 67, rate = 0.20, minLv = 38, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.95, minLv = 5, maxLv = 30, },
+				{ pokemonID = 75, rate = 0.05, minLv = 25, maxLv = 40, },
+			},
+		},
+		[284] = { name = "Summit Path 3F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 66, rate = 0.50, minLv = 31, maxLv = 39, },
+				{ pokemonID = 74, rate = 0.50, minLv = 29, maxLv = 37, },
+			},
+		},
+		[285] = { name = "Ruby Path 1F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 74, rate = 0.50, minLv = 32, maxLv = 40, },
+				{ pokemonID = 66, rate = 0.40, minLv = 34, maxLv = 38, },
+				{ pokemonID = 67, rate = 0.10, minLv = 40, maxLv = 42, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
+		[286] = { name = "Ruby Path B1F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 74, rate = 0.70, minLv = 34, maxLv = 42, },
+				{ pokemonID = 218, rate = 0.30, minLv = 24, maxLv = 30, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
+		[287] = { name = "Ruby Path B2F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 218, rate = 0.60, minLv = 22, maxLv = 32, },
+				{ pokemonID = 74, rate = 0.40, minLv = 40, maxLv = 44, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
+		[288] = { name = "Ruby Path B3F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 218, rate = 1.00, minLv = 18, maxLv = 36, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 218, rate = 0.90, minLv = 15, maxLv = 35, },
+				{ pokemonID = 219, rate = 0.10, minLv = 25, maxLv = 45, },
+			},
+		},
+		-- Bulbapedia says there's encounters for B4F/B5F but includes rock smash encounters
+		-- There are no rocks to smash on these floors, and I ran for a good while through both floors, no encounters
+		-- One Island: Mt. Ember [[End]]
+		[292] = { name = "Rocket Hideout", }, -- Only trainers here
 	}
 
-	return 228 -- max mapId
+	return 292 -- max mapId
 end
+
+-- Blank set for copy-paste
+-- [nil] = { name = "nil",
+-- 	[RouteData.EncounterArea.LAND] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- 	[RouteData.EncounterArea.SURFING] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- 	[RouteData.EncounterArea.OLDROD] = {
+-- 		{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+-- 	},
+-- 	[RouteData.EncounterArea.GOODROD] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- 	[RouteData.EncounterArea.SUPERROD] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- 	[RouteData.EncounterArea.ROCKSMASH] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- 	[RouteData.EncounterArea.STATIC] = {
+-- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
+-- 	},
+-- },
 
 -- https://github.com/pret/pokeemerald/blob/677b4fc394516deab5b5c86c94a2a1443cb52151/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/hoenn/3rd/route101.shtml
