@@ -616,6 +616,8 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
 		Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
 		InfoScreen.drawNotepadArea()
+		Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
+
 end
 
 function InfoScreen.drawMoveInfoScreen(moveId)
@@ -843,19 +845,21 @@ end
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
-	local wrappedText = Utils.getWordWrapLines(noteText, 27)
-	if #wrappedText == 1 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
-	elseif #wrappedText >= 2 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 138, wrappedText[1], Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 137, wrappedText[2], Theme.COLORS["Default text"], shadowcolor)
-		gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
-		gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
+	--23 will fit, but cut to 22 if we need to show the ellipses
+	if #noteText > 23 then
+		local	textTest = Utils.getWordWrapLines(noteText, 22)
+		textTest[1] = textTest[1] .. " ..."
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, textTest[1], Theme.COLORS["Default text"], shadowcolor)
+	else
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, noteText, Theme.COLORS["Default text"], shadowcolor)
 	end
-	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
+	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
+	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
+	--blank out the part past the button, in case there are too many 'big' letters that bleed past the Back button
+	--and also the part past the box edge
 	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
-	local y = 109
-	gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
-	gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
-
+	local y = 141
+	gui.drawRectangle(x + 1 , 141, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	--gui.drawRectangle(Constants.SCREEN.WIDTH + 117 - 1, y, 28, 13, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
+	gui.drawLine(x, y, x, y + 13, Theme.COLORS["Lower box border"])
 end
