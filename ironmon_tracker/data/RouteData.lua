@@ -2766,6 +2766,82 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 101, rate = 0.01, },
 		},
 	}
+	RouteData.Info[238 + offset] = { name = "Safari Zone NW.",
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 43, rate = 0.30, },
+			{ pokemonID = 111, rate = 0.30, },
+			{ pokemonID = 44, rate = 0.15, },
+			{ pokemonID = 84, rate = 0.15, },
+			{ pokemonID = 85, rate = 0.05, },
+			{ pokemonID = 127, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.SURFING] = {
+			{ pokemonID = 54, rate = 0.95, },
+			{ pokemonID = 55, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.OLDROD] = {
+			{ pokemonID = 129, rate = 0.70, },
+			{ pokemonID = 118, rate = 0.30, },
+		},
+		[RouteData.EncounterArea.GOODROD] = {
+			{ pokemonID = 129, rate = 0.60, },
+			{ pokemonID = 118, rate = 0.40, },
+		},
+		[RouteData.EncounterArea.SUPERROD] = {
+			{ pokemonID = 118, rate = 0.80, },
+			{ pokemonID = 119, rate = 0.20, },
+		},
+	}
+	RouteData.Info[239 + offset] = { name = "Safari Zone NE.", -- North in Emerald decomp, as extension is to East
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 43, rate = 0.30, },
+			{ pokemonID = 231, rate = 0.30, },
+			{ pokemonID = 44, rate = 0.15, },
+			{ pokemonID = 177, rate = 0.15, },
+			{ pokemonID = 178, rate = 0.05, },
+			{ pokemonID = 214, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.ROCKSMASH] = {
+			{ pokemonID = 74, rate = 1.00, },
+		},
+	}
+	RouteData.Info[240 + offset] = { name = "Safari Zone SW.",
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 43, rate = 0.40, },
+			{ pokemonID = 203, rate = 0.20, },
+			{ pokemonID = 84, rate = 0.10, },
+			{ pokemonID = 177, rate = 0.10, },
+			{ pokemonID = 202, rate = 0.10, },
+			{ pokemonID = 25, rate = 0.05, },
+			{ pokemonID = 44, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.SURFING] = {
+			{ pokemonID = 54, rate = 1.00, },
+		},
+		[RouteData.EncounterArea.OLDROD] = {
+			{ pokemonID = 129, rate = 0.70, },
+			{ pokemonID = 118, rate = 0.30, },
+		},
+		[RouteData.EncounterArea.GOODROD] = {
+			{ pokemonID = 129, rate = 0.60, },
+			{ pokemonID = 118, rate = 0.40, },
+		},
+		[RouteData.EncounterArea.SUPERROD] = {
+			{ pokemonID = 118, rate = 0.80, },
+			{ pokemonID = 119, rate = 0.20, },
+		},
+	}
+	RouteData.Info[241 + offset] = { name = "Safari Zone SE.", -- South in Emerald, as extension is to East
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 43, rate = 0.40, },
+			{ pokemonID = 203, rate = 0.20, },
+			{ pokemonID = 84, rate = 0.10, },
+			{ pokemonID = 177, rate = 0.10, },
+			{ pokemonID = 202, rate = 0.10, },
+			{ pokemonID = 25, rate = 0.05, },
+			{ pokemonID = 44, rate = 0.05, },
+		},
+	}
 
 	RouteData.Info[285 + offset] = { name = "Victory Road B1F",
 		[RouteData.EncounterArea.LAND] = {
@@ -2968,6 +3044,53 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 132, rate = 0.50, },
 			{ pokemonID = 293, rate = 0.34, },
 			{ pokemonID = 294, rate = 0.16, },
+		},
+	}
+	-- Emerald gets two extra safari zones unlocked to the East after Hall of Fame
+	RouteData.Info[394] = { name = "Safari Zone N-Ext.",
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 190, rate = 0.30, },
+			{ pokemonID = 216, rate = 0.30, },
+			{ pokemonID = 165, rate = 0.10, },
+			{ pokemonID = 191, rate = 0.10, },
+			{ pokemonID = 163, rate = 0.05, },
+			{ pokemonID = 204, rate = 0.05, },
+			{ pokemonID = 228, rate = 0.05, },
+			{ pokemonID = 241, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.ROCKSMASH] = {
+			{ pokemonID = 213, rate = 1.00, },
+		},
+	}
+	RouteData.Info[395] = { name = "Safari Zone S-Ext.",
+		[RouteData.EncounterArea.LAND] = {
+			{ pokemonID = 179, rate = 0.30, },
+			{ pokemonID = 191, rate = 0.30, },
+			{ pokemonID = 167, rate = 0.10, },
+			{ pokemonID = 190, rate = 0.10, },
+			{ pokemonID = 163, rate = 0.05, },
+			{ pokemonID = 207, rate = 0.05, },
+			{ pokemonID = 209, rate = 0.05, },
+			{ pokemonID = 234, rate = 0.05, },
+		},
+		[RouteData.EncounterArea.SURFING] = {
+			{ pokemonID = 194, rate = 0.60, },
+			{ pokemonID = 183, rate = 0.39, },
+			{ pokemonID = 195, rate = 0.01, },
+		},
+		[RouteData.EncounterArea.OLDROD] = {
+			{ pokemonID = 129, rate = 0.70, },
+			{ pokemonID = 118, rate = 0.30, },
+		},
+		[RouteData.EncounterArea.GOODROD] = {
+			{ pokemonID = 129, rate = 0.60, },
+			{ pokemonID = 118, rate = 0.20, },
+			{ pokemonID = 223, rate = 0.20, },
+		},
+		[RouteData.EncounterArea.SUPERROD] = {
+			{ pokemonID = 223, rate = 0.59, },
+			{ pokemonID = 118, rate = 0.40, },
+			{ pokemonID = 224, rate = 0.01, },
 		},
 	}
 	RouteData.Info[400] = { name = "Artisan Cave B1F",
