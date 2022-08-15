@@ -124,7 +124,8 @@ TrackerScreen.Buttons = {
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			TrackerScreen.openNotePadWindow()
+			local pokemon = Tracker.getViewedPokemon()
+			TrackerScreen.openNotePadWindow(Utils.inlineIf(pokemon ~= nil,pokemon.pokemonID,nil))
 		end
 	},
 	LastAttackSummary = {
@@ -437,23 +438,22 @@ function TrackerScreen.openAbilityNoteWindow()
 	end, 225, 95, 55, 25)
 end
 
-function TrackerScreen.openNotePadWindow()
-	local pokemon = Tracker.getViewedPokemon()
-	if pokemon == nil then return end
+function TrackerScreen.openNotePadWindow(pokemonId)
+	if pokemonId == nil or pokemonId == 0 then return end
 
 	Program.destroyActiveForm()
 	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
 	Program.activeFormId = noteForm
 	Utils.setFormLocation(noteForm, 100, 50)
 
-	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. " (70 char. max):", 9, 10, 300, 20)
-	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemon.pokemonID), 430, 20, nil, 10, 30)
+	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
+	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
 	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
-		local pokemonViewed = Tracker.getViewedPokemon()
-		if formInput ~= nil and pokemonViewed ~= nil then
-			Tracker.TrackNote(pokemonViewed.pokemonID, formInput)
+		--local pokemonViewed = Tracker.getViewedPokemon()
+		if formInput ~= nil then
+			Tracker.TrackNote(pokemonId, formInput)
 			Program.redraw(true)
 		end
 		forms.destroy(noteForm)
