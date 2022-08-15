@@ -161,7 +161,7 @@ InfoScreen.Buttons = {
 			if noteText ~= nil and noteText ~= "" then
 				return noteText
 			else
-				return "(Leave a Note)"
+				return "(Leave a note)"
 			end
 		end,
 		textColor = "Default text",
