@@ -89,12 +89,25 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	showMoreRouteEncounters = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "More...",
+	previousRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.PREVIOUS_BUTTON,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 83, 141, 30, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
+		box = { Constants.SCREEN.WIDTH + 6, 37, 10, 10, },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local mapId = InfoScreen.infoLookup.mapId
+			local encounterArea = InfoScreen.infoLookup.encounterArea
+			InfoScreen.infoLookup.encounterArea = RouteData.getPreviousAvailableEncounterArea(mapId, encounterArea)
+			Program.redraw(true)
+		end
+	},
+	nextRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NEXT_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 136, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
@@ -786,9 +799,9 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	local encounterHeaderText = Constants.Words.POKEMON .. " seen by " .. encounterArea
 	if encounterArea == RouteData.EncounterArea.STATIC then
-		encounterHeaderText = encounterHeaderText .. " encounters"
+		encounterHeaderText = encounterArea .. " " .. Constants.Words.POKEMON .. " encounters"
 	end
-	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
@@ -816,6 +829,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.showMoreRouteEncounters, boxBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.nextRoute, bgHeaderShadow)
+	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
 	Drawing.drawButton(InfoScreen.Buttons.close, boxBotShadow)
 end

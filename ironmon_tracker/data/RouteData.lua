@@ -215,6 +215,31 @@ function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 	return encounterArea
 end
 
+function RouteData.getPreviousAvailableEncounterArea(mapId, encounterArea)
+	if not RouteData.hasRoute(mapId) then return nil end
+
+	local startingIndex = 0
+	for index, area in ipairs(RouteData.OrderedEncounters) do
+		if encounterArea == area then
+			startingIndex = index
+			break
+		end
+	end
+
+	local numEncounters = #RouteData.OrderedEncounters
+	-- This fancy formula is due to indices starting at 1, thanks lua
+	local previousIndex = ((startingIndex - 2 + numEncounters) % numEncounters) + 1
+	while startingIndex ~= previousIndex do
+		encounterArea = RouteData.OrderedEncounters[previousIndex]
+		if RouteData.hasRouteEncounterArea(mapId, encounterArea) then
+			break
+		end
+		previousIndex = ((previousIndex - 2 + numEncounters) % numEncounters) + 1
+	end
+
+	return encounterArea
+end
+
 -- Returns a table of all pokemon info in an area, where pokemonID is the key, and encounter rate/levels are the values
 function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
