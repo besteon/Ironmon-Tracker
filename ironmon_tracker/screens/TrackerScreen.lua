@@ -550,11 +550,13 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	-- If the evolution is happening soon (next level or friendship is ready, change font color)
 	local evoDetails = "(" .. pokemon.evolution .. ")"
 	local levelEvoTextColor = Theme.COLORS["Default text"]
-	if Tracker.Data.isViewingOwn and Utils.isReadyToEvolveByLevel(pokemon.evolution, pokemon.level) then
-		levelEvoTextColor = Theme.COLORS["Positive text"]
-	elseif pokemon.friendship >= Program.friendshipRequired and pokemon.evolution == PokemonData.Evolutions.FRIEND then
-		evoDetails = "(SOON)"
-		levelEvoTextColor = Theme.COLORS["Positive text"]
+	if Tracker.Data.isViewingOwn then
+		if Utils.isReadyToEvolveByLevel(pokemon.evolution, pokemon.level) then
+			levelEvoTextColor = Theme.COLORS["Positive text"]
+		elseif pokemon.friendship >= Program.friendshipRequired and pokemon.evolution == PokemonData.Evolutions.FRIEND then
+			evoDetails = "(SOON)"
+			levelEvoTextColor = Theme.COLORS["Positive text"]
+		end
 	end
 	local levelEvoText = "Lv." .. pokemon.level .. " " .. evoDetails
 
