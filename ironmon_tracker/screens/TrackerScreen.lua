@@ -811,26 +811,12 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 			end
 		end
 
-		local ownTypes = pokemon.types
-		local enemyTypes = {}
-		if opposingPokemon ~= nil then
-			enemyTypes = PokemonData.Pokemon[opposingPokemon.pokemonID].types
-		end
-		if Tracker.Data.inBattle then
-			local ownTypesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
-			local enemyTypesData = Memory.readword(GameSettings.gBattleMons + ((Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
-			ownTypes = {
-				PokemonData.TypeIndexMap[Utils.getbits(ownTypesData, 0, 8)],
-				PokemonData.TypeIndexMap[Utils.getbits(ownTypesData, 8, 8)],
-			}
-			enemyTypes = {
-				PokemonData.TypeIndexMap[Utils.getbits(enemyTypesData, 0, 8)],
-				PokemonData.TypeIndexMap[Utils.getbits(enemyTypesData, 8, 8)],
-			}
-		end
 		-- MOVE POWER
-		if Tracker.Data.inBattle and Utils.isSTAB(moveData, moveType, ownTypes) then
-			movePowerColor = Theme.COLORS["Positive text"]
+		if Tracker.Data.inBattle then
+			local ownTypes = Program.getPokemonTypesFromMemory(Tracker.Data.isViewingOwn)
+			if Utils.isSTAB(moveData, moveType, ownTypes) then
+				movePowerColor = Theme.COLORS["Positive text"]
+			end
 		end
 
 		if Options["Calculate variable damage"] then
@@ -873,7 +859,8 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- DRAW MOVE EFFECTIVENESS
-		if Options["Show move effectiveness"] and Tracker.Data.inBattle and opposingPokemon ~= nil and showEffectiveness then
+		if Options["Show move effectiveness"] and Tracker.Data.inBattle and showEffectiveness then
+			local enemyTypes = Program.getPokemonTypesFromMemory(not Tracker.Data.isViewingOwn)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
