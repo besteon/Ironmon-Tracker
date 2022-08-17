@@ -373,6 +373,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },
 		[25] = { name = "Vermilion Gym", },
+		[27] = { name = "Game Corner", },
 		[28] = { name = "Pewter Gym", },
 		[34] = { name = "Saffron Gym", },
 		[36] = { name = "Cinnabar Gym", },
@@ -956,11 +957,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 25, rate = 0.05, minLv = 3, maxLv = 5, },
 			},
 		},
-		[118] = { name = "S.S. Anne Ext.", },
-		[119] = { name = "S.S. Anne 1F", },
-		[120] = { name = "S.S. Anne 2F", },
-		[121] = { name = "S.S. Anne 3F", },
-		[122] = { name = "S.S. Anne B1F", },
+		[120] = { name = "S.S. Anne 2F", }, -- 2F corridor (Rival Fight)
 		[123] = { name = "S.S. Anne Deck", },
 		[124] = { name = "Diglett's Cave B1F",
 			[RouteData.EncounterArea.LAND] = {
@@ -1433,13 +1430,14 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 145, rate = 1.00, minLv = 50, maxLv = 50, },
 			},
 		},
+		[177] = { name = "S.S. Anne Rooms", },
+		[178] = { name = "S.S. Anne Rooms", },
 		[213] = { name = "Lorelei's Room", },
 		[214] = { name = "Bruno's Room", },
 		[215] = { name = "Agatha's Room", },
 		[216] = { name = "Lance's Room", },
 		[217] = { name = "Champion's Room", },
 		[228] = { name = "Saffron City Dojo", },
-
 		-- [[Sevii Isles]]
 		[230] = { name = "One Island",
 			[RouteData.EncounterArea.SURFING] = {
@@ -1622,7 +1620,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},
-		[241] = { name = "Three Island Port",
+		[241] = { name = "Three Isle Port",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 206, rate = 1.00, minLv = 5, maxLv = 35, },
 			},
@@ -1925,7 +1923,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
 			},
 		},
-		-- One Island: Mt. Ember [[Start]]
+		-- [[Start]] One Island: Mt. Ember
 		-- Serebii's Pokéarth is pretty wrong about this place for some reason, basing off bulbapedia instead which is mostly more accurate
 		-- https://bulbapedia.bulbagarden.net/wiki/Mt._Ember#Pok.C3.A9mon
 		[280] = { name = "Mt. Ember Base",
@@ -1982,7 +1980,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
 			},
 		},
-		[286] = { name = "Ruby Path B1F",
+		[286] = { name = "Ruby Path B1F- a",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 74, rate = 0.70, minLv = 34, maxLv = 42, },
 				{ pokemonID = 218, rate = 0.30, minLv = 24, maxLv = 30, },
@@ -1992,7 +1990,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
 			},
 		},
-		[287] = { name = "Ruby Path B2F",
+		[287] = { name = "Ruby Path B2F- a",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 218, rate = 0.60, minLv = 22, maxLv = 32, },
 				{ pokemonID = 74, rate = 0.40, minLv = 40, maxLv = 44, },
@@ -2011,44 +2009,310 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 219, rate = 0.10, minLv = 25, maxLv = 45, },
 			},
 		},
+		-- These two are the tiny rooms on the quick way back from B5F
+		[289] = { name = "Ruby Path B1F- b",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 74, rate = 0.70, minLv = 34, maxLv = 42, },
+				{ pokemonID = 218, rate = 0.30, minLv = 24, maxLv = 30, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
+		[290] = { name = "Ruby Path B2F- b",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 218, rate = 0.60, minLv = 22, maxLv = 32, },
+				{ pokemonID = 74, rate = 0.40, minLv = 40, maxLv = 44, },
+			},
+			[RouteData.EncounterArea.ROCKSMASH] = {
+				{ pokemonID = 74, rate = 0.65, minLv = 25, maxLv = 40, },
+				{ pokemonID = 75, rate = 0.35, minLv = 30, maxLv = 50, },
+			},
+		},
 		-- Bulbapedia says there's encounters for B4F/B5F but includes rock smash encounters
 		-- There are no rocks to smash on these floors, and I ran for a good while through both floors, no encounters
-		-- One Island: Mt. Ember [[End]]
-		[292] = { name = "Rocket Hideout", }, -- Only trainers here
+		-- [[End]] One Island: Mt. Ember
+		[292] = { name = "Rocket Warehouse", }, -- Only trainers here
+		[293] = { name = "Icefall Cave Entrance",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 86, rate = 0.40, minLv = 43, maxLv = 47, },
+				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
+				{ pokemonID = 87, rate = 0.20, minLv = 49, maxLv = 53, },
+				{ pokemonID = 41, rate = 0.10, minLv = 40, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 86, rate = 0.60, minLv = 5, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.30, minLv = 5, maxLv = 35, },
+				{ pokemonID = 87, rate = 0.05, minLv = 35, maxLv = 40, },
+				{ pokemonID = {194,183}, rate = 0.05, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = 60, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = 118, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = 60, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 61, rate = 0.40, minLv = 20, maxLv = 30, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 15, maxLv = 35, },
+			},
+		},
+		[294] = { name = "Icefall Cave 1F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 220, rate = 0.50, minLv = 23, maxLv = 31, },
+				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
+				{ pokemonID = 41, rate = 0.10, minLv = 40, maxLv = 40, },
+				{ pokemonID = 86, rate = 0.10, minLv = 45, maxLv = 45, },
+				{ pokemonID = {225,215}, rate = 0.05, minLv = 30, maxLv = 30, },
+			},
+		},
+		[295] = { name = "Icefall Cave B1F",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 220, rate = 0.50, minLv = 23, maxLv = 31, },
+				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
+				{ pokemonID = 41, rate = 0.10, minLv = 40, maxLv = 40, },
+				{ pokemonID = 86, rate = 0.10, minLv = 45, maxLv = 45, },
+				{ pokemonID = {225,215}, rate = 0.05, minLv = 30, maxLv = 30, },
+			},
+		},
+		[296] = { name = "Icefall Cave Back",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 86, rate = 0.40, minLv = 43, maxLv = 47, },
+				{ pokemonID = 42, rate = 0.25, minLv = 45, maxLv = 48, },
+				{ pokemonID = 87, rate = 0.20, minLv = 49, maxLv = 53, },
+				{ pokemonID = 41, rate = 0.10, minLv = 40, maxLv = 40, },
+				{ pokemonID = {54,79}, rate = 0.05, minLv = 41, maxLv = 41, },
+			},
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 0.95, minLv = 5, maxLv = 45, },
+				{ pokemonID = 73, rate = 0.04, minLv = 35, maxLv = 45, },
+				{ pokemonID = 131, rate = 0.01, minLv = 30, maxLv = 45, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.80, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = {90,120}, rate = 0.40, minLv = 15, maxLv = 25, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {117,99}, rate = 0.04, minLv = 25, maxLv = 35, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
+		[298] = { name = "Trainer Tower 1F", },
+		[299] = { name = "Trainer Tower 2F", },
+		[300] = { name = "Trainer Tower 3F", },
+		[301] = { name = "Trainer Tower 4F", },
+		[302] = { name = "Trainer Tower 5F", },
+		[303] = { name = "Trainer Tower 6F", },
+		[304] = { name = "Trainer Tower 7F", },
+		[305] = { name = "Trainer Tower 8F", },
+		[317] = { name = "Pattern Bush",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = {167,165}, rate = 0.30, minLv = 9, maxLv = 14, },
+				{ pokemonID = {14,11}, rate = 0.20, minLv = 9, maxLv = 9, },
+				{ pokemonID = 214, rate = 0.20, minLv = 15, maxLv = 30, },
+				{ pokemonID = 10, rate = 0.10, minLv = 6, maxLv = 6, },
+				{ pokemonID = 13, rate = 0.10, minLv = 6, maxLv = 6, },
+				{ pokemonID = {165,167}, rate = 0.05, minLv = 9, maxLv = 14, },
+				{ pokemonID = {11,14}, rate = 0.05, minLv = 9, maxLv = 9, },
+			},
+		},
+		[321] = { name = "Lost Cave Room 1",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[322] = { name = "Lost Cave Room 2",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[323] = { name = "Lost Cave Room 3",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[324] = { name = "Lost Cave Room 4",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[325] = { name = "Lost Cave Room 5",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[326] = { name = "Lost Cave Room 6",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[327] = { name = "Lost Cave Room 7",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[328] = { name = "Lost Cave Room 8",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[329] = { name = "Lost Cave Room 9",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[330] = { name = "Lost Cave Room 10",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 92, rate = 0.25, minLv = 38, maxLv = 40, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 42, rate = 0.20, minLv = 41, maxLv = 43, },
+				{ pokemonID = {198,200}, rate = 0.05, minLv = 22, maxLv = 22, },
+			},
+		},
+		[331] = { name = "Lost Cave Room 11",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 92, rate = 0.20, minLv = 40, maxLv = 40, },
+				{ pokemonID = {198,200}, rate = 0.20, minLv = 15, maxLv = 22, },
+				{ pokemonID = 42, rate = 0.10, minLv = 41, maxLv = 41, },
+			},
+		},
+		[332] = { name = "Lost Cave Room 12",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 92, rate = 0.20, minLv = 40, maxLv = 40, },
+				{ pokemonID = {198,200}, rate = 0.20, minLv = 15, maxLv = 22, },
+				{ pokemonID = 42, rate = 0.10, minLv = 41, maxLv = 41, },
+			},
+		},
+		[333] = { name = "Lost Cave Room 13",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 92, rate = 0.20, minLv = 40, maxLv = 40, },
+				{ pokemonID = {198,200}, rate = 0.20, minLv = 15, maxLv = 22, },
+				{ pokemonID = 42, rate = 0.10, minLv = 41, maxLv = 41, },
+			},
+		},
+		[334] = { name = "Lost Cave Room 14",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 93, rate = 0.30, minLv = 44, maxLv = 52, },
+				{ pokemonID = 41, rate = 0.20, minLv = 37, maxLv = 37, },
+				{ pokemonID = 92, rate = 0.20, minLv = 40, maxLv = 40, },
+				{ pokemonID = {198,200}, rate = 0.20, minLv = 15, maxLv = 22, },
+				{ pokemonID = 42, rate = 0.10, minLv = 41, maxLv = 41, },
+			},
+		},
+		[335] = { name = "Monean Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[336] = { name = "Liptoo Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[337] = { name = "Weepth Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[338] = { name = "Dilford Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[339] = { name = "Scufib Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[340] = { name = "Altering Cave",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 41, rate = 1.00, minLv = 6, maxLv = 16, },
+			},
+		},
+		[342] = { name = "Birth Island",
+			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 386, rate = 1.00, minLv = 30, maxLv = 30, },
+			},
+		},
+		[345] = { name = "Navel Rock Summit",
+			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 250, rate = 1.00, minLv = 70, maxLv = 70, },
+			},
+		},
+		[346] = { name = "Navel Rock Base",
+			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 249, rate = 1.00, minLv = 70, maxLv = 70, },
+			},
+		},
+		[362] = { name = "Rixy Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
+		[363] = { name = "Viapois Chamber",
+			[RouteData.EncounterArea.LAND] = {
+				{ pokemonID = 201, rate = 1.00, minLv = 25, maxLv = 25, },
+			},
+		},
 	}
 
-	return 292 -- max mapId
+	return 363 -- max mapId
 end
-
--- Blank set for copy-paste
--- [nil] = { name = "nil",
--- 	[RouteData.EncounterArea.LAND] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- 	[RouteData.EncounterArea.SURFING] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- 	[RouteData.EncounterArea.OLDROD] = {
--- 		{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
--- 	},
--- 	[RouteData.EncounterArea.GOODROD] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- 	[RouteData.EncounterArea.SUPERROD] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- 	[RouteData.EncounterArea.ROCKSMASH] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 		{ pokemonID = {nil,nil}, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- 	[RouteData.EncounterArea.STATIC] = {
--- 		{ pokemonID = nil, rate = 0.00, minLv = nil, maxLv = nil, },
--- 	},
--- },
 
 -- https://github.com/pret/pokeemerald/blob/677b4fc394516deab5b5c86c94a2a1443cb52151/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/hoenn/3rd/route101.shtml
