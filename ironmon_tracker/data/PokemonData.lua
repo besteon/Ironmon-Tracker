@@ -69,12 +69,13 @@ function PokemonData.readDataFromMemory()
 					pokemonData.types = types
 				end
 			end
-			if PokemonData.IsRand.pokemonAbilities then
+			-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below 
+			-- if PokemonData.IsRand.pokemonAbilities then
 				abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 				if abilities ~= nil then
 					pokemonData.abilities = abilities
 				end
-			end
+			-- end
 		end
 		local datalog = Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded: "
 		if PokemonData.IsRand.pokemonTypes then
@@ -84,14 +85,6 @@ function PokemonData.readDataFromMemory()
 			datalog = datalog .. "Abilities, "
 		end
 		print(datalog:sub(1, -3)) -- Remove trailing ", "
-	end
-
-	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below 
-	if not PokemonData.IsRand.pokemonAbilities then
-		abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-		if abilities ~= nil then
-			pokemonData.abilities = abilities
-		end
 	end
 end
 
