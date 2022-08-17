@@ -1,4 +1,6 @@
-MoveData = {}
+MoveData = {
+	totalMoves = 354,
+}
 
 -- Move categories identify the type of attack a move is: physical, special, or status
 MoveData.Categories = {
@@ -96,7 +98,7 @@ function MoveData.readDataFromMemory()
 	-- If any data at all was randomized, read in full move data from memory
 	if MoveData.checkIfDataIsRandomized() then
 		print("Randomized move data detected, reading from game memory...")
-		for moveId=1, #MoveData.Moves, 1 do
+		for moveId=1, MoveData.totalMoves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
 			moveInfo = MoveData.readMoveInfoFromMemory(moveId)
@@ -200,6 +202,10 @@ function MoveData.moveHasUnusualPower(moveId)
 	if moveId == 222 then return true end -- Magnitude power = "RNG"
 
 	return false
+end
+
+function MoveData.isValid(moveId)
+	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
 end
 
 --[[

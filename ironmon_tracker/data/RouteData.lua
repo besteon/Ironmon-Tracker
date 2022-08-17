@@ -263,7 +263,7 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 		end
 
 		-- Some version have fewer Pokemon than others; if so, the ID will be -1
-		if pokemonID > 0 and pokemonID <= #PokemonData.Pokemon then
+		if PokemonData.isValid(pokemonID) then
 			table.insert(areaInfo, {
 				pokemonID = pokemonID,
 				rate = rate,
