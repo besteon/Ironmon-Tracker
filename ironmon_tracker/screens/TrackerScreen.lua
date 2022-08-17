@@ -311,8 +311,12 @@ function TrackerScreen.buildCarousel()
 			local routeEncounters = Tracker.getRouteEncounters(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
-			TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
-
+			if Battle.CurrentRoute.encounterArea == RouteData.EncounterArea.ROCKSMASH then
+				TrackerScreen.Buttons.RouteSummary.text = "Rock Smash: " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+			else
+				TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+			end
+			
 			return { TrackerScreen.Buttons.RouteSummary } 
 		end,
 	}

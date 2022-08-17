@@ -202,7 +202,7 @@ function Battle.checkEnemyEncounter(opposingPokemon)
 
 		local rockSmashResult = Memory.readword(GameSettings.gSpecialVar_Result)
 		if rockSmashResult == 1 then
-			Program.CurrentRoute.encounterArea = RouteData.EncounterArea.ROCKSMASH
+			Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.ROCKSMASH
 		end
 	end
 
