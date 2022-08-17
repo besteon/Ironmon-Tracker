@@ -6,7 +6,7 @@ TrackerScreen.Buttons = {
 		getIconPath = function(self)
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= #PokemonData.Pokemon then
+			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= PokemonData.totalPokemon then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -93,11 +93,11 @@ TrackerScreen.Buttons = {
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			if not RouteData.hasRouteEncounterArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea) then return end
+			if not RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea) then return end
 
 			local routeInfo = { 
-				mapId = Program.CurrentRoute.mapId,
-				encounterArea = Program.CurrentRoute.encounterArea,
+				mapId = Battle.CurrentRoute.mapId,
+				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
@@ -125,7 +125,9 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			TrackerScreen.openNotePadWindow(Utils.inlineIf(pokemon ~= nil,pokemon.pokemonID,nil))
+			if pokemon ~= nil then
+				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
+			end
 		end
 	},
 	LastAttackSummary = {
@@ -152,8 +154,8 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local routeInfo = { 
-				mapId = Program.CurrentRoute.mapId,
-				encounterArea = Program.CurrentRoute.encounterArea,
+				mapId = Battle.CurrentRoute.mapId,
+				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
@@ -183,7 +185,7 @@ function TrackerScreen.initialize()
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Tracker.Data.inBattle and not Tracker.Data.isViewingOwn end,
+			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn end,
 			onClick = function(self)
 				if not self:isVisible() then return end
 
@@ -270,17 +272,17 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function() return Options["Show last damage calcs"] and Tracker.Data.inBattle and not Program.BattleTurn.enemyIsAttacking and Program.BattleTurn.lastMoveId ~= 0 end,
+		isVisible = function() return Options["Show last damage calcs"] and Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0 end,
 		framesToShow = 180,
 		getContentList = function()
 			local lastAttackMsg
 			-- Currently this only records last move used for damaging moves
-			if Program.BattleTurn.lastMoveId > 0 and Program.BattleTurn.lastMoveId <= #MoveData.Moves then
-				local moveInfo = MoveData.Moves[Program.BattleTurn.lastMoveId]
-				if Program.BattleTurn.damageReceived > 0 then
-					lastAttackMsg = moveInfo.name .. ": " .. Program.BattleTurn.damageReceived .. " damage"
+			if Battle.lastEnemyMoveId > 0 and Battle.lastEnemyMoveId <= MoveData.totalMoves then
+				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
+				if Battle.damageReceived > 0 then
+					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
 					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-					if Program.BattleTurn.damageReceived > ownPokemon.curHP then
+					if Battle.damageReceived > ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else
@@ -301,15 +303,15 @@ function TrackerScreen.buildCarousel()
 	-- ROUTE INFO
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function() return Tracker.Data.inBattle and Program.CurrentRoute.hasInfo end,
+		isVisible = function() return Battle.inBattle and Battle.CurrentRoute.hasInfo end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
-			local routeInfo = RouteData.Info[Program.CurrentRoute.mapId]
-			local totalPossible = RouteData.countPokemonInArea(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
-			local routeEncounters = Tracker.getRouteEncounters(Program.CurrentRoute.mapId, Program.CurrentRoute.encounterArea)
+			local routeInfo = RouteData.Info[Battle.CurrentRoute.mapId]
+			local totalPossible = RouteData.countPokemonInArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
+			local routeEncounters = Tracker.getRouteEncounters(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
-			TrackerScreen.Buttons.RouteSummary.text = Program.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+			TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
 
 			return { TrackerScreen.Buttons.RouteSummary } 
 		end,
@@ -469,7 +471,7 @@ function TrackerScreen.drawScreen()
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
 	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-	if not Tracker.Data.isViewingOwn then
+	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
 		local tempPokemon = viewedPokemon
 		viewedPokemon = opposingPokemon
 		opposingPokemon = tempPokemon
@@ -508,7 +510,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 
 	local typeOne = pokemon.types[1]
 	local typeTwo = pokemon.types[2]
-	if Tracker.Data.inBattle then
+	if Battle.inBattle then
 	--update displayed types as typing changes (i.e. Color Change)
 		local typesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
 		typeOne = PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)]
@@ -598,7 +600,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- Draw notepad icon near abilities area, for manually tracking the abilities
-	if Tracker.Data.inBattle and not Tracker.Data.isViewingOwn then
+	if Battle.inBattle and not Tracker.Data.isViewingOwn then
 		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
 			Drawing.drawButton(TrackerScreen.Buttons.AbilityTracking, shadowcolor)
 		end
@@ -632,16 +634,15 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
 	else
-		if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
+		-- Assumes we are in Battle, unsure if this check is neccessary
+		-- if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
 			local routeName = Constants.BLANKLINE
-			if RouteData.hasRoute(Program.CurrentRoute.mapId) then
-				routeName = RouteData.Info[Program.CurrentRoute.mapId].name or Constants.BLANKLINE
+			if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
+				routeName = RouteData.Info[Battle.CurrentRoute.mapId].name or Constants.BLANKLINE
 			end
-			-- Check if trainer encounter or wild pokemon encounter (trainerID's will match if its a wild pokemon)
-			local isWild = Tracker.Data.trainerID == pokemon.trainerID
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, isWild)
+			local encounterText = Tracker.getEncounters(pokemon.pokemonID, Battle.isWildEncounter)
 			if encounterText > 999 then encounterText = 999 end
-			if isWild then
+			if Battle.isWildEncounter then
 				encounterText = "Seen in the wild: " .. encounterText
 			else
 				encounterText = "Seen on trainers: " .. encounterText
@@ -650,7 +651,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
 			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
-		end
+		-- end
 	end
 end
 
@@ -682,7 +683,7 @@ function TrackerScreen.drawStatsArea(pokemon)
 		gui.drawText(statOffsetX + 16, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
-		if Tracker.Data.inBattle then
+		if Battle.inBattle then
 			local statStageIntensity = pokemon.statStages[statKey] - 6 -- between [0 and 12], convert to [-6 and 6]
 			Drawing.drawChevrons(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3)
 		end
@@ -812,15 +813,15 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE POWER
-		if Tracker.Data.inBattle then
-			local ownTypes = Program.getPokemonTypesFromMemory(Tracker.Data.isViewingOwn)
+		if Battle.inBattle then
+			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
 			if Utils.isSTAB(moveData, moveType, ownTypes) then
 				movePowerColor = Theme.COLORS["Positive text"]
 			end
 		end
 
 		if Options["Calculate variable damage"] then
-			if moveData.id == "67" and Tracker.Data.inBattle and opposingPokemon ~= nil then
+			if moveData.id == "67" and Battle.inBattle and opposingPokemon ~= nil then
 				-- Calculate the power of Low Kick (weight-based moves) in battle
 				local targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
 				movePower = Utils.calculateWeightBasedDamage(movePower, targetWeight)
@@ -859,8 +860,8 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- DRAW MOVE EFFECTIVENESS
-		if Options["Show move effectiveness"] and Tracker.Data.inBattle and showEffectiveness then
-			local enemyTypes = Program.getPokemonTypesFromMemory(not Tracker.Data.isViewingOwn)
+		if Options["Show move effectiveness"] and Battle.inBattle and showEffectiveness then
+			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)

@@ -425,7 +425,7 @@ function InfoScreen.drawScreen()
 	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
 		local pokemonID = InfoScreen.infoLookup
 		-- Only draw valid pokemon data, pokemonID = 0 is blank move data
-		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
+		if pokemonID < 1 or pokemonID > PokemonData.totalPokemon then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
 			InfoScreen.drawPokemonInfoScreen(pokemonID)
@@ -433,7 +433,7 @@ function InfoScreen.drawScreen()
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO then
 		local moveId = InfoScreen.infoLookup
 		-- Only draw valid move data, moveId = 0 is blank move data
-		if moveId < 1 or moveId > #MoveData.Moves then
+		if moveId < 1 or moveId > MoveData.totalMoves then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
 			InfoScreen.drawMoveInfoScreen(moveId)

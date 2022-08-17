@@ -33,6 +33,7 @@ function Main.Initialize()
 		"/Input.lua",
 		"/Drawing.lua",
 		"/Program.lua",
+		"/Battle.lua",
 		"/Pickle.lua",
 		"/Tracker.lua",
 	}
@@ -165,7 +166,7 @@ function Main.Run()
 		event.onexit(Program.HandleExit, "HandleExit")
 
 		while Main.loadNextSeed == false do
-			Program.main()
+			Program.mainLoop()
 			emu.frameadvance()
 		end
 

@@ -31,7 +31,7 @@ end
 
 function Drawing.drawPokemonIcon(id, x, y)
 	id = id or 0
-	if id < 0 or id > #PokemonData.Pokemon then
+	if id < 0 or id > PokemonData.totalPokemon then
 		id = 0 -- Blank Pokemon data/icon
 	end
 
