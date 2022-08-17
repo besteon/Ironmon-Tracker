@@ -85,14 +85,6 @@ function PokemonData.readDataFromMemory()
 		end
 		print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
-
-	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below 
-	if not PokemonData.IsRand.pokemonAbilities then
-		abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
-		if abilities ~= nil then
-			pokemonData.abilities = abilities
-		end
-	end
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
@@ -146,6 +138,8 @@ function PokemonData.checkIfDataIsRandomized()
 	end
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
+	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below 
+	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
 
 	return areTypesRandomized or areAbilitiesRandomized

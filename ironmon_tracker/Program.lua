@@ -784,6 +784,15 @@ function Program.getLearnedMoveId()
 	end
 end
 
+-- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
+function Program.getPokemonTypesFromMemory(isOwn)
+	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58))
+	return {
+		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
+		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
+	}
+end
+
 -- Returns true only if the player hasn't completed the catching tutorial
 function Program.isInCatchingTutorial()
 	if Program.hasCompletedTutorial then return false end
