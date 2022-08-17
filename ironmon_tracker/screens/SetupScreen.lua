@@ -29,7 +29,7 @@ SetupScreen.Buttons = {
 			return imagepath
 		end,
 		onClick = function(self)
-			self.pokemonID = math.random(#PokemonData.Pokemon - 25)
+			self.pokemonID = math.random(PokemonData.totalPokemon - 25)
 			if self.pokemonID > 251 then
 				self.pokemonID = self.pokemonID + 25
 			end

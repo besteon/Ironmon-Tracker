@@ -138,6 +138,8 @@ end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackMove(pokemonID, moveId, level)
+	if Tracker.isTrackingMove(pokemonID, moveId, level) then return end -- rework later for better accuracy below
+
 	-- If no move data exist, set this as the first move
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
@@ -399,7 +401,7 @@ function Tracker.resetData()
 		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
 		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
 		isViewingOwn = true,
-		inBattle = false,
+		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals

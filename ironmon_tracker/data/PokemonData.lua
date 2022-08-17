@@ -1,4 +1,6 @@
-PokemonData = {}
+PokemonData = {
+	totalPokemon = 411,
+}
 
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
 PokemonData.Types = {
@@ -60,7 +62,7 @@ function PokemonData.readDataFromMemory()
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
 		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
-		for pokemonID=1, #PokemonData.Pokemon, 1 do
+		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
 			if PokemonData.IsRand.pokemonTypes then
@@ -150,6 +152,10 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local abilityId = pokemon.abilities[abilityNum + 1] -- stored from memory as [0 or 1]
 	return abilityId
+end
+
+function PokemonData.isValid(pokemonID)
+	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon
 end
 
 PokemonData.TypeIndexMap = {

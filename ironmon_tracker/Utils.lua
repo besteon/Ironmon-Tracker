@@ -329,7 +329,7 @@ function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
 end
 
 function Utils.calculateWeatherBall(moveType, movePower)
-	if not Tracker.Data.inBattle then
+	if not Battle.inBattle then
 		return moveType, movePower
 	end
 
