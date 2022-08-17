@@ -6,7 +6,7 @@ TrackerScreen.Buttons = {
 		getIconPath = function(self)
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and pokemon.pokemonID > 0 and pokemon.pokemonID <= PokemonData.totalPokemon then
+			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -277,12 +277,12 @@ function TrackerScreen.buildCarousel()
 		getContentList = function()
 			local lastAttackMsg
 			-- Currently this only records last move used for damaging moves
-			if Battle.lastEnemyMoveId > 0 and Battle.lastEnemyMoveId <= MoveData.totalMoves then
+			if MoveData.isValid(Battle.lastEnemyMoveId) then
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
 					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-					if Battle.damageReceived > ownPokemon.curHP then
+					if Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else
@@ -633,25 +633,23 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			-- Auto-tracking PC Heals button
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
-	else
-		-- Assumes we are in Battle, unsure if this check is neccessary
-		-- if Tracker.Data.trainerID ~= nil and pokemon.trainerID ~= nil then
-			local routeName = Constants.BLANKLINE
-			if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
-				routeName = RouteData.Info[Battle.CurrentRoute.mapId].name or Constants.BLANKLINE
-			end
-			local encounterText = Tracker.getEncounters(pokemon.pokemonID, Battle.isWildEncounter)
-			if encounterText > 999 then encounterText = 999 end
-			if Battle.isWildEncounter then
-				encounterText = "Seen in the wild: " .. encounterText
-			else
-				encounterText = "Seen on trainers: " .. encounterText
-			end
+	elseif Battle.inBattle then 
+		-- For now, only show route info while in Battle; later find a way to alway show
+		local routeName = Constants.BLANKLINE
+		if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
+			routeName = RouteData.Info[Battle.CurrentRoute.mapId].name or Constants.BLANKLINE
+		end
+		local encounterText = Tracker.getEncounters(pokemon.pokemonID, Battle.isWildEncounter)
+		if encounterText > 999 then encounterText = 999 end
+		if Battle.isWildEncounter then
+			encounterText = "Seen in the wild: " .. encounterText
+		else
+			encounterText = "Seen on trainers: " .. encounterText
+		end
 
-			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
-			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
-			Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
-		-- end
+		Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeName, Theme.COLORS["Default text"], shadowcolor)
 	end
 end
 

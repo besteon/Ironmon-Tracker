@@ -207,7 +207,7 @@ function Battle.checkEnemyMovesUsed(opposingPokemon)
 	if Battle.enemyTransformed then return end
 
 	for _, move in pairs(opposingPokemon.moves) do
-		if MoveData.isValidMove(move.id) then
+		if MoveData.isValid(move.id) then
 			local moveUsed = false
 
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies

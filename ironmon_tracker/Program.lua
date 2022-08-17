@@ -414,7 +414,7 @@ function Program.validPokemonData(pokemonData)
 	if pokemonData == nil then return false end
 
 	-- If the Pokemon exists, but it's ID is invalid
-	if pokemonData.pokemonID ~= nil and (pokemonData.pokemonID < 0 or pokemonData.pokemonID > PokemonData.totalPokemon) then
+	if not PokemonData.isValid(pokemonData.pokemonID) and pokemonData.pokemonID ~= 0 then -- 0 = blank pokemon id
 		return false
 	end
 
@@ -425,7 +425,7 @@ function Program.validPokemonData(pokemonData)
 
 	-- For each of the Pokemon's moves that isn't blank, is that move real
 	for _, move in pairs(pokemonData.moves) do
-		if move.id < 0 or move.id > MoveData.totalMoves then -- 0 = blank move id
+		if not MoveData.isValid(move.id) and move.id ~= 0 then -- 0 = blank move id
 			return false
 		end
 	end

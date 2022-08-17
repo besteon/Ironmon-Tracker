@@ -204,7 +204,7 @@ function MoveData.moveHasUnusualPower(moveId)
 	return false
 end
 
-function MoveData.isValidMove(moveId)
+function MoveData.isValid(moveId)
 	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
 end
 

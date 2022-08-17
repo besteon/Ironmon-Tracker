@@ -160,6 +160,10 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	return abilityId
 end
 
+function PokemonData.isValid(pokemonID)
+	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon
+end
+
 PokemonData.TypeIndexMap = {
 	[0x00] = PokemonData.Types.NORMAL,
 	[0x01] = PokemonData.Types.FIGHTING,
