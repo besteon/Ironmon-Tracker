@@ -126,10 +126,14 @@ Constants.OrderedLists = {
 		"Beach Getaway",
 		"Blue Da Ba Dee",
 		"Calico Cat",
+		"Calico Cat v2",
 		"Cotton Candy",
-		"USS Galactic",
-		"Simple Monotone",
+		"GameCube",
+		"Item Bag",
 		"Neon Lights",
+		"Simple Monotone",
+		"Team Rocket",
+		"USS Galactic",
 	},
 	TIPS = {
 		"Helpful tips are shown down here.", -- Skipped after it's shown once
