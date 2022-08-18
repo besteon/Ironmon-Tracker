@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.1a" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1b" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -9,6 +9,7 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 function Main.Initialize()
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
+	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
 	Main.MetaSettings = {}
 	Main.loadNextSeed = false
 	Main.TrackerFiles = { -- All of the files required by the tracker
