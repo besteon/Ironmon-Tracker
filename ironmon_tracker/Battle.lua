@@ -195,6 +195,17 @@ function Battle.checkEnemyEncounter(opposingPokemon)
 		end
 	end
 
+	-- Check if rock smash encounter, if so then check encounter happened
+	local gameStat_UsedRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH)
+	if gameStat_UsedRockSmash > Tracker.Data.gameStatsRockSmash then
+		Tracker.Data.gameStatsRockSmash = gameStat_UsedRockSmash
+
+		local rockSmashResult = Memory.readword(GameSettings.gSpecialVar_Result)
+		if rockSmashResult == 1 then
+			Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.ROCKSMASH
+		end
+	end
+
 	Battle.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
 
 	if Battle.isWildEncounter and Battle.CurrentRoute.hasInfo then

@@ -72,6 +72,7 @@ Constants.GAME_STATS = { -- Enums for in-game stats
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
 	USED_POKECENTER = 15,
 	RESTED_AT_HOME = 16,
+	USED_ROCK_SMASH = 19,
 }
 
 Constants.OrderedLists = {
