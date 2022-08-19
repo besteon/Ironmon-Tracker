@@ -142,6 +142,12 @@ end
 function Program.updatePokemonTeams()
 	-- Check for updates to each pokemon team
 	local addressOffset = 0
+
+	-- Check if it's a new game (no Pokémon yet)
+	if not Tracker.Data.isNewGame and Tracker.Data.ownTeam[1] == 0 then
+		Tracker.Data.isNewGame = true
+	end
+
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
@@ -152,11 +158,22 @@ function Program.updatePokemonTeams()
 
 			if Program.validPokemonData(newPokemonData) then
 				-- Sets the player's trainerID as soon as they get their first Pokemon
-				if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
-					Tracker.Data.trainerID = newPokemonData.trainerID
+				if Tracker.Data.isNewGame and (newPokemonData.trainerID ~= nil or newPokemonData.trainerID ~= 0) then
+					if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
+						Tracker.Data.trainerID = newPokemonData.trainerID
+					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
+						-- Reset the tracker data as old data was loaded and we have a different trainerID now
+						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
+						Tracker.resetData()
+						Tracker.Data.trainerID = newPokemonData.trainerID
+					end
+
+					-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
+					newPokemonData.trainerID = nil
+
+					-- Unset the new game flag
+					Tracker.Data.isNewGame = false
 				end
-				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
