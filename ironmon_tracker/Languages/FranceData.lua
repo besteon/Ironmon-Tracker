@@ -1234,7 +1234,9 @@ FranceData.Pokemon = {
 
 
 function FranceData.updateToFranceData()
-    MiscData.Abilities = FranceData.Abilities
+    for key, val in ipairs(AbilityData.Abilities) do
+        val.name = FranceData.Abilities[key]
+    end
     MiscData.Items = FranceData.Items
     for key, val in ipairs(MoveData.Moves) do
         val.name = FranceData.Moves[key]

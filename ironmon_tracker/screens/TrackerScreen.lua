@@ -102,18 +102,52 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
 	},
-	AbilityTracking = {
+	Ability1Opponent = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 11},
+		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local pokemon = Tracker.getViewedPokemon()
+			local pokemonID = 0
+			if pokemon ~= nil then
+				pokemonID = pokemon.pokemonID
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, pokemon.abilities[1].id)
+		end
+	},
+	Ability2Opponent = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 11},
+		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local pokemon = Tracker.getViewedPokemon()
+			local pokemonID = 0
+			if pokemon ~= nil then
+				pokemonID = pokemon.pokemonID
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, pokemon.abilities[2].id)
+		end
+	},
+	--[[AbilityAlly = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 22 },
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			TrackerScreen.openAbilityNoteWindow()
+			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, pokemonID)
 		end
-	},
+	},]]
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -395,8 +429,8 @@ function TrackerScreen.openAbilityNoteWindow()
 
 	local abilityList = {}
 	table.insert(abilityList, Constants.BLANKLINE)
-	for _, abilityName in pairs(MiscData.Abilities) do
-		table.insert(abilityList, abilityName)
+	for _, ability in pairs(AbilityData.Abilities) do
+		table.insert(abilityList, ability.name)
 	end
 
 	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -415,10 +449,10 @@ function TrackerScreen.openAbilityNoteWindow()
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
 
 	if trackedAbilities[1].id ~= 0 then
-		forms.settext(abilityOneDropdown, MiscData.Abilities[trackedAbilities[1].id])
+		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbilities[1].id]).name
 	end
 	if trackedAbilities[2].id ~= 0 then
-		forms.settext(abilityTwoDropdown, MiscData.Abilities[trackedAbilities[2].id])
+		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id]).name
 	end
 
 	forms.button(abilityForm, "Save && Close", function()
@@ -588,15 +622,15 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		end
 		local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
 		if abilityId ~= nil and abilityId ~= 0 then
-			abilityStringBot = MiscData.Abilities[abilityId]
+			abilityStringBot = AbilityData.Abilities[abilityId].name
 		end
 	else
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
-			abilityStringTop = MiscData.Abilities[trackedAbilities[1].id] .. " /"
+			abilityStringTop = AbilityData.Abilities[trackedAbilities[1].id].name .. " /"
 			abilityStringBot = Constants.HIDDEN_INFO
 		end
 		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
-			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
+			abilityStringBot = AbilityData.Abilities[trackedAbilities[2].id].name
 		end
 	end
 

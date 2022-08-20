@@ -451,6 +451,11 @@ function InfoScreen.drawScreen()
 			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		end
+	elseif (InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO) then
+		--[[
+			local abilityId = InfoScreen.infoLookup
+			InfoScreen.drawAbilityInfoScreen(moveId)
+			]]
 	end
 end
 
