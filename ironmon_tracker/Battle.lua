@@ -222,7 +222,7 @@ function Battle.checkEnemyMovesUsed(opposingPokemon)
 			local moveUsed = false
 
 			-- Manually track Focus Punch, since PP isn't deducted if the mon charges the move but then dies
-			if move.id == 264 and Battle.enemyHasAttacked and Battle.battleMsg ~= 0 and Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+			if move.id == 264 and Battle.attacker % 2 == 1 and Battle.battleMsg ~= 0 and Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
 				moveUsed = true
 			elseif move.pp < tonumber(MoveData.Moves[move.id].pp) then
 				moveUsed = true
