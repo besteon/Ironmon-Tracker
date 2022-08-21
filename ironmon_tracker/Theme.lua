@@ -17,24 +17,14 @@ Theme = {
 	},
 	-- If move types are enabled then the Move Names themselves will be drawn with a color representing their type.
 	MOVE_TYPES_ENABLED = true,
+}
 
+Theme.PresetStrings = {
 	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
-	PRESET_STRINGS = {
-		["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
-		["Fire Red"] = "FFFFFF 55CB6B 62C7FE FEFA69 FEFA69 FF1920 81000E FF1920 81000E 58050D 0",
-		["Leaf Green"] = "FFFFFF 62C7FE FE7573 FEFA69 FEFA69 55CB6B 006200 55CB6B 006200 053A04 0",
-		["Beach Getaway"] = "222222 5463FF E78EA9 A581E6 444444 E78EA9 B9F8D3 E78EA9 FFFBE7 40DFEF 0",
-		["Blue Da Ba Dee"] = "FFFFFF 2EB5FF E04DBA FEFA69 55CB6B 198BFF 004881 198BFF 004881 072557 1",
-		["Calico Cat"] = "4A3432 E07E3D 8A9298 E07E3D FCFCF0 8A9298 FCFCF0 E07E3D FBCA8C 0F0601 0",
-		["Calico Cat v2"] = "4A3432 E07E3D 8A9298 E07E3D FCFCF0 FCFCF0 FCFCF0 FBCA8C FBCA8C E07E3D 0",
-		["Cotton Candy"] = "000000 1A85FF D41159 9155D9 EEEEEE D35FB7 FFCBF3 1A85FF A0D3FF 5D3A9B 0",
-		["GameCube"] = "C8C8C8 2ACA38 FE4A4A EBE31A CBCCC4 000000 342A54 000000 342A54 000000 1",
-		["Item Bag"] = "636363 017BC4 DF2800 DE8C4A 636363 D7B452 FEFFCF D7B452 FEFFCF F6CF73 0",
-		["Neon Lights"] = "FFFFFF 38FF12 FF00E3 FFF100 FFFFFF 00F5FB 000000 001EFF 000000 000000 1",
-		["Simple Monotone"] = "222222 01B910 FE5958 555555 FFFFFF 000000 FFFFFF 000000 FFFFFF 555555 0",
-		["Team Rocket"] = "EEF5FE 8F7DEB D6335E F4E7BA F4E7BA 8F7DEB 333333 D6335E 333333 333333 1",
-		["USS Galactic"] = "EEEEEE 00ADB5 DFBB9D B6C8EF 00ADB5 222831 393E46 222831 393E46 000000 1",
-	},
+	["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+}
+Theme.PresetsOrdered = {
+	"Default Theme",
 }
 
 Theme.Screen = {
@@ -113,6 +103,30 @@ function Theme.initialize()
 	-- Adjust the extra options positions based on the verical space left
 	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY + 4
 	Theme.Buttons.MoveTypeEnabled.box[2] = startY + 4
+
+	Theme.loadPresets(Main.ThemePresetsFile)
+end
+
+function Theme.loadPresets(filename)
+	if not Main.FileExists(filename) then return end
+
+	local index = 1 -- If theme name is missing, use this to make a unique one "Untitled #"
+	for line in io.lines(filename) do
+		local firstHexIndex = line:find("%x%x%x%x%x%x")
+		if firstHexIndex ~= nil then
+			local themeString = line:sub(firstHexIndex)
+			local themeName
+			if firstHexIndex <= 2 then
+				themeName = "Untitled " .. index
+			else
+				themeName = line:sub(1, firstHexIndex - 2)
+			end
+
+			Theme.PresetStrings[themeName] = themeString
+			table.insert(Theme.PresetsOrdered, themeName)
+			index = index + 1
+		end
+	end
 end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
@@ -143,7 +157,9 @@ function Theme.importThemeFromText(theme_config)
 	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
 	local index = 1
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first 10 hex codes
-		Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
+		if theme_colors[index] ~= nil then
+			Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
+		end
 		index = index + 1
 	end
 
@@ -222,12 +238,12 @@ function Theme.openPresetsWindow()
 
 	forms.label(presetsForm, "Select a predefined theme to use:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, Constants.OrderedLists.THEMEPRESETS, false) -- Required to prevent alphabetizing the list
+	forms.setdropdownitems(presetDropdown, Theme.PresetsOrdered, false) -- Required to prevent alphabetizing the list
 	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
 	forms.button(presetsForm, "Load", function()
-		Theme.importThemeFromText(Theme.PRESET_STRINGS[forms.gettext(presetDropdown)])
+		Theme.importThemeFromText(Theme.PresetStrings[forms.gettext(presetDropdown)])
 		client.unpause()
 		forms.destroy(presetsForm)
 	end, 212, 29)
