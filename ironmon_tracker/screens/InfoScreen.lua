@@ -25,6 +25,18 @@ InfoScreen.Buttons = {
 			InfoScreen.openMoveInfoWindow()
 		end
 	},
+	lookupAbility = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.openAbilityInfoWindow()
+		end
+	},
 	lookupPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
@@ -264,6 +276,47 @@ function InfoScreen.openMoveInfoWindow()
 	end, 212, 29)
 end
 
+function InfoScreen.openAbilityInfoWindow()
+	Program.destroyActiveForm()
+	local abilityLookup = forms.newform(360, 105, "Ability Look up", function() client.unpause() end)
+	Program.activeFormId = abilityLookup
+	Utils.setFormLocation(abilityLookup, 100, 50)
+	local abilityName
+	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
+		abilityName = AbilityData.defaultAbility.name
+	else
+		abilityName = AbilityData.Abilities[InfoScreen.infoLookup].name
+	end
+	local allAbilitiesData = {}
+	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
+
+	forms.label(abilityLookup, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
+	local abilityDropdown = forms.dropdown(abilityLookup, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
+	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
+	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
+	forms.settext(abilityDropdown, abilityName)
+
+	forms.button(abilityLookup, "Look up", function()
+		local abilityNameFromForm = forms.gettext(abilityDropdown)
+		local abilityId
+
+		for id, data in pairs(AbilityData.Abilities) do
+			if data.name == abilityNameFromForm then
+				abilityId = id
+				break
+			end
+		end
+
+		if abilityId ~= nil and abilityId ~= 0 then
+			InfoScreen.infoLookup = abilityId
+			Program.redraw(true)
+		end
+		client.unpause()
+		forms.destroy(abilityLookup)
+	end, 212, 29)
+end
+
 function InfoScreen.openPokemonInfoWindow()
 	Program.destroyActiveForm()
 	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
@@ -451,6 +504,9 @@ function InfoScreen.drawScreen()
 			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		end
+	elseif (InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO) then
+		local abilityId = InfoScreen.infoLookup
+		InfoScreen.drawAbilityInfoScreen(abilityId)
 	end
 end
 
@@ -793,7 +849,69 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
 end
+function InfoScreen.drawAbilityInfoScreen(abilityId)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 
+	-- set the color for text/number shadows for the top boxes
+	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
+	local offsetColumnX = offsetX + 45
+	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
+	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local botOffsetY = offsetY + (linespacing * 7) + 7
+
+	local ability --= AbilityData.defaultAbility
+	if not AbilityData.isValid(abilityId) then
+		ability = AbilityData.defaultAbility
+	else
+		ability = AbilityData.Abilities[abilityId]
+	end
+
+	Drawing.drawBackgroundAndMargins()
+	-- Draw one big rectangle
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	-- Ability NAME
+	local abilityName = ability.name:upper()
+	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+
+	--SEARCH ICON
+	local lookupAbility = InfoScreen.Buttons.lookupAbility
+	lookupAbility.box = {Constants.SCREEN.WIDTH + 133, offsetY, 10, 10,}
+	Drawing.drawButton(lookupAbility, boxInfoTopShadow)
+	offsetY = offsetY + linespacing * 2 - 4
+
+	-- DESCRIPTION
+	if ability.description ~= nil then
+		local wrappedSummary = Utils.getWordWrapLines(ability.description, 31)
+
+		for _, line in pairs(wrappedSummary) do
+			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)
+			offsetY = offsetY + linespacing
+		end
+	end
+	offsetY = offsetY + 6
+
+	-- EMERALD DESCRIPTION
+	if ability.descriptionEmerald ~= nil then
+		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Header text"], boxInfoTopShadow, "italics")
+		offsetY = offsetY + linespacing + 1
+		local wrappedSummary = Utils.getWordWrapLines(ability.descriptionEmerald, 31)
+
+		for _, line in pairs(wrappedSummary) do
+			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)
+			offsetY = offsetY + linespacing
+		end
+	end
+
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+end
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])

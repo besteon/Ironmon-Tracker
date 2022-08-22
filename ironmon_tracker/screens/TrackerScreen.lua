@@ -102,16 +102,48 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
 	},
-	AbilityTracking = {
+	AbilityUpper = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 22 },
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 11},
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			TrackerScreen.openAbilityNoteWindow()
+			local pokemon = Tracker.getViewedPokemon()
+			local pokemonID = 0
+			local trackedAbilities = {}
+			if pokemon ~= nil then
+				pokemonID = pokemon.pokemonID
+			end
+			local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
+		end
+	},
+	AbilityLower = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + 37, 46, 63, 11},
+		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local pokemon = Tracker.getViewedPokemon()
+			local pokemonID = 0
+			local abilityNum = 0
+			if pokemon ~= nil then
+				pokemonID = pokemon.pokemonID
+				abilityNum = pokemon.abilityNum
+			end
+			if Tracker.Data.isViewingOwn then
+				local abilityId = PokemonData.getAbilityId(pokemonID, abilityNum)
+				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
+			else
+				local trackedAbilities = Tracker.getAbilities(pokemonID)
+				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[2].id)
+			end
 		end
 	},
 	NotepadTracking = {
@@ -389,82 +421,65 @@ function TrackerScreen.updateButtonStates()
 	end
 end
 
-function TrackerScreen.openAbilityNoteWindow()
-	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	if pokemon == nil then return end
-
-	local abilityList = {}
-	table.insert(abilityList, Constants.BLANKLINE)
-	for _, abilityName in pairs(MiscData.Abilities) do
-		table.insert(abilityList, abilityName)
-	end
-
-	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-
-	local abilityForm = forms.newform(360, 170, "Track Ability", function() client.unpause() end)
-	Utils.setFormLocation(abilityForm, 100, 50)
-
-	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
-	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
-	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
-	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityOneDropdown, "AutoCompleteMode", "Append")
-	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 95, 60, 145, 30)
-	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
-	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
-	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
-
-	if trackedAbilities[1].id ~= 0 then
-		forms.settext(abilityOneDropdown, MiscData.Abilities[trackedAbilities[1].id])
-	end
-	if trackedAbilities[2].id ~= 0 then
-		forms.settext(abilityTwoDropdown, MiscData.Abilities[trackedAbilities[2].id])
-	end
-
-	forms.button(abilityForm, "Save && Close", function()
-		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if pokemonViewed ~= nil then
-			local abilityOneText = forms.gettext(abilityOneDropdown)
-			local abilityTwoText = forms.gettext(abilityTwoDropdown)
-
-			Tracker.setAbilities(pokemonViewed.pokemonID, abilityOneText, abilityTwoText)
-		end
-
-		client.unpause()
-		Program.redraw(true)
-		forms.destroy(abilityForm)
-	end, 65, 95, 85, 25)
-	forms.button(abilityForm, "Clear", function()
-		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
-		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 160, 95, 55, 25)
-	forms.button(abilityForm, "Cancel", function()
-		client.unpause()
-		forms.destroy(abilityForm)
-	end, 225, 95, 55, 25)
-end
-
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if pokemonId == nil or pokemonId == 0 then return end
 
 	Program.destroyActiveForm()
-	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
+	local noteForm = forms.newform(465, 220, "Leave a Note", function() client.unpause() end)
 	Program.activeFormId = noteForm
 	Utils.setFormLocation(noteForm, 100, 50)
 
 	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
-	forms.button(noteForm, "Save", function()
+	local abilityList = {}
+	table.insert(abilityList, Constants.BLANKLINE)
+	abilityList = AbilityData.populateAbilityDropdown(abilityList)
+
+	local trackedAbilities = Tracker.getAbilities(pokemonId)
+
+	forms.label(noteForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
+	local abilityOneDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
+	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
+	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(abilityOneDropdown, "AutoCompleteMode", "Append")
+	local abilityTwoDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability2"}, 10, 110, 145, 30)
+	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
+	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
+
+	if trackedAbilities[1].id ~= 0 then
+		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbilities[1].id].name)
+	end
+	if trackedAbilities[2].id ~= 0 then
+		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id].name)
+	end
+
+	forms.button(noteForm, "Save && Close", function()
+
 		local formInput = forms.gettext(noteTextBox)
+		local abilityOneText = forms.gettext(abilityOneDropdown)
+		local abilityTwoText = forms.gettext(abilityTwoDropdown)
 		--local pokemonViewed = Tracker.getViewedPokemon()
 		if formInput ~= nil then
 			Tracker.TrackNote(pokemonId, formInput)
+			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
 		forms.destroy(noteForm)
 		client.unpause()
-	end, 187, 55)
+		Program.redraw(true)
+		forms.destroy(noteForm)
+	end, 85, 145, 85, 25)
+	forms.button(noteForm, "Clear", function()
+		forms.settext(noteTextBox, Constants.BLANKLINE)
+		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
+		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
+	end, 180, 145, 55, 25)
+	forms.button(noteForm, "Cancel", function()
+		client.unpause()
+		forms.destroy(noteForm)
+	end, 245, 145, 55, 25)
 end
 
 -- DRAWING FUNCTIONS
@@ -588,27 +603,20 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		end
 		local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
 		if abilityId ~= nil and abilityId ~= 0 then
-			abilityStringBot = MiscData.Abilities[abilityId]
+			abilityStringBot = AbilityData.Abilities[abilityId].name
 		end
 	else
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
-			abilityStringTop = MiscData.Abilities[trackedAbilities[1].id] .. " /"
+			abilityStringTop = AbilityData.Abilities[trackedAbilities[1].id].name .. " /"
 			abilityStringBot = Constants.HIDDEN_INFO
 		end
 		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
-			abilityStringBot = MiscData.Abilities[trackedAbilities[2].id]
+			abilityStringBot = AbilityData.Abilities[trackedAbilities[2].id].name
 		end
 	end
 
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
-
-	-- Draw notepad icon near abilities area, for manually tracking the abilities
-	if Battle.inBattle and not Tracker.Data.isViewingOwn then
-		if trackedAbilities[1].id == 0 and trackedAbilities[2].id == 0 then
-			Drawing.drawButton(TrackerScreen.Buttons.AbilityTracking, shadowcolor)
-		end
-	end
 
 	-- HEALS INFO / ENCOUNTER INFO
 	local infoBoxHeight = 23

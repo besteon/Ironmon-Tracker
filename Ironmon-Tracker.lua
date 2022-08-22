@@ -17,6 +17,7 @@ function Main.Initialize()
 		"/Constants.lua",
 		"/data/PokemonData.lua",
 		"/data/MoveData.lua",
+		"/data/AbilityData.lua",
 		"/data/MiscData.lua",
 		"/data/RouteData.lua",
 		"/Memory.lua",

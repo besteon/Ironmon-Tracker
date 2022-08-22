@@ -288,10 +288,10 @@ function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
 	end
 
 	-- Lookup ability id's from the master list of ability pokemon data
-	for id, abilityName in pairs(MiscData.Abilities) do
-		if abilityOneText == abilityName then
+	for id, ability in pairs(AbilityData.Abilities) do
+		if abilityOneText == ability.name then
 			abilityOneId = id
-		elseif abilityTwoText == abilityName then
+		elseif abilityTwoText == ability.name then
 			abilityTwoId = id
 		end
 	end
