@@ -102,7 +102,7 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
 	},
-	Ability1Opponent = {
+	AbilityUpper = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
@@ -121,7 +121,7 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
 		end
 	},
-	Ability2Opponent = {
+	AbilityLower = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
 		textColor = "Default text",
@@ -146,18 +146,6 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
-	--[[AbilityAlly = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NOTEPAD,
-		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 22 },
-		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
-		isVisible = function() return Tracker.Data.isViewingOwn end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, pokemonID)
-		end
-	},]]
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -433,27 +421,29 @@ function TrackerScreen.updateButtonStates()
 	end
 end
 
-function TrackerScreen.openAbilityNoteWindow()
-	local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	if pokemon == nil then return end
+function TrackerScreen.openNotePadWindow(pokemonId)
+	if pokemonId == nil or pokemonId == 0 then return end
+
+	Program.destroyActiveForm()
+	local noteForm = forms.newform(465, 220, "Leave a Note", function() client.unpause() end)
+	Program.activeFormId = noteForm
+	Utils.setFormLocation(noteForm, 100, 50)
+
+	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
+	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
 	local abilityList = {}
 	table.insert(abilityList, Constants.BLANKLINE)
-	for _, ability in pairs(AbilityData.Abilities) do
-		table.insert(abilityList, ability.name)
-	end
+	abilityList = AbilityData.populateAbilityDropdown(abilityList)
 
-	local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+	local trackedAbilities = Tracker.getAbilities(pokemonId)
 
-	local abilityForm = forms.newform(360, 170, "Track Ability", function() client.unpause() end)
-	Utils.setFormLocation(abilityForm, 100, 50)
-
-	forms.label(abilityForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemon.pokemonID].name .. ":", 64, 10, 220, 20)
-	local abilityOneDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability1"}, 95, 30, 145, 30)
+	forms.label(noteForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
+	local abilityOneDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityOneDropdown, "AutoCompleteMode", "Append")
-	local abilityTwoDropdown = forms.dropdown(abilityForm, {["Init"]="Loading Ability2"}, 95, 60, 145, 30)
+	local abilityTwoDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability2"}, 10, 110, 145, 30)
 	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
@@ -465,50 +455,31 @@ function TrackerScreen.openAbilityNoteWindow()
 		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id].name)
 	end
 
-	forms.button(abilityForm, "Save && Close", function()
-		local pokemonViewed = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		if pokemonViewed ~= nil then
-			local abilityOneText = forms.gettext(abilityOneDropdown)
-			local abilityTwoText = forms.gettext(abilityTwoDropdown)
+	forms.button(noteForm, "Save && Close", function()
 
-			Tracker.setAbilities(pokemonViewed.pokemonID, abilityOneText, abilityTwoText)
-		end
-
-		client.unpause()
-		Program.redraw(true)
-		forms.destroy(abilityForm)
-	end, 65, 95, 85, 25)
-	forms.button(abilityForm, "Clear", function()
-		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
-		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 160, 95, 55, 25)
-	forms.button(abilityForm, "Cancel", function()
-		client.unpause()
-		forms.destroy(abilityForm)
-	end, 225, 95, 55, 25)
-end
-
-function TrackerScreen.openNotePadWindow(pokemonId)
-	if pokemonId == nil or pokemonId == 0 then return end
-
-	Program.destroyActiveForm()
-	local noteForm = forms.newform(465, 125, "Leave a Note", function() client.unpause() end)
-	Program.activeFormId = noteForm
-	Utils.setFormLocation(noteForm, 100, 50)
-
-	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
-	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
-
-	forms.button(noteForm, "Save", function()
 		local formInput = forms.gettext(noteTextBox)
+		local abilityOneText = forms.gettext(abilityOneDropdown)
+		local abilityTwoText = forms.gettext(abilityTwoDropdown)
 		--local pokemonViewed = Tracker.getViewedPokemon()
 		if formInput ~= nil then
 			Tracker.TrackNote(pokemonId, formInput)
+			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
 		forms.destroy(noteForm)
 		client.unpause()
-	end, 187, 55)
+		Program.redraw(true)
+		forms.destroy(noteForm)
+	end, 85, 145, 85, 25)
+	forms.button(noteForm, "Clear", function()
+		forms.settext(noteTextBox, Constants.BLANKLINE)
+		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
+		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
+	end, 180, 145, 55, 25)
+	forms.button(noteForm, "Cancel", function()
+		client.unpause()
+		forms.destroy(noteForm)
+	end, 245, 145, 55, 25)
 end
 
 -- DRAWING FUNCTIONS

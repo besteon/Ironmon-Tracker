@@ -288,11 +288,7 @@ function InfoScreen.openAbilityInfoWindow()
 		abilityName = AbilityData.Abilities[InfoScreen.infoLookup].name
 	end
 	local allAbilitiesData = {}
-	for _, data in pairs(AbilityData.Abilities) do
-		if data.name ~= Constants.BLANKLINE then
-			table.insert(allAbilitiesData, data.name)
-		end
-	end
+	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
 
 	forms.label(abilityLookup, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
 	local abilityDropdown = forms.dropdown(abilityLookup, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
