@@ -126,7 +126,7 @@ AbilityData.Abilities = {
   {
     id = 23,
     name = "Shadow Tag",
-    description = "Prevents opponents from switching out or fleeing.",
+    description = "Prevents opposing " .. Constants.Words.POKEMON .. " from switching out or fleeing.",
   },
   {
     id = 24,
@@ -151,7 +151,7 @@ AbilityData.Abilities = {
   {
     id = 28,
     name = "Synchronize",
-    description = "When poisoned, paralyzed, or burned by a " .. Constants.Words.POKEMON .. ", that " .. Constants.Words.POKEMON .. " will be inflicted with the same status condition.",
+    description = "When poisoned, paralyzed, or burned by a " .. Constants.Words.POKEMON .. ", that " .. Constants.Words.POKEMON .. " will be inflicted with the same status condition, if possible.",
     descriptionEmerald = "While at the head of the party, there is a 50% chance that a wild encounter " .. Constants.Words.POKEMON .. " will have the same nature as this " .. Constants.Words.POKEMON .. ".",
   },
   {
@@ -213,13 +213,13 @@ AbilityData.Abilities = {
 	{
     id = 40,
     name = "Magma Armor",
-    description = "Prevents freezing",
+    description = "Cannot be frozen.",
     descriptionEmerald = "Decreases the time needed to hatch an Egg by half."
   },
   {
     id = 41,
     name = "Water Veil",
-    description = "Prevents burns",
+    description = "Cannot be burned.",
   },
 	{
     id = 42,
@@ -245,13 +245,13 @@ AbilityData.Abilities = {
   {
     id = 46,
     name = "Pressure",
-    description = "When a moves targets this " .. Constants.Words.POKEMON .. " one additional PP is deducted.",
+    description = "When a moves targets this " .. Constants.Words.POKEMON .. ", one additional PP is deducted. A " .. Constants.Words.POKEMON .. " can still target this " .. Constants.Words.POKEMON .. " with a move if it only has 1 PP remaining for it.",
     descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter " .. Constants.Words.POKEMON .. " will be the highest level it could appear."
   },
   {
     id = 47,
     name = "Thick Fat",
-    description = "Damage recevieved from Ice or Fire moves is halved.",
+    description = "Damage received from Ice or Fire moves is halved.",
   },
   {
     id = 48,
@@ -272,8 +272,8 @@ AbilityData.Abilities = {
   {
     id = 51,
     name = "Keen Eye",
-    description = "This " .. Constants.Words.POKEMON .. "'s Accuracy cannot be lowered",
-    descriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a " .. Constants.Words.POKEMON .. " 5 or more levels lower " .. Constants.Words.POKEMON .. ".",
+    description = "This " .. Constants.Words.POKEMON .. "'s Accuracy cannot be lowered.",
+    descriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a " .. Constants.Words.POKEMON .. " 5 or more levels lower than this " .. Constants.Words.POKEMON .. ".",
   },
   {
     id = 52,
@@ -302,7 +302,7 @@ AbilityData.Abilities = {
   {
     id = 56,
     name = "Cute Charm",
-    description = "When hit by a contact move, 30% chance to inflict infatuation on the attacker.",
+    description = "When hit by a contact move, 30% chance to inflict infatuation on the attacker. Has no effect if this " .. Constants.Words.POKEMON .. " is genderless, or the same gender as the attacker.",
     descriptionEmerald = "While at the head of the party, 2/3 chance that a wild encounter will be forced to the opposite gender of this " .. Constants.Words.POKEMON .. ", if possible."
   },
   {
@@ -318,7 +318,7 @@ AbilityData.Abilities = {
   {
     id = 59,
     name = "Forecast",
-    description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect.",
+    description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a " .. Constants.Words.POKEMON .. " other than Castform obtains this ability.",
   },
   {
     id = 60,
@@ -329,17 +329,17 @@ AbilityData.Abilities = {
   {
     id = 61,
     name = "Shed Skin",
-    description = "1/3 chance at the end of every turn to cure major status conditions (Burn, Poison, Paralyze, Freeze, Sleep).",
+    description = "1/3 chance at the end of every turn to cure major status conditions (Burn, Poison, Paralysis, Freeze, Sleep).",
   },
   {
     id = 62,
     name = "Guts",
-    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralyze, Freeze, Sleep).",
+    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis Freeze, Sleep).",
   },
   {
     id = 63,
     name = "Marvel Scale",
-    description = "Increases this " .. Constants.Words.POKEMON .. "'s Defense stat by 50% when affected by a major status condition (Burn, Poison, Paralyze, Freeze, Sleep).",
+    description = "Increases this " .. Constants.Words.POKEMON .. "'s Defense stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep).",
   },
   {
     id = 64,
@@ -365,22 +365,22 @@ AbilityData.Abilities = {
     id = 68,
     name = "Swarm",
     description = "If this " .. Constants.Words.POKEMON .. " is at or below 1/3 of its max HP, the power of their Bug moves is increased by 50%.",
-    descriptionEmerald = "Increases the frequency at which wild " .. Constants.Words.POKEMON .. "'s cries are heard in the overworld.",
+    descriptionEmerald = "Increases the frequency at which wild " .. Constants.Words.POKEMON .. "s' cries are heard in the overworld.",
   },
   {
     id = 69,
     name = "Rock Head",
-    description = "Prevents recoil damage from moves except for Struggle.",
+    description = "Prevents recoil damage from moves, except for Struggle.",
   },
   {
     id = 70,
     name = "Drought",
-    description = "Changes weather to sunny when switched in. Fire moves have 50% increased power and Water moves have 50% reduced power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
+    description = "Changes weather to sunny when switched in. In sun, Fire moves have 50% increased power and Water moves have 50% decreased power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
   },
   {
     id = 71,
     name = "Arena Trap",
-    description = "Prevents opponents from switching out or fleeing, except Flying " .. Constants.Words.POKEMON ..  " and " .. Constants.Words.POKEMON .. " with Levitate.",
+    description = "Prevents opposing " .. Constants.Words.POKEMON .. " from switching out or fleeing, except Flying-types and " .. Constants.Words.POKEMON .. " with Levitate.",
     descriptionEmerald = "Increases the wild encounter rate by 100%.",
   },
   {
@@ -392,7 +392,7 @@ AbilityData.Abilities = {
   {
     id = 73,
     name = "White Smoke",
-    description = "Prevents stat reductions caused by opposing " .. Constants.Words.POKEMON .. "' moves and abilities.",
+    description = "Prevents stat reductions caused by opposing " .. Constants.Words.POKEMON .. "s' moves and abilities.",
     descriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50%.",
   },
   {
@@ -403,7 +403,7 @@ AbilityData.Abilities = {
   {
     id = 75,
     name = "Shell Armor",
-    description = "Prevents this " .. Constants.Words.POKEMON .. " from receiving critical hits",
+    description = "Prevents this " .. Constants.Words.POKEMON .. " from receiving critical hits.",
   },
   {
     id = 76,
