@@ -85,7 +85,7 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
-		"Show tips on startup",
+		"Disable mainscreen carousel",
 		"Auto swap to enemy",
 		"Hide stats until summary shown",
 		"Right justified numbers",
@@ -119,7 +119,7 @@ Constants.OrderedLists = {
 		"Lower box background",
 		"Main background",
 	},
-	TIPS = {
+	TIPS = { -- currently disabled, may use later
 		"Helpful tips are shown down here.", -- Skipped after it's shown once
 		"Tracked data is auto-saved after every battle.",
 		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
