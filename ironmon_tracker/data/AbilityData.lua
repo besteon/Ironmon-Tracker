@@ -10,13 +10,13 @@ AbilityData.Abilities = {
 	{
     id = 1,
     name = "Stench",
-    description = "While at the head of the party, decreases the chance of encountering wild " .. Constants.Words.POKEMON .. " by 50%.",
-    descriptionEmerald = "In the Battle Pyramid, the encounter rate is only decreased by 25%.",
+    description = "While at the head of the party, decreases wild encounter rate by 50%.",
+    descriptionEmerald = "In the Battle Pyramid, the wild encounter rate is only decreased by 25%.",
   },
 	{
     id = 2,
     name = "Drizzle",
-    description = "Changes weather to rain when switched in. Water moves are boosted by 50% and Fire moves are weakened by 50%. Thunder ignores accuracy and evasion, Solarbeam deals 50% reduced damage, and Monnlight, Synthesis, and Morning Sun heal for 1/4 max HP",
+    description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, ignoring changes to Accuracy and Evasion, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP",
   },
   {
     id = 3,
@@ -26,7 +26,7 @@ AbilityData.Abilities = {
 	{
     id = 4,
     name = "Battle Armor",
-    description = "Prevents this " .. Constants.Words.POKEMON .. " from receiving critical hits",
+    description = "Prevents this " .. Constants.Words.POKEMON .. " from receiving critical hits.",
   },
   {
     id = 5,
@@ -78,7 +78,7 @@ AbilityData.Abilities = {
 	{
     id = 14,
     name = "Compoundeyes",
-    description = "Increases the accuracy of moves by 30%.",
+    description = "Increases the Accuracy of moves by 30%.",
     descriptionEmerald = "Increases the chance of finding a wild " .. Constants.Words.POKEMON .. " holding an item.",
   },
 	{
@@ -375,7 +375,7 @@ AbilityData.Abilities = {
   {
     id = 70,
     name = "Drought",
-    description = "Changes weather to sunny when switched in. Fire moves have 50% increased power and Water moves have 50% reduced power. Removes the charging turn for Solarbeam, lowers the accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
+    description = "Changes weather to sunny when switched in. Fire moves have 50% increased power and Water moves have 50% reduced power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
   },
   {
     id = 71,
