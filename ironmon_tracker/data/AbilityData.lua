@@ -1,3 +1,11 @@
+AbilityData = {}
+
+AbilityData.defaultAbility = {
+  --placeholder
+  id = 0,
+  name = "Ability Info",
+  description = "Click the magnifying glass to look up an ability!",
+}
 AbilityData.Abilities = {
 	{
     id = 1,
@@ -34,12 +42,12 @@ AbilityData.Abilities = {
     id = 7,
     name = "Limber",
     description = "Cannot be paralyzed.",
-  }
+  },
   {
     id = 8,
     name = "Sand Veil",
-    description = "Increases Evasion by 20% in a sandstorm, and this " .. Constants.Words.POKEMON " takes no damage from sandstorm.",
-    descriptionEmerald = "While at the head of the party, decreases the chance of encountering wild " .. Constants.Words.POKEMON .. " by 50% in a sandstorm.",
+    description = "Increases Evasion by 20% in a Sandstorm, and this " .. Constants.Words.POKEMON .. " takes no damage from Sandstorm.",
+    descriptionEmerald = "While at the head of the party, decreases the chance of encountering wild " .. Constants.Words.POKEMON .. " by 50% in a Sandstorm.",
   },
 	{
     id = 9,
@@ -165,17 +173,17 @@ AbilityData.Abilities = {
 	{
     id = 32,
     name = "Serene Grace",
-    description = "Doubles the chance of secondary effects from this " .. Constants.Words.POKEMON "'s moves.",
+    description = "Doubles the chance of secondary effects from this " .. Constants.Words.POKEMON .. "'s moves.",
   },
   {
     id = 33,
     name = "Swift Swim",
-    description = "Doubles speed in rain.",
+    description = "Doubles speed in Rain.",
   },
   {
     id = 34,
     name = "Chlorophyll",
-    description = "Doubles speed in harsh sunlight.",
+    description = "Doubles speed in Harsh Sunlight.",
   },
   {
     id = 35,
@@ -310,7 +318,7 @@ AbilityData.Abilities = {
   {
     id = 59,
     name = "Forecast",
-    description = "Castform's type changes with the weather. Fire-type in harsh sunlight, Water-type in rain, or Ice-type in hail. Cloud Nine and Air Lock disable this effect.",
+    description = "Castform's type changes with the weather. Fire-type in Harsh Sunlight, Water-type in Rain, or Ice-type in Hail. Cloud Nine and Air Lock disable this effect.",
   },
   {
     id = 60,
@@ -367,7 +375,7 @@ AbilityData.Abilities = {
   {
     id = 70,
     name = "Drought",
-    description = "Changes weather to harsh sunlight when switched in. Fire-type moves have 50% increased power and Water-type moves have 50% reduced power. Removes the charging turn for Solarbeam, lowers the accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
+    description = "Changes weather to Harsh Sunlight when switched in. Fire-type moves have 50% increased power and Water-type moves have 50% reduced power. Removes the charging turn for Solarbeam, lowers the accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
   },
   {
     id = 71,
@@ -408,3 +416,10 @@ AbilityData.Abilities = {
     description = "Negates all effects of weather, but does not end the weather.",
   },
 }
+
+function AbilityData.isValid(abilityId)
+  if abilityId == nil or abilityId == 76 or abilityId > (#AbilityData.Abilities) or abilityId <= 0 then
+    return false
+  end
+  return true
+end
