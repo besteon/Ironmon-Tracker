@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.1b" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1c" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -29,6 +29,7 @@ function Main.Initialize()
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
 		"/screens/SetupScreen.lua",
+		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
 		"/Input.lua",
@@ -158,6 +159,7 @@ function Main.Run()
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
 		SetupScreen.initialize()
+		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
 
