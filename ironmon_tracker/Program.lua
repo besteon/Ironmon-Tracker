@@ -158,7 +158,7 @@ function Program.updatePokemonTeams()
 
 			if Program.validPokemonData(newPokemonData) then
 				-- Sets the player's trainerID as soon as they get their first Pokemon
-				if Tracker.Data.isNewGame and (newPokemonData.trainerID ~= nil or newPokemonData.trainerID ~= 0) then
+				if Tracker.Data.isNewGame and newPokemonData.trainerID ~= nil and newPokemonData.trainerID ~= 0 then
 					if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
 						Tracker.Data.trainerID = newPokemonData.trainerID
 					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
@@ -168,12 +168,12 @@ function Program.updatePokemonTeams()
 						Tracker.Data.trainerID = newPokemonData.trainerID
 					end
 
-					-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-					newPokemonData.trainerID = nil
-
 					-- Unset the new game flag
 					Tracker.Data.isNewGame = false
 				end
+
+				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
+				newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
