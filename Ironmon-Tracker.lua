@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.1b" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.1c" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -30,6 +30,7 @@ function Main.Initialize()
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
 		"/screens/SetupScreen.lua",
+		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
 		"/Input.lua",
@@ -134,7 +135,9 @@ end
 
 -- Main loop
 function Main.Run()
-	print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
+	if gameinfo.getromname() == "Null" then
+		print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
+	end
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
@@ -159,6 +162,7 @@ function Main.Run()
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
 		SetupScreen.initialize()
+		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
 
@@ -172,19 +176,45 @@ function Main.Run()
 			emu.frameadvance()
 		end
 
-		Main.LoadNext()
+		Main.LoadNextRom()
 	end
 end
 
-function Main.LoadNext()
-	Tracker.resetData()
-	print("Tracker data has been reset.\nAttempting to load next ROM...")
+function Main.LoadNextRom()
+	local nextRom
+	if Options["Use premade ROMs"] then
+		nextRom = Main.GetNextRomFromFolder()
+	elseif Options["Generate ROM each time"] then
+		nextRom = Main.GenerateNextRom()
+	else
+		print("ERROR: Quick-load feature is currently disabled.")
+		Main.DisplayError("Quick-load feature is currently disabled.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+	end
 
-	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
-		print("ERROR: ROMS_FOLDER unspecified\n")
+	if nextRom ~= nil then
+		Tracker.resetData()
+		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
+		client.SetSoundOn(false)
+		if client.getversion() ~= "2.9" then
+			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+		end
+		client.openrom(nextRom.path)
+		client.SetSoundOn(true)
+	else
+		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
+	end
+
+	Main.loadNextSeed = false
+	Main.Run()
+end
+
+function Main.GetNextRomFromFolder()
+	print("Attempting to load next ROM in sequence from ROMs Folder...")
+
+	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
+		print("ERROR: ROMs Folder unspecified\n")
 		Main.DisplayError("ROMs Folder unspecified.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
-		Main.loadNextSeed = false
-		Main.Run()
+		return nil
 	end
 
 	local romname = gameinfo.getromname()
@@ -197,31 +227,65 @@ function Main.LoadNext()
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
-	local nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+	local nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
 	if not Main.FileExists(nextrompath) then
 		-- File doesn't exist, try again with underscores instead of spaces
 		nextromname = nextromname:gsub(" ", "_")
-		nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+		nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
 		if not Main.FileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
-			Main.loadNextSeed = false
-			Main.Run()
+			return nil
 		end
 	end
 
-	client.SetSoundOn(false)
-	if client.getversion() ~= "2.9" then
-		client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+	return {
+		name = nextromname,
+		path = nextrompath,
+	}
+end
+
+function Main.GenerateNextRom()
+	if not (Main.FileExists(Options.FILES["Randomizer JAR"]) and Main.FileExists(Options.FILES["Custom Settings"]) and Main.FileExists(Options.FILES["Source ROM"])) then
+		print("Files required for Quick-load to generate a new ROM are missing.")
+		Main.DisplayError("Files required for Quick-load to generate a new ROM are missing.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+		return nil
 	end
-	print("ROM Loaded: " .. nextromname)
-	client.openrom(nextrompath)
-	client.SetSoundOn(true)
-	Main.loadNextSeed = false
-	Main.Run()
+
+	local sourceRom = Options.FILES["Source ROM"]
+	local nextromname = "AutoRandomized " .. sourceRom:sub(sourceRom:match("^.*()\\") + 1)
+	local nextrompath = Utils.getWorkingDirectory() .. nextromname .. ".gba"
+
+	local javacommand = string.format(
+		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		Options.FILES["Randomizer JAR"],
+		Options.FILES["Custom Settings"],
+		sourceRom,
+		nextrompath
+	)
+
+	-- TODO:: work out how to read after performing the return
+	-- if we can do that, we can generate a new seed whilst the current seed is loading
+	-- if we can do that, earlier logic to delete would change to delete + rename next seed to current
+	print("\nGenerating next ROM: " .. nextromname)
+	local pipe = io.popen(javacommand)
+	local output = pipe:read("*all")
+	print("> " .. output)
+
+	-- If something went wrong and the ROM wasn't generated to the ROM path
+	if not Main.FileExists(nextrompath) then
+		print("Unable to generate ROM.")
+		Main.DisplayError("Unable to generate ROM.\n\nRecheck all required files in Quick-load setup.")
+		return nil
+	end
+
+	return {
+	 	name = nextromname,
+	 	path = nextrompath,
+	}
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
@@ -248,8 +312,12 @@ function Main.LoadSettings()
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
 		end
-		if settings.config.ROMS_FOLDER ~= nil then
-			Options.ROMS_FOLDER = settings.config.ROMS_FOLDER
+		
+		for configKey, _ in pairs(Options.FILES) do
+			local configValue = settings.config[string.gsub(configKey, " ", "_")]
+			if configValue ~= nil then
+				Options.FILES[configKey] = configValue
+			end
 		end
 	end
 
@@ -265,10 +333,10 @@ function Main.LoadSettings()
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then
-		for optionKey, _ in pairs(Options.CONTROLS) do
-			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+		for controlKey, _ in pairs(Options.CONTROLS) do
+			local controlValue = settings.controls[string.gsub(controlKey, " ", "_")]
 			if controlValue ~= nil then
-				Options.CONTROLS[optionKey] = controlValue
+				Options.CONTROLS[controlKey] = controlValue
 			end
 		end
 	end
@@ -309,7 +377,11 @@ function Main.SaveSettings(forced)
 
 	-- [CONFIG]
 	settings.config.FIRST_RUN = Options.FIRST_RUN
-	settings.config.ROMS_FOLDER = Options.ROMS_FOLDER
+
+	for configKey, _ in pairs(Options.FILES) do
+		local encodedKey = string.gsub(configKey, " ", "_")
+		settings.config[encodedKey] = Options.FILES[configKey]
+	end
 
 	-- [TRACKER]
 	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do

@@ -1,3 +1,5 @@
-*.tdat
 Settings.ini
+*.tdat
+*.gba
+*.log
 ironmon_tracker/images/pokemonAnimated/*.gif
