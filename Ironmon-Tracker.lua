@@ -134,7 +134,9 @@ end
 
 -- Main loop
 function Main.Run()
-	print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
+	if gameinfo.getromname() == "Null" then
+		print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
+	end
 	local romLoaded = false
 	while not romLoaded do
 		if gameinfo.getromname() ~= "Null" then romLoaded = true end
@@ -173,19 +175,45 @@ function Main.Run()
 			emu.frameadvance()
 		end
 
-		Main.LoadNext()
+		Main.LoadNextRom()
 	end
 end
 
-function Main.LoadNext()
-	Tracker.resetData()
-	print("Tracker data has been reset.\nAttempting to load next ROM...")
+function Main.LoadNextRom()
+	local nextRom
+	if Options["Use premade ROMs"] then
+		nextRom = Main.GetNextRomFromFolder()
+	elseif Options["Generate ROM each time"] then
+		nextRom = Main.GenerateNextRom()
+	else
+		print("ERROR: Quick-load feature is currently disabled.")
+		Main.DisplayError("Quick-load feature is currently disabled.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+	end
+
+	if nextRom ~= nil then
+		Tracker.resetData()
+		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
+		client.SetSoundOn(false)
+		if client.getversion() ~= "2.9" then
+			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+		end
+		client.openrom(nextRom.path)
+		client.SetSoundOn(true)
+	else
+		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
+	end
+
+	Main.loadNextSeed = false
+	Main.Run()
+end
+
+function Main.GetNextRomFromFolder()
+	print("Attempting to load next ROM in sequence from ROMs Folder...")
 
 	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
 		print("ERROR: ROMs Folder unspecified\n")
 		Main.DisplayError("ROMs Folder unspecified.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
-		Main.loadNextSeed = false
-		Main.Run()
+		return nil
 	end
 
 	local romname = gameinfo.getromname()
@@ -209,20 +237,28 @@ function Main.LoadNext()
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
-			Main.loadNextSeed = false
-			Main.Run()
+			return nil
 		end
 	end
 
-	client.SetSoundOn(false)
-	if client.getversion() ~= "2.9" then
-		client.closerom() -- This appears to not be needed for Bizhawk 2.9+
-	end
-	print("ROM Loaded: " .. nextromname)
-	client.openrom(nextrompath)
-	client.SetSoundOn(true)
-	Main.loadNextSeed = false
-	Main.Run()
+	return {
+		name = nextromname,
+		path = nextrompath,
+	}
+end
+
+function Main.GenerateNextRom()
+	-- TODO: Implement this as part of #203
+
+	-- Ideally want to have a rom ready to load, then generate a new standby ROM next time the Tracker script starts up
+
+	-- I recommend storing the newly generated rom that is being played in the working directory: Utils.getWorkingDirectory()
+
+	return nil
+	-- return {
+	-- 	name = nextromname,
+	-- 	path = nextrompath,
+	-- }
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
@@ -255,7 +291,6 @@ function Main.LoadSettings()
 			if configValue ~= nil then
 				Options.FILES[configKey] = configValue
 			end
-			print(configKey)
 		end
 	end
 
