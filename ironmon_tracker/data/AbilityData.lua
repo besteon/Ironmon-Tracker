@@ -10,7 +10,7 @@ AbilityData.Abilities = {
 	{
     id = 1,
     name = "Stench",
-    description = "While at the head of the party, decreases wild encounter rate by 50%.",
+    description = "While at the head of the party, decreases the wild encounter rate by 50%.",
     descriptionEmerald = "In the Battle Pyramid, the wild encounter rate is only decreased by 25%.",
   },
 	{
@@ -47,13 +47,13 @@ AbilityData.Abilities = {
     id = 8,
     name = "Sand Veil",
     description = "Increases Evasion by 20% in a sandstorm, and this " .. Constants.Words.POKEMON .. " takes no end of turn damage in a sandstorm.",
-    descriptionEmerald = "While at the head of the party, decreases the chance of encountering wild " .. Constants.Words.POKEMON .. " by 50% in a sandstorm.",
+    descriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50% in a sandstorm.",
   },
 	{
     id = 9,
     name = "Static",
     description = "When hit by a contact move, 30% chance to paralyze the attacker.",
-    descriptionEmerald = "While at the head of the party, each wild encounter has a 50% chance of being against an Electric " .. Constants.Words.POKEMON .. ", if possible.",
+    descriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against an Electric " .. Constants.Words.POKEMON .. ", if possible.",
   },
 	{
     id = 10,
@@ -225,7 +225,7 @@ AbilityData.Abilities = {
     id = 42,
     name = "Magnet Pull",
     description = "Prevents allied and opposing Steel " .. Constants.Words.POKEMON .. " from switching out.",
-    descriptionEmerald = "While at the head of the party, each wild encounter has a 50% chance of being against a Steel " .. Constants.Words.POKEMON ..  ", if possible.",
+    descriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against a Steel " .. Constants.Words.POKEMON ..  ", if possible.",
   },
   {
     id = 43,
@@ -246,7 +246,7 @@ AbilityData.Abilities = {
     id = 46,
     name = "Pressure",
     description = "When a moves targets this " .. Constants.Words.POKEMON .. " one additional PP is deducted.",
-    descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that " .. Constants.Words.POKEMON .. " could appear."
+    descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter " .. Constants.Words.POKEMON .. " will be the highest level it could appear."
   },
   {
     id = 47,
@@ -297,7 +297,7 @@ AbilityData.Abilities = {
     id = 55,
     name = "Hustle",
     description = "Increases Attack stat by 50%, but decreases the Accuracy of physical moves by 20%.",
-    descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that " .. Constants.Words.POKEMON .. " could appear."
+    descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter " .. Constants.Words.POKEMON .. " will be the highest level it could appear."
   },
   {
     id = 56,
@@ -308,12 +308,12 @@ AbilityData.Abilities = {
   {
     id = 57,
     name = "Plus",
-    description = "When in a Double Battle where another " .. Constants.Words.POKEMON .. " has the Ability Minus, this " .. Constants.Words.POKEMON .. "'s Special Attack stat increases by 50%.",
+    description = "When in a Double Battle where another allied " .. Constants.Words.POKEMON .. " has the Ability Minus, this " .. Constants.Words.POKEMON .. "'s Special Attack stat increases by 50%.",
   },
   {
     id = 58,
     name = "Minus",
-    description = "When in a Double Battle where another " .. Constants.Words.POKEMON .. " has the Ability Plus, this " .. Constants.Words.POKEMON .. "'s Special Attack stat increases by 50%.",
+    description = "When in a Double Battle where another allied " .. Constants.Words.POKEMON .. " has the Ability Plus, this " .. Constants.Words.POKEMON .. "'s Special Attack stat increases by 50%.",
   },
   {
     id = 59,
@@ -393,7 +393,7 @@ AbilityData.Abilities = {
     id = 73,
     name = "White Smoke",
     description = "Prevents stat reductions caused by opposing " .. Constants.Words.POKEMON .. "' moves and abilities.",
-    descriptionEmerald = "While at the head of the party, decreases the chance of encountering wild " .. Constants.Words.POKEMON .. " by 50%.",
+    descriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50%.",
   },
   {
     id = 74,
