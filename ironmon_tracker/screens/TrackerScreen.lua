@@ -471,15 +471,14 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 		Program.redraw(true)
 		forms.destroy(noteForm)
 	end, 85, 145, 85, 25)
-	forms.button(noteForm, "Clear", function()
-		forms.settext(noteTextBox, "")
+	forms.button(noteForm, "Clear Abilities", function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 180, 145, 55, 25)
+	end, 180, 145, 105, 25)
 	forms.button(noteForm, "Cancel", function()
 		client.unpause()
 		forms.destroy(noteForm)
-	end, 245, 145, 55, 25)
+	end, 295, 145, 55, 25)
 end
 
 -- DRAWING FUNCTIONS

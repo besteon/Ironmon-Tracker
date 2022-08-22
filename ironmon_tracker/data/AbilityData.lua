@@ -41,7 +41,7 @@ AbilityData.Abilities = {
 	{
     id = 7,
     name = "Limber",
-    description = "Cannot be paralyzed.",
+    description = "Cannot be paralyzed. Gaining this Ability, like through Skill Swap, will cure Paralysis.",
   },
   {
     id = 8,
@@ -68,7 +68,7 @@ AbilityData.Abilities = {
 	{
     id = 12,
     name = "Oblivious",
-    description = "Cannot be infatuated.",
+    description = "Cannot be infatuated. Gaining this Ability, like through Skill Swap, will cure infatuation.",
   },
 	{
     id = 13,
@@ -78,13 +78,13 @@ AbilityData.Abilities = {
 	{
     id = 14,
     name = "Compoundeyes",
-    description = "Increases the Accuracy of moves by 30%.",
+    description = "Increases the Accuracy of moves by 30% (i.e. Thunder has an Accuracy of 70%. With this ability, it would instead have 70% x 1.3 = 91% Accuracy).",
     descriptionEmerald = "Increases the chance of finding a wild " .. Constants.Words.POKEMON .. " holding an item.",
   },
 	{
     id = 15,
     name = "Insomnia",
-    description = "Cannot be put to sleep. If this " .. Constants.Words.POKEMON .. " uses Rest, it will fail.",
+    description = "Cannot be put to sleep. If this " .. Constants.Words.POKEMON .. " uses Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
   },
 	{
     id = 16,
@@ -94,7 +94,7 @@ AbilityData.Abilities = {
 	{
     id = 17,
     name = "Immunity",
-    description = "Cannot be poisoned.",
+    description = "Cannot be poisoned. Gaining this Ability, like through Skill Swap, will cure Poison.",
   },
 	{ 
     id = 18,
@@ -109,7 +109,7 @@ AbilityData.Abilities = {
 	{
     id = 20,
     name = "Own Tempo",
-    description = "Cannot be confused.",
+    description = "Cannot be confused. Gaining this Ability, like through Skill Swap, will cure confusion.",
   },
   {
     id = 21,
@@ -213,13 +213,13 @@ AbilityData.Abilities = {
 	{
     id = 40,
     name = "Magma Armor",
-    description = "Cannot be frozen.",
+    description = "Cannot be frozen. Gaining this Ability, like through Skill Swap, will cure Freeze.",
     descriptionEmerald = "Decreases the time needed to hatch an Egg by half."
   },
   {
     id = 41,
     name = "Water Veil",
-    description = "Cannot be burned.",
+    description = "Cannot be burned. Gaining this Ability, like through Skill Swap, will cure a Burn.",
   },
 	{
     id = 42,
@@ -386,7 +386,7 @@ AbilityData.Abilities = {
   {
     id = 72,
     name = "Vital Spirit",
-    description = "Cannot be put to sleep. If this " .. Constants.Words.POKEMON .. " tries to use Rest, it will fail.",
+    description = "Cannot be put to sleep. If this " .. Constants.Words.POKEMON .. " tries to use Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
     descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that " .. Constants.Words.POKEMON .. " could appear."
   },
   {

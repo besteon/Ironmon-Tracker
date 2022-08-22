@@ -856,9 +856,8 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	-- set the color for text/number shadows for the top boxes
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
-	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
 	local linespacing = Constants.SCREEN.LINESPACING - 1
@@ -878,8 +877,8 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- Ability NAME
 	local abilityName = ability.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	gui.drawText(offsetX - 1, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 2, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.lookupAbility
@@ -910,7 +909,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 		end
 	end
 
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoTopShadow)
 end
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
