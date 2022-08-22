@@ -433,18 +433,6 @@ function Utils.getCenterHealColor()
 	end
 end
 
-function Utils.truncateRomsFolder(folder)
-	if folder then
-		if string.len(folder) > 12 then
-			return "..." .. string.sub(folder, string.len(folder) - 12)
-		else
-			return folder
-		end
-	else
-		return ""
-	end
-end
-
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72

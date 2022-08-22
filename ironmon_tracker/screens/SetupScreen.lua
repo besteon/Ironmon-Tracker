@@ -130,6 +130,11 @@ function SetupScreen.initialize()
 	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
 	SetupScreen.Buttons.PokemonIcon:onClick() -- Randomize what Pokemon icon is shown
 
+	-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
+	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
+		SetupScreen.Buttons.QuickLoad.textColor = "Intermediate text"
+	end
+
 	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
 	if not animatedAddonInstalled and animatedBtnOption ~= nil then
@@ -170,11 +175,12 @@ function SetupScreen.openEditControlsWindow()
 			controlCombination = controlCombination:sub(1, -3)
 
 			Options.CONTROLS[controlKey] = controlCombination
-			Options.settingsUpdated = true
 			index = index + 1
 		end
 
-		Main.SaveSettings() -- Save these changes to the file to avoid case where user resets before clicking the Close button
+		QuickloadScreen.Buttons.ButtonCombo:updateText()
+		Options.forceSave()
+
 		client.unpause()
 		forms.destroy(form)
 	end, 120, offsetY + 5, 95, 30)

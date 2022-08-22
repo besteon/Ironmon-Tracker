@@ -181,8 +181,8 @@ function Main.LoadNext()
 	Tracker.resetData()
 	print("Tracker data has been reset.\nAttempting to load next ROM...")
 
-	if Options.ROMS_FOLDER == nil or Options.ROMS_FOLDER == "" then
-		print("ERROR: ROMS_FOLDER unspecified\n")
+	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
+		print("ERROR: ROMs Folder unspecified\n")
 		Main.DisplayError("ROMs Folder unspecified.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
 		Main.loadNextSeed = false
 		Main.Run()
@@ -198,13 +198,13 @@ function Main.LoadNext()
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
-	local nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+	local nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
 	if not Main.FileExists(nextrompath) then
 		-- File doesn't exist, try again with underscores instead of spaces
 		nextromname = nextromname:gsub(" ", "_")
-		nextrompath = Options.ROMS_FOLDER .. "/" .. nextromname .. ".gba"
+		nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
 		if not Main.FileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
 			print("ERROR: Next ROM not found\n")
@@ -249,8 +249,13 @@ function Main.LoadSettings()
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
 		end
-		if settings.config.ROMS_FOLDER ~= nil then
-			Options.ROMS_FOLDER = settings.config.ROMS_FOLDER
+		
+		for configKey, _ in pairs(Options.FILES) do
+			local configValue = settings.config[string.gsub(configKey, " ", "_")]
+			if configValue ~= nil then
+				Options.FILES[configKey] = configValue
+			end
+			print(configKey)
 		end
 	end
 
@@ -266,10 +271,10 @@ function Main.LoadSettings()
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then
-		for optionKey, _ in pairs(Options.CONTROLS) do
-			local controlValue = settings.controls[string.gsub(optionKey, " ", "_")]
+		for controlKey, _ in pairs(Options.CONTROLS) do
+			local controlValue = settings.controls[string.gsub(controlKey, " ", "_")]
 			if controlValue ~= nil then
-				Options.CONTROLS[optionKey] = controlValue
+				Options.CONTROLS[controlKey] = controlValue
 			end
 		end
 	end
@@ -310,7 +315,11 @@ function Main.SaveSettings(forced)
 
 	-- [CONFIG]
 	settings.config.FIRST_RUN = Options.FIRST_RUN
-	settings.config.ROMS_FOLDER = Options.ROMS_FOLDER
+
+	for configKey, _ in pairs(Options.FILES) do
+		local encodedKey = string.gsub(configKey, " ", "_")
+		settings.config[encodedKey] = Options.FILES[configKey]
+	end
 
 	-- [TRACKER]
 	for _, optionKey in ipairs(Constants.OrderedLists.OPTIONS) do

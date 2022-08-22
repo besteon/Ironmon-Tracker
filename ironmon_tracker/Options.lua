@@ -3,7 +3,13 @@ Options = {
 	settingsUpdated = false,
 
 	FIRST_RUN = true,
-	ROMS_FOLDER = "",
+
+	FILES = {
+		["ROMs Folder"] = "",
+		["Randomizer JAR"] = "",
+		["Source ROM"] = "",
+		["Custom Settings"] = "",
+	},
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
 	["Show tips on startup"] = true,
@@ -21,6 +27,8 @@ Options = {
 	["Show last damage calcs"] = true,
 	["Reveal info if randomized"] = true,
 	["Animated Pokemon popout"] = false,
+	["Use premade ROMs"] = false,
+	["Generate ROM each time"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start, Select",
@@ -62,5 +70,11 @@ end
 function Options.updateSetting(optionKey, value)
 	Options[optionKey] = value
 	Options.settingsUpdated = true
+	Program.redraw(true)
+end
+
+function Options.forceSave()
+	Options.settingsUpdated = true
+	Main.SaveSettings()
 	Program.redraw(true)
 end
