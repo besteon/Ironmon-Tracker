@@ -6,8 +6,8 @@ SetupScreen = {
 }
 
 SetupScreen.OptionKeys = {
-	"Show tips on startup",
 	"Right justified numbers",
+	"Disable mainscreen carousel",
 	"Track PC Heals",
 	"PC heals count downward",
 	"Animated Pokemon popout",

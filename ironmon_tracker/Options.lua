@@ -6,7 +6,7 @@ Options = {
 	ROMS_FOLDER = "",
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
-	["Show tips on startup"] = true,
+	["Disable mainscreen carousel"] = false,
 	["Auto swap to enemy"] = true,
 	["Hide stats until summary shown"] = false,
 	["Right justified numbers"] = false,

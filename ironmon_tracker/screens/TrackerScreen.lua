@@ -251,7 +251,7 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return not Tracker.Data.isViewingOwn or (Options["Show tips on startup"] and Tracker.getPokemon(1, true) == nil) end,
+		isVisible = function() return not Tracker.Data.isViewingOwn end, --or (Tracker.getPokemon(1, true) == nil) end, -- add in later for tracked data loaded info
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -272,7 +272,7 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function() return Options["Show last damage calcs"] and Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0 end,
+		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Options["Show last damage calcs"] and Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0 end,
 		framesToShow = 180,
 		getContentList = function()
 			local lastAttackMsg
@@ -303,7 +303,7 @@ function TrackerScreen.buildCarousel()
 	-- ROUTE INFO
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function() return Battle.inBattle and Battle.CurrentRoute.hasInfo end,
+		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Battle.inBattle and Battle.CurrentRoute.hasInfo end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			local routeInfo = RouteData.Info[Battle.CurrentRoute.mapId]
@@ -320,14 +320,6 @@ function TrackerScreen.buildCarousel()
 			return { TrackerScreen.Buttons.RouteSummary } 
 		end,
 	}
-
-	-- Easter Egg for the "-69th" seed
-	if Options["Show tips on startup"] then
-		local romnumber = string.match(gameinfo.getromname(), '[0-9]+')
-		if romnumber ~= nil and romnumber ~= "" and romnumber:sub(-2) == "69" then
-			table.insert(Constants.OrderedLists.TIPS, "This seed ends in 69. Nice.")
-		end
-	end
 end
 
 -- Returns the current visible carousel. If unavailable, looks up the next visible carousel
@@ -345,7 +337,7 @@ function TrackerScreen.getCurrentCarouselItem()
 		Program.Frames.carouselActive = 0
 
 		-- When carousel switches to the Notes display, prepare the next tip message to display
-		if nextCarousel ~= carousel and TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES and Options["Show tips on startup"] then
+		if false and nextCarousel ~= carousel and TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES then -- currently disabled, will use later
 			local numTips = #Constants.OrderedLists.TIPS
 			if TrackerScreen.tipMessageIndex == numTips then
 				TrackerScreen.tipMessageIndex = 2 -- Skip "helpful tip" message if that's next up
