@@ -248,17 +248,66 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
-	-- TODO: Implement this as part of #203
+	if not Main.FileExists(Options.FILES["Randomizer JAR"]) then
+		print("Randomizer Jar file not found.")
+		Main.DisplayError("Randomizer Jar file not found.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+    return nil
+	end
 
-	-- Ideally want to have a rom ready to load, then generate a new standby ROM next time the Tracker script starts up
+	if not Main.FileExists(Options.FILES["Custom Settings"]) then
+		print("Randomizer Custom Settings not found.")
+    Main.DisplayError("Randomizer Custom Settings not found.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+    return nil
+	end
 
-	-- I recommend storing the newly generated rom that is being played in the working directory: Utils.getWorkingDirectory()
+	if not Main.FileExists(Options.FILES["Source ROM"]) then
+		print("Source ROM not found.")
+    Main.DisplayError("Source ROM not found.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+    return nil
+	end
 
-	return nil
-	-- return {
-	-- 	name = nextromname,
-	-- 	path = nextrompath,
-	-- }
+	local nextromname = gameinfo.getromname()
+	local prefix = "[Randomized] "
+
+	-- if previous was also randomized, remove it from rom name
+	if bizstring.startswith(nextromname, prefix) then
+		nextromname = bizstring.substring(nextromname, string.len(prefix), string.len(nextromname) - string.len(prefix))
+	end
+
+	local nextrompath = Utils.getWorkingDirectory() .. "/" .. prefix .. nextromname .. ".gba"
+
+	if Main.FileExists(nextrompath) then
+		print(string.format('Removing previously generated rom "%s"', nextrompath))
+		-- TODO: detect OS and add mac/unix version... rm "%s"
+		os.execute(string.format('del "%s"', nextrompath))
+	end
+
+	print(string.format('Generating next rom "%s"', nextrompath))
+
+	local cmd = string.format(
+		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
+		Options.FILES["Randomizer JAR"],
+		Options.FILES["Custom Settings"],
+		Options.FILES["Source ROM"],
+		nextrompath
+	)
+	print(string.format("> %s", cmd))
+	-- TODO:: work out how to read after performing the return
+	-- if we can do that, we can generate a new seed whilst the current seed is loading
+	-- if we can do that, earlier logic to delete would change to delete + rename next seed to current
+	local output = io.popen(cmd):read()
+	print(output)
+
+	if not Main.FileExists(nextrompath) then
+		print("Failed to generate rom")
+    Main.DisplayError("Failed to generate rom")
+		return nil
+	end
+
+	return {
+	 	name = nextromname,
+	 	path = nextrompath,
+	}
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
