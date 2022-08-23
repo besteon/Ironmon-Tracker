@@ -52,7 +52,7 @@ AbilityData.Abilities = {
 	{
     id = 9,
     name = "Static",
-    description = "When hit by a contact move, 30% chance to paralyze the attacker.",
+    description = "When hit by a contact move, 1/3 chance to paralyze the attacker.",
     descriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against an Electric " .. Constants.Words.POKEMON .. ", if possible.",
   },
 	{
@@ -203,7 +203,7 @@ AbilityData.Abilities = {
   {
     id = 38,
     name = "Poison Point",
-    description = "When hit by a contact move, 30% chance to poison the attacker.",
+    description = "When hit by a contact move, 1/3 chance to poison the attacker.",
   },
   {
     id = 39,
@@ -261,7 +261,7 @@ AbilityData.Abilities = {
   {
     id = 49,
     name = "Flame Body",
-    description = "When hit by a contact move, 30% chance to burn the attacker.",
+    description = "When hit by a contact move, 1/3 chance to burn the attacker.",
     descriptionEmerald = "Decreases the time needed to hatch an Egg by half."
   },
   {
@@ -302,7 +302,7 @@ AbilityData.Abilities = {
   {
     id = 56,
     name = "Cute Charm",
-    description = "When hit by a contact move, 30% chance to inflict infatuation on the attacker. Has no effect if this " .. Constants.Words.POKEMON .. " is genderless, or the same gender as the attacker.",
+    description = "When hit by a contact move, 1/3 chance to inflict infatuation on the attacker. Has no effect if this " .. Constants.Words.POKEMON .. " is genderless, or the same gender as the attacker.",
     descriptionEmerald = "While at the head of the party, 2/3 chance that a wild encounter will be forced to the opposite gender of this " .. Constants.Words.POKEMON .. ", if possible."
   },
   {
