@@ -100,7 +100,7 @@ function Main.SupportedBizhawkVersion()
 			end
 		end
 	end
-	
+
 	return false
 end
 
@@ -254,9 +254,11 @@ function Main.GenerateNextRom()
 		return nil
 	end
 
+	-- TODO: base the next rom name on the custom settings file, not the source rom
+	-- TODO: Reveal the settings used in the quickload settings screen too
 	local sourceRom = Options.FILES["Source ROM"]
 	local nextromname = "AutoRandomized " .. sourceRom:sub(sourceRom:match("^.*()\\") + 1)
-	local nextrompath = Utils.getWorkingDirectory() .. nextromname .. ".gba"
+	local nextrompath = Utils.getWorkingDirectory() .. nextromname
 
 	local javacommand = string.format(
 		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
@@ -311,7 +313,7 @@ function Main.LoadSettings()
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
 		end
-		
+
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
 			if configValue ~= nil then
