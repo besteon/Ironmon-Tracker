@@ -16,7 +16,7 @@ AbilityData.Abilities = {
 	{
     id = 2,
     name = "Drizzle",
-    description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, ignoring changes to Accuracy and Evasion, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP",
+    description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP",
   },
   {
     id = 3,

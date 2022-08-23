@@ -899,7 +899,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- EMERALD DESCRIPTION
 	if ability.descriptionEmerald ~= nil then
-		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Header text"], boxInfoTopShadow, "italics")
+		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, "italics")
 		offsetY = offsetY + linespacing + 1
 		local wrappedSummary = Utils.getWordWrapLines(ability.descriptionEmerald, 31)
 
@@ -909,6 +909,8 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 		end
 	end
 
+	local closeButton = InfoScreen.Buttons.close
+	closeButton.boxColors = { "Upper box border", "Upper box background" }
 	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoTopShadow)
 end
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
