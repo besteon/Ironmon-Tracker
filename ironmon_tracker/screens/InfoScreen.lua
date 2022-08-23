@@ -129,12 +129,30 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	close = {
+	back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return true end,
+		onClick = function(self)
+			InfoScreen.viewScreen = 0
+			InfoScreen.infoLookup = 0
+			if InfoScreen.prevScreen > 0 then
+				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+			else
+				InfoScreen.clearScreenData()
+				Program.changeScreenView(Program.Screens.TRACKER)
+			end
+		end
+	},
+	backTop = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Back",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return true end,
 		onClick = function(self)
 			InfoScreen.viewScreen = 0
@@ -683,7 +701,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
 	InfoScreen.drawNotepadArea()
 	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
 
@@ -839,7 +857,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.Buttons.lookupMove, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
 
 	-- Easter egg
 	if moveId == 150 then -- 150 = Splash
@@ -909,9 +927,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 		end
 	end
 
-	local closeButton = InfoScreen.Buttons.close
-	closeButton.boxColors = { "Upper box border", "Upper box background" }
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.backTop, boxInfoTopShadow)
 end
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
@@ -973,7 +989,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.nextRoute, bgHeaderShadow)
 	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxBotShadow)
 end
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
