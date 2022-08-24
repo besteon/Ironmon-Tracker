@@ -435,18 +435,6 @@ function Utils.getCenterHealColor()
 	end
 end
 
-function Utils.truncateRomsFolder(folder)
-	if folder then
-		if string.len(folder) > 12 then
-			return "..." .. string.sub(folder, string.len(folder) - 12)
-		else
-			return folder
-		end
-	else
-		return ""
-	end
-end
-
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72
@@ -556,4 +544,33 @@ function Utils.getWorkingDirectory()
 	else
 		return ""
 	end
+end
+
+function Utils.extractFolderNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local folderStartIndex = path:match("^.*()[\\/]") -- path to folder
+	if folderStartIndex ~= nil then
+		local foldername = path:sub(folderStartIndex + 1)
+		if foldername ~= nil then
+			return foldername
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local nameStartIndex = path:match("^.*()\\") -- path to file
+	local nameEndIndex = path:match("^.*()%.") -- file extension
+	if nameStartIndex ~= nil and nameEndIndex ~= nil then
+		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
+		if filename ~= nil then
+			return filename
+		end
+	end
+
+	return ""
 end
