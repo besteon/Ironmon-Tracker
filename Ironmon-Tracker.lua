@@ -191,8 +191,8 @@ function Main.LoadNextRom()
 	elseif Options["Generate ROM each time"] then
 		nextRom = Main.GenerateNextRom()
 	else
-		print("ERROR: Quick-load feature is currently disabled.")
-		Main.DisplayError("Quick-load feature is currently disabled.\n\nEnable this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		print("ERROR: The Quick-load feature is currently disabled.")
+		Main.DisplayError("The Quick-load feature is currently disabled.\n\nEnable this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 	end
 
 	if nextRom ~= nil then
@@ -217,8 +217,8 @@ function Main.GetNextRomFromFolder()
 	print("Attempting to load next ROM in sequence from ROMs Folder...")
 
 	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
-		print("ERROR: ROMs Folder unspecified\n")
-		Main.DisplayError("ROMs Folder unspecified.\n\nFix this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		print("ERROR: Either the ROMs Folder is incorrect, or current loaded ROM is not in that folder.\n")
+		Main.DisplayError("Either the ROMs Folder is incorrect, or current loaded ROM is not in that folder.\n\nFix this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	end
 
@@ -244,7 +244,7 @@ function Main.GetNextRomFromFolder()
 		nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
 		if not Main.FileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("ERROR: Next ROM not found\n")
+			print("Unable to find next ROM: " .. nextromname .. ".gba\n")
 			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
 			return nil
 		end
@@ -278,10 +278,6 @@ function Main.GenerateNextRom()
 		nextrompath
 	)
 
-	-- TODO:: work out how to read after performing the return
-	--   Zac: Unsure if any change needs to happen here, works for me
-	-- if we can do that, we can generate a new seed whilst the current seed is loading
-	-- if we can do that, earlier logic to delete would change to delete + rename next seed to current
 	print("Generating next ROM: " .. nextromname)
 	local pipe = io.popen(javacommand)
 	local output = pipe:read("*all")
