@@ -1,4 +1,6 @@
-MoveData = {}
+MoveData = {
+	totalMoves = 354,
+}
 
 -- Move categories identify the type of attack a move is: physical, special, or status
 MoveData.Categories = {
@@ -96,7 +98,7 @@ function MoveData.readDataFromMemory()
 	-- If any data at all was randomized, read in full move data from memory
 	if MoveData.checkIfDataIsRandomized() then
 		print("Randomized move data detected, reading from game memory...")
-		for moveId=1, #MoveData.Moves, 1 do
+		for moveId=1, MoveData.totalMoves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
 			moveInfo = MoveData.readMoveInfoFromMemory(moveId)
@@ -106,7 +108,7 @@ function MoveData.readDataFromMemory()
 				moveData.pp = moveInfo.pp
 
 				-- Don't overwrite manually entered data for moves with special powers (randomizer sets them to "1")
-				if not MoveData.moveHasUnusualPower(moveId) then
+				if moveInfo.power ~= "1" then
 					moveData.power = moveInfo.power
 				end
 
@@ -190,16 +192,8 @@ function MoveData.checkIfDataIsRandomized()
 	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
 end
 
-function MoveData.moveHasUnusualPower(moveId)
-	if moveId == 67 then return true end -- Low Kick power = "WT"
-	if moveId == 175 then return true end -- Flail power = "<HP"
-	if moveId == 179 then return true end -- Reversal power = "<HP"
-	if moveId == 216 then return true end -- Return power = ">FR"
-	if moveId == 217 then return true end -- Present power = "RNG"
-	if moveId == 218 then return true end -- Frustration power = "<FR"
-	if moveId == 222 then return true end -- Magnitude power = "RNG"
-
-	return false
+function MoveData.isValid(moveId)
+	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
 end
 
 --[[

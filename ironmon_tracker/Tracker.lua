@@ -138,6 +138,8 @@ end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackMove(pokemonID, moveId, level)
+	if Tracker.isTrackingMove(pokemonID, moveId, level) then return end -- rework later for better accuracy below
+
 	-- If no move data exist, set this as the first move
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
@@ -286,10 +288,10 @@ function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
 	end
 
 	-- Lookup ability id's from the master list of ability pokemon data
-	for id, abilityName in pairs(MiscData.Abilities) do
-		if abilityOneText == abilityName then
+	for id, ability in pairs(AbilityData.Abilities) do
+		if abilityOneText == ability.name then
 			abilityOneId = id
-		elseif abilityTwoText == abilityName then
+		elseif abilityTwoText == ability.name then
 			abilityTwoId = id
 		end
 	end
@@ -399,7 +401,7 @@ function Tracker.resetData()
 		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
 		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
 		isViewingOwn = true,
-		inBattle = false,
+		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
@@ -415,6 +417,8 @@ function Tracker.resetData()
 		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
 		},
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES), -- Tally of fishing encounters, to track when one occurs
+		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH), -- Tally of rock smash uses, to track encounters
+		isNewGame = true, -- Flag for new game, to check if stored trainerID is correct
 	}
 end
 

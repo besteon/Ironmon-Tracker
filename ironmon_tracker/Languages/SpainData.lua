@@ -817,7 +817,9 @@ SpainData.Items = {
 }
 
 function SpainData.updateToSpainData()
-    MiscData.Abilities = SpainData.Abilities
+    for key, val in ipairs(AbilityData.Abilities) do
+        val.name = SpainData.Abilities[key]
+    end
     MiscData.Items = SpainData.Items
     for key, val in ipairs(MoveData.Moves) do
         val.name = SpainData.Moves[key]

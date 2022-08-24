@@ -25,6 +25,18 @@ InfoScreen.Buttons = {
 			InfoScreen.openMoveInfoWindow()
 		end
 	},
+	lookupAbility = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			InfoScreen.openAbilityInfoWindow()
+		end
+	},
 	lookupPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
@@ -89,12 +101,25 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	showMoreRouteEncounters = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "More...",
+	previousRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.PREVIOUS_BUTTON,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 83, 141, 30, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
+		box = { Constants.SCREEN.WIDTH + 6, 37, 10, 10, },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			local mapId = InfoScreen.infoLookup.mapId
+			local encounterArea = InfoScreen.infoLookup.encounterArea
+			InfoScreen.infoLookup.encounterArea = RouteData.getPreviousAvailableEncounterArea(mapId, encounterArea)
+			Program.redraw(true)
+		end
+	},
+	nextRoute = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NEXT_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 136, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
@@ -104,12 +129,30 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	close = {
+	back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return true end,
+		onClick = function(self)
+			InfoScreen.viewScreen = 0
+			InfoScreen.infoLookup = 0
+			if InfoScreen.prevScreen > 0 then
+				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+			else
+				InfoScreen.clearScreenData()
+				Program.changeScreenView(Program.Screens.TRACKER)
+			end
+		end
+	},
+	backTop = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Back",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return true end,
 		onClick = function(self)
 			InfoScreen.viewScreen = 0
@@ -153,6 +196,26 @@ InfoScreen.Buttons = {
 			end
 		end
 	},
+	NotepadTracking = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		getContentList = function(pokemonId)
+			local noteText = Tracker.getNote(pokemonId)
+			if noteText ~= nil and noteText ~= "" then
+				return noteText
+			else
+				return "(Leave a note)"
+			end
+		end,
+		textColor = "Default text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 142, 110, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 142, 11, 11 },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		onClick = function(self)
+			if not self:isVisible() then return end
+			TrackerScreen.openNotePadWindow(InfoScreen.infoLookup)
+		end,
+	}
 }
 
 InfoScreen.TemporaryButtons = {}
@@ -228,6 +291,47 @@ function InfoScreen.openMoveInfoWindow()
 		end
 		client.unpause()
 		forms.destroy(moveLookup)
+	end, 212, 29)
+end
+
+function InfoScreen.openAbilityInfoWindow()
+	Program.destroyActiveForm()
+	local abilityLookup = forms.newform(360, 105, "Ability Look up", function() client.unpause() end)
+	Program.activeFormId = abilityLookup
+	Utils.setFormLocation(abilityLookup, 100, 50)
+	local abilityName
+	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
+		abilityName = AbilityData.defaultAbility.name
+	else
+		abilityName = AbilityData.Abilities[InfoScreen.infoLookup].name
+	end
+	local allAbilitiesData = {}
+	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
+
+	forms.label(abilityLookup, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
+	local abilityDropdown = forms.dropdown(abilityLookup, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
+	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
+	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
+	forms.settext(abilityDropdown, abilityName)
+
+	forms.button(abilityLookup, "Look up", function()
+		local abilityNameFromForm = forms.gettext(abilityDropdown)
+		local abilityId
+
+		for id, data in pairs(AbilityData.Abilities) do
+			if data.name == abilityNameFromForm then
+				abilityId = id
+				break
+			end
+		end
+
+		if abilityId ~= nil and abilityId ~= 0 then
+			InfoScreen.infoLookup = abilityId
+			Program.redraw(true)
+		end
+		client.unpause()
+		forms.destroy(abilityLookup)
 	end, 212, 29)
 end
 
@@ -392,7 +496,7 @@ function InfoScreen.drawScreen()
 	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
 		local pokemonID = InfoScreen.infoLookup
 		-- Only draw valid pokemon data, pokemonID = 0 is blank move data
-		if pokemonID < 1 or pokemonID > #PokemonData.Pokemon then
+		if not PokemonData.isValid(pokemonID) then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
 			InfoScreen.drawPokemonInfoScreen(pokemonID)
@@ -400,7 +504,7 @@ function InfoScreen.drawScreen()
 	elseif InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO then
 		local moveId = InfoScreen.infoLookup
 		-- Only draw valid move data, moveId = 0 is blank move data
-		if moveId < 1 or moveId > #MoveData.Moves then
+		if not MoveData.isValid(moveId) then
 			Program.changeScreenView(Program.Screens.TRACKER)
 		else
 			InfoScreen.drawMoveInfoScreen(moveId)
@@ -418,6 +522,9 @@ function InfoScreen.drawScreen()
 			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		end
+	elseif (InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO) then
+		local abilityId = InfoScreen.infoLookup
+		InfoScreen.drawAbilityInfoScreen(abilityId)
 	end
 end
 
@@ -530,7 +637,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, botOffsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, boxInfoBotShadow)
 	end
-	botOffsetY = botOffsetY + (linespacing * 3)
+	botOffsetY = botOffsetY + (linespacing * 3) - 2
 
 	-- If the moves-to-learn only takes up one row, move up the weakness data
 	if #pokemon.movelvls[GameSettings.versiongroup] <= 8 then
@@ -594,7 +701,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
+	InfoScreen.drawNotepadArea()
+	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
+
 end
 
 function InfoScreen.drawMoveInfoScreen(moveId)
@@ -747,7 +857,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.Buttons.lookupMove, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
 
 	-- Easter egg
 	if moveId == 150 then -- 150 = Splash
@@ -757,7 +867,68 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
 end
+function InfoScreen.drawAbilityInfoScreen(abilityId)
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 
+	-- set the color for text/number shadows for the top boxes
+	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
+	local offsetColumnX = offsetX + 45
+	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
+	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local botOffsetY = offsetY + (linespacing * 7) + 7
+
+	local ability --= AbilityData.defaultAbility
+	if not AbilityData.isValid(abilityId) then
+		ability = AbilityData.defaultAbility
+	else
+		ability = AbilityData.Abilities[abilityId]
+	end
+
+	Drawing.drawBackgroundAndMargins()
+	-- Draw one big rectangle
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	-- Ability NAME
+	local abilityName = ability.name:upper()
+	gui.drawText(offsetX - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 2, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+
+	--SEARCH ICON
+	local lookupAbility = InfoScreen.Buttons.lookupAbility
+	lookupAbility.box = {Constants.SCREEN.WIDTH + 133, offsetY, 10, 10,}
+	Drawing.drawButton(lookupAbility, boxInfoTopShadow)
+	offsetY = offsetY + linespacing * 2 - 4
+
+	-- DESCRIPTION
+	if ability.description ~= nil then
+		local wrappedSummary = Utils.getWordWrapLines(ability.description, 31)
+
+		for _, line in pairs(wrappedSummary) do
+			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)
+			offsetY = offsetY + linespacing
+		end
+	end
+	offsetY = offsetY + 6
+
+	-- EMERALD DESCRIPTION
+	if ability.descriptionEmerald ~= nil then
+		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, "italics")
+		offsetY = offsetY + linespacing + 1
+		local wrappedSummary = Utils.getWordWrapLines(ability.descriptionEmerald, 31)
+
+		for _, line in pairs(wrappedSummary) do
+			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)
+			offsetY = offsetY + linespacing
+		end
+	end
+
+	Drawing.drawButton(InfoScreen.Buttons.backTop, boxInfoTopShadow)
+end
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
@@ -786,9 +957,9 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	local encounterHeaderText = Constants.Words.POKEMON .. " seen by " .. encounterArea
 	if encounterArea == RouteData.EncounterArea.STATIC then
-		encounterHeaderText = encounterHeaderText .. " encounters"
+		encounterHeaderText = encounterArea .. " " .. Constants.Words.POKEMON .. " encounters"
 	end
-	Drawing.drawText(boxX - 1, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
@@ -816,6 +987,28 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.showMoreRouteEncounters, boxBotShadow)
-	Drawing.drawButton(InfoScreen.Buttons.close, boxBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.nextRoute, bgHeaderShadow)
+	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
+	Drawing.drawButton(InfoScreen.Buttons.back, boxBotShadow)
+end
+function InfoScreen.drawNotepadArea()
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
+	--23 will fit, but cut to 22 if we need to show the ellipses
+	if #noteText > 23 then
+		local	textTest = Utils.getWordWrapLines(noteText, 22)
+		textTest[1] = textTest[1] .. " ..."
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, textTest[1], Theme.COLORS["Default text"], shadowcolor)
+	else
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, noteText, Theme.COLORS["Default text"], shadowcolor)
+	end
+	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
+	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])
+	--blank out the part past the button, in case there are too many 'big' letters that bleed past the Back button
+	--and also the part past the box edge
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+	local y = 141
+	gui.drawRectangle(x + 1 , 141, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	--gui.drawRectangle(Constants.SCREEN.WIDTH + 117 - 1, y, 28, 13, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
+	gui.drawLine(x, y, x, y + 13, Theme.COLORS["Lower box border"])
 end

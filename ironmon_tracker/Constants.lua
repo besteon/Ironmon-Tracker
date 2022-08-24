@@ -72,6 +72,7 @@ Constants.GAME_STATS = { -- Enums for in-game stats
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
 	USED_POKECENTER = 15,
 	RESTED_AT_HOME = 16,
+	USED_ROCK_SMASH = 19,
 }
 
 Constants.OrderedLists = {
@@ -84,7 +85,7 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
-		"Show tips on startup",
+		"Disable mainscreen carousel",
 		"Auto swap to enemy",
 		"Hide stats until summary shown",
 		"Right justified numbers",
@@ -99,6 +100,8 @@ Constants.OrderedLists = {
 		"Show last damage calcs",
 		"Reveal info if randomized",
 		"Animated Pokemon popout",
+		"Use premade ROMs",
+		"Generate ROM each time",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -118,19 +121,7 @@ Constants.OrderedLists = {
 		"Lower box background",
 		"Main background",
 	},
-	THEMEPRESETS = {
-		"Default Theme",
-		"Fire Red",
-		"Leaf Green",
-		"Beach Getaway",
-		"Blue Da Ba Dee",
-		"Calico Cat",
-		"Cotton Candy",
-		"USS Galactic",
-		"Simple Monotone",
-		"Neon Lights",
-	},
-	TIPS = {
+	TIPS = { -- currently disabled, may use later
 		"Helpful tips are shown down here.", -- Skipped after it's shown once
 		"Tracked data is auto-saved after every battle.",
 		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
@@ -244,5 +235,31 @@ Constants.PixelImages = {
 		{0,1,0,1,1,0,0,0,0,0,0,0,0,0},
 		{1,0,1,0,1,1,0,0,0,0,0,0,0,0},
 		{1,1,0,0,0,1,1,0,0,0,0,0,0,0},
+	},
+	CHECKMARK = {
+		{0,0,0,0,0,0,0,0,0,0,1,1},
+		{0,0,0,0,0,0,0,0,0,1,1,1},
+		{0,0,0,0,0,0,0,0,1,1,1,0},
+		{0,0,0,0,0,0,0,0,1,1,0,0},
+		{0,0,0,0,0,0,0,1,1,1,0,0},
+		{0,0,0,0,0,0,1,1,1,0,0,0},
+		{1,1,0,0,0,0,1,1,0,0,0,0},
+		{1,1,1,0,0,1,1,1,0,0,0,0},
+		{0,1,1,1,1,1,1,0,0,0,0,0},
+		{0,0,1,1,1,1,0,0,0,0,0,0},
+		{0,0,0,1,1,0,0,0,0,0,0,0},
+	},
+	CROSS = {
+		{1,1,0,0,0,0,0,0,0,1,1},
+		{1,1,1,0,0,0,0,0,1,1,1},
+		{0,1,1,1,0,0,0,1,1,1,0},
+		{0,0,1,1,1,0,1,1,1,0,0},
+		{0,0,0,1,1,1,1,1,0,0,0},
+		{0,0,0,0,1,1,1,0,0,0,0},
+		{0,0,0,1,1,1,1,1,0,0,0},
+		{0,0,1,1,1,0,1,1,1,0,0},
+		{0,1,1,1,0,0,0,1,1,1,0},
+		{1,1,1,0,0,0,0,0,1,1,1},
+		{1,1,0,0,0,0,0,0,0,1,1},
 	},
 }

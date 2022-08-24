@@ -221,7 +221,9 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.netEffectiveness(move, moveType, comparedTypes)
-	local effectiveness = 1.0
+	if moveType == nil or comparedTypes == nil or comparedTypes == {} then
+		return 1.0
+	end
 
 	-- If type is unknown or typeless
 	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
@@ -237,6 +239,8 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 				return 0.0
 			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
 				return 0.0
+			elseif moveType == PokemonData.Types.POISON and (comparedTypes[1] == PokemonData.Types.STEEL or comparedTypes[2] == PokemonData.Types.STEEL) then
+				return 0.0
 			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
 				return 0.0
 			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then
@@ -247,6 +251,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	end
 
 	-- Check effectiveness against each opposing type
+	local effectiveness = 1.0
 	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
 	if effectiveValue ~= nil then
 		effectiveness = effectiveness * effectiveValue
@@ -326,7 +331,7 @@ function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
 end
 
 function Utils.calculateWeatherBall(moveType, movePower)
-	if not Tracker.Data.inBattle then
+	if not Battle.inBattle then
 		return moveType, movePower
 	end
 
@@ -338,7 +343,7 @@ function Utils.calculateWeatherBall(moveType, movePower)
 	}
 	local battleWeather = Memory.readword(GameSettings.gBattleWeather)
 	local currentWeather = weatherIds[battleWeather]
-	
+
 	if currentWeather ~= nil then
 		if currentWeather == "Rain" then
 			moveType = PokemonData.Types.WATER
@@ -366,7 +371,7 @@ function Utils.estimateIVs(pokemon)
 	local spa = pokemon.stats.spa * Utils.getNatureMultiplier("spa", pokemon.nature)
 	local spd = pokemon.stats.spd * Utils.getNatureMultiplier("spd", pokemon.nature)
 	local spe = pokemon.stats.spe * Utils.getNatureMultiplier("spe", pokemon.nature)
-	
+
 	local sumStats = pokemon.stats.hp + atk + def + spa + spd + spe - pokemon.level - 35
 
 	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
@@ -430,22 +435,10 @@ function Utils.getCenterHealColor()
 	end
 end
 
-function Utils.truncateRomsFolder(folder)
-	if folder then
-		if string.len(folder) > 12 then
-			return "..." .. string.sub(folder, string.len(folder) - 12)
-		else
-			return folder
-		end
-	else
-		return ""
-	end
-end
-
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72
-	
+
 	local firstSpace = str:find("(%s+)()(%S+)()")
 	if firstSpace == nil then return { str } end
 
@@ -551,4 +544,33 @@ function Utils.getWorkingDirectory()
 	else
 		return ""
 	end
+end
+
+function Utils.extractFolderNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local folderStartIndex = path:match("^.*()[\\/]") -- path to folder
+	if folderStartIndex ~= nil then
+		local foldername = path:sub(folderStartIndex + 1)
+		if foldername ~= nil then
+			return foldername
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local nameStartIndex = path:match("^.*()\\") -- path to file
+	local nameEndIndex = path:match("^.*()%.") -- file extension
+	if nameStartIndex ~= nil and nameEndIndex ~= nil then
+		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
+		if filename ~= nil then
+			return filename
+		end
+	end
+
+	return ""
 end

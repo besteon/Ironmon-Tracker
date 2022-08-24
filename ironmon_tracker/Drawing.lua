@@ -29,14 +29,13 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height)
 	gui.drawRectangle(x, y, width, height, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
 end
 
-function Drawing.drawPokemonIcon(id, x, y)
-	id = id or 0
-	if id < 0 or id > #PokemonData.Pokemon then
-		id = 0 -- Blank Pokemon data/icon
+function Drawing.drawPokemonIcon(pokemonID, x, y)
+	if not PokemonData.isValid(pokemonID) then
+		pokemonID = 0 -- Blank Pokemon data/icon
 	end
 
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. id .. iconset.extension
+	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
 
 	if iconset.name == "Stadium" then
 		y = y + 4

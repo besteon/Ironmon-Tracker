@@ -33,7 +33,7 @@ end
 function Input.checkJoypadInput(joypadButtons)
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
-		if Tracker.Data.inBattle then
+		if Battle.inBattle then
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 		end
 		Program.redraw(true)
@@ -91,6 +91,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, NavigationMenu.Buttons)
 	elseif Program.currentScreen == Program.Screens.SETUP then
 		Input.checkButtonsClicked(xmouse, ymouse, SetupScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.QUICKLOAD then
+		Input.checkButtonsClicked(xmouse, ymouse, QuickloadScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.GAME_SETTINGS then
 		Input.checkButtonsClicked(xmouse, ymouse, GameOptionsScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.THEME then
