@@ -239,6 +239,8 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 				return 0.0
 			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
 				return 0.0
+			elseif moveType == PokemonData.Types.POISON and (comparedTypes[1] == PokemonData.Types.STEEL or comparedTypes[2] == PokemonData.Types.STEEL) then
+				return 0.0
 			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
 				return 0.0
 			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then

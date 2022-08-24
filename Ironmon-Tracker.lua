@@ -198,12 +198,13 @@ function Main.LoadNextRom()
 	if nextRom ~= nil then
 		Tracker.resetData()
 		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
+		local wasSoundOn = client.GetSoundOn()
 		client.SetSoundOn(false)
 		if client.getversion() ~= "2.9" then
 			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 		end
 		client.openrom(nextRom.path)
-		client.SetSoundOn(true)
+		client.SetSoundOn(wasSoundOn)
 	else
 		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
 	end
