@@ -11,6 +11,7 @@ function Main.Initialize()
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
 	Main.MetaSettings = {}
+	Main.currentSeed = 1
 	Main.loadNextSeed = false
 	Main.TrackerFiles = { -- All of the files required by the tracker
 		"/Inifile.lua",
@@ -40,6 +41,7 @@ function Main.Initialize()
 		"/Tracker.lua",
 	}
 
+	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
@@ -180,6 +182,8 @@ function Main.Run()
 end
 
 function Main.LoadNextRom()
+	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
+
 	local nextRom
 	if Options["Use premade ROMs"] then
 		nextRom = Main.GetNextRomFromFolder()
@@ -187,7 +191,7 @@ function Main.LoadNextRom()
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: Quick-load feature is currently disabled.")
-		Main.DisplayError("Quick-load feature is currently disabled.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+		Main.DisplayError("Quick-load feature is currently disabled.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 	end
 
 	if nextRom ~= nil then
@@ -212,7 +216,7 @@ function Main.GetNextRomFromFolder()
 
 	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
 		print("ERROR: ROMs Folder unspecified\n")
-		Main.DisplayError("ROMs Folder unspecified.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+		Main.DisplayError("ROMs Folder unspecified.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	end
 
@@ -223,6 +227,9 @@ function Main.GetNextRomFromFolder()
 	local romnumber = string.match(romname, '[0-9]+')
 	if romprefix == nil then romprefix = "" end
 	if romnumber == nil then romnumber = "0" end
+
+	local attemptsfile = romprefix .. " Attempts.txt"
+	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
@@ -248,38 +255,40 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
-	if not (Main.FileExists(Options.FILES["Randomizer JAR"]) and Main.FileExists(Options.FILES["Custom Settings"]) and Main.FileExists(Options.FILES["Source ROM"])) then
-		print("Files required for Quick-load to generate a new ROM are missing.")
-		Main.DisplayError("Files required for Quick-load to generate a new ROM are missing.\n\nSet this in the Tracker's options menu (gear icon) -> Tracker Setup.")
+	if not (Main.FileExists(Options.FILES["Randomizer JAR"]) and Main.FileExists(Options.FILES["Settings File"]) and Main.FileExists(Options.FILES["Source ROM"])) then
+		print("Files missing that are required for Quick-load to generate a new ROM.")
+		Main.DisplayError("Files missing that are required for Quick-load to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	end
 
-	-- TODO: base the next rom name on the custom settings file, not the source rom
-	-- TODO: Reveal the settings used in the quickload settings screen too
-	local sourceRom = Options.FILES["Source ROM"]
-	local nextromname = "AutoRandomized " .. sourceRom:sub(sourceRom:match("^.*()\\") + 1)
+	local filename = Utils.extractFileNameFromPath(Options.FILES["Settings File"])
+	local attemptsfile = filename .. " Attempts.txt"
+	local nextromname = filename .. " AutoRandomized.gba"
 	local nextrompath = Utils.getWorkingDirectory() .. nextromname
+
+	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	local javacommand = string.format(
 		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
 		Options.FILES["Randomizer JAR"],
-		Options.FILES["Custom Settings"],
-		sourceRom,
+		Options.FILES["Settings File"],
+		Options.FILES["Source ROM"],
 		nextrompath
 	)
 
 	-- TODO:: work out how to read after performing the return
+	--   Zac: Unsure if any change needs to happen here, works for me
 	-- if we can do that, we can generate a new seed whilst the current seed is loading
 	-- if we can do that, earlier logic to delete would change to delete + rename next seed to current
-	print("\nGenerating next ROM: " .. nextromname)
+	print("Generating next ROM: " .. nextromname)
 	local pipe = io.popen(javacommand)
 	local output = pipe:read("*all")
 	print("> " .. output)
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("Unable to generate ROM.")
-		Main.DisplayError("Unable to generate ROM.\n\nRecheck all required files in Quick-load setup.")
+		print("Failed to generate a new ROM.")
+		Main.DisplayError("Failed to generate a new ROM.\n\nFix required files: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	end
 
@@ -287,6 +296,25 @@ function Main.GenerateNextRom()
 	 	name = nextromname,
 	 	path = nextrompath,
 	}
+end
+
+-- Increment the attempts counter through a .txt file
+function Main.IncrementAttemptsCounter(filename, defaultStart)
+	if Main.FileExists(filename) then
+		local attemptsRead = io.open(filename, "r")
+		local attemptsText = attemptsRead:read("*a")
+		attemptsRead:close()
+		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+			Main.currentSeed = tonumber(attemptsText)
+		end
+	elseif defaultStart ~= nil then
+		Main.currentSeed = defaultStart
+	end
+
+	Main.currentSeed = Main.currentSeed + 1
+	local attemptsWrite = io.open(filename, "w")
+	attemptsWrite:write(Main.currentSeed)
+	attemptsWrite:close()
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
