@@ -191,7 +191,7 @@ function Main.LoadNextRom()
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: Quick-load feature is currently disabled.")
-		Main.DisplayError("Quick-load feature is currently disabled.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		Main.DisplayError("Quick-load feature is currently disabled.\n\nEnable this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 	end
 
 	if nextRom ~= nil then
@@ -216,7 +216,7 @@ function Main.GetNextRomFromFolder()
 
 	if Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
 		print("ERROR: ROMs Folder unspecified\n")
-		Main.DisplayError("ROMs Folder unspecified.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		Main.DisplayError("ROMs Folder unspecified.\n\nFix this at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	end
 
