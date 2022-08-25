@@ -481,7 +481,7 @@ function TrackerScreen.drawScreen()
 		opposingPokemon = tempPokemon
 	end
 
-	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 then
+	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level

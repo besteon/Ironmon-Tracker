@@ -15,7 +15,7 @@ Battle = {
 	damageReceived = 0,
 	lastEnemyMoveId = 0,
 	enemyHasAttacked = false,
-	
+
 	-- "Low accuracy" values
 	Synchronize = {
 		turnCount = 0,
@@ -181,7 +181,6 @@ function Battle.checkEnemyEncounter(opposingPokemon)
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 
-	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 	Battle.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 
 	-- Check if fishing encounter, if so then get the rod that was used
@@ -256,7 +255,7 @@ function Battle.checkEnemyAbilityUsed(enemyAbility, playerAbility)
 			return true
 		end
 	end
-	
+
 	-- Abilities to check via battler read
 	local battlerMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
 
@@ -350,7 +349,7 @@ function Battle.beginNewBattle()
 	Battle.turnCount = 0
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
-	Battle.Synchronize.battlerTarget = -1	
+	Battle.Synchronize.battlerTarget = -1
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	Tracker.Data.ownViewSlot = 1
