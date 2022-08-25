@@ -210,7 +210,7 @@ function QuickloadScreen.handleSetCustomSettings(button)
 			button.text = "Clear"
 			Options.forceSave()
 		else
-			Main.DisplayError("The file selected is not a Randomier Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
+			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
 end
