@@ -543,7 +543,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local pokemonViewed = Tracker.getViewedPokemon()
+	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
 	local ownPokemonId = Tracker.getPokemon(Tracker.Data.ownViewSlot, true).pokemonID
 
