@@ -216,6 +216,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f61
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -355,6 +356,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+		GameSettings.sEvoStructPtr = 0x03005e94 --gCB2_AfterEvolution
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02024a6a
@@ -366,6 +368,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -516,6 +519,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -670,6 +674,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ef1
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -820,6 +825,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -970,6 +976,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
@@ -1112,6 +1119,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.sMonSummaryScreen = 0x0203cf1c
 	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
+	GameSettings.sEvoStructPtr = 0x0203ab80
 	GameSettings.gBattlerAttacker = 0x0202420B
 	GameSettings.gBattlerTarget = 0x0202420c
 	GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x0202406E
@@ -1123,6 +1131,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gTakenDmg = 0x020241f8
 	GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
 	GameSettings.gBattleResults = 0x03005d10
+	GameSettings.gBattleMainFunc = 0x03005d04
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
 	GameSettings.BattleScript_LearnMoveLoop = 0x082dabd9 -- BattleScript_TryLearnMoveLoop
 	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
@@ -1269,6 +1278,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -1280,6 +1290,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
@@ -1423,6 +1434,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -1434,6 +1446,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a11
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
@@ -1581,6 +1594,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -1592,6 +1606,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
+		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
@@ -1744,6 +1759,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -1755,6 +1771,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
+		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
@@ -1907,6 +1924,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -1918,6 +1936,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
+		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x0081D71E3
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7235
@@ -2071,6 +2090,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -2082,6 +2102,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
+		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find 
 		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
@@ -2234,6 +2255,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce
@@ -2245,6 +2267,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a5d
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8aaf
@@ -2400,9 +2423,11 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
+		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d89ed
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
+		GameSettings.WaitForEvoSceneToFinish = 0x08015b45 --WaitForEvoSceneToFinish + 0x1
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc

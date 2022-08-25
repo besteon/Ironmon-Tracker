@@ -105,7 +105,13 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		if not Program.inCatchingTutorial then
+		--FRLG/E set an evoPointer
+		Program.inEvolution = Memory.readdword(GameSettings.sEvoStructPtr)
+		--RS set a state flag
+		--print(Memory.readdword(0x030042d4))
+		print(Memory.readdword(0x03004f84))  -- gBattleMainFunc = 134299273
+		--FRLG: 134306629
+		if not Program.inCatchingTutorial and not Program.inEvolution then
 			Program.updatePokemonTeams()
 
 			-- Check if summary screen has being shown
