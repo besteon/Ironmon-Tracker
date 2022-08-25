@@ -574,3 +574,17 @@ function Utils.extractFileNameFromPath(path)
 
 	return ""
 end
+
+function Utils.extractFileExtensionFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local extStartIndex = path:match("^.*()%.") -- file extension
+	if extStartIndex ~= nil then
+		local extension = path:sub(extStartIndex + 1)
+		if extension ~= nil then
+			return extension:lower()
+		end
+	end
+
+	return ""
+end

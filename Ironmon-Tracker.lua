@@ -285,8 +285,8 @@ function Main.GenerateNextRom()
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("Failed to generate a new ROM.")
-		Main.DisplayError("Failed to generate a new ROM.\n\nFix required files: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		print("The Randomizer ZX program failed to generate a ROM.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nThis is likely because you need to install \"Java 64-bit Offline.\"")
 		return nil
 	end
 

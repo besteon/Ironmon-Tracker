@@ -158,11 +158,15 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 
 	local file = forms.openfile("SELECT JAR", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a JAR file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "jar" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
+		end
 	end
 end
 
@@ -172,13 +176,15 @@ function QuickloadScreen.handleSetSourceRom(button)
 
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a GBA file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-
-		-- Save these changes to the file to avoid case where user resets before clicking the Back button
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "gba" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
+		end
 	end
 end
 
@@ -197,13 +203,15 @@ function QuickloadScreen.handleSetCustomSettings(button)
 
 	local file = forms.openfile("SELECT RNQS", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a RNQS file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-
-		-- Save these changes to the file to avoid case where user resets before clicking the Back button
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "rnqs" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not a Randomier Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
+		end
 	end
 end
 
