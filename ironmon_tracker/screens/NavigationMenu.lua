@@ -58,7 +58,7 @@ NavigationMenu.Buttons = {
 	VersionInfo = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "Tracker v" .. Main.TrackerVersion,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44, Constants.SCREEN.MARGIN + 135, 56, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 43, Constants.SCREEN.MARGIN + 135, 56, 10 },
 		timesClicked = 0,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function(self)
@@ -202,24 +202,16 @@ function NavigationMenu.drawCredits()
 	Drawing.drawText(offsetX, offsetY, "Contributors: ", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
 	offsetY = offsetY + linespacing + 1
 
+	-- Draw Contributors List
 	offsetX = offsetX + 4
 	topboxColX = topboxColX
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[1], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[2], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[3], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[4], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[5], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[6], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[7], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[8], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[9], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[10], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[11], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+	for i=1, #Main.CreditsList.Contributors, 2 do
+		Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[i], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+		if Main.CreditsList.Contributors[i + 1] ~= nil then
+			Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[i + 1], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+		end
+		offsetY = offsetY + linespacing
+	end
 
 	Drawing.drawButton(NavigationMenu.Buttons.Back, shadowcolor)
 end
