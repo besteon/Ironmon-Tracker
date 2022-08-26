@@ -203,7 +203,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBaseStats = 0x081fec18
 		GameSettings.gBattleMoves = 0x081fb12c
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -356,7 +356,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.gBattleMoves = 0x081fb144
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -509,7 +509,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBaseStats = 0x081fec30
 		GameSettings.gBattleMoves = 0x081fb144
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -666,7 +666,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBaseStats = 0x081feba8
 		GameSettings.gBattleMoves = 0x081fb0bc
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -819,7 +819,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.gBattleMoves = 0x081fb0d4
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -972,7 +972,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBaseStats = 0x081febc0
 		GameSettings.gBattleMoves = 0x081fb0d4
 		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoStructPtr = 0x02014800 --sEvoInfo (not in symbols)
+		GameSettings.sEvoInfo = 0x02014800
 		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
 		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 		GameSettings.gBattlerAttacker = 0x02024c07
@@ -2431,6 +2431,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.sMonSummaryScreen = 0x0203b140
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sEvoStructPtr = 0x02039a20
 		GameSettings.gBattlerAttacker = 0x02023d6b
 		GameSettings.gBattlerTarget = 0x02023d6c
 		GameSettings.gBattlerPartyIndexesSelfSlotOne = 0x02023bce

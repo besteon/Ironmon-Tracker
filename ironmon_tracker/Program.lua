@@ -105,9 +105,8 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		local inEvolution = Program.isInEvolutionScene()
 		
-		if not Program.inCatchingTutorial and not inEvolution then
+		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
@@ -440,17 +439,20 @@ function Program.isInCatchingTutorial()
 end
 
 function Program.isInEvolutionScene()
-	local taskLocation = GameSettings.sEvoStructPtr
-	--print (taskLocation)
-	if GameSettings.versioncolor ~= "Ruby" and GameSettings.versioncolor ~= "Sapphire" and GameSettings.versioncolor ~= "" and GameSettings.versioncolor ~= nil then
-		--In Ruby + Sapphire, this is not the task data structure itself, but a pointer to it
-		taskLocation = Memory.readdword(taskLocation)
+	local evoInfo
+	--Ruby and Sapphire reference sEvoInfo (EvoInfo struct) directly. All other Gen 3 games instead store a pointer to the EvoInfo struct which needs to be read first
+	if GameSettings.game ~= 1 then
+		evoInfo = Memory.readdword(GameSettings.sEvoStructPtr)
+	else
+		evoInfo = GameSettings.sEvoInfo
 	end
-	local taskID = Memory.readbyte(taskLocation + 0x2)
-	--only 16 tasks allowed
+	-- third byte of EvoInfo is dedicated to the taskId
+	local taskID = Memory.readbyte(evoInfo + 0x2)
+
+	--only 16 tasks possible max in gTasks
 	if taskID > 15 then return false end
 
-	--Check for Evolution Task (Task_EvolutionScene + 0x21)
+	--Check for Evolution Task (Task_EvolutionScene + 0x1); Task struct size is 0x28
 	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
 	if taskFunc ~= GameSettings.Task_EvolutionScene then return false end
 
