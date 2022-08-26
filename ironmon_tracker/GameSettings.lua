@@ -217,7 +217,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811240d --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
@@ -371,7 +370,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811244d  --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
@@ -525,7 +523,6 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
@@ -683,7 +680,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811240d --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
@@ -837,7 +833,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
@@ -991,7 +986,6 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
 		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gBattleMainFunc = 0x030042d4
 		GameSettings.gTasks = 0x03004b20
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
@@ -1148,7 +1142,6 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gTakenDmg = 0x020241f8
 	GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
 	GameSettings.gBattleResults = 0x03005d10
-	GameSettings.gBattleMainFunc = 0x03005d04
 	GameSettings.gTasks = 0x03005e00
 	GameSettings.Task_EvolutionScene = 0x0813e571 --Task_EvolutionScene + 0x1
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
@@ -1309,7 +1302,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
@@ -1467,7 +1459,6 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8dd --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
@@ -1629,7 +1620,6 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x08042DB0 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
@@ -1796,7 +1786,6 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x08042DB0 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
@@ -1963,7 +1952,6 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x08042D9C --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
@@ -2131,7 +2119,6 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gBattleMainFunc = 0x03004ED4
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x08042DC4 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
@@ -2298,7 +2285,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8c5 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
@@ -2456,7 +2442,6 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gTakenDmg = 0x02023d58
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gBattleMainFunc = 0x03004f84
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8b1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
