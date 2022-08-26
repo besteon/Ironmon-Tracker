@@ -1,7 +1,6 @@
 Program = {
 	currentScreen = 1,
 	inCatchingTutorial = false,
-	inEvolution = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
 	activeFormId = 0,
@@ -106,9 +105,9 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		Program.inEvolution = Program.isInEvolutionScene()
+		local inEvolution = Program.isInEvolutionScene()
 		
-		if not Program.inCatchingTutorial and not Program.inEvolution then
+		if not Program.inCatchingTutorial and not inEvolution then
 			Program.updatePokemonTeams()
 
 			-- Check if summary screen has being shown
@@ -117,8 +116,6 @@ function Program.update()
 					Tracker.Data.hasCheckedSummary = true
 				end
 			end
-		elseif Program.inEvolution then
-			print ("Evolution in Progress")
 		end
 	end
 
@@ -445,15 +442,12 @@ function Program.isInEvolutionScene()
 
 	--Check for Evolution Task (Task_EvolutionScene + 0x21)
 	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
-	if taskFunc ~= 0x0811240c + 0x21 then return false end
+	if taskFunc ~= GameSettings.Task_EvolutionScene then return false end
 
 	--Check if the Task is active
-	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x5)
+	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x4)
 	if isActive ~= 1 then return false end
 
-	--Check if in the final evolution task state
-	local taskState = Memory.readword(GameSettings.gTasks + (0x28 * taskID) + 0x8) --tState = data[0]
-	if taskState ~= 15 then return false end 
 	return true
 end
 
