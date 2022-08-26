@@ -37,10 +37,9 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Animated Pokémon Popout, Support for Randomized Pokémon Types & Moves (try it!)**
+- **_NEW!!_ Ability Info Look-up, and Quick-Load Reset can now automatically randomize a ROM for you!**
 
-![image](https://user-images.githubusercontent.com/4258818/184241184-77186359-247e-422c-ace3-3cd4bf905bf5.png)
-![image](https://user-images.githubusercontent.com/4258818/183508785-68ac2986-80c3-4f4a-85ee-b21e260450bf.png)
+![image](https://user-images.githubusercontent.com/4258818/186506615-bfa9da6a-deaf-46b1-83e5-0667995b610e.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

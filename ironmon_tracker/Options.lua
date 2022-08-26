@@ -8,7 +8,7 @@ Options = {
 		["ROMs Folder"] = "",
 		["Randomizer JAR"] = "",
 		["Source ROM"] = "",
-		["Custom Settings"] = "",
+		["Settings File"] = "",
 	},
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
@@ -31,7 +31,7 @@ Options = {
 	["Generate ROM each time"] = false,
 
 	CONTROLS = {
-		["Load next seed"] = "A, B, Start, Select",
+		["Load next seed"] = "A, B, Start",
 		["Toggle view"] = "Start",
 		["Cycle through stats"] = "L",
 		["Mark stat"] = "R",

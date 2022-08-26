@@ -148,7 +148,7 @@ function SetupScreen.openEditControlsWindow()
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
-	forms.label(form, "Edit controller inputs for the tracker. Available inputs: A, B, L, R, Start, Select", 39, 10, 410, 20)
+	forms.label(form, "Edit GBA buttons for the Tracker, available buttons: A, B, L, R, Start, Select", 39, 10, 410, 20)
 
 	local inputTextboxes = {}
 	local offsetX = 90

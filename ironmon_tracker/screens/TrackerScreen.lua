@@ -95,7 +95,7 @@ TrackerScreen.Buttons = {
 			if not self:isVisible() then return end
 			if not RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea) then return end
 
-			local routeInfo = { 
+			local routeInfo = {
 				mapId = Battle.CurrentRoute.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
@@ -112,13 +112,10 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			local pokemonID = 0
-			local trackedAbilities = {}
 			if pokemon ~= nil then
-				pokemonID = pokemon.pokemonID
+				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
 			end
-			local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-			InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
 		end
 	},
 	AbilityLower = {
@@ -131,18 +128,15 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			local pokemonID = 0
-			local abilityNum = 0
 			if pokemon ~= nil then
-				pokemonID = pokemon.pokemonID
-				abilityNum = pokemon.abilityNum
-			end
-			if Tracker.Data.isViewingOwn then
-				local abilityId = PokemonData.getAbilityId(pokemonID, abilityNum)
+				local abilityId
+				if Tracker.Data.isViewingOwn then
+					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+				else
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					abilityId = trackedAbilities[2].id
+				end
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
-			else
-				local trackedAbilities = Tracker.getAbilities(pokemonID)
-				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[2].id)
 			end
 		end
 	},
@@ -185,7 +179,7 @@ TrackerScreen.Buttons = {
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
 		onClick = function(self)
 			if not self:isVisible() then return end
-			local routeInfo = { 
+			local routeInfo = {
 				mapId = Battle.CurrentRoute.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
@@ -328,7 +322,7 @@ function TrackerScreen.buildCarousel()
 			end
 
 			TrackerScreen.Buttons.LastAttackSummary.text = lastAttackMsg
-			return { TrackerScreen.Buttons.LastAttackSummary } 
+			return { TrackerScreen.Buttons.LastAttackSummary }
 		end,
 	}
 
@@ -348,8 +342,8 @@ function TrackerScreen.buildCarousel()
 			else
 				TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
 			end
-			
-			return { TrackerScreen.Buttons.RouteSummary } 
+
+			return { TrackerScreen.Buttons.RouteSummary }
 		end,
 	}
 end
@@ -487,7 +481,7 @@ function TrackerScreen.drawScreen()
 		opposingPokemon = tempPokemon
 	end
 
-	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 then
+	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
@@ -636,7 +630,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			-- Auto-tracking PC Heals button
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
-	elseif Battle.inBattle then 
+	elseif Battle.inBattle then
 		-- For now, only show route info while in Battle; later find a way to alway show
 		local routeName = Constants.BLANKLINE
 		if RouteData.hasRoute(Battle.CurrentRoute.mapId) then

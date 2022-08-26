@@ -224,7 +224,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	if moveType == nil or comparedTypes == nil or comparedTypes == {} then
 		return 1.0
 	end
-	
+
 	-- If type is unknown or typeless
 	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
@@ -238,6 +238,8 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 			elseif moveType == PokemonData.Types.FIGHTING and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
 				return 0.0
 			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
+				return 0.0
+			elseif moveType == PokemonData.Types.POISON and (comparedTypes[1] == PokemonData.Types.STEEL or comparedTypes[2] == PokemonData.Types.STEEL) then
 				return 0.0
 			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
 				return 0.0
@@ -341,7 +343,7 @@ function Utils.calculateWeatherBall(moveType, movePower)
 	}
 	local battleWeather = Memory.readword(GameSettings.gBattleWeather)
 	local currentWeather = weatherIds[battleWeather]
-	
+
 	if currentWeather ~= nil then
 		if currentWeather == "Rain" then
 			moveType = PokemonData.Types.WATER
@@ -369,7 +371,7 @@ function Utils.estimateIVs(pokemon)
 	local spa = pokemon.stats.spa * Utils.getNatureMultiplier("spa", pokemon.nature)
 	local spd = pokemon.stats.spd * Utils.getNatureMultiplier("spd", pokemon.nature)
 	local spe = pokemon.stats.spe * Utils.getNatureMultiplier("spe", pokemon.nature)
-	
+
 	local sumStats = pokemon.stats.hp + atk + def + spa + spd + spe - pokemon.level - 35
 
 	-- Result is between 0 and 96, with 48 being average (effectively identical to its BST), and 96 being best possible result
@@ -436,7 +438,7 @@ end
 function Utils.getWordWrapLines(str, limit)
 	if str == nil or str == "" then return {} end
 	limit = limit or 72
-	
+
 	local firstSpace = str:find("(%s+)()(%S+)()")
 	if firstSpace == nil then return { str } end
 
@@ -542,4 +544,47 @@ function Utils.getWorkingDirectory()
 	else
 		return ""
 	end
+end
+
+function Utils.extractFolderNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local folderStartIndex = path:match("^.*()[\\/]") -- path to folder
+	if folderStartIndex ~= nil then
+		local foldername = path:sub(folderStartIndex + 1)
+		if foldername ~= nil then
+			return foldername
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local nameStartIndex = path:match("^.*()\\") -- path to file
+	local nameEndIndex = path:match("^.*()%.") -- file extension
+	if nameStartIndex ~= nil and nameEndIndex ~= nil then
+		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
+		if filename ~= nil then
+			return filename
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileExtensionFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local extStartIndex = path:match("^.*()%.") -- file extension
+	if extStartIndex ~= nil then
+		local extension = path:sub(extStartIndex + 1)
+		if extension ~= nil then
+			return extension:lower()
+		end
+	end
+
+	return ""
 end

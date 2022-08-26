@@ -90,7 +90,7 @@ function Program.update()
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -108,6 +108,7 @@ function Program.update()
 		local inEvolution = Program.isInEvolutionScene()
 		
 		if not Program.inCatchingTutorial and not inEvolution then
+			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
 			-- Check if summary screen has being shown
@@ -386,6 +387,15 @@ function Program.updateBadgesObtained()
 			badgeButton:updateState(badgeState)
 		end
 	end
+end
+
+function Program.updateMapLocation()
+	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
+	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+end
+
+function Program.isInValidMapLocation()
+	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
 end
 
 function Program.HandleExit()
