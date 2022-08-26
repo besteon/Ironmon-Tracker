@@ -1,6 +1,7 @@
 Program = {
 	currentScreen = 1,
 	inCatchingTutorial = false,
+	inEvolution = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
 	activeFormId = 0,
@@ -105,12 +106,8 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		--FRLG/E set an evoPointer
-		Program.inEvolution = Memory.readdword(GameSettings.sEvoStructPtr)
-		--RS set a state flag
-		--print(Memory.readdword(0x030042d4))
-		print(Memory.readdword(0x03004f84))  -- gBattleMainFunc = 134299273
-		--FRLG: 134306629
+		Program.inEvolution = Program.isInEvolutionScene()
+		
 		if not Program.inCatchingTutorial and not Program.inEvolution then
 			Program.updatePokemonTeams()
 
@@ -120,6 +117,8 @@ function Program.update()
 					Tracker.Data.hasCheckedSummary = true
 				end
 			end
+		elseif Program.inEvolution then
+			print ("Evolution in Progress")
 		end
 	end
 
@@ -431,6 +430,31 @@ function Program.isInCatchingTutorial()
 	end
 
 	return Program.inCatchingTutorial
+end
+
+function Program.isInEvolutionScene()
+	local taskLocation = GameSettings.sEvoStructPtr
+	--print (taskLocation)
+	if GameSettings.versioncolor ~= "Ruby" and GameSettings.versioncolor ~= "Sapphire" and GameSettings.versioncolor ~= "" and GameSettings.versioncolor ~= nil then
+		--In Ruby + Sapphire, this is not the task data structure itself, but a pointer to it
+		taskLocation = Memory.readdword(taskLocation)
+	end
+	local taskID = Memory.readbyte(taskLocation + 0x2)
+	--only 16 tasks allowed
+	if taskID > 15 then return false end
+
+	--Check for Evolution Task (Task_EvolutionScene + 0x21)
+	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
+	if taskFunc ~= 0x0811240c + 0x21 then return false end
+
+	--Check if the Task is active
+	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x5)
+	if isActive ~= 1 then return false end
+
+	--Check if in the final evolution task state
+	local taskState = Memory.readword(GameSettings.gTasks + (0x28 * taskID) + 0x8) --tState = data[0]
+	if taskState ~= 15 then return false end 
+	return true
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
