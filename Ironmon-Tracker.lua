@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.2a" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.2b" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -185,10 +185,14 @@ end
 function Main.LoadNextRom()
 	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 
+	local wasSoundOn = client.GetSoundOn()
+
 	local nextRom
 	if Options["Use premade ROMs"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GetNextRomFromFolder()
 	elseif Options["Generate ROM each time"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: The Quick-load feature is currently disabled.")
@@ -198,15 +202,16 @@ function Main.LoadNextRom()
 	if nextRom ~= nil then
 		Tracker.resetData()
 		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
-		local wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		if client.getversion() ~= "2.9" then
 			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 		end
 		client.openrom(nextRom.path)
-		client.SetSoundOn(wasSoundOn)
 	else
 		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
+	end
+
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 
 	Main.loadNextSeed = false
