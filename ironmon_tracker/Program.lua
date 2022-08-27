@@ -105,7 +105,8 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		if not Program.inCatchingTutorial then
+		
+		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
@@ -435,6 +436,31 @@ function Program.isInCatchingTutorial()
 	end
 
 	return Program.inCatchingTutorial
+end
+
+function Program.isInEvolutionScene()
+	local evoInfo
+	--Ruby and Sapphire reference sEvoInfo (EvoInfo struct) directly. All other Gen 3 games instead store a pointer to the EvoInfo struct which needs to be read first
+	if GameSettings.game ~= 1 then
+		evoInfo = Memory.readdword(GameSettings.sEvoStructPtr)
+	else
+		evoInfo = GameSettings.sEvoInfo
+	end
+	-- third byte of EvoInfo is dedicated to the taskId
+	local taskID = Memory.readbyte(evoInfo + 0x2)
+
+	--only 16 tasks possible max in gTasks
+	if taskID > 15 then return false end
+
+	--Check for Evolution Task (Task_EvolutionScene + 0x1); Task struct size is 0x28
+	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
+	if taskFunc ~= GameSettings.Task_EvolutionScene then return false end
+
+	--Check if the Task is active
+	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x4)
+	if isActive ~= 1 then return false end
+
+	return true
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
