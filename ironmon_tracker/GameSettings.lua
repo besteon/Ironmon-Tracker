@@ -1621,7 +1621,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.gTasks = 0x03004FE0
-		GameSettings.Task_EvolutionScene = 0x08042DB0 --Task_EvolutionScene + 0x1
+		GameSettings.Task_EvolutionScene = 0x080CEA5D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
@@ -1787,7 +1787,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.gTasks = 0x03004FE0
-		GameSettings.Task_EvolutionScene = 0x08042DB0 --Task_EvolutionScene + 0x1
+		GameSettings.Task_EvolutionScene = 0x080CEB45 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
@@ -1953,7 +1953,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.gTasks = 0x03004FE0
-		GameSettings.Task_EvolutionScene = 0x08042D9C --Task_EvolutionScene + 0x1
+		GameSettings.Task_EvolutionScene = 0x080CEB3D --Task_EvolutionScene + 0x1 (FR1.1 + 24C)
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x0081D71E3
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7235
@@ -2120,7 +2120,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
 		GameSettings.gBattleResults = 0x03004EE0
 		GameSettings.gTasks = 0x03004FE0
-		GameSettings.Task_EvolutionScene = 0x08042DC4 --Task_EvolutionScene + 0x1
+		GameSettings.Task_EvolutionScene = 0x080CEA7D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find 
 		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
