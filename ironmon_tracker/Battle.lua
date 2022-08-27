@@ -347,6 +347,9 @@ function Battle.beginNewBattle()
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
 	Battle.turnCount = 0
+	Battle.prevDamageTotal = 0
+	Battle.damageReceived = 0
+	Battle.enemyHasAttacked = false
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1

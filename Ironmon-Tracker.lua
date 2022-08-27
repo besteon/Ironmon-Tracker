@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.2b" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.2c" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
