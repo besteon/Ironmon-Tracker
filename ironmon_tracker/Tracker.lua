@@ -403,6 +403,7 @@ function Tracker.resetData()
 		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
 		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
 		isViewingOwn = true,
+		isViewingLeft = true,
 		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],

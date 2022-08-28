@@ -35,6 +35,10 @@ function Input.checkJoypadInput(joypadButtons)
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
 		if Battle.inBattle then
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
+			if Tracker.Data.isViewingOwn then
+				--swap sides on returning to allied side
+				Tracker.Data.isViewingLeft = not Tracker.Data.isViewingLeft
+			end
 		end
 		Program.redraw(true)
 	end

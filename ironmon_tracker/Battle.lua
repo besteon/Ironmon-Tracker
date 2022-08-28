@@ -352,6 +352,7 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.battlerTarget = -1
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+	Tracker.Data.isViewingLeft = true
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	Input.resetControllerIndex()
@@ -380,6 +381,7 @@ function Battle.endCurrentBattle()
 	Battle.enemyTransformed = false
 
 	Tracker.Data.isViewingOwn = true
+	Tracker.Data.isViewingLeft = true
 	Tracker.Data.ownViewSlot = 1
 	Tracker.Data.otherViewSlot = 1
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
