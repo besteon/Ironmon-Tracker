@@ -470,7 +470,7 @@ end
 -- DRAWING FUNCTIONS
 function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
-
+	Battle.updateViewSlots()
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
@@ -516,7 +516,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	local typeTwo = pokemon.types[2]
 	if Battle.inBattle then
 	--update displayed types as typing changes (i.e. Color Change)
-		local typesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
+		local typesData = Memory.readword(GameSettings.gBattleMons + Utils.inlineIf(Tracker.Data.isViewingOwn,0x0,0x58) + Utils.inlineIf(Tracker.Data.isViewingLeft,0x0, 0xB0) + 0x21)
 		typeOne = PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)]
 		typeTwo = PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)]
 	end

@@ -80,15 +80,8 @@ end
 
 function Battle.updateViewSlots()
 	-- First update which own/other slots are being viewed
-	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes) + 1
-	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2) + 1
-
-	-- Secondary pokemon (likely the doubles battle partner)
-	if Battle.attacker == 2 then -- untested
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 4) + 1
-	elseif Battle.attacker == 3 then
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 6) + 1
-	end
+	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + Utils.inlineIf(Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
+	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2 + Utils.inlineIf(not Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
 
 	-- Verify the view slots are within bounds
 	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
