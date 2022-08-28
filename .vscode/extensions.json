@@ -5,7 +5,7 @@
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
 		"EditorConfig.EditorConfig",
-		"sumneko.lua"
+		"trixnz.vscode-lua"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
 	"unwantedRecommendations": [
