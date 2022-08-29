@@ -470,8 +470,9 @@ end
 -- DRAWING FUNCTIONS
 function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
+	local prevPokemon = Tracker.Data.otherViewSlot
 	if Battle.inBattle then
-		Battle.updateViewSlots()
+		Battle.updateViewSlots(prevPokemon)
 	end
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
