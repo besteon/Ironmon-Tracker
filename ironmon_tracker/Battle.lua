@@ -3,6 +3,7 @@ Battle = {
 	isWildEncounter = false,
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	isGhost = false,
+	numBattlers = 0,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -71,15 +72,11 @@ end
 function Battle.updateLowAccuracy()
 	local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
-	Battle.updateViewSlots()
+	Battle.updateViewSlots(viewingWhichPokemon)
 	Battle.updateTrackedInfo()
-
-	if viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
-		Battle.changeOpposingPokemonView()
-	end
 end
 
-function Battle.updateViewSlots()
+function Battle.updateViewSlots(previousViewedEnemyPokemon)
 	-- First update which own/other slots are being viewed
 	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + Utils.inlineIf(Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2 + Utils.inlineIf(not Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
@@ -90,6 +87,9 @@ function Battle.updateViewSlots()
 	end
 	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
 		Tracker.Data.otherViewSlot = 1
+	end
+	if previousViewedEnemyPokemon ~= nil and previousViewedEnemyPokemon ~= Tracker.Data.otherViewSlot then
+		Battle.changeOpposingPokemonView()
 	end
 end
 
@@ -141,6 +141,7 @@ function Battle.updateTrackedInfo()
 		return
 	end
 
+	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
 	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
@@ -398,6 +399,7 @@ end
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
 
+	Battle.numBattlers = 0
 	Battle.inBattle = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0

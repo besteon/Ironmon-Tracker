@@ -1285,6 +1285,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
