@@ -39,22 +39,31 @@ Options = {
 }
 
 Options.IconSetMap = {
-	totalCount = 3,
+	totalCount = 4,
 	["1"] = {
 		name = "Original",
 		folder = "pokemon",
 		extension = ".gif",
+		yOffset = 0,
 	},
 	["2"] = {
 		name = "Stadium",
 		folder = "pokemonStadium",
 		extension = ".png",
+		yOffset = 4,
 	},
 	["3"] = {
 		name = "Gen 7+",
 		folder = "pokemonUpdated",
 		extension = ".png",
+		yOffset = 2,
 	},
+	["4"] = {
+		name = "Explorers",
+		folder = "pokemonMysteryDungeon",
+		extension = ".png",
+		yOffset = 4,
+	}
 }
 
 function Options.initialize()
