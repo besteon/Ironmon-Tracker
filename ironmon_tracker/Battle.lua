@@ -148,13 +148,15 @@ function Battle.updateTrackedInfo()
 	Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 	Battle.updateStatStages(ownersPokemon, true)
-	Battle.updateStatStages(opposingPokemon, false)
-	Battle.checkEnemyEncounter(opposingPokemon)
-	Battle.checkEnemyMovesUsed(opposingPokemon)
+	if not Battle.isGhost then
+		Battle.updateStatStages(opposingPokemon, false)
+		Battle.checkEnemyEncounter(opposingPokemon)
+		Battle.checkEnemyMovesUsed(opposingPokemon)
 
-	-- Auto-track opponent abilities if they go off
-	if Battle.checkEnemyAbilityUsed(opposingAbilityId, ownersAbilityId) then
-		Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+		-- Auto-track opponent abilities if they go off
+		if Battle.checkEnemyAbilityUsed(opposingAbilityId, ownersAbilityId) then
+			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+		end
 	end
 end
 

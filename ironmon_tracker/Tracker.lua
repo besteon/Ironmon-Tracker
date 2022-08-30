@@ -371,6 +371,13 @@ end
 function Tracker.getDefaultPokemon()
 	local defaultPokemon = {
 		pokemonID = 0,
+		name = Constants.BLANKLINE,
+		types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
+		abilities = { 0, 0 },
+		evolution = PokemonData.Evolutions.NONE,
+		bst = Constants.BLANKLINE,
+		movelvls = { {}, {} },
+		weight = 0.0,
 		personality = 0,
 		friendship = 0,
 		heldItem = 0,

@@ -6,7 +6,7 @@ TrackerScreen.Buttons = {
 		getIconPath = function(self)
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and (PokemonData.isValid(pokemon.pokemonID) or noe Tracker.Data.isViewingOwn and Battle.isGhost) then
+			if pokemon ~= nil and (PokemonData.isValid(pokemon.pokemonID) or not Tracker.Data.isViewingOwn and Battle.isGhost) then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -498,9 +498,11 @@ function TrackerScreen.drawScreen()
 	end
 
 	-- Add in Pokedex information about the Pokemon
-	local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0, PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
-	for key, value in pairs(pokedexInfo) do
-		viewedPokemon[key] = value
+	if not Battle.isGhost or Tracker.Data.isViewingOwn then
+		local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0 and PokemonData.isValid(viewedPokemon.pokemonID), PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
+		for key, value in pairs(pokedexInfo) do
+			viewedPokemon[key] = value
+		end
 	end
 
 	Drawing.drawBackgroundAndMargins()
