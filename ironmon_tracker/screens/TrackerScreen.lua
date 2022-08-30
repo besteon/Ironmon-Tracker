@@ -6,16 +6,11 @@ TrackerScreen.Buttons = {
 		getIconPath = function(self)
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			if pokemon ~= nil and (PokemonData.isValid(pokemon.pokemonID) or noe Tracker.Data.isViewingOwn and Battle.isGhost) then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath
-			if not Tracker.Data.isViewingOwn and Battle.isGhost then
-				imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/Ghost" .. iconset.extension
-			else
-				imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
-			end
+			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
 			return imagepath
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
@@ -25,7 +20,7 @@ TrackerScreen.Buttons = {
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
 			local pokemonID = 0
-			if pokemon ~= nil then
+			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				pokemonID = pokemon.pokemonID
 			end
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonID)
@@ -478,7 +473,11 @@ function TrackerScreen.drawScreen()
 
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	local viewedPokemonLevel
+	if Battle.isGhost and opposingPokemon ~= nil and opposingPokemon.level ~= nil then
+		local prevOpposingPokemonLevel = opposingPokemon.level
+		opposingPokemon = Tracker.getDefaultPokemon()
+		opposingPokemon.level = prevOpposingPokemonLevel
+	end
 
 	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
@@ -488,11 +487,8 @@ function TrackerScreen.drawScreen()
 		viewedPokemonLevel = viewedPokemon.level
 	end
 
-	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() or (not Tracker.Data.isViewingOwn and Battle.isGhost) then
+	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
-		if viewedPokemonLevel ~= nil then
-			viewedPokemon.level = viewedPokemonLevel
-		end
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
 		local defaultPokemon = Tracker.getDefaultPokemon()
@@ -504,9 +500,7 @@ function TrackerScreen.drawScreen()
 	-- Add in Pokedex information about the Pokemon
 	local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0, PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
 	for key, value in pairs(pokedexInfo) do
-		if viewedPokemon[key] == nil then
-			viewedPokemon[key] = value
-		end
+		viewedPokemon[key] = value
 	end
 
 	Drawing.drawBackgroundAndMargins()

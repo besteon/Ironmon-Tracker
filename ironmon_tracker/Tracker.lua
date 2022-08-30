@@ -391,6 +391,7 @@ function Tracker.getDefaultPokemon()
 	}
 	if Battle.isGhost then
 		defaultPokemon.name = "Ghost"
+		defaultPokemon.pokemonID = 413
 	end
 	return defaultPokemon
 end
