@@ -37,13 +37,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y)
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
 
-	if iconset.name == "Stadium" then
-		y = y + 4
-	elseif iconset.name == "Gen 7+" then
-		y = y + 2
-	end
-
-	gui.drawImage(imagepath, x, y, 32, 32)
+	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -211,12 +205,8 @@ function Drawing.drawButton(button, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
-			if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
-				y = y + 4
-			elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
-				y = y + 2
-			end
-			gui.drawImage(imagePath, x, y, width, height)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			gui.drawImage(imagePath, x, y + iconset.yOffset, width, height)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
