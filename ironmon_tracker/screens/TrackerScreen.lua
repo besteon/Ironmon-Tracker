@@ -473,7 +473,9 @@ function TrackerScreen.drawScreen()
 
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
+	if not Tracker.Data.isViewingOwn and Battle.isGhost then
+		opposingPokemon = Tracker.getDefaultPokemon()
+	end
 	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
 		local tempPokemon = viewedPokemon

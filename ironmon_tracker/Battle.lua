@@ -2,6 +2,7 @@ Battle = {
 	inBattle = false,
 	isWildEncounter = false,
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
+	isGhost = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -121,8 +122,17 @@ function Battle.updateTrackedInfo()
 		return
 	end
 
+	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+	--BATTLE_TYPE_GHOST = 1 AND BATTLE_TYPE_GHOST_UNVEILED = FALSE
+	Battle.isGhost = 	Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0
+
 	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	local opposingPokemon
+	if Battle.isGhost then
+		opposingPokemon = Tracker.getDefaultPokemon()
+	else
+		opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	end
 
 	if ownersPokemon == nil or opposingPokemon == nil then -- unsure if this is ever true at this point
 		return
@@ -350,6 +360,8 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
+	
+	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	Tracker.Data.ownViewSlot = 1
@@ -375,6 +387,8 @@ function Battle.endCurrentBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
+
+	Battle.isGhost = false
 
 	Battle.CurrentRoute.hasInfo = false
 	Battle.enemyTransformed = false

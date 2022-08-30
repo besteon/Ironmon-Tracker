@@ -88,7 +88,11 @@ function Tracker.getViewedPokemon()
 	if Tracker.Data.isViewingOwn then
 		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	else
-		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		if Battle.isGhost then
+			return Tracker.getDefaultPokemon()
+		else
+			return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		end
 	end
 end
 
@@ -365,7 +369,7 @@ function Tracker.getHiddenPowerType()
 end
 
 function Tracker.getDefaultPokemon()
-	return {
+	local defaultPokemon = {
 		pokemonID = 0,
 		personality = 0,
 		friendship = 0,
@@ -385,6 +389,10 @@ function Tracker.getDefaultPokemon()
 			{ id = 0, level = 1, pp = 0 },
 		},
 	}
+	if Battle.isGhost then
+		defaultPokemon.name = "Ghost"
+	end
+	return defaultPokemon
 end
 
 function Tracker.resetData()
