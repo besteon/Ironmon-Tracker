@@ -10,7 +10,12 @@ TrackerScreen.Buttons = {
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+			local imagepath
+			if not Tracker.Data.isViewingOwn and Battle.isGhost then
+				imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/Ghost" .. iconset.extension
+			else
+				imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+			end
 			return imagepath
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
@@ -473,18 +478,21 @@ function TrackerScreen.drawScreen()
 
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	if not Tracker.Data.isViewingOwn and Battle.isGhost then
-		opposingPokemon = Tracker.getDefaultPokemon()
-	end
+	local viewedPokemonLevel
+
 	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
 		local tempPokemon = viewedPokemon
 		viewedPokemon = opposingPokemon
 		opposingPokemon = tempPokemon
+		viewedPokemonLevel = viewedPokemon.level
 	end
 
-	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
+	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() or (not Tracker.Data.isViewingOwn and Battle.isGhost) then
 		viewedPokemon = Tracker.getDefaultPokemon()
+		if viewedPokemonLevel ~= nil then
+			viewedPokemon.level = viewedPokemonLevel
+		end
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
 		local defaultPokemon = Tracker.getDefaultPokemon()
@@ -496,7 +504,9 @@ function TrackerScreen.drawScreen()
 	-- Add in Pokedex information about the Pokemon
 	local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0, PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
 	for key, value in pairs(pokedexInfo) do
-		viewedPokemon[key] = value
+		if viewedPokemon[key] == nil then
+			viewedPokemon[key] = value
+		end
 	end
 
 	Drawing.drawBackgroundAndMargins()
@@ -524,7 +534,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
+	if not Tracker.Data.isViewingOwn and ((not Options["Reveal info if randomized"] and  PokemonData.IsRand.pokemonTypes) or Battle.isGhost) then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 	else
