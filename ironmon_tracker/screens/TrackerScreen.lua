@@ -866,7 +866,8 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Battle.inBattle and showEffectiveness then
-			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
+			local enemyTypes = opposingPokemon.types
+			--Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)
