@@ -118,9 +118,9 @@ end
 function Battle.updateTrackedInfo()
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
-	--BATTLE_TYPE_GHOST = 1 AND BATTLE_TYPE_GHOST_UNVEILED = FALSE
+	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13)
 	Battle.isGhost = 	Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0
-	
+
 	if Program.Frames.battleDataDelay > 0 then
 		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
 		return
@@ -128,6 +128,7 @@ function Battle.updateTrackedInfo()
 
 	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon
+	--Get Ghost-specific pokemon data
 	if Battle.isGhost then
 		opposingPokemon = Tracker.getDefaultPokemon()
 	else
@@ -148,6 +149,7 @@ function Battle.updateTrackedInfo()
 	Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 	Battle.updateStatStages(ownersPokemon, true)
+	--Don't track anything for Ghosts
 	if not Battle.isGhost then
 		Battle.updateStatStages(opposingPokemon, false)
 		Battle.checkEnemyEncounter(opposingPokemon)

@@ -6,6 +6,7 @@ TrackerScreen.Buttons = {
 		getIconPath = function(self)
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
+			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
 			if pokemon ~= nil and (PokemonData.isValid(pokemon.pokemonID) or not Tracker.Data.isViewingOwn and Battle.isGhost) then
 				pokemonID = pokemon.pokemonID
 			end
@@ -112,7 +113,7 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil then
+			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
 			end
@@ -128,7 +129,7 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil then
+			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				local abilityId
 				if Tracker.Data.isViewingOwn then
 					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
@@ -151,7 +152,7 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
-			if pokemon ~= nil then
+			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
 			end
 		end
@@ -474,6 +475,7 @@ function TrackerScreen.drawScreen()
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	if Battle.isGhost and opposingPokemon ~= nil and opposingPokemon.level ~= nil then
+		--Ghost's level displays in battler, so keep that in the Ghost data
 		local prevOpposingPokemonLevel = opposingPokemon.level
 		opposingPokemon = Tracker.getDefaultPokemon()
 		opposingPokemon.level = prevOpposingPokemonLevel

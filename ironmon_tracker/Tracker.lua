@@ -88,6 +88,7 @@ function Tracker.getViewedPokemon()
 	if Tracker.Data.isViewingOwn then
 		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	else
+		--Leaving hidden pokemon's data in the otherViewSlot; just returning dummy Ghost data instead while fighting one
 		if Battle.isGhost then
 			return Tracker.getDefaultPokemon()
 		else
