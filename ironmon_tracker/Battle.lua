@@ -117,14 +117,14 @@ end
 
 function Battle.updateTrackedInfo()
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
+	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+	--BATTLE_TYPE_GHOST = 1 AND BATTLE_TYPE_GHOST_UNVEILED = FALSE
+	Battle.isGhost = 	Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0
+	
 	if Program.Frames.battleDataDelay > 0 then
 		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
 		return
 	end
-
-	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
-	--BATTLE_TYPE_GHOST = 1 AND BATTLE_TYPE_GHOST_UNVEILED = FALSE
-	Battle.isGhost = 	Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0
 
 	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon

@@ -33,7 +33,7 @@ end
 function Input.checkJoypadInput(joypadButtons)
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
-		if Battle.inBattle and Program.Frames.battleDataDelay == 0 then
+		if Battle.inBattle then
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 		end
 		Program.redraw(true)
