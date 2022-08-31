@@ -57,6 +57,9 @@ end
 function Tracker.getPokemon(slotNumber, isOwn)
 	if slotNumber == nil then return nil end
 	if isOwn == nil then isOwn = true end
+	if not isOwn and Battle.isGhost then
+		return PokemonData.getDefaultPokemon()
+	end
 
 	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
 	if personality == nil or personality == 0 then return nil end
@@ -88,12 +91,7 @@ function Tracker.getViewedPokemon()
 	if Tracker.Data.isViewingOwn then
 		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	else
-		--Leaving hidden pokemon's data in the otherViewSlot; just returning dummy Ghost data instead while fighting one
-		if Battle.isGhost then
-			return Tracker.getDefaultPokemon()
-		else
-			return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-		end
+		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	end
 end
 

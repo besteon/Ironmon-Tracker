@@ -474,19 +474,12 @@ function TrackerScreen.drawScreen()
 
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	if Battle.isGhost and opposingPokemon ~= nil and opposingPokemon.level ~= nil then
-		--Ghost's level displays in battler, so keep that in the Ghost data
-		local prevOpposingPokemonLevel = opposingPokemon.level
-		opposingPokemon = Tracker.getDefaultPokemon()
-		opposingPokemon.level = prevOpposingPokemonLevel
-	end
 
 	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
 	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
 		local tempPokemon = viewedPokemon
 		viewedPokemon = opposingPokemon
 		opposingPokemon = tempPokemon
-		viewedPokemonLevel = viewedPokemon.level
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
@@ -500,7 +493,7 @@ function TrackerScreen.drawScreen()
 	end
 
 	-- Add in Pokedex information about the Pokemon
-	if not Battle.isGhost or Tracker.Data.isViewingOwn then
+	if Tracker.Data.isViewingOwn then
 		local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0 and PokemonData.isValid(viewedPokemon.pokemonID), PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
 		for key, value in pairs(pokedexInfo) do
 			viewedPokemon[key] = value
@@ -841,7 +834,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- If move info is randomized and the user doesn't want to know about it, hide it
 		local showEffectiveness = true
-		if not Options["Reveal info if randomized"] then
+		if not Options["Reveal info if randomized"] or Battle.isGhost then
 			if Tracker.Data.isViewingOwn then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
 				showEffectiveness = not PokemonData.IsRand.pokemonTypes
@@ -866,8 +859,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Battle.inBattle and showEffectiveness then
-			local enemyTypes = opposingPokemon.types
-			--Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
+			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)

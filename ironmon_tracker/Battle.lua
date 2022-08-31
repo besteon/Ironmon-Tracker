@@ -128,13 +128,7 @@ function Battle.updateTrackedInfo()
 	end
 
 	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local opposingPokemon
-	--Get Ghost-specific pokemon data
-	if Battle.isGhost then
-		opposingPokemon = Tracker.getDefaultPokemon()
-	else
-		opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-	end
+	local	opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 
 	if ownersPokemon == nil or opposingPokemon == nil then -- unsure if this is ever true at this point
 		return
