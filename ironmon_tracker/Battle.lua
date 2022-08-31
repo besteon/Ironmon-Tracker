@@ -426,9 +426,11 @@ end
 
 function Battle.changeOpposingPokemonView()
 	Battle.enemyTransformed = false
+
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
 	end
+	
 	Input.resetControllerIndex()
 
 	-- Delay drawing the new pokemon, because of send out animation
