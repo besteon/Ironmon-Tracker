@@ -118,8 +118,8 @@ end
 function Battle.updateTrackedInfo()
 	--Ghost battle info is immediately loaded. If we wait until after the delay ends, the user can toggle views in that window and still see the 'Actual' Pokemon.
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
-	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13)
-	Battle.isGhost = 	Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0
+	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13). Also, game must be FR/LG
+	Battle.isGhost = GameSettings.game == 3 and (Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0)
 
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
 	if Program.Frames.battleDataDelay > 0 then
