@@ -98,7 +98,7 @@ function Tracker.getViewedPokemon()
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
+	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
 
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
@@ -402,7 +402,7 @@ end
 function Tracker.getGhostPokemon()
 	return {
 		pokemonID = 413,
-		name = "Ghost"
+		name = "Ghost",
 		types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN },
 		abilities = { 0, 0 },
 		evolution = PokemonData.Evolutions.NONE,

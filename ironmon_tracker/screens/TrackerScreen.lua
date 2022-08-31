@@ -7,7 +7,7 @@ TrackerScreen.Buttons = {
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
 			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
-			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID) or (Battle.isGhost)) then
+			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -285,7 +285,8 @@ function TrackerScreen.buildCarousel()
 			if pokemon.pokemonID == 0 then
 				return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
 			end
-
+			if pokemon.pokemonID == 413
+				return "Spoooky!"
 			local noteText = Tracker.getNote(pokemon.pokemonID)
 			if noteText ~= nil and noteText ~= "" then
 				return { noteText }
@@ -493,8 +494,8 @@ function TrackerScreen.drawScreen()
 	end
 
 	-- Add in Pokedex information about the Pokemon
-	if Tracker.Data.isViewingOwn then
-		local pokedexInfo = Utils.inlineIf(viewedPokemon.pokemonID ~= 0 and PokemonData.isValid(viewedPokemon.pokemonID), PokemonData.Pokemon[viewedPokemon.pokemonID], PokemonData.BlankPokemon)
+	if PokemonData.isValid(viewedPokemon.pokemonID) then
+		local pokedexInfo = PokemonData.Pokemon[viewedPokemon.pokemonID]
 		for key, value in pairs(pokedexInfo) do
 			viewedPokemon[key] = value
 		end
@@ -514,24 +515,23 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	-- Draw top box view
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
-
-	local typeOne = pokemon.types[1]
-	local typeTwo = pokemon.types[2]
-	if Battle.inBattle then
-	--update displayed types as typing changes (i.e. Color Change)
-		local typesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
-		typeOne = PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)]
-		typeTwo = PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)]
+	local typesData = {
+		pokemon.types[1],
+		pokemon.types[2],
+	}
+	if Battle.inBattle and (Tracker.Data.isViewingOwn or not Battle.isGhost) then
+		--update displayed types as typing changes (i.e. Color Change)
+		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	if not Tracker.Data.isViewingOwn and not Options["Reveal info if randomized"] and PokemonData.IsRand.pokemonTypes) then
+	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 	else
-		Drawing.drawTypeIcon(typeOne, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
-		if typeTwo ~= typeOne then
-			Drawing.drawTypeIcon(typeTwo, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
+		Drawing.drawTypeIcon(typesData[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
+		if typesData[2] ~= typesData[1] then
+			Drawing.drawTypeIcon(typesData[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
 		end
 	end
 
@@ -833,8 +833,11 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- If move info is randomized and the user doesn't want to know about it, hide it
+		-- If fighting a ghost, hide effectiveness
 		local showEffectiveness = true
-		if not Options["Reveal info if randomized"] then
+		if Battle.isGhost then
+			showEffectiveness = false
+		elseif not Options["Reveal info if randomized"] then
 			if Tracker.Data.isViewingOwn then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
 				showEffectiveness = not PokemonData.IsRand.pokemonTypes

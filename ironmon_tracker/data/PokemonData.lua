@@ -155,7 +155,7 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 end
 
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon and not (pokemonID)
+	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon
 end
 
 function PokemonData.isImageIDValid(pokemonID)
