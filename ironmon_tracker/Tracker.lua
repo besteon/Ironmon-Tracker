@@ -400,10 +400,10 @@ function Tracker.getDefaultPokemon()
 end
 
 function Tracker.getGhostPokemon()
-	local defaultPokemon = Tracker.getDefaultPokemon
+	local defaultPokemon = Tracker.getDefaultPokemon()
 	defaultPokemon.pokemonID = 413
-	defaultPokemon.name = "Ghost",
-	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN },
+	defaultPokemon.name = "Ghost"
+	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
 	return defaultPokemon
 end
 
