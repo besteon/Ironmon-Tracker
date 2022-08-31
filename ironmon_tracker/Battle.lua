@@ -80,6 +80,7 @@ function Battle.updateViewSlots(previousViewedEnemyPokemon)
 	-- First update which own/other slots are being viewed
 	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + Utils.inlineIf(Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
 	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2 + Utils.inlineIf(not Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,4,0)) + 1
+	local otherViewSlotOppositeSide = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2 + Utils.inlineIf(not Tracker.Data.isViewingOwn and not Tracker.Data.isViewingLeft,0,4)) + 1
 
 	-- Verify the view slots are within bounds
 	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
@@ -88,7 +89,7 @@ function Battle.updateViewSlots(previousViewedEnemyPokemon)
 	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
 		Tracker.Data.otherViewSlot = 1
 	end
-	if previousViewedEnemyPokemon ~= nil and previousViewedEnemyPokemon ~= Tracker.Data.otherViewSlot then
+	if previousViewedEnemyPokemon ~= nil and previousViewedEnemyPokemon ~= Tracker.Data.otherViewSlot and previousViewedEnemyPokemon ~= otherViewSlotOppositeSide then
 		Battle.changeOpposingPokemonView()
 	end
 end
@@ -441,11 +442,9 @@ end
 
 function Battle.changeOpposingPokemonView()
 	Battle.enemyTransformed = false
-	print ("viewing own before2: " .. tostring(Tracker.Data.isViewingOwn))
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
 	end
-	print ("viewing own after2: " .. tostring(Tracker.Data.isViewingOwn))
 	Input.resetControllerIndex()
 
 	-- Delay drawing the new pokemon, because of send out animation
