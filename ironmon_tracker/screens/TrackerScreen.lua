@@ -7,7 +7,7 @@ TrackerScreen.Buttons = {
 			local pokemonID = 0
 			local pokemon = Tracker.getViewedPokemon()
 			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
-			if pokemon ~= nil and (PokemonData.isValid(pokemon.pokemonID) or not Tracker.Data.isViewingOwn and Battle.isGhost) then
+			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID) or (Battle.isGhost)) then
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -525,7 +525,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-	if not Tracker.Data.isViewingOwn and ((not Options["Reveal info if randomized"] and  PokemonData.IsRand.pokemonTypes) or Battle.isGhost) then
+	if not Tracker.Data.isViewingOwn and not Options["Reveal info if randomized"] and PokemonData.IsRand.pokemonTypes) then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 	else
@@ -834,7 +834,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- If move info is randomized and the user doesn't want to know about it, hide it
 		local showEffectiveness = true
-		if not Options["Reveal info if randomized"] or Battle.isGhost then
+		if not Options["Reveal info if randomized"] then
 			if Tracker.Data.isViewingOwn then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
 				showEffectiveness = not PokemonData.IsRand.pokemonTypes

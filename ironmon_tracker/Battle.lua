@@ -138,14 +138,14 @@ function Battle.updateTrackedInfo()
 	Program.readBattleValues()
 
 	local ownersAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
-	local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
-
 	-- Always track your own Pokemon's ability once you decide to use it
 	Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 	Battle.updateStatStages(ownersPokemon, true)
 	--Don't track anything for Ghosts
 	if not Battle.isGhost then
+		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
+
 		Battle.updateStatStages(opposingPokemon, false)
 		Battle.checkEnemyEncounter(opposingPokemon)
 		Battle.checkEnemyMovesUsed(opposingPokemon)

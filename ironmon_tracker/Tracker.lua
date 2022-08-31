@@ -57,9 +57,6 @@ end
 function Tracker.getPokemon(slotNumber, isOwn)
 	if slotNumber == nil then return nil end
 	if isOwn == nil then isOwn = true end
-	if not isOwn and Battle.isGhost then
-		return PokemonData.getDefaultPokemon()
-	end
 
 	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
 	if personality == nil or personality == 0 then return nil end
@@ -80,7 +77,12 @@ function Tracker.getPokemon(slotNumber, isOwn)
 			until not isEggPokemon or nextSlot == slotNumber
 		end
 		return Tracker.Data.ownPokemon[personality]
-	else
+	else if Battle.isGhost then
+		-- Return Ghost dummy instead of showing the hidden mon's data, but keep the level
+		local retPokemon = Tracker.getGhostPokemon()
+		retPokemon.level = Tracker.Data.otherPokemon[personality].level
+		return retPokemon
+	end
 		return Tracker.Data.otherPokemon[personality]
 	end
 end
@@ -368,7 +370,7 @@ function Tracker.getHiddenPowerType()
 end
 
 function Tracker.getDefaultPokemon()
-	local defaultPokemon = {
+	return {
 		pokemonID = 0,
 		name = Constants.BLANKLINE,
 		types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
@@ -395,11 +397,36 @@ function Tracker.getDefaultPokemon()
 			{ id = 0, level = 1, pp = 0 },
 		},
 	}
-	if Battle.isGhost then
-		defaultPokemon.name = "Ghost"
-		defaultPokemon.pokemonID = 413
-	end
-	return defaultPokemon
+end
+
+function Tracker.getGhostPokemon()
+	return {
+		pokemonID = 413,
+		name = "Ghost"
+		types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN },
+		abilities = { 0, 0 },
+		evolution = PokemonData.Evolutions.NONE,
+		bst = Constants.BLANKLINE,
+		movelvls = { {}, {} },
+		weight = 0.0,
+		personality = 0,
+		friendship = 0,
+		heldItem = 0,
+		level = 0,
+		nature = 0,
+		abilityNum = nil, -- This will result in an abilityId of 0, or a BLANKLINE
+		status = 0,
+		sleep_turns = 0,
+		curHP = 0,
+		stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+		statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+		moves = {
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+			{ id = 0, level = 1, pp = 0 },
+		},
+	}
 end
 
 function Tracker.resetData()

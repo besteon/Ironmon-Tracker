@@ -155,7 +155,12 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 end
 
 function PokemonData.isValid(pokemonID)
-	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon + 2 --Adding 2 for Eggs + Ghosts
+	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon and not (pokemonID)
+end
+
+function PokemonData.isImageIDValid(pokemonID)
+	--Eggs (412), Ghosts (413), and placeholder (0)
+	return pokemonID ~= nil and pokemonID >= 0 and pokemonID <= PokemonData.totalPokemon + 2
 end
 
 PokemonData.TypeIndexMap = {
