@@ -77,14 +77,13 @@ function Tracker.getPokemon(slotNumber, isOwn)
 			until not isEggPokemon or nextSlot == slotNumber
 		end
 		return Tracker.Data.ownPokemon[personality]
-	else if Battle.isGhost then
+	elseif Battle.isGhost then
 		-- Return Ghost dummy instead of showing the hidden mon's data, but keep the level
 		local retPokemon = Tracker.getGhostPokemon()
 		retPokemon.level = Tracker.Data.otherPokemon[personality].level
 		return retPokemon
 	end
-		return Tracker.Data.otherPokemon[personality]
-	end
+	return Tracker.Data.otherPokemon[personality]
 end
 
 function Tracker.getViewedPokemon()
