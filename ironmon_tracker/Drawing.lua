@@ -30,7 +30,7 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height)
 end
 
 function Drawing.drawPokemonIcon(pokemonID, x, y)
-	if not PokemonData.isValid(pokemonID) then
+	if not PokemonData.isImageIDValid(pokemonID) then
 		pokemonID = 0 -- Blank Pokemon data/icon
 	end
 

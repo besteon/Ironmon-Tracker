@@ -148,7 +148,7 @@ end
 -- Move Header format: C/T (N), where C is moves learned so far, T is total number available to learn, and N is the next level the Pokemon learns a move
 -- Example: 4/12 (25)
 function Utils.getMovesLearnedHeader(pokemonID, level)
-	if pokemonID == nil or pokemonID == 0 or level == nil then
+	if not PokemonData.isValid(pokemonID) or level == nil then
 		return "0/0 (0)"
 	end
 
