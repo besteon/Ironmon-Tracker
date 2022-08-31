@@ -160,7 +160,7 @@ end
 
 function PokemonData.isImageIDValid(pokemonID)
 	--Eggs (412), Ghosts (413), and placeholder (0)
-	return pokemonID ~= nil and pokemonID >= 0 and pokemonID <= PokemonData.totalPokemon + 2
+	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413
 end
 
 PokemonData.TypeIndexMap = {

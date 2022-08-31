@@ -285,8 +285,9 @@ function TrackerScreen.buildCarousel()
 			if pokemon.pokemonID == 0 then
 				return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
 			end
-			if pokemon.pokemonID == 413
+			if pokemon.pokemonID == 413 then
 				return "Spoooky!"
+			end
 			local noteText = Tracker.getNote(pokemon.pokemonID)
 			if noteText ~= nil and noteText ~= "" then
 				return { noteText }
