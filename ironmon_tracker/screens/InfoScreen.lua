@@ -595,6 +595,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if possibleEvolutions[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
+	if pokemonID == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
+		-- Pokémon Mystery Dungeon Drowzee easter egg
+		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
+	end
 	offsetY = offsetY + linespacing
 
 	-- Draw bottom view box and header
