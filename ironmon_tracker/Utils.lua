@@ -148,7 +148,7 @@ end
 -- Move Header format: C/T (N), where C is moves learned so far, T is total number available to learn, and N is the next level the Pokemon learns a move
 -- Example: 4/12 (25)
 function Utils.getMovesLearnedHeader(pokemonID, level)
-	if pokemonID == nil or pokemonID == 0 or level == nil then
+	if not PokemonData.isValid(pokemonID) or level == nil then
 		return "0/0 (0)"
 	end
 
@@ -268,7 +268,12 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == "0" or moveType == PokemonData.Types.UNKNOWN then
+	if move == nil or comparedTypes == nil or move.power == "0" then
+		return false
+	end
+
+	-- If type is unknown or typeless
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 

@@ -3,6 +3,7 @@ Battle = {
 	isWildEncounter = false,
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	numBattlers = 0,
+	isGhost = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -130,6 +131,11 @@ function Battle.processBattleTurn()
 end
 
 function Battle.updateTrackedInfo()
+	--Ghost battle info is immediately loaded. If we wait until after the delay ends, the user can toggle views in that window and still see the 'Actual' Pokemon.
+	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13). Also, game must be FR/LG
+	Battle.isGhost = GameSettings.game == 3 and (Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0)
+
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
 	if Program.Frames.battleDataDelay > 0 then
 		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
@@ -148,19 +154,22 @@ function Battle.updateTrackedInfo()
 	Program.readBattleValues()
 
 	local ownersAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
-	local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
-
 	-- Always track your own Pokemon's ability once you decide to use it
 	Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
 
 	Battle.updateStatStages(ownersPokemon, true)
-	Battle.updateStatStages(opposingPokemon, false)
-	Battle.checkEnemyEncounter(opposingPokemon)
-	Battle.checkEnemyMovesUsed(opposingPokemon)
+	--Don't track anything for Ghosts
+	if not Battle.isGhost then
+		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
-	-- Auto-track opponent abilities if they go off
-	if Battle.checkEnemyAbilityUsed(opposingAbilityId, ownersAbilityId) then
-		Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+		Battle.updateStatStages(opposingPokemon, false)
+		Battle.checkEnemyEncounter(opposingPokemon)
+		Battle.checkEnemyMovesUsed(opposingPokemon)
+
+		-- Auto-track opponent abilities if they go off
+		if Battle.checkEnemyAbilityUsed(opposingAbilityId, ownersAbilityId) then
+			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+		end
 	end
 end
 
@@ -363,9 +372,14 @@ function Battle.beginNewBattle()
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
 	Battle.turnCount = 0
+	Battle.prevDamageTotal = 0
+	Battle.damageReceived = 0
+	Battle.enemyHasAttacked = false
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
+	
+	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	Tracker.Data.isViewingLeft = true
@@ -393,6 +407,8 @@ function Battle.endCurrentBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
+
+	Battle.isGhost = false
 
 	Battle.CurrentRoute.hasInfo = false
 	Battle.enemyTransformed = false

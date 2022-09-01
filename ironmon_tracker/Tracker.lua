@@ -77,9 +77,13 @@ function Tracker.getPokemon(slotNumber, isOwn)
 			until not isEggPokemon or nextSlot == slotNumber
 		end
 		return Tracker.Data.ownPokemon[personality]
-	else
-		return Tracker.Data.otherPokemon[personality]
+	elseif Battle.isGhost then
+		-- Return Ghost dummy instead of showing the hidden mon's data, but keep the level
+		local retPokemon = Tracker.getGhostPokemon()
+		retPokemon.level = Tracker.Data.otherPokemon[personality].level
+		return retPokemon
 	end
+	return Tracker.Data.otherPokemon[personality]
 end
 
 function Tracker.getViewedPokemon()
@@ -93,7 +97,7 @@ function Tracker.getViewedPokemon()
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
+	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
 
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
@@ -367,6 +371,13 @@ end
 function Tracker.getDefaultPokemon()
 	return {
 		pokemonID = 0,
+		name = Constants.BLANKLINE,
+		types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
+		abilities = { 0, 0 },
+		evolution = PokemonData.Evolutions.NONE,
+		bst = Constants.BLANKLINE,
+		movelvls = { {}, {} },
+		weight = 0.0,
 		personality = 0,
 		friendship = 0,
 		heldItem = 0,
@@ -385,6 +396,14 @@ function Tracker.getDefaultPokemon()
 			{ id = 0, level = 1, pp = 0 },
 		},
 	}
+end
+
+function Tracker.getGhostPokemon()
+	local defaultPokemon = Tracker.getDefaultPokemon()
+	defaultPokemon.pokemonID = 413
+	defaultPokemon.name = "Ghost"
+	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
+	return defaultPokemon
 end
 
 function Tracker.resetData()

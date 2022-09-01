@@ -158,6 +158,11 @@ function PokemonData.isValid(pokemonID)
 	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon
 end
 
+function PokemonData.isImageIDValid(pokemonID)
+	--Eggs (412), Ghosts (413), and placeholder (0)
+	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
+end
+
 PokemonData.TypeIndexMap = {
 	[0x00] = PokemonData.Types.NORMAL,
 	[0x01] = PokemonData.Types.FIGHTING,
