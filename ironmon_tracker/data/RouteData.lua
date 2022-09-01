@@ -800,7 +800,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
 			},
 		},
-		[109] = { name = "Route 21",
+		[109] = { name = "Route 21 North",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 114, rate = 1.00, minLv = 17, maxLv = 28, },
 			},
@@ -1437,6 +1437,24 @@ function RouteData.setupRouteInfoAsFRLG()
 		[215] = { name = "Agatha's Room", },
 		[216] = { name = "Lance's Room", },
 		[217] = { name = "Champion's Room", },
+		[219] = { name = "Route 21 South",
+			[RouteData.EncounterArea.SURFING] = {
+				{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
+			},
+			[RouteData.EncounterArea.OLDROD] = {
+				{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 5, },
+			},
+			[RouteData.EncounterArea.GOODROD] = {
+				{ pokemonID = {116,98}, rate = 0.60, minLv = 5, maxLv = 15, },
+				{ pokemonID = {98,116}, rate = 0.20, minLv = 5, maxLv = 15, },
+				{ pokemonID = 129, rate = 0.20, minLv = 5, maxLv = 15, },
+			},
+			[RouteData.EncounterArea.SUPERROD] = {
+				{ pokemonID = {116,98}, rate = 0.84, minLv = 15, maxLv = 35, },
+				{ pokemonID = 130, rate = 0.15, minLv = 15, maxLv = 25, },
+				{ pokemonID = {54,79}, rate = 0.01, minLv = 25, maxLv = 35, },
+			},
+		},
 		[228] = { name = "Saffron City Dojo", },
 		-- [[Sevii Isles]]
 		[230] = { name = "One Island",
