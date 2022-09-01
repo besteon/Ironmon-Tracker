@@ -325,12 +325,7 @@ function Tracker.getEncounters(pokemonID, isWild)
 	if trackedPokemon.encounters == nil then
 		return 0
 	elseif isWild then
-		if mapId ~= 0 and Tracker.Data.encounterTable[mapId] ~= nil then
-			-- The number of unique Pokemon encountered on this route
-			return #Tracker.Data.encounterTable[mapId]
-		else
-			return trackedPokemon.encounters.wild
-		end
+		return trackedPokemon.encounters.wild
 	else
 		return trackedPokemon.encounters.trainer
 	end

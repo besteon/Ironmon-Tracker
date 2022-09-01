@@ -166,7 +166,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = movesLearned .. "/" .. table.getn(allMoveLevels)
+	local header = movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
 		header = header .. " (" .. nextMoveLevel .. ")"
 	end

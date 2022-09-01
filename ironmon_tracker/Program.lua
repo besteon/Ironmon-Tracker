@@ -105,7 +105,7 @@ function Program.update()
 		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		
+
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
