@@ -520,14 +520,13 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	-- Draw top box view
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
-
-	local typeOne = pokemon.types[1]
-	local typeTwo = pokemon.types[2]
-	if Battle.inBattle then
-	--update displayed types as typing changes (i.e. Color Change)
-		local typesData = Memory.readword(GameSettings.gBattleMons + ((not Tracker.Data.isViewingOwn and 0x58) or 0x0) + 0x21)
-		typeOne = PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)]
-		typeTwo = PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)]
+	local typesData = {
+		pokemon.types[1],
+		pokemon.types[2],
+	}
+	if Battle.inBattle and (Tracker.Data.isViewingOwn or not Battle.isGhost) then
+		--update displayed types as typing changes (i.e. Color Change)
+		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)

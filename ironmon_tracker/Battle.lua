@@ -4,6 +4,7 @@ Battle = {
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	isGhost = false,
 	numBattlers = 0,
+	isGhost = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
