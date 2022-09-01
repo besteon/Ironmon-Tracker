@@ -1,11 +1,12 @@
 AbilityData = {}
 
-AbilityData.defaultAbility = {
+AbilityData.DefaultAbility = {
   --placeholder
   id = 0,
   name = "Ability Info",
   description = "Click the magnifying glass to look up an ability!",
 }
+
 AbilityData.Abilities = {
 	{
     id = 1,
@@ -96,7 +97,7 @@ AbilityData.Abilities = {
     name = "Immunity",
     description = "Cannot be poisoned. Gaining this Ability, like through Skill Swap, will cure Poison.",
   },
-	{ 
+	{
     id = 18,
     name = "Flash Fire",
     description = "Immune to Fire moves. The first time this " .. Constants.Words.POKEMON .. " is hit by a Fire move, its own Fire moves gain 50% power.",
