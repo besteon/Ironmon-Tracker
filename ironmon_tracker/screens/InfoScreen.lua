@@ -301,7 +301,7 @@ function InfoScreen.openAbilityInfoWindow()
 	Utils.setFormLocation(abilityLookup, 100, 50)
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
-		abilityName = AbilityData.defaultAbility.name
+		abilityName = AbilityData.DefaultAbility.name
 	else
 		abilityName = AbilityData.Abilities[InfoScreen.infoLookup].name
 	end
@@ -867,6 +867,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
 end
+
 function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
@@ -881,9 +882,9 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
 
-	local ability --= AbilityData.defaultAbility
+	local ability
 	if not AbilityData.isValid(abilityId) then
-		ability = AbilityData.defaultAbility
+		ability = AbilityData.DefaultAbility
 	else
 		ability = AbilityData.Abilities[abilityId]
 	end
@@ -929,6 +930,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	Drawing.drawButton(InfoScreen.Buttons.backTop, boxInfoTopShadow)
 end
+
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
@@ -991,6 +993,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
 	Drawing.drawButton(InfoScreen.Buttons.back, boxBotShadow)
 end
+
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
