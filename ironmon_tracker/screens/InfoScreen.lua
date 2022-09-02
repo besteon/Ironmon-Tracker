@@ -967,9 +967,8 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 
 	-- POKEMON SEEN
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252 then -- Question mark icon
+		if iconButton.pokemonID == 252--[[ Question mark icon]] and Options.IconSetMap[Options["Pokemon icon set"]].adjustQuestionMark then
 			iconButton.box[2] = iconButton.box[2] + Options.IconSetMap[Options["Pokemon icon set"]].yOffset
 		end
 
