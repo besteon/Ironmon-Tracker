@@ -104,7 +104,7 @@ function Program.update()
 	if Program.Frames.lowAccuracyUpdate == 0 then
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		
+
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()

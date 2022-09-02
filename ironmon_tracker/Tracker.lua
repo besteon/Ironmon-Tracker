@@ -237,7 +237,7 @@ function Tracker.TrackHiddenPowerType(moveType)
 
 	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
 
-	if viewedPokemon.personality ~= 0 then
+	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
 	end
 end
@@ -329,12 +329,7 @@ function Tracker.getEncounters(pokemonID, isWild)
 	if trackedPokemon.encounters == nil then
 		return 0
 	elseif isWild then
-		if mapId ~= 0 and Tracker.Data.encounterTable[mapId] ~= nil then
-			-- The number of unique Pokemon encountered on this route
-			return #Tracker.Data.encounterTable[mapId]
-		else
-			return trackedPokemon.encounters.wild
-		end
+		return trackedPokemon.encounters.wild
 	else
 		return trackedPokemon.encounters.trainer
 	end
@@ -365,8 +360,8 @@ function Tracker.getHiddenPowerType()
 	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
 	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
 
-	if hiddenPowerType ~= nil then
-		return hiddenPowerType
+	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
+		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
 	else
 		return MoveData.HiddenPowerTypeList[1]
 	end

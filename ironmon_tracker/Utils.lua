@@ -166,7 +166,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = movesLearned .. "/" .. table.getn(allMoveLevels)
+	local header = movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
 		header = header .. " (" .. nextMoveLevel .. ")"
 	end
@@ -362,7 +362,7 @@ function Utils.calculateWeatherBall(moveType, movePower)
 		movePower = tonumber(movePower) * 2
 	end
 
-	return moveType, movePower
+	return moveType, tostring(movePower)
 end
 
 -- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs

@@ -285,8 +285,10 @@ function Main.GenerateNextRom()
 
 	print("Generating next ROM: " .. nextromname)
 	local pipe = io.popen(javacommand)
-	local output = pipe:read("*all")
-	print("> " .. output)
+	if pipe ~= nil then
+		local output = pipe:read("*all")
+		print("> " .. output)
+	end
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
@@ -305,10 +307,12 @@ end
 function Main.IncrementAttemptsCounter(filename, defaultStart)
 	if Main.FileExists(filename) then
 		local attemptsRead = io.open(filename, "r")
-		local attemptsText = attemptsRead:read("*a")
-		attemptsRead:close()
-		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-			Main.currentSeed = tonumber(attemptsText)
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
 		end
 	elseif defaultStart ~= nil then
 		Main.currentSeed = defaultStart
@@ -316,8 +320,10 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 
 	Main.currentSeed = Main.currentSeed + 1
 	local attemptsWrite = io.open(filename, "w")
-	attemptsWrite:write(Main.currentSeed)
-	attemptsWrite:close()
+	if attemptsWrite ~= nil then
+		attemptsWrite:write(Main.currentSeed)
+		attemptsWrite:close()
+	end
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
