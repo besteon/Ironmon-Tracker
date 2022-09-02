@@ -39,22 +39,35 @@ Options = {
 }
 
 Options.IconSetMap = {
-	totalCount = 3,
+	totalCount = 4,
 	["1"] = {
 		name = "Original",
 		folder = "pokemon",
 		extension = ".gif",
+		yOffset = 0,
+		adjustQuestionMark = true, -- Whether to adjust the question mark icons in routeInfo screen
 	},
 	["2"] = {
 		name = "Stadium",
 		folder = "pokemonStadium",
 		extension = ".png",
+		yOffset = 4,
+		adjustQuestionMark = false,
 	},
 	["3"] = {
 		name = "Gen 7+",
 		folder = "pokemonUpdated",
 		extension = ".png",
+		yOffset = 2,
+		adjustQuestionMark = true,
 	},
+	["4"] = {
+		name = "Explorers",
+		folder = "pokemonMysteryDungeon",
+		extension = ".png",
+		yOffset = 4,
+		adjustQuestionMark = false,
+	}
 }
 
 function Options.initialize()
