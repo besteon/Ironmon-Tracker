@@ -454,13 +454,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 		end
 
 		local x = startX + offsetX
-		local y = startY + offsetY
-
-		if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
-			y = y - 4
-		elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
-			y = y + 2
-		end
+		local y = startY + offsetY - Options.IconSetMap[Options["Pokemon icon set"]].yOffset
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
@@ -600,6 +594,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + linespacing
 	if possibleEvolutions[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], Theme.COLORS["Default text"], boxInfoTopShadow)
+	end
+	if pokemonID == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
+		-- Pokémon Mystery Dungeon Drowzee easter egg
+		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 	offsetY = offsetY + linespacing
 
@@ -969,10 +967,9 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 
 	-- POKEMON SEEN
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252 and Options.IconSetMap[Options["Pokemon icon set"]].name ~= "Stadium" then -- Question mark icon
-			iconButton.box[2] = iconButton.box[2] + 4
+		if iconButton.pokemonID == 252--[[ Question mark icon]] and Options.IconSetMap[Options["Pokemon icon set"]].adjustQuestionMark then
+			iconButton.box[2] = iconButton.box[2] + Options.IconSetMap[Options["Pokemon icon set"]].yOffset
 		end
 
 		local x = iconButton.box[1]
