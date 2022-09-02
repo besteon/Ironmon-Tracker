@@ -54,7 +54,6 @@ TrackedDataScreen.Buttons = {
 function TrackedDataScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8
 	local startY = Constants.SCREEN.MARGIN + 52
-	linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(TrackedDataScreen.OptionKeys) do
 		TrackedDataScreen.Buttons[optionKey] = {
