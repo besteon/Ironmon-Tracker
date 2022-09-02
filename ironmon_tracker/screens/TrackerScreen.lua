@@ -476,12 +476,14 @@ function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
 
 	--Assume we are always looking at the left pokemon on the opposing side for move effectiveness
+	local viewedPokemon
+	local opposingPokemon
 	if Tracker.Data.isViewingOwn then
-		local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft, Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
-		local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlotLeft, false)
+		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft, Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
+		opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlotLeft, false)
 	else
-		local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft, Tracker.Data.otherViewSlotLeft,Tracker.Data.otherViewSlotRight), false)
-		local opposingPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlotLeft, true)
+		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft, Tracker.Data.otherViewSlotLeft,Tracker.Data.otherViewSlotRight), false)
+		opposingPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlotLeft, true)
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
