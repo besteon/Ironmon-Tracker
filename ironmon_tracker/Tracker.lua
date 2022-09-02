@@ -233,7 +233,7 @@ function Tracker.TrackHiddenPowerType(moveType)
 
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
 
-	if viewedPokemon.personality ~= 0 then
+	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
 	end
 end
@@ -354,10 +354,9 @@ end
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
 	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
 
-	if hiddenPowerType ~= nil then
-		return hiddenPowerType
+	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
+		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
 	else
 		return MoveData.HiddenPowerTypeList[1]
 	end
