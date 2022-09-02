@@ -895,6 +895,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- Ability NAME
 	local abilityName = ability.name:upper()
+	abilityName = abilityName:gsub(" ","  ")
 	gui.drawText(offsetX - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	gui.drawText(offsetX - 2, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
@@ -906,7 +907,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- DESCRIPTION
 	if ability.description ~= nil then
-		local wrappedSummary = Utils.getWordWrapLines(ability.description, 31)
+		local wrappedSummary = Utils.getWordWrapLines(ability.description, 30)
 
 		for _, line in pairs(wrappedSummary) do
 			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)

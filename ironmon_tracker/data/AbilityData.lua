@@ -146,7 +146,7 @@ AbilityData.Abilities = {
   {
     id = 27,
     name = "Effect Spore",
-    description = "When hit by a contact move, 10% chance for the attacker to become either poisioned, paralyzed, or asleep.",
+    description = "When hit by a contact move, 10% chance for the attacker to become either poisioned, paralyzed, or asleep. The chance for each individual status to be applied is constant, so a " .. Constants.Words.POKEMON .." that cannot be affected by one or more of these statuses decreases the ability proc chance by 3.3% for each.",
   },
   {
     id = 28,
@@ -230,7 +230,7 @@ AbilityData.Abilities = {
   {
     id = 43,
     name = "Soundproof",
-    description = "Immune to sound-based moves.",
+    description = "Immune to sound-based moves. These moves are:\nGrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar",
   },
   {
     id = 44,
@@ -334,7 +334,7 @@ AbilityData.Abilities = {
   {
     id = 62,
     name = "Guts",
-    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis Freeze, Sleep).",
+    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep), and ignores the Attack reduction of Burn.",
   },
   {
     id = 63,
