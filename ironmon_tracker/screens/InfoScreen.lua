@@ -757,10 +757,6 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 			moveCat = MoveData.TypeToCategory[moveType]
 			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 		end
-	-- If the move is Weather Ball then update based on current weather
-	elseif Options["Calculate variable damage"] and moveId == 311 then -- 311 = Weather Ball
-		moveType, movePower = Utils.calculateWeatherBall(moveType, movePower)
-		moveCat = MoveData.TypeToCategory[moveType]
 	end
 
 	-- TYPE ICON

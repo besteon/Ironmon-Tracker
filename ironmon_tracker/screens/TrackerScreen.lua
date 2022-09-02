@@ -775,6 +775,13 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 			moveCategory = MoveData.TypeToCategory[moveType]
 		end
 
+		-- WEATHER BALL MOVE UPDATE
+		if Options["Calculate variable damage"] and moveData.name == "Weather Ball" then
+			moveType, movePower = Utils.calculateWeatherBall(moveType, movePower)
+			moveCategory = MoveData.TypeToCategory[moveType]
+			moveTypeColor = Constants.MoveTypeColors[moveType]
+		end
+
 		-- MOVE CATEGORY
 		if Options["Show physical special icons"] and (Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 			if moveCategory == MoveData.Categories.PHYSICAL then
