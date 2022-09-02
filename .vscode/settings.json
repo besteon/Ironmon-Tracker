@@ -12,6 +12,5 @@
     "joypad",
     "input",
     "forms"
-  ],
-  "Lua.workspace.checkThirdParty": false
+  ]
 }
