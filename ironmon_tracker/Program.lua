@@ -100,7 +100,7 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlotLeft, true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
@@ -113,7 +113,6 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
@@ -405,8 +404,8 @@ function Program.getLearnedMoveId()
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
-function Program.getPokemonTypes(isOwn)
-	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58) + Utils.inlineIf(Tracker.Data.isViewingLeft, 0x0, 0xB0))
+function Program.getPokemonTypes(isOwn, isLeft)
+	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58) + Utils.inlineIf(isLeft, 0x0, 0xB0))
 	return {
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
@@ -480,7 +479,7 @@ end
 function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
 	if leadPokemon ~= nil then
 		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then

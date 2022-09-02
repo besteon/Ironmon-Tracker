@@ -89,10 +89,14 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isInValidMapLocation() then return nil end
 
-	if Tracker.Data.isViewingOwn then
-		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	if Tracker.Data.isViewingOwn and Tracker.Data.isViewingLeft then
+		return Tracker.getPokemon(Tracker.Data.ownViewSlotLeft, true)
+	elseif Tracker.Data.isViewingOwn then
+		return Tracker.getPokemon(Tracker.Data.ownViewSlotRight, true)
+	elseif Tracker.Data.isViewingLeft then
+		return Tracker.getPokemon(Tracker.Data.otherViewSlotLeft, false)
 	else
-		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		return Tracker.getPokemon(Tracker.Data.otherViewSlotRight, false)
 	end
 end
 
@@ -231,7 +235,7 @@ end
 function Tracker.TrackHiddenPowerType(moveType)
 	if moveType == nil then return end
 
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
 
 	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
@@ -353,7 +357,9 @@ end
 
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+
+	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft,Tracker.Data.ownViewSlotRight), true)
+	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
 
 	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
 		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
@@ -413,8 +419,10 @@ function Tracker.resetData()
 
 		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
 		otherTeam = { 0, 0, 0, 0, 0, 0 },
-		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
-		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
+		ownViewSlotLeft = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
+		ownViewSlotRight = 2, -- During a double battle, this references which of your own six pokemon are in the 
+		otherViewSlotLeft = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
+		otherViewSlotRight = 2, -- During a double battle, this references which of your own six pokemon are in the 
 		isViewingOwn = true,
 		isViewingLeft = true,
 		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
