@@ -268,7 +268,12 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == "0" or moveType == PokemonData.Types.UNKNOWN then
+	if move == nil or comparedTypes == nil or move.power == "0" then
+		return false
+	end
+
+	-- If type is unknown or typeless
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
