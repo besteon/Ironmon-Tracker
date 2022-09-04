@@ -11,6 +11,7 @@
     "love",
     "joypad",
     "input",
-    "forms"
+    "forms",
+    "console"
   ]
 }

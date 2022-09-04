@@ -23,7 +23,7 @@ function Pickle:pickle_(root)
 	self:ref_(root)
 	local s = ""
 
-	while table.getn(self._refToTable) > savecount do
+	while #self._refToTable > savecount do
 		savecount = savecount + 1
 		local t = self._refToTable[savecount]
 		s = s .. "{\n"
@@ -51,7 +51,7 @@ function Pickle:ref_(t)
 	if not ref then
 		if t == self then error("can't pickle the pickle class") end
 		table.insert(self._refToTable, t)
-		ref = table.getn(self._refToTable)
+		ref = #self._refToTable
 		self._tableToRef[t] = ref
 	end
 	return ref
@@ -66,6 +66,8 @@ function Pickle.unpickle(s)
 		error("can't unpickle a " .. type(s) .. ", only strings")
 	end
 
+	-- Using 'loadstring' over 'load' because Bizhawk runs on Lua 5.1
+	---@diagnostic disable-next-line: deprecated
 	local gentables = loadstring("return " .. s)
 
 	-- Check if the data in the file is not in the form of Lua code
@@ -75,7 +77,7 @@ function Pickle.unpickle(s)
 
 	local tables = gentables()
 
-	for tnum = 1, table.getn(tables) do
+	for tnum = 1, #tables do
 		local t = tables[tnum]
 		local tcopy = {};
 		for i, v in pairs(t) do tcopy[i] = v end

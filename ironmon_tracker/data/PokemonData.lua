@@ -66,13 +66,13 @@ function PokemonData.readDataFromMemory()
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
 			if PokemonData.IsRand.pokemonTypes then
-				types = PokemonData.readPokemonTypesFromMemory(pokemonID)
+				local types = PokemonData.readPokemonTypesFromMemory(pokemonID)
 				if types ~= nil then
 					pokemonData.types = types
 				end
 			end
 			if PokemonData.IsRand.pokemonAbilities then
-				abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+				local abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 				if abilities ~= nil then
 					pokemonData.abilities = abilities
 				end

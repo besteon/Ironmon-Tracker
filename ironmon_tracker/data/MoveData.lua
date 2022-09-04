@@ -101,7 +101,7 @@ function MoveData.readDataFromMemory()
 		for moveId=1, MoveData.totalMoves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
-			moveInfo = MoveData.readMoveInfoFromMemory(moveId)
+			local moveInfo = MoveData.readMoveInfoFromMemory(moveId)
 			if moveInfo ~= nil then
 				moveData.type = moveInfo.type
 				moveData.accuracy = moveInfo.accuracy
