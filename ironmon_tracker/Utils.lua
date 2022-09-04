@@ -166,12 +166,15 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = movesLearned .. "/" .. #allMoveLevels
+	local header = "Move ~ " .. movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
+		local nextMoveSpacing = (string.len(header) + 3) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
 		header = header .. " (" .. nextMoveLevel .. ")"
+		return header, nextMoveLevel, nextMoveSpacing
+	else
+		return header, nil, nil
 	end
 
-	return header
 end
 
 function Utils.getDetailedEvolutionsInfo(evoMethod)
@@ -414,6 +417,32 @@ function Utils.isReadyToEvolveByLevel(evoMethod, level)
 	evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
 
 	return evoMethod ~= nil and (level + 1) >= evoMethod
+end
+
+-- Checks if the player has a usable stone in their bag to evolve the pokémon
+function Utils.isReadyToEvolveByStone(evoMethod)
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
+
+	if evoMethod == PokemonData.Evolutions.NONE then
+		return false
+	end
+
+	for itemID, quantity in pairs(Tracker.Data.evolutionStones) do
+		-- Check through the possible evolutions with the stones available
+		if quantity > 0 then
+			-- Special check for the level/water stone evos
+			if itemID == 97 and evoMethod:match("(WTR)") ~= nil then
+				return true
+			end
+			for _, possibleEvolution in pairs(MiscData.evolutionStones[itemID].evolutions) do
+				if possibleEvolution == evoMethod then
+					return true
+				end
+			end
+		end
+	end
+
+	return false
 end
 
 -- Returns the text color for PC heal tracking
