@@ -547,6 +547,7 @@ function Program.getBagItems()
 		[98] = 0, -- Leaf Stone
 	}
 
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
@@ -559,7 +560,6 @@ function Program.getBagItems()
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
 			if itemID ~= 0 then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 				if key ~= nil then quantity = bit.bxor(quantity, key) end
 
 				if MiscData.HealingItems[itemID] ~= nil then
