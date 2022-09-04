@@ -560,7 +560,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	local levelEvoText = "Lv." .. pokemon.level .. " ("
 	local evoDetails = pokemon.evolution
 	local evoSpacing = pkmnStatOffsetX + string.len(levelEvoText) * 3 + string.len(pokemon.level) * 2
-	
+
 	-- Determine if evolution is possible/soon for own pokemon
 	local evoTextColor = Theme.COLORS["Default text"]
 	if Tracker.Data.isViewingOwn then
@@ -570,11 +570,11 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			evoDetails = "SOON"
 			evoTextColor = Theme.COLORS["Positive text"]
 		elseif evoDetails ~= Constants.BLANKLINE then
-			evoTextColor = Theme.COLORS["Negative text"]
+			evoTextColor = Theme.COLORS["Intermediate text"]
 		end
 	end
 	levelEvoText = levelEvoText .. evoDetails .. ")"
-	
+
 	-- DRAW POKEMON INFO
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemon.name, Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], shadowcolor)
@@ -739,7 +739,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 	-- Draw over next move level in header to indicate whether close to new move or not
 	if nextMoveLevel ~= nil and nextMoveSpacing ~= nil and Tracker.Data.isViewingOwn then
-		local nextMoveColor = Theme.COLORS["Negative text"]
+		local nextMoveColor = Theme.COLORS["Intermediate text"]
 		if pokemon.level + 1 >= nextMoveLevel then
 			nextMoveColor = Theme.COLORS["Positive text"]
 		end
