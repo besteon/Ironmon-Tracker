@@ -39,12 +39,12 @@ Battle = {
 		OWN_VIEWSLOT_RIGHT = 2,
 		OTHER_VIEWSLOT_RIGHT = 3,
 	},
-	ViewSlots = {
-		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
-		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1, -- During battle, this references which of the other six pokemon [1-6] is in the first battle slot
-		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of your own six pokemon are in the second battle slot
-		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of the other six pokemon is in the second battle slot
-	},
+}
+Battle.ViewSlots = {
+	[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
+	[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1, -- During battle, this references which of the other six pokemon [1-6] is in the first battle slot
+	[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of your own six pokemon are in the second battle slot
+	[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of the other six pokemon is in the second battle slot
 }
 function Battle.update()
 	if Program.Frames.lowAccuracyUpdate == 0 and not Program.inCatchingTutorial then
