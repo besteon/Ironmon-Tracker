@@ -293,7 +293,7 @@ function Main.GenerateNextRom()
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
 		print("The Randomizer ZX program failed to generate a ROM. Check the generated RandomizerErrorLog.txt file for errors.")
-		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the generated RandomizerErrorLog.txt file for errors.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the RandomizerErrorLog.txt file in the tracker folder for errors.")
 		return nil
 	end
 
