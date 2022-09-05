@@ -479,7 +479,7 @@ end
 function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 	if leadPokemon ~= nil then
 		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then

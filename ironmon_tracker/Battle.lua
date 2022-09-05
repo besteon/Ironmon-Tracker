@@ -3,8 +3,8 @@ Battle = {
 	isWildEncounter = false,
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	isGhost = false,
+	isViewingLeft = false,
 	numBattlers = 0,
-	isGhost = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -412,7 +412,7 @@ function Battle.beginNewBattle()
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
-	Tracker.Data.isViewingLeft = true
+	Battle.isViewingLeft = true
 	Battle.ViewSlots = {
 		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
 		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
@@ -448,7 +448,7 @@ function Battle.endCurrentBattle()
 	Battle.enemyTransformed = false
 
 	Tracker.Data.isViewingOwn = true
-	Tracker.Data.isViewingLeft = true
+	Battle.isViewingLeft = true
 	Battle.ViewSlots = {
 		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1,
 		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1,
@@ -483,7 +483,7 @@ function Battle.changeOpposingPokemonView(isLeft)
 
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
-		Tracker.Data.isViewingLeft = isLeft
+		Battle.isViewingLeft = isLeft
 	end
 
 	Input.resetControllerIndex()

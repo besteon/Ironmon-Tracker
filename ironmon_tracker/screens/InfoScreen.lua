@@ -174,7 +174,7 @@ InfoScreen.Buttons = {
 			if not self:isVisible() then return end
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+			local pokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 			if Utils.pokemonHasMove(pokemon, "Hidden Power") then
 
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
@@ -539,7 +539,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
-	local ownPokemonId = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true).pokemonID
+	local ownPokemonId = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true).pokemonID
 
 	local typeOne = pokemon.types[1]
 	local typeTwo = pokemon.types[2]
@@ -728,7 +728,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local moveAccuracy = move.accuracy
 
 	-- Don't reveal randomized move info for moves the player's current pokemon doesn't have
-	local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 	local hideInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
 
 	-- Before drawing view boxes, check if extra space is needed for 'Priority' information
@@ -749,7 +749,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
 	if moveId == 237 then -- 237 = Hidden Power
-		local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+		local pokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 		if Utils.pokemonHasMove(pokemon, "Hidden Power") then
 			moveType = Tracker.getHiddenPowerType()
 			moveCat = MoveData.TypeToCategory[moveType]

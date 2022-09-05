@@ -89,11 +89,11 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isInValidMapLocation() then return nil end
 
-	if Tracker.Data.isViewingOwn and Tracker.Data.isViewingLeft then
+	if Tracker.Data.isViewingOwn and Battle.isViewingLeft then
 		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
 	elseif Tracker.Data.isViewingOwn then
 		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT], true)
-	elseif Tracker.Data.isViewingLeft then
+	elseif Battle.isViewingLeft then
 		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], false)
 	else
 		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT], false)
@@ -235,7 +235,7 @@ end
 function Tracker.TrackHiddenPowerType(moveType)
 	if moveType == nil then return end
 
-	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 
 	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
@@ -358,7 +358,7 @@ end
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
 
-	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
 
 	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
@@ -419,8 +419,9 @@ function Tracker.resetData()
 
 		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
 		otherTeam = { 0, 0, 0, 0, 0, 0 },
+		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
+		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
 		isViewingOwn = true,
-		isViewingLeft = true,
 		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
 
 		hasCheckedSummary = not Options["Hide stats until summary shown"],

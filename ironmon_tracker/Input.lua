@@ -37,7 +37,7 @@ function Input.checkJoypadInput(joypadButtons)
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
 				--swap sides on returning to allied side
-				Tracker.Data.isViewingLeft = not Tracker.Data.isViewingLeft
+				Battle.isViewingLeft = not Battle.isViewingLeft
 			end
 		end
 		Program.redraw(true)
