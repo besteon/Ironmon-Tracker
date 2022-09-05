@@ -26,6 +26,17 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 }
 
+Program.GameData = {
+	evolutionStones = { -- The evolution stones currently in bag
+			[93] = 0, -- Sun Stone
+			[94] = 0, -- Moon Stone
+			[95] = 0, -- Fire Stone
+			[96] = 0, -- Thunder Stone
+			[97] = 0, -- Water Stone
+			[98] = 0, -- Leaf Stone
+	},
+}
+
 function Program.initialize()
 	Program.currentScreen = Program.Screens.TRACKER
 
@@ -118,9 +129,9 @@ function Program.update()
 		end
 	end
 
-	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
+	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
 	if Program.Frames.three_sec_update == 0 then
-		Program.updateBagHealingItems()
+		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
 	end
@@ -465,19 +476,22 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
-function Program.updateBagHealingItems()
+function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
 	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 	if leadPokemon ~= nil then
-		local healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp)
+		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then
-			Tracker.Data.healingItems = healingItems
+			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
+		end
+		if evolutionStones ~= nil then
+			Program.GameData.evolutionStones = evolutionStones
 		end
 	end
 end
 
-function Program.calcBagHealingItems(pokemonMaxHP)
+function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 	local totals = {
 		healing = 0,
 		numHeals = 0,
@@ -489,12 +503,6 @@ function Program.calcBagHealingItems(pokemonMaxHP)
 	end
 
 	-- Formatted as: healingItemsInBag[itemID] = quantity
-	local healingItemsInBag = Program.getHealingItems()
-	if healingItemsInBag == nil then
-		return totals
-	end
-
-	-- for _, item in pairs(MiscData.healingItems) do
 	for itemID, quantity in pairs(healingItemsInBag) do
 		local healItemData = MiscData.HealingItems[itemID]
 		if healItemData ~= nil and quantity > 0 then
@@ -517,11 +525,18 @@ function Program.calcBagHealingItems(pokemonMaxHP)
 	return totals
 end
 
-function Program.getHealingItems()
-	-- I believe this key has to be looked-up each time, as the ptr changes periodically
-	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
-
+function Program.getBagItems()
 	local healingItems = {}
+	local evoStones = {
+		[93] = 0, -- Sun Stone
+		[94] = 0, -- Moon Stone
+		[95] = 0, -- Fire Stone
+		[96] = 0, -- Thunder Stone
+		[97] = 0, -- Water Stone
+		[98] = 0, -- Leaf Stone
+	}
+
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
@@ -532,13 +547,18 @@ function Program.getHealingItems()
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 and MiscData.HealingItems[itemID] ~= nil then
+			if itemID ~= 0 then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
 				if key ~= nil then quantity = bit.bxor(quantity, key) end
-				healingItems[itemID] = quantity
+
+				if MiscData.HealingItems[itemID] ~= nil then
+					healingItems[itemID] = quantity
+				elseif MiscData.EvolutionStones[itemID] ~= nil then
+					evoStones[itemID] = quantity
+				end
 			end
 		end
 	end
-
-	return healingItems
+	
+	return healingItems, evoStones
 end
