@@ -284,7 +284,7 @@ function Main.GenerateNextRom()
 	)
 
 	print("Generating next ROM: " .. nextromname)
-	local pipe = io.popen(javacommand)
+	local pipe = io.popen(javacommand .. " 2>RandomizerErrorLog.txt")
 	if pipe ~= nil then
 		local output = pipe:read("*all")
 		print("> " .. output)
@@ -292,8 +292,8 @@ function Main.GenerateNextRom()
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("The Randomizer ZX program failed to generate a ROM.")
-		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nThis is likely because you need to install \"Java 64-bit Offline.\"")
+		print("The Randomizer ZX program failed to generate a ROM. Check the generated RandomizerErrorLog.txt file for errors.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the RandomizerErrorLog.txt file in the tracker folder for errors.")
 		return nil
 	end
 
