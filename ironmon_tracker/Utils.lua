@@ -166,7 +166,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = movesLearned .. "/" .. #allMoveLevels
+	local header = "Move ~ " .. movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
 		local nextMoveSpacing = (string.len(header) + 3) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
 		header = header .. " (" .. nextMoveLevel .. ")"

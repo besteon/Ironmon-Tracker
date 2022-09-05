@@ -310,10 +310,8 @@ function TrackerScreen.buildCarousel()
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
-					local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ownViewSlotLeft, Tracker.Data.ownViewSlotRight), true)
-
+					local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
-
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else
