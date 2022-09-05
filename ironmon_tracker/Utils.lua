@@ -427,14 +427,14 @@ function Utils.isReadyToEvolveByStone(evoMethod)
 		return false
 	end
 
-	for itemID, quantity in pairs(Tracker.Data.evolutionStones) do
+	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
 		-- Check through the possible evolutions with the stones available
 		if quantity > 0 then
 			-- Special check for the level/water stone evos
 			if itemID == 97 and evoMethod:match("(WTR)") ~= nil then
 				return true
 			end
-			for _, possibleEvolution in pairs(MiscData.evolutionStones[itemID].evolutions) do
+			for _, possibleEvolution in pairs(MiscData.EvolutionStones[itemID].evolutions) do
 				if possibleEvolution == evoMethod then
 					return true
 				end

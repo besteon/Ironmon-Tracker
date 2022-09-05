@@ -26,6 +26,17 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 }
 
+Program.GameData = {
+	evolutionStones = { -- The evolution stones currently in bag
+			[93] = 0, -- Sun Stone
+			[94] = 0, -- Moon Stone
+			[95] = 0, -- Fire Stone
+			[96] = 0, -- Thunder Stone
+			[97] = 0, -- Water Stone
+			[98] = 0, -- Leaf Stone
+	},
+}
+
 function Program.initialize()
 	Program.currentScreen = Program.Screens.TRACKER
 
@@ -497,7 +508,7 @@ function Program.updateBagItems()
 			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
 		end
 		if evolutionStones ~= nil then
-			Tracker.Data.evolutionStones = evolutionStones
+			Program.GameData.evolutionStones = evolutionStones
 		end
 	end
 end
@@ -564,7 +575,7 @@ function Program.getBagItems()
 
 				if MiscData.HealingItems[itemID] ~= nil then
 					healingItems[itemID] = quantity
-				elseif MiscData.evolutionStones[itemID] ~= nil then
+				elseif MiscData.EvolutionStones[itemID] ~= nil then
 					evoStones[itemID] = quantity
 				end
 			end

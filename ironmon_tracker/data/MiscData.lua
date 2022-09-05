@@ -328,7 +328,7 @@ MiscData.StatusItems = {
 	},
 }
 
-MiscData.evolutionStones = {
+MiscData.EvolutionStones = {
 	[93] = {
 		id = 93,
 		name = "Sun Stone",
