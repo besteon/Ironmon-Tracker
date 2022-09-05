@@ -220,6 +220,7 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -367,9 +368,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -517,9 +519,10 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -671,9 +674,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ef1
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -821,9 +825,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -971,9 +976,10 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
 		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gMoveResultFlags = 0x02024c68
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattlersCount = 0x02024a68
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -1128,6 +1134,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gMoveResultFlags = 0x0202427c
 	GameSettings.gBattleWeather = 0x020243cc
 	GameSettings.gBattleCommunication = 0x02024332
+	GameSettings.gBattlersCount = 0x0202406c
 	
 	GameSettings.gMapHeader = 0x02037318
 	GameSettings.gBattleTerrain = 0x02022ff0
@@ -1277,7 +1284,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleResults = 0x03004f90
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
-		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10 -- TODO: offset for this game is untested
+		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.gMoveToLearn = 0x02024022
@@ -1440,6 +1447,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1595,15 +1603,16 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
-		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -1758,15 +1767,16 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
-		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -1924,6 +1934,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2085,15 +2096,16 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
 		GameSettings.gBattleTypeFlags = 0x02022b4c
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
-		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.FriendshipRequiredToEvo = 0x08042DC4 + 0x13E -- GetEvolutionTargetSpecies (untested)
 		
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
@@ -2251,6 +2263,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2406,6 +2419,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattlersCount = 0x02023bcc
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
