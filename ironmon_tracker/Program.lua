@@ -100,7 +100,7 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants[TeamIndexes.LeftOwn], true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)

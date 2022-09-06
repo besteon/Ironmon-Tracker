@@ -91,9 +91,9 @@ function Tracker.getViewedPokemon()
 
 	local viewSlot
 	if Tracker.Data.isViewingOwn then
-		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants[TeamIndexes.LeftOwn], Battle.Combatants[TeamIndexes.RightOwn])
 	else
-		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants[TeamIndexes.LeftOther], Battle.Combatants[TeamIndexes.RightOther])
 	end
 
 	return Tracker.getPokemon(viewSlot, Tracker.Data.isViewingOwn)
