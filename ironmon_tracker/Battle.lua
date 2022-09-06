@@ -33,15 +33,12 @@ Battle = {
 		hasInfo = false,
 	},
 
-	-- A "Combatant" is a Pokemon that is visible on the battle screen
+	-- A "Combatant" is a Pokemon that is visible on the battle screen, represented by the slot # in the owner's team [1-6].
+	-- Game Code has this as: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
 	Combatants = {
-		-- The view slot for which of your OWN six Pokemon [1-6] is in the first battle slot (index = 0)
 		LeftOwn = 1,
-		-- The view slot for which of the OTHER six Pokemon [1-6] is in the first battle slot (index = 1)
 		LeftOther = 1,
-		-- The view slot for which of your OWN six Pokemon is in the second battle slot (index = 2)
 		RightOwn = 2,
-		-- The view slot for which of the OTHER six Pokemon is in the second battle slot (index = 3)
 		RightOther = 2,
 	},
 }
