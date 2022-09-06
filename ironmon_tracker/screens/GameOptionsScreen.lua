@@ -71,7 +71,7 @@ function GameOptionsScreen.initialize()
 end
 
 function GameOptionsScreen.displayJudgeMessage()
-	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local leadPokemon = Battle.getViewedPokemon(true)
 	if leadPokemon ~= nil then
 		-- https://bulbapedia.bulbagarden.net/wiki/Stats_judge
 		local result

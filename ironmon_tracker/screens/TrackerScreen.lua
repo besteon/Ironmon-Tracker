@@ -220,7 +220,7 @@ function TrackerScreen.initialize()
 				self.text = Constants.STAT_STATES[self.statState].text
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 
-				local pokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
+				local pokemon = Battle.getViewedPokemon(false)
 				if pokemon ~= nil then
 					Tracker.TrackStatMarking(pokemon.pokemonID, self.statStage, self.statState)
 				end
@@ -310,7 +310,7 @@ function TrackerScreen.buildCarousel()
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
-					local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+					local ownPokemon = Battle.getViewedPokemon(true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
@@ -395,7 +395,7 @@ function TrackerScreen.getNextVisibleCarouselItem(startIndex)
 end
 
 function TrackerScreen.updateButtonStates()
-	local opposingPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
+	local opposingPokemon = Battle.getViewedPokemon(false)
 	if opposingPokemon ~= nil then
 		local statMarkings = Tracker.getStatMarkings(opposingPokemon.pokemonID)
 
@@ -478,11 +478,11 @@ function TrackerScreen.drawScreen()
 	local viewedPokemon
 	local opposingPokemon
 	if Tracker.Data.isViewingOwn then
-		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
-		opposingPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], false)
+		viewedPokemon = Battle.getViewedPokemon(true)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
 	else
-		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
-		opposingPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
+		viewedPokemon = Battle.getViewedPokemon(false)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
