@@ -220,7 +220,7 @@ function TrackerScreen.initialize()
 				self.text = Constants.STAT_STATES[self.statState].text
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 
-				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+				local pokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
 				if pokemon ~= nil then
 					Tracker.TrackStatMarking(pokemon.pokemonID, self.statStage, self.statState)
 				end
@@ -310,7 +310,7 @@ function TrackerScreen.buildCarousel()
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
-					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+					local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
@@ -395,7 +395,7 @@ function TrackerScreen.getNextVisibleCarouselItem(startIndex)
 end
 
 function TrackerScreen.updateButtonStates()
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	local opposingPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
 	if opposingPokemon ~= nil then
 		local statMarkings = Tracker.getStatMarkings(opposingPokemon.pokemonID)
 
@@ -474,14 +474,15 @@ end
 function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
 
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
-		local tempPokemon = viewedPokemon
-		viewedPokemon = opposingPokemon
-		opposingPokemon = tempPokemon
+	--Assume we are always looking at the left pokemon on the opposing side for move effectiveness
+	local viewedPokemon
+	local opposingPokemon
+	if Tracker.Data.isViewingOwn then
+		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft, Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+		opposingPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], false)
+	else
+		viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft, Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
+		opposingPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
@@ -522,7 +523,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	}
 	if Battle.inBattle and (Tracker.Data.isViewingOwn or not Battle.isGhost) then
 		--update displayed types as typing changes (i.e. Color Change)
-		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
+		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
@@ -832,7 +833,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- MOVE POWER
 		if Battle.inBattle then
-			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
+			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
 			if Utils.isSTAB(moveData, moveType, ownTypes) then
 				movePowerColor = Theme.COLORS["Positive text"]
 			end
@@ -882,7 +883,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Battle.inBattle and showEffectiveness then
-			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
+			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn, true)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)

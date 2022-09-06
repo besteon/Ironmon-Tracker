@@ -3,6 +3,8 @@ Battle = {
 	isWildEncounter = false,
 	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	isGhost = false,
+	isViewingLeft = false,
+	numBattlers = 0,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -30,8 +32,20 @@ Battle = {
 		encounterArea = RouteData.EncounterArea.LAND,
 		hasInfo = false,
 	},
-}
 
+	BATTLE_INDEXES = {
+		OWN_VIEWSLOT_LEFT = 0,
+		OTHER_VIEWSLOT_LEFT =  1,
+		OWN_VIEWSLOT_RIGHT = 2,
+		OTHER_VIEWSLOT_RIGHT = 3,
+	},
+}
+Battle.ViewSlots = {
+	[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
+	[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1, -- During battle, this references which of the other six pokemon [1-6] is in the first battle slot
+	[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of your own six pokemon are in the second battle slot
+	[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of the other six pokemon is in the second battle slot
+}
 function Battle.update()
 	if Program.Frames.lowAccuracyUpdate == 0 and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
@@ -69,13 +83,43 @@ end
 
 -- Updates once every [30] frames.
 function Battle.updateLowAccuracy()
-	local viewingWhichPokemon = Tracker.Data.otherViewSlot
-
-	Program.updateViewSlots()
+	Battle.updateViewSlots()
 	Battle.updateTrackedInfo()
+end
 
-	if viewingWhichPokemon ~= Tracker.Data.otherViewSlot then
-		Battle.changeOpposingPokemonView()
+function Battle.updateViewSlots()
+	local prevEnemyPokemonLeft = Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT]
+	local prevEnemyPokemonRight = Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]
+
+	--update all 2 (or 4) 
+	Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = Memory.readbyte(GameSettings.gBattlerPartyIndexes) + 1
+	Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 2) + 1
+
+	-- Verify the view slots are within bounds, and that for doubles, the pokemon is not fainted (data is not cleared if there are no remaining pokemon)
+	if Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] < 1 or Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] > 6 then
+		Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1
+	end
+	if Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] < 1 or Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] > 6 then
+		Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1
+	end
+
+	-- Now also track the slots of the other 2 mons in double battles
+	if Battle.numBattlers == 4 then
+		Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 4) + 1
+		Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = Memory.readbyte(GameSettings.gBattlerPartyIndexes + 6) + 1
+
+		if Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] < 1 or Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] > 6 then
+			Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = Utils.inlineIf(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] == 1,2,1)
+		end
+		if Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] < 1 or Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] > 6 then
+			Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = Utils.inlineIf(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] == 1,2,1)
+		end
+	end
+	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] then
+		--pokemon on the left is not the one that was there previously
+		Battle.changeOpposingPokemonView(true)
+	elseif numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] then
+		Battle.changeOpposingPokemonView(false)
 	end
 end
 
@@ -127,8 +171,10 @@ function Battle.updateTrackedInfo()
 		return
 	end
 
-	local ownersPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
+	--Instead of using the 'viewed' pokemon, access the pokemon via gBattleMons
+	local ownersPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
+	local opposingPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], false)
 
 	if ownersPokemon == nil or opposingPokemon == nil then -- unsure if this is ever true at this point
 		return
@@ -366,8 +412,13 @@ function Battle.beginNewBattle()
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
-	Tracker.Data.ownViewSlot = 1
-	Tracker.Data.otherViewSlot = 1
+	Battle.isViewingLeft = true
+	Battle.ViewSlots = {
+		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1, -- During battle, this references which of your own six pokemon [1-6] is in the first battle slot
+		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
+		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of your own six pokemon are in the 
+		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = 2, -- During a double battle, this references which of your own six pokemon are in the 
+	}
 	Input.resetControllerIndex()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
@@ -383,6 +434,7 @@ end
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
 
+	Battle.numBattlers = 0
 	Battle.inBattle = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
@@ -396,8 +448,13 @@ function Battle.endCurrentBattle()
 	Battle.enemyTransformed = false
 
 	Tracker.Data.isViewingOwn = true
-	Tracker.Data.ownViewSlot = 1
-	Tracker.Data.otherViewSlot = 1
+	Battle.isViewingLeft = true
+	Battle.ViewSlots = {
+		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT] = 1,
+		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT] = 1,
+		[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT] = 2,
+		[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT] = 2,
+	}
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
 	Tracker.Data.otherPokemon = {}
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
@@ -421,11 +478,12 @@ function Battle.endCurrentBattle()
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 end
 
-function Battle.changeOpposingPokemonView()
+function Battle.changeOpposingPokemonView(isLeft)
 	Battle.enemyTransformed = false
 
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
+		Battle.isViewingLeft = isLeft
 	end
 
 	Input.resetControllerIndex()
