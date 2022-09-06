@@ -89,15 +89,14 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isInValidMapLocation() then return nil end
 
-	if Tracker.Data.isViewingOwn and Battle.isViewingLeft then
-		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
-	elseif Tracker.Data.isViewingOwn then
-		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT], true)
-	elseif Battle.isViewingLeft then
-		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], false)
+	local viewSlot
+	if Tracker.Data.isViewingOwn then
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
-		return Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT], false)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
+
+	return Tracker.getPokemon(viewSlot, Tracker.Data.isViewingOwn)
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -235,7 +234,7 @@ end
 function Tracker.TrackHiddenPowerType(moveType)
 	if moveType == nil then return end
 
-	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
 	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
@@ -357,9 +356,7 @@ end
 
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-
-	local viewedPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
-	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
 	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
 		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
