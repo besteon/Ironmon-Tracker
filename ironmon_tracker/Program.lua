@@ -100,7 +100,7 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+			local leadPokemon = Tracker.getPokemon(Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
@@ -113,7 +113,6 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-		local viewingWhichPokemon = Tracker.Data.otherViewSlot
 
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
@@ -329,27 +328,6 @@ function Program.readBattleValues()
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 end
 
-function Program.updateViewSlots()
-	-- First update which own/other slots are being viewed
-	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-
-	-- Secondary pokemon (likely the doubles battle partner)
-	if Battle.attacker == 2 then -- untested
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
-	elseif Battle.attacker == 3 then
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-	end
-
-	-- Verify the view slots are within bounds
-	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
-		Tracker.Data.ownViewSlot = 1
-	end
-	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
-		Tracker.Data.otherViewSlot = 1
-	end
-end
-
 function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
@@ -426,8 +404,8 @@ function Program.getLearnedMoveId()
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
-function Program.getPokemonTypes(isOwn)
-	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58))
+function Program.getPokemonTypes(isOwn, isLeft)
+	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58) + Utils.inlineIf(isLeft, 0x0, 0xB0))
 	return {
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
@@ -501,7 +479,7 @@ end
 function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn,Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Battle.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
 	if leadPokemon ~= nil then
 		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then
