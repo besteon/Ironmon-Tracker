@@ -34,13 +34,20 @@ Battle = {
 	},
 
 	-- A "Combatant" is a Pokemon that is visible on the battle screen, represented by the slot # in the owner's team [1-6].
-	-- Game Code has this as: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
 	Combatants = {
 		LeftOwn = 1,
 		LeftOther = 1,
 		RightOwn = 2,
 		RightOther = 2,
 	},
+}
+
+-- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
+Battle.IndexMap = {
+	[0] = "LeftOwn",
+	[1] = "LeftOther",
+	[2] = "RightOwn",
+	[3] = "RightOther",
 }
 
 function Battle.update()
