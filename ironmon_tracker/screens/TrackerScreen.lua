@@ -479,10 +479,10 @@ function TrackerScreen.drawScreen()
 	local opposingPokemon
 	if Tracker.Data.isViewingOwn then
 		viewedPokemon = Battle.getViewedPokemon(true)
-		opposingPokemon = Tracker.getPokemon(Battle.Combatants[TeamIndexes.LeftOther], false)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
 	else
 		viewedPokemon = Battle.getViewedPokemon(false)
-		opposingPokemon = Tracker.getPokemon(Battle.Combatants[TeamIndexes.LeftOwn], true)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
