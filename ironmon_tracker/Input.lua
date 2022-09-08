@@ -35,6 +35,12 @@ function Input.checkJoypadInput(joypadButtons)
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
 		if Battle.inBattle then
 			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
+			if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
+				--swap sides on returning to allied side
+				Battle.isViewingLeft = not Battle.isViewingLeft
+				-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
+				Program.Frames.three_sec_update = 30
+			end
 		end
 		Program.redraw(true)
 	end

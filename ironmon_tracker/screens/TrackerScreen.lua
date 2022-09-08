@@ -220,7 +220,7 @@ function TrackerScreen.initialize()
 				self.text = Constants.STAT_STATES[self.statState].text
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 
-				local pokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+				local pokemon = Battle.getViewedPokemon(false)
 				if pokemon ~= nil then
 					Tracker.TrackStatMarking(pokemon.pokemonID, self.statStage, self.statState)
 				end
@@ -310,8 +310,8 @@ function TrackerScreen.buildCarousel()
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
 					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
-					local ownPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-					if Battle.damageReceived >= ownPokemon.curHP then
+					local ownPokemon = Battle.getViewedPokemon(true)
+					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
 						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
 					else
@@ -395,7 +395,7 @@ function TrackerScreen.getNextVisibleCarouselItem(startIndex)
 end
 
 function TrackerScreen.updateButtonStates()
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+	local opposingPokemon = Battle.getViewedPokemon(false)
 	if opposingPokemon ~= nil then
 		local statMarkings = Tracker.getStatMarkings(opposingPokemon.pokemonID)
 
@@ -474,14 +474,15 @@ end
 function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
 
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local opposingPokemon = Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
-
-	-- Depending on which pokemon is being viewed, draw it using the other pokemon's info for calculations (effectiveness/weight)
-	if not Tracker.Data.isViewingOwn and opposingPokemon ~= nil then
-		local tempPokemon = viewedPokemon
-		viewedPokemon = opposingPokemon
-		opposingPokemon = tempPokemon
+	--Assume we are always looking at the left pokemon on the opposing side for move effectiveness
+	local viewedPokemon
+	local opposingPokemon
+	if Tracker.Data.isViewingOwn then
+		viewedPokemon = Battle.getViewedPokemon(true)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
+	else
+		viewedPokemon = Battle.getViewedPokemon(false)
+		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 	end
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
@@ -522,7 +523,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	}
 	if Battle.inBattle and (Tracker.Data.isViewingOwn or not Battle.isGhost) then
 		--update displayed types as typing changes (i.e. Color Change)
-		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
+		typesData = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
 	end
 	-- POKEMON ICON & TYPES
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
@@ -557,24 +558,34 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		hpTextColor = Theme.COLORS["Intermediate text"]
 	end
 
-	-- If the evolution is happening soon (next level or friendship is ready, change font color)
-	local evoDetails = "(" .. pokemon.evolution .. ")"
-	local levelEvoTextColor = Theme.COLORS["Default text"]
+	local levelEvoText = "Lv." .. pokemon.level .. " ("
+	local evoDetails = pokemon.evolution
+	local evoSpacing = pkmnStatOffsetX + string.len(levelEvoText) * 3 + string.len(pokemon.level) * 2
+
+	-- Determine if evolution is possible/soon for own pokemon
+	local evoTextColor = Theme.COLORS["Default text"]
 	if Tracker.Data.isViewingOwn then
-		if Utils.isReadyToEvolveByLevel(pokemon.evolution, pokemon.level) then
-			levelEvoTextColor = Theme.COLORS["Positive text"]
-		elseif pokemon.friendship >= Program.friendshipRequired and pokemon.evolution == PokemonData.Evolutions.FRIEND then
-			evoDetails = "(SOON)"
-			levelEvoTextColor = Theme.COLORS["Positive text"]
+		if Utils.isReadyToEvolveByLevel(evoDetails, pokemon.level) or Utils.isReadyToEvolveByStone(evoDetails) then
+			evoTextColor = Theme.COLORS["Positive text"]
+		elseif pokemon.friendship >= Program.friendshipRequired and evoDetails == PokemonData.Evolutions.FRIEND then
+			evoDetails = "SOON"
+			evoTextColor = Theme.COLORS["Positive text"]
+		elseif evoDetails ~= Constants.BLANKLINE then
+			evoTextColor = Theme.COLORS["Intermediate text"]
 		end
 	end
-	local levelEvoText = "Lv." .. pokemon.level .. " " .. evoDetails
+	levelEvoText = levelEvoText .. evoDetails .. ")"
 
 	-- DRAW POKEMON INFO
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemon.name, Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), hpText, hpTextColor, shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, levelEvoTextColor, shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, Theme.COLORS["Default text"], shadowcolor)
+
+	if Tracker.Data.isViewingOwn and evoDetails ~= Constants.BLANKLINE then
+		-- Draw over the evo method in the new color to reflect if evo is possible/soon
+		Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, pkmnStatStartY + (pkmnStatOffsetY * 2), evoDetails, evoTextColor, shadowcolor)
+	end
 
 	-- Tracker.Data.isViewingOwn and
 	if pokemon.status ~= MiscData.StatusType.None then
@@ -708,7 +719,7 @@ end
 function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local movesLearnedHeader = "Move ~  " .. Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
+	local movesLearnedHeader, nextMoveLevel, nextMoveSpacing = Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
 	local moveTableHeaderHeightDiff = 13
 	local moveOffsetY = 94
 
@@ -726,6 +737,15 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, moveOffsetY - moveTableHeaderHeightDiff, "PP", Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, moveOffsetY - moveTableHeaderHeightDiff, "Pow", Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
+
+	-- Draw over next move level in header to indicate whether close to new move or not
+	if nextMoveLevel ~= nil and nextMoveSpacing ~= nil and Tracker.Data.isViewingOwn then
+		local nextMoveColor = Theme.COLORS["Intermediate text"]
+		if pokemon.level + 1 >= nextMoveLevel then
+			nextMoveColor = Theme.COLORS["Positive text"]
+		end
+		Drawing.drawText(Constants.SCREEN.WIDTH + nextMoveSpacing, moveOffsetY - moveTableHeaderHeightDiff, nextMoveLevel, nextMoveColor, bgHeaderShadow)
+	end
 
 	-- Draw the Moves view box
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
@@ -813,7 +833,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- MOVE POWER
 		if Battle.inBattle then
-			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn)
+			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
 			if Utils.isSTAB(moveData, moveType, ownTypes) then
 				movePowerColor = Theme.COLORS["Positive text"]
 			end
@@ -863,7 +883,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 
 		-- DRAW MOVE EFFECTIVENESS
 		if Options["Show move effectiveness"] and Battle.inBattle and showEffectiveness then
-			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn)
+			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn, true)
 			local effectiveness = Utils.netEffectiveness(moveData, moveType, enemyTypes)
 			if effectiveness == 0 then
 				Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset - 7, moveOffsetY, "X", Theme.COLORS["Negative text"], shadowcolor)

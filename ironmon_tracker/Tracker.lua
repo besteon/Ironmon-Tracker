@@ -89,11 +89,14 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isInValidMapLocation() then return nil end
 
+	local viewSlot
 	if Tracker.Data.isViewingOwn then
-		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
-		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
+
+	return Tracker.getPokemon(viewSlot, Tracker.Data.isViewingOwn)
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -231,9 +234,9 @@ end
 function Tracker.TrackHiddenPowerType(moveType)
 	if moveType == nil then return end
 
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
-	if viewedPokemon.personality ~= 0 then
+	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
 	end
 end
@@ -353,11 +356,10 @@ end
 
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
-	if hiddenPowerType ~= nil then
-		return hiddenPowerType
+	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
+		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
 	else
 		return MoveData.HiddenPowerTypeList[1]
 	end
