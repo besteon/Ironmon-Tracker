@@ -571,30 +571,26 @@ function Program.trackBattlePartyChanges(moveUsed, ability)
 	if moveUsed ~= nil and moveUsed ~=0 then
 		if moveUsed == 285 then
 			--Skill Swap; swap abilities and sources of target and attacker
-			local attackerIndex = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-			local targetIndex = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
+			local attackerTeamIndex =  Battle.attacker % 2
+			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
+			local targetTeamIndex =  Battle.battlerTarget % 2
+			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
 
-			if Battle.attacker % 2 == 0 then
-				local tempOwner = Battle.BattleAbilities.Own[attackerPID].abilityOwner
-				local tempAbility = Battle.BattleAbilities.Own[attackerPID].ability
-			end
-			local attacker = Tracker.getPokemon(,Utils.inlineIf(Battle.attacker % 2 ==0,true,false))
-			local targetPID = Memory.readdword(startAddress + (Battle.battlerTarget)*pokemonSize + personalityOffset)
+			local tempOwner = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner
+			local tempAbility = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability
 
-			local tempSpecies= Battle.BattleAbilities[attackerPID].abilityOwner
-			local tempAbility = Battle.BattleAbilities[attackerPID].ability
-			Battle.BattleAbilities[attackerPID].abilityOwner = Battle.BattleAbilities[targetPID].abilityOwner
-			Battle.BattleAbilities[attackerPID].ability = Battle.BattleAbilities[targetPID].ability
-			Battle.BattleAbilities[targetPID].abilityOwner = tempSpecies
-			Battle.BattleAbilities[targetPID].ability = tempAbility
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner = Battle.BattleAbilities[targetPID].abilityOwner
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability = Battle.BattleAbilities[targetPID].ability
+			Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner = tempSpecies
+			Battle.BattleAbilities[targetTeamIndex][targetSlot].ability = tempAbility
 		elseif moveUsed == 272 or moveUsed == 144 then
 			--Role Play/Transform; copy abilities and sources of target and attacker, and turn on transform tracking
-			local attackerPID = Memory.readdword(startAddress + (Battle.attacker)*pokemonSize + personalityOffset)
-			local targetPID = Memory.readdword(startAddress + (Battle.battlerTarget)*pokemonSize + personalityOffset)
-			if Battle.BattleAbilities[attackerPID] == nil or Battle.BattleAbilities[targetPID] == nil then
-				return
-			end
-			Battle.BattleAbilities[attackerPID].personality = Battle.BattleAbilities[targetPID].personality
+			local attackerTeamIndex =  Battle.attacker % 2
+			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
+			local targetTeamIndex =  Battle.battlerTarget % 2
+			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
+
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner = Battle.BattleAbilities[targetTeamIndex][targetSlot].personality
 			Battle.BattleAbilities[attackerPID].ability = Battle.BattleAbilities[targetPID].ability
 			if moveUsed == 144 then
 				Battle.isTransformed[attackerPID] = true
@@ -602,8 +598,9 @@ function Program.trackBattlePartyChanges(moveUsed, ability)
 		end
 	elseif ability ~= nil and ability ~=0 then
 		if ability == 36 then --Trace
+			-- In double battles, Trace picks a random target which is not stored in a readable variable. So we need to update the ability
+			-- Can maybe read from gBattleTextBuff1[3]
 			local traceMonPID = Memory.readdword(startAddress + (Battle.battler % 2)*pokemonSize + personalityOffset)
-			local otherMonPID = Memory.readdword(startAddress + (1-(Battle.battler % 2))*pokemonSize + personalityOffset)
 			if Battle.BattleAbilities[traceMonPID] == nil or Battle.BattleAbilities[otherMonPID] == nil then
 				return
 			end
