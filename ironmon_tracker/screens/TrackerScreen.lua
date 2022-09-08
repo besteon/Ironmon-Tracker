@@ -758,30 +758,37 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		moveNameOffset = moveNameOffset + 5
 	end
 
+	local movesToDraw = {
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+		MoveData.BlankMove,
+	}
+	local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
+	for moveIndex = 1, 4, 1 do
+		if Tracker.Data.isViewingOwn then
+			if pokemon.moves[moveIndex] ~= nil and pokemon.moves[moveIndex].id ~= 0 then
+				movesToDraw[moveIndex] = MoveData.Moves[pokemon.moves[moveIndex].id]
+			end
+		elseif trackedMoves ~= nil then
+			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
+			if trackedMoves[moveIndex] ~= nil and trackedMoves[moveIndex].id ~= 0 then
+				movesToDraw[moveIndex] = MoveData.Moves[trackedMoves[moveIndex].id]
+			end
+		end
+	end
+
 	local stars = { "", "", "", "" }
 	if not Tracker.Data.isViewingOwn then
 		stars = Utils.calculateMoveStars(pokemon.pokemonID, pokemon.level)
 	end
-	local trackedMoves = Tracker.getMoves(pokemon.pokemonID)
 
 	-- Draw all four moves
-	for moveIndex = 1, 4, 1 do
-		-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-		local moveData = MoveData.BlankMove
-		if Tracker.Data.isViewingOwn then
-			if pokemon.moves[moveIndex] ~= nil and pokemon.moves[moveIndex].id ~= 0 then
-				moveData = MoveData.Moves[pokemon.moves[moveIndex].id]
-			end
-		elseif trackedMoves ~= nil then
-			 if trackedMoves[moveIndex] ~= nil and trackedMoves[moveIndex].id ~= 0 then
-				moveData = MoveData.Moves[trackedMoves[moveIndex].id]
-			end
-		end
-
+	for moveIndex, moveData in ipairs(movesToDraw) do
 		-- Base move data to draw, but much of it will be updated
 		local moveName = moveData.name .. stars[moveIndex]
 		local moveType = moveData.type
-		local moveTypeColor = Constants.MoveTypeColors[moveType]
+		local moveTypeColor = Utils.inlineIf(moveData.name == MoveData.BlankMove.name, Theme.COLORS["Default text"], Constants.MoveTypeColors[moveType])
 		local moveCategory = moveData.category
 		local movePPText = Utils.inlineIf(moveData.pp == "0", Constants.BLANKLINE, moveData.pp)
 		local movePower = Utils.inlineIf(moveData.power == "0", Constants.BLANKLINE, moveData.power)
@@ -818,7 +825,7 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		end
 
 		-- MOVE PP
-		if moveData.pp ~= Constants.BLANKLINE then
+		if moveData.name ~= MoveData.BlankMove.name then
 			if Tracker.Data.isViewingOwn then
 				movePPText = pokemon.moves[moveIndex].pp
 			elseif Options["Count enemy PP usage"] then
