@@ -1,7 +1,6 @@
 Battle = {
 	inBattle = false,
 	isWildEncounter = false,
-	enemyTransformed = false, -- TODO: Handle both enemy battlers
 	isGhost = false,
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
@@ -26,6 +25,11 @@ Battle = {
 		attacker = -1,
 		battlerTarget = -1,
 	},
+	AbilityChangeData = {
+		turnCount = -1,
+		attacker = 0,
+		movesSeen = 0
+	},
 	-- "Low accuracy" values
 	CurrentRoute = {
 		mapId = 0,
@@ -40,6 +44,13 @@ Battle = {
 		RightOwn = 2,
 		RightOther = 2,
 	},
+	isTransformed = {
+		LeftOwn = false,
+		LeftOther = false,
+		RightOwn = false,
+		RightOther = false,
+	},
+	BattleAbilities = {},
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -134,10 +145,11 @@ function Battle.updateViewSlots()
 
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther then
-		Battle.changeOpposingPokemonView(true)
+		Battle.changeOpposingPokemonView(prevEnemyPokemonLeft,true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther then
-		Battle.changeOpposingPokemonView(false)
+		Battle.changeOpposingPokemonView(prevEnemyPokemonRight,false)
 	end
+	--Also track if ally pokemon changes, to reset transform and ability changes
 end
 
 function Battle.processBattleTurn()
@@ -188,39 +200,55 @@ function Battle.updateTrackedInfo()
 		return
 	end
 
-	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
-	--Instead of using the 'viewed' pokemon, access the pokemon via gBattleMons
-	local ownersPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-	local opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
+	-- Update useful battle values, will expand/rework this later
+	Battle.readBattleValues()
 
-	if ownersPokemon == nil or opposingPokemon == nil then -- unsure if this is ever true at this point
+	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
+	-- Get the relevant pokemon associated with the current flags.
+	local attackingPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.attacker]], Utils.inlineIf(Battle.attacker % 2 == 0,true, false))
+	local battlingPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.battler]], Utils.inlineIf(Battle.battler % 2 == 0,true, false))
+	local targetedPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]], Utils.inlineIf(Battle.battlerTarget % 2 == 0,true, false))
+
+	if attackingPokemon == nil or attackingPokemon == nil or battlingPokemon == nil or battlingPokemon == nil or targetedPokemon == nil or targetedPokemon == nil then
+		-- unsure if this is ever true at this point
 		return
 	end
 
-	-- Update useful battle values, will expand/rework this later
-	Program.readBattleValues()
+	-- Always track your own Pokemons' abilities' once you decide to use it
 
-	local ownersAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
-	-- Always track your own Pokemon's ability once you decide to use it
-	Tracker.TrackAbility(ownersPokemon.pokemonID, ownersAbilityId)
+	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
+	local ownLeftAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
+	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+	Battle.updateBattleMonDetails(ownLeftPokemon, true)
 
-	Battle.updateStatStages(ownersPokemon, true)
+	if numBattlers == 4 then
+		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
+		local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
+		Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+		Battle.updateBattleMonDetails(ownRightPokemon, true)
+	end
+
+	-- Check if an ability went off
+	local indexToTrack = Battle.checkAbilityUsed(opposingAbilityId, ownersAbilityId)
+	Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+
 	--Don't track anything for Ghosts
 	if not Battle.isGhost then
 		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
-		Battle.updateStatStages(opposingPokemon, false)
+		Battle.updateBattleMonDetails(opposingPokemon, false)
 		Battle.checkEnemyEncounter(opposingPokemon)
 		Battle.checkEnemyMovesUsed(opposingPokemon)
-
-		-- Auto-track opponent abilities if they go off
-		if Battle.checkEnemyAbilityUsed(opposingAbilityId, ownersAbilityId) then
-			Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
-		end
 	end
 end
 
-function Battle.updateStatStages(pokemon, isOwn)
+function Battle.readBattleValues()
+	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
+	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+end
+
+function Battle.updateBattleMonDetails(pokemon, isOwn)
 	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
 	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
 	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
@@ -241,6 +269,9 @@ function Battle.updateStatStages(pokemon, isOwn)
 		-- Unsure if this reset is necessary, or what the if condition is checking for
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
+
+	--Track "transformed" status
+	local transformed = Memory.readdword(startAddress + 0x18)
 end
 
 -- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
@@ -286,7 +317,7 @@ end
 
 -- Check if the opposing Pokemon used a move (it's missing pp from max), and if so track it
 function Battle.checkEnemyMovesUsed(opposingPokemon)
-	if Battle.enemyTransformed then return end
+	--if Battle.enemyTransformed then return end
 
 	for _, move in pairs(opposingPokemon.moves) do
 		if MoveData.isValid(move.id) then
@@ -301,10 +332,6 @@ function Battle.checkEnemyMovesUsed(opposingPokemon)
 
 			if moveUsed then
 				Tracker.TrackMove(opposingPokemon.pokemonID, move.id, opposingPokemon.level)
-
-				if move.id == 144 then -- 144 = Transform
-					Battle.enemyTransformed = true
-				end
 			end
 		end
 	end
@@ -436,6 +463,27 @@ function Battle.beginNewBattle()
 		RightOwn = 2,
 		RightOther = 2,
 	}
+	--populate BattleAbilities for all Pokemon
+	for i=1, 6, 1 do
+		local ownPokemon = Tracker.getPokemon(i, true)
+		if ownPokemon ~= nil then
+			local ability = PokemonData.getAbilityId(ownPokemon.pokemonID, ownPokemon.abilityNum)
+			Battle.BattleAbilities.Own[i] = {
+				["abilityOwner"] = i,
+				["originalAbility"] = ability,
+				["ability"] = ability,
+			}
+		end
+		local enemyPokemon = Tracker.getPokemon(i, false)
+		if enemyPokemon ~= nil then
+			local ability = PokemonData.getAbilityId(enemyPokemon.pokemonID, enemyPokemon.abilityNum)
+			Battle.BattleAbilities.Other[i] = {
+				["abilityOwner"] = i,
+				["originalAbility"] = ability,
+				["ability"] = ability,
+			}
+		end
+	end
 	Input.resetControllerIndex()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
@@ -462,7 +510,6 @@ function Battle.endCurrentBattle()
 	Battle.isGhost = false
 
 	Battle.CurrentRoute.hasInfo = false
-	Battle.enemyTransformed = false
 
 	Tracker.Data.isViewingOwn = true
 	Battle.isViewingLeft = true
@@ -471,6 +518,12 @@ function Battle.endCurrentBattle()
 		LeftOther = 1,
 		RightOwn = 2,
 		RightOther = 2,
+	}
+	Battle.isTransformed = {
+		LeftOwn = false,
+		LeftOther = false,
+		RightOwn = false,
+		RightOther = false,
 	}
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
 	Tracker.Data.otherPokemon = {}
@@ -495,8 +548,11 @@ function Battle.endCurrentBattle()
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 end
 
-function Battle.changeOpposingPokemonView(isLeft)
-	Battle.enemyTransformed = false
+function Battle.changeOpposingPokemonView(prevPokemon, isLeft)
+	-- Reset Transform and ability data for pokemon which is no longer in the battle
+	Battle.isTransformed[Utils.inlineIf(isLeft,"LeftOther","RightOther")] = false
+	Battle.BattleAbilities.Other[prevPokemon].abilityOwner = prevPokemon
+	Battle.BattleAbilities[prevPokemon].ability = Battle.BattleAbilities[prevPokemon].originalAbility
 
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
@@ -507,4 +563,52 @@ function Battle.changeOpposingPokemonView(isLeft)
 
 	-- Delay drawing the new pokemon, because of send out animation
 	Program.Frames.waitToDraw = 0
+end
+
+function Program.trackBattlePartyChanges(moveUsed, ability)
+
+	--check if ability changing move is being used. If so, make appropriate swaps in the table based on attacker/target
+	if moveUsed ~= nil and moveUsed ~=0 then
+		if moveUsed == 285 then
+			--Skill Swap; swap abilities and sources of target and attacker
+			local attackerIndex = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
+			local targetIndex = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
+
+			if Battle.attacker % 2 == 0 then
+				local tempOwner = Battle.BattleAbilities.Own[attackerPID].abilityOwner
+				local tempAbility = Battle.BattleAbilities.Own[attackerPID].ability
+			end
+			local attacker = Tracker.getPokemon(,Utils.inlineIf(Battle.attacker % 2 ==0,true,false))
+			local targetPID = Memory.readdword(startAddress + (Battle.battlerTarget)*pokemonSize + personalityOffset)
+
+			local tempSpecies= Battle.BattleAbilities[attackerPID].abilityOwner
+			local tempAbility = Battle.BattleAbilities[attackerPID].ability
+			Battle.BattleAbilities[attackerPID].abilityOwner = Battle.BattleAbilities[targetPID].abilityOwner
+			Battle.BattleAbilities[attackerPID].ability = Battle.BattleAbilities[targetPID].ability
+			Battle.BattleAbilities[targetPID].abilityOwner = tempSpecies
+			Battle.BattleAbilities[targetPID].ability = tempAbility
+		elseif moveUsed == 272 or moveUsed == 144 then
+			--Role Play/Transform; copy abilities and sources of target and attacker, and turn on transform tracking
+			local attackerPID = Memory.readdword(startAddress + (Battle.attacker)*pokemonSize + personalityOffset)
+			local targetPID = Memory.readdword(startAddress + (Battle.battlerTarget)*pokemonSize + personalityOffset)
+			if Battle.BattleAbilities[attackerPID] == nil or Battle.BattleAbilities[targetPID] == nil then
+				return
+			end
+			Battle.BattleAbilities[attackerPID].personality = Battle.BattleAbilities[targetPID].personality
+			Battle.BattleAbilities[attackerPID].ability = Battle.BattleAbilities[targetPID].ability
+			if moveUsed == 144 then
+				Battle.isTransformed[attackerPID] = true
+			end
+		end
+	elseif ability ~= nil and ability ~=0 then
+		if ability == 36 then --Trace
+			local traceMonPID = Memory.readdword(startAddress + (Battle.battler % 2)*pokemonSize + personalityOffset)
+			local otherMonPID = Memory.readdword(startAddress + (1-(Battle.battler % 2))*pokemonSize + personalityOffset)
+			if Battle.BattleAbilities[traceMonPID] == nil or Battle.BattleAbilities[otherMonPID] == nil then
+				return
+			end
+			Battle.BattleAbilities[traceMonPID].personality = Battle.BattleAbilities[otherMonPID].personality
+			Battle.BattleAbilities[traceMonPID].ability = Battle.BattleAbilities[otherMonPID].ability
+		end
+	end
 end

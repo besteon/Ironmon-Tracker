@@ -100,7 +100,7 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants[TeamIndexes.LeftOwn], true)
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
@@ -320,12 +320,6 @@ function Program.readNewPokemon(startAddress, personality)
 	}
 
 	return pokemonData
-end
-
-function Program.readBattleValues()
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
-	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 end
 
 function Program.updatePCHeals()
