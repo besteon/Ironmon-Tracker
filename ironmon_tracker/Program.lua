@@ -100,7 +100,7 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], true)
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
@@ -479,7 +479,7 @@ end
 function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local leadPokemon = Battle.getViewedPokemon(true)
 	if leadPokemon ~= nil then
 		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then
@@ -559,6 +559,6 @@ function Program.getBagItems()
 			end
 		end
 	end
-	
+
 	return healingItems, evoStones
 end

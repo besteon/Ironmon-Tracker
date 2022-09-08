@@ -174,7 +174,7 @@ InfoScreen.Buttons = {
 			if not self:isVisible() then return end
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn, Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+			local pokemon = Battle.getViewedPokemon(true)
 			if Utils.pokemonHasMove(pokemon, "Hidden Power") then
 
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
@@ -301,7 +301,7 @@ function InfoScreen.openAbilityInfoWindow()
 	Utils.setFormLocation(abilityLookup, 100, 50)
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
-		abilityName = AbilityData.defaultAbility.name
+		abilityName = AbilityData.DefaultAbility.name
 	else
 		abilityName = AbilityData.Abilities[InfoScreen.infoLookup].name
 	end
@@ -454,13 +454,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 		end
 
 		local x = startX + offsetX
-		local y = startY + offsetY
-
-		if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
-			y = y - 4
-		elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
-			y = y + 2
-		end
+		local y = startY + offsetY - Options.IconSetMap[Options["Pokemon icon set"]].yOffset
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
@@ -517,6 +511,7 @@ function InfoScreen.drawScreen()
 		else
 			local encounterArea = InfoScreen.infoLookup.encounterArea or RouteData.EncounterArea.LAND
 			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then
+				---@diagnostic disable-next-line: cast-local-type
 				encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 			end
 			InfoScreen.TemporaryButtons = InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
@@ -545,7 +540,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
-	local ownPokemonId = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn, Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true).pokemonID
+	local ownPokemonId = Battle.getViewedPokemon(true).pokemonID
 
 	local typeOne = pokemon.types[1]
 	local typeTwo = pokemon.types[2]
@@ -600,6 +595,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + linespacing
 	if possibleEvolutions[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], Theme.COLORS["Default text"], boxInfoTopShadow)
+	end
+	if pokemonID == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
+		-- Pokémon Mystery Dungeon Drowzee easter egg
+		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 	offsetY = offsetY + linespacing
 
@@ -730,7 +729,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local moveAccuracy = move.accuracy
 
 	-- Don't reveal randomized move info for moves the player's current pokemon doesn't have
-	local ownPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT], Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+	local ownPokemon = Battle.getViewedPokemon(true)
 	local hideInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
 
 	-- Before drawing view boxes, check if extra space is needed for 'Priority' information
@@ -751,16 +750,12 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
 	if moveId == 237 then -- 237 = Hidden Power
-		local pokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or not Tracker.Data.isViewingOwn,Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_LEFT],Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OWN_VIEWSLOT_RIGHT]), true)
+		local pokemon = Battle.getViewedPokemon(true)
 		if Utils.pokemonHasMove(pokemon, "Hidden Power") then
 			moveType = Tracker.getHiddenPowerType()
 			moveCat = MoveData.TypeToCategory[moveType]
 			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 		end
-	-- If the move is Weather Ball then update based on current weather
-	elseif Options["Calculate variable damage"] and moveId == 311 then -- 311 = Weather Ball
-		moveType, movePower = Utils.calculateWeatherBall(moveType, movePower)
-		moveCat = MoveData.TypeToCategory[moveType]
 	end
 
 	-- TYPE ICON
@@ -867,6 +862,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		Drawing.drawPokemonIcon(129, offsetX + 99, botOffsetY - 16)
 	end
 end
+
 function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
@@ -881,9 +877,9 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
 
-	local ability --= AbilityData.defaultAbility
+	local ability
 	if not AbilityData.isValid(abilityId) then
-		ability = AbilityData.defaultAbility
+		ability = AbilityData.DefaultAbility
 	else
 		ability = AbilityData.Abilities[abilityId]
 	end
@@ -929,6 +925,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	Drawing.drawButton(InfoScreen.Buttons.backTop, boxInfoTopShadow)
 end
+
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
@@ -967,10 +964,10 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 
 	-- POKEMON SEEN
-	local opposingPokemon = Tracker.getPokemon(Utils.inlineIf(Tracker.Data.isViewingLeft or Tracker.Data.isViewingOwn, Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_LEFT], Tracker.Data.ViewSlots[Battle.BATTLE_INDEXES.OTHER_VIEWSLOT_RIGHT]), false)
+
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252 and Options.IconSetMap[Options["Pokemon icon set"]].name ~= "Stadium" then -- Question mark icon
-			iconButton.box[2] = iconButton.box[2] + 4
+		if iconButton.pokemonID == 252--[[ Question mark icon]] and Options.IconSetMap[Options["Pokemon icon set"]].adjustQuestionMark then
+			iconButton.box[2] = iconButton.box[2] + Options.IconSetMap[Options["Pokemon icon set"]].yOffset
 		end
 
 		local x = iconButton.box[1]
@@ -991,6 +988,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
 	Drawing.drawButton(InfoScreen.Buttons.back, boxBotShadow)
 end
+
 function InfoScreen.drawNotepadArea()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 	local noteText = InfoScreen.Buttons.NotepadTracking.getContentList(InfoScreen.infoLookup)
