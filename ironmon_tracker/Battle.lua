@@ -50,7 +50,10 @@ Battle = {
 		RightOwn = false,
 		RightOther = false,
 	},
-	BattleAbilities = {},
+	BattleAbilities = {
+		[0] = {},
+		[1] = {},
+	},
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -117,6 +120,8 @@ end
 function Battle.updateViewSlots()
 	local prevEnemyPokemonLeft = Battle.Combatants.LeftOther
 	local prevEnemyPokemonRight = Battle.Combatants.RightOther
+	local prevOwnPokemonLeft = Battle.Combatants.LeftOwn
+	local prevOwnPokemonRight = Battle.Combatants.RightOwn
 
 	--update all 2 (or 4)
 	Battle.Combatants.LeftOwn = Memory.readbyte(GameSettings.gBattlerPartyIndexes) + 1
@@ -143,13 +148,24 @@ function Battle.updateViewSlots()
 		end
 	end
 
+	--Track if ally pokemon changes, to reset transform and ability changes
+	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn then
+		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
+		Battle.isTransformed.LeftOwn = false
+	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn then
+		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
+		Battle.isTransformed.RightOwn = false
+	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther then
-		Battle.changeOpposingPokemonView(prevEnemyPokemonLeft,true)
+		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
+		Battle.isTransformed.LeftOther = false
+		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther then
-		Battle.changeOpposingPokemonView(prevEnemyPokemonRight,false)
+		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
+		Battle.isTransformed.RightOther = false
+		Battle.changeOpposingPokemonView(false)
 	end
-	--Also track if ally pokemon changes, to reset transform and ability changes
 end
 
 function Battle.processBattleTurn()
@@ -214,10 +230,38 @@ function Battle.updateTrackedInfo()
 		return
 	end
 
+	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
+	--local chosenPlayerMove = Memory.readword(GameSettings.gChosenMoveByBattler + ((Battle.numBattlers - 2) * 0x2))
+	local chosenPlayerMove = Memory.readword(0x02023dc4 + ((Battle.numBattlers - 2) * 0x2))
+	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+
+	--ignore focus punch setup, only priority move that isn't actually a used move yet
+	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) then	
+		--[[
+				1) Move must be valid
+				2) Either the turn or the attacker must have changed since the last move
+				3) We must have chosen a move (ignores the start of new turn lull which has some of the previous turn's attacker/move data still loaded)
+				4) Ignore Moves that Missed, Failed, had no effect, or never took place due to the move being wasted (Fully Paralyzed, Hurt in Confusion, Loafing, etc.)
+		]]--
+		if (Battle.AbilityChangeData.turnCount ~= Battle.turnCount or Battle.AbilityChangeData.attacker ~= Battle.attacker)	and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and chosenPlayerMove ~= 0 then
+			local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
+			--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
+			local hitFlags = Memory.readdword(0x02023dd0)
+			if bit.band(moveFlags,0x00101001) == 0 -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+			and bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
+				--print ("Last Move: " .. lastMoveByAttacker .. "; Turn: " .. currentTurn .. "; Attacker: " .. attacker)
+				Battle.trackAbilityChanges(lastMoveByAttacker,nil)
+			end
+			Battle.AbilityChangeData.turnCount = Battle.turnCount
+			Battle.AbilityChangeData.attacker = Battle.attacker
+			Battle.AbilityChangeData.movesSeen = Battle.AbilityChangeData.movesSeen + 1
+		end
+	end
+
 	-- Always track your own Pokemons' abilities' once you decide to use it
 
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
-	local ownLeftAbilityId = PokemonData.getAbilityId(ownersPokemon.pokemonID, ownersPokemon.abilityNum)
+	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
 	Battle.updateBattleMonDetails(ownLeftPokemon, true)
 
@@ -229,16 +273,16 @@ function Battle.updateTrackedInfo()
 	end
 
 	-- Check if an ability went off
-	local indexToTrack = Battle.checkAbilityUsed(opposingAbilityId, ownersAbilityId)
-	Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
+	--local indexToTrack = Battle.checkAbilityUsed(opposingAbilityId, ownersAbilityId)
+	--Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
 
 	--Don't track anything for Ghosts
 	if not Battle.isGhost then
-		local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
+		--local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
-		Battle.updateBattleMonDetails(opposingPokemon, false)
-		Battle.checkEnemyEncounter(opposingPokemon)
-		Battle.checkEnemyMovesUsed(opposingPokemon)
+		--Battle.updateBattleMonDetails(opposingPokemon, false)
+		--Battle.checkEnemyEncounter(opposingPokemon)
+		--Battle.checkEnemyMovesUsed(opposingPokemon)
 	end
 end
 
@@ -338,7 +382,7 @@ function Battle.checkEnemyMovesUsed(opposingPokemon)
 end
 
 -- Checks if ability should be auto-tracked. Returns true if so; false otherwise
-function Battle.checkEnemyAbilityUsed(enemyAbility, playerAbility)
+function Battle.checkAbilityUsed(enemyAbility, playerAbility)
 	if Battle.Synchronize.turnCount < Battle.turnCount then
 		Battle.Synchronize.turnCount = Battle.turnCount
 		Battle.Synchronize.battler = -1
@@ -360,7 +404,8 @@ function Battle.checkEnemyAbilityUsed(enemyAbility, playerAbility)
 
 	if battlerMsg ~= nil then
 		if battlerMsg[playerAbility] and playerAbility == 36 and Battle.battler % 2 == 0 then -- 36 = Trace
-			-- Track the enemy's ability if the player's Pokemon uses its Trace ability
+			-- Track the enemy's ability if the player's Pokemon uses its Trace ability; Update the 
+			Battle.trackAbilityChanges(nil,36)
 			return true
 		elseif battlerMsg[enemyAbility] then
 			if enemyAbility == 28 then -- 28 = Synchronize
@@ -464,12 +509,17 @@ function Battle.beginNewBattle()
 		RightOther = 2,
 	}
 	--populate BattleAbilities for all Pokemon
+	Battle.BattleAbilities[0] = {}
+	Battle.BattleAbilities[1] = {}
 	for i=1, 6, 1 do
 		local ownPokemon = Tracker.getPokemon(i, true)
 		if ownPokemon ~= nil then
 			local ability = PokemonData.getAbilityId(ownPokemon.pokemonID, ownPokemon.abilityNum)
-			Battle.BattleAbilities.Own[i] = {
-				["abilityOwner"] = i,
+			Battle.BattleAbilities[0][i] = {
+				abilityOwner = {
+					isOwn = true,
+					slot = i
+				},
 				["originalAbility"] = ability,
 				["ability"] = ability,
 			}
@@ -477,8 +527,11 @@ function Battle.beginNewBattle()
 		local enemyPokemon = Tracker.getPokemon(i, false)
 		if enemyPokemon ~= nil then
 			local ability = PokemonData.getAbilityId(enemyPokemon.pokemonID, enemyPokemon.abilityNum)
-			Battle.BattleAbilities.Other[i] = {
-				["abilityOwner"] = i,
+			Battle.BattleAbilities[1][i] = {
+				abilityOwner = {
+					isOwn = false,
+					slot = i
+				},
 				["originalAbility"] = ability,
 				["ability"] = ability,
 			}
@@ -525,6 +578,10 @@ function Battle.endCurrentBattle()
 		RightOwn = false,
 		RightOther = false,
 	}
+	BattleAbilities = {
+		[0] = {},
+		[1] = {},
+	}
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
 	Tracker.Data.otherPokemon = {}
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
@@ -548,12 +605,7 @@ function Battle.endCurrentBattle()
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 end
 
-function Battle.changeOpposingPokemonView(prevPokemon, isLeft)
-	-- Reset Transform and ability data for pokemon which is no longer in the battle
-	Battle.isTransformed[Utils.inlineIf(isLeft,"LeftOther","RightOther")] = false
-	Battle.BattleAbilities.Other[prevPokemon].abilityOwner = prevPokemon
-	Battle.BattleAbilities[prevPokemon].ability = Battle.BattleAbilities[prevPokemon].originalAbility
-
+function Battle.changeOpposingPokemonView(isLeft)
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
 		Battle.isViewingLeft = isLeft
@@ -565,7 +617,7 @@ function Battle.changeOpposingPokemonView(prevPokemon, isLeft)
 	Program.Frames.waitToDraw = 0
 end
 
-function Program.trackBattlePartyChanges(moveUsed, ability)
+function Battle.trackAbilityChanges(moveUsed, ability)
 
 	--check if ability changing move is being used. If so, make appropriate swaps in the table based on attacker/target
 	if moveUsed ~= nil and moveUsed ~=0 then
@@ -576,36 +628,50 @@ function Program.trackBattlePartyChanges(moveUsed, ability)
 			local targetTeamIndex =  Battle.battlerTarget % 2
 			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
 
-			local tempOwner = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner
+			local tempOwnerIsOwn = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.isOwn
+			local tempOwnerSlot = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.slot
 			local tempAbility = Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability
 
-			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner = Battle.BattleAbilities[targetPID].abilityOwner
-			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability = Battle.BattleAbilities[targetPID].ability
-			Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner = tempSpecies
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetSlot].ability
+			Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn = tempOwnerIsOwn
+			Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot = tempOwnerSlot
 			Battle.BattleAbilities[targetTeamIndex][targetSlot].ability = tempAbility
 		elseif moveUsed == 272 or moveUsed == 144 then
-			--Role Play/Transform; copy abilities and sources of target and attacker, and turn on transform tracking
+			--Role Play/Transform; copy abilities and sources of target and attacker, and turn on/off transform tracking
 			local attackerTeamIndex =  Battle.attacker % 2
 			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 			local targetTeamIndex =  Battle.battlerTarget % 2
 			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
 
-			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner = Battle.BattleAbilities[targetTeamIndex][targetSlot].personality
-			Battle.BattleAbilities[attackerPID].ability = Battle.BattleAbilities[targetPID].ability
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot
+			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetSlot].ability
 			if moveUsed == 144 then
-				Battle.isTransformed[attackerPID] = true
+				Battle.isTransformed[Battle.IndexMap[Battle.attacker]] = true
 			end
 		end
 	elseif ability ~= nil and ability ~=0 then
 		if ability == 36 then --Trace
-			-- In double battles, Trace picks a random target which is not stored in a readable variable. So we need to update the ability
-			-- Can maybe read from gBattleTextBuff1[3]
-			local traceMonPID = Memory.readdword(startAddress + (Battle.battler % 2)*pokemonSize + personalityOffset)
-			if Battle.BattleAbilities[traceMonPID] == nil or Battle.BattleAbilities[otherMonPID] == nil then
-				return
-			end
-			Battle.BattleAbilities[traceMonPID].personality = Battle.BattleAbilities[otherMonPID].personality
-			Battle.BattleAbilities[traceMonPID].ability = Battle.BattleAbilities[otherMonPID].ability
+			-- In double battles, Trace picks a random target, so we need to grab the battle index from the text variable, gBattleTextBuff1[2]
+			local tracerTeamIndex = Battle.battler % 2
+			local tracerTeamSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
+			--TODO: replace with gBattleTextBuff1
+			local target = Memory.readbyte(0x02022ab8 + 2)
+			local targetTeamIndex = target % 2
+			local targetTeamSlot = Battle.Combatants[Battle.IndexMap[target]]
+
+			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
+			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.slot
+			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].ability
 		end
 	end
+end
+
+function Battle.resetAbilityMapPokemon(slot, isOwn)
+	local teamIndex = Utils.inlineIf(isOwn,0,1)
+	Battle.BattleAbilities[teamIndex][slot].abilityOwner.isOwn = isOwn
+	Battle.BattleAbilities[teamIndex][slot].abilityOwner.slot = slot
+	Battle.BattleAbilities[teamIndex][slot].ability = Battle.BattleAbilities[teamIndex][slot].originalAbility
 end
