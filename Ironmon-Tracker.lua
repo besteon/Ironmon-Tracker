@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.2c" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.3" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -332,7 +332,7 @@ end
 function Main.ReadAttemptsCounter()
 	local romname = gameinfo.getromname()
 	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
-	local romprefix = string.match(romname, '[^0-9]+') -- remove numbers
+	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
 
 	local filename = romprefix .. " Attempts.txt"
