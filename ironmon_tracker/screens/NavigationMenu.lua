@@ -84,7 +84,11 @@ NavigationMenu.Buttons = {
 			else
 				NavigationMenu.Buttons.VersionInfo.timesClicked = 0
 				NavigationMenu.Buttons.VersionInfo.textColor = NavigationMenu.textColor
-				Program.changeScreenView(Program.Screens.TRACKER)
+				if Program.isInValidMapLocation() then
+					Program.changeScreenView(Program.Screens.TRACKER)
+				else
+					Program.changeScreenView(Program.Screens.STARTUP)
+				end
 			end
 		end
 	},

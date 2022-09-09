@@ -1,5 +1,6 @@
 Tracker = {}
 Tracker.Data = {}
+Tracker.DataMessage = ""
 
 -- When Tracker data changes between versions, this will force new data into the tracker
 -- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
@@ -15,7 +16,8 @@ function Tracker.initialize()
 		Tracker.loadData(filepath)
 	else
 		Tracker.resetData()
-		print("Initializing new Tracker data for this game (auto-save option is disabled).")
+		Tracker.DataMessage = "Initializing new Tracker data for this game (auto-save is disabled)"
+		print(Tracker.DataMessage)
 	end
 end
 
@@ -471,8 +473,10 @@ function Tracker.loadData(filepath)
 		local fileNameIndex = string.match(filepath, "^.*()\\")
 		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
 
-		print("Tracker data loaded from file: " .. filename)
+		Tracker.DataMessage = "Tracker data loaded from file: " .. filename
 	else
-		print("No Tracker data found for this ROM. Initializing new data.")
+		Tracker.DataMessage = "No Tracker data found for this ROM, initializing new data file"
 	end
+
+	print(Tracker.DataMessage)
 end
