@@ -357,6 +357,11 @@ function Program.updatePCHeals()
 end
 
 function Program.updateBadgesObtained()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isInValidMapLocation() then
+		return
+	end
+
 	local badgeBits = nil
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
