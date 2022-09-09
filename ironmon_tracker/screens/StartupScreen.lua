@@ -155,5 +155,5 @@ function StartupScreen.drawScreen()
 
 	Drawing.drawButton(StartupScreen.Buttons.SettingsGear, topBox.shadow)
 	Drawing.drawButton(StartupScreen.Buttons.PokemonIcon, topBox.shadow)
-	Drawing.drawButton(StartupScreen.Buttons.EraseGame, topBox.shadow)
+	Drawing.drawButton(StartupScreen.Buttons.EraseGame, botBox.shadow)
 end
