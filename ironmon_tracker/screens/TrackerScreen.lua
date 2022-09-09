@@ -257,12 +257,13 @@ function TrackerScreen.initialize()
 	end
 
 	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
-	TrackerScreen.getNextMoveLevelHighlight()
+	TrackerScreen.getNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
 end
 
 -- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
-function TrackerScreen.getNextMoveLevelHighlight()
+function TrackerScreen.getNextMoveLevelHighlight(forced)
+	if not forced and not Theme.settingsUpdated then return end
 	local mainBGColor = Theme.COLORS["Main background"]
 	local maxContrast = 0
 	local colorKey = ""

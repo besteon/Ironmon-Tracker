@@ -73,7 +73,7 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			TrackerScreen.getNextMoveLevelHighlight() -- Update the next move level highlight color
+			TrackerScreen.getNextMoveLevelHighlight(false) -- Update the next move level highlight color
 			Main.SaveSettings()
 			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
