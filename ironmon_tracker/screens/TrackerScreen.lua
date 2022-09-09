@@ -199,6 +199,7 @@ TrackerScreen.CarouselTypes = {
 TrackerScreen.carouselIndex = 1
 TrackerScreen.tipMessageIndex = 0
 TrackerScreen.CarouselItems = {}
+TrackerScreen.nextMoveLevelHighlight = 0xFFFFFF00
 
 function TrackerScreen.initialize()
 	-- Buttons for stat markings tracked by the user
@@ -255,7 +256,27 @@ function TrackerScreen.initialize()
 		}
 	end
 
+	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
+	TrackerScreen.getNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
+end
+
+-- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
+function TrackerScreen.getNextMoveLevelHighlight(forced)
+	if not forced and not Theme.settingsUpdated then return end
+	local mainBGColor = Theme.COLORS["Main background"]
+	local maxContrast = 0
+	local colorKey = ""
+	for key, color in pairs(Theme.COLORS) do
+		if color ~= mainBGColor and color ~= Theme.COLORS["Header text"] and color ~= Theme.COLORS["Default text"] then
+			local bgContrast = Utils.calculateContrastRatio(color, mainBGColor)
+			if bgContrast > maxContrast then
+				maxContrast = bgContrast
+				colorKey = key
+			end
+		end
+	end
+	TrackerScreen.nextMoveLevelHighlight =  Theme.COLORS[colorKey]
 end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
@@ -738,13 +759,9 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, moveOffsetY - moveTableHeaderHeightDiff, "Pow", Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
 
-	-- Draw over next move level in header to indicate whether close to new move or not
-	if nextMoveLevel ~= nil and nextMoveSpacing ~= nil and Tracker.Data.isViewingOwn then
-		local nextMoveColor = Theme.COLORS["Intermediate text"]
-		if pokemon.level + 1 >= nextMoveLevel then
-			nextMoveColor = Theme.COLORS["Positive text"]
-		end
-		Drawing.drawText(Constants.SCREEN.WIDTH + nextMoveSpacing, moveOffsetY - moveTableHeaderHeightDiff, nextMoveLevel, nextMoveColor, bgHeaderShadow)
+	-- Redraw next move level in the header with a different color if close to learning new move
+	if nextMoveLevel ~= nil and nextMoveSpacing ~= nil and Tracker.Data.isViewingOwn and pokemon.level + 1 >= nextMoveLevel then
+		Drawing.drawText(Constants.SCREEN.WIDTH + nextMoveSpacing, moveOffsetY - moveTableHeaderHeightDiff, nextMoveLevel, TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
 	end
 
 	-- Draw the Moves view box
