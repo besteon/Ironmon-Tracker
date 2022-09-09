@@ -29,10 +29,7 @@ SetupScreen.Buttons = {
 			return imagepath
 		end,
 		onClick = function(self)
-			self.pokemonID = math.random(PokemonData.totalPokemon - 25)
-			if self.pokemonID > 251 then
-				self.pokemonID = self.pokemonID + 25
-			end
+			self.pokemonID = Utils.randomPokemonID()
 			Program.redraw(true)
 		end
 	},
@@ -128,7 +125,8 @@ function SetupScreen.initialize()
 	end
 
 	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-	SetupScreen.Buttons.PokemonIcon:onClick() -- Randomize what Pokemon icon is shown
+	-- Randomize what Pokemon icon is shown
+	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
 	-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
 	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then

@@ -23,6 +23,20 @@ function Utils.printDebug(message)
 	end
 end
 
+function Utils.centerTextOffset(text, charSize, width)
+	charSize = charSize or 4
+	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))
+	return (width - (charSize * text:len())) / 2
+end
+
+function Utils.randomPokemonID()
+	local pokemonID = math.random(PokemonData.totalPokemon - 25)
+	if pokemonID > 251 then
+		pokemonID = pokemonID + 25
+	end
+	return pokemonID
+end
+
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
 function Utils.getNatureMultiplier(stat, nature)
 	if nature % 6 == 0 then return 1 end
