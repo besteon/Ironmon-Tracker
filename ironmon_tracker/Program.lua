@@ -337,6 +337,10 @@ function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
+
+	--Save blocks move and are re-encrypted right as the battle starts 
+	if Battle.inBattle then return end
+
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
@@ -362,6 +366,11 @@ function Program.updatePCHeals()
 end
 
 function Program.updateBadgesObtained()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isInValidMapLocation() then
+		return
+	end
+
 	local badgeBits = nil
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
