@@ -2,7 +2,7 @@ StartupScreen = {
 	Labels = {
 		title = "Ironmon Tracker",
 		version = "Version:",
-		pokemon = Constants.Words.POKEMON .. ":",
+		pokemon = "Game:",
 		attempts = "Attempts:",
 		controls = "GBA Controls:",
 		swapView = "Swap viewed " .. Constants.Words.POKEMON .. ":",
@@ -37,10 +37,11 @@ StartupScreen.Buttons = {
 	},
 	EraseGame = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Erase?",
+		text = "< Press",
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 135, 31, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return true end, -- TODO: For now, we aren't using this button
 		onClick = function(self)
 			local joypadButtons = {
 				Up = true,
@@ -134,7 +135,13 @@ function StartupScreen.drawScreen()
 	gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
 	textLineY = botBox.y + 1
 
-	local indentChars = " >  "
+	-- Draw the GBA pixel image as a black icon against white background
+	local gbaX = botBox.x + 117
+	local gbaY = botBox.y + 2
+	gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, 0xFFFFFFFF)
+	Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, 0xFF000000, 0xFFFFFFFF)
+
+	local indentChars = "    "
 	local swapFormatted = indentChars .. Options.CONTROLS["Toggle view"]:upper()
 	Drawing.drawText(botBox.x + 2, textLineY, StartupScreen.Labels.swapView, botBox.text, botBox.shadow)
 	textLineY = textLineY + linespacing - 2
