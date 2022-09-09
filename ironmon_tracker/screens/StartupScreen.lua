@@ -2,7 +2,7 @@ StartupScreen = {
 	Labels = {
 		title = "Ironmon Tracker",
 		version = "Version:",
-		pokemon = "Game:",
+		game = "Game:",
 		attempts = "Attempts:",
 		controls = "GBA Controls:",
 		swapView = "Swap viewed " .. Constants.Words.POKEMON .. ":",
@@ -103,7 +103,7 @@ function StartupScreen.drawScreen()
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.pokemon, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.game, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, GameSettings.versioncolor, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
