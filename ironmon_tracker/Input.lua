@@ -95,6 +95,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.TemporaryButtons)
 	elseif Program.currentScreen == Program.Screens.NAVIGATION then
 		Input.checkButtonsClicked(xmouse, ymouse, NavigationMenu.Buttons)
+	elseif Program.currentScreen == Program.Screens.STARTUP then
+		Input.checkButtonsClicked(xmouse, ymouse, StartupScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.SETUP then
 		Input.checkButtonsClicked(xmouse, ymouse, SetupScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.QUICKLOAD then
