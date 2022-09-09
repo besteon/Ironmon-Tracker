@@ -224,7 +224,7 @@ function Drawing.drawScreen(screenFunc)
 	end
 end
 
-function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
+function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor, negativecolor)
 	for rowIndex = 1, #imageArray, 1 do
 		for colIndex = 1, #(imageArray[1]) do
 			if imageArray[rowIndex][colIndex] ~= 0 then
@@ -235,6 +235,8 @@ function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
 				gui.drawPixel(x + offsetX, y + offsetY, color)
+			elseif negativecolor ~= nil then
+				gui.drawPixel(x + colIndex - 1, y + rowIndex - 1, negativecolor)
 			end
 		end
 	end
@@ -274,7 +276,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
-	
+
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 		local pokemonData = PokemonData.Pokemon[pokemonID]
 		if pokemonData ~= nil then

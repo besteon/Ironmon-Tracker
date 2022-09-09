@@ -30,6 +30,7 @@ function Main.Initialize()
 		"/Utils.lua",
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
+		"/screens/StartupScreen.lua",
 		"/screens/SetupScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
@@ -65,6 +66,7 @@ function Main.Initialize()
 	end
 
 	Main.LoadSettings()
+	Main.ReadAttemptsCounter()
 
 	if Options.FIRST_RUN then
 		Options.FIRST_RUN = false
@@ -163,6 +165,7 @@ function Main.Run()
 
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
+		StartupScreen.initialize()
 		SetupScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
@@ -323,6 +326,28 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 	if attemptsWrite ~= nil then
 		attemptsWrite:write(Main.currentSeed)
 		attemptsWrite:close()
+	end
+end
+
+function Main.ReadAttemptsCounter()
+	local romname = gameinfo.getromname()
+	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
+	local romprefix = string.match(romname, '[^0-9]+') -- remove numbers
+	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
+
+	local filename = romprefix .. " Attempts.txt"
+
+	if Main.FileExists(filename) then
+		local attemptsRead = io.open(filename, "r")
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
+		end
+	elseif romnumber ~= "1" then
+		Main.currentSeed = tonumber(romnumber)
 	end
 end
 

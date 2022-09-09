@@ -19,6 +19,7 @@ Program.Screens = {
 	TRACKER = TrackerScreen.drawScreen,
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
+	STARTUP = StartupScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -38,7 +39,7 @@ Program.GameData = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.Screens.TRACKER
+	Program.currentScreen = Program.Screens.STARTUP
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -47,9 +48,9 @@ function Program.initialize()
 	end
 
 	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 1
-	Program.Frames.lowAccuracyUpdate = 1
-	Program.Frames.three_sec_update = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
 
 	PokemonData.readDataFromMemory()
@@ -113,12 +114,16 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
+
+			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+				Program.currentScreen = Program.Screens.TRACKER
+			end
 
 			-- Check if summary screen has being shown
 			if not Tracker.Data.hasCheckedSummary then
