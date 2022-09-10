@@ -327,3 +327,42 @@ MiscData.StatusItems = {
 		pocket = MiscData.BagPocket.Berries,
 	},
 }
+
+MiscData.EvolutionStones = {
+	[93] = {
+		id = 93,
+		name = "Sun Stone",
+		evolutions = {PokemonData.Evolutions.SUN, PokemonData.Evolutions.LEAF_SUN, PokemonData.Evolutions.STONES},
+		pocket = MiscData.BagPocket.Items,
+	},
+	[94] = {
+		id = 94,
+		name = "Moon Stone",
+		evolutions = {PokemonData.Evolutions.MOON, PokemonData.Evolutions.STONES},
+		pocket = MiscData.BagPocket.Items,
+	},
+	[95] = {
+		id = 95,
+		name = "Fire Stone",
+		evolutions = {PokemonData.Evolutions.FIRE, PokemonData.Evolutions.STONES},
+		pocket = MiscData.BagPocket.Items,
+	},
+	[96] = {
+		id = 96,
+		name = "Thunder Stone",
+		evolutions = {PokemonData.Evolutions.THUNDER, PokemonData.Evolutions.STONES},
+		pocket = MiscData.BagPocket.Items,
+	},
+	[97] = {
+		id = 97,
+		name = "Water Stone",
+		evolutions = {PokemonData.Evolutions.WATER, PokemonData.Evolutions.STONES},
+		pocket = MiscData.BagPocket.Items,
+	},
+	[98] = {
+		id = 98,
+		name = "Leaf Stone",
+		evolutions = {PokemonData.Evolutions.LEAF, PokemonData.Evolutions.LEAF_SUN},
+		pocket = MiscData.BagPocket.Items,
+	},
+}

@@ -66,13 +66,13 @@ function PokemonData.readDataFromMemory()
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
 			if PokemonData.IsRand.pokemonTypes then
-				types = PokemonData.readPokemonTypesFromMemory(pokemonID)
+				local types = PokemonData.readPokemonTypesFromMemory(pokemonID)
 				if types ~= nil then
 					pokemonData.types = types
 				end
 			end
 			if PokemonData.IsRand.pokemonAbilities then
-				abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
+				local abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 				if abilities ~= nil then
 					pokemonData.abilities = abilities
 				end
@@ -156,6 +156,11 @@ end
 
 function PokemonData.isValid(pokemonID)
 	return pokemonID ~= nil and pokemonID >= 1 and pokemonID <= PokemonData.totalPokemon
+end
+
+function PokemonData.isImageIDValid(pokemonID)
+	--Eggs (412), Ghosts (413), and placeholder (0)
+	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
 end
 
 PokemonData.TypeIndexMap = {

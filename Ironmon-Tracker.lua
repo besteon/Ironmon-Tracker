@@ -1,8 +1,8 @@
-Main = { TrackerVersion = "0.6.2" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.2c" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "davidhouweling", "rcj001", "GB127", },
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
@@ -30,6 +30,7 @@ function Main.Initialize()
 		"/Utils.lua",
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
+		"/screens/StartupScreen.lua",
 		"/screens/SetupScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
@@ -65,6 +66,7 @@ function Main.Initialize()
 	end
 
 	Main.LoadSettings()
+	Main.ReadAttemptsCounter()
 
 	if Options.FIRST_RUN then
 		Options.FIRST_RUN = false
@@ -163,6 +165,7 @@ function Main.Run()
 
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
+		StartupScreen.initialize()
 		SetupScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
@@ -185,10 +188,14 @@ end
 function Main.LoadNextRom()
 	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 
+	local wasSoundOn = client.GetSoundOn()
+
 	local nextRom
 	if Options["Use premade ROMs"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GetNextRomFromFolder()
 	elseif Options["Generate ROM each time"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: The Quick-load feature is currently disabled.")
@@ -198,15 +205,16 @@ function Main.LoadNextRom()
 	if nextRom ~= nil then
 		Tracker.resetData()
 		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
-		local wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		if client.getversion() ~= "2.9" then
 			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 		end
 		client.openrom(nextRom.path)
-		client.SetSoundOn(wasSoundOn)
 	else
 		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
+	end
+
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 
 	Main.loadNextSeed = false
@@ -279,14 +287,16 @@ function Main.GenerateNextRom()
 	)
 
 	print("Generating next ROM: " .. nextromname)
-	local pipe = io.popen(javacommand)
-	local output = pipe:read("*all")
-	print("> " .. output)
+	local pipe = io.popen(javacommand .. " 2>RandomizerErrorLog.txt")
+	if pipe ~= nil then
+		local output = pipe:read("*all")
+		print("> " .. output)
+	end
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("Failed to generate a new ROM.")
-		Main.DisplayError("Failed to generate a new ROM.\n\nFix required files: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		print("The Randomizer ZX program failed to generate a ROM. Check the generated RandomizerErrorLog.txt file for errors.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the RandomizerErrorLog.txt file in the tracker folder for errors.")
 		return nil
 	end
 
@@ -300,10 +310,12 @@ end
 function Main.IncrementAttemptsCounter(filename, defaultStart)
 	if Main.FileExists(filename) then
 		local attemptsRead = io.open(filename, "r")
-		local attemptsText = attemptsRead:read("*a")
-		attemptsRead:close()
-		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-			Main.currentSeed = tonumber(attemptsText)
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
 		end
 	elseif defaultStart ~= nil then
 		Main.currentSeed = defaultStart
@@ -311,8 +323,32 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 
 	Main.currentSeed = Main.currentSeed + 1
 	local attemptsWrite = io.open(filename, "w")
-	attemptsWrite:write(Main.currentSeed)
-	attemptsWrite:close()
+	if attemptsWrite ~= nil then
+		attemptsWrite:write(Main.currentSeed)
+		attemptsWrite:close()
+	end
+end
+
+function Main.ReadAttemptsCounter()
+	local romname = gameinfo.getromname()
+	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
+	local romprefix = string.match(romname, '[^0-9]+') -- remove numbers
+	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
+
+	local filename = romprefix .. " Attempts.txt"
+
+	if Main.FileExists(filename) then
+		local attemptsRead = io.open(filename, "r")
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
+		end
+	elseif romnumber ~= "1" then
+		Main.currentSeed = tonumber(romnumber)
+	end
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file

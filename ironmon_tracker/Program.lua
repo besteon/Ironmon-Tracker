@@ -19,6 +19,7 @@ Program.Screens = {
 	TRACKER = TrackerScreen.drawScreen,
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
+	STARTUP = StartupScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -26,8 +27,19 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 }
 
+Program.GameData = {
+	evolutionStones = { -- The evolution stones currently in bag
+			[93] = 0, -- Sun Stone
+			[94] = 0, -- Moon Stone
+			[95] = 0, -- Fire Stone
+			[96] = 0, -- Thunder Stone
+			[97] = 0, -- Water Stone
+			[98] = 0, -- Leaf Stone
+	},
+}
+
 function Program.initialize()
-	Program.currentScreen = Program.Screens.TRACKER
+	Program.currentScreen = Program.Screens.STARTUP
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -36,9 +48,9 @@ function Program.initialize()
 	end
 
 	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 1
-	Program.Frames.lowAccuracyUpdate = 1
-	Program.Frames.three_sec_update = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
 
 	PokemonData.readDataFromMemory()
@@ -89,8 +101,8 @@ function Program.update()
 	if Program.Frames.highAccuracyUpdate == 0 then
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 then
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -102,11 +114,16 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-		local viewingWhichPokemon = Tracker.Data.otherViewSlot
-
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
-		if not Program.inCatchingTutorial then
+
+		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
+			Program.updateMapLocation()
 			Program.updatePokemonTeams()
+
+			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+				Program.currentScreen = Program.Screens.TRACKER
+			end
 
 			-- Check if summary screen has being shown
 			if not Tracker.Data.hasCheckedSummary then
@@ -117,9 +134,9 @@ function Program.update()
 		end
 	end
 
-	-- Only update "Heals in Bag", "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
+	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
 	if Program.Frames.three_sec_update == 0 then
-		Program.updateBagHealingItems()
+		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
 	end
@@ -316,31 +333,14 @@ function Program.readBattleValues()
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
 end
 
-function Program.updateViewSlots()
-	-- First update which own/other slots are being viewed
-	Tracker.Data.ownViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotOne) + 1
-	Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotOne) + 1
-
-	-- Secondary pokemon (likely the doubles battle partner)
-	if Battle.attacker == 2 then -- untested
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesSelfSlotTwo) + 1
-	elseif Battle.attacker == 3 then
-		Tracker.Data.otherViewSlot = Memory.readbyte(GameSettings.gBattlerPartyIndexesEnemySlotTwo) + 1
-	end
-
-	-- Verify the view slots are within bounds
-	if Tracker.Data.ownViewSlot < 1 or Tracker.Data.ownViewSlot > 6 then
-		Tracker.Data.ownViewSlot = 1
-	end
-	if Tracker.Data.otherViewSlot < 1 or Tracker.Data.otherViewSlot > 6 then
-		Tracker.Data.otherViewSlot = 1
-	end
-end
-
 function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
+
+	--Save blocks move and are re-encrypted right as the battle starts 
+	if Battle.inBattle then return end
+
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
@@ -366,6 +366,11 @@ function Program.updatePCHeals()
 end
 
 function Program.updateBadgesObtained()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isInValidMapLocation() then
+		return
+	end
+
 	local badgeBits = nil
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
@@ -386,6 +391,15 @@ function Program.updateBadgesObtained()
 	end
 end
 
+function Program.updateMapLocation()
+	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
+	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+end
+
+function Program.isInValidMapLocation()
+	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
+end
+
 function Program.HandleExit()
 	Drawing.clearGUI()
 	forms.destroyall()
@@ -404,8 +418,8 @@ function Program.getLearnedMoveId()
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
-function Program.getPokemonTypes(isOwn)
-	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58))
+function Program.getPokemonTypes(isOwn, isLeft)
+	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58) + Utils.inlineIf(isLeft, 0x0, 0xB0))
 	return {
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
@@ -425,6 +439,31 @@ function Program.isInCatchingTutorial()
 	end
 
 	return Program.inCatchingTutorial
+end
+
+function Program.isInEvolutionScene()
+	local evoInfo
+	--Ruby and Sapphire reference sEvoInfo (EvoInfo struct) directly. All other Gen 3 games instead store a pointer to the EvoInfo struct which needs to be read first
+	if GameSettings.game ~= 1 then
+		evoInfo = Memory.readdword(GameSettings.sEvoStructPtr)
+	else
+		evoInfo = GameSettings.sEvoInfo
+	end
+	-- third byte of EvoInfo is dedicated to the taskId
+	local taskID = Memory.readbyte(evoInfo + 0x2)
+
+	--only 16 tasks possible max in gTasks
+	if taskID > 15 then return false end
+
+	--Check for Evolution Task (Task_EvolutionScene + 0x1); Task struct size is 0x28
+	local taskFunc = Memory.readdword(GameSettings.gTasks + (0x28 * taskID))
+	if taskFunc ~= GameSettings.Task_EvolutionScene then return false end
+
+	--Check if the Task is active
+	local isActive = Memory.readbyte(GameSettings.gTasks + (0x28 * taskID) + 0x4)
+	if isActive ~= 1 then return false end
+
+	return true
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
@@ -451,19 +490,22 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
-function Program.updateBagHealingItems()
+function Program.updateBagItems()
 	if not Tracker.Data.isViewingOwn then return end
 
-	local leadPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local leadPokemon = Battle.getViewedPokemon(true)
 	if leadPokemon ~= nil then
-		local healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp)
+		local healingItems, evolutionStones = Program.getBagItems()
 		if healingItems ~= nil then
-			Tracker.Data.healingItems = healingItems
+			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
+		end
+		if evolutionStones ~= nil then
+			Program.GameData.evolutionStones = evolutionStones
 		end
 	end
 end
 
-function Program.calcBagHealingItems(pokemonMaxHP)
+function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 	local totals = {
 		healing = 0,
 		numHeals = 0,
@@ -475,12 +517,6 @@ function Program.calcBagHealingItems(pokemonMaxHP)
 	end
 
 	-- Formatted as: healingItemsInBag[itemID] = quantity
-	local healingItemsInBag = Program.getHealingItems()
-	if healingItemsInBag == nil then
-		return totals
-	end
-
-	-- for _, item in pairs(MiscData.healingItems) do
 	for itemID, quantity in pairs(healingItemsInBag) do
 		local healItemData = MiscData.HealingItems[itemID]
 		if healItemData ~= nil and quantity > 0 then
@@ -503,11 +539,18 @@ function Program.calcBagHealingItems(pokemonMaxHP)
 	return totals
 end
 
-function Program.getHealingItems()
-	-- I believe this key has to be looked-up each time, as the ptr changes periodically
-	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
-
+function Program.getBagItems()
 	local healingItems = {}
+	local evoStones = {
+		[93] = 0, -- Sun Stone
+		[94] = 0, -- Moon Stone
+		[95] = 0, -- Fire Stone
+		[96] = 0, -- Thunder Stone
+		[97] = 0, -- Water Stone
+		[98] = 0, -- Leaf Stone
+	}
+
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
@@ -518,13 +561,18 @@ function Program.getHealingItems()
 			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 and MiscData.HealingItems[itemID] ~= nil then
+			if itemID ~= 0 then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
 				if key ~= nil then quantity = bit.bxor(quantity, key) end
-				healingItems[itemID] = quantity
+
+				if MiscData.HealingItems[itemID] ~= nil then
+					healingItems[itemID] = quantity
+				elseif MiscData.EvolutionStones[itemID] ~= nil then
+					evoStones[itemID] = quantity
+				end
 			end
 		end
 	end
 
-	return healingItems
+	return healingItems, evoStones
 end

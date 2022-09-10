@@ -23,6 +23,20 @@ function Utils.printDebug(message)
 	end
 end
 
+function Utils.centerTextOffset(text, charSize, width)
+	charSize = charSize or 4
+	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))
+	return (width - (charSize * text:len())) / 2
+end
+
+function Utils.randomPokemonID()
+	local pokemonID = math.random(PokemonData.totalPokemon - 25)
+	if pokemonID > 251 then
+		pokemonID = pokemonID + 25
+	end
+	return pokemonID
+end
+
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
 function Utils.getNatureMultiplier(stat, nature)
 	if nature % 6 == 0 then return 1 end
@@ -98,6 +112,34 @@ function Utils.calcGrayscale(color, scale)
 	return (0xFF000000 + color_hexval)
 end
 
+-- Calculates the contrast ratio of two colors using the procedure defined in the W3C specification
+-- https://www.w3.org/WAI/WCAG21/Techniques/general/G18.html#tests
+function Utils.calculateContrastRatio(color1, color2)
+	local function getRelativeLuminance(color)
+		-- Convert the 8-digit hex to sRGB
+		local hex = string.sub(string.format("%#x", color), 5)
+		local sR = tonumber(hex:sub(1,2), 16) / 255
+		local sG = tonumber(hex:sub(3,4), 16) / 255
+		local sB = tonumber(hex:sub(5,6), 16) / 255
+
+		-- Obtain the luminances from sRGB values
+		local lR = Utils.inlineIf(sR <= 0.04045, sR / 12.92, math.pow((sR + 0.055) / 1.055, 2.4))
+		local lG = Utils.inlineIf(sG <= 0.04045, sG / 12.92, math.pow((sG + 0.055) / 1.055, 2.4))
+		local lB = Utils.inlineIf(sB <= 0.04045, sB / 12.92, math.pow((sB + 0.055) / 1.055, 2.4))
+
+		return 0.2126 * lR + 0.7152 * lG + 0.0722 * lB
+	end
+
+	local L1 = getRelativeLuminance(color1)
+	local L2 = getRelativeLuminance(color2)
+
+	if L1 > L2 then
+		return (L1 + 0.05) / (L2 + 0.05)
+	else
+		return (L2 + 0.05) / (L1 + 0.05)
+	end
+end
+
 -- Determine if the tracked Pokémon's moves are old and if so mark with a star
 function Utils.calculateMoveStars(pokemonID, level)
 	local stars = { "", "", "", "" }
@@ -148,8 +190,8 @@ end
 -- Move Header format: C/T (N), where C is moves learned so far, T is total number available to learn, and N is the next level the Pokemon learns a move
 -- Example: 4/12 (25)
 function Utils.getMovesLearnedHeader(pokemonID, level)
-	if pokemonID == nil or pokemonID == 0 or level == nil then
-		return "0/0 (0)"
+	if not PokemonData.isValid(pokemonID) or level == nil then
+		return "Moves", nil, nil
 	end
 
 	local movesLearned = 0
@@ -166,12 +208,14 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = movesLearned .. "/" .. table.getn(allMoveLevels)
+	local header = "Moves " .. movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
+		local nextMoveSpacing = 13 + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
 		header = header .. " (" .. nextMoveLevel .. ")"
+		return header, nextMoveLevel, nextMoveSpacing
+	else
+		return header, nil, nil
 	end
-
-	return header
 end
 
 function Utils.getDetailedEvolutionsInfo(evoMethod)
@@ -268,7 +312,12 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == "0" or moveType == PokemonData.Types.UNKNOWN then
+	if move == nil or comparedTypes == nil or move.power == "0" then
+		return false
+	end
+
+	-- If type is unknown or typeless
+	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
@@ -357,7 +406,7 @@ function Utils.calculateWeatherBall(moveType, movePower)
 		movePower = tonumber(movePower) * 2
 	end
 
-	return moveType, movePower
+	return moveType, tostring(movePower)
 end
 
 -- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
@@ -409,6 +458,32 @@ function Utils.isReadyToEvolveByLevel(evoMethod, level)
 	evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
 
 	return evoMethod ~= nil and (level + 1) >= evoMethod
+end
+
+-- Checks if the player has a usable stone in their bag to evolve the pokémon
+function Utils.isReadyToEvolveByStone(evoMethod)
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
+
+	if evoMethod == PokemonData.Evolutions.NONE then
+		return false
+	end
+
+	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
+		-- Check through the possible evolutions with the stones available
+		if quantity > 0 then
+			-- Special check for the level/water stone evos
+			if itemID == 97 and evoMethod:match("(WTR)") ~= nil then
+				return true
+			end
+			for _, possibleEvolution in pairs(MiscData.EvolutionStones[itemID].evolutions) do
+				if possibleEvolution == evoMethod then
+					return true
+				end
+			end
+		end
+	end
+
+	return false
 end
 
 -- Returns the text color for PC heal tracking
@@ -569,6 +644,20 @@ function Utils.extractFileNameFromPath(path)
 		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
 		if filename ~= nil then
 			return filename
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileExtensionFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local extStartIndex = path:match("^.*()%.") -- file extension
+	if extStartIndex ~= nil then
+		local extension = path:sub(extStartIndex + 1)
+		if extension ~= nil then
+			return extension:lower()
 		end
 	end
 

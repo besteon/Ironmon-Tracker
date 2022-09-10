@@ -11,7 +11,8 @@
     "love",
     "joypad",
     "input",
-    "forms"
+    "forms",
+    "console"
   ],
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.checkThirdParty": false
