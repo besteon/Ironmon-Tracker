@@ -258,18 +258,26 @@ function Battle.updateTrackedInfo()
 		end
 	end
 
+	--TODO: 
+	Battle.checkAbilitiesToTrack()
+	--Battle.
+
 	-- Always track your own Pokemons' abilities' once you decide to use it
 
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
 	Battle.updateBattleMonDetails(ownLeftPokemon, true)
+	--Battle.updateBattleMonDetails(opposingPokemon, false)
+
 
 	if numBattlers == 4 then
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
 		local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 		Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
 		Battle.updateBattleMonDetails(ownRightPokemon, true)
+		--Battle.updateBattleMonDetails(opposingPokemon, false)
+
 	end
 
 	-- Check if an ability went off
@@ -280,7 +288,6 @@ function Battle.updateTrackedInfo()
 	if not Battle.isGhost then
 		--local opposingAbilityId = PokemonData.getAbilityId(opposingPokemon.pokemonID, opposingPokemon.abilityNum)
 
-		--Battle.updateBattleMonDetails(opposingPokemon, false)
 		--Battle.checkEnemyEncounter(opposingPokemon)
 		--Battle.checkEnemyMovesUsed(opposingPokemon)
 	end
@@ -381,8 +388,85 @@ function Battle.checkEnemyMovesUsed(opposingPokemon)
 	end
 end
 
+function Battle.checkAbilitiesToTrack()
+	--[[
+		TODO
+		- do not receive an "enemy" and an "allied" ability. Instead perform checks on either the Battle mon values or by checking all 2/4 battlers
+			i) Use the attacker/battler/battleTarget values
+				- gBattleScripting.battler
+					- Trace
+					- GameSettings.ABILITIES.BATTLER
+					- GameSettings.ABILITIES.REVERSE_BATTLER, kind of
+					- Levitate
+				- attacker
+					- GameSettings.ABILITIES.ATTACKER
+					- GameSettings.ABILITIES.REVERSE_ATTACKER
+				- battlerTarget
+					- GameSettings.ABILITIES.BATTLE_TARGET
+				- AOTB
+					- GameSettings.ABILITIES.STATUS_INFLICT
+			ii) ???
+				- Levitate
+		- return the relevant battleIndex of the mon whose ability should be tracked
+
+	]]
+
+	local attackerAbility = BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[attacker]]]
+	local battlerAbility = BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[battler]]]
+	local battleTargetAbility = BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[battlerTarget]]]
+
+	-- TODO: Need special handling for levitate
+	local abilityMsg
+	
+	-- BATTLER: 'battler' had their ability triggered
+	-- TODO: handle trace elsewhere. Synchronize?
+	abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
+	if abilityMsg ~= nil and abilityMsg[battlerAbility] and not (battlerAbility == 28 or battlerAbility == 36) then
+		return Battle.battler
+	end
+
+	-- REVERSE_BATTLER: 'battlerTarget' had their ability triggered
+	abilityMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
+	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
+		return Battle.battlerTarget
+	end
+
+	-- ATTACKER: 'battleTarget' had their ability triggered
+	abilityMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
+	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
+		return Battle.battlerTarget
+	end
+
+	-- REVERSE ATTACKER: 'attacker' had their ability triggered
+	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
+	if abilityMsg ~= nil and abilityMsg[attackerAbility] then
+		return Battle.attacker
+	end
+
+	-- TODO put BATTLE_TARGET section in for loop; Damp loops through positions 0-3 to find the first Damp mon
+	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
+	if abilityMsg ~= nil then
+		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
+			return Battle.battlerTarget
+		end
+		if abilityMsg.scope == "other" and abilityMsg[battlerAbility] then
+			return Battle.battler
+		end
+	end
+
+	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
+
+
+	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
+
+	for i = 0, Battle.numBattlers, 1 do
+		if levitateCheck == 4 and Battle.attacker ~= i then end
+	end
+end
+
 -- Checks if ability should be auto-tracked. Returns true if so; false otherwise
-function Battle.checkAbilityUsed(enemyAbility, playerAbility)
+function Battle.checkAbilityUsed()
+	
 	if Battle.Synchronize.turnCount < Battle.turnCount then
 		Battle.Synchronize.turnCount = Battle.turnCount
 		Battle.Synchronize.battler = -1
