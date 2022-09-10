@@ -569,6 +569,26 @@ function Utils.readTableFromFile(filename)
 	return tableData
 end
 
+-- Returns a table that contains an entry for each line from a file
+function Utils.readLinesFromFile(filename)
+	local lines = {}
+
+	local file = io.open(filename, "r")
+	if file ~= nil then
+		local fileContents = file:read("*a")
+		if fileContents ~= nil and fileContents ~= "" then
+			for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
+				if line ~= nil then
+					table.insert(lines, line)
+				end
+			end
+		end
+		file:close()
+	end
+
+	return lines
+end
+
 --sets the form location relative to the game window
 --this function does what the built in forms.setlocation function supposed to do
 --currently that function is bugged and should be fixed in 2.9
@@ -638,7 +658,8 @@ end
 function Utils.extractFileNameFromPath(path)
 	if path == nil or path == "" then return "" end
 
-	local nameStartIndex = path:match("^.*()\\") -- path to file
+	local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+	local nameStartIndex = path:match(slashpattern) -- path to file
 	local nameEndIndex = path:match("^.*()%.") -- file extension
 	if nameStartIndex ~= nil and nameEndIndex ~= nil then
 		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)

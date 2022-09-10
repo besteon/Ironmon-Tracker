@@ -131,12 +131,13 @@ end
 
 function QuickloadScreen.handleSetRomFolder(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "ROM File (*.GBA)|*.GBA|All files (*.*)|*.*"
+	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
-		-- Since the user had to pick a file, strip out the file name to just get the folder.
-		file = file:sub(0, file:match("^.*()\\") - 1)
+		-- Since the user had to pick a file, strip out the file name to just get the folder path
+		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+		file = file:sub(0, file:match(slashpattern) - 1)
 
 		if file == nil then
 			Options.FILES[button.labelText] = ""
@@ -154,7 +155,7 @@ end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "JAR File (*.JAR)|*.JAR|All files (*.*)|*.*"
+	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT JAR", path, filterOptions)
 	if file ~= "" then
@@ -172,7 +173,7 @@ end
 
 function QuickloadScreen.handleSetSourceRom(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "GBA File (*.GBA)|*.GBA|All files (*.*)|*.*"
+	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
@@ -190,7 +191,7 @@ end
 
 function QuickloadScreen.handleSetCustomSettings(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "RNQS File (*.RNQS)|*.RNQS|All files (*.*)|*.*"
+	local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
 	if path == "" or not Main.FileExists(path) then

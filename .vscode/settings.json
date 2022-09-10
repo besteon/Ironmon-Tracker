@@ -1,19 +1,20 @@
 {
-  "Lua.diagnostics.globals": [
-    "event",
-    "emu",
-    "client",
-    "gui",
-    "userdata",
-    "gameinfo",
-    "bit",
-    "memory",
-    "love",
-    "joypad",
-    "input",
-    "forms",
-    "console"
-  ],
-  "Lua.runtime.version": "Lua 5.1",
-  "Lua.workspace.checkThirdParty": false
+	"Lua.diagnostics.globals": [
+		"event",
+		"emu",
+		"client",
+		"gui",
+		"userdata",
+		"gameinfo",
+		"bit",
+		"memory",
+		"love",
+		"joypad",
+		"input",
+		"forms",
+		"console",
+		"debug"
+	],
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.workspace.checkThirdParty": false
 }
