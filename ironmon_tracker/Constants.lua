@@ -28,6 +28,11 @@ Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
 }
 
+Constants.Release = {
+	VERSION_URL = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
+	DOWNLOAD_URL = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
+}
+
 Constants.ButtonTypes = {
 	FULL_BORDER = 1,
 	NO_BORDER = 2,
