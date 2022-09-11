@@ -28,11 +28,11 @@ QuickloadScreen.SetButtonSetup = {
 QuickloadScreen.Buttons = {
 	ButtonCombo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Button Combo:",
+		text = "Buttons:",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 15, 130, 11 },
 		updateText = function(self)
 			local comboFormatted = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-			self.text = "Button Combo:  " .. comboFormatted
+			self.text = "Buttons:  " .. comboFormatted
 		end,
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
