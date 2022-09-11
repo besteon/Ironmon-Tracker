@@ -5,6 +5,7 @@ Theme = {
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
 		["Default text"] = 0xFFFFFFFF,
+		["Lower box text"] = 0xFFFFFFFF,
 		["Positive text"] = 0xFF00FF00,
 		["Negative text"] = 0xFFFF0000,
 		["Intermediate text"] = 0xFFFFFF00,
@@ -20,7 +21,7 @@ Theme = {
 }
 
 Theme.PresetStrings = {
-	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
+	-- [Default] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background] [0/1: movetypes?]
 	["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
 }
 Theme.PresetsOrdered = {
@@ -81,7 +82,7 @@ Theme.Buttons = {
 }
 
 function Theme.initialize()
-	local startY = Constants.SCREEN.MARGIN + 16
+	local startY = Constants.SCREEN.MARGIN + 14
 
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		Theme.Buttons[colorkey] = {
@@ -102,8 +103,8 @@ function Theme.initialize()
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY + 4
-	Theme.Buttons.MoveTypeEnabled.box[2] = startY + 4
+	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY
+	Theme.Buttons.MoveTypeEnabled.box[2] = startY
 
 	Theme.loadPresets(Main.ThemePresetsFile)
 end
@@ -131,10 +132,19 @@ end
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
 function Theme.importThemeFromText(theme_config)
-	-- A valid string has at minimum (7 x 10) hex codes (w/ spaces) and a single bit for move types
-	if theme_config == nil then
+	if theme_config == nil or theme_config == "" then
 		return false
-	elseif string.len(theme_config) < 71 then
+	end
+
+	-- If the theme config string is old, duplicate the 'Default text' color hex code as 'Lower box text'
+	if Theme.isOldThemeString(theme_config) then
+		local firstHexCode = theme_config:sub(1, 7) -- includes the trailing space
+		theme_config = firstHexCode .. theme_config
+	end
+
+	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a single bit for move types
+	local totalHexCodes = 11
+	if string.len(theme_config) < (totalHexCodes * 7 + 1) then
 		return false
 	end
 
@@ -142,9 +152,9 @@ function Theme.importThemeFromText(theme_config)
 	local numHexCodes = 0
 	local theme_colors = {}
 	for color_text in string.gmatch(theme_config, "[^%s]+") do
-		if string.len(color_text) == 6 then
+		if color_text ~= nil and string.len(color_text) == 6 then
 			local color = tonumber(color_text, 16)
-			if color < 0x000000 or color > 0xFFFFFF then
+			if color == nil or color < 0x000000 or color > 0xFFFFFF then
 				return false
 			end
 
@@ -170,6 +180,23 @@ function Theme.importThemeFromText(theme_config)
 	Program.redraw(true)
 
 	return true
+end
+
+-- A simple way to check if user imports an old theme config string
+function Theme.isOldThemeString(theme_config)
+	if theme_config == nil or theme_config == "" then return false end
+
+	local oldHexCountGBA = 10 -- version 0.6.2 and below
+	local oldHexCountNDS = 13 -- version 0.3.31 and below
+
+	local numHexCodes = 0
+	for hexCode in string.gmatch(theme_config, "[0-9a-fA-F]+") do
+		if #hexCode > 1 then
+			numHexCodes = numHexCodes + 1
+		end
+	end
+
+	return numHexCodes == oldHexCountGBA or numHexCodes == oldHexCountNDS
 end
 
 -- Exports the theme options that can be customized into a string that can be shared and imported
