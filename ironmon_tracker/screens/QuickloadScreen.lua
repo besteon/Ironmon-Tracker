@@ -89,8 +89,6 @@ QuickloadScreen.Buttons = {
 }
 
 function QuickloadScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106
-
 	for setKey, setValue in pairs(QuickloadScreen.SetButtonSetup) do
 		local isSetCorrectly = (setKey == "ROMs Folder" and Options.FILES[setKey] ~= "") or Main.FileExists(Options.FILES[setKey])
 		QuickloadScreen.Buttons[setKey] = {
@@ -259,7 +257,10 @@ function QuickloadScreen.drawScreen()
 		if QuickloadScreen.Buttons["Settings File"].isSet then
 			filename = Utils.extractFileNameFromPath(Options.FILES["Settings File"])
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 135, "Settings: " .. filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		if filename:len() < 18 then
+			filename = "Settings: " .. filename
+		end
+		Drawing.drawText(topboxX + 2, topboxY + 135, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	end
 
 	-- Draw all buttons
