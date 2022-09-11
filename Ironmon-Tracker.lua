@@ -1,4 +1,4 @@
-Main = { TrackerVersion = "0.6.2c" } -- The latest version of the tracker. Should be updated with each PR.
+Main = { TrackerVersion = "0.6.3" } -- The latest version of the tracker. Should be updated with each PR.
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -80,7 +80,16 @@ function Main.Initialize()
 	end
 
 	-- Working directory, used for absolute paths
-	Main.Directory = os.getenv("PWD") or io.popen("cd"):read()
+	local function exeCD() return io.popen("cd") end
+	local success, ret, err = xpcall(exeCD, debug.traceback)
+	if success then
+		Main.OS = "Windows"
+		Main.Directory = ret:read()
+	else
+		Main.OS = "Linux"
+		Main.Directory = nil -- will return "" from Utils function
+		print(err)
+	end
 
 	print("Successfully loaded required tracker files")
 	return true
@@ -265,6 +274,12 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
+	if Main.OS ~= "Windows" then
+		print("The auto-generate a new ROM feature is currently not supported on non-Windows OS.")
+		Main.DisplayError("The auto-generate a new ROM feature is currently not supported on non-Windows OS.\n\nPlease use the other Quick-load option: From a ROMs Folder.")
+		return nil
+	end
+
 	if not (Main.FileExists(Options.FILES["Randomizer JAR"]) and Main.FileExists(Options.FILES["Settings File"]) and Main.FileExists(Options.FILES["Source ROM"])) then
 		print("Files missing that are required for Quick-load to generate a new ROM.")
 		Main.DisplayError("Files missing that are required for Quick-load to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
@@ -332,7 +347,7 @@ end
 function Main.ReadAttemptsCounter()
 	local romname = gameinfo.getromname()
 	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
-	local romprefix = string.match(romname, '[^0-9]+') -- remove numbers
+	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
 
 	local filename = romprefix .. " Attempts.txt"

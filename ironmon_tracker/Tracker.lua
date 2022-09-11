@@ -470,7 +470,8 @@ function Tracker.loadData(filepath)
 				Tracker.Data[k] = v
 			end
 		end
-		local fileNameIndex = string.match(filepath, "^.*()\\")
+		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+		local fileNameIndex = string.match(filepath, slashpattern)
 		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
 
 		Tracker.DataMessage = "Tracker data loaded from file: " .. filename
