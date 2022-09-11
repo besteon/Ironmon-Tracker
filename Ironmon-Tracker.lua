@@ -251,9 +251,9 @@ function Main.NotifyUpdatePopUp(latestVersion)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
-	forms.label(form, "New Tracker Version Available!", 89, 15, 410, 20)
-	forms.label(form, "New version: v" .. latestVersion, 89, 42, 410, 20)
-	forms.label(form, "Current version: v" .. Main.TrackerVersion, 89, 60, 410, 20)
+	forms.label(form, "New Tracker Version Available!", 89, 15, 255, 20)
+	forms.label(form, "New version: v" .. latestVersion, 89, 42, 255, 20)
+	forms.label(form, "Current version: v" .. Main.TrackerVersion, 89, 60, 255, 20)
 
 	local offsetY = 85
 
