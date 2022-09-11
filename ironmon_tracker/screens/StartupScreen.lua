@@ -38,7 +38,7 @@ StartupScreen.Buttons = {
 	EraseGame = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "< Press",
-		textColor = "Default text",
+		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return false end, -- TODO: For now, we aren't using this button
@@ -83,7 +83,7 @@ function StartupScreen.drawScreen()
 		y = topBox.y + topBox.height + 13,
 		width = topBox.width,
 		height = 65,
-		text = Theme.COLORS["Default text"],
+		text = Theme.COLORS["Lower box text"],
 		border = Theme.COLORS["Lower box border"],
 		fill = Theme.COLORS["Lower box background"],
 		shadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"]),

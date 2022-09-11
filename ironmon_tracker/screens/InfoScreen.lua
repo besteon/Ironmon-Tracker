@@ -104,7 +104,7 @@ InfoScreen.Buttons = {
 	previousRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.PREVIOUS_BUTTON,
-		textColor = "Default text",
+		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + 6, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
@@ -118,7 +118,7 @@ InfoScreen.Buttons = {
 	nextRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NEXT_BUTTON,
-		textColor = "Default text",
+		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + 136, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
@@ -132,7 +132,7 @@ InfoScreen.Buttons = {
 	back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
-		textColor = "Default text",
+		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return true end,
@@ -207,7 +207,7 @@ InfoScreen.Buttons = {
 				return "(Leave a note)"
 			end
 		end,
-		textColor = "Default text",
+		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 142, 110, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 142, 11, 11 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
@@ -609,12 +609,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + 1
 
 	-- MOVES LEVEL BOXES
-	Drawing.drawText(offsetX, botOffsetY, "Learns a move at level:", Theme.COLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "Learns a move at level:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
 	if #pokemon.movelvls[GameSettings.versiongroup] == 0 then -- If the Pokemon learns no moves at all
-		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Default text"], boxInfoBotShadow)
+		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
@@ -627,7 +627,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		-- Indicate which moves have already been learned if the pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
 		if not isTargetTheViewedPokemonn then
-			nextBoxTextColor = Theme.COLORS["Default text"]
+			nextBoxTextColor = Theme.COLORS["Lower box text"]
 		elseif moveLvl <= pokemonViewed.level then
 			nextBoxTextColor = Theme.COLORS["Negative text"]
 		else
@@ -661,14 +661,14 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 			end
 		end
 	end
-	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Default text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	if hasSevereWeakness then
-		Drawing.drawText(offsetColumnX, botOffsetY, "(white bars = x4 weak)", Theme.COLORS["Default text"], boxInfoBotShadow)
+		Drawing.drawText(offsetColumnX, botOffsetY, "(white bars = x4 weak)", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + linespacing + 3
 
 	if weaknesses == {} then -- If the Pokemon has no weakness, like Sableye
-		Drawing.drawText(offsetX + 6, botOffsetY, "Has no weaknesses", Theme.COLORS["Default text"], boxInfoBotShadow)
+		Drawing.drawText(offsetX + 6, botOffsetY, "Has no weaknesses", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 
 	local typeOffsetX = offsetX + 6
@@ -845,7 +845,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		local wrappedSummary = Utils.getWordWrapLines(move.summary, 31)
 
 		for _, line in pairs(wrappedSummary) do
-			Drawing.drawText(offsetX, botOffsetY, line, Theme.COLORS["Default text"], boxInfoBotShadow)
+			Drawing.drawText(offsetX, botOffsetY, line, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 			botOffsetY = botOffsetY + linespacing
 		end
 	end
@@ -890,16 +890,15 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Ability NAME
-	local abilityName = ability.name:upper()
-	abilityName = abilityName:gsub(" ","  ")
-	gui.drawText(offsetX - 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	gui.drawText(offsetX - 2, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	local abilityName = ability.name:upper():gsub(" ", "  ")
+	gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.lookupAbility
 	lookupAbility.box = {Constants.SCREEN.WIDTH + 133, offsetY, 10, 10,}
 	Drawing.drawButton(lookupAbility, boxInfoTopShadow)
-	offsetY = offsetY + linespacing * 2 - 4
+	offsetY = offsetY + linespacing * 2 - 5
 
 	-- DESCRIPTION
 	if ability.description ~= nil then
@@ -961,7 +960,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
-		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Default text"], boxBotShadow)
+		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Lower box text"], boxBotShadow)
 	end
 
 	-- POKEMON SEEN
@@ -979,7 +978,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 			local rateText = (iconButton.rate * 100) .. "%"
 			local rateOffset = Utils.inlineIf(iconButton.rate == 1.00, 5, Utils.inlineIf(iconButton.rate >= 0.1, 7, 9)) -- centering
 			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
-			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Default text"], boxBotShadow)
+			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Lower box text"], boxBotShadow)
 		end
 	end
 
@@ -997,9 +996,9 @@ function InfoScreen.drawNotepadArea()
 	if #noteText > 23 then
 		local	textTest = Utils.getWordWrapLines(noteText, 22)
 		textTest[1] = textTest[1] .. " ..."
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, textTest[1], Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, textTest[1], Theme.COLORS["Lower box text"], shadowcolor)
 	else
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, noteText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, 142, noteText, Theme.COLORS["Lower box text"], shadowcolor)
 	end
 	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 155, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 155, Theme.COLORS["Lower box border"])
 	gui.drawLine(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, 156, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN, 156, Theme.COLORS["Main background"])

@@ -135,18 +135,18 @@ function NavigationMenu.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 32, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
 
-	-- Draw header text
-	Drawing.drawText(topboxX + 32, topboxY + 2, NavigationMenu.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
-
 	-- Draw all buttons, manually
-	local buttonTexts = {}
 	for index, button in ipairs(NavigationMenu.OrderedMenuList) do
 		if button.isVisible == nil or button:isVisible() then
 			local x = button.box[1]
@@ -183,20 +183,21 @@ function NavigationMenu.drawCredits()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxColX = topboxX + 58
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 	local linespacing = Constants.SCREEN.LINESPACING + 1
+
+	-- Draw header text
+	local creditsHeader = "Ironmon Tracker"
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
 
-	-- Draw header text
-	local creditsHeader = "Ironmon Tracker"
-	Drawing.drawText(topboxX + 29, topboxY + 2, creditsHeader:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
-
 	local offsetX = topboxX + 2
-	local offsetY = topboxY + 20
+	local offsetY = topboxY + 8
 
 	Drawing.drawText(offsetX, offsetY, "Created by:", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
 	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.textColor], shadowcolor)
