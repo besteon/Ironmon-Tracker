@@ -172,7 +172,9 @@ function SetupScreen.openEditControlsWindow()
 			end
 			controlCombination = controlCombination:sub(1, -3)
 
-			Options.CONTROLS[controlKey] = controlCombination
+			if controlCombination ~= nil and controlCombination ~= "" then
+				Options.CONTROLS[controlKey] = controlCombination
+			end
 			index = index + 1
 		end
 
