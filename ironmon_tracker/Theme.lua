@@ -111,8 +111,7 @@ end
 function Theme.loadPresets(filename)
 	if not Main.FileExists(filename) then return end
 
-	local index = 1 -- If theme name is missing, use this to make a unique one "Untitled #"
-	for line in io.lines(filename) do
+	for index, line in ipairs(Utils.readLinesFromFile(filename)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeString = line:sub(firstHexIndex)
@@ -125,7 +124,6 @@ function Theme.loadPresets(filename)
 
 			Theme.PresetStrings[themeName] = themeString
 			table.insert(Theme.PresetsOrdered, themeName)
-			index = index + 1
 		end
 	end
 end

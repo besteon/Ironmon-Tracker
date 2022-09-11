@@ -108,7 +108,7 @@ end
 
 function TrackedDataScreen.openLoadDataPrompt()
 	local suggestedFileName = gameinfo.getromname() .. Constants.Extensions.TRACKED_DATA
-	local filterOptions = "Tracker Data (*.TDAT)|*.TDAT|All files (*.*)|*.*"
+	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
 	local workingDir = Utils.getWorkingDirectory()
 	if workingDir ~= "" then
