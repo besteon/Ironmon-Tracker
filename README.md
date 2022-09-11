@@ -39,7 +39,7 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 - **_NEW!!_ Startup Screen!**
 
-![image](https://user-images.githubusercontent.com/4258818/189439270-c4401893-bf58-4ecd-a4eb-3f5e18798613.png)
+![image](https://user-images.githubusercontent.com/4258818/189550768-4f62075d-349c-48d0-8f2a-48981be33b32.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
