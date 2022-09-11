@@ -11,9 +11,9 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = Main.Version.major .. "." .. Main.Version.minor .. "." .. Main.Version.patch
-	Main.Version.notified = false
-	Main.Version.latest = Main.TrackerVersion
-	Main.Version.daychecked = -1
+	Main.Version.remindMe = true
+	Main.Version.latestAvailable = Main.TrackerVersion
+	Main.Version.dateChecked = ""
 
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
@@ -212,33 +212,41 @@ function Main.CheckForVersionUpdate()
 		return
 	end
 
-	local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
-	local output = pipe:read("*all") or ""
-	local _, _, major, minor, patch = string.match(output, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
-
-	local dayOfMonth = os.date("%d")
-	local latestVersion = major .. "." .. minor .. "." .. patch
-	local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
+	-- %x - Date representation for current locale (Standard date string), eg. "25/04/07"
+	local todaysDate = os.date("%x")
 
 	-- Only notify about updates once per day
-	local shouldNotify
-	if dayOfMonth == Main.Version.daychecked then
-		shouldNotify = false
-	else
-		Main.Version.daychecked = dayOfMonth
-		shouldNotify = not Main.Version.notified or Main.Version.latest ~= latestVersion
+	if todaysDate ~= Main.Version.dateChecked then
+		local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
+		if pipe ~= "" then
+			local response = pipe:read("*all") or ""
+
+			-- Get version number formatted as [major].[minor].[patch]
+			local _, _, major, minor, patch = string.match(response, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			major = major or Main.Version.major
+			minor = minor or Main.Version.minor
+			patch = patch or Main.Version.patch
+
+			local latestVersion = major .. "." .. minor .. "." .. patch
+			local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
+			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestVersion
+
+			-- Determine if a major version update is available and notify the user accordingly
+			if newVersionAvailable and shouldNotify then
+				Main.Version.remindMe = false
+				Main.NotifyUpdatePopUp(latestVersion)
+			end
+
+			-- Track that an update was checked today, so no additional api calls are performed today
+			Main.Version.dateChecked = todaysDate
+			-- Track the latest available version, for determining whether to show silent updates below
+			Main.Version.latestAvailable = latestVersion
+		end
 	end
 
-	-- Determine if a major version update is available and notify the user accordingly
-	if newVersionAvailable and shouldNotify then
-		Main.Version.notified = true
-		Main.NotifyUpdatePopUp(latestVersion)
-	end
-
-	-- Otherwise, silently show the version update through the Lua Console
-	if Main.TrackerVersion ~= latestVersion then
-		Main.Version.latest = latestVersion
-		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latest)
+	-- Always show the version update silently through the Lua Console
+	if Main.TrackerVersion ~= Main.Version.latestAvailable then
+		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
 		print(Constants.Release.DOWNLOAD_URL)
 	end
 
@@ -258,13 +266,15 @@ function Main.NotifyUpdatePopUp(latestVersion)
 	local offsetY = 85
 
 	forms.button(form, "Visit Download Page", function()
-		os.execute("start " .. Constants.Release.DOWNLOAD_URL)
+		if Main.OS == "Windows" then
+			os.execute("start " .. Constants.Release.DOWNLOAD_URL)
+		end
 		client.unpause()
 		forms.destroy(form)
 	end, 15, offsetY + 5, 120, 30)
 
 	forms.button(form, "Remind Me Later", function()
-		Main.Version.notified = false
+		Main.Version.remindMe = true
 		Main.SaveSettings(true)
 		client.unpause()
 		forms.destroy(form)
@@ -472,14 +482,14 @@ function Main.LoadSettings()
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
 		end
-		if settings.config.HasBeenNotified ~= nil then
-			Main.Version.notified = settings.config.HasBeenNotified
+		if settings.config.RemindMeLater ~= nil then
+			Main.Version.remindMe = settings.config.RemindMeLater
 		end
 		if settings.config.LatestAvailableVersion ~= nil then
-			Main.Version.latest = settings.config.LatestAvailableVersion
+			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
 		end
-		if settings.config.CheckedUpdateDay ~= nil then
-			Main.Version.daychecked = settings.config.CheckedUpdateDay
+		if settings.config.DateLastChecked ~= nil then
+			Main.Version.dateChecked = settings.config.DateLastChecked
 		end
 
 		for configKey, _ in pairs(Options.FILES) do
@@ -546,9 +556,9 @@ function Main.SaveSettings(forced)
 
 	-- [CONFIG]
 	settings.config.FIRST_RUN = Options.FIRST_RUN
-	settings.config.HasBeenNotified = Main.Version.notified
-	settings.config.LatestAvailableVersion = Main.Version.latest
-	settings.config.CheckedUpdateDay = Main.Version.daychecked
+	settings.config.RemindMeLater = Main.Version.remindMe
+	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
+	settings.config.DateLastChecked = Main.Version.dateChecked
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
