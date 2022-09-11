@@ -1,4 +1,7 @@
-Main = { TrackerVersion = "0.6.2c" } -- The latest version of the tracker. Should be updated with each PR.
+Main = {}
+
+-- The latest version of the tracker. Should be updated with each PR.
+Main.Version = { major = "6", minor = "3", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -7,6 +10,10 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
+	Main.TrackerVersion = Main.Version.major .. "." .. Main.Version.minor .. "." .. Main.Version.patch
+	Main.Version.notified = false
+	Main.Version.latest = Main.TrackerVersion
+
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
@@ -77,6 +84,8 @@ function Main.Initialize()
 		print(firstRunErrMsg)
 		Main.DisplayError(firstRunErrMsg)
 		--return false -- Let the program keep running, it may/not still crash at io.popen, but at least the user knows why and how to fix
+	else
+		Main.CheckForVersionUpdate()
 	end
 
 	-- Working directory, used for absolute paths
@@ -183,6 +192,64 @@ function Main.Run()
 
 		Main.LoadNextRom()
 	end
+end
+
+-- Determines if there is an update to the current Tracker version
+-- Intentionally will only check against Major and Minor version updates,
+-- allowing patches to seamlessly update without bothering every end-user
+function Main.CheckForVersionUpdate()
+	local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
+	local output = pipe:read("*all") or ""
+	local _, _, major, minor, patch = string.match(output, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+
+	local latestVersion = major .. "." .. minor .. "." .. patch
+	local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
+	local shouldNotify = not Main.Version.notified or Main.Version.latest ~= latestVersion
+
+	-- Determine if a major version update is available and notify the user accordingly
+	if newVersionAvailable and shouldNotify then
+		Main.Version.notified = true
+		Main.NotifyUpdatePopUp(latestVersion)
+	end
+
+	-- Otherwise, silently show the version update through the Lua Console
+	if Main.TrackerVersion ~= latestVersion then
+		Main.Version.latest = latestVersion
+		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latest)
+		print(Constants.Release.DOWNLOAD_URL)
+		Main.SaveSettings(true)
+	end
+end
+
+function Main.NotifyUpdatePopUp(latestVersion)
+	local form = forms.newform(355, 180, "New Version Available", function() client.unpause() end)
+	local actualLocation = client.transformPoint(100, 50)
+	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
+
+	forms.label(form, "New Tracker Version Available!", 89, 15, 410, 20)
+	forms.label(form, "New version: v" .. latestVersion, 89, 42, 410, 20)
+	forms.label(form, "Current version: v" .. Main.TrackerVersion, 89, 60, 410, 20)
+
+	local offsetY = 85
+
+	forms.button(form, "Visit Download Page", function()
+		os.execute("start " .. Constants.Release.DOWNLOAD_URL)
+		client.unpause()
+		forms.destroy(form)
+	end, 15, offsetY + 5, 120, 30)
+
+	forms.button(form, "Remind Me Later", function()
+		Main.Version.notified = false
+		Main.SaveSettings(true)
+		client.unpause()
+		forms.destroy(form)
+	end, 140, offsetY + 5, 110, 30)
+
+	forms.button(form, "Dismiss", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 255, offsetY + 5, 65, 30)
 end
 
 function Main.LoadNextRom()
@@ -375,6 +442,12 @@ function Main.LoadSettings()
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
 		end
+		if settings.config.HasBeenNotified ~= nil then
+			Main.Version.notified = settings.config.HasBeenNotified
+		end
+		if settings.config.LatestAvailableVersion ~= nil then
+			Main.Version.latest = settings.config.LatestAvailableVersion
+		end
 
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
@@ -440,6 +513,8 @@ function Main.SaveSettings(forced)
 
 	-- [CONFIG]
 	settings.config.FIRST_RUN = Options.FIRST_RUN
+	settings.config.HasBeenNotified = Main.Version.notified
+	settings.config.LatestAvailableVersion = Main.Version.latest
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
