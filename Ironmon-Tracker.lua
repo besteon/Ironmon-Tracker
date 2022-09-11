@@ -97,10 +97,9 @@ function Main.Initialize()
 			Main.Directory = nil -- will return "" from Utils function
 			print(err)
 		end
+
 		Main.CheckForVersionUpdate()
 	end
-
-
 
 	print("Successfully loaded required tracker files")
 	return true
