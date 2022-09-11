@@ -1,11 +1,12 @@
 AbilityData = {}
 
-AbilityData.defaultAbility = {
+AbilityData.DefaultAbility = {
   --placeholder
   id = 0,
   name = "Ability Info",
   description = "Click the magnifying glass to look up an ability!",
 }
+
 AbilityData.Abilities = {
 	{
     id = 1,
@@ -94,9 +95,9 @@ AbilityData.Abilities = {
 	{
     id = 17,
     name = "Immunity",
-    description = "Cannot be poisoned. Gaining this Ability, like through Skill Swap, will cure Poison.",
+    description = "Cannot be inflicted with Poison. Gaining this Ability, like through Skill Swap, will cure Poison.",
   },
-	{ 
+	{
     id = 18,
     name = "Flash Fire",
     description = "Immune to Fire moves. The first time this " .. Constants.Words.POKEMON .. " is hit by a Fire move, its own Fire moves gain 50% power.",
@@ -146,12 +147,12 @@ AbilityData.Abilities = {
   {
     id = 27,
     name = "Effect Spore",
-    description = "When hit by a contact move, 10% chance for the attacker to become either poisioned, paralyzed, or asleep.",
+    description = "When hit by a contact move, 10% chance for the attacker to become afflicted with Poison, Paralysis, or Sleep; with an equal chance of each. It's possible the random status won't affect the attacker, in the case that it is immune to that status.",
   },
   {
     id = 28,
     name = "Synchronize",
-    description = "When poisoned, paralyzed, or burned by a " .. Constants.Words.POKEMON .. ", that " .. Constants.Words.POKEMON .. " will be inflicted with the same status condition, if possible.",
+    description = "When a " .. Constants.Words.POKEMON .. " inflicts Poison, Paralysis, or Burn on this " .. Constants.Words.POKEMON .. ", that " .. Constants.Words.POKEMON .. " will be inflicted with the same status condition, if possible.",
     descriptionEmerald = "While at the head of the party, there is a 50% chance that a wild encounter " .. Constants.Words.POKEMON .. " will have the same nature as this " .. Constants.Words.POKEMON .. ".",
   },
   {
@@ -203,7 +204,7 @@ AbilityData.Abilities = {
   {
     id = 38,
     name = "Poison Point",
-    description = "When hit by a contact move, 1/3 chance to poison the attacker.",
+    description = "When hit by a contact move, 1/3 chance to inflict Poison on the attacker.",
   },
   {
     id = 39,
@@ -230,7 +231,7 @@ AbilityData.Abilities = {
   {
     id = 43,
     name = "Soundproof",
-    description = "Immune to sound-based moves.",
+    description = "Immune to sound-based moves. These moves are:\nGrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar",
   },
   {
     id = 44,
@@ -334,7 +335,7 @@ AbilityData.Abilities = {
   {
     id = 62,
     name = "Guts",
-    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis Freeze, Sleep).",
+    description = "Increases this " .. Constants.Words.POKEMON .. "'s Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep), and ignores the Attack reduction of Burn.",
   },
   {
     id = 63,

@@ -2,4 +2,7 @@ Settings.ini
 *.tdat
 *.gba
 *.log
+*Attempts.txt
 ironmon_tracker/images/pokemonAnimated/*.gif
+RandomizerErrorLog.txt
+ThemePresets.txt

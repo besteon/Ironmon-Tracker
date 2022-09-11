@@ -28,11 +28,11 @@ QuickloadScreen.SetButtonSetup = {
 QuickloadScreen.Buttons = {
 	ButtonCombo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Button Combo:",
+		text = "Buttons:",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 15, 130, 11 },
 		updateText = function(self)
 			local comboFormatted = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-			self.text = "Button Combo:  " .. comboFormatted
+			self.text = "Buttons:  " .. comboFormatted
 		end,
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
@@ -89,8 +89,6 @@ QuickloadScreen.Buttons = {
 }
 
 function QuickloadScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106
-
 	for setKey, setValue in pairs(QuickloadScreen.SetButtonSetup) do
 		local isSetCorrectly = (setKey == "ROMs Folder" and Options.FILES[setKey] ~= "") or Main.FileExists(Options.FILES[setKey])
 		QuickloadScreen.Buttons[setKey] = {
@@ -131,12 +129,13 @@ end
 
 function QuickloadScreen.handleSetRomFolder(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "ROM File (*.GBA)|*.GBA|All files (*.*)|*.*"
+	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
-		-- Since the user had to pick a file, strip out the file name to just get the folder.
-		file = file:sub(0, file:match("^.*()\\") - 1)
+		-- Since the user had to pick a file, strip out the file name to just get the folder path
+		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+		file = file:sub(0, file:match(slashpattern) - 1)
 
 		if file == nil then
 			Options.FILES[button.labelText] = ""
@@ -154,37 +153,43 @@ end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "JAR File (*.JAR)|*.JAR|All files (*.*)|*.*"
+	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT JAR", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a JAR file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "jar" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
+		end
 	end
 end
 
 function QuickloadScreen.handleSetSourceRom(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "GBA File (*.GBA)|*.GBA|All files (*.*)|*.*"
+	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a GBA file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-
-		-- Save these changes to the file to avoid case where user resets before clicking the Back button
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "gba" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
+		end
 	end
 end
 
 function QuickloadScreen.handleSetCustomSettings(button)
 	local path = Options.FILES[button.labelText]
-	local filterOptions = "RNQS File (*.RNQS)|*.RNQS|All files (*.*)|*.*"
+	local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
 	if path == "" or not Main.FileExists(path) then
@@ -197,13 +202,15 @@ function QuickloadScreen.handleSetCustomSettings(button)
 
 	local file = forms.openfile("SELECT RNQS", path, filterOptions)
 	if file ~= "" then
-		-- TODO: Maybe have a check to verify a RNQS file was actually selected?
-		Options.FILES[button.labelText] = file
-		button.isSet = true
-		button.text = "Clear"
-
-		-- Save these changes to the file to avoid case where user resets before clicking the Back button
-		Options.forceSave()
+		local extension = Utils.extractFileExtensionFromPath(file)
+		if extension == "rnqs" then
+			Options.FILES[button.labelText] = file
+			button.isSet = true
+			button.text = "Clear"
+			Options.forceSave()
+		else
+			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
+		end
 	end
 end
 
@@ -250,7 +257,10 @@ function QuickloadScreen.drawScreen()
 		if QuickloadScreen.Buttons["Settings File"].isSet then
 			filename = Utils.extractFileNameFromPath(Options.FILES["Settings File"])
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 135, "Settings: " .. filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		if filename:len() < 18 then
+			filename = "Settings: " .. filename
+		end
+		Drawing.drawText(topboxX + 2, topboxY + 135, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	end
 
 	-- Draw all buttons

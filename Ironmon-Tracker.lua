@@ -1,12 +1,21 @@
-Main = { TrackerVersion = "0.6.2" } -- The latest version of the tracker. Should be updated with each PR.
+Main = {}
+
+-- The latest version of the tracker. Should be updated with each PR.
+Main.Version = { major = "6", minor = "3", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "davidhouweling", "rcj001", "GB127", },
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
+	Main.TrackerVersion = Main.Version.major .. "." .. Main.Version.minor .. "." .. Main.Version.patch
+	Main.Version.remindMe = true
+	Main.Version.latestAvailable = Main.TrackerVersion
+	Main.Version.dateChecked = ""
+
+	Main.OS = "Windows" -- required if user doesn't restart during a First Run
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
@@ -30,6 +39,7 @@ function Main.Initialize()
 		"/Utils.lua",
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
+		"/screens/StartupScreen.lua",
 		"/screens/SetupScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
@@ -65,6 +75,7 @@ function Main.Initialize()
 	end
 
 	Main.LoadSettings()
+	Main.ReadAttemptsCounter()
 
 	if Options.FIRST_RUN then
 		Options.FIRST_RUN = false
@@ -74,11 +85,22 @@ function Main.Initialize()
 		firstRunErrMsg = firstRunErrMsg .. "\n\nOtherwise, be sure to overwrite your old Tracker files for new releases."
 		print(firstRunErrMsg)
 		Main.DisplayError(firstRunErrMsg)
-		--return false -- Let the program keep running, it may/not still crash at io.popen, but at least the user knows why and how to fix
-	end
+		--return false -- Let the program keep running
+	else
+		-- Working directory, used for absolute paths
+		local function exeCD() return io.popen("cd") end
+		local success, ret, err = xpcall(exeCD, debug.traceback)
+		if success then
+			Main.OS = "Windows"
+			Main.Directory = ret:read()
+		else
+			Main.OS = "Linux"
+			Main.Directory = nil -- will return "" from Utils function
+			print(err)
+		end
 
-	-- Working directory, used for absolute paths
-	Main.Directory = os.getenv("PWD") or io.popen("cd"):read()
+		Main.CheckForVersionUpdate()
+	end
 
 	print("Successfully loaded required tracker files")
 	return true
@@ -163,6 +185,7 @@ function Main.Run()
 
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
+		StartupScreen.initialize()
 		SetupScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
@@ -182,13 +205,99 @@ function Main.Run()
 	end
 end
 
+-- Determines if there is an update to the current Tracker version
+-- Intentionally will only check against Major and Minor version updates,
+-- allowing patches to seamlessly update without bothering every end-user
+function Main.CheckForVersionUpdate()
+	if Main.OS ~= "Windows" then
+		return
+	end
+
+	-- %x - Date representation for current locale (Standard date string), eg. "25/04/07"
+	local todaysDate = os.date("%x")
+
+	-- Only notify about updates once per day
+	if todaysDate ~= Main.Version.dateChecked then
+		local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
+		if pipe ~= "" then
+			local response = pipe:read("*all") or ""
+
+			-- Get version number formatted as [major].[minor].[patch]
+			local _, _, major, minor, patch = string.match(response, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			major = major or Main.Version.major
+			minor = minor or Main.Version.minor
+			patch = patch or Main.Version.patch
+
+			local latestVersion = major .. "." .. minor .. "." .. patch
+			local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
+			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestVersion
+
+			-- Determine if a major version update is available and notify the user accordingly
+			if newVersionAvailable and shouldNotify then
+				Main.Version.remindMe = false
+				Main.NotifyUpdatePopUp(latestVersion)
+			end
+
+			-- Track that an update was checked today, so no additional api calls are performed today
+			Main.Version.dateChecked = todaysDate
+			-- Track the latest available version, for determining whether to show silent updates below
+			Main.Version.latestAvailable = latestVersion
+		end
+	end
+
+	-- Always show the version update silently through the Lua Console
+	if Main.TrackerVersion ~= Main.Version.latestAvailable then
+		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
+		print(Constants.Release.DOWNLOAD_URL)
+	end
+
+	Main.SaveSettings(true)
+end
+
+function Main.NotifyUpdatePopUp(latestVersion)
+	local form = forms.newform(355, 180, "New Version Available", function() client.unpause() end)
+	local actualLocation = client.transformPoint(100, 50)
+	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
+
+	forms.label(form, "New Tracker Version Available!", 89, 15, 255, 20)
+	forms.label(form, "New version: v" .. latestVersion, 89, 42, 255, 20)
+	forms.label(form, "Current version: v" .. Main.TrackerVersion, 89, 60, 255, 20)
+
+	local offsetY = 85
+
+	forms.button(form, "Visit Download Page", function()
+		if Main.OS == "Windows" then
+			os.execute("start " .. Constants.Release.DOWNLOAD_URL)
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 15, offsetY + 5, 120, 30)
+
+	forms.button(form, "Remind Me Later", function()
+		Main.Version.remindMe = true
+		Main.SaveSettings(true)
+		client.unpause()
+		forms.destroy(form)
+	end, 140, offsetY + 5, 110, 30)
+
+	forms.button(form, "Dismiss", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 255, offsetY + 5, 65, 30)
+end
+
 function Main.LoadNextRom()
 	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 
+	local wasSoundOn = client.GetSoundOn()
+
 	local nextRom
 	if Options["Use premade ROMs"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GetNextRomFromFolder()
 	elseif Options["Generate ROM each time"] then
+		client.SetSoundOn(false)
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: The Quick-load feature is currently disabled.")
@@ -198,15 +307,16 @@ function Main.LoadNextRom()
 	if nextRom ~= nil then
 		Tracker.resetData()
 		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
-		local wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		if client.getversion() ~= "2.9" then
 			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 		end
 		client.openrom(nextRom.path)
-		client.SetSoundOn(wasSoundOn)
 	else
 		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
+	end
+
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 
 	Main.loadNextSeed = false
@@ -257,6 +367,12 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
+	if Main.OS ~= "Windows" then
+		print("The auto-generate a new ROM feature is currently not supported on non-Windows OS.")
+		Main.DisplayError("The auto-generate a new ROM feature is currently not supported on non-Windows OS.\n\nPlease use the other Quick-load option: From a ROMs Folder.")
+		return nil
+	end
+
 	if not (Main.FileExists(Options.FILES["Randomizer JAR"]) and Main.FileExists(Options.FILES["Settings File"]) and Main.FileExists(Options.FILES["Source ROM"])) then
 		print("Files missing that are required for Quick-load to generate a new ROM.")
 		Main.DisplayError("Files missing that are required for Quick-load to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
@@ -279,14 +395,16 @@ function Main.GenerateNextRom()
 	)
 
 	print("Generating next ROM: " .. nextromname)
-	local pipe = io.popen(javacommand)
-	local output = pipe:read("*all")
-	print("> " .. output)
+	local pipe = io.popen(javacommand .. " 2>RandomizerErrorLog.txt")
+	if pipe ~= nil then
+		local output = pipe:read("*all")
+		print("> " .. output)
+	end
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("Failed to generate a new ROM.")
-		Main.DisplayError("Failed to generate a new ROM.\n\nFix required files: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
+		print("The Randomizer ZX program failed to generate a ROM. Check the generated RandomizerErrorLog.txt file for errors.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the RandomizerErrorLog.txt file in the tracker folder for errors.")
 		return nil
 	end
 
@@ -300,10 +418,12 @@ end
 function Main.IncrementAttemptsCounter(filename, defaultStart)
 	if Main.FileExists(filename) then
 		local attemptsRead = io.open(filename, "r")
-		local attemptsText = attemptsRead:read("*a")
-		attemptsRead:close()
-		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-			Main.currentSeed = tonumber(attemptsText)
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
 		end
 	elseif defaultStart ~= nil then
 		Main.currentSeed = defaultStart
@@ -311,8 +431,32 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 
 	Main.currentSeed = Main.currentSeed + 1
 	local attemptsWrite = io.open(filename, "w")
-	attemptsWrite:write(Main.currentSeed)
-	attemptsWrite:close()
+	if attemptsWrite ~= nil then
+		attemptsWrite:write(Main.currentSeed)
+		attemptsWrite:close()
+	end
+end
+
+function Main.ReadAttemptsCounter()
+	local romname = gameinfo.getromname()
+	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
+	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
+	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
+
+	local filename = romprefix .. " Attempts.txt"
+
+	if Main.FileExists(filename) then
+		local attemptsRead = io.open(filename, "r")
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
+		end
+	elseif romnumber ~= "1" then
+		Main.currentSeed = tonumber(romnumber)
+	end
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file
@@ -338,6 +482,15 @@ function Main.LoadSettings()
 	if settings.config ~= nil then
 		if settings.config.FIRST_RUN ~= nil then
 			Options.FIRST_RUN = settings.config.FIRST_RUN
+		end
+		if settings.config.RemindMeLater ~= nil then
+			Main.Version.remindMe = settings.config.RemindMeLater
+		end
+		if settings.config.LatestAvailableVersion ~= nil then
+			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
+		end
+		if settings.config.DateLastChecked ~= nil then
+			Main.Version.dateChecked = settings.config.DateLastChecked
 		end
 
 		for configKey, _ in pairs(Options.FILES) do
@@ -404,6 +557,9 @@ function Main.SaveSettings(forced)
 
 	-- [CONFIG]
 	settings.config.FIRST_RUN = Options.FIRST_RUN
+	settings.config.RemindMeLater = Main.Version.remindMe
+	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
+	settings.config.DateLastChecked = Main.Version.dateChecked
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")

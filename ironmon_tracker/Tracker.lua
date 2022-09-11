@@ -1,5 +1,6 @@
 Tracker = {}
 Tracker.Data = {}
+Tracker.DataMessage = ""
 
 -- When Tracker data changes between versions, this will force new data into the tracker
 -- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
@@ -15,7 +16,8 @@ function Tracker.initialize()
 		Tracker.loadData(filepath)
 	else
 		Tracker.resetData()
-		print("Initializing new Tracker data for this game (auto-save option is disabled).")
+		Tracker.DataMessage = "Initializing new Tracker data for this game (auto-save is disabled)"
+		print(Tracker.DataMessage)
 	end
 end
 
@@ -77,21 +79,30 @@ function Tracker.getPokemon(slotNumber, isOwn)
 			until not isEggPokemon or nextSlot == slotNumber
 		end
 		return Tracker.Data.ownPokemon[personality]
-	else
-		return Tracker.Data.otherPokemon[personality]
+	elseif Battle.isGhost then
+		-- Return Ghost dummy instead of showing the hidden mon's data, but keep the level
+		local retPokemon = Tracker.getGhostPokemon()
+		retPokemon.level = Tracker.Data.otherPokemon[personality].level
+		return retPokemon
 	end
+	return Tracker.Data.otherPokemon[personality]
 end
 
 function Tracker.getViewedPokemon()
+	if not Program.isInValidMapLocation() then return nil end
+
+	local viewSlot
 	if Tracker.Data.isViewingOwn then
-		return Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
-		return Tracker.getPokemon(Tracker.Data.otherViewSlot, false)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
+
+	return Tracker.getPokemon(viewSlot, Tracker.Data.isViewingOwn)
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if pokemonID == nil or pokemonID == 0 then return {} end -- Don't store tracked data for a non-existent pokemon data
+	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
 
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
@@ -225,9 +236,9 @@ end
 function Tracker.TrackHiddenPowerType(moveType)
 	if moveType == nil then return end
 
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
-	if viewedPokemon.personality ~= 0 then
+	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
 		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
 	end
 end
@@ -319,12 +330,7 @@ function Tracker.getEncounters(pokemonID, isWild)
 	if trackedPokemon.encounters == nil then
 		return 0
 	elseif isWild then
-		if mapId ~= 0 and Tracker.Data.encounterTable[mapId] ~= nil then
-			-- The number of unique Pokemon encountered on this route
-			return #Tracker.Data.encounterTable[mapId]
-		else
-			return trackedPokemon.encounters.wild
-		end
+		return trackedPokemon.encounters.wild
 	else
 		return trackedPokemon.encounters.trainer
 	end
@@ -352,11 +358,10 @@ end
 
 -- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-	local viewedPokemon = Tracker.getPokemon(Tracker.Data.ownViewSlot, true)
-	local hiddenPowerType = Tracker.Data.hiddenPowers[viewedPokemon.personality]
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
-	if hiddenPowerType ~= nil then
-		return hiddenPowerType
+	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
+		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
 	else
 		return MoveData.HiddenPowerTypeList[1]
 	end
@@ -365,6 +370,13 @@ end
 function Tracker.getDefaultPokemon()
 	return {
 		pokemonID = 0,
+		name = Constants.BLANKLINE,
+		types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
+		abilities = { 0, 0 },
+		evolution = PokemonData.Evolutions.NONE,
+		bst = Constants.BLANKLINE,
+		movelvls = { {}, {} },
+		weight = 0.0,
 		personality = 0,
 		friendship = 0,
 		heldItem = 0,
@@ -383,6 +395,14 @@ function Tracker.getDefaultPokemon()
 			{ id = 0, level = 1, pp = 0 },
 		},
 	}
+end
+
+function Tracker.getGhostPokemon()
+	local defaultPokemon = Tracker.getDefaultPokemon()
+	defaultPokemon.pokemonID = 413
+	defaultPokemon.name = "Ghost"
+	defaultPokemon.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
+	return defaultPokemon
 end
 
 function Tracker.resetData()
@@ -450,11 +470,14 @@ function Tracker.loadData(filepath)
 				Tracker.Data[k] = v
 			end
 		end
-		local fileNameIndex = string.match(filepath, "^.*()\\")
+		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+		local fileNameIndex = string.match(filepath, slashpattern)
 		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
 
-		print("Tracker data loaded from file: " .. filename)
+		Tracker.DataMessage = "Tracker data loaded from file: " .. filename
 	else
-		print("No Tracker data found for this ROM. Initializing new data.")
+		Tracker.DataMessage = "No Tracker data found for this ROM, initializing new data file"
 	end
+
+	print(Tracker.DataMessage)
 end

@@ -5,6 +5,7 @@ Theme = {
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
 		["Default text"] = 0xFFFFFFFF,
+		["Lower box text"] = 0xFFFFFFFF,
 		["Positive text"] = 0xFF00FF00,
 		["Negative text"] = 0xFFFF0000,
 		["Intermediate text"] = 0xFFFFFF00,
@@ -20,8 +21,8 @@ Theme = {
 }
 
 Theme.PresetStrings = {
-	-- [Default] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Background] [L.Border] [L.Background] [Main Background] [0/1: movetypes?]
-	["Default Theme"] = "FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+	-- [Default] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background] [0/1: movetypes?]
+	["Default Theme"] = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
 }
 Theme.PresetsOrdered = {
 	"Default Theme",
@@ -29,7 +30,7 @@ Theme.PresetsOrdered = {
 
 Theme.Screen = {
 	headerText = "Customize Theme",
-	textColor = "Default text",
+	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }
@@ -73,6 +74,7 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
+			TrackerScreen.getNextMoveLevelHighlight(false) -- Update the next move level highlight color
 			Main.SaveSettings()
 			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
@@ -80,7 +82,7 @@ Theme.Buttons = {
 }
 
 function Theme.initialize()
-	local startY = Constants.SCREEN.MARGIN + 16
+	local startY = Constants.SCREEN.MARGIN + 13
 
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		Theme.Buttons[colorkey] = {
@@ -96,13 +98,13 @@ function Theme.initialize()
 	end
 
 	for _, button in pairs(Theme.Buttons) do
-		button.textColor = "Default text"
-		button.boxColors = { "Lower box border", "Lower box background" }
+		button.textColor = Theme.Screen.textColor
+		button.boxColors = { Theme.Screen.borderColor, Theme.Screen.boxFillColor }
 	end
 
 	-- Adjust the extra options positions based on the verical space left
-	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY + 4
-	Theme.Buttons.MoveTypeEnabled.box[2] = startY + 4
+	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY
+	Theme.Buttons.MoveTypeEnabled.box[2] = startY
 
 	Theme.loadPresets(Main.ThemePresetsFile)
 end
@@ -110,8 +112,7 @@ end
 function Theme.loadPresets(filename)
 	if not Main.FileExists(filename) then return end
 
-	local index = 1 -- If theme name is missing, use this to make a unique one "Untitled #"
-	for line in io.lines(filename) do
+	for index, line in ipairs(Utils.readLinesFromFile(filename)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeString = line:sub(firstHexIndex)
@@ -124,7 +125,6 @@ function Theme.loadPresets(filename)
 
 			Theme.PresetStrings[themeName] = themeString
 			table.insert(Theme.PresetsOrdered, themeName)
-			index = index + 1
 		end
 	end
 end
@@ -132,10 +132,19 @@ end
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
 function Theme.importThemeFromText(theme_config)
-	-- A valid string has at minimum (7 x 10) hex codes (w/ spaces) and a single bit for move types
-	if theme_config == nil then
+	if theme_config == nil or theme_config == "" then
 		return false
-	elseif string.len(theme_config) < 71 then
+	end
+
+	-- If the theme config string is old, duplicate the 'Default text' color hex code as 'Lower box text'
+	if Theme.isOldThemeString(theme_config) then
+		local firstHexCode = theme_config:sub(1, 7) -- includes the trailing space
+		theme_config = firstHexCode .. theme_config
+	end
+
+	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a single bit for move types
+	local totalHexCodes = 11
+	if string.len(theme_config) < (totalHexCodes * 7 + 1) then
 		return false
 	end
 
@@ -143,9 +152,9 @@ function Theme.importThemeFromText(theme_config)
 	local numHexCodes = 0
 	local theme_colors = {}
 	for color_text in string.gmatch(theme_config, "[^%s]+") do
-		if string.len(color_text) == 6 then
+		if color_text ~= nil and string.len(color_text) == 6 then
 			local color = tonumber(color_text, 16)
-			if color < 0x000000 or color > 0xFFFFFF then
+			if color == nil or color < 0x000000 or color > 0xFFFFFF then
 				return false
 			end
 
@@ -173,6 +182,23 @@ function Theme.importThemeFromText(theme_config)
 	return true
 end
 
+-- A simple way to check if user imports an old theme config string
+function Theme.isOldThemeString(theme_config)
+	if theme_config == nil or theme_config == "" then return false end
+
+	local oldHexCountGBA = 10 -- version 0.6.2 and below
+	local oldHexCountNDS = 13 -- version 0.3.31 and below
+
+	local numHexCodes = 0
+	for hexCode in string.gmatch(theme_config, "[0-9a-fA-F]+") do
+		if #hexCode > 1 then
+			numHexCodes = numHexCodes + 1
+		end
+	end
+
+	return numHexCodes == oldHexCountGBA or numHexCodes == oldHexCountNDS
+end
+
 -- Exports the theme options that can be customized into a string that can be shared and imported
 function Theme.exportThemeToText()
 	-- Build base theme config string
@@ -196,12 +222,12 @@ end
 
 function Theme.openImportWindow()
 	Program.destroyActiveForm()
-	local form = forms.newform(465, 125, "Theme Import", function() client.unpause() end)
+	local form = forms.newform(515, 125, "Theme Import", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
 	forms.label(form, "Enter a theme configuration string to import (Ctrl+V to paste):", 9, 10, 300, 20)
-	local importTextBox = forms.textbox(form, "", 430, 20, nil, 10, 30)
+	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
 	forms.button(form, "Import", function()
 		local formInput = forms.gettext(importTextBox)
 		if formInput ~= nil then
@@ -209,25 +235,25 @@ function Theme.openImportWindow()
 			if not Theme.importThemeFromText(formInput) then
 				print("Error importing Theme Config string:")
 				print(">> " .. formInput)
-				Main.DisplayError("The config string you entered is invalid.\n\nPlease enter a valid config string.")
+				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
 			end
 		end
 		forms.destroy(form)
-	end, 187, 55)
+	end, 212, 55)
 end
 
 function Theme.openExportWindow()
 	Program.destroyActiveForm()
-	local form = forms.newform(465, 125, "Theme Export", function() client.unpause() end)
+	local form = forms.newform(515, 125, "Theme Export", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
 	local theme_config = Theme.exportThemeToText()
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
-	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
+	forms.textbox(form, theme_config, 480, 20, nil, 10, 30)
 	forms.button(form, "Close", function()
 		forms.destroy(form)
-	end, 187, 55)
+	end, 212, 55)
 end
 
 function Theme.openPresetsWindow()
@@ -256,15 +282,16 @@ function Theme.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[Theme.Screen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 32, Constants.SCREEN.MARGIN - 2, Theme.Screen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw Theme screen view box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-
-	-- Draw header text
-	Drawing.drawText(topboxX + 32, topboxY + 2, Theme.Screen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do

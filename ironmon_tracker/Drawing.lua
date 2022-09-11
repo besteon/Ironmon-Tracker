@@ -30,20 +30,14 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height)
 end
 
 function Drawing.drawPokemonIcon(pokemonID, x, y)
-	if not PokemonData.isValid(pokemonID) then
+	if not PokemonData.isImageIDValid(pokemonID) then
 		pokemonID = 0 -- Blank Pokemon data/icon
 	end
 
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
 
-	if iconset.name == "Stadium" then
-		y = y + 4
-	elseif iconset.name == "Gen 7+" then
-		y = y + 2
-	end
-
-	gui.drawImage(imagepath, x, y, 32, 32)
+	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -211,12 +205,8 @@ function Drawing.drawButton(button, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
-			if Options.IconSetMap[Options["Pokemon icon set"]].name == "Stadium" then
-				y = y + 4
-			elseif Options.IconSetMap[Options["Pokemon icon set"]].name == "Gen 7+" then
-				y = y + 2
-			end
-			gui.drawImage(imagePath, x, y, width, height)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			gui.drawImage(imagePath, x, y + iconset.yOffset, width, height)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
@@ -234,7 +224,7 @@ function Drawing.drawScreen(screenFunc)
 	end
 end
 
-function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
+function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor, negativecolor)
 	for rowIndex = 1, #imageArray, 1 do
 		for colIndex = 1, #(imageArray[1]) do
 			if imageArray[rowIndex][colIndex] ~= 0 then
@@ -245,6 +235,8 @@ function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor)
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
 				gui.drawPixel(x + offsetX, y + offsetY, color)
+			elseif negativecolor ~= nil then
+				gui.drawPixel(x + colIndex - 1, y + rowIndex - 1, negativecolor)
 			end
 		end
 	end
@@ -284,7 +276,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
-	
+
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 		local pokemonData = PokemonData.Pokemon[pokemonID]
 		if pokemonData ~= nil then
