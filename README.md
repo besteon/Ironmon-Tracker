@@ -37,9 +37,9 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Ability Info Look-up, and Quick-Load Reset can now automatically randomize a ROM for you!**
+- **_NEW!!_ Startup Screen!**
 
-![image](https://user-images.githubusercontent.com/4258818/186506615-bfa9da6a-deaf-46b1-83e5-0667995b610e.png)
+![image](https://user-images.githubusercontent.com/4258818/189439270-c4401893-bf58-4ecd-a4eb-3f5e18798613.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

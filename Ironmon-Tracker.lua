@@ -15,6 +15,7 @@ function Main.Initialize()
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.dateChecked = ""
 
+	Main.OS = "Windows" -- required if user doesn't restart during a First Run
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
 	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
