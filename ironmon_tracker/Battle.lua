@@ -259,7 +259,9 @@ function Battle.updateTrackedInfo()
 	end
 
 	--TODO: 
-	Battle.checkAbilitiesToTrack()
+	local indexToTrack = Battle.checkAbilitiesToTrack()
+	print(indexToTrack)
+
 	--Battle.
 
 	-- Always track your own Pokemons' abilities' once you decide to use it
@@ -281,7 +283,7 @@ function Battle.updateTrackedInfo()
 	end
 
 	-- Check if an ability went off
-	--local indexToTrack = Battle.checkAbilityUsed(opposingAbilityId, ownersAbilityId)
+	--Battle.checkAbilityUsed(opposingAbilityId, ownersAbilityId)
 	--Tracker.TrackAbility(opposingPokemon.pokemonID, opposingAbilityId)
 
 	--Don't track anything for Ghosts
@@ -411,15 +413,19 @@ function Battle.checkAbilitiesToTrack()
 
 	]]
 
-	local attackerAbility = BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[attacker]]]
-	local battlerAbility = BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[battler]]]
-	local battleTargetAbility = BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[battlerTarget]]]
+	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[attacker]]]
+	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[battler]]]
+	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[battlerTarget]]]
 
 	-- TODO: Need special handling for levitate
 	local abilityMsg
 	
 	-- BATTLER: 'battler' had their ability triggered
 	-- TODO: handle trace elsewhere. Synchronize?
+	print ("Attacker: " .. attacker .. "; Ability: " .. attackerAbility)
+	print ("Battler: " .. battler .. "; Ability: " .. battlerAbility)
+	print ("Target: " .. battlerTarget .. "; Ability: " .. battleTargetAbility)
+	print ("Message: " .. Battle.battleMsg)
 	abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battlerAbility] and not (battlerAbility == 28 or battlerAbility == 36) then
 		return Battle.battler
@@ -443,6 +449,9 @@ function Battle.checkAbilitiesToTrack()
 		return Battle.attacker
 	end
 
+	-- TODO
+	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
+
 	-- TODO put BATTLE_TARGET section in for loop; Damp loops through positions 0-3 to find the first Damp mon
 	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
 	if abilityMsg ~= nil then
@@ -454,14 +463,13 @@ function Battle.checkAbilitiesToTrack()
 		end
 	end
 
-	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
-
-
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
-
 	for i = 0, Battle.numBattlers, 1 do
-		if levitateCheck == 4 and Battle.attacker ~= i then end
+		if levitateCheck == 4 and Battle.attacker ~= i then
+		end
 	end
+
+	return -1
 end
 
 -- Checks if ability should be auto-tracked. Returns true if so; false otherwise
