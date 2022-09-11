@@ -30,7 +30,7 @@ Theme.PresetsOrdered = {
 
 Theme.Screen = {
 	headerText = "Customize Theme",
-	textColor = "Default text",
+	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }
@@ -98,8 +98,8 @@ function Theme.initialize()
 	end
 
 	for _, button in pairs(Theme.Buttons) do
-		button.textColor = "Default text"
-		button.boxColors = { "Lower box border", "Lower box background" }
+		button.textColor = Theme.Screen.textColor
+		button.boxColors = { Theme.Screen.borderColor, Theme.Screen.boxFillColor }
 	end
 
 	-- Adjust the extra options positions based on the verical space left
@@ -222,12 +222,12 @@ end
 
 function Theme.openImportWindow()
 	Program.destroyActiveForm()
-	local form = forms.newform(465, 125, "Theme Import", function() client.unpause() end)
+	local form = forms.newform(515, 125, "Theme Import", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
 	forms.label(form, "Enter a theme configuration string to import (Ctrl+V to paste):", 9, 10, 300, 20)
-	local importTextBox = forms.textbox(form, "", 430, 20, nil, 10, 30)
+	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
 	forms.button(form, "Import", function()
 		local formInput = forms.gettext(importTextBox)
 		if formInput ~= nil then
@@ -235,25 +235,25 @@ function Theme.openImportWindow()
 			if not Theme.importThemeFromText(formInput) then
 				print("Error importing Theme Config string:")
 				print(">> " .. formInput)
-				Main.DisplayError("The config string you entered is invalid.\n\nPlease enter a valid config string.")
+				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
 			end
 		end
 		forms.destroy(form)
-	end, 187, 55)
+	end, 212, 55)
 end
 
 function Theme.openExportWindow()
 	Program.destroyActiveForm()
-	local form = forms.newform(465, 125, "Theme Export", function() client.unpause() end)
+	local form = forms.newform(515, 125, "Theme Export", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
 	local theme_config = Theme.exportThemeToText()
 	forms.label(form, "Copy the theme configuration string below (Ctrl + A --> Ctrl+C):", 9, 10, 300, 20)
-	forms.textbox(form, theme_config, 430, 20, nil, 10, 30)
+	forms.textbox(form, theme_config, 480, 20, nil, 10, 30)
 	forms.button(form, "Close", function()
 		forms.destroy(form)
-	end, 187, 55)
+	end, 212, 55)
 end
 
 function Theme.openPresetsWindow()

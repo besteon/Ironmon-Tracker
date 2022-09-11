@@ -1,6 +1,6 @@
 GameOptionsScreen = {
 	headerText = "Gameplay Options",
-	textColor = "Default text",
+	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }

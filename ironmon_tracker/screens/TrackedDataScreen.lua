@@ -1,6 +1,6 @@
  TrackedDataScreen = {
 	headerText = "Manage Tracked Data",
-	textColor = "Default text",
+	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }
@@ -41,7 +41,7 @@ TrackedDataScreen.Buttons = {
 		onClick = function(self)
 			-- Revert the Clear Data button
 			TrackedDataScreen.Buttons.ClearData.text = " * Clear Data *"
-			TrackedDataScreen.Buttons.ClearData.textColor = "Default text"
+			TrackedDataScreen.Buttons.ClearData.textColor = TrackedDataScreen.textColor
 			TrackedDataScreen.Buttons.ClearData.confirmReset = false
 
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
