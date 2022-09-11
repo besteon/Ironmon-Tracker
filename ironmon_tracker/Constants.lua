@@ -116,6 +116,7 @@ Constants.OrderedLists = {
 	},
 	THEMECOLORS = {
 		"Default text",
+		"Lower box text",
 		"Positive text",
 		"Negative text",
 		"Intermediate text",
