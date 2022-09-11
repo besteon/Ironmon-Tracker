@@ -13,6 +13,7 @@ function Main.Initialize()
 	Main.TrackerVersion = Main.Version.major .. "." .. Main.Version.minor .. "." .. Main.Version.patch
 	Main.Version.notified = false
 	Main.Version.latest = Main.TrackerVersion
+	Main.Version.daychecked = -1
 
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
 	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
@@ -83,22 +84,23 @@ function Main.Initialize()
 		firstRunErrMsg = firstRunErrMsg .. "\n\nOtherwise, be sure to overwrite your old Tracker files for new releases."
 		print(firstRunErrMsg)
 		Main.DisplayError(firstRunErrMsg)
-		--return false -- Let the program keep running, it may/not still crash at io.popen, but at least the user knows why and how to fix
+		--return false -- Let the program keep running
 	else
+		-- Working directory, used for absolute paths
+		local function exeCD() return io.popen("cd") end
+		local success, ret, err = xpcall(exeCD, debug.traceback)
+		if success then
+			Main.OS = "Windows"
+			Main.Directory = ret:read()
+		else
+			Main.OS = "Linux"
+			Main.Directory = nil -- will return "" from Utils function
+			print(err)
+		end
 		Main.CheckForVersionUpdate()
 	end
 
-	-- Working directory, used for absolute paths
-	local function exeCD() return io.popen("cd") end
-	local success, ret, err = xpcall(exeCD, debug.traceback)
-	if success then
-		Main.OS = "Windows"
-		Main.Directory = ret:read()
-	else
-		Main.OS = "Linux"
-		Main.Directory = nil -- will return "" from Utils function
-		print(err)
-	end
+
 
 	print("Successfully loaded required tracker files")
 	return true
@@ -207,13 +209,26 @@ end
 -- Intentionally will only check against Major and Minor version updates,
 -- allowing patches to seamlessly update without bothering every end-user
 function Main.CheckForVersionUpdate()
+	if Main.OS ~= "Windows" then
+		return
+	end
+
 	local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
 	local output = pipe:read("*all") or ""
 	local _, _, major, minor, patch = string.match(output, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
 
+	local dayOfMonth = os.date("%d")
 	local latestVersion = major .. "." .. minor .. "." .. patch
 	local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
-	local shouldNotify = not Main.Version.notified or Main.Version.latest ~= latestVersion
+
+	-- Only notify about updates once per day
+	local shouldNotify
+	if dayOfMonth == Main.Version.daychecked then
+		shouldNotify = false
+	else
+		Main.Version.daychecked = dayOfMonth
+		shouldNotify = not Main.Version.notified or Main.Version.latest ~= latestVersion
+	end
 
 	-- Determine if a major version update is available and notify the user accordingly
 	if newVersionAvailable and shouldNotify then
@@ -226,8 +241,9 @@ function Main.CheckForVersionUpdate()
 		Main.Version.latest = latestVersion
 		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latest)
 		print(Constants.Release.DOWNLOAD_URL)
-		Main.SaveSettings(true)
 	end
+
+	Main.SaveSettings(true)
 end
 
 function Main.NotifyUpdatePopUp(latestVersion)
@@ -463,6 +479,9 @@ function Main.LoadSettings()
 		if settings.config.LatestAvailableVersion ~= nil then
 			Main.Version.latest = settings.config.LatestAvailableVersion
 		end
+		if settings.config.CheckedUpdateDay ~= nil then
+			Main.Version.daychecked = settings.config.CheckedUpdateDay
+		end
 
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
@@ -530,6 +549,7 @@ function Main.SaveSettings(forced)
 	settings.config.FIRST_RUN = Options.FIRST_RUN
 	settings.config.HasBeenNotified = Main.Version.notified
 	settings.config.LatestAvailableVersion = Main.Version.latest
+	settings.config.CheckedUpdateDay = Main.Version.daychecked
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
