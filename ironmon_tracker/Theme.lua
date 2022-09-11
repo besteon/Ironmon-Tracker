@@ -82,7 +82,7 @@ Theme.Buttons = {
 }
 
 function Theme.initialize()
-	local startY = Constants.SCREEN.MARGIN + 14
+	local startY = Constants.SCREEN.MARGIN + 13
 
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
 		Theme.Buttons[colorkey] = {
@@ -282,15 +282,16 @@ function Theme.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[Theme.Screen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 32, Constants.SCREEN.MARGIN - 2, Theme.Screen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw Theme screen view box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-
-	-- Draw header text
-	Drawing.drawText(topboxX + 32, topboxY + 2, Theme.Screen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do

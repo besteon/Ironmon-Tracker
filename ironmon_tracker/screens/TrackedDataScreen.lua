@@ -146,18 +146,19 @@ function TrackedDataScreen.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[TrackedDataScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 20, Constants.SCREEN.MARGIN - 2, TrackedDataScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[TrackedDataScreen.borderColor], Theme.COLORS[TrackedDataScreen.boxFillColor])
 
-	-- Draw header text
-	Drawing.drawText(topboxX + 20, topboxY + 2, TrackedDataScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
-
 	local offsetX = topboxX + 2
-	local offsetY = topboxY + 15
+	local offsetY = topboxY + 5
 
 	local wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.autosave, 35)
 	for _, line in pairs(wrappedSummary) do
@@ -171,6 +172,10 @@ function TrackedDataScreen.drawScreen()
 	end
 
 	offsetY = offsetY + 22
+
+	-- Draw small divider line
+	local dividerLine = Constants.BLANKLINE .. "" .. Constants.BLANKLINE .. "" .. Constants.BLANKLINE
+	Drawing.drawText(offsetX + Utils.centerTextOffset(dividerLine) + 3, offsetY - 10, dividerLine, Theme.COLORS[TrackedDataScreen.textColor], shadowcolor)
 
 	wrappedSummary = Utils.getWordWrapLines(TrackedDataScreen.Descriptions.manualsave, 32)
 	for _, line in pairs(wrappedSummary) do
