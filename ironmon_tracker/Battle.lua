@@ -218,23 +218,15 @@ function Battle.updateTrackedInfo()
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
-
-	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
 	-- Get the relevant pokemon associated with the current flags.
-	local attackingPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.attacker]], Utils.inlineIf(Battle.attacker % 2 == 0,true, false))
-	local battlingPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.battler]], Utils.inlineIf(Battle.battler % 2 == 0,true, false))
-	local targetedPokemon = Tracker.getPokemon(Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]], Utils.inlineIf(Battle.battlerTarget % 2 == 0,true, false))
 
-	if attackingPokemon == nil or attackingPokemon == nil or battlingPokemon == nil or battlingPokemon == nil or targetedPokemon == nil or targetedPokemon == nil then
-		-- unsure if this is ever true at this point
-		return
-	end
 	--TODO: replace placeholder addresses 
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	--local chosenPlayerMove = Memory.readword(GameSettings.gChosenMoveByBattler + ((Battle.numBattlers - 2) * 0x2))
 	local chosenPlayerMove = Memory.readword(0x02023dc4 + ((Battle.numBattlers - 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-
+	local moveUsed = Memory.readword(0x02023d4a) --gCurrentMove; check this instead of attacker since it can change
+	print ("Move: " .. moveUsed .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		--[[
@@ -249,6 +241,7 @@ function Battle.updateTrackedInfo()
 			local hitFlags = Memory.readdword(0x02023dd0)
 			if bit.band(moveFlags,0x00101001) == 0 -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 			and bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
+				--Battle.handleMoveUsed(opposingPokemon.pokemonID, move.id, opposingPokemon.level)
 				Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 			end
 			Battle.AbilityChangeData.turnCount = Battle.turnCount
@@ -256,6 +249,17 @@ function Battle.updateTrackedInfo()
 			Battle.AbilityChangeData.movesSeen = Battle.AbilityChangeData.movesSeen + 1
 		end
 	end
+--[[
+	if move.id == 264 and Battle.attacker % 2 == 1 and Battle.battleMsg ~= 0 and Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+		moveUsed = true
+	elseif move.pp < tonumber(MoveData.Moves[move.id].pp) then
+		moveUsed = true
+	end
+
+	if moveUsed then
+		Tracker.TrackMove(opposingPokemon.pokemonID, move.id, opposingPokemon.level)
+	end
+	]]
 
 	-- Always track your own Pokemons' abilities'
 
@@ -280,17 +284,18 @@ function Battle.updateTrackedInfo()
 			local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
 			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 		end
-		Battle.updateBattleMonDetails(opposingPokemon, false)
+		Battle.updateBattleMonDetails(otherLeftPokemon, false)
 		if numBattlers == 4 then
-			Battle.updateBattleMonDetails(opposingPokemon, false)
+			Battle.updateBattleMonDetails(otherRightPokemon, false)
 		end
 	end
 end
 
 function Battle.readBattleValues()
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
-	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
+	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
+	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr) % Battle.numBattlers
+	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) % Battle.numBattlers
+	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget) % Battle.numBattlers
 end
 
 function Battle.updateBattleMonDetails(pokemon, isOwn)
