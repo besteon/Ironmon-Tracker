@@ -282,8 +282,10 @@ function Battle.updateTrackedInfo()
 			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 		end
 		Battle.updateStatStages(otherLeftPokemon, false)
+		Battle.checkEnemyEncounter(otherLeftPokemon)
 		if numBattlers == 4 then
 			Battle.updateStatStages(otherRightPokemon, false)
+			Battle.checkEnemyEncounter(otherRightPokemon)
 		end
 	end
 end
