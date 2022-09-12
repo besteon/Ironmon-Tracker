@@ -262,13 +262,13 @@ function Battle.updateTrackedInfo()
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
-	Battle.updateBattleMonDetails(ownLeftPokemon, true)
+	Battle.updateStatStages(ownLeftPokemon, true)
 
 	if numBattlers == 4 then
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
 		local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 		Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
-		Battle.updateBattleMonDetails(ownRightPokemon, true)
+		Battle.updateStatStages(ownRightPokemon, true)
 	end
 	--Don't track anything for Ghost opponents
 	if not Battle.isGhost then
@@ -281,9 +281,9 @@ function Battle.updateTrackedInfo()
 			local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
 			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 		end
-		Battle.updateBattleMonDetails(otherLeftPokemon, false)
+		Battle.updateStatStages(otherLeftPokemon, false)
 		if numBattlers == 4 then
-			Battle.updateBattleMonDetails(otherRightPokemon, false)
+			Battle.updateStatStages(otherRightPokemon, false)
 		end
 	end
 end
@@ -295,7 +295,7 @@ function Battle.readBattleValues()
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget) % Battle.numBattlers
 end
 
-function Battle.updateBattleMonDetails(pokemon, isOwn)
+function Battle.updateStatStages(pokemon, isOwn)
 	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
 	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
 	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
@@ -316,9 +316,6 @@ function Battle.updateBattleMonDetails(pokemon, isOwn)
 		-- Unsure if this reset is necessary, or what the if condition is checking for
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
-
-	--Track "transformed" status
-	local transformed = Memory.readdword(startAddress + 0x18)
 end
 
 -- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
