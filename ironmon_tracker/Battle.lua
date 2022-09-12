@@ -218,30 +218,35 @@ function Battle.updateTrackedInfo()
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
-	-- Get the relevant pokemon associated with the current flags.
 
 	--TODO: replace placeholder addresses 
-	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	--local chosenPlayerMove = Memory.readword(GameSettings.gChosenMoveByBattler + ((Battle.numBattlers - 2) * 0x2))
-	local chosenPlayerMove = Memory.readword(0x02023dc4 + ((Battle.numBattlers - 2) * 0x2))
+	--Only start logging data when the battle turn starts playing out (all 4 pokemon have locked in decisions)
+
+	local actionCount = Memory.readbyte(0x02023be2)
+	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	local moveUsed = Memory.readword(0x02023d4a) --gCurrentMove; check this instead of attacker since it can change
-	print ("Move: " .. moveUsed .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg)
+	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		--[[
-				1) Move must be valid
-				2) Either the turn or the attacker must have changed since the last move
-				3) We must have chosen a move (ignores the start of new turn lull which has some of the previous turn's attacker/move data still loaded)
+				1) Attacker's move must be valid (also accounts for turn 1, before moves have been used)
+				2) Either the turn or the attacker must have changed since the last move (first move in battle always logged)
+				3) We must be somewhere in the turn order (bypass the before-moves lull on turns after the first turn, and the after-turns ability triggers)
 				4) Ignore Moves that Missed, Failed, had no effect, or never took place due to the move being wasted (Fully Paralyzed, Hurt in Confusion, Loafing, etc.)
+				5) Stop checking after 4 moves have been logged (safety net)
 		]]--
-		if (Battle.AbilityChangeData.turnCount ~= Battle.turnCount or Battle.AbilityChangeData.attacker ~= Battle.attacker)	and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and chosenPlayerMove ~= 0 then
+		if Battle.AbilityChangeData.turnCount ~= Battle.turnCount then
+			Battle.AbilityChangeData.movesSeen = 0
+		end
+		if (Battle.AbilityChangeData.turnCount ~= Battle.turnCount or Battle.AbilityChangeData.attacker ~= Battle.attacker)	and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and ((Battle.turnCount > 0 and actionCount < Battle.numBattlers) or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
 			local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
 			--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
 			local hitFlags = Memory.readdword(0x02023dd0)
 			if bit.band(moveFlags,0x00101001) == 0 -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 			and bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
 				--Battle.handleMoveUsed(opposingPokemon.pokemonID, move.id, opposingPokemon.level)
+				print ("Move used: " .. lastMoveByAttacker)
 				Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 			end
 			Battle.AbilityChangeData.turnCount = Battle.turnCount
@@ -280,6 +285,7 @@ function Battle.updateTrackedInfo()
 		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,true)
 		local indexToTrack = Battle.checkAbilitiesToTrack()
 		if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
+			print ("Tracking: " .. indexToTrack)
 			local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
 			local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
 			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
@@ -293,7 +299,7 @@ end
 
 function Battle.readBattleValues()
 	Battle.numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr) % Battle.numBattlers
+	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler) % Battle.numBattlers
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget) % Battle.numBattlers
 end
