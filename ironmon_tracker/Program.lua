@@ -19,6 +19,7 @@ Program.Screens = {
 	TRACKER = TrackerScreen.drawScreen,
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
+	STARTUP = StartupScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -38,7 +39,7 @@ Program.GameData = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.Screens.TRACKER
+	Program.currentScreen = Program.Screens.STARTUP
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -47,9 +48,9 @@ function Program.initialize()
 	end
 
 	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 1
-	Program.Frames.lowAccuracyUpdate = 1
-	Program.Frames.three_sec_update = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
 
 	PokemonData.readDataFromMemory()
@@ -113,12 +114,16 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
+
+			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+				Program.currentScreen = Program.Screens.TRACKER
+			end
 
 			-- Check if summary screen has being shown
 			if not Tracker.Data.hasCheckedSummary then
@@ -326,6 +331,10 @@ function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
+
+	--Save blocks move and are re-encrypted right as the battle starts 
+	if Battle.inBattle then return end
+
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
@@ -351,6 +360,11 @@ function Program.updatePCHeals()
 end
 
 function Program.updateBadgesObtained()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isInValidMapLocation() then
+		return
+	end
+
 	local badgeBits = nil
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
