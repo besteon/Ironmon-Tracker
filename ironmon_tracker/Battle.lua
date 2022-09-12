@@ -579,7 +579,6 @@ function Battle.beginNewBattle()
 				["originalAbility"] = ability,
 				["ability"] = ability,
 				transformData = {
-					isNew = false,
 					isOwn = true,
 					slot = i,
 				},
@@ -596,7 +595,6 @@ function Battle.beginNewBattle()
 				["originalAbility"] = ability,
 				["ability"] = ability,
 				transformData = {
-					isNew = false,
 					isOwn = false,
 					slot = i,
 				},
@@ -726,7 +724,6 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			if moveUsed == 144 then
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.isOwn
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.slot
-				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.isNew = true
 			end
 		end
 	elseif ability ~= nil and ability ~=0 then
@@ -754,7 +751,6 @@ function Battle.resetAbilityMapPokemon(slot, isOwn)
 
 	Battle.BattleAbilities[teamIndex][slot].transformData.isOwn = isOwn
 	Battle.BattleAbilities[teamIndex][slot].transformData.slot = slot
-	Battle.BattleAbilities[teamIndex][slot].transformData.isNew = false
 end
 
 function Battle.handleTransformedMons()
