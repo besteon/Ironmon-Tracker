@@ -145,19 +145,15 @@ function Battle.updateViewSlots()
 	--Track if ally pokemon changes, to reset transform and ability changes
 	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
-		Battle.isTransformed.LeftOwn = false
 	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
-		Battle.isTransformed.RightOwn = false
 	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
-		Battle.isTransformed.LeftOther = false
 		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
-		Battle.isTransformed.RightOther = false
 		Battle.changeOpposingPokemonView(false)
 	end
 end
@@ -253,7 +249,7 @@ function Battle.updateTrackedInfo()
 				local isTransformed = transformData.slot ~= attackerSlot or transformData.isOwn ~= (Battle.attacker % 2 == 0)
 				--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
 				if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
-					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker.id, attackingMon.level)
+					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 				end
 			end
 			Battle.AbilityChangeData.attacker = Battle.attacker
