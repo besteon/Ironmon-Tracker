@@ -264,7 +264,7 @@ function Battle.updateTrackedInfo()
 	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
 	Battle.updateStatStages(ownLeftPokemon, true)
 
-	if numBattlers == 4 then
+	if Battle.numBattlers == 4 then
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
 		local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 		Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
@@ -272,8 +272,8 @@ function Battle.updateTrackedInfo()
 	end
 	--Don't track anything for Ghost opponents
 	if not Battle.isGhost then
-		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,true)
-		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,true)
+		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
+		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 		local indexToTrack = Battle.checkAbilitiesToTrack()
 		if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
 			print ("Tracking: " .. indexToTrack)
@@ -283,7 +283,7 @@ function Battle.updateTrackedInfo()
 		end
 		Battle.updateStatStages(otherLeftPokemon, false)
 		Battle.checkEnemyEncounter(otherLeftPokemon)
-		if numBattlers == 4 then
+		if Battle.numBattlers == 4 then
 			Battle.updateStatStages(otherRightPokemon, false)
 			Battle.checkEnemyEncounter(otherRightPokemon)
 		end
