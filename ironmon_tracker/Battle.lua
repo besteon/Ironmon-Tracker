@@ -28,7 +28,6 @@ Battle = {
 	},
 	AbilityChangeData = {
 		actionCount = -1,
-		movesSeen = 0
 	},
 	-- "Low accuracy" values
 	CurrentRoute = {
@@ -232,32 +231,39 @@ function Battle.updateTrackedInfo()
 				3) We must be somewhere in the turn order (bypass the before-moves lull on turns after the first turn, and the after-turns ability triggers)
 				4) Ignore Moves that Missed, Failed, had no effect, or never took place due to the move being wasted (Fully Paralyzed, Hurt in Confusion, Loafing, etc.)
 				5) Stop checking after 4 moves have been logged (safety net)
+
+				1) Only log moves while the current Action is 
 		]]--
 
-		if Battle.AbilityChangeData.actionCount ~= actionCount and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and ((Battle.turnCount > 0 and actionCount < Battle.numBattlers) or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
-			local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
-			--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
-			local hitFlags = Memory.readdword(0x02023dd0)
-			--Do nothing if attacker was unable to use move
-			if bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
-				--Only track ability-changing moves if they did not fail/miss
-				if bit.band(moveFlags,0x00101001) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-					Battle.trackAbilityChanges(lastMoveByAttacker,nil)
-				end
+		-- Check if we are on a new action (Range 0 to numBattlers - 1; actions are running, switching, using items, using a move [fainting?])
+		if actionCount < Battle.numBattlers  and (Battle.turnCount > 0 or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
+			print ("Action: " .. actionCount)
+			--Only log the action if it was a move
+			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves then
+				local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
+				--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
+				local hitFlags = Memory.readdword(0x02023dd0)
+				--Do nothing if attacker was unable to use move
+				if bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
+					--Only track ability-changing moves if they did not fail/miss
+					if bit.band(moveFlags,0x00101001) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
+					end
 
-				local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
-				local isTransformed = transformData.slot ~= attackerSlot or transformData.isOwn ~= (Battle.attacker % 2 == 0)
-				--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
-				if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
-					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
+					local isTransformed = transformData.slot ~= attackerSlot or transformData.isOwn ~= (Battle.attacker % 2 == 0)
+					--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
+					if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
+						print ("Tracking Move: " .. lastMoveByAttacker)
+						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+					end
 				end
 			end
 			Battle.AbilityChangeData.actionCount = actionCount
-			Battle.AbilityChangeData.movesSeen = Battle.AbilityChangeData.movesSeen + 1
 		end
 	end
 
-	-- Always track your own Pokemons' abilities'
+	-- Always track your own Pokemons' abilities
 
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
@@ -276,9 +282,9 @@ function Battle.updateTrackedInfo()
 		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 		local indexToTrack = Battle.checkAbilitiesToTrack()
 		if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
-			print ("Tracking: " .. indexToTrack)
 			local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
 			local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
+			print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
 			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 		end
 		Battle.updateStatStages(otherLeftPokemon, false)
@@ -579,8 +585,7 @@ end
 
 function Battle.handleNewTurn()
 	--Reset counters
-	Battle.AbilityChangeData.actionCount = Battle.numBattlers
-	Battle.AbilityChangeData.movesSeen = 0
+	Battle.AbilityChangeData.actionCount = 4
 
 	Battle.isNewTurn = false
 end
