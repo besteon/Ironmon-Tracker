@@ -362,33 +362,29 @@ function Battle.checkEnemyEncounter(opposingPokemon)
 end
 
 function Battle.checkAbilitiesToTrack()
-	--[[
-		TODO
-		- do not receive an "enemy" and an "allied" ability. Instead perform checks on either the Battle mon values or by checking all 2/4 battlers
-			i) Use the attacker/battler/battleTarget values
-				- gBattleScripting.battler
-					- Trace
-					- Levitate
-				- AOTB
-					- GameSettings.ABILITIES.STATUS_INFLICT
-			ii) ???
-				- Levitate
-		- return the relevant battleIndex of the mon whose ability should be tracked
 
-	]]
+	-- Track previous ability activation for handling Synchronize
+	if Battle.Synchronize.turnCount < Battle.turnCount then
+		Battle.Synchronize.turnCount = Battle.turnCount
+		Battle.Synchronize.battler = -1
+		Battle.Synchronize.attacker = -1
+		Battle.Synchronize.battlerTarget = -1
+	end
 
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
 
-	-- TODO: Need special handling for levitate
-	local abilityMsg
-	
-	-- BATTLER: 'battler' had their ability triggered
-	-- TODO: handle trace elsewhere. Synchronize?
+	-- TODO: Re-test all abilities
 
+	-- BATTLER: 'battler' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[battlerAbility] and not (battlerAbility == 28 or battlerAbility == 36) then
+	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
+		-- Track a Traced pokemon's ability
+		if battlerAbility == 36 then
+			Battle.trackAbilityChanges(nil,36)
+			return Battle.battleTarget
+		end
 		return Battle.battler
 	end
 
@@ -410,10 +406,20 @@ function Battle.checkAbilitiesToTrack()
 		return Battle.attacker
 	end
 
-	-- TODO
 	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
+	if abilityMsg ~= nil then
+		-- Log allied pokemon contact status ability trigger for Synchronize
+		if abilityMsg[battlerAbility] and ((Battle.battler == Battler.battleTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
+			return Battle.battler
+		end
+		if abilityMsg[battleTargetAbility] then
+			Battle.Synchronize.turnCount = Battle.turnCount
+			Battle.Synchronize.battler = Battle.battler
+			Battle.Synchronize.attacker = Battle.attacker
+			Battle.Synchronize.battlerTarget = Battle.battlerTarget
+		end
+	end
 
-	-- TODO put BATTLE_TARGET section in for loop; Damp loops through positions 0-3 to find the first Damp mon
 	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
@@ -424,118 +430,21 @@ function Battle.checkAbilitiesToTrack()
 		end
 	end
 
+	-- TODO: check that this logs levitate only as a mon is avoiding levitate damage in multi-battles
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers, 1 do
 		if levitateCheck == 4 and Battle.attacker ~= i then
 			return Battle.battlerTarget
+		--check for first Damp mon
+		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
+			local monAbility = Battle.BattleAbilities[i%2][Battle.Combatants[Battle.IndexMap[i]]].ability
+			if abilityMsg[monAbility] then
+				return i
+			end
 		end
 	end
 
 	return -1
-end
-
--- Checks if ability should be auto-tracked. Returns true if so; false otherwise
---WANRING: deprecated soonTM
-function Battle.checkAbilityUsed()
-	
-	if Battle.Synchronize.turnCount < Battle.turnCount then
-		Battle.Synchronize.turnCount = Battle.turnCount
-		Battle.Synchronize.battler = -1
-		Battle.Synchronize.attacker = -1
-		Battle.Synchronize.battlerTarget = -1
-	end
-
-	--Levitate doesn't get a message, so it gets checked independently
-	if enemyAbility == 26 and Battle.attacker % 2 == 0 then
-		local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
-		if levitateCheck == 4 then
-		-- Requires checking gBattleCommunication for the B_MSG_GROUND_MISS flag (4)
-			return true
-		end
-	end
-
-	-- Abilities to check via battler read
-	local battlerMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
-
-	if battlerMsg ~= nil then
-		if battlerMsg[playerAbility] and playerAbility == 36 and Battle.battler % 2 == 0 then -- 36 = Trace
-			-- Track the enemy's ability if the player's Pokemon uses its Trace ability; Update the 
-			Battle.trackAbilityChanges(nil,36)
-			return true
-		elseif battlerMsg[enemyAbility] then
-			if enemyAbility == 28 then -- 28 = Synchronize
-				-- Enemy is using Synchronize on the player, battler is set to status target instead
-				if Battle.battler % 2 == 0 then return true end
-			elseif Battle.battler % 2 == 1 then
-				-- Enemy is the one that used the ability
-				return true
-			end
-		end
-	end
-
-	-- Abilities to check for when ally is the battler
-	local reverseBattlerMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
-
-	if reverseBattlerMsg ~= nil then
-		if reverseBattlerMsg[enemyAbility] and Battle.battler % 2 == 0 then
-			return true
-		end
-	end
-
-	-- Abilities to check via attacker read
-	local attackerMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
-	local reverseAttackerMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
-
-	if attackerMsg ~= nil and attackerMsg[enemyAbility] and Battle.attacker % 2 == 0 then
-		if Battle.battlerTarget % 2 == 1 then
-			-- Otherwise, player activated enemy's ability
-			return true
-		end
-	end
-	if reverseAttackerMsg ~= nil and reverseAttackerMsg[enemyAbility] and Battle.attacker % 2 == 1 then
-		--Owner of the ability is logged as the attacker
-		return true
-	end
-
-	-- Contact-based status-inflicting abilities
-	local statusInflictMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
-
-	if statusInflictMsg ~= nil then
-		-- Log allied pokemon contact status ability trigger for Synchronize
-		if statusInflictMsg[enemyAbility] then
-			if Battle.battler % 2 == 1 then
-				if (Battle.battlerTarget % 2 == 1 and Battle.attacker % 2 == 0) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler) then
-					-- Player activated enemy's contact-based status ability
-					return true
-				end
-			end
-		end
-		if statusInflictMsg[playerAbility] and Battle.attacker % 2 == 1 then
-			Battle.Synchronize.turnCount = Battle.turnCount
-			Battle.Synchronize.battler = Battle.battler
-			Battle.Synchronize.attacker = Battle.attacker
-			Battle.Synchronize.battlerTarget = Battle.battlerTarget
-		end
-	end
-
-	-- Abilities not covered by the above checks
-	local battleTargetMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
-
-	if battleTargetMsg ~= nil and battleTargetMsg[enemyAbility] then
-		if Battle.battlerTarget % 2 == 1 then
-			if battleTargetMsg.scope == "both" and enemyAbility ~= playerAbility then
-				-- Allied prevention ability takes priority over enemy, so if we both have it, ignore theirs
-				return true
-			elseif battleTargetMsg.scope == "self" then
-				return true
-			end
-		elseif Battle.battlerTarget % 2 == 0 and battleTargetMsg.scope == "other" then
-			-- Leech seed sets gBattlerTarget to mon receiving hp, so this is where we see liquid ooze
-			return true
-		end
-	end
-
-	return false
 end
 
 function Battle.beginNewBattle()
