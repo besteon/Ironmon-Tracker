@@ -27,7 +27,7 @@ Battle = {
 		battlerTarget = -1,
 	},
 	AbilityChangeData = {
-		attacker = 0,
+		actionCount = -1,
 		movesSeen = 0
 	},
 	-- "Low accuracy" values
@@ -234,7 +234,7 @@ function Battle.updateTrackedInfo()
 				5) Stop checking after 4 moves have been logged (safety net)
 		]]--
 
-		if (wasNewTurn or Battle.AbilityChangeData.attacker ~= Battle.attacker)	and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and ((Battle.turnCount > 0 and actionCount < Battle.numBattlers) or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
+		if Battle.AbilityChangeData.actionCount ~= actionCount and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves and Battle.AbilityChangeData.movesSeen < Battle.numBattlers and ((Battle.turnCount > 0 and actionCount < Battle.numBattlers) or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
 			local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
 			--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
 			local hitFlags = Memory.readdword(0x02023dd0)
@@ -252,7 +252,7 @@ function Battle.updateTrackedInfo()
 					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 				end
 			end
-			Battle.AbilityChangeData.attacker = Battle.attacker
+			Battle.AbilityChangeData.actionCount = actionCount
 			Battle.AbilityChangeData.movesSeen = Battle.AbilityChangeData.movesSeen + 1
 		end
 	end
@@ -579,6 +579,7 @@ end
 
 function Battle.handleNewTurn()
 	--Reset counters
+	Battle.AbilityChangeData.actionCount = Battle.numBattlers
 	Battle.AbilityChangeData.movesSeen = 0
 
 	Battle.isNewTurn = false
