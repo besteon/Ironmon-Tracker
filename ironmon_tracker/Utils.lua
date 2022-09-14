@@ -270,7 +270,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	end
 
 	-- If type is unknown or typeless
-	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
+	if MoveData.IsTypelessMove[move.name] or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
 	end
 
@@ -317,7 +317,7 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 	end
 
 	-- If type is unknown or typeless
-	if move.name == "Future Sight" or move.name == "Doom Desire" or moveType == PokemonData.Types.UNKNOWN then
+	if MoveData.IsTypelessMove[move.name] or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
