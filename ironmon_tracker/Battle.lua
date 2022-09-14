@@ -217,6 +217,7 @@ function Battle.updateTrackedInfo()
 	end
 
 	--TODO: replace placeholder addresses 
+	local confirmedCount = Memory.readbyte(0x02023e86)
 	local actionCount = Memory.readbyte(0x02023be2)
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
@@ -227,9 +228,9 @@ function Battle.updateTrackedInfo()
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
-		-- Need firstActionTaken because the flag does not clear after battles, so you could start a double battle with it set to 2 and try to track the last move
+		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just looged, stop logging for efficiency
-		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker then
+		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
 			print ("Action: " .. actionCount)
 			-- 0 = MOVE_USED
 			if actionChosen ~= 0 then
@@ -243,12 +244,11 @@ function Battle.updateTrackedInfo()
 				--hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
 				local hitFlags = Memory.readdword(0x02023dd0)
 				--Do nothing if attacker was unable to use move
-				if bit.band(hitFlags,0x10000000000000000000) --and [[TODO: check that the pokemon is actually attacking]]
+				if bit.band(hitFlags,0x80000) == 0 --and [[TODO: check that the pokemon is actually attacking]]
 				 then -- HITMARKER_UNABLE_TO_USE_MOVE
 					--Only track ability-changing moves if they did not fail/miss, otherwise still track the move
-					if bit.band(moveFlags,0x00101001) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 						print ("Move used and successful")
-						Battle.AbilityChangeData.attacker = Battle.attacker
 						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 					end
 					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
@@ -262,7 +262,7 @@ function Battle.updateTrackedInfo()
 						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 					end
 				end
-			else
+				Battle.AbilityChangeData.attacker = Battle.attacker
 			end
 		end
 	end
