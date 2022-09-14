@@ -18,6 +18,7 @@ Battle = {
 	damageReceived = 0,
 	lastEnemyMoveId = 0,
 	enemyHasAttacked = false,
+	firstActionTaken = false,
 
 	-- "Low accuracy" values
 	Synchronize = {
@@ -27,7 +28,7 @@ Battle = {
 		battlerTarget = -1,
 	},
 	AbilityChangeData = {
-		actionCount = -1,
+		attacker = -1,
 	},
 	-- "Low accuracy" values
 	CurrentRoute = {
@@ -211,57 +212,61 @@ function Battle.updateTrackedInfo()
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
-	local wasNewTurn = Battle.isNewTurn
-	if wasNewTurn then
+	if Battle.isNewTurn then
 		Battle.handleNewTurn()
 	end
 
 	--TODO: replace placeholder addresses 
 	local actionCount = Memory.readbyte(0x02023be2)
-	local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-	local attackingMon = Tracker.getPokemon(attackerSlot,Battle.attacker % 2 == 0)
+	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker)
+	
 	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
-		--[[
-				1) Attacker's move must be valid (also accounts for turn 1, before moves have been used)
-				2) Either the turn or the attacker must have changed since the last move (first move in battle always logged)
-				3) We must be somewhere in the turn order (bypass the before-moves lull on turns after the first turn, and the after-turns ability triggers)
-				4) Ignore Moves that Missed, Failed, had no effect, or never took place due to the move being wasted (Fully Paralyzed, Hurt in Confusion, Loafing, etc.)
-				5) Stop checking after 4 moves have been logged (safety net)
-
-				1) Only log moves while the current Action is 
-		]]--
-
-		-- Check if we are on a new action (Range 0 to numBattlers - 1; actions are running, switching, using items, using a move [fainting?])
-		if actionCount < Battle.numBattlers  and (Battle.turnCount > 0 or ( Battle.turnCount == 0 and lastMoveByAttacker ~= 0)) then
+		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
+		-- Need firstActionTaken because the flag does not clear after battles, so you could start a double battle with it set to 2 and try to track the last move
+		-- If the same attacker was just looged, stop logging for efficiency
+		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker then
 			print ("Action: " .. actionCount)
-			--Only log the action if it was a move
-			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves then
+			-- 0 = MOVE_USED
+			if actionChosen ~= 0 then
+				-- Mark enemy as took their turn if they aren't using a move.
+				print ("Non-move action taken.")
+				Battle.AbilityChangeData.attacker = Battle.attacker
+			--Only log if it was a valid move
+			elseif actionChosen == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves then
 				local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
-				--local hitFlags = Memory.readdword(GameSettings.gHitMarker) --hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
+				--local hitFlags = Memory.readdword(GameSettings.gHitMarker)
+				--hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
 				local hitFlags = Memory.readdword(0x02023dd0)
 				--Do nothing if attacker was unable to use move
-				if bit.band(hitFlags,0x10000000000000000000) then -- HITMARKER_UNABLE_TO_USE_MOVE
-					--Only track ability-changing moves if they did not fail/miss
+				if bit.band(hitFlags,0x10000000000000000000) --and [[TODO: check that the pokemon is actually attacking]]
+				 then -- HITMARKER_UNABLE_TO_USE_MOVE
+					--Only track ability-changing moves if they did not fail/miss, otherwise still track the move
 					if bit.band(moveFlags,0x00101001) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+						print ("Move used and successful")
+						Battle.AbilityChangeData.attacker = Battle.attacker
 						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 					end
-
+					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
+					local attackingMon = Tracker.getPokemon(attackerSlot,Battle.attacker % 2 == 0)
 					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
 					local isTransformed = transformData.slot ~= attackerSlot or transformData.isOwn ~= (Battle.attacker % 2 == 0)
 					--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
+					-- Update: DO track moves for transformed mons, but for the mon they are transformed into
 					if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
 						print ("Tracking Move: " .. lastMoveByAttacker)
 						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 					end
 				end
+			else
 			end
-			Battle.AbilityChangeData.actionCount = actionCount
 		end
 	end
+	-- Do track focus punch though for move tracking when the appears 
 
 	-- Always track your own Pokemons' abilities
 
@@ -464,6 +469,7 @@ function Battle.beginNewBattle()
 	Battle.prevDamageTotal = 0
 	Battle.damageReceived = 0
 	Battle.enemyHasAttacked = false
+	Battle.firstActionTaken = false
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
@@ -585,8 +591,7 @@ end
 
 function Battle.handleNewTurn()
 	--Reset counters
-	Battle.AbilityChangeData.actionCount = 4
-
+	Battle.AbilityChangeData.attacker = -1
 	Battle.isNewTurn = false
 end
 
