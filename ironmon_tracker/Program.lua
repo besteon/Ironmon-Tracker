@@ -13,6 +13,11 @@ Program = {
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
+	ActiveRepel = {
+		inUse = false,
+		stepCount = 0,
+		duration = 100,
+	},
 }
 
 Program.Screens = {
@@ -131,6 +136,11 @@ function Program.update()
 					Tracker.Data.hasCheckedSummary = true
 				end
 			end
+
+			-- Check repel steps
+			if not Battle.inBattle then
+				Program.updateRepelSteps()
+			end
 		end
 	end
 
@@ -155,6 +165,32 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+end
+
+function Program.updateRepelSteps()
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
+	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
+	if repelStepCount ~= nil and repelStepCount > 0 then
+		Program.ActiveRepel.inUse = true
+		if repelStepCount ~= Program.ActiveRepel.stepCount then
+			Program.ActiveRepel.stepCount = repelStepCount
+			-- Duration is defaulted to normal repel (100), check if super or max is used instead
+			if repelStepCount > Program.ActiveRepel.duration then
+				if repelStepCount <= 200 then
+					-- Super Repel
+					Program.ActiveRepel.duration = 200
+				elseif repelStepCount <= 250 then
+					-- Max Repel
+					Program.ActiveRepel.duration = 250
+				end
+			end
+		end
+	elseif repelStepCount == 0 then
+		Program.ActiveRepel.inUse = false
+		Program.ActiveRepel.stepCount = 0
+		Program.ActiveRepel.duration = 100
+	end
 end
 
 function Program.updatePokemonTeams()
@@ -338,7 +374,7 @@ function Program.updatePCHeals()
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
-	--Save blocks move and are re-encrypted right as the battle starts 
+	-- Save blocks move and are re-encrypted right as the battle starts
 	if Battle.inBattle then return end
 
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
