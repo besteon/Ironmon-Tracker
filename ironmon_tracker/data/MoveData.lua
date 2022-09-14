@@ -87,9 +87,9 @@ MoveData.BlankMove = {
 }
 
 MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected by STAB)
-	["Future Sight"] = true,
-	["Doom Desire"] = true,
-	["Beat Up"] = true,
+	["248"] = true, -- Future Sight
+	["251"] = true, -- Beat Up
+	["353"] = true, -- Doom Desire
 }
 
 MoveData.IsRand = {
