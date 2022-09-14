@@ -217,14 +217,14 @@ function Battle.updateTrackedInfo()
 	end
 
 	--TODO: replace placeholder addresses 
-	local confirmedCount = Memory.readbyte(0x02023e86)
-	local actionCount = Memory.readbyte(0x02023be2)
+	local confirmedCount = Memory.readbyte(0x02023e86) --gBattleCommunication + 0x4
+	local actionCount = Memory.readbyte(0x02023be2) --gCurrentTurnActionNumber
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker)
+	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker) -- gChosenActionByBattler
 	
-	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg)
+	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker .. "; confirmedCount: " .. confirmedCount)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
@@ -470,6 +470,7 @@ function Battle.beginNewBattle()
 	Battle.damageReceived = 0
 	Battle.enemyHasAttacked = false
 	Battle.firstActionTaken = false
+	Battle.AbilityChangeData.attacker = -1
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
@@ -675,7 +676,7 @@ end
 function Battle.handleTransformedMons()
 
 	--Do nothing if no pokemon is viewing their moves
-	if Memory.readbyte(0x02022874) ~= 20 then return end --
+	if Memory.readbyte(0x02022874) ~= 20 then return end --sBattleBuffersTransferData
 
 	-- First 4 bits indicate attacker
 	local currentSelectingMon = Utils.getbits(Memory.readbyte(0x02023bc8),0,4) -- gBattleControllerExecFlags
