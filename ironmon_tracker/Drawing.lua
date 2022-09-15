@@ -222,7 +222,8 @@ function Drawing.drawScreen(screenFunc)
 	if screenFunc ~= nil and type(screenFunc) == "function" then
 		screenFunc()
 	end
-	if Program.ActiveRepel.inUse and not Battle.inBattle then
+	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
+	if Program.ActiveRepel.inUse and not Battle.inBattle and not Program.inStartMenu then
 		Drawing.drawRepelUsage()
 	end
 end
@@ -332,7 +333,6 @@ function Drawing.relocateAnimatedPokemon()
 end
 
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
--- TODO: How to hide when start menu / other menus open?
 function Drawing.drawRepelUsage()
 	local xOffset = Constants.SCREEN.WIDTH - 26
 	-- Draw repel item icon
@@ -341,9 +341,7 @@ function Drawing.drawRepelUsage()
 
 	local repelBarHeight = 21
 	local remainingFraction = Program.ActiveRepel.stepCount / Program.ActiveRepel.duration
-	local remainingHeight = math.max(math.floor(repelBarHeight * remainingFraction + 0.5), 1)
-	-- Account for the bar outline when the remaining usage is 100%
-	if remainingHeight == repelBarHeight then remainingHeight = remainingHeight - 1 end
+	local remainingHeight = math.floor((repelBarHeight * remainingFraction) + 0.5)
 
 	-- Determine the color of the bar based off remaining usage
 	local barColor = Theme.COLORS["Positive text"]
@@ -353,8 +351,8 @@ function Drawing.drawRepelUsage()
 		barColor = Theme.COLORS["Intermediate text"]
 	end
 
-	-- Draw outer bar
+	-- Draw outer bar (black outline with semi-transparent background)
 	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, 0x44000000)
-	-- Draw colored bar for remaining usage (outer bar has a 1-pixel outline)
-	gui.drawRectangle(xOffset + 1, 1 + (repelBarHeight - remainingHeight), 2, remainingHeight - 1, barColor, barColor)
+	-- Draw colored bar for remaining usage
+	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
