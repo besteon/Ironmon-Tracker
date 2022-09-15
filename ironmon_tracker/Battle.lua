@@ -394,7 +394,7 @@ function Battle.checkAbilitiesToTrack()
 		-- Track a Traced pokemon's ability
 		if battlerAbility == 36 then
 			Battle.trackAbilityChanges(nil,36)
-			return Battle.battleTarget
+			return Battle.battlerTarget
 		end
 		return Battle.battler
 	end
@@ -420,7 +420,7 @@ function Battle.checkAbilitiesToTrack()
 	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		-- Log allied pokemon contact status ability trigger for Synchronize
-		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battleTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
+		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battlerTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
 			return Battle.battler
 		end
 		if abilityMsg[battleTargetAbility] then
@@ -659,6 +659,11 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.slot
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].ability
+
+			--Track Trace here, otherwise when we try to track normally, the pokemon's battle ability and owner will have already updated to what was traced.
+			local abilityOwner = Tracker.getPokemon(tracerTeamSlot,tracerTeamIndex == 0)
+			print("Tracking ability: " .. ability .. " for Pokemon " .. abilityOwner.pokemonID)
+			Tracker.TrackAbility(abilityOwner.pokemonID, ability)
 		end
 	end
 end
