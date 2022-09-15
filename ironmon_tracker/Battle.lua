@@ -231,7 +231,7 @@ function Battle.updateTrackedInfo()
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just looged, stop logging for efficiency
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
-			print ("Action: " .. actionCount)
+			--print ("Action: " .. actionCount)
 			-- 0 = MOVE_USED
 			if actionChosen ~= 0 then
 				-- Mark enemy as took their turn if they aren't using a move.
