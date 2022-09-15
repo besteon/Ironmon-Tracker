@@ -420,7 +420,7 @@ function Battle.checkAbilitiesToTrack()
 	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		-- Log allied pokemon contact status ability trigger for Synchronize
-		if abilityMsg[battlerAbility] and ((Battle.battler == Battler.battleTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
+		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battleTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
 			return Battle.battler
 		end
 		if abilityMsg[battleTargetAbility] then
