@@ -645,6 +645,10 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.isOwn
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.slot
 			end
+			if moveUsed == 272 then
+				local abilityOwner = Tracker.getPokemon(targetSlot,targetTeamIndex == 0)
+				Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleAbilities[targetTeamIndex][targetSlot].ability)
+			end
 		end
 	elseif ability ~= nil and ability ~=0 then
 		if ability == 36 then --Trace
