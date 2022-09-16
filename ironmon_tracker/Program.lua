@@ -106,11 +106,6 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
-		-- Check if the player is in the start menu (for hiding the repel usage icon)
-		-- Don't have a good solution for Ruby/Sapphire yet, so skip checking for that game
-		if Options["Display repel usage"] and not Battle.inBattle and GameSettings.game ~= 1 then
-			Program.inStartMenu = Program.isInStartMenu()
-		end
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
@@ -144,9 +139,16 @@ function Program.update()
 				end
 			end
 
-			-- Check for active repel and steps remaining
-			if Options["Display repel usage"] and not Battle.inBattle and not Program.inStartMenu then
-				Program.updateRepelSteps()
+			if Options["Display repel usage"] and not Battle.inBattle then
+				-- Check if the player is in the start menu (for hiding the repel usage icon)
+				-- Don't have a good solution for Ruby/Sapphire yet, so skip checking for that game
+				if GameSettings.game ~= 1 then
+					Program.inStartMenu = Program.isInStartMenu()
+				end
+				-- Check for active repel and steps remaining
+				if not Program.inStartMenu then
+					Program.updateRepelSteps()
+				end
 			end
 		end
 	end
