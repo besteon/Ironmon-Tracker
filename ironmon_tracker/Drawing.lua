@@ -223,7 +223,7 @@ function Drawing.drawScreen(screenFunc)
 		screenFunc()
 	end
 	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-	if Program.ActiveRepel.inUse and not Battle.inBattle and not Program.inStartMenu then
+	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not Battle.inBattle and not Program.inStartMenu then
 		Drawing.drawRepelUsage()
 	end
 end
@@ -334,10 +334,10 @@ end
 
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
 function Drawing.drawRepelUsage()
-	local xOffset = Constants.SCREEN.WIDTH - 26
+	local xOffset = Constants.SCREEN.WIDTH - 24
 	-- Draw repel item icon
-	gui.drawImage(Main.DataFolder .. "/images/items/repel.png", xOffset, 0)
-	xOffset = xOffset + 20
+	gui.drawImage(Main.DataFolder .. "/images/icons/repelUsage.png", xOffset, 0)
+	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
 	local remainingFraction = Program.ActiveRepel.stepCount / Program.ActiveRepel.duration
@@ -352,7 +352,7 @@ function Drawing.drawRepelUsage()
 	end
 
 	-- Draw outer bar (black outline with semi-transparent background)
-	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, 0x44000000)
+	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, Theme.COLORS["Upper box background"] - 0xAA000000)
 	-- Draw colored bar for remaining usage
 	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
