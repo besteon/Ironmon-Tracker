@@ -1,5 +1,7 @@
 Program = {
 	currentScreen = 1,
+	inStartMenu = false,
+	startMenuCallback = 0,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
@@ -104,6 +106,11 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
+		-- Check if the player is in the start menu (for hiding the repel usage icon)
+		-- Don't have a good solution for Ruby/Sapphire yet, so skip checking for that game
+		if Options["Display repel usage"] and not Battle.inBattle and GameSettings.game ~= 1 then
+			Program.inStartMenu = Program.isInStartMenu()
+		end
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
@@ -137,8 +144,8 @@ function Program.update()
 				end
 			end
 
-			-- Check repel steps
-			if not Battle.inBattle then
+			-- Check for active repel and steps remaining
+			if Options["Display repel usage"] and not Battle.inBattle and not Program.inStartMenu then
 				Program.updateRepelSteps()
 			end
 		end
@@ -168,6 +175,8 @@ function Program.stepFrames()
 end
 
 function Program.updateRepelSteps()
+	-- Checks for an active repel and updates the current steps remaining
+	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
 	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
@@ -175,7 +184,7 @@ function Program.updateRepelSteps()
 		Program.ActiveRepel.inUse = true
 		if repelStepCount ~= Program.ActiveRepel.stepCount then
 			Program.ActiveRepel.stepCount = repelStepCount
-			-- Duration is defaulted to normal repel (100), check if super or max is used instead
+			-- Duration is defaulted to normal repel (100 steps), check if super or max is used instead
 			if repelStepCount > Program.ActiveRepel.duration then
 				if repelStepCount <= 200 then
 					-- Super Repel
@@ -187,6 +196,7 @@ function Program.updateRepelSteps()
 			end
 		end
 	elseif repelStepCount == 0 then
+		-- Reset the active repel data when none is active (remaining step count 0)
 		Program.ActiveRepel.inUse = false
 		Program.ActiveRepel.stepCount = 0
 		Program.ActiveRepel.duration = 100
@@ -500,6 +510,15 @@ function Program.isInEvolutionScene()
 	if isActive ~= 1 then return false end
 
 	return true
+end
+
+-- Returns true if player is in the start menu (or the subsequent pokedex/pokemon/bag/etc menus)
+function Program.isInStartMenu()
+	-- Current Issues:
+	-- 1) Sometimes this window ID gets unset for a brief duration during the transition back to the start menu
+	-- 2) This window ID doesn't exist at all in Ruby/Sapphire, yet to figure out an alternative
+	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
+	return startMenuWindowId == 1
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.
