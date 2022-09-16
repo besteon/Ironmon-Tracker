@@ -636,6 +636,11 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			local targetTeamIndex =  Battle.battlerTarget % 2
 			local targetSlot = Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]
 
+			if moveUsed == 272 then
+				local abilityOwner = Tracker.getPokemon(Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot,Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn)
+				Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleAbilities[targetTeamIndex][targetSlot].ability)
+			end
+
 			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn
 			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot
 			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetSlot].ability
@@ -645,10 +650,7 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.isOwn
 				Battle.BattleAbilities[attackerTeamIndex][attackerSlot].transformData.slot = Battle.BattleAbilities[targetTeamIndex][targetSlot].transformData.slot
 			end
-			if moveUsed == 272 then
-				local abilityOwner = Tracker.getPokemon(targetSlot,targetTeamIndex == 0)
-				Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleAbilities[targetTeamIndex][targetSlot].ability)
-			end
+
 		end
 	elseif ability ~= nil and ability ~=0 then
 		if ability == 36 then --Trace
@@ -660,14 +662,14 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			local targetTeamIndex = target % 2
 			local targetTeamSlot = Battle.Combatants[Battle.IndexMap[target]]
 
+			--Track Trace here, otherwise when we try to track normally, the pokemon's battle ability and owner will have already updated to what was traced.
+			local abilityOwner = Tracker.getPokemon(Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot,Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn)
+			print("Tracking ability: " .. ability .. " for Pokemon " .. abilityOwner.pokemonID)
+			Tracker.TrackAbility(abilityOwner.pokemonID, ability)
+			
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.slot
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].ability
-
-			--Track Trace here, otherwise when we try to track normally, the pokemon's battle ability and owner will have already updated to what was traced.
-			local abilityOwner = Tracker.getPokemon(tracerTeamSlot,tracerTeamIndex == 0)
-			print("Tracking ability: " .. ability .. " for Pokemon " .. abilityOwner.pokemonID)
-			Tracker.TrackAbility(abilityOwner.pokemonID, ability)
 		end
 	end
 end
