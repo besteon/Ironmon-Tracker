@@ -385,7 +385,7 @@ function Battle.checkAbilitiesToTrack()
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
-
+	print (Battle.attacker .. "; " .. Battle.battler .. "; " .. Battle.battlerTarget .. "; " .. Battle.battleMsg)
 	-- TODO: Re-test all abilities
 
 	-- BATTLER: 'battler' had their ability triggered
@@ -436,8 +436,8 @@ function Battle.checkAbilitiesToTrack()
 		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
 			return Battle.battlerTarget
 		end
-		if abilityMsg.scope == "other" and abilityMsg[battlerAbility] then
-			return Battle.battler
+		if abilityMsg.scope == "other" and abilityMsg[attackerAbility] then
+			return Battle.attacker
 		end
 	end
 
