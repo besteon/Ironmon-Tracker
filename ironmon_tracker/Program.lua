@@ -141,10 +141,7 @@ function Program.update()
 
 			if Options["Display repel usage"] and not Battle.inBattle then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
-				-- Don't have a good solution for Ruby/Sapphire yet, so skip checking for that game
-				if GameSettings.game ~= 1 then
-					Program.inStartMenu = Program.isInStartMenu()
-				end
+				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
 				if not Program.inStartMenu then
 					Program.updateRepelSteps()
@@ -519,6 +516,8 @@ function Program.isInStartMenu()
 	-- Current Issues:
 	-- 1) Sometimes this window ID gets unset for a brief duration during the transition back to the start menu
 	-- 2) This window ID doesn't exist at all in Ruby/Sapphire, yet to figure out an alternative
+	if GameSettings.game == 1 then return false end -- Skip checking for Ruby/Sapphire
+
 	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
 	return startMenuWindowId == 1
 end
