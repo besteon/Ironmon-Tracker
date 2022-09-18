@@ -1374,6 +1374,9 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
+				[0x81D82C5] = { -- BattleScript_PrintAbilityMadeIneffective
+					[72] = true, -- Vital Spirit
+				}
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 				[0x081d931e] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
