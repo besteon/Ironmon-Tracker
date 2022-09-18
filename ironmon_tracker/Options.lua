@@ -29,6 +29,7 @@ Options = {
 	["Animated Pokemon popout"] = false,
 	["Use premade ROMs"] = false,
 	["Generate ROM each time"] = false,
+	["Display repel usage"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
