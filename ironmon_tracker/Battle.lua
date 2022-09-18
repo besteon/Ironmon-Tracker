@@ -224,27 +224,28 @@ function Battle.updateTrackedInfo()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker) -- gChosenActionByBattler
 	
-	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker .. "; confirmedCount: " .. confirmedCount)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just looged, stop logging for efficiency
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
-			--print ("Action: " .. actionCount)
+			print ("Action: " .. actionCount)
+			print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker .. "; confirmedCount: " .. confirmedCount)
 			-- 0 = MOVE_USED
 			if actionChosen ~= 0 then
 				-- Mark enemy as took their turn if they aren't using a move.
 				print ("Non-move action taken.")
 				Battle.AbilityChangeData.attacker = Battle.attacker
 			--Only log if it was a valid move
-			elseif actionChosen == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves then
+			elseif actionChosen == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+				print ("Move action taken.")
 				local moveFlags = Memory.readbyte (GameSettings.gMoveResultFlags)
 				--local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 				--hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
 				local hitFlags = Memory.readdword(0x02023dd0)
 				--Do nothing if attacker was unable to use move
-				if bit.band(hitFlags,0x80000) == 0 --and [[TODO: check that the pokemon is actually attacking]]
+				if bit.band(hitFlags,0x80000) == 0 --and
 				 then -- HITMARKER_UNABLE_TO_USE_MOVE
 					--Only track ability-changing moves if they did not fail/miss, otherwise still track the move
 					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
