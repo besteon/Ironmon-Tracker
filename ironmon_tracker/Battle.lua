@@ -285,12 +285,14 @@ function Battle.updateTrackedInfo()
 	if not Battle.isGhost then
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
-		local indexToTrack = Battle.checkAbilitiesToTrack()
-		if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
-			local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
-			local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-			print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
-			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+		local indexesToTrack = Battle.checkAbilitiesToTrack()
+		for _, indexToTrack in pairs(indexesToTrack) do
+			if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
+				local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
+				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
+				print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
+				Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+			end
 		end
 		Battle.updateStatStages(otherLeftPokemon, false)
 		Battle.checkEnemyEncounter(otherLeftPokemon)
@@ -381,11 +383,12 @@ function Battle.checkAbilitiesToTrack()
 		Battle.Synchronize.attacker = -1
 		Battle.Synchronize.battlerTarget = -1
 	end
+	local indexesToTrack = {}
 
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
-	print (Battle.attacker .. "; " .. Battle.battler .. "; " .. Battle.battlerTarget .. "; " .. Battle.battleMsg)
+	--print (Battle.attacker .. "; " .. Battle.battler .. "; " .. Battle.battlerTarget .. "; " .. Battle.battleMsg)
 	-- TODO: Re-test all abilities
 
 	-- BATTLER: 'battler' had their ability triggered
@@ -394,34 +397,35 @@ function Battle.checkAbilitiesToTrack()
 		-- Track a Traced pokemon's ability
 		if battlerAbility == 36 then
 			Battle.trackAbilityChanges(nil,36)
-			return Battle.battlerTarget
+			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		end
-		return Battle.battler
+		indexesToTrack[Battle.battler] = Battle.battler
 	end
 
-	-- REVERSE_BATTLER: 'battlerTarget' had their ability triggered
+	-- REVERSE_BATTLER: 'battlerTarget' had their ability triggered by the battler's ability
 	abilityMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		return Battle.battlerTarget
+		indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+		indexesToTrack[Battle.battler] = Battle.battler
 	end
 
 	-- ATTACKER: 'battleTarget' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		return Battle.battlerTarget
+		indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 	end
 
 	-- REVERSE ATTACKER: 'attacker' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[attackerAbility] then
-		return Battle.attacker
+		indexesToTrack[Battle.attacker] = Battle.attacker
 	end
 
 	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		-- Log allied pokemon contact status ability trigger for Synchronize
 		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battlerTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
-			return Battle.battler
+			indexesToTrack[Battle.battler] = Battle.battler
 		end
 		if abilityMsg[battleTargetAbility] then
 			Battle.Synchronize.turnCount = Battle.turnCount
@@ -434,10 +438,10 @@ function Battle.checkAbilitiesToTrack()
 	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
-			return Battle.battlerTarget
+			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		end
 		if abilityMsg.scope == "other" and abilityMsg[attackerAbility] then
-			return Battle.attacker
+			indexesToTrack[Battle.attacker] = Battle.attacker
 		end
 	end
 
@@ -445,17 +449,17 @@ function Battle.checkAbilitiesToTrack()
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers, 1 do
 		if levitateCheck == 4 and Battle.attacker ~= i then
-			return Battle.battlerTarget
+			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
 			local monAbility = Battle.BattleAbilities[i%2][Battle.Combatants[Battle.IndexMap[i]]].ability
 			if abilityMsg[monAbility] then
-				return i
+				indexesToTrack[i] = i
 			end
 		end
 	end
 
-	return -1
+	return indexesToTrack
 end
 
 function Battle.beginNewBattle()
