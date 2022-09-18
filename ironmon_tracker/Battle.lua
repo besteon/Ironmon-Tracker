@@ -223,7 +223,7 @@ function Battle.updateTrackedInfo()
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker) -- gChosenActionByBattler
-	--print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker .. "; confirmedCount: " .. confirmedCount .. "; HitFlags: " .. hitFlags .. "; MoveFlags: " .. moveFlags .. "MoveState: " .. moveState)
+	print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
@@ -540,6 +540,15 @@ end
 
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
+
+	--Most of the time, Run Away message is present only after the battle ends
+	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
+	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
+		local battleMon = Battle.BattleAbilities[0][Battle.Combatants[Battle.IndexMap[0]]]
+		local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
+		print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
+		Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+	end
 
 	Battle.numBattlers = 0
 	Battle.inBattle = false

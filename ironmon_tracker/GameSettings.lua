@@ -1287,6 +1287,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
@@ -1350,6 +1351,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d9537] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081d9404] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -1508,6 +1510,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94c7] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d948e] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a3f] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081d9404] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d93d2] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
