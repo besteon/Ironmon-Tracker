@@ -222,6 +222,10 @@ function Drawing.drawScreen(screenFunc)
 	if screenFunc ~= nil and type(screenFunc) == "function" then
 		screenFunc()
 	end
+	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
+	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not Battle.inBattle and not Program.inStartMenu then
+		Drawing.drawRepelUsage()
+	end
 end
 
 function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor, negativecolor)
@@ -326,4 +330,29 @@ function Drawing.relocateAnimatedPokemon()
 			Drawing.AnimatedPokemon.requiresRelocating = (imageHeight == 1) -- Keep updating until the height is known
 		end
 	end
+end
+
+-- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
+function Drawing.drawRepelUsage()
+	local xOffset = Constants.SCREEN.WIDTH - 24
+	-- Draw repel item icon
+	gui.drawImage(Main.DataFolder .. "/images/icons/repelUsage.png", xOffset, 0)
+	xOffset = xOffset + 18
+
+	local repelBarHeight = 21
+	local remainingFraction = Program.ActiveRepel.stepCount / Program.ActiveRepel.duration
+	local remainingHeight = math.floor((repelBarHeight * remainingFraction) + 0.5)
+
+	-- Determine the color of the bar based off remaining usage
+	local barColor = Theme.COLORS["Positive text"]
+	if remainingFraction <= 0.25 then
+		barColor = Theme.COLORS["Negative text"]
+	elseif remainingFraction <= 0.5 then
+		barColor = Theme.COLORS["Intermediate text"]
+	end
+
+	-- Draw outer bar (black outline with semi-transparent background)
+	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, Theme.COLORS["Upper box background"] - 0xAA000000)
+	-- Draw colored bar for remaining usage
+	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end

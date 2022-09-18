@@ -107,6 +107,7 @@ Constants.OrderedLists = {
 		"Animated Pokemon popout",
 		"Use premade ROMs",
 		"Generate ROM each time",
+		"Display repel usage",
 	},
 	CONTROLS = {
 		"Load next seed",
