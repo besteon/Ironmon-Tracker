@@ -223,6 +223,18 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9595
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95d4
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95fb
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e22
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d9812
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d8839
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -375,6 +387,18 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95ad
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ec
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9613
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3a
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d982a
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d8851
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -527,6 +551,18 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95ad
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ec
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9613
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3a
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d982a
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d8851
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -683,6 +719,18 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9525
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9564
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d958b
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8db2
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d97a2
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d87c9
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -835,6 +883,18 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d953d
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957c
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a3
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dca
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d97ba
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d87e1
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -987,6 +1047,18 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d953d
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957c
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a3
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dca
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gHitMarker = 0x02024c6c
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.BattleScript_TookAttack = 0x081d97ba
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d87e1
 
 		GameSettings.gMapHeader = 0x0202e828
 		GameSettings.gBattleTerrain = 0x0300428c
@@ -1144,6 +1216,18 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattleWeather = 0x020243cc
 	GameSettings.gBattleCommunication = 0x02024332
 	GameSettings.gBattlersCount = 0x0202406c
+	GameSettings.BattleScript_MoveUsedIsConfused = 0x082db2bd
+	GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x082db300
+	GameSettings.BattleScript_MoveUsedIsInLove = 0x082db327
+	GameSettings.BattleScript_RanAwayUsingMonAbility = 0x082daae9
+	GameSettings.gCurrentTurnActionNumber = 0x02024082
+	GameSettings.gActionsByTurnOrder = 0x0202407a
+	GameSettings.gHitMarker = 0x02024280
+	GameSettings.gBattleTextBuff1 = 0x02022f58
+	GameSettings.sBattleBuffersTransferData = 0x02022d10
+	GameSettings.gBattleControllerExecFlags = 0x02024068
+	GameSettings.BattleScript_TookAttack = 0x082db53e
+	GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x082da382
 
 	GameSettings.gMapHeader = 0x02037318
 	GameSettings.gBattleTerrain = 0x02022ff0
@@ -2303,6 +2387,18 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d911f
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9162
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9189
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d895b
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
+		GameSettings.BattleScript_TookAttack = 0x081d93d9
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d82a1
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2461,6 +2557,18 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90af
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d90f2
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9119
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d88eb
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
+		GameSettings.BattleScript_TookAttack = 0x081d9369
+		GameSettings.BattleScript_PrintAbilityMadeIneffective = 0x081d8231
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
