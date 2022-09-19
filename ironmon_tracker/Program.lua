@@ -1,7 +1,6 @@
 Program = {
 	currentScreen = 1,
 	inStartMenu = false,
-	startMenuCallback = 0,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
