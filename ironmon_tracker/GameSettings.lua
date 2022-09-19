@@ -1401,19 +1401,18 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9146
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9189
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D91B0
-
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
 		GameSettings.gMoveResultFlags = 0x02023dcc
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9146
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9189
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D91B0
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
 		GameSettings.gHitMarker = 0x02023dd0
@@ -1758,6 +1757,16 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D6540
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D6583
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D65AA
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D5D7C -- BattleScript_RanAwayUsingMonAbility + 0x3
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1818,6 +1827,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d6931] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d68f8] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d3ea9] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081D67FE] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d683c] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -1842,6 +1852,10 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
+				[0x081D56BF] = { -- BattleScript_PrintAbilityMadeIneffective (Yawn)
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				}
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 				[0x081d6718] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
@@ -1924,6 +1938,16 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D8C08
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D8C4B
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D8C72
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D8444 -- BattleScript_RanAwayUsingMonAbility + 0x3
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -1984,6 +2008,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8ff9] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d8fc0] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6571] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081D8EC6] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d8f04] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -2008,6 +2033,10 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
+				[0x081D7D87] = { -- BattleScript_PrintAbilityMadeIneffective (Yawn)
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				}
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 				[0x081d8de0] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
@@ -2090,6 +2119,16 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D78A8
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D78EB
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D7912
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D70E4 -- BattleScript_RanAwayUsingMonAbility + 0x3
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2150,6 +2189,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7c99] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d7c60] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d5211] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081D7B66] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d7ba4] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -2174,6 +2214,10 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
+				[0x081D6A27] = { -- BattleScript_PrintAbilityMadeIneffective (Yawn)
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				}
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 				[0x081d7a80] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
@@ -2257,6 +2301,16 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081DD36C
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081DD3AF
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081DD3D6
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081DCBA8 -- BattleScript_RanAwayUsingMonAbility + 0x3
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50
@@ -2317,6 +2371,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 				[0x081DD75D] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081DD724] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081DACD5] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
+				[0x081DD62A] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081DD668] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
@@ -2341,6 +2396,10 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 					[15] = true, -- Insomnia
 					[72] = true, -- Vital Spirit
 				},
+				[0x081DC4EB] = { -- BattleScript_PrintAbilityMadeIneffective (Yawn)
+					[15] = true, -- Insomnia
+					[72] = true, -- Vital Spirit
+				}
 			},
 			REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 				[0x081DD544] = {[44] = true}, -- BattleScript_RainDishActivates + 0x3 Rain Dish
