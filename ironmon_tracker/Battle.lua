@@ -222,7 +222,7 @@ function Battle.updateTrackedInfo()
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
-	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.moveDelayed() and not Battle.isGhost then	
+	if not Battle.moveDelayed() and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
@@ -256,10 +256,8 @@ function Battle.updateTrackedInfo()
 			end
 		end
 	end
-	-- Do track focus punch though for move tracking when the appears 
 
 	-- Always track your own Pokemons' abilities
-
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
