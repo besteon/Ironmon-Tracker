@@ -221,9 +221,8 @@ function Battle.updateTrackedInfo()
 	local currentAction = Memory.readbyte(GameSettings.gActionsByTurnOrder + actionCount)
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
-	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
-	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not (battleMsg == GameSettings.BattleScript_MoveUsedIsConfused) and not Battle.isGhost then	
+	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.moveDelayed() and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
@@ -724,4 +723,11 @@ function Battle.handleTransformedMons()
 			end
 		end
 	end
+end
+
+function Battle.moveDelayed()
+	return Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfused -- Pause for "X is confused"
+	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfusedNoMore -- Pause for "X snapped out of confusion"
+	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsInLove -- Pause for the "X is in love with Y" delay
+	-- Might need one for sleep, but 
 end

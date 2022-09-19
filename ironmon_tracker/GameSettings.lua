@@ -1296,7 +1296,10 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d911f + 0x0
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9146
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9189
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D91B0
+
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
