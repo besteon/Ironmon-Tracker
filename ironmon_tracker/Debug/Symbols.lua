@@ -1,11 +1,13 @@
 Symbols = {}
 
+local outputFile = "addresses.txt"
+
 local FRLGEtoRSMap = {
 	["sBattleBuffersTransferData"] = "gBattleBuffersTransferData"
 }
 
-function Symbols.printSymbols(symbolArr,symbolFile,key, gameType) 
-    print("------------symbol of ".. key.." ----------------------")
+function Symbols.printSymbols(symbolArr,symbolFile,key, gameType, file) 
+	file:write("------------symbol of ".. key.." ----------------------\n")
     for _,sym in pairs(symbolArr) do
         local found = false
 		if gameType == 0 and FRLGEtoRSMap[sym] ~= nil then
@@ -13,15 +15,19 @@ function Symbols.printSymbols(symbolArr,symbolFile,key, gameType)
 		end
         for line in symbolFile:lines() do
             if line:find(sym) ~= nil then
-                print(sym .. " = 0x" .. line:sub(1,8))
+                file:write(sym .. " = 0x" .. line:sub(1,8) .. "\n")
                 found = true
                 break;
             end
         end
         symbolFile:seek("set")
         if found == false then
-            print(sym .. " = 0x could not find")
+            file:write(sym .. " = 0x could not find\n")
         end
+		local i = 100
+		while i > 0 do
+			i = i - 1 
+		end
     end
 end
 
@@ -81,17 +87,22 @@ local symbolSearch = {
 	"gHitMarker",
 	"gBattleTextBuff1",
 	"sBattleBuffersTransferData",
-	"gBattleControllerExecFlags"
+	"gBattleControllerExecFlags",
+	"BattleScript_TookAttack",
+	"BattleScript_PrintAbilityMadeIneffective"
 }
 
-
+writeFile = io.open(outputFile,"w+")
+print ("Starting search.")
 for key,val in pairs(symbolPath) do
     local file = io.open(val.fileName,"r")
     if file ~= nil then
-        Symbols.printSymbols(symbolSearch,file,key, val.gameType)
+        Symbols.printSymbols(symbolSearch,file,key, val.gameType, writeFile)
         file:close()
     else 
         print("could not open symbol file " .. key)
     end
-
+	print (key .. " processed.")
 end
+print ("Search Completed.")
+writeFile:close()
