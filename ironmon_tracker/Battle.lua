@@ -238,16 +238,13 @@ function Battle.updateTrackedInfo()
 				--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
 				if bit.band(hitFlags,0x80000) == 0 --and
 				 then
+					-- Track move so long as the mon was able to use it
 					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-					local attackingMon = Tracker.getPokemon(attackerSlot,Battle.attacker % 2 == 0)
 					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
-					local isTransformed = transformData.slot ~= attackerSlot or transformData.isOwn ~= (Battle.attacker % 2 == 0)
-					--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
-					-- Update: DO track moves for transformed mons, but for the mon they are transformed into
-					if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
-						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
-					end
-					--Only track ability-changing moves if they did not fail/miss
+					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
+					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+
+					--Only track ability-changing moves if they also did not fail/miss
 					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 					end
