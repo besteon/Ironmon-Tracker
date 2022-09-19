@@ -227,15 +227,12 @@ function Battle.updateTrackedInfo()
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
-			print ("Action: " .. actionCount .. "; " .. currentAction)
 			-- 0 = MOVE_USED
 			if currentAction ~= 0 then
 				-- Mark enemy as took their turn if they aren't using a move.
-				print ("Non-move action taken.")
 				Battle.AbilityChangeData.attacker = Battle.attacker
 			--Only log if it was a valid move
 			elseif lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
-				print ("Move action taken.")
 				local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 				local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
 				--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
@@ -248,12 +245,10 @@ function Battle.updateTrackedInfo()
 					--Do not track move if the attacker is transformed and either an allied mon, or transformed into an allied mon (enemies transformed into other enemies are fine)
 					-- Update: DO track moves for transformed mons, but for the mon they are transformed into
 					if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
-						print ("Tracking Move: " .. lastMoveByAttacker)
 						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
 					end
 					--Only track ability-changing moves if they did not fail/miss
 					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-						print ("Move used and successful")
 						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 					end
 				end
@@ -285,7 +280,6 @@ function Battle.updateTrackedInfo()
 			if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
 				local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
 				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-				print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
 				Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 			end
 		end
@@ -383,8 +377,6 @@ function Battle.checkAbilitiesToTrack()
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
-	--print (Battle.attacker .. "; " .. Battle.battler .. "; " .. Battle.battlerTarget .. "; " .. Battle.battleMsg)
-	-- TODO: Re-test all abilities
 
 	-- BATTLER: 'battler' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
@@ -440,7 +432,6 @@ function Battle.checkAbilitiesToTrack()
 		end
 	end
 
-	-- TODO: check that this logs levitate only as a mon is avoiding levitate damage in multi-battles
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers, 1 do
 		if levitateCheck == 4 and Battle.attacker ~= i then
@@ -541,7 +532,6 @@ function Battle.endCurrentBattle()
 	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
 		local battleMon = Battle.BattleAbilities[0][Battle.Combatants[Battle.IndexMap[0]]]
 		local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-		print("Tracking ability: " .. battleMon.ability .. " for Pokemon " .. abilityOwner.pokemonID)
 		Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 	end
 
@@ -665,14 +655,12 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			-- In double battles, Trace picks a random target, so we need to grab the battle index from the text variable, gBattleTextBuff1[2]
 			local tracerTeamIndex = Battle.battler % 2
 			local tracerTeamSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
-			--TODO: replace with gBattleTextBuff1
 			local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
 			local targetTeamIndex = target % 2
 			local targetTeamSlot = Battle.Combatants[Battle.IndexMap[target]]
 
 			--Track Trace here, otherwise when we try to track normally, the pokemon's battle ability and owner will have already updated to what was traced.
 			local abilityOwner = Tracker.getPokemon(Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot,Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn)
-			print("Tracking ability: " .. ability .. " for Pokemon " .. abilityOwner.pokemonID)
 			Tracker.TrackAbility(abilityOwner.pokemonID, ability)
 			
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
