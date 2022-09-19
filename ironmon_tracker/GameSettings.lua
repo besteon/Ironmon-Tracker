@@ -1296,7 +1296,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gChosenActionByBattler = 0x02023d7c
+		GameSettings.gActionsByTurnOrder = 0x02023bda
 		GameSettings.gHitMarker = 0x02023dd0
 		GameSettings.gBattleTextBuff1 = 0x02022ab8
 		GameSettings.sBattleBuffersTransferData = 0x02022874

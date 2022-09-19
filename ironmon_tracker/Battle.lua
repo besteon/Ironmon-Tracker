@@ -218,24 +218,24 @@ function Battle.updateTrackedInfo()
 
 	local confirmedCount = Memory.readbyte(GameSettings.gBattleCommunication + 0x4)
 	local actionCount = Memory.readbyte(GameSettings.gCurrentTurnActionNumber)
+	local currentAction = Memory.readbyte(GameSettings.gActionsByTurnOrder + actionCount)
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	local actionChosen = Memory.readbyte(GameSettings.gChosenActionByBattler + Battle.attacker)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
-	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not battleMsg == GameSettings.BattleScript_MoveUsedIsConfused and not Battle.isGhost then	
+	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not (battleMsg == GameSettings.BattleScript_MoveUsedIsConfused) and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
-			print ("Action: " .. actionCount)
+			print ("Action: " .. actionCount .. "; " .. currentAction)
 			-- 0 = MOVE_USED
-			if actionChosen ~= 0 then
+			if currentAction ~= 0 then
 				-- Mark enemy as took their turn if they aren't using a move.
 				print ("Non-move action taken.")
 				Battle.AbilityChangeData.attacker = Battle.attacker
 			--Only log if it was a valid move
-			elseif actionChosen == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+			elseif lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
 				print ("Move action taken.")
 				local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 				local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
