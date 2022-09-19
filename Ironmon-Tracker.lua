@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "6", minor = "3", patch = "0" }
+Main.Version = { major = "6", minor = "3", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -443,7 +443,13 @@ function Main.ReadAttemptsCounter()
 	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
 
+	-- Check first if an attempts file exists based on the rom file name (w/o numbers)
 	local filename = romprefix .. " Attempts.txt"
+	if not Main.FileExists(filename) then
+		-- Otherwise, try using a filename based on the Quickload settings file name
+		local settingsfile = Utils.extractFileNameFromPath(Options.FILES["Settings File"]) or ""
+		filename = settingsfile .. " Attempts.txt"
+	end
 
 	if Main.FileExists(filename) then
 		local attemptsRead = io.open(filename, "r")

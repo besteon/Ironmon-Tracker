@@ -115,9 +115,9 @@ function StartupScreen.drawScreen()
 	end
 	textLineY = textLineY + linespacing
 
-	local successfulData = Tracker.DataMessage:find("^Tracker data loaded from file") ~= nil
+	local successfulData = Tracker.DataMessage:find(Tracker.LoadStatusMessages.fromFile) ~= nil
 	local dataColor = Utils.inlineIf(successfulData, Theme.COLORS["Positive text"], topBox.text)
-	local wrappedText = Utils.getWordWrapLines(Tracker.DataMessage, 34) -- was 31
+	local wrappedText = Utils.getWordWrapLines(Tracker.DataMessage, 32)
 	if #wrappedText == 1 then
 		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[1], dataColor, topBox.shadow)
 	elseif #wrappedText >= 2 then

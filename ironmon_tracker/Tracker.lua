@@ -10,13 +10,19 @@ Tracker.ForceUpdateData = {
 	},
 }
 
+Tracker.LoadStatusMessages = {
+	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
+	fromFile = "Tracker data loaded from file", -- file name is appended later
+	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
+}
+
 function Tracker.initialize()
 	if Options["Auto save tracked game data"] then
 		local filepath = GameSettings.getTrackerAutoSaveName()
 		Tracker.loadData(filepath)
 	else
 		Tracker.resetData()
-		Tracker.DataMessage = "Initializing new Tracker data for this game (auto-save is disabled)"
+		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
 		print(Tracker.DataMessage)
 	end
 end
@@ -472,11 +478,11 @@ function Tracker.loadData(filepath)
 		end
 		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
 		local fileNameIndex = string.match(filepath, slashpattern)
-		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1)
+		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1) or ""
 
-		Tracker.DataMessage = "Tracker data loaded from file: " .. filename
+		Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
 	else
-		Tracker.DataMessage = "No Tracker data found for this ROM, initializing new data file"
+		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
 	end
 
 	print(Tracker.DataMessage)

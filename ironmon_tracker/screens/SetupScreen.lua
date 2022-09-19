@@ -10,6 +10,7 @@ SetupScreen.OptionKeys = {
 	"Disable mainscreen carousel",
 	"Track PC Heals",
 	"PC heals count downward",
+	"Display repel usage",
 	"Animated Pokemon popout",
 }
 
