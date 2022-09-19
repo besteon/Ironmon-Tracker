@@ -1285,6 +1285,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d911f + 0x0
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
@@ -1294,6 +1295,12 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gChosenActionByBattler = 0x02023d7c
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
 
 		GameSettings.gMapHeader = 0x02036dfc
 		GameSettings.gBattleTerrain = 0x02022b50

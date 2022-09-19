@@ -216,19 +216,17 @@ function Battle.updateTrackedInfo()
 		Battle.handleNewTurn()
 	end
 
-	--TODO: replace placeholder addresses 
-	local confirmedCount = Memory.readbyte(0x02023e86) --gBattleCommunication + 0x4
-	local actionCount = Memory.readbyte(0x02023be2) --gCurrentTurnActionNumber
+	local confirmedCount = Memory.readbyte(GameSettings.gBattleCommunication + 0x4)
+	local actionCount = Memory.readbyte(GameSettings.gCurrentTurnActionNumber)
 	if actionCount == 0 then Battle.firstActionTaken = true end
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	local actionChosen = Memory.readbyte(0x02023d7c + Battle.attacker) -- gChosenActionByBattler
-	print ("Move: " .. lastMoveByAttacker .. "; Attacker: " .. Battle.attacker .. "; Battler: " .. Battle.battler .. "; Target: " .. Battle.battlerTarget .. "; Message: " .. battleMsg .. "; Action: " .. actionCount .. "; AbilityDataAttacker: " .. Battle.AbilityChangeData.attacker)
+	local actionChosen = Memory.readbyte(GameSettings.gChosenActionByBattler + Battle.attacker)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
-	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not Battle.isGhost then	
+	if not (GameSettings.BattleScript_FocusPunchSetUp ~= 0x00000000 and battleMsg == GameSettings.BattleScript_FocusPunchSetUp) and not battleMsg == GameSettings.BattleScript_MoveUsedIsConfused and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
-		-- If the same attacker was just looged, stop logging for efficiency
+		-- If the same attacker was just logged, stop logging
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
 			print ("Action: " .. actionCount)
 			-- 0 = MOVE_USED
@@ -239,18 +237,11 @@ function Battle.updateTrackedInfo()
 			--Only log if it was a valid move
 			elseif actionChosen == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
 				print ("Move action taken.")
-				local hitFlags = Memory.readdword(0x02023dd0)
+				local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 				local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
-				--local hitFlags = Memory.readdword(GameSettings.gHitMarker)
-				--hitflags; 20th bit from the right marks moves that failed to execute (Full Paralyzed, Truant, hurt in confusion, Sleep)
-				--Do nothing if attacker was unable to use move
+				--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
 				if bit.band(hitFlags,0x80000) == 0 --and
-				 then -- HITMARKER_UNABLE_TO_USE_MOVE
-					--Only track ability-changing moves if they did not fail/miss, otherwise still track the move
-					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-						print ("Move used and successful")
-						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
-					end
+				 then
 					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 					local attackingMon = Tracker.getPokemon(attackerSlot,Battle.attacker % 2 == 0)
 					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
@@ -260,6 +251,11 @@ function Battle.updateTrackedInfo()
 					if not isTransformed or (not transformData.isOwn and Battle.attacker % 2 == 1) then
 						print ("Tracking Move: " .. lastMoveByAttacker)
 						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+					end
+					--Only track ability-changing moves if they did not fail/miss
+					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+						print ("Move used and successful")
+						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 					end
 				end
 				Battle.AbilityChangeData.attacker = Battle.attacker
@@ -671,7 +667,7 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			local tracerTeamIndex = Battle.battler % 2
 			local tracerTeamSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
 			--TODO: replace with gBattleTextBuff1
-			local target = Memory.readbyte(0x02022ab8 + 2)
+			local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
 			local targetTeamIndex = target % 2
 			local targetTeamSlot = Battle.Combatants[Battle.IndexMap[target]]
 
@@ -700,10 +696,10 @@ end
 function Battle.handleTransformedMons()
 
 	--Do nothing if no pokemon is viewing their moves
-	if Memory.readbyte(0x02022874) ~= 20 then return end --sBattleBuffersTransferData
+	if Memory.readbyte(GameSettings.sBattleBuffersTransferData) ~= 20 then return end
 
 	-- First 4 bits indicate attacker
-	local currentSelectingMon = Utils.getbits(Memory.readbyte(0x02023bc8),0,4) -- gBattleControllerExecFlags
+	local currentSelectingMon = Utils.getbits(Memory.readbyte(GameSettings.gBattleControllerExecFlags),0,4)
 
 	-- Get 0 or 2 battler Index (bitshift the bits until you find the 1)
 	for i = 0,3,1 do
