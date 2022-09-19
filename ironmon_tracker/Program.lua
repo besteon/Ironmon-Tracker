@@ -1,5 +1,7 @@
 Program = {
 	currentScreen = 1,
+	inStartMenu = false,
+	startMenuCallback = 0,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
@@ -12,6 +14,11 @@ Program = {
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
+	},
+	ActiveRepel = {
+		inUse = false,
+		stepCount = 0,
+		duration = 100,
 	},
 }
 
@@ -131,6 +138,15 @@ function Program.update()
 					Tracker.Data.hasCheckedSummary = true
 				end
 			end
+
+			if Options["Display repel usage"] and not Battle.inBattle then
+				-- Check if the player is in the start menu (for hiding the repel usage icon)
+				Program.inStartMenu = Program.isInStartMenu()
+				-- Check for active repel and steps remaining
+				if not Program.inStartMenu then
+					Program.updateRepelSteps()
+				end
+			end
 		end
 	end
 
@@ -155,6 +171,35 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+end
+
+function Program.updateRepelSteps()
+	-- Checks for an active repel and updates the current steps remaining
+	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
+	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
+	if repelStepCount ~= nil and repelStepCount > 0 then
+		Program.ActiveRepel.inUse = true
+		if repelStepCount ~= Program.ActiveRepel.stepCount then
+			Program.ActiveRepel.stepCount = repelStepCount
+			-- Duration is defaulted to normal repel (100 steps), check if super or max is used instead
+			if repelStepCount > Program.ActiveRepel.duration then
+				if repelStepCount <= 200 then
+					-- Super Repel
+					Program.ActiveRepel.duration = 200
+				elseif repelStepCount <= 250 then
+					-- Max Repel
+					Program.ActiveRepel.duration = 250
+				end
+			end
+		end
+	elseif repelStepCount == 0 then
+		-- Reset the active repel data when none is active (remaining step count 0)
+		Program.ActiveRepel.inUse = false
+		Program.ActiveRepel.stepCount = 0
+		Program.ActiveRepel.duration = 100
+	end
 end
 
 function Program.updatePokemonTeams()
@@ -332,7 +377,7 @@ function Program.updatePCHeals()
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
-	--Save blocks move and are re-encrypted right as the battle starts 
+	-- Save blocks move and are re-encrypted right as the battle starts
 	if Battle.inBattle then return end
 
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
@@ -458,6 +503,17 @@ function Program.isInEvolutionScene()
 	if isActive ~= 1 then return false end
 
 	return true
+end
+
+-- Returns true if player is in the start menu (or the subsequent pokedex/pokemon/bag/etc menus)
+function Program.isInStartMenu()
+	-- Current Issues:
+	-- 1) Sometimes this window ID gets unset for a brief duration during the transition back to the start menu
+	-- 2) This window ID doesn't exist at all in Ruby/Sapphire, yet to figure out an alternative
+	if GameSettings.game == 1 then return false end -- Skip checking for Ruby/Sapphire
+
+	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
+	return startMenuWindowId == 1
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.

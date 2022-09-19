@@ -11,6 +11,7 @@ GameSettings = {
 	gBaseStats = 0x00000000,
 	gBattleMoves = 0x00000000,
 	sMonSummaryScreen = 0x00000000,
+	sStartMenuWindowId = 0x00000000,
 	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 	sBattlerAbilities = 0x00000000,
 	gBattlerAttacker = 0x00000000,
@@ -38,6 +39,7 @@ GameSettings = {
 	gSaveBlock1ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
 	gSaveBlock2ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
 	gameStatsOffset = 0x0,
+	gameVarsOffset = 0x0, -- SaveBlock1 -> vars[VARS_COUNT]
 	EncryptionKeyOffset = 0x00, -- Doesn't exist in Ruby/Sapphire
 	badgeOffset = 0x0,
 	bagPocket_Items_offset = 0x0,
@@ -231,6 +233,7 @@ function GameSettings.setGameAsRuby(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -253,7 +256,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9909] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -283,7 +286,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d98b9] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d98b9] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -382,6 +385,7 @@ function GameSettings.setGameAsRuby(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -404,7 +408,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9921] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -434,7 +438,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d98d1] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d98d1] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -533,6 +537,7 @@ function GameSettings.setGameAsRuby(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -555,7 +560,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9921] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -585,7 +590,7 @@ function GameSettings.setGameAsRuby(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d98d1] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d98d1] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -688,6 +693,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -710,7 +716,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9899] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -740,7 +746,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9849] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9849] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -839,6 +845,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -861,7 +868,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d98b1] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -891,7 +898,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9861] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9861] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -990,6 +997,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
+		GameSettings.gameVarsOffset = 0x1340
 		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		GameSettings.bagPocket_Items_offset = 0x560
 		GameSettings.bagPocket_Berries_offset = 0x740
@@ -1012,7 +1020,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d98b1] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -1042,7 +1050,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9861] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9861] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -1113,6 +1121,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBaseStats = 0x083203cc
 	GameSettings.gBattleMoves = 0x0831c898
 	GameSettings.sMonSummaryScreen = 0x0203cf1c
+	GameSettings.sStartMenuWindowId = 0x0203cd8c
 	GameSettings.sSpecialFlags = 0x020375fc
 	GameSettings.sBattlerAbilities = 0x0203aba4
 	GameSettings.sEvoStructPtr = 0x0203ab80
@@ -1135,7 +1144,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattleWeather = 0x020243cc
 	GameSettings.gBattleCommunication = 0x02024332
 	GameSettings.gBattlersCount = 0x0202406c
-	
+
 	GameSettings.gMapHeader = 0x02037318
 	GameSettings.gBattleTerrain = 0x02022ff0
 	GameSettings.gBattleTypeFlags = 0x02022fec
@@ -1147,6 +1156,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gSaveBlock1ptr = 0x03005d8c
 	GameSettings.gSaveBlock2ptr = 0x03005d90
 	GameSettings.gameStatsOffset = 0x159C
+	GameSettings.gameVarsOffset = 0x139C
 	GameSettings.EncryptionKeyOffset = 0xAC
 	GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 	GameSettings.bagPocket_Items_offset = 0x560
@@ -1170,7 +1180,7 @@ function GameSettings.setGameAsEmerald()
 				[73] = true, -- White Smoke
 			},
 			[0x082db635] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-				[51] = true, -- Keen Eye 
+				[51] = true, -- Keen Eye
 				[52] = true, -- Hyper Cutter
 			},
 		},
@@ -1200,7 +1210,7 @@ function GameSettings.setGameAsEmerald()
 				[10] = true, -- Volt Absorb
 				[11] = true, -- Water Absorb
 			},
-			[0x082db5e5] = { -- BattleScript_PRLZPrevention + 0x8 
+			[0x082db5e5] = { -- BattleScript_PRLZPrevention + 0x8
 				[7]  = true, -- Limber
 				[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 			},
@@ -1271,6 +1281,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.gBattleMoves = 0x08250c74
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -1313,6 +1324,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310
@@ -1337,7 +1349,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				},
 				[0x081d94f4] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
 					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
+					[52] = true, -- Hyper Cutter
 				},
 			},
 			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
@@ -1367,7 +1379,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081d94a4] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d94a4] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -1438,6 +1450,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBaseStats = 0x08254784
 		GameSettings.gBattleMoves = 0x08250c04
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -1472,6 +1485,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310
@@ -1495,7 +1509,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9484] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -1526,7 +1540,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9434] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9434] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -1598,6 +1612,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBaseStats = 0x0824d864
 		GameSettings.gBattleMoves = 0x08249ce4 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -1612,7 +1627,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEA5D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
-		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find 
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
@@ -1627,18 +1642,19 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
-		
+
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
 		GameSettings.gSaveBlock2ptr = 0x03004F5C
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
 		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
-		
+
 		-- Ability script addresses = FR 1.1 address - 0x2c06
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
@@ -1658,7 +1674,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				},
 				[0x081d68ee] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
 					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
+					[52] = true, -- Hyper Cutter
 				},
 			},
 			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
@@ -1679,7 +1695,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 				[0x081d6931] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d68f8] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d3ea9] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d683c] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081d683c] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -1687,7 +1703,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081d689e] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d689e] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -1762,6 +1778,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBaseStats = 0x0824ff4c
 		GameSettings.gBattleMoves = 0x0824c3cc -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -1791,18 +1808,19 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
-		
+
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
 		GameSettings.gSaveBlock2ptr = 0x03004F5C
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
 		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
-		
+
 		-- Ability script addresses = FR 1.1 address - 0x53e
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
@@ -1822,7 +1840,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				},
 				[0x081d8fb6] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
 					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
+					[52] = true, -- Hyper Cutter
 				},
 			},
 			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
@@ -1843,7 +1861,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 				[0x081d8ff9] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d8fc0] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6571] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d8f04] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081d8f04] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -1851,7 +1869,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081d8f66] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d8f66] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -1922,10 +1940,11 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 	if gameversion == 0x00670000 then
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rouge Feu")
-		
+
 		GameSettings.gBaseStats = 0x0824ebd4
 		GameSettings.gBattleMoves = 0x0824b054 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -1960,6 +1979,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gSaveBlock1ptr = 0x03004F58
 		GameSettings.gSaveBlock2ptr = 0x03004F5C
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
@@ -1986,7 +2006,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				},
 				[0x081d7c56] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
 					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
+					[52] = true, -- Hyper Cutter
 				},
 			},
 			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
@@ -2007,7 +2027,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 				[0x081d7c99] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d7c60] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d5211] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d7ba4] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081d7ba4] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -2015,7 +2035,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081d7c06] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d7c06] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -2091,6 +2111,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gBaseStats = 0x082546a8
 		GameSettings.gBattleMoves = 0x08250b28 -- needs to be tested
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -2105,7 +2126,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEA7D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
-		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find 
+		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find
 		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
 		GameSettings.gMoveToLearn = 0x02024022
 		GameSettings.gBattleOutcome = 0x02023e8a
@@ -2120,18 +2141,19 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042DC4 + 0x13E -- GetEvolutionTargetSpecies (untested)
-		
+
 		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
 		GameSettings.gSaveBlock1ptr = 0x03004F58
 		GameSettings.gSaveBlock2ptr = 0x03004F5C
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
 		GameSettings.bagPocket_Berries_offset = 0x54c
 		GameSettings.bagPocket_Items_Size = 42
 		GameSettings.bagPocket_Berries_Size = 43
-		
+
 		-- Ability script addresses = FR 1.1 address + 0x4226
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		GameSettings.ABILITIES = {
@@ -2151,7 +2173,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 				},
 				[0x081DD71A] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
 					[51] = true, -- Keen Eye
-					[52] = true, -- Hyper Cutter 
+					[52] = true, -- Hyper Cutter
 				},
 			},
 			REVERSE_BATTLER = { -- Abilities like BATTLER, but with logic reversed
@@ -2172,7 +2194,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 				[0x081DD75D] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081DD724] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081DACD5] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081DD668] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081DD668] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -2180,7 +2202,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
-				[0x081DD6CA] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081DD6CA] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -2255,6 +2277,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBaseStats = 0x082547d0
 		GameSettings.gBattleMoves = 0x08250c50
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -2289,6 +2312,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310
@@ -2313,7 +2337,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d94d0] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -2343,7 +2367,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9480] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9480] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
@@ -2411,6 +2435,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBaseStats = 0x08254760
 		GameSettings.gBattleMoves = 0x08250be0
 		GameSettings.sMonSummaryScreen = 0x0203b140
+		GameSettings.sStartMenuWindowId = 0x0203abe0
 		GameSettings.sSpecialFlags = 0x020370e0
 		GameSettings.sBattlerAbilities = 0x02039a30
 		GameSettings.sEvoStructPtr = 0x02039a20
@@ -2445,6 +2470,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gSaveBlock1ptr = 0x03005008
 		GameSettings.gSaveBlock2ptr = 0x0300500c
 		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
 		GameSettings.EncryptionKeyOffset = 0xF20
 		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		GameSettings.bagPocket_Items_offset = 0x310
@@ -2469,7 +2495,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 					[73] = true, -- White Smoke
 				},
 				[0x081d9460] = { -- BattleScript_AbilityNoSpecificStatLoss + 0x6
-					[51] = true, -- Keen Eye 
+					[51] = true, -- Keen Eye
 					[52] = true, -- Hyper Cutter
 				},
 			},
@@ -2499,7 +2525,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
 				},
-				[0x081d9410] = { -- BattleScript_PRLZPrevention + 0x8 
+				[0x081d9410] = { -- BattleScript_PRLZPrevention + 0x8
 					[7]  = true, -- Limber
 					[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 				},
