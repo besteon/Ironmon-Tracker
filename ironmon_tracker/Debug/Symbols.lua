@@ -15,7 +15,7 @@ function Symbols.printSymbols(symbolArr,symbolFile,key, gameType, file)
 		end
         for line in symbolFile:lines() do
             if line:find(sym) ~= nil then
-                file:write(sym .. " = 0x" .. line:sub(1,8) .. "\n")
+                file:write("GameSettings." .. sym .. " = 0x" .. line:sub(1,8) .. "\n")
                 found = true
                 break;
             end
@@ -74,6 +74,10 @@ local symbolPath = {
 		gameType = 0,
 		fileName = "pokesapphire_rev2.sym.txt"
 	},
+	["emerald"] = {
+		gameType = 1,
+		fileName = "pokeemerald.sym.txt"
+	}
 }
 
 -- add what symbols you want to search 
