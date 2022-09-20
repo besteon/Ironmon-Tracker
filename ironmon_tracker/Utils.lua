@@ -277,7 +277,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 	-- Most status moves also ignore type effectiveness. Examples: Growl, Confuse Ray, Sand-Attack
 	if move.category == MoveData.Categories.STATUS then
 		-- Some status moves care about immunities. Examples: Toxic, Thunder Wave, Leech Seed
-		if MoveData.StatusMovesWillFail[move.id][comparedTypes[1]] or MoveData.StatusMovesWillFail[move.id][comparedTypes[2]] then
+		if MoveData.StatusMovesWillFail[move.id] ~= nil and (MoveData.StatusMovesWillFail[move.id][comparedTypes[1]] or MoveData.StatusMovesWillFail[move.id][comparedTypes[2]]) then
 			return 0.0
 		else
 			return 1.0
