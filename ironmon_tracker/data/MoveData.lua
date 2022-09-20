@@ -73,6 +73,17 @@ MoveData.TypeToEffectiveness = {
 	steel = { fire = 0.5, water = 0.5, ice = 2, rock = 2, steel = 0.5, electric = 0.5 },
 }
 
+-- Is true when a Status move fails/doesn't work against a checked move type
+MoveData.StatusMovesWillFail = {
+	["73"] = { [PokemonData.Types.GRASS] = true }, -- Leech Seed
+	["77"] = { [PokemonData.Types.STEEL] = true }, -- PoisonPowder
+	["86"] = { [PokemonData.Types.GROUND] = true }, -- Thunder Wave
+	["92"] = { [PokemonData.Types.STEEL] = true }, -- Toxic
+	["137"] = { [PokemonData.Types.GHOST] = true }, -- Glare
+	["139"] = { [PokemonData.Types.STEEL] = true }, -- Poison Gas
+	["261"] = { [PokemonData.Types.FIRE] = true }, -- Will-O-Wisp
+}
+
 MoveData.BlankMove = {
 	id = "0",
 	name = Constants.BLANKLINE,
