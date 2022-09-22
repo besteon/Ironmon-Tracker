@@ -269,45 +269,35 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 		return 1.0
 	end
 
-	-- If type is unknown or typeless
+	-- If the move type is typeless or unknown, effectiveness check is ignored
 	if MoveData.IsTypelessMove[move.id] or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
 	end
 
-	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
-	if move.power == "0" then
-		if move.category ~= MoveData.Categories.STATUS then
-			if moveType == PokemonData.Types.NORMAL and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
-				return 0.0
-			elseif moveType == PokemonData.Types.FIGHTING and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
-				return 0.0
-			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
-				return 0.0
-			elseif moveType == PokemonData.Types.POISON and (comparedTypes[1] == PokemonData.Types.STEEL or comparedTypes[2] == PokemonData.Types.STEEL) then
-				return 0.0
-			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
-				return 0.0
-			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then
-				return 0.0
-			end
+	-- Most status moves also ignore type effectiveness. Examples: Growl, Confuse Ray, Sand-Attack
+	if move.category == MoveData.Categories.STATUS then
+		-- Some status moves care about immunities. Examples: Toxic, Thunder Wave, Leech Seed
+		if MoveData.StatusMovesWillFail[move.id] ~= nil and (MoveData.StatusMovesWillFail[move.id][comparedTypes[1]] or MoveData.StatusMovesWillFail[move.id][comparedTypes[2]]) then
+			return 0.0
+		else
+			return 1.0
 		end
-		return 1.0
 	end
 
 	-- Check effectiveness against each opposing type
-	local effectiveness = 1.0
+	local total = 1.0
 	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
 	if effectiveValue ~= nil then
-		effectiveness = effectiveness * effectiveValue
+		total = total * effectiveValue
 	end
 	if comparedTypes[2] ~= comparedTypes[1] then
 		effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[2]]
 		if effectiveValue ~= nil then
-			effectiveness = effectiveness * effectiveValue
+			total = total * effectiveValue
 		end
 	end
 
-	return effectiveness
+	return total
 end
 
 -- moveType required for Hidden Power tracked type
