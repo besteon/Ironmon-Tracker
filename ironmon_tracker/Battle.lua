@@ -241,8 +241,11 @@ function Battle.updateTrackedInfo()
 					-- Track move so long as the mon was able to use it
 					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
-					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-					Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+					--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
+					if not transformData.isOwn then
+						local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
+						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+					end
 
 					--Only track ability-changing moves if they also did not fail/miss
 					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
