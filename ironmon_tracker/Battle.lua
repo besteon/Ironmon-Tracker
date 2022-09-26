@@ -195,7 +195,7 @@ function Battle.processBattleTurn()
 	end
 	
 	-- Track moves for transformed mons if applicable; need high accuracy checking since moves window can be opened an closed in < .5 second
-	Battle.handleTransformedMons()
+	Battle.trackTransformedMoves()
 end
 
 function Battle.updateTrackedInfo()
@@ -273,8 +273,8 @@ function Battle.updateTrackedInfo()
 	if not Battle.isGhost then
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
-		local indexesToTrack = Battle.checkAbilitiesToTrack()
-		for _, indexToTrack in pairs(indexesToTrack) do
+		local combatantIndexesToTrack = Battle.checkAbilitiesToTrack()
+		for _, indexToTrack in pairs(combatantIndexesToTrack) do
 			if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
 				local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
 				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
@@ -370,7 +370,7 @@ function Battle.checkAbilitiesToTrack()
 		Battle.Synchronize.attacker = -1
 		Battle.Synchronize.battlerTarget = -1
 	end
-	local indexesToTrack = {}
+	local combatantIndexesToTrack = {}
 
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
@@ -382,35 +382,35 @@ function Battle.checkAbilitiesToTrack()
 		-- Track a Traced pokemon's ability
 		if battlerAbility == 36 then
 			Battle.trackAbilityChanges(nil,36)
-			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		end
-		indexesToTrack[Battle.battler] = Battle.battler
+		combatantIndexesToTrack[Battle.battler] = Battle.battler
 	end
 
 	-- REVERSE_BATTLER: 'battlerTarget' had their ability triggered by the battler's ability
 	abilityMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
-		indexesToTrack[Battle.battler] = Battle.battler
+		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+		combatantIndexesToTrack[Battle.battler] = Battle.battler
 	end
 
 	-- ATTACKER: 'battleTarget' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 	end
 
 	-- REVERSE ATTACKER: 'attacker' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[attackerAbility] then
-		indexesToTrack[Battle.attacker] = Battle.attacker
+		combatantIndexesToTrack[Battle.attacker] = Battle.attacker
 	end
 
 	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		-- Log allied pokemon contact status ability trigger for Synchronize
 		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battlerTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
-			indexesToTrack[Battle.battler] = Battle.battler
+			combatantIndexesToTrack[Battle.battler] = Battle.battler
 		end
 		if abilityMsg[battleTargetAbility] then
 			Battle.Synchronize.turnCount = Battle.turnCount
@@ -423,27 +423,27 @@ function Battle.checkAbilitiesToTrack()
 	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
 	if abilityMsg ~= nil then
 		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
-			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		end
 		if abilityMsg.scope == "other" and abilityMsg[attackerAbility] then
-			indexesToTrack[Battle.attacker] = Battle.attacker
+			combatantIndexesToTrack[Battle.attacker] = Battle.attacker
 		end
 	end
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers, 1 do
 		if levitateCheck == 4 and Battle.attacker ~= i then
-			indexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
 			local monAbility = Battle.BattleAbilities[i%2][Battle.Combatants[Battle.IndexMap[i]]].ability
 			if abilityMsg[monAbility] then
-				indexesToTrack[i] = i
+				combatantIndexesToTrack[i] = i
 			end
 		end
 	end
 
-	return indexesToTrack
+	return combatantIndexesToTrack
 end
 
 function Battle.beginNewBattle()
@@ -473,43 +473,7 @@ function Battle.beginNewBattle()
 		RightOwn = 2,
 		RightOther = 2,
 	}
-	--populate BattleAbilities for all Pokemon
-	Battle.BattleAbilities[0] = {}
-	Battle.BattleAbilities[1] = {}
-	for i=1, 6, 1 do
-		local ownPokemon = Tracker.getPokemon(i, true)
-		if ownPokemon ~= nil then
-			local ability = PokemonData.getAbilityId(ownPokemon.pokemonID, ownPokemon.abilityNum)
-			Battle.BattleAbilities[0][i] = {
-				abilityOwner = {
-					isOwn = true,
-					slot = i
-				},
-				["originalAbility"] = ability,
-				["ability"] = ability,
-				transformData = {
-					isOwn = true,
-					slot = i,
-				},
-			}
-		end
-		local enemyPokemon = Tracker.getPokemon(i, false)
-		if enemyPokemon ~= nil then
-			local ability = PokemonData.getAbilityId(enemyPokemon.pokemonID, enemyPokemon.abilityNum)
-			Battle.BattleAbilities[1][i] = {
-				abilityOwner = {
-					isOwn = false,
-					slot = i
-				},
-				["originalAbility"] = ability,
-				["ability"] = ability,
-				transformData = {
-					isOwn = false,
-					slot = i,
-				},
-			}
-		end
-	end
+	Battle.populateBattleAbilityObject()
 	Input.resetControllerIndex()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
@@ -604,6 +568,46 @@ function Battle.changeOpposingPokemonView(isLeft)
 	Program.Frames.waitToDraw = 0
 end
 
+function Battle.populateBattleAbilityObject()
+	--populate BattleAbilities for all Pokemon with their starting Abilities and pokemonIDs
+	Battle.BattleAbilities[0] = {}
+	Battle.BattleAbilities[1] = {}
+	for i=1, 6, 1 do
+		local ownPokemon = Tracker.getPokemon(i, true)
+		if ownPokemon ~= nil then
+			local ability = PokemonData.getAbilityId(ownPokemon.pokemonID, ownPokemon.abilityNum)
+			Battle.BattleAbilities[0][i] = {
+				abilityOwner = {
+					isOwn = true,
+					slot = i
+				},
+				["originalAbility"] = ability,
+				["ability"] = ability,
+				transformData = {
+					isOwn = true,
+					slot = i,
+				},
+			}
+		end
+		local enemyPokemon = Tracker.getPokemon(i, false)
+		if enemyPokemon ~= nil then
+			local ability = PokemonData.getAbilityId(enemyPokemon.pokemonID, enemyPokemon.abilityNum)
+			Battle.BattleAbilities[1][i] = {
+				abilityOwner = {
+					isOwn = false,
+					slot = i
+				},
+				["originalAbility"] = ability,
+				["ability"] = ability,
+				transformData = {
+					isOwn = false,
+					slot = i,
+				},
+			}
+		end
+	end
+end
+
 function Battle.trackAbilityChanges(moveUsed, ability)
 
 	--check if ability changing move is being used. If so, make appropriate swaps in the table based on attacker/target
@@ -678,7 +682,7 @@ function Battle.resetAbilityMapPokemon(slot, isOwn)
 	Battle.BattleAbilities[teamIndex][slot].transformData.slot = slot
 end
 
-function Battle.handleTransformedMons()
+function Battle.trackTransformedMoves()
 
 	--Do nothing if no pokemon is viewing their moves
 	if Memory.readbyte(GameSettings.sBattleBuffersTransferData) ~= 20 then return end
