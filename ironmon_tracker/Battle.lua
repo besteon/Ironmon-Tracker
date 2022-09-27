@@ -59,7 +59,7 @@ Battle.IndexMap = {
 }
 
 function Battle.update()
-	if Program.Frames.lowAccuracyUpdate == 0 and not Program.inCatchingTutorial then
+	if Program.Frames.highAccuracyUpdate == 0 and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
 	end
 
@@ -78,12 +78,11 @@ function Battle.updateBattleStatus()
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
-
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
 		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
 		Battle.beginNewBattle()
-	elseif Battle.inBattle and lastBattleStatus ~= 0 then
+	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
 	end
 end
