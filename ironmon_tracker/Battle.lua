@@ -244,7 +244,9 @@ function Battle.updateTrackedInfo()
 					--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
 					if not transformData.isOwn then
 						local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-						Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+						if attackingMon ~= nil then
+							Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+						end
 					end
 
 					--Only track ability-changing moves if they also did not fail/miss
@@ -259,33 +261,43 @@ function Battle.updateTrackedInfo()
 
 	-- Always track your own Pokemons' abilities
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
-	local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
-	Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
-	Battle.updateStatStages(ownLeftPokemon, true)
+	if ownLeftPokemon ~= nil then
+		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
+		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+		Battle.updateStatStages(ownLeftPokemon, true)
+	end
 
 	if Battle.numBattlers == 4 then
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
-		local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
-		Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
-		Battle.updateStatStages(ownRightPokemon, true)
+		if ownRightPokemon ~= nil then
+			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
+			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+			Battle.updateStatStages(ownRightPokemon, true)
+		end
 	end
 	--Don't track anything for Ghost opponents
 	if not Battle.isGhost then
-		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
-		local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 		local combatantIndexesToTrack = Battle.checkAbilitiesToTrack()
 		for _, indexToTrack in pairs(combatantIndexesToTrack) do
 			if indexToTrack >= 0 and indexToTrack < Battle.numBattlers then
 				local battleMon = Battle.BattleAbilities[indexToTrack % 2][Battle.Combatants[Battle.IndexMap[indexToTrack]]]
 				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-				Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+				if abilityOwner ~= nil then
+					Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+				end
 			end
 		end
-		Battle.updateStatStages(otherLeftPokemon, false)
-		Battle.checkEnemyEncounter(otherLeftPokemon)
+		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
+		if otherLeftPokemon ~= nil then
+			Battle.updateStatStages(otherLeftPokemon, false)
+			Battle.checkEnemyEncounter(otherLeftPokemon)
+		end
 		if Battle.numBattlers == 4 then
-			Battle.updateStatStages(otherRightPokemon, false)
-			Battle.checkEnemyEncounter(otherRightPokemon)
+			local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
+			if otherRightPokemon ~= nil then
+				Battle.updateStatStages(otherRightPokemon, false)
+				Battle.checkEnemyEncounter(otherRightPokemon)
+			end
 		end
 	end
 end
@@ -494,7 +506,9 @@ function Battle.endCurrentBattle()
 	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
 		local battleMon = Battle.BattleAbilities[0][Battle.Combatants[Battle.IndexMap[0]]]
 		local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-		Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+		if abilityOwner ~= nil then
+			Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
+		end
 	end
 
 	Battle.numBattlers = 0
@@ -638,7 +652,9 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 
 			if moveUsed == 272 then
 				local abilityOwner = Tracker.getPokemon(Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.slot,Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn)
-				Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleAbilities[targetTeamIndex][targetSlot].ability)
+				if abilityOwner ~= nil then
+					Tracker.TrackAbility(abilityOwner.pokemonID, Battle.BattleAbilities[targetTeamIndex][targetSlot].ability)
+				end
 			end
 
 			Battle.BattleAbilities[attackerTeamIndex][attackerSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetSlot].abilityOwner.isOwn
@@ -663,7 +679,9 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 
 			--Track Trace here, otherwise when we try to track normally, the pokemon's battle ability and owner will have already updated to what was traced.
 			local abilityOwner = Tracker.getPokemon(Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot,Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn)
-			Tracker.TrackAbility(abilityOwner.pokemonID, ability)
+			if abilityOwner ~= nil then
+				Tracker.TrackAbility(abilityOwner.pokemonID, ability)
+			end
 			
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.slot
@@ -707,9 +725,11 @@ function Battle.trackTransformedMoves()
 	local transformData = Battle.BattleAbilities[0][Battle.Combatants[Battle.IndexMap[currentSelectingMon]]].transformData
 	if not transformData.isOwn then
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
-		for _, move in pairs(copiedMon.moves) do
-			if MoveData.isValid(move.id) then
-				Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
+		if copiedMon ~= nil then
+			for _, move in pairs(copiedMon.moves) do
+				if MoveData.isValid(move.id) then
+					Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
+				end
 			end
 		end
 	end
