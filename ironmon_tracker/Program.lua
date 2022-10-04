@@ -177,7 +177,7 @@ function Program.updateRepelSteps()
 	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
-	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
+	local repelStepCount = Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
 	if repelStepCount ~= nil and repelStepCount > 0 then
 		Program.ActiveRepel.inUse = true
 		if repelStepCount ~= Program.ActiveRepel.stepCount then
