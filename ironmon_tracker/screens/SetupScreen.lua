@@ -3,7 +3,7 @@ SetupScreen = {
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
-	iconChangeInterval = 5,
+	iconChangeInterval = 10,
 }
 
 SetupScreen.OptionKeys = {
@@ -37,6 +37,7 @@ SetupScreen.Buttons = {
 		end,
 		onClick = function(self)
 			self.pokemonID = Utils.randomPokemonID()
+			SetupScreen.iconChangeInterval = 10
 			Program.redraw(true)
 		end
 	},
@@ -49,6 +50,7 @@ SetupScreen.Buttons = {
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
 			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[nextSet].author
+			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", nextSet)
 		end
 	},
@@ -61,6 +63,7 @@ SetupScreen.Buttons = {
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
 			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[prevSet].author
+			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", prevSet)
 		end
 	},
@@ -231,5 +234,5 @@ function SetupScreen.drawScreen()
 		SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 	end
 
-	SetupScreen.iconChangeInterval = (SetupScreen.iconChangeInterval - 1) % 5
+	SetupScreen.iconChangeInterval = (SetupScreen.iconChangeInterval - 1) % 10
 end
