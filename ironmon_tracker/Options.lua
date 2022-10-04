@@ -71,7 +71,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 4,
 		adjustQuestionMark = false,
-		author = "Fellshadow"
+		author = "Fellshadow",
 	}
 }
 
