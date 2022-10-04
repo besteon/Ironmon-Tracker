@@ -1,6 +1,6 @@
 SetupScreen = {
 	headerText = "Tracker Setup",
-	textColor = "Default text",
+	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }
@@ -10,6 +10,7 @@ SetupScreen.OptionKeys = {
 	"Disable mainscreen carousel",
 	"Track PC Heals",
 	"PC heals count downward",
+	"Display repel usage",
 	"Animated Pokemon popout",
 }
 
@@ -29,10 +30,7 @@ SetupScreen.Buttons = {
 			return imagepath
 		end,
 		onClick = function(self)
-			self.pokemonID = math.random(PokemonData.totalPokemon - 25)
-			if self.pokemonID > 251 then
-				self.pokemonID = self.pokemonID + 25
-			end
+			self.pokemonID = Utils.randomPokemonID()
 			Program.redraw(true)
 		end
 	},
@@ -128,7 +126,8 @@ function SetupScreen.initialize()
 	end
 
 	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-	SetupScreen.Buttons.PokemonIcon:onClick() -- Randomize what Pokemon icon is shown
+	-- Randomize what Pokemon icon is shown
+	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
 	-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
 	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
@@ -174,7 +173,9 @@ function SetupScreen.openEditControlsWindow()
 			end
 			controlCombination = controlCombination:sub(1, -3)
 
-			Options.CONTROLS[controlKey] = controlCombination
+			if controlCombination ~= nil and controlCombination ~= "" then
+				Options.CONTROLS[controlKey] = controlCombination
+			end
 			index = index + 1
 		end
 
@@ -198,15 +199,16 @@ function SetupScreen.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[SetupScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 37, Constants.SCREEN.MARGIN - 2, SetupScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[SetupScreen.borderColor], Theme.COLORS[SetupScreen.boxFillColor])
-
-	-- Draw header text
-	Drawing.drawText(topboxX + 37, topboxY + 2, SetupScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- Draw all buttons
 	for _, button in pairs(SetupScreen.Buttons) do

@@ -1,5 +1,6 @@
 Program = {
 	currentScreen = 1,
+	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	friendshipRequired = 220,
@@ -13,12 +14,18 @@ Program = {
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
+	ActiveRepel = {
+		inUse = false,
+		stepCount = 0,
+		duration = 100,
+	},
 }
 
 Program.Screens = {
 	TRACKER = TrackerScreen.drawScreen,
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
+	STARTUP = StartupScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -38,7 +45,7 @@ Program.GameData = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.Screens.TRACKER
+	Program.currentScreen = Program.Screens.STARTUP
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -47,9 +54,9 @@ function Program.initialize()
 	end
 
 	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 1
-	Program.Frames.lowAccuracyUpdate = 1
-	Program.Frames.three_sec_update = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
 
 	PokemonData.readDataFromMemory()
@@ -113,17 +120,30 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
+			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+				Program.currentScreen = Program.Screens.TRACKER
+			end
+
 			-- Check if summary screen has being shown
 			if not Tracker.Data.hasCheckedSummary then
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
+				end
+			end
+
+			if Options["Display repel usage"] and not Battle.inBattle then
+				-- Check if the player is in the start menu (for hiding the repel usage icon)
+				Program.inStartMenu = Program.isInStartMenu()
+				-- Check for active repel and steps remaining
+				if not Program.inStartMenu then
+					Program.updateRepelSteps()
 				end
 			end
 		end
@@ -150,6 +170,35 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+end
+
+function Program.updateRepelSteps()
+	-- Checks for an active repel and updates the current steps remaining
+	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
+	local saveblock1Addr = Utils.getSaveBlock1Addr()
+	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
+	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
+	if repelStepCount ~= nil and repelStepCount > 0 then
+		Program.ActiveRepel.inUse = true
+		if repelStepCount ~= Program.ActiveRepel.stepCount then
+			Program.ActiveRepel.stepCount = repelStepCount
+			-- Duration is defaulted to normal repel (100 steps), check if super or max is used instead
+			if repelStepCount > Program.ActiveRepel.duration then
+				if repelStepCount <= 200 then
+					-- Super Repel
+					Program.ActiveRepel.duration = 200
+				elseif repelStepCount <= 250 then
+					-- Max Repel
+					Program.ActiveRepel.duration = 250
+				end
+			end
+		end
+	elseif repelStepCount == 0 then
+		-- Reset the active repel data when none is active (remaining step count 0)
+		Program.ActiveRepel.inUse = false
+		Program.ActiveRepel.stepCount = 0
+		Program.ActiveRepel.duration = 100
+	end
 end
 
 function Program.updatePokemonTeams()
@@ -322,16 +371,14 @@ function Program.readNewPokemon(startAddress, personality)
 	return pokemonData
 end
 
-function Program.readBattleValues()
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
-	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
-end
-
 function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
 	-- Does not include whiteouts, as those don't increment either of these gamestats
+
+	-- Save blocks move and are re-encrypted right as the battle starts
+	if Battle.inBattle then return end
+
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
@@ -357,6 +404,11 @@ function Program.updatePCHeals()
 end
 
 function Program.updateBadgesObtained()
+	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
+	if not Program.isInValidMapLocation() then
+		return
+	end
+
 	local badgeBits = nil
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	if GameSettings.game == 1 then -- Ruby/Sapphire
@@ -450,6 +502,17 @@ function Program.isInEvolutionScene()
 	if isActive ~= 1 then return false end
 
 	return true
+end
+
+-- Returns true if player is in the start menu (or the subsequent pokedex/pokemon/bag/etc menus)
+function Program.isInStartMenu()
+	-- Current Issues:
+	-- 1) Sometimes this window ID gets unset for a brief duration during the transition back to the start menu
+	-- 2) This window ID doesn't exist at all in Ruby/Sapphire, yet to figure out an alternative
+	if GameSettings.game == 1 then return false end -- Skip checking for Ruby/Sapphire
+
+	local startMenuWindowId = Memory.readbyte(GameSettings.sStartMenuWindowId)
+	return startMenuWindowId == 1
 end
 
 -- Pokemon is valid if it has a valid id, helditem, and each move that exists is a real move.

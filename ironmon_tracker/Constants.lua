@@ -28,6 +28,11 @@ Constants.Extensions = {
 	TRACKED_DATA = ".tdat",
 }
 
+Constants.Release = {
+	VERSION_URL = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
+	DOWNLOAD_URL = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
+}
+
 Constants.ButtonTypes = {
 	FULL_BORDER = 1,
 	NO_BORDER = 2,
@@ -102,6 +107,7 @@ Constants.OrderedLists = {
 		"Animated Pokemon popout",
 		"Use premade ROMs",
 		"Generate ROM each time",
+		"Display repel usage",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -111,6 +117,7 @@ Constants.OrderedLists = {
 	},
 	THEMECOLORS = {
 		"Default text",
+		"Lower box text",
 		"Positive text",
 		"Negative text",
 		"Intermediate text",
@@ -261,5 +268,20 @@ Constants.PixelImages = {
 		{0,1,1,1,0,0,0,1,1,1,0},
 		{1,1,1,0,0,0,0,0,1,1,1},
 		{1,1,0,0,0,0,0,0,0,1,1},
+	},
+	GBA = {
+		{0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0},
+		{0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0},
+		{1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1},
+		{1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1},
+		{1,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1},
+		{1,1,0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,1,1,0,0,1},
+		{1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1},
+		{1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,0,0,1,1,1},
+		{1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+		{0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0},
+		{0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0},
 	},
 }
