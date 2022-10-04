@@ -23,7 +23,7 @@ SetupScreen.Buttons = {
 	},
 	PortraitAuthor = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Added By:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author,
+		text = "Added by:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 22, 65, 11 },
 	},
 	PokemonIcon = {
@@ -48,7 +48,7 @@ SetupScreen.Buttons = {
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[nextSet].author
+			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[nextSet].author
 			Options.updateSetting("Pokemon icon set", nextSet)
 		end
 	},
@@ -60,7 +60,7 @@ SetupScreen.Buttons = {
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[prevSet].author
+			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[prevSet].author
 			Options.updateSetting("Pokemon icon set", prevSet)
 		end
 	},
@@ -134,7 +134,7 @@ function SetupScreen.initialize()
 	end
 
 	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-	SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author
+	SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
