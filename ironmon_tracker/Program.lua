@@ -371,12 +371,6 @@ function Program.readNewPokemon(startAddress, personality)
 	return pokemonData
 end
 
-function Program.readBattleValues()
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
-	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
-end
-
 function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
