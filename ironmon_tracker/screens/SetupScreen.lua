@@ -3,6 +3,7 @@ SetupScreen = {
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
+	iconChangeInterval = 5,
 }
 
 SetupScreen.OptionKeys = {
@@ -18,11 +19,16 @@ SetupScreen.Buttons = {
 	ChoosePortrait = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 13, 65, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 12, 65, 11 },
+	},
+	PortraitAuthor = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "Added By:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 22, 65, 11 },
 	},
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 19, 32, 32 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 27, 32, 32 },
 		pokemonID = 1,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -37,22 +43,24 @@ SetupScreen.Buttons = {
 	CycleIconForward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NEXT_BUTTON,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 33, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
+			SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[nextSet].author
 			Options.updateSetting("Pokemon icon set", nextSet)
 		end
 	},
 	CycleIconBackward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.PREVIOUS_BUTTON,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 33, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
 			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
+			SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[prevSet].author
 			Options.updateSetting("Pokemon icon set", prevSet)
 		end
 	},
@@ -86,7 +94,7 @@ SetupScreen.Buttons = {
 
 function SetupScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 55
+	local startY = Constants.SCREEN.MARGIN + 63
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
@@ -126,6 +134,7 @@ function SetupScreen.initialize()
 	end
 
 	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
+	SetupScreen.Buttons.PortraitAuthor.text = "Added By:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
@@ -214,4 +223,13 @@ function SetupScreen.drawScreen()
 	for _, button in pairs(SetupScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
+
+	-- Randomize the pokemon shown every iconChangeInterval
+	-- Tracker screen redraw occurs every Program.Frames.waitToDraw frames,
+	-- so overall interval is effectively iconChangeInterval * Program.Frames.waitToDraw frames
+	if SetupScreen.iconChangeInterval == 0 then
+		SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
+	end
+
+	SetupScreen.iconChangeInterval = (SetupScreen.iconChangeInterval - 1) % 5
 end

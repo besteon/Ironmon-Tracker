@@ -47,6 +47,7 @@ Options.IconSetMap = {
 		extension = ".gif",
 		yOffset = 0,
 		adjustQuestionMark = true, -- Whether to adjust the question mark icons in routeInfo screen
+		author = "Besteon",
 	},
 	["2"] = {
 		name = "Stadium",
@@ -54,6 +55,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 4,
 		adjustQuestionMark = false,
+		author = "AmberCyprian",
 	},
 	["3"] = {
 		name = "Gen 7+",
@@ -61,6 +63,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 2,
 		adjustQuestionMark = true,
+		author = "kittenchilly",
 	},
 	["4"] = {
 		name = "Explorers",
@@ -68,6 +71,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 4,
 		adjustQuestionMark = false,
+		author = "Fellshadow"
 	}
 }
 
