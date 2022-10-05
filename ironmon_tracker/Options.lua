@@ -71,6 +71,17 @@ Options.IconSetMap = {
 	}
 }
 
+-- This determines what icon to show on each Startup Screen
+-- random: changes randomly each seed
+-- attempts: shows a Pokemon based on the attempt count, eg. "attempt 25" would show Pikachu
+-- [ID_NUM]: shows the same Pokemon every time, eg. "set as 213" would always show Shuckle
+Options.StartupIcon = {
+	random = "Random",
+	attempts = "Attempts",
+}
+
+Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
+
 function Options.initialize()
 	-- Check if the Toggle View controller button is not default, and update the tip message if so.
 	local toggleViewValue = Options.CONTROLS["Toggle view"]
