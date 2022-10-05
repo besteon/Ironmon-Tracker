@@ -379,6 +379,17 @@ function Program.updatePCHeals()
 	-- Save blocks move and are re-encrypted right as the battle starts
 	if Battle.inBattle then return end
 
+	-- Make sure the player is in a map location that can perform a PC heal
+	if GameSettings.game == 3 then -- FRLG
+		if not Constants.HealLocations.FRLG[Battle.CurrentRoute.mapId] then
+			return
+		end
+	else -- RSE
+		if not Constants.HealLocations.RSE[Battle.CurrentRoute.mapId] then
+			return
+		end
+	end
+
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG
 	local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME)
