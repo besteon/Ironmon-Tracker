@@ -299,7 +299,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 
 	-- Moves that calculate specific damage amounts still check immunities, but otherwise ignore type-effectiveness
 	-- Examples: Fissure, Mirror Coat, Dragon Rage, Bide, Endeavor
-	if total == 0.0 and move.power == "0" then
+	if move.power == "0" and total ~= 0.0 then
 		return 1.0
 	else
 		return total
