@@ -368,8 +368,10 @@ end
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
 	RouteData.Info = {
-		[5] = { name = "Oak's Lab", }, 
-		[12] = { name = "Cerulean Gym", }, 
+		[1] = { name = "Mom's House", },
+		[5] = { name = "Oak's Lab", },
+		[8] = { name = Constants.Words.POKEMON .. " Center", },
+		[12] = { name = "Cerulean Gym", },
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },
 		[25] = { name = "Vermilion Gym", },
@@ -1432,6 +1434,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		},
 		[177] = { name = "S.S. Anne Rooms", },
 		[178] = { name = "S.S. Anne Rooms", },
+		[212] = { name = "Indigo Plateau PC", },
 		[213] = { name = "Lorelei's Room", },
 		[214] = { name = "Bruno's Room", },
 		[215] = { name = "Agatha's Room", },
@@ -1944,6 +1947,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		-- [[Start]] One Island: Mt. Ember
 		-- Serebii's Pokéarth is pretty wrong about this place for some reason, basing off bulbapedia instead which is mostly more accurate
 		-- https://bulbapedia.bulbagarden.net/wiki/Mt._Ember#Pok.C3.A9mon
+		[271] = { name = "One Island PC", },
 		[280] = { name = "Mt. Ember Base",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 77, rate = 0.35, minLv = 30, maxLv = 36, },
@@ -3251,9 +3255,12 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
+	RouteData.Info[54] = { name = "Mom's House", }
+	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
 	RouteData.Info[65] = { name = "Dewford Gym", }
 	RouteData.Info[69] = { name = "Lavaridge Gym1", }
 	RouteData.Info[70] = { name = "Lavaridge Gym2", }
+	RouteData.Info[71] = { name = "Lavaridge Town PC", }
 	RouteData.Info[79] = { name = "Petalburg Gym", }
 	RouteData.Info[89] = { name = "Mauville Gym", }
 	RouteData.Info[94] = { name = "Rustboro Gym", }
@@ -3756,6 +3763,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
+	RouteData.Info[270 + offset] = { name = Constants.Words.POKEMON .. " League PC", }
 	RouteData.Info[285 + offset] = { name = "Victory Road B1F",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },
