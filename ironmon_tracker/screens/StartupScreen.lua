@@ -24,15 +24,14 @@ StartupScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 10, 32, 32 },
-		pokemonID = 1,
+		pokemonID = 0,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
 			return imagepath
 		end,
 		onClick = function(self)
-			self.pokemonID = Utils.randomPokemonID()
-			Program.redraw(true)
+			StartupScreen.openChoosePokemonWindow()
 		end
 	},
 	EraseGame = {
@@ -56,12 +55,78 @@ StartupScreen.Buttons = {
 }
 
 function StartupScreen.initialize()
-	-- Show a Pokemon with a Gen 3 Pokedex number equal to the Attempts count
-	local pokemonID = (Main.currentSeed - 1) % (PokemonData.totalPokemon - 25) + 1
-	if pokemonID > 251 then
-		pokemonID = pokemonID + 25
+	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
+end
+
+function StartupScreen.setPokemonIcon(displayOption)
+	local pokemonID = Utils.randomPokemonID()
+
+	if displayOption == Options.StartupIcon.random then
+		pokemonID = Utils.randomPokemonID()
+		Options["Startup Pokemon displayed"] = Options.StartupIcon.random
+	elseif displayOption == Options.StartupIcon.attempts then
+		-- Show a Pokemon with a Gen 3 Pokedex number equal to the Attempts count
+		pokemonID = (Main.currentSeed - 1) % (PokemonData.totalPokemon - 25) + 1
+		if pokemonID > 251 then
+			pokemonID = pokemonID + 25
+		end
+		Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
+	else
+		-- The option is a pokemonID already
+		local id = tonumber(displayOption) or -1
+		if PokemonData.isImageIDValid(id) then
+			pokemonID = id
+			Options["Startup Pokemon displayed"] = pokemonID
+		end
 	end
-	StartupScreen.Buttons.PokemonIcon.pokemonID = pokemonID
+
+	if pokemonID ~= nil then
+		StartupScreen.Buttons.PokemonIcon.pokemonID = pokemonID
+		Program.redraw(true)
+	end
+end
+
+function StartupScreen.openChoosePokemonWindow()
+	Program.destroyActiveForm()
+	local form = forms.newform(330, 145, "Choose a Pokemon", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+
+	local allPokemon = PokemonData.toList()
+	table.insert(allPokemon, "-- Based on attempt #")
+	table.insert(allPokemon, "-- Random each time")
+	table.insert(allPokemon, "...................................") -- A spacer to separate special options
+
+	forms.label(form, "Choose a Pokemon to show during startup:", 49, 10, 250, 20)
+	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
+	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
+	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
+	forms.settext(pokedexDropdown, "-- Based on attempt #")
+
+	forms.button(form, "Save", function()
+		local optionSelected = forms.gettext(pokedexDropdown)
+
+		if optionSelected == "-- Based on attempt #" then
+			optionSelected = Options.StartupIcon.attempts
+		elseif optionSelected == "-- Random each time" then
+			optionSelected = Options.StartupIcon.random
+		elseif optionSelected ~= "..................................." then
+			-- The option is a Pokemon's name and needs to be convered to an ID
+			optionSelected = PokemonData.getIdFromName(optionSelected) or -1
+		end
+
+		StartupScreen.setPokemonIcon(optionSelected)
+		Main.SaveSettings(true)
+
+		client.unpause()
+		forms.destroy(form)
+	end, 200, 29)
+
+	forms.button(form,"Cancel", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 120, 69)
 end
 
 -- DRAWING FUNCTIONS
