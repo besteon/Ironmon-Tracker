@@ -47,6 +47,7 @@ Options.IconSetMap = {
 		extension = ".gif",
 		yOffset = 0,
 		adjustQuestionMark = true, -- Whether to adjust the question mark icons in routeInfo screen
+		author = "Besteon",
 	},
 	["2"] = {
 		name = "Stadium",
@@ -54,6 +55,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 4,
 		adjustQuestionMark = false,
+		author = "AmberCyprian",
 	},
 	["3"] = {
 		name = "Gen 7+",
@@ -61,6 +63,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 2,
 		adjustQuestionMark = true,
+		author = "kittenchilly",
 	},
 	["4"] = {
 		name = "Explorers",
@@ -68,8 +71,20 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 4,
 		adjustQuestionMark = false,
+		author = "Fellshadow",
 	}
 }
+
+-- This determines what icon to show on each Startup Screen
+-- random: changes randomly each seed
+-- attempts: shows a Pokemon based on the attempt count, eg. "attempt 25" would show Pikachu
+-- [ID_NUM]: shows the same Pokemon every time, eg. "set as 213" would always show Shuckle
+Options.StartupIcon = {
+	random = "Random",
+	attempts = "Attempts",
+}
+
+Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
 
 function Options.initialize()
 	-- Check if the Toggle View controller button is not default, and update the tip message if so.

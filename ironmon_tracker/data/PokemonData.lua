@@ -130,7 +130,7 @@ function PokemonData.checkIfDataIsRandomized()
 	if not areTypesRandomized or not areAbilitiesRandomized then
 		types = PokemonData.readPokemonTypesFromMemory(131) -- Lapras
 		abilities = PokemonData.readPokemonAbilitiesFromMemory(131) -- Lapras
-	
+
 		if types ~= nil and (types[1] ~= PokemonData.Types.WATER or types[2] ~= PokemonData.Types.ICE) then
 			areTypesRandomized = true
 		end
@@ -140,7 +140,7 @@ function PokemonData.checkIfDataIsRandomized()
 	end
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
-	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below 
+	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
 	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
 
@@ -161,6 +161,26 @@ end
 function PokemonData.isImageIDValid(pokemonID)
 	--Eggs (412), Ghosts (413), and placeholder (0)
 	return PokemonData.isValid(pokemonID) or pokemonID == 412 or pokemonID == 413 or pokemonID == 0
+end
+
+function PokemonData.getIdFromName(pokemonName)
+	for id, pokemon in pairs(PokemonData.Pokemon) do
+		if pokemon.name == pokemonName then
+			return id
+		end
+	end
+
+	return nil
+end
+
+function PokemonData.toList()
+	local allPokemon = {}
+	for _, pokemon in pairs(PokemonData.Pokemon) do
+		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
+			table.insert(allPokemon, pokemon.name)
+		end
+	end
+	return allPokemon
 end
 
 PokemonData.TypeIndexMap = {
