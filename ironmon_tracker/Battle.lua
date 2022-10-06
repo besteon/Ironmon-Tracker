@@ -28,7 +28,8 @@ Battle = {
 		battlerTarget = -1,
 	},
 	AbilityChangeData = {
-		attacker = -1,
+		prevAction = 4,
+		recordNextMove = false
 	},
 	-- "Low accuracy" values
 	CurrentRoute = {
@@ -225,35 +226,38 @@ function Battle.updateTrackedInfo()
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
-		if actionCount < Battle.numBattlers and Battle.firstActionTaken and Battle.AbilityChangeData.attacker ~= Battle.attacker and confirmedCount == 0 then
+
+		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
 			-- 0 = MOVE_USED
-			if currentAction ~= 0 then
-				-- Mark enemy as took their turn if they aren't using a move.
-				Battle.AbilityChangeData.attacker = Battle.attacker
-			--Only log if it was a valid move
-			elseif lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
-				local hitFlags = Memory.readdword(GameSettings.gHitMarker)
-				local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
-				--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
-				if bit.band(hitFlags,0x80000) == 0 --and
-				 then
-					-- Track move so long as the mon was able to use it
-					local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-					local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
-					--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
-					if not transformData.isOwn then
-						local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-						if attackingMon ~= nil then
-							Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+			if Battle.AbilityChangeData.prevAction ~= actionCount then
+				Battle.AbilityChangeData.recordNextMove = true
+				Battle.AbilityChangeData.prevAction = actionCount
+			elseif Battle.AbilityChangeData.recordNextMove then
+				if currentAction == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+					local hitFlags = Memory.readdword(GameSettings.gHitMarker)
+					local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
+					--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
+					if bit.band(hitFlags,0x80000) == 0 then
+						-- Track move so long as the mon was able to use it
+						local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
+						local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
+						--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
+						if not transformData.isOwn then
+							local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
+							if attackingMon ~= nil then
+								Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+							end
+						end
+
+						--Only track ability-changing moves if they also did not fail/miss
+						if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+							Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 						end
 					end
-
-					--Only track ability-changing moves if they also did not fail/miss
-					if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-						Battle.trackAbilityChanges(lastMoveByAttacker,nil)
-					end
+					Battle.AbilityChangeData.prevAction = actionCount
 				end
-				Battle.AbilityChangeData.attacker = Battle.attacker
+				--only get one chance to record
+				Battle.AbilityChangeData.recordNextMove = false
 			end
 		end
 	end
@@ -469,7 +473,8 @@ function Battle.beginNewBattle()
 	Battle.damageReceived = 0
 	Battle.enemyHasAttacked = false
 	Battle.firstActionTaken = false
-	Battle.AbilityChangeData.attacker = -1
+	Battle.AbilityChangeData.prevAction = 4
+	Battle.AbilityChangeData.recordNextMove= false
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
@@ -565,7 +570,8 @@ end
 
 function Battle.handleNewTurn()
 	--Reset counters
-	Battle.AbilityChangeData.attacker = -1
+	Battle.AbilityChangeData.prevAction = 4
+	Battle.AbilityChangeData.recordNextMove= false
 	Battle.isNewTurn = false
 end
 
