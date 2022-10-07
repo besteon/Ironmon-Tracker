@@ -868,12 +868,17 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 				-- Calculate the power of Low Kick (weight-based moves) in battle
 				local targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
 				movePower = Utils.calculateWeightBasedDamage(movePower, targetWeight)
-			elseif Tracker.Data.isViewingOwn and (moveData.id == "175" or moveData.id == "179") then
-				-- Calculate the power of Flail & Reversal moves for player only
-				movePower = Utils.calculateLowHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
-			elseif Tracker.Data.isViewingOwn and (moveData.id == "284" or moveData.id == "323") then
-				-- Calculate the power of Eruption & Water Spout moves for the player only
-				movePower = Utils.calculateHighHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
+			elseif Tracker.Data.isViewingOwn then
+				if moveData.id == "175" or moveData.id == "179" then
+					-- Calculate the power of Flail & Reversal moves for player only
+					movePower = Utils.calculateLowHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
+				elseif moveData.id == "284" or moveData.id == "323" then
+					-- Calculate the power of Eruption & Water Spout moves for the player only
+					movePower = Utils.calculateHighHPBasedDamage(movePower, pokemon.curHP, pokemon.stats.hp)
+				elseif moveData.id == "216" or moveData.id == "218" then
+					-- Calculate the power of Return & Frustration moves for the player only
+					movePower = Utils.calculateFriendshipBasedDamage(movePower, pokemon.friendship)
+				end
 			end
 		end
 
