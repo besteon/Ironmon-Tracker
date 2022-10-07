@@ -219,8 +219,10 @@ function Battle.updateTrackedInfo()
 	local confirmedCount = Memory.readbyte(GameSettings.gBattleCommunication + 0x4)
 	local actionCount = Memory.readbyte(GameSettings.gCurrentTurnActionNumber)
 	local currentAction = Memory.readbyte(GameSettings.gActionsByTurnOrder + actionCount)
-	if actionCount == 0 then Battle.firstActionTaken = true end
+	--handles this value not being cleared from the previous battle
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
+	if actionCount == 0 and lastMoveByAttacker ~= 0 then Battle.firstActionTaken = true end
+	print ("Attacker: " .. Battle.attacker .. ";Battler: " .. Battle.battler .. ";Target: " .. Battle.battlerTarget .. ";Confirmed Count: " .. confirmedCount .. ";Action Count: " .. currentAction .. ";Last Move: " .. lastMoveByAttacker .. ";Message: " .. Battle.battleMsg)
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not Battle.moveDelayed() and not Battle.isGhost then	
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
@@ -229,11 +231,11 @@ function Battle.updateTrackedInfo()
 
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
 			-- 0 = MOVE_USED
-			if Battle.AbilityChangeData.prevAction ~= actionCount then
-				Battle.AbilityChangeData.recordNextMove = true
-				Battle.AbilityChangeData.prevAction = actionCount
-			elseif Battle.AbilityChangeData.recordNextMove then
-				if currentAction == 0 and lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then 
+				if Battle.AbilityChangeData.prevAction ~= actionCount then
+					Battle.AbilityChangeData.recordNextMove = true
+					Battle.AbilityChangeData.prevAction = actionCount
+				elseif Battle.AbilityChangeData.recordNextMove then
 					local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 					local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
 					--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
@@ -254,10 +256,9 @@ function Battle.updateTrackedInfo()
 							Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 						end
 					end
-					Battle.AbilityChangeData.prevAction = actionCount
+					--only get one chance to record
+					Battle.AbilityChangeData.recordNextMove = false
 				end
-				--only get one chance to record
-				Battle.AbilityChangeData.recordNextMove = false
 			end
 		end
 	end
@@ -742,6 +743,7 @@ end
 
 function Battle.moveDelayed()
 	return Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfused -- Pause for "X is confused"
+	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfused2
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfusedNoMore -- Pause for "X snapped out of confusion"
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsInLove -- Pause for the "X is in love with Y" delay
 	-- Might need one for sleep, but 
