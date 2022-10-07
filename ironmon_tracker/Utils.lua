@@ -375,6 +375,34 @@ function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
 	return tostring(roundedPower)
 end
 
+-- For Return & Frustration
+-- Only shows if close to max strength; won't return exact values to avoid revealing friendship amount
+function Utils.calculateFriendshipBasedDamage(movePower, friendship)
+	if movePower ~= ">FR" and movePower ~= "<FR" then
+		return movePower
+	end
+
+	if friendship == nil or friendship < 0 then
+		friendship = 0
+	elseif friendship > 255 then
+		friendship = 255
+	end
+
+	-- Invert if based on unhappiness
+	if movePower == "<FR" then
+		friendship = 255 - friendship
+	end
+
+	local basePower = math.max(friendship / 2.5, 1) -- minimum of 1
+
+	-- Don't reveal calculated power if not near max power (100-102)
+	if basePower < 100 then
+		return movePower
+	else
+		return tostring(math.floor(basePower)) -- remove decimals
+	end
+end
+
 function Utils.calculateWeatherBall(moveType, movePower)
 	if not Battle.inBattle then
 		return moveType, movePower
