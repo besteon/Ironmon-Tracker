@@ -177,7 +177,7 @@ function Program.updateRepelSteps()
 	-- Game uses a variable for the repel steps remaining, which remains at 0 when there's no active repel
 	local saveblock1Addr = Utils.getSaveBlock1Addr()
 	local repelStepCountOffset = Utils.inlineIf(GameSettings.game == 3, 0x40, 0x42)
-	local repelStepCount = Memory.readword(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
+	local repelStepCount = Memory.readbyte(saveblock1Addr + GameSettings.gameVarsOffset + repelStepCountOffset)
 	if repelStepCount ~= nil and repelStepCount > 0 then
 		Program.ActiveRepel.inUse = true
 		if repelStepCount ~= Program.ActiveRepel.stepCount then
@@ -371,12 +371,6 @@ function Program.readNewPokemon(startAddress, personality)
 	return pokemonData
 end
 
-function Program.readBattleValues()
-	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
-	Battle.battler = Memory.readbyte(GameSettings.gBattleScriptingBattler)
-	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget)
-end
-
 function Program.updatePCHeals()
 	-- Updates PC Heal tallies and handles auto-tracking PC Heal counts when the option is on
 	-- Currently checks the total number of heals from pokecenters and from mom
@@ -384,6 +378,17 @@ function Program.updatePCHeals()
 
 	-- Save blocks move and are re-encrypted right as the battle starts
 	if Battle.inBattle then return end
+
+	-- Make sure the player is in a map location that can perform a PC heal
+	if GameSettings.game == 3 then -- FRLG
+		if not Constants.HealLocations.FRLG[Battle.CurrentRoute.mapId] then
+			return
+		end
+	else -- RSE
+		if not Constants.HealLocations.RSE[Battle.CurrentRoute.mapId] then
+			return
+		end
+	end
 
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
 	-- Turns out Game Freak are weird and only increment mom heals in RSE, not FRLG

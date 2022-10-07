@@ -269,45 +269,41 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 		return 1.0
 	end
 
-	-- If type is unknown or typeless
+	-- If the move type is typeless or unknown, effectiveness check is ignored
 	if MoveData.IsTypelessMove[move.id] or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
 	end
 
-	-- If move has no power, check for ineffectiveness by type first, then return 1.0 if ineffective cases not present
-	if move.power == "0" then
-		if move.category ~= MoveData.Categories.STATUS then
-			if moveType == PokemonData.Types.NORMAL and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
-				return 0.0
-			elseif moveType == PokemonData.Types.FIGHTING and (comparedTypes[1] == PokemonData.Types.GHOST or comparedTypes[2] == PokemonData.Types.GHOST) then
-				return 0.0
-			elseif moveType == PokemonData.Types.PSYCHIC and (comparedTypes[1] == PokemonData.Types.DARK or comparedTypes[2] == PokemonData.Types.DARK) then
-				return 0.0
-			elseif moveType == PokemonData.Types.POISON and (comparedTypes[1] == PokemonData.Types.STEEL or comparedTypes[2] == PokemonData.Types.STEEL) then
-				return 0.0
-			elseif moveType == PokemonData.Types.GROUND and (comparedTypes[1] == PokemonData.Types.FLYING or comparedTypes[2] == PokemonData.Types.FLYING) then
-				return 0.0
-			elseif moveType == PokemonData.Types.GHOST and (comparedTypes[1] == PokemonData.Types.NORMAL or comparedTypes[2] == PokemonData.Types.NORMAL) then
-				return 0.0
-			end
+	-- Most status moves also ignore type effectiveness. Examples: Growl, Confuse Ray, Sand-Attack
+	if move.category == MoveData.Categories.STATUS then
+		-- Some status moves care about immunities. Examples: Toxic, Thunder Wave, Leech Seed
+		if MoveData.StatusMovesWillFail[move.id] ~= nil and (MoveData.StatusMovesWillFail[move.id][comparedTypes[1]] or MoveData.StatusMovesWillFail[move.id][comparedTypes[2]]) then
+			return 0.0
+		else
+			return 1.0
 		end
-		return 1.0
 	end
 
 	-- Check effectiveness against each opposing type
-	local effectiveness = 1.0
+	local total = 1.0
 	local effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[1]]
 	if effectiveValue ~= nil then
-		effectiveness = effectiveness * effectiveValue
+		total = total * effectiveValue
 	end
 	if comparedTypes[2] ~= comparedTypes[1] then
 		effectiveValue = MoveData.TypeToEffectiveness[moveType][comparedTypes[2]]
 		if effectiveValue ~= nil then
-			effectiveness = effectiveness * effectiveValue
+			total = total * effectiveValue
 		end
 	end
 
-	return effectiveness
+	-- Moves that calculate specific damage amounts still check immunities, but otherwise ignore type-effectiveness
+	-- Examples: Fissure, Mirror Coat, Dragon Rage, Bide, Endeavor
+	if move.power == "0" and total ~= 0.0 then
+		return 1.0
+	else
+		return total
+	end
 end
 
 -- moveType required for Hidden Power tracked type
@@ -377,6 +373,34 @@ function Utils.calculateHighHPBasedDamage(movePower, currentHP, maxHP)
 	local basePower = math.max(tonumber(movePower) * currentHP / maxHP, 1)
 	local roundedPower = math.floor(basePower + 0.5)
 	return tostring(roundedPower)
+end
+
+-- For Return & Frustration
+-- Only shows if close to max strength; won't return exact values to avoid revealing friendship amount
+function Utils.calculateFriendshipBasedDamage(movePower, friendship)
+	if movePower ~= ">FR" and movePower ~= "<FR" then
+		return movePower
+	end
+
+	if friendship == nil or friendship < 0 then
+		friendship = 0
+	elseif friendship > 255 then
+		friendship = 255
+	end
+
+	-- Invert if based on unhappiness
+	if movePower == "<FR" then
+		friendship = 255 - friendship
+	end
+
+	local basePower = math.max(friendship / 2.5, 1) -- minimum of 1
+
+	-- Don't reveal calculated power if not near max power (100-102)
+	if basePower < 100 then
+		return movePower
+	else
+		return tostring(math.floor(basePower)) -- remove decimals
+	end
 end
 
 function Utils.calculateWeatherBall(moveType, movePower)

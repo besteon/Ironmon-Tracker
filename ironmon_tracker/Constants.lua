@@ -72,6 +72,24 @@ Constants.MoveTypeColors = {
 	unknown = 0xFF68A090, -- For the "Curse" move in Gen 2 - 4
 }
 
+-- Auto PC Heal tracking will only work in these locations
+Constants.HealLocations = {
+	FRLG = {
+		[1] = true, -- Mom's house
+		[8] = true, -- Most Pokemon Centers
+		[212] = true, -- Indigo Plateau
+		[271] = true, -- One Island
+	},
+	RSE = {
+		[54] = true, -- Mom's house
+		[61] = true, -- Most Pokemon Centers
+		[71] = true, -- Lavaridge Town
+		[270] = true, -- Pokemon League Emerald ONLY
+		[271] = true, -- Pokemon League Ruby/Sapphire ONLY
+		-- Note: There is incorrect overlap for 270 and 271, but I think this is acceptable/rare
+	},
+}
+
 Constants.GAME_STATS = { -- Enums for in-game stats
 	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
@@ -108,6 +126,7 @@ Constants.OrderedLists = {
 		"Use premade ROMs",
 		"Generate ROM each time",
 		"Display repel usage",
+		"Startup Pokemon displayed",
 	},
 	CONTROLS = {
 		"Load next seed",

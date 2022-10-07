@@ -176,7 +176,9 @@ function Inifile.save(name, t)
 	end
 
 	local file = io.open(name,"w")
-	assert(file~=nil)
-	file:write(table.concat(contents, "\n"))
-	io.close(file)
+	if file ~= nil then
+		-- In some rare cases where the Tracker folder is used by OneDrive, it prevents writing data to it
+		file:write(table.concat(contents, "\n"))
+		io.close(file)
+	end
 end
