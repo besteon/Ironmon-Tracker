@@ -62,9 +62,6 @@ function Program.initialize()
 	PokemonData.readDataFromMemory()
 	MoveData.readDataFromMemory()
 
-	-- Set seed based on epoch seconds; required for other features
-	math.randomseed(os.time())
-
 	-- At some point we might want to implement this so that wild encounter data is automatic
 	-- RouteData.readWildPokemonInfoFromMemory()
 end
