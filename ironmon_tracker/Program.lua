@@ -374,17 +374,13 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle then return end
+	if Battle.inBattle then
+		return
+	end
 
 	-- Make sure the player is in a map location that can perform a PC heal
-	if GameSettings.game == 3 then -- FRLG
-		if not Constants.HealLocations.FRLG[Battle.CurrentRoute.mapId] then
-			return
-		end
-	else -- RSE
-		if not Constants.HealLocations.RSE[Battle.CurrentRoute.mapId] then
-			return
-		end
+	if not RouteData.Locations.CanPCHeal[Battle.CurrentRoute.mapId] then
+		return
 	end
 
 	local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER)
