@@ -62,6 +62,8 @@ function Main.Initialize()
 		return false
 	end
 
+	math.randomseed(os.time()) -- Set seed based on epoch seconds; required for other features
+
 	-- Attempt to load the required tracker files
 	for _, file in ipairs(Main.TrackerFiles) do
 		local path = Main.DataFolder .. file
