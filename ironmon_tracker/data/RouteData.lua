@@ -1448,10 +1448,11 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 81, rate = 0.30, minLv = 22, maxLv = 25, },
 				{ pokemonID = 100, rate = 0.30, minLv = 22, maxLv = 25, },
 				{ pokemonID = 25, rate = 0.25, minLv = 22, maxLv = 26, },
-				{ pokemonID = 82, rate = 0.10, minLv = 31, maxLv = 34, },
-				{ pokemonID = 125, rate = 0.05, minLv = 32, maxLv = 35, },
+				{ pokemonID = {82,82}, rate = {0.10,0.15}, minLv = 31, maxLv = 34, },
+				{ pokemonID = {125,-1}, rate = 0.05, minLv = 32, maxLv = 35, },
 			},
 			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 101, rate = 1.00, minLv = 34, maxLv = 34, },
 				{ pokemonID = 145, rate = 1.00, minLv = 50, maxLv = 50, },
 			},
 		},
