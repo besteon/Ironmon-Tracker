@@ -92,8 +92,8 @@ function TrackedDataScreen.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			if formInput:sub(-5):lower() ~= Constants.Extensions.TRACKED_DATA then
-				formInput = formInput .. Constants.Extensions.TRACKED_DATA
+			if formInput:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+				formInput = formInput .. Constants.Files.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(formInput)
 		end
@@ -107,7 +107,7 @@ function TrackedDataScreen.openSaveDataPrompt()
 end
 
 function TrackedDataScreen.openLoadDataPrompt()
-	local suggestedFileName = gameinfo.getromname() .. Constants.Extensions.TRACKED_DATA
+	local suggestedFileName = gameinfo.getromname() .. Constants.Files.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
 	local workingDir = Utils.getWorkingDirectory()

@@ -3,6 +3,21 @@ Constants = {}
 Constants.BLANKLINE = "---"
 Constants.HIDDEN_INFO = "?"
 
+Constants.Files = {
+	SETTINGS = "Settings.ini",
+	THEME_PRESETS = "ThemePresets.txt",
+	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
+	PostFixes = {
+		ATTEMPTS_FILE = "Attempts.txt",
+		AUTORANDOMIZED = "AutoRandomized",
+		AUTOSAVE = "AutoSave",
+	},
+	Extensions = {
+		GBA_ROM = ".gba",
+		TRACKED_DATA = ".tdat",
+	}
+}
+
 Constants.SCREEN = {
 	HEIGHT = 160,
 	WIDTH = 240,
@@ -22,10 +37,6 @@ Constants.Font = {
 Constants.Words = {
 	POKEMON = "Pok\233mon",
 	POKE = "Pok\233",
-}
-
-Constants.Extensions = {
-	TRACKED_DATA = ".tdat",
 }
 
 Constants.Release = {
