@@ -7,7 +7,7 @@ GameOptionsScreen = {
 
 GameOptionsScreen.OptionKeys = {
 	"Auto swap to enemy",
-	"Hide stats until summary shown",
+	"Hide stats until summary shown",  -- Text referenced in initialize()
 	"Show physical special icons",
 	"Show move effectiveness",
 	"Calculate variable damage",
@@ -54,7 +54,7 @@ function GameOptionsScreen.initialize()
 				self.toggleState = not self.toggleState
 
 				-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
-				if self.text == GameOptionsScreen.OptionKeys[2] then
+				if self.text == "Hide stats until summary shown" then
 					Tracker.Data.hasCheckedSummary = Options[self.text]
 				end
 

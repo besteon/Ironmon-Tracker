@@ -6,8 +6,8 @@ QuickloadScreen = {
 }
 
 QuickloadScreen.OptionKeys = {
-	"Use premade ROMs",
-	"Generate ROM each time",
+	"Use premade ROMs", -- Keep as first item in this list [1]
+	"Generate ROM each time", -- Keep as second item in this list [2]
 }
 
 QuickloadScreen.SetButtonSetup = {
