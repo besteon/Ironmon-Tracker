@@ -461,7 +461,7 @@ function Tracker.loadData(filepath)
 
 	-- Loose safety check to ensure a valid data file is loaded
 	local fileData = nil
-	if filepath:sub(-5):lower() ~= Constants.Extensions.TRACKED_DATA then
+	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
 		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 	else

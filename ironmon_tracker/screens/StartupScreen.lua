@@ -34,6 +34,17 @@ StartupScreen.Buttons = {
 			StartupScreen.openChoosePokemonWindow()
 		end
 	},
+	AttemptsCount = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = Constants.BLANKLINE,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function() return Main.currentSeed > 1 end,
+		onClick = function(self)
+			StartupScreen.openEditAttemptsWindow()
+		end
+	},
 	EraseGame = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "< Press",
@@ -56,6 +67,8 @@ StartupScreen.Buttons = {
 
 function StartupScreen.initialize()
 	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
+
+	StartupScreen.Buttons.AttemptsCount.text = tostring(Main.currentSeed)
 end
 
 function StartupScreen.setPokemonIcon(displayOption)
@@ -82,7 +95,6 @@ function StartupScreen.setPokemonIcon(displayOption)
 
 	if pokemonID ~= nil then
 		StartupScreen.Buttons.PokemonIcon.pokemonID = pokemonID
-		Program.redraw(true)
 	end
 end
 
@@ -117,6 +129,7 @@ function StartupScreen.openChoosePokemonWindow()
 		end
 
 		StartupScreen.setPokemonIcon(optionSelected)
+		Program.redraw(true)
 		Main.SaveSettings(true)
 
 		client.unpause()
@@ -127,6 +140,39 @@ function StartupScreen.openChoosePokemonWindow()
 		client.unpause()
 		forms.destroy(form)
 	end, 120, 69)
+end
+
+function StartupScreen.openEditAttemptsWindow()
+	Program.destroyActiveForm()
+	local form = forms.newform(320, 130, "Edit Attempts Counter", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+
+	forms.label(form, "Enter the number of attempts:", 48, 10, 300, 20)
+	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
+	forms.button(form, "Save", function()
+		local formInput = forms.gettext(textBox)
+		if formInput ~= nil and formInput ~= "" then
+			local newAttemptsCount = tonumber(formInput)
+			if newAttemptsCount ~= nil then
+				Main.currentSeed = newAttemptsCount
+				StartupScreen.Buttons.AttemptsCount.text = newAttemptsCount
+
+				local filename = Main.GetAttemptsFile()
+				if filename ~= nil then
+					Main.WriteAttemptsCounter(filename, newAttemptsCount)
+				end
+
+				Program.redraw(true)
+			end
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 72, 60)
+	forms.button(form, "Cancel", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 157, 60)
 end
 
 -- DRAWING FUNCTIONS
@@ -172,11 +218,9 @@ function StartupScreen.drawScreen()
 	Drawing.drawText(topcolX, textLineY, GameSettings.versioncolor, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	if Main.currentSeed > 1 then
+	if StartupScreen.Buttons.AttemptsCount.isVisible() then
 		Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.attempts, topBox.text, topBox.shadow)
-		Drawing.drawText(topcolX, textLineY, Main.currentSeed, topBox.text, topBox.shadow)
-	else
-		Drawing.drawText(topBox.x + 2, textLineY, Constants.BLANKLINE, topBox.text, topBox.shadow)
+		Drawing.drawButton(StartupScreen.Buttons.AttemptsCount, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing
 

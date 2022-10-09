@@ -106,7 +106,7 @@ function Theme.initialize()
 	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY
 	Theme.Buttons.MoveTypeEnabled.box[2] = startY
 
-	Theme.loadPresets(Main.ThemePresetsFile)
+	Theme.loadPresets(Constants.Files.THEME_PRESETS)
 end
 
 function Theme.loadPresets(filename)
