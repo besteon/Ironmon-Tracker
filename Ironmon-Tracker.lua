@@ -428,16 +428,43 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 	end
 
 	Main.currentSeed = Main.currentSeed + 1
+	Main.WriteAttemptsCounter(filename, Main.currentSeed)
+end
+
+function Main.ReadAttemptsCounter()
+	local filename = Main.GetAttemptsFile()
+
+	if filename ~= nil then
+		local attemptsRead = io.open(filename, "r")
+		if attemptsRead ~= nil then
+			local attemptsText = attemptsRead:read("*a")
+			attemptsRead:close()
+			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+				Main.currentSeed = tonumber(attemptsText)
+			end
+		end
+	else
+		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
+		local romname = gameinfo.getromname()
+		local romnumber = string.match(romname, '[0-9]+') or "1"
+		if romnumber ~= "1" then
+			Main.currentSeed = tonumber(romnumber)
+		end
+	end
+end
+
+function Main.WriteAttemptsCounter(filename, attemptsCount)
+	attemptsCount = attemptsCount or Main.currentSeed
+
 	local attemptsWrite = io.open(filename, "w")
 	if attemptsWrite ~= nil then
-		attemptsWrite:write(Main.currentSeed)
+		attemptsWrite:write(attemptsCount)
 		attemptsWrite:close()
 	end
 end
 
-function Main.ReadAttemptsCounter()
+function Main.GetAttemptsFile()
 	local romname = gameinfo.getromname()
-	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
 	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" " .. Constants.Files.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
 
@@ -450,16 +477,9 @@ function Main.ReadAttemptsCounter()
 	end
 
 	if Main.FileExists(filename) then
-		local attemptsRead = io.open(filename, "r")
-		if attemptsRead ~= nil then
-			local attemptsText = attemptsRead:read("*a")
-			attemptsRead:close()
-			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-				Main.currentSeed = tonumber(attemptsText)
-			end
-		end
-	elseif romnumber ~= "1" then
-		Main.currentSeed = tonumber(romnumber)
+		return filename
+	else
+		return nil
 	end
 end
 
