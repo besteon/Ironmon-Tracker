@@ -283,6 +283,6 @@ function QuickloadScreen.drawScreen()
 			image = Constants.PixelImages.CROSS
 			imageColor = Theme.COLORS["Negative text"]
 		end
-		Drawing.drawImageAsPixels(image, button.box[1] + imageOffset, button.box[2], imageColor, shadowcolor)
+		Drawing.drawImageAsPixels(image, button.box[1] + imageOffset, button.box[2], { imageColor }, shadowcolor)
 	end
 end

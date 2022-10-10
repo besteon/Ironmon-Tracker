@@ -197,7 +197,7 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
 		if button.image ~= nil then
-			Drawing.drawImageAsPixels(button.image, x, y, Theme.COLORS[button.textColor], shadowcolor)
+			Drawing.drawImageAsPixels(button.image, x, y, { Theme.COLORS[button.textColor] }, shadowcolor)
 		end
 		if button.text ~= nil and button.text ~= "" then
 			Drawing.drawText(x + width + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
@@ -228,19 +228,23 @@ function Drawing.drawScreen(screenFunc)
 	end
 end
 
-function Drawing.drawImageAsPixels(imageArray, x, y, color, shadowcolor, negativecolor)
-	for rowIndex = 1, #imageArray, 1 do
-		for colIndex = 1, #(imageArray[1]) do
-			if imageArray[rowIndex][colIndex] ~= 0 then
+function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
+	-- Convert to a list if only a single color is supplied
+	if type(colorList) == "number" then
+		colorList = { colorList }
+	end
+
+	for rowIndex = 1, #imageMatrix, 1 do
+		for colIndex = 1, #(imageMatrix[rowIndex]) do
+			local colorIndex = imageMatrix[rowIndex][colIndex]
+			if colorIndex > 0 then
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
 
 				if shadowcolor ~= nil then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
-				gui.drawPixel(x + offsetX, y + offsetY, color)
-			elseif negativecolor ~= nil then
-				gui.drawPixel(x + colIndex - 1, y + rowIndex - 1, negativecolor)
+				gui.drawPixel(x + offsetX, y + offsetY, colorList[colorIndex])
 			end
 		end
 	end
