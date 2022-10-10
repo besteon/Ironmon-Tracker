@@ -248,7 +248,7 @@ function StartupScreen.drawScreen()
 	local gbaX = botBox.x + 117
 	local gbaY = botBox.y + 2
 	gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, 0xFFFFFFFF)
-	Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, 0xFF000000, 0xFFFFFFFF)
+	Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, { 0xFF000000, 0xFFFFFFFF })
 
 	local indentChars = "    "
 	local swapFormatted = indentChars .. Options.CONTROLS["Toggle view"]:upper()

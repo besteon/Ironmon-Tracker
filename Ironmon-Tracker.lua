@@ -60,7 +60,9 @@ function Main.Initialize()
 		return false
 	end
 
-	math.randomseed(os.time()) -- Set seed based on epoch seconds; required for other features
+	-- Set seed based on epoch seconds; required for other features
+	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
+	math.random() -- required first call, for some reason
 
 	-- Attempt to load the required tracker files
 	for _, file in ipairs(Main.TrackerFiles) do
