@@ -10,9 +10,9 @@ SetupScreen.OptionKeys = {
 	"Right justified numbers",
 	"Disable mainscreen carousel",
 	"Track PC Heals",
-	"PC heals count downward",
+	"PC heals count downward", -- Text referenced in initialize()
 	"Display repel usage",
-	"Animated Pokemon popout",
+	"Animated Pokemon popout", -- Text referenced in initialize()
 }
 
 SetupScreen.Buttons = {
@@ -114,12 +114,12 @@ function SetupScreen.initialize()
 				Options.updateSetting(self.text, self.toggleState)
 
 				-- If PC Heal tracking switched, invert the count
-				if self.text == SetupScreen.OptionKeys[4] then
+				if self.text == "PC heals count downward" then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
 				end
 
 				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
-				if self.text == SetupScreen.OptionKeys[5] then
+				if self.text == "Animated Pokemon popout" then
 					if self.toggleState then
 						Drawing.AnimatedPokemon:create()
 					else

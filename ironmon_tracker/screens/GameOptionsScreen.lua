@@ -7,7 +7,8 @@ GameOptionsScreen = {
 
 GameOptionsScreen.OptionKeys = {
 	"Auto swap to enemy",
-	"Hide stats until summary shown",
+	"Show random ball picker",
+	"Hide stats until summary shown",  -- Text referenced in initialize()
 	"Show physical special icons",
 	"Show move effectiveness",
 	"Calculate variable damage",
@@ -21,7 +22,7 @@ GameOptionsScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "  Estimate " .. Constants.Words.POKEMON .. "'s Potential",
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 110, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 114, 130, 11 },
 		onClick = function() GameOptionsScreen.displayJudgeMessage() end
 	},
 	Back = {
@@ -54,14 +55,14 @@ function GameOptionsScreen.initialize()
 				self.toggleState = not self.toggleState
 
 				-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
-				if self.text == GameOptionsScreen.OptionKeys[2] then
+				if self.text == "Hide stats until summary shown" then
 					Tracker.Data.hasCheckedSummary = Options[self.text]
 				end
 
 				Options.updateSetting(self.text, self.toggleState)
 			end
 		}
-		startY = startY + Constants.SCREEN.LINESPACING + 1
+		startY = startY + Constants.SCREEN.LINESPACING
 	end
 
 	for _, button in pairs(GameOptionsScreen.Buttons) do

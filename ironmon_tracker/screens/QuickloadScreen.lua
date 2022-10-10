@@ -6,8 +6,8 @@ QuickloadScreen = {
 }
 
 QuickloadScreen.OptionKeys = {
-	"Use premade ROMs",
-	"Generate ROM each time",
+	"Use premade ROMs", -- Keep as first item in this list [1]
+	"Generate ROM each time", -- Keep as second item in this list [2]
 }
 
 QuickloadScreen.SetButtonSetup = {
@@ -29,7 +29,7 @@ QuickloadScreen.Buttons = {
 	ButtonCombo = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "Buttons:",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 15, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 130, 11 },
 		updateText = function(self)
 			local comboFormatted = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
 			self.text = "Buttons:  " .. comboFormatted
@@ -228,22 +228,23 @@ function QuickloadScreen.drawScreen()
 
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[QuickloadScreen.boxFillColor])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX + 33, Constants.SCREEN.MARGIN - 2, QuickloadScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 
-	-- Draw header text
-	Drawing.drawText(topboxX + 33, topboxY + 2, QuickloadScreen.headerText:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
-
 	-- Draw text to explain a choice should be made
-	Drawing.drawText(topboxX + 2, topboxY + 28, "Choose one:", Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
-	gui.drawRectangle(topboxX + 4 + 1, topboxY + 40 + 1, topboxWidth - 8, 29, shadowcolor)
-	gui.drawRectangle(topboxX + 4, topboxY + 40, topboxWidth - 8, 29, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
-	gui.drawRectangle(topboxX + 4 + 1, topboxY + 73 + 1, topboxWidth - 8, 58, shadowcolor)
-	gui.drawRectangle(topboxX + 4, topboxY + 73, topboxWidth - 8, 58, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
+	Drawing.drawText(topboxX + 2, topboxY + 17, "Choose a quickload option:", Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	gui.drawRectangle(topboxX + 4 + 1, topboxY + 30 + 1, topboxWidth - 8, 29, shadowcolor)
+	gui.drawRectangle(topboxX + 4, topboxY + 30, topboxWidth - 8, 29, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
+	gui.drawRectangle(topboxX + 4 + 1, topboxY + 63 + 1, topboxWidth - 8, 58, shadowcolor)
+	gui.drawRectangle(topboxX + 4, topboxY + 63, topboxWidth - 8, 58, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 
 	-- Draw what settings are currently loaded
 	if QuickloadScreen.Buttons.PremadeRoms.toggleState then
@@ -251,7 +252,7 @@ function QuickloadScreen.drawScreen()
 		if QuickloadScreen.Buttons["ROMs Folder"].isSet then
 			foldername = Utils.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 135, "Folder: " .. foldername, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		Drawing.drawText(topboxX + 2, topboxY + 125, "Folder: " .. foldername, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
 		local filename = ""
 		if QuickloadScreen.Buttons["Settings File"].isSet then
@@ -260,7 +261,7 @@ function QuickloadScreen.drawScreen()
 		if filename:len() < 18 then
 			filename = "Settings: " .. filename
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 135, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		Drawing.drawText(topboxX + 2, topboxY + 125, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	end
 
 	-- Draw all buttons
@@ -282,6 +283,6 @@ function QuickloadScreen.drawScreen()
 			image = Constants.PixelImages.CROSS
 			imageColor = Theme.COLORS["Negative text"]
 		end
-		Drawing.drawImageAsPixels(image, button.box[1] + imageOffset, button.box[2], imageColor, shadowcolor)
+		Drawing.drawImageAsPixels(image, button.box[1] + imageOffset, button.box[2], { imageColor }, shadowcolor)
 	end
 end

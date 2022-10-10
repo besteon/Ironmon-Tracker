@@ -48,9 +48,9 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Startup Screen!**
+- **_NEW!!_ Random Ball Picker!**
 
-![image](https://user-images.githubusercontent.com/4258818/189550768-4f62075d-349c-48d0-8f2a-48981be33b32.png)
+![image](https://user-images.githubusercontent.com/4258818/194925877-c97f8676-550a-40e7-b813-9b730ed53c38.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

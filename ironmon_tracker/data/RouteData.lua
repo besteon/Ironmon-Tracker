@@ -56,6 +56,13 @@ RouteData.Rods = {
 	[264] = RouteData.EncounterArea.SUPERROD,
 }
 
+-- Allows the Tracker to verify if data can be updated based on the location of the player
+RouteData.Locations = {
+	CanPCHeal = {},
+	CanObtainBadge = {}, -- Currently unused for the time being
+	IsInLab = {},
+}
+
 function RouteData.setupRouteInfo(gameId)
 	local maxMapId = 0
 
@@ -367,6 +374,26 @@ end
 -- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
+	RouteData.Locations.CanPCHeal = {
+		[1] = true, -- Mom's house
+		[8] = true, -- Most Pokemon Centers
+		[212] = true, -- Indigo Plateau
+		[271] = true, -- One Island
+	}
+	RouteData.Locations.CanObtainBadge = {
+		[12] = true,
+		[15] = true,
+		[20] = true,
+		[25] = true,
+		[28] = true,
+		[34] = true,
+		[36] = true,
+		[37] = true,
+	}
+	RouteData.Locations.IsInLab = {
+		[5] = true,
+	}
+
 	RouteData.Info = {
 		[1] = { name = "Mom's House", },
 		[5] = { name = "Oak's Lab", },
@@ -1425,10 +1452,11 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 81, rate = 0.30, minLv = 22, maxLv = 25, },
 				{ pokemonID = 100, rate = 0.30, minLv = 22, maxLv = 25, },
 				{ pokemonID = 25, rate = 0.25, minLv = 22, maxLv = 26, },
-				{ pokemonID = 82, rate = 0.10, minLv = 31, maxLv = 34, },
-				{ pokemonID = 125, rate = 0.05, minLv = 32, maxLv = 35, },
+				{ pokemonID = {82,82}, rate = {0.10,0.15}, minLv = 31, maxLv = 34, },
+				{ pokemonID = {125,-1}, rate = 0.05, minLv = 32, maxLv = 35, },
 			},
 			[RouteData.EncounterArea.STATIC] = {
+				{ pokemonID = 101, rate = 1.00, minLv = 34, maxLv = 34, },
 				{ pokemonID = 145, rate = 1.00, minLv = 50, maxLv = 50, },
 			},
 		},
@@ -2342,6 +2370,28 @@ function RouteData.setupRouteInfoAsRSE()
 	-- Ruby/Sapphire has LAYOUT_LILYCOVE_CITY_EMPTY_MAP 108, offset all "mapId > 107" by +1
 	local isGameEmerald = GameSettings.versioncolor == "Emerald"
 	local offset = Utils.inlineIf(isGameEmerald, 0, 1)
+
+	RouteData.Locations.CanPCHeal = {
+		[54] = true, -- Mom's house
+		[61] = true, -- Most Pokemon Centers
+		[71] = true, -- Lavaridge Town
+		[270 + offset] = true, -- Pokemon League
+	}
+	RouteData.Locations.CanObtainBadge = {
+		[65] = true,
+		[69] = true,
+		[70] = true,
+		[79] = true,
+		[89] = true,
+		[94] = true,
+		[100] = true,
+		[108] = true,
+		[109] = true,
+		[110] = true,
+	}
+	RouteData.Locations.IsInLab = {
+		[17] = true, -- Route 101
+	}
 
 	RouteData.Info = {}
 

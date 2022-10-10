@@ -1534,7 +1534,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
 				[0x081d9404] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
-				[0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -2907,7 +2907,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = "AutoSave" .. Constants.Extensions.TRACKED_DATA
+	local filenameEnding = Constants.Files.PostFixes.AUTOSAVE .. Constants.Files.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
