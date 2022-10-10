@@ -45,8 +45,9 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, Constants.SCREEN.MARGIN + 36, 13, 14 },
 		isVisible = function() return TrackerScreen.canShowBallPicker() end,
 		onClick = function(self)
-			TrackerScreen.randomlyChooseBall()
+			TrackerScreen.PokeBalls.chosenBall = -1
 			Program.redraw(true)
+			TrackerScreen.randomlyChooseBall()
 		end
 	},
 	PCHealAutoTracking = {
@@ -215,6 +216,7 @@ TrackerScreen.nextMoveLevelHighlight = 0xFFFFFF00
 TrackerScreen.PokeBalls = {
 	chosenBall = -1,
 	ColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }, -- Colors used to draw all Pokeballs
+	ColorListGray = { 0xFF000000, Utils.calcGrayscale(0xFFF04037, 0.6), 0xFFFFFFFF, },
 	Labels = {
 		[1] = "Left",
 		[2] = "Middle",
@@ -1023,10 +1025,14 @@ function TrackerScreen.drawBallPicker()
 		TrackerScreen.PokeBalls.Right,
 	}
 	for index, pokeball in ipairs(ballsToDraw) do
+		local colorList = TrackerScreen.PokeBalls.ColorList
 		if index == TrackerScreen.PokeBalls.chosenBall then
 			Drawing.drawImageAsPixels(Constants.PixelImages.DOWN_ARROW, pokeball.x + 1, pokeball.y - 13, { Theme.COLORS["Default text"] }, shadowcolor)
+		elseif TrackerScreen.PokeBalls.chosenBall ~= -1 then
+			-- If not the chosen ball and not in the process of re-rolling
+			colorList = TrackerScreen.PokeBalls.ColorListGray
 		end
-		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, pokeball.x, pokeball.y, TrackerScreen.PokeBalls.ColorList, shadowcolor)
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, pokeball.x, pokeball.y, colorList, shadowcolor)
 	end
 
 	-- SETTINGS GEAR & DICE BUTTONS
@@ -1036,7 +1042,7 @@ function TrackerScreen.drawBallPicker()
 	local infoBoxHeight = 23
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	local chosenBallText = TrackerScreen.PokeBalls.Labels[TrackerScreen.PokeBalls.chosenBall] or "N/A"
+	local chosenBallText = TrackerScreen.PokeBalls.Labels[TrackerScreen.PokeBalls.chosenBall] or Constants.BLANKLINE
 	Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Randomly chosen ball:", Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 2 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
 end
