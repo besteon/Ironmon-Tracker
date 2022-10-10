@@ -50,7 +50,7 @@ GameSettings = {
 	gActionsByTurnOrder = 0x00000000,
 	gHitMarker = 0x00000000,
 	gBattleTextBuff1 = 0x00000000,
-	gBattleBuffersTransferData = 0x00000000,
+	sBattleBuffersTransferData = 0x00000000,
 	gBattleControllerExecFlags = 0x00000000,
 
 	gMapHeader = 0x00000000,
@@ -86,6 +86,10 @@ function GameSettings.initialize()
 
 	GameSettings.setGameInfo(gamecode)
 
+	GameSettings.setEwramAddresses()
+	GameSettings.setIwramAddresses(gamecode)
+
+	-- ROM (08xxxxxx) addresses are not necessarily the same between different versions of a game, so set those individually
 	if gamecode == 0x41585645 then
 		GameSettings.setGameAsRuby(gameversion)
 	elseif gamecode == 0x41585045 then
@@ -219,59 +223,35 @@ function GameSettings.setGameInfo(gamecode)
 	end
 end
 
-function GameSettings.setGameAsRuby(gameversion)
-	if gameversion == 0x00410000 then
-		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym
-		print("ROM Detected: Pokemon Ruby v1.0")
-
-		GameSettings.gBaseStats = 0x081fec18
-		GameSettings.gBattleMoves = 0x081fb12c
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+-- EWRAM (02xxxxxx) addresses are the same between all versions of a game
+function GameSettings.setEwramAddresses()
+	if GameSettings.game == 1 then
+		-- Ruby / Sapphire
+		GameSettings.sEvoInfo = 0x02014800 -- gSharedMem + 0x14800
+		GameSettings.gBattleScriptingBattler = 0x02016003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
+		GameSettings.sMonSummaryScreen = 0x02018000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
+		GameSettings.gBattleTypeFlags = 0x020239f8
+		GameSettings.gBattleControllerExecFlags = 0x02024a64
+		GameSettings.gBattlersCount = 0x02024a68
+		GameSettings.gBattlerPartyIndexes = 0x02024a6a
+		GameSettings.gActionsByTurnOrder = 0x02024a76
+		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+		GameSettings.gBattleMons = 0x02024a80
+		GameSettings.gTakenDmg = 0x02024bf4
 		GameSettings.gBattlerAttacker = 0x02024c07
 		GameSettings.gBattlerTarget = 0x02024c08
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
 		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
-		GameSettings.Task_EvolutionScene = 0x0811240d --Task_EvolutionScene + 0x1
-		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
-		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f61
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
 		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9598
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95a1
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95d7
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95fe
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D9607
-		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9548
-		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d954b
-		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d954d
-		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d9557
-		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d955c
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e25
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
+		GameSettings.gBattleCommunication = 0x02024d1e
+		GameSettings.gBattleOutcome = 0x02024d26
+		GameSettings.gBattleWeather = 0x02024db8
+		GameSettings.gMoveToLearn = 0x02024e82
 		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
 		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
+		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 
 		GameSettings.gSaveBlock1 = 0x02025734
 		GameSettings.gameStatsOffset = 0x1540
@@ -281,6 +261,151 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.bagPocket_Berries_offset = 0x740
 		GameSettings.bagPocket_Items_Size = 20
 		GameSettings.bagPocket_Berries_Size = 46
+	elseif GameSettings.game == 2 then
+		-- Emerald
+		GameSettings.sBattleBuffersTransferData = 0x02022d10
+		GameSettings.gBattleTextBuff1 = 0x02022f58
+		GameSettings.gBattleTypeFlags = 0x02022fec
+		GameSettings.gBattleTerrain = 0x02022ff0
+		GameSettings.gBattlersCount = 0x0202406c
+		GameSettings.gBattlerPartyIndexes = 0x0202406e
+		GameSettings.gActionsByTurnOrder = 0x0202407a
+		GameSettings.gBattleControllerExecFlags = 0x02024068
+		GameSettings.gCurrentTurnActionNumber = 0x02024082
+		GameSettings.gBattleMons = 0x02024084
+		GameSettings.gTakenDmg = 0x020241f8
+		GameSettings.gBattlerAttacker = 0x0202420B
+		GameSettings.gBattlerTarget = 0x0202420c
+		GameSettings.gBattlescriptCurrInstr = 0x02024214
+		GameSettings.gMoveResultFlags = 0x0202427c
+		GameSettings.gHitMarker = 0x02024280
+		GameSettings.gBattleCommunication = 0x02024332
+		GameSettings.gBattleOutcome = 0x0202433a
+		GameSettings.gBattleWeather = 0x020243cc
+		GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
+		GameSettings.gMoveToLearn = 0x020244e2
+		GameSettings.gMapHeader = 0x02037318
+		GameSettings.gSpecialVar_Result = 0x020375f0 -- For rock smash
+		GameSettings.sSpecialFlags = 0x020375fc
+		GameSettings.sEvoStructPtr = 0x0203ab80
+		GameSettings.sBattlerAbilities = 0x0203aba4
+		GameSettings.sStartMenuWindowId = 0x0203cd8c
+		GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
+		GameSettings.sMonSummaryScreen = 0x0203cf1c
+
+		GameSettings.gSaveBlock1 = 0x02025a00
+		GameSettings.gameStatsOffset = 0x159C
+		GameSettings.gameVarsOffset = 0x139C
+		GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
+		GameSettings.bagPocket_Items_offset = 0x560
+		GameSettings.bagPocket_Berries_offset = 0x790
+		GameSettings.bagPocket_Items_Size = 30
+		GameSettings.bagPocket_Berries_Size = 46
+	elseif GameSettings.game == 3 then
+		-- FireRed / LeafGreen
+		GameSettings.sBattleBuffersTransferData = 0x02022874
+		GameSettings.gBattleTextBuff1 = 0x02022ab8
+		GameSettings.gBattleTypeFlags = 0x02022b4c
+		GameSettings.gBattleTerrain = 0x02022b50
+		GameSettings.gBattleControllerExecFlags = 0x02023bc8
+		GameSettings.gBattlersCount = 0x02023bcc
+		GameSettings.gBattlerPartyIndexes = 0x02023bce
+		GameSettings.gActionsByTurnOrder = 0x02023bda
+		GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		GameSettings.gBattleMons = 0x02023be4
+		GameSettings.gTakenDmg = 0x02023d58
+		GameSettings.gBattlerAttacker = 0x02023d6b
+		GameSettings.gBattlerTarget = 0x02023d6c
+		GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		GameSettings.gMoveResultFlags = 0x02023dcc
+		GameSettings.gHitMarker = 0x02023dd0
+		GameSettings.gBattleCommunication = 0x02023e82
+		GameSettings.gBattleOutcome = 0x02023e8a
+		GameSettings.gBattleWeather = 0x02023f1c
+		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
+		GameSettings.gMoveToLearn = 0x02024022
+		GameSettings.gMapHeader = 0x02036dfc
+		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
+		GameSettings.sSpecialFlags = 0x020370e0
+		GameSettings.sEvoStructPtr = 0x02039a20
+		GameSettings.sBattlerAbilities = 0x02039a30
+		GameSettings.sStartMenuWindowId = 0x0203abe0
+		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
+		GameSettings.sMonSummaryScreen = 0x0203b140
+
+		GameSettings.gSaveBlock1 = 0x0202552c
+		GameSettings.gameStatsOffset = 0x1200
+		GameSettings.gameVarsOffset = 0x1000
+		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		GameSettings.bagPocket_Items_offset = 0x310
+		GameSettings.bagPocket_Berries_offset = 0x54c
+		GameSettings.bagPocket_Items_Size = 42
+		GameSettings.bagPocket_Berries_Size = 43
+	end
+
+end
+
+-- IWRAM (03xxxxxx) addresses are the same between all english versions of a game, and between all non-english versions.
+-- However the addresses are different between english and non-english versions of a game, so need to set them separately.
+function GameSettings.setIwramAddresses(gamecode)
+	if GameSettings.game == 1 then
+		-- Ruby / Sapphire
+		-- Currently only support English versions, so don't need to check for English / non-English gamecodes
+		GameSettings.sBattleBuffersTransferData = 0x03004040
+		GameSettings.gBattleTextBuff1 = 0x030041c0
+		GameSettings.gBattleTerrain = 0x0300428c
+		GameSettings.gBattleResults = 0x030042e0
+		GameSettings.gTasks = 0x03004b20
+	elseif GameSettings.game == 2 then
+		-- Emerald
+		-- Currently only support English versions, so don't need to check for English / non-English gamecodes
+		GameSettings.gBattleResults = 0x03005d10
+		GameSettings.gTasks = 0x03005e00
+		GameSettings.gSaveBlock1ptr = 0x03005d8c
+		GameSettings.gSaveBlock2ptr = 0x03005d90
+		GameSettings.EncryptionKeyOffset = 0xAC
+	elseif GameSettings.game == 3 then
+		-- FireRed / LeafGreen
+		if gamecode == 0x42505245 or gamecode == 0x42504745 then
+			-- FRLG English Versions
+			GameSettings.gBattleResults = 0x03004f90
+			GameSettings.gTasks = 0x03005090
+			GameSettings.gSaveBlock1ptr = 0x03005008
+			GameSettings.gSaveBlock2ptr = 0x0300500c
+		else
+			-- FRLG Non-English Versions
+			GameSettings.gBattleResults = 0x03004EE0
+			GameSettings.gTasks = 0x03004FE0
+			GameSettings.gSaveBlock1ptr = 0x03004F58
+			GameSettings.gSaveBlock2ptr = 0x03004F5C
+		end
+		GameSettings.EncryptionKeyOffset = 0xF20
+	end
+end
+
+function GameSettings.setGameAsRuby(gameversion)
+	if gameversion == 0x00410000 then
+		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym
+		print("ROM Detected: Pokemon Ruby v1.0")
+
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
+		GameSettings.Task_EvolutionScene = 0x0811240d --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e25
+		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f0f -- BattleScript_TryLearnMoveLoop
+		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f61
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9548
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d954b
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d954d
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d9557
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d955c
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9598
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95a1
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95d7
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95fe
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9607
+		GameSettings.gBattleMoves = 0x081fb12c
+		GameSettings.gBaseStats = 0x081fec18
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -398,63 +523,24 @@ function GameSettings.setGameAsRuby(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev1.sym
 		print("ROM Detected: Pokemon Ruby v1.1")
 
-		GameSettings.gBaseStats = 0x081fec30
-		GameSettings.gBattleMoves = 0x081fb144
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 		GameSettings.Task_EvolutionScene = 0x0811244d  --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
 		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9560
 		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9563
 		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9565
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d956f
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9574
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
+		GameSettings.gBattleMoves = 0x081fb144
+		GameSettings.gBaseStats = 0x081fec30
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -572,63 +658,24 @@ function GameSettings.setGameAsRuby(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev2.sym
 		print("ROM Detected: Pokemon Ruby v1.2")
 
-		GameSettings.gBaseStats = 0x081fec30
-		GameSettings.gBattleMoves = 0x081fb144
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8f27 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f79
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
 		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9560
 		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9563
 		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9565
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d956f
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9574
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
+		GameSettings.gBattleMoves = 0x081fb144
+		GameSettings.gBaseStats = 0x081fec30
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -750,63 +797,24 @@ function GameSettings.setGameAsSapphire(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire.sym
 		print("ROM Detected: Pokemon Sapphire v1.0")
 
-		GameSettings.gBaseStats = 0x081feba8
-		GameSettings.gBattleMoves = 0x081fb0bc
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 		GameSettings.Task_EvolutionScene = 0x0811240d --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8db5
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8e9f -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ef1
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9528
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9531
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9567
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d958e
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9597
 		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94d8
 		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94db
 		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94dd
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94e7
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d94ec
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8db5
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9528
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9531
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9567
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d958e
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9597
+		GameSettings.gBattleMoves = 0x081fb0bc
+		GameSettings.gBaseStats = 0x081feba8
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -924,63 +932,24 @@ function GameSettings.setGameAsSapphire(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev1.sym
 		print("ROM Detected: Pokemon Sapphire v1.1")
 
-		GameSettings.gBaseStats = 0x081febc0
-		GameSettings.gBattleMoves = 0x081fb0d4
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
 		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94f0
 		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94f3
 		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94f5
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94ff
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9504
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
+		GameSettings.gBaseStats = 0x081febc0
+		GameSettings.gBattleMoves = 0x081fb0d4
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -1098,63 +1067,24 @@ function GameSettings.setGameAsSapphire(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev2.sym
 		print("ROM Detected: Pokemon Sapphire v1.2")
 
-		GameSettings.gBaseStats = 0x081febc0
-		GameSettings.gBattleMoves = 0x081fb0d4
-		GameSettings.sMonSummaryScreen = 0x02000000 + 0x18000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.sEvoInfo = 0x02014800
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattleScriptingBattler = 0x2000000 + 0x16003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
+		-- ROM (08xxxxxx addresses)
+		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
 		GameSettings.Task_EvolutionScene = 0x0811242d --Task_EvolutionScene + 0x1
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8eb7 -- BattleScript_TryLearnMoveLoop
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8f09
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
-		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
-		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
 		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94f0
 		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94f3
 		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94f5
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94ff
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9504
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.FriendshipRequiredToEvo = 0x0803f48c + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
+		GameSettings.gBaseStats = 0x081febc0
+		GameSettings.gBattleMoves = 0x081fb0d4
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
@@ -1275,32 +1205,13 @@ function GameSettings.setGameAsEmerald()
 	-- https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
 	print("ROM Detected: Pokemon Emerald")
 
+	-- ROM (08xxxxxx addresses)
 	GameSettings.gBaseStats = 0x083203cc
 	GameSettings.gBattleMoves = 0x0831c898
-	GameSettings.sMonSummaryScreen = 0x0203cf1c
-	GameSettings.sStartMenuWindowId = 0x0203cd8c
-	GameSettings.sSpecialFlags = 0x020375fc
-	GameSettings.sBattlerAbilities = 0x0203aba4
-	GameSettings.sEvoStructPtr = 0x0203ab80
-	GameSettings.gBattlerAttacker = 0x0202420B
-	GameSettings.gBattlerTarget = 0x0202420c
-	GameSettings.gBattlerPartyIndexes = 0x0202406E
-	GameSettings.gBattleMons = 0x02024084
-	GameSettings.gBattlescriptCurrInstr = 0x02024214
-	GameSettings.gTakenDmg = 0x020241f8
-	GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
-	GameSettings.gBattleResults = 0x03005d10
-	GameSettings.gTasks = 0x03005e00
 	GameSettings.Task_EvolutionScene = 0x0813e571 --Task_EvolutionScene + 0x1
 	GameSettings.BattleScript_FocusPunchSetUp = 0x082db1ff + 0x10
 	GameSettings.BattleScript_LearnMoveLoop = 0x082dabd9 -- BattleScript_TryLearnMoveLoop
 	GameSettings.BattleScript_LearnMoveReturn = 0x082dac2b
-	GameSettings.gMoveToLearn = 0x020244e2
-	GameSettings.gBattleOutcome = 0x0202433a
-	GameSettings.gMoveResultFlags = 0x0202427c
-	GameSettings.gBattleWeather = 0x020243cc
-	GameSettings.gBattleCommunication = 0x02024332
-	GameSettings.gBattlersCount = 0x0202406c
 	GameSettings.BattleScript_MoveUsedIsConfused = 0x082db2c0
 	GameSettings.BattleScript_MoveUsedIsConfused2 = 0x082db2c9
 	GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x082db303
@@ -1312,31 +1223,7 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.BattleScript_MoveUsedUnfroze = 0x082db27c
 	GameSettings.BattleScript_MoveUsedUnfroze2 = 0x082db281
 	GameSettings.BattleScript_RanAwayUsingMonAbility = 0x082daaec
-	GameSettings.gCurrentTurnActionNumber = 0x02024082
-	GameSettings.gActionsByTurnOrder = 0x0202407a
-	GameSettings.gHitMarker = 0x02024280
-	GameSettings.gBattleTextBuff1 = 0x02022f58
-	GameSettings.sBattleBuffersTransferData = 0x02022d10
-	GameSettings.gBattleControllerExecFlags = 0x02024068
-
-	GameSettings.gMapHeader = 0x02037318
-	GameSettings.gBattleTerrain = 0x02022ff0
-	GameSettings.gBattleTypeFlags = 0x02022fec
-	GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
-	GameSettings.gSpecialVar_Result = 0x020375f0 -- For rock smash
 	GameSettings.FriendshipRequiredToEvo = 0x0806d098 + 0x13E -- GetEvolutionTargetSpecies
-
-	GameSettings.gSaveBlock1 = 0x02025a00
-	GameSettings.gSaveBlock1ptr = 0x03005d8c
-	GameSettings.gSaveBlock2ptr = 0x03005d90
-	GameSettings.gameStatsOffset = 0x159C
-	GameSettings.gameVarsOffset = 0x139C
-	GameSettings.EncryptionKeyOffset = 0xAC
-	GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-	GameSettings.bagPocket_Items_offset = 0x560
-	GameSettings.bagPocket_Berries_offset = 0x790
-	GameSettings.bagPocket_Items_Size = 30
-	GameSettings.bagPocket_Berries_Size = 46
 
 	GameSettings.ABILITIES = {
 		BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
@@ -1457,32 +1344,13 @@ function GameSettings.setGameAsFireRed(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Fire Red v1.1")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x082547f4
 		GameSettings.gBattleMoves = 0x08250c74
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8f1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9085 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a81
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8ad3
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9146
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d914f
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9189
@@ -1494,31 +1362,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D9102
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D9107
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042ED8 + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock1ptr = 0x03005008
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abilities where we can use gBattleScripting.battler to determine enemy/player
@@ -1636,32 +1480,13 @@ function GameSettings.setGameAsFireRed(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
 		print("ROM Detected: Pokemon Fire Red v1.0")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x08254784
 		GameSettings.gBattleMoves = 0x08250c04
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8dd --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9015 + 0x10
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a11
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a63
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90d6
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d90df
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9119
@@ -1673,31 +1498,8 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d9092
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9097
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8912
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
 
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock1ptr = 0x03005008
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
@@ -1819,32 +1621,13 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon - Rosso Fuoco")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x0824d864
 		GameSettings.gBattleMoves = 0x08249ce4 -- needs to be tested
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEA5D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d647f + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d5e7B --those values were tricky to find
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D5ECD -- expect them to not always be right
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D6540
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D6549
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D6583
@@ -1856,31 +1639,7 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D64FC
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D6501
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D5D7C -- BattleScript_RanAwayUsingMonAbility + 0x3
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
-
-		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
-		GameSettings.gSaveBlock1ptr = 0x03004F58
-		GameSettings.gSaveBlock2ptr = 0x03004F5C
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		-- Ability script addresses = FR 1.1 address - 0x2c06
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
@@ -2007,32 +1766,13 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rojo Fuego")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x0824ff4c
 		GameSettings.gBattleMoves = 0x0824c3cc -- needs to be tested
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEB45 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8b47 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081D8543
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D8595
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D8C08
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D8C11
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D8C4B
@@ -2044,31 +1784,7 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D8BC4
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D8BC9
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D8444 -- BattleScript_RanAwayUsingMonAbility + 0x3
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042db0 + 0x13E -- GetEvolutionTargetSpecies (untested)
-
-		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
-		GameSettings.gSaveBlock1ptr = 0x03004F58
-		GameSettings.gSaveBlock2ptr = 0x03004F5C
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		-- Ability script addresses = FR 1.1 address - 0x53e
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
@@ -2195,32 +1911,13 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Rouge Feu")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x0824ebd4
 		GameSettings.gBattleMoves = 0x0824b054 -- needs to be tested
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEB3D --Task_EvolutionScene + 0x1 (FR1.1 + 24C)
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d77e7 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x0081D71E3
 		GameSettings.BattleScript_LearnMoveReturn = 0x081D7235
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D78A8
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D78B1
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D78EB
@@ -2232,31 +1929,7 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D7864
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D7869
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D70E4 -- BattleScript_RanAwayUsingMonAbility + 0x3
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042d9c + 0x13E -- GetEvolutionTargetSpecies (untested)
-
-		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
-		GameSettings.gSaveBlock1ptr = 0x03004F58
-		GameSettings.gSaveBlock2ptr = 0x03004F5C
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		-- Ability script addresses = FR 1.1 address - 0x189e
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
@@ -2384,32 +2057,13 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
 		print("ROM Detected: Pokemon Feuerrote")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x082546a8
 		GameSettings.gBattleMoves = 0x08250b28 -- needs to be tested
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004EE0
-		GameSettings.gTasks = 0x03004FE0
 		GameSettings.Task_EvolutionScene = 0x080CEA7D --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081DD2AB + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081DCCA7 --those values were tricky to find
 		GameSettings.BattleScript_LearnMoveReturn = 0x081DCC55 -- expect them to not always be right
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081DD36C
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081DD375
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081DD3AF
@@ -2421,31 +2075,7 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D4EDC
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D4EE1
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081DCBA8 -- BattleScript_RanAwayUsingMonAbility + 0x3
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042DC4 + 0x13E -- GetEvolutionTargetSpecies (untested)
-
-		--the only diffrance looks like in here gSaveBlock1ptr and gSaveBlock2ptr
-		GameSettings.gSaveBlock1ptr = 0x03004F58
-		GameSettings.gSaveBlock2ptr = 0x03004F5C
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310 --tested for bag items didnt check for berries should be same though
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		-- Ability script addresses = FR 1.1 address + 0x4226
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
@@ -2572,32 +2202,13 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 		print("ROM Detected: Pokemon Leaf Green v1.1")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x082547d0
 		GameSettings.gBattleMoves = 0x08250c50
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8c5 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d9061 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d8a5d
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8aaf
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9122
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d912b
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9165
@@ -2609,31 +2220,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d90de
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d90e3
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d895e
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042ed8 + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock1ptr = 0x03005008
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
@@ -2752,32 +2339,13 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		-- https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 		print("ROM Detected: Pokemon Leaf Green v1.0")
 
+		-- ROM (08xxxxxx addresses)
 		GameSettings.gBaseStats = 0x08254760
 		GameSettings.gBattleMoves = 0x08250be0
-		GameSettings.sMonSummaryScreen = 0x0203b140
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gBattleResults = 0x03004f90
-		GameSettings.gTasks = 0x03005090
 		GameSettings.Task_EvolutionScene = 0x080ce8b1 --Task_EvolutionScene + 0x1
 		GameSettings.BattleScript_FocusPunchSetUp = 0x081d8ff1 + 0x10 -- TODO: offset for this game is untested
 		GameSettings.BattleScript_LearnMoveLoop = 0x081d89ed
 		GameSettings.BattleScript_LearnMoveReturn = 0x081d8a3f
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90b2
 		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d90bb
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d90f5
@@ -2789,31 +2357,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d906e
 		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9073
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d88ee
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
 		GameSettings.FriendshipRequiredToEvo = 0x08042ec4 + 0x13E -- GetEvolutionTargetSpecies
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gSaveBlock1ptr = 0x03005008
-		GameSettings.gSaveBlock2ptr = 0x0300500c
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.EncryptionKeyOffset = 0xF20
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
 
 		GameSettings.ABILITIES = {
 			BATTLER = { -- Abiliities where we can use gBattleScripting.battler to determine enemy/player
