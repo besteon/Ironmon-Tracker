@@ -170,7 +170,7 @@ function NavigationMenu.drawScreen()
 			elseif button.image == Constants.PixelImages.MAP_PINDROP then
 				x = x + 1
 			end
-			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, Theme.COLORS[NavigationMenu.borderColor], shadowcolor)
+			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor] }, shadowcolor)
 		end
 	end
 

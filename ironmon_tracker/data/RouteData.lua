@@ -60,6 +60,7 @@ RouteData.Rods = {
 RouteData.Locations = {
 	CanPCHeal = {},
 	CanObtainBadge = {}, -- Currently unused for the time being
+	IsInLab = {},
 }
 
 function RouteData.setupRouteInfo(gameId)
@@ -388,6 +389,9 @@ function RouteData.setupRouteInfoAsFRLG()
 		[34] = true,
 		[36] = true,
 		[37] = true,
+	}
+	RouteData.Locations.IsInLab = {
+		[5] = true,
 	}
 
 	RouteData.Info = {
@@ -2384,6 +2388,9 @@ function RouteData.setupRouteInfoAsRSE()
 		[108] = true,
 		[109] = true,
 		[110] = true,
+	}
+	RouteData.Locations.IsInLab = {
+		[17] = true, -- Route 101
 	}
 
 	RouteData.Info = {}

@@ -7,6 +7,7 @@ GameOptionsScreen = {
 
 GameOptionsScreen.OptionKeys = {
 	"Auto swap to enemy",
+	"Show random ball picker",
 	"Hide stats until summary shown",  -- Text referenced in initialize()
 	"Show physical special icons",
 	"Show move effectiveness",
@@ -21,7 +22,7 @@ GameOptionsScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "  Estimate " .. Constants.Words.POKEMON .. "'s Potential",
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 110, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 114, 130, 11 },
 		onClick = function() GameOptionsScreen.displayJudgeMessage() end
 	},
 	Back = {
@@ -61,7 +62,7 @@ function GameOptionsScreen.initialize()
 				Options.updateSetting(self.text, self.toggleState)
 			end
 		}
-		startY = startY + Constants.SCREEN.LINESPACING + 1
+		startY = startY + Constants.SCREEN.LINESPACING
 	end
 
 	for _, button in pairs(GameOptionsScreen.Buttons) do
