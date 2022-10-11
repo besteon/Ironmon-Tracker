@@ -143,16 +143,16 @@ function Battle.updateViewSlots()
 	end
 
 	--Track if ally pokemon changes, to reset transform and ability changes
-	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn then
+	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleAbilities[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
-	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn then
+	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleAbilities[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
 	end
 	-- Pokemon on the left is not the one that was there previously
-	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther then
+	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleAbilities[1][prevEnemyPokemonLeft]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
 		Battle.changeOpposingPokemonView(true)
-	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther then
+	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleAbilities[1][prevEnemyPokemonRight]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
 		Battle.changeOpposingPokemonView(false)
 	end
@@ -193,7 +193,7 @@ function Battle.processBattleTurn()
 			Battle.prevDamageTotal = currDamageTotal
 		end
 	end
-	
+
 	-- Track moves for transformed mons if applicable; need high accuracy checking since moves window can be opened an closed in < .5 second
 	Battle.trackTransformedMoves()
 end
@@ -223,14 +223,14 @@ function Battle.updateTrackedInfo()
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
 	if actionCount == 0 and (lastMoveByAttacker ~= 0 or currentAction ~= 0) then Battle.firstActionTaken = true end
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
-	if not Battle.moveDelayed() and not Battle.isGhost then	
+	if not Battle.moveDelayed() and not Battle.isGhost then
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 
 		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
 			-- 0 = MOVE_USED
-			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then 
+			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
 				if Battle.AbilityChangeData.prevAction ~= actionCount then
 					Battle.AbilityChangeData.recordNextMove = true
 					Battle.AbilityChangeData.prevAction = actionCount
@@ -392,7 +392,7 @@ function Battle.checkAbilitiesToTrack()
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
 
 	-- BATTLER: 'battler' had their ability triggered
-	abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
+	local abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
 		-- Track a Traced pokemon's ability
 		if battlerAbility == 36 then
@@ -687,7 +687,7 @@ function Battle.trackAbilityChanges(moveUsed, ability)
 			if abilityOwner ~= nil then
 				Tracker.TrackAbility(abilityOwner.pokemonID, ability)
 			end
-			
+
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.isOwn = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.isOwn
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].abilityOwner.slot = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].abilityOwner.slot
 			Battle.BattleAbilities[tracerTeamIndex][tracerTeamSlot].ability = Battle.BattleAbilities[targetTeamIndex][targetTeamSlot].ability
