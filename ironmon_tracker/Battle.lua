@@ -143,16 +143,16 @@ function Battle.updateViewSlots()
 	end
 
 	--Track if ally pokemon changes, to reset transform and ability changes
-	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn then
+	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleAbilities[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
-	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn then
+	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleAbilities[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
 	end
 	-- Pokemon on the left is not the one that was there previously
-	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther then
+	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleAbilities[1][prevEnemyPokemonLeft]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
 		Battle.changeOpposingPokemonView(true)
-	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther then
+	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleAbilities[1][prevEnemyPokemonRight]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
 		Battle.changeOpposingPokemonView(false)
 	end
