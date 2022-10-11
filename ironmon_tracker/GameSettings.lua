@@ -80,6 +80,28 @@ GameSettings.ABILITIES = {}
 -- local pstats = { 0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4 } -- Player stats
 -- local estats = { 0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C } -- Enemy stats
 
+--[[
+Symbols tables references (from the pret decomp work):
+	Ruby:
+		- 1.0: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby.sym
+		- 1.1: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev1.sym
+		- 1.2: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokeruby_rev2.sym
+	Sapphire:
+		- 1.0: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire.sym
+		- 1.1: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev1.sym
+		- 1.2: https://raw.githubusercontent.com/pret/pokeruby/symbols/pokesapphire_rev2.sym
+	Emerald:
+		- 1.0: https://raw.githubusercontent.com/pret/pokeemerald/symbols/pokeemerald.sym
+	FireRed:
+		- 1.0: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered.sym
+		- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokefirered_rev1.sym
+		- Non-English versions are based on 1.1
+	LeafGreen:
+		- 1.0: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
+		- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
+		- Non-English versions are based on 1.1
+]]
+
 function GameSettings.initialize()
 	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
 	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
@@ -88,27 +110,29 @@ function GameSettings.initialize()
 
 	GameSettings.setEwramAddresses()
 	GameSettings.setIwramAddresses(gamecode)
+	GameSettings.setRomAddresses(gameversion)
+	-- Set the ability tracking scripts separately for clearer groupings
+	-- GameSettings.setAbilityTrackingAddresses(gameversion)
 
-	-- ROM (08xxxxxx) addresses are not necessarily the same between different versions of a game, so set those individually
-	if gamecode == 0x41585645 then
-		GameSettings.setGameAsRuby(gameversion)
-	elseif gamecode == 0x41585045 then
-		GameSettings.setGameAsSapphire(gameversion)
-	elseif gamecode == 0x42504545 then
-		GameSettings.setGameAsEmerald()
-	elseif gamecode == 0x42505245 then
-		GameSettings.setGameAsFireRed(gameversion)
-	elseif gamecode == 0x42505249 then
-		GameSettings.setGameAsFireRedItaly(gameversion)
-	elseif gamecode == 0x42505253 then
-		GameSettings.setGameAsFireRedSpanish(gameversion)
-	elseif gamecode == 0x42505246 then
-		GameSettings.setGameAsFireRedFrench(gameversion)
-	elseif gamecode == 0x42505244 then
-		GameSettings.setGameAsFireRedGermany(gameversion)
-	elseif gamecode == 0x42504745 then
-		GameSettings.setGameAsLeafGreen(gameversion)
-	end
+	-- if gamecode == 0x41585645 then
+	-- 	GameSettings.setGameAsRuby(gameversion)
+	-- elseif gamecode == 0x41585045 then
+	-- 	GameSettings.setGameAsSapphire(gameversion)
+	-- elseif gamecode == 0x42504545 then
+	-- 	GameSettings.setGameAsEmerald()
+	-- elseif gamecode == 0x42505245 then
+	-- 	GameSettings.setGameAsFireRed(gameversion)
+	-- elseif gamecode == 0x42505249 then
+	-- 	GameSettings.setGameAsFireRedItaly(gameversion)
+	-- elseif gamecode == 0x42505253 then
+	-- 	GameSettings.setGameAsFireRedSpanish(gameversion)
+	-- elseif gamecode == 0x42505246 then
+	-- 	GameSettings.setGameAsFireRedFrench(gameversion)
+	-- elseif gamecode == 0x42505244 then
+	-- 	GameSettings.setGameAsFireRedGermany(gameversion)
+	-- elseif gamecode == 0x42504745 then
+	-- 	GameSettings.setGameAsLeafGreen(gameversion)
+	-- end
 end
 
 function GameSettings.setGameInfo(gamecode)
@@ -225,124 +249,177 @@ end
 
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
 function GameSettings.setEwramAddresses()
-	if GameSettings.game == 1 then
-		-- Ruby / Sapphire
-		GameSettings.sEvoInfo = 0x02014800 -- gSharedMem + 0x14800
-		GameSettings.gBattleScriptingBattler = 0x02016003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
-		GameSettings.sMonSummaryScreen = 0x02018000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
-		GameSettings.gBattleTypeFlags = 0x020239f8
-		GameSettings.gBattleControllerExecFlags = 0x02024a64
-		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.gBattlerPartyIndexes = 0x02024a6a
-		GameSettings.gActionsByTurnOrder = 0x02024a76
-		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
-		GameSettings.gBattleMons = 0x02024a80
-		GameSettings.gTakenDmg = 0x02024bf4
-		GameSettings.gBattlerAttacker = 0x02024c07
-		GameSettings.gBattlerTarget = 0x02024c08
-		GameSettings.gBattlescriptCurrInstr = 0x02024c10
-		GameSettings.gMoveResultFlags = 0x02024c68
-		GameSettings.gHitMarker = 0x02024c6c
-		GameSettings.gBattleCommunication = 0x02024d1e
-		GameSettings.gBattleOutcome = 0x02024d26
-		GameSettings.gBattleWeather = 0x02024db8
-		GameSettings.gMoveToLearn = 0x02024e82
-		GameSettings.gMapHeader = 0x0202e828
-		GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
-		GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
-		GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
-		GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
+	local addresses = { -- Format: Address = { RS, Emerald, FRLG }
+		-- RS uses this directly (gSharedMem + 0x14800), Em/FRLG uses a pointer instead
+		sEvoInfo = { 0x02014800, 0x00000000, 0x00000000 },
+		sEvoStructPtr = { 0x00000000, 0x0203ab80, 0x02039a20 },
+		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
+		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, 0x02023fc4 + 0x17 },
+		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
+		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, 0x0203b140 },
+		gBattleTypeFlags = { 0x020239f8, 0x02022fec, 0x02022b4c },
+		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, 0x02023bc8 },
+		gBattlersCount = { 0x02024a68, 0x0202406c, 0x02023bcc },
+		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, 0x02023bce },
+		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, 0x02023bda },
+		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, 0x02023be2 },
+		gBattleMons = { 0x02024a80, 0x02024084, 0x02023be4 },
+		gTakenDmg = { 0x02024bf4, 0x020241f8, 0x02023d58 },
+		gBattlerAttacker = { 0x02024c07, 0x0202420B, 0x02023d6b },
+		gBattlerTarget = { 0x02024c08, 0x0202420c, 0x02023d6c },
+		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, 0x02023d74 },
+		gMoveResultFlags = { 0x02024c68, 0x0202427c, 0x02023dcc },
+		gHitMarker = { 0x02024c6c, 0x02024280, 0x02023dd0 },
+		gBattleCommunication = { 0x02024d1e, 0x02024332, 0x02023e82 },
+		gBattleOutcome = { 0x02024d26, 0x0202433a, 0x02023e8a },
+		gBattleWeather = { 0x02024db8, 0x020243cc, 0x02023f1c },
+		gMoveToLearn = { 0x02024e82, 0x020244e2, 0x02024022 },
+		gMapHeader = { 0x0202e828, 0x02037318, 0x02036dfc },
+		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, 0x020370d0 },
+		-- RS: gUnknown_0202E8E2
+		sSpecialFlags = { 0x0202e8e2, 0x020375fc, 0x020370e0 },
+		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, 0x0203ad30 },
+		-- RS: gAbilitiesPerBank
+		sBattlerAbilities = { 0x0203926c, 0x0203aba4, 0x02039a30 },
+		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead
+		gSaveBlock1 = { 0x02025734, 0x00000000, 0x00000000 },
+		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
+		gameVarsOffset = { 0x1340, 0x139C, 0x1000 },
+		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
+		-- FRLG: [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		badgeOffset = { 0x1220 + 0x100, 0x1270 + 0x10C, 0xEE0 + 0x104 },
+		bagPocket_Items_offset = { 0x560, 0x560, 0x310 },
+		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
+		bagPocket_Items_Size = { 20, 30, 42 },
+		bagPocket_Berries_Size = { 46, 46, 43 },
+		-- These addresses are in IWRAM instead in RS, will be set later
+		sBattleBuffersTransferData = { 0x00000000, 0x02022d10, 0x02022874 },
+		gBattleTextBuff1 = { 0x00000000, 0x02022f58, 0x02022ab8 },
+		gBattleTerrain = { 0x00000000, 0x02022ff0, 0x02022b50 },
+		-- This address doesn't exist at all in RS
+		sStartMenuWindowId = { 0x00000000, 0x0203cd8c, 0x0203abe0 },
+	}
 
-		GameSettings.gSaveBlock1 = 0x02025734
-		GameSettings.gameStatsOffset = 0x1540
-		GameSettings.gameVarsOffset = 0x1340
-		GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x740
-		GameSettings.bagPocket_Items_Size = 20
-		GameSettings.bagPocket_Berries_Size = 46
-	elseif GameSettings.game == 2 then
-		-- Emerald
-		GameSettings.sBattleBuffersTransferData = 0x02022d10
-		GameSettings.gBattleTextBuff1 = 0x02022f58
-		GameSettings.gBattleTypeFlags = 0x02022fec
-		GameSettings.gBattleTerrain = 0x02022ff0
-		GameSettings.gBattlersCount = 0x0202406c
-		GameSettings.gBattlerPartyIndexes = 0x0202406e
-		GameSettings.gActionsByTurnOrder = 0x0202407a
-		GameSettings.gBattleControllerExecFlags = 0x02024068
-		GameSettings.gCurrentTurnActionNumber = 0x02024082
-		GameSettings.gBattleMons = 0x02024084
-		GameSettings.gTakenDmg = 0x020241f8
-		GameSettings.gBattlerAttacker = 0x0202420B
-		GameSettings.gBattlerTarget = 0x0202420c
-		GameSettings.gBattlescriptCurrInstr = 0x02024214
-		GameSettings.gMoveResultFlags = 0x0202427c
-		GameSettings.gHitMarker = 0x02024280
-		GameSettings.gBattleCommunication = 0x02024332
-		GameSettings.gBattleOutcome = 0x0202433a
-		GameSettings.gBattleWeather = 0x020243cc
-		GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
-		GameSettings.gMoveToLearn = 0x020244e2
-		GameSettings.gMapHeader = 0x02037318
-		GameSettings.gSpecialVar_Result = 0x020375f0 -- For rock smash
-		GameSettings.sSpecialFlags = 0x020375fc
-		GameSettings.sEvoStructPtr = 0x0203ab80
-		GameSettings.sBattlerAbilities = 0x0203aba4
-		GameSettings.sStartMenuWindowId = 0x0203cd8c
-		GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
-		GameSettings.sMonSummaryScreen = 0x0203cf1c
-
-		GameSettings.gSaveBlock1 = 0x02025a00
-		GameSettings.gameStatsOffset = 0x159C
-		GameSettings.gameVarsOffset = 0x139C
-		GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
-		GameSettings.bagPocket_Items_offset = 0x560
-		GameSettings.bagPocket_Berries_offset = 0x790
-		GameSettings.bagPocket_Items_Size = 30
-		GameSettings.bagPocket_Berries_Size = 46
-	elseif GameSettings.game == 3 then
-		-- FireRed / LeafGreen
-		GameSettings.sBattleBuffersTransferData = 0x02022874
-		GameSettings.gBattleTextBuff1 = 0x02022ab8
-		GameSettings.gBattleTypeFlags = 0x02022b4c
-		GameSettings.gBattleTerrain = 0x02022b50
-		GameSettings.gBattleControllerExecFlags = 0x02023bc8
-		GameSettings.gBattlersCount = 0x02023bcc
-		GameSettings.gBattlerPartyIndexes = 0x02023bce
-		GameSettings.gActionsByTurnOrder = 0x02023bda
-		GameSettings.gCurrentTurnActionNumber = 0x02023be2
-		GameSettings.gBattleMons = 0x02023be4
-		GameSettings.gTakenDmg = 0x02023d58
-		GameSettings.gBattlerAttacker = 0x02023d6b
-		GameSettings.gBattlerTarget = 0x02023d6c
-		GameSettings.gBattlescriptCurrInstr = 0x02023d74
-		GameSettings.gMoveResultFlags = 0x02023dcc
-		GameSettings.gHitMarker = 0x02023dd0
-		GameSettings.gBattleCommunication = 0x02023e82
-		GameSettings.gBattleOutcome = 0x02023e8a
-		GameSettings.gBattleWeather = 0x02023f1c
-		GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
-		GameSettings.gMoveToLearn = 0x02024022
-		GameSettings.gMapHeader = 0x02036dfc
-		GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
-		GameSettings.sSpecialFlags = 0x020370e0
-		GameSettings.sEvoStructPtr = 0x02039a20
-		GameSettings.sBattlerAbilities = 0x02039a30
-		GameSettings.sStartMenuWindowId = 0x0203abe0
-		GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
-		GameSettings.sMonSummaryScreen = 0x0203b140
-
-		GameSettings.gSaveBlock1 = 0x0202552c
-		GameSettings.gameStatsOffset = 0x1200
-		GameSettings.gameVarsOffset = 0x1000
-		GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
-		GameSettings.bagPocket_Items_offset = 0x310
-		GameSettings.bagPocket_Berries_offset = 0x54c
-		GameSettings.bagPocket_Items_Size = 42
-		GameSettings.bagPocket_Berries_Size = 43
+	for address, memAddresses in pairs(addresses) do
+		GameSettings[address] = memAddresses[GameSettings.game]
 	end
+	-- if GameSettings.game == 1 then
+	-- 	-- Ruby / Sapphire
+	-- 	GameSettings.sEvoInfo = 0x02014800 -- gSharedMem + 0x14800
+	-- 	GameSettings.gBattleScriptingBattler = 0x02016003 -- gBattleStruct (gSharedMem + 0x0) -> scriptingActive
+	-- 	GameSettings.sMonSummaryScreen = 0x02018000 + 0x76 -- pssData (gSharedMem + 0x18000) + lastpage offset
+	-- 	GameSettings.gBattleTypeFlags = 0x020239f8
+	-- 	GameSettings.gBattleControllerExecFlags = 0x02024a64
+	-- 	GameSettings.gBattlersCount = 0x02024a68
+	-- 	GameSettings.gBattlerPartyIndexes = 0x02024a6a
+	-- 	GameSettings.gActionsByTurnOrder = 0x02024a76
+	-- 	GameSettings.gCurrentTurnActionNumber = 0x02024a7e
+	-- 	GameSettings.gBattleMons = 0x02024a80
+	-- 	GameSettings.gTakenDmg = 0x02024bf4
+	-- 	GameSettings.gBattlerAttacker = 0x02024c07
+	-- 	GameSettings.gBattlerTarget = 0x02024c08
+	-- 	GameSettings.gBattlescriptCurrInstr = 0x02024c10
+	-- 	GameSettings.gMoveResultFlags = 0x02024c68
+	-- 	GameSettings.gHitMarker = 0x02024c6c
+	-- 	GameSettings.gBattleCommunication = 0x02024d1e
+	-- 	GameSettings.gBattleOutcome = 0x02024d26
+	-- 	GameSettings.gBattleWeather = 0x02024db8
+	-- 	GameSettings.gMoveToLearn = 0x02024e82
+	-- 	GameSettings.gMapHeader = 0x0202e828
+	-- 	GameSettings.gSpecialVar_Result = 0x0202e8dc -- For rock smash
+	-- 	GameSettings.sSpecialFlags = 0x0202e8e2 -- gUnknown_0202E8E2
+	-- 	GameSettings.gSpecialVar_ItemId = 0x0203855e -- For fishing rod
+	-- 	GameSettings.sBattlerAbilities = 0x0203926c -- gAbilitiesPerBank
 
+	-- 	GameSettings.gSaveBlock1 = 0x02025734
+	-- 	GameSettings.gameStatsOffset = 0x1540
+	-- 	GameSettings.gameVarsOffset = 0x1340
+	-- 	GameSettings.badgeOffset = 0x1220 + 0x100 -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
+	-- 	GameSettings.bagPocket_Items_offset = 0x560
+	-- 	GameSettings.bagPocket_Berries_offset = 0x740
+	-- 	GameSettings.bagPocket_Items_Size = 20
+	-- 	GameSettings.bagPocket_Berries_Size = 46
+	-- elseif GameSettings.game == 2 then
+		-- Emerald
+		-- GameSettings.sBattleBuffersTransferData = 0x02022d10
+		-- GameSettings.gBattleTextBuff1 = 0x02022f58
+		-- GameSettings.gBattleTypeFlags = 0x02022fec
+		-- GameSettings.gBattleTerrain = 0x02022ff0
+		-- GameSettings.gBattlersCount = 0x0202406c
+		-- GameSettings.gBattlerPartyIndexes = 0x0202406e
+		-- GameSettings.gActionsByTurnOrder = 0x0202407a
+		-- GameSettings.gBattleControllerExecFlags = 0x02024068
+		-- GameSettings.gCurrentTurnActionNumber = 0x02024082
+		-- GameSettings.gBattleMons = 0x02024084
+		-- GameSettings.gTakenDmg = 0x020241f8
+		-- GameSettings.gBattlerAttacker = 0x0202420B
+		-- GameSettings.gBattlerTarget = 0x0202420c
+		-- GameSettings.gBattlescriptCurrInstr = 0x02024214
+		-- GameSettings.gMoveResultFlags = 0x0202427c
+		-- GameSettings.gHitMarker = 0x02024280
+		-- GameSettings.gBattleCommunication = 0x02024332
+		-- GameSettings.gBattleOutcome = 0x0202433a
+		-- GameSettings.gBattleWeather = 0x020243cc
+		-- GameSettings.gBattleScriptingBattler = 0x02024474 + 0x17 -- gBattleScripting.battler
+		-- GameSettings.gMoveToLearn = 0x020244e2
+		-- GameSettings.gMapHeader = 0x02037318
+		-- GameSettings.gSpecialVar_Result = 0x020375f0 -- For rock smash
+		-- GameSettings.sSpecialFlags = 0x020375fc
+		-- GameSettings.sEvoStructPtr = 0x0203ab80
+		-- GameSettings.sBattlerAbilities = 0x0203aba4
+		-- GameSettings.sStartMenuWindowId = 0x0203cd8c
+		-- GameSettings.gSpecialVar_ItemId = 0x0203ce7c -- For fishing rod
+		-- GameSettings.sMonSummaryScreen = 0x0203cf1c
+
+		-- GameSettings.gSaveBlock1 = 0x02025a00
+		-- GameSettings.gameStatsOffset = 0x159C
+		-- GameSettings.gameVarsOffset = 0x139C
+		-- GameSettings.badgeOffset = 0x1270 + 0x10C -- [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
+		-- GameSettings.bagPocket_Items_offset = 0x560
+		-- GameSettings.bagPocket_Berries_offset = 0x790
+		-- GameSettings.bagPocket_Items_Size = 30
+		-- GameSettings.bagPocket_Berries_Size = 46
+	-- elseif GameSettings.game == 3 then
+		-- FireRed / LeafGreen
+		-- GameSettings.sBattleBuffersTransferData = 0x02022874
+		-- GameSettings.gBattleTextBuff1 = 0x02022ab8
+		-- GameSettings.gBattleTypeFlags = 0x02022b4c
+		-- GameSettings.gBattleTerrain = 0x02022b50
+		-- GameSettings.gBattleControllerExecFlags = 0x02023bc8
+		-- GameSettings.gBattlersCount = 0x02023bcc
+		-- GameSettings.gBattlerPartyIndexes = 0x02023bce
+		-- GameSettings.gActionsByTurnOrder = 0x02023bda
+		-- GameSettings.gCurrentTurnActionNumber = 0x02023be2
+		-- GameSettings.gBattleMons = 0x02023be4
+		-- GameSettings.gTakenDmg = 0x02023d58
+		-- GameSettings.gBattlerAttacker = 0x02023d6b
+		-- GameSettings.gBattlerTarget = 0x02023d6c
+		-- GameSettings.gBattlescriptCurrInstr = 0x02023d74
+		-- GameSettings.gMoveResultFlags = 0x02023dcc
+		-- GameSettings.gHitMarker = 0x02023dd0
+		-- GameSettings.gBattleCommunication = 0x02023e82
+		-- GameSettings.gBattleOutcome = 0x02023e8a
+		-- GameSettings.gBattleWeather = 0x02023f1c
+		-- GameSettings.gBattleScriptingBattler = 0x02023fc4 + 0x17 -- gBattleScripting.battler
+		-- GameSettings.gMoveToLearn = 0x02024022
+		-- GameSettings.gMapHeader = 0x02036dfc
+		-- GameSettings.gSpecialVar_Result = 0x020370d0 -- For rock smash
+		-- GameSettings.sSpecialFlags = 0x020370e0
+		-- GameSettings.sEvoStructPtr = 0x02039a20
+		-- GameSettings.sBattlerAbilities = 0x02039a30
+		-- GameSettings.sStartMenuWindowId = 0x0203abe0
+		-- GameSettings.gSpecialVar_ItemId = 0x0203ad30 -- For fishing rod
+		-- GameSettings.sMonSummaryScreen = 0x0203b140
+
+		-- GameSettings.gSaveBlock1 = 0x0202552c
+		-- GameSettings.gameStatsOffset = 0x1200
+		-- GameSettings.gameVarsOffset = 0x1000
+		-- GameSettings.badgeOffset = 0xEE0 + 0x104 -- [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
+		-- GameSettings.bagPocket_Items_offset = 0x310
+		-- GameSettings.bagPocket_Berries_offset = 0x54c
+		-- GameSettings.bagPocket_Items_Size = 42
+		-- GameSettings.bagPocket_Berries_Size = 43
+	-- end
 end
 
 -- IWRAM (03xxxxxx) addresses are the same between all english versions of a game, and between all non-english versions.
@@ -360,28 +437,227 @@ function GameSettings.setIwramAddresses(gamecode)
 		-- Emerald
 		-- Currently only support English versions, so don't need to check for English / non-English gamecodes
 		GameSettings.gBattleResults = 0x03005d10
-		GameSettings.gTasks = 0x03005e00
 		GameSettings.gSaveBlock1ptr = 0x03005d8c
 		GameSettings.gSaveBlock2ptr = 0x03005d90
+		GameSettings.gTasks = 0x03005e00
 		GameSettings.EncryptionKeyOffset = 0xAC
 	elseif GameSettings.game == 3 then
 		-- FireRed / LeafGreen
 		if gamecode == 0x42505245 or gamecode == 0x42504745 then
 			-- FRLG English Versions
 			GameSettings.gBattleResults = 0x03004f90
-			GameSettings.gTasks = 0x03005090
 			GameSettings.gSaveBlock1ptr = 0x03005008
 			GameSettings.gSaveBlock2ptr = 0x0300500c
+			GameSettings.gTasks = 0x03005090
 		else
-			-- FRLG Non-English Versions
-			GameSettings.gBattleResults = 0x03004EE0
-			GameSettings.gTasks = 0x03004FE0
-			GameSettings.gSaveBlock1ptr = 0x03004F58
-			GameSettings.gSaveBlock2ptr = 0x03004F5C
+			-- FRLG Non-English Versions (Currently only have FireRed Non-English versions)
+			GameSettings.gBattleResults = 0x03004ee0
+			GameSettings.gSaveBlock1ptr = 0x03004f58
+			GameSettings.gSaveBlock2ptr = 0x03004f5c
+			GameSettings.gTasks = 0x03004fe0
 		end
+		-- EncryptionKeyOffset is the same between versions
 		GameSettings.EncryptionKeyOffset = 0xF20
 	end
 end
+
+-- ROM (08xxxxxx) addresses are not necessarily the same between different versions of a game, so set those individually
+function GameSettings.setRomAddresses(gameversion)
+	local addresses = {}
+	local versionIndex = 1
+	if GameSettings.versioncolor == "Ruby" then
+		addresses = { -- Format: Address = {1.0, 1.1, 1.2}
+			gBattleMoves = { 0x081fb12c, 0x081fb144, 0x081fb144 },
+			gBaseStats = { 0x081fec18, 0x081fec30, 0x081fec30 },
+			-- GetEvolutionTargetSpecies + 0x13E
+			FriendshipRequiredToEvo = { 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
+			--Task_EvolutionScene + 0x1
+			Task_EvolutionScene = { 0x0811240d, 0x0811244d, 0x0811242d },
+			BattleScript_RanAwayUsingMonAbility = { 0x081d8e25, 0x081d8e3d, 0x081d8e3d },
+			-- BattleScript_FocusPunchSetUp + 0x10
+			BattleScript_FocusPunchSetUp = { 0x081d94ea, 0x081d9502, 0x081d9502 },
+			-- BattleScript_TryLearnMoveLoop
+			BattleScript_LearnMoveLoop = { 0x081d8f0f, 0x081d8f27, 0x081d8f27 },
+			BattleScript_LearnMoveReturn = { 0x081d8f61, 0x081d8f79, 0x081d8f79 },
+			BattleScript_MoveUsedIsFrozen = { 0x081d9548, 0x081d9560, 0x081d9560 },
+			BattleScript_MoveUsedIsFrozen2 = { 0x081d954b, 0x081d9563, 0x081d9563 },
+			BattleScript_MoveUsedIsFrozen3 = { 0x081d954d, 0x081d9565, 0x081d9565 },
+			BattleScript_MoveUsedUnfroze = { 0x081d9557, 0x081d956f, 0x081d956f },
+			BattleScript_MoveUsedUnfroze2 = { 0x081d955c, 0x081d9574, 0x081d9574 },
+			BattleScript_MoveUsedIsConfused = { 0x081d9598, 0x081d95b0, 0x081d95b0 },
+			BattleScript_MoveUsedIsConfused2 = { 0x081d95a1, 0x081d95b9, 0x081d95b9 },
+			BattleScript_MoveUsedIsConfusedNoMore = { 0x081d95d7, 0x081d95ef, 0x081d95ef },
+			BattleScript_MoveUsedIsInLove = { 0x081d95fe, 0x081d9616, 0x081d9616 },
+			BattleScript_MoveUsedIsInLove2 = { 0x081d9607, 0x081d961f, 0x081d961f },
+		}
+		if gameversion == 0x00410000 then
+			print("ROM Detected: Pokemon Ruby v1.0")
+			versionIndex = 1
+		elseif gameversion == 0x01400000 then
+			print("ROM Detected: Pokemon Ruby v1.1")
+			versionIndex = 2
+		elseif gameversion == 0x023F0000 then
+			print("ROM Detected: Pokemon Ruby v1.2")
+			versionIndex = 3
+		end
+	elseif GameSettings.versioncolor == "Sapphire" then
+		addresses = { -- Format: Address = {1.0, 1.1, 1.2}
+			gBattleMoves = { 0x081fb0bc, 0x081fb0d4, 0x081fb0d4 },
+			gBaseStats = { 0x081feba8, 0x081febc0, 0x081febc0 },
+			-- GetEvolutionTargetSpecies + 0x13E
+			FriendshipRequiredToEvo = { 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
+			--Task_EvolutionScene + 0x1
+			Task_EvolutionScene = { 0x0811240d, 0x0811242d, 0x0811242d },
+			BattleScript_RanAwayUsingMonAbility = { 0x081d8db5, 0x081d8dcd, 0x081d8dcd },
+			-- BattleScript_FocusPunchSetUp + 0x10
+			BattleScript_FocusPunchSetUp = { 0x081d947a, 0x081d9492, 0x081d9492 },
+			-- BattleScript_TryLearnMoveLoop
+			BattleScript_LearnMoveLoop = { 0x081d8e9f, 0x081d8eb7, 0x081d8eb7 },
+			BattleScript_LearnMoveReturn = { 0x081d8ef1, 0x081d8f09, 0x081d8f09 },
+			BattleScript_MoveUsedIsFrozen = { 0x081d94d8, 0x081d94f0, 0x081d94f0 },
+			BattleScript_MoveUsedIsFrozen2 = { 0x081d94db, 0x081d94f3, 0x081d94f3 },
+			BattleScript_MoveUsedIsFrozen3 = { 0x081d94dd, 0x081d94f5, 0x081d94f5 },
+			BattleScript_MoveUsedUnfroze = { 0x081d94e7, 0x081d94ff, 0x081d94ff },
+			BattleScript_MoveUsedUnfroze2 = { 0x081d94ec, 0x081d9504, 0x081d9504 },
+			BattleScript_MoveUsedIsConfused = { 0x081d9528, 0x081d9540, 0x081d9540 },
+			BattleScript_MoveUsedIsConfused2 = { 0x081d9531, 0x081d9549, 0x081d9549 },
+			BattleScript_MoveUsedIsConfusedNoMore = { 0x081d9567, 0x081d957f, 0x081d957f },
+			BattleScript_MoveUsedIsInLove = { 0x081d958e, 0x081d95a6, 0x081d95a6 },
+			BattleScript_MoveUsedIsInLove2 = { 0x081d9597, 0x081d95af, 0x081d95af },
+		}
+		if gameversion == 0x00550000 then
+			print("ROM Detected: Pokemon Sapphire v1.0")
+			versionIndex = 1
+		elseif gameversion == 0x1540000 then
+			print("ROM Detected: Pokemon Sapphire v1.1")
+			versionIndex = 2
+		elseif gameversion == 0x02530000 then
+			print("ROM Detected: Pokemon Sapphire v1.2")
+			versionIndex = 3
+		end
+	elseif GameSettings.versioncolor == "Emerald" then
+		-- Only have english Emerald at the moment, setting this up to allow easier addition of non-english versions
+		addresses = { -- Format: Address = { English }
+			gBattleMoves = { 0x0831c898 },
+			gBaseStats = { 0x083203cc },
+			-- GetEvolutionTargetSpecies + 0x13E
+			FriendshipRequiredToEvo = { 0x0806D1D6 },
+			--Task_EvolutionScene + 0x1
+			Task_EvolutionScene = { 0x0813e571 },
+			BattleScript_RanAwayUsingMonAbility = { 0x082daaec },
+			-- BattleScript_FocusPunchSetUp + 0x10
+			BattleScript_FocusPunchSetUp = { 0x082db20f },
+			-- BattleScript_TryLearnMoveLoop
+			BattleScript_LearnMoveLoop = { 0x082dabd9 },
+			BattleScript_LearnMoveReturn = { 0x082dac2b },
+			BattleScript_MoveUsedIsFrozen = { 0x082db26d },
+			BattleScript_MoveUsedIsFrozen2 = { 0x082db270 },
+			BattleScript_MoveUsedIsFrozen3 = { 0x082db272 },
+			BattleScript_MoveUsedUnfroze = { 0x082db27c },
+			BattleScript_MoveUsedUnfroze2 = { 0x082db281 },
+			BattleScript_MoveUsedIsConfused = { 0x082db2c0 },
+			BattleScript_MoveUsedIsConfused2 = { 0x082db2c9 },
+			BattleScript_MoveUsedIsConfusedNoMore = { 0x082db303 },
+			BattleScript_MoveUsedIsInLove = { 0x082db32a },
+			BattleScript_MoveUsedIsInLove2 = { 0x082db333 },
+		}
+		if gameversion == 0x00720000 then
+			print("ROM Detected: Pokemon Emerald")
+			versionIndex = 1
+		end
+	elseif GameSettings.versioncolor == "FireRed" then
+		addresses = { -- Format: Address = { English 1.0, English 1.1, Spanish, Italian, French, German }
+			gBattleMoves = { 0x08250c04, 0x08250c74, 0x0824c3cc, 0x08249ce4, 0x0824b054, 0x08250b28 },
+			gBaseStats = { 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8 },
+			-- GetEvolutionTargetSpecies + 0x13E
+			FriendshipRequiredToEvo = { 0x08043002, 0x08043016, 0x08042EEE, 0x08042EEE, 0x08042EDA, 0x08042F02 },
+			--Task_EvolutionScene + 0x1
+			Task_EvolutionScene = { 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D },
+			-- BattleScript_RanAwayUsingMonAbility + 0x3
+			BattleScript_RanAwayUsingMonAbility = { 0x081d8912, 0x081d8982, 0x081D8444, 0x081D5D7C, 0x081D70E4, 0x081DCBA8 },
+			-- BattleScript_FocusPunchSetUp + 0x10
+			BattleScript_FocusPunchSetUp = { 0x081d9025, 0x081d9095, 0x081d8b57, 0x081d648f, 0x081d77f7, 0x081DD2BB },
+			-- BattleScript_TryLearnMoveLoop
+			BattleScript_LearnMoveLoop = { 0x081d8a11, 0x081d8a81, 0x081D8543, 0x081d5e7B, 0x0081D71E3, 0x081DCCA7 },
+			BattleScript_LearnMoveReturn = { 0x081d8a63, 0x081d8ad3, 0x081D8595, 0x081D5ECD, 0x081D7235, 0x081DCC55 },
+			BattleScript_MoveUsedIsFrozen = { 0x081d9083, 0x081D90F3, 0x081D8BB5, 0x081D64ED, 0x081D7855, 0x081D4ECD },
+			BattleScript_MoveUsedIsFrozen2 = { 0x081d9086, 0x081D90F6, 0x081D8BB8, 0x081D64F0, 0x081D7858, 0x081D4ED0 },
+			BattleScript_MoveUsedIsFrozen3 = { 0x081d9088, 0x081D90F8, 0x081D8BBA, 0x081D64F2, 0x081D785A, 0x081D4ED2 },
+			BattleScript_MoveUsedUnfroze = { 0x081d9092, 0x081D9102, 0x081D8BC4, 0x081D64FC, 0x081D7864, 0x081D4EDC },
+			BattleScript_MoveUsedUnfroze2 = { 0x081d9097, 0x081D9107, 0x081D8BC9, 0x081D6501, 0x081D7869, 0x081D4EE1 },
+			BattleScript_MoveUsedIsConfused = { 0x081d90d6, 0x081d9146, 0x081D8C08, 0x081D6540, 0x081D78A8, 0x081DD36C },
+			BattleScript_MoveUsedIsConfused2 = { 0x081d90df, 0x081d914f, 0x081D8C11, 0x081D6549, 0x081D78B1, 0x081DD375 },
+			BattleScript_MoveUsedIsConfusedNoMore = { 0x081d9119, 0x081d9189, 0x081D8C4B, 0x081D6583, 0x081D78EB, 0x081DD3AF },
+			BattleScript_MoveUsedIsInLove = { 0x081d9140, 0x081D91B0, 0x081D8C72, 0x081D65AA, 0x081D7912, 0x081DD3D6 },
+			BattleScript_MoveUsedIsInLove2 = { 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF },
+		}
+		if gameversion == 0x00680000 then
+			print("ROM Detected: Pokemon Fire Red v1.0")
+			versionIndex = 1
+		elseif gameversion == 0x01670000 then
+			print("ROM Detected: Pokemon Fire Red v1.1")
+			versionIndex = 2
+		elseif gameversion == 0x005A0000 then
+			print("ROM Detected: Pokemon Rojo Fuego")
+			versionIndex = 3
+			dofile(Main.DataFolder .. "/Languages/SpainData.lua")
+			SpainData.updateToSpainData()
+		elseif gameversion == 0x00640000 then
+			print("ROM Detected: Pokemon - Rosso Fuoco")
+			versionIndex = 4
+			dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
+			ItalyData.updateToItalyData()
+		elseif gameversion == 0x00670000 then
+			print("ROM Detected: Pokemon Rouge Feu")
+			versionIndex = 5
+			dofile(Main.DataFolder .. "/Languages/FranceData.lua")
+			FranceData.updateToFranceData()
+		elseif gameversion == 0x00690000 then
+			print("ROM Detected: Pokemon Feuerrote")
+			versionIndex = 6
+			dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
+			GermanyData.updateToGermanyData()
+		end
+	elseif GameSettings.versioncolor == "LeafGreen" then
+		addresses = { -- Format: Address = {1.0, 1.1}
+			gBattleMoves = { 0x08250be0, 0x08250c50 },
+			gBaseStats = { 0x08254760, 0x082547d0 },
+			-- GetEvolutionTargetSpecies + 0x13E
+			FriendshipRequiredToEvo = { 0x08043002, 0x08043016 },
+			--Task_EvolutionScene + 0x1
+			Task_EvolutionScene = { 0x080ce8b1, 0x080ce8c5 },
+			BattleScript_RanAwayUsingMonAbility = { 0x081d88ee, 0x081d895e },
+			-- BattleScript_FocusPunchSetUp + 0x10
+			BattleScript_FocusPunchSetUp = { 0x081d9001, 0x081d9071 },
+			-- BattleScript_TryLearnMoveLoop
+			BattleScript_LearnMoveLoop = { 0x081d89ed, 0x081d8a5d },
+			BattleScript_LearnMoveReturn = { 0x081d8a3f, 0x081d8aaf },
+			BattleScript_MoveUsedIsFrozen = { 0x081d905f, 0x081d90cf },
+			BattleScript_MoveUsedIsFrozen2 = { 0x081d9062, 0x081d90d2 },
+			BattleScript_MoveUsedIsFrozen3 = { 0x081d9064, 0x081d90d4 },
+			BattleScript_MoveUsedUnfroze = { 0x081d906e, 0x081d90de },
+			BattleScript_MoveUsedUnfroze2 = { 0x081d9073, 0x081d90e3 },
+			BattleScript_MoveUsedIsConfused = { 0x081d90b2, 0x081d9122 },
+			BattleScript_MoveUsedIsConfused2 = { 0x081d90bb, 0x081d912b },
+			BattleScript_MoveUsedIsConfusedNoMore = { 0x081d90f5, 0x081d9165 },
+			BattleScript_MoveUsedIsInLove = { 0x081d911c, 0x081d918c },
+			BattleScript_MoveUsedIsInLove2 = { 0x081d9125, 0x081d9195 },
+		}
+		if gameversion == 0x00810000 then
+			print("ROM Detected: Pokemon Leaf Green v1.0")
+			versionIndex = 1
+		elseif gameversion == 0x01800000 then
+			print("ROM Detected: Pokemon Leaf Green v1.1")
+			versionIndex = 2
+		end
+	end
+
+	for address, memAddresses in pairs(addresses) do
+		GameSettings[address] = memAddresses[versionIndex]
+	end
+end
+
+
 
 function GameSettings.setGameAsRuby(gameversion)
 	if gameversion == 0x00410000 then
