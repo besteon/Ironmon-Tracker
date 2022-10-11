@@ -764,10 +764,10 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 		categoryInfo = Constants.HIDDEN_INFO
 	elseif moveCat == MoveData.Categories.PHYSICAL then
 		categoryInfo = "Physical"
-		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
 	elseif moveCat == MoveData.Categories.SPECIAL then
 		categoryInfo = "Special"
-		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
 	else
 		categoryInfo = Constants.BLANKLINE
 	end
@@ -933,7 +933,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 
 	-- ROUTE NAME
 	local routeName = RouteData.Info[mapId].name or Constants.BLANKLINE
-	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, Theme.COLORS["Default text"], boxTopShadow)
+	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, { Theme.COLORS["Default text"] }, boxTopShadow)
 	Drawing.drawText(boxX + 13, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
 
 	Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)

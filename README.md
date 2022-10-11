@@ -43,13 +43,14 @@ We'd ideally like to support all non-English versions if we can, see [here](http
    - The main branch contains some extra dev files not intended for the main releases. You can clone this if you want but for most users we'd recommend the downloads in the releases section.
 	- The staging branch may have additional features not fully tested. If you're feeling adventurous then you are more than welcome to clone this. If you come across issues then let us know, providing full logs and output from the lua console for any errors.
 3. **Install and Setup**: See the full [Installation Guide](https://github.com/besteon/Ironmon-Tracker/wiki/Installation-Guide) for more detailed instructions for installing or upgrading.
+   - If you are on Linux you'll also want to install the Franklin Gothic Medium font located [here](https://fontsgeek.com/fonts/Franklin-Gothic-Medium-Regular).
 4. **Quickstart Guide**: After getting it all setup, check out the [Quickstart Guide](https://github.com/besteon/Ironmon-Tracker/wiki/Quickstart-Guide) for an overview on how to use the Tracker and learn about all of the information that it displays.
 
 ## Latest Changes
 
-- **_NEW!!_ Startup Screen!**
+- **_NEW!!_ Random Ball Picker!**
 
-![image](https://user-images.githubusercontent.com/4258818/189550768-4f62075d-349c-48d0-8f2a-48981be33b32.png)
+![image](https://user-images.githubusercontent.com/4258818/194925877-c97f8676-550a-40e7-b813-9b730ed53c38.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

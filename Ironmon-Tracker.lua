@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "6", minor = "3", patch = "1" }
+Main.Version = { major = "6", minor = "4", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -10,15 +10,13 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
-	Main.TrackerVersion = Main.Version.major .. "." .. Main.Version.minor .. "." .. Main.Version.patch
+	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
 	Main.Version.remindMe = true
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.dateChecked = ""
 
 	Main.OS = "Windows" -- required if user doesn't restart during a First Run
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
-	Main.SettingsFile = "Settings.ini" -- Location of the Settings file (typically in the root folder)
-	Main.ThemePresetsFile = "ThemePresets.txt" -- Location of the Theme Presets file (typically in the root folder)
 	Main.MetaSettings = {}
 	Main.currentSeed = 1
 	Main.loadNextSeed = false
@@ -61,6 +59,10 @@ function Main.Initialize()
 		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
 		return false
 	end
+
+	-- Set seed based on epoch seconds; required for other features
+	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
+	math.random() -- required first call, for some reason
 
 	-- Attempt to load the required tracker files
 	for _, file in ipairs(Main.TrackerFiles) do
@@ -335,27 +337,25 @@ function Main.GetNextRomFromFolder()
 	local romname = gameinfo.getromname()
 
 	-- Split the ROM name into its prefix and numerical values
-	local romprefix = string.match(romname, '[^0-9]+')
-	local romnumber = string.match(romname, '[0-9]+')
-	if romprefix == nil then romprefix = "" end
-	if romnumber == nil then romnumber = "0" end
+	local romprefix = string.match(romname, '[^0-9]+') or ""
+	local romnumber = string.match(romname, '[0-9]+') or "0"
 
-	local attemptsfile = romprefix .. " Attempts.txt"
+	local attemptsfile = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
 	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
 
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
-	local nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
+	local nextrompath = string.format("%s/%s%s", Options.FILES["ROMs Folder"], nextromname, Constants.Files.Extensions.GBA_ROM)
 
 	-- First try loading the next rom as-is with spaces, otherwise replace spaces with underscores and try again
 	if not Main.FileExists(nextrompath) then
 		-- File doesn't exist, try again with underscores instead of spaces
 		nextromname = nextromname:gsub(" ", "_")
-		nextrompath = Options.FILES["ROMs Folder"] .. "/" .. nextromname .. ".gba"
+		nextrompath = string.format("%s/%s%s", Options.FILES["ROMs Folder"], nextromname, Constants.Files.Extensions.GBA_ROM)
 		if not Main.FileExists(nextrompath) then
 			-- This means there doesn't exist a ROM file with spaces or underscores
-			print("Unable to find next ROM: " .. nextromname .. ".gba\n")
-			Main.DisplayError("Unable to find next ROM: " .. nextromname .. ".gba\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
+			print("Unable to find next ROM: " .. nextromname .. Constants.Files.Extensions.GBA_ROM .. "\n")
+			Main.DisplayError("Unable to find next ROM: " .. nextromname .. Constants.Files.Extensions.GBA_ROM .. "\n\nMake sure your ROMs are numbered and the ROMs folder is correct.")
 			return nil
 		end
 	end
@@ -380,8 +380,8 @@ function Main.GenerateNextRom()
 	end
 
 	local filename = Utils.extractFileNameFromPath(Options.FILES["Settings File"])
-	local attemptsfile = filename .. " Attempts.txt"
-	local nextromname = filename .. " AutoRandomized.gba"
+	local attemptsfile = string.format("%s %s", filename, Constants.Files.PostFixes.ATTEMPTS_FILE)
+	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
 	local nextrompath = Utils.getWorkingDirectory() .. nextromname
 
 	Main.IncrementAttemptsCounter(attemptsfile, 1)
@@ -395,7 +395,7 @@ function Main.GenerateNextRom()
 	)
 
 	print("Generating next ROM: " .. nextromname)
-	local pipe = io.popen(javacommand .. " 2>RandomizerErrorLog.txt")
+	local pipe = io.popen(string.format("%s 2>%s", javacommand, Constants.Files.RANDOMIZER_ERROR_LOG))
 	if pipe ~= nil then
 		local output = pipe:read("*all")
 		print("> " .. output)
@@ -403,8 +403,8 @@ function Main.GenerateNextRom()
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not Main.FileExists(nextrompath) then
-		print("The Randomizer ZX program failed to generate a ROM. Check the generated RandomizerErrorLog.txt file for errors.")
-		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the RandomizerErrorLog.txt file in the tracker folder for errors.")
+		print("The Randomizer ZX program failed to generate a ROM. Check the generated " .. Constants.Files.RANDOMIZER_ERROR_LOG .. " file for errors.")
+		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the " .. Constants.Files.RANDOMIZER_ERROR_LOG .. " file in the tracker folder for errors.")
 		return nil
 	end
 
@@ -430,28 +430,13 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 	end
 
 	Main.currentSeed = Main.currentSeed + 1
-	local attemptsWrite = io.open(filename, "w")
-	if attemptsWrite ~= nil then
-		attemptsWrite:write(Main.currentSeed)
-		attemptsWrite:close()
-	end
+	Main.WriteAttemptsCounter(filename, Main.currentSeed)
 end
 
 function Main.ReadAttemptsCounter()
-	local romname = gameinfo.getromname()
-	local romnumber = string.match(romname, '[0-9]+') or "1" -- backup attempts count from filename
-	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
-	romprefix = romprefix:gsub(" AutoRandomized", "") -- remove quickload post-fix
+	local filename = Main.GetAttemptsFile()
 
-	-- Check first if an attempts file exists based on the rom file name (w/o numbers)
-	local filename = romprefix .. " Attempts.txt"
-	if not Main.FileExists(filename) then
-		-- Otherwise, try using a filename based on the Quickload settings file name
-		local settingsfile = Utils.extractFileNameFromPath(Options.FILES["Settings File"]) or ""
-		filename = settingsfile .. " Attempts.txt"
-	end
-
-	if Main.FileExists(filename) then
+	if filename ~= nil then
 		local attemptsRead = io.open(filename, "r")
 		if attemptsRead ~= nil then
 			local attemptsText = attemptsRead:read("*a")
@@ -460,8 +445,43 @@ function Main.ReadAttemptsCounter()
 				Main.currentSeed = tonumber(attemptsText)
 			end
 		end
-	elseif romnumber ~= "1" then
-		Main.currentSeed = tonumber(romnumber)
+	else
+		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
+		local romname = gameinfo.getromname()
+		local romnumber = string.match(romname, '[0-9]+') or "1"
+		if romnumber ~= "1" then
+			Main.currentSeed = tonumber(romnumber)
+		end
+	end
+end
+
+function Main.WriteAttemptsCounter(filename, attemptsCount)
+	attemptsCount = attemptsCount or Main.currentSeed
+
+	local attemptsWrite = io.open(filename, "w")
+	if attemptsWrite ~= nil then
+		attemptsWrite:write(attemptsCount)
+		attemptsWrite:close()
+	end
+end
+
+function Main.GetAttemptsFile()
+	local romname = gameinfo.getromname()
+	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
+	romprefix = romprefix:gsub(" " .. Constants.Files.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
+
+	-- Check first if an attempts file exists based on the rom file name (w/o numbers)
+	local filename = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
+	if not Main.FileExists(filename) then
+		-- Otherwise, try using a filename based on the Quickload settings file name
+		local settingsfile = Utils.extractFileNameFromPath(Options.FILES["Settings File"]) or ""
+		filename = string.format("%s %s", settingsfile, Constants.Files.PostFixes.ATTEMPTS_FILE)
+	end
+
+	if Main.FileExists(filename) then
+		return filename
+	else
+		return nil
 	end
 end
 
@@ -471,7 +491,7 @@ function Main.LoadSettings()
 
 	-- Need to manually read the file to work around a bug in the ini parser, which
 	-- does not correctly handle that the last iteration over lines() returns nil
-	local file = io.open(Main.SettingsFile)
+	local file = io.open(Constants.Files.SETTINGS)
 	if file ~= nil then
 		settings = Inifile.parse(file:read("*a"), "memory")
 		io.close(file)
@@ -591,7 +611,7 @@ function Main.SaveSettings(forced)
 	end
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 
-	Inifile.save(Main.SettingsFile, settings)
+	Inifile.save(Constants.Files.SETTINGS, settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
 end

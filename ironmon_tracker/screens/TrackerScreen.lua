@@ -38,6 +38,18 @@ TrackerScreen.Buttons = {
 			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
 	},
+	RerollBallPicker = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.DICE,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, Constants.SCREEN.MARGIN + 36, 13, 14 },
+		isVisible = function() return TrackerScreen.canShowBallPicker() end,
+		onClick = function(self)
+			TrackerScreen.PokeBalls.chosenBall = -1
+			Program.redraw(true)
+			TrackerScreen.randomlyChooseBall()
+		end
+	},
 	PCHealAutoTracking = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text = "",
@@ -201,6 +213,29 @@ TrackerScreen.tipMessageIndex = 0
 TrackerScreen.CarouselItems = {}
 TrackerScreen.nextMoveLevelHighlight = 0xFFFFFF00
 
+TrackerScreen.PokeBalls = {
+	chosenBall = -1,
+	ColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }, -- Colors used to draw all Pokeballs
+	ColorListGray = { 0xFF000000, Utils.calcGrayscale(0xFFF04037, 0.6), 0xFFFFFFFF, },
+	Labels = {
+		[1] = "Left",
+		[2] = "Middle",
+		[3] = "Right",
+	},
+	Left = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 17,
+		y = Constants.SCREEN.MARGIN + 18,
+	},
+	Middle = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40,
+		y = Constants.SCREEN.MARGIN + 26,
+	},
+	Right = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 63,
+		y = Constants.SCREEN.MARGIN + 18,
+	},
+}
+
 function TrackerScreen.initialize()
 	-- Buttons for stat markings tracked by the user
 	local heightOffset = 9
@@ -259,6 +294,8 @@ function TrackerScreen.initialize()
 	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
 	TrackerScreen.getNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
+
+	TrackerScreen.randomlyChooseBall()
 end
 
 -- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
@@ -299,7 +336,7 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return not Tracker.Data.isViewingOwn end, --or (Tracker.getPokemon(1, true) == nil) end, -- add in later for tracked data loaded info
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		framesToShow = 180,
 		getContentList = function(pokemon)
 			-- If the player doesn't have a Pokemon, display something else useful instead
@@ -491,6 +528,15 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 	end, 295, 145, 55, 25)
 end
 
+function TrackerScreen.randomlyChooseBall()
+	TrackerScreen.PokeBalls.chosenBall = math.random(3)
+end
+
+function TrackerScreen.canShowBallPicker()
+	-- If the player is in the lab without any Pokemon
+	return Options["Show random ball picker"] and RouteData.Locations.IsInLab[Battle.CurrentRoute.mapId] and Tracker.getPokemon(1, true) == nil
+end
+
 -- DRAWING FUNCTIONS
 function TrackerScreen.drawScreen()
 	TrackerScreen.updateButtonStates()
@@ -526,7 +572,11 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	TrackerScreen.drawPokemonInfoArea(viewedPokemon)
+	if TrackerScreen.canShowBallPicker() then
+		TrackerScreen.drawBallPicker()
+	else
+		TrackerScreen.drawPokemonInfoArea(viewedPokemon)
+	end
 	TrackerScreen.drawStatsArea(viewedPokemon)
 	TrackerScreen.drawMovesArea(viewedPokemon, opposingPokemon)
 	TrackerScreen.drawCarouselArea(viewedPokemon)
@@ -829,9 +879,9 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		-- MOVE CATEGORY
 		if Options["Show physical special icons"] and (Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 			if moveCategory == MoveData.Categories.PHYSICAL then
-				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Lower box text"], shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
 			elseif moveCategory == MoveData.Categories.SPECIAL then
-				Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, Theme.COLORS["Lower box text"], shadowcolor)
+				Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
 			end
 		end
 
@@ -960,4 +1010,39 @@ function TrackerScreen.drawCarouselArea(pokemon)
 	local y = 137
 	gui.drawLine(x, y, x, y + 14, Theme.COLORS["Lower box border"])
 	gui.drawRectangle(x + 1, y, 12, 14, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+end
+
+function TrackerScreen.drawBallPicker()
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+
+	-- Draw top box view
+	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	local ballsToDraw = {
+		TrackerScreen.PokeBalls.Left,
+		TrackerScreen.PokeBalls.Middle,
+		TrackerScreen.PokeBalls.Right,
+	}
+	for index, pokeball in ipairs(ballsToDraw) do
+		local colorList = TrackerScreen.PokeBalls.ColorList
+		if index == TrackerScreen.PokeBalls.chosenBall then
+			Drawing.drawImageAsPixels(Constants.PixelImages.DOWN_ARROW, pokeball.x + 1, pokeball.y - 13, { Theme.COLORS["Default text"] }, shadowcolor)
+		elseif TrackerScreen.PokeBalls.chosenBall ~= -1 then
+			-- If not the chosen ball and not in the process of re-rolling
+			colorList = TrackerScreen.PokeBalls.ColorListGray
+		end
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, pokeball.x, pokeball.y, colorList, shadowcolor)
+	end
+
+	-- SETTINGS GEAR & DICE BUTTONS
+	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, shadowcolor)
+	Drawing.drawButton(TrackerScreen.Buttons.RerollBallPicker, shadowcolor)
+
+	local infoBoxHeight = 23
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+
+	local chosenBallText = TrackerScreen.PokeBalls.Labels[TrackerScreen.PokeBalls.chosenBall] or Constants.BLANKLINE
+	Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Randomly chosen ball:", Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 2 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
 end

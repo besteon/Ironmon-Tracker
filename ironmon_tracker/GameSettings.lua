@@ -223,10 +223,17 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9595
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95d4
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95fb
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e22
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9598
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95a1
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95d7
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95fe
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D9607
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9548
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d954b
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d954d
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d9557
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d955c
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e25
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -288,7 +295,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d994c] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d9913] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d7053] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d9812] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d9819] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d9857] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -390,10 +397,17 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95ad
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ec
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9613
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3a
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9560
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9563
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9565
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d956f
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9574
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -455,7 +469,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d9964] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d992b] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d706b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d982a] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d9831] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d986f] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -557,10 +571,17 @@ function GameSettings.setGameAsRuby(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95ad
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ec
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9613
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3a
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d95b0
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d95b9
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d95ef
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9616
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d961f
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9560
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9563
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9565
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d956f
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9574
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8e3d
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -622,7 +643,7 @@ function GameSettings.setGameAsRuby(gameversion)
 				[0x081d9964] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d992b] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d706b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d982a] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d9831] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d986f] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -728,10 +749,17 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9525
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9564
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d958b
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8db2
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9528
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9531
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9567
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d958e
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9597
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94d8
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94db
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94dd
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94e7
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d94ec
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8db5
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -793,7 +821,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d98dc] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98a3] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6fe3] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d97a2] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d97a9] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d97e7] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -895,10 +923,17 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d953d
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957c
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a3
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dca
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94f0
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94f3
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94f5
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94ff
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9504
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -960,7 +995,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d98f4] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98bb] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6ffb] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d97ba] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d97c1] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d97ff] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -1062,10 +1097,17 @@ function GameSettings.setGameAsSapphire(gameversion)
 		GameSettings.gBattleWeather = 0x02024db8
 		GameSettings.gBattleCommunication = 0x02024d1e
 		GameSettings.gBattlersCount = 0x02024a68
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d953d
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957c
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a3
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dca
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9540
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d9549
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d957f
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d95a6
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d95af
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d94f0
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d94f3
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d94f5
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d94ff
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9504
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8dcd
 		GameSettings.gCurrentTurnActionNumber = 0x02024a7e
 		GameSettings.gActionsByTurnOrder = 0x02024a76
 		GameSettings.gHitMarker = 0x02024c6c
@@ -1127,7 +1169,7 @@ function GameSettings.setGameAsSapphire(gameversion)
 				[0x081d98f4] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d98bb] = {[60] = true}, -- BattleScript_NoItemSteal + 0x0 Sticky Hold
 				[0x081d6ffb] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d97ba] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d97c1] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d97ff] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -1234,10 +1276,17 @@ function GameSettings.setGameAsEmerald()
 	GameSettings.gBattleWeather = 0x020243cc
 	GameSettings.gBattleCommunication = 0x02024332
 	GameSettings.gBattlersCount = 0x0202406c
-	GameSettings.BattleScript_MoveUsedIsConfused = 0x082db2bd
-	GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x082db300
-	GameSettings.BattleScript_MoveUsedIsInLove = 0x082db327
-	GameSettings.BattleScript_RanAwayUsingMonAbility = 0x082daae9
+	GameSettings.BattleScript_MoveUsedIsConfused = 0x082db2c0
+	GameSettings.BattleScript_MoveUsedIsConfused2 = 0x082db2c9
+	GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x082db303
+	GameSettings.BattleScript_MoveUsedIsInLove = 0x082db32a
+	GameSettings.BattleScript_MoveUsedIsInLove2 = 0x082db333
+	GameSettings.BattleScript_MoveUsedIsFrozen = 0x082db26d
+	GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x082db270
+	GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x082db272
+	GameSettings.BattleScript_MoveUsedUnfroze = 0x082db27c
+	GameSettings.BattleScript_MoveUsedUnfroze2 = 0x082db281
+	GameSettings.BattleScript_RanAwayUsingMonAbility = 0x082daaec
 	GameSettings.gCurrentTurnActionNumber = 0x02024082
 	GameSettings.gActionsByTurnOrder = 0x0202407a
 	GameSettings.gHitMarker = 0x02024280
@@ -1302,7 +1351,7 @@ function GameSettings.setGameAsEmerald()
 			[0x082db678] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 			[0x082db63f] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 			[0x082d8b42] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-			[0x082db53e] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+			[0x082db545] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 			[0x082db583] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 				[10] = true, -- Volt Absorb
 				[11] = true, -- Water Absorb
@@ -1410,8 +1459,15 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9146
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d914f
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9189
 		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D91B0
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D91B9
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081D90F3
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081D90F6
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081D90F8
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D9102
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D9107
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8982 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
@@ -1478,7 +1534,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94fe] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6aaf] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
 				[0x081d9404] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
-				[0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP 
+				[0x081d9442] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Water Absorb
 					[11] = true, -- Volt Absorb
 				},
@@ -1581,10 +1637,17 @@ function GameSettings.setGameAsFireRed(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90d3
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9116
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d913d
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d890f
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90d6
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d90df
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9119
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9140
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9149
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d9083
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9086
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9088
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d9092
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9097
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d8912
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
 		GameSettings.gHitMarker = 0x02023dd0
@@ -1649,7 +1712,7 @@ function GameSettings.setGameAsFireRed(gameversion)
 				[0x081d94c7] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d948e] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a3f] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d938d] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d9394] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d93d2] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -1758,8 +1821,15 @@ function GameSettings.setGameAsFireRedItaly(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D6540
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D6549
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D6583
 		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D65AA
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D65B3
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081D64ED
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081D64F0
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081D64F2
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D64FC
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D6501
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D5D7C -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
@@ -1939,8 +2009,15 @@ function GameSettings.setGameAsFireRedSpanish(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D8C08
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D8C11
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D8C4B
 		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D8C72
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D8C7B
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081D8BB5
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081D8BB8
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081D8BBA
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D8BC4
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D8BC9
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D8444 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
@@ -2120,8 +2197,15 @@ function GameSettings.setGameAsFireRedFrench(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081D78A8
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081D78B1
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081D78EB
 		GameSettings.BattleScript_MoveUsedIsInLove = 0x081D7912
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081D791B
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081D7855
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081D7858
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081D785A
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D7864
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D7869
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081D70E4 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
@@ -2302,8 +2386,15 @@ function GameSettings.setGameAsFireRedGermany(gameversion)
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
 		GameSettings.BattleScript_MoveUsedIsConfused = 0x081DD36C
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081DD375
 		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081DD3AF
 		GameSettings.BattleScript_MoveUsedIsInLove = 0x081DD3D6
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081DD3DF
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081D4ECD
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081D4ED0
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081D4ED2
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081D4EDC
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081D4EE1
 		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081DCBA8 -- BattleScript_RanAwayUsingMonAbility + 0x3
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
@@ -2482,10 +2573,17 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d911f
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9162
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9189
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d895b
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d9122
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d912b
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d9165
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d918c
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9195
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d90cf
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d90d2
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d90d4
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d90de
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d90e3
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d895e
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
 		GameSettings.gHitMarker = 0x02023dd0
@@ -2551,7 +2649,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d9513] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d94da] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a8b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d93d9] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d93e0] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d941e] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -2655,10 +2753,17 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 		GameSettings.gBattleWeather = 0x02023f1c
 		GameSettings.gBattleCommunication = 0x02023e82
 		GameSettings.gBattlersCount = 0x02023bcc
-		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90af
-		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d90f2
-		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d9119
-		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d88eb
+		GameSettings.BattleScript_MoveUsedIsConfused = 0x081d90b2
+		GameSettings.BattleScript_MoveUsedIsConfused2 = 0x081d90bb
+		GameSettings.BattleScript_MoveUsedIsConfusedNoMore = 0x081d90f5
+		GameSettings.BattleScript_MoveUsedIsInLove = 0x081d911c
+		GameSettings.BattleScript_MoveUsedIsInLove2 = 0x081d9125
+		GameSettings.BattleScript_MoveUsedIsFrozen = 0x081d905f
+		GameSettings.BattleScript_MoveUsedIsFrozen2 = 0x081d9062
+		GameSettings.BattleScript_MoveUsedIsFrozen3 = 0x081d9064
+		GameSettings.BattleScript_MoveUsedUnfroze = 0x081d906e
+		GameSettings.BattleScript_MoveUsedUnfroze2 = 0x081d9073
+		GameSettings.BattleScript_RanAwayUsingMonAbility = 0x081d88ee
 		GameSettings.gCurrentTurnActionNumber = 0x02023be2
 		GameSettings.gActionsByTurnOrder = 0x02023bda
 		GameSettings.gHitMarker = 0x02023dd0
@@ -2724,7 +2829,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 				[0x081d94a3] = {[56] = true}, -- BattleScript_CuteCharmActivates + 0x9 Cute Charm
 				[0x081d946a] = {[60] = true}, -- BattleScript_StickyHoldActivates + 0x0 Sticky Hold
 				[0x081d6a1b] = {[64] = true}, -- BattleScript_AbsorbUpdateHp + 0x14 Liquid Ooze (Drain Moves)
-				[0x081d9369] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
+				[0x081d9370] = {[31] = true}, -- BattleScript_TookAttack + 0x7 LightningRod
 				[0x081d93ae] = { -- BattleScript_MoveHPDrain + 0x14 --> Ability heals HP
 					[10] = true, -- Volt Absorb
 					[11] = true, -- Water Absorb
@@ -2802,7 +2907,7 @@ function GameSettings.setGameAsLeafGreen(gameversion)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = "AutoSave" .. Constants.Extensions.TRACKED_DATA
+	local filenameEnding = Constants.Files.PostFixes.AUTOSAVE .. Constants.Files.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding
