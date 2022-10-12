@@ -98,7 +98,9 @@ function Main.Initialize()
 		else
 			Main.OS = "Linux"
 			Main.Directory = nil -- will return "" from Utils function
+			print("Error attempting to use 'io.popen(\"cd\")':")
 			print(err)
+			print("Lua Engine: " .. client.get_lua_engine())
 		end
 
 		Main.CheckForVersionUpdate()
