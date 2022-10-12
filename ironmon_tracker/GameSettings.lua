@@ -508,7 +508,10 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 	}
 
 	for key, address in pairs(addresses) do
-		GameSettings[key] = address[gameIndex][versionIndex]
+		local value = address[gameIndex][versionIndex]
+		if value ~= nil then
+			GameSettings[key] = value
+		end
 	end
 end
 
