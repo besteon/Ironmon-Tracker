@@ -34,7 +34,7 @@ function GameSettings.initialize()
 	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
 
 	GameSettings.setGameInfo(gamecode)
-	if GameSettings.game == 0 then return end -- Skip rest of setup if game not supported
+	if GameSettings.gamename == "Unsupported Game" then return end -- Skip rest of setup if game not supported
 
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
@@ -146,8 +146,7 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
 		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
 	else
-		GameSettings.game = 0
-		GameSettings.gamename = "Unsupported game"
+		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
 	end
 end
