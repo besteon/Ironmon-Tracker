@@ -39,7 +39,7 @@ function GameSettings.initialize()
 	-- 0x02...
 	GameSettings.setEwramAddresses()
 	-- 0x03...
-	GameSettings.setIwramAddresses(gamecode)
+	GameSettings.setIwramAddresses()
 	-- 0x08...
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
@@ -327,7 +327,7 @@ end
 
 -- IWRAM (03xxxxxx) addresses are the same between all english versions of a game, and between all non-english versions.
 -- However the addresses are different between english and non-english versions of a game, so need to set them separately.
-function GameSettings.setIwramAddresses(gamecode)
+function GameSettings.setIwramAddresses()
 	-- Only have non-english FireRed at the moment
 	-- Use nil values for non-existant / deliberately omitted addresses, and 0x00000000 for placeholder unknowns
 	-- Format: Address = { Ruby/Sapphire { English, Non-English }, Emerald { English, Non-English }, FireRed/LeafGreen { English, Non-English } }
