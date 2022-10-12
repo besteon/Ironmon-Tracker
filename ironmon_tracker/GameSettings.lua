@@ -353,9 +353,12 @@ function GameSettings.setIwramAddresses()
 
 	local languageIndex = Utils.inlineIf(GameSettings.language == "English", 1, 2)
 	for key, address in pairs(addresses) do
-		local value = address[GameSettings.game][languageIndex]
-		if value ~= nil then
-			GameSettings[key] = value
+		local gameValue = address[GameSettings.game]
+		if gameValue ~= nil then
+			local languageValue = gameValue[languageIndex]
+			if languageValue ~= nil then
+				GameSettings[key] = languageValue
+			end
 		end
 	end
 end
