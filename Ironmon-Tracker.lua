@@ -175,7 +175,9 @@ function Main.Run()
 	GameSettings.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
-	if GameSettings.game == 0 then
+	if GameSettings.gamename == "Unsupported Game" then
+		print("Unsupported Game detected, please load a supported game ROM")
+		print("Check the README.txt file in the tracker folder for supported games")
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
 			emu.frameadvance()
