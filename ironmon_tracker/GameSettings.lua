@@ -363,6 +363,7 @@ end
 
 -- ROM (08xxxxxx) addresses are not necessarily the same between different versions of a game, so set those individually
 function GameSettings.setRomAddresses(gameIndex, versionIndex)
+	if gameIndex == nil or versionIndex == nil then return end
 	-- Only have non-english FireRed at the moment
 	-- When adding new non-english games, follow a similar formatting and edit the below format note accordingly
 	-- Format:
@@ -508,15 +509,19 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 	}
 
 	for key, address in pairs(addresses) do
-		local value = address[gameIndex][versionIndex]
-		if value ~= nil then
-			GameSettings[key] = value
+		local gameValue = address[gameIndex]
+		if gameValue ~= nil then
+			local versionValue = gameValue[versionIndex]
+			if versionValue ~= nil then
+				GameSettings[key] = versionValue
+			end
 		end
 	end
 end
 
 -- Maps the BattleScript memory addresses to their respective abilityId's for auto-tracking of abilities
 function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
+	if gameIndex == nil or versionIndex == nil then return end
 	-- Only have non-english FireRed at the moment
 	-- When adding new non-english games, follow a similar formatting and edit the below format note accordingly
 	-- Format:
