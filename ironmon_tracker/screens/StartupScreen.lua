@@ -114,7 +114,16 @@ function StartupScreen.openChoosePokemonWindow()
 	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
-	forms.settext(pokedexDropdown, "-- Based on attempt #")
+
+	local initialChoice
+	if Options["Startup Pokemon displayed"] == Options.StartupIcon.attempts then
+		initialChoice = "-- Based on attempt #"
+	elseif Options["Startup Pokemon displayed"] == Options.StartupIcon.random then
+		initialChoice = "-- Random each time"
+	else
+		initialChoice = PokemonData.Pokemon[Options["Startup Pokemon displayed"] or "1"].name
+	end
+	forms.settext(pokedexDropdown, initialChoice)
 
 	forms.button(form, "Save", function()
 		local optionSelected = forms.gettext(pokedexDropdown)
