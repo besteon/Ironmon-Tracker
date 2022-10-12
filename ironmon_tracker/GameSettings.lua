@@ -1,82 +1,7 @@
-GameSettings = {
-	game = 0,
-	gamename = "",
-	versiongroup = 0,
-	versioncolor = "",
-	badgePrefix = "",
-	badgeXOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 },
-	pstats = 0,
-	estats = 0,
-
-	gBaseStats = 0x00000000,
-	gBattleMoves = 0x00000000,
-	sMonSummaryScreen = 0x00000000,
-	sEvoInfo = 0x00000000, -- Referenced directly in Ruby/Sapphire
-	sEvoStructPtr = 0x00000000, -- FRLG/Emerald use a pointer instead of EvoInfo directly
-	sStartMenuWindowId = 0x00000000,
-	sSpecialFlags = 0x00000000, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
-	sBattlerAbilities = 0x00000000,
-	gBattlerAttacker = 0x00000000,
-	gBattlerTarget = 0x00000000,
-	gBattlerPartyIndexes = 0x00000000,
-	gBattleMons = 0x00000000,
-	gBattlescriptCurrInstr = 0x00000000,
-	gTakenDmg = 0x00000000,
-	gBattleScriptingBattler = 0x00000000,
-	gBattleResults = 0x00000000,
-	gTasks = 0x00000000,
-	Task_EvolutionScene = 0x00000000,
-	BattleScript_FocusPunchSetUp = 0x00000000,
-	BattleScript_LearnMoveLoop = 0x00000000,
-	BattleScript_LearnMoveReturn = 0x00000000,
-	gMoveToLearn = 0x00000000,
-	gBattleOutcome = 0x00000000,
-	gMoveResultFlags = 0x00000000,
-	gBattleWeather = 0x00000000,
-	gBattleCommunication = 0x00000000,
-	gBattlersCount = 0x00000000,
-	BattleScript_MoveUsedIsConfused = 0x00000000,
-	BattleScript_MoveUsedIsConfused2 = 0x00000000,
-	BattleScript_MoveUsedIsConfusedNoMore = 0x00000000,
-	BattleScript_MoveUsedIsInLove = 0x00000000,
-	BattleScript_MoveUsedIsInLove2 = 0x00000000,
-	BattleScript_MoveUsedIsFrozen = 0x00000000,
-	BattleScript_MoveUsedIsFrozen2 = 0x00000000,
-	BattleScript_MoveUsedIsFrozen3 = 0x00000000,
-	BattleScript_MoveUsedUnfroze = 0x00000000,
-	BattleScript_MoveUsedUnfroze2 = 0x00000000,
-	BattleScript_RanAwayUsingMonAbility = 0x00000000,
-	gCurrentTurnActionNumber = 0x00000000,
-	gActionsByTurnOrder = 0x00000000,
-	gHitMarker = 0x00000000,
-	gBattleTextBuff1 = 0x00000000,
-	sBattleBuffersTransferData = 0x00000000,
-	gBattleControllerExecFlags = 0x00000000,
-
-	gMapHeader = 0x00000000,
-	gBattleTerrain = 0x00000000,
-	gBattleTypeFlags = 0x00000000,
-	gSpecialVar_ItemId = 0x00000000,
-	gSpecialVar_Result = 0x00000000,
-	FriendshipRequiredToEvo = 0x00000000,
-
-	gSaveBlock1 = 0x00000000,
-	gSaveBlock1ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
-	gSaveBlock2ptr = 0x00000000, -- Doesn't exist in Ruby/Sapphire
-	gameStatsOffset = 0x0,
-	gameVarsOffset = 0x0, -- SaveBlock1 -> vars[VARS_COUNT]
-	EncryptionKeyOffset = 0x00, -- Doesn't exist in Ruby/Sapphire
-	badgeOffset = 0x0,
-	bagPocket_Items_offset = 0x0,
-	bagPocket_Berries_offset = 0x0,
-	bagPocket_Items_Size = 0,
-	bagPocket_Berries_Size = 0,
-}
-
--- Maps the BattleScript memory addresses to their respective abilityId's, this is set later when game is loaded
+GameSettings = {}
 GameSettings.ABILITIES = {}
 
--- Moved the 1st/2nd/3rd values to game info, leaving others here if more games get added
+-- Moved the 1st/2nd/3rd values to be set alongside other EWRAM/IWRAM addresses. 4th/5th/6th values are supposedly the Japanese addresses (not used right now)
 -- local pstats = { 0x3004360, 0x20244EC, 0x2024284, 0x3004290, 0x2024190, 0x20241E4 } -- Player stats
 -- local estats = { 0x30045C0, 0x2024744, 0x202402C, 0x30044F0, 0x20243E8, 0x2023F8C } -- Enemy stats
 
@@ -109,11 +34,16 @@ function GameSettings.initialize()
 	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
 
 	GameSettings.setGameInfo(gamecode)
+	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
+	-- 0x02...
 	GameSettings.setEwramAddresses()
+	-- 0x03...
 	GameSettings.setIwramAddresses(gamecode)
-	GameSettings.setRomAddresses(gameversion)
-	GameSettings.setAbilityTrackingAddresses(gameversion)
+	-- 0x08...
+	GameSettings.setRomAddresses(gameIndex, versionIndex)
+	-- Ability auto-tracking scripts
+	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 end
 
 function GameSettings.setGameInfo(gamecode)
@@ -124,8 +54,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Ruby (U)",
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Ruby",
-			PSTATS = 0x3004360,
-			ESTATS = 0x30045C0,
+			LANGUAGE = "English",
 			BADGE_PREFIX = "RSE",
 			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
@@ -134,8 +63,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Sapphire (U)",
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Sapphire",
-			PSTATS = 0x3004360,
-			ESTATS = 0x30045C0,
+			LANGUAGE = "English",
 			BADGE_PREFIX = "RSE",
 			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
@@ -144,8 +72,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Emerald (U)",
 			VERSION_GROUP = 1,
 			VERSION_COLOR = "Emerald",
-			PSTATS = 0x20244EC,
-			ESTATS = 0x2024744,
+			LANGUAGE = "English",
 			BADGE_PREFIX = "RSE",
 			BADGE_XOFFSETS = { 1, 1, 0, 0, 1, 1, 1, 1 },
 		},
@@ -154,18 +81,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon FireRed (U)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
-			BADGE_PREFIX = "FRLG",
-			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
-		},
-		[0x42505249] = {
-			GAME_NUMBER = 3,
-			GAME_NAME = "Pokemon - Rosso Fuoco (Italy)",
-			VERSION_GROUP = 2,
-			VERSION_COLOR = "FireRed",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
+			LANGUAGE = "English",
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -174,8 +90,16 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Rojo Fuego (Spain)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
+			LANGUAGE = "Spanish",
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
+		[0x42505249] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon Rosso Fuoco (Italy)",
+			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
+			LANGUAGE = "Italian",
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -184,8 +108,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Rouge Feu (France)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
+			LANGUAGE = "French",
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -194,8 +117,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon Feuerrote (Germany)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "FireRed",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
+			LANGUAGE = "German",
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -204,8 +126,7 @@ function GameSettings.setGameInfo(gamecode)
 			GAME_NAME = "Pokemon LeafGreen (U)",
 			VERSION_GROUP = 2,
 			VERSION_COLOR = "LeafGreen",
-			PSTATS = 0x2024284,
-			ESTATS = 0x202402C,
+			LANGUAGE = "English",
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
@@ -216,8 +137,7 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.gamename = games[gamecode].GAME_NAME
 		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
 		GameSettings.versioncolor = games[gamecode].VERSION_COLOR
-		GameSettings.pstats = games[gamecode].PSTATS
-		GameSettings.estats = games[gamecode].ESTATS
+		GameSettings.language = games[gamecode].LANGUAGE
 		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
 		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
 
@@ -228,12 +148,123 @@ function GameSettings.setGameInfo(gamecode)
 	end
 end
 
+-- Detects which version of each game is present, returns a gameIndex and versionIndex for use later when setting ROM addresses
+-- Also loads and sets non-English localisations
+function GameSettings.setGameVersion(gameversion)
+	-- Mapped by versioncolor, then by gameversion
+	local games = {
+		["Ruby"] = {
+			gameIndex = 1,
+			[0x00410000] = { -- English 1.0
+				versionName = "Pokemon Ruby v1.0",
+				versionIndex = 1,
+			},
+			[0x01400000] = { -- English 1.1
+				versionName = "Pokemon Ruby v1.1",
+				versionIndex = 2
+			},
+			[0x023F0000] = { -- English 1.2
+				versionName = "Pokemon Ruby v1.2",
+				versionIndex = 3
+			},
+		},
+		["Sapphire"] = {
+			gameIndex = 2,
+			[0x00550000] = { -- English 1.0
+				versionName = "Pokemon Sapphire v1.0",
+				versionIndex = 1,
+			},
+			[0x01540000] = { -- English 1.1
+				versionName = "Pokemon Sapphire v1.1",
+				versionIndex = 2
+			},
+			[0x02530000] = { -- English 1.2
+				versionName = "Pokemon Sapphire v1.2",
+				versionIndex = 3
+			},
+		},
+		["Emerald"] = {
+			gameIndex = 3,
+			[0x00720000] = { -- English
+				versionName = "Pokemon Emerald",
+				versionIndex = 1,
+			},
+		},
+		["FireRed"] = {
+			gameIndex = 4,
+			[0x00680000] = { -- English 1.0
+				versionName = "Pokemon FireRed v1.0",
+				versionIndex = 1,
+			},
+			[0x01670000] = { -- English 1.1
+				versionName = "Pokemon FireRed v1.1",
+				versionIndex = 2
+			},
+			[0x005A0000] = { -- Spanish
+				versionName = "Pokemon Rojo Fuego",
+				versionIndex = 3,
+			},
+			[0x00640000] = { -- Italian
+				versionName = "Pokemon Rosso Fuoco",
+				versionIndex = 4,
+			},
+			[0x00670000] = { -- French
+				versionName = "Pokemon Rouge Feu",
+				versionIndex = 5,
+			},
+			[0x00690000] = { -- German
+				versionName = "Pokemon Feuerrote",
+				versionIndex = 6,
+			},
+		},
+		["LeafGreen"] = {
+			gameIndex = 5,
+			[0x00810000] = { -- English 1.0
+				versionName = "Pokemon LeafGreen v1.0",
+				versionIndex = 1,
+			},
+			[0x01800000] = { -- English 1.1
+				versionName = "Pokemon LeafGreen v1.1",
+				versionIndex = 2
+			},
+		},
+	}
+
+	print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
+
+	-- Load non-English language data
+	local gameLanguage = GameSettings.language
+	if gameLanguage == "Spanish" then
+		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
+		SpainData.updateToSpainData()
+	elseif gameLanguage == "Italian" then
+		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
+		ItalyData.updateToItalyData()
+	elseif gameLanguage == "French" then
+		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
+		FranceData.updateToFranceData()
+	elseif gameLanguage == "German" then
+		dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
+		GermanyData.updateToGermanyData()
+	end
+
+	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
+end
+
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
 function GameSettings.setEwramAddresses()
-	local addresses = { -- Format: Address = { RS, Emerald, FRLG }
-		-- RS uses this directly (gSharedMem + 0x14800), Em/FRLG uses a pointer instead
-		sEvoInfo = { 0x02014800, 0x00000000, 0x00000000 },
-		sEvoStructPtr = { 0x00000000, 0x0203ab80, 0x02039a20 },
+	-- Use nil values for non-existant / deliberately omitted addresses, and 0x00000000 for placeholder unknowns
+	-- Format: Address = { RS, Emerald, FRLG }
+	local addresses = {
+		-- Player Stats, exists in IWRAM instead in RS
+		pstats = { nil, 0x020244EC, 0x02024284 },
+		-- Enemy Stats, exists in IWRAM instead in RS
+		estats = { nil, 0x02024744, 0x0202402C },
+
+		-- RS uses this directly (gSharedMem + 0x14800)
+		sEvoInfo = { 0x02014800, nil, nil },
+		-- Em/FRLG uses this pointer instead
+		sEvoStructPtr = { nil, 0x0203ab80, 0x02039a20 },
 
 		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
 		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, 0x02023fc4 + 0x17 },
@@ -265,7 +296,7 @@ function GameSettings.setEwramAddresses()
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, 0x02039a30 },
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
-		gSaveBlock1 = { 0x02025734, 0x00000000, 0x00000000 },
+		gSaveBlock1 = { 0x02025734, nil, nil },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -275,60 +306,59 @@ function GameSettings.setEwramAddresses()
 		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
 		bagPocket_Items_Size = { 20, 30, 42 },
 		bagPocket_Berries_Size = { 46, 46, 43 },
+		-- RS don't use an encryption key
+		EncryptionKeyOffset = { nil, 0xAC, 0xF20 },
 
 		-- These addresses are in IWRAM instead in RS, will be set later
-		sBattleBuffersTransferData = { 0x00000000, 0x02022d10, 0x02022874 },
-		gBattleTextBuff1 = { 0x00000000, 0x02022f58, 0x02022ab8 },
-		gBattleTerrain = { 0x00000000, 0x02022ff0, 0x02022b50 },
+		sBattleBuffersTransferData = { nil, 0x02022d10, 0x02022874 },
+		gBattleTextBuff1 = { nil, 0x02022f58, 0x02022ab8 },
+		gBattleTerrain = { nil, 0x02022ff0, 0x02022b50 },
 		-- This address doesn't exist at all in RS
-		sStartMenuWindowId = { 0x00000000, 0x0203cd8c, 0x0203abe0 },
+		sStartMenuWindowId = { nil, 0x0203cd8c, 0x0203abe0 },
 	}
 
-	for address, memAddresses in pairs(addresses) do
-		GameSettings[address] = memAddresses[GameSettings.game]
+	for address, memAddress in pairs(addresses) do
+		local mem = memAddress[GameSettings.game]
+		if mem ~= nil then
+			GameSettings[address] = mem
+		end
 	end
 end
 
 -- IWRAM (03xxxxxx) addresses are the same between all english versions of a game, and between all non-english versions.
 -- However the addresses are different between english and non-english versions of a game, so need to set them separately.
 function GameSettings.setIwramAddresses(gamecode)
-	if GameSettings.game == 1 then
-		-- Ruby / Sapphire
-		GameSettings.sBattleBuffersTransferData = 0x03004040
-		GameSettings.gBattleTextBuff1 = 0x030041c0
-		GameSettings.gBattleTerrain = 0x0300428c
-		GameSettings.gBattleResults = 0x030042e0
-		GameSettings.gTasks = 0x03004b20
-	elseif GameSettings.game == 2 then
-		-- Emerald
-		-- Currently only support English versions, so don't need to check for English / non-English gamecodes
-		GameSettings.gBattleResults = 0x03005d10
-		GameSettings.gSaveBlock1ptr = 0x03005d8c
-		GameSettings.gSaveBlock2ptr = 0x03005d90
-		GameSettings.gTasks = 0x03005e00
-		GameSettings.EncryptionKeyOffset = 0xAC
-	elseif GameSettings.game == 3 then
-		-- FireRed / LeafGreen
-		if gamecode == 0x42505245 or gamecode == 0x42504745 then
-			-- FRLG English Versions
-			GameSettings.gBattleResults = 0x03004f90
-			GameSettings.gSaveBlock1ptr = 0x03005008
-			GameSettings.gSaveBlock2ptr = 0x0300500c
-			GameSettings.gTasks = 0x03005090
-		else
-			-- FRLG Non-English Versions (Currently only have FireRed Non-English versions)
-			GameSettings.gBattleResults = 0x03004ee0
-			GameSettings.gSaveBlock1ptr = 0x03004f58
-			GameSettings.gSaveBlock2ptr = 0x03004f5c
-			GameSettings.gTasks = 0x03004fe0
+	-- Only have non-english FireRed at the moment
+	-- Use nil values for non-existant / deliberately omitted addresses, and 0x00000000 for placeholder unknowns
+	-- Format: Address = { Ruby/Sapphire { English, Non-English }, Emerald { English, Non-English }, FireRed/LeafGreen { English, Non-English } }
+	local addresses = {
+		-- Addresses only in IWRAM for RS, but in EWRAM for Em/FRLG (so were already set by this point, omit to avoid overwrite)
+		pstats = { { 0x03004360 }, { nil, nil }, { nil, nil } },
+		estats = { { 0x030045C0 }, { nil, nil }, { nil, nil } },
+		sBattleBuffersTransferData = { { 0x03004040 }, { nil, nil }, { nil, nil } },
+		gBattleTextBuff1 = { { 0x030041c0 }, { nil, nil }, { nil, nil } },
+		gBattleTerrain = { { 0x0300428c }, { nil, nil }, { nil, nil } },
+
+		-- Addresses only in Em/FRLG
+		gSaveBlock1ptr = { { nil, nil }, { 0x03005d8c }, { 0x03005008, 0x03004f58 } },
+		gSaveBlock2ptr = { { nil, nil }, { 0x03005d90 }, { 0x0300500c, 0x03004f5c } },
+
+		-- IWRAM addresses present in all games
+		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },
+		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x03004fe0 } },
+	}
+
+	local languageIndex = Utils.inlineIf(GameSettings.language == "English", 1, 2)
+	for address, memAddress in pairs(addresses) do
+		local mem = memAddress[GameSettings.game][languageIndex]
+		if mem ~= nil then
+			GameSettings[address] = mem
 		end
-		-- EncryptionKeyOffset is the same between versions
-		GameSettings.EncryptionKeyOffset = 0xF20
 	end
 end
 
 -- ROM (08xxxxxx) addresses are not necessarily the same between different versions of a game, so set those individually
-function GameSettings.setRomAddresses(gameversion)
+function GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Only have non-english FireRed at the moment
 	-- When adding new non-english games, follow a similar formatting and edit the below format note accordingly
 	-- Format:
@@ -472,85 +502,14 @@ function GameSettings.setRomAddresses(gameversion)
 			{ 0x081d9125, 0x081d9195 },
 		},
 	}
-	local gameIndex = 0
-	local versionIndex = 0
-	if GameSettings.versioncolor == "Ruby" then
-		gameIndex = 1
-		if gameversion == 0x00410000 then
-			print("ROM Detected: Pokemon Ruby v1.0")
-			versionIndex = 1
-		elseif gameversion == 0x01400000 then
-			print("ROM Detected: Pokemon Ruby v1.1")
-			versionIndex = 2
-		elseif gameversion == 0x023F0000 then
-			print("ROM Detected: Pokemon Ruby v1.2")
-			versionIndex = 3
-		end
-	elseif GameSettings.versioncolor == "Sapphire" then
-		gameIndex = 2
-		if gameversion == 0x00550000 then
-			print("ROM Detected: Pokemon Sapphire v1.0")
-			versionIndex = 1
-		elseif gameversion == 0x1540000 then
-			print("ROM Detected: Pokemon Sapphire v1.1")
-			versionIndex = 2
-		elseif gameversion == 0x02530000 then
-			print("ROM Detected: Pokemon Sapphire v1.2")
-			versionIndex = 3
-		end
-	elseif GameSettings.versioncolor == "Emerald" then
-		gameIndex = 3
-		if gameversion == 0x00720000 then
-			print("ROM Detected: Pokemon Emerald")
-			versionIndex = 1
-		end
-	elseif GameSettings.versioncolor == "FireRed" then
-		gameIndex = 4
-		if gameversion == 0x00680000 then
-			print("ROM Detected: Pokemon Fire Red v1.0")
-			versionIndex = 1
-		elseif gameversion == 0x01670000 then
-			print("ROM Detected: Pokemon Fire Red v1.1")
-			versionIndex = 2
-		elseif gameversion == 0x005A0000 then
-			print("ROM Detected: Pokemon Rojo Fuego")
-			versionIndex = 3
-			dofile(Main.DataFolder .. "/Languages/SpainData.lua")
-			SpainData.updateToSpainData()
-		elseif gameversion == 0x00640000 then
-			print("ROM Detected: Pokemon - Rosso Fuoco")
-			versionIndex = 4
-			dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
-			ItalyData.updateToItalyData()
-		elseif gameversion == 0x00670000 then
-			print("ROM Detected: Pokemon Rouge Feu")
-			versionIndex = 5
-			dofile(Main.DataFolder .. "/Languages/FranceData.lua")
-			FranceData.updateToFranceData()
-		elseif gameversion == 0x00690000 then
-			print("ROM Detected: Pokemon Feuerrote")
-			versionIndex = 6
-			dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
-			GermanyData.updateToGermanyData()
-		end
-	elseif GameSettings.versioncolor == "LeafGreen" then
-		gameIndex = 5
-		if gameversion == 0x00810000 then
-			print("ROM Detected: Pokemon Leaf Green v1.0")
-			versionIndex = 1
-		elseif gameversion == 0x01800000 then
-			print("ROM Detected: Pokemon Leaf Green v1.1")
-			versionIndex = 2
-		end
-	end
 
 	for address, memAddresses in pairs(addresses) do
 		GameSettings[address] = memAddresses[gameIndex][versionIndex]
 	end
 end
 
--- Set the mappings for ability tracking scripts separately for clearer groupings
-function GameSettings.setAbilityTrackingAddresses(gameversion)
+-- Maps the BattleScript memory addresses to their respective abilityId's for auto-tracking of abilities
+function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 	-- Only have non-english FireRed at the moment
 	-- When adding new non-english games, follow a similar formatting and edit the below format note accordingly
 	-- Format:
@@ -890,46 +849,12 @@ function GameSettings.setAbilityTrackingAddresses(gameversion)
 			{ 0x081d8b73, 0x081d8be3 },
 		},
 	}
-	local indices = {
-		["Ruby"] = {
-			gameIndex = 1,
-			[0x00410000] = 1, -- English 1.0
-			[0x01400000] = 2, -- English 1.1
-			[0x023F0000] = 3, -- English 1.2
-		},
-		["Sapphire"] = {
-			gameIndex = 2,
-			[0x00550000] = 1, -- English 1.0
-			[0x01540000] = 2, -- English 1.1
-			[0x02530000] = 3, -- English 1.2
-		},
-		["Emerald"] = {
-			gameIndex = 3,
-			[0x00720000] = 1, -- English
-		},
-		["FireRed"] = {
-			gameIndex = 4,
-			[0x00680000] = 1, -- English 1.0
-			[0x01670000] = 2, -- English 1.1
-			[0x005A0000] = 3, -- Spanish
-			[0x00640000] = 4, -- Italian
-			[0x00670000] = 5, -- French
-			[0x00690000] = 6, -- German
-		},
-		["LeafGreen"] = {
-			gameIndex = 5,
-			[0x00810000] = 1, -- English 1.0
-			[0x01800000] = 2, -- English 1.1
-		},
-	}
-	local gameIndex = indices[GameSettings.versioncolor].gameIndex
-	local versionIndex = indices[GameSettings.versioncolor][gameversion]
 
 	-- Map the BattleScript addresses to the relevant abilityID's for ability tracking
 	GameSettings.ABILITIES = {
 		BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
-			[abilityScripts.DrizzleActivates[gameIndex][versionIndex]] = {[2]  = true}, -- Drizzle
-			[abilityScripts.SpeedBoostActivates[gameIndex][versionIndex]] = {[3]  = true}, -- Speed Boost
+			[abilityScripts.DrizzleActivates[gameIndex][versionIndex]] = {[2] = true}, -- Drizzle
+			[abilityScripts.SpeedBoostActivates[gameIndex][versionIndex]] = {[3] = true}, -- Speed Boost
 			[abilityScripts.IntimidateAbilityFail[gameIndex][versionIndex]] = {[22] = true}, -- Intimidate Fail
 			[abilityScripts.IntimidateActivationAnimLoop[gameIndex][versionIndex]] = {[22] = true}, -- Intimidate Succeed
 			[abilityScripts.TraceActivates[gameIndex][versionIndex]] = {[36] = true}, -- Trace
@@ -954,7 +879,7 @@ function GameSettings.setAbilityTrackingAddresses(gameversion)
 			},
 		},
 		ATTACKER = { -- Abilities where we can use gBattlerAttacker to determine enemy/player
-			[abilityScripts.SturdyPreventsOHKO[gameIndex][versionIndex]] = {[5]  = true}, -- Sturdy
+			[abilityScripts.SturdyPreventsOHKO[gameIndex][versionIndex]] = {[5] = true}, -- Sturdy
 			[abilityScripts.ObliviousPreventsAttraction[gameIndex][versionIndex]] = {[12] = true}, -- Oblivious
 			[abilityScripts.ColorChangeActivates[gameIndex][versionIndex]] = {[16] = true}, -- Color Change
 			[abilityScripts.FlashFireBoost[gameIndex][versionIndex]] = {[18] = true}, -- Flash Fire
@@ -974,7 +899,7 @@ function GameSettings.setAbilityTrackingAddresses(gameversion)
 				[11] = true, -- Water Absorb
 			},
 			[abilityScripts.PRLZPrevention[gameIndex][versionIndex]] = { -- Ability prevents paralysis
-				[7]  = true, -- Limber
+				[7] = true, -- Limber
 				[28] = true, -- Synchronize (is unable to inflict paralysis on other mon)
 			},
 			[abilityScripts.PSNPrevention[gameIndex][versionIndex]] = { -- Ability prevents poison
@@ -1005,7 +930,7 @@ function GameSettings.setAbilityTrackingAddresses(gameversion)
 		STATUS_INFLICT = { -- Abilities which apply a status effect on the opposing mon
 			[abilityScripts.MoveEffectSleep[gameIndex][versionIndex]] = {[27] = true}, -- Effect Spore (Sleep)
 			[abilityScripts.MoveEffectParalysis[gameIndex][versionIndex]] = { -- Ability inflicts paralysis
-				[9]  = true, -- Static
+				[9] = true, -- Static
 				[27] = true, -- Effect Spore
 				[28] = true, -- Synchronize
 			},
