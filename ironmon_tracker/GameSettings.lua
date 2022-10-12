@@ -44,6 +44,9 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
+
+	-- Set up route data for the game
+	RouteData.setupRouteInfo(GameSettings.game)
 end
 
 function GameSettings.setGameInfo(gamecode)
@@ -140,8 +143,6 @@ function GameSettings.setGameInfo(gamecode)
 		GameSettings.language = games[gamecode].LANGUAGE
 		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
 		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
-
-		RouteData.setupRouteInfo(GameSettings.game)
 	else
 		GameSettings.gamename = "Unsupported game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
