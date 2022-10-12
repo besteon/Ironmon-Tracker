@@ -317,10 +317,10 @@ function GameSettings.setEwramAddresses()
 		sStartMenuWindowId = { nil, 0x0203cd8c, 0x0203abe0 },
 	}
 
-	for address, memAddress in pairs(addresses) do
-		local mem = memAddress[GameSettings.game]
-		if mem ~= nil then
-			GameSettings[address] = mem
+	for key, address in pairs(addresses) do
+		local value = address[GameSettings.game]
+		if value ~= nil then
+			GameSettings[key] = value
 		end
 	end
 end
@@ -349,10 +349,10 @@ function GameSettings.setIwramAddresses(gamecode)
 	}
 
 	local languageIndex = Utils.inlineIf(GameSettings.language == "English", 1, 2)
-	for address, memAddress in pairs(addresses) do
-		local mem = memAddress[GameSettings.game][languageIndex]
-		if mem ~= nil then
-			GameSettings[address] = mem
+	for key, address in pairs(addresses) do
+		local value = address[GameSettings.game][languageIndex]
+		if value ~= nil then
+			GameSettings[key] = value
 		end
 	end
 end
@@ -503,8 +503,8 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 		},
 	}
 
-	for address, memAddresses in pairs(addresses) do
-		GameSettings[address] = memAddresses[gameIndex][versionIndex]
+	for key, address in pairs(addresses) do
+		GameSettings[key] = address[gameIndex][versionIndex]
 	end
 end
 
