@@ -1043,6 +1043,6 @@ function TrackerScreen.drawBallPicker()
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	local chosenBallText = TrackerScreen.PokeBalls.Labels[TrackerScreen.PokeBalls.chosenBall] or Constants.BLANKLINE
-	Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Randomly chosen ball:", Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + 2 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 8, 57, "Randomly chosen ball:", Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 4 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
 end
