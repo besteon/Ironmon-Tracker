@@ -349,6 +349,7 @@ function GameSettings.setIwramAddresses()
 		-- IWRAM addresses present in all games
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },
 		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x03004fe0 } },
+		gBattleMainFunc = { { nil , nil } , { nil } , { 0x03004f84 , nil } },
 	}
 
 	local languageIndex = Utils.inlineIf(GameSettings.language == "English", 1, 2)
@@ -399,13 +400,37 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08043002, 0x08043016, 0x08042EEE, 0x08042EEE, 0x08042EDA, 0x08042F02 },
 			{ 0x08043002, 0x08043016 },
 		},
-		--Task_EvolutionScene + 0x1
+		-- Task_EvolutionScene + 0x1
 		Task_EvolutionScene = {
 			{ 0x0811240d, 0x0811244d, 0x0811242d },
 			{ 0x0811240d, 0x0811242d, 0x0811242d },
 			{ 0x0813e571 },
 			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D },
 			{ 0x080ce8b1, 0x080ce8c5 },
+		},
+		-- BattleIntroDrawPartySummaryScreens + 0x1
+		BattleIntroDrawPartySummaryScreens = {
+			{nil,nil,nil},
+			{nil,nil,nil},
+			{nil},
+			{nil,0x08013351,nil,nil,nil,nil,},
+			{nil,nil,},
+		},
+		-- BattleIntroOpponentSendsOutMonAnimation + 0x1
+		BattleIntroOpponentSendsOutMonAnimation = {
+			{nil,nil,nil},
+			{nil,nil,nil},
+			{nil},
+			{nil,0x080135b1,nil,nil,nil,nil,},
+			{nil,nil,},
+		},
+		-- HandleEndTurn_FinishBattle + 0x1
+		HandleEndTurn_FinishBattle = {
+			{nil,nil,nil},
+			{nil,nil,nil},
+			{nil},
+			{nil,0x08015925,nil,nil,nil,nil,},
+			{nil,nil,},
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3
 		BattleScript_RanAwayUsingMonAbility = {

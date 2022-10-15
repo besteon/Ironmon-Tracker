@@ -77,13 +77,15 @@ end
 -- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 function Battle.updateBattleStatus()
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+	local battleFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
-	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
+	if not Battle.inBattle and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
-		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
-		Battle.beginNewBattle()
-	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
+		if (Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroDrawPartySummaryScreens) or
+		(not Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation) then
+			Battle.beginNewBattle()
+		end
+	elseif Battle.inBattle and battleFunction == GameSettings.HandleEndTurn_FinishBattle and false then
 		Battle.endCurrentBattle()
 	end
 end
@@ -504,9 +506,6 @@ end
 
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
-
-	-- Only record Last Level Seen after the battle, so the info shown doesn't get overwritten by current level
-	Tracker.recordLastLevelsSeen()
 
 	--Most of the time, Run Away message is present only after the battle ends
 	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
