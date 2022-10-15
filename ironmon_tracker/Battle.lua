@@ -85,7 +85,7 @@ function Battle.updateBattleStatus()
 		(not Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation) then
 			Battle.beginNewBattle()
 		end
-	elseif Battle.inBattle and battleFunction == GameSettings.HandleEndTurn_FinishBattle and false then
+	elseif Battle.inBattle and battleFunction == GameSettings.HandleEndTurn_FinishBattle then
 		Battle.endCurrentBattle()
 	end
 end
