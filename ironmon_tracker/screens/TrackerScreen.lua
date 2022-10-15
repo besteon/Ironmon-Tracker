@@ -612,26 +612,42 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, shadowcolor)
 
 	-- POKEMON INFORMATION
-	local pkmnStatOffsetX = 36
-	local pkmnStatStartY = 5
-	local pkmnStatOffsetY = 10
+	local offsetX = 36
+	local offsetY = 5
+	local linespacing = Constants.SCREEN.LINESPACING - 1
 
-	-- Don't show hp values if the pokemon doesn't belong to the player, or if it doesn't exist
-	local currentHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, Constants.HIDDEN_INFO, pokemon.curHP)
-	local maxHP = Utils.inlineIf(not Tracker.Data.isViewingOwn or pokemon.stats.hp == 0, Constants.HIDDEN_INFO, pokemon.stats.hp)
-	local hpText = currentHP .. "/" .. maxHP
-	local hpTextColor = Theme.COLORS["Default text"]
-	if pokemon.stats.hp == 0 then
-		hpTextColor = Theme.COLORS["Default text"]
-	elseif pokemon.curHP / pokemon.stats.hp <= 0.2 then
-		hpTextColor = Theme.COLORS["Negative text"]
-	elseif pokemon.curHP / pokemon.stats.hp <= 0.5 then
-		hpTextColor = Theme.COLORS["Intermediate text"]
+	local extraInfoText
+	local extraInfoColor
+
+	if Tracker.Data.isViewingOwn then
+		if pokemon.stats.hp <= 0 then
+			extraInfoText = string.format("%s/%s", Constants.HIDDEN_INFO, Constants.HIDDEN_INFO)
+			extraInfoColor = Theme.COLORS["Default text"]
+		else
+			extraInfoText = string.format("%s/%s", pokemon.curHP, pokemon.stats.hp)
+
+			local hpPercentage = pokemon.curHP / pokemon.stats.hp
+			if hpPercentage <= 0.2 then
+				extraInfoColor = Theme.COLORS["Negative text"]
+			elseif hpPercentage <= 0.5 then
+				extraInfoColor = Theme.COLORS["Intermediate text"]
+			else
+				extraInfoColor = Theme.COLORS["Default text"]
+			end
+		end
+	else
+		local lastLevel = Tracker.getLastLevelSeen(pokemon.pokemonID)
+		if lastLevel ~= nil then
+			extraInfoText = string.format("Last seen Lv.%s", lastLevel)
+		else
+			extraInfoText = Constants.BLANKLINE
+		end
+		extraInfoColor = Theme.COLORS["Intermediate text"]
 	end
 
 	local levelEvoText = "Lv." .. pokemon.level .. " ("
 	local evoDetails = pokemon.evolution
-	local evoSpacing = pkmnStatOffsetX + string.len(levelEvoText) * 3 + string.len(pokemon.level) * 2
+	local evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(pokemon.level) * 2
 
 	-- Determine if evolution is possible/soon for own pokemon
 	local evoTextColor = Theme.COLORS["Default text"]
@@ -647,15 +663,28 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 	end
 	levelEvoText = levelEvoText .. evoDetails .. ")"
 
-	-- DRAW POKEMON INFO
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY, pokemon.name, Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 1), "HP:", Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + 52, pkmnStatStartY + (pkmnStatOffsetY * 1), hpText, hpTextColor, shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 2), levelEvoText, Theme.COLORS["Default text"], shadowcolor)
+	-- POKEMON NAME
+	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, pokemon.name, Theme.COLORS["Default text"], shadowcolor)
+	offsetY = offsetY + linespacing
 
-	if Tracker.Data.isViewingOwn and evoDetails ~= Constants.BLANKLINE then
-		-- Draw over the evo method in the new color to reflect if evo is possible/soon
-		Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, pkmnStatStartY + (pkmnStatOffsetY * 2), evoDetails, evoTextColor, shadowcolor)
+	-- POKEMON HP, LEVEL, & EVOLUTION INFO
+	if Tracker.Data.isViewingOwn then
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, "HP:", Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + 16, offsetY, extraInfoText, extraInfoColor, shadowcolor)
+		offsetY = offsetY + linespacing
+
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
+		if evoDetails ~= Constants.BLANKLINE then
+			-- Draw over the evo method in the new color to reflect if evo is possible/soon
+			Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, evoDetails, evoTextColor, shadowcolor)
+		end
+		offsetY = offsetY + linespacing
+	else
+		-- Swaps the display order, Level/Evo first, then Last Level Seen.
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
+		offsetY = offsetY + linespacing
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, extraInfoText, extraInfoColor, shadowcolor)
+		offsetY = offsetY + linespacing
 	end
 
 	-- Tracker.Data.isViewingOwn and
@@ -686,8 +715,10 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		end
 	end
 
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 3), abilityStringTop, Theme.COLORS["Intermediate text"], shadowcolor)
-	Drawing.drawText(Constants.SCREEN.WIDTH + pkmnStatOffsetX, pkmnStatStartY + (pkmnStatOffsetY * 4), abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, abilityStringTop, Theme.COLORS["Intermediate text"], shadowcolor)
+	offsetY = offsetY + linespacing
+	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, abilityStringBot, Theme.COLORS["Intermediate text"], shadowcolor)
+	offsetY = offsetY + linespacing
 
 	-- HEALS INFO / ENCOUNTER INFO
 	local infoBoxHeight = 23
