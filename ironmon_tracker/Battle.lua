@@ -507,6 +507,9 @@ end
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
 
+	-- Only record Last Level Seen after the battle, so the info shown doesn't get overwritten by current level
+	Tracker.recordLastLevelsSeen()
+	
 	--Most of the time, Run Away message is present only after the battle ends
 	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
