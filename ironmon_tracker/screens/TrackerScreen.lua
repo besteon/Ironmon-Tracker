@@ -640,7 +640,7 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 		if lastLevel ~= nil then
 			extraInfoText = string.format("Last seen Lv.%s", lastLevel)
 		else
-			extraInfoText = Constants.BLANKLINE
+			extraInfoText = "New encounter!"
 		end
 		extraInfoColor = Theme.COLORS["Intermediate text"]
 	end
