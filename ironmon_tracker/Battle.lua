@@ -5,7 +5,6 @@ Battle = {
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
 	isNewTurn = true,
-	battleStartDelay = -1, -- counts down
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -78,17 +77,15 @@ end
 -- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 function Battle.updateBattleStatus()
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local battleFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
-	if not Battle.inBattle and  lastBattleStatus == 0 and opposingPokemon ~= nil then
+	if not Battle.inBattle and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
 		if (Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroDrawPartySummaryScreens) or
-		(not Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation) 
-		or Battle.battleStartDelay >= 0 then
+		(not Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation) then
 			Battle.beginNewBattle()
 		end
-	elseif Battle.inBattle and (lastBattleStatus ~= 0 or battleFunction == GameSettings.HandleEndTurn_FinishBattle) then
+	elseif Battle.inBattle and battleFunction == GameSettings.HandleEndTurn_FinishBattle then
 		Battle.endCurrentBattle()
 	end
 end
@@ -208,6 +205,12 @@ function Battle.updateTrackedInfo()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13). Also, game must be FR/LG
 	Battle.isGhost = GameSettings.game == 3 and (Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0)
+
+	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
+	if Program.Frames.battleDataDelay > 0 then
+		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
+		return
+	end
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
@@ -463,14 +466,8 @@ end
 function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
-	-- Delay reads and display while animations play
-	if Battle.battleStartDelay == -1 then
-		Battle.battleStartDelay = 120
-	end
-	if Battle.battleStartDelay > 0 then
-		Battle.battleStartDelay = Battle.battleStartDelay - 10
-		return
-	end
+	Program.Frames.battleDataDelay = 60
+
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
 	Battle.turnCount = 0
@@ -502,6 +499,9 @@ function Battle.beginNewBattle()
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	end
+
+	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
+	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
 end
 
 function Battle.endCurrentBattle()
@@ -524,7 +524,6 @@ function Battle.endCurrentBattle()
 	Battle.inBattle = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
-	Battle.battleStartDelay = -1
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
