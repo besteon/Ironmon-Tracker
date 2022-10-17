@@ -81,7 +81,7 @@ function Battle.updateBattleStatus()
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local battleFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
-	if not Battle.inBattle and  lastBattleStatus == 0 and opposingPokemon ~= nil then
+	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
 		if (Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroDrawPartySummaryScreens) or
 		(not Battle.isWildEncounter and battleFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation) 
@@ -509,7 +509,7 @@ function Battle.endCurrentBattle()
 
 	-- Only record Last Level Seen after the battle, so the info shown doesn't get overwritten by current level
 	Tracker.recordLastLevelsSeen()
-	
+
 	--Most of the time, Run Away message is present only after the battle ends
 	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
