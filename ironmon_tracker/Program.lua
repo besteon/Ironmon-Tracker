@@ -12,7 +12,6 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
-		battleDataDelay = 60, -- counts down
 	},
 	ActiveRepel = {
 		inUse = false,
