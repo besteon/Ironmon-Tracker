@@ -122,19 +122,19 @@ function Symbols.writeSymbolsToFile()
 						local prevSym = Symbols.symbolSources[j-1].symbols[i]
 						local offsetSP, offsetIT, offsetFR, offsetGE = "nil","nil","nil","nil"
 						if prevSym ~= "nil" then
-							offsetSP = "0x" .. string.format("%x",(tonumber(prevSym,16)) + 0x53e)
-							offsetIT = "0x" .. string.format("%x",(tonumber(prevSym,16)) + 0x2c06)
+							offsetSP = "0x" .. string.format("%x",(tonumber(prevSym,16)) - 0x53e)
+							offsetIT = "0x" .. string.format("%x",(tonumber(prevSym,16)) - 0x2c06)
 							offsetFR = "0x" .. string.format("%x",(tonumber(prevSym,16)) - 0x189e)
 							offsetGE = "0x" .. string.format("%x",(tonumber(prevSym,16)) + 0x4226)
 						end
-						writeFile:write(" " .. offsetSP .. " , " .. offsetIT .. " , " .. offsetFR .. " , " .. offsetGE .. " ,")
+						writeFile:write(" " .. offsetSP .. ", " .. offsetIT .. ", " .. offsetFR .. ", " .. offsetGE .. ",")
 					end	
-					writeFile:write("}\n\t{")
+					writeFile:write("},\n\t{")
 					Symbols.gameType = gameValues.gameType
 				end
-				writeFile:write(" " .. gameValues.symbols[i] .. " ,")
+				writeFile:write(" " .. gameValues.symbols[i] .. ",")
 			end
-			writeFile:write("}\n}\n")
+			writeFile:write("}\n},\n")
 			Symbols.gameType = 0
 		end
 		writeFile:close()

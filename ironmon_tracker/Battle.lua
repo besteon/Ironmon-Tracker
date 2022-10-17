@@ -463,9 +463,9 @@ end
 function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
-	-- Delay reads and display while animations play
+	-- Delay reads and display while animations start
 	if Battle.battleStartDelay == -1 then
-		Battle.battleStartDelay = 120
+		Battle.battleStartDelay = Utils.inlineIf(Battle.isWildEncounter, 100, 40)
 	end
 	if Battle.battleStartDelay > 0 then
 		Battle.battleStartDelay = Battle.battleStartDelay - 10
