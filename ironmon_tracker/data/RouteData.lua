@@ -3318,6 +3318,11 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[108] = { name = "Mossdeep Gym", }
 	RouteData.Info[109] = { name = "Sootopolis Gym1", }
 	RouteData.Info[110] = { name = "Sootopolis Gym2", }
+	RouteData.Info[111] = { name = "Sidney's Room", }
+	RouteData.Info[112] = { name = "Phoebe's Room", }
+	RouteData.Info[113] = { name = "Glacia's Room", }
+	RouteData.Info[114] = { name = "Drake's Room", }
+	RouteData.Info[115] = { name = "Champion's Room", }
 
 	RouteData.Info[125 + offset] = { name = "Meteor Falls 1Fa",
 		[RouteData.EncounterArea.LAND] = {
