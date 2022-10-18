@@ -131,6 +131,8 @@ function QuickloadScreen.handleSetRomFolder(button)
 	local path = Options.FILES[button.labelText]
 	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
 
+	local wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
@@ -149,12 +151,18 @@ function QuickloadScreen.handleSetRomFolder(button)
 
 		Options.forceSave()
 	end
+
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
+	end
 end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
 	local path = Options.FILES[button.labelText]
 	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 
+	local wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
 	local file = forms.openfile("SELECT JAR", path, filterOptions)
 	if file ~= "" then
 		local extension = Utils.extractFileExtensionFromPath(file)
@@ -167,12 +175,17 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
 	end
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
+	end
 end
 
 function QuickloadScreen.handleSetSourceRom(button)
 	local path = Options.FILES[button.labelText]
 	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 
+	local wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
 		local extension = Utils.extractFileExtensionFromPath(file)
@@ -184,6 +197,9 @@ function QuickloadScreen.handleSetSourceRom(button)
 		else
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
+	end
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 
@@ -200,6 +216,8 @@ function QuickloadScreen.handleSetCustomSettings(button)
 		end
 	end
 
+	local wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
 	local file = forms.openfile("SELECT RNQS", path, filterOptions)
 	if file ~= "" then
 		local extension = Utils.extractFileExtensionFromPath(file)
@@ -211,6 +229,9 @@ function QuickloadScreen.handleSetCustomSettings(button)
 		else
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
+	end
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 

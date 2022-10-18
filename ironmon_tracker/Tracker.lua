@@ -373,6 +373,31 @@ function Tracker.getHiddenPowerType()
 	end
 end
 
+-- Note the last level seen of each Pokemon on the enemy team
+function Tracker.recordLastLevelsSeen()
+	for _, pokemon in pairs(Tracker.Data.otherPokemon) do
+		if pokemon ~= nil and pokemon.level ~= nil and pokemon.level > 0 and pokemon.level <= 100 then
+			local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemon.pokemonID)
+
+			if trackedPokemon.encounters == nil then
+				trackedPokemon.encounters = { wild = 0, trainer = 0 }
+			end
+
+			trackedPokemon.encounters.lastlevel = pokemon.level
+		end
+	end
+end
+
+-- Returns the level of the Pokemon last time it was seen; returns nil if never seen before
+function Tracker.getLastLevelSeen(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if trackedPokemon.encounters == nil then
+		return nil
+	else
+		return trackedPokemon.encounters.lastlevel
+	end
+end
+
 function Tracker.getDefaultPokemon()
 	return {
 		pokemonID = 0,
