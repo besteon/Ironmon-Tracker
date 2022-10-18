@@ -758,6 +758,14 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9428, 0x081d9498, 0x081d8f5a, 0x081d6892, 0x081d7bfa, 0x081DD6BE },
 			{ 0x081d9404, 0x081d9474 },
 		},
+		--BattleScript_FlinchPrevention + 0x6
+		FlinchPrevention = {
+			{ 0x81d98dd, 0x81d98f5, 0x81d98f5,},
+			{ 0x81d986d, 0x81d9885, 0x81d9885,},
+			{ 0x82db609,},
+			{ 0x81d9458, 0x81d94c8, 0x81d8f8a, 0x81d68c2, 0x81d7c2a, 0x81dd6ee,},
+			{ 0x81d9434, 0x81d94a4,}
+		},		
 		-- BattleScript_CantMakeAsleep + 0x8
 		CantMakeAsleep = {
 			{ 0x081d6fe8, 0x081d7000, 0x081d7000 },
@@ -931,7 +939,10 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			[abilityScripts.PrintAbilityMadeIneffective[gameIndex][versionIndex]] = { -- Ability prevents sleep (Yawn)
 				[15] = true, -- Insomnia
 				[72] = true, -- Vital Spirit
-			}
+			},
+			[abilityScripts.FlinchPrevention[gameIndex][versionIndex]] = { -- Ability prevents flinching
+				[39] = true, -- Inner Focus
+			},
 		},
 		REVERSE_ATTACKER = { -- Abilities like the above ATTACKER checks, but logic is reversed
 			[abilityScripts.RainDishActivates[gameIndex][versionIndex]] = {[44] = true}, -- Rain Dish
