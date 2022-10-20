@@ -508,6 +508,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF },
 			{ 0x081d9125, 0x081d9195 },
 		},
+		BattleScript_SnatchedMove = {
+			{ 0x81d9491, 0x81d94a9, 0x81d94a9,},
+			{ 0x81d9421, 0x81d9439, 0x81d9439,},
+			{ 0x82db1b6,},
+			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262,},
+			{ 0x81d8fa8, 0x81d9018,}
+		},		
 	}
 
 	for key, address in pairs(addresses) do
