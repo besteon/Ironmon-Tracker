@@ -41,7 +41,7 @@ Options = {
 }
 
 Options.IconSetMap = {
-	totalCount = 4,
+	totalCount = 5,
 	["1"] = {
 		name = "Original",
 		folder = "pokemon",
@@ -73,7 +73,15 @@ Options.IconSetMap = {
 		yOffset = 4,
 		adjustQuestionMark = false,
 		author = "Fellshadow",
-	}
+	},
+	["5"] = {
+		name = "V-Pet",
+		folder = "pokemonVPet",
+		extension = ".png",
+		yOffset = 4,
+		adjustQuestionMark = true,
+		author = "Ryastoise",
+	},
 }
 
 -- This determines what icon to show on each Startup Screen
