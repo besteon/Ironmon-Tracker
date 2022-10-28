@@ -18,11 +18,14 @@ Theme = {
 	},
 	-- If move types are enabled then the Move Names themselves will be drawn with a color representing their type.
 	MOVE_TYPES_ENABLED = true,
+	-- Determines if text shadows are drawn
+	DRAW_TEXT_SHADOWS = true,
 }
 
 Theme.PresetStrings = {
-	-- [Default] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background] [0/1: movetypes?]
-	["Default Theme"] = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1",
+	-- [Default] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background]
+	-- ... [0/1: color moves by their type] [0/1: text shadows]
+	["Default Theme"] = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
 }
 Theme.PresetsOrdered = {
 	"Default Theme",
@@ -62,8 +65,22 @@ Theme.Buttons = {
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
 		toggleColor = "Positive text",
 		onClick = function(self)
-			self.toggleState = not self.toggleState -- toggle the setting
+			self.toggleState = not self.toggleState
 			Theme.MOVE_TYPES_ENABLED = not Theme.MOVE_TYPES_ENABLED
+			Theme.settingsUpdated = true
+			Program.redraw(true)
+		end
+	},
+	DrawTextShadows = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text = "Text shadows",
+		clickableArea = { Constants.SCREEN.WIDTH + 9, 125, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+		box = { Constants.SCREEN.WIDTH + 9, 125, 8, 8 },
+		toggleState = Theme.DRAW_TEXT_SHADOWS,
+		toggleColor = "Positive text",
+		onClick = function(self)
+			self.toggleState = not self.toggleState
+			Theme.DRAW_TEXT_SHADOWS = not Theme.DRAW_TEXT_SHADOWS
 			Theme.settingsUpdated = true
 			Program.redraw(true)
 		end
@@ -105,6 +122,8 @@ function Theme.initialize()
 	-- Adjust the extra options positions based on the verical space left
 	Theme.Buttons.MoveTypeEnabled.clickableArea[2] = startY
 	Theme.Buttons.MoveTypeEnabled.box[2] = startY
+	Theme.Buttons.DrawTextShadows.clickableArea[2] = startY
+	Theme.Buttons.DrawTextShadows.box[2] = startY
 
 	Theme.loadPresets(Constants.Files.THEME_PRESETS)
 end
@@ -136,15 +155,17 @@ function Theme.importThemeFromText(theme_config)
 		return false
 	end
 
+	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a two bits for boolean options
+	local totalHexCodes = 11
+
 	-- If the theme config string is old, duplicate the 'Default text' color hex code as 'Lower box text'
 	if Theme.isOldThemeString(theme_config) then
 		local firstHexCode = theme_config:sub(1, 7) -- includes the trailing space
 		theme_config = firstHexCode .. theme_config
 	end
 
-	-- A valid string has at minimum N total hex codes (7 chars each including spaces) and a single bit for move types
-	local totalHexCodes = 11
-	if string.len(theme_config) < (totalHexCodes * 7 + 1) then
+	local themeConfigLen = string.len(theme_config)
+	if themeConfigLen < (totalHexCodes * 7 + 3) then
 		return false
 	end
 
@@ -165,16 +186,25 @@ function Theme.importThemeFromText(theme_config)
 
 	-- Apply as much of the imported theme config to our Theme as possible (must remain compatible with gen4/gen5 Tracker), then load it
 	local index = 1
-	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first 10 hex codes
+	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
 		if theme_colors[index] ~= nil then
 			Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
 		end
 		index = index + 1
 	end
 
-	local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
-	Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-	Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+	-- Apply as many boolean options as possible, if they're available
+	if themeConfigLen >= numHexCodes * 7 + 1 then
+		local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
+		Theme.MOVE_TYPES_ENABLED = enableMoveTypes
+		Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+	end
+
+	if themeConfigLen >= numHexCodes * 7 + 3 then
+		local enableTextShadows = not (string.sub(theme_config, numHexCodes * 7 + 3, numHexCodes * 7 + 3) == "0")
+		Theme.DRAW_TEXT_SHADOWS = enableTextShadows
+		Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
+	end
 
 	Theme.settingsUpdated = true
 	Program.redraw(true)
@@ -208,8 +238,8 @@ function Theme.exportThemeToText()
 		exportedTheme = exportedTheme .. string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5) .. " "
 	end
 
-	-- Append other theme config options at the end
-	exportedTheme = exportedTheme .. Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, 1, 0)
+	-- Append other theme config boolean options at the end
+	exportedTheme = exportedTheme .. Utils.inlineIf(Theme.MOVE_TYPES_ENABLED, "1", "0") .. " " .. Utils.inlineIf(Theme.DRAW_TEXT_SHADOWS, "1", "0")
 
 	return string.upper(exportedTheme)
 end

@@ -53,7 +53,9 @@ function Drawing.drawStatusIcon(status, x, y)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	end
 	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 end
 
