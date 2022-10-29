@@ -53,7 +53,9 @@ function Drawing.drawStatusIcon(status, x, y)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	end
 	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 end
 
@@ -241,7 +243,7 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
 
-				if shadowcolor ~= nil then
+				if shadowcolor ~= nil and Theme.DRAW_TEXT_SHADOWS then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
 				gui.drawPixel(x + offsetX, y + offsetY, colorList[colorIndex])
