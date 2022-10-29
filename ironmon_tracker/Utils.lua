@@ -708,3 +708,19 @@ function Utils.extractFileExtensionFromPath(path)
 
 	return ""
 end
+
+function Utils.addCustomThemeToFile(themeName, themeCode)
+	if themeName == nil or themeCode == nil then
+		return
+	end
+
+	local file = io.open(Constants.Files.THEME_PRESETS, "a")
+
+	if file ~= nil then
+		file:write(string.format("%s %s", themeName, themeCode))
+		file:write("\n")
+		file:close()
+	else
+		print(string.format("[ERROR] Unable to save custom Theme \"%s\" to file: %s", themeName, Constants.Files.THEME_PRESETS))
+	end
+end

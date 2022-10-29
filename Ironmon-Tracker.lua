@@ -83,6 +83,8 @@ function Main.Initialize()
 		Options.FIRST_RUN = false
 		Main.SaveSettings(true)
 
+		Theme.populateThemePresets()
+
 		local firstRunErrMsg = "It looks like this is your first time using the Tracker. If so, please close and re-open Bizhawk before continuing."
 		firstRunErrMsg = firstRunErrMsg .. "\n\nOtherwise, be sure to overwrite your old Tracker files for new releases."
 		print(firstRunErrMsg)
