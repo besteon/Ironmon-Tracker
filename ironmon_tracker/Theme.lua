@@ -30,6 +30,21 @@ Theme.PresetStrings = {
 Theme.PresetsOrdered = {
 	"Default Theme",
 }
+Theme.PresetPreviewColors = {
+	["Default text"] = 0xFFFFFFFF,
+	["Lower box text"] = 0xFFFFFFFF,
+	["Positive text"] = 0xFF00FF00,
+	["Negative text"] = 0xFFFF0000,
+	["Intermediate text"] = 0xFFFFFF00,
+	["Header text"] = 0xFFFFFFFF,
+	["Upper box border"] = 0xFFAAAAAA,
+	["Upper box background"] = 0xFF222222,
+	["Lower box border"] = 0xFFAAAAAA,
+	["Lower box background"] = 0xFF222222,
+	["Main background"] = 0xFF000000,
+	MOVE_TYPES_ENABLED = true,
+	DRAW_TEXT_SHADOWS = true,
+}
 
 Theme.Screen = {
 	headerText = "Customize Theme",
@@ -38,6 +53,7 @@ Theme.Screen = {
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 	showMoreOptions = false,
+	currentPreset = 1,
 }
 
 Theme.Buttons = {
@@ -54,13 +70,6 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 83, Constants.SCREEN.MARGIN + 14, 58, 11 },
 		isVisible = function() return Theme.Screen.showMoreOptions end,
 		onClick = function() Theme.openExportWindow() end
-	},
-	Presets = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Theme presets",
-		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 115, 62, 11 },
-		isVisible = function() return Theme.Screen.showMoreOptions end,
-		onClick = function() Theme.openPresetsWindow() end
 	},
 	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -88,6 +97,50 @@ Theme.Buttons = {
 		onClick = function(self)
 			self.toggleState = not self.toggleState
 			Theme.DRAW_TEXT_SHADOWS = not Theme.DRAW_TEXT_SHADOWS
+			Theme.settingsUpdated = true
+			Program.redraw(true)
+		end
+	},
+	CyclePresetBackward = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 26, Constants.SCREEN.MARGIN + 85, 10, 10, },
+		isVisible = function() return Theme.Screen.showMoreOptions end,
+		onClick = function(self)
+			Theme.Screen.currentPreset = (Theme.Screen.currentPreset - 2 ) % #Theme.PresetsOrdered + 1
+			local theme_config = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreset or 1]]
+			Theme.importThemeFromText(theme_config, false)
+		end
+	},
+	CyclePresetForward = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NEXT_BUTTON,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 104, Constants.SCREEN.MARGIN + 85, 10, 10, },
+		isVisible = function() return Theme.Screen.showMoreOptions end,
+		onClick = function(self)
+			Theme.Screen.currentPreset = (Theme.Screen.currentPreset % #Theme.PresetsOrdered) + 1
+			local theme_config = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreset or 1]]
+			Theme.importThemeFromText(theme_config, false)
+		end
+	},
+	LoadPreset = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Load...",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 102, 30, 11 },
+		isVisible = function() return Theme.Screen.showMoreOptions end,
+		onClick = function()
+			for colorKey, colorValue in pairs(Theme.PresetPreviewColors) do
+				-- Update the Theme settings only if those settings exist and the color is valid
+				if Theme.COLORS[colorKey] ~= nil and type(colorValue) == "number" then
+					Theme.COLORS[colorKey] = colorValue
+				end
+			end
+
+			Theme.MOVE_TYPES_ENABLED = Theme.PresetPreviewColors.MOVE_TYPES_ENABLED
+			Theme.Buttons.MoveTypeEnabled.toggleState = not Theme.MOVE_TYPES_ENABLED -- Show the opposite of the Setting, can't change existing theme strings
+			Theme.DRAW_TEXT_SHADOWS = Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS
+			Theme.Buttons.DrawTextShadows.toggleState = Theme.DRAW_TEXT_SHADOWS
+
 			Theme.settingsUpdated = true
 			Program.redraw(true)
 		end
@@ -143,6 +196,9 @@ function Theme.initialize()
 	end
 
 	Theme.loadPresets(Constants.Files.THEME_PRESETS)
+
+	-- Load the default theme as the first displayed preset preview
+	Theme.importThemeFromText(Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreset or 1]], false)
 end
 
 function Theme.loadPresets(filename)
@@ -167,7 +223,8 @@ end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
 -- returns true if successful; false otherwise.
-function Theme.importThemeFromText(theme_config)
+-- applyTheme: if false, this won't replace current theme, but set it as the preview for the mini tracker preview
+function Theme.importThemeFromText(theme_config, applyTheme)
 	if theme_config == nil or theme_config == "" then
 		return false
 	end
@@ -205,7 +262,12 @@ function Theme.importThemeFromText(theme_config)
 	local index = 1
 	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do -- Only use the first [totalHexCodes] hex codes
 		if theme_colors[index] ~= nil then
-			Theme.COLORS[colorkey] = 0xFF000000 + tonumber(theme_colors[index], 16)
+			local colorValue = 0xFF000000 + tonumber(theme_colors[index], 16)
+			if applyTheme then
+				Theme.COLORS[colorkey] = colorValue
+			else
+				Theme.PresetPreviewColors[colorkey] = colorValue
+			end
 		end
 		index = index + 1
 	end
@@ -213,17 +275,25 @@ function Theme.importThemeFromText(theme_config)
 	-- Apply as many boolean options as possible, if they're available
 	if themeConfigLen >= numHexCodes * 7 + 1 then
 		local enableMoveTypes = not (string.sub(theme_config, numHexCodes * 7 + 1, numHexCodes * 7 + 1) == "0")
-		Theme.MOVE_TYPES_ENABLED = enableMoveTypes
-		Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+		if applyTheme then
+			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
+			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
+		else
+			Theme.PresetPreviewColors.MOVE_TYPES_ENABLED = enableMoveTypes
+		end
 	end
 
 	if themeConfigLen >= numHexCodes * 7 + 3 then
 		local enableTextShadows = not (string.sub(theme_config, numHexCodes * 7 + 3, numHexCodes * 7 + 3) == "0")
-		Theme.DRAW_TEXT_SHADOWS = enableTextShadows
-		Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
+		if applyTheme then
+			Theme.DRAW_TEXT_SHADOWS = enableTextShadows
+			Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
+		else
+			Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS = enableTextShadows
+		end
 	end
 
-	Theme.settingsUpdated = true
+	Theme.settingsUpdated = applyTheme -- only update the Settings.ini if the theme was actually applied
 	Program.redraw(true)
 
 	return true
@@ -279,7 +349,7 @@ function Theme.openImportWindow()
 		local formInput = forms.gettext(importTextBox)
 		if formInput ~= nil then
 			-- Check if the import was successful
-			if not Theme.importThemeFromText(formInput) then
+			if not Theme.importThemeFromText(formInput, true) then
 				print("Error importing Theme Config string:")
 				print(">> " .. formInput)
 				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
@@ -303,6 +373,7 @@ function Theme.openExportWindow()
 	end, 212, 55)
 end
 
+-- Currently unused
 function Theme.openPresetsWindow()
 	Program.destroyActiveForm()
 	local presetsForm = forms.newform(360, 105, "Theme Presets", function() client.unpause() end)
@@ -316,7 +387,7 @@ function Theme.openPresetsWindow()
 	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
 	forms.button(presetsForm, "Load", function()
-		Theme.importThemeFromText(Theme.PresetStrings[forms.gettext(presetDropdown)])
+		Theme.importThemeFromText(Theme.PresetStrings[forms.gettext(presetDropdown)], true)
 		client.unpause()
 		forms.destroy(presetsForm)
 	end, 212, 29)
@@ -364,6 +435,63 @@ function Theme.drawMoreOptions()
 
 	-- Draw Theme screen view box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
+
+	Drawing.drawText(Constants.SCREEN.WIDTH + 8, Constants.SCREEN.MARGIN + 55, "Preset:", Theme.COLORS[Theme.Screen.textColor], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 38, Constants.SCREEN.MARGIN + 55, Theme.PresetsOrdered[Theme.Screen.currentPreset] or "", Theme.COLORS[Theme.Screen.textColor], shadowcolor)
+
+	-- Draw a mini tracker to show different theme presets
+	local mini = {
+		x = topboxX + 45,
+		y = topboxY + 61,
+		width = 50,
+		height = 50,
+	}
+	local fontSize = Constants.Font.SIZE - 3
+
+	gui.drawRectangle(mini.x - 2, mini.y - 2, mini.width + 4, mini.height + 4, Theme.PresetPreviewColors["Main background"], Theme.PresetPreviewColors["Main background"])
+
+	gui.drawRectangle(mini.x, mini.y, mini.width, 23, Theme.PresetPreviewColors["Upper box border"], Theme.PresetPreviewColors["Upper box background"])
+	gui.drawRectangle(mini.x, mini.y, 35, 23, Theme.PresetPreviewColors["Upper box border"]) -- Top box's top left area
+	gui.drawRectangle(mini.x, mini.y + 17, 35, 6, Theme.PresetPreviewColors["Upper box border"]) -- Top box's bottom left area
+	gui.drawText(mini.x + 10, mini.y + 0, "------------", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 30, mini.y + 0, "=", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 10, mini.y + 3, "--- ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 10, mini.y + 6, "--- ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 10, mini.y + 9, "--- ------", Theme.PresetPreviewColors["Intermediate text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 10, mini.y + 12, "------ ------", Theme.PresetPreviewColors["Intermediate text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 1, mini.y + 16, "------ ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 1, mini.y + 18, "--- ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+
+	gui.drawText(mini.x + 36, mini.y + 0, "---   ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 3, "---   ---", Theme.PresetPreviewColors["Positive text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 6, "---   ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 9, "---   ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 12, "---   ---", Theme.PresetPreviewColors["Negative text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 15, "---   ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 36, mini.y + 18, "---   ---", Theme.PresetPreviewColors["Default text"], nil, fontSize, Constants.Font.FAMILY)
+
+	gui.drawText(mini.x, mini.y + 23, "------- --- ---     ---  ----  ----", Theme.PresetPreviewColors["Header text"], nil, fontSize, Constants.Font.FAMILY)
+
+	gui.drawRectangle(mini.x, mini.y + 28, mini.width, 22, Theme.PresetPreviewColors["Lower box border"], Theme.PresetPreviewColors["Lower box background"])
+	gui.drawRectangle(mini.x, mini.y + 46, mini.width, 4, Theme.PresetPreviewColors["Lower box border"])
+
+	local moveCategory = Utils.inlineIf(Options["Show physical special icons"], "=", "")
+	local moveBar = Utils.inlineIf(not Theme.PresetPreviewColors.MOVE_TYPES_ENABLED, ":", "")
+	local moveText = string.format("%s%s %s", moveCategory, moveBar, "----------")
+	if not Options["Show physical special icons"] then
+		moveText = moveText .. "  "
+	end
+	if Theme.PresetPreviewColors.MOVE_TYPES_ENABLED then
+		moveText = moveText:sub(1, -2) .. " "
+	end
+	gui.drawText(mini.x + 1, mini.y + 28, moveText .. "     ---  ----  ----", Theme.PresetPreviewColors["Lower box text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 1, mini.y + 32, moveText .. "     ---  ----  ----", Theme.PresetPreviewColors["Lower box text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 1, mini.y + 36, moveText .. "     ---  ----  ----", Theme.PresetPreviewColors["Lower box text"], nil, fontSize, Constants.Font.FAMILY)
+	gui.drawText(mini.x + 1, mini.y + 40, moveText .. "     ---  ----  ----", Theme.PresetPreviewColors["Lower box text"], nil, fontSize, Constants.Font.FAMILY)
+
+	for i=0, 7, 1 do
+		gui.drawText(mini.x + 2 + (i*6), mini.y + 45, "--", Theme.PresetPreviewColors["Lower box text"], nil, fontSize, Constants.Font.FAMILY)
+	end
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do
