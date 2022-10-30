@@ -724,3 +724,39 @@ function Utils.addCustomThemeToFile(themeName, themeCode)
 		print(string.format("[ERROR] Unable to save custom Theme \"%s\" to file: %s", themeName, Constants.Files.THEME_PRESETS))
 	end
 end
+
+-- Removes a saved Theme preset by rewriting the file with all presets, but excluding the one that is being removed
+function Utils.removeCustomThemeFromFile(themeName, themeCode)
+	if themeName == nil or themeCode == nil or not Main.FileExists(Constants.Files.THEME_PRESETS) then
+		return false
+	end
+
+	local existingThemePresets = Utils.readLinesFromFile(Constants.Files.THEME_PRESETS)
+
+	local file = io.open(Constants.Files.THEME_PRESETS, "w")
+	if file == nil then
+		print(string.format("[ERROR] Unable to remove custom Theme \"%s\" from file: %s", themeName, Constants.Files.THEME_PRESETS))
+		return false
+	end
+
+	for index, line in ipairs(existingThemePresets) do
+		local firstHexIndex = line:find("%x%x%x%x%x%x")
+		if firstHexIndex ~= nil then
+			local themeLineCode = line:sub(firstHexIndex)
+			local themeLineName
+			if firstHexIndex <= 2 then
+				themeLineName = "Untitled " .. index
+			else
+				themeLineName = line:sub(1, firstHexIndex - 2)
+			end
+
+			if themeLineName ~= themeName and themeLineCode ~= themeCode then
+				file:write(line)
+				file:write("\n")
+			end
+		end
+	end
+	file:close()
+
+	return true
+end
