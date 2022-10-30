@@ -57,6 +57,12 @@ Theme.Screen = {
 	currentPreview = 1, -- current custom theme
 }
 
+-- Used to hold onto form handles while a pop-up form window is active
+Theme.Manager = {
+	SaveNewWarning = nil,
+	SaveNewConfirm = nil,
+}
+
 Theme.Buttons = {
 	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -489,38 +495,70 @@ end
 
 function Theme.openSaveCurrentThemeWindow()
 	Program.destroyActiveForm()
-	local form = forms.newform(290, 130, "Save Theme As...", function() client.unpause() end)
+	local form = forms.newform(350, 145, "Save Theme As...", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
-	forms.label(form, "Enter a name for this Theme:", 18, 10, 300, 20)
-	local saveTextBox = forms.textbox(form, "", 200, 30, nil, 20, 30)
-	forms.button(form, "Save Theme", function()
-		local formInput = forms.gettext(saveTextBox)
-		-- don't allow importing "Current Theme (Custom)" as that is reserved
-		if formInput ~= nil and formInput ~= "" and formInput ~= Theme.PresetsOrdered[1] then
-			local themeName = formInput
-			local themeCode = Theme.exportThemeToText()
+	forms.label(form, "Enter a name for this Theme:", 18, 10, 330, 20)
+	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)
+	forms.setproperty(saveTextBox, "MaxLength", 80)
 
-			-- If a theme with that name already exists, replace it
-			if Theme.PresetStrings[themeName] ~= nil then
-				Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
-			else
-				table.insert(Theme.PresetsOrdered, themeName)
+	Theme.Manager.SaveNewWarning = forms.label(form, "", 18, 55, 330, 20)
+	forms.setproperty(Theme.Manager.SaveNewWarning, "ForeColor", "Red")
+
+	Theme.Manager.SaveNewConfirm = forms.button(form, "Save", function()
+		-- Clear out warning texts
+		forms.settext(Theme.Manager.SaveNewWarning, "")
+
+		local formInput = forms.gettext(saveTextBox)
+
+		if formInput ~= nil and formInput ~= "" then
+			local success = false
+			local themeName = formInput
+
+			if themeName == Theme.PresetsOrdered[1] or themeName == Theme.PresetsOrdered[2] then
+				-- Don't allow importing "Current Theme (Custom)" or "Default Theme" as that is reserved
+				forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
+				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
+			elseif themeName:find("%x%x%x%x%x%x") then
+				-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
+				forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
+				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
+			elseif Theme.PresetStrings[themeName] ~= nil then
+				-- If the Theme name is already in use, warn the user first
+				if forms.gettext(Theme.Manager.SaveNewConfirm) ~= "Confirm" then
+					forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
+					forms.settext(Theme.Manager.SaveNewConfirm, "Confirm")
+				else
+					success = true
+				end
 			end
 
-			Utils.addCustomThemeToFile(themeName, themeCode)
-			Theme.PresetStrings[themeName] = themeCode
-			Theme.refreshThemePreview()
+			if success then
+				local themeCode = Theme.exportThemeToText()
 
-			client.unpause()
-			forms.destroy(form)
+				-- If a theme with that name already exists, replace it; otherwise add a reference for it
+				if Theme.PresetStrings[themeName] ~= nil then
+					Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
+				else
+					table.insert(Theme.PresetsOrdered, themeName)
+				end
+
+				Utils.addCustomThemeToFile(themeName, themeCode)
+				Theme.PresetStrings[themeName] = themeCode
+				Theme.refreshThemePreview()
+
+				Theme.Manager.SaveNewWarning = nil
+				Theme.Manager.SaveNewConfirm = nil
+				client.unpause()
+				forms.destroy(form)
+			end
 		end
-	end, 55, 60)
+	end, 91, 75)
 	forms.button(form, "Cancel", function()
 		client.unpause()
 		forms.destroy(form)
-	end, 140, 60)
+	end, 176, 75)
 end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
