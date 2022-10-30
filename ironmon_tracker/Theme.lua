@@ -232,8 +232,8 @@ function Theme.initialize()
 		button.boxColors = { Theme.Screen.borderColor, Theme.Screen.boxFillColor }
 	end
 
+	Theme.populateThemePresets()
 	Theme.loadPresets()
-
 	Theme.refreshThemePreview()
 end
 
@@ -523,9 +523,8 @@ function Theme.openSaveCurrentThemeWindow()
 	end, 140, 60)
 end
 
--- Available Theme Presets are populated exactly once, when the Tracker is first loaded
+-- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
 function Theme.populateThemePresets()
-	-- Don't add preloaded Theme presets if a file already exists that contains custom ones
 	if Main.FileExists(Constants.Files.THEME_PRESETS) then
 		return
 	end
