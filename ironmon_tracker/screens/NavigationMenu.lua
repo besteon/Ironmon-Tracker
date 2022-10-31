@@ -23,7 +23,10 @@ NavigationMenu.Buttons = {
 		text = "Customize Theme",
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.THEME) end
+		onClick = function()
+			Theme.refreshThemePreview()
+			Program.changeScreenView(Program.Screens.THEME)
+		end
 	},
 	ManageTrackedData = {
 		text = "Manage Tracked Data",
