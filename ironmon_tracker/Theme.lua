@@ -513,46 +513,43 @@ function Theme.openSaveCurrentThemeWindow()
 		local formInput = forms.gettext(saveTextBox)
 
 		if formInput ~= nil and formInput ~= "" then
-			local success = false
 			local themeName = formInput
 
+			-- Check a few conditions that would prevent the user from using a particular Theme name
 			if themeName == Theme.PresetsOrdered[1] or themeName == Theme.PresetsOrdered[2] then
 				-- Don't allow importing "Current Theme (Custom)" or "Default Theme" as that is reserved
 				forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
 				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
+				return
 			elseif themeName:find("%x%x%x%x%x%x") then
 				-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
 				forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
 				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
-			elseif Theme.PresetStrings[themeName] ~= nil then
+				return
+			elseif Theme.PresetStrings[themeName] ~= nil and forms.gettext(Theme.Manager.SaveNewConfirm) ~= "Confirm" then
 				-- If the Theme name is already in use, warn the user first
-				if forms.gettext(Theme.Manager.SaveNewConfirm) ~= "Confirm" then
-					forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
-					forms.settext(Theme.Manager.SaveNewConfirm, "Confirm")
-				else
-					success = true
-				end
+				forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
+				forms.settext(Theme.Manager.SaveNewConfirm, "Confirm")
+				return
 			end
 
-			if success then
-				local themeCode = Theme.exportThemeToText()
+			local themeCode = Theme.exportThemeToText()
 
-				-- If a theme with that name already exists, replace it; otherwise add a reference for it
-				if Theme.PresetStrings[themeName] ~= nil then
-					Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
-				else
-					table.insert(Theme.PresetsOrdered, themeName)
-				end
-
-				Utils.addCustomThemeToFile(themeName, themeCode)
-				Theme.PresetStrings[themeName] = themeCode
-				Theme.refreshThemePreview()
-
-				Theme.Manager.SaveNewWarning = nil
-				Theme.Manager.SaveNewConfirm = nil
-				client.unpause()
-				forms.destroy(form)
+			-- If a theme with that name already exists, replace it; otherwise add a reference for it
+			if Theme.PresetStrings[themeName] ~= nil then
+				Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
+			else
+				table.insert(Theme.PresetsOrdered, themeName)
 			end
+
+			Utils.addCustomThemeToFile(themeName, themeCode)
+			Theme.PresetStrings[themeName] = themeCode
+			Theme.refreshThemePreview()
+
+			Theme.Manager.SaveNewWarning = nil
+			Theme.Manager.SaveNewConfirm = nil
+			client.unpause()
+			forms.destroy(form)
 		end
 	end, 91, 75)
 	forms.button(form, "Cancel", function()
@@ -567,7 +564,9 @@ function Theme.populateThemePresets()
 		return
 	end
 
-	for themeName, themeCode in pairs(Constants.PreloadedThemes) do
+	-- Add in the preloaded themes in a predefined order (important to show "Theme" vs. "Theme v2" naming)
+	for _, themeName in ipairs(Constants.OrderedLists.PRELOADED_THEMES) do
+		local themeCode = Constants.PreloadedThemes[themeName]
 		Utils.addCustomThemeToFile(themeName, themeCode)
 	end
 end

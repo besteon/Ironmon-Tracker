@@ -158,6 +158,22 @@ Constants.OrderedLists = {
 		"Lower box background",
 		"Main background",
 	},
+	PRELOADED_THEMES = {
+		"Fire Red",
+		"Leaf Green",
+		"Beach Getaway",
+		"Blue Da Ba Dee",
+		"Calico Cat",
+		"Calico Cat v2",
+		"Cotton Candy",
+		"GameCube",
+		"Item Bag",
+		"Neon Lights",
+		"Simple Monotone",
+		"Team Rocket",
+		"USS Galactic",
+		"Cozy Fall Leaves",
+	},
 	TIPS = { -- currently disabled, may use later
 		"Helpful tips are shown down here.", -- Skipped after it's shown once
 		"Tracked data is auto-saved after every battle.",
