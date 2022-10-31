@@ -547,7 +547,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = pokemon.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	end
 	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	-- POKEMON ICON & TYPES
@@ -733,7 +735,9 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- MOVE NAME
 	local moveName = move.name:upper()
-	gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	end
 	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
@@ -879,7 +883,9 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- Ability NAME
 	local abilityName = ability.name:upper():gsub(" ", "  ")
-	gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+	end
 	gui.drawText(offsetX - 1, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON

@@ -242,17 +242,28 @@ function Battle.updateTrackedInfo()
 						-- Track move so long as the mon was able to use it
 						local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 						local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
-						--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
-						if not transformData.isOwn then
-							local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-							if attackingMon ~= nil then
-								Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+						--Handle snatch
+						if Battle.battleMsg == GameSettings.BattleScript_SnatchedMove then
+							local battlerSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
+							local battlerTransformData = Battle.BattleAbilities[Battle.battler % 2][battlerSlot].transformData
+							if not battlerTransformData.isOwn then
+								local lastMoveByBattler = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.battler % 2) * 0x2))
+								local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
+								Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
 							end
-						end
+						else
+							--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
+							if not transformData.isOwn then
+								local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
+								if attackingMon ~= nil then
+									Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+								end
+							end
 
-						--Only track ability-changing moves if they also did not fail/miss
-						if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-							Battle.trackAbilityChanges(lastMoveByAttacker,nil)
+							--Only track ability-changing moves if they also did not fail/miss
+							if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+								Battle.trackAbilityChanges(lastMoveByAttacker,nil)
+							end
 						end
 					end
 					--only get one chance to record
@@ -505,6 +516,9 @@ end
 function Battle.endCurrentBattle()
 	if not Battle.inBattle then return end
 
+	-- Only record Last Level Seen after the battle, so the info shown doesn't get overwritten by current level
+	Tracker.recordLastLevelsSeen()
+
 	--Most of the time, Run Away message is present only after the battle ends
 	Battle.battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 	if Battle.battleMsg == GameSettings.BattleScript_RanAwayUsingMonAbility then
@@ -541,7 +555,7 @@ function Battle.endCurrentBattle()
 		RightOwn = false,
 		RightOther = false,
 	}
-	BattleAbilities = {
+	Battle.BattleAbilities = {
 		[0] = {},
 		[1] = {},
 	}

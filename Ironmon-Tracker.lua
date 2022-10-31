@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "6", minor = "4", patch = "2" }
+Main.Version = { major = "6", minor = "5", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -98,7 +98,9 @@ function Main.Initialize()
 		else
 			Main.OS = "Linux"
 			Main.Directory = nil -- will return "" from Utils function
+			print("Error attempting to use 'io.popen(\"cd\")':")
 			print(err)
+			print("Lua Engine: " .. client.get_lua_engine())
 		end
 
 		Main.CheckForVersionUpdate()
@@ -173,7 +175,9 @@ function Main.Run()
 	GameSettings.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
-	if GameSettings.game == 0 then
+	if GameSettings.gamename == "Unsupported Game" then
+		print("Unsupported Game detected, please load a supported game ROM")
+		print("Check the README.txt file in the tracker folder for supported games")
 		client.SetGameExtraPadding(0, 0, 0, 0)
 		while true do
 			emu.frameadvance()
@@ -561,6 +565,12 @@ function Main.LoadSettings()
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
 			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
+
+		local enableTextShadows = settings.theme.DRAW_TEXT_SHADOWS
+		if enableTextShadows ~= nil then
+			Theme.DRAW_TEXT_SHADOWS = enableTextShadows
+			Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
+		end
 	end
 
 	return true
@@ -610,6 +620,7 @@ function Main.SaveSettings(forced)
 		settings.theme[encodedKey] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 	end
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
+	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
 	Inifile.save(Constants.Files.SETTINGS, settings)
 	Options.settingsUpdated = false

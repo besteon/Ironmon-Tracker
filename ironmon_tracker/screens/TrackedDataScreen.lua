@@ -115,9 +115,14 @@ function TrackedDataScreen.openLoadDataPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing "/"
 	end
 
+	local wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
 		Tracker.loadData(filepath)
+	end
+	if client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 
