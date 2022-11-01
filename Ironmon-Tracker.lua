@@ -388,6 +388,8 @@ function Main.GenerateNextRom()
 	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
 	local nextrompath = Utils.getWorkingDirectory() .. nextromname
 
+	Main.SaveCurrentRom(nextromname)
+
 	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	local javacommand = string.format(
@@ -416,6 +418,26 @@ function Main.GenerateNextRom()
 	 	name = nextromname,
 	 	path = nextrompath,
 	}
+end
+
+function SaveCurrentRom(filename)
+	if Main.FileExists(filename) then
+		local currentrom = io.open(filename, "rb")
+		local historyrom = io.open(string.format("seed-%s %s", Main.ReadAttemptsCounter(), filename), "wb")
+
+		while true do
+			local currentromBlock = currentrom:read(2^13)
+			if not currentromBlock then 
+			  currentrom = currentrom:seek("end")
+			  break
+			end
+			historyrom:write(currentromBlock)
+		end
+
+		currentrom:close()
+		historyrom = historyrom:seek("end")
+		historyrom:close()
+	end
 end
 
 -- Increment the attempts counter through a .txt file
