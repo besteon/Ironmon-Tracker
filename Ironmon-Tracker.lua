@@ -420,7 +420,7 @@ function Main.GenerateNextRom()
 	}
 end
 
-function SaveCurrentRom(filename)
+function Main.SaveCurrentRom(filename)
 	if Main.FileExists(filename) then
 		Main.CopyFile(filename, string.format("seed-%s %s", Main.ReadAttemptsCounter(), filename))
 		Main.CopyFile(string.format("%s.log", filename), string.format("seed-%s %s.log", Main.ReadAttemptsCounter(), filename))
