@@ -440,14 +440,12 @@ function Main.CopyFile(filename, newfilename)
 	while true do
 		local originalBlock = original:read(2^13)
 		if not originalBlock then 
-			original = original:seek("end")
 		  break
 		end
 		copy:write(originalBlock)
 	end
 
 	original:close()
-	copy = copy:seek("end")
 	copy:close()
 end
 
