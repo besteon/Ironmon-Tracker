@@ -437,6 +437,11 @@ function SaveCurrentRom(filename)
 		currentrom:close()
 		historyrom = historyrom:seek("end")
 		historyrom:close()
+
+		olderromfilename = string.format("seed-%s %s", Main.ReadAttemptsCounter() - 5, filename)
+		if Main.FileExists(olderromfilename) then
+			os.remove(olderromfilename)
+		end
 	end
 end
 
