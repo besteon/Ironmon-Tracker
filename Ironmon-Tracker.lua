@@ -428,6 +428,7 @@ function SaveCurrentRom(filename)
 		olderromfilename = string.format("seed-%s %s", Main.ReadAttemptsCounter() - 5, filename)
 		if Main.FileExists(olderromfilename) then
 			os.remove(olderromfilename)
+			os.remove(string.format("%s.log", olderromfilename))
 		end
 	end
 end
