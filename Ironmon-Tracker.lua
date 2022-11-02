@@ -422,27 +422,32 @@ end
 
 function SaveCurrentRom(filename)
 	if Main.FileExists(filename) then
-		local currentrom = io.open(filename, "rb")
-		local historyrom = io.open(string.format("seed-%s %s", Main.ReadAttemptsCounter(), filename), "wb")
-
-		while true do
-			local currentromBlock = currentrom:read(2^13)
-			if not currentromBlock then 
-			  currentrom = currentrom:seek("end")
-			  break
-			end
-			historyrom:write(currentromBlock)
-		end
-
-		currentrom:close()
-		historyrom = historyrom:seek("end")
-		historyrom:close()
+		Main.CopyFile(filename, string.format("seed-%s %s", Main.ReadAttemptsCounter(), filename))
+		Main.CopyFile(string.format("%s.log", filename), string.format("seed-%s %s.log", Main.ReadAttemptsCounter(), filename))
 
 		olderromfilename = string.format("seed-%s %s", Main.ReadAttemptsCounter() - 5, filename)
 		if Main.FileExists(olderromfilename) then
 			os.remove(olderromfilename)
 		end
 	end
+end
+
+function Main.CopyFile(filename, newfilename)
+	local original = io.open(filename, "rb")
+	local copy = io.open(newfilename, "wb")
+
+	while true do
+		local originalBlock = original:read(2^13)
+		if not originalBlock then 
+			original = original:seek("end")
+		  break
+		end
+		copy:write(originalBlock)
+	end
+
+	original:close()
+	copy = copy:seek("end")
+	copy:close()
 end
 
 -- Increment the attempts counter through a .txt file
