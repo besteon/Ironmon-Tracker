@@ -422,10 +422,10 @@ end
 
 function Main.SaveCurrentRom(filename)
 	if Main.FileExists(filename) then
-		Main.CopyFile(filename, string.format("seed-%s %s", Main.ReadAttemptsCounter(), filename))
-		Main.CopyFile(string.format("%s.log", filename), string.format("seed-%s %s.log", Main.ReadAttemptsCounter(), filename))
+		Main.CopyFile(filename, string.format("seed-%s %s", Main.currentSeed, filename))
+		Main.CopyFile(string.format("%s.log", filename), string.format("seed-%s %s.log", Main.currentSeed, filename))
 
-		olderromfilename = string.format("seed-%s %s", Main.ReadAttemptsCounter() - 5, filename)
+		olderromfilename = string.format("seed-%s %s", Main.currentSeed - 5, filename)
 		if Main.FileExists(olderromfilename) then
 			os.remove(olderromfilename)
 			os.remove(string.format("%s.log", olderromfilename))
