@@ -425,6 +425,10 @@ function Battle.checkAbilitiesToTrack()
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
 		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 	end
+	--Synchronize
+	if abilityMsg ~= nil and abilityMsg[battlerAbility] and (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler and Battle.Synchronize.battlerTarget ~= -1) then
+		combatantIndexesToTrack[Battle.battler] = Battle.battler
+	end
 
 	-- REVERSE ATTACKER: 'attacker' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
