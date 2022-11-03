@@ -53,7 +53,9 @@ function Drawing.drawStatusIcon(status, x, y)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	if Theme.DRAW_TEXT_SHADOWS then
+		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+	end
 	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
 end
 
@@ -241,12 +243,70 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 				local offsetX = colIndex - 1
 				local offsetY = rowIndex - 1
 
-				if shadowcolor ~= nil then
+				if shadowcolor ~= nil and Theme.DRAW_TEXT_SHADOWS then
 					gui.drawPixel(x + offsetX + 1, y + offsetY + 1, shadowcolor)
 				end
 				gui.drawPixel(x + offsetX, y + offsetY, colorList[colorIndex])
 			end
 		end
+	end
+end
+
+-- Draws a tiny Tracker (50x50) on screen for purposes of previewing a Theme
+function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
+	local width = 50
+	local height = 50
+	local fontSize = Constants.Font.SIZE - 3
+	local fontFamily = Constants.Font.FAMILY
+
+	gui.drawRectangle(x - 2, y - 2, width + 4, height + 4, themeColors["Main background"], themeColors["Main background"])
+
+	gui.drawRectangle(x, y, width, 23, themeColors["Upper box border"], themeColors["Upper box background"]) -- Top box
+	gui.drawRectangle(x, y, 35, 23, themeColors["Upper box border"]) -- Top box's Pokemon info area
+	gui.drawRectangle(x, y + 17, 35, 6, themeColors["Upper box border"]) -- Top box's Heals in Bag area
+	gui.drawRectangle(x, y + 28, width, 22, themeColors["Lower box border"], themeColors["Lower box background"]) -- Bottom box
+	gui.drawRectangle(x, y + 46, width, 4, themeColors["Lower box border"]) -- Bottom box's badge area
+
+	-- Draw the "Pokemon info"
+	gui.drawText(x + 10, y + 0, "------------", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 30, y + 0, "=", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 10, y + 3, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 10, y + 6, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 10, y + 9, "--- ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 10, y + 12, "------ ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 1, y + 16, "------ ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 1, y + 18, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+
+	-- Draw the "stats"
+	gui.drawText(x + 36, y + 0, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 3, "---   ---", themeColors["Positive text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 6, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 9, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 12, "---   ---", themeColors["Negative text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 15, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 36, y + 18, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+
+	-- Draw "header"
+	gui.drawText(x, y + 23, "------- --- ---     ---  ----  ----", themeColors["Header text"], nil, fontSize, fontFamily)
+
+	-- Draw the "moves"
+	local moveCategory = Utils.inlineIf(Options["Show physical special icons"], "=", "")
+	local moveBar = Utils.inlineIf(displayColorBars, ":", "")
+	local moveText = string.format("%s%s %s", moveCategory, moveBar, "----------")
+	if not Options["Show physical special icons"] then
+		moveText = moveText .. "  "
+	end
+	if not displayColorBars then
+		moveText = moveText:sub(1, -2) .. " "
+	end
+	gui.drawText(x + 1, y + 28, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 1, y + 32, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 1, y + 36, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	gui.drawText(x + 1, y + 40, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+
+	-- Draw the "badges"
+	for i=0, 7, 1 do
+		gui.drawText(x + 2 + (i*6), y + 45, "--", themeColors["Lower box text"], nil, fontSize, fontFamily)
 	end
 end
 

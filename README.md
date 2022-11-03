@@ -48,9 +48,9 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Random Ball Picker!**
+- **_NEW!!_ Theme Library!**
 
-![image](https://user-images.githubusercontent.com/4258818/194925877-c97f8676-550a-40e7-b813-9b730ed53c38.png)
+![image](https://user-images.githubusercontent.com/4258818/198950378-2a70157a-7a2d-4890-83ff-b657af4b2a1c.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

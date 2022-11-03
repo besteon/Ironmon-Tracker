@@ -555,7 +555,7 @@ function Battle.endCurrentBattle()
 		RightOwn = false,
 		RightOther = false,
 	}
-	BattleAbilities = {
+	Battle.BattleAbilities = {
 		[0] = {},
 		[1] = {},
 	}

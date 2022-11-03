@@ -739,9 +739,11 @@ function TrackerScreen.drawPokemonInfoArea(pokemon)
 			-- Draw the '+'', '-'', and toggle button for auto PC tracking
 			local incBtn = TrackerScreen.Buttons.PCHealIncrement
 			local decBtn = TrackerScreen.Buttons.PCHealDecrement
-			gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+			if Theme.DRAW_TEXT_SHADOWS then
+				gui.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+				gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+			end
 			gui.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
-			gui.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
 			gui.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
 
 			-- Auto-tracking PC Heals button

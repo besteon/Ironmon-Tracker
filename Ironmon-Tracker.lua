@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "6", minor = "4", patch = "2" }
+Main.Version = { major = "6", minor = "5", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -565,6 +565,12 @@ function Main.LoadSettings()
 			Theme.MOVE_TYPES_ENABLED = enableMoveTypes
 			Theme.Buttons.MoveTypeEnabled.toggleState = not enableMoveTypes -- Show the opposite of the Setting, can't change existing theme strings
 		end
+
+		local enableTextShadows = settings.theme.DRAW_TEXT_SHADOWS
+		if enableTextShadows ~= nil then
+			Theme.DRAW_TEXT_SHADOWS = enableTextShadows
+			Theme.Buttons.DrawTextShadows.toggleState = enableTextShadows
+		end
 	end
 
 	return true
@@ -614,6 +620,7 @@ function Main.SaveSettings(forced)
 		settings.theme[encodedKey] = string.upper(string.sub(string.format("%#x", Theme.COLORS[colorkey]), 5))
 	end
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
+	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
 	Inifile.save(Constants.Files.SETTINGS, settings)
 	Options.settingsUpdated = false
