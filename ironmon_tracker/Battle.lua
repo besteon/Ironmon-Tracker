@@ -221,7 +221,7 @@ function Battle.updateTrackedInfo()
 	local currentAction = Memory.readbyte(GameSettings.gActionsByTurnOrder + actionCount)
 	--handles this value not being cleared from the previous battle
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
-	if actionCount == 0 and (lastMoveByAttacker ~= 0 or currentAction ~= 0) then Battle.firstActionTaken = true end
+	if actionCount <= 1 and (lastMoveByAttacker ~= 0 or currentAction ~= 0) then Battle.firstActionTaken = true end
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not Battle.moveDelayed() and not Battle.isGhost then
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
