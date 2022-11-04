@@ -422,18 +422,27 @@ end
 
 function Main.SaveCurrentRom(filename)
 	local newseedfilename = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
-	if Main.CopyFile(filename, newseedfilename, true) then
-		Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename), true)
+	if Main.CopyFile(filename, newseedfilename, "overwrite") then
+		Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename), "overwrite")
 	end
 end
 
-function Main.CopyFile(filename, newfilename, overwrite)
-	if not Main.FileExists(filename) or (Main.FileExists(newfilename) and not overwrite) then
+-- Copy a file
+-- last argument can be used to overwrite or append, defaults to neither (returns if file exists)
+function Main.CopyFile(filename, newfilename, overwriteappend)
+	if not Main.FileExists(filename) or (Main.FileExists(newfilename) and not (overwriteappend == "overwrite" or overwriteappend == "append")) then
 		return false
 	end
-	
+
 	local original = io.open(filename, "rb")
-	local copy = io.open(newfilename, "wb")
+	local copy = ""
+	if overwriteappend == "append" then
+		copy = io.open(newfilename, "ab")
+		copy:seek("end")
+	else
+		copy = io.open(newfilename, "wb")
+	end
+
 
 	local nextBlock = original:read(2^13)
 	while nextBlock ~= nil do
@@ -443,7 +452,7 @@ function Main.CopyFile(filename, newfilename, overwrite)
 
 	original:close()
 	copy:close()
-	
+
 	return true
 end
 
