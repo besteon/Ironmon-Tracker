@@ -430,12 +430,10 @@ function Main.CopyFile(filename, newfilename)
 		local original = io.open(filename, "rb")
 		local copy = io.open(newfilename, "wb")
 
-		while true do
-			local originalBlock = original:read(2^13)
-			if not originalBlock then
-		  	break
-			end
-			copy:write(originalBlock)
+		local nextBlock = original:read(2^13)
+		while nextBlock ~= nil do
+			copy:write(nextBlock)
+			nextBlock = original:read(2^13)
 		end
 
 		original:close()
