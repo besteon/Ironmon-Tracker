@@ -421,8 +421,9 @@ function Main.GenerateNextRom()
 end
 
 function Main.SaveCurrentRom(filename)
-	Main.CopyFile(filename, string.format("prev-seed %s", filename))
-	Main.CopyFile(string.format("%s.log", filename), string.format("prev-seed %s.log", filename))
+	local newseedfilename = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
+	Main.CopyFile(filename, newseedfilename)
+	Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename))
 end
 
 function Main.CopyFile(filename, newfilename)
