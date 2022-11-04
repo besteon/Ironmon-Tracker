@@ -43,12 +43,12 @@ Options = {
 Options.IconSetMap = {
 	totalCount = 5,
 	["1"] = {
-		name = "Original",
-		folder = "pokemon",
-		extension = ".gif",
-		yOffset = 0,
-		adjustQuestionMark = true, -- Whether to adjust the question mark icons in routeInfo screen
-		author = "Besteon",
+		name = "Original", -- The name of the icon set which is displayed on the Tracker Setup screen
+		folder = "pokemon", -- The folder within the tracker files where each icon is stored, expected to be in /ironmon-tracker/images/
+		extension = ".gif", -- The file extension for each icon, expected that all icons use the same file extension
+		yOffset = 0, -- A number of pixels to shift the drawing of the icon downward
+		adjustQuestionMark = true, -- If true, will shift the question mark icon on the RouteInfo screen downward `yOffset` pixels
+		author = "Besteon", -- The name of the creator of the icon set which is displayed on the Tracker Setup screen
 	},
 	["2"] = {
 		name = "Stadium",
@@ -75,11 +75,11 @@ Options.IconSetMap = {
 		author = "Fellshadow",
 	},
 	["5"] = {
-		name = "V-Pet",
+		name = "Virtual Pet",
 		folder = "pokemonVPet",
 		extension = ".png",
-		yOffset = 4,
-		adjustQuestionMark = true,
+		yOffset = 2,
+		adjustQuestionMark = false,
 		author = "Ryastoise",
 	},
 }
