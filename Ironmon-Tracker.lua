@@ -422,24 +422,29 @@ end
 
 function Main.SaveCurrentRom(filename)
 	local newseedfilename = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
-	Main.CopyFile(filename, newseedfilename)
-	Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename))
+	if Main.CopyFile(filename, newseedfilename, true) then
+		Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename), true)
+	end
 end
 
-function Main.CopyFile(filename, newfilename)
-	if Main.FileExists(filename) then
-		local original = io.open(filename, "rb")
-		local copy = io.open(newfilename, "wb")
-
-		local nextBlock = original:read(2^13)
-		while nextBlock ~= nil do
-			copy:write(nextBlock)
-			nextBlock = original:read(2^13)
-		end
-
-		original:close()
-		copy:close()
+function Main.CopyFile(filename, newfilename, overwrite)
+	if not Main.FileExists(filename) or (Main.FileExists(newfilename) and not overwrite) then
+		return false
 	end
+	
+	local original = io.open(filename, "rb")
+	local copy = io.open(newfilename, "wb")
+
+	local nextBlock = original:read(2^13)
+	while nextBlock ~= nil do
+		copy:write(nextBlock)
+		nextBlock = original:read(2^13)
+	end
+
+	original:close()
+	copy:close()
+	
+	return true
 end
 
 -- Increment the attempts counter through a .txt file
