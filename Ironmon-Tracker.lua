@@ -421,26 +421,26 @@ function Main.GenerateNextRom()
 end
 
 function Main.SaveCurrentRom(filename)
-	if Main.FileExists(filename) then
-		Main.CopyFile(filename, string.format("prev-seed %s", filename))
-		Main.CopyFile(string.format("%s.log", filename), string.format("prev-seed %s.log", filename))
-	end
+	Main.CopyFile(filename, string.format("prev-seed %s", filename))
+	Main.CopyFile(string.format("%s.log", filename), string.format("prev-seed %s.log", filename))
 end
 
 function Main.CopyFile(filename, newfilename)
-	local original = io.open(filename, "rb")
-	local copy = io.open(newfilename, "wb")
+	if Main.FileExists(filename) then
+		local original = io.open(filename, "rb")
+		local copy = io.open(newfilename, "wb")
 
-	while true do
-		local originalBlock = original:read(2^13)
-		if not originalBlock then 
-		  break
+		while true do
+			local originalBlock = original:read(2^13)
+			if not originalBlock then
+		  	break
+			end
+			copy:write(originalBlock)
 		end
-		copy:write(originalBlock)
-	end
 
-	original:close()
-	copy:close()
+		original:close()
+		copy:close()
+	end
 end
 
 -- Increment the attempts counter through a .txt file
