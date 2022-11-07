@@ -86,6 +86,11 @@ function UpdateScreen.performAutoUpdate()
 	end
 
 	-- TODO: Then somehow reload the tracker script
+	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		loadfile("Ironmon-Tracker.lua") -- TODO: This doesn't work, need to separate out Main from this file
+		Main.Initialize()
+		Main.Run()
+	end
 end
 
 function UpdateScreen.executeBatchOperations()
@@ -105,14 +110,14 @@ function UpdateScreen.executeBatchOperations()
 		'echo Extracting downloaded files.',
 		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
 		'echo Applying the update; copying over files.',
-		string.format('rmdir "%s\\.vscode" /s /q && ', folderName),
-		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q && ', folderName),
-		string.format('del "%s\\.editorconfig" /q && ', folderName),
-		string.format('del "%s\\.gitattributes" /q && ', folderName),
-		string.format('del "%s\\.gitignore" /q && ', folderName),
-		string.format('del "%s\\README.md" /q && ', folderName),
-		string.format('xcopy "%s" /s /y /q && ', folderName),
-		string.format('rmdir "%s" /s /q ', folderName),
+		string.format('rmdir "%s\\.vscode" /s /q', folderName),
+		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q', folderName),
+		string.format('del "%s\\.editorconfig" /q', folderName),
+		string.format('del "%s\\.gitattributes" /q', folderName),
+		string.format('del "%s\\.gitignore" /q', folderName),
+		string.format('del "%s\\README.md" /q', folderName),
+		string.format('xcopy "%s" /s /y /q', folderName),
+		string.format('rmdir "%s" /s /q', folderName),
 		'echo Version update completed successfully.',
 		'timeout /t 3',
 	}
