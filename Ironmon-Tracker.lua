@@ -420,46 +420,58 @@ function Main.GenerateNextRom()
 	}
 end
 
+-- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"
 function Main.SaveCurrentRom(filename)
-	local newseedfilename = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
-	if Main.CopyFile(filename, newseedfilename, "overwrite") then
-		Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename), "overwrite")
+	local filenameCopy = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
+	if Main.CopyFile(filename, filenameCopy, "overwrite") then
+		local logFilename = string.format("%s.log", filename)
+		local logFilenameCopy = string.format("%s.log", filenameCopy)
+		Main.CopyFile(logFilename, logFilenameCopy, "overwrite")
 	end
 end
 
--- Copy a file
--- last argument can be used to overwrite or append, defaults to neither (returns if file exists)
-function Main.CopyFile(filename, newfilename, overwriteappend)
-	local original = io.open(filename, "rb")
-	if original == nil then
-		print(string.format("Error: Unable to create a backup copy of %s."), filename)
-		return false
-	elseif (Main.FileExists(newfilename) and not (overwriteappend == "overwrite" or overwriteappend == "append")) then
-		print(string.format("Error: Can't overwrite file %s."), newfilename)
+-- Copies 'filename' to 'nameOfCopy' with option to overwrite the file if it exists, or append to it
+-- overwriteOrAppend: 'overwrite' replaces any existing file, 'append' adds to it instead, otherwise no change if file already exists
+function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
+	local originalFile = io.open(filename, "rb")
+	if originalFile == nil then
+		print(string.format("Error: Unable to create a backup copy of %s, file doesn't exist."), filename)
 		return false
 	end
 
-	local copy = ""
-	if overwriteappend == "append" then
-		copy = io.open(newfilename, "ab")
-		copy:seek("end")
+	nameOfCopy = nameOfCopy or (filename .. " (Copy)")
+
+	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
+	if Main.FileExists(nameOfCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
+		print(string.format("Error: Unable to modify file %s, no overwrite/append option specified."), nameOfCopy)
+		return false
+	end
+
+	local copyOfFile
+	if overwriteOrAppend == "append" then
+		copyOfFile = io.open(nameOfCopy, "ab")
 	else
-		copy = io.open(newfilename, "wb")
+		-- Default to overwriting the file even if no option specified
+		copyOfFile = io.open(nameOfCopy, "wb")
 	end
 
-	if copy == nil then
-		print(string.format("Error: Failed to write to file %s."), newfilename)
+	if copyOfFile == nil then
+		print(string.format("Error: Failed to write to file %s."), nameOfCopy)
 		return false
 	end
 
-	local nextBlock = original:read(2^13)
-	while nextBlock ~= nil do
-		copy:write(nextBlock)
-		nextBlock = original:read(2^13)
+	if overwriteOrAppend == "append" then
+		copyOfFile:seek("end")
 	end
 
-	original:close()
-	copy:close()
+	local nextBlock = originalFile:read(2^13)
+	while nextBlock ~= nil do
+		copyOfFile:write(nextBlock)
+		nextBlock = originalFile:read(2^13)
+	end
+
+	originalFile:close()
+	copyOfFile:close()
 
 	return true
 end
