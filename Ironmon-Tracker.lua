@@ -253,6 +253,9 @@ function Main.CheckForVersionUpdate()
 		end
 	end
 
+	-- TODO: Debug forcing true for testing
+	Main.displayUpdateScreen = true
+
 	-- Always show the version update silently through the Lua Console
 	if Main.TrackerVersion ~= Main.Version.latestAvailable then
 		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
