@@ -5,39 +5,55 @@ UpdateScreen = {
 		newVersion = "New version available:",
 		questionHeader = "What would you like to do?",
 		updateAutoText = "Update automatically",
+		remindMeText = "Remind me tomorrow",
+		ignoreUpdateText = "( Skip this update )",
 		releaseNotesText = "View release notes",
-		remindMeText = "Remind me later",
-		ignoreUpdateText = "Ignore this update",
+	},
+	States = {
+		NOT_UPDATED = "Update not yet started.",
+		IN_PROGRESS = "Updating in progress...",
+		SUCCESS = "Update successful!",
+		ERROR = "Error with auto-updater.",
 	},
 }
 
 UpdateScreen.Buttons = {
 	UpdateNow = {
 		text = UpdateScreen.Labels.updateAutoText,
+		image = Constants.PixelImages.INSTALL_BOX,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function() UpdateScreen.performAutoUpdate() end
-	},
-	ViewReleaseNotes = {
-		text = UpdateScreen.Labels.releaseNotesText,
-		onClick = function() UpdateScreen.openReleaseNotesWindow() end
 	},
 	RemindMeLater = {
 		text = UpdateScreen.Labels.remindMeText,
+		image = Constants.PixelImages.CLOCK,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function() UpdateScreen.remindMeLater() end
 	},
 	IgnoreUpdate = {
 		text = UpdateScreen.Labels.ignoreUpdateText,
+		-- image = Constants.PixelImages.CROSS,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function() UpdateScreen.ignoreTheUpdate() end
+	},
+	ViewReleaseNotes = {
+		text = UpdateScreen.Labels.releaseNotesText,
+		image = Constants.PixelImages.NOTEPAD,
+		-- isVisible = function() return true end,
+		onClick = function() UpdateScreen.openReleaseNotesWindow() end
 	},
 }
 
 UpdateScreen.OrderedMenuList = {
 	UpdateScreen.Buttons.UpdateNow,
-	UpdateScreen.Buttons.ViewReleaseNotes,
 	UpdateScreen.Buttons.RemindMeLater,
 	UpdateScreen.Buttons.IgnoreUpdate,
+	UpdateScreen.Buttons.ViewReleaseNotes,
 }
 
 function UpdateScreen.initialize()
+	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15
 	local startY = Constants.SCREEN.MARGIN + 65
 	for _, button in ipairs(UpdateScreen.OrderedMenuList) do
@@ -50,6 +66,9 @@ function UpdateScreen.initialize()
 end
 
 function UpdateScreen.performAutoUpdate()
+	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
+	Program.redraw(true)
+
 	-- Disable Bizhawk sound while the update is in process
 	local wasSoundOn = client.GetSoundOn()
 	client.SetSoundOn(false)
@@ -57,61 +76,70 @@ function UpdateScreen.performAutoUpdate()
 	-- Unsure if this is needed
 	gui.clearImageCache()
 
-	-- Create a batch file to execute the update operations (Download, Unzip, Replace Files, Cleanup)
-	local batchFileName = "Update Tracker Script.bat"
-	local batchScript = [[
-@echo off
-set DownloadUrl=https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
-set ArchiveFile=Ironmon-Tracker-main.tar.gz
-set DownloadFolder=Ironmon-Tracker-main
-
-echo Downloading the latest Ironmon Tracker version.
-curl -L "%DownloadUrl%"
-
-echo Extracting downloaded files.
-tar -xf "%ArchiveFile%"
-del "%ArchiveFile%"
-
-echo Applying the update; copying over files.
-rmdir "%DownloadFolder%\.vscode" /s /q
-rmdir "%DownloadFolder%\ironmon_tracker\Debug" /s /q
-del "%DownloadFolder%\.editorconfig" /q
-del "%DownloadFolder%\.gitattributes" /q
-del "%DownloadFolder%\.gitignore" /q
-del "%DownloadFolder%\README.md" /q
-xcopy "%DownloadFolder%" /s /y /q
-rmdir "%DownloadFolder%" /s /q
-
-echo Update complete.
-timeout /t 3
-
-::pause
-exit
-]]
-	-- TODO: Likely remove the timeout after testing
-
-	local file = io.open(batchFileName, "w")
-	if file ~= nil then
-		file:write(batchScript)
-		file:close()
-	end
-
-	-- Execute the batch set of operations, then get rid of the batch file
-	print(string.format(">> Performing version update to %s", Main.Version.latestAvailable))
-	os.execute(batchFileName)
-	os.remove(batchFileName)
-	print(">> Update complete.")
+	-- Execute the batch set of operations
+	local success = true or UpdateScreen.executeBatchOperations() -- TODO: remove true which is preventing forced file updates
+	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
+	Program.redraw(true)
 
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
 	end
 
-	-- Then somehow reload the tracker script
+	-- TODO: Then somehow reload the tracker script
+end
+
+function UpdateScreen.executeBatchOperations()
+	-- For non-Windows OS, likely need to use something other than a .bat file
+	if Main.OS ~= "Windows" then
+		return false
+	end
+
+	-- Temp Files/Folders used by batch operations
+	local archiveName = "Ironmon-Tracker-main.tar.gz"
+	local folderName = "Ironmon-Tracker-main"
+
+	-- Each individual command listed in order, to be appended together later
+	local batchCommands = {
+		'echo Downloading the latest Ironmon Tracker version.',
+		string.format('curl -L "%s" -o "%s"', Constants.Release.TAR_URL, archiveName),
+		'echo Extracting downloaded files.',
+		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
+		'echo Applying the update; copying over files.',
+		string.format('rmdir "%s\\.vscode" /s /q && ', folderName),
+		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q && ', folderName),
+		string.format('del "%s\\.editorconfig" /q && ', folderName),
+		string.format('del "%s\\.gitattributes" /q && ', folderName),
+		string.format('del "%s\\.gitignore" /q && ', folderName),
+		string.format('del "%s\\README.md" /q && ', folderName),
+		string.format('xcopy "%s" /s /y /q && ', folderName),
+		string.format('rmdir "%s" /s /q ', folderName),
+		'echo Version update completed successfully.',
+		'timeout /t 3',
+	}
+
+	local combined_cmd = ""
+	for _, cmd in ipairs(batchCommands) do
+		combined_cmd = combined_cmd .. cmd .. ' && '
+	end
+	combined_cmd = combined_cmd:sub(1, -5) -- Remove trailing " && "
+
+	print(string.format("Performing version update to %s", Main.Version.latestAvailable))
+
+	local result = os.execute(combined_cmd)
+	if result ~= 0 then -- 0 = successful
+		print("Update-Error: Unable to download, extract, or overwrite files in Tracker folder.")
+		return false
+	end
+
+	print("Update completed successfully.")
+	return true
 end
 
 function UpdateScreen.openReleaseNotesWindow()
 	if Main.OS == "Windows" then
-		os.execute("start " .. Constants.Release.DOWNLOAD_URL)
+		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
+	else
+		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
 	end
 end
 
@@ -160,26 +188,66 @@ function UpdateScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
-	textLineY = textLineY + linespacing + 2
+	textLineY = textLineY + linespacing + 3
 
 	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
-	Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Intermediate text"], topBox.shadow)
+	Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	-- HEADER DIVIDER
 	local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(botBox.x + 1, botBox.y - 11, UpdateScreen.Labels.questionHeader, Theme.COLORS["Header text"], bgShadow)
+	local headerText
+	if UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED then
+		headerText = UpdateScreen.Labels.questionHeader
+	else
+		headerText = "Update Status:"
+	end
+	Drawing.drawText(botBox.x + 1, botBox.y - 11, headerText, Theme.COLORS["Header text"], bgShadow)
 
 	-- BOTTOM BORDER BOX
 	gui.defaultTextBackground(botBox.fill)
 	gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
-	textLineY = botBox.y + 1
+	textLineY = botBox.y + 5
 
-	for _, button in ipairs(UpdateScreen.OrderedMenuList) do
-		Drawing.drawButton(button, botBox.shadow)
+	local updateStatusColor
+	if UpdateScreen.currentState == UpdateScreen.States.IN_PROGRESS then
+		updateStatusColor = Theme.COLORS["Intermediate text"]
+	elseif UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		updateStatusColor = Theme.COLORS["Positive text"]
+	elseif UpdateScreen.currentState == UpdateScreen.States.ERROR then
+		updateStatusColor = Theme.COLORS["Negative text"]
+	end
+	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED then
+		Drawing.drawText(botBox.x + 15, textLineY, UpdateScreen.currentState or "", updateStatusColor, botBox.shadow)
+	end
+
+	-- Draw all buttons, manually
+	for index, button in ipairs(UpdateScreen.OrderedMenuList) do
+		if button.isVisible == nil or button:isVisible() then
+			local x = button.box[1]
+			local y = button.box[2]
+			local holdText = button.text
+
+			button.text = ""
+			Drawing.drawButton(button, botBox.shadow)
+			button.text = holdText
+			Drawing.drawText(x + 17, y + 2, button.text, Theme.COLORS[button.textColor], botBox.shadow)
+
+			-- TODO: Eventually make the Draw Button more flexible for centering its contents
+			if button.image == Constants.PixelImages.INSTALL_BOX then
+				y = y + 2
+				x = x + 1
+			elseif button.image == Constants.PixelImages.CLOCK then
+				y = y + 2
+				x = x + 1
+			elseif button.image == Constants.PixelImages.CROSS then
+				y = y + 1
+			end
+			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
+		end
 	end
 end
