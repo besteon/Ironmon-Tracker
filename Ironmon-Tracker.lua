@@ -430,11 +430,15 @@ end
 -- Copy a file
 -- last argument can be used to overwrite or append, defaults to neither (returns if file exists)
 function Main.CopyFile(filename, newfilename, overwriteappend)
-	if not Main.FileExists(filename) or (Main.FileExists(newfilename) and not (overwriteappend == "overwrite" or overwriteappend == "append")) then
+	local original = io.open(filename, "rb")
+	if original == nil then
+		print(string.format("Error: Unable to create a backup copy of %s."), filename)
+		return false
+	elseif (Main.FileExists(newfilename) and not (overwriteappend == "overwrite" or overwriteappend == "append")) then
+		print(string.format("Error: Can't overwrite file %s."), newfilename)
 		return false
 	end
 
-	local original = io.open(filename, "rb")
 	local copy = ""
 	if overwriteappend == "append" then
 		copy = io.open(newfilename, "ab")
@@ -443,6 +447,10 @@ function Main.CopyFile(filename, newfilename, overwriteappend)
 		copy = io.open(newfilename, "wb")
 	end
 
+	if copy == nil then
+		print(string.format("Error: Failed to write to file %s."), newfilename)
+		return false
+	end
 
 	local nextBlock = original:read(2^13)
 	while nextBlock ~= nil do
