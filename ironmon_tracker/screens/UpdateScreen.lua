@@ -60,34 +60,34 @@ function UpdateScreen.performAutoUpdate()
 	-- Create a batch file to execute the update operations (Download, Unzip, Replace Files, Cleanup)
 	local batchFileName = "Update Tracker Script.bat"
 	local batchScript = [[
-	@echo off
-	set DownloadUrl=https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
-	set ArchiveFile=Ironmon-Tracker-main.tar.gz
-	set DownloadFolder=Ironmon-Tracker-main
+@echo off
+set DownloadUrl=https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz
+set ArchiveFile=Ironmon-Tracker-main.tar.gz
+set DownloadFolder=Ironmon-Tracker-main
 
-	echo Downloading the latest Ironmon Tracker version.
-	curl -L "%DownloadUrl%"
+echo Downloading the latest Ironmon Tracker version.
+curl -L "%DownloadUrl%"
 
-	echo Extracting downloaded files.
-	tar -xf "%ArchiveFile%"
-	del "%ArchiveFile%"
+echo Extracting downloaded files.
+tar -xf "%ArchiveFile%"
+del "%ArchiveFile%"
 
-	echo Applying the update; copying over files.
-	rmdir "%DownloadFolder%\.vscode" /s /q
-	rmdir "%DownloadFolder%\ironmon_tracker\Debug" /s /q
-	del "%DownloadFolder%\.editorconfig" /q
-	del "%DownloadFolder%\.gitattributes" /q
-	del "%DownloadFolder%\.gitignore" /q
-	del "%DownloadFolder%\README.md" /q
-	xcopy "%DownloadFolder%" /s /y /q
-	rmdir "%DownloadFolder%" /s /q
+echo Applying the update; copying over files.
+rmdir "%DownloadFolder%\.vscode" /s /q
+rmdir "%DownloadFolder%\ironmon_tracker\Debug" /s /q
+del "%DownloadFolder%\.editorconfig" /q
+del "%DownloadFolder%\.gitattributes" /q
+del "%DownloadFolder%\.gitignore" /q
+del "%DownloadFolder%\README.md" /q
+xcopy "%DownloadFolder%" /s /y /q
+rmdir "%DownloadFolder%" /s /q
 
-	echo Update complete.
-	timeout /t 3
+echo Update complete.
+timeout /t 3
 
-	::pause
-	exit
-	]]
+::pause
+exit
+]]
 	-- TODO: Likely remove the timeout after testing
 
 	local file = io.open(batchFileName, "w")
@@ -97,9 +97,10 @@ function UpdateScreen.performAutoUpdate()
 	end
 
 	-- Execute the batch set of operations, then get rid of the batch file
-	print(string.format(">> Performing version update to %s"), Main.Version.latestAvailable)
+	print(string.format(">> Performing version update to %s", Main.Version.latestAvailable))
 	os.execute(batchFileName)
 	os.remove(batchFileName)
+	print(">> Update complete.")
 
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
