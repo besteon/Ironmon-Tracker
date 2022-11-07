@@ -1,3 +1,4 @@
+-- TEST DEBUG
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
@@ -38,6 +39,7 @@ function Main.Initialize()
 		"/screens/TrackerScreen.lua",
 		"/screens/NavigationMenu.lua",
 		"/screens/StartupScreen.lua",
+		"/screens/UpdateScreen.lua",
 		"/screens/SetupScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
@@ -192,6 +194,7 @@ function Main.Run()
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
 		StartupScreen.initialize()
+		UpdateScreen.initialize()
 		SetupScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
@@ -240,8 +243,7 @@ function Main.CheckForVersionUpdate()
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
-				Main.Version.remindMe = false
-				Main.NotifyUpdatePopUp(latestVersion)
+				Main.displayUpdateScreen = true
 			end
 
 			-- Track that an update was checked today, so no additional api calls are performed today
@@ -258,39 +260,6 @@ function Main.CheckForVersionUpdate()
 	end
 
 	Main.SaveSettings(true)
-end
-
-function Main.NotifyUpdatePopUp(latestVersion)
-	local form = forms.newform(355, 180, "New Version Available", function() client.unpause() end)
-	local actualLocation = client.transformPoint(100, 50)
-	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
-	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
-
-	forms.label(form, "New Tracker Version Available!", 89, 15, 255, 20)
-	forms.label(form, "New version: v" .. latestVersion, 89, 42, 255, 20)
-	forms.label(form, "Current version: v" .. Main.TrackerVersion, 89, 60, 255, 20)
-
-	local offsetY = 85
-
-	forms.button(form, "Visit Download Page", function()
-		if Main.OS == "Windows" then
-			os.execute("start " .. Constants.Release.DOWNLOAD_URL)
-		end
-		client.unpause()
-		forms.destroy(form)
-	end, 15, offsetY + 5, 120, 30)
-
-	forms.button(form, "Remind Me Later", function()
-		Main.Version.remindMe = true
-		Main.SaveSettings(true)
-		client.unpause()
-		forms.destroy(form)
-	end, 140, offsetY + 5, 110, 30)
-
-	forms.button(form, "Dismiss", function()
-		client.unpause()
-		forms.destroy(form)
-	end, 255, offsetY + 5, 65, 30)
 end
 
 function Main.LoadNextRom()

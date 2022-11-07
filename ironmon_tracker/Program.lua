@@ -26,6 +26,7 @@ Program.Screens = {
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
 	STARTUP = StartupScreen.drawScreen,
+	UPDATE = UpdateScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -45,7 +46,12 @@ Program.GameData = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.Screens.STARTUP
+	if Main.displayUpdateScreen then
+		Program.currentScreen = Program.Screens.UPDATE
+		Main.displayUpdateScreen = nil
+	else
+		Program.currentScreen = Program.Screens.STARTUP
+	end
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
