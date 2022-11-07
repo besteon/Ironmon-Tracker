@@ -10,6 +10,7 @@ Constants.Files = {
 	PostFixes = {
 		ATTEMPTS_FILE = "Attempts.txt",
 		AUTORANDOMIZED = "AutoRandomized",
+		PREVIOUSATTEMPT = "PreviousAttempt",
 		AUTOSAVE = "AutoSave",
 	},
 	Extensions = {

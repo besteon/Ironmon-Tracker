@@ -388,6 +388,8 @@ function Main.GenerateNextRom()
 	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
 	local nextrompath = Utils.getWorkingDirectory() .. nextromname
 
+	Main.SaveCurrentRom(nextromname)
+
 	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	local javacommand = string.format(
@@ -416,6 +418,50 @@ function Main.GenerateNextRom()
 	 	name = nextromname,
 	 	path = nextrompath,
 	}
+end
+
+function Main.SaveCurrentRom(filename)
+	local newseedfilename = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
+	if Main.CopyFile(filename, newseedfilename, "overwrite") then
+		Main.CopyFile(string.format("%s.log", filename), string.format("%s.log", newseedfilename), "overwrite")
+	end
+end
+
+-- Copy a file
+-- last argument can be used to overwrite or append, defaults to neither (returns if file exists)
+function Main.CopyFile(filename, newfilename, overwriteappend)
+	local original = io.open(filename, "rb")
+	if original == nil then
+		print(string.format("Error: Unable to create a backup copy of %s."), filename)
+		return false
+	elseif (Main.FileExists(newfilename) and not (overwriteappend == "overwrite" or overwriteappend == "append")) then
+		print(string.format("Error: Can't overwrite file %s."), newfilename)
+		return false
+	end
+
+	local copy = ""
+	if overwriteappend == "append" then
+		copy = io.open(newfilename, "ab")
+		copy:seek("end")
+	else
+		copy = io.open(newfilename, "wb")
+	end
+
+	if copy == nil then
+		print(string.format("Error: Failed to write to file %s."), newfilename)
+		return false
+	end
+
+	local nextBlock = original:read(2^13)
+	while nextBlock ~= nil do
+		copy:write(nextBlock)
+		nextBlock = original:read(2^13)
+	end
+
+	original:close()
+	copy:close()
+
+	return true
 end
 
 -- Increment the attempts counter through a .txt file
