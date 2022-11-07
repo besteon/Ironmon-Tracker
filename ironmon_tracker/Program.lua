@@ -161,7 +161,8 @@ function Program.update()
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
 	if Program.Frames.saveData == 0 then
-		if Options["Auto save tracked game data"] then
+		-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
+		if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 			Tracker.saveData()
 		end
 	end

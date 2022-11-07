@@ -360,6 +360,8 @@ function Main.GenerateNextRom()
 	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
 	local nextrompath = Utils.getWorkingDirectory() .. nextromname
 
+	Main.SaveCurrentRom(nextromname)
+
 	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	local javacommand = string.format(
@@ -388,6 +390,62 @@ function Main.GenerateNextRom()
 	 	name = nextromname,
 	 	path = nextrompath,
 	}
+end
+
+-- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"
+function Main.SaveCurrentRom(filename)
+	local filenameCopy = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
+	if Main.CopyFile(filename, filenameCopy, "overwrite") then
+		local logFilename = string.format("%s.log", filename)
+		local logFilenameCopy = string.format("%s.log", filenameCopy)
+		Main.CopyFile(logFilename, logFilenameCopy, "overwrite")
+	end
+end
+
+-- Copies 'filename' to 'nameOfCopy' with option to overwrite the file if it exists, or append to it
+-- overwriteOrAppend: 'overwrite' replaces any existing file, 'append' adds to it instead, otherwise no change if file already exists
+function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
+	local originalFile = io.open(filename, "rb")
+	if originalFile == nil then
+		print(string.format("Error: Unable to create a backup copy of %s, file doesn't exist."), filename)
+		return false
+	end
+
+	nameOfCopy = nameOfCopy or (filename .. " (Copy)")
+
+	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
+	if Main.FileExists(nameOfCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
+		print(string.format("Error: Unable to modify file %s, no overwrite/append option specified."), nameOfCopy)
+		return false
+	end
+
+	local copyOfFile
+	if overwriteOrAppend == "append" then
+		copyOfFile = io.open(nameOfCopy, "ab")
+	else
+		-- Default to overwriting the file even if no option specified
+		copyOfFile = io.open(nameOfCopy, "wb")
+	end
+
+	if copyOfFile == nil then
+		print(string.format("Error: Failed to write to file %s."), nameOfCopy)
+		return false
+	end
+
+	if overwriteOrAppend == "append" then
+		copyOfFile:seek("end")
+	end
+
+	local nextBlock = originalFile:read(2^13)
+	while nextBlock ~= nil do
+		copyOfFile:write(nextBlock)
+		nextBlock = originalFile:read(2^13)
+	end
+
+	originalFile:close()
+	copyOfFile:close()
+
+	return true
 end
 
 -- Increment the attempts counter through a .txt file
