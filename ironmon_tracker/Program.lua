@@ -46,6 +46,7 @@ Program.GameData = {
 }
 
 function Program.initialize()
+	-- If an update is available, offer that up first before going to the Tracker StartupScreen
 	if Main.displayUpdateScreen then
 		Program.currentScreen = Program.Screens.UPDATE
 		Main.displayUpdateScreen = nil
@@ -111,7 +112,7 @@ function Program.update()
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -130,7 +131,7 @@ function Program.update()
 			Program.updatePokemonTeams()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isValidMapLocation() then
 				Program.currentScreen = Program.Screens.TRACKER
 			end
 
@@ -416,7 +417,7 @@ end
 
 function Program.updateBadgesObtained()
 	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
-	if not Program.isInValidMapLocation() then
+	if not Program.isValidMapLocation() then
 		return
 	end
 
@@ -445,7 +446,8 @@ function Program.updateMapLocation()
 	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 end
 
-function Program.isInValidMapLocation()
+-- More or less used to determine if the player has begun playing the game, returns true if so.
+function Program.isValidMapLocation()
 	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
 end
 

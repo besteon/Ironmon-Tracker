@@ -34,20 +34,41 @@ NavigationMenu.Buttons = {
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.MANAGE_DATA) end
 	},
-	MirageButton = {
-		text = "It's a secret...",
-		image = Constants.PixelImages.MAP_PINDROP,
-		timesClicked = 0,
-		canBeSeenToday = false,
-		isVisible = function(self) return self.canBeSeenToday and self.timesClicked <= 3 and not NavigationMenu.showCredits end,
+	CheckForUpdates = {
+		text = "Check for Updates", -- Can also be "New Update Available!" or "No Updates Available"
+		image = Constants.PixelImages.INSTALL_BOX,
+		isVisible = function(self) return not NavigationMenu.showCredits end,
 		onClick = function(self)
-			if not self:isVisible() then return end
-			-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
-			self.timesClicked = self.timesClicked + 1
-			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.textColor, "Intermediate text")
-			Program.redraw(true)
+			-- Don't check for updates if they've already been checked since in this NavigationMenu (resets after clicking Back)
+			if self.text == "Check for Updates" then
+				Main.CheckForVersionUpdate(true)
+			end
+
+			-- Regardless of the state of this button, always redirect to the UpdateScreen if an update is available
+			if not Main.isOnLatestVersion() then
+				Program.changeScreenView(Program.Screens.UPDATE)
+			else
+				self.text = "No Updates Available"
+				self.textColor = NavigationMenu.textColor
+				Program.redraw(true)
+			end
 		end
 	},
+	-- Goodbye Mirage Button. You were fun. I don't think anyone found you :(
+	-- MirageButton = {
+	-- 	text = "It's a secret...",
+	-- 	image = Constants.PixelImages.MAP_PINDROP,
+	-- 	timesClicked = 0,
+	-- 	canBeSeenToday = false,
+	-- 	isVisible = function(self) return self.canBeSeenToday and self.timesClicked <= 3 and not NavigationMenu.showCredits end,
+	-- 	onClick = function(self)
+	-- 		if not self:isVisible() then return end
+	-- 		-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
+	-- 		self.timesClicked = self.timesClicked + 1
+	-- 		self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.textColor, "Intermediate text")
+	-- 		Program.redraw(true)
+	-- 	end
+	-- },
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Credits",
@@ -65,15 +86,17 @@ NavigationMenu.Buttons = {
 		timesClicked = 0,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function(self)
-			self.timesClicked = self.timesClicked + 1
-			if self.timesClicked % 2 == 0 then
-				self.textColor = NavigationMenu.textColor
-			elseif self.timesClicked % 21 == 0 then
-				self.textColor = "Positive text"
-			else
-				self.textColor = "Intermediate text"
-			end
-			Program.redraw(true)
+			UpdateScreen.openReleaseNotesWindow()
+			-- TODO: Likely change this to highlight when hovered-over to show it can take you to the release notes
+			-- self.timesClicked = self.timesClicked + 1
+			-- if self.timesClicked % 2 == 0 then
+			-- 	self.textColor = NavigationMenu.textColor
+			-- elseif self.timesClicked % 21 == 0 then
+			-- 	self.textColor = "Positive text"
+			-- else
+			-- 	self.textColor = "Intermediate text"
+			-- end
+			-- Program.redraw(true)
 		end
 	},
 	Back = {
@@ -87,7 +110,17 @@ NavigationMenu.Buttons = {
 			else
 				NavigationMenu.Buttons.VersionInfo.timesClicked = 0
 				NavigationMenu.Buttons.VersionInfo.textColor = NavigationMenu.textColor
-				if Program.isInValidMapLocation() then
+
+				-- Reset the CheckForUpdates button text/color
+				if Main.isOnLatestVersion() then
+					NavigationMenu.Buttons.CheckForUpdates.text = "Check for Updates"
+					NavigationMenu.Buttons.CheckForUpdates.textColor = NavigationMenu.textColor
+				else
+					NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available!"
+					NavigationMenu.Buttons.CheckForUpdates.textColor = "Positive text"
+				end
+
+				if Program.isValidMapLocation() then
 					Program.changeScreenView(Program.Screens.TRACKER)
 				else
 					Program.changeScreenView(Program.Screens.STARTUP)
@@ -102,7 +135,7 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.GameplaySettings,
 	NavigationMenu.Buttons.ThemeCustomization,
 	NavigationMenu.Buttons.ManageTrackedData,
-	NavigationMenu.Buttons.MirageButton,
+	NavigationMenu.Buttons.CheckForUpdates,
 }
 
 function NavigationMenu.initialize()
@@ -119,11 +152,16 @@ function NavigationMenu.initialize()
 		button.boxColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor }
 	end
 
-	-- Yet another fun Easter Egg that shows up only once in a while
-	if math.random(256) == 1 then
-		NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
-		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+	if not Main.isOnLatestVersion() then
+		NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available!"
+		NavigationMenu.Buttons.CheckForUpdates.textColor = "Positive text"
 	end
+
+	-- Yet another fun Easter Egg that shows up only once in a while
+	-- if math.random(256) == 1 or true then
+	-- 	NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
+	-- 	NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+	-- end
 end
 
 -- DRAWING FUNCTIONS
@@ -170,7 +208,8 @@ function NavigationMenu.drawScreen()
 				x = x + 1
 			elseif button.image == Constants.PixelImages.MAGNIFYING_GLASS then
 				y = y + 1
-			elseif button.image == Constants.PixelImages.MAP_PINDROP then
+			elseif button.image == Constants.PixelImages.INSTALL_BOX then
+				y = y + 2
 				x = x + 1
 			end
 			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor] }, shadowcolor)

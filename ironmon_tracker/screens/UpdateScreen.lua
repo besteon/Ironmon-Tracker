@@ -22,7 +22,16 @@ UpdateScreen.Buttons = {
 		text = UpdateScreen.Labels.updateAutoText,
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
-		onClick = function() UpdateScreen.performAutoUpdate() end
+		onClick = function()
+			if Main.OS == "Windows" then
+				UpdateScreen.performAutoUpdate()
+			else
+				-- Auto-update currently only works on Windows. For non-Windows, open a download link for manual download option...
+				UpdateScreen.openReleaseNotesWindow()
+				-- ... and swap back to main Tracker screen
+				UpdateScreen.remindMeLater()
+			end
+		end
 	},
 	RemindMeLater = {
 		text = UpdateScreen.Labels.remindMeText,
@@ -63,6 +72,10 @@ function UpdateScreen.initialize()
 		button.boxColors = { "Lower box border", "Lower box background" }
 		startY = startY + 21
 	end
+
+	if Main.OS ~= "Windows" then
+		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
+	end
 end
 
 function UpdateScreen.performAutoUpdate()
@@ -73,11 +86,11 @@ function UpdateScreen.performAutoUpdate()
 	local wasSoundOn = client.GetSoundOn()
 	client.SetSoundOn(false)
 
-	-- Unsure if this is needed
-	gui.clearImageCache()
+	gui.clearImageCache() -- Unsure if this is needed
+	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
 
 	-- Execute the batch set of operations
-	local success = true or UpdateScreen.executeBatchOperations() -- TODO: remove true which is preventing forced file updates
+	local success = UpdateScreen.executeBatchOperations()
 	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
 	Program.redraw(true)
 
@@ -85,9 +98,9 @@ function UpdateScreen.performAutoUpdate()
 		client.SetSoundOn(wasSoundOn)
 	end
 
-	-- TODO: Then somehow reload the tracker script
+	-- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
-		loadfile("Ironmon-Tracker.lua") -- TODO: This doesn't work, need to separate out Main from this file
+		loadfile("Ironmon-Tracker.lua")
 		Main.Initialize()
 		Main.Run()
 	end
@@ -140,24 +153,27 @@ function UpdateScreen.executeBatchOperations()
 	return true
 end
 
-function UpdateScreen.openReleaseNotesWindow()
-	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
-	else
-		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
-	end
-end
-
 function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
 	Main.SaveSettings(true)
-	Program.changeScreenView(Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	Program.changeScreenView(screenToShow)
 end
 
 function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
 	Main.SaveSettings(true)
-	Program.changeScreenView(Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	Program.changeScreenView(screenToShow)
+end
+
+function UpdateScreen.openReleaseNotesWindow()
+	-- The first parameter is the title of the window, the second is the url
+	if Main.OS == "Windows" then
+		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
+	else
+		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
+	end
 end
 
 -- DRAWING FUNCTIONS
@@ -184,22 +200,22 @@ function UpdateScreen.drawScreen()
 		fill = Theme.COLORS["Lower box background"],
 		shadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"]),
 	}
-	local topcolX = topBox.x + 104
-	local textLineY = topBox.y + 1
+	local topcolX = topBox.x + 109
+	local textLineY = topBox.y + 2
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	-- TOP BORDER BOX
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
-	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
-	textLineY = textLineY + linespacing + 3
+	Drawing.drawText(topBox.x + 12, textLineY, UpdateScreen.Labels.title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	textLineY = textLineY + linespacing + 5
 
-	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	Drawing.drawText(topBox.x + 2, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
 	textLineY = textLineY + linespacing
 
@@ -247,7 +263,7 @@ function UpdateScreen.drawScreen()
 				y = y + 2
 				x = x + 1
 			elseif button.image == Constants.PixelImages.CLOCK then
-				y = y + 2
+				y = y + 1
 				x = x + 1
 			elseif button.image == Constants.PixelImages.CROSS then
 				y = y + 1

@@ -1,7 +1,8 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "6", minor = "5", patch = "0" }
+Main.Version = { major = "1", minor = "0", patch = "0" }
+-- TODO: Purposefully downgrading Tracker version to test auto-update code, the real version should get updated to 7.0.0 before official release
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -216,7 +217,8 @@ end
 -- Determines if there is an update to the current Tracker version
 -- Intentionally will only check against Major and Minor version updates,
 -- allowing patches to seamlessly update without bothering every end-user
-function Main.CheckForVersionUpdate()
+-- forcedCheck: if true, will force an update check (please use sparingly)
+function Main.CheckForVersionUpdate(forcedCheck)
 	if Main.OS ~= "Windows" then
 		return
 	end
@@ -225,7 +227,7 @@ function Main.CheckForVersionUpdate()
 	local todaysDate = os.date("%x")
 
 	-- Only notify about updates once per day
-	if todaysDate ~= Main.Version.dateChecked then
+	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
 		local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
 		if pipe ~= "" then
 			local response = pipe:read("*all") or ""
@@ -242,7 +244,7 @@ function Main.CheckForVersionUpdate()
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
-				Main.displayUpdateScreen = true
+				Main.displayUpdateScreen = true -- Used later in Program.initialize()
 			end
 
 			-- Track that an update was checked today, so no additional api calls are performed today
@@ -252,16 +254,18 @@ function Main.CheckForVersionUpdate()
 		end
 	end
 
-	-- TODO: Debug forcing true for testing
-	Main.displayUpdateScreen = true
-
 	-- Always show the version update silently through the Lua Console
-	if Main.TrackerVersion ~= Main.Version.latestAvailable then
+	if not forcedCheck and not Main.isOnLatestVersion() then
 		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
 		print(Constants.Release.DOWNLOAD_URL)
 	end
 
 	Main.SaveSettings(true)
+end
+
+-- returns true if the current version of the Tracker matches the version of the latest release; false otherwise
+function Main.isOnLatestVersion()
+	return Main.TrackerVersion == Main.Version.latestAvailable
 end
 
 function Main.LoadNextRom()
