@@ -8,12 +8,17 @@ UpdateScreen = {
 		remindMeText = "Remind me tomorrow",
 		ignoreUpdateText = "( Skip this update )",
 		releaseNotesText = "View release notes",
-		reloadTrackerText = "> Restart Tracker <",
+		reloadTrackerText = "Restart Tracker",
+		manualDownloadText = "Manual Download",
+
+		inProgressMsg = "Check external Window for status.",
+		safeReloadMsg = "You can safely reload the Tracker:",
+		errorOccurredMsg = "Please try updating manually:",
 	},
 	States = {
-		NOT_UPDATED = "Update not yet started.",
-		IN_PROGRESS = "Updating in progress...",
-		SUCCESS = "Update successful!",
+		NOT_UPDATED = "Update not yet started.", -- Not displayed anywhere visually
+		IN_PROGRESS = "Update in progress,  please wait...",
+		SUCCESS = "The auto-update was successful.",
 		ERROR = "Error with auto-updater.",
 	},
 }
@@ -27,7 +32,7 @@ UpdateScreen.Buttons = {
 			if Main.OS == "Windows" then
 				UpdateScreen.performAutoUpdate()
 			else
-				-- Auto-update currently only works on Windows. For non-Windows, open a download link for manual download option...
+				-- Auto-update currently only works on Windows. For non-Windows, open a browser window with a link for manual download...
 				UpdateScreen.openReleaseNotesWindow()
 				-- ... and swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 				UpdateScreen.remindMeLater()
@@ -42,20 +47,31 @@ UpdateScreen.Buttons = {
 	},
 	IgnoreUpdate = {
 		text = UpdateScreen.Labels.ignoreUpdateText,
-		-- image = Constants.PixelImages.CROSS,
-		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.ERROR end,
 		onClick = function() UpdateScreen.ignoreTheUpdate() end
 	},
 	ViewReleaseNotes = {
 		text = UpdateScreen.Labels.releaseNotesText,
 		image = Constants.PixelImages.NOTEPAD,
-		-- isVisible = function() return true end,
+		isVisible = function() return true end,
 		onClick = function() UpdateScreen.openReleaseNotesWindow() end
 	},
 	ReloadTracker = {
 		text = UpdateScreen.Labels.reloadTrackerText,
+		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.SUCCESS end,
-		onClick = function() UpdateScreen.reloadTracker() end
+		onClick = function() IronmonTracker.startTracker() end
+	},
+	ManualDownload = {
+		text = UpdateScreen.Labels.manualDownloadText,
+		image = Constants.PixelImages.INSTALL_BOX,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.ERROR end,
+		onClick = function()
+			-- Open a browser window with a link for manual download
+			UpdateScreen.openReleaseNotesWindow()
+			-- Swap back to main Tracker screen. Implied to remind later if they forget to manually update.
+			UpdateScreen.remindMeLater()
+		end
 	},
 }
 
@@ -72,18 +88,19 @@ function UpdateScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15
 	local startY = Constants.SCREEN.MARGIN + 65
 	for _, button in ipairs(UpdateScreen.OrderedMenuList) do
-		button.type = Constants.ButtonTypes.FULL_BORDER
 		button.box = { startX, startY, 110, 16 }
-		button.textColor = "Lower box text"
-		button.boxColors = { "Lower box border", "Lower box background" }
 		startY = startY + 21
 	end
 
-	-- ReloadTracker button is in the same spot as the RemindMeLater button
-	UpdateScreen.Buttons.ReloadTracker.type = UpdateScreen.Buttons.RemindMeLater.type
+	for _, button in pairs(UpdateScreen.Buttons) do
+		button.type = Constants.ButtonTypes.FULL_BORDER
+		button.textColor = "Lower box text"
+		button.boxColors = { "Lower box border", "Lower box background" }
+	end
+
+	-- These buttons share a location, but visiable at different times based on Update Status
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
-	UpdateScreen.Buttons.ReloadTracker.textColor = UpdateScreen.Buttons.RemindMeLater.textColor
-	UpdateScreen.Buttons.ReloadTracker.boxColors = UpdateScreen.Buttons.RemindMeLater.boxColors
+	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
 	if Main.OS ~= "Windows" then
 		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
@@ -188,13 +205,6 @@ function UpdateScreen.openReleaseNotesWindow()
 	end
 end
 
--- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
-function UpdateScreen.reloadTracker()
-	local result = loadfile("Ironmon-Tracker.lua") -- Unsure if needed
-	Main.Initialize()
-	Main.Run()
-end
-
 -- DRAWING FUNCTIONS
 function UpdateScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
@@ -251,22 +261,30 @@ function UpdateScreen.drawScreen()
 	-- BOTTOM BORDER BOX
 	gui.defaultTextBackground(botBox.fill)
 	gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
-	textLineY = botBox.y + 5
+	textLineY = botBox.y + 2
 
 	local updateStatusColor
+	local updateStatusMsg
 	if UpdateScreen.currentState == UpdateScreen.States.IN_PROGRESS then
 		updateStatusColor = Theme.COLORS["Intermediate text"]
+		updateStatusMsg = UpdateScreen.Labels.inProgressMsg
 	elseif UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 		updateStatusColor = Theme.COLORS["Positive text"]
+		updateStatusMsg = UpdateScreen.Labels.safeReloadMsg
 	elseif UpdateScreen.currentState == UpdateScreen.States.ERROR then
 		updateStatusColor = Theme.COLORS["Negative text"]
+		updateStatusMsg = UpdateScreen.Labels.errorOccurredMsg
 	end
+
 	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED then
-		Drawing.drawText(botBox.x + 15, textLineY, UpdateScreen.currentState or "", updateStatusColor, botBox.shadow)
+		Drawing.drawText(botBox.x + 3, textLineY, UpdateScreen.currentState or "", updateStatusColor, botBox.shadow)
+		textLineY = textLineY + linespacing
+		Drawing.drawText(botBox.x + 3, textLineY, updateStatusMsg or "", botBox.text, botBox.shadow)
+		textLineY = textLineY + linespacing
 	end
 
 	-- Draw all buttons, manually
-	for index, button in ipairs(UpdateScreen.OrderedMenuList) do
+	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.isVisible == nil or button:isVisible() then
 			local x = button.box[1]
 			local y = button.box[2]
@@ -288,6 +306,4 @@ function UpdateScreen.drawScreen()
 			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
 		end
 	end
-
-	Drawing.drawButton(UpdateScreen.Buttons.ReloadTracker, botBox.shadow)
 end
