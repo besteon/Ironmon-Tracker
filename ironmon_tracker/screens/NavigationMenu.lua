@@ -35,7 +35,7 @@ NavigationMenu.Buttons = {
 		onClick = function() Program.changeScreenView(Program.Screens.MANAGE_DATA) end
 	},
 	CheckForUpdates = {
-		text = "Check for Updates", -- Can also be "New Update Available!" or "No Updates Available"
+		text = "Check for Updates", -- Can also be "New Update Available" or "No Updates Available"
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		onClick = function(self)
@@ -116,7 +116,7 @@ NavigationMenu.Buttons = {
 					NavigationMenu.Buttons.CheckForUpdates.text = "Check for Updates"
 					NavigationMenu.Buttons.CheckForUpdates.textColor = NavigationMenu.textColor
 				else
-					NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available!"
+					NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available"
 					NavigationMenu.Buttons.CheckForUpdates.textColor = "Positive text"
 				end
 
@@ -153,7 +153,7 @@ function NavigationMenu.initialize()
 	end
 
 	if not Main.isOnLatestVersion() then
-		NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available!"
+		NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available"
 		NavigationMenu.Buttons.CheckForUpdates.textColor = "Positive text"
 	end
 

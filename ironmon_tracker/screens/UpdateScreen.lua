@@ -1,6 +1,6 @@
 UpdateScreen = {
 	Labels = {
-		title = "Tracker Update Available!",
+		title = "Tracker Update Available",
 		currentVersion = "Current version:",
 		newVersion = "New version available:",
 		questionHeader = "What would you like to do?",
