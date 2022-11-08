@@ -47,9 +47,8 @@ Program.GameData = {
 
 function Program.initialize()
 	-- If an update is available, offer that up first before going to the Tracker StartupScreen
-	if Main.displayUpdateScreen then
+	if Main.Version.showUpdate then
 		Program.currentScreen = Program.Screens.UPDATE
-		Main.displayUpdateScreen = nil
 	else
 		Program.currentScreen = Program.Screens.STARTUP
 	end

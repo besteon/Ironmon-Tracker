@@ -15,6 +15,7 @@ function Main.Initialize()
 	Main.Version.remindMe = true
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.dateChecked = ""
+	Main.Version.showUpdate = false
 
 	Main.OS = "Windows" -- required if user doesn't restart during a First Run
 	Main.DataFolder = "ironmon_tracker" -- Root folder for the project data and sub scripts
@@ -244,7 +245,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
-				Main.displayUpdateScreen = true -- Used later in Program.initialize()
+				Main.Version.showUpdate = true
 			end
 
 			-- Track that an update was checked today, so no additional api calls are performed today
@@ -255,10 +256,11 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	end
 
 	-- Always show the version update silently through the Lua Console
-	if not forcedCheck and not Main.isOnLatestVersion() then
-		print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
-		print(Constants.Release.DOWNLOAD_URL)
-	end
+	-- Removing this for now, as it's now possible to see this directly on the Tracker's NavigationMenu
+	-- if not forcedCheck and not Main.isOnLatestVersion() then
+	-- 	print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
+	-- 	print(Constants.Release.DOWNLOAD_URL)
+	-- end
 
 	Main.SaveSettings(true)
 end
@@ -555,6 +557,9 @@ function Main.LoadSettings()
 		if settings.config.DateLastChecked ~= nil then
 			Main.Version.dateChecked = settings.config.DateLastChecked
 		end
+		if settings.config.ShowUpdateNotification ~= nil then
+			Main.Version.showUpdate = settings.config.ShowUpdateNotification
+		end
 
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
@@ -629,6 +634,7 @@ function Main.SaveSettings(forced)
 	settings.config.RemindMeLater = Main.Version.remindMe
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
+	settings.config.ShowUpdateNotification = Main.Version.showUpdate
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")

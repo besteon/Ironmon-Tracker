@@ -28,7 +28,7 @@ UpdateScreen.Buttons = {
 			else
 				-- Auto-update currently only works on Windows. For non-Windows, open a download link for manual download option...
 				UpdateScreen.openReleaseNotesWindow()
-				-- ... and swap back to main Tracker screen
+				-- ... and swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 				UpdateScreen.remindMeLater()
 			end
 		end
@@ -98,8 +98,11 @@ function UpdateScreen.performAutoUpdate()
 		client.SetSoundOn(wasSoundOn)
 	end
 
-	-- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		Main.Version.showUpdate = false
+		Main.SaveSettings(true)
+
+		-- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
 		loadfile("Ironmon-Tracker.lua")
 		Main.Initialize()
 		Main.Run()
@@ -155,6 +158,7 @@ end
 
 function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
+	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
 	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
 	Program.changeScreenView(screenToShow)
@@ -162,6 +166,7 @@ end
 
 function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
+	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
 	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
 	Program.changeScreenView(screenToShow)
