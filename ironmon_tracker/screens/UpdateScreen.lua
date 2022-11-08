@@ -8,6 +8,7 @@ UpdateScreen = {
 		remindMeText = "Remind me tomorrow",
 		ignoreUpdateText = "( Skip this update )",
 		releaseNotesText = "View release notes",
+		reloadTrackerText = "> Restart Tracker <",
 	},
 	States = {
 		NOT_UPDATED = "Update not yet started.",
@@ -51,6 +52,11 @@ UpdateScreen.Buttons = {
 		-- isVisible = function() return true end,
 		onClick = function() UpdateScreen.openReleaseNotesWindow() end
 	},
+	ReloadTracker = {
+		text = UpdateScreen.Labels.reloadTrackerText,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.SUCCESS end,
+		onClick = function() UpdateScreen.reloadTracker() end
+	},
 }
 
 UpdateScreen.OrderedMenuList = {
@@ -72,6 +78,12 @@ function UpdateScreen.initialize()
 		button.boxColors = { "Lower box border", "Lower box background" }
 		startY = startY + 21
 	end
+
+	-- ReloadTracker button is in the same spot as the RemindMeLater button
+	UpdateScreen.Buttons.ReloadTracker.type = UpdateScreen.Buttons.RemindMeLater.type
+	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
+	UpdateScreen.Buttons.ReloadTracker.textColor = UpdateScreen.Buttons.RemindMeLater.textColor
+	UpdateScreen.Buttons.ReloadTracker.boxColors = UpdateScreen.Buttons.RemindMeLater.boxColors
 
 	if Main.OS ~= "Windows" then
 		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
@@ -101,11 +113,6 @@ function UpdateScreen.performAutoUpdate()
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 		Main.Version.showUpdate = false
 		Main.SaveSettings(true)
-
-		-- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
-		loadfile("Ironmon-Tracker.lua")
-		Main.Initialize()
-		Main.Run()
 	end
 end
 
@@ -179,6 +186,13 @@ function UpdateScreen.openReleaseNotesWindow()
 	else
 		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
 	end
+end
+
+-- Reload most of the Tracker scripts (except the single script loaded into Bizhawk)
+function UpdateScreen.reloadTracker()
+	local result = loadfile("Ironmon-Tracker.lua") -- Unsure if needed
+	Main.Initialize()
+	Main.Run()
 end
 
 -- DRAWING FUNCTIONS
@@ -270,10 +284,10 @@ function UpdateScreen.drawScreen()
 			elseif button.image == Constants.PixelImages.CLOCK then
 				y = y + 1
 				x = x + 1
-			elseif button.image == Constants.PixelImages.CROSS then
-				y = y + 1
 			end
 			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
 		end
 	end
+
+	Drawing.drawButton(UpdateScreen.Buttons.ReloadTracker, botBox.shadow)
 end
