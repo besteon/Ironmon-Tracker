@@ -48,9 +48,15 @@ We'd ideally like to support all non-English versions if we can, see [here](http
 
 ## Latest Changes
 
-- **_NEW!!_ Theme Library!**
+- **_NEW!!_ Automatic Self-Updater! (Finally)**
 
-![image](https://user-images.githubusercontent.com/4258818/198950378-2a70157a-7a2d-4890-83ff-b657af4b2a1c.png)
+![image](https://user-images.githubusercontent.com/4258818/200697878-3b6a2cdd-1d6a-400b-b18c-f927c32f1c6f.png)
+
+- **_NEW!!_ Virtual Pet Icon Set!**
+
+Created by Ryastoise
+
+![image](https://user-images.githubusercontent.com/4258818/200044699-5f30af18-0be3-494c-b939-41bc5cf1dc0a.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

@@ -26,6 +26,7 @@ Program.Screens = {
 	INFO = InfoScreen.drawScreen,
 	NAVIGATION = NavigationMenu.drawScreen,
 	STARTUP = StartupScreen.drawScreen,
+	UPDATE = UpdateScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
@@ -45,7 +46,12 @@ Program.GameData = {
 }
 
 function Program.initialize()
-	Program.currentScreen = Program.Screens.STARTUP
+	-- If an update is available, offer that up first before going to the Tracker StartupScreen
+	if Main.Version.showUpdate then
+		Program.currentScreen = Program.Screens.UPDATE
+	else
+		Program.currentScreen = Program.Screens.STARTUP
+	end
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -105,7 +111,7 @@ function Program.update()
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isInValidMapLocation() then
+			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isValidMapLocation() then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -124,7 +130,7 @@ function Program.update()
 			Program.updatePokemonTeams()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == Program.Screens.STARTUP and Program.isInValidMapLocation() then
+			if Program.currentScreen == Program.Screens.STARTUP and Program.isValidMapLocation() then
 				Program.currentScreen = Program.Screens.TRACKER
 			end
 
@@ -155,7 +161,8 @@ function Program.update()
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
 	if Program.Frames.saveData == 0 then
-		if Options["Auto save tracked game data"] then
+		-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
+		if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 			Tracker.saveData()
 		end
 	end
@@ -409,7 +416,7 @@ end
 
 function Program.updateBadgesObtained()
 	-- Don't bother checking badge data if in the pre-game intro screen (where old data exists)
-	if not Program.isInValidMapLocation() then
+	if not Program.isValidMapLocation() then
 		return
 	end
 
@@ -438,7 +445,8 @@ function Program.updateMapLocation()
 	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 end
 
-function Program.isInValidMapLocation()
+-- More or less used to determine if the player has begun playing the game, returns true if so.
+function Program.isValidMapLocation()
 	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
 end
 

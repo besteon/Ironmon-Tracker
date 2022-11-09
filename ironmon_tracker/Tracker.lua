@@ -95,7 +95,7 @@ function Tracker.getPokemon(slotNumber, isOwn)
 end
 
 function Tracker.getViewedPokemon()
-	if not Program.isInValidMapLocation() then return nil end
+	if not Program.isValidMapLocation() then return nil end
 
 	local viewSlot
 	if Tracker.Data.isViewingOwn then

@@ -221,7 +221,7 @@ function Battle.updateTrackedInfo()
 	local currentAction = Memory.readbyte(GameSettings.gActionsByTurnOrder + actionCount)
 	--handles this value not being cleared from the previous battle
 	local lastMoveByAttacker = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.attacker % 2) * 0x2))
-	if actionCount == 0 and (lastMoveByAttacker ~= 0 or currentAction ~= 0) then Battle.firstActionTaken = true end
+	if actionCount <= 1 and (lastMoveByAttacker ~= 0 or currentAction ~= 0) then Battle.firstActionTaken = true end
 	--ignore focus punch setup, only priority move that isn't actually a used move yet. Also don't bother tracking abilities/moves for ghosts
 	if not Battle.moveDelayed() and not Battle.isGhost then
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
@@ -249,7 +249,9 @@ function Battle.updateTrackedInfo()
 							if not battlerTransformData.isOwn then
 								local lastMoveByBattler = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.battler % 2) * 0x2))
 								local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
-								Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+								if battlerMon ~= nil then
+									Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+								end
 							end
 						else
 							--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
@@ -425,6 +427,10 @@ function Battle.checkAbilitiesToTrack()
 	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
 		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 	end
+	--Synchronize
+	if abilityMsg ~= nil and abilityMsg[battlerAbility] and (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler and Battle.Synchronize.battlerTarget ~= -1) then
+		combatantIndexesToTrack[Battle.battler] = Battle.battler
+	end
 
 	-- REVERSE ATTACKER: 'attacker' had their ability triggered
 	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
@@ -457,7 +463,7 @@ function Battle.checkAbilitiesToTrack()
 	end
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
-	for i = 0, Battle.numBattlers, 1 do
+	for i = 0, Battle.numBattlers - 1, 1 do
 		if levitateCheck == 4 and Battle.attacker ~= i then
 			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon

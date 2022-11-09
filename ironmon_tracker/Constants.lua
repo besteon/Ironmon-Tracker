@@ -10,6 +10,7 @@ Constants.Files = {
 	PostFixes = {
 		ATTEMPTS_FILE = "Attempts.txt",
 		AUTORANDOMIZED = "AutoRandomized",
+		PREVIOUSATTEMPT = "PreviousAttempt",
 		AUTOSAVE = "AutoSave",
 	},
 	Extensions = {
@@ -42,6 +43,7 @@ Constants.Words = {
 Constants.Release = {
 	VERSION_URL = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD_URL = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
+	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 }
 
 Constants.ButtonTypes = {
@@ -235,6 +237,29 @@ Constants.PixelImages = {
 		{0,0,0,0,0,0,0,1,1,0},
 		{0,0,0,0,0,0,0,1,1,1},
 		{0,0,0,0,0,0,0,0,1,1},
+	},
+	CLOCK = {
+		{0,0,1,1,1,1,1,1,0,0},
+		{0,1,0,0,0,0,0,0,1,0},
+		{1,0,0,0,1,0,0,0,0,1},
+		{1,0,0,0,1,0,0,0,0,1},
+		{1,0,0,0,1,0,0,0,0,1},
+		{1,0,0,0,1,1,1,0,0,1},
+		{1,0,0,0,0,0,0,0,0,1},
+		{1,0,0,0,0,0,0,0,0,1},
+		{0,1,0,0,0,0,0,0,1,0},
+		{0,0,1,1,1,1,1,1,0,0},
+	},
+	INSTALL_BOX = {
+		{0,0,0,0,1,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0},
+		{0,0,0,0,1,0,0,0,0},
+		{0,0,1,0,1,0,1,0,0},
+		{0,0,0,1,1,1,0,0,0},
+		{0,0,0,0,1,0,0,0,0},
+		{1,0,0,0,0,0,0,0,1},
+		{1,0,0,0,0,0,0,0,1},
+		{1,1,1,1,1,1,1,1,1},
 	},
 	PREVIOUS_BUTTON = {
 		{0,0,0,0,0,0,0,0,0,0},
