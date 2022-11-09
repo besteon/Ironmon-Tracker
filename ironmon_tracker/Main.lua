@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "1", minor = "0", patch = "0" }
+Main.Version = { major = "7", minor = "0", patch = "0" }
 -- TODO: Purposefully downgrading Tracker version to test auto-update code, the real version should get updated to 7.0.0 before official release
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
