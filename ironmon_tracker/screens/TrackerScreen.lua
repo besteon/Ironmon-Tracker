@@ -552,7 +552,7 @@ function TrackerScreen.drawScreen()
 		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
 	end
 
-	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isInValidMapLocation() then
+	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
 	elseif not Tracker.Data.hasCheckedSummary then
 		-- Don't display any spoilers about the stats/moves, but still show the pokemon icon, name, and level
