@@ -376,7 +376,9 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 	if applyTheme then
 		Theme.settingsUpdated = true
 	end
-	Program.redraw(true)
+	if Program.currentScreen == Program.Screens.THEME then
+		Program.redraw(true)
+	end
 
 	return true
 end

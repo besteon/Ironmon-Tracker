@@ -249,7 +249,9 @@ function Battle.updateTrackedInfo()
 							if not battlerTransformData.isOwn then
 								local lastMoveByBattler = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.battler % 2) * 0x2))
 								local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
-								Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+								if battlerMon ~= nil then
+									Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+								end
 							end
 						else
 							--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
