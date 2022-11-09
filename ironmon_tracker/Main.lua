@@ -6,7 +6,7 @@ Main.Version = { major = "1", minor = "0", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "AKD", "davidhouweling", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
