@@ -5,6 +5,9 @@ IronmonTracker = {}
 
 -- Loads/reloads most of the Tracker scripts (except this single script loaded into Bizhawk)
 function IronmonTracker.startTracker()
+	-- Required garbage collection to release old Tracker files after an auto-update
+	collectgarbage()
+
 	-- Only continue with starting up the Tracker if the 'Main' script was able to be loaded
 	if IronmonTracker.tryLoad() then
 		-- Then verify the remainder of the Tracker files were able to be setup and initialized

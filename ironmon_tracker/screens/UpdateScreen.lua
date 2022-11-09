@@ -115,7 +115,7 @@ function UpdateScreen.performAutoUpdate()
 	local wasSoundOn = client.GetSoundOn()
 	client.SetSoundOn(false)
 
-	gui.clearImageCache() -- Unsure if this is needed
+	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
 	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
 
 	-- Execute the batch set of operations
@@ -145,11 +145,11 @@ function UpdateScreen.executeBatchOperations()
 
 	-- Each individual command listed in order, to be appended together later
 	local batchCommands = {
-		'echo Downloading the latest Ironmon Tracker version.',
+		'(echo Downloading the latest Ironmon Tracker version.',
 		string.format('curl -L "%s" -o "%s"', Constants.Release.TAR_URL, archiveName),
-		'echo Extracting downloaded files.',
+		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
 		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
-		'echo Applying the update; copying over files.',
+		'echo; && echo Applying the update; copying over files.',
 		string.format('rmdir "%s\\.vscode" /s /q', folderName),
 		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q', folderName),
 		string.format('del "%s\\.editorconfig" /q', folderName),
@@ -158,15 +158,11 @@ function UpdateScreen.executeBatchOperations()
 		string.format('del "%s\\README.md" /q', folderName),
 		string.format('xcopy "%s" /s /y /q', folderName),
 		string.format('rmdir "%s" /s /q', folderName),
-		'echo Version update completed successfully.',
-		'timeout /t 3',
+		'echo; && echo Version update completed successfully.',
+		'timeout /t 3) || pause', -- Pause if any of the commands fail, those grouped between ( )
 	}
 
-	local combined_cmd = ""
-	for _, cmd in ipairs(batchCommands) do
-		combined_cmd = combined_cmd .. cmd .. ' && '
-	end
-	combined_cmd = combined_cmd:sub(1, -5) -- Remove trailing " && "
+	local combined_cmd = table.concat(batchCommands, ' && ')
 
 	print(string.format("Performing version update to %s", Main.Version.latestAvailable))
 
@@ -201,6 +197,7 @@ function UpdateScreen.openReleaseNotesWindow()
 	if Main.OS == "Windows" then
 		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
 	else
+		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
 		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
 	end
 end
