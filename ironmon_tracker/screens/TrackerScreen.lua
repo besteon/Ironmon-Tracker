@@ -812,9 +812,20 @@ function TrackerScreen.drawStatsArea(pokemon)
 		statOffsetY = statOffsetY + 10
 	end
 
-	-- Draw BST
-	Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
-	Drawing.drawNumber(statOffsetX + 25, statOffsetY, pokemon.bst, 3, Theme.COLORS["Default text"], shadowcolor)
+	-- Draw BST or ACC/EVA
+	-- The "ACC" and "EVA" stats occupy the same space as the "BST". Prioritize showing ACC/EVA if either has changed during battle (6 is neutral)
+	local useAccEvaInstead = Battle.inBattle and (pokemon.statStages.acc ~= 6 or pokemon.statStages.eva ~= 6)
+	if useAccEvaInstead then
+		Drawing.drawText(statOffsetX - 1, statOffsetY + 1, "Acc", Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, "Eva", Theme.COLORS["Default text"], shadowcolor)
+		local accIntensity = pokemon.statStages.acc - 6
+		local evaIntensity = pokemon.statStages.eva - 6
+		Drawing.drawChevrons(statOffsetX + 15, statOffsetY + 5, accIntensity, 3)
+		Drawing.drawChevrons(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3)
+	else
+		Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawNumber(statOffsetX + 25, statOffsetY, pokemon.bst, 3, Theme.COLORS["Default text"], shadowcolor)
+	end
 
 	-- If controller is in use and highlighting any stats, draw that
 	Drawing.drawInputOverlay()
