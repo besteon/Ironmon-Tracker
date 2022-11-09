@@ -2092,7 +2092,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Decreases the PP of the target's last used move by 2-5 PP, chosen at random.",
+		summary = "Decreases the PP of the target's last used move by 2-5 PP, chosen at random. Spite fails if that move has exactly 1 PP remaining",
 	},
 	{
 		id = "181",
