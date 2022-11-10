@@ -146,7 +146,7 @@ function UpdateScreen.executeBatchOperations()
 	-- Each individual command listed in order, to be appended together later
 	local batchCommands = {
 		'(echo Downloading the latest Ironmon Tracker version.',
-		string.format('curl -L "%s" -o "%s"', Constants.Release.TAR_URL, archiveName),
+		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', Constants.Release.TAR_URL, archiveName),
 		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
 		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
 		'echo; && echo Applying the update; copying over files.',
