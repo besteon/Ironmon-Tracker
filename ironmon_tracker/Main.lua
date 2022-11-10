@@ -238,9 +238,13 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
 
-			local latestVersion = major .. "." .. minor .. "." .. patch
-			local newVersionAvailable = Main.Version.major ~= major or Main.Version.minor ~= minor
-			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestVersion
+			local latestReleasedVersion = string.format("%s.%s.%s", major, minor, patch)
+
+			-- Ignore patch numbers when checking to notify for a new release
+			local newVersionAvailable = not Main.isOnLatestVersion(string.format("%s.%s.0", major, minor))
+
+			-- Other than choosing to be reminded, only notify when a release comes out that is different than the last recorded newest release
+			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
@@ -249,24 +253,38 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 			-- Track that an update was checked today, so no additional api calls are performed today
 			Main.Version.dateChecked = todaysDate
-			-- Track the latest available version, for determining whether to show silent updates below
-			Main.Version.latestAvailable = latestVersion
+			-- Track the latest available version
+			Main.Version.latestAvailable = latestReleasedVersion
 		end
 	end
-
-	-- Always show the version update silently through the Lua Console
-	-- Removing this for now, as it's now possible to see this directly on the Tracker's NavigationMenu
-	-- if not forcedCheck and not Main.isOnLatestVersion() then
-	-- 	print("[Version Update] New Tracker version available for download: v" .. Main.Version.latestAvailable)
-	-- 	print(Constants.Release.DOWNLOAD_URL)
-	-- end
 
 	Main.SaveSettings(true)
 end
 
--- returns true if the current version of the Tracker matches the version of the latest release; false otherwise
-function Main.isOnLatestVersion()
-	return Main.TrackerVersion == Main.Version.latestAvailable
+-- Checks the current version of the Tracker against the version of the latest release, true if greater/equal; false otherwise.
+-- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
+function Main.isOnLatestVersion(versionToCheck)
+	versionToCheck = versionToCheck or Main.Version.latestAvailable
+
+	if Main.TrackerVersion == versionToCheck then
+		return true
+	end
+
+	local currMajor, currMinor, currPatch = string.match(Main.TrackerVersion, "(%d+)%.(%d+)%.(%d+)")
+	local latestMajor, latestMinor, latestPatch = string.match(versionToCheck, "(%d+)%.(%d+)%.(%d+)")
+
+	-- Attempt to prove that the current loaded version is greater than the latest available version
+	if (tonumber(currMajor) or 0) > (tonumber(latestMajor) or 0) then
+		return true
+	end
+	if (tonumber(currMinor) or 0) > (tonumber(latestMinor) or 0) then
+		return true
+	end
+	if (tonumber(currPatch) or 0) > (tonumber(latestPatch) or 0) then
+		return true
+	end
+
+	return false
 end
 
 function Main.LoadNextRom()
