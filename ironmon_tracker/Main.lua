@@ -228,7 +228,8 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
-		local pipe = io.popen("curl " .. Constants.Release.VERSION_URL) or ""
+		local update_cmd = string.format('curl "%s" --ssl-no-revoke', Constants.Release.VERSION_URL)
+		local pipe = io.popen(update_cmd) or ""
 		if pipe ~= "" then
 			local response = pipe:read("*all") or ""
 
