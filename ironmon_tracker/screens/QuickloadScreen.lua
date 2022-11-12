@@ -137,9 +137,9 @@ function QuickloadScreen.handleSetRomFolder(button)
 	if file ~= "" then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
-		file = file:sub(0, file:match(slashpattern) - 1)
+		file = file:sub(0, (file:match(slashpattern) or 1) - 1)
 
-		if file == nil then
+		if file == nil or file == "" then
 			Options.FILES[button.labelText] = ""
 			button.isSet = false
 			button.text = " SET"

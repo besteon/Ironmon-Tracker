@@ -115,6 +115,11 @@ function UpdateScreen.performAutoUpdate()
 	local wasSoundOn = client.GetSoundOn()
 	client.SetSoundOn(false)
 
+	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
+	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
+		Tracker.saveData()
+	end
+
 	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
 	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
 

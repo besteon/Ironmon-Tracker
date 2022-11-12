@@ -253,6 +253,8 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 
 	local pIndex = RouteData.getIndexForGameVersion()
 	local areaInfo = {}
+	-- Eventually fix this by more clearly separating a route's name from its encounters. eg. (encounters.wild)
+---@diagnostic disable-next-line: param-type-mismatch
 	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
 		local pokemonID
 		if type(encounter.pokemonID) == "number" then
@@ -3818,6 +3820,8 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 
 	RouteData.Info[270 + offset] = { name = Constants.Words.POKEMON .. " League PC", }
+	RouteData.Info[271 + offset] = { name = "Weather Institute 1F", }
+	RouteData.Info[272 + offset] = { name = "Weather Institute 2F", }
 	RouteData.Info[285 + offset] = { name = "Victory Road B1F",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },
