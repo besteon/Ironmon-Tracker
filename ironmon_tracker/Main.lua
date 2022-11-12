@@ -446,7 +446,7 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 
 	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
 	if Main.FileExists(nameOfCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
-		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.'), nameOfCopy or "N/A")
+		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', nameOfCopy or "N/A"))
 		return false
 	end
 
@@ -459,7 +459,7 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 	end
 
 	if copyOfFile == nil then
-		print(string.format('Error: Failed to write to file "%s"'), nameOfCopy or "N/A")
+		print(string.format('Error: Failed to write to file "%s"', nameOfCopy or "N/A"))
 		return false
 	end
 
