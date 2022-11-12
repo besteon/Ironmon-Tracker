@@ -155,7 +155,7 @@ end
 function Utils.calculateMoveStars(pokemonID, level)
 	local stars = { "", "", "", "" }
 
-	if pokemonID == nil or pokemonID == 0 or level == nil or level == 1 then
+	if not PokemonData.isValid(pokemonID) or level == nil or level == 1 then
 		return stars
 	end
 
@@ -340,6 +340,11 @@ end
 
 -- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.
 function Utils.calculateWeightBasedDamage(movePower, weight)
+	-- For unknown Pokemon such as unidentified ghost pokemon (e.g. Silph Scope required)
+	if weight == 0.0 then
+		return "0"
+	end
+
 	-- For randomized move powers, unsure what these two moves get changed to
 	if weight < 10.0 then
 		return "20"
@@ -446,7 +451,7 @@ end
 
 -- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
 function Utils.estimateIVs(pokemon)
-	if pokemon == nil or pokemon.pokemonID == 0 then
+	if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
 		return 0
 	end
 
