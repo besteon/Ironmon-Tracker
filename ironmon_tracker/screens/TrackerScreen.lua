@@ -199,6 +199,65 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
 		end
 	},
+	PedometerStepText = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.CLOCK,
+		text = "Steps: ##,###", -- Placeholder template, see updateText() below
+		textColor = "Lower box text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 141, 10, 10 },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
+		updateText = function(self)
+			local stepCount = Program.Pedometer:getCurrentStepcount()
+			if stepCount > 999999 then -- 1,000,000 is the arbitrary cutoff
+				stepCount = 999999
+			end
+			if Program.Pedometer.goalSteps ~= 0 and stepCount >= Program.Pedometer.goalSteps then
+				self.textColor = "Positive text"
+			else
+				self.textColor = "Default text"
+			end
+			local formattedStepCount = Utils.formatNumberWithCommas(stepCount)
+			self.text = string.format("Steps: %s", formattedStepCount)
+		end,
+	},
+	PedometerGoal = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Goal",
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, 140, 23, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, 140, 23, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
+		updateText = function(self)
+			if Program.Pedometer.goalSteps == 0 then
+				self.textColor = "Lower box text"
+			else
+				self.textColor = "Intermediate text"
+			end
+		end,
+		onClick = function(self) TrackerScreen.openEditStepGoalWindow() end
+	},
+	PedometerReset = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Reset",
+		textColor = "Lower box text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, 140, 28, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, 140, 28, 11 },
+		boxColors = { "Lower box border", "Lower box background" },
+		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
+		updateText = function(self)
+			local stepCount = Program.Pedometer:getCurrentStepcount()
+			self.text = Utils.inlineIf(stepCount <= 0, " Total", "Reset")
+		end,
+		onClick = function(self)
+			if self.text == "Reset" then
+				Program.Pedometer.lastResetCount = Program.Pedometer.totalSteps
+			elseif self.text == " Total" then
+				Program.Pedometer.lastResetCount = 0
+			end
+			Program.redraw(true)
+		end
+	},
 }
 
 TrackerScreen.CarouselTypes = {
@@ -206,6 +265,7 @@ TrackerScreen.CarouselTypes = {
 	LAST_ATTACK = 2, -- During battle, only between turns
 	ROUTE_INFO = 3, -- During battle, only if encounter is a wild pokemon
 	NOTES = 4, -- During new game intro or inside of battle
+    PEDOMETER = 5, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1
@@ -321,7 +381,7 @@ function TrackerScreen.buildCarousel()
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
-		isVisible = function() return Tracker.Data.isViewingOwn end,
+		isVisible = function() return Tracker.Data.isViewingOwn and not (Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()) end,
 		framesToShow = 210,
 		getContentList = function()
 			local badgeButtons = {}
@@ -405,6 +465,23 @@ function TrackerScreen.buildCarousel()
 			end
 
 			return { TrackerScreen.Buttons.RouteSummary }
+		end,
+	}
+
+	--  PEDOMETER
+	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER] = {
+		type = TrackerScreen.CarouselTypes.PEDOMETER,
+		isVisible = function() return Tracker.Data.isViewingOwn and Program.Pedometer:isInUse() end,
+		framesToShow = 210,
+		getContentList = function()
+			TrackerScreen.Buttons.PedometerStepText:updateText()
+			TrackerScreen.Buttons.PedometerGoal:updateText()
+			TrackerScreen.Buttons.PedometerReset:updateText()
+			return {
+				TrackerScreen.Buttons.PedometerStepText,
+				TrackerScreen.Buttons.PedometerGoal,
+				TrackerScreen.Buttons.PedometerReset,
+			}
 		end,
 	}
 end
@@ -526,6 +603,34 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 		client.unpause()
 		forms.destroy(noteForm)
 	end, 295, 145, 55, 25)
+end
+
+function TrackerScreen.openEditStepGoalWindow()
+	Program.destroyActiveForm()
+	local form = forms.newform(320, 170, "Choose a Step Goal", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+
+	forms.label(form, "Pedometer will change color when goal is reached.", 26, 10, 300, 20)
+	forms.label(form, "(Set to 0 to turn-off)", 100, 28, 300, 20)
+	forms.label(form, "Enter a step goal:", 48, 50, 300, 20)
+	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 50, 70)
+	forms.button(form, "Save", function()
+		local formInput = forms.gettext(textBox)
+		if formInput ~= nil and formInput ~= "" then
+			local newStepGoal = tonumber(formInput)
+			if newStepGoal ~= nil then
+				Program.Pedometer.goalSteps = newStepGoal
+				Program.redraw(true)
+			end
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 72, 100)
+	forms.button(form, "Cancel", function()
+		client.unpause()
+		forms.destroy(form)
+	end, 157, 100)
 end
 
 function TrackerScreen.randomlyChooseBall()
@@ -1033,7 +1138,7 @@ function TrackerScreen.drawCarouselArea(pokemon)
 
 	local carousel = TrackerScreen.getCurrentCarouselItem()
 	for _, content in pairs(carousel.getContentList(pokemon)) do
-		if content.type == Constants.ButtonTypes.IMAGE or content.type == Constants.ButtonTypes.PIXELIMAGE then
+		if content.type == Constants.ButtonTypes.IMAGE or content.type == Constants.ButtonTypes.PIXELIMAGE or content.type == Constants.ButtonTypes.FULL_BORDER then
 			Drawing.drawButton(content, shadowcolor)
 		elseif type(content) == "string" then
 			local wrappedText = Utils.getWordWrapLines(content, 34) -- was 31
