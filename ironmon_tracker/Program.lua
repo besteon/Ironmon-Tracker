@@ -28,6 +28,7 @@ Program.Screens = {
 	STARTUP = StartupScreen.drawScreen,
 	UPDATE = UpdateScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
+	EXTRAS = ExtrasScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
 	THEME = Theme.drawScreen,

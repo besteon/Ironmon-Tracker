@@ -101,6 +101,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.SETUP then
 		Input.checkButtonsClicked(xmouse, ymouse, SetupScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.EXTRAS then
+		Input.checkButtonsClicked(xmouse, ymouse, ExtrasScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.QUICKLOAD then
 		Input.checkButtonsClicked(xmouse, ymouse, QuickloadScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.GAME_SETTINGS then

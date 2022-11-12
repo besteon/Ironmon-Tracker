@@ -1,5 +1,5 @@
 NavigationMenu = {
-	headerText = "Navigation Menu",
+	headerText = "Tracker Settings",
 	textColor = "Default text",
 	borderColor = "Upper box border",
 	boxFillColor = "Upper box background",
@@ -8,19 +8,39 @@ NavigationMenu = {
 
 NavigationMenu.Buttons = {
 	SetupAndOptions = {
-		text = "Tracker Setup",
+		text = "Setup",
 		image = Constants.PixelImages.NOTEPAD,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.SETUP) end
 	},
+	Extras = {
+		text = "Extras",
+		image = Constants.PixelImages.POKEBALL,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(Program.Screens.EXTRAS) end
+	},
 	GameplaySettings = {
-		text = "Gameplay Options",
+		text = "Gameplay",
 		image = Constants.PixelImages.PHYSICAL,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.GAME_SETTINGS) end
 	},
+	QuickloadSettings = {
+		text = "Quickload",
+		image = Constants.PixelImages.CLOCK,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		updateText = function (self)
+			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
+				self.textColor = NavigationMenu.textColor
+			else
+				-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
+				self.textColor = "Intermediate text"
+			end
+		end,
+		onClick = function() Program.changeScreenView(Program.Screens.QUICKLOAD) end
+	},
 	ThemeCustomization = {
-		text = "Customize Theme",
+		text = "Theme",
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
@@ -29,7 +49,7 @@ NavigationMenu.Buttons = {
 		end
 	},
 	ManageTrackedData = {
-		text = "Manage Tracked Data",
+		text = "Data",
 		image = Constants.PixelImages.GEAR,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.MANAGE_DATA) end
@@ -37,6 +57,8 @@ NavigationMenu.Buttons = {
 	CheckForUpdates = {
 		text = "Check for Updates", -- Can also be "New Update Available" or "No Updates Available"
 		image = Constants.PixelImages.INSTALL_BOX,
+		type = Constants.ButtonTypes.FULL_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 112, 110, 15 },
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		onClick = function(self)
 			-- Don't check for updates if they've already been checked since in this NavigationMenu (resets after clicking Back)
@@ -54,21 +76,21 @@ NavigationMenu.Buttons = {
 			end
 		end
 	},
-	-- Goodbye Mirage Button. You were fun. I don't think anyone found you :(
-	-- MirageButton = {
-	-- 	text = "It's a secret...",
-	-- 	image = Constants.PixelImages.MAP_PINDROP,
-	-- 	timesClicked = 0,
-	-- 	canBeSeenToday = false,
-	-- 	isVisible = function(self) return self.canBeSeenToday and self.timesClicked <= 3 and not NavigationMenu.showCredits end,
-	-- 	onClick = function(self)
-	-- 		if not self:isVisible() then return end
-	-- 		-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
-	-- 		self.timesClicked = self.timesClicked + 1
-	-- 		self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.textColor, "Intermediate text")
-	-- 		Program.redraw(true)
-	-- 	end
-	-- },
+	MirageButton = {
+		text = "It's a secret...",
+		image = Constants.PixelImages.MAP_PINDROP,
+		type = Constants.ButtonTypes.FULL_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 91, 110, 15 },
+		timesClicked = 0,
+		canBeSeenToday = false,
+		isVisible = function(self) return self.canBeSeenToday and self.timesClicked <= 3 and not NavigationMenu.showCredits end,
+		onClick = function(self)
+			-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
+			self.timesClicked = self.timesClicked + 1
+			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.textColor, "Intermediate text")
+			Program.redraw(true)
+		end
+	},
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Credits",
@@ -132,25 +154,42 @@ NavigationMenu.Buttons = {
 
 NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.SetupAndOptions,
+	NavigationMenu.Buttons.Extras,
 	NavigationMenu.Buttons.GameplaySettings,
+	NavigationMenu.Buttons.QuickloadSettings,
 	NavigationMenu.Buttons.ThemeCustomization,
 	NavigationMenu.Buttons.ManageTrackedData,
-	NavigationMenu.Buttons.CheckForUpdates,
 }
 
 function NavigationMenu.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15
-	local startY = Constants.SCREEN.MARGIN + 22
+	local btnWidth = 61
+	local btnHeight = 15
+	local spacer = 6
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + spacer
+	local startY = Constants.SCREEN.MARGIN + 16 + spacer
+	local leftCol = true
 	for _, button in ipairs(NavigationMenu.OrderedMenuList) do
 		button.type = Constants.ButtonTypes.FULL_BORDER
-		button.box = { startX, startY, 110, 16 }
-		startY = startY + 21
+		button.box = { startX, startY, btnWidth, btnHeight }
+
+		if leftCol then
+			startX = startX + btnWidth + spacer
+		else
+			startY = startY + btnHeight + spacer
+			startX = startX - btnWidth - spacer
+		end
+		leftCol = not leftCol
 	end
+
+	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
+	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.CheckForUpdates)
 
 	for _, button in pairs(NavigationMenu.Buttons) do
 		button.textColor = NavigationMenu.textColor
 		button.boxColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor }
 	end
+
+	NavigationMenu.Buttons.QuickloadSettings:updateText()
 
 	if not Main.isOnLatestVersion() then
 		NavigationMenu.Buttons.CheckForUpdates.text = "New Update Available"
@@ -158,10 +197,10 @@ function NavigationMenu.initialize()
 	end
 
 	-- Yet another fun Easter Egg that shows up only once in a while
-	-- if math.random(256) == 1 or true then
-	-- 	NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
-	-- 	NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
-	-- end
+	if math.random(256) == 1 then
+		NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
+		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+	end
 end
 
 -- DRAWING FUNCTIONS
@@ -182,7 +221,7 @@ function NavigationMenu.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 32, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX + 30, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
@@ -197,7 +236,7 @@ function NavigationMenu.drawScreen()
 			button.text = ""
 			Drawing.drawButton(button, shadowcolor)
 			button.text = holdText
-			Drawing.drawText(x + 17, y + 3, button.text, Theme.COLORS[button.textColor], shadowcolor)
+			Drawing.drawText(x + 16, y + 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
 
 			-- TODO: Eventually make the Draw Button more flexible for centering its contents
 			if button.image == Constants.PixelImages.GEAR then
@@ -211,8 +250,12 @@ function NavigationMenu.drawScreen()
 			elseif button.image == Constants.PixelImages.INSTALL_BOX then
 				y = y + 2
 				x = x + 1
+			elseif button.image == Constants.PixelImages.POKEBALL then
+				x = x - 1
+			elseif button.image == Constants.PixelImages.CLOCK then
+				y = y + 1
 			end
-			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor] }, shadowcolor)
+			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor], Theme.COLORS[NavigationMenu.boxFillColor] }, shadowcolor)
 		end
 	end
 

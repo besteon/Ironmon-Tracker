@@ -41,6 +41,7 @@ function Main.Initialize()
 		"/screens/StartupScreen.lua",
 		"/screens/UpdateScreen.lua",
 		"/screens/SetupScreen.lua",
+		"/screens/ExtrasScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
@@ -196,6 +197,7 @@ function Main.Run()
 		StartupScreen.initialize()
 		UpdateScreen.initialize()
 		SetupScreen.initialize()
+		ExtrasScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
