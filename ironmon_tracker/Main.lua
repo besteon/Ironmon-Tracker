@@ -417,6 +417,10 @@ end
 
 -- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"
 function Main.SaveCurrentRom(filename)
+	if filename == nil then
+		return
+	end
+
 	local filenameCopy = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
 	if Main.CopyFile(filename, filenameCopy, "overwrite") then
 		local logFilename = string.format("%s.log", filename)
@@ -428,9 +432,13 @@ end
 -- Copies 'filename' to 'nameOfCopy' with option to overwrite the file if it exists, or append to it
 -- overwriteOrAppend: 'overwrite' replaces any existing file, 'append' adds to it instead, otherwise no change if file already exists
 function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
+	if filename == nil or filename == "" then
+		return false
+	end
+
 	local originalFile = io.open(filename, "rb")
 	if originalFile == nil then
-		print(string.format("Error: Unable to create a backup copy of %s, file doesn't exist."), filename)
+		-- The originalFile to copy doesn't exist, simply do nothing and don't copy
 		return false
 	end
 
@@ -438,7 +446,7 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 
 	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
 	if Main.FileExists(nameOfCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
-		print(string.format("Error: Unable to modify file %s, no overwrite/append option specified."), nameOfCopy)
+		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.'), nameOfCopy or "N/A")
 		return false
 	end
 
@@ -451,7 +459,7 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 	end
 
 	if copyOfFile == nil then
-		print(string.format("Error: Failed to write to file %s."), nameOfCopy)
+		print(string.format('Error: Failed to write to file "%s"'), nameOfCopy or "N/A")
 		return false
 	end
 
