@@ -15,6 +15,7 @@ GameOptionsScreen.OptionKeys = {
 	"Count enemy PP usage",
 	"Show last damage calcs",
 	"Reveal info if randomized",
+	"Display pedometer",
 }
 
 GameOptionsScreen.Buttons = {
@@ -22,7 +23,7 @@ GameOptionsScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "  Estimate " .. Constants.Words.POKEMON .. "'s Potential",
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 114, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 122, 130, 11 },
 		onClick = function() GameOptionsScreen.displayJudgeMessage() end
 	},
 	Back = {
@@ -40,7 +41,7 @@ GameOptionsScreen.Buttons = {
 
 function GameOptionsScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
-	local startY = Constants.SCREEN.MARGIN + 14
+	local startY = Constants.SCREEN.MARGIN + 13
 
 	for _, optionKey in ipairs(GameOptionsScreen.OptionKeys) do
 		GameOptionsScreen.Buttons[optionKey] = {

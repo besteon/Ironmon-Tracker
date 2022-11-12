@@ -29,6 +29,12 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+-- Accepts a positive or negative integer and returns a string formatted as "12,345"
+function Utils.formatNumberWithCommas(integer)
+	if integer == nil then return "" end
+	return tostring(math.floor(integer)):reverse():gsub("(%d%d%d)","%1,"):gsub(",(%-?)$","%1"):reverse()
+end
+
 function Utils.randomPokemonID()
 	local pokemonID = math.random(PokemonData.totalPokemon - 25)
 	if pokemonID > 251 then

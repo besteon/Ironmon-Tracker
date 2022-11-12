@@ -31,6 +31,7 @@ Options = {
 	["Use premade ROMs"] = false,
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,
+	["Display pedometer"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
