@@ -73,7 +73,7 @@ end
 
 function GameOptionsScreen.displayJudgeMessage()
 	local leadPokemon = Battle.getViewedPokemon(true)
-	if leadPokemon ~= nil then
+	if leadPokemon ~= nil and PokemonData.isValid(leadPokemon.pokemonID) then
 		-- https://bulbapedia.bulbagarden.net/wiki/Stats_judge
 		local result
 		local ivEstimate = Utils.estimateIVs(leadPokemon) * 186

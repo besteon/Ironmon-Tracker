@@ -469,7 +469,7 @@ function TrackerScreen.updateButtonStates()
 end
 
 function TrackerScreen.openNotePadWindow(pokemonId)
-	if pokemonId == nil or pokemonId == 0 then return end
+	if not PokemonData.isValid(pokemonId) then return end
 
 	Program.destroyActiveForm()
 	local noteForm = forms.newform(465, 220, "Leave a Note", function() client.unpause() end)
@@ -960,7 +960,14 @@ function TrackerScreen.drawMovesArea(pokemon, opposingPokemon)
 		if Options["Calculate variable damage"] then
 			if moveData.id == "67" and Battle.inBattle and opposingPokemon ~= nil then
 				-- Calculate the power of Low Kick (weight-based moves) in battle
-				local targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
+				local targetWeight
+				if opposingPokemon.weight ~= nil then
+					targetWeight = opposingPokemon.weight
+				elseif PokemonData.Pokemon[opposingPokemon.pokemonID] ~= nil then
+					targetWeight = PokemonData.Pokemon[opposingPokemon.pokemonID].weight
+				else
+					targetWeight = 0
+				end
 				movePower = Utils.calculateWeightBasedDamage(movePower, targetWeight)
 			elseif Tracker.Data.isViewingOwn then
 				if moveData.id == "175" or moveData.id == "179" then
