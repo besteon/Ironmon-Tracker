@@ -329,6 +329,11 @@ end
 
 -- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.
 function Utils.calculateWeightBasedDamage(movePower, weight)
+	-- For unknown Pokemon such as unidentified ghost pokemon (e.g. Silph Scope required)
+	if weight == 0.0 then
+		return "0"
+	end
+
 	-- For randomized move powers, unsure what these two moves get changed to
 	if weight < 10.0 then
 		return "20"
