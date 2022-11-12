@@ -503,7 +503,7 @@ function Tracker.loadData(filepath)
 		end
 		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
 		local fileNameIndex = string.match(filepath, slashpattern)
-		local filename = string.sub(filepath, Utils.inlineIf(fileNameIndex ~= nil, fileNameIndex, 0) + 1) or ""
+		local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
 
 		Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
 	else
