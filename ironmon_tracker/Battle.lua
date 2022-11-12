@@ -555,12 +555,6 @@ function Battle.endCurrentBattle()
 		RightOwn = 2,
 		RightOther = 2,
 	}
-	Battle.isTransformed = {
-		LeftOwn = false,
-		LeftOther = false,
-		RightOwn = false,
-		RightOther = false,
-	}
 	Battle.BattleAbilities = {
 		[0] = {},
 		[1] = {},
