@@ -29,10 +29,15 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
--- Accepts a positive or negative integer and returns a string formatted as "12,345"
-function Utils.formatNumberWithCommas(integer)
-	if integer == nil then return "" end
-	return tostring(math.floor(integer)):reverse():gsub("(%d%d%d)","%1,"):gsub(",(%-?)$","%1"):reverse()
+-- Accepts a number, positive or negative and with/without fractions, and returns a string formatted as "12,345.6789"
+function Utils.formatNumberWithCommas(number)
+	local _, _, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
+
+	-- reverse the int-string and append a comma to all blocks of 3 digits
+	int = int:reverse():gsub("(%d%d%d)", "%1,")
+
+  -- reverse the int-string back remove an optional comma and put the optional minus and fractional part back
+  return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
 function Utils.randomPokemonID()
