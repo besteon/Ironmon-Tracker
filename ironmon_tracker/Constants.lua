@@ -87,6 +87,7 @@ Constants.MoveTypeColors = {
 
 Constants.GAME_STATS = { -- Enums for in-game stats
 	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
+	GAME_STAT_STEPS = 5,
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
 	USED_POKECENTER = 15,
 	RESTED_AT_HOME = 16,
@@ -140,6 +141,7 @@ Constants.OrderedLists = {
 		"Generate ROM each time",
 		"Display repel usage",
 		"Startup Pokemon displayed",
+		"Display pedometer",
 	},
 	CONTROLS = {
 		"Load next seed",
