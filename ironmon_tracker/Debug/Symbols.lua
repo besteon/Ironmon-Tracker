@@ -88,7 +88,7 @@ function Symbols.populateSymbolsMap()
 		local gameValues = Symbols.symbolSources[i]
 		gameValues.symbols = {}
 		for j = 1, #Symbols.symbolSearch, 1 do
-			local symbolFile = io.open(gameValues.fileName,"r")
+			local symbolFile = io.open(gameValues.fileName,"r") or ""
 			local found = false
 			local variableName = Symbols.symbolSearch[j][1]
 			if Symbols.FRToOtherGameNameMap[variableName] ~= nil and Symbols.FRToOtherGameNameMap[variableName][gameValues.gameType] ~= nil then
@@ -128,7 +128,7 @@ function Symbols.writeSymbolsToFile()
 							offsetGE = "0x" .. string.format("%x",(tonumber(prevSym,16)) + 0x4226)
 						end
 						writeFile:write(" " .. offsetSP .. ", " .. offsetIT .. ", " .. offsetFR .. ", " .. offsetGE .. ",")
-					end	
+					end
 					writeFile:write("},\n\t{")
 					Symbols.gameType = gameValues.gameType
 				end
