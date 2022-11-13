@@ -45,6 +45,14 @@ Program.GameData = {
 	},
 }
 
+Program.Pedometer = {
+	totalSteps = 0, -- updated from GAME_STATS
+	lastResetCount = 0, -- num steps since last "reset", for counting new steps
+	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
+	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
+	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Program.inStartMenu end,
+}
+
 function Program.initialize()
 	-- If an update is available, offer that up first before going to the Tracker StartupScreen
 	if Main.Version.showUpdate then
@@ -148,6 +156,11 @@ function Program.update()
 				if not Program.inStartMenu then
 					Program.updateRepelSteps()
 				end
+			end
+
+			-- Update step count only if the option is enabled
+			if Program.Pedometer:isInUse() then
+				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.GAME_STAT_STEPS)
 			end
 		end
 	end
