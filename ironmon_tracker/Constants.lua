@@ -88,11 +88,16 @@ Constants.MoveTypeColors = {
 
 Constants.GAME_STATS = { -- Enums for in-game stats
 	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
-	GAME_STAT_STEPS = 5,
+	STEPS = 5,
+	TOTAL_BATTLES = 7,
+	WILD_BATTLES = 8,
+	TRAINER_BATTLES = 9,
+	POKEMON_CAPTURES = 11, -- Deceptive name?
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
 	USED_POKECENTER = 15,
 	RESTED_AT_HOME = 16,
 	USED_ROCK_SMASH = 19,
+	USED_STRUGGLE = 27,
 }
 
 Constants.PreloadedThemes = {
