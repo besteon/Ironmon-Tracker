@@ -1,5 +1,7 @@
 Battle = {
+	totalBattles = 0,
 	inBattle = false,
+	battleStarting = false,
 	isWildEncounter = false,
 	isGhost = false,
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
@@ -79,6 +81,11 @@ function Battle.updateBattleStatus()
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
+	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
+	if (Battle.totalBattles < totalBattles) then
+		Battle.battleStarting = true
+	end
+	Battle.totalBattles = totalBattles
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
 		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
@@ -485,6 +492,7 @@ function Battle.beginNewBattle()
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
+	Battle.battleStarting = false
 	Battle.turnCount = 0
 	Battle.prevDamageTotal = 0
 	Battle.damageReceived = 0
@@ -537,6 +545,7 @@ function Battle.endCurrentBattle()
 
 	Battle.numBattlers = 0
 	Battle.inBattle = false
+	Battle.battleStarting = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
 	Battle.Synchronize.turnCount = 0

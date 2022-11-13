@@ -149,7 +149,7 @@ function Program.update()
 				end
 			end
 
-			if Options["Display repel usage"] and not Battle.inBattle then
+			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
@@ -394,7 +394,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle then
+	if Battle.inBattle or Battle.battleStarting then
 		return
 	end
 
