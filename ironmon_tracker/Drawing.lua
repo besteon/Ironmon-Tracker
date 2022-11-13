@@ -225,7 +225,7 @@ function Drawing.drawScreen(screenFunc)
 		screenFunc()
 	end
 	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not Battle.inBattle and not Program.inStartMenu then
+	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
 		Drawing.drawRepelUsage()
 	end
 end
