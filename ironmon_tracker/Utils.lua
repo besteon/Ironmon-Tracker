@@ -29,6 +29,17 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+-- Accepts a number, positive or negative and with/without fractions, and returns a string formatted as "12,345.6789"
+function Utils.formatNumberWithCommas(number)
+	local _, _, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
+
+	-- reverse the int-string and append a comma to all blocks of 3 digits
+	int = int:reverse():gsub("(%d%d%d)", "%1,")
+
+  -- reverse the int-string back remove an optional comma and put the optional minus and fractional part back
+  return minus .. int:reverse():gsub("^,", "") .. fraction
+end
+
 function Utils.randomPokemonID()
 	local pokemonID = math.random(PokemonData.totalPokemon - 25)
 	if pokemonID > 251 then
@@ -144,7 +155,7 @@ end
 function Utils.calculateMoveStars(pokemonID, level)
 	local stars = { "", "", "", "" }
 
-	if pokemonID == nil or pokemonID == 0 or level == nil or level == 1 then
+	if not PokemonData.isValid(pokemonID) or level == nil or level == 1 then
 		return stars
 	end
 
@@ -329,6 +340,11 @@ end
 
 -- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.
 function Utils.calculateWeightBasedDamage(movePower, weight)
+	-- For unknown Pokemon such as unidentified ghost pokemon (e.g. Silph Scope required)
+	if weight == 0.0 then
+		return "0"
+	end
+
 	-- For randomized move powers, unsure what these two moves get changed to
 	if weight < 10.0 then
 		return "20"
@@ -435,7 +451,7 @@ end
 
 -- Returns a number between 0 and 1, where 1 is best possible IVs and 0 is no IVs
 function Utils.estimateIVs(pokemon)
-	if pokemon == nil or pokemon.pokemonID == 0 then
+	if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
 		return 0
 	end
 

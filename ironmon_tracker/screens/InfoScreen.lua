@@ -341,7 +341,12 @@ function InfoScreen.openPokemonInfoWindow()
 	Program.activeFormId = pokedexLookup
 	Utils.setFormLocation(pokedexLookup, 100, 50)
 
-	local pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name -- infoLookup = pokemonID
+	local pokemonName
+	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
+		pokemonName = PokemonData.Pokemon[InfoScreen.infoLookup].name
+	else
+		pokemonName = ""
+	end
 	local pokedexData = PokemonData.toList()
 
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)

@@ -28,10 +28,12 @@ Program.Screens = {
 	STARTUP = StartupScreen.drawScreen,
 	UPDATE = UpdateScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
+	EXTRAS = ExtrasScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
+	STATS = StatsScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -43,6 +45,14 @@ Program.GameData = {
 			[97] = 0, -- Water Stone
 			[98] = 0, -- Leaf Stone
 	},
+}
+
+Program.Pedometer = {
+	totalSteps = 0, -- updated from GAME_STATS
+	lastResetCount = 0, -- num steps since last "reset", for counting new steps
+	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
+	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
+	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Program.inStartMenu end,
 }
 
 function Program.initialize()
@@ -141,13 +151,18 @@ function Program.update()
 				end
 			end
 
-			if Options["Display repel usage"] and not Battle.inBattle then
+			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
 				if not Program.inStartMenu then
 					Program.updateRepelSteps()
 				end
+			end
+
+			-- Update step count only if the option is enabled
+			if Program.Pedometer:isInUse() then
+				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
 			end
 		end
 	end
@@ -381,7 +396,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle then
+	if Battle.inBattle or Battle.battleStarting then
 		return
 	end
 

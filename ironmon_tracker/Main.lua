@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "1" }
+Main.Version = { major = "7", minor = "0", patch = "2" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
@@ -41,9 +41,11 @@ function Main.Initialize()
 		"/screens/StartupScreen.lua",
 		"/screens/UpdateScreen.lua",
 		"/screens/SetupScreen.lua",
+		"/screens/ExtrasScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
+		"/screens/StatsScreen.lua",
 		"/Input.lua",
 		"/Drawing.lua",
 		"/Program.lua",
@@ -196,9 +198,11 @@ function Main.Run()
 		StartupScreen.initialize()
 		UpdateScreen.initialize()
 		SetupScreen.initialize()
+		ExtrasScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
+		StatsScreen.initialize()
 
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
@@ -339,9 +343,6 @@ function Main.GetNextRomFromFolder()
 	local romprefix = string.match(romname, '[^0-9]+') or ""
 	local romnumber = string.match(romname, '[0-9]+') or "0"
 
-	local attemptsfile = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
-	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
-
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
 	local nextrompath = string.format("%s/%s%s", Options.FILES["ROMs Folder"], nextromname, Constants.Files.Extensions.GBA_ROM)
@@ -358,6 +359,10 @@ function Main.GetNextRomFromFolder()
 			return nil
 		end
 	end
+
+	-- After successfully locating the next ROM to load, increment the attempts counter
+	local attemptsfile = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
+	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
 
 	return {
 		name = nextromname,
@@ -385,8 +390,6 @@ function Main.GenerateNextRom()
 
 	Main.SaveCurrentRom(nextromname)
 
-	Main.IncrementAttemptsCounter(attemptsfile, 1)
-
 	local javacommand = string.format(
 		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
 		Options.FILES["Randomizer JAR"],
@@ -408,6 +411,9 @@ function Main.GenerateNextRom()
 		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the " .. Constants.Files.RANDOMIZER_ERROR_LOG .. " file in the tracker folder for errors.")
 		return nil
 	end
+
+	-- After successfully generating the next ROM to load, increment the attempts counter
+	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	return {
 	 	name = nextromname,
