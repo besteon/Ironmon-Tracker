@@ -9,8 +9,8 @@ NavigationMenu = {
 NavigationMenu.Buttons = {
 	VersionInfo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = tostring(Main.TrackerVersion),
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 119, Constants.SCREEN.MARGIN - 2, 22, 10 },
+		text = "v" .. tostring(Main.TrackerVersion),
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN - 2, 22, 10 },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function(self) UpdateScreen.openReleaseNotesWindow() end
 	},
@@ -169,6 +169,7 @@ function NavigationMenu.initialize()
 		button.boxColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor }
 	end
 
+	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
 	NavigationMenu.Buttons.QuickloadSettings:updateText()
 	NavigationMenu.Buttons.CheckForUpdates:updateText()
 
@@ -209,7 +210,7 @@ function NavigationMenu.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 30, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
