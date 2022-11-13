@@ -148,7 +148,10 @@ function PokemonData.checkIfDataIsRandomized()
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)
-	if abilityNum == nil then return 0 end
+	if abilityNum == nil or not PokemonData.isValid(pokemonID) then
+		return 0
+	end
+
 	local pokemon = PokemonData.Pokemon[pokemonID]
 	local abilityId = pokemon.abilities[abilityNum + 1] -- stored from memory as [0 or 1]
 	return abilityId

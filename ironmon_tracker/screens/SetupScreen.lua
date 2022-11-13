@@ -11,8 +11,6 @@ SetupScreen.OptionKeys = {
 	"Disable mainscreen carousel",
 	"Track PC Heals",
 	"PC heals count downward", -- Text referenced in initialize()
-	"Display repel usage",
-	"Animated Pokemon popout", -- Text referenced in initialize()
 }
 
 SetupScreen.Buttons = {
@@ -73,16 +71,6 @@ SetupScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 53, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
-	QuickLoad = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Quick- load",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 135, 49, 11 },
-		onClick = function()
-			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.QUICKLOAD)
-		end
-	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
@@ -97,7 +85,7 @@ SetupScreen.Buttons = {
 
 function SetupScreen.initialize()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 63
+	local startY = Constants.SCREEN.MARGIN + 66
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
@@ -140,11 +128,6 @@ function SetupScreen.initialize()
 	SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
-
-	-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
-	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
-		SetupScreen.Buttons.QuickLoad.textColor = "Intermediate text"
-	end
 
 	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
