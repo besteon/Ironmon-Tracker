@@ -1,8 +1,8 @@
 QuickloadScreen = {
 	headerText = "Quickload Setup",
 	textColor = "Default text",
-	borderColor = "Upper box border",
-	boxFillColor = "Upper box background",
+	borderColor = "Lower box border",
+	boxFillColor = "Lower box background",
 }
 
 QuickloadScreen.OptionKeys = {
@@ -47,6 +47,7 @@ QuickloadScreen.Buttons = {
 			-- Toggle the setting and store the change to be saved later in Settings.ini
 			self.toggleState = not self.toggleState
 			Options.updateSetting(self.text, self.toggleState)
+			NavigationMenu.Buttons.QuickloadSettings:updateText()
 
 			-- Only one of these options can be active at any given moment
 			if self.toggleState then
@@ -67,6 +68,7 @@ QuickloadScreen.Buttons = {
 			-- Toggle the setting and store the change to be saved later in Settings.ini
 			self.toggleState = not self.toggleState
 			Options.updateSetting(self.text, self.toggleState)
+			NavigationMenu.Buttons.QuickloadSettings:updateText()
 
 			-- Only one of these options can be active at any given moment
 			if self.toggleState then
@@ -83,7 +85,7 @@ QuickloadScreen.Buttons = {
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the Tracker Setup screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.SETUP)
+			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
 	},
 }

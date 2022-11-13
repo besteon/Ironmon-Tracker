@@ -28,10 +28,12 @@ Program.Screens = {
 	STARTUP = StartupScreen.drawScreen,
 	UPDATE = UpdateScreen.drawScreen,
 	SETUP = SetupScreen.drawScreen,
+	EXTRAS = ExtrasScreen.drawScreen,
 	QUICKLOAD = QuickloadScreen.drawScreen,
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
+	STATS = StatsScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -160,7 +162,7 @@ function Program.update()
 
 			-- Update step count only if the option is enabled
 			if Program.Pedometer:isInUse() then
-				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.GAME_STAT_STEPS)
+				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
 			end
 		end
 	end
