@@ -16,6 +16,7 @@ UpdateScreen = {
 		errorOccurredMsg = "Please try updating manually:",
 	},
 	States = {
+		NEEDS_CHECK = "Already on the latest version.", -- Not displayed anywhere visually
 		NOT_UPDATED = "Update not yet started.", -- Not displayed anywhere visually
 		IN_PROGRESS = "Update in progress,  please wait...",
 		SUCCESS = "The auto-update was successful.",
@@ -24,6 +25,27 @@ UpdateScreen = {
 }
 
 UpdateScreen.Buttons = {
+	CheckForUpdates = {
+		text = "Check for Updates", -- Can also be "No Updates Available"
+		image = Constants.PixelImages.INSTALL_BOX,
+		type = Constants.ButtonTypes.FULL_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 112, 110, 15 },
+		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
+		onClick = function(self)
+			-- Don't check for updates if they've already been checked since on this screen (resets after clicking Back)
+			if self.text == "Check for Updates" then
+				Main.CheckForVersionUpdate(true)
+				NavigationMenu.Buttons.CheckForUpdates:updateText()
+			end
+
+			if not Main.isOnLatestVersion() then
+				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+			else
+				self.text = "No Updates Available"
+			end
+			Program.redraw(true)
+		end
+	},
 	UpdateNow = {
 		text = UpdateScreen.Labels.updateAutoText,
 		image = Constants.PixelImages.INSTALL_BOX,
@@ -47,13 +69,14 @@ UpdateScreen.Buttons = {
 	},
 	IgnoreUpdate = {
 		text = UpdateScreen.Labels.ignoreUpdateText,
+		image = Constants.PixelImages.BLANK,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.ERROR end,
 		onClick = function() UpdateScreen.ignoreTheUpdate() end
 	},
 	ViewReleaseNotes = {
 		text = UpdateScreen.Labels.releaseNotesText,
 		image = Constants.PixelImages.NOTEPAD,
-		isVisible = function() return true end,
+		isVisible = function() return UpdateScreen.currentState ~= UpdateScreen.States.NEEDS_CHECK end,
 		onClick = function() UpdateScreen.openReleaseNotesWindow() end
 	},
 	ReloadTracker = {
@@ -71,6 +94,17 @@ UpdateScreen.Buttons = {
 			UpdateScreen.openReleaseNotesWindow()
 			-- Swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 			UpdateScreen.remindMeLater()
+		end
+	},
+	Back = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Back",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
+		onClick = function(self)
+			-- Reset the CheckForUpdates button text
+			UpdateScreen.Buttons.CheckForUpdates.text = "Check for Updates"
+			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
 	},
 }
@@ -99,6 +133,7 @@ function UpdateScreen.initialize()
 	end
 
 	-- These buttons share a location, but visiable at different times based on Update Status
+	UpdateScreen.Buttons.CheckForUpdates.box = UpdateScreen.Buttons.UpdateNow.box
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
 	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
@@ -204,6 +239,8 @@ function UpdateScreen.openReleaseNotesWindow()
 	else
 		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
 		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
+		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
+		print(string.format("Release Notes: %s", Constants.Release.DOWNLOAD_URL))
 	end
 end
 
@@ -239,22 +276,32 @@ function UpdateScreen.drawScreen()
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
-	Drawing.drawText(topBox.x + 12, textLineY, UpdateScreen.Labels.title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	local titleText
+	if UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK then
+		titleText = "Tracker Update Check?"
+	else
+		titleText = UpdateScreen.Labels.title
+	end
+	Drawing.drawText(topBox.x + 12, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing + 5
 
 	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
-	Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
-	textLineY = textLineY + linespacing
+	if not Main.isOnLatestVersion() then
+		Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
+		Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
+		textLineY = textLineY + linespacing
+	end
 
 	-- HEADER DIVIDER
 	local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local headerText
 	if UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED then
 		headerText = UpdateScreen.Labels.questionHeader
+	elseif UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK then
+		headerText = "Manually check for updates below:"
 	else
 		headerText = "Update Status:"
 	end
@@ -278,7 +325,7 @@ function UpdateScreen.drawScreen()
 		updateStatusMsg = UpdateScreen.Labels.errorOccurredMsg
 	end
 
-	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED then
+	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED and UpdateScreen.currentState ~= UpdateScreen.States.NEEDS_CHECK then
 		Drawing.drawText(botBox.x + 3, textLineY, UpdateScreen.currentState or "", updateStatusColor, botBox.shadow)
 		textLineY = textLineY + linespacing
 		Drawing.drawText(botBox.x + 3, textLineY, updateStatusMsg or "", botBox.text, botBox.shadow)
@@ -288,24 +335,28 @@ function UpdateScreen.drawScreen()
 	-- Draw all buttons, manually
 	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.isVisible == nil or button:isVisible() then
-			local x = button.box[1]
-			local y = button.box[2]
-			local holdText = button.text
+			if button.image ~= nil then
+				local x = button.box[1]
+				local y = button.box[2]
+				local holdText = button.text
 
-			button.text = ""
-			Drawing.drawButton(button, botBox.shadow)
-			button.text = holdText
-			Drawing.drawText(x + 17, y + 2, button.text, Theme.COLORS[button.textColor], botBox.shadow)
+				button.text = ""
+				Drawing.drawButton(button, botBox.shadow)
+				button.text = holdText
+				Drawing.drawText(x + 17, y + 2, button.text, Theme.COLORS[button.textColor], botBox.shadow)
 
-			-- TODO: Eventually make the Draw Button more flexible for centering its contents
-			if button.image == Constants.PixelImages.INSTALL_BOX then
-				y = y + 2
-				x = x + 1
-			elseif button.image == Constants.PixelImages.CLOCK then
-				y = y + 1
-				x = x + 1
+				-- TODO: Eventually make the Draw Button more flexible for centering its contents
+				if button.image == Constants.PixelImages.INSTALL_BOX then
+					y = y + 2
+					x = x + 1
+				elseif button.image == Constants.PixelImages.CLOCK then
+					y = y + 1
+					x = x + 1
+				end
+				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
+			else
+				Drawing.drawButton(button, botBox.shadow)
 			end
-			Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
 		end
 	end
 end

@@ -44,6 +44,7 @@ Constants.Release = {
 	VERSION_URL = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD_URL = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
+	WIKI_URL = "https://github.com/besteon/Ironmon-Tracker/wiki",
 }
 
 Constants.ButtonTypes = {
@@ -187,6 +188,7 @@ Constants.OrderedLists = {
 }
 
 Constants.PixelImages = {
+	BLANK = { { 0 } }, -- Helpful for padding out certain buttons
 	GEAR = {
 		{0,0,0,1,1,0,0,0},
 		{0,1,1,1,1,1,1,0},

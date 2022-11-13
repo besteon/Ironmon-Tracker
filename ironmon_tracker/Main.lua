@@ -5,7 +5,7 @@ Main.Version = { major = "7", minor = "0", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "bdjeffyp", "OnlySpaghettiCode", "thisisatest", "Amber Cyprian", "ninjafriend", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
@@ -41,6 +41,7 @@ function Main.Initialize()
 		"/screens/StartupScreen.lua",
 		"/screens/UpdateScreen.lua",
 		"/screens/SetupScreen.lua",
+		"/screens/ExtrasScreen.lua",
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
@@ -196,6 +197,7 @@ function Main.Run()
 		StartupScreen.initialize()
 		UpdateScreen.initialize()
 		SetupScreen.initialize()
+		ExtrasScreen.initialize()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
