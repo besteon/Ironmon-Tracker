@@ -343,9 +343,6 @@ function Main.GetNextRomFromFolder()
 	local romprefix = string.match(romname, '[^0-9]+') or ""
 	local romnumber = string.match(romname, '[0-9]+') or "0"
 
-	local attemptsfile = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
-	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
-
 	-- Increment to the next ROM and determine its full file path
 	local nextromname = string.format(romprefix .. "%0" .. string.len(romnumber) .. "d", romnumber + 1)
 	local nextrompath = string.format("%s/%s%s", Options.FILES["ROMs Folder"], nextromname, Constants.Files.Extensions.GBA_ROM)
@@ -362,6 +359,10 @@ function Main.GetNextRomFromFolder()
 			return nil
 		end
 	end
+
+	-- After successfully locating the next ROM to load, increment the attempts counter
+	local attemptsfile = string.format("%s %s", romprefix, Constants.Files.PostFixes.ATTEMPTS_FILE)
+	Main.IncrementAttemptsCounter(attemptsfile, romnumber)
 
 	return {
 		name = nextromname,
@@ -389,8 +390,6 @@ function Main.GenerateNextRom()
 
 	Main.SaveCurrentRom(nextromname)
 
-	Main.IncrementAttemptsCounter(attemptsfile, 1)
-
 	local javacommand = string.format(
 		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
 		Options.FILES["Randomizer JAR"],
@@ -412,6 +411,9 @@ function Main.GenerateNextRom()
 		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the " .. Constants.Files.RANDOMIZER_ERROR_LOG .. " file in the tracker folder for errors.")
 		return nil
 	end
+
+	-- After successfully generating the next ROM to load, increment the attempts counter
+	Main.IncrementAttemptsCounter(attemptsfile, 1)
 
 	return {
 	 	name = nextromname,
