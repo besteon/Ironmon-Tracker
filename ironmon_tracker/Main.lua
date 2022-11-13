@@ -45,7 +45,6 @@ function Main.Initialize()
 		"/screens/QuickloadScreen.lua",
 		"/screens/GameOptionsScreen.lua",
 		"/screens/TrackedDataScreen.lua",
-		"/screens/StatsScreen.lua",
 		"/Input.lua",
 		"/Drawing.lua",
 		"/Program.lua",
@@ -202,7 +201,6 @@ function Main.Run()
 		QuickloadScreen.initialize()
 		GameOptionsScreen.initialize()
 		TrackedDataScreen.initialize()
-		StatsScreen.initialize()
 
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)

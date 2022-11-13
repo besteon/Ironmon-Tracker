@@ -33,7 +33,6 @@ Program.Screens = {
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
-	STATS = StatsScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -162,7 +161,7 @@ function Program.update()
 
 			-- Update step count only if the option is enabled
 			if Program.Pedometer:isInUse() then
-				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.STEPS)
+				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.GAME_STAT_STEPS)
 			end
 		end
 	end

@@ -48,7 +48,7 @@ NavigationMenu.Buttons = {
 	},
 	ThemeCustomization = {
 		text = "Theme",
-		image = Constants.PixelImages.NOTEPAD,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
@@ -80,12 +80,6 @@ NavigationMenu.Buttons = {
 			end
 			Program.changeScreenView(Program.Screens.UPDATE)
 		end
-	},
-	ViewStats = {
-		text = "Stats",
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.STATS) end
 	},
 	MirageButton = {
 		text = "It's a secret...",
@@ -145,7 +139,6 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.QuickloadSettings,
 	NavigationMenu.Buttons.ThemeCustomization,
 	NavigationMenu.Buttons.ManageTrackedData,
-	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
 }
 
