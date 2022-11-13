@@ -82,7 +82,7 @@ function Battle.updateBattleStatus()
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
 	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if (Battle.totalBattles < totalBattles) then
+	if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) then
 		Battle.battleStarting = true
 	end
 	Battle.totalBattles = totalBattles
