@@ -11,26 +11,6 @@ StatsScreen = {
 
 StatsScreen.StatTables = {
 	{
-		name = "Total Steps",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.STEPS) or 0 end,
-	},
-	{
-		name = "Total Battles",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES) or 0 end,
-	},
-	{
-		name = "Trainer Battles",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0 end,
-	},
-	{
-		name = "Wild Battles",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES) or 0 end,
-	},
-	{
-		name = Constants.Words.POKEMON .. " Caught",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.POKEMON_CAPTURES) or 0 end,
-	},
-	{
 		name = Constants.Words.POKE .. "centers Used",
 		getValue = function()
 			local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER) or 0
@@ -38,6 +18,30 @@ StatsScreen.StatTables = {
 			local totalHeals = gameStat_UsedPokecenter + gameStat_RestedAtHome
 			return totalHeals
 		end,
+	},
+	{
+		name = "Trainer Battles",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0 end,
+	},
+	{
+		name = "Wild Encounters",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES) or 0 end,
+	},
+	{
+		name = Constants.Words.POKEMON .. " Caught",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.POKEMON_CAPTURES) or 0 end,
+	},
+	{
+		name = "Shop Purchases",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
+	},
+	{
+		name = "Game Saves",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0 end,
+	},
+	{
+		name = "Total Steps",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.STEPS) or 0 end,
 	},
 	{
 		name = "Struggles Used",
