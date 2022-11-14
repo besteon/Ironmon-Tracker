@@ -155,7 +155,10 @@ end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackMove(pokemonID, moveId, level)
-	if Tracker.isTrackingMove(pokemonID, moveId, level) then return end -- rework later for better accuracy below
+	if not MoveData.isValid(moveId) or moveId == 165 or Tracker.isTrackingMove(pokemonID, moveId, level) then
+		-- MoveId 165 is Struggle, don't track that
+		return
+	end
 
 	-- If no move data exist, set this as the first move
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)

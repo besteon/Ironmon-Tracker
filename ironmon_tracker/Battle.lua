@@ -755,9 +755,7 @@ function Battle.trackTransformedMoves()
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
-				if MoveData.isValid(move.id) then
-					Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
-				end
+				Tracker.TrackMove(copiedMon.pokemonID, move.id, copiedMon.level)
 			end
 		end
 	end
