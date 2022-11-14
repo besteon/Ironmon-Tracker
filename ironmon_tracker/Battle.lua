@@ -400,6 +400,16 @@ function Battle.checkAbilitiesToTrack()
 	end
 	local combatantIndexesToTrack = {}
 
+	--Something is not right with the data; happens occasionally for emerald.
+	if Battle.attacker == nil or Battle.IndexMap[Battle.attacker] == nil or Battle.Combatants[Battle.IndexMap[Battle.attacker]] == nil
+	or Battle.BattleAbilities[Battle.attacker % 2] == nil or Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]] == nil
+	or Battle.battler == nil or Battle.IndexMap[Battle.battler] == nil or Battle.Combatants[Battle.IndexMap[Battle.battler]] == nil
+	or Battle.BattleAbilities[Battle.battler % 2] == nil or Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]] == nil
+	or Battle.battlerTarget == nil or Battle.IndexMap[Battle.battlerTarget] == nil or Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]] == nil
+	or Battle.BattleAbilities[Battle.battlerTarget % 2] == nil or Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]] == nil then
+		return combatantIndexesToTrack
+	end
+
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
