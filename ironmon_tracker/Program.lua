@@ -52,7 +52,7 @@ Program.Pedometer = {
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
-	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Program.inStartMenu end,
+	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu end,
 }
 
 function Program.initialize()
