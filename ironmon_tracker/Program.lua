@@ -255,7 +255,8 @@ function Program.updatePokemonTeams()
 				end
 
 				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				--newPokemonData.trainerID = nil
+				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
+				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
