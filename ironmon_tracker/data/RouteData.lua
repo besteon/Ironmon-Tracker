@@ -3310,16 +3310,16 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[54] = { name = "Mom's House", }
 	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
 	RouteData.Info[65] = { name = "Dewford Gym", }
-	RouteData.Info[69] = { name = "Lavaridge Gym1", }
-	RouteData.Info[70] = { name = "Lavaridge Gym2", }
+	RouteData.Info[69] = { name = "Lavaridge Gym 1F", }
+	RouteData.Info[70] = { name = "Lavaridge Gym B1F", }
 	RouteData.Info[71] = { name = "Lavaridge Town PC", }
 	RouteData.Info[79] = { name = "Petalburg Gym", }
 	RouteData.Info[89] = { name = "Mauville Gym", }
 	RouteData.Info[94] = { name = "Rustboro Gym", }
 	RouteData.Info[100] = { name = "Fortree Gym", }
 	RouteData.Info[108] = { name = "Mossdeep Gym", }
-	RouteData.Info[109] = { name = "Sootopolis Gym1", }
-	RouteData.Info[110] = { name = "Sootopolis Gym2", }
+	RouteData.Info[109] = { name = "Sootopolis Gym 1F", }
+	RouteData.Info[110] = { name = "Sootopolis Gym B1F", }
 	RouteData.Info[111] = { name = "Sidney's Room", }
 	RouteData.Info[112] = { name = "Phoebe's Room", }
 	RouteData.Info[113] = { name = "Glacia's Room", }
@@ -3822,6 +3822,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[270 + offset] = { name = Constants.Words.POKEMON .. " League PC", }
 	RouteData.Info[271 + offset] = { name = "Weather Institute 1F", }
 	RouteData.Info[272 + offset] = { name = "Weather Institute 2F", }
+	RouteData.Info[275 + offset] = { name = "City Space Center 1F", }
+	RouteData.Info[276 + offset] = { name = "City Space Center 2F", }
 	RouteData.Info[285 + offset] = { name = "Victory Road B1F",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },

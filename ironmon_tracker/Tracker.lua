@@ -67,7 +67,15 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	if isOwn == nil then isOwn = true end
 
 	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
-	if personality == nil or personality == 0 then return nil end
+	if personality == nil then
+		return nil
+	end
+
+	-- Personality of 0 is okay for some real trainers, usually occurs in Battle
+	local pokemonInSlot = Utils.inlineIf(isOwn, Tracker.Data.ownPokemon[personality], Tracker.Data.otherPokemon[personality])
+	if pokemonInSlot == nil or (personality == 0 and (pokemonInSlot.trainerID == nil or pokemonInSlot.trainerID == 0)) then
+		return nil
+	end
 
 	if isOwn then
 		local isEggPokemon = Tracker.Data.ownPokemon[personality].isEgg == 1
@@ -155,7 +163,10 @@ end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
 function Tracker.TrackMove(pokemonID, moveId, level)
-	if Tracker.isTrackingMove(pokemonID, moveId, level) then return end -- rework later for better accuracy below
+	if not MoveData.isValid(moveId) or moveId == 165 or Tracker.isTrackingMove(pokemonID, moveId, level) then
+		-- MoveId 165 is Struggle, don't track that
+		return
+	end
 
 	-- If no move data exist, set this as the first move
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
