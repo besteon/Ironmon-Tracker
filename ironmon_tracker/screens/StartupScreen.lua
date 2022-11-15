@@ -17,12 +17,11 @@ StartupScreen.Buttons = {
 		image = Constants.PixelImages.GEAR,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, 8, 7, 7 },
-		onClick = function(self)
-			Program.changeScreenView(Program.Screens.NAVIGATION)
-		end
+		onClick = function(self) Program.changeScreenView(Program.Screens.NAVIGATION) end
 	},
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 14, 31, 28 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 10, 32, 32 },
 		pokemonID = 0,
 		getIconPath = function(self)
@@ -30,9 +29,7 @@ StartupScreen.Buttons = {
 			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
 			return imagepath
 		end,
-		onClick = function(self)
-			StartupScreen.openChoosePokemonWindow()
-		end
+		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
 	},
 	AttemptsCount = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -41,11 +38,32 @@ StartupScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return Main.currentSeed > 1 end,
-		onClick = function(self)
-			StartupScreen.openEditAttemptsWindow()
-		end
+		updateSelf = function(self)
+			self.text = tostring(Main.currentSeed) or Constants.BLANKLINE
+		end,
+		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
 	},
-	EraseGame = {
+	AttemptsEdit = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 10, 10 },
+		isVisible = function() return Main.currentSeed > 1 end,
+		updateSelf = function(self)
+			local txtLength = string.len(StartupScreen.Buttons.AttemptsCount.text or "") + 1
+			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + (txtLength * 5) -- 5 pixels per digit
+		end,
+		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
+	},
+	NotesAreaEdit = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NOTEPAD,
+		textColor = "Lower box text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 128, Constants.SCREEN.MARGIN + 137, 10, 10 },
+		isVisible = function() return false end,
+		onClick = function(self) StartupScreen.openEditNotesAreaWindow() end
+	},
+	EraseGame = { -- Currently unused
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "< Press",
 		textColor = "Lower box text",
@@ -68,7 +86,9 @@ StartupScreen.Buttons = {
 function StartupScreen.initialize()
 	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
 
-	StartupScreen.Buttons.AttemptsCount.text = tostring(Main.currentSeed)
+	-- Update the attempts count to the current seed number
+	StartupScreen.Buttons.AttemptsCount:updateSelf()
+	StartupScreen.Buttons.AttemptsEdit:updateSelf()
 end
 
 function StartupScreen.setPokemonIcon(displayOption)
@@ -165,7 +185,8 @@ function StartupScreen.openEditAttemptsWindow()
 			local newAttemptsCount = tonumber(formInput)
 			if newAttemptsCount ~= nil then
 				Main.currentSeed = newAttemptsCount
-				StartupScreen.Buttons.AttemptsCount.text = newAttemptsCount
+				StartupScreen.Buttons.AttemptsCount:updateSelf()
+				StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
 				local filename = Main.GetAttemptsFile()
 				if filename ~= nil then
@@ -182,6 +203,10 @@ function StartupScreen.openEditAttemptsWindow()
 		client.unpause()
 		forms.destroy(form)
 	end, 157, 60)
+end
+
+function StartupScreen.openEditNotesAreaWindow()
+	-- To be implemented later. Allows users to define text shown on startup screen, replacing controls
 end
 
 -- DRAWING FUNCTIONS
@@ -229,6 +254,7 @@ function StartupScreen.drawScreen()
 
 	if StartupScreen.Buttons.AttemptsCount.isVisible() then
 		Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.attempts, topBox.text, topBox.shadow)
+		Drawing.drawButton(StartupScreen.Buttons.AttemptsEdit, topBox.shadow)
 		Drawing.drawButton(StartupScreen.Buttons.AttemptsCount, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing
@@ -281,4 +307,5 @@ function StartupScreen.drawScreen()
 	Drawing.drawButton(StartupScreen.Buttons.SettingsGear, topBox.shadow)
 	Drawing.drawButton(StartupScreen.Buttons.PokemonIcon, topBox.shadow)
 	Drawing.drawButton(StartupScreen.Buttons.EraseGame, botBox.shadow)
+	Drawing.drawButton(StartupScreen.Buttons.NotesAreaEdit, botBox.shadow)
 end
