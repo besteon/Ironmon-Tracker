@@ -233,7 +233,6 @@ function Program.updatePokemonTeams()
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
-		--print (i .. "; personality: " .. personality .. ";trainerID: " .. trainerID)
 		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
