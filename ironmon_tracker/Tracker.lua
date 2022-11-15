@@ -67,7 +67,15 @@ function Tracker.getPokemon(slotNumber, isOwn)
 	if isOwn == nil then isOwn = true end
 
 	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
-	if personality == nil or personality == 0 then return nil end
+	if personality == nil then
+		return nil
+	end
+
+	-- Personality of 0 is okay for some real trainers, usually occurs in Battle
+	local pokemonInSlot = Utils.inlineIf(isOwn, Tracker.Data.ownPokemon[personality], Tracker.Data.otherPokemon[personality])
+	if pokemonInSlot == nil or (personality == 0 and (pokemonInSlot.trainerID == nil or pokemonInSlot.trainerID == 0)) then
+		return nil
+	end
 
 	if isOwn then
 		local isEggPokemon = Tracker.Data.ownPokemon[personality].isEgg == 1

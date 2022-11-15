@@ -232,9 +232,10 @@ function Program.updatePokemonTeams()
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
+		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
 		Tracker.Data.ownTeam[i] = personality
 
-		if personality ~= 0 then
+		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
@@ -254,7 +255,8 @@ function Program.updatePokemonTeams()
 				end
 
 				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				newPokemonData.trainerID = nil
+				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
+				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
@@ -262,9 +264,10 @@ function Program.updatePokemonTeams()
 
 		-- Then lookup information on the opposing Pokemon
 		personality = Memory.readdword(GameSettings.estats + addressOffset)
+		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
 		Tracker.Data.otherTeam[i] = personality
 
-		if personality ~= 0 then
+		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then

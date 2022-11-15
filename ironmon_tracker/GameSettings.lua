@@ -263,6 +263,8 @@ function GameSettings.setEwramAddresses()
 		pstats = { nil, 0x020244EC, 0x02024284 },
 		-- Enemy Stats, exists in IWRAM instead in RS
 		estats = { nil, 0x02024744, 0x0202402C },
+		-- Player Party Size, exists in IWRAM instead in RS
+		gPlayerPartyCount = { nil, 0x020244e9, 0x02024029 },
 
 		-- RS uses this directly (gSharedMem + 0x14800)
 		sEvoInfo = { 0x02014800, nil, nil },
@@ -338,6 +340,7 @@ function GameSettings.setIwramAddresses()
 		-- Addresses only in IWRAM for RS, but in EWRAM for Em/FRLG (so were already set by this point, omit to avoid overwrite)
 		pstats = { { 0x03004360 }, { nil, nil }, { nil, nil } },
 		estats = { { 0x030045C0 }, { nil, nil }, { nil, nil } },
+                gPlayerPartyCount = { { 0x03004350 }, { nil, nil }, { nil, nil },},
 		sBattleBuffersTransferData = { { 0x03004040 }, { nil, nil }, { nil, nil } },
 		gBattleTextBuff1 = { { 0x030041c0 }, { nil, nil }, { nil, nil } },
 		gBattleTerrain = { { 0x0300428c }, { nil, nil }, { nil, nil } },

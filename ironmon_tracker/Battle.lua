@@ -6,6 +6,7 @@ Battle = {
 	isGhost = false,
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
+	partySize = 6,
 	isNewTurn = true,
 
 	-- "Low accuracy" values
@@ -261,8 +262,8 @@ function Battle.updateTrackedInfo()
 								end
 							end
 						else
-							--Only track moves for enemies; our moves could be TM moves, or moves we didn't forget from earlier levels
-							if not transformData.isOwn then
+							-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
+							if not transformData.isOwn or transformData.slot > Battle.partySize then
 								local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
 								if attackingMon ~= nil then
 									Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
@@ -282,9 +283,9 @@ function Battle.updateTrackedInfo()
 		end
 	end
 
-	-- Always track your own Pokemons' abilities
+	-- Always track your own Pokemons' abilities, unless you are in a half-double battle alongside an NPC (3 + 3 vs 3 + 3)
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
-	if ownLeftPokemon ~= nil then
+	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then
 		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
 		Battle.updateStatStages(ownLeftPokemon, true)
@@ -292,7 +293,7 @@ function Battle.updateTrackedInfo()
 
 	if Battle.numBattlers == 4 then
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
-		if ownRightPokemon ~= nil then
+		if ownRightPokemon ~= nil and Battle.Combatants.RightOwn <= Battle.partySize then
 			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
 			Battle.updateStatStages(ownRightPokemon, true)
@@ -407,6 +408,16 @@ function Battle.checkAbilitiesToTrack()
 	end
 	local combatantIndexesToTrack = {}
 
+	--Something is not right with the data; happens occasionally for emerald.
+	if Battle.attacker == nil or Battle.IndexMap[Battle.attacker] == nil or Battle.Combatants[Battle.IndexMap[Battle.attacker]] == nil
+	or Battle.BattleAbilities[Battle.attacker % 2] == nil or Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]] == nil
+	or Battle.battler == nil or Battle.IndexMap[Battle.battler] == nil or Battle.Combatants[Battle.IndexMap[Battle.battler]] == nil
+	or Battle.BattleAbilities[Battle.battler % 2] == nil or Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]] == nil
+	or Battle.battlerTarget == nil or Battle.IndexMap[Battle.battlerTarget] == nil or Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]] == nil
+	or Battle.BattleAbilities[Battle.battlerTarget % 2] == nil or Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]] == nil then
+		return combatantIndexesToTrack
+	end
+
 	local attackerAbility = Battle.BattleAbilities[Battle.attacker % 2][Battle.Combatants[Battle.IndexMap[Battle.attacker]]].ability
 	local battlerAbility = Battle.BattleAbilities[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleAbilities[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
@@ -503,7 +514,12 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
-
+        -- RS allocated a dword for the party size
+        if GameSettings.game == 1 then
+	        Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
+        else
+	        Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
+        end
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
@@ -544,6 +560,7 @@ function Battle.endCurrentBattle()
 	end
 
 	Battle.numBattlers = 0
+	Battle.partySize = 6
 	Battle.inBattle = false
 	Battle.battleStarting = false
 	Battle.turnCount = -1
@@ -751,7 +768,7 @@ function Battle.trackTransformedMoves()
 
 	-- Track all moves, if we are copying an enemy mon
 	local transformData = Battle.BattleAbilities[0][Battle.Combatants[Battle.IndexMap[currentSelectingMon]]].transformData
-	if not transformData.isOwn then
+	if not transformData.isOwn or transformData.slot > Battle.partySize then
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
