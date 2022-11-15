@@ -506,8 +506,12 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
-	Battle.partySize = Memory.readbyte(0x020244e9);
-
+        -- RS allocated a dword for the party size
+        if GameSettings.game == 1 then
+	        Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
+        else
+	        Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
+        end
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
