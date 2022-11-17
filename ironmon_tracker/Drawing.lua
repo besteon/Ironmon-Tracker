@@ -17,6 +17,17 @@ Drawing.AnimatedPokemon = {
 	requiresRelocating = false,
 }
 
+function Drawing.setupDrawingArea()
+	if Main.IsOnBizhawk() then
+		---@diagnostic disable-next-line: undefined-global
+		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
+		---@diagnostic disable-next-line: undefined-global
+		gui.defaultTextBackground(0)
+	else
+		MGBA.createBuffers()
+	end
+end
+
 function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -221,12 +232,16 @@ function Drawing.drawButton(button, shadowcolor)
 end
 
 function Drawing.drawScreen(screenFunc)
-	if screenFunc ~= nil and type(screenFunc) == "function" then
-		screenFunc()
-	end
-	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
-		Drawing.drawRepelUsage()
+	if Main.IsOnBizhawk() then
+		if screenFunc ~= nil and type(screenFunc) == "function" then
+			screenFunc()
+		end
+		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
+		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
+			Drawing.drawRepelUsage()
+		end
+	else
+		MGBA.drawScreen()
 	end
 end
 
@@ -338,7 +353,7 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.AnimatedPokemon.requiresRelocating = true
 
 	-- Return focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
-	os.execute("AppActivate(" .. gameinfo.getromname() .. ")")
+	os.execute(string.format('AppActivate(%s)', GameSettings.getRomName()))
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)

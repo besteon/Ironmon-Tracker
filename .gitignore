@@ -1,6 +1,7 @@
 Settings.ini
 *.tdat
 *.gba
+*.sav
 *.log
 *Attempts.txt
 ironmon_tracker/images/pokemonAnimated/*.gif

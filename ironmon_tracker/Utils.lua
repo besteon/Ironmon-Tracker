@@ -1,8 +1,52 @@
 Utils = {}
 
+-- Bitwise AND operation
+function Utils.bit_and(value1, value2)
+	return Utils.bit_oper(value1, value2, 4)
+end
+
+-- Bitwise OR operation
+function Utils.bit_or(value1, value2)
+	return Utils.bit_oper(value1, value2, 1)
+end
+
+-- Bitwise XOR operation
+function Utils.bit_xor(value1, value2)
+	return Utils.bit_oper(value1, value2, 3)
+end
+
+-- operand: 1 = OR, 3 = XOR, 4 = AND
+function Utils.bit_oper(a, b, operand)
+	local r, m, s = 0, 2^31, nil
+	repeat
+		s,a,b = a+b+m, a%m, b%m
+		r,m = r + m*operand%(s-a-b), m/2
+	until m < 1
+	return r
+end
+
+-- Shifts bits of 'value', 'n' bits to the left
+function Utils.bit_lshift(value, n)
+	return value * (2 ^ n)
+end
+
+-- Shifts bits of 'value', 'n' bits to the right
+function Utils.bit_rshift(value, n)
+	return math.floor(value / (2 ^ n))
+end
+
 -- gets bits from least significant to most
 function Utils.getbits(value, startIndex, numBits)
-	return bit.rshift(value, startIndex) % bit.lshift(1, numBits)
+	return Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits)
+end
+
+-- Goal is to change from little to big endian, or vice-versa. Likely a better way to do this
+function Utils.reverseEndian32(value)
+	local a = Utils.bit_and(value, 0xFF000000)
+	local b = Utils.bit_and(value, 0x00FF0000)
+	local c = Utils.bit_and(value, 0x0000FF00)
+	local d = Utils.bit_and(value, 0x000000FF)
+	return Utils.bit_lshift(d, 24) + Utils.bit_lshift(c, 8) + Utils.bit_rshift(b, 8) + Utils.bit_rshift(a, 24)
 end
 
 function Utils.addhalves(value)
@@ -81,9 +125,9 @@ function Utils.calcShadowColor(color, scale)
 	scale = scale or 0.92
 	local color_hexval = (color - 0xFF000000)
 
-	local r = bit.rshift(color_hexval, 16)
-	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
-	local b = bit.band(color_hexval, 0x0000FF)
+	local r = Utils.bit_rshift(color_hexval, 16)
+	local g = Utils.bit_rshift(Utils.bit_and(color_hexval, 0x00FF00), 8)
+	local b = Utils.bit_and(color_hexval, 0x0000FF)
 
 	--[[
 	local scale = 0x10 -- read as: 6.25%
@@ -102,7 +146,7 @@ function Utils.calcShadowColor(color, scale)
 	b = math.max(b * scale, 0)
 
 	-- build color with new hex values
-	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
+	color_hexval = Utils.bit_lshift(r, 16) + Utils.bit_lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -110,16 +154,16 @@ end
 function Utils.calcGrayscale(color, scale)
 	scale = scale or 0.80
 	local color_hexval = (color - 0xFF000000)
-	local r = bit.rshift(color_hexval, 16)
-	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
-	local b = bit.band(color_hexval, 0x0000FF)
+	local r = Utils.bit_rshift(color_hexval, 16)
+	local g = Utils.bit_rshift(Utils.bit_and(color_hexval, 0x00FF00), 8)
+	local b = Utils.bit_and(color_hexval, 0x0000FF)
 	local gray = 0.2989 * r + 0.5870 * g + 0.1140 * b -- CCIR 601 spec weights
 
 	r = math.max(gray * scale + r * (1 - scale), 0)
 	g = math.max(gray * scale + g * (1 - scale), 0)
 	b = math.max(gray * scale + b * (1 - scale), 0)
 
-	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
+	color_hexval = Utils.bit_lshift(r, 16) + Utils.bit_lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -134,9 +178,9 @@ function Utils.calculateContrastRatio(color1, color2)
 		local sB = tonumber(hex:sub(5,6), 16) / 255
 
 		-- Obtain the luminances from sRGB values
-		local lR = Utils.inlineIf(sR <= 0.04045, sR / 12.92, math.pow((sR + 0.055) / 1.055, 2.4))
-		local lG = Utils.inlineIf(sG <= 0.04045, sG / 12.92, math.pow((sG + 0.055) / 1.055, 2.4))
-		local lB = Utils.inlineIf(sB <= 0.04045, sB / 12.92, math.pow((sB + 0.055) / 1.055, 2.4))
+		local lR = Utils.inlineIf(sR <= 0.04045, sR / 12.92, ((sR + 0.055) / 1.055) ^ 2.4)
+		local lG = Utils.inlineIf(sG <= 0.04045, sG / 12.92, ((sG + 0.055) / 1.055) ^ 2.4)
+		local lB = Utils.inlineIf(sB <= 0.04045, sB / 12.92, ((sB + 0.055) / 1.055) ^ 2.4)
 
 		return 0.2126 * lR + 0.7152 * lG + 0.0722 * lB
 	end
@@ -576,7 +620,7 @@ function Utils.getWordWrapLines(str, limit)
 end
 
 function Utils.writeTableToFile(table, filename)
-	local file = io.open(filename, "w")
+	local file = io.open(IronmonTracker.folderPath .. filename, "w")
 
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
@@ -595,7 +639,7 @@ end
 
 function Utils.readTableFromFile(filename)
 	local tableData = nil
-	local file = io.open(filename, "r")
+	local file = io.open(IronmonTracker.folderPath .. filename, "r")
 
 	if file ~= nil then
 		local dataString = file:read("*a")
@@ -613,7 +657,7 @@ end
 function Utils.readLinesFromFile(filename)
 	local lines = {}
 
-	local file = io.open(filename, "r")
+	local file = io.open(IronmonTracker.folderPath .. filename, "r")
 	if file ~= nil then
 		local fileContents = file:read("*a")
 		if fileContents ~= nil and fileContents ~= "" then
@@ -635,8 +679,11 @@ end
 function Utils.setFormLocation(handle, x, y)
 	if handle == nil then return end
 	local ribbonHight = 64 -- so we are below the ribbon menu
+	---@diagnostic disable-next-line: undefined-global
 	local actualLocation = client.transformPoint(x,y)
+	---@diagnostic disable-next-line: undefined-global
 	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
+	---@diagnostic disable-next-line: undefined-global
 	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
 end
 
@@ -667,7 +714,7 @@ function Utils.getGameStat(statIndex)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
 	if key ~= nil then
-		gameStatValue = bit.bxor(gameStatValue, key)
+		gameStatValue = Utils.bit_xor(gameStatValue, key)
 	end
 
 	return gameStatValue
@@ -730,7 +777,7 @@ function Utils.addCustomThemeToFile(themeName, themeCode)
 		return
 	end
 
-	local file = io.open(Constants.Files.THEME_PRESETS, "a")
+	local file = io.open(IronmonTracker.folderPath .. Constants.Files.THEME_PRESETS, "a")
 
 	if file ~= nil then
 		file:write(string.format("%s %s", themeName, themeCode))
@@ -749,7 +796,7 @@ function Utils.removeCustomThemeFromFile(themeName, themeCode)
 
 	local existingThemePresets = Utils.readLinesFromFile(Constants.Files.THEME_PRESETS)
 
-	local file = io.open(Constants.Files.THEME_PRESETS, "w")
+	local file = io.open(IronmonTracker.folderPath .. Constants.Files.THEME_PRESETS, "w")
 	if file == nil then
 		print(string.format("[ERROR] Unable to remove custom Theme \"%s\" from file: %s", themeName, Constants.Files.THEME_PRESETS))
 		return false

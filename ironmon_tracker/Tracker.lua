@@ -451,7 +451,7 @@ function Tracker.resetData()
 	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
-		romHash = gameinfo.getromhash(),
+		romHash = GameSettings.getRomHash(),
 
 		trainerID = 0,
 		allPokemon = {}, -- Used to track information about all pokemon seen thus far

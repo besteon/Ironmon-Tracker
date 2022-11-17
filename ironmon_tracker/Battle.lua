@@ -246,7 +246,7 @@ function Battle.updateTrackedInfo()
 					local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 					local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
 					--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
-					if bit.band(hitFlags,0x80000) == 0 then
+					if Utils.bit_and(hitFlags,0x80000) == 0 then
 						-- Track move so long as the mon was able to use it
 						local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 						local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
@@ -271,7 +271,7 @@ function Battle.updateTrackedInfo()
 							end
 
 							--Only track ability-changing moves if they also did not fail/miss
-							if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+							if Utils.bit_and(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 								Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 							end
 						end
@@ -759,7 +759,7 @@ function Battle.trackTransformedMoves()
 			currentSelectingMon = i
 			break
 		else
-			currentSelectingMon = bit.rshift(currentSelectingMon, 1)
+			currentSelectingMon = Utils.bit_rshift(currentSelectingMon, 1)
 		end
 	end
 

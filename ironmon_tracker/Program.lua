@@ -291,7 +291,7 @@ end
 
 function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
-	local magicword = bit.bxor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
+	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
 	local aux          = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
@@ -300,20 +300,20 @@ function Program.readNewPokemon(startAddress, personality)
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	-- local growth2 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
-	local growth3 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
-	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
-	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
-	local attack3 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
-	local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
+	-- local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
+	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
+	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
+	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
+	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	-- Unused data memory reads
-	-- local effort1 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	-- local effort2 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
-	-- local effort3 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
-	-- local misc1   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
-	-- local misc3   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
+	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
+	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
+	-- local misc1   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
 	-- local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
@@ -642,7 +642,7 @@ function Program.getBagItems()
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
 			if itemID ~= 0 then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				if key ~= nil then quantity = bit.bxor(quantity, key) end
+				if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
 
 				if MiscData.HealingItems[itemID] ~= nil then
 					healingItems[itemID] = quantity

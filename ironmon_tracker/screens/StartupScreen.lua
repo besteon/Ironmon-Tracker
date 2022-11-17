@@ -71,14 +71,18 @@ StartupScreen.Buttons = {
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return false end, -- TODO: For now, we aren't using this button
 		onClick = function(self)
-			local joypadButtons = {
-				Up = true,
-				B = true,
-				Select = true,
-			}
-			joypad.set(joypadButtons)
-			emu.frameadvance()
-			joypad.set(joypadButtons)
+			if Main.IsOnBizhawk() then
+				local joypadButtons = {
+					Up = true,
+					B = true,
+					Select = true,
+				}
+				---@diagnostic disable-next-line: undefined-global
+				joypad.set(joypadButtons)
+				Main.frameAdvance()
+				---@diagnostic disable-next-line: undefined-global
+				joypad.set(joypadButtons)
+			end
 		end
 	},
 }

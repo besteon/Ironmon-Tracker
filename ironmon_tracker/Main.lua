@@ -8,6 +8,11 @@ Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
+Main.EMU = {
+	MGBA = "mGBA",
+	BIZHAWK = "Bizhawk",
+}
+
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
@@ -52,13 +57,19 @@ function Main.Initialize()
 		"/Battle.lua",
 		"/Pickle.lua",
 		"/Tracker.lua",
+		"/MGBA.lua",
 	}
 
-	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
+	Main.SetupEmulatorInfo()
+
+	 -- Clearing the console for each new game helps with troubleshooting issues
+	if Main.IsOnBizhawk() then
+		console.clear()
+	end
 	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
-	if not Main.SupportedBizhawkVersion() then
+	if Main.IsOnBizhawk() and not Main.SupportedBizhawkVersion() then
 		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
 		Main.DisplayError("This version of BizHawk is not supported for use with the Tracker.\n\nPlease update to version 2.8 or higher.")
 		return false
@@ -83,7 +94,7 @@ function Main.Initialize()
 	Main.LoadSettings()
 	Main.ReadAttemptsCounter()
 
-	if Options.FIRST_RUN then
+	if Main.IsOnBizhawk() and Options.FIRST_RUN then
 		Options.FIRST_RUN = false
 		Main.SaveSettings(true)
 
@@ -93,31 +104,65 @@ function Main.Initialize()
 		Main.DisplayError(firstRunErrMsg)
 		--return false -- Let the program keep running
 	else
-		-- Working directory, used for absolute paths
-		local function exeCD() return io.popen("cd") end
-		local success, ret, err = xpcall(exeCD, debug.traceback)
-		if success then
-			Main.OS = "Windows"
-			Main.Directory = ret:read()
+		-- TODO: Merge these two later
+		if IronmonTracker.folderPath ~= "" then
+			Main.Directory = IronmonTracker.folderPath
 		else
-			Main.OS = "Linux"
-			Main.Directory = nil -- will return "" from Utils function
-			print("Error attempting to use 'io.popen(\"cd\")':")
-			print(err)
-			print("Lua Engine: " .. client.get_lua_engine())
+			-- Working directory, used for absolute paths
+			local function exeCD() return io.popen("cd") end
+			local success, ret, err = xpcall(exeCD, debug.traceback)
+			if success then
+				Main.OS = "Windows"
+				Main.Directory = ret:read()
+			else
+				Main.OS = "Linux"
+				Main.Directory = nil -- will return "" from Utils function
+				print("Error attempting to use 'io.popen(\"cd\")':")
+				print(err)
+				---@diagnostic disable-next-line: undefined-global
+				print("Lua Engine: " .. client.get_lua_engine())
+			end
 		end
 
 		Main.CheckForVersionUpdate()
+	end
+
+	if not Main.IsOnBizhawk() then
+		Constants.Words.POKEMON = "Pokémon"
+		Constants.Words.POKE = "Poké"
 	end
 
 	print("Successfully loaded required tracker files")
 	return true
 end
 
+-- Check which emulator is in use
+function Main.SetupEmulatorInfo()
+	-- This function 'createBuffer' only exists on mGBA
+	if console.createBuffer == nil then
+		Main.Emulator = Main.EMU.BIZHAWK
+		Main.frameAdvance = function()
+			---@diagnostic disable-next-line: undefined-global
+			emu.frameadvance()
+		end
+	else
+		Main.Emulator = Main.EMU.MGBA
+		Main.DataFolder = IronmonTracker.folderPath .. Main.DataFolder
+		Main.frameAdvance = function()
+			---@diagnostic disable-next-line: undefined-global
+			-- emu:runFrame() -- don't use this, use callbacks:add("frame", func) instead
+		end
+	end
+end
+
+function Main.IsOnBizhawk()
+	return Main.Emulator == Main.EMU.BIZHAWK
+end
+
 -- Checks if Bizhawk version is 2.8 or later
 function Main.SupportedBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
-	if client.getversion == nil then return false end
+	if client == nil or client.getversion == nil then return false end
 
 	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
 	local major, minor = string.match(client.getversion(), "(%d+)%.(%d+)")
@@ -150,6 +195,8 @@ end
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
+	if Main.IsOnBizhawk() then return end
+
 	client.pause()
 
 	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an issue!", function() client.unpause() end)
@@ -167,24 +214,28 @@ end
 
 -- Main loop
 function Main.Run()
-	if gameinfo.getromname() == "Null" then
+	if GameSettings.getRomName() == "Null" then
 		print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
 	end
 	local romLoaded = false
 	while not romLoaded do
-		if gameinfo.getromname() ~= "Null" then romLoaded = true end
-		emu.frameadvance()
+		if GameSettings.getRomName() ~= "Null" then romLoaded = true end
+		Main.frameAdvance()
 	end
 
+	Memory.initialize()
 	GameSettings.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == "Unsupported Game" then
 		print("Unsupported Game detected, please load a supported game ROM")
 		print("Check the README.txt file in the tracker folder for supported games")
-		client.SetGameExtraPadding(0, 0, 0, 0)
+		if Main.IsOnBizhawk() then
+			---@diagnostic disable-next-line: undefined-global
+			client.SetGameExtraPadding(0, 0, 0, 0)
+		end
 		while true do
-			emu.frameadvance()
+			Main.frameAdvance()
 		end
 	else
 		-- Initialize everything in the proper order
@@ -192,6 +243,7 @@ function Main.Run()
 		Options.initialize()
 		Theme.initialize()
 		Tracker.initialize()
+		MGBA.initialize()
 
 		TrackerScreen.initialize()
 		NavigationMenu.initialize()
@@ -204,17 +256,23 @@ function Main.Run()
 		TrackedDataScreen.initialize()
 		StatsScreen.initialize()
 
-		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
-		gui.defaultTextBackground(0)
+		Drawing.setupDrawingArea()
 
-		event.onexit(Program.HandleExit, "HandleExit")
+		if Main.IsOnBizhawk() then
+			---@diagnostic disable-next-line: undefined-global
+			event.onexit(Program.HandleExit, "HandleExit")
 
-		while Main.loadNextSeed == false do
-			Program.mainLoop()
-			emu.frameadvance()
+			while Main.loadNextSeed == false do
+				Program.mainLoop()
+				Main.frameAdvance()
+			end
+
+			Main.LoadNextRom()
+		else
+			---@diagnostic disable-next-line: undefined-global
+			local frame_cbid = callbacks:add("frame", Program.mainLoop)
 		end
 
-		Main.LoadNextRom()
 	end
 end
 
@@ -337,7 +395,7 @@ function Main.GetNextRomFromFolder()
 		return nil
 	end
 
-	local romname = gameinfo.getromname()
+	local romname = GameSettings.getRomName()
 
 	-- Split the ROM name into its prefix and numerical values
 	local romprefix = string.match(romname, '[^0-9]+') or ""
@@ -442,7 +500,7 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 		return false
 	end
 
-	local originalFile = io.open(filename, "rb")
+	local originalFile = io.open(IronmonTracker.folderPath .. filename, "rb")
 	if originalFile == nil then
 		-- The originalFile to copy doesn't exist, simply do nothing and don't copy
 		return false
@@ -458,10 +516,10 @@ function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
 
 	local copyOfFile
 	if overwriteOrAppend == "append" then
-		copyOfFile = io.open(nameOfCopy, "ab")
+		copyOfFile = io.open(IronmonTracker.folderPath .. nameOfCopy, "ab")
 	else
 		-- Default to overwriting the file even if no option specified
-		copyOfFile = io.open(nameOfCopy, "wb")
+		copyOfFile = io.open(IronmonTracker.folderPath .. nameOfCopy, "wb")
 	end
 
 	if copyOfFile == nil then
@@ -488,7 +546,7 @@ end
 -- Increment the attempts counter through a .txt file
 function Main.IncrementAttemptsCounter(filename, defaultStart)
 	if Main.FileExists(filename) then
-		local attemptsRead = io.open(filename, "r")
+		local attemptsRead = io.open(IronmonTracker.folderPath .. filename, "r")
 		if attemptsRead ~= nil then
 			local attemptsText = attemptsRead:read("*a")
 			attemptsRead:close()
@@ -508,7 +566,7 @@ function Main.ReadAttemptsCounter()
 	local filename = Main.GetAttemptsFile()
 
 	if filename ~= nil then
-		local attemptsRead = io.open(filename, "r")
+		local attemptsRead = io.open(IronmonTracker.folderPath .. filename, "r")
 		if attemptsRead ~= nil then
 			local attemptsText = attemptsRead:read("*a")
 			attemptsRead:close()
@@ -518,7 +576,7 @@ function Main.ReadAttemptsCounter()
 		end
 	else
 		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
-		local romname = gameinfo.getromname()
+		local romname = GameSettings.getRomName()
 		local romnumber = string.match(romname, '[0-9]+') or "1"
 		if romnumber ~= "1" then
 			Main.currentSeed = tonumber(romnumber)
@@ -529,7 +587,7 @@ end
 function Main.WriteAttemptsCounter(filename, attemptsCount)
 	attemptsCount = attemptsCount or Main.currentSeed
 
-	local attemptsWrite = io.open(filename, "w")
+	local attemptsWrite = io.open(IronmonTracker.folderPath .. filename, "w")
 	if attemptsWrite ~= nil then
 		attemptsWrite:write(attemptsCount)
 		attemptsWrite:close()
@@ -537,7 +595,7 @@ function Main.WriteAttemptsCounter(filename, attemptsCount)
 end
 
 function Main.GetAttemptsFile()
-	local romname = gameinfo.getromname()
+	local romname = GameSettings.getRomName()
 	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" " .. Constants.Files.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
 
@@ -562,7 +620,7 @@ function Main.LoadSettings()
 
 	-- Need to manually read the file to work around a bug in the ini parser, which
 	-- does not correctly handle that the last iteration over lines() returns nil
-	local file = io.open(Constants.Files.SETTINGS)
+	local file = io.open(IronmonTracker.folderPath .. Constants.Files.SETTINGS)
 	if file ~= nil then
 		settings = Inifile.parse(file:read("*a"), "memory")
 		io.close(file)
@@ -693,7 +751,7 @@ function Main.SaveSettings(forced)
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
-	Inifile.save(Constants.Files.SETTINGS, settings)
+	Inifile.save(IronmonTracker.folderPath .. Constants.Files.SETTINGS, settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
 end

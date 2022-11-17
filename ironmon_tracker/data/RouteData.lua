@@ -131,7 +131,7 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	-- Check if a special type of encounter has occurred, see list below
 	if battleFlags > 4 and not isSafariEncounter then -- 4 (0b100) is the default base value
 		local isFirstEncounter = Utils.getbits(battleFlags, 4, 1) == 1
-		local staticFlags = bit.rshift(battleFlags, 10) -- untested but probably accurate, likely separate later
+		local staticFlags = Utils.bit_rshift(battleFlags, 10) -- untested but probably accurate, likely separate later
 		if Utils.getbits(battleFlags, 3, 1) == 1 then
 			return RouteData.EncounterArea.TRAINER
 		elseif isFirstEncounter and GameSettings.versiongroup == 1 then -- RSE first battle only

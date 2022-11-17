@@ -11,10 +11,13 @@ Input.controller = {
 }
 
 function Input.checkForInput()
+	if not Main.IsOnBizhawk() then return end
+
 	if Input.currentColorPicker ~= nil then
 		Input.currentColorPicker:handleInput()
 	else
 		-- Check inputs from the Mouse
+		---@diagnostic disable-next-line: undefined-global
 		local mouseInput = input.getmouse()
 		if mouseInput["Left"] and not Input.prevMouseInput["Left"] then
 			local xmouse = mouseInput["X"]
@@ -24,6 +27,7 @@ function Input.checkForInput()
 		Input.prevMouseInput = mouseInput
 
 		-- Check inputs from the Joypad controller
+		---@diagnostic disable-next-line: undefined-global
 		local joypadButtons = joypad.get()
 		Input.checkJoypadInput(joypadButtons)
 		Input.prevJoypadInput = joypadButtons

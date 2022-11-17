@@ -156,7 +156,7 @@ function UpdateScreen.performAutoUpdate()
 	end
 
 	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
+	Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
 
 	-- Execute the batch set of operations
 	local success = UpdateScreen.executeBatchOperations()

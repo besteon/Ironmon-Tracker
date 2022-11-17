@@ -30,8 +30,8 @@ GameSettings.ABILITIES = {}
 -- 		- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 
 function GameSettings.initialize()
-	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
-	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
+	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
 
 	GameSettings.setGameInfo(gamecode)
 	if GameSettings.gamename == "Unsupported Game" then return end -- Skip rest of setup if game not supported
@@ -50,6 +50,27 @@ function GameSettings.initialize()
 	-- Set up route data for the game
 	RouteData.setupRouteInfo(GameSettings.game)
 end
+
+function GameSettings.getRomName()
+	if Main.IsOnBizhawk() then
+	---@diagnostic disable-next-line: undefined-global
+		return gameinfo.getromname() or ""
+	else
+	---@diagnostic disable-next-line: undefined-global
+		return emu:getGameTitle() or ""
+	end
+end
+
+function GameSettings.getRomHash()
+	if Main.IsOnBizhawk() then
+	---@diagnostic disable-next-line: undefined-global
+		return gameinfo.getromhash() or ""
+	else
+	---@diagnostic disable-next-line: undefined-global
+		return emu:checksum(C.CHECKSUM.CRC32) or ""
+	end
+end
+
 
 function GameSettings.setGameInfo(gamecode)
 	-- Mapped by key=gamecode
@@ -517,7 +538,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x82db1b6,},
 			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262,},
 			{ 0x81d8fa8, 0x81d9018,}
-		},		
+		},
 	}
 
 	for key, address in pairs(addresses) do
@@ -775,7 +796,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x82db609,},
 			{ 0x81d9458, 0x81d94c8, 0x81d8f8a, 0x81d68c2, 0x81d7c2a, 0x81dd6ee,},
 			{ 0x81d9434, 0x81d94a4,}
-		},		
+		},
 		-- BattleScript_CantMakeAsleep + 0x8
 		CantMakeAsleep = {
 			{ 0x081d6fe8, 0x081d7000, 0x081d7000 },
