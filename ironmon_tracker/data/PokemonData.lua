@@ -61,7 +61,7 @@ PokemonData.IsRand = {
 function PokemonData.readDataFromMemory()
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
-		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
+		-- print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
 		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
@@ -85,7 +85,7 @@ function PokemonData.readDataFromMemory()
 		if PokemonData.IsRand.pokemonAbilities then
 			datalog = datalog .. "Abilities, "
 		end
-		print(datalog:sub(1, -3)) -- Remove trailing ", "
+		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 

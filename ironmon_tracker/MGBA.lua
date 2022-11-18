@@ -6,6 +6,7 @@ MGBA = {
 
 function MGBA.initialize()
 	-- Currently unused
+	MGBA.debugMoveIds = { math.random(354), math.random(354), math.random(354), math.random(354), }
 end
 
 function MGBA.createBuffers()
@@ -19,70 +20,128 @@ function MGBA.drawScreen()
 	local screen = MGBA.Screens["Main Screen"]
 
 	local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+	local data = MGBA.buildPokemonDisplayObj(pokemon)
+	MGBA.formatPokemonDisplayObj(data)
 
-	-- console:log(PokemonData.Pokemon[pokemon.pokemonID].name)
+	-- %-#s means to left-align, padding out the right-part of the string with spaces
+	local justify2, justify3
+	if Options["Right justified numbers"] then
+		justify2, justify3 = "%2s", "%3s"
+	else
+		justify2, justify3 = "%-2s", "%-3s"
+	end
 
-	local bar = "%-15s %-4s%3s"
+	local topheader = "%-20s %-5s" .. justify3
+	local topbar = "%-20s %-5s" .. justify3
+	local botheader = "%-17s %-2s  %-3s %-3s"
+	local botbar = "%-17s " .. justify3 .. " " .. justify3 .. " " .. justify3
 	local lines = {
-		string.format(bar, PokemonData.Pokemon[pokemon.pokemonID].name, "HP", pokemon.stats.hp),
-		string.format(bar, string.format("HP: %s/%s", pokemon.curHP, pokemon.stats.hp), "ATK", pokemon.stats.atk),
-		string.format(bar, string.format("Lv.%s (%s)", pokemon.level, pokemon.evolution or Constants.BLANKLINE), "DEF", pokemon.stats.def),
-		string.format(bar, string.format("%s", MiscData.Items[pokemon.heldItem] or Constants.BLANKLINE), "SPA", pokemon.stats.spa),
-		string.format(bar, string.format("%s", AbilityData.Abilities[abilityId].name), "SPD", pokemon.stats.spd),
-		string.format(bar, string.format("%s", Constants.BLANKLINE), "SPE", pokemon.stats.spe),
+		string.format(topheader, string.format("%-13s", data.p.name), "BST", data.p.bst),
+		string.format("-------%-20s--", data.p.types):gsub(" ", "-"),
+		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.maxHP, data.p.status), "HP", data.p.maxHP),
+		string.format(topbar, string.format("Lv.%s (%s)", data.p.level, data.p.evo), "ATK", data.p.atk),
+		string.format(topbar, string.format("%s", data.p.line1), "DEF", data.p.def),
+		string.format(topbar, string.format("%s", data.p.line2), "SPA", data.p.spa),
+		string.format(topbar, "", "SPD", data.p.spd),
+		string.format(topbar, string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum), "SPE", data.p.spe),
+		"-----------------------------",
+		string.format(botheader, data.m.nextmoves, "PP", "Pow", "Acc"),
 	}
+	for i, move in ipairs(data.m.moves) do
+		-- Primary move data to display
+		table.insert(lines, string.format(botbar, move.name, move.pp, move.power, move.accuracy))
+
+		-- Extra move info, unsure if wanted, can't use colors or symbols
+		-- table.insert(lines, string.format(" ┗%s %s %s", move.iscontact, move.type, move.category))
+	end
 
 	screen:clear()
-	-- screen:moveCursor(0, 0)
+	-- screen:moveCursor(0, 0) -- not sure when/how to use this yet
 	for _, line in ipairs(lines) do
 		screen:print(line)
 		screen:print('\n')
 	end
 end
 
-function MGBA.drawPokemonIcon(pokemonID, x, y)
-	if not PokemonData.isImageIDValid(pokemonID) then
-		pokemonID = 0 -- Blank Pokemon data/icon
+-- Returns a table with all of the important pokemon data safely formatted to display on screen
+function MGBA.buildPokemonDisplayObj(pokemon)
+	local data = {}
+	data.p = {} -- data about the Pokemon itself
+	data.m = {} -- data about the Moves of the Pokemon
+	data.x = {} -- misc data to display, such as heals or encounters
+
+	-- POKEMON ITSELF (data.p)
+	local pokedexInfo = PokemonData.Pokemon[pokemon.pokemonID]
+	local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+	local movesLearnedHeader, _, _ = Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
+
+	data.p.name = pokedexInfo.name or Constants.BLANKLINE
+	data.p.status = MiscData.StatusCodeMap[pokemon.status] or ""
+	data.p.types = pokedexInfo.types or { Constants.BLANKLINE, Constants.BLANKLINE }
+	data.p.curHP = pokemon.curHP or Constants.BLANKLINE
+	data.p.maxHP = pokemon.stats.hp or Constants.BLANKLINE
+	data.p.level = pokemon.level or Constants.BLANKLINE
+	data.p.evo = pokemon.evolution or Constants.BLANKLINE
+	data.p.line1 = MiscData.Items[pokemon.heldItem] or Constants.BLANKLINE
+	data.p.line2 = AbilityData.Abilities[abilityId].name
+
+	data.p.atk = pokemon.stats.atk or Constants.BLANKLINE
+	data.p.def = pokemon.stats.def or Constants.BLANKLINE
+	data.p.spa = pokemon.stats.spa or Constants.BLANKLINE
+	data.p.spd = pokemon.stats.spd or Constants.BLANKLINE
+	data.p.spe = pokemon.stats.spe or Constants.BLANKLINE
+	data.p.bst = pokedexInfo.bst or Constants.BLANKLINE
+
+	-- MOVES OF POKEMON (data.m)
+	data.m.nextmoves = movesLearnedHeader
+	data.m.moves = { {}, {}, {}, {} }
+	for i, move in ipairs(data.m.moves) do
+		local moveInfo = MoveData.Moves[MGBA.debugMoveIds[i]]
+		move.id = moveInfo.id or Constants.BLANKLINE
+		move.name = moveInfo.name or Constants.BLANKLINE
+		move.pp = moveInfo.pp or Constants.BLANKLINE
+		move.power = moveInfo.power or Constants.BLANKLINE
+		move.accuracy = moveInfo.accuracy or Constants.BLANKLINE
+		move.type = moveInfo.type or PokemonData.Types.UNKNOWN
+		move.category = moveInfo.category or MoveData.Categories.NONE
+		move.iscontact = moveInfo.iscontact or false
 	end
 
-	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+	-- MISC DATA (data.x)
+	data.x.healperc = math.min(9999, Tracker.Data.healingItems.healing or 0)
+	data.x.healnum = math.min(99, Tracker.Data.healingItems.numHeals or 0)
 
-	-- gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
+	return data
 end
 
-function MGBA.drawTypeIcon(type, x, y)
-	if type == nil or type == "" then return end
+function MGBA.formatPokemonDisplayObj(data)
+	data.p.name = data.p.name:upper()
 
-	-- gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
-end
+	if data.p.status ~= "" then
+		data.p.status = string.format("[%s]", data.p.status)
+	end
 
-function MGBA.drawStatusIcon(status, x, y)
-	if status == nil or status == "" then return end
+	-- Format type as "Normal" or "Flying/Normal"
+	if data.p.types[2] ~= data.p.types[1] and data.p.types[2] ~= nil then
+		data.p.types = string.format("(%s/%s)", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+	else
+		data.p.types = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+	end
 
-	-- gui.drawImage(Main.DataFolder .. "/images/status/" .. status .. ".png", x, y, 16, 8)
-end
-
-function MGBA.drawText(x, y, text, color, shadowcolor, style)
-	-- if Theme.DRAW_TEXT_SHADOWS then
-	-- 	gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
-	-- end
-	-- gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
-end
-
-function MGBA.drawNumber(x, y, number, spacing, color, shadowcolor, style)
-	-- if Options["Right justified numbers"] then
-	-- 	MGBA.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
-	-- else
-	-- 	MGBA.drawText(x, y, number, color, shadowcolor, style)
-	-- end
-end
-
-function MGBA.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
-	local new_spacing = (spacing - string.len(tostring(number))) * 5
-	if number == Constants.BLANKLINE then new_spacing = 8 end
-	-- MGBA.drawText(x + new_spacing, y, number, color, shadowcolor, style)
+	for i, move in ipairs(data.m.moves) do
+		if move.pp == "0" then
+			move.pp = Constants.BLANKLINE
+		end
+		if move.power == "0" then
+			move.power = Constants.BLANKLINE
+		end
+		if move.accuracy == "0" then
+			move.accuracy = Constants.BLANKLINE
+		end
+		move.type = Utils.firstToUpper(move.type)
+		move.category = Utils.inlineIf(move.category == MoveData.Categories.STATUS, "", "(" .. move.category:sub(1, 1) .. ")") -- "(P)" or "(S)"
+		move.iscontact = Utils.inlineIf(move.iscontact, "@", "")
+	end
 end
 
 function MGBA.drawChevron(x, y, width, height, thickness, direction, hasColor)

@@ -66,7 +66,6 @@ function Main.Initialize()
 	if Main.IsOnBizhawk() then
 		console.clear()
 	end
-	print("\nIronmon-Tracker (Gen 3): v" .. Main.TrackerVersion)
 
 	-- Check the version of BizHawk that is running
 	if Main.IsOnBizhawk() and not Main.SupportedBizhawkVersion() then
@@ -128,11 +127,12 @@ function Main.Initialize()
 	end
 
 	if not Main.IsOnBizhawk() then
+		Constants.BLANKLINE = "--"
 		Constants.Words.POKEMON = "Pokémon"
 		Constants.Words.POKE = "Poké"
 	end
 
-	print("Successfully loaded required tracker files")
+	print(string.format(">> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 	return true
 end
 
@@ -149,7 +149,7 @@ function Main.SetupEmulatorInfo()
 		Main.Emulator = Main.EMU.MGBA
 		Main.DataFolder = IronmonTracker.folderPath .. Main.DataFolder
 		Main.frameAdvance = function()
-			---@diagnostic disable-next-line: undefined-global
+			-- ---@diagnostic disable-next-line: undefined-global
 			-- emu:runFrame() -- don't use this, use callbacks:add("frame", func) instead
 		end
 	end
@@ -184,18 +184,25 @@ end
 
 -- Checks if a file exists
 function Main.FileExists(path)
-	local file = io.open(path,"r")
+	local file = io.open(path, "r")
 	if file ~= nil then
 		io.close(file)
 		return true
-	else
-		return false
 	end
+
+	-- TODO: Temp fix
+	file = io.open(IronmonTracker.folderPath .. path, "r")
+	if file ~= nil then
+		io.close(file)
+		return true
+	end
+
+	return false
 end
 
 -- Displays a given error message in a pop-up dialogue box
 function Main.DisplayError(errMessage)
-	if Main.IsOnBizhawk() then return end
+	if not Main.IsOnBizhawk() then return end
 
 	client.pause()
 
@@ -233,9 +240,9 @@ function Main.Run()
 		if Main.IsOnBizhawk() then
 			---@diagnostic disable-next-line: undefined-global
 			client.SetGameExtraPadding(0, 0, 0, 0)
-		end
-		while true do
-			Main.frameAdvance()
+			while true do
+				Main.frameAdvance()
+			end
 		end
 	else
 		-- Initialize everything in the proper order

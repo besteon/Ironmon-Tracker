@@ -22,12 +22,12 @@ function Utils.bit_oper(a, b, operand)
 		s,a,b = a+b+m, a%m, b%m
 		r,m = r + m*operand%(s-a-b), m/2
 	until m < 1
-	return r
+	return math.floor(r)
 end
 
 -- Shifts bits of 'value', 'n' bits to the left
 function Utils.bit_lshift(value, n)
-	return value * (2 ^ n)
+	return math.floor(value) * (2 ^ n)
 end
 
 -- Shifts bits of 'value', 'n' bits to the right
@@ -37,7 +37,13 @@ end
 
 -- gets bits from least significant to most
 function Utils.getbits(value, startIndex, numBits)
-	return Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits)
+	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
+end
+
+function Utils.addhalves(value)
+	local b = Utils.getbits(value, 0, 16)
+	local c = Utils.getbits(value, 16, 16)
+	return b + c
 end
 
 -- Goal is to change from little to big endian, or vice-versa. Likely a better way to do this
@@ -47,12 +53,6 @@ function Utils.reverseEndian32(value)
 	local c = Utils.bit_and(value, 0x0000FF00)
 	local d = Utils.bit_and(value, 0x000000FF)
 	return Utils.bit_lshift(d, 24) + Utils.bit_lshift(c, 8) + Utils.bit_rshift(b, 8) + Utils.bit_rshift(a, 24)
-end
-
-function Utils.addhalves(value)
-	local b = Utils.getbits(value, 0, 16)
-	local c = Utils.getbits(value, 16, 16)
-	return b + c
 end
 
 -- If the `condition` is true, the value in `T` is returned, else the value in `F` is returned
@@ -65,6 +65,12 @@ function Utils.printDebug(message)
 		print(message)
 		Utils.prevMessage = message
 	end
+end
+
+-- Alters the string by changing the first character to uppercase
+function Utils.firstToUpper(str)
+	if str == nil or str == "" then return str end
+	return str:gsub("^%l", string.upper)
 end
 
 function Utils.centerTextOffset(text, charSize, width)
@@ -128,18 +134,6 @@ function Utils.calcShadowColor(color, scale)
 	local r = Utils.bit_rshift(color_hexval, 16)
 	local g = Utils.bit_rshift(Utils.bit_and(color_hexval, 0x00FF00), 8)
 	local b = Utils.bit_and(color_hexval, 0x0000FF)
-
-	--[[
-	local scale = 0x10 -- read as: 6.25%
-	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
-	if isDarkBG then
-		scale = 0x90 -- read as: 56.25%
-	end
-	-- scale RGB values down to make them darker
-	r = r - r * scale / 0x100
-	g = g - g * scale / 0x100
-	b = b - b * scale / 0x100
-	]]--
 
 	r = math.max(r * scale, 0)
 	g = math.max(g * scale, 0)
@@ -694,14 +688,21 @@ function Utils.getSaveBlock1Addr()
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
 end
 
+-- Gets the current game's encryption key
+-- Size is the number of bytes (1/2/4) to return an encryption key of
 function Utils.getEncryptionKey(size)
-	-- Gets the current game's encryption key
-	-- Size is the number of bytes to return an encryption key of
 	if GameSettings.game == 1 then -- Ruby/Sapphire don't have an encryption key
 		return nil
 	end
 	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-	return Memory.read(saveBlock2addr + GameSettings.EncryptionKeyOffset, size)
+	local address = saveBlock2addr + GameSettings.EncryptionKeyOffset
+	if size == 1 then
+		return Memory.read8(address)
+	elseif size == 2 then
+		return Memory.read16(address)
+	else
+		return Memory.read32(address)
+	end
 end
 
 function Utils.getGameStat(statIndex)

@@ -4,10 +4,10 @@ MoveData = {
 
 -- Move categories identify the type of attack a move is: physical, special, or status
 MoveData.Categories = {
-	NONE = 0,
-	PHYSICAL = 1,
-	SPECIAL = 2,
-	STATUS = 3,
+	NONE = "None",
+	PHYSICAL = "Physical",
+	SPECIAL = "Special",
+	STATUS = "Status",
 }
 
 --List of pokemon types used to cycle through types when the Hidden Power button is clicked
@@ -114,7 +114,7 @@ MoveData.IsRand = {
 function MoveData.readDataFromMemory()
 	-- If any data at all was randomized, read in full move data from memory
 	if MoveData.checkIfDataIsRandomized() then
-		print("Randomized move data detected, reading from game memory...")
+		-- print("Randomized move data detected, reading from game memory...")
 		for moveId=1, MoveData.totalMoves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
@@ -147,12 +147,19 @@ function MoveData.readDataFromMemory()
 		if MoveData.IsRand.movePP then
 			datalog = datalog .. "PP, "
 		end
-		print(datalog:sub(1, -3)) -- Remove trailing ", "
+		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 
 function MoveData.readMoveInfoFromMemory(moveId)
 	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01)
+
+	-- DEBUG
+	if moveId == 56 then
+		local addr = GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01
+		local result = Memory.readdword(addr)
+		print(string.format("MoveData.lua> Addr: 0x0%X, Result: %X", addr, result))
+	end
 
 	local movePower = Utils.getbits(moveData, 0, 8)
 	local moveType = Utils.getbits(moveData, 8, 8)
@@ -206,7 +213,8 @@ function MoveData.checkIfDataIsRandomized()
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
 
-	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
+	return false -- TODO: remove later
+	-- return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
 end
 
 function MoveData.isValid(moveId)

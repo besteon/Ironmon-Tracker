@@ -254,7 +254,7 @@ function GameSettings.setGameVersion(gameversion)
 		},
 	}
 
-	print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
+	-- print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
 
 	-- Load non-English language data
 	local gameLanguage = GameSettings.language
