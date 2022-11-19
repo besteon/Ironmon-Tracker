@@ -6,7 +6,6 @@ MGBA = {
 
 function MGBA.initialize()
 	-- Currently unused
-	MGBA.debugMoveIds = { math.random(354), math.random(354), math.random(354), math.random(354), }
 end
 
 function MGBA.createBuffers()
@@ -19,8 +18,7 @@ end
 function MGBA.drawScreen()
 	local screen = MGBA.Screens["Main Screen"]
 
-	local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	local data = MGBA.buildPokemonDisplayObj(pokemon)
+	local data = DataHelper.buildTrackerScreenDisplay()
 	MGBA.formatPokemonDisplayObj(data)
 
 	-- %-#s means to left-align, padding out the right-part of the string with spaces
@@ -38,14 +36,14 @@ function MGBA.drawScreen()
 	local lines = {
 		string.format(topheader, string.format("%-13s", data.p.name), "BST", data.p.bst),
 		string.format("-------%-20s--", data.p.types):gsub(" ", "-"),
-		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.maxHP, data.p.status), "HP", data.p.maxHP),
+		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.hp, data.p.status), "HP", data.p.hp),
 		string.format(topbar, string.format("Lv.%s (%s)", data.p.level, data.p.evo), "ATK", data.p.atk),
 		string.format(topbar, string.format("%s", data.p.line1), "DEF", data.p.def),
 		string.format(topbar, string.format("%s", data.p.line2), "SPA", data.p.spa),
 		string.format(topbar, "", "SPD", data.p.spd),
 		string.format(topbar, string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum), "SPE", data.p.spe),
 		"-----------------------------",
-		string.format(botheader, data.m.nextmoves, "PP", "Pow", "Acc"),
+		string.format(botheader, data.m.nextmoveheader, "PP", "Pow", "Acc"),
 	}
 	for i, move in ipairs(data.m.moves) do
 		-- Primary move data to display
@@ -54,6 +52,8 @@ function MGBA.drawScreen()
 		-- Extra move info, unsure if wanted, can't use colors or symbols
 		-- table.insert(lines, string.format(" ┗%s %s %s", move.iscontact, move.type, move.category))
 	end
+	table.insert(lines, "-----------------------------")
+	table.insert(lines, "Badges: 1 2 3 4 5 _ 7 _")
 
 	screen:clear()
 	-- screen:moveCursor(0, 0) -- not sure when/how to use this yet
@@ -61,57 +61,6 @@ function MGBA.drawScreen()
 		screen:print(line)
 		screen:print('\n')
 	end
-end
-
--- Returns a table with all of the important pokemon data safely formatted to display on screen
-function MGBA.buildPokemonDisplayObj(pokemon)
-	local data = {}
-	data.p = {} -- data about the Pokemon itself
-	data.m = {} -- data about the Moves of the Pokemon
-	data.x = {} -- misc data to display, such as heals or encounters
-
-	-- POKEMON ITSELF (data.p)
-	local pokedexInfo = PokemonData.Pokemon[pokemon.pokemonID]
-	local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
-	local movesLearnedHeader, _, _ = Utils.getMovesLearnedHeader(pokemon.pokemonID, pokemon.level)
-
-	data.p.name = pokedexInfo.name or Constants.BLANKLINE
-	data.p.status = MiscData.StatusCodeMap[pokemon.status] or ""
-	data.p.types = pokedexInfo.types or { Constants.BLANKLINE, Constants.BLANKLINE }
-	data.p.curHP = pokemon.curHP or Constants.BLANKLINE
-	data.p.maxHP = pokemon.stats.hp or Constants.BLANKLINE
-	data.p.level = pokemon.level or Constants.BLANKLINE
-	data.p.evo = pokemon.evolution or Constants.BLANKLINE
-	data.p.line1 = MiscData.Items[pokemon.heldItem] or Constants.BLANKLINE
-	data.p.line2 = AbilityData.Abilities[abilityId].name
-
-	data.p.atk = pokemon.stats.atk or Constants.BLANKLINE
-	data.p.def = pokemon.stats.def or Constants.BLANKLINE
-	data.p.spa = pokemon.stats.spa or Constants.BLANKLINE
-	data.p.spd = pokemon.stats.spd or Constants.BLANKLINE
-	data.p.spe = pokemon.stats.spe or Constants.BLANKLINE
-	data.p.bst = pokedexInfo.bst or Constants.BLANKLINE
-
-	-- MOVES OF POKEMON (data.m)
-	data.m.nextmoves = movesLearnedHeader
-	data.m.moves = { {}, {}, {}, {} }
-	for i, move in ipairs(data.m.moves) do
-		local moveInfo = MoveData.Moves[MGBA.debugMoveIds[i]]
-		move.id = moveInfo.id or Constants.BLANKLINE
-		move.name = moveInfo.name or Constants.BLANKLINE
-		move.pp = moveInfo.pp or Constants.BLANKLINE
-		move.power = moveInfo.power or Constants.BLANKLINE
-		move.accuracy = moveInfo.accuracy or Constants.BLANKLINE
-		move.type = moveInfo.type or PokemonData.Types.UNKNOWN
-		move.category = moveInfo.category or MoveData.Categories.NONE
-		move.iscontact = moveInfo.iscontact or false
-	end
-
-	-- MISC DATA (data.x)
-	data.x.healperc = math.min(9999, Tracker.Data.healingItems.healing or 0)
-	data.x.healnum = math.min(99, Tracker.Data.healingItems.numHeals or 0)
-
-	return data
 end
 
 function MGBA.formatPokemonDisplayObj(data)
@@ -128,19 +77,23 @@ function MGBA.formatPokemonDisplayObj(data)
 		data.p.types = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 	end
 
+	if not Tracker.Data.isViewingOwn then
+		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+			local statBtn = TrackerScreen.Buttons[statKey]
+			if statBtn ~= nil then
+				data.p[statKey] = Constants.STAT_STATES[statBtn.statState or 0].text or Constants.BLANKLINE
+			end
+		end
+	end
+
 	for i, move in ipairs(data.m.moves) do
-		if move.pp == "0" then
-			move.pp = Constants.BLANKLINE
-		end
-		if move.power == "0" then
-			move.power = Constants.BLANKLINE
-		end
-		if move.accuracy == "0" then
-			move.accuracy = Constants.BLANKLINE
-		end
+		move.name = move.name .. Utils.inlineIf(move.starred, "*", "")
 		move.type = Utils.firstToUpper(move.type)
 		move.category = Utils.inlineIf(move.category == MoveData.Categories.STATUS, "", "(" .. move.category:sub(1, 1) .. ")") -- "(P)" or "(S)"
 		move.iscontact = Utils.inlineIf(move.iscontact, "@", "")
+		if move.isstab then
+			move.power = move.power .. "+"
+		end
 	end
 end
 

@@ -154,13 +154,6 @@ end
 function MoveData.readMoveInfoFromMemory(moveId)
 	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01)
 
-	-- DEBUG
-	if moveId == 56 then
-		local addr = GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01
-		local result = Memory.readdword(addr)
-		print(string.format("MoveData.lua> Addr: 0x0%X, Result: %X", addr, result))
-	end
-
 	local movePower = Utils.getbits(moveData, 0, 8)
 	local moveType = Utils.getbits(moveData, 8, 8)
 	local moveAccuracy = Utils.getbits(moveData, 16, 8)
@@ -213,8 +206,7 @@ function MoveData.checkIfDataIsRandomized()
 	MoveData.IsRand.moveAccuracy = areAccuraciesRandomized
 	MoveData.IsRand.movePP = arePPsRandomized
 
-	return false -- TODO: remove later
-	-- return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
+	return areTypesRandomized or arePowersRandomized or areAccuraciesRandomized or arePPsRandomized
 end
 
 function MoveData.isValid(moveId)

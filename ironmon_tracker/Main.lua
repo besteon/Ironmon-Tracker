@@ -34,6 +34,7 @@ function Main.Initialize()
 		"/data/AbilityData.lua",
 		"/data/MiscData.lua",
 		"/data/RouteData.lua",
+		"/data/DataHelper.lua",
 		"/Memory.lua",
 		"/GameSettings.lua",
 		"/screens/InfoScreen.lua",
@@ -128,6 +129,7 @@ function Main.Initialize()
 
 	if not Main.IsOnBizhawk() then
 		Constants.BLANKLINE = "--"
+		Constants.STAT_STATES[2].text = "-"
 		Constants.Words.POKEMON = "Pokémon"
 		Constants.Words.POKE = "Poké"
 	end

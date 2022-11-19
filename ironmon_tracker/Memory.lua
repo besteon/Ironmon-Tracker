@@ -34,12 +34,16 @@ function Memory.initialize()
 			return memory.write_u32_le(a, value, m)
 		end
 	else
-		---@diagnostic disable-next-line: undefined-global
-		Memory.read8 = function(addr) return emu:read8(addr) end
-		---@diagnostic disable-next-line: undefined-global
-		Memory.read16 = function(addr) return emu:read16(addr) end
-		---@diagnostic disable-next-line: undefined-global
-		Memory.read32 = function(addr) return emu:read32(addr) end
+		Memory.read8 = function(addr)
+			---@diagnostic disable-next-line: undefined-global
+			return emu:read8(addr)
+		end
+		Memory.read16 = function(addr)
+			return Memory.read8(addr) + Utils.bit_lshift(Memory.read8(addr + 0x01), 8)
+		end
+		Memory.read32 = function(addr)
+			return Memory.read16(addr) + Utils.bit_lshift(Memory.read16(addr + 0x02), 16)
+		end
 		---@diagnostic disable-next-line: undefined-global
 		Memory.write8 = function(addr, value) return emu:write8(addr, value) end
 		---@diagnostic disable-next-line: undefined-global

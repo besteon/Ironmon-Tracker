@@ -4,26 +4,26 @@ PokemonData = {
 
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
 PokemonData.Types = {
-		NORMAL = "normal",
-		FIGHTING = "fighting",
-		FLYING = "flying",
-		POISON = "poison",
-		GROUND = "ground",
-		ROCK = "rock",
-		BUG = "bug",
-		GHOST = "ghost",
-		STEEL = "steel",
-		FIRE = "fire",
-		WATER = "water",
-		GRASS = "grass",
-		ELECTRIC = "electric",
-		PSYCHIC = "psychic",
-		ICE = "ice",
-		DRAGON = "dragon",
-		DARK = "dark",
-		FAIRY = "fairy", -- Expect this to be unused in Gen 1-5
-		UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
-		EMPTY = "", -- No second type for this Pokémon or an empty field
+	NORMAL = "normal",
+	FIGHTING = "fighting",
+	FLYING = "flying",
+	POISON = "poison",
+	GROUND = "ground",
+	ROCK = "rock",
+	BUG = "bug",
+	GHOST = "ghost",
+	STEEL = "steel",
+	FIRE = "fire",
+	WATER = "water",
+	GRASS = "grass",
+	ELECTRIC = "electric",
+	PSYCHIC = "psychic",
+	ICE = "ice",
+	DRAGON = "dragon",
+	DARK = "dark",
+	FAIRY = "fairy", -- Expect this to be unused in Gen 1-5
+	UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
+	EMPTY = "", -- No second type for this Pokémon or an empty field
 }
 
 -- Enumerated constants that defines various evolution possibilities
