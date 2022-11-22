@@ -59,7 +59,7 @@ Constants.ButtonTypes = {
 }
 
 Constants.STAT_STATES = {
-	[0] = { text = "", textColor = "Default text" },
+	[0] = { text = " ", textColor = "Default text" },
 	[1] = { text = "+", textColor = "Positive text" },
 	[2] = { text = "--", textColor = "Negative text" },
 }

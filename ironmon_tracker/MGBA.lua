@@ -31,20 +31,21 @@ function MGBA.drawScreen()
 
 	local topheader = "%-20s %-5s" .. justify3
 	local topbar = "%-20s %-5s" .. justify3
-	local botheader = "%-17s %-2s  %-3s %-3s"
-	local botbar = "%-17s " .. justify3 .. " " .. justify3 .. " " .. justify3
 	local lines = {
 		string.format(topheader, string.format("%-13s", data.p.name), "BST", data.p.bst),
 		string.format("-------%-20s--", data.p.types):gsub(" ", "-"),
-		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.hp, data.p.status), "HP", data.p.hp),
-		string.format(topbar, string.format("Lv.%s (%s)", data.p.level, data.p.evo), "ATK", data.p.atk),
-		string.format(topbar, string.format("%s", data.p.line1), "DEF", data.p.def),
-		string.format(topbar, string.format("%s", data.p.line2), "SPA", data.p.spa),
-		string.format(topbar, "", "SPD", data.p.spd),
-		string.format(topbar, string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum), "SPE", data.p.spe),
+		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.hp, data.p.status), data.p.labels.hp, data.p.hp),
+		string.format(topbar, string.format("Lv.%s (%s)", data.p.level, data.p.evo), data.p.labels.atk, data.p.atk),
+		string.format(topbar, string.format("%s", data.p.line1), data.p.labels.def, data.p.def),
+		string.format(topbar, string.format("%s", data.p.line2), data.p.labels.spa, data.p.spa),
+		string.format(topbar, "", data.p.labels.spd, data.p.spd),
+		string.format(topbar, string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum), data.p.labels.spe, data.p.spe),
 		"-----------------------------",
-		string.format(botheader, data.m.nextmoveheader, "PP", "Pow", "Acc"),
 	}
+
+	local botheader = "%-17s %-2s  %-3s %-3s"
+	local botbar = "%-17s " .. justify3 .. " " .. justify3 .. " " .. justify3
+	table.insert(lines, string.format(botheader, data.m.nextmoveheader, "PP", "Pow", "Acc"))
 	for i, move in ipairs(data.m.moves) do
 		-- Primary move data to display
 		table.insert(lines, string.format(botbar, move.name, move.pp, move.power, move.accuracy))
@@ -77,11 +78,23 @@ function MGBA.formatPokemonDisplayObj(data)
 		data.p.types = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 	end
 
-	if not Tracker.Data.isViewingOwn then
-		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+	local escapeString = string.char(27) .. '[%dm'
+	print(string.format(escapeString .. 'Test' .. escapeString .. ' Okay', 31, 0))
+	-- print("\x1b[31mTest")
+	data.p.labels = {}
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		if statKey == data.p.positivestat then
+			data.p.labels[statKey] = '\033[32m' .. statKey:upper() .. '+\033[0m'
+		elseif statKey == data.p.negativestat then
+			data.p.labels[statKey] = '\033[31m' .. statKey:upper() .. '-\033[0m'
+		else
+			data.p.labels[statKey] = statKey:upper()
+		end
+
+		if not Tracker.Data.isViewingOwn then
 			local statBtn = TrackerScreen.Buttons[statKey]
 			if statBtn ~= nil then
-				data.p[statKey] = Constants.STAT_STATES[statBtn.statState or 0].text or Constants.BLANKLINE
+				data.p[statKey] = string.format("[%s]", Constants.STAT_STATES[statBtn.statState or 0].text)
 			end
 		end
 	end
