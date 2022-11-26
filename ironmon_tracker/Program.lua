@@ -51,7 +51,7 @@ Program.Pedometer = {
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
-	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Program.inStartMenu end,
+	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu end,
 }
 
 function Program.initialize()
@@ -150,7 +150,7 @@ function Program.update()
 				end
 			end
 
-			if Options["Display repel usage"] and not Battle.inBattle then
+			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
@@ -231,9 +231,10 @@ function Program.updatePokemonTeams()
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
+		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
 		Tracker.Data.ownTeam[i] = personality
 
-		if personality ~= 0 then
+		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
@@ -253,7 +254,8 @@ function Program.updatePokemonTeams()
 				end
 
 				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				newPokemonData.trainerID = nil
+				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
+				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 			end
@@ -261,9 +263,10 @@ function Program.updatePokemonTeams()
 
 		-- Then lookup information on the opposing Pokemon
 		personality = Memory.readdword(GameSettings.estats + addressOffset)
+		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
 		Tracker.Data.otherTeam[i] = personality
 
-		if personality ~= 0 then
+		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
 
 			if Program.validPokemonData(newPokemonData) then
@@ -395,7 +398,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle then
+	if Battle.inBattle or Battle.battleStarting then
 		return
 	end
 

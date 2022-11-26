@@ -38,6 +38,10 @@ function Input.checkJoypadInput(joypadButtons)
 			if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
 				--swap sides on returning to allied side
 				Battle.isViewingLeft = not Battle.isViewingLeft
+				--undo changes for special double battles
+				if Battle.isViewingLeft == false and Battle.Combatants.RightOwn > Battle.partySize then
+					Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
+				end
 				-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
 				Program.Frames.three_sec_update = 30
 			end

@@ -88,11 +88,18 @@ Constants.MoveTypeColors = {
 
 Constants.GAME_STATS = { -- Enums for in-game stats
 	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
-	GAME_STAT_STEPS = 5,
+	SAVED_GAME = 0, -- Number of times the player saved the game
+	STEPS = 5, -- Total number of steps the player has taken
+	TOTAL_BATTLES = 7, -- Total battles (trainer + wild), also useful for checking when Battle.inBattle should be true
+	WILD_BATTLES = 8, -- Total number of wild encounters
+	TRAINER_BATTLES = 9, -- Total number of unique trainer battles
+	POKEMON_CAPTURES = 11, -- Total number of Pokemon caught
 	FISHING_CAPTURES = 12, -- Deceptive name, gets incremented when fishing encounter happens
 	USED_POKECENTER = 15,
 	RESTED_AT_HOME = 16,
 	USED_ROCK_SMASH = 19,
+	USED_STRUGGLE = 27, -- Total number of times the player has had to use Struggle
+	SHOPPED = 38, -- Total number of items purchased from a shop
 }
 
 Constants.PreloadedThemes = {
