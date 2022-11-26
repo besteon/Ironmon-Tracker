@@ -74,12 +74,6 @@ function Program.initialize()
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
-
-	PokemonData.readDataFromMemory()
-	MoveData.readDataFromMemory()
-
-	-- At some point we might want to implement this so that wild encounter data is automatic
-	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function Program.mainLoop()

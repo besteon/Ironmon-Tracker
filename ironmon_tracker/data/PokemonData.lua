@@ -57,8 +57,8 @@ PokemonData.IsRand = {
 	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
 }
 
--- Reads the types and abilities for each Pokemon in the Pokedex
-function PokemonData.readDataFromMemory()
+function PokemonData.initialize()
+	-- Reads the types and abilities for each Pokemon in the Pokedex
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
 		-- print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")

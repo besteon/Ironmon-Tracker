@@ -24,7 +24,7 @@ function Drawing.setupDrawingArea()
 		---@diagnostic disable-next-line: undefined-global
 		gui.defaultTextBackground(0)
 	else
-		MGBA.createBuffers()
+		MGBA.createTextBuffers()
 	end
 end
 
@@ -142,11 +142,8 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 end
 
 function Drawing.drawInputOverlay()
-	if not Tracker.Data.isViewingOwn and Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
-		if Input.controller.statIndex < 1 then Input.controller.statIndex = 1 end
-		if Input.controller.statIndex > 6 then Input.controller.statIndex = 6 end
-
-		local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
+	if not Tracker.Data.isViewingOwn and Input.StatHighlighter:shouldDisplay() then
+		local statKey = Input.StatHighlighter:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey]
 		if statButton ~= nil then
 			gui.drawRectangle(statButton.box[1], statButton.box[2], statButton.box[3], statButton.box[4], Theme.COLORS["Intermediate text"], 0x000000)
@@ -241,7 +238,7 @@ function Drawing.drawScreen(screenFunc)
 			Drawing.drawRepelUsage()
 		end
 	else
-		MGBA.drawScreen()
+		MGBA.updateTextBuffers()
 	end
 end
 

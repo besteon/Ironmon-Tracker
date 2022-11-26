@@ -400,17 +400,17 @@ function TrackerScreen.buildCarousel()
 		framesToShow = 180,
 		getContentList = function(pokemonID)
 			-- If the player doesn't have a Pokemon, display something else useful instead
-			if pokemonID == 0 then
-				return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
-			end
-			if pokemonID == 413 then
-				return {"Spoooky!"}
-			end
+			-- if pokemonID == 0 then
+			-- 	return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
+			-- end
+
 			local noteText = Tracker.getNote(pokemonID)
 			if noteText ~= nil and noteText ~= "" then
 				return { noteText }
-			else
+			else--if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.NotepadTracking }
+			-- else
+			-- 	return { "(Leave a note)" }
 			end
 		end,
 	}
@@ -443,7 +443,11 @@ function TrackerScreen.buildCarousel()
 			end
 
 			TrackerScreen.Buttons.LastAttackSummary.text = lastAttackMsg
-			return { TrackerScreen.Buttons.LastAttackSummary }
+			-- if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.LastAttackSummary }
+			-- else
+			-- 	return { lastAttackMsg }
+			-- end
 		end,
 	}
 
@@ -691,13 +695,13 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	local extraInfoColor
 
 	if Tracker.Data.isViewingOwn then
-		if data.p.maxHP <= 0 then
+		if data.p.hp <= 0 then
 			extraInfoText = string.format("%s/%s", Constants.HIDDEN_INFO, Constants.HIDDEN_INFO)
 			extraInfoColor = Theme.COLORS["Default text"]
 		else
-			extraInfoText = string.format("%s/%s", data.p.curHP, data.p.maxHP)
+			extraInfoText = string.format("%s/%s", data.p.curHP, data.p.hp)
 
-			local hpPercentage = data.p.curHP / data.p.maxHP
+			local hpPercentage = data.p.curHP / data.p.hp
 			if hpPercentage <= 0.2 then
 				extraInfoColor = Theme.COLORS["Negative text"]
 			elseif hpPercentage <= 0.5 then
@@ -770,7 +774,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Heals in Bag:", Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", data.x.healperc) .. " HP (" .. data.x.healnum .. ")", Theme.COLORS["Default text"], shadowcolor)
 
-		if (Options["Track PC Heals"]) then
+		if Options["Track PC Heals"] then
 			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], shadowcolor)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 75

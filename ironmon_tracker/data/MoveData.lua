@@ -110,8 +110,8 @@ MoveData.IsRand = {
 	movePP = false,
 }
 
--- Reads the Move's type, power, accuracy, and pp
-function MoveData.readDataFromMemory()
+function MoveData.initialize()
+	-- Reads the Move's type, power, accuracy, and pp
 	-- If any data at all was randomized, read in full move data from memory
 	if MoveData.checkIfDataIsRandomized() then
 		-- print("Randomized move data detected, reading from game memory...")

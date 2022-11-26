@@ -531,7 +531,7 @@ function Battle.beginNewBattle()
 		RightOther = 2,
 	}
 	Battle.populateBattleAbilityObject()
-	Input.resetControllerIndex()
+	Input.StatHighlighter:resetSelectedStat()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
@@ -621,7 +621,7 @@ function Battle.changeOpposingPokemonView(isLeft)
 		Battle.isViewingLeft = isLeft
 	end
 
-	Input.resetControllerIndex()
+	Input.StatHighlighter:resetSelectedStat()
 
 	-- Delay drawing the new pokemon, because of send out animation
 	Program.Frames.waitToDraw = 0

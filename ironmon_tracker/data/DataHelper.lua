@@ -1,16 +1,22 @@
 DataHelper = {}
 
--- Returns a table with all of the important display data safely formatted to draw on screen
-function DataHelper.buildTrackerScreenDisplay()
+-- Returns a table with all of the important display data safely formatted to draw on screen.
+-- forceView: optional, if true forces view as viewingOwn, otherwise forces enemy view
+function DataHelper.buildTrackerScreenDisplay(forceView)
 	local data = {}
 	data.p = {} -- data about the Pokemon itself
 	data.m = {} -- data about the Moves of the Pokemon
 	data.x = {} -- misc data to display, such as heals, encounters, badges
 
+	data.x.viewingOwn = Tracker.Data.isViewingOwn
+	if forceView ~= nil then
+		data.x.viewingOwn = forceView
+	end
+
 	--Assume we are always looking at the left pokemon on the opposing side for move effectiveness
 	local viewedPokemon
 	local opposingPokemon -- currently used exclusively for Low Kick weight calcs
-	if Tracker.Data.isViewingOwn then
+	if data.x.viewingOwn then
 		viewedPokemon = Battle.getViewedPokemon(true)
 		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
 	else
@@ -65,22 +71,22 @@ function DataHelper.buildTrackerScreenDisplay()
 	data.p.stages.eva = viewedPokemon.statStages.eva or 6
 
 	-- Update: Pokemon Types
-	if Battle.inBattle and (Tracker.Data.isViewingOwn or not Battle.isGhost) then
+	if Battle.inBattle and (data.x.viewingOwn or not Battle.isGhost) then
 		-- Update displayed types as typing changes (i.e. Color Change)
-		data.p.types = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
+		data.p.types = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 	else
 		data.p.types = { viewedPokemon.types[1], viewedPokemon.types[2], }
 	end
 
 	-- Update: Pokemon Evolution
-	if Tracker.Data.isViewingOwn and data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired then
+	if data.x.viewingOwn and data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired then
 		data.p.evo = "SOON"
 	end
 
 	-- Update: Held Item and Ability area(s)
 	data.p.line1 = Constants.BLANKLINE
 	data.p.line2 = Constants.BLANKLINE
-	if Tracker.Data.isViewingOwn then
+	if data.x.viewingOwn then
 		if viewedPokemon.heldItem ~= nil and viewedPokemon.heldItem ~= 0 then
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
@@ -103,10 +109,10 @@ function DataHelper.buildTrackerScreenDisplay()
 	data.m.nextmoveheader, data.m.nextmovelevel, data.m.nextmovespacing = Utils.getMovesLearnedHeader(viewedPokemon.pokemonID, viewedPokemon.level)
 
 	-- MOVES OF POKEMON (data.m)
-	data.m.moves = { MoveData.BlankMove, MoveData.BlankMove, MoveData.BlankMove, MoveData.BlankMove }
+	data.m.moves = { {}, {}, {}, {}, } -- four empty move placeholders
 
 	local stars
-	if Tracker.Data.isViewingOwn then
+	if data.x.viewingOwn then
 		stars = { "", "", "", "" }
 	else
 		stars = Utils.calculateMoveStars(viewedPokemon.pokemonID, viewedPokemon.level)
@@ -114,15 +120,22 @@ function DataHelper.buildTrackerScreenDisplay()
 
 	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID)
 	for i = 1, 4, 1 do
-		if Tracker.Data.isViewingOwn then
+		local moveToCopy = MoveData.BlankMove
+		if data.x.viewingOwn then
 			if viewedPokemon.moves[i] ~= nil and viewedPokemon.moves[i].id ~= 0 then
-				data.m.moves[i] = MoveData.Moves[viewedPokemon.moves[i].id]
+				moveToCopy = MoveData.Moves[viewedPokemon.moves[i].id]
 			end
 		elseif trackedMoves ~= nil then
 			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
 			if trackedMoves[i] ~= nil and trackedMoves[i].id ~= 0 then
-				data.m.moves[i] = MoveData.Moves[trackedMoves[i].id]
+				moveToCopy = MoveData.Moves[trackedMoves[i].id]
 			end
+		end
+
+		-- Add in Move data information about the Move
+		data.m.moves[i] = {}
+		for key, value in pairs(moveToCopy) do
+			data.m.moves[i][key] = value
 		end
 
 		local move = data.m.moves[i]
@@ -139,7 +152,7 @@ function DataHelper.buildTrackerScreenDisplay()
 		move.starred = stars[i] ~= nil and stars[i] ~= ""
 
 		-- Update: Specific Moves
-		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
+		if move.name == "Hidden Power" and data.x.viewingOwn then
 			move.type = Tracker.getHiddenPowerType()
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
@@ -156,7 +169,7 @@ function DataHelper.buildTrackerScreenDisplay()
 					targetWeight = 0
 				end
 				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
-			elseif Tracker.Data.isViewingOwn then
+			elseif data.x.viewingOwn then
 				if move.name == "Flail" or move.name == "Reversal" then
 					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
 				elseif move.name == "Eruption" or move.name == "Water Spout" then
@@ -169,7 +182,7 @@ function DataHelper.buildTrackerScreenDisplay()
 
 		-- Update: Actual PP Values
 		if move.name ~= MoveData.BlankMove.name then
-			if Tracker.Data.isViewingOwn then
+			if data.x.viewingOwn then
 				move.pp = viewedPokemon.moves[i].pp
 			elseif Options["Count enemy PP usage"] then
 				-- Interate over tracked moves, since we don't know the full move list
@@ -183,7 +196,7 @@ function DataHelper.buildTrackerScreenDisplay()
 
 		-- Update: If STAB
 		if Battle.inBattle then
-			local ownTypes = Program.getPokemonTypes(Tracker.Data.isViewingOwn, Battle.isViewingLeft)
+			local ownTypes = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 			move.isstab = Utils.isSTAB(move, move.type, ownTypes)
 		end
 
@@ -194,7 +207,7 @@ function DataHelper.buildTrackerScreenDisplay()
 			move.showeffective = false
 		elseif not Options["Reveal info if randomized"] then
 			-- If move info is randomized and the user doesn't want to know about it, hide it
-			if Tracker.Data.isViewingOwn then
+			if data.x.viewingOwn then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
 				move.showeffective = not PokemonData.IsRand.pokemonTypes
 			else
@@ -217,7 +230,7 @@ function DataHelper.buildTrackerScreenDisplay()
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
-			local enemyTypes = Program.getPokemonTypes(not Tracker.Data.isViewingOwn, true)
+			local enemyTypes = Program.getPokemonTypes(not data.x.viewingOwn, true)
 			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
 		else
 			move.effectiveness = 1
@@ -242,8 +255,6 @@ function DataHelper.buildTrackerScreenDisplay()
 	else
 		data.x.encounters = 0
 	end
-
-	-- TODO: Carousel Items (badges, steps, notes, last damage, route encounter)
 
 	return data
 end

@@ -2,70 +2,82 @@ MGBA = {
 	-- TextBuffer screens
 	Screens = {
 	},
+	currentScreen = nil,
+}
+
+MGBA.Symbols = {
+	Stab = "=",
+	Effectiveness = {
+		[0] = "X",
+		[0.25] = "~",
+		[0.5] = "-",
+		[1] = " ",
+		[2] = "+",
+		[4] = "*",
+	},
+	Category = {
+		[MoveData.Categories.STATUS] = " ",
+		[MoveData.Categories.PHYSICAL] = "P",
+		[MoveData.Categories.SPECIAL] = "S",
+	},
 }
 
 function MGBA.initialize()
 	-- Currently unused
 end
 
-function MGBA.createBuffers()
-	local screens = { "Main Screen" } -- , "Enemy Screen"
+-- Prints `line` to the mGBA TextBuffer 'MGBA.currentScreen' or optionally the `screenBuffer`
+function MGBA.printToScreenBuffer(line, screenBuffer)
+	line = line or ""
+	screenBuffer = screenBuffer or MGBA.currentScreen
+	if screenBuffer ~= nil then
+		screenBuffer:print(line .. "\n")
+	end
+end
+
+function MGBA.createTextBuffers()
+	local screens = { "☰ Menu", "Your Pokémon", }--"Enemy Pokémon" }
 	for _, screen in ipairs(screens) do
 		MGBA.Screens[screen] = console:createBuffer(screen)
 	end
+	MGBA.currentScreen = MGBA.Screens["Your Pokémon"]
 end
 
-function MGBA.drawScreen()
-	local screen = MGBA.Screens["Main Screen"]
-
+function MGBA.updateTextBuffers()
+	local screen = MGBA.Screens["Your Pokémon"]
 	local data = DataHelper.buildTrackerScreenDisplay()
-	MGBA.formatPokemonDisplayObj(data)
 
-	-- %-#s means to left-align, padding out the right-part of the string with spaces
-	local justify2, justify3
-	if Options["Right justified numbers"] then
-		justify2, justify3 = "%2s", "%3s"
-	else
-		justify2, justify3 = "%-2s", "%-3s"
-	end
-
-	local topheader = "%-20s %-5s" .. justify3
-	local topbar = "%-20s %-5s" .. justify3
-	local lines = {
-		string.format(topheader, string.format("%-13s", data.p.name), "BST", data.p.bst),
-		string.format("-------%-20s--", data.p.types):gsub(" ", "-"),
-		string.format(topbar, string.format("HP: %s/%s   %s", data.p.curHP, data.p.hp, data.p.status), data.p.labels.hp, data.p.hp),
-		string.format(topbar, string.format("Lv.%s (%s)", data.p.level, data.p.evo), data.p.labels.atk, data.p.atk),
-		string.format(topbar, string.format("%s", data.p.line1), data.p.labels.def, data.p.def),
-		string.format(topbar, string.format("%s", data.p.line2), data.p.labels.spa, data.p.spa),
-		string.format(topbar, "", data.p.labels.spd, data.p.spd),
-		string.format(topbar, string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum), data.p.labels.spe, data.p.spe),
-		"-----------------------------",
-	}
-
-	local botheader = "%-17s %-2s  %-3s %-3s"
-	local botbar = "%-17s " .. justify3 .. " " .. justify3 .. " " .. justify3
-	table.insert(lines, string.format(botheader, data.m.nextmoveheader, "PP", "Pow", "Acc"))
-	for i, move in ipairs(data.m.moves) do
-		-- Primary move data to display
-		table.insert(lines, string.format(botbar, move.name, move.pp, move.power, move.accuracy))
-
-		-- Extra move info, unsure if wanted, can't use colors or symbols
-		-- table.insert(lines, string.format(" ┗%s %s %s", move.iscontact, move.type, move.category))
-	end
-	table.insert(lines, "-----------------------------")
-	table.insert(lines, "Badges: 1 2 3 4 5 _ 7 _")
+	MGBA.formatTrackerScreenData(data)
+	local displayBoxes = MGBA.formatTrackerScreenDisplayLines(data)
 
 	screen:clear()
 	-- screen:moveCursor(0, 0) -- not sure when/how to use this yet
-	for _, line in ipairs(lines) do
-		screen:print(line)
-		screen:print('\n')
+
+	for _, boxLineSet in ipairs(displayBoxes) do
+		for _, line in ipairs(boxLineSet) do
+			MGBA.printToScreenBuffer(line, screen)
+		end
 	end
+
+	-- screen = MGBA.Screens["Enemy Pokémon"]
+	-- data = DataHelper.buildTrackerScreenDisplay(false)
+	-- MGBA.formatTrackerScreenData(data)
+	-- displayBoxes = MGBA.formatTrackerScreenDisplayLines(data)
+
+	-- screen:clear()
+	-- for _, boxLineSet in ipairs(displayBoxes) do
+	-- 	for _, line in ipairs(boxLineSet) do
+	-- 		MGBA.printToScreenBuffer(line, screen)
+	-- 	end
+	-- end
 end
 
-function MGBA.formatPokemonDisplayObj(data)
+function MGBA.formatTrackerScreenData(data)
 	data.p.name = data.p.name:upper()
+
+	if data.p.evo == PokemonData.Evolutions.NONE then
+		data.p.evo = Constants.BLANKLINE
+	end
 
 	if data.p.status ~= "" then
 		data.p.status = string.format("[%s]", data.p.status)
@@ -73,174 +85,158 @@ function MGBA.formatPokemonDisplayObj(data)
 
 	-- Format type as "Normal" or "Flying/Normal"
 	if data.p.types[2] ~= data.p.types[1] and data.p.types[2] ~= nil then
-		data.p.types = string.format("(%s/%s)", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+		data.p.types = string.format("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
 	else
 		data.p.types = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 	end
 
-	local escapeString = string.char(27) .. '[%dm'
-	print(string.format(escapeString .. 'Test' .. escapeString .. ' Okay', 31, 0))
-	-- print("\x1b[31mTest")
 	data.p.labels = {}
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-		if statKey == data.p.positivestat then
-			data.p.labels[statKey] = '\033[32m' .. statKey:upper() .. '+\033[0m'
-		elseif statKey == data.p.negativestat then
-			data.p.labels[statKey] = '\033[31m' .. statKey:upper() .. '-\033[0m'
+		data.p.labels[statKey] = statKey:upper()
+		if data.x.viewingOwn then
+			if statKey == data.p.positivestat then
+				data.p.labels[statKey] = data.p.labels[statKey] .. "+"
+			elseif statKey == data.p.negativestat then
+				data.p.labels[statKey] = data.p.labels[statKey] .. "-"
+			end
 		else
-			data.p.labels[statKey] = statKey:upper()
+			local statBtn = TrackerScreen.Buttons[statKey] or {}
+			data.p[statKey] = string.format(" %s ", Constants.STAT_STATES[statBtn.statState or 0].text)
 		end
 
-		if not Tracker.Data.isViewingOwn then
-			local statBtn = TrackerScreen.Buttons[statKey]
-			if statBtn ~= nil then
-				data.p[statKey] = string.format("[%s]", Constants.STAT_STATES[statBtn.statState or 0].text)
-			end
+		local stageChange = data.p.stages[statKey] - 6
+		if stageChange > 0 then
+			data.p.stages[statKey] = "+" .. stageChange
+		elseif stageChange < 0 then
+			data.p.stages[statKey] = tostring(stageChange) -- includes negative sign
+		else
+			data.p.stages[statKey] = ""
 		end
 	end
 
-	for i, move in ipairs(data.m.moves) do
+	if not data.x.viewingOwn and Input.StatHighlighter:shouldDisplay() then
+		local selectedStat = Input.StatHighlighter:getSelectedStat()
+		data.p[selectedStat] = string.format("[%s]", data.p[selectedStat]:sub(2, 2))
+	end
+
+	for _, move in ipairs(data.m.moves) do
 		move.name = move.name .. Utils.inlineIf(move.starred, "*", "")
 		move.type = Utils.firstToUpper(move.type)
-		move.category = Utils.inlineIf(move.category == MoveData.Categories.STATUS, "", "(" .. move.category:sub(1, 1) .. ")") -- "(P)" or "(S)"
-		move.iscontact = Utils.inlineIf(move.iscontact, "@", "")
+	end
+end
+
+function MGBA.formatTrackerScreenDisplayLines(data)
+	local topLines, botLines, footerLines = {}, {}, {}
+
+	-- %-#s means to left-align, padding out the right-part of the string with spaces
+	local justify3 = Utils.inlineIf(Options["Right justified numbers"], "%3s", "%-3s")
+
+	local formattedStats = {}
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		formattedStats[statKey] = string.format("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], data.p[statKey], data.p.stages[statKey])
+	end
+
+	-- Header and top dividing line (with types)
+	topLines[1] = string.format("%-23s%-5s%-5s", string.format("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
+	topLines[2] = string.format("%-23s%-10s", data.p.types, "----------")
+
+	-- Top six lines of the box: Pokemon related stuff
+	local topFormattedLine = "%-23s%-10s"
+	local levelLine = string.format("Lv.%s (%s)", data.p.level, data.p.evo)
+	if data.x.viewingOwn then
+		local hpLine = string.format("HP: %s/%s", data.p.curHP, data.p.hp)
+		topLines[3] = string.format(topFormattedLine, hpLine, formattedStats.hp)
+		topLines[4] = string.format(topFormattedLine, levelLine, formattedStats.atk)
+
+		if Options["Track PC Heals"] then
+			local survivalHeals = string.format("Survival PCs: %s", data.x.pcheals)
+			topLines[7] = string.format(topFormattedLine, survivalHeals, formattedStats.spd)
+		else
+			topLines[7] = string.format(topFormattedLine, "", formattedStats.spd)
+		end
+
+		local availableHeals = string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum)
+		topLines[8] = string.format(topFormattedLine, availableHeals, formattedStats.spe)
+	else
+		topLines[3] = string.format(topFormattedLine, levelLine, formattedStats.hp)
+
+		local lastLevelSeen
+		if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
+			lastLevelSeen = string.format("Last seen Lv.%s", data.p.lastlevel)
+		else
+			lastLevelSeen = "New encounter!"
+		end
+		topLines[4] = string.format(topFormattedLine, lastLevelSeen, formattedStats.atk)
+
+		local encountersText = string.format("Seen %s: %s", Utils.inlineIf(Battle.isWildEncounter, "in the wild", "on trainers"), data.x.encounters)
+		topLines[7] = string.format(topFormattedLine, encountersText, formattedStats.spd)
+		topLines[8] = string.format(topFormattedLine, data.x.route, formattedStats.spe)
+	end
+
+	topLines[5] = string.format(topFormattedLine, data.p.line1, formattedStats.def)
+	topLines[6] = string.format(topFormattedLine, data.p.line2, formattedStats.spa)
+	table.insert(topLines, "")
+
+	-- Bottom five lines of the box: Move related stuff
+	local botFormattedLine = "%-20s%-3s%-6s%-4s"
+	table.insert(botLines, string.format("%-20s%-3s%-6s%-4s", data.m.nextmoveheader, "PP", " Pow", "Acc"))
+	table.insert(botLines, "---------------------------------")
+	for i, move in ipairs(data.m.moves) do
+		local nameText = move.name
+		if Options["Show physical special icons"] and (data.x.viewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
+			nameText = (MGBA.Symbols.Category[move.category] or " ") .. " " .. nameText
+		end
+
+		local powerText = string.format(justify3, move.power):sub(1, 3)
+		if move.showeffective then
+			powerText = (MGBA.Symbols.Effectiveness[move.effectiveness] or " ") .. powerText
+		else
+			powerText = " " .. powerText
+		end
 		if move.isstab then
-			move.power = move.power .. "+"
+			powerText = powerText .. MGBA.Symbols.Stab
+		end
+
+		table.insert(botLines, string.format(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
+	end
+	table.insert(botLines, "---------------------------------")
+
+	-- Footer, carousel related stuff
+	-- local botFormattedLine = "%-33s"
+	for _, carousel in ipairs(TrackerScreen.CarouselItems) do
+		if carousel.isVisible() then
+			local carouselText = MGBA.convertCarouselToText(carousel, data.p.id)
+			table.insert(footerLines, carouselText)
 		end
 	end
+
+	return { topLines, botLines, footerLines, }
 end
 
-function MGBA.drawChevron(x, y, width, height, thickness, direction, hasColor)
-	local color = Theme.COLORS["Default text"]
-	local i = 0
-	if direction == "up" then
-		if hasColor then
-			color = Theme.COLORS["Positive text"]
+function MGBA.convertCarouselToText(carousel, pokemonID)
+	local carouselText = ""
+	if carousel == nil then return carouselText end
+	pokemonID = pokemonID or 0
+
+	local carouselContent = carousel.getContentList(pokemonID)
+	if carousel.type == TrackerScreen.CarouselTypes.BADGES then
+		carouselText = "Badges: "
+		for badgeNumber, badgeButton in ipairs(carouselContent) do
+			local badgeText = string.format("[%s]", Utils.inlineIf(badgeButton.badgeState ~= 0, badgeNumber, " "))
+			carouselText = carouselText .. badgeText
 		end
-		y = y + height + thickness + 1
-		while i < thickness do
-			-- gui.drawLine(x, y - i, x + (width / 2), y - i - height, color)
-			-- gui.drawLine(x + (width / 2), y - i - height, x + width, y - i, color)
-			i = i + 1
+	elseif carousel.type == TrackerScreen.CarouselTypes.LAST_ATTACK then
+		carouselText = carouselContent[1].text or ""
+	elseif carousel.type == TrackerScreen.CarouselTypes.ROUTE_INFO then
+		carouselText = carouselContent[1].text or ""
+	elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
+		carouselText = "Note: "
+		if type(carouselContent[1]) ~= nil and type(carouselContent[1]) == "string" then
+			carouselText = carouselText .. carouselContent[1]
 		end
-	elseif direction == "down" then
-		if hasColor then
-			color = Theme.COLORS["Negative text"]
-		end
-		y = y + thickness + 2
-		while i < thickness do
-			-- gui.drawLine(x, y + i, x + (width / 2), y + i + height, color)
-			-- gui.drawLine(x + (width / 2), y + i + height, x + width, y + i, color)
-			i = i + 1
-		end
-	end
-end
-
--- draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
--- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
-function MGBA.drawChevrons(x, y, intensity, max)
-	if intensity == 0 then return end
-
-	local weight = math.abs(intensity)
-	local spacing = 2
-
-	for index = 0, max - 1, 1 do
-		if weight > index then
-			local hasColor = weight > max + index
-			MGBA.drawChevron(x, y, 4, 2, 1, Utils.inlineIf(intensity > 0, "up", "down"), hasColor)
-			y = y - spacing
-		end
-	end
-end
-
-function MGBA.drawMoveEffectiveness(x, y, value)
-	if value == 2 then
-		MGBA.drawChevron(x, y + 4, 4, 2, 1, "up", true)
-	elseif value == 4 then
-		MGBA.drawChevron(x, y + 4, 4, 2, 1, "up", true)
-		MGBA.drawChevron(x, y + 2, 4, 2, 1, "up", true)
-	elseif value == 0.5 then
-		MGBA.drawChevron(x, y, 4, 2, 1, "down", true)
-	elseif value == 0.25 then
-		MGBA.drawChevron(x, y, 4, 2, 1, "down", true)
-		MGBA.drawChevron(x, y + 2, 4, 2, 1, "down", true)
-	end
-end
-
-function MGBA.drawButton(button, shadowcolor)
-	if true then return end
-	if button == nil or button.box == nil then return end
-
-	-- Don't draw the button if it's currently not visible
-	if button.isVisible ~= nil and not button:isVisible() then
-		return
+	elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
+		carouselText = carouselContent[1].text or ""
 	end
 
-	local x = button.box[1]
-	local y = button.box[2]
-	local width = button.box[3]
-	local height = button.box[4]
-
-	-- First draw a box if
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
-		local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
-		local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
-
-		-- Draw the box's shadow and the box border
-		if shadowcolor ~= nil then
-			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
-		end
-		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
-	end
-
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
-		if button.text ~= nil and button.text ~= "" then
-			MGBA.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
-	elseif button.type == Constants.ButtonTypes.CHECKBOX then
-		if button.text ~= nil and button.text ~= "" then
-			local textColor = Utils.inlineIf(button.disabled, "Negative text", button.textColor)
-			MGBA.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[textColor], shadowcolor)
-		end
-
-		-- Draw a mark if the checkbox button is toggled on
-		if button.toggleState ~= nil and button.toggleState then
-			local toggleColor = Utils.inlineIf(button.disabled, "Negative text", button.toggleColor)
-			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[toggleColor])
-			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[toggleColor])
-		end
-	elseif button.type == Constants.ButtonTypes.COLORPICKER then
-		if button.themeColor ~= nil then
-			local hexCodeText = string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5))
-			-- Draw a colored circle with a black border
-			gui.drawEllipse(x - 1, y, width, height, 0xFF000000, Theme.COLORS[button.themeColor])
-			-- Draw the hex code to the side, and the text label for it
-			MGBA.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[button.textColor], shadowcolor)
-			MGBA.drawText(x + width + 37, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
-	elseif button.type == Constants.ButtonTypes.IMAGE then
-		if button.image ~= nil then
-			gui.drawImage(button.image, x, y)
-		end
-	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
-		if button.image ~= nil then
-			MGBA.drawImageAsPixels(button.image, x, y, { Theme.COLORS[button.textColor] }, shadowcolor)
-		end
-		if button.text ~= nil and button.text ~= "" then
-			MGBA.drawText(x + width + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
-	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
-		local imagePath = button:getIconPath()
-		if imagePath ~= nil then
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			gui.drawImage(imagePath, x, y + iconset.yOffset, width, height)
-		end
-	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
-		if button.text ~= nil and button.text ~= "" then
-			if button.text == Constants.STAT_STATES[2].text then
-				y = y - 1 -- Move up the negative stat mark 1px
-			end
-			MGBA.drawText(x, y - 1, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
-	end
+	return carouselText
 end

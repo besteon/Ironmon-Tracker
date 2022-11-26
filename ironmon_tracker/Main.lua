@@ -234,6 +234,9 @@ function Main.Run()
 
 	Memory.initialize()
 	GameSettings.initialize()
+	PokemonData.initialize()
+	MoveData.initialize()
+	RouteData.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == "Unsupported Game" then
@@ -277,11 +280,12 @@ function Main.Run()
 			end
 
 			Main.LoadNextRom()
-		else
+		else -- mGBA specific loops
 			---@diagnostic disable-next-line: undefined-global
-			local frame_cbid = callbacks:add("frame", Program.mainLoop)
+			local frameCallbackId = callbacks:add("frame", Program.mainLoop)
+			---@diagnostic disable-next-line: undefined-global
+			local keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
 		end
-
 	end
 end
 

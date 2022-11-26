@@ -46,9 +46,6 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
-
-	-- Set up route data for the game
-	RouteData.setupRouteInfo(GameSettings.game)
 end
 
 function GameSettings.getRomName()

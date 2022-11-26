@@ -63,16 +63,19 @@ RouteData.Locations = {
 	IsInLab = {},
 }
 
-function RouteData.setupRouteInfo(gameId)
+function RouteData.initialize()
 	local maxMapId = 0
 
-	if gameId == 1 or gameId == 2 then
+	if GameSettings.game == 1 or GameSettings.game == 2 then
 		maxMapId = RouteData.setupRouteInfoAsRSE()
-	elseif gameId == 3 then
+	elseif GameSettings.game == 3 then
 		maxMapId = RouteData.setupRouteInfoAsFRLG()
 	end
 
 	RouteData.populateAvailableRoutes(maxMapId)
+
+	-- At some point we might want to implement this so that wild encounter data is automatic
+	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function RouteData.populateAvailableRoutes(maxMapId)
