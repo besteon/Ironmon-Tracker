@@ -405,12 +405,14 @@ function TrackerScreen.buildCarousel()
 			-- end
 
 			local noteText = Tracker.getNote(pokemonID)
-			if noteText ~= nil and noteText ~= "" then
-				return { noteText }
-			else--if Main.IsOnBizhawk() then
-				return { TrackerScreen.Buttons.NotepadTracking }
-			-- else
-			-- 	return { "(Leave a note)" }
+			if Main.IsOnBizhawk() then
+				if noteText ~= nil and noteText ~= "" then
+					return { noteText }
+				else
+					return { TrackerScreen.Buttons.NotepadTracking }
+				end
+			else
+				return noteText or ""
 			end
 		end,
 	}
@@ -427,7 +429,7 @@ function TrackerScreen.buildCarousel()
 			if MoveData.isValid(Battle.lastEnemyMoveId) then
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
 				if Battle.damageReceived > 0 then
-					lastAttackMsg = moveInfo.name .. ": " .. Battle.damageReceived .. " damage"
+					lastAttackMsg = string.format("%s: %d damage", moveInfo.name, math.floor(Battle.damageReceived))
 					local ownPokemon = Battle.getViewedPokemon(true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
@@ -443,11 +445,11 @@ function TrackerScreen.buildCarousel()
 			end
 
 			TrackerScreen.Buttons.LastAttackSummary.text = lastAttackMsg
-			-- if Main.IsOnBizhawk() then
+			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.LastAttackSummary }
-			-- else
-			-- 	return { lastAttackMsg }
-			-- end
+			else
+				return lastAttackMsg or ""
+			end
 		end,
 	}
 
@@ -457,7 +459,7 @@ function TrackerScreen.buildCarousel()
 		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Battle.inBattle and Battle.CurrentRoute.hasInfo end,
 		framesToShow = 180,
 		getContentList = function()
-			local routeInfo = RouteData.Info[Battle.CurrentRoute.mapId]
+			-- local routeInfo = RouteData.Info[Battle.CurrentRoute.mapId]
 			local totalPossible = RouteData.countPokemonInArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
 			local routeEncounters = Tracker.getRouteEncounters(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
@@ -468,7 +470,11 @@ function TrackerScreen.buildCarousel()
 				TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
 			end
 
-			return { TrackerScreen.Buttons.RouteSummary }
+			if Main.IsOnBizhawk() then
+				return { TrackerScreen.Buttons.RouteSummary }
+			else
+				return TrackerScreen.Buttons.RouteSummary.text or ""
+			end
 		end,
 	}
 
@@ -481,11 +487,15 @@ function TrackerScreen.buildCarousel()
 			TrackerScreen.Buttons.PedometerStepText:updateText()
 			TrackerScreen.Buttons.PedometerGoal:updateText()
 			TrackerScreen.Buttons.PedometerReset:updateText()
-			return {
-				TrackerScreen.Buttons.PedometerStepText,
-				TrackerScreen.Buttons.PedometerGoal,
-				TrackerScreen.Buttons.PedometerReset,
-			}
+			if Main.IsOnBizhawk() then
+				return {
+					TrackerScreen.Buttons.PedometerStepText,
+					TrackerScreen.Buttons.PedometerGoal,
+					TrackerScreen.Buttons.PedometerReset,
+				}
+			else
+				return TrackerScreen.Buttons.PedometerStepText.text or ""
+			end
 		end,
 	}
 end

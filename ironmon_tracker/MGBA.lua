@@ -226,17 +226,28 @@ function MGBA.convertCarouselToText(carousel, pokemonID)
 			carouselText = carouselText .. badgeText
 		end
 	elseif carousel.type == TrackerScreen.CarouselTypes.LAST_ATTACK then
-		carouselText = carouselContent[1].text or ""
+		carouselText = carouselContent
 	elseif carousel.type == TrackerScreen.CarouselTypes.ROUTE_INFO then
-		carouselText = carouselContent[1].text or ""
+		carouselText = carouselContent
 	elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
-		carouselText = "Note: "
-		if type(carouselContent[1]) ~= nil and type(carouselContent[1]) == "string" then
-			carouselText = carouselText .. carouselContent[1]
-		end
+		carouselText = "Note: " .. carouselContent
 	elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
-		carouselText = carouselContent[1].text or ""
+		carouselText = carouselContent
 	end
 
 	return carouselText
+end
+
+-- Global functions required by mGBA input prompts
+-- Each written in the form of: funcname "parameter(s) as text only"
+---@diagnostic disable-next-line: lowercase-global
+function note(...)
+	local noteText = ...
+
+	if not Tracker.Data.isViewingOwn then
+		local pokemon = Tracker.getViewedPokemon()
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			Tracker.TrackNote(pokemon.pokemonID, noteText)
+		end
+	end
 end
