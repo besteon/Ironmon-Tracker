@@ -50,6 +50,11 @@ function MGBA.clear()
 	print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 end
 
+function MGBA.displayInputCommands()
+	print('Use the following commands via the input text box below:')
+	print('note "text to add a note about the active visible Pokémon"')
+end
+
 function MGBA.activateQuickload()
 	if Main.frameCallbackId ~= nil then
 		---@diagnostic disable-next-line: undefined-global
@@ -71,10 +76,10 @@ function MGBA.updateTextBuffers()
 
 	-- TRACKER SCREEN @ "Your Pokémon"
 	local screen = MGBA.Screens["Your Pokémon"]
-	screen:clear()
 	local data = DataHelper.buildTrackerScreenDisplay()
 	MGBA.formatTrackerScreenData(data)
 	local displayBoxes = MGBA.formatTrackerScreenDisplayLines(data)
+	screen:clear()
 	for _, boxLineSet in ipairs(displayBoxes) do
 		for _, line in ipairs(boxLineSet) do
 			MGBA.printToScreenBuffer(line, screen)

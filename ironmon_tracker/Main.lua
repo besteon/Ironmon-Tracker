@@ -283,6 +283,7 @@ function Main.Run()
 
 		Main.LoadNextRom()
 	else -- mGBA specific loops
+		MGBA.displayInputCommands()
 		---@diagnostic disable-next-line: undefined-global
 		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
 		---@diagnostic disable-next-line: undefined-global
