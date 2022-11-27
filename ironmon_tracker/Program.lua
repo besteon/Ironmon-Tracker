@@ -355,7 +355,7 @@ function Program.readNewPokemon(startAddress, personality)
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
-		friendship = Utils.getbits(growth3, 72, 8),
+		friendship = Utils.getbits(growth3, 8, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
 		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
