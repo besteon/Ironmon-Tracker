@@ -892,6 +892,10 @@ function TrackerScreen.drawMovesArea(data)
 	local movePowerOffset = 102
 	local moveAccOffset = 126
 
+	-- Used to determine if the information about the move should be revealed to the player,
+	-- or not, possibly because its randomized further and its requested to remain hidden
+	local allowHiddenMoveInfo = Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
+
 	-- Draw move headers
 	gui.defaultTextBackground(Theme.COLORS["Main background"])
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmoveheader, Theme.COLORS["Header text"], bgHeaderShadow)
@@ -927,7 +931,7 @@ function TrackerScreen.drawMovesArea(data)
 		end
 
 		-- MOVE CATEGORY
-		if Options["Show physical special icons"] and (Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
+		if Options["Show physical special icons"] and allowHiddenMoveInfo then
 			if move.category == MoveData.Categories.PHYSICAL then
 				Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, Constants.SCREEN.WIDTH + moveCatOffset, moveOffsetY + 2, { Theme.COLORS["Lower box text"] }, shadowcolor)
 			elseif move.category == MoveData.Categories.SPECIAL then
@@ -936,7 +940,7 @@ function TrackerScreen.drawMovesArea(data)
 		end
 
 		-- MOVE TYPE COLORED RECTANGLE
-		if not Theme.MOVE_TYPES_ENABLED and move.name ~= Constants.BLANKLINE then
+		if not Theme.MOVE_TYPES_ENABLED and move.name ~= Constants.BLANKLINE and allowHiddenMoveInfo then
 			gui.drawRectangle(Constants.SCREEN.WIDTH + moveNameOffset - 3, moveOffsetY + 2, 2, 7, moveTypeColor, moveTypeColor)
 			moveTypeColor = Theme.COLORS["Lower box text"]
 		end
@@ -945,7 +949,7 @@ function TrackerScreen.drawMovesArea(data)
 			movePowerColor = Theme.COLORS["Positive text"]
 		end
 
-		if MoveData.IsRand.moveType and not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and not Battle.isGhost then
+		if not allowHiddenMoveInfo and not Battle.isGhost then
 			moveTypeColor = Theme.COLORS["Lower box text"]
 			movePowerColor = Theme.COLORS["Lower box text"]
 		end
