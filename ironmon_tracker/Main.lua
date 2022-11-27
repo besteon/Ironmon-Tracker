@@ -127,13 +127,6 @@ function Main.Initialize()
 		Main.CheckForVersionUpdate()
 	end
 
-	if not Main.IsOnBizhawk() then
-		Constants.BLANKLINE = "--"
-		Constants.STAT_STATES[2].text = "-"
-		Constants.Words.POKEMON = "Pokémon"
-		Constants.Words.POKE = "Poké"
-	end
-
 	print(string.format(">> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 	return true
 end
@@ -257,7 +250,10 @@ function Main.Run()
 	Options.initialize()
 	Theme.initialize()
 	Tracker.initialize()
-	MGBA.initialize()
+
+	if not Main.IsOnBizhawk() then
+		MGBA.initialize()
+	end
 
 	TrackerScreen.initialize()
 	NavigationMenu.initialize()

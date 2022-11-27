@@ -23,7 +23,11 @@ MGBA.Symbols = {
 }
 
 function MGBA.initialize()
-	-- Currently unused
+	-- Adjust some written Constants so that they display properly
+	Constants.BLANKLINE = "--"
+	Constants.STAT_STATES[2].text = "-"
+	Constants.Words.POKEMON = "Pokémon"
+	Constants.Words.POKE = "Poké"
 end
 
 function MGBA.createTextBuffers()
@@ -69,6 +73,7 @@ end
 
 function MGBA.updateTextBuffers()
 	-- SETTINGS MENU ITEM(S)
+	-- COMMAND LIST
 	-- LOOKUP POKEMON INFO
 	-- LOOKUP MOVE INFO
 	-- LOOKUP ABILITY INFO

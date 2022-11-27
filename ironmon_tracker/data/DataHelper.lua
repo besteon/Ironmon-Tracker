@@ -139,15 +139,6 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 
 		local move = data.m.moves[i]
-		if move.pp == "0" then
-			move.pp = Constants.BLANKLINE
-		end
-		if move.power == "0" then
-			move.power = Constants.BLANKLINE
-		end
-		if move.accuracy == "0" then
-			move.accuracy = Constants.BLANKLINE
-		end
 
 		move.starred = stars[i] ~= nil and stars[i] ~= ""
 
@@ -180,6 +171,22 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			end
 		end
 
+		-- Update: If STAB
+		if Battle.inBattle then
+			local ownTypes = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
+			move.isstab = Utils.isSTAB(move, move.type, ownTypes)
+		end
+
+		if move.pp == "0" then
+			move.pp = Constants.BLANKLINE
+		end
+		if move.power == "0" then
+			move.power = Constants.BLANKLINE
+		end
+		if move.accuracy == "0" then
+			move.accuracy = Constants.BLANKLINE
+		end
+
 		-- Update: Actual PP Values
 		if move.name ~= MoveData.BlankMove.name then
 			if data.x.viewingOwn then
@@ -192,12 +199,6 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 					end
 				end
 			end
-		end
-
-		-- Update: If STAB
-		if Battle.inBattle then
-			local ownTypes = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
-			move.isstab = Utils.isSTAB(move, move.type, ownTypes)
 		end
 
 		-- Update: Check if info should be hidden

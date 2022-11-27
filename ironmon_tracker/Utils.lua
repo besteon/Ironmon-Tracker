@@ -351,7 +351,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 
 	-- Moves that calculate specific damage amounts still check immunities, but otherwise ignore type-effectiveness
 	-- Examples: Fissure, Mirror Coat, Dragon Rage, Bide, Endeavor
-	if move.power == "0" and total ~= 0.0 then
+	if (move.power == "0" or move.power == Constants.BLANKLINE) and total ~= 0.0 then
 		return 1.0
 	else
 		return total
@@ -360,12 +360,12 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or move.power == "0" then
+	if move == nil or comparedTypes == nil or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
-	-- If type is unknown or typeless
-	if MoveData.IsTypelessMove[move.id] or moveType == PokemonData.Types.UNKNOWN then
+	-- If move type is typeless or otherwise can't be stab
+	if MoveData.IsTypelessMove[move.id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
 		return false
 	end
 

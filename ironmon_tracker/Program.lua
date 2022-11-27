@@ -350,7 +350,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local def_and_speed = Memory.readdword(startAddress + 92)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
-	local pokemonData = {
+	return {
 		personality = personality,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
@@ -387,8 +387,6 @@ function Program.readNewPokemon(startAddress, personality)
 		-- ev1 = effort1,
 		-- ev2 = effort2,
 	}
-
-	return pokemonData
 end
 
 function Program.updatePCHeals()
