@@ -77,6 +77,10 @@ function Program.initialize()
 end
 
 function Program.mainLoop()
+	if Main.loadNextSeed and not Main.IsOnBizhawk() then -- required escape for mGBA
+		MGBA.activateQuickload()
+		return
+	end
 	Input.checkForInput()
 	Program.update()
 	Battle.update()

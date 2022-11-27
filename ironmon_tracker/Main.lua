@@ -249,43 +249,44 @@ function Main.Run()
 				Main.frameAdvance()
 			end
 		end
-	else
-		-- Initialize everything in the proper order
-		Program.initialize()
-		Options.initialize()
-		Theme.initialize()
-		Tracker.initialize()
-		MGBA.initialize()
+		return
+	end
 
-		TrackerScreen.initialize()
-		NavigationMenu.initialize()
-		StartupScreen.initialize()
-		UpdateScreen.initialize()
-		SetupScreen.initialize()
-		ExtrasScreen.initialize()
-		QuickloadScreen.initialize()
-		GameOptionsScreen.initialize()
-		TrackedDataScreen.initialize()
-		StatsScreen.initialize()
+	-- Initialize everything in the proper order
+	Program.initialize()
+	Options.initialize()
+	Theme.initialize()
+	Tracker.initialize()
+	MGBA.initialize()
 
-		Drawing.setupDrawingArea()
+	TrackerScreen.initialize()
+	NavigationMenu.initialize()
+	StartupScreen.initialize()
+	UpdateScreen.initialize()
+	SetupScreen.initialize()
+	ExtrasScreen.initialize()
+	QuickloadScreen.initialize()
+	GameOptionsScreen.initialize()
+	TrackedDataScreen.initialize()
+	StatsScreen.initialize()
 
-		if Main.IsOnBizhawk() then
-			---@diagnostic disable-next-line: undefined-global
-			event.onexit(Program.HandleExit, "HandleExit")
+	Drawing.setupDrawingArea()
 
-			while Main.loadNextSeed == false do
-				Program.mainLoop()
-				Main.frameAdvance()
-			end
+	if Main.IsOnBizhawk() then
+		---@diagnostic disable-next-line: undefined-global
+		event.onexit(Program.HandleExit, "HandleExit")
 
-			Main.LoadNextRom()
-		else -- mGBA specific loops
-			---@diagnostic disable-next-line: undefined-global
-			local frameCallbackId = callbacks:add("frame", Program.mainLoop)
-			---@diagnostic disable-next-line: undefined-global
-			local keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
+		while Main.loadNextSeed == false do
+			Program.mainLoop()
+			Main.frameAdvance()
 		end
+
+		Main.LoadNextRom()
+	else -- mGBA specific loops
+		---@diagnostic disable-next-line: undefined-global
+		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
+		---@diagnostic disable-next-line: undefined-global
+		Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
 	end
 end
 
@@ -364,16 +365,19 @@ function Main.isOnLatestVersion(versionToCheck)
 end
 
 function Main.LoadNextRom()
-	console.clear() -- Clearing the console for each new game helps with troubleshooting issues
-
-	local wasSoundOn = client.GetSoundOn()
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
+	else
+		MGBA.clear()
+	end
 
 	local nextRom
 	if Options["Use premade ROMs"] then
-		client.SetSoundOn(false)
 		nextRom = Main.GetNextRomFromFolder()
 	elseif Options["Generate ROM each time"] then
-		client.SetSoundOn(false)
 		nextRom = Main.GenerateNextRom()
 	else
 		print("ERROR: The Quick-load feature is currently disabled.")
@@ -382,16 +386,27 @@ function Main.LoadNextRom()
 
 	if nextRom ~= nil then
 		Tracker.resetData()
-		print("New ROM \"" .. nextRom.name .. "\" is ready to load. Tracker data has been reset.")
-		if client.getversion() ~= "2.9" then
-			client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+		print("New ROM \"" .. nextRom.name .. "\" is being loaded. Tracker data from previous game has been reset.")
+		if Main.IsOnBizhawk() then
+			if client.getversion() ~= "2.9" then
+				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
+			end
+			client.openrom(nextRom.path)
+		else
+			---@diagnostic disable-next-line: undefined-global
+			local success = emu:loadFile(nextRom.path)
+			if success then
+				---@diagnostic disable-next-line: undefined-global
+				emu:reset()
+			else
+				print("ERROR: Unable to automatically load newly generated ROM: " .. nextRom.name)
+			end
 		end
-		client.openrom(nextRom.path)
 	else
 		print("\n--- Unable to Quick-load a new ROM, reloading previous ROM.")
 	end
 
-	if client.GetSoundOn() ~= wasSoundOn then
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
 	end
 
@@ -457,9 +472,16 @@ function Main.GenerateNextRom()
 	local filename = Utils.extractFileNameFromPath(Options.FILES["Settings File"])
 	local attemptsfile = string.format("%s %s", filename, Constants.Files.PostFixes.ATTEMPTS_FILE)
 	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
-	local nextrompath = Utils.getWorkingDirectory() .. nextromname
+	local nextrompath = IronmonTracker.folderPath .. nextromname --Utils.getWorkingDirectory() .. nextromname
 
-	Main.SaveCurrentRom(nextromname)
+
+	local previousRomName = Main.SaveCurrentRom(nextromname)
+
+	-- mGBA only, need to unload current ROM but loading another temp ROM
+	if previousRomName ~= nil and not Main.IsOnBizhawk() then
+		---@diagnostic disable-next-line: undefined-global
+		emu:loadFile(IronmonTracker.folderPath .. previousRomName)
+	end
 
 	local javacommand = string.format(
 		'java -Xmx4608M -jar "%s" cli -s "%s" -i "%s" -o "%s" -l',
@@ -469,8 +491,7 @@ function Main.GenerateNextRom()
 		nextrompath
 	)
 
-	print("Generating next ROM: " .. nextromname)
-	local pipe = io.popen(string.format("%s 2>%s", javacommand, Constants.Files.RANDOMIZER_ERROR_LOG))
+	local pipe = io.popen(string.format("%s 2>%s", javacommand, IronmonTracker.folderPath .. Constants.Files.RANDOMIZER_ERROR_LOG))
 	if pipe ~= nil then
 		local output = pipe:read("*all")
 		print("> " .. output)
@@ -493,9 +514,10 @@ function Main.GenerateNextRom()
 end
 
 -- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"
+-- returns the name of the newly created file, if any
 function Main.SaveCurrentRom(filename)
 	if filename == nil then
-		return
+		return nil
 	end
 
 	local filenameCopy = filename:gsub(Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.PostFixes.PREVIOUSATTEMPT)
@@ -503,7 +525,10 @@ function Main.SaveCurrentRom(filename)
 		local logFilename = string.format("%s.log", filename)
 		local logFilenameCopy = string.format("%s.log", filenameCopy)
 		Main.CopyFile(logFilename, logFilenameCopy, "overwrite")
+
+		return filenameCopy
 	end
+	return nil
 end
 
 -- Copies 'filename' to 'nameOfCopy' with option to overwrite the file if it exists, or append to it

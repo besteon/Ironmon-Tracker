@@ -120,14 +120,16 @@ function Input.checkJoypadInput()
 	end
 
 	-- "Options.CONTROLS["Load next seed"]"
-	local allPressed = true
-	for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
-		if joypadButtons[button] ~= true then
-			allPressed = false
+	if not Main.loadNextSeed then
+		local allPressed = true
+		for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
+			if joypadButtons[button] ~= true then
+				allPressed = false
+			end
 		end
-	end
-	if allPressed == true then
-		Main.loadNextSeed = true
+		if allPressed == true then
+			Main.loadNextSeed = true
+		end
 	end
 
 	-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat

@@ -60,7 +60,10 @@ function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
-function Utils.printDebug(message)
+function Utils.printDebug(message, ...)
+	if ... ~= nil then
+		message = string.format(message, ...)
+	end
 	if message ~= Utils.prevMessage then
 		print(message)
 		Utils.prevMessage = message
