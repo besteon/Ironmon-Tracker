@@ -1,3 +1,4 @@
+-- Uses Lua 5.4
 MGBA = {
 	-- TextBuffer screens
 	Screens = {

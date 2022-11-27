@@ -65,14 +65,17 @@ function Pickle.unpickle(s)
 	if type(s) ~= "string" then
 		error("can't unpickle a " .. type(s) .. ", only strings")
 	end
+	local datastringToLoad = "return " .. s
 
 	local gentables
 	if Main.IsOnBizhawk() then
 		-- Using 'loadstring' over 'load' because Bizhawk runs on Lua 5.1
 		---@diagnostic disable-next-line: deprecated
-		gentables = loadstring("return " .. s)
+		gentables = loadstring(datastringToLoad)
 	else
-		gentables = nil
+		--- mGBA runs on Lua 5.4
+		---@diagnostic disable-next-line: param-type-mismatch
+		gentables = load(datastringToLoad) --, nil, "t")
 	end
 
 	-- Check if the data in the file is not in the form of Lua code
