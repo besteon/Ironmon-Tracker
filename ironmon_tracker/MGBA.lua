@@ -1,4 +1,6 @@
+-- mGBA Scripting Docs: https://mgba.io/docs/scripting.html
 -- Uses Lua 5.4
+
 MGBA = {
 	-- TextBuffer screens
 	Screens = {
@@ -56,6 +58,7 @@ function MGBA.clear()
 end
 
 function MGBA.displayInputCommands()
+	print('')
 	print('Use the following commands via the input text box below:')
 	print('note "text to add a note about the active visible Pokémon"')
 end
@@ -73,6 +76,7 @@ function MGBA.activateQuickload()
 end
 
 function MGBA.updateTextBuffers()
+	-- TODO: fill these out
 	-- SETTINGS MENU ITEM(S)
 	-- COMMAND LIST
 	-- LOOKUP POKEMON INFO

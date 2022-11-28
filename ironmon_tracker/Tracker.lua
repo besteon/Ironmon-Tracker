@@ -525,5 +525,7 @@ function Tracker.loadData(filepath)
 		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
 	end
 
-	print(Tracker.DataMessage)
+	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= "" then
+		print(Tracker.DataMessage)
+	end
 end

@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "3" }
+Main.Version = { major = "7", minor = "1", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -471,6 +471,12 @@ function Main.GenerateNextRom()
 	local nextromname = string.format("%s %s%s", filename, Constants.Files.PostFixes.AUTORANDOMIZED, Constants.Files.Extensions.GBA_ROM)
 	local nextrompath = IronmonTracker.folderPath .. nextromname --Utils.getWorkingDirectory() .. nextromname
 
+	-- TODO: Cleanup later
+	if Main.IsOnBizhawk() then
+		nextrompath = Utils.getWorkingDirectory() .. nextromname
+	else
+		nextrompath = IronmonTracker.folderPath .. nextromname
+	end
 
 	local previousRomName = Main.SaveCurrentRom(nextromname)
 
