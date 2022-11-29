@@ -2,6 +2,13 @@ MoveData = {
 	totalMoves = 354,
 }
 
+MoveData.IsRand = {
+	moveType = false,
+	movePower = false,
+	moveAccuracy = false,
+	movePP = false,
+}
+
 -- Move categories identify the type of attack a move is: physical, special, or status
 MoveData.Categories = {
 	NONE = "None",
@@ -84,6 +91,12 @@ MoveData.StatusMovesWillFail = {
 	["261"] = { [PokemonData.Types.FIRE] = true }, -- Will-O-Wisp
 }
 
+MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected by STAB)
+	["248"] = true, -- Future Sight
+	["251"] = true, -- Beat Up
+	["353"] = true, -- Doom Desire
+}
+
 MoveData.BlankMove = {
 	id = "0",
 	name = Constants.BLANKLINE,
@@ -95,19 +108,6 @@ MoveData.BlankMove = {
 	iscontact = false,
 	priority = "0",
 	summary = "",
-}
-
-MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected by STAB)
-	["248"] = true, -- Future Sight
-	["251"] = true, -- Beat Up
-	["353"] = true, -- Doom Desire
-}
-
-MoveData.IsRand = {
-	moveType = false,
-	movePower = false,
-	moveAccuracy = false,
-	movePP = false,
 }
 
 function MoveData.initialize()

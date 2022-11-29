@@ -2,6 +2,11 @@ PokemonData = {
 	totalPokemon = 411,
 }
 
+PokemonData.IsRand = {
+	pokemonTypes = false,
+	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
+}
+
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
 PokemonData.Types = {
 	NORMAL = "normal",
@@ -52,11 +57,6 @@ PokemonData.BlankPokemon = {
 	weight = 0.0,
 }
 
-PokemonData.IsRand = {
-	pokemonTypes = false,
-	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
-}
-
 function PokemonData.initialize()
 	-- Reads the types and abilities for each Pokemon in the Pokedex
 	-- If any data at all was randomized, read in full Pokemon data from memory
@@ -86,6 +86,13 @@ function PokemonData.initialize()
 			datalog = datalog .. "Abilities, "
 		end
 		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
+	end
+
+	-- Add in pokemon IDs since they were never manually included in the past
+	for id, pokemon in ipairs(PokemonData.Pokemon) do
+		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
+			pokemon.pokemonID = id
+		end
 	end
 end
 
@@ -184,6 +191,39 @@ function PokemonData.toList()
 		end
 	end
 	return allPokemon
+end
+
+-- Returns a table that contains the type weaknesses, resistances, and immunities for a Pokémon, listed as type-strings
+function PokemonData.getEffectiveness(pokemonID)
+	local effectiveness = {
+		[0] = {},
+		[0.25] = {},
+		[0.5] = {},
+		[1] = {},
+		[2] = {},
+		[4] = {},
+	}
+
+	if not PokemonData.isValid(pokemonID) then
+		return effectiveness
+	end
+
+	local pokemon = PokemonData.Pokemon[pokemonID]
+
+	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
+		local total = 1
+		if typeMultiplier[pokemon.types[1]] ~= nil then
+			total = total * typeMultiplier[pokemon.types[1]]
+		end
+		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
+			total = total * typeMultiplier[pokemon.types[2]]
+		end
+		if effectiveness[total] ~= nil then
+			table.insert(effectiveness[total], moveType)
+		end
+	end
+
+	return effectiveness
 end
 
 PokemonData.TypeIndexMap = {

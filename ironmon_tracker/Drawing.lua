@@ -325,7 +325,7 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 end
 
 function Drawing.setupAnimatedPictureBox()
-	if not Options["Animated Pokemon popout"] then return end
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
 
 	Drawing.AnimatedPokemon:destroy()
 
@@ -354,6 +354,9 @@ function Drawing.setupAnimatedPictureBox()
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
+	-- TODO: Later fix this to make a fake copy gif in the Tracker's root folder
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
+
 	if pokemonID == nil or pokemonID == 0 then return end
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
@@ -388,6 +391,8 @@ end
 
 -- When the image is first set, the image size (width/height) is unknown. It requires a few frames before it can be updated
 function Drawing.relocateAnimatedPokemon()
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
+
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	-- If the image is the same, then attempt to relocate it based on it's height
@@ -412,6 +417,8 @@ end
 
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
 function Drawing.drawRepelUsage()
+	if not Main.IsOnBizhawk() then return end
+
 	local xOffset = Constants.SCREEN.WIDTH - 24
 	-- Draw repel item icon
 	gui.drawImage(Main.DataFolder .. "/images/icons/repelUsage.png", xOffset, 0)

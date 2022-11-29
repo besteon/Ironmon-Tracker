@@ -270,6 +270,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	end
 end
 
+-- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
 	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
 		return { Constants.BLANKLINE }

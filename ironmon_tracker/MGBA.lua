@@ -1,11 +1,44 @@
 -- mGBA Scripting Docs: https://mgba.io/docs/scripting.html
 -- Uses Lua 5.4
+MGBA = {}
 
-MGBA = {
-	-- TextBuffer screens
-	Screens = {
+-- Ordered list of things
+MGBA.Labels = {
+	Screens = { "Lookup Pokémon", "Your Pokémon", },
+	Effectiveness = { "Immunity (0x)", "Resist (0.25x)", "Resist (0.5x)", "SuperEffective (2x)", "SuperEffective (4x)", },
+}
+
+MGBA.Screens = {
+	-- TODO: Add in these later
+	-- SETTINGS ☰ MENU ITEM(S)
+	-- COMMAND LIST
+	-- LOOKUP MOVE INFO
+	-- LOOKUP ABILITY INFO
+	-- LOOKUP ROUTE INFO
+
+	-- Each screen has this properties set later in createTextBuffers()
+	-- self.data: Raw data that hasn't yet been formatted
+	-- self.displayLines: Formatted lines that are ready to be displayed
+	-- self.textBuffer: The mGBA TextBuffer where the displayLines are printed
+
+	["Lookup Pokémon"] = {
+		setData = function(self, pokemonName)
+			self.pokemon = DataHelper.findPokemon(pokemonName)
+		end,
+		updateData = function(self)
+			-- TODO: Determine reasons to update this data, such as pokemon ID change or level change
+			if self.data == nil or (self.pokemon ~= nil and self.pokemon.pokemonID ~= self.data.p.pokemonID) then
+				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemon)
+			end
+			self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data)
+		end,
 	},
-	currentScreen = nil,
+	["Your Pokémon"] = {
+		updateData = function(self)
+			self.data = DataHelper.buildTrackerScreenDisplay()
+			self.displayLines = MGBA.formatTrackerScreenDisplayLines(self.data)
+		end,
+	},
 }
 
 MGBA.Symbols = {
@@ -33,25 +66,6 @@ function MGBA.initialize()
 	Constants.Words.POKE = "Poké"
 end
 
-function MGBA.createTextBuffers()
-	local screens = { "☰ Menu", "Your Pokémon", }--"Enemy Pokémon" }
-	for _, screen in ipairs(screens) do
-		if MGBA.Screens[screen] == nil then -- workaround for reloading script for Quickload
-			MGBA.Screens[screen] = console:createBuffer(screen)
-		end
-	end
-	MGBA.currentScreen = MGBA.Screens["Your Pokémon"]
-end
-
--- Prints `line` to the mGBA TextBuffer 'MGBA.currentScreen' or optionally the `screenBuffer`
-function MGBA.printToScreenBuffer(line, screenBuffer)
-	line = line or ""
-	screenBuffer = screenBuffer or MGBA.currentScreen
-	if screenBuffer ~= nil then
-		screenBuffer:print(line .. "\n")
-	end
-end
-
 function MGBA.clear()
 	-- This "clears" the Console for mGBA
 	print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -75,25 +89,40 @@ function MGBA.activateQuickload()
 	Main.LoadNextRom()
 end
 
-function MGBA.updateTextBuffers()
-	-- TODO: fill these out
-	-- SETTINGS MENU ITEM(S)
-	-- COMMAND LIST
-	-- LOOKUP POKEMON INFO
-	-- LOOKUP MOVE INFO
-	-- LOOKUP ABILITY INFO
-	-- LOOKUP ROUTE INFO
-
-	-- TRACKER SCREEN @ "Your Pokémon"
-	local screen = MGBA.Screens["Your Pokémon"]
-	local data = DataHelper.buildTrackerScreenDisplay()
-	MGBA.formatTrackerScreenData(data)
-	local displayBoxes = MGBA.formatTrackerScreenDisplayLines(data)
-	screen:clear()
-	for _, boxLineSet in ipairs(displayBoxes) do
-		for _, line in ipairs(boxLineSet) do
-			MGBA.printToScreenBuffer(line, screen)
+function MGBA.createTextBuffers()
+	for _, label in ipairs(MGBA.Labels.Screens) do
+		local screen = MGBA.Screens[label]
+		if screen.textBuffer == nil then -- workaround for reloading script for Quickload
+			screen.textBuffer = console:createBuffer(label)
 		end
+	end
+	-- MGBA.currentScreen = MGBA.Screens["Your Pokémon"] -- not really used (yet?)
+end
+
+function MGBA.updateTextBuffers()
+	for _, screen in pairs(MGBA.Screens) do
+		-- Unlikely, but double-check the text buffer exists
+		if screen.textBuffer == nil then
+			MGBA.createTextBuffers()
+		end
+
+		-- Update the data, if necessary
+		screen:updateData()
+
+		-- Display the data
+		screen.textBuffer:clear()
+		for _, line in ipairs(screen.displayLines) do
+			MGBA.printToScreenBuffer(line, screen.textBuffer)
+		end
+	end
+end
+
+-- Prints `line` to the mGBA TextBuffer 'MGBA.currentScreen' or optionally the `textBuffer`
+function MGBA.printToScreenBuffer(line, textBuffer)
+	line = line or ""
+	textBuffer = textBuffer or MGBA.currentScreen
+	if textBuffer ~= nil then
+		textBuffer:print(line .. "\n")
 	end
 end
 
@@ -153,7 +182,9 @@ function MGBA.formatTrackerScreenData(data)
 end
 
 function MGBA.formatTrackerScreenDisplayLines(data)
-	local topLines, botLines, footerLines = {}, {}, {}
+	local lines = {}
+
+	MGBA.formatTrackerScreenData(data)
 
 	-- %-#s means to left-align, padding out the right-part of the string with spaces
 	local justify3 = Utils.inlineIf(Options["Right justified numbers"], "%3s", "%-3s")
@@ -164,28 +195,28 @@ function MGBA.formatTrackerScreenDisplayLines(data)
 	end
 
 	-- Header and top dividing line (with types)
-	topLines[1] = string.format("%-23s%-5s%-5s", string.format("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
-	topLines[2] = string.format("%-23s%-10s", data.p.typeline, "----------")
+	lines[1] = string.format("%-23s%-5s%-5s", string.format("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
+	lines[2] = string.format("%-23s%-10s", data.p.typeline, "----------")
 
 	-- Top six lines of the box: Pokemon related stuff
 	local topFormattedLine = "%-23s%-10s"
 	local levelLine = string.format("Lv.%s (%s)", data.p.level, data.p.evo)
 	if data.x.viewingOwn then
 		local hpLine = string.format("HP: %s/%s", data.p.curHP, data.p.hp)
-		topLines[3] = string.format(topFormattedLine, hpLine, formattedStats.hp)
-		topLines[4] = string.format(topFormattedLine, levelLine, formattedStats.atk)
+		lines[3] = string.format(topFormattedLine, hpLine, formattedStats.hp)
+		lines[4] = string.format(topFormattedLine, levelLine, formattedStats.atk)
 
 		if Options["Track PC Heals"] then
 			local survivalHeals = string.format("Survival PCs: %s", data.x.pcheals)
-			topLines[7] = string.format(topFormattedLine, survivalHeals, formattedStats.spd)
+			lines[7] = string.format(topFormattedLine, survivalHeals, formattedStats.spd)
 		else
-			topLines[7] = string.format(topFormattedLine, "", formattedStats.spd)
+			lines[7] = string.format(topFormattedLine, "", formattedStats.spd)
 		end
 
 		local availableHeals = string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum)
-		topLines[8] = string.format(topFormattedLine, availableHeals, formattedStats.spe)
+		lines[8] = string.format(topFormattedLine, availableHeals, formattedStats.spe)
 	else
-		topLines[3] = string.format(topFormattedLine, levelLine, formattedStats.hp)
+		lines[3] = string.format(topFormattedLine, levelLine, formattedStats.hp)
 
 		local lastLevelSeen
 		if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
@@ -193,21 +224,21 @@ function MGBA.formatTrackerScreenDisplayLines(data)
 		else
 			lastLevelSeen = "New encounter!"
 		end
-		topLines[4] = string.format(topFormattedLine, lastLevelSeen, formattedStats.atk)
+		lines[4] = string.format(topFormattedLine, lastLevelSeen, formattedStats.atk)
 
 		local encountersText = string.format("Seen %s: %s", Utils.inlineIf(Battle.isWildEncounter, "in the wild", "on trainers"), data.x.encounters)
-		topLines[7] = string.format(topFormattedLine, encountersText, formattedStats.spd)
-		topLines[8] = string.format(topFormattedLine, data.x.route, formattedStats.spe)
+		lines[7] = string.format(topFormattedLine, encountersText, formattedStats.spd)
+		lines[8] = string.format(topFormattedLine, data.x.route, formattedStats.spe)
 	end
 
-	topLines[5] = string.format(topFormattedLine, data.p.line1, formattedStats.def)
-	topLines[6] = string.format(topFormattedLine, data.p.line2, formattedStats.spa)
-	table.insert(topLines, "")
+	lines[5] = string.format(topFormattedLine, data.p.line1, formattedStats.def)
+	lines[6] = string.format(topFormattedLine, data.p.line2, formattedStats.spa)
+	table.insert(lines, "")
 
 	-- Bottom five lines of the box: Move related stuff
 	local botFormattedLine = "%-19s%-3s%-7s%-4s"
-	table.insert(botLines, string.format(botFormattedLine, data.m.nextmoveheader, "PP", "  Pow", "Acc"))
-	table.insert(botLines, "---------------------------------")
+	table.insert(lines, string.format(botFormattedLine, data.m.nextmoveheader, "PP", "  Pow", "Acc"))
+	table.insert(lines, "---------------------------------")
 	for i, move in ipairs(data.m.moves) do
 		local nameText = move.name
 		if Options["Show physical special icons"] and (data.x.viewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
@@ -225,21 +256,21 @@ function MGBA.formatTrackerScreenDisplayLines(data)
 			powerText = (MGBA.Symbols.Effectiveness[1] or "  ") .. powerText
 		end
 
-		table.insert(botLines, string.format(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
+		table.insert(lines, string.format(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
 	end
-	table.insert(botLines, "---------------------------------")
+	table.insert(lines, "---------------------------------")
 
 	-- Footer, carousel related stuff
 	-- local botFormattedLine = "%-33s"
 	for _, carousel in ipairs(TrackerScreen.CarouselItems) do
 		if carousel.isVisible() then
 			local carouselText = MGBA.convertCarouselToText(carousel, data.p.id)
-			table.insert(footerLines, carouselText)
+			table.insert(lines, carouselText)
 		end
 	end
-	table.insert(footerLines, "---------------------------------")
+	table.insert(lines, "---------------------------------")
 
-	return { topLines, botLines, footerLines, }
+	return lines
 end
 
 function MGBA.convertCarouselToText(carousel, pokemonID)
@@ -267,6 +298,77 @@ function MGBA.convertCarouselToText(carousel, pokemonID)
 	return carouselText
 end
 
+function MGBA.formatPokemonInfoData(data)
+	local listSeparator = ", "
+
+	data.p.name = data.p.name:upper()
+
+	-- Format type as "Normal" or "Flying/Normal"
+	if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
+		data.p.typeline = string.format("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+	else
+		data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+	end
+
+	data.p.evodetails = table.concat(data.p.evo, listSeparator)
+
+	if data.p.movelvls == {} or #data.p.movelvls == 0 then
+		data.p.moveslearned = "None"
+	else
+		data.p.moveslearned = table.concat(data.p.movelvls, listSeparator)
+	end
+
+	data.e.list = {}
+	local effectLabelMappings = {
+		[0] = MGBA.Labels.Effectiveness[1],
+		[0.25] = MGBA.Labels.Effectiveness[2],
+		[0.5] = MGBA.Labels.Effectiveness[3],
+		[2] = MGBA.Labels.Effectiveness[4],
+		[4] = MGBA.Labels.Effectiveness[5],
+	}
+	for typeMultiplier, label in pairs(effectLabelMappings) do
+		local effectTypes = data.e[typeMultiplier]
+		if effectTypes ~= nil and #effectTypes ~= 0 then
+			for i = 1, #effectTypes, 1 do
+				effectTypes[i] = Utils.firstToUpper(effectTypes[i])
+			end
+			data.e.list[label] = table.concat(data.e[typeMultiplier], listSeparator)
+		end
+	end
+
+	if data.x.note == nil or data.x.note == "" then
+		data.x.note = "(Leave a note)" -- TODO: Change this to explain the mGBA command
+	end
+end
+
+function MGBA.formatPokemonInfoDisplayLines(data)
+	local lines = {}
+
+	MGBA.formatPokemonInfoData(data)
+
+	-- TODO: Later format these all to fit inside a box, probably
+
+	table.insert(lines, data.p.name)
+	table.insert(lines, string.format("%s: %s", "Type", data.p.typeline))
+	table.insert(lines, string.format("%s: %s", "BST", data.p.bst))
+	table.insert(lines, string.format("%s: %s kg", "Weight", data.p.weight))
+	table.insert(lines, string.format("%s: %s", "Evolution", data.p.evodetails))
+	table.insert(lines, "")
+	table.insert(lines, string.format("%s: %s", "Level-up moves", data.p.moveslearned))
+	table.insert(lines, "")
+
+	for _, label in ipairs(MGBA.Labels.Effectiveness) do
+		if data.e.list[label] ~= nil then
+			table.insert(lines, string.format("%s: %s", label, data.e.list[label]))
+		end
+	end
+
+	table.insert(lines, "")
+	table.insert(lines, string.format("%s: %s", "Note", data.x.note))
+
+	return lines
+end
+
 -- Global functions required by mGBA input prompts
 -- Each written in the form of: funcname "parameter(s) as text only"
 ---@diagnostic disable-next-line: lowercase-global
@@ -277,6 +379,19 @@ function note(...)
 		local pokemon = Tracker.getViewedPokemon()
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 			Tracker.TrackNote(pokemon.pokemonID, noteText)
+			Program.redraw(true)
 		end
 	end
 end
+function Note(...) note(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function pokemon(...)
+	local pokemonName = ...
+
+	if pokemonName ~= nil and pokemonName ~= "" then
+		MGBA.Screens["Lookup Pokémon"]:setData(pokemonName)
+		Program.redraw(true)
+	end
+end
+function Pokemon(...) pokemon(...) end

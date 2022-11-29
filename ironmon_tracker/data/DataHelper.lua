@@ -1,5 +1,36 @@
 DataHelper = {}
 
+-- Searches for a Pokémon by name, finds the best match
+function DataHelper.findPokemon(name)
+	if name == nil or name == "" then
+		return PokemonData.BlankPokemon
+	end
+
+	name = Utils.firstToUpper(name:lower())
+	for _, pokemon in ipairs(PokemonData.Pokemon) do
+		if pokemon.name == name then
+			return pokemon
+		end
+	end
+
+	return PokemonData.BlankPokemon
+end
+
+-- Searches for a Move by name, finds the best match
+function DataHelper.findMove(name)
+	return MoveData.BlankMove
+end
+
+-- Searches for an Ability by name, finds the best match
+function DataHelper.findAbility(name)
+	return AbilityData.DefaultAbility
+end
+
+-- Searches for a Route by name, finds the best match
+function DataHelper.findRoute(name)
+	return nil
+end
+
 -- Returns a table with all of the important display data safely formatted to draw on screen.
 -- forceView: optional, if true forces view as viewingOwn, otherwise forces enemy view
 function DataHelper.buildTrackerScreenDisplay(forceView)
@@ -256,6 +287,47 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	else
 		data.x.encounters = 0
 	end
+
+	return data
+end
+
+function DataHelper.buildPokemonInfoDisplay(pokemon)
+	local data = {}
+	data.p = {} -- data about the Pokemon itself
+	data.e = {} -- data about the Type Effectiveness of the Pokemon
+	data.x = {} -- misc data to display, such as notes
+
+	if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
+		pokemon = PokemonData.BlankPokemon
+	end
+
+	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemon.pokemonID -- used to help show which move levels are learned already
+	local ownPokemonId = Battle.getViewedPokemon(true).pokemonID -- used to determine if looking up your lead Pokémon
+
+	data.p.id = pokemon.pokemonID or 0
+	data.p.name = pokemon.name or Constants.BLANKLINE
+	data.p.bst = pokemon.bst or Constants.BLANKLINE
+	data.p.weight = pokemon.weight or Constants.BLANKLINE
+	data.p.evo = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
+
+	-- Hide Pokemon types if player shouldn't know about them
+	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or pokemon.pokemonID == ownPokemonId then
+		data.p.types = { pokemon.types[1], pokemon.types[2] }
+	else
+		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
+	end
+
+	data.p.movelvls = {}
+	local moveLevelsList = pokemon.movelvls[GameSettings.versiongroup]
+	if moveLevelsList ~= nil and #moveLevelsList ~= 0 then
+		for _, moveLv in ipairs(moveLevelsList) do
+			table.insert(data.p.movelvls, moveLv)
+		end
+	end
+
+	data.e = PokemonData.getEffectiveness(pokemon.pokemonID)
+	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	return data
 end
