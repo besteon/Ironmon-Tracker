@@ -105,6 +105,10 @@ end
 function Battle.updateLowAccuracy()
 	Battle.updateViewSlots()
 	Battle.updateTrackedInfo()
+
+	if not Main.IsOnBizhawk() then -- currently just mGBA
+		Battle.updateLookupInfo()
+	end
 end
 
 -- isOwn: true if it belongs to the player; false otherwise
@@ -494,6 +498,12 @@ function Battle.checkAbilitiesToTrack()
 	end
 
 	return combatantIndexesToTrack
+end
+
+function Battle.updateLookupInfo()
+	-- Auto lookup the enemy Pokémon being fought
+	local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
+	MGBA.Screens["Lookup: Pokémon"]:setData(pokemon.pokemonID)
 end
 
 function Battle.beginNewBattle()

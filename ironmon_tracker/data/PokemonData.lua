@@ -183,14 +183,14 @@ function PokemonData.getIdFromName(pokemonName)
 	return nil
 end
 
-function PokemonData.toList()
-	local allPokemon = {}
+function PokemonData.namesToList()
+	local pokemonNames = {}
 	for _, pokemon in pairs(PokemonData.Pokemon) do
 		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
-			table.insert(allPokemon, pokemon.name)
+			table.insert(pokemonNames, pokemon.name)
 		end
 	end
-	return allPokemon
+	return pokemonNames
 end
 
 -- Returns a table that contains the type weaknesses, resistances, and immunities for a Pokémon, listed as type-strings

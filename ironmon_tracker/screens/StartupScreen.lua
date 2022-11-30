@@ -128,7 +128,7 @@ function StartupScreen.openChoosePokemonWindow()
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
-	local allPokemon = PokemonData.toList()
+	local allPokemon = PokemonData.namesToList()
 	table.insert(allPokemon, "-- Based on attempt #")
 	table.insert(allPokemon, "-- Random each time")
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options

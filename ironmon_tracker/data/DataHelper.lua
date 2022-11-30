@@ -1,34 +1,39 @@
 DataHelper = {}
 
 -- Searches for a Pokémon by name, finds the best match
-function DataHelper.findPokemon(name)
+function DataHelper.findPokemonId(name)
 	if name == nil or name == "" then
-		return PokemonData.BlankPokemon
+		return PokemonData.BlankPokemon.pokemonID
 	end
 
-	name = Utils.firstToUpper(name:lower())
-	for _, pokemon in ipairs(PokemonData.Pokemon) do
-		if pokemon.name == name then
-			return pokemon
-		end
+	-- Format list of Pokemon as id, name pairs
+	local pokemonNames = {}
+	for id, pokemon in ipairs(PokemonData.Pokemon) do
+		pokemonNames[id] = pokemon.name:lower()
 	end
 
-	return PokemonData.BlankPokemon
+	local id, closestName = Utils.getClosestWord(name:lower(), pokemonNames, 3)
+
+	if id == nil or closestName == nil then
+		return PokemonData.BlankPokemon.pokemonID
+	else
+		return id
+	end
 end
 
 -- Searches for a Move by name, finds the best match
-function DataHelper.findMove(name)
-	return MoveData.BlankMove
+function DataHelper.findMoveId(name)
+	return MoveData.BlankMove.id
 end
 
 -- Searches for an Ability by name, finds the best match
-function DataHelper.findAbility(name)
-	return AbilityData.DefaultAbility
+function DataHelper.findAbilityId(name)
+	return AbilityData.DefaultAbility.id
 end
 
 -- Searches for a Route by name, finds the best match
-function DataHelper.findRoute(name)
-	return nil
+function DataHelper.findRouteId(name)
+	return 0
 end
 
 -- Returns a table with all of the important display data safely formatted to draw on screen.
@@ -291,18 +296,19 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	return data
 end
 
-function DataHelper.buildPokemonInfoDisplay(pokemon)
+function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	local data = {}
 	data.p = {} -- data about the Pokemon itself
 	data.e = {} -- data about the Type Effectiveness of the Pokemon
 	data.x = {} -- misc data to display, such as notes
 
-	if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
+	local pokemon
+	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
 		pokemon = PokemonData.BlankPokemon
+	else
+		pokemon = PokemonData.Pokemon[pokemonID]
 	end
 
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
-	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemon.pokemonID -- used to help show which move levels are learned already
 	local ownPokemonId = Battle.getViewedPokemon(true).pokemonID -- used to determine if looking up your lead Pokémon
 
 	data.p.id = pokemon.pokemonID or 0
@@ -328,6 +334,21 @@ function DataHelper.buildPokemonInfoDisplay(pokemon)
 
 	data.e = PokemonData.getEffectiveness(pokemon.pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
+
+	return data
+end
+
+function DataHelper.buildMoveInfoDisplay(moveId)
+	local data = {}
+	data.m = {} -- data about the Move itself
+	data.x = {} -- misc data to display
+
+	local move
+	if moveId == nil or not MoveData.isValid(moveId) then
+		move = PokemonData.BlankPokemon
+	else
+		move = PokemonData.Pokemon[moveId]
+	end
 
 	return data
 end

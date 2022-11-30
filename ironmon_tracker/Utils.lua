@@ -93,6 +93,50 @@ function Utils.formatNumberWithCommas(number)
   return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
+-- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
+-- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
+-- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
+function Utils.getClosestWord(word, wordlist, threshold)
+	if word == nil or word == "" then return word end
+	local function min(a, b, c) return math.min(math.min(a, b), c) end
+	local function matrix(row, col)
+		local m = {}
+		for i = 1,row do
+			m[i] = {}
+			for j = 1,col do m[i][j] = 0 end
+		end
+		return m
+	end
+	local function lev(strA, strB)
+		local M = matrix(#strA + 1, #strB + 1)
+		local cost
+		local row, col = #M, #M[1]
+		for i = 1, row do M[i][1] = i - 1 end
+		for j = 1, col do M[1][j] = j - 1 end
+		for i = 2, row do
+			for j = 2, col do
+				if (strA:sub(i-1, i-1) == strB:sub(j-1, j-1)) then cost = 0
+				else cost = 1
+				end
+				M[i][j] = min(M[i-1][j] + 1, M[i][j-1] + 1, M[i-1][j-1] + cost)
+			end
+		end
+		return M[row][col]
+	end
+	local closestDistance = -1
+	local closestWordKey
+	for key, val in pairs(wordlist) do
+		local levRes = lev(word, val)
+		if levRes < closestDistance or closestDistance == -1 then
+			closestDistance = levRes
+			closestWordKey = key
+		end
+	end
+	if closestDistance <= threshold then return closestWordKey, wordlist[closestWordKey]
+	else return nil, word
+	end
+end
+
 function Utils.randomPokemonID()
 	local pokemonID = math.random(PokemonData.totalPokemon - 25)
 	if pokemonID > 251 then

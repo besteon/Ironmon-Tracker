@@ -3,43 +3,22 @@
 MGBA = {}
 
 -- Ordered list of things
-MGBA.Labels = {
-	Screens = { "Lookup Pokémon", "Your Pokémon", },
+MGBA.OrderedLists = {
+	Screens = {
+		"Lookup: Pokémon",
+		"Lookup: Move",
+		"Battle Tracker",
+	},
 	Effectiveness = { "Immunity (0x)", "Resist (0.25x)", "Resist (0.5x)", "SuperEffective (2x)", "SuperEffective (4x)", },
 }
+-- TODO: Add in these Screens later
+-- SETTINGS ☰ MENU ITEM(S)
+-- COMMAND LIST
+-- LOOKUP MOVE INFO
+-- LOOKUP ABILITY INFO
+-- LOOKUP ROUTE INFO
 
-MGBA.Screens = {
-	-- TODO: Add in these later
-	-- SETTINGS ☰ MENU ITEM(S)
-	-- COMMAND LIST
-	-- LOOKUP MOVE INFO
-	-- LOOKUP ABILITY INFO
-	-- LOOKUP ROUTE INFO
-
-	-- Each screen has this properties set later in createTextBuffers()
-	-- self.data: Raw data that hasn't yet been formatted
-	-- self.displayLines: Formatted lines that are ready to be displayed
-	-- self.textBuffer: The mGBA TextBuffer where the displayLines are printed
-
-	["Lookup Pokémon"] = {
-		setData = function(self, pokemonName)
-			self.pokemon = DataHelper.findPokemon(pokemonName)
-		end,
-		updateData = function(self)
-			-- TODO: Determine reasons to update this data, such as pokemon ID change or level change
-			if self.data == nil or (self.pokemon ~= nil and self.pokemon.pokemonID ~= self.data.p.pokemonID) then
-				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemon)
-			end
-			self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data)
-		end,
-	},
-	["Your Pokémon"] = {
-		updateData = function(self)
-			self.data = DataHelper.buildTrackerScreenDisplay()
-			self.displayLines = MGBA.formatTrackerScreenDisplayLines(self.data)
-		end,
-	},
-}
+MGBA.Screens = {} -- Populated later in initialize()
 
 MGBA.Symbols = {
 	Stab = "!",
@@ -64,6 +43,8 @@ function MGBA.initialize()
 	Constants.STAT_STATES[2].text = "-"
 	Constants.Words.POKEMON = "Pokémon"
 	Constants.Words.POKE = "Poké"
+
+	MGBA.buildScreens()
 end
 
 function MGBA.clear()
@@ -75,6 +56,7 @@ function MGBA.displayInputCommands()
 	print('')
 	print('Use the following commands via the input text box below:')
 	print('note "text to add a note about the active visible Pokémon"')
+	print('pokemon "PokémonName"')
 end
 
 function MGBA.activateQuickload()
@@ -89,8 +71,45 @@ function MGBA.activateQuickload()
 	Main.LoadNextRom()
 end
 
+-- Each screen has this properties set later in createTextBuffers()
+-- self.data: Raw data that hasn't yet been formatted
+-- self.displayLines: Formatted lines that are ready to be displayed
+-- self.textBuffer: The mGBA TextBuffer where the displayLines are printed
+function MGBA.buildScreens()
+	MGBA.Screens["Lookup: Pokémon"] = {
+		setData = function(self, pokemonID)
+			self.pokemonID = pokemonID or 0
+		end,
+		updateData = function(self)
+			local lookupIDChanged = self.pokemonID ~= nil and self.pokemonID ~= self.data.p.pokemonID
+			if self.data == nil or lookupIDChanged then
+				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
+			end
+			self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data)
+		end,
+	}
+	MGBA.Screens["Lookup: Move"] = {
+		setData = function(self, moveName)
+			self.moveId = DataHelper.findMoveId(moveName) or 0
+		end,
+		updateData = function(self)
+			local lookupIDChanged = self.moveId ~= nil and self.moveId ~= self.data.p.moveId
+			if self.data == nil or lookupIDChanged then
+				self.data = DataHelper.buildMoveInfoDisplay(self.moveId)
+			end
+			self.displayLines = MGBA.formatMoveInfoDisplayLines(self.data)
+		end,
+	}
+	MGBA.Screens["Battle Tracker"] = {
+		updateData = function(self)
+			self.data = DataHelper.buildTrackerScreenDisplay()
+			self.displayLines = MGBA.formatTrackerScreenDisplayLines(self.data)
+		end,
+	}
+end
+
 function MGBA.createTextBuffers()
-	for _, label in ipairs(MGBA.Labels.Screens) do
+	for _, label in ipairs(MGBA.OrderedLists.Screens) do
 		local screen = MGBA.Screens[label]
 		if screen.textBuffer == nil then -- workaround for reloading script for Quickload
 			screen.textBuffer = console:createBuffer(label)
@@ -320,11 +339,11 @@ function MGBA.formatPokemonInfoData(data)
 
 	data.e.list = {}
 	local effectLabelMappings = {
-		[0] = MGBA.Labels.Effectiveness[1],
-		[0.25] = MGBA.Labels.Effectiveness[2],
-		[0.5] = MGBA.Labels.Effectiveness[3],
-		[2] = MGBA.Labels.Effectiveness[4],
-		[4] = MGBA.Labels.Effectiveness[5],
+		[0] = MGBA.OrderedLists.Effectiveness[1],
+		[0.25] = MGBA.OrderedLists.Effectiveness[2],
+		[0.5] = MGBA.OrderedLists.Effectiveness[3],
+		[2] = MGBA.OrderedLists.Effectiveness[4],
+		[4] = MGBA.OrderedLists.Effectiveness[5],
 	}
 	for typeMultiplier, label in pairs(effectLabelMappings) do
 		local effectTypes = data.e[typeMultiplier]
@@ -357,7 +376,7 @@ function MGBA.formatPokemonInfoDisplayLines(data)
 	table.insert(lines, string.format("%s: %s", "Level-up moves", data.p.moveslearned))
 	table.insert(lines, "")
 
-	for _, label in ipairs(MGBA.Labels.Effectiveness) do
+	for _, label in ipairs(MGBA.OrderedLists.Effectiveness) do
 		if data.e.list[label] ~= nil then
 			table.insert(lines, string.format("%s: %s", label, data.e.list[label]))
 		end
@@ -365,6 +384,23 @@ function MGBA.formatPokemonInfoDisplayLines(data)
 
 	table.insert(lines, "")
 	table.insert(lines, string.format("%s: %s", "Note", data.x.note))
+
+	return lines
+end
+
+function MGBA.formatMoveInfoData(data)
+	local listSeparator = ", "
+
+	-- data.m.name = data.m.name:upper()
+
+end
+
+function MGBA.formatMoveInfoDisplayLines(data)
+	local lines = {}
+
+	MGBA.formatMoveInfoData(data)
+
+	-- TODO: Later format these all to fit inside a box, probably
 
 	return lines
 end
@@ -390,7 +426,8 @@ function pokemon(...)
 	local pokemonName = ...
 
 	if pokemonName ~= nil and pokemonName ~= "" then
-		MGBA.Screens["Lookup Pokémon"]:setData(pokemonName)
+		local pokemonID = DataHelper.findPokemonId(pokemonName)
+		MGBA.Screens["Lookup: Pokémon"]:setData(pokemonID)
 		Program.redraw(true)
 	end
 end

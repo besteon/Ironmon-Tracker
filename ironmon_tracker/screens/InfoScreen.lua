@@ -347,7 +347,7 @@ function InfoScreen.openPokemonInfoWindow()
 	else
 		pokemonName = ""
 	end
-	local pokedexData = PokemonData.toList()
+	local pokedexData = PokemonData.namesToList()
 
 	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
@@ -530,18 +530,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
 
-	local pokemon = PokemonData.Pokemon[pokemonID]
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
-	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == pokemonID
-	local ownPokemonId = Battle.getViewedPokemon(true).pokemonID
-
-	local typeOne = pokemon.types[1]
-	local typeTwo = pokemon.types[2]
-	if not Options["Reveal info if randomized"] and PokemonData.IsRand.pokemonTypes and pokemonID ~= ownPokemonId then
-		-- Don't reveal randomized Pokemon types for Pokedex entries
-		typeOne = PokemonData.Types.UNKNOWN
-		typeTwo = PokemonData.Types.UNKNOWN
-	end
+	local data = DataHelper.buildPokemonInfoDisplay(pokemonID)
 
 	Drawing.drawBackgroundAndMargins()
 
@@ -551,7 +540,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- POKEMON NAME
 	offsetY = offsetY - 3
-	local pokemonName = pokemon.name:upper()
+	local pokemonName = data.p.name:upper()
 	if Theme.DRAW_TEXT_SHADOWS then
 		gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
@@ -561,37 +550,36 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	if typeTwo ~= typeOne and typeTwo ~= PokemonData.Types.EMPTY then
+	if data.p.types[2] ~= data.p.types[1] and data.p.types[2] ~= PokemonData.Types.EMPTY then
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
-	Drawing.drawPokemonIcon(pokemonID, offsetX + 105, offsetY + 2)
-	Drawing.drawTypeIcon(typeOne, offsetX + 106, offsetY + 37)
-	if typeTwo ~= typeOne then
-		Drawing.drawTypeIcon(typeTwo, offsetX + 106, offsetY + 49)
+	Drawing.drawPokemonIcon(data.p.id, offsetX + 105, offsetY + 2)
+	Drawing.drawTypeIcon(data.p.types[1], offsetX + 106, offsetY + 37)
+	if data.p.types[2] ~= data.p.types[1] then
+		Drawing.drawTypeIcon(data.p.types[2], offsetX + 106, offsetY + 49)
 	end
 	offsetY = offsetY + 11 + linespacing
 
 	-- BST
 	Drawing.drawText(offsetX, offsetY, "BST:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, pokemon.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.p.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
-	local weightInfo = pokemon.weight .. " kg"
+	local weightInfo = data.p.weight .. " kg"
 	Drawing.drawText(offsetX, offsetY, "Weight:", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, weightInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- EVOLUTION
-	local possibleEvolutions = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
 	Drawing.drawText(offsetX, offsetY, "Evolution:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[1], Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.p.evo[1], Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
-	if possibleEvolutions[2] ~= nil then
-		Drawing.drawText(offsetColumnX, offsetY, possibleEvolutions[2], Theme.COLORS["Default text"], boxInfoTopShadow)
+	if data.p.evo[2] ~= nil then
+		Drawing.drawText(offsetColumnX, offsetY, data.p.evo[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
-	if pokemonID == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
+	if data.p.id == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
 		-- Pokémon Mystery Dungeon Drowzee easter egg
 		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
@@ -608,10 +596,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
-	if #pokemon.movelvls[GameSettings.versiongroup] == 0 then -- If the Pokemon learns no moves at all
+	local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == data.p.id
+	if #data.p.movelvls == 0 then -- If the Pokemon learns no moves at all
 		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
-	for i, moveLvl in ipairs(pokemon.movelvls[GameSettings.versiongroup]) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
+	for i, moveLvl in ipairs(data.p.movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
 		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
@@ -619,7 +609,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, botOffsetY + nextBoxY + 2, boxWidth, boxHeight, boxInfoBotShadow, boxInfoBotShadow)
 		gui.drawRectangle(offsetX + nextBoxX + 5, botOffsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
-		-- Indicate which moves have already been learned if the pokemon being viewed is one of the ones in battle (yours/enemy)
+		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
 		if not isTargetTheViewedPokemonn then
 			nextBoxTextColor = Theme.COLORS["Lower box text"]
@@ -634,35 +624,27 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + (linespacing * 3) - 2
 
 	-- If the moves-to-learn only takes up one row, move up the weakness data
-	if #pokemon.movelvls[GameSettings.versiongroup] <= 8 then
+	if #data.p.movelvls <= 8 then
 		botOffsetY = botOffsetY - linespacing
 	end
 
 	-- WEAK TO
-	local weaknesses = {}
-	local hasSevereWeakness = false
-	for moveType, typeEffectiveness in pairs(MoveData.TypeToEffectiveness) do
-		local effectiveness = 1
-		if typeEffectiveness[typeOne] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[typeOne]
-		end
-		if typeTwo ~= typeOne and typeEffectiveness[typeTwo] ~= nil then
-			effectiveness = effectiveness * typeEffectiveness[typeTwo]
-		end
-		if effectiveness > 1 then
-			weaknesses[moveType] = effectiveness
-			if effectiveness > 2 then
-				hasSevereWeakness = true
-			end
-		end
-	end
 	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
-	if hasSevereWeakness then
+	if #data.e[4] > 0 then
 		Drawing.drawText(offsetColumnX, botOffsetY, "(white bars = x4 weak)", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 	botOffsetY = botOffsetY + linespacing + 3
 
-	if weaknesses == {} then -- If the Pokemon has no weakness, like Sableye
+	-- Temporarily storing things as a single set of weaknesses, filtered out later, but ideally we display all type-effectiveness
+	local weaknesses = {}
+	for _, weakType in pairs(data.e[2]) do
+		weaknesses[weakType] = 2
+	end
+	for _, weakType in pairs(data.e[4]) do
+		weaknesses[weakType] = 4
+	end
+
+	if #data.e[2] == 0 and #data.e[4] == 0 then -- If the Pokemon has no weakness, like Sableye
 		Drawing.drawText(offsetX + 6, botOffsetY, "Has no weaknesses", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 
@@ -698,7 +680,6 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
 	InfoScreen.drawNotepadArea()
 	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
-
 end
 
 function InfoScreen.drawMoveInfoScreen(moveId)
