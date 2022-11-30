@@ -257,7 +257,7 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	local pIndex = RouteData.getIndexForGameVersion()
 	local areaInfo = {}
 	-- Eventually fix this by more clearly separating a route's name from its encounters. eg. (encounters.wild)
----@diagnostic disable-next-line: param-type-mismatch
+	---@diagnostic disable-next-line: param-type-mismatch
 	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
 		local pokemonID
 		if type(encounter.pokemonID) == "number" then
@@ -375,6 +375,11 @@ function RouteData.readWildPokemonInfoFromMemory()
 		-- print(headerBytes)
 	end
 end
+
+RouteData.BlankRoute = {
+	id = 0,
+	name = Constants.BLANKLINE,
+}
 
 -- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml

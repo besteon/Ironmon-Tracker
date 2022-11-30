@@ -49,7 +49,7 @@ PokemonData.Evolutions = {
 PokemonData.BlankPokemon = {
 	pokemonID = 0,
 	name = Constants.BLANKLINE,
-	types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
+	types = { PokemonData.Types.UNKNOWN, PokemonData.Types.EMPTY },
 	abilities = { 0, 0 },
 	evolution = PokemonData.Evolutions.NONE,
 	bst = Constants.BLANKLINE,
@@ -185,7 +185,7 @@ end
 
 function PokemonData.namesToList()
 	local pokemonNames = {}
-	for _, pokemon in pairs(PokemonData.Pokemon) do
+	for _, pokemon in ipairs(PokemonData.Pokemon) do
 		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
 			table.insert(pokemonNames, pokemon.name)
 		end

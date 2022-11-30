@@ -7,16 +7,16 @@ MGBA.OrderedLists = {
 	Screens = {
 		"Lookup: Pokémon",
 		"Lookup: Move",
+		"Lookup: Ability",
+		"Lookup: Route",
 		"Battle Tracker",
 	},
-	Effectiveness = { "Immunity (0x)", "Resist (0.25x)", "Resist (0.5x)", "SuperEffective (2x)", "SuperEffective (4x)", },
+	Effectiveness = { "0x Immunities", "1/4x Resistances", "1/2x Resistances", "2x Weaknesses", "4x Weaknesses", },
 }
 -- TODO: Add in these Screens later
 -- SETTINGS ☰ MENU ITEM(S)
 -- COMMAND LIST
--- LOOKUP MOVE INFO
--- LOOKUP ABILITY INFO
--- LOOKUP ROUTE INFO
+-- Any others??
 
 MGBA.Screens = {} -- Populated later in initialize()
 
@@ -38,12 +38,10 @@ MGBA.Symbols = {
 }
 
 function MGBA.initialize()
-	-- Adjust some written Constants so that they display properly
-	Constants.BLANKLINE = "--"
-	Constants.STAT_STATES[2].text = "-"
-	Constants.Words.POKEMON = "Pokémon"
-	Constants.Words.POKE = "Poké"
+	AbilityData.DefaultAbility.name = Constants.BLANKLINE
+	AbilityData.DefaultAbility.description = Constants.BLANKLINE
 
+	MGBA.updateSpecialWords()
 	MGBA.buildScreens()
 end
 
@@ -54,9 +52,12 @@ end
 
 function MGBA.displayInputCommands()
 	print('')
-	print('Use the following commands via the input text box below:')
-	print('note "text to add a note about the active visible Pokémon"')
-	print('pokemon "PokémonName"')
+	print('Commands:')
+	print('* note "text"')
+	print('* pokemon "name"')
+	print('* move "name"')
+	print('* ability "name"')
+	print('* route "name"')
 end
 
 function MGBA.activateQuickload()
@@ -71,6 +72,46 @@ function MGBA.activateQuickload()
 	Main.LoadNextRom()
 end
 
+-- Adjust some written Constants so that they display properly
+function MGBA.updateSpecialWords()
+	local pokemonWord = "Pokémon"
+	local pokeWord = "Poké"
+
+	-- First replace existing words with new ones
+	for _, move in pairs(MoveData.Moves) do
+		if move.summary:find(Constants.Words.POKEMON) then
+			move.summary = move.summary:gsub(Constants.Words.POKEMON, pokemonWord)
+		end
+	end
+	for _, ability in pairs(AbilityData.Abilities) do
+		if ability.description:find(Constants.Words.POKEMON) then
+			ability.description = ability.description:gsub(Constants.Words.POKEMON, pokemonWord)
+		end
+		if ability.description:find(Constants.Words.POKE) then
+			ability.description = ability.description:gsub(Constants.Words.POKE, pokeWord)
+		end
+		if ability.descriptionEmerald ~= nil and ability.descriptionEmerald:find(Constants.Words.POKEMON) then
+			ability.descriptionEmerald = ability.descriptionEmerald:gsub(Constants.Words.POKEMON, pokemonWord)
+		end
+		if ability.descriptionEmerald ~= nil and ability.descriptionEmerald:find(Constants.Words.POKE) then
+			ability.descriptionEmerald = ability.descriptionEmerald:gsub(Constants.Words.POKE, pokeWord)
+		end
+	end
+	for _, route in pairs(RouteData.Info) do
+		if route.name:find(Constants.Words.POKEMON) then
+			route.name = route.name:gsub(Constants.Words.POKEMON, pokemonWord)
+		end
+		if route.name:find(Constants.Words.POKE) then
+			route.name = route.name:gsub(Constants.Words.POKE, pokeWord)
+		end
+	end
+	Constants.Words.POKEMON = pokemonWord
+	Constants.Words.POKE = pokeWord
+
+	Constants.BLANKLINE = "--" -- change from triple dash to double
+	Constants.STAT_STATES[2].text = "-" -- change from double dash to single
+end
+
 -- Each screen has this properties set later in createTextBuffers()
 -- self.data: Raw data that hasn't yet been formatted
 -- self.displayLines: Formatted lines that are ready to be displayed
@@ -79,6 +120,7 @@ function MGBA.buildScreens()
 	MGBA.Screens["Lookup: Pokémon"] = {
 		setData = function(self, pokemonID)
 			self.pokemonID = pokemonID or 0
+			self.manuallySet = true
 		end,
 		updateData = function(self)
 			local lookupIDChanged = self.pokemonID ~= nil and self.pokemonID ~= self.data.p.pokemonID
@@ -89,15 +131,33 @@ function MGBA.buildScreens()
 		end,
 	}
 	MGBA.Screens["Lookup: Move"] = {
-		setData = function(self, moveName)
-			self.moveId = DataHelper.findMoveId(moveName) or 0
-		end,
+		setData = function(self, moveId) self.moveId = moveId or 0 end,
 		updateData = function(self)
-			local lookupIDChanged = self.moveId ~= nil and self.moveId ~= self.data.p.moveId
+			local lookupIDChanged = self.moveId ~= nil and self.moveId ~= self.data.m.moveId
 			if self.data == nil or lookupIDChanged then
 				self.data = DataHelper.buildMoveInfoDisplay(self.moveId)
 			end
 			self.displayLines = MGBA.formatMoveInfoDisplayLines(self.data)
+		end,
+	}
+	MGBA.Screens["Lookup: Ability"] = {
+		setData = function(self, abilityId) self.abilityId = abilityId or 0 end,
+		updateData = function(self)
+			local lookupIDChanged = self.abilityId ~= nil and self.abilityId ~= self.data.a.abilityId
+			if self.data == nil or lookupIDChanged then
+				self.data = DataHelper.buildAbilityInfoDisplay(self.abilityId)
+			end
+			self.displayLines = MGBA.formatAbilityInfoDisplayLines(self.data)
+		end,
+	}
+	MGBA.Screens["Lookup: Route"] = {
+		setData = function(self, routeId) self.routeId = routeId or 0 end,
+		updateData = function(self)
+			local lookupIDChanged = self.routeId ~= nil and self.routeId ~= self.data.r.routeId
+			if self.data == nil or lookupIDChanged then
+				self.data = DataHelper.buildRouteInfoDisplay(self.moveId)
+			end
+			self.displayLines = MGBA.formatRouteInfoDisplayLines(self.data)
 		end,
 	}
 	MGBA.Screens["Battle Tracker"] = {
@@ -329,11 +389,21 @@ function MGBA.formatPokemonInfoData(data)
 		data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 	end
 
+	if tonumber(data.p.weight) ~= nil then
+		data.p.weight = string.format("%s kg", data.p.weight)
+	else
+		data.p.weight = Constants.BLANKLINE
+	end
 	data.p.evodetails = table.concat(data.p.evo, listSeparator)
 
 	if data.p.movelvls == {} or #data.p.movelvls == 0 then
 		data.p.moveslearned = "None"
 	else
+		for i = 1, #data.p.movelvls, 1 do
+			if type(data.p.movelvls[i]) == "number" and data.p.movelvls[i] <= data.x.viewedPokemonLevel then
+				data.p.movelvls[i] = data.p.movelvls[i] .. "*"
+			end
+		end
 		data.p.moveslearned = table.concat(data.p.movelvls, listSeparator)
 	end
 
@@ -365,34 +435,53 @@ function MGBA.formatPokemonInfoDisplayLines(data)
 
 	MGBA.formatPokemonInfoData(data)
 
-	-- TODO: Later format these all to fit inside a box, probably
+	local labelBar = "%-12s %s"
+	table.insert(lines, string.format("%-13s%s", data.p.name, string.format("[%s]", data.p.typeline)))
+	table.insert(lines, string.format(labelBar, "BST:", data.p.bst))
+	table.insert(lines, string.format(labelBar, "Weight:", data.p.weight))
+	table.insert(lines, string.format(labelBar, "Evolution:", data.p.evodetails))
 
-	table.insert(lines, data.p.name)
-	table.insert(lines, string.format("%s: %s", "Type", data.p.typeline))
-	table.insert(lines, string.format("%s: %s", "BST", data.p.bst))
-	table.insert(lines, string.format("%s: %s kg", "Weight", data.p.weight))
-	table.insert(lines, string.format("%s: %s", "Evolution", data.p.evodetails))
-	table.insert(lines, "")
-	table.insert(lines, string.format("%s: %s", "Level-up moves", data.p.moveslearned))
-	table.insert(lines, "")
+	table.insert(lines, "Level-up moves:")
+	local movesWrapped = Utils.getWordWrapLines(data.p.moveslearned, 33)
+	for _, moveLvlLine in pairs(movesWrapped) do
+		table.insert(lines, moveLvlLine)
+	end
 
+	table.insert(lines, "")
 	for _, label in ipairs(MGBA.OrderedLists.Effectiveness) do
 		if data.e.list[label] ~= nil then
-			table.insert(lines, string.format("%s: %s", label, data.e.list[label]))
+			table.insert(lines, string.format("%s:", label))
+			table.insert(lines, string.format(" %s", data.e.list[label]))
 		end
 	end
 
 	table.insert(lines, "")
-	table.insert(lines, string.format("%s: %s", "Note", data.x.note))
+	table.insert(lines, "Note:")
+	local notesWrapped = Utils.getWordWrapLines(data.x.note, 33)
+	for _, noteLine in pairs(notesWrapped) do
+		table.insert(lines, noteLine)
+	end
 
 	return lines
 end
 
 function MGBA.formatMoveInfoData(data)
-	local listSeparator = ", "
+	data.m.name = data.m.name:upper()
+	data.m.type = Utils.firstToUpper(data.m.type)
 
-	-- data.m.name = data.m.name:upper()
+	if tonumber(data.m.accuracy) ~= nil then
+		data.m.accuracy = data.m.accuracy .. "%"
+	end
 
+	if data.m.category == MoveData.Categories.PHYSICAL or data.m.category == MoveData.Categories.SPECIAL then
+		data.m.category = string.format("%s (%s)", data.m.category, MGBA.Symbols.Category[data.m.category])
+	end
+
+	data.m.iscontact = Utils.inlineIf(data.m.iscontact, "Yes", "No")
+
+	if data.m.priority == "0" then
+		data.m.priority = "Normal"
+	end
 end
 
 function MGBA.formatMoveInfoDisplayLines(data)
@@ -400,7 +489,69 @@ function MGBA.formatMoveInfoDisplayLines(data)
 
 	MGBA.formatMoveInfoData(data)
 
-	-- TODO: Later format these all to fit inside a box, probably
+	local labelBar = "%-12s %s"
+	table.insert(lines, string.format(labelBar, data.m.name, string.format("[%s]", data.m.type)))
+	table.insert(lines, string.format(labelBar, "Category:", data.m.category))
+	table.insert(lines, string.format(labelBar, "Contact:", data.m.iscontact))
+	table.insert(lines, string.format(labelBar, "PP:", data.m.pp))
+	table.insert(lines, string.format(labelBar, "Power:", data.m.power))
+	table.insert(lines, string.format(labelBar, "Accuracy:", data.m.accuracy))
+	table.insert(lines, string.format(labelBar, "Priority:", data.m.priority))
+
+	if data.m.summary ~= Constants.BLANKLINE then
+		table.insert(lines, "")
+		table.insert(lines, "Move Summary:")
+		local wrappedSummary = Utils.getWordWrapLines(data.m.summary, 33)
+		for _, summaryLine in pairs(wrappedSummary) do
+			table.insert(lines, summaryLine)
+		end
+	end
+
+	return lines
+end
+
+function MGBA.formatAbilityInfoData(data)
+	data.a.name = data.a.name:upper()
+end
+
+function MGBA.formatAbilityInfoDisplayLines(data)
+	local lines = {}
+
+	MGBA.formatAbilityInfoData(data)
+
+	table.insert(lines, data.a.name)
+
+	table.insert(lines, "")
+	local descWrapped = Utils.getWordWrapLines(data.a.description, 33)
+	for _, descLine in pairs(descWrapped) do
+		table.insert(lines, descLine)
+	end
+
+	if data.a.descriptionEmerald ~= Constants.BLANKLINE then
+		table.insert(lines, "")
+		table.insert(lines, "Emerald Bonus:")
+		local emWrapped = Utils.getWordWrapLines(data.a.descriptionEmerald, 33)
+		for _, emLine in pairs(emWrapped) do
+			table.insert(lines, emLine)
+		end
+	end
+
+	return lines
+end
+
+function MGBA.formatRouteInfoData(data)
+	local listSeparator = ", "
+
+	data.r.name = data.r.name:upper()
+
+end
+
+function MGBA.formatRouteInfoDisplayLines(data)
+	local lines = {}
+
+	MGBA.formatRouteInfoData(data)
+
+	table.insert(lines, data.r.name)
 
 	return lines
 end
@@ -410,11 +561,11 @@ end
 ---@diagnostic disable-next-line: lowercase-global
 function note(...)
 	local noteText = ...
-
 	if not Tracker.Data.isViewingOwn then
 		local pokemon = Tracker.getViewedPokemon()
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 			Tracker.TrackNote(pokemon.pokemonID, noteText)
+			print(string.format("Note added for %s", pokemon.name))
 			Program.redraw(true)
 		end
 	end
@@ -424,11 +575,59 @@ function Note(...) note(...) end
 ---@diagnostic disable-next-line: lowercase-global
 function pokemon(...)
 	local pokemonName = ...
-
 	if pokemonName ~= nil and pokemonName ~= "" then
 		local pokemonID = DataHelper.findPokemonId(pokemonName)
-		MGBA.Screens["Lookup: Pokémon"]:setData(pokemonID)
-		Program.redraw(true)
+		if pokemonID ~= 0 then
+			MGBA.Screens["Lookup: Pokémon"]:setData(pokemonID)
+			Program.redraw(true)
+		else
+			print(string.format("Unable to find %s: %s", Constants.Words.POKEMON, pokemonName))
+		end
 	end
 end
 function Pokemon(...) pokemon(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function move(...)
+	local moveName = ...
+	if moveName ~= nil and moveName ~= "" then
+		local moveId = DataHelper.findMoveId(moveName)
+		if moveId ~= 0 then
+			MGBA.Screens["Lookup: Move"]:setData(moveId)
+			Program.redraw(true)
+		else
+			print(string.format("Unable to find move: %s", moveName))
+		end
+	end
+end
+function Move(...) move(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function ability(...)
+	local abilityName = ...
+	if abilityName ~= nil and abilityName ~= "" then
+		local abilityId = DataHelper.findAbilityId(abilityName)
+		if abilityId ~= 0 then
+			MGBA.Screens["Lookup: Ability"]:setData(abilityId)
+			Program.redraw(true)
+		else
+			print(string.format("Unable to find ability: %s", abilityName))
+		end
+	end
+end
+function Ability(...) ability(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function route(...)
+	local routeName = ...
+	if routeName ~= nil and routeName ~= "" then
+		local routeId = DataHelper.findRouteId(routeName)
+		if routeId ~= 0 then
+			MGBA.Screens["Lookup: Route"]:setData(routeId)
+			Program.redraw(true)
+		else
+			print(string.format("Unable to find route: %s", routeName))
+		end
+	end
+end
+function Route(...) route(...) end

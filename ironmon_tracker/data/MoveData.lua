@@ -97,19 +97,6 @@ MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected b
 	["353"] = true, -- Doom Desire
 }
 
-MoveData.BlankMove = {
-	id = "0",
-	name = Constants.BLANKLINE,
-	type = PokemonData.Types.UNKNOWN,
-	power = "0",
-	pp = "0",
-	accuracy = "0",
-	category = MoveData.Categories.NONE,
-	iscontact = false,
-	priority = "0",
-	summary = "",
-}
-
 function MoveData.initialize()
 	-- Reads the Move's type, power, accuracy, and pp
 	-- If any data at all was randomized, read in full move data from memory
@@ -212,6 +199,19 @@ end
 function MoveData.isValid(moveId)
 	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
 end
+
+MoveData.BlankMove = {
+	id = "0",
+	name = Constants.BLANKLINE,
+	type = PokemonData.Types.UNKNOWN,
+	power = "0",
+	pp = "0",
+	accuracy = "0",
+	category = MoveData.Categories.NONE,
+	iscontact = false,
+	priority = "0",
+	summary = "",
+}
 
 --[[
 The various Pokémon moves (Gen 3)

@@ -596,8 +596,6 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
-	local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	local isTargetTheViewedPokemonn = pokemonViewed.pokemonID == data.p.id
 	if #data.p.movelvls == 0 then -- If the Pokemon learns no moves at all
 		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
@@ -611,9 +609,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
 		local nextBoxTextColor
-		if not isTargetTheViewedPokemonn then
+		if data.x.viewedPokemonLevel == 0 then
 			nextBoxTextColor = Theme.COLORS["Lower box text"]
-		elseif moveLvl <= pokemonViewed.level then
+		elseif moveLvl <= data.x.viewedPokemonLevel then
 			nextBoxTextColor = Theme.COLORS["Negative text"]
 		else
 			nextBoxTextColor = Theme.COLORS["Positive text"]
@@ -697,19 +695,10 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
 
-	local move = MoveData.Moves[moveId]
-	local moveType = move.type
-	local moveCat = move.category
-	local movePPText = move.pp
-	local movePower = move.power
-	local moveAccuracy = move.accuracy
-
-	-- Don't reveal randomized move info for moves the player's current pokemon doesn't have
-	local ownPokemon = Battle.getViewedPokemon(true)
-	local hideInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
+	local data = DataHelper.buildMoveInfoDisplay(moveId)
 
 	-- Before drawing view boxes, check if extra space is needed for 'Priority' information
-	if move.priority ~= nil and move.priority ~= "0" then
+	if data.m.priority ~= "0" then
 		botOffsetY = botOffsetY + linespacing
 	end
 
@@ -720,95 +709,61 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- MOVE NAME
-	local moveName = move.name:upper()
+	data.m.name = data.m.name:upper()
 	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, moveName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+		gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, data.m.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
-	gui.drawText(offsetX - 1, offsetY - 3, moveName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, data.m.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
-	-- If the move is Hidden Power and the lead pokemon has that move, use its tracked type/category instead
-	if moveId == 237 then -- 237 = Hidden Power
-		local pokemon = Battle.getViewedPokemon(true)
-		if Utils.pokemonHasMove(pokemon, "Hidden Power") then
-			moveType = Tracker.getHiddenPowerType()
-			moveCat = MoveData.TypeToCategory[moveType]
-			Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
-		end
+	if data.x.ownHasHiddenPower then
+		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 
 	-- TYPE ICON
-	if hideInfo and MoveData.IsRand.moveType then
-		moveType = PokemonData.Types.UNKNOWN
-	end
 	offsetY = offsetY + 1
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
-	Drawing.drawTypeIcon(moveType, offsetX + 106, offsetY + 1)
+	Drawing.drawTypeIcon(data.m.type, offsetX + 106, offsetY + 1)
 	offsetY = offsetY + linespacing
 
 	-- CATEGORY
-	local categoryInfo
-	if moveCat == MoveData.Categories.STATUS then
-		categoryInfo = "Status"
-	elseif hideInfo and MoveData.IsRand.moveType then
-		categoryInfo = Constants.HIDDEN_INFO
-	elseif moveCat == MoveData.Categories.PHYSICAL then
-		categoryInfo = "Physical"
+	if data.m.category == MoveData.Categories.PHYSICAL then
 		Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, offsetColumnX + 36, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
-	elseif moveCat == MoveData.Categories.SPECIAL then
-		categoryInfo = "Special"
+	elseif data.m.category == MoveData.Categories.SPECIAL then
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
-	else
-		categoryInfo = Constants.BLANKLINE
 	end
 	Drawing.drawText(offsetX, offsetY, "Category:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, categoryInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.m.category, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- CONTACT
-	local contactInfo = Utils.inlineIf(move.iscontact ~= nil and move.iscontact, "Yes", "No")
+	data.m.iscontact = Utils.inlineIf(data.m.iscontact, "Yes", "No")
 	Drawing.drawText(offsetX, offsetY, "Contact:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, contactInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.m.iscontact, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PP
-	if movePPText == "0" then
-		movePPText = Constants.BLANKLINE
-	elseif hideInfo and MoveData.IsRand.movePP then
-		movePPText = Constants.HIDDEN_INFO
-	end
 	Drawing.drawText(offsetX, offsetY, "PP:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, movePPText, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.m.pp, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	if movePower == "0" then
-		movePower = Constants.BLANKLINE
-	elseif hideInfo and MoveData.IsRand.movePower then
-		movePower = Constants.HIDDEN_INFO
-	end
 	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, movePower, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.m.power, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- ACCURACY
-	if moveAccuracy == "0" then
-		moveAccuracy = Constants.BLANKLINE
-	else
-		if hideInfo and MoveData.IsRand.moveAccuracy then
-			moveAccuracy = Constants.HIDDEN_INFO
-		else
-			moveAccuracy = moveAccuracy .. "%"
-		end
+	if tonumber(data.m.accuracy) ~= nil then
+		data.m.accuracy = data.m.accuracy .. "%"
 	end
 	Drawing.drawText(offsetX, offsetY, "Accuracy:", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, moveAccuracy, Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, data.m.accuracy, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PRIORITY: Only take up a line on the screen if priority information is helpful (exists and is non-zero)
-	if move.priority ~= nil and move.priority ~= "0" then
+	if data.m.priority ~= "0" then
 		Drawing.drawText(offsetX, offsetY, "Priority:", Theme.COLORS["Default text"], boxInfoTopShadow)
-		Drawing.drawText(offsetColumnX, offsetY, move.priority, Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetColumnX, offsetY, data.m.priority, Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 
 	-- Draw bottom view box and header
@@ -819,8 +774,8 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	linespacing = linespacing + 1
 
 	-- SUMMARY
-	if move.summary ~= nil then
-		local wrappedSummary = Utils.getWordWrapLines(move.summary, 31)
+	if data.m.summary ~= Constants.BLANKLINE then
+		local wrappedSummary = Utils.getWordWrapLines(data.m.summary, 31)
 
 		for _, line in pairs(wrappedSummary) do
 			Drawing.drawText(offsetX, botOffsetY, line, Theme.COLORS["Lower box text"], boxInfoBotShadow)

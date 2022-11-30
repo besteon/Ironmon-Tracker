@@ -12,28 +12,60 @@ function DataHelper.findPokemonId(name)
 		pokemonNames[id] = pokemon.name:lower()
 	end
 
-	local id, closestName = Utils.getClosestWord(name:lower(), pokemonNames, 3)
-
-	if id == nil or closestName == nil then
-		return PokemonData.BlankPokemon.pokemonID
-	else
-		return id
-	end
+	local id, _ = Utils.getClosestWord(name:lower(), pokemonNames, 3)
+	return id or PokemonData.BlankPokemon.pokemonID
 end
 
 -- Searches for a Move by name, finds the best match
 function DataHelper.findMoveId(name)
-	return MoveData.BlankMove.id
+	if name == nil or name == "" then
+		return tonumber(MoveData.BlankMove.id)
+	end
+
+	-- Format list of Moves as id, name pairs
+	local moveNames = {}
+	for id, move in ipairs(MoveData.Moves) do
+		moveNames[id] = move.name:lower()
+	end
+
+	local id, _ = Utils.getClosestWord(name:lower(), moveNames, 3)
+	return id or tonumber(MoveData.BlankMove.id)
 end
 
 -- Searches for an Ability by name, finds the best match
 function DataHelper.findAbilityId(name)
-	return AbilityData.DefaultAbility.id
+	if name == nil or name == "" then
+		return AbilityData.DefaultAbility.id
+	end
+
+	-- Format list of Abilities as id, name pairs
+	local abilityNames = {}
+	for id, ability in ipairs(AbilityData.Abilities) do
+		abilityNames[id] = ability.name:lower()
+	end
+
+	local id, _ = Utils.getClosestWord(name:lower(), abilityNames, 3)
+	return id or AbilityData.DefaultAbility.id
 end
 
 -- Searches for a Route by name, finds the best match
 function DataHelper.findRouteId(name)
-	return 0
+	if name == nil or name == "" then
+		return RouteData.BlankRoute.id
+	end
+
+	-- Format list of Routes as id, name pairs
+	local routeNames = {}
+	for id, route in pairs(RouteData.Info) do
+		if route.name ~= nil then
+			routeNames[id] = route.name:lower()
+		else
+			routeNames[id] = "Unnamed Route"
+		end
+	end
+
+	local id, _ = Utils.getClosestWord(name:lower(), routeNames, 3)
+	return id or RouteData.BlankRoute.id
 end
 
 -- Returns a table with all of the important display data safely formatted to draw on screen.
@@ -333,7 +365,16 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	end
 
 	data.e = PokemonData.getEffectiveness(pokemon.pokemonID)
+
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
+
+	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
+	local viewedPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	if viewedPokemon.pokemonID == pokemon.pokemonID then
+		data.x.viewedPokemonLevel = viewedPokemon.level
+	else
+		data.x.viewedPokemonLevel = 0
+	end
 
 	return data
 end
@@ -345,10 +386,98 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 
 	local move
 	if moveId == nil or not MoveData.isValid(moveId) then
-		move = PokemonData.BlankPokemon
+		move = MoveData.BlankMove
 	else
-		move = PokemonData.Pokemon[moveId]
+		move = MoveData.Moves[moveId]
 	end
+
+	data.m.id = tostring(move.id) or 0
+	data.m.name = move.name or Constants.BLANKLINE
+	data.m.type = move.type or PokemonData.Types.UNKNOWN
+	data.m.category = move.category or MoveData.Categories.NONE
+	data.m.pp = move.pp or "0"
+	data.m.power = move.power or "0"
+	data.m.accuracy = move.accuracy or "0"
+	data.m.iscontact = move.iscontact or false
+	data.m.priority = move.priority or "0"
+	data.m.summary = move.summary or Constants.BLANKLINE
+
+	local ownPokemon = Battle.getViewedPokemon(true)
+	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
+
+	if moveId == 237 and Utils.pokemonHasMove(ownPokemon, "Hidden Power") then -- 237 = Hidden Power
+		data.m.type = Tracker.getHiddenPowerType() or PokemonData.Types.UNKNOWN
+		data.m.category = MoveData.TypeToCategory[data.m.type]
+		data.x.ownHasHiddenPower = true
+	end
+
+	-- Don't reveal randomized move info for moves the player's current pokemon doesn't have
+	if hideSomeInfo then
+		if MoveData.IsRand.moveType then
+			data.m.type = PokemonData.Types.UNKNOWN
+			if data.m.category ~= MoveData.Categories.STATUS then
+				data.m.category = Constants.HIDDEN_INFO
+			end
+		end
+		if MoveData.IsRand.movePP then
+			data.m.pp = Constants.HIDDEN_INFO
+		end
+		if MoveData.IsRand.movePower then
+			data.m.power = Constants.HIDDEN_INFO
+		end
+		if MoveData.IsRand.moveAccuracy then
+			data.m.accuracy = Constants.HIDDEN_INFO
+		end
+	end
+
+	if data.m.pp == "0" then
+		data.m.pp = Constants.BLANKLINE
+	end
+	if data.m.power == "0" then
+		data.m.power = Constants.BLANKLINE
+	end
+	if data.m.accuracy == "0" then
+		data.m.accuracy = Constants.BLANKLINE
+	end
+
+	return data
+end
+
+function DataHelper.buildAbilityInfoDisplay(abilityId)
+	local data = {}
+	data.a = {} -- data about the Ability itself
+	data.x = {} -- misc data to display
+
+	local ability
+	if abilityId == nil or not AbilityData.isValid(abilityId) then
+		ability = AbilityData.DefaultAbility
+	else
+		ability = AbilityData.Abilities[abilityId]
+	end
+
+	data.a.id = ability.id or 0
+	data.a.name = ability.name or Constants.BLANKLINE
+	data.a.description = ability.description or Constants.BLANKLINE
+	data.a.descriptionEmerald = ability.descriptionEmerald or Constants.BLANKLINE
+
+	data.x = nil -- Currently unused
+
+	return data
+end
+
+function DataHelper.buildRouteInfoDisplay(routeId)
+	local data = {}
+	data.r = {} -- data about the Route itself
+	data.x = {} -- misc data to display
+
+	local route
+	if routeId == nil or not RouteData.hasRoute(routeId) then
+		route = RouteData.BlankRoute
+	else
+		route = RouteData.Info[routeId]
+	end
+
+	data.r.name = route.name or Constants.BLANKLINE
 
 	return data
 end

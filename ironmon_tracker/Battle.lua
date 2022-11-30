@@ -501,9 +501,11 @@ function Battle.checkAbilitiesToTrack()
 end
 
 function Battle.updateLookupInfo()
-	-- Auto lookup the enemy Pokémon being fought
-	local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
-	MGBA.Screens["Lookup: Pokémon"]:setData(pokemon.pokemonID)
+	if not MGBA.Screens["Lookup: Pokémon"].manuallySet then -- prevent changing if player manually looked up a Pokémon
+		-- Auto lookup the enemy Pokémon being fought
+		local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
+		MGBA.Screens["Lookup: Pokémon"]:setData(pokemon.pokemonID)
+	end
 end
 
 function Battle.beginNewBattle()
@@ -551,6 +553,10 @@ function Battle.beginNewBattle()
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
+
+	if not Main.IsOnBizhawk() then
+		MGBA.Screens["Lookup: Pokémon"].manuallySet = false
+	end
 end
 
 function Battle.endCurrentBattle()
@@ -629,6 +635,9 @@ function Battle.changeOpposingPokemonView(isLeft)
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
 		Battle.isViewingLeft = isLeft
+		if not Main.IsOnBizhawk() then
+			MGBA.Screens["Lookup: Pokémon"].manuallySet = false
+		end
 	end
 
 	Input.StatHighlighter:resetSelectedStat()
