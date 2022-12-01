@@ -184,11 +184,11 @@ function MGBA.buildScreens()
 		showOriginal = false,
 		setData = function(self, routeId) self.routeId = routeId or 0 end,
 		updateData = function(self)
-			if self.data == nil or (self.routeId ~= nil and self.routeId ~= self.data.r.id) or Battle.inBattle then -- Temp using battle
+			-- if self.data == nil or (self.routeId ~= nil and self.routeId ~= self.data.r.id) or Battle.inBattle then -- Temp using battle
 				self.data = DataHelper.buildRouteInfoDisplay(self.routeId)
 				self.displayLines = MGBA.formatRouteInfoDisplayLines(self.data)
 				self.isUpdated = true
-			end
+			-- end
 		end,
 	}
 	MGBA.Screens["Battle Tracker"] = {
