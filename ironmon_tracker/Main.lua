@@ -133,21 +133,23 @@ end
 
 -- Check which emulator is in use
 function Main.SetupEmulatorInfo()
+	local frameAdvanceFunc
 	-- This function 'createBuffer' only exists on mGBA
 	if console.createBuffer == nil then
 		Main.Emulator = Main.EMU.BIZHAWK
-		Main.frameAdvance = function()
+		frameAdvanceFunc = function()
 			---@diagnostic disable-next-line: undefined-global
 			emu.frameadvance()
 		end
 	else
 		Main.Emulator = Main.EMU.MGBA
 		Main.DataFolder = IronmonTracker.folderPath .. Main.DataFolder
-		Main.frameAdvance = function()
+		frameAdvanceFunc = function()
 			-- ---@diagnostic disable-next-line: undefined-global
 			-- emu:runFrame() -- don't use this, use callbacks:add("frame", func) instead
 		end
 	end
+	Main.frameAdvance = frameAdvanceFunc
 end
 
 function Main.IsOnBizhawk()

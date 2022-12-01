@@ -414,12 +414,11 @@ end
 function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
 
-	local routeInfo = RouteData.Info[mapId]
-	local totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
-
 	local areaInfo
+	local totalPossible
 	if InfoScreen.Buttons.showOriginalRoute.toggleState then
 		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
+		totalPossible = #areaInfo
 	else
 		local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
 		areaInfo = {}
@@ -429,6 +428,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 				rate = nil,
 			})
 		end
+		totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
@@ -810,12 +810,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
 
-	local ability
-	if not AbilityData.isValid(abilityId) then
-		ability = AbilityData.DefaultAbility
-	else
-		ability = AbilityData.Abilities[abilityId]
-	end
+	local data = DataHelper.buildAbilityInfoDisplay(abilityId)
 
 	Drawing.drawBackgroundAndMargins()
 	-- Draw one big rectangle
@@ -823,11 +818,11 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Ability NAME
-	local abilityName = ability.name:upper():gsub(" ", "  ")
+	data.a.name = data.a.name:upper():gsub(" ", "  ")
 	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, abilityName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+		gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, data.a.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
-	gui.drawText(offsetX - 1, offsetY - 3, abilityName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	gui.drawText(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.lookupAbility
@@ -836,8 +831,8 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	offsetY = offsetY + linespacing * 2 - 5
 
 	-- DESCRIPTION
-	if ability.description ~= nil then
-		local wrappedSummary = Utils.getWordWrapLines(ability.description, 30)
+	if data.a.description ~= nil then
+		local wrappedSummary = Utils.getWordWrapLines(data.a.description, 30)
 
 		for _, line in pairs(wrappedSummary) do
 			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)
@@ -847,10 +842,10 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	offsetY = offsetY + 6
 
 	-- EMERALD DESCRIPTION
-	if ability.descriptionEmerald ~= nil then
+	if data.a.descriptionEmerald ~= nil then
 		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, "italics")
 		offsetY = offsetY + linespacing + 1
-		local wrappedSummary = Utils.getWordWrapLines(ability.descriptionEmerald, 31)
+		local wrappedSummary = Utils.getWordWrapLines(data.a.descriptionEmerald, 31)
 
 		for _, line in pairs(wrappedSummary) do
 			Drawing.drawText(offsetX, offsetY, line, Theme.COLORS["Default text"], boxInfoTopShadow)

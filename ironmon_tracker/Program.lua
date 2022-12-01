@@ -456,7 +456,11 @@ end
 
 function Program.updateMapLocation()
 	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
-	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
+		MGBA.Screens["Lookup: Route"]:setData(newMapId)
+	end
+	Battle.CurrentRoute.mapId = newMapId
 end
 
 -- More or less used to determine if the player has begun playing the game, returns true if so.

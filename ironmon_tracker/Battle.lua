@@ -105,10 +105,7 @@ end
 function Battle.updateLowAccuracy()
 	Battle.updateViewSlots()
 	Battle.updateTrackedInfo()
-
-	if not Main.IsOnBizhawk() then -- currently just mGBA
-		Battle.updateLookupInfo()
-	end
+	Battle.updateLookupInfo()
 end
 
 -- isOwn: true if it belongs to the player; false otherwise
@@ -198,11 +195,18 @@ function Battle.processBattleTurn()
 				end
 
 				Battle.lastEnemyMoveId = enemyMoveId
+				Battle.actualEnemyMoveId = enemyMoveId
 				Battle.damageReceived = Battle.damageReceived + damageDelta
 				Battle.prevDamageTotal = currDamageTotal
 			end
 		else
 			Battle.prevDamageTotal = currDamageTotal
+		end
+	elseif Battle.attacker % 2 ~= 0 then
+		-- For recording any move (including non-damaging moves) to be used by mGBA Move Info Lookup
+		local actualEnemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
+		if actualEnemyMoveId ~= 0 then
+			Battle.actualEnemyMoveId = actualEnemyMoveId
 		end
 	end
 
@@ -501,6 +505,8 @@ function Battle.checkAbilitiesToTrack()
 end
 
 function Battle.updateLookupInfo()
+	if Main.IsOnBizhawk() then return end -- currently just mGBA
+
 	if not MGBA.Screens["Lookup: Pokémon"].manuallySet then -- prevent changing if player manually looked up a Pokémon
 		-- Auto lookup the enemy Pokémon being fought
 		local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
@@ -581,6 +587,7 @@ function Battle.endCurrentBattle()
 	Battle.battleStarting = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
+	Battle.actualEnemyMoveId = 0
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1

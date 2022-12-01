@@ -4,7 +4,7 @@ MGBA = {}
 
 -- Ordered list of things
 MGBA.OrderedLists = {
-	Screens = {
+	Screens = { -- If these names are changed, make sure to replace them everywhere else they are mentioned
 		"Lookup: Pokémon",
 		"Lookup: Move",
 		"Lookup: Ability",
@@ -53,11 +53,11 @@ end
 function MGBA.displayInputCommands()
 	print('')
 	print('Commands:')
-	print('* note "text"')
-	print('* pokemon "name"')
-	print('* move "name"')
-	print('* ability "name"')
-	print('* route "name"')
+	print('* NOTE "text"')
+	print('* POKEMON "name of Pokémon"')
+	print('* MOVE "name of move"')
+	print('* ABILITY "name of ability"')
+	print('* ROUTE "name of route"')
 end
 
 function MGBA.activateQuickload()
@@ -116,6 +116,7 @@ end
 -- self.data: Raw data that hasn't yet been formatted
 -- self.displayLines: Formatted lines that are ready to be displayed
 -- self.textBuffer: The mGBA TextBuffer where the displayLines are printed
+-- self.isUpdated: Used to determine if a redraw should occur (prevents scroll yoink)
 function MGBA.buildScreens()
 	MGBA.Screens["Lookup: Pokémon"] = {
 		setData = function(self, pokemonID)
@@ -123,47 +124,78 @@ function MGBA.buildScreens()
 			self.manuallySet = true
 		end,
 		updateData = function(self)
-			local lookupIDChanged = self.pokemonID ~= nil and self.pokemonID ~= self.data.p.pokemonID
-			if self.data == nil or lookupIDChanged then
-				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
+			-- Automatically default to showing the currently viewed Pokémon
+			if self.pokemonID == nil or self.pokemonID == 0 then
+				local pokemon = Tracker.getViewedPokemon() or PokemonData.BlankPokemon
+				self.pokemonID = pokemon.pokemonID or 0
 			end
-			self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data)
+
+			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inBattle then -- Temp using battle
+				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
+				self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data)
+				self.isUpdated = true
+			end
 		end,
 	}
 	MGBA.Screens["Lookup: Move"] = {
 		setData = function(self, moveId) self.moveId = moveId or 0 end,
 		updateData = function(self)
-			local lookupIDChanged = self.moveId ~= nil and self.moveId ~= self.data.m.moveId
-			if self.data == nil or lookupIDChanged then
-				self.data = DataHelper.buildMoveInfoDisplay(self.moveId)
+			self:checkForEnemyAttacked()
+
+			-- Automatically default to showing a random Move
+			if self.moveId == nil or self.moveId == 0 then
+				self.moveId = math.random(MoveData.totalMoves)
 			end
-			self.displayLines = MGBA.formatMoveInfoDisplayLines(self.data)
+
+			if self.data == nil or (self.moveId ~= nil and self.moveId ~= self.data.m.id) then
+				self.data = DataHelper.buildMoveInfoDisplay(self.moveId)
+				self.displayLines = MGBA.formatMoveInfoDisplayLines(self.data)
+				self.isUpdated = true
+			end
+		end,
+		checkForEnemyAttacked = function(self)
+			if Battle.inBattle and not Battle.enemyHasAttacked and Battle.actualEnemyMoveId ~= 0 and MoveData.isValid(Battle.actualEnemyMoveId) then
+				self.moveId = Battle.actualEnemyMoveId
+			end
 		end,
 	}
 	MGBA.Screens["Lookup: Ability"] = {
 		setData = function(self, abilityId) self.abilityId = abilityId or 0 end,
 		updateData = function(self)
-			local lookupIDChanged = self.abilityId ~= nil and self.abilityId ~= self.data.a.abilityId
-			if self.data == nil or lookupIDChanged then
-				self.data = DataHelper.buildAbilityInfoDisplay(self.abilityId)
+			-- Automatically default to showing the currently viewed Pokémon's ability
+			if self.abilityId == nil or self.abilityId == 0 then
+				local pokemon = Tracker.getViewedPokemon() or PokemonData.BlankPokemon
+				if Tracker.Data.isViewingOwn then
+					self.abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum) or 0
+				else
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					self.abilityId = trackedAbilities[1].id or 0
+				end
 			end
-			self.displayLines = MGBA.formatAbilityInfoDisplayLines(self.data)
+
+			if self.data == nil or self.abilityId ~= self.data.a.id then
+				self.data = DataHelper.buildAbilityInfoDisplay(self.abilityId)
+				self.displayLines = MGBA.formatAbilityInfoDisplayLines(self.data)
+				self.isUpdated = true
+			end
 		end,
 	}
 	MGBA.Screens["Lookup: Route"] = {
+		showOriginal = false,
 		setData = function(self, routeId) self.routeId = routeId or 0 end,
 		updateData = function(self)
-			local lookupIDChanged = self.routeId ~= nil and self.routeId ~= self.data.r.routeId
-			if self.data == nil or lookupIDChanged then
-				self.data = DataHelper.buildRouteInfoDisplay(self.moveId)
+			if self.data == nil or (self.routeId ~= nil and self.routeId ~= self.data.r.id) or Battle.inBattle then -- Temp using battle
+				self.data = DataHelper.buildRouteInfoDisplay(self.routeId)
+				self.displayLines = MGBA.formatRouteInfoDisplayLines(self.data)
+				self.isUpdated = true
 			end
-			self.displayLines = MGBA.formatRouteInfoDisplayLines(self.data)
 		end,
 	}
 	MGBA.Screens["Battle Tracker"] = {
 		updateData = function(self)
 			self.data = DataHelper.buildTrackerScreenDisplay()
 			self.displayLines = MGBA.formatTrackerScreenDisplayLines(self.data)
+			self.isUpdated = true
 		end,
 	}
 end
@@ -173,13 +205,15 @@ function MGBA.createTextBuffers()
 		local screen = MGBA.Screens[label]
 		if screen.textBuffer == nil then -- workaround for reloading script for Quickload
 			screen.textBuffer = console:createBuffer(label)
+			screen.textBuffer:setSize(80, 50) -- (cols, rows) default is (80, 24)
 		end
 	end
 	-- MGBA.currentScreen = MGBA.Screens["Your Pokémon"] -- not really used (yet?)
+	-- MGBA.Screens["Battle Tracker"].textBuffer:setName("Testing Rename")
 end
 
 function MGBA.updateTextBuffers()
-	for _, screen in pairs(MGBA.Screens) do
+	for name, screen in pairs(MGBA.Screens) do
 		-- Unlikely, but double-check the text buffer exists
 		if screen.textBuffer == nil then
 			MGBA.createTextBuffers()
@@ -189,9 +223,12 @@ function MGBA.updateTextBuffers()
 		screen:updateData()
 
 		-- Display the data
-		screen.textBuffer:clear()
-		for _, line in ipairs(screen.displayLines) do
-			MGBA.printToScreenBuffer(line, screen.textBuffer)
+		if screen.isUpdated then
+			screen.textBuffer:clear()
+			for _, line in ipairs(screen.displayLines) do
+				MGBA.printToScreenBuffer(line, screen.textBuffer)
+			end
+			screen.isUpdated = false
 		end
 	end
 end
@@ -540,10 +577,38 @@ function MGBA.formatAbilityInfoDisplayLines(data)
 end
 
 function MGBA.formatRouteInfoData(data)
-	local listSeparator = ", "
+	local unseenPokemon = "???"
+	local justify4 = Utils.inlineIf(Options["Right justified numbers"], "%4s", "%-4s")
+	local originalPokemonBar = " %-11s " .. justify4 .. "  Lv.%s-%s"
 
-	data.r.name = data.r.name:upper()
+	data.x.showOriginal = MGBA.Screens["Lookup: Route"].showOriginal or false
 
+	if not RouteData.hasRoute(data.r.id) then
+		data.r.name = string.format("UNKNOWN AREA (%s)", math.floor(data.r.id))
+	else
+		data.r.name = data.r.name:upper()
+	end
+
+	for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
+		local area = data.e[encounterArea]
+		area.detailedLines = {}
+
+		if data.x.showOriginal then
+			for _, enc in ipairs(area.originalPokemon) do
+				local name = PokemonData.Pokemon[enc.pokemonID].name
+				local rate = math.floor((enc.rate or 0) * 100) .. "%"
+				table.insert(area.detailedLines, string.format(originalPokemonBar, name, rate, enc.minLv, enc.maxLv))
+			end
+		else
+			for i = 1, area.totalPossible, 1 do
+				if PokemonData.isValid(area.trackedIDs[i]) then
+					table.insert(area.detailedLines, string.format(" %s", PokemonData.Pokemon[area.trackedIDs[i]].name))
+				else
+					table.insert(area.detailedLines, string.format(" %s", unseenPokemon))
+				end
+			end
+		end
+	end
 end
 
 function MGBA.formatRouteInfoDisplayLines(data)
@@ -552,6 +617,34 @@ function MGBA.formatRouteInfoDisplayLines(data)
 	MGBA.formatRouteInfoData(data)
 
 	table.insert(lines, data.r.name)
+
+	-- No wild encounters, such as a building, don't show anything else
+	if data.r.totalWildEncounters == 0 then
+		return lines
+	end
+
+	local whichDataShown
+	if data.x.showOriginal then
+		whichDataShown = "Showing original route data"
+	else
+		whichDataShown = "Showing only Pokémon seen (in order)"
+	end
+	table.insert(lines, whichDataShown)
+	table.insert(lines, "")
+
+	for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
+		local area = data.e[encounterArea]
+		if area.totalPossible > 0 then -- Only display areas that have encounters
+			table.insert(lines, string.format("%s (Seen %s/%s)", encounterArea, area.totalSeen, area.totalPossible))
+			for _, line in ipairs(area.detailedLines) do
+				table.insert(lines, line)
+			end
+		end
+	end
+
+	table.insert(lines, "")
+	table.insert(lines, 'Use the following command to reveal/hide original game route info.')
+	table.insert(lines, 'SHOWORIGINAL "Yes"  /OR/  SHOWORIGINAL "No"')
 
 	return lines
 end
@@ -571,63 +664,97 @@ function note(...)
 	end
 end
 function Note(...) note(...) end
+function NOTE(...) note(...) end
 
 ---@diagnostic disable-next-line: lowercase-global
 function pokemon(...)
+	local screen = MGBA.Screens["Lookup: Pokémon"]
 	local pokemonName = ...
 	if pokemonName ~= nil and pokemonName ~= "" then
 		local pokemonID = DataHelper.findPokemonId(pokemonName)
 		if pokemonID ~= 0 then
-			MGBA.Screens["Lookup: Pokémon"]:setData(pokemonID)
-			Program.redraw(true)
+			screen:setData(pokemonID)
+			if screen.isUpdated then
+				Program.redraw(true)
+			end
 		else
 			print(string.format("Unable to find %s: %s", Constants.Words.POKEMON, pokemonName))
 		end
 	end
 end
 function Pokemon(...) pokemon(...) end
+function POKEMON(...) pokemon(...) end
 
 ---@diagnostic disable-next-line: lowercase-global
 function move(...)
+	local screen = MGBA.Screens["Lookup: Move"]
 	local moveName = ...
 	if moveName ~= nil and moveName ~= "" then
 		local moveId = DataHelper.findMoveId(moveName)
 		if moveId ~= 0 then
-			MGBA.Screens["Lookup: Move"]:setData(moveId)
-			Program.redraw(true)
+			screen:setData(moveId)
+			if screen.isUpdated then
+				Program.redraw(true)
+			end
 		else
 			print(string.format("Unable to find move: %s", moveName))
 		end
 	end
 end
 function Move(...) move(...) end
+function MOVE(...) move(...) end
 
 ---@diagnostic disable-next-line: lowercase-global
 function ability(...)
+	local screen = MGBA.Screens["Lookup: Ability"]
 	local abilityName = ...
 	if abilityName ~= nil and abilityName ~= "" then
 		local abilityId = DataHelper.findAbilityId(abilityName)
 		if abilityId ~= 0 then
-			MGBA.Screens["Lookup: Ability"]:setData(abilityId)
-			Program.redraw(true)
+			screen:setData(abilityId)
+			if screen.isUpdated then
+				Program.redraw(true)
+			end
 		else
 			print(string.format("Unable to find ability: %s", abilityName))
 		end
 	end
 end
 function Ability(...) ability(...) end
+function ABILITY(...) ability(...) end
 
 ---@diagnostic disable-next-line: lowercase-global
 function route(...)
+	local screen = MGBA.Screens["Lookup: Route"]
 	local routeName = ...
 	if routeName ~= nil and routeName ~= "" then
 		local routeId = DataHelper.findRouteId(routeName)
 		if routeId ~= 0 then
-			MGBA.Screens["Lookup: Route"]:setData(routeId)
-			Program.redraw(true)
+			screen:setData(routeId)
+			if screen.isUpdated then
+				Program.redraw(true)
+			end
 		else
 			print(string.format("Unable to find route: %s", routeName))
 		end
 	end
 end
 function Route(...) route(...) end
+function ROUTE(...) route(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function showoriginal(...)
+	local screen = MGBA.Screens["Lookup: Route"]
+	local optionalInput = (... or ""):lower()
+	if optionalInput:find("true") ~= nil or optionalInput:find("yes") ~= nil then
+		screen.showOriginal = true
+	elseif optionalInput:find("false") ~= nil or optionalInput:find("no") ~= nil then
+		screen.showOriginal = false
+	else -- Toggle the setting
+		screen.showOriginal = not screen.showOriginal
+	end
+	screen.isUpdated = true
+	Program.redraw(true)
+end
+function ShowOriginal(...) showoriginal(...) end
+function SHOWORIGINAL(...) showoriginal(...) end

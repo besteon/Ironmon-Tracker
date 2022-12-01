@@ -54,6 +54,11 @@ function DataHelper.findRouteId(name)
 		return RouteData.BlankRoute.id
 	end
 
+	-- If the lookup is just a route number, allow it to be searchable
+	if tonumber(name) ~= nil then
+		name = string.format("route %s", name)
+	end
+
 	-- Format list of Routes as id, name pairs
 	local routeNames = {}
 	for id, route in pairs(RouteData.Info) do
@@ -64,7 +69,7 @@ function DataHelper.findRouteId(name)
 		end
 	end
 
-	local id, _ = Utils.getClosestWord(name:lower(), routeNames, 3)
+	local id, _ = Utils.getClosestWord(name:lower(), routeNames, 5)
 	return id or RouteData.BlankRoute.id
 end
 
@@ -391,7 +396,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 		move = MoveData.Moves[moveId]
 	end
 
-	data.m.id = tostring(move.id) or 0
+	data.m.id = tonumber(move.id) or 0
 	data.m.name = move.name or Constants.BLANKLINE
 	data.m.type = move.type or PokemonData.Types.UNKNOWN
 	data.m.category = move.category or MoveData.Categories.NONE
@@ -468,6 +473,7 @@ end
 function DataHelper.buildRouteInfoDisplay(routeId)
 	local data = {}
 	data.r = {} -- data about the Route itself
+	data.e = {} -- data about each of the Routes encounter areas
 	data.x = {} -- misc data to display
 
 	local route
@@ -477,7 +483,32 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 		route = RouteData.Info[routeId]
 	end
 
+	data.r.id = routeId or 0
 	data.r.name = route.name or Constants.BLANKLINE
+	data.r.totalWildEncounters = 0
+
+	for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
+		data.e[encounterArea] = {}
+		local area = data.e[encounterArea]
+
+		-- Store tracked encounters
+		area.trackedIDs = {} -- list of pokemonIDs only; the rates & levels are unknown
+		local trackedPokemonIDs = Tracker.getRouteEncounters(routeId, encounterArea)
+		for _, pokemonID in ipairs(trackedPokemonIDs) do
+			table.insert(area.trackedIDs, pokemonID)
+		end
+
+		-- Store actual encounters from the original game
+		area.originalPokemon = {} -- table of entries, each containing pokemonID, rate, minLv, maxLv
+		local encountersAvailable = RouteData.getEncounterAreaPokemon(routeId, encounterArea)
+		if encountersAvailable ~= nil and #encountersAvailable ~= 0 then
+			area.originalPokemon = encountersAvailable
+		end
+
+		area.totalSeen = #area.trackedIDs
+		area.totalPossible = #area.originalPokemon
+		data.r.totalWildEncounters = data.r.totalWildEncounters + area.totalPossible
+	end
 
 	return data
 end

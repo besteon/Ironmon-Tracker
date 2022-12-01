@@ -2453,7 +2453,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "0",
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all major status conditions. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
 	},
 	{
 		id = "216",
@@ -3464,7 +3464,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "0",
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all major status conditions.",
 	},
 	{
 		id = "313",
