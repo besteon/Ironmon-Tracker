@@ -457,8 +457,11 @@ end
 function Program.updateMapLocation()
 	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
 	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
+
+	-- If the player is in a new area, auto-lookup for mGBA screen
 	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
-		MGBA.Screens["Lookup: Route"]:setData(newMapId)
+		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
+		MGBA.Screens[MGBA.ScreenKeys.LookupRoute]:setData(newMapId, isFirstLocation)
 	end
 	Battle.CurrentRoute.mapId = newMapId
 end
