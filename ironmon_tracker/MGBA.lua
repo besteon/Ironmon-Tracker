@@ -2,31 +2,6 @@
 -- Uses Lua 5.4
 MGBA = {}
 
--- Define the keys here in case the TextBuffer name needs to change
-MGBA.ScreenKeys = {
-	TrackerSettings = "☰ Settings",
-	CommandList = "☰ Command List",
-	LookupPokemon = "Lookup: Pokémon",
-	LookupMove = "Lookup: Move",
-	LookupAbility = "Lookup: Ability",
-	LookupRoute = "Lookup: Route",
-	BattleTracker = "Battle Tracker",
-}
-
--- Ordered list of things
-MGBA.OrderedLists = {
-	ScreenNames = {
-		MGBA.ScreenKeys.LookupPokemon,
-		MGBA.ScreenKeys.LookupMove,
-		MGBA.ScreenKeys.LookupAbility,
-		MGBA.ScreenKeys.LookupRoute,
-		MGBA.ScreenKeys.BattleTracker,
-	},
-	Effectiveness = { "0x Immunities", "1/4x Resistances", "1/2x Resistances", "2x Weaknesses", "4x Weaknesses", },
-}
-
-MGBA.Screens = {} -- Populated later in initialize()
-
 MGBA.Symbols = {
 	Stab = "!",
 	Effectiveness = { -- 2 char width
@@ -45,9 +20,48 @@ MGBA.Symbols = {
 	Tags = {
 		Changed = "*",
 	},
+	Menu = {
+		Hamburger = "☰",
+		ListItem = "╰",
+	},
 }
 
-MGBA.screenWidth = 33
+MGBA.Screens = {} -- Populated later in initialize()
+MGBA.screenWidth = 33 -- The ideal character width limit for most screen displays, for cropping out the Tracker
+MGBA.timeToDisplayTag = 15 * 2 -- (number of sections to display) * 2, because its based on redraw events
+
+-- Define the keys here in case the TextBuffer name needs to change
+MGBA.ScreenKeys = {
+	SettingsMenu = string.format("%s Settings", MGBA.Symbols.Menu.Hamburger),
+	TrackerSetup = string.format(" %s General", MGBA.Symbols.Menu.ListItem),
+	GameplayOptions = string.format(" %s Gameplay", MGBA.Symbols.Menu.ListItem),
+	QuickloadSetup = string.format(" %s Quickload", MGBA.Symbols.Menu.ListItem),
+	UpdateCheck = string.format(" %s Update", MGBA.Symbols.Menu.ListItem),
+
+	CommandMenu = string.format("%s Commands", MGBA.Symbols.Menu.Hamburger),
+	CommandList = string.format(" %s Basic Commands", MGBA.Symbols.Menu.ListItem),
+
+	LookupMenu = string.format("%s Info Lookup", MGBA.Symbols.Menu.Hamburger),
+	LookupPokemon = string.format(" %s Pokémon", MGBA.Symbols.Menu.ListItem),
+	LookupMove = string.format(" %s Move", MGBA.Symbols.Menu.ListItem),
+	LookupAbility = string.format(" %s Ability", MGBA.Symbols.Menu.ListItem),
+	LookupRoute = string.format(" %s Route", MGBA.Symbols.Menu.ListItem),
+
+	TrackerMenu = string.format("%s Tracker", MGBA.Symbols.Menu.Hamburger),
+	Stats = string.format(" %s Stats", MGBA.Symbols.Menu.ListItem),
+	BattleTracker = string.format(" %s Battle Tracker", MGBA.Symbols.Menu.ListItem),
+}
+
+-- Ordered list of things
+MGBA.OrderedLists = {
+	ScreenNames = {
+		MGBA.ScreenKeys.SettingsMenu, MGBA.ScreenKeys.TrackerSetup, MGBA.ScreenKeys.GameplayOptions, MGBA.ScreenKeys.QuickloadSetup, MGBA.ScreenKeys.UpdateCheck,
+		MGBA.ScreenKeys.CommandMenu, MGBA.ScreenKeys.CommandList,
+		MGBA.ScreenKeys.LookupMenu, MGBA.ScreenKeys.LookupPokemon, MGBA.ScreenKeys.LookupMove, MGBA.ScreenKeys.LookupAbility, MGBA.ScreenKeys.LookupRoute,
+		MGBA.ScreenKeys.TrackerMenu, MGBA.ScreenKeys.Stats, MGBA.ScreenKeys.BattleTracker,
+	},
+	Effectiveness = { "0x Immunities", "1/4x Resistances", "1/2x Resistances", "2x Weaknesses", "4x Weaknesses", },
+}
 
 function MGBA.initialize()
 	AbilityData.DefaultAbility.name = Constants.BLANKLINE
@@ -69,7 +83,7 @@ function MGBA.addScreenTag(screenKey, tag)
 		if not hasTagAlready then
 			local taggedName = string.format("%s %s", screenKey, tag)
 			screen.textBuffer:setName(taggedName)
-			screen.tagTimer = 20
+			screen.tagTimer = MGBA.timeToDisplayTag
 		end
 	end
 end
@@ -144,6 +158,13 @@ function MGBA.updateSpecialWords()
 	Constants.STAT_STATES[2].text = "-" -- change from double dash to single
 end
 
+function MGBA.formatSettingsDisplayLines()
+	return {}
+end
+function MGBA.formatCommandListDisplayLines()
+	return {}
+end
+
 -- Each screen has this properties set later in createTextBuffers()
 -- self.data: Raw data that hasn't yet been formatted
 -- self.displayLines: Formatted lines that are ready to be displayed
@@ -151,15 +172,21 @@ end
 -- self.isUpdated: Used to determine if a redraw should occur (prevents scroll yoink)
 -- self.tagTimer: A tag only stays visible for N redraws (about 30 frames each)
 function MGBA.buildScreens()
+	MGBA.Screens[MGBA.ScreenKeys.TrackerSetup] = {
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatSettingsDisplayLines, self.displayLines, nil)
+		end,
+	}
+	MGBA.Screens[MGBA.ScreenKeys.CommandList] = {
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatCommandListDisplayLines, self.displayLines, nil)
+		end,
+	}
 	MGBA.Screens[MGBA.ScreenKeys.LookupPokemon] = {
 		setData = function(self, pokemonID, setByUser)
-			if setByUser then
-				self.manuallySet = true
-				MGBA.removeScreenTags(MGBA.ScreenKeys.LookupPokemon)
-			elseif pokemonID ~= self.pokemonID then
-				MGBA.addScreenTag(MGBA.ScreenKeys.LookupPokemon, MGBA.Symbols.Tags.Changed)
-			end
+			MGBA.tryChangingScreenTags(MGBA.ScreenKeys.LookupPokemon, (self.pokemonID ~= pokemonID), setByUser)
 			self.pokemonID = pokemonID or 0
+			self.manuallySet = setByUser or false
 		end,
 		updateData = function(self)
 			-- Automatically default to showing the currently viewed Pokémon
@@ -169,24 +196,18 @@ function MGBA.buildScreens()
 			end
 
 			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inBattle then -- Temp using battle
-				local prevDisplay = self.displayLines or {}
 				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
-				self.displayLines = MGBA.formatPokemonInfoDisplayLines(self.data) or {}
-				self.isUpdated = #prevDisplay == 0 or table.concat(prevDisplay) ~= table.concat(self.displayLines)
+				self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatPokemonInfoDisplayLines, self.displayLines, self.data)
 			end
 		end,
 	}
 	MGBA.Screens[MGBA.ScreenKeys.LookupMove] = {
 		setData = function(self, moveId, setByUser)
-			if setByUser then
-				MGBA.removeScreenTags(MGBA.ScreenKeys.LookupMove)
-			elseif moveId ~= self.moveId then
-				MGBA.addScreenTag(MGBA.ScreenKeys.LookupMove, MGBA.Symbols.Tags.Changed)
-			end
+			MGBA.tryChangingScreenTags(MGBA.ScreenKeys.LookupMove, (self.moveId ~= moveId), setByUser)
 			self.moveId = moveId or 0
 		end,
 		updateData = function(self)
-			self:checkForEnemyAttacked()
+			self:checkForEnemyAttack()
 
 			-- Automatically default to showing a random Move
 			if self.moveId == nil or self.moveId == 0 then
@@ -194,13 +215,11 @@ function MGBA.buildScreens()
 			end
 
 			if self.data == nil or (self.moveId ~= nil and self.moveId ~= self.data.m.id) then
-				local prevDisplay = self.displayLines or {}
 				self.data = DataHelper.buildMoveInfoDisplay(self.moveId)
-				self.displayLines = MGBA.formatMoveInfoDisplayLines(self.data) or {}
-				self.isUpdated = #prevDisplay == 0 or table.concat(prevDisplay) ~= table.concat(self.displayLines)
+				self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatMoveInfoDisplayLines, self.displayLines, self.data)
 			end
 		end,
-		checkForEnemyAttacked = function(self)
+		checkForEnemyAttack = function(self)
 			if Battle.inBattle and not Battle.enemyHasAttacked and Battle.actualEnemyMoveId ~= 0 and MoveData.isValid(Battle.actualEnemyMoveId) then
 				self:setData(Battle.actualEnemyMoveId, false)
 			end
@@ -208,11 +227,7 @@ function MGBA.buildScreens()
 	}
 	MGBA.Screens[MGBA.ScreenKeys.LookupAbility] = {
 		setData = function(self, abilityId, setByUser)
-			if setByUser then
-				MGBA.removeScreenTags(MGBA.ScreenKeys.LookupAbility)
-			elseif abilityId ~= self.abilityId then
-				MGBA.addScreenTag(MGBA.ScreenKeys.LookupAbility, MGBA.Symbols.Tags.Changed)
-			end
+			MGBA.tryChangingScreenTags(MGBA.ScreenKeys.LookupAbility, (self.abilityId ~= abilityId), setByUser)
 			self.abilityId = abilityId or 0
 		end,
 		updateData = function(self)
@@ -228,47 +243,53 @@ function MGBA.buildScreens()
 			end
 
 			if self.data == nil or self.abilityId ~= self.data.a.id then
-				local prevDisplay = self.displayLines or {}
 				self.data = DataHelper.buildAbilityInfoDisplay(self.abilityId)
-				self.displayLines = MGBA.formatAbilityInfoDisplayLines(self.data) or {}
-				self.isUpdated = #prevDisplay == 0 or table.concat(prevDisplay) ~= table.concat(self.displayLines)
+				self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatAbilityInfoDisplayLines, self.displayLines, self.data)
 			end
 		end,
 	}
 	MGBA.Screens[MGBA.ScreenKeys.LookupRoute] = {
 		showOriginal = false,
 		setData = function(self, routeId, setByUser)
-			if setByUser then
-				MGBA.removeScreenTags(MGBA.ScreenKeys.LookupRoute)
-			elseif routeId ~= self.routeId then
-				MGBA.addScreenTag(MGBA.ScreenKeys.LookupRoute, MGBA.Symbols.Tags.Changed)
-			end
+			MGBA.tryChangingScreenTags(MGBA.ScreenKeys.LookupRoute, (self.routeId ~= routeId), setByUser)
 			self.routeId = routeId or 0
 		end,
 		updateData = function(self)
 			-- if self.data == nil or (self.routeId ~= nil and self.routeId ~= self.data.r.id) or Battle.inBattle then -- Temp using battle
-			local prevDisplay = self.displayLines or {}
 			self.data = DataHelper.buildRouteInfoDisplay(self.routeId)
-			self.displayLines = MGBA.formatRouteInfoDisplayLines(self.data) or {}
-			self.isUpdated = #prevDisplay == 0 or table.concat(prevDisplay) ~= table.concat(self.displayLines)
+			self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatRouteInfoDisplayLines, self.displayLines, self.data)
 			-- end
 		end,
 	}
 	MGBA.Screens[MGBA.ScreenKeys.BattleTracker] = {
 		updateData = function(self)
-			local prevDisplay = self.displayLines or {}
 			self.data = DataHelper.buildTrackerScreenDisplay()
-			self.displayLines = MGBA.formatTrackerScreenDisplayLines(self.data) or {}
-			self.isUpdated = #prevDisplay == 0 or table.concat(prevDisplay) ~= table.concat(self.displayLines)
+			self.displayLines, self.isUpdated = MGBA.tryUpdatingDisplayLines(MGBA.formatTrackerScreenDisplayLines, self.displayLines, self.data)
 		end,
 	}
 end
 
+function MGBA.tryChangingScreenTags(screenKey, dataHasChanged, setByUser)
+	if setByUser then
+		MGBA.removeScreenTags(screenKey)
+	elseif dataHasChanged then
+		MGBA.addScreenTag(screenKey, MGBA.Symbols.Tags.Changed)
+	end
+end
+
+-- Returns two results: updated display lines and true/false, true if lines were updated
+function MGBA.tryUpdatingDisplayLines(formattingFunction, prevDisplayLines, data)
+	prevDisplayLines = prevDisplayLines or {}
+	local newDisplayLines = formattingFunction(data) or {}
+	local isUpdated = #prevDisplayLines == 0 or table.concat(prevDisplayLines) ~= table.concat(newDisplayLines)
+	return newDisplayLines, isUpdated
+end
+
 function MGBA.createTextBuffers()
-	for _, label in ipairs(MGBA.OrderedLists.ScreenNames) do
-		local screen = MGBA.Screens[label]
+	for _, screenKey in ipairs(MGBA.OrderedLists.ScreenNames) do
+		local screen = MGBA.Screens[screenKey] or {}
 		if screen.textBuffer == nil then -- workaround for reloading script for Quickload
-			screen.textBuffer = console:createBuffer(label)
+			screen.textBuffer = console:createBuffer(screenKey)
 			screen.textBuffer:setSize(80, 50) -- (cols, rows) default is (80, 24)
 		end
 		screen.tagTimer = 0
@@ -283,7 +304,9 @@ function MGBA.updateTextBuffers()
 		end
 
 		-- Update the data, if necessary
-		screen:updateData()
+		if screen.updateData ~= nil then
+			screen:updateData()
+		end
 
 		-- Display the data, but only if the text screen has changed
 		if screen.isUpdated then
