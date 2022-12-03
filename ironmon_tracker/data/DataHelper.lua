@@ -485,6 +485,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 	data.r.id = routeId or 0
 	data.r.name = route.name or Constants.BLANKLINE
+	data.r.totalTrainerEncounters = 0
 	data.r.totalWildEncounters = 0
 
 	for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
@@ -507,7 +508,13 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 		area.totalSeen = #area.trackedIDs
 		area.totalPossible = #area.originalPokemon
-		data.r.totalWildEncounters = data.r.totalWildEncounters + area.totalPossible
+
+		if encounterArea == RouteData.EncounterArea.TRAINER then
+			-- TODO: This is currently inaccurate but also unused
+			data.r.totalTrainerEncounters = data.r.totalTrainerEncounters + area.totalPossible
+		else
+			data.r.totalWildEncounters = data.r.totalWildEncounters + area.totalPossible
+		end
 	end
 
 	return data
