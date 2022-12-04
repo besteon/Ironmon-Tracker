@@ -76,6 +76,15 @@ function Utils.firstToUpper(str)
 	return str:gsub("^%l", string.upper)
 end
 
+-- Format "START" as "Start", and "a" as "A"
+function Utils.formatControls(gbaButtons)
+	local controlCombination = ""
+	for txtInput in string.gmatch(gbaButtons or "", '([^,%s]+)') do
+		controlCombination = controlCombination .. txtInput:sub(1,1):upper() .. txtInput:sub(2):lower() .. ", "
+	end
+	return controlCombination:sub(1, -3) or ""
+end
+
 function Utils.centerTextOffset(text, charSize, width)
 	charSize = charSize or 4
 	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))

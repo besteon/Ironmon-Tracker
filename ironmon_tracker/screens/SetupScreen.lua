@@ -161,14 +161,8 @@ function SetupScreen.openEditControlsWindow()
 	forms.button(form,"Save && Close", function()
 		index = 1
 		for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
-			local controlCombination = ""
-			for txtInput in string.gmatch(forms.gettext(inputTextboxes[index]), '([^,%s]+)') do
-				-- Format "START" as "Start"
-				controlCombination = controlCombination .. txtInput:sub(1,1):upper() .. txtInput:sub(2):lower() .. ", "
-			end
-			controlCombination = controlCombination:sub(1, -3)
-
-			if controlCombination ~= nil and controlCombination ~= "" then
+			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[index] or ""))
+			if controlCombination ~= "" then
 				Options.CONTROLS[controlKey] = controlCombination
 			end
 			index = index + 1

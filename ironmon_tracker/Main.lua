@@ -349,18 +349,11 @@ function Main.isOnLatestVersion(versionToCheck)
 	local currMajor, currMinor, currPatch = string.match(Main.TrackerVersion, "(%d+)%.(%d+)%.(%d+)")
 	local latestMajor, latestMinor, latestPatch = string.match(versionToCheck, "(%d+)%.(%d+)%.(%d+)")
 
-	-- Attempt to prove that the current loaded version is greater than the latest available version
-	if (tonumber(currMajor) or 0) > (tonumber(latestMajor) or 0) then
-		return true
-	end
-	if (tonumber(currMinor) or 0) > (tonumber(latestMinor) or 0) then
-		return true
-	end
-	if (tonumber(currPatch) or 0) > (tonumber(latestPatch) or 0) then
-		return true
-	end
+	-- Convert to an actual number, example: 2.3.4 becomes 2,003,004
+	local currAsNumber = (tonumber(currMajor) or 0) * 1000000 + (tonumber(currMinor) or 0) * 1000 + (tonumber(currPatch) or 0)
+	local latestAsNumber = (tonumber(latestMajor) or 0) * 1000000 + (tonumber(latestMinor) or 0) * 1000 + (tonumber(latestPatch) or 0)
 
-	return false
+	return currAsNumber >= latestAsNumber
 end
 
 function Main.LoadNextRom()
