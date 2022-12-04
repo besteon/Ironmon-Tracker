@@ -146,24 +146,26 @@ function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	-- Disable Bizhawk sound while the update is in process
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		-- Disable Bizhawk sound while the update is in process
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
+		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
+	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 		Tracker.saveData()
 	end
 
-	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-	Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
-
 	-- Execute the batch set of operations
 	local success = UpdateScreen.executeBatchOperations()
 	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
 	Program.redraw(true)
 
-	if client.GetSoundOn() ~= wasSoundOn then
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
 	end
 

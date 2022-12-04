@@ -85,7 +85,7 @@ function MGBA.initialize()
 	end
 
 	-- Build out functions for the boolean Options
-	for _, opt in ipairs(MGBA.OptionMap) do
+	for _, opt in pairs(MGBA.OptionMap) do
 		if opt.getValue == nil then
 			opt.getValue = function(self)
 				if Options[self.optionKey] == true then
@@ -443,28 +443,28 @@ end
 
 -- Ordered list of options that can be changed via the OPTION "#" function.
 MGBA.OptionMap = {
-	-- TRACKER SETUP (#1-#10)
-	{ optionKey = "Right justified numbers", displayName = "Right justified numbers", },
-	{ optionKey = "Auto save tracked game data", displayName = "Autosave tracked game data", },
-	{ optionKey = "Track PC Heals", displayName = "Track PC Heals", },
-	{ optionKey = "PC heals count downward", displayName = "PC heals count downward", },
-	{ optionKey = "Display repel usage", displayName = "Display repel usage", },
-	{ optionKey = "Display pedometer", displayName = "Display step pedometer", },
-	{ optionKey = "Load next seed", displayName = "Quickload", },
-	{ optionKey = "Toggle view", displayName = "Toggle view", },
-	{ optionKey = "Cycle through stats", displayName = "Cycle stats", },
-	{ optionKey = "Mark stat", displayName = "Mark stat", },
-	-- GAMEPLAY OPTIONS (#11-18)
-	{ optionKey = "Auto swap to enemy", displayName = "Auto swap to enemy", },
-	{ optionKey = "Hide stats until summary shown", displayName = "View summary to see stats", },
-	{ optionKey = "Show physical special icons", displayName = "Physical/Special icons", },
-	{ optionKey = "Show move effectiveness", displayName = "Show move effectiveness", },
-	{ optionKey = "Calculate variable damage", displayName = "Calculate variable damage", },
-	{ optionKey = "Count enemy PP usage", displayName = "Count enemy PP usage", },
-	{ optionKey = "Show last damage calcs", displayName = "Show last damage calcs", },
-	{ optionKey = "Reveal info if randomized", displayName = "Reveal info if randomized", },
-	-- QUICKLOAD SETUP (#19-#24)
-	{
+	-- TRACKER SETUP (#1-#5, #10-#13)
+	[1] = { optionKey = "Right justified numbers", displayName = "Right justified numbers", },
+	[2] = { optionKey = "Auto save tracked game data", displayName = "Autosave tracked game data", },
+	[3] = { optionKey = "Track PC Heals", displayName = "Track PC Heals", },
+	[4] = { optionKey = "PC heals count downward", displayName = "PC heals count downward", },
+	[5] = { optionKey = "Display pedometer", displayName = "Display step pedometer", },
+	[6] = { optionKey = "Display repel usage", displayName = "Display repel usage", },
+	[10] = { optionKey = "Load next seed", displayName = "Quickload", },
+	[11] = { optionKey = "Toggle view", displayName = "Toggle view", },
+	[12] = { optionKey = "Cycle through stats", displayName = "Cycle stats", },
+	[13] = { optionKey = "Mark stat", displayName = "Mark stat", },
+	-- GAMEPLAY OPTIONS (#20-27)
+	[20] = { optionKey = "Auto swap to enemy", displayName = "Auto swap to enemy", },
+	[21] = { optionKey = "Hide stats until summary shown", displayName = "View summary to see stats", },
+	[22] = { optionKey = "Show physical special icons", displayName = "Physical/Special icons", },
+	[23] = { optionKey = "Show move effectiveness", displayName = "Show move effectiveness", },
+	[24] = { optionKey = "Calculate variable damage", displayName = "Calculate variable damage", },
+	[25] = { optionKey = "Count enemy PP usage", displayName = "Count enemy PP usage", },
+	[26] = { optionKey = "Show last damage calcs", displayName = "Show last damage calcs", },
+	[27] = { optionKey = "Reveal info if randomized", displayName = "Reveal info if randomized", },
+	-- QUICKLOAD SETUP (#30-#35)
+	[30] = {
 		optionKey = "Use premade ROMs",
 		displayName = "Use premade ROMs",
 		updateSelf = function(self, params)
@@ -478,7 +478,7 @@ MGBA.OptionMap = {
 			return false, string.format("Option key \"%s\" doesn't exist", tostring(self.optionKey))
 		end,
 		},
-	{
+	[31] = {
 		optionKey = "Generate ROM each time",
 		displayName = "Generate a ROM each time",
 		updateSelf = function(self, params)
@@ -492,7 +492,7 @@ MGBA.OptionMap = {
 			return false, string.format("Option key \"%s\" doesn't exist", tostring(self.optionKey))
 		end,
 	},
-	{
+	[32] = {
 		optionKey = "ROMs Folder",
 		displayName = "ROMs Folder",
 		getValue = function(self)
@@ -505,7 +505,7 @@ MGBA.OptionMap = {
 			-- return false, "Invalid ROMs folder; please enter the full folder path to your ROMs folder."
 		end,
 	},
-	{
+	[33] = {
 		optionKey = "Randomizer JAR",
 		displayName = "Randomizer JAR",
 		getValue = function(self)
@@ -521,7 +521,7 @@ MGBA.OptionMap = {
 			return false, "A '.jar' file is required; please enter the full file path to your Randomizer JAR file."
 		end,
 	},
-	{
+	[34] = {
 		optionKey = "Source ROM",
 		displayName = "Source ROM",
 		getValue = function(self)
@@ -537,7 +537,7 @@ MGBA.OptionMap = {
 			return false, "A '.gba' file is required; please enter the full file path to your GBA ROM file."
 		end,
 	},
-	{
+	[35] = {
 		optionKey = "Settings File",
 		displayName = "Settings File",
 		getValue = function(self)
@@ -555,7 +555,6 @@ MGBA.OptionMap = {
 	},
 }
 
--- TODO: Display repel usage (put this also where steps are probably)
 function MGBA.formatTrackerSetupDisplayLines()
 	local lines = {}
 
@@ -576,7 +575,7 @@ function MGBA.formatTrackerSetupDisplayLines()
 	table.insert(lines, "---------------------------------")
 	table.insert(lines, 'Change with: OPTION "# button(s)"')
 	table.insert(lines, string.format(controlBar, "#", "Controls", "[GBA Buttons]"))
-	for i = 7, 10, 1 do
+	for i = 10, 13, 1 do
 		local opt = MGBA.OptionMap[i]
 		if opt ~= nil then
 			table.insert(lines, string.format(controlBar, i, opt.displayName, opt:getValue()))
@@ -602,7 +601,7 @@ function MGBA.formatGameplayOptionsDisplayLines()
 	table.insert(lines, 'Toggle option with: OPTION "#"')
 
 	table.insert(lines, string.format("%-2s %-20s [%s]", "#", "Option", "Enabled"))
-	for i = 11, 18, 1 do
+	for i = 20, 27, 1 do
 		local opt = MGBA.OptionMap[i]
 		if opt ~= nil then
 			table.insert(lines, string.format(optionBar, i, opt.displayName, opt:getValue()))
@@ -623,7 +622,7 @@ function MGBA.formatQuickloadSetupDisplayLines()
 	table.insert(lines, 'Choose a mode with: OPTION "#"')
 	table.insert(lines, string.format("%-2s %-19s [%s]", "#", "Mode", "Selected"))
 
-	for i = 19, 20, 1 do
+	for i = 30, 31, 1 do
 		local opt = MGBA.OptionMap[i]
 		if opt ~= nil then
 			table.insert(lines, string.format(optionBar, i, opt.displayName, opt:getValue()))
@@ -632,21 +631,22 @@ function MGBA.formatQuickloadSetupDisplayLines()
 	table.insert(lines, "---------------------------------")
 
 	local fileBar = "%-2s %-30s"
-	if MGBA.OptionMap[19] ~= nil and MGBA.OptionMap[19]:getValue() == MGBA.Symbols.Options.Enabled then
-		local opt = MGBA.OptionMap[21]
+	if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBA.Symbols.Options.Enabled then
+		local romFolderId = 32
+		local opt = MGBA.OptionMap[romFolderId]
 		if opt ~= nil then
 			local foldername = opt:getValue()
 			if foldername == "" then
 				foldername = "(NOT SET)"
 			end
-			table.insert(lines, string.format(fileBar, Constants.BLANKLINE or 21, opt.displayName)) -- temp remove option #
+			table.insert(lines, string.format(fileBar, Constants.BLANKLINE or romFolderId, opt.displayName)) -- temp remove option #
 			table.insert(lines, string.format("%33s", foldername))
 		end
 		table.insert(lines, "")
 		table.insert(lines, 'Change files in Settings.ini only')
 		-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
-	elseif MGBA.OptionMap[20] ~= nil and MGBA.OptionMap[20]:getValue() == MGBA.Symbols.Options.Enabled then
-		for i = 22, 24, 1 do
+	elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBA.Symbols.Options.Enabled then
+		for i = 33, 35, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				local filename = opt:getValue()
@@ -673,20 +673,41 @@ function MGBA.formatQuickloadSetupDisplayLines()
 end
 
 -- [UPDATE]
--- Current Version:
--- New version available:
 
 -- (display commands)
 -- CHECKUPDATE()
--- - if update found on startup then update screen label
 -- RELEASENOTES()
--- DOUPDATE()
+-- UPDATENOW()
 function MGBA.formatUpdateCheckDisplayLines()
 	local lines = {}
 
+	local columnBar = "%-26s%-7s"
 	table.insert(lines, MGBA.Screens[MGBA.ScreenKeys.UpdateCheck].headerText:upper())
+	table.insert(lines, "---------------------------------")
 
-	-- Likely pull labels and info and such from UpdateScreen.lua
+	local versionStatus
+	if Main.isOnLatestVersion() then
+		versionStatus = "Last checked version:"
+	else
+		versionStatus = "New version available:"
+		table.insert(lines, "  New version update available!")
+		table.insert(lines, "")
+	end
+	table.insert(lines, string.format(columnBar, "Current version:", Main.TrackerVersion or Constants.BLANKLINE))
+	table.insert(lines, string.format(columnBar, versionStatus, Main.Version.latestAvailable or Constants.BLANKLINE))
+	table.insert(lines, "---------------------------------")
+
+	table.insert(lines, "Manually check for new updates:")
+	table.insert(lines, " CHECKUPDATE()")
+	table.insert(lines, "")
+	table.insert(lines, "View release notes:")
+	table.insert(lines, " RELEASENOTES()")
+	table.insert(lines, "")
+	table.insert(lines, "Automatic update *:")
+	table.insert(lines, " UPDATENOW()")
+	table.insert(lines, "")
+	table.insert(lines, "*: Usually only works on Windows")
+	table.insert(lines, "---------------------------------")
 
 	return lines
 end
@@ -731,13 +752,16 @@ function MGBA.formatCommandsOtherDisplayLines()
 	table.insert(lines, "")
 
 	table.insert(lines, "Command Syntax:")
+	table.insert(lines, string.format(commandBar, 'HELP "command"'))
 	table.insert(lines, string.format(commandBar, 'PCHEALS "#"'))
+	table.insert(lines, string.format(commandBar, 'CHECKUPDATE()'))
+	table.insert(lines, string.format(commandBar, 'RELEASENOTES()'))
 	table.insert(lines, string.format(commandBar, 'CREDITS()'))
 	table.insert(lines, "")
 
 	table.insert(lines, "Example Usage:")
+	table.insert(lines, string.format(commandBar, 'HELP "ABILITY"'))
 	table.insert(lines, string.format(commandBar, 'PCHEALS "7"'))
-	table.insert(lines, string.format(commandBar, 'CREDITS()'))
 
 	return lines
 end
@@ -882,6 +906,15 @@ function MGBA.formatTrackerScreenDisplayLines(data)
 		if carousel.isVisible() then
 			local carouselText = MGBA.convertCarouselToText(carousel, data.p.id)
 			table.insert(lines, carouselText)
+		end
+	end
+	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) then
+		local repelBarSize = 20
+		local remainingFraction = math.floor(Program.ActiveRepel.stepCount * repelBarSize / Program.ActiveRepel.duration)
+		local repelFillBar = string.rep("=", remainingFraction)
+		if Program.ActiveRepel.stepCount > 0 then
+			repelFillBar = string.format("%-".. repelBarSize .. "s", repelFillBar)
+			table.insert(lines, string.format("Repel: %26s", string.format("[%s]", repelFillBar))) -- right-align
 		end
 	end
 	table.insert(lines, "---------------------------------")
@@ -1346,12 +1379,66 @@ function CREDITS(...) credits(...) end
 
 -- Commands to add:
 
+-- HELP "command"
 -- SAVEDATA "filename" -- NOT file path
 -- LOADDATA "filename" -- NOT file path
 -- CLEARDATA()
 -- - output "put file in your tracker folder" if cannot be found
 
--- CHECKUPDATE()
--- - if update found on startup then update screen label
--- RELEASENOTES()
--- UPDATENOW()
+---@diagnostic disable-next-line: lowercase-global
+function checkupdate(...)
+	Main.TrackerVersion = "3.2.1"
+	Main.CheckForVersionUpdate(true)
+	if not Main.isOnLatestVersion() then
+		local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
+		MGBA.Screens[MGBA.ScreenKeys.UpdateCheck].textBuffer:setName(newUpdateName)
+		MGBA.Screens[MGBA.ScreenKeys.UpdateCheck].labelTimer = 60 * 5 * 2 -- approx 5 minutes
+		Program.redraw(true)
+		print(string.format("New update found! Version: %s  (check the sidebar menu to view it)", Main.Version.latestAvailable))
+	else
+		print(string.format("No new updates available. Latest version available: %s", Main.Version.latestAvailable))
+	end
+end
+function CheckUpdate(...) checkupdate(...) end
+function CHECKUPDATE(...) checkupdate(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function releasenotes(...)
+	UpdateScreen.openReleaseNotesWindow()
+	print(string.format("Release notes: %s", Constants.Release.DOWNLOAD_URL))
+end
+function ReleaseNotes(...) releasenotes(...) end
+function RELEASENOTES(...) releasenotes(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function updatenow(...)
+	print(string.format("%s  (check the sidebar menu to view status)", UpdateScreen.States.IN_PROGRESS))
+	-- UpdateScreen.performAutoUpdate() -- TODO: commented to prevent accidental code overwrrite; uncomment later
+	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		print("")
+		print("You can now restart the Tracker to apply the update. Exit any battle first.")
+		print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
+		print(" - Then click File -> Reset")
+		-- restart() -- currently doesn't work well on mGBA, see below
+	end
+end
+function UpdateNow(...) updatenow(...) end
+function UPDATENOW(...) updatenow(...) end
+
+-- RESTART doesn't work since we don't have control over the TextBuffers that have already been created; can't remove them
+-- ---@diagnostic disable-next-line: lowercase-global
+-- function restart(...)
+-- 	print("Restarting the Tracker. Saving tracked data and settings.")
+-- 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
+-- 		Tracker.saveData()
+-- 	end
+-- 	Main.SaveSettings(true)
+
+-- 	IronmonTracker.startTracker()
+-- end
+-- function Restart(...) restart(...) end
+-- function RESTART(...) restart(...) end
+-- ---@diagnostic disable-next-line: lowercase-global
+-- function reload(...) restart(...) end
+-- function Reload(...) restart(...) end
+-- function RELOAD(...) restart(...) end
