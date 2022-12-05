@@ -93,6 +93,10 @@ function StartupScreen.initialize()
 	-- Update the attempts count to the current seed number
 	StartupScreen.Buttons.AttemptsCount:updateSelf()
 	StartupScreen.Buttons.AttemptsEdit:updateSelf()
+
+	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
+		print(Tracker.DataMessage)
+	end
 end
 
 function StartupScreen.setPokemonIcon(displayOption)

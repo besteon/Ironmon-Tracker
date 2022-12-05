@@ -1,6 +1,6 @@
 Tracker = {}
 Tracker.Data = {}
-Tracker.DataMessage = ""
+Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
 -- When Tracker data changes between versions, this will force new data into the tracker
 -- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
@@ -14,12 +14,16 @@ Tracker.LoadStatusMessages = {
 	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
 	fromFile = "Tracker data loaded from file", -- file name is appended later
 	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
+	unableLoadFile = "Unable to load Tracker data from selected file",
 }
 
 function Tracker.initialize()
 	if Options["Auto save tracked game data"] then
 		local filepath = GameSettings.getTrackerAutoSaveName()
-		Tracker.loadData(filepath)
+		local success, msg = Tracker.loadData(filepath)
+		if not success and msg ~= nil then
+			print(msg)
+		end
 	else
 		Tracker.resetData()
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
@@ -493,39 +497,41 @@ function Tracker.saveData(filepath)
 	Utils.writeTableToFile(Tracker.Data, filepath)
 end
 
-function Tracker.loadData(filepath)
+-- Attempts to load Tracked data from the file 'filepath', returns true if successful or no matching data found (resets tracked data)
+-- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
+function Tracker.loadData(filepath, forced)
+	-- Loose safety check to ensure a valid data file is loaded
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
+	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
+		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+	end
+
+	local fileData = Utils.readTableFromFile(filepath)
+	if fileData == nil then
+		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
 	Tracker.resetData()
 
-	-- Loose safety check to ensure a valid data file is loaded
-	local fileData = nil
-	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
-		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
-	else
-		fileData = Utils.readTableFromFile(filepath)
-	end
-
-	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
-	if fileData ~= nil and fileData.romHash ~= nil and fileData.romHash == Tracker.Data.romHash then
-		for k, v in pairs(fileData) do
-			-- Only add data elements if the current Tracker data schema uses it
-			if Tracker.Data[k] ~= nil then
-				Tracker.Data[k] = v
-			end
-		end
-		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
-		local fileNameIndex = string.match(filepath, slashpattern)
-		local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
-
-		Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
-	else
+	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
+	if not forced and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
 		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
+		return true, Tracker.DataMessage
 	end
 
-	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= "" then
-		print(Tracker.DataMessage)
+	for k, v in pairs(fileData) do
+		-- Only add data elements if the current Tracker data schema uses it
+		if Tracker.Data[k] ~= nil then
+			Tracker.Data[k] = v
+		end
 	end
+
+	local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+	local fileNameIndex = string.match(filepath, slashpattern)
+	local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
+
+	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
+	return true, Tracker.DataMessage
 end

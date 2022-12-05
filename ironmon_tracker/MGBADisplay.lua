@@ -278,7 +278,7 @@ MGBADisplay.LineBuilder = {
 				table.insert(lines, string.format(" %-32s", foldername))
 			end
 			table.insert(lines, "")
-			table.insert(lines, 'Change files in Settings.ini only')
+			table.insert(lines, 'Set above files in Settings.ini')
 			-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
 		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.Options.Enabled then
 			for i = 33, 35, 1 do
@@ -295,7 +295,7 @@ MGBADisplay.LineBuilder = {
 					table.insert(lines, "")
 				end
 			end
-			table.insert(lines, 'Change files in Settings.ini only')
+			table.insert(lines, 'Set above files in Settings.ini')
 			-- table.insert(lines, 'Set file: OPTION "# filepath"') -- temp hide this option from user
 		end
 		table.insert(lines, "---------------------------------")
@@ -342,49 +342,72 @@ MGBADisplay.LineBuilder = {
 	buildCommandsBasic = function()
 		local lines = {}
 
-		local commandBar = " %-" .. MGBA.ScreenUtils.screenWidth .. "s" -- left-align
+		local commandBar = " %-10s%-s"
 		table.insert(lines, MGBA.Screens.CommandsBasic.headerText:upper())
 
 		local usageInstructions = 'Enter a command in the textbox below; parameter in "quotes"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
 		table.insert(lines, "")
 
-		table.insert(lines, "Command Syntax:")
-		table.insert(lines, string.format(commandBar, 'POKEMON "name"'))
-		table.insert(lines, string.format(commandBar, 'MOVE "name"'))
-		table.insert(lines, string.format(commandBar, 'ABILITY "name"'))
-		table.insert(lines, string.format(commandBar, 'ROUTE "name"'))
-		table.insert(lines, string.format(commandBar, 'NOTE "text"'))
+		local commandList = {
+			MGBA.CommandMap["POKEMON"],
+			MGBA.CommandMap["MOVE"],
+			MGBA.CommandMap["ABILITY"],
+			MGBA.CommandMap["ROUTE"],
+			MGBA.CommandMap["NOTE"],
+		}
+
+		table.insert(lines, "Usage Syntax:")
+		for _, command in ipairs(commandList) do
+			if command.usageSyntax ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
+				table.insert(lines, string.format(commandBar, commandName, commandParams))
+			end
+		end
 		table.insert(lines, "")
 
 		table.insert(lines, "Example Usage:")
-		table.insert(lines, string.format(commandBar, 'POKEMON "Shuckle"'))
-		table.insert(lines, string.format(commandBar, 'MOVE "Rock Slide"'))
-		table.insert(lines, string.format(commandBar, 'ABILITY "Soundproof"'))
-		table.insert(lines, string.format(commandBar, 'ROUTE "7"'))
-		table.insert(lines, string.format(commandBar, 'NOTE "survives Stomp at lv47"'))
+		for _, command in ipairs(commandList) do
+			if command.exampleUsage ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
+				table.insert(lines, string.format(commandBar, commandName, commandParams))
+			end
+		end
 
 		return lines
 	end,
 	buildCommandsOther = function()
 		local lines = {}
 
-		local commandBar = " %-" .. MGBA.ScreenUtils.screenWidth .. "s" -- left-align
+		local commandBar = " %-10s%-s"
 		table.insert(lines, MGBA.Screens.CommandsOther.headerText:upper())
 
 		local usageInstructions = 'Enter a command in the textbox below; parameter in "quotes"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
 		table.insert(lines, "")
 
-		table.insert(lines, "Command Syntax:")
-		table.insert(lines, string.format(commandBar, 'HELP "command"'))
-		table.insert(lines, string.format(commandBar, 'PCHEALS "#"'))
-		table.insert(lines, string.format(commandBar, 'CREDITS()'))
+		local commandList = {
+			MGBA.CommandMap["HELP"],
+			MGBA.CommandMap["PCHEALS"],
+			MGBA.CommandMap["CREDITS"],
+		}
+
+		table.insert(lines, "Usage Syntax:")
+		for _, command in ipairs(commandList) do
+			if command.usageSyntax ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
+				table.insert(lines, string.format(commandBar, commandName, commandParams))
+			end
+		end
 		table.insert(lines, "")
 
 		table.insert(lines, "Example Usage:")
-		table.insert(lines, string.format(commandBar, 'HELP "ABILITY"'))
-		table.insert(lines, string.format(commandBar, 'PCHEALS "7"'))
+		for _, command in ipairs(commandList) do
+			if command.exampleUsage ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
+				table.insert(lines, string.format(commandBar, commandName, commandParams))
+			end
+		end
 
 		return lines
 	end,
@@ -643,6 +666,12 @@ MGBADisplay.Utils = {
 				table.insert(linesTable, line)
 			end
 		end
+	end,
+	-- Returns two separate results, the 'head', or first word, and the 'tail', or the remainder of the words after a space
+	splitCommandUsage = function(usageText)
+		if usageText:find("%s") == nil then return usageText, "" end -- single word, no spaces
+		local head, _, tail = usageText:match('^([%w%p]+)(%s+)(.+)')
+		return head, tail
 	end,
 	carouselToText = function(carousel, pokemonID)
 		local carouselText = ""

@@ -119,7 +119,10 @@ function TrackedDataScreen.openLoadDataPrompt()
 	client.SetSoundOn(false)
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
-		Tracker.loadData(filepath)
+		local success, msg = Tracker.loadData(filepath)
+		if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
+			print(msg) -- output info on the load, regardless if successfully
+		end
 	end
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)

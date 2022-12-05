@@ -507,121 +507,166 @@ function MGBA.buildOptionMapDefaults()
 	end
 end
 
--- Global functions required by mGBA input prompts
--- Each written in the form of: funcname "parameter(s) as text only"
+-- Unordered list of commands, where the command's name is the table's key
+MGBA.CommandMap = {
+	-- ["EXAMPLECOMMAND"] = {
+	-- 	usageSyntax = 'SYNTAX',
+	-- 	exampleUsage = 'EXAMPLE', -- Ideally should be shorter than screenWidth-1 (32)
+	-- 	execute = function(self, params) end,
+	-- },
+	["HELP"] = {
+		usageSyntax = 'HELP "command"',
+		exampleUsage = 'HELP "POKEMON"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "command" is the name of a command.')
+				return
+			end
+			local command = MGBA.CommandMap[params:upper()]
+			if command == nil then
+				print(string.format(' Command "%s" not found. Check list of commands on the sidebar.', params:upper()))
+				return
+			end
+			print(string.format(" Usage: %s", command.usageSyntax))
+			print(string.format(" Example: %s", command.exampleUsage))
+		end,
+	},
+	["NOTE"] = {
+		usageSyntax = 'NOTE "text"',
+		exampleUsage = 'NOTE "Shuckle is extremely fast"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "text" is the note to leave for the enemy ' .. Constants.Words.POKEMON .. ' being viewed.')
+				return
+			end
 
--- Commands to add:
--- HELP "command"
+			local noteText = params
+			if not Tracker.Data.isViewingOwn then
+				local pokemon = Tracker.getViewedPokemon()
+				if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+					Tracker.TrackNote(pokemon.pokemonID, noteText)
+					print(string.format(" Note added for %s.", pokemon.name))
+					Program.redraw(true)
+				end
+			end
+		end,
+	},
+	["POKEMON"] = {
+		usageSyntax = 'POKEMON "name"',
+		exampleUsage = 'POKEMON "Shuckle"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. ' name.')
+				return
+			end
 
----@diagnostic disable-next-line: lowercase-global
-function note(...)
-	local noteText = ...
-	if not Tracker.Data.isViewingOwn then
-		local pokemon = Tracker.getViewedPokemon()
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-			Tracker.TrackNote(pokemon.pokemonID, noteText)
-			print(string.format("Note added for %s", pokemon.name))
-			Program.redraw(true)
-		end
-	end
-end
-function Note(...) note(...) end
-function NOTE(...) note(...) end
+			local pokemonName = params
+			local pokemonID = DataHelper.findPokemonId(pokemonName)
+			if pokemonID ~= 0 then
+				pokemonName = PokemonData.Pokemon[pokemonID].name or pokemonName
+				print(string.format(" " .. Constants.Words.POKEMON .. " info found for: %s  (check the sidebar menu to view it)", pokemonName))
+				MGBA.Screens.LookupPokemon:setData(pokemonID, true)
+				Program.redraw(true)
+			else
+				print(string.format(" Unable to find " .. Constants.Words.POKEMON .. ": %s", pokemonName))
+			end
+		end,
+	},
+	["MOVE"] = {
+		usageSyntax = 'MOVE "name"',
+		exampleUsage = 'MOVE "Wrap"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. ' move name.')
+				return
+			end
 
----@diagnostic disable-next-line: lowercase-global
-function pokemon(...)
-	local pokemonName = ...
-	if pokemonName == nil or pokemonName == "" then
-		return
-	end
+			local moveName = params
+			local moveId = DataHelper.findMoveId(moveName)
+			if moveId ~= 0 then
+				moveName = MoveData.Moves[moveId].name or moveName
+				print(string.format(" Move info found for: %s  (check the sidebar menu to view it)", moveName))
+				MGBA.Screens.LookupMove:setData(moveId, true)
+				Program.redraw(true)
+			else
+				print(string.format(" Unable to find move: %s", moveName))
+			end
+		end,
+	},
+	["ABILITY"] = {
+		usageSyntax = 'ABILITY "name"',
+		exampleUsage = 'ABILITY "Sturdy"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. '\'s ability name.')
+				return
+			end
 
-	local pokemonID = DataHelper.findPokemonId(pokemonName)
-	if pokemonID ~= 0 then
-		pokemonName = PokemonData.Pokemon[pokemonID].name or pokemonName
-		print(string.format(" Game info found for: %s  (check the sidebar menu to view it)", pokemonName))
-		MGBA.Screens.LookupPokemon:setData(pokemonID, true)
-		Program.redraw(true)
-	else
-		print(string.format(" Unable to find %s: %s", Constants.Words.POKEMON, pokemonName))
-	end
-end
-function Pokemon(...) pokemon(...) end
-function POKEMON(...) pokemon(...) end
+			local abilityName = params
+			local abilityId = DataHelper.findAbilityId(abilityName)
+			if abilityId ~= 0 then
+				abilityName = AbilityData.Abilities[abilityId].name or abilityName
+				print(string.format(" Ability info found for: %s  (check the sidebar menu to view it)", abilityName))
+				MGBA.Screens.LookupAbility:setData(abilityId, true)
+				Program.redraw(true)
+			else
+				print(string.format(" Unable to find ability: %s", abilityName))
+			end
+		end,
+	},
+	["ROUTE"] = {
+		usageSyntax = 'ROUTE "name"',
+		exampleUsage = 'ROUTE "Route 2"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "name" is a valid route number or route name.')
+				return
+			end
 
----@diagnostic disable-next-line: lowercase-global
-function move(...)
-	local moveName = ...
-	if moveName == nil or moveName == "" then
-		return
-	end
+			local routeName = params
+			local routeId = DataHelper.findRouteId(routeName)
+			if routeId ~= 0 then
+				routeName = RouteData.Info[routeId].name or routeName
+				print(string.format(" Route info found for: %s  (check the sidebar menu to view it)", routeName))
+				MGBA.Screens.LookupRoute:setData(routeId, true)
+				Program.redraw(true)
+			else
+				print(string.format(" Unable to find route: %s", routeName))
+			end
+		end,
+	},
+	["OPTION"] = {
+		usageSyntax = 'OPTION "#"',
+		exampleUsage = 'OPTION "13"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a valid option number, followed by any optional text.')
+				return
+			end
 
-	local moveId = DataHelper.findMoveId(moveName)
-	if moveId ~= 0 then
-		moveName = MoveData.Moves[moveId].name or moveName
-		print(string.format(" Game info found for: %s  (check the sidebar menu to view it)", moveName))
-		MGBA.Screens.LookupMove:setData(moveId, true)
-		Program.redraw(true)
-	else
-		print(string.format(" Unable to find move: %s", moveName))
-	end
-end
-function Move(...) move(...) end
-function MOVE(...) move(...) end
+			local optionNumber = params:match("^%d+")
+			if optionNumber == nil then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a valid option number, followed by any optional text.')
+				return
+			end
 
----@diagnostic disable-next-line: lowercase-global
-function ability(...)
-	local abilityName = ...
-	if abilityName == nil or abilityName == "" then
-		return
-	end
+			optionNumber = tonumber(optionNumber)
+			local _, _, params = params:match("(%d+)(%s+)(.+)") -- Everything but the first number
 
-	local abilityId = DataHelper.findAbilityId(abilityName)
-	if abilityId ~= 0 then
-		abilityName = AbilityData.Abilities[abilityId].name or abilityName
-		print(string.format(" Game info found for: %s  (check the sidebar menu to view it)", abilityName))
-		MGBA.Screens.LookupAbility:setData(abilityId, true)
-		Program.redraw(true)
-	else
-		print(string.format(" Unable to find ability: %s", abilityName))
-	end
-end
-function Ability(...) ability(...) end
-function ABILITY(...) ability(...) end
+			local opt = MGBA.OptionMap[optionNumber]
+			if opt == nil then
+				print(string.format(" Option #%s doesn't exist. Please try another option number.", optionNumber))
+				return
+			end
 
----@diagnostic disable-next-line: lowercase-global
-function route(...)
-	local routeName = ...
-	if routeName == nil or routeName == "" then
-		return
-	end
-
-	local routeId = DataHelper.findRouteId(routeName)
-	if routeId ~= 0 then
-		routeName = RouteData.Info[routeId].name or routeName
-		print(string.format(" Game info found for: %s  (check the sidebar menu to view it)", routeName))
-		MGBA.Screens.LookupRoute:setData(routeId, true)
-		Program.redraw(true)
-	else
-		print(string.format(" Unable to find route: %s", routeName))
-	end
-end
-function Route(...) route(...) end
-function ROUTE(...) route(...) end
-
----@diagnostic disable-next-line: lowercase-global
-function option(...)
-	local optionParams = ...
-	if optionParams == nil or optionParams == "" then
-		return
-	end
-
-	local optionNumber = optionParams:match("^%d+")
-	if optionNumber ~= nil then
-		optionNumber = tonumber(optionNumber)
-		local _, _, params = optionParams:match("(%d+)(%s+)(.+)") -- Everything but the first number
-
-		local opt = MGBA.OptionMap[optionNumber]
-		if opt ~= nil then
 			local success, msg = opt:updateSelf(params)
 			if success then
 				Program.redraw(true)
@@ -635,151 +680,240 @@ function option(...)
 				end
 				print(string.format(' Updating option #%s: "%s"%s', optionNumber, opt.displayName, newValue))
 			else
-				print(string.format(' Error! %s', msg or "Unknown error has occured."))
+				print(string.format(' [Error] %s', msg or "Unknown error has occured."))
 			end
-		else
-			print(string.format(" Option #%s doesn't exist. Please try another option number.", optionNumber))
-		end
-	else
-		print(' Error with command; usage syntax: OPTION "#", where # is the option number.')
-	end
-end
-function Option(...) option(...) end
-function OPTION(...) option(...) end
+		end,
+	},
+	["PCHEALS"] = {
+		usageSyntax = 'PCHEALS "#"',
+		exampleUsage = 'PCHEALS "5"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a positive number between 0 and 99.')
+				return
+			end
 
+			local number = params:match("^%d+")
+			if number == nil or tonumber(number) == nil then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a positive number between 0 and 99.')
+				return
+			end
+
+			Tracker.Data.centerHeals = math.floor(tonumber(number) or 0)
+			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
+			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
+			Program.redraw(true)
+			print(string.format(' Updating PC Heal count to: %s', Tracker.Data.centerHeals))
+		end,
+	},
+	["CREDITS"] = {
+		usageSyntax = 'CREDITS()',
+		exampleUsage = 'CREDITS()',
+		execute = function(self, params)
+			print(string.format("%-15s %s", "Created by:", Main.CreditsList.CreatedBy))
+			print("\nContributors:")
+			for i=1, #Main.CreditsList.Contributors, 2 do
+				local contributorPair = string.format("* %-13s", Main.CreditsList.Contributors[i] or "")
+				if Main.CreditsList.Contributors[i + 1] ~= nil then
+					contributorPair = contributorPair .. " * " .. Main.CreditsList.Contributors[i + 1]
+				end
+				print(contributorPair)
+			end
+		end,
+	},
+	["SAVEDATA"] = {
+		usageSyntax = 'SAVEDATA "filename"',
+		exampleUsage = 'SAVEDATA "FireRed Seed 12"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "filename" is a valid name for a file.')
+				return
+			end
+
+			local filename = params
+			if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+				filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+			end
+			Tracker.saveData(filename)
+			print(string.format(' Tracked data saved for this game in the Tracker folder as: %s', filename))
+		end,
+	},
+	["LOADDATA"] = {
+		usageSyntax = 'LOADDATA "filename"',
+		exampleUsage = 'LOADDATA "FireRed Seed 12"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "filename" is the name of a file that exists in your Tracker folder.')
+				return
+			end
+
+			local filename = params
+			if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+				filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+			end
+			local success, msg = Tracker.loadData(filename)
+			if success then
+				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
+					print(" " .. msg)
+				else
+					print(" Tracked data from this file does not match this game. Resetting tracked data instead.")
+				end
+			else
+				if msg ~= nil and msg ~= "" then
+					print(" " .. msg)
+					print(" The specified Tracked data file (.tdat) cannot be found in your Tracker folder.")
+				else
+					print(" Unable to load Tracked data from the specific file. Double-check it's in your Tracker folder.")
+				end
+			end
+		end,
+	},
+	["CLEARDATA"] = {
+		usageSyntax = 'CLEARDATA()',
+		exampleUsage = 'CLEARDATA()',
+		execute = function(self, params)
+			Tracker.resetData()
+			print(" All tracked data for this game has been cleared.")
+		end,
+	},
+	["CHECKUPDATE"] = {
+		usageSyntax = 'CHECKUPDATE()',
+		exampleUsage = 'CHECKUPDATE()',
+		execute = function(self, params)
+			Main.CheckForVersionUpdate(true)
+			if not Main.isOnLatestVersion() then
+				local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
+				MGBA.Screens.UpdateCheck.textBuffer:setName(newUpdateName)
+				MGBA.Screens.UpdateCheck.labelTimer = 60 * 5 * 2 -- approx 5 minutes
+				Program.redraw(true)
+				print(string.format("New update found! Version: %s  (check the sidebar menu to view it)", Main.Version.latestAvailable))
+			else
+				print(string.format("No new updates available. Latest version available: %s", Main.Version.latestAvailable))
+			end
+		end,
+	},
+	["RELEASENOTES"] = {
+		usageSyntax = 'RELEASENOTES()',
+		exampleUsage = 'RELEASENOTES()',
+		execute = function(self, params)
+			UpdateScreen.openReleaseNotesWindow()
+			print(string.format("Release notes: %s", Constants.Release.DOWNLOAD_URL))
+		end,
+	},
+	["UPDATENOW"] = {
+		usageSyntax = 'UPDATENOW()',
+		exampleUsage = 'UPDATENOW()',
+		execute = function(self, params)
+			print(string.format("%s  (check the sidebar menu to view status)", UpdateScreen.States.IN_PROGRESS))
+			-- UpdateScreen.performAutoUpdate() -- TODO: commented to prevent accidental code overwrrite; uncomment later
+			if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+				print("")
+				print("You can now restart the Tracker to apply the update. Exit any battle first.")
+				print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
+				print(" - Then click File -> Reset")
+				-- restart() -- currently doesn't work well on mGBA, see below
+			end
+		end,
+	},
+	["RELOAD"] = {
+		usageSyntax = 'RELOAD()',
+		exampleUsage = 'RELOAD()',
+		execute = function(self, params)
+			-- RESTART doesn't work since we don't have control over the TextBuffers that have already been created; can't remove them
+			if true then return end
+			print("Restarting the Tracker. Saving tracked data and settings.")
+			if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
+				Tracker.saveData()
+			end
+			Main.SaveSettings(true)
+			IronmonTracker.startTracker()
+		end,
+	},
+}
+
+-- Global functions required by mGBA input prompts
+-- Each written in the form of: funcname "parameter(s) as text only"
+
+function HELP(...) MGBA.CommandMap["HELP"]:execute(...) end
+function Help(...) HELP(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function pcheals(...)
-	local optionParams = ...
-	if optionParams == nil or optionParams == "" then
-		return
-	end
+function help(...) HELP(...) end
 
-	local number = optionParams:match("^%d+")
-	if number ~= nil and tonumber(number) ~= nil then
-		Tracker.Data.centerHeals = math.floor(tonumber(number) or 0)
-		if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
-		if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
-		Program.redraw(true)
-		print(string.format(' Updating PC Heal count to: %s', Tracker.Data.centerHeals))
-	else
-		print(' Error with command; usage syntax: PCHEALS "#", where # is a number (0-99).')
-	end
-end
-function PCHeals(...) pcheals(...) end
-function PCHEALS(...) pcheals(...) end
-
+function NOTE(...) MGBA.CommandMap["NOTE"]:execute(...) end
+function Note(...) NOTE(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function credits(...)
-	print(string.format("%-15s %s", "Created by:", Main.CreditsList.CreatedBy))
-	print("\nContributors:")
-	for i=1, #Main.CreditsList.Contributors, 2 do
-		local contributorPair = string.format("* %-13s", Main.CreditsList.Contributors[i] or "")
-		if Main.CreditsList.Contributors[i + 1] ~= nil then
-			contributorPair = contributorPair .. " * " .. Main.CreditsList.Contributors[i + 1]
-		end
-		print(contributorPair)
-	end
-end
-function Credits(...) credits(...) end
-function CREDITS(...) credits(...) end
+function note(...) NOTE(...) end
 
+function POKEMON(...) MGBA.CommandMap["POKEMON"]:execute(...) end
+function Pokemon(...) POKEMON(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function savedata(...)
-	local filename = ...
-	if filename == nil or filename == "" then
-		print(' Error with command; usage syntax: SAVEDATA "filename"')
-		return
-	end
+function pokemon(...) POKEMON(...) end
 
-	if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-		filename = filename .. Constants.Files.Extensions.TRACKED_DATA
-	end
-	Tracker.saveData(filename)
-	print(string.format(' Tracked data saved for this game in the Tracker folder as: %s', filename))
-end
-function SaveData(...) savedata(...) end
-function SAVEDATA(...) savedata(...) end
-
+function MOVE(...) MGBA.CommandMap["MOVE"]:execute(...) end
+function Move(...) MOVE(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function loaddata(...)
-	local filename = ...
-	if filename == nil or filename == "" then
-		print(' Error with command; usage syntax: LOADDATA "filename"')
-		return
-	end
+function move(...) MOVE(...) end
 
-	if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-		filename = filename .. Constants.Files.Extensions.TRACKED_DATA
-	end
-	Tracker.loadData(filename)
-end
-function LoadData(...) loaddata(...) end
-function LOADDATA(...) loaddata(...) end
-
+function ABILITY(...) MGBA.CommandMap["ABILITY"]:execute(...) end
+function Ability(...) ABILITY(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function cleardata(...)
-	-- TODO: Currently broken for some reason with tracker data getting reset
-	-- [ERROR] ...cker/Ironmon-Tracker/ironmon_tracker/data/DataHelper.lua:349: attempt to index a nil value
-	Tracker.resetData()
-	Program.redraw(true)
-	print(" All tracked data for this game has been cleared.")
-end
-function ClearData(...) cleardata(...) end
-function CLEARDATA(...) cleardata(...) end
+function ability(...) ABILITY(...) end
 
+function ROUTE(...) MGBA.CommandMap["ROUTE"]:execute(...) end
+function Route(...) ROUTE(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function checkupdate(...)
-	Main.CheckForVersionUpdate(true)
-	if not Main.isOnLatestVersion() then
-		local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
-		MGBA.Screens.UpdateCheck.textBuffer:setName(newUpdateName)
-		MGBA.Screens.UpdateCheck.labelTimer = 60 * 5 * 2 -- approx 5 minutes
-		Program.redraw(true)
-		print(string.format("New update found! Version: %s  (check the sidebar menu to view it)", Main.Version.latestAvailable))
-	else
-		print(string.format("No new updates available. Latest version available: %s", Main.Version.latestAvailable))
-	end
-end
-function CheckUpdate(...) checkupdate(...) end
-function CHECKUPDATE(...) checkupdate(...) end
+function route(...) ROUTE(...) end
 
+function OPTION(...) MGBA.CommandMap["OPTION"]:execute(...) end
+function Option(...) OPTION(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function releasenotes(...)
-	UpdateScreen.openReleaseNotesWindow()
-	print(string.format("Release notes: %s", Constants.Release.DOWNLOAD_URL))
-end
-function ReleaseNotes(...) releasenotes(...) end
-function RELEASENOTES(...) releasenotes(...) end
+function option(...) OPTION(...) end
 
+function PCHEALS(...) MGBA.CommandMap["PCHEALS"]:execute(...) end
+function PCHeals(...) PCHEALS(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function updatenow(...)
-	print(string.format("%s  (check the sidebar menu to view status)", UpdateScreen.States.IN_PROGRESS))
-	-- UpdateScreen.performAutoUpdate() -- TODO: commented to prevent accidental code overwrrite; uncomment later
-	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
-		print("")
-		print("You can now restart the Tracker to apply the update. Exit any battle first.")
-		print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
-		print(" - Then click File -> Reset")
-		-- restart() -- currently doesn't work well on mGBA, see below
-	end
-end
-function UpdateNow(...) updatenow(...) end
-function UPDATENOW(...) updatenow(...) end
+function pcheals(...) PCHEALS(...) end
 
--- RESTART doesn't work since we don't have control over the TextBuffers that have already been created; can't remove them
--- ---@diagnostic disable-next-line: lowercase-global
--- function restart(...)
--- 	print("Restarting the Tracker. Saving tracked data and settings.")
--- 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
--- 		Tracker.saveData()
--- 	end
--- 	Main.SaveSettings(true)
+function CREDITS(...) MGBA.CommandMap["CREDITS"]:execute(...) end
+function Credits(...) CREDITS(...) end
+---@diagnostic disable-next-line: lowercase-global
+function credits(...) CREDITS(...) end
 
--- 	IronmonTracker.startTracker()
--- end
--- function Restart(...) restart(...) end
--- function RESTART(...) restart(...) end
--- ---@diagnostic disable-next-line: lowercase-global
--- function reload(...) restart(...) end
--- function Reload(...) restart(...) end
--- function RELOAD(...) restart(...) end
+function SAVEDATA(...) MGBA.CommandMap["SAVEDATA"]:execute(...) end
+function SaveData(...) SAVEDATA(...) end
+---@diagnostic disable-next-line: lowercase-global
+function savedata(...) SAVEDATA(...) end
+
+function LOADDATA(...) MGBA.CommandMap["LOADDATA"]:execute(...) end
+function LoadData(...) LOADDATA(...) end
+---@diagnostic disable-next-line: lowercase-global
+function loaddata(...) LOADDATA(...) end
+
+function CLEARDATA(...) MGBA.CommandMap["CLEARDATA"]:execute(...) end
+function ClearData(...) CLEARDATA(...) end
+---@diagnostic disable-next-line: lowercase-global
+function cleardata(...) CLEARDATA(...) end
+
+function CHECKUPDATE(...) MGBA.CommandMap["CHECKUPDATE"]:execute(...) end
+function CheckUpdate(...) CHECKUPDATE(...) end
+---@diagnostic disable-next-line: lowercase-global
+function checkupdate(...) CHECKUPDATE(...) end
+
+function RELEASENOTES(...) MGBA.CommandMap["RELEASENOTES"]:execute(...) end
+function ReleaseNotes(...) RELEASENOTES(...) end
+---@diagnostic disable-next-line: lowercase-global
+function releasenotes(...) RELEASENOTES(...) end
+
+function UPDATENOW(...) MGBA.CommandMap["UPDATENOW"]:execute(...) end
+function UpdateNow(...) UPDATENOW(...) end
+---@diagnostic disable-next-line: lowercase-global
+function updatenow(...) UPDATENOW(...) end
+
+function RELOAD(...) MGBA.CommandMap["RELOAD"]:execute(...) end
+function Reload(...) RELOAD(...) end
+---@diagnostic disable-next-line: lowercase-global
+function reload(...) RELOAD(...) end
