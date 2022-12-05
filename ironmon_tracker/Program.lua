@@ -461,7 +461,7 @@ function Program.updateMapLocation()
 	-- If the player is in a new area, auto-lookup for mGBA screen
 	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
 		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
-		MGBA.Screens[MGBA.ScreenKeys.LookupRoute]:setData(newMapId, isFirstLocation)
+		MGBA.Screens.LookupRoute:setData(newMapId, isFirstLocation)
 	end
 	Battle.CurrentRoute.mapId = newMapId
 end

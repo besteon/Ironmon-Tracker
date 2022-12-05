@@ -59,6 +59,7 @@ function Main.Initialize()
 		"/Pickle.lua",
 		"/Tracker.lua",
 		"/MGBA.lua",
+		"/MGBADisplay.lua",
 	}
 
 	Main.SetupEmulatorInfo()
@@ -255,6 +256,7 @@ function Main.Run()
 
 	if not Main.IsOnBizhawk() then
 		MGBA.initialize()
+		MGBADisplay.initialize()
 	end
 
 	TrackerScreen.initialize()
@@ -281,7 +283,7 @@ function Main.Run()
 
 		Main.LoadNextRom()
 	else -- mGBA specific loops
-		MGBA.displayInputCommands()
+		MGBA.printStartupInstructions()
 		---@diagnostic disable-next-line: undefined-global
 		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
 		---@diagnostic disable-next-line: undefined-global
@@ -374,7 +376,7 @@ function Main.LoadNextRom()
 		client.SetSoundOn(false)
 		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	else
-		MGBA.clear()
+		MGBA.clearConsole()
 	end
 
 	local nextRom

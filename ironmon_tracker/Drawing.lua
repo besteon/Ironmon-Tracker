@@ -236,7 +236,7 @@ function Drawing.drawScreen(screenFunc)
 			Drawing.drawRepelUsage()
 		end
 	else
-		MGBA.updateTextBuffers()
+		MGBA.ScreenUtils.updateTextBuffers()
 	end
 end
 

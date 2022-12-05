@@ -317,7 +317,7 @@ function Battle.updateTrackedInfo()
 				if abilityOwner ~= nil then
 					Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
 					if not Main.IsOnBizhawk() then -- currently just mGBA
-						MGBA.Screens[MGBA.ScreenKeys.LookupAbility]:setData(battleMon.ability, false)
+						MGBA.Screens.LookupAbility:setData(battleMon.ability, false)
 					end
 				end
 			end
@@ -510,10 +510,10 @@ end
 function Battle.updateLookupInfo()
 	if Main.IsOnBizhawk() then return end -- currently just mGBA
 
-	if not MGBA.Screens[MGBA.ScreenKeys.LookupPokemon].manuallySet then -- prevent changing if player manually looked up a Pokémon
+	if not MGBA.Screens.LookupPokemon.manuallySet then -- prevent changing if player manually looked up a Pokémon
 		-- Auto lookup the enemy Pokémon being fought
 		local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
-		MGBA.Screens[MGBA.ScreenKeys.LookupPokemon]:setData(pokemon.pokemonID, false)
+		MGBA.Screens.LookupPokemon:setData(pokemon.pokemonID, false)
 	end
 end
 
@@ -564,7 +564,7 @@ function Battle.beginNewBattle()
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
 
 	if not Main.IsOnBizhawk() then
-		MGBA.Screens[MGBA.ScreenKeys.LookupPokemon].manuallySet = false
+		MGBA.Screens.LookupPokemon.manuallySet = false
 	end
 end
 
@@ -646,7 +646,7 @@ function Battle.changeOpposingPokemonView(isLeft)
 		Tracker.Data.isViewingOwn = false
 		Battle.isViewingLeft = isLeft
 		if not Main.IsOnBizhawk() then
-			MGBA.Screens[MGBA.ScreenKeys.LookupPokemon].manuallySet = false
+			MGBA.Screens.LookupPokemon.manuallySet = false
 		end
 	end
 
