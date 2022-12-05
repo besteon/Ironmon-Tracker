@@ -509,6 +509,10 @@ end
 
 -- Global functions required by mGBA input prompts
 -- Each written in the form of: funcname "parameter(s) as text only"
+
+-- Commands to add:
+-- HELP "command"
+
 ---@diagnostic disable-next-line: lowercase-global
 function note(...)
 	local noteText = ...
@@ -679,17 +683,52 @@ end
 function Credits(...) credits(...) end
 function CREDITS(...) credits(...) end
 
--- Commands to add:
+---@diagnostic disable-next-line: lowercase-global
+function savedata(...)
+	local filename = ...
+	if filename == nil or filename == "" then
+		print(' Error with command; usage syntax: SAVEDATA "filename"')
+		return
+	end
 
--- HELP "command"
--- SAVEDATA "filename" -- NOT file path
--- LOADDATA "filename" -- NOT file path
--- CLEARDATA()
--- - output "put file in your tracker folder" if cannot be found
+	if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+		filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+	end
+	Tracker.saveData(filename)
+	print(string.format(' Tracked data saved for this game in the Tracker folder as: %s', filename))
+end
+function SaveData(...) savedata(...) end
+function SAVEDATA(...) savedata(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function loaddata(...)
+	local filename = ...
+	if filename == nil or filename == "" then
+		print(' Error with command; usage syntax: LOADDATA "filename"')
+		return
+	end
+
+	if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+		filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+	end
+	Tracker.loadData(filename)
+end
+function LoadData(...) loaddata(...) end
+function LOADDATA(...) loaddata(...) end
+
+---@diagnostic disable-next-line: lowercase-global
+function cleardata(...)
+	-- TODO: Currently broken for some reason with tracker data getting reset
+	-- [ERROR] ...cker/Ironmon-Tracker/ironmon_tracker/data/DataHelper.lua:349: attempt to index a nil value
+	Tracker.resetData()
+	Program.redraw(true)
+	print(" All tracked data for this game has been cleared.")
+end
+function ClearData(...) cleardata(...) end
+function CLEARDATA(...) cleardata(...) end
 
 ---@diagnostic disable-next-line: lowercase-global
 function checkupdate(...)
-	Main.TrackerVersion = "3.2.1"
 	Main.CheckForVersionUpdate(true)
 	if not Main.isOnLatestVersion() then
 		local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
