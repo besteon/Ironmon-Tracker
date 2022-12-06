@@ -26,7 +26,7 @@ StartupScreen.Buttons = {
 		pokemonID = 0,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
+			local imagepath = FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 			return imagepath
 		end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end

@@ -190,12 +190,12 @@ end
 function NavigationMenu.openWikiBrowserWindow()
 	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.WIKI_URL))
+		os.execute(string.format('start "" "%s"', FileManager.URLS.WIKI))
 	else
 		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', Constants.Release.WIKI_URL))
+		os.execute(string.format('open "" "%s"', FileManager.URLS.WIKI))
 		Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-		print(string.format("Help Wiki: %s", Constants.Release.WIKI_URL))
+		print(string.format("Help Wiki: %s", FileManager.URLS.WIKI))
 	end
 end
 
@@ -282,7 +282,8 @@ function NavigationMenu.drawCredits()
 
 	Drawing.drawText(offsetX, offsetY, "Created by:", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
 	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	gui.drawImage(Main.DataFolder .. "/images/pokemon/196.gif", topboxColX + 40, offsetY - 13, 32, 32) -- Espeon
+	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
+	gui.drawImage(espeonImage, topboxColX + 40, offsetY - 13, 32, 32)
 	offsetY = offsetY + linespacing + 10
 
 	Drawing.drawText(offsetX, offsetY, "Contributors: ", Theme.COLORS[NavigationMenu.textColor], shadowcolor)

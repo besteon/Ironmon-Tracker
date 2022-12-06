@@ -30,7 +30,7 @@ SetupScreen.Buttons = {
 		pokemonID = 1,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
+			local imagepath = FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 			return imagepath
 		end,
 		onClick = function(self)
@@ -129,9 +129,9 @@ function SetupScreen.initialize()
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
-	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
+	local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
-	if not animatedAddonInstalled and animatedBtnOption ~= nil then
+	if not FileManager.fileExists(abraGif) and animatedBtnOption ~= nil then
 		animatedBtnOption.disabled = true
 	end
 end

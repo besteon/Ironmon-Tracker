@@ -255,17 +255,18 @@ function GameSettings.setGameVersion(gameversion)
 
 	-- Load non-English language data
 	local gameLanguage = GameSettings.language
+	local langFolder = FileManager.getAbsPath(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	if gameLanguage == "Spanish" then
-		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
 		SpainData.updateToSpainData()
 	elseif gameLanguage == "Italian" then
-		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.ItalyData)
 		ItalyData.updateToItalyData()
 	elseif gameLanguage == "French" then
-		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.FranceData)
 		FranceData.updateToFranceData()
 	elseif gameLanguage == "German" then
-		dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
 		GermanyData.updateToGermanyData()
 	end
 
@@ -1019,7 +1020,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = Constants.Files.PostFixes.AUTOSAVE .. Constants.Files.Extensions.TRACKED_DATA
+	local filenameEnding = FileManager.PostFixes.AUTOSAVE .. FileManager.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding

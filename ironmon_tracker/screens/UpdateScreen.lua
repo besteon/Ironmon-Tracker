@@ -188,7 +188,7 @@ function UpdateScreen.executeBatchOperations()
 	-- Each individual command listed in order, to be appended together later
 	local batchCommands = {
 		'(echo Downloading the latest Ironmon Tracker version.',
-		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', Constants.Release.TAR_URL, archiveName),
+		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', FileManager.URLS.TAR, archiveName),
 		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
 		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
 		'echo; && echo Applying the update; copying over files.',
@@ -237,12 +237,12 @@ end
 function UpdateScreen.openReleaseNotesWindow()
 	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
+		os.execute(string.format('start "" "%s"', FileManager.URLS.DOWNLOAD))
 	else
 		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
+		os.execute(string.format('open "" "%s"', FileManager.URLS.DOWNLOAD))
 		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-		print(string.format("Release Notes: %s", Constants.Release.DOWNLOAD_URL))
+		print(string.format("Release Notes: %s", FileManager.URLS.DOWNLOAD))
 	end
 end
 

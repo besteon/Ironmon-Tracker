@@ -17,7 +17,7 @@ Drawing.AnimatedPokemon = {
 	requiresRelocating = false,
 }
 
-function Drawing.setupDrawingArea()
+function Drawing.initialize()
 	if Main.IsOnBizhawk() then
 		---@diagnostic disable-next-line: undefined-global
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
@@ -44,7 +44,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y)
 	end
 
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+	local imagepath = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
 
 	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
 end
@@ -52,13 +52,13 @@ end
 function Drawing.drawTypeIcon(type, x, y)
 	if type == nil or type == "" then return end
 
-	gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
+	gui.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
 end
 
 function Drawing.drawStatusIcon(status, x, y)
 	if status == nil or status == "" then return end
 
-	gui.drawImage(Main.DataFolder .. "/images/status/" .. status .. ".png", x, y, 16, 8)
+	gui.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, style)
@@ -353,12 +353,11 @@ end
 
 function Drawing.setAnimatedPokemon(pokemonID)
 	-- TODO: Later fix this to make a fake copy gif in the Tracker's root folder
-	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
-
-	if pokemonID == nil or pokemonID == 0 then return end
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() or pokemonID == nil or pokemonID == 0 then
+		return
+	end
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
-
 
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 		local pokemonData = PokemonData.Pokemon[pokemonID]
@@ -367,8 +366,8 @@ function Drawing.setAnimatedPokemon(pokemonID)
 			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
 			local lowerPokemonName = pokemonData.name:lower()
-			local imagepath = Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
-			if Main.FileExists(imagepath) then
+			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
+			if FileManager.fileExists(imagepath) then
 				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
 				forms.setproperty(pictureBox, "Visible", false)
 				forms.setproperty(pictureBox, "ImageLocation", "")
@@ -419,7 +418,8 @@ function Drawing.drawRepelUsage()
 
 	local xOffset = Constants.SCREEN.WIDTH - 24
 	-- Draw repel item icon
-	gui.drawImage(Main.DataFolder .. "/images/icons/repelUsage.png", xOffset, 0)
+	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Icons.REPEL)
+	gui.drawImage(repelImage, xOffset, 0)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21

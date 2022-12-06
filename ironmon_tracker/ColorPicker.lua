@@ -124,8 +124,8 @@ end
 
 function ColorPicker:drawMainCanvas()
 	forms.clear(self.mainCanvas,0x00000000)
-	local wheelPath = Main.DataFolder.."/images//colorPicker/HSVwheel3.png"
-	local gradientPath = Main.DataFolder.."/images//colorPicker/HSVgradient.png"
+	local wheelPath = FileManager.buildImagePath("colorPicker", "HSVwheel3.png")
+	local gradientPath = FileManager.buildImagePath("colorPicker", "HSVgradient.png")
 	forms.drawRectangle(self.mainCanvas,0,0,250,300,nil,0xFF404040)
 	forms.drawImage(self.mainCanvas,wheelPath,10,10,150,150)
 	forms.drawImage(self.mainCanvas,gradientPath,self.constants.SLIDER_X_POS,self.constants.SLIDER_Y_POS,self.constants.SLIDER_WIDTH,self.constants.SLIDER_HEIGHT)

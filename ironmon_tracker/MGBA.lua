@@ -405,7 +405,7 @@ MGBA.OptionMap = {
 		optionKey = "ROMs Folder",
 		displayName = "ROMs Folder",
 		getValue = function(self)
-			return Utils.extractFolderNameFromPath(Options.FILES[self.optionKey]) or ""
+			return FileManager.extractFolderNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
 			Options.FILES[self.optionKey] = params
@@ -418,10 +418,10 @@ MGBA.OptionMap = {
 		optionKey = "Randomizer JAR",
 		displayName = "Randomizer JAR",
 		getValue = function(self)
-			return Utils.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
+			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = Utils.extractFileExtensionFromPath(params)
+			local extension = FileManager.extractFileExtensionFromPath(params)
 			if extension == "jar" then
 				Options.FILES[self.optionKey] = params
 				Options.forceSave()
@@ -434,10 +434,10 @@ MGBA.OptionMap = {
 		optionKey = "Source ROM",
 		displayName = "Source ROM",
 		getValue = function(self)
-			return Utils.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
+			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = Utils.extractFileExtensionFromPath(params)
+			local extension = FileManager.extractFileExtensionFromPath(params)
 			if extension == "gba" then
 				Options.FILES[self.optionKey] = params
 				Options.forceSave()
@@ -450,10 +450,10 @@ MGBA.OptionMap = {
 		optionKey = "Settings File",
 		displayName = "Settings File",
 		getValue = function(self)
-			return Utils.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
+			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = Utils.extractFileExtensionFromPath(params)
+			local extension = FileManager.extractFileExtensionFromPath(params)
 			if extension == "rnqs" then
 				Options.FILES[self.optionKey] = params
 				Options.forceSave()
@@ -734,8 +734,8 @@ MGBA.CommandMap = {
 			end
 
 			local filename = params
-			if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-				filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(filename)
 			print(string.format(' Tracked data saved for this game in the Tracker folder as: %s', filename))
@@ -752,10 +752,10 @@ MGBA.CommandMap = {
 			end
 
 			local filename = params
-			if filename:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-				filename = filename .. Constants.Files.Extensions.TRACKED_DATA
+			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
-			local success, msg = Tracker.loadData(filename)
+			local success, msg = Tracker.loadData(FileManager.getAbsPath(filename))
 			if success then
 				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
 					print(" " .. msg)
@@ -801,7 +801,7 @@ MGBA.CommandMap = {
 		exampleUsage = 'RELEASENOTES()',
 		execute = function(self, params)
 			UpdateScreen.openReleaseNotesWindow()
-			print(string.format("Release notes: %s", Constants.Release.DOWNLOAD_URL))
+			print(string.format("Release notes: %s", FileManager.URLS.DOWNLOAD))
 		end,
 	},
 	["UPDATENOW"] = {

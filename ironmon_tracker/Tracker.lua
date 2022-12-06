@@ -19,7 +19,7 @@ Tracker.LoadStatusMessages = {
 
 function Tracker.initialize()
 	if Options["Auto save tracked game data"] then
-		local filepath = GameSettings.getTrackerAutoSaveName()
+		local filepath = FileManager.getAbsPath(GameSettings.getTrackerAutoSaveName())
 		local success, msg = Tracker.loadData(filepath)
 		if not success and msg ~= nil then
 			print(msg)
@@ -492,9 +492,9 @@ function Tracker.resetData()
 	}
 end
 
-function Tracker.saveData(filepath)
-	filepath = filepath or GameSettings.getTrackerAutoSaveName()
-	Utils.writeTableToFile(Tracker.Data, filepath)
+function Tracker.saveData(filename)
+	filename = filename or GameSettings.getTrackerAutoSaveName()
+	FileManager.writeTableToFile(Tracker.Data, filename)
 end
 
 -- Attempts to load Tracked data from the file 'filepath', returns true if successful or no matching data found (resets tracked data)
@@ -502,12 +502,12 @@ end
 function Tracker.loadData(filepath, forced)
 	-- Loose safety check to ensure a valid data file is loaded
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
-	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
 		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
 	end
 
-	local fileData = Utils.readTableFromFile(filepath)
+	local fileData = FileManager.readTableFromFile(filepath)
 	if fileData == nil then
 		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
 	end
@@ -528,10 +528,9 @@ function Tracker.loadData(filepath, forced)
 		end
 	end
 
-	local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
-	local fileNameIndex = string.match(filepath, slashpattern)
-	local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
+	local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
+	local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
 
-	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
+	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
 	return true, Tracker.DataMessage
 end

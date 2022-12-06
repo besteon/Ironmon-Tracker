@@ -92,8 +92,8 @@ function TrackedDataScreen.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			if formInput:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-				formInput = formInput .. Constants.Files.Extensions.TRACKED_DATA
+			if formInput:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+				formInput = formInput .. FileManager.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(formInput)
 		end
@@ -107,12 +107,12 @@ function TrackedDataScreen.openSaveDataPrompt()
 end
 
 function TrackedDataScreen.openLoadDataPrompt()
-	local suggestedFileName = GameSettings.getRomName() .. Constants.Files.Extensions.TRACKED_DATA
+	local suggestedFileName = GameSettings.getRomName() .. FileManager.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
-	local workingDir = Utils.getWorkingDirectory()
+	local workingDir = IronmonTracker.workingDir
 	if workingDir ~= "" then
-		workingDir = workingDir:sub(1, -2) -- remove trailing "/"
+		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
 	local wasSoundOn = client.GetSoundOn()
