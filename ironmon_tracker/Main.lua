@@ -21,7 +21,6 @@ function Main.Initialize()
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 
-	Main.OS = "Windows" or "Linux"
 	Main.MetaSettings = {}
 	Main.currentSeed = 1
 	Main.loadNextSeed = false
@@ -33,9 +32,9 @@ function Main.Initialize()
 	Main.SetupEmulatorInfo()
 
 	 -- Clearing the console for each new game helps with troubleshooting issues
-	if Main.IsOnBizhawk() then
-		-- console.clear()
-	end
+	-- if Main.IsOnBizhawk() then -- currently being done in IronmonTracker.lua instead
+	-- 	console.clear()
+	-- end
 
 	-- Check the version of BizHawk that is running
 	if Main.IsOnBizhawk() and not Main.SupportedBizhawkVersion() then
@@ -55,15 +54,18 @@ function Main.Initialize()
 		return false
 	end
 
-	Main.LoadSettings()
-
-	if Main.IsOnBizhawk() and Options.FIRST_RUN then
-		Options.FIRST_RUN = false
+	-- Create the Settings file if it doesn't exist
+	if not Main.LoadSettings() then
 		Main.SaveSettings(true)
 
-		print("Please close and re-open Bizhawk to enable the Tracker.")
-		Main.DisplayError("Please close and re-open Bizhawk to enable the Tracker.")
-		return false
+		-- No Settings file means this is the first time the tracker has run, so bounce out for Bizhawk to force a restart
+		if Main.IsOnBizhawk() then -- Likely no longer need this: "and Options.FIRST_RUN"
+			-- Options.FIRST_RUN = false
+			-- Main.SaveSettings(true)
+			print("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
+			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
+			return false
+		end
 	end
 
 	Main.ReadAttemptsCounter()
@@ -407,8 +409,8 @@ end
 
 function Main.GenerateNextRom()
 	if Main.OS ~= "Windows" then
-		print("The auto-generate a new ROM feature is currently not supported on non-Windows OS.")
-		Main.DisplayError("The auto-generate a new ROM feature is currently not supported on non-Windows OS.\n\nPlease use the other Quick-load option: From a ROMs Folder.")
+		print("The auto-generate a new ROM feature is only supported on Windows OS.")
+		Main.DisplayError("The auto-generate a new ROM feature is only supported on Windows OS.\n\nPlease use the other Quickload option: From a ROMs Folder.")
 		return nil
 	end
 

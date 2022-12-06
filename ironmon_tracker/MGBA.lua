@@ -408,9 +408,11 @@ MGBA.OptionMap = {
 			return FileManager.extractFolderNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			Options.FILES[self.optionKey] = params
+			local path = FileManager.formatPathForOS(params)
+			Options.FILES[self.optionKey] = path
 			Options.forceSave()
 			return true
+			-- Unsure how to verify if this is a valid folder path
 			-- return false, "Invalid ROMs folder; please enter the full folder path to your ROMs folder."
 		end,
 	},
@@ -421,13 +423,18 @@ MGBA.OptionMap = {
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = FileManager.extractFileExtensionFromPath(params)
-			if extension == "jar" then
-				Options.FILES[self.optionKey] = params
-				Options.forceSave()
-				return true
+			local path = FileManager.formatPathForOS(params)
+			local extension = FileManager.extractFileExtensionFromPath(path)
+			if extension ~= "jar" then
+				return false, "A '.jar' file is required; please enter the full file path to your Randomizer JAR file."
 			end
-			return false, "A '.jar' file is required; please enter the full file path to your Randomizer JAR file."
+			local absolutePath = FileManager.getPathIfExists(path)
+			if absolutePath == nil then
+				return false, string.format("File not found: %s", path)
+			end
+			Options.FILES[self.optionKey] = absolutePath
+			Options.forceSave()
+			return true
 		end,
 	},
 	[34] = {
@@ -437,13 +444,18 @@ MGBA.OptionMap = {
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = FileManager.extractFileExtensionFromPath(params)
-			if extension == "gba" then
-				Options.FILES[self.optionKey] = params
-				Options.forceSave()
-				return true
+			local path = FileManager.formatPathForOS(params)
+			local extension = FileManager.extractFileExtensionFromPath(path)
+			if extension ~= "gba" then
+				return false, "A '.gba' file is required; please enter the full file path to your GBA ROM file."
 			end
-			return false, "A '.gba' file is required; please enter the full file path to your GBA ROM file."
+			local absolutePath = FileManager.getPathIfExists(path)
+			if absolutePath == nil then
+				return false, string.format("File not found: %s", path)
+			end
+			Options.FILES[self.optionKey] = absolutePath
+			Options.forceSave()
+			return true
 		end,
 	},
 	[35] = {
@@ -453,13 +465,18 @@ MGBA.OptionMap = {
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
 		updateSelf = function(self, params)
-			local extension = FileManager.extractFileExtensionFromPath(params)
-			if extension == "rnqs" then
-				Options.FILES[self.optionKey] = params
-				Options.forceSave()
-				return true
+			local path = FileManager.formatPathForOS(params)
+			local extension = FileManager.extractFileExtensionFromPath(path)
+			if extension ~= "rnqs" then
+				return false, "An '.rnqs' file is required; please enter the full file path to your Randomizer Settings file."
 			end
-			return false, "An '.rnqs' file is required; please enter the full file path to your Randomizer Settings file."
+			local absolutePath = FileManager.getPathIfExists(path)
+			if absolutePath == nil then
+				return false, string.format("File not found: %s", path)
+			end
+			Options.FILES[self.optionKey] = absolutePath
+			Options.forceSave()
+			return true
 		end,
 	},
 }
@@ -833,6 +850,14 @@ MGBA.CommandMap = {
 			IronmonTracker.startTracker()
 		end,
 	},
+	["HELPWIKI"] = {
+		usageSyntax = 'HELPWIKI()',
+		exampleUsage = 'HELPWIKI()',
+		execute = function(self, params)
+			print(string.format(" Check out the Tracker's Help Wiki using the link below for tips and features:"))
+			print(string.format(" %s", FileManager.URLS.WIKI))
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -917,3 +942,8 @@ function RELOAD(...) MGBA.CommandMap["RELOAD"]:execute(...) end
 function Reload(...) RELOAD(...) end
 ---@diagnostic disable-next-line: lowercase-global
 function reload(...) RELOAD(...) end
+
+function HELPWIKI(...) MGBA.CommandMap["HELPWIKI"]:execute(...) end
+function HelpWiki(...) HELPWIKI(...) end
+---@diagnostic disable-next-line: lowercase-global
+function helpwiki(...) HELPWIKI(...) end

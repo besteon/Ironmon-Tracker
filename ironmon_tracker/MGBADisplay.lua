@@ -390,6 +390,7 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["HELP"],
 			MGBA.CommandMap["PCHEALS"],
 			MGBA.CommandMap["CREDITS"],
+			MGBA.CommandMap["HELPWIKI"],
 		}
 
 		table.insert(lines, "Usage Syntax:")

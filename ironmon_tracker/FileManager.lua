@@ -99,11 +99,6 @@ end
 function FileManager.getPathIfExists(filepath)
 	if filepath == nil then return nil end
 
-	-- Append the working directory to the start of the filepath, if missing
-	-- if string.find(filepath, IronmonTracker.workingDir, 1, true) == nil then -- true = plain text search cause '\'
-	-- 	filepath = FileManager.getAbsPath(filepath)
-	-- end
-
 	local file = io.open(filepath, "r")
 	if file ~= nil then
 		io.close(file)
