@@ -48,7 +48,7 @@ function Main.Initialize()
 	end
 
 	local onWindows = FileManager.setupWorkingDirectory()
-	Main.Os = onWindows and "Windows" or "Linux"
+	Main.OS = onWindows and "Windows" or "Linux"
 
 	if not FileManager.loadTrackerFiles() then
 		return false
