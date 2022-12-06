@@ -86,7 +86,8 @@ function Main.Run()
 		Main.frameAdvance()
 	end
 
-	Main.InitializeAllTrackerFiles()
+	Memory.initialize()
+	GameSettings.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == "Unsupported Game" then
@@ -101,6 +102,9 @@ function Main.Run()
 		end
 		return
 	end
+
+	-- After a game is successfully loaded, then initialize the remaining Tracker files
+	Main.InitializeAllTrackerFiles()
 
 	if Main.IsOnBizhawk() then
 		---@diagnostic disable-next-line: undefined-global
@@ -207,8 +211,6 @@ end
 
 function Main.InitializeAllTrackerFiles()
 	-- Initialize everything in the proper order
-	Memory.initialize()
-	GameSettings.initialize()
 	PokemonData.initialize()
 	MoveData.initialize()
 	RouteData.initialize()

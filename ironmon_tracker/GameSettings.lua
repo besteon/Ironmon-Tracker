@@ -31,11 +31,14 @@ GameSettings.ABILITIES = {}
 
 function GameSettings.initialize()
 	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
-	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
-
 	GameSettings.setGameInfo(gamecode)
-	if GameSettings.gamename == "Unsupported Game" then return end -- Skip rest of setup if game not supported
 
+	-- Skip rest of setup if game not supported
+	if GameSettings.gamename == "Unsupported Game" then
+		return
+	end
+
+	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
 	-- 0x02...
@@ -155,14 +158,15 @@ function GameSettings.setGameInfo(gamecode)
 		},
 	}
 
-	if games[gamecode] ~= nil then
-		GameSettings.game = games[gamecode].GAME_NUMBER
-		GameSettings.gamename = games[gamecode].GAME_NAME
-		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
-		GameSettings.versioncolor = games[gamecode].VERSION_COLOR
-		GameSettings.language = games[gamecode].LANGUAGE
-		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
-		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
+	local game = games[gamecode]
+	if game ~= nil then
+		GameSettings.game = game.GAME_NUMBER
+		GameSettings.gamename = game.GAME_NAME
+		GameSettings.versiongroup = game.VERSION_GROUP
+		GameSettings.versioncolor = game.VERSION_COLOR
+		GameSettings.language = game.LANGUAGE
+		GameSettings.badgePrefix = game.BADGE_PREFIX
+		GameSettings.badgeXOffsets = game.BADGE_XOFFSETS
 	else
 		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
