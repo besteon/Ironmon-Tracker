@@ -105,15 +105,6 @@ function SetupScreen.initialize()
 				if self.text == "PC heals count downward" then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
 				end
-
-				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
-				if self.text == "Animated Pokemon popout" then
-					if self.toggleState then
-						Drawing.AnimatedPokemon:create()
-					else
-						Drawing.AnimatedPokemon:destroy()
-					end
-				end
 			end
 		}
 		startY = startY + linespacing

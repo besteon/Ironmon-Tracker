@@ -359,6 +359,25 @@ MGBA.OptionMap = {
 	[4] = { optionKey = "PC heals count downward", displayName = "PC heals count downward", },
 	[5] = { optionKey = "Display pedometer", displayName = "Display step pedometer", },
 	[6] = { optionKey = "Display repel usage", displayName = "Display repel usage", },
+	[7] = {
+		optionKey = "Animated Pokemon popout",
+		displayName = "Animated Pokemon GIF",
+		updateSelf = function(self, params)
+			if Options[self.optionKey] ~= nil then
+				-- First test if this add-on is installed properly
+				local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
+				local isAvailable = FileManager.fileExists(abraGif)
+				if not Options[self.optionKey] and not isAvailable then -- attempt to turn it on, but can't
+					return false, "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up."
+				end
+
+				Options[self.optionKey] = not Options[self.optionKey]
+				Options.forceSave()
+				return true
+			end
+			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+		end,
+	},
 	[10] = { optionKey = "Load next seed", displayName = "Quickload", },
 	[11] = { optionKey = "Toggle view", displayName = "Toggle view", },
 	[12] = { optionKey = "Cycle through stats", displayName = "Cycle stats", },
@@ -384,7 +403,7 @@ MGBA.OptionMap = {
 				Options.forceSave()
 				return true
 			end
-			return false, string.format("Option key \"%s\" doesn't exist", tostring(self.optionKey))
+			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 		end,
 		},
 	[31] = {
@@ -398,7 +417,7 @@ MGBA.OptionMap = {
 				Options.forceSave()
 				return true
 			end
-			return false, string.format("Option key \"%s\" doesn't exist", tostring(self.optionKey))
+			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 		end,
 	},
 	[32] = {
@@ -516,7 +535,7 @@ function MGBA.buildOptionMapDefaults()
 						Options.forceSave()
 						return true
 					end
-					return false, string.format("Option key \"%s\" doesn't exist", tostring(self.optionKey))
+					return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 				end
 			end
 			opt.updateSelf = updateFunction

@@ -62,8 +62,9 @@ FileManager.Files = {
 		FranceData = "FranceData.lua",
 		GermanyData = "GermanyData.lua",
 	},
-	Icons = {
+	Other = {
 		REPEL = "repelUsage.png",
+		ANIMATED_POKEMON = "AnimatedPokemon.gif",
 	}
 }
 
@@ -212,6 +213,56 @@ function FileManager.extractFileExtensionFromPath(path)
 	end
 
 	return ""
+end
+
+-- Copies file at 'filepath' to 'filecopyPath' with option to overwrite the file if it exists, or append to it
+-- overwriteOrAppend: 'overwrite' replaces any existing file, 'append' adds to it instead, otherwise no change if file already exists
+function FileManager.CopyFile(filepath, filepathCopy, overwriteOrAppend)
+	if filepath == nil or filepath == "" then
+		return false
+	end
+
+	local originalFile = io.open(filepath, "rb")
+	if originalFile == nil then
+		-- The originalFile to copy doesn't exist, simply do nothing and don't copy
+		return false
+	end
+
+	-- filecopyPath = filecopyPath or (filepath .. " (Copy)") -- TODO: Fix this later, currently unused
+
+	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
+	if FileManager.fileExists(filepathCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
+		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', filepathCopy))
+		return false
+	end
+
+	local copyOfFile
+	if overwriteOrAppend == "append" then
+		copyOfFile = io.open(filepathCopy, "ab")
+	else
+		-- Default to overwriting the file even if no option specified
+		copyOfFile = io.open(filepathCopy, "wb")
+	end
+
+	if copyOfFile == nil then
+		print(string.format('Error: Failed to write to file "%s"', filepathCopy))
+		return false
+	end
+
+	if overwriteOrAppend == "append" then
+		copyOfFile:seek("end")
+	end
+
+	local nextBlock = originalFile:read(2^13)
+	while nextBlock ~= nil do
+		copyOfFile:write(nextBlock)
+		nextBlock = originalFile:read(2^13)
+	end
+
+	originalFile:close()
+	copyOfFile:close()
+
+	return true
 end
 
 -- 'filename' is a local name of a file

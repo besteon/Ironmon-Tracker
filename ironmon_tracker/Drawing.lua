@@ -352,8 +352,7 @@ function Drawing.setupAnimatedPictureBox()
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
-	-- TODO: Later fix this to make a fake copy gif in the Tracker's root folder
-	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() or pokemonID == nil or pokemonID == 0 then
+	if not Options["Animated Pokemon popout"] or pokemonID == nil or pokemonID == 0 then
 		return
 	end
 
@@ -367,20 +366,24 @@ function Drawing.setAnimatedPokemon(pokemonID)
 
 			local lowerPokemonName = pokemonData.name:lower()
 			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
-			if FileManager.fileExists(imagepath) then
-				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
-				forms.setproperty(pictureBox, "Visible", false)
-				forms.setproperty(pictureBox, "ImageLocation", "")
-				forms.setproperty(pictureBox, "Left", 1)
-				forms.setproperty(pictureBox, "Top", 1)
-				forms.setproperty(pictureBox, "Width", 1)
-				forms.setproperty(pictureBox, "Height", 1)
-				forms.setproperty(pictureBox, "ImageLocation", imagepath)
-				Drawing.AnimatedPokemon.requiresRelocating = true
-
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", false)
-			else
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", true)
+			local fileExists = FileManager.fileExists(imagepath)
+			if Main.IsOnBizhawk() then
+				if fileExists then
+					-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+					forms.setproperty(pictureBox, "Visible", false)
+					forms.setproperty(pictureBox, "ImageLocation", "")
+					forms.setproperty(pictureBox, "Left", 1)
+					forms.setproperty(pictureBox, "Top", 1)
+					forms.setproperty(pictureBox, "Width", 1)
+					forms.setproperty(pictureBox, "Height", 1)
+					forms.setproperty(pictureBox, "ImageLocation", imagepath)
+					Drawing.AnimatedPokemon.requiresRelocating = true
+				end
+				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
+			elseif fileExists then
+				-- For mGBA, duplicate the image file so it can be rendered by external programs
+				local animatedImageFile = FileManager.getAbsPath(FileManager.Files.Other.ANIMATED_POKEMON)
+				FileManager.CopyFile(imagepath, animatedImageFile, "overwrite")
 			end
 		end
 	end
@@ -418,7 +421,7 @@ function Drawing.drawRepelUsage()
 
 	local xOffset = Constants.SCREEN.WIDTH - 24
 	-- Draw repel item icon
-	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Icons.REPEL)
+	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
 	gui.drawImage(repelImage, xOffset, 0)
 	xOffset = xOffset + 18
 

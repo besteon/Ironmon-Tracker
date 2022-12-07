@@ -473,65 +473,21 @@ function Main.SaveCurrentRom(filename)
 	end
 
 	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
-	if Main.CopyFile(filename, filenameCopy, "overwrite") then
+	local filepath = FileManager.getAbsPath(filename)
+	local filepathCopy = FileManager.getAbsPath(filenameCopy)
+
+	if FileManager.CopyFile(filepath, filepathCopy, "overwrite") then
 		local logFilename = filename .. FileManager.Extensions.RANDOMIZER_LOGFILE
 		local logFilenameCopy = filenameCopy .. FileManager.Extensions.RANDOMIZER_LOGFILE
-		Main.CopyFile(logFilename, logFilenameCopy, "overwrite")
+		local logpath = FileManager.getAbsPath(logFilename)
+		local logpathCopy = FileManager.getAbsPath(logFilenameCopy)
+
+		FileManager.CopyFile(logpath, logpathCopy, "overwrite")
 
 		return filenameCopy
 	end
+
 	return nil
-end
-
--- Copies 'filename' to 'nameOfCopy' with option to overwrite the file if it exists, or append to it
--- overwriteOrAppend: 'overwrite' replaces any existing file, 'append' adds to it instead, otherwise no change if file already exists
-function Main.CopyFile(filename, nameOfCopy, overwriteOrAppend)
-	if filename == nil or filename == "" then
-		return false
-	end
-
-	local originalFile = io.open(FileManager.getAbsPath(filename), "rb")
-	if originalFile == nil then
-		-- The originalFile to copy doesn't exist, simply do nothing and don't copy
-		return false
-	end
-
-	nameOfCopy = nameOfCopy or (filename .. " (Copy)")
-	local filepathCopy = FileManager.getAbsPath(nameOfCopy)
-
-	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
-	if FileManager.fileExists(filepathCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
-		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', nameOfCopy))
-		return false
-	end
-
-	local copyOfFile
-	if overwriteOrAppend == "append" then
-		copyOfFile = io.open(filepathCopy, "ab")
-	else
-		-- Default to overwriting the file even if no option specified
-		copyOfFile = io.open(filepathCopy, "wb")
-	end
-
-	if copyOfFile == nil then
-		print(string.format('Error: Failed to write to file "%s"', nameOfCopy))
-		return false
-	end
-
-	if overwriteOrAppend == "append" then
-		copyOfFile:seek("end")
-	end
-
-	local nextBlock = originalFile:read(2^13)
-	while nextBlock ~= nil do
-		copyOfFile:write(nextBlock)
-		nextBlock = originalFile:read(2^13)
-	end
-
-	originalFile:close()
-	copyOfFile:close()
-
-	return true
 end
 
 -- Increment the attempts counter through a .txt file
