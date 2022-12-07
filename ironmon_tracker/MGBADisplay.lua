@@ -265,7 +265,7 @@ MGBADisplay.LineBuilder = {
 		end
 		table.insert(lines, "---------------------------------")
 
-		local fileBar = "%-30s" -- temp remove option #
+		local fileBar = "%-2s %-30s"
 		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.Options.Enabled then
 			local romFolderId = 32
 			local opt = MGBA.OptionMap[romFolderId]
@@ -274,11 +274,11 @@ MGBADisplay.LineBuilder = {
 				if foldername == "" then
 					foldername = "(NOT SET)"
 				end
-				table.insert(lines, string.format(fileBar, opt.displayName)) -- temp remove option #
+				table.insert(lines, string.format(fileBar, romFolderId, opt.displayName .. " *"))
 				table.insert(lines, string.format(" %-32s", foldername))
 			end
 			table.insert(lines, "")
-			table.insert(lines, 'Set above files in Settings.ini')
+			table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
 		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.Options.Enabled then
 			for i = 33, 35, 1 do
@@ -290,12 +290,12 @@ MGBADisplay.LineBuilder = {
 					elseif filename == "" then
 						filename = "(NOT SET)"
 					end
-					table.insert(lines, string.format(fileBar, opt.displayName .. ":")) -- temp remove option #
+					table.insert(lines, string.format(fileBar, i, opt.displayName .. ": *"))
 					table.insert(lines, string.format(" %-32s", filename))
 					table.insert(lines, "")
 				end
 			end
-			table.insert(lines, 'Set above files in Settings.ini')
+			table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set file: OPTION "# filepath"') -- temp hide this option from user
 		end
 		table.insert(lines, "---------------------------------")
@@ -331,10 +331,10 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "View release notes:")
 		table.insert(lines, " RELEASENOTES()")
 		table.insert(lines, "")
-		table.insert(lines, "Automatic update *:")
+		table.insert(lines, "Automatic update: *")
 		table.insert(lines, " UPDATENOW()")
 		table.insert(lines, "")
-		table.insert(lines, "*: Usually only works on Windows")
+		table.insert(lines, "* Usually only works on Windows")
 		table.insert(lines, "---------------------------------")
 
 		return lines

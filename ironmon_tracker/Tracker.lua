@@ -18,14 +18,18 @@ Tracker.LoadStatusMessages = {
 }
 
 function Tracker.initialize()
+	-- First create a default, non-nil Tracker Data
+	Tracker.resetData()
+
+	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
 		local filepath = FileManager.getAbsPath(GameSettings.getTrackerAutoSaveName())
 		local success, msg = Tracker.loadData(filepath)
-		if not success and msg ~= nil then
+		if not success and msg ~= nil and string.find(msg, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
+			-- Print any error that isn't "missing autosave tdat file"
 			print(msg)
 		end
 	else
-		Tracker.resetData()
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
 		print(Tracker.DataMessage)
 	end

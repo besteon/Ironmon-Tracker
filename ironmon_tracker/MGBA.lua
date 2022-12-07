@@ -547,7 +547,7 @@ end
 MGBA.CommandMap = {
 	-- ["EXAMPLECOMMAND"] = {
 	-- 	usageSyntax = 'SYNTAX',
-	-- 	exampleUsage = 'EXAMPLE', -- Ideally should be shorter than screenWidth-1 (32)
+	-- 	exampleUsage = 'EXAMPLE "params"', -- Ideally should be shorter than screenWidth-1 (32)
 	-- 	execute = function(self, params) end,
 	-- },
 	["HELP"] = {
@@ -570,7 +570,7 @@ MGBA.CommandMap = {
 	},
 	["NOTE"] = {
 		usageSyntax = 'NOTE "text"',
-		exampleUsage = 'NOTE "Shuckle is extremely fast"',
+		exampleUsage = 'NOTE "Very fast, no HP"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -579,13 +579,19 @@ MGBA.CommandMap = {
 			end
 
 			local noteText = params
-			if not Tracker.Data.isViewingOwn then
-				local pokemon = Tracker.getViewedPokemon()
-				if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-					Tracker.TrackNote(pokemon.pokemonID, noteText)
-					print(string.format(" Note added for %s.", pokemon.name))
-					Program.redraw(true)
-				end
+			local pokemon = Tracker.getViewedPokemon()
+			if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
+				print(" Unable to leave a note; no " .. Constants.Words.POKEMON .. " is currently being viewed.")
+				return
+			end
+
+			if Tracker.Data.isViewingOwn then
+				print(string.format(" Unable to leave a note for your own " .. Constants.Words.POKEMON .. ": %s.", pokemon.name))
+				print(string.format(" You can only leave notes for ENEMY " .. Constants.Words.POKEMON .. " you are currently viewing."))
+			else
+				Tracker.TrackNote(pokemon.pokemonID, noteText)
+				print(string.format(" Note added for %s.", pokemon.name))
+				Program.redraw(true)
 			end
 		end,
 	},
@@ -844,14 +850,18 @@ MGBA.CommandMap = {
 		usageSyntax = 'UPDATENOW()',
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
-			print(string.format("%s  (check the sidebar menu to view status)", UpdateScreen.States.IN_PROGRESS))
+			print(string.format(' %s (check "Update" sidebar for status)', UpdateScreen.States.IN_PROGRESS))
 			-- UpdateScreen.performAutoUpdate() -- TODO: commented to prevent accidental code overwrrite; uncomment later
 			if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 				print("")
-				print("You can now restart the Tracker to apply the update. Exit any battle first.")
+				print(" You can now restart the Tracker to apply the update. Exit any battle first.")
 				print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
 				print(" - Then click File -> Reset")
-				-- restart() -- currently doesn't work well on mGBA, see below
+				-- reload() -- currently doesn't work well on mGBA, see below
+			else
+				print("")
+				print(" The update was not succesful. You can manually update from the online release:")
+				print(string.format(" - %s", FileManager.URLS.DOWNLOAD))
 			end
 		end,
 	},
