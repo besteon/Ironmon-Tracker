@@ -33,14 +33,18 @@ function MGBA.printStartupInstructions()
 end
 
 function MGBA.activateQuickload()
-	if Main.frameCallbackId ~= nil then
-		---@diagnostic disable-next-line: undefined-global
-		callbacks:remove(Main.frameCallbackId)
-	end
-	if Main.keysreadCallbackId ~= nil then
-		---@diagnostic disable-next-line: undefined-global
-		callbacks:remove(Main.keysreadCallbackId)
-	end
+	-- if Main.frameCallbackId ~= nil then
+	-- 	---@diagnostic disable-next-line: undefined-global
+	-- 	callbacks:remove(Main.frameCallbackId)
+	-- end
+	-- if Main.keysreadCallbackId ~= nil then
+	-- 	---@diagnostic disable-next-line: undefined-global
+	-- 	callbacks:remove(Main.keysreadCallbackId)
+	-- end
+	-- if Main.startCallbackId ~= nil then
+	-- 	---@diagnostic disable-next-line: undefined-global
+	-- 	callbacks:remove(Main.startCallbackId)
+	-- end
 	Main.LoadNextRom()
 end
 

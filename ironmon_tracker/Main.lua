@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "7" }
+Main.Version = { major = "7", minor = "0", patch = "8" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -118,11 +118,23 @@ function Main.Run()
 		Main.LoadNextRom()
 	else -- mGBA specific loops
 		MGBA.printStartupInstructions()
-		---@diagnostic disable-next-line: undefined-global
-		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
-		---@diagnostic disable-next-line: undefined-global
-		Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
+		if Main.frameCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
+		end
+		if Main.keysreadCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
+		end
+		if Main.startCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.startCallbackId = callbacks:add("start", Main.TestFunc) -- required for manually loading roms
+		end
 	end
+end
+
+function Main.TestFunc()
+	print("RESTART HAS OCCURRED!")
 end
 
 -- Check which emulator is in use

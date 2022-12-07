@@ -708,9 +708,9 @@ function Utils.getEncryptionKey(size)
 	end
 end
 
+-- Reads the game stat stored at statIndex in memory
+-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
 function Utils.getGameStat(statIndex)
-	-- Reads the game stat stored at statIndex in memory
-	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 
@@ -721,5 +721,5 @@ function Utils.getGameStat(statIndex)
 		gameStatValue = Utils.bit_xor(gameStatValue, key)
 	end
 
-	return gameStatValue
+	return math.floor(gameStatValue)
 end

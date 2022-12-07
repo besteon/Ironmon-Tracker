@@ -346,7 +346,8 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 		pokemon = PokemonData.Pokemon[pokemonID]
 	end
 
-	local ownPokemonId = Battle.getViewedPokemon(true).pokemonID -- used to determine if looking up your lead Pokémon
+	-- Your lead Pokémon
+	local ownLeadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
@@ -355,7 +356,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or pokemon.pokemonID == ownPokemonId then
+	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
@@ -374,9 +375,8 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local viewedPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	if viewedPokemon.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = viewedPokemon.level
+	if ownLeadPokemon.pokemonID == pokemon.pokemonID then
+		data.x.viewedPokemonLevel = ownLeadPokemon.level
 	else
 		data.x.viewedPokemonLevel = 0
 	end
@@ -407,10 +407,10 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	data.m.priority = move.priority or "0"
 	data.m.summary = move.summary or Constants.BLANKLINE
 
-	local ownPokemon = Battle.getViewedPokemon(true)
-	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownPokemon, move.name)
+	local ownLeadPokemon = Battle.getViewedPokemon(true)
+	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.name)
 
-	if moveId == 237 and Utils.pokemonHasMove(ownPokemon, "Hidden Power") then -- 237 = Hidden Power
+	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, "Hidden Power") then -- 237 = Hidden Power
 		data.m.type = Tracker.getHiddenPowerType() or PokemonData.Types.UNKNOWN
 		data.m.category = MoveData.TypeToCategory[data.m.type]
 		data.x.ownHasHiddenPower = true
