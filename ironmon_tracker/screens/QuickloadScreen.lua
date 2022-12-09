@@ -210,7 +210,7 @@ function QuickloadScreen.handleSetCustomSettings(button)
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
 	if path == "" or not FileManager.fileExists(path) then
-		path = FileManager.getAbsPath(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.RandomizerSettings .. FileManager.slash)
+		path = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.RandomizerSettings .. FileManager.slash)
 		-- if not FileManager.fileExists(path .. "FRLG Survival.rnqs") then -- TODO: Probably find a better way to test a folder exists
 		-- end
 	end

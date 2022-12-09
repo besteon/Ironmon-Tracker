@@ -28,7 +28,11 @@ end
 
 function MGBA.printStartupInstructions()
 	print("")
-	print("Click on 'Basic Commands' to learn how to look-up game info as you play.")
+	print('On the left sidebar, click on any screen to see settings, commands, and info.')
+	print('To use any command, surround the command options with "quotation marks"')
+	print('For example, to look up a ' .. Constants.Words.POKEMON .. ', type in the below box:')
+	print("")
+	print('POKEMON "Pikachu"')
 	print("")
 end
 
@@ -382,10 +386,10 @@ MGBA.OptionMap = {
 			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 		end,
 	},
-	[10] = { optionKey = "Load next seed", displayName = "Quickload", },
-	[11] = { optionKey = "Toggle view", displayName = "Toggle view", },
-	[12] = { optionKey = "Cycle through stats", displayName = "Cycle stats", },
-	[13] = { optionKey = "Mark stat", displayName = "Mark stat", },
+	[10] = { optionKey = "Toggle view", displayName = "Swap viewed Pokemon", },
+	[11] = { optionKey = "Cycle through stats", displayName = "Cycle through stats", },
+	[12] = { optionKey = "Mark stat", displayName = "Mark a stat [+/-]", },
+	[13] = { optionKey = "Load next seed", displayName = "Quickload", },
 	-- GAMEPLAY OPTIONS (#20-27)
 	[20] = { optionKey = "Auto swap to enemy", displayName = "Auto swap to enemy", },
 	[21] = { optionKey = "Hide stats until summary shown", displayName = "View summary to see stats", },
@@ -645,7 +649,7 @@ MGBA.CommandMap = {
 	},
 	["ABILITY"] = {
 		usageSyntax = 'ABILITY "name"',
-		exampleUsage = 'ABILITY "Sturdy"',
+		exampleUsage = 'ABILITY "Flash Fire"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -801,7 +805,7 @@ MGBA.CommandMap = {
 			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
-			local success, msg = Tracker.loadData(FileManager.getAbsPath(filename))
+			local success, msg = Tracker.loadData(FileManager.prependDir(filename))
 			if success then
 				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
 					print(" " .. msg)
@@ -847,7 +851,7 @@ MGBA.CommandMap = {
 		exampleUsage = 'RELEASENOTES()',
 		execute = function(self, params)
 			UpdateScreen.openReleaseNotesWindow()
-			print(string.format("Release notes: %s", FileManager.URLS.DOWNLOAD))
+			print(string.format("Release notes: %s", FileManager.Urls.DOWNLOAD))
 		end,
 	},
 	["UPDATENOW"] = {
@@ -865,7 +869,7 @@ MGBA.CommandMap = {
 			else
 				print("")
 				print(" The update was not succesful. You can manually update from the online release:")
-				print(string.format(" - %s", FileManager.URLS.DOWNLOAD))
+				print(string.format(" - %s", FileManager.Urls.DOWNLOAD))
 			end
 		end,
 	},
@@ -888,7 +892,35 @@ MGBA.CommandMap = {
 		exampleUsage = 'HELPWIKI()',
 		execute = function(self, params)
 			print(string.format(" Check out the Tracker's Help Wiki using the link below for tips and features:"))
-			print(string.format(" %s", FileManager.URLS.WIKI))
+			print(string.format(" %s", FileManager.Urls.WIKI))
+		end,
+	},
+	["ATTEMPTS"] = {
+		usageSyntax = 'ATTEMPTS "#"',
+		exampleUsage = 'ATTEMPTS "123"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a positive number.')
+				return
+			end
+
+			local number = tonumber(params:match("^%d+") or "")
+			if number == nil then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where # is a positive number.')
+				return
+			end
+
+			local prevAttemptsCount = Main.currentSeed
+			Main.currentSeed = math.floor(number)
+			if prevAttemptsCount ~= Main.currentSeed then
+				Main.WriteAttemptsCounterToFile(Main.GetAttemptsFile(), Main.currentSeed)
+				Program.redraw(true)
+				print(string.format(' Updating Attempts count from "%s" to "%s"', prevAttemptsCount, Main.currentSeed))
+			else
+				print(string.format(' Attempts count already set to "%s"', Main.currentSeed))
+			end
 		end,
 	},
 }
@@ -980,3 +1012,8 @@ function HELPWIKI(...) MGBA.CommandMap["HELPWIKI"]:execute(...) end
 function HelpWiki(...) HELPWIKI(...) end
 ---@diagnostic disable-next-line: lowercase-global
 function helpwiki(...) HELPWIKI(...) end
+
+function ATTEMPTS(...) MGBA.CommandMap["ATTEMPTS"]:execute(...) end
+function Attempts(...) ATTEMPTS(...) end
+---@diagnostic disable-next-line: lowercase-global
+function attempts(...) ATTEMPTS(...) end

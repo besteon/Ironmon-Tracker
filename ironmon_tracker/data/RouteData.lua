@@ -278,9 +278,9 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 		if PokemonData.isValid(pokemonID) then
 			table.insert(areaInfo, {
 				pokemonID = pokemonID,
-				rate = rate,
-				minLv = encounter.minLv,
-				maxLv = encounter.maxLv,
+				rate = rate or 0,
+				minLv = encounter.minLv or 0,
+				maxLv = encounter.maxLv or 0,
 			})
 		end
 	end
@@ -406,8 +406,13 @@ function RouteData.setupRouteInfoAsFRLG()
 
 	RouteData.Info = {
 		[1] = { name = "Mom's House", },
+		[2] = { name = "Your Room", },
+		[3] = { name = "Rival's House", },
+		[4] = { name = "Rival's Room", },
 		[5] = { name = "Oak's Lab", },
 		[8] = { name = Constants.Words.POKEMON .. " Center", },
+		[9] = { name = Constants.Words.POKEMON .. " Center 2F", },
+		[10] = { name = Constants.Words.POKE .. "Mart", },
 		[12] = { name = "Cerulean Gym", },
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },
@@ -417,6 +422,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[34] = { name = "Saffron Gym", },
 		[36] = { name = "Cinnabar Gym", },
 		[37] = { name = "Viridian Gym", },
+		[77] = { name = "Safari Rest House", },
 		[78] = { name = "Pallet Town",
 			[RouteData.EncounterArea.SURFING] = {
 				{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
@@ -3316,7 +3322,13 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 
 	RouteData.Info[54] = { name = "Mom's House", }
+	RouteData.Info[55] = { name = "Your Room", }
+	RouteData.Info[56] = { name = "May's House 1F", }
+	RouteData.Info[57] = { name = "May's House 2F", }
+	RouteData.Info[58] = { name = "Prof. Birch's Lab", }
 	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
+	RouteData.Info[62] = { name = Constants.Words.POKEMON .. " Center 2F", }
+	RouteData.Info[63] = { name = Constants.Words.POKE .. "Mart", }
 	RouteData.Info[65] = { name = "Dewford Gym", }
 	RouteData.Info[69] = { name = "Lavaridge Gym 1F", }
 	RouteData.Info[70] = { name = "Lavaridge Gym B1F", }

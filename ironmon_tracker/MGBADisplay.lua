@@ -103,7 +103,7 @@ MGBADisplay.DataFormatter = {
 	formatRouteInfo = function(data)
 		local unseenPokemon = "???"
 		local justify4 = Utils.inlineIf(Options["Right justified numbers"], "%4s", "%-4s")
-		local originalPokemonBar = " %-12s  " .. justify4 .. "    Lv.%s"
+		local originalPokemonBar = " %-12s  " .. justify4 .. "    %s"
 
 		if not RouteData.hasRoute(data.r.id) then
 			data.r.name = string.format("UNKNOWN AREA (%s)", math.floor(data.r.id))
@@ -117,12 +117,18 @@ MGBADisplay.DataFormatter = {
 			area.originalLines = {}
 			for _, enc in ipairs(area.originalPokemon) do
 				local name = PokemonData.Pokemon[enc.pokemonID].name
-				local rate = math.floor((enc.rate or 0) * 100) .. "%"
-				local bar = string.format(originalPokemonBar, name, rate, enc.minLv)
-				if enc.minLv ~= enc.maxLv then
-					bar = bar .. "-" .. enc.maxLv
+				local rate = math.floor(enc.rate * 100) .. "%"
+				local level = "Lv."
+				if enc.minLv ~= 0 then
+					if enc.maxLv ~= 0 and enc.minLv ~= enc.maxLv then
+						level = string.format("Lv.%s-%s", math.floor(enc.minLv), math.floor(enc.maxLv))
+					else
+						level = string.format("Lv.%s", math.floor(enc.minLv))
+					end
+				else
+					level = ""
 				end
-				table.insert(area.originalLines, bar)
+				table.insert(area.originalLines, string.format(originalPokemonBar, name, rate, level))
 			end
 
 			area.trackedLines = {}
@@ -196,7 +202,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		local controlBar = "%-2s %-13s %16s"
+		local controlBar = "%-2s %-21s %8s"
 		table.insert(lines, MGBA.Screens.TrackerSetup.headerText:upper())
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Toggle option with: OPTION "#"')
@@ -211,12 +217,16 @@ MGBADisplay.LineBuilder = {
 
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Change with: OPTION "# button(s)"')
-		table.insert(lines, string.format(controlBar, "#", "Controls", "[GBA Buttons]"))
-		for i = 10, 13, 1 do
+		table.insert(lines, string.format("%-2s %-13s %16s", "#", "Controls", "GBA Buttons"))
+		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, string.format(controlBar, i, opt.displayName, opt:getValue()))
 			end
+		end
+		local qid = 13 -- "Quickload"
+		if MGBA.OptionMap[qid] ~= nil then
+			table.insert(lines, string.format("%-2s %-13s %16s", qid, MGBA.OptionMap[qid].displayName, MGBA.OptionMap[qid]:getValue()))
 		end
 
 		table.insert(lines, "---------------------------------")
@@ -345,7 +355,7 @@ MGBADisplay.LineBuilder = {
 		local commandBar = " %-10s%-s"
 		table.insert(lines, MGBA.Screens.CommandsBasic.headerText:upper())
 
-		local usageInstructions = 'Enter a command in the textbox below; parameter in "quotes"'
+		local usageInstructions = 'To use, type into below textbox. Example command: POKEMON "Espeon"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
 		table.insert(lines, "")
 
@@ -382,7 +392,7 @@ MGBADisplay.LineBuilder = {
 		local commandBar = " %-10s%-s"
 		table.insert(lines, MGBA.Screens.CommandsOther.headerText:upper())
 
-		local usageInstructions = 'Enter a command in the textbox below; parameter in "quotes"'
+		local usageInstructions = 'To use, type into below textbox. Example command: PCHEALS "10"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
 		table.insert(lines, "")
 
@@ -391,6 +401,7 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["PCHEALS"],
 			MGBA.CommandMap["CREDITS"],
 			MGBA.CommandMap["HELPWIKI"],
+			MGBA.CommandMap["ATTEMPTS"],
 		}
 
 		table.insert(lines, "Usage Syntax:")

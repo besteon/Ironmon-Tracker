@@ -1,11 +1,13 @@
 -- This file is the first file loaded by Bizhawk or mGBA.
 -- This file is NOT automatically updated live during Tracker auto-updates; requires Bizhawk restart
 -- Ideally this file should be as small as possible, and should not contain important code that requires maintaining
-IronmonTracker = {
-	workingDir = '',
-	mainFile = 'ironmon_tracker/Main.lua',
-	trackerLabel = '',
-}
+
+-- This prevents multiple of the same Tracker script from being loaded into mGBA
+if IronmonTracker == nil then
+	IronmonTracker = {
+		isRunning = (IronmonTracker ~= nil and IronmonTracker.isRunning)
+	}
+end
 
 -- Loads/reloads most of the Tracker scripts (except this single script loaded into Bizhawk)
 function IronmonTracker.startTracker()
@@ -13,7 +15,6 @@ function IronmonTracker.startTracker()
 	collectgarbage()
 
 	IronmonTracker.setupEmulatorSpecifics()
-	IronmonTracker.displayWelcomeMessage()
 
 	-- Only continue with starting up the Tracker if the 'Main' script was able to be loaded
 	if IronmonTracker.tryLoad() then
@@ -25,39 +26,53 @@ function IronmonTracker.startTracker()
 end
 
 function IronmonTracker.setupEmulatorSpecifics()
-	-- Get the current working directory of the Tracker script
-	local pathLookup = debug.getinfo(2, "S").source:sub(2)
-	IronmonTracker.workingDir = pathLookup:match("(.*[/\\])") or ""
+	-- This function doesn't exist in Bizhawk, only mGBA
+	IronmonTracker.isOnBizhawk = (console.createBuffer == nil)
 
 	-- Redefine Lua print function to be compatible with outputting to mGBA's scripting console
-	if console.createBuffer == nil then -- This function doesn't exist in Bizhawk, only mGBA
-		IronmonTracker.trackerLabel = "Bizhawk (Gen 3)"
+	local trackerLabel
+	if IronmonTracker.isOnBizhawk then
+		trackerLabel = "Bizhawk (Gen 3)"
 		print = function(...) console.log(...) end
 		console.clear()
 	else
-		IronmonTracker.trackerLabel = "mGBA (lite edition)"
+		trackerLabel = "mGBA (lite edition)"
 		print = function(...) console:log(...) end
 		print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") -- This "clears" the Console for mGBA
 	end
+
+	print(string.format("Loading Ironmon Tracker for %s", trackerLabel))
 end
 
-function IronmonTracker.displayWelcomeMessage()
-	print(string.format("Loading Ironmon Tracker for %s", IronmonTracker.trackerLabel))
-end
-
--- Returns true if it's able to successfully load the Main tracker file; false otherwise
+-- Returns true if all appropriate conditions are met; false otherwise
 function IronmonTracker.tryLoad()
+	-- Prevent annoying mGBA script duplication
+	if IronmonTracker.isRunning and not IronmonTracker.isOnBizhawk then
+		print("")
+		print("> Loading paused. A Tracker script is already active and in use.")
+		print('> To reload the Tracker, "Reset" or "Clear out" the script(s) first then try again.')
+		return false
+	end
+	IronmonTracker.isRunning = true
+
+	-- Get the current working directory of the Tracker script, needed for mGBA
+	if IronmonTracker.workingDir == nil then -- required to prevent overwrite in rare cases
+		local pathLookup = debug.getinfo(2, "S").source:sub(2)
+		IronmonTracker.workingDir = pathLookup:match("(.*[/\\])") or ""
+	end
+
 	-- Verify the Main.lua Tracker file exists
-	local file = io.open(IronmonTracker.workingDir .. IronmonTracker.mainFile, "r")
+	local mailFilePath = IronmonTracker.workingDir .. "ironmon_tracker/Main.lua"
+	local file = io.open(mailFilePath, "r")
 	if file == nil then
-		print('>> Error starting up the Tracker: Unable to load all of the required Tracker files.')
-		print('>> The "Ironmon-Tracker.lua" script file should be in the same folder as the other Tracker files that came with the release download.')
+		print('> Error starting up the Tracker: Unable to load all of the required Tracker files.')
+		print('> The "Ironmon-Tracker.lua" script file should be in the same folder as the other Tracker files that came with the release download.')
 		return false
 	end
 	io.close(file)
 
 	-- Load the Main Tracker script which will setup all the other files
-	dofile(IronmonTracker.workingDir .. IronmonTracker.mainFile)
+	dofile(mailFilePath)
 	return true
 end
 

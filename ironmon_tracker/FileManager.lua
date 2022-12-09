@@ -84,7 +84,7 @@ FileManager.Extensions = {
 	BADGE = ".png",
 }
 
-FileManager.URLS = {
+FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
@@ -107,7 +107,7 @@ function FileManager.getPathIfExists(filepath)
 	end
 
 	-- Otherwise check the absolute path of the file
-	filepath = FileManager.getAbsPath(filepath)
+	filepath = FileManager.prependDir(filepath)
 	file = io.open(filepath, "r")
 	if file ~= nil then
 		io.close(file)
@@ -118,23 +118,24 @@ function FileManager.getPathIfExists(filepath)
 end
 
 -- Returns the absolute file path using a local filename/path and the working directory of the Tracker
-function FileManager.getAbsPath(filenameOrPath)
-	return IronmonTracker.workingDir .. (filenameOrPath or "")
+function FileManager.prependDir(filenameOrPath)
+	return FileManager.dir .. (filenameOrPath or "")
 end
 
 -- Returns true if on Windows. This setup required specifically for Bizhawk on Windows.
 function FileManager.setupWorkingDirectory()
+	FileManager.dir = IronmonTracker.workingDir or ""
 	-- Working directory, used for absolute paths
 	local function exeCD() return io.popen("cd") end
 	local success, ret, err = xpcall(exeCD, debug.traceback)
-	if success and Main.IsOnBizhawk() and IronmonTracker.workingDir == "" then
-		IronmonTracker.workingDir = ret:read()
+	if success and Main.IsOnBizhawk() and FileManager.dir == "" then
+		FileManager.dir = ret:read()
 	end
 
 	-- Properly format the working directory
-	IronmonTracker.workingDir = FileManager.formatPathForOS(IronmonTracker.workingDir)
-	if IronmonTracker.workingDir:sub(-1) ~= FileManager.slash then
-		IronmonTracker.workingDir = IronmonTracker.workingDir .. FileManager.slash
+	FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
+	if FileManager.dir:sub(-1) ~= FileManager.slash then
+		FileManager.dir = FileManager.dir .. FileManager.slash
 	end
 
 	return success
@@ -168,8 +169,8 @@ end
 
 -- There is probably a better way to do this
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
-	return IronmonTracker.workingDir .. FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Images .. FileManager.slash ..
-	tostring(imageFolder) .. FileManager.slash .. tostring(imageName) .. (imageExtension or "")
+	return FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Images .. FileManager.slash ..
+	tostring(imageFolder) .. FileManager.slash .. tostring(imageName) .. (imageExtension or ""))
 end
 
 function FileManager.extractFolderNameFromPath(path)
@@ -267,7 +268,7 @@ end
 
 -- 'filename' is a local name of a file
 function FileManager.writeTableToFile(table, filename)
-	local filepath = FileManager.getAbsPath(filename)
+	local filepath = FileManager.prependDir(filename)
 	local file = io.open(filepath, "w")
 
 	if file ~= nil then
@@ -306,7 +307,7 @@ end
 function FileManager.readLinesFromFile(filename)
 	local lines = {}
 
-	local filepath = FileManager.getAbsPath(filename)
+	local filepath = FileManager.prependDir(filename)
 	local file = io.open(filepath, "r")
 	if file ~= nil then
 		local fileContents = file:read("*a")
@@ -328,7 +329,7 @@ function FileManager.addCustomThemeToFile(themeName, themeCode)
 		return
 	end
 
-	local themeFilePath = FileManager.getAbsPath(FileManager.Files.THEME_PRESETS)
+	local themeFilePath = FileManager.prependDir(FileManager.Files.THEME_PRESETS)
 	local file = io.open(themeFilePath, "a")
 
 	if file ~= nil then
@@ -342,7 +343,7 @@ end
 
 -- Removes a saved Theme preset by rewriting the file with all presets, but excluding the one that is being removed
 function FileManager.removeCustomThemeFromFile(themeName, themeCode)
-	local themeFilePath = FileManager.getAbsPath(FileManager.Files.THEME_PRESETS)
+	local themeFilePath = FileManager.prependDir(FileManager.Files.THEME_PRESETS)
 
 	if themeName == nil or themeCode == nil or not FileManager.fileExists(themeFilePath) then
 		return false

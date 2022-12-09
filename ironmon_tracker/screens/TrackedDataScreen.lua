@@ -110,7 +110,7 @@ function TrackedDataScreen.openLoadDataPrompt()
 	local suggestedFileName = GameSettings.getRomName() .. FileManager.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
-	local workingDir = IronmonTracker.workingDir
+	local workingDir = FileManager.dir
 	if workingDir ~= "" then
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end

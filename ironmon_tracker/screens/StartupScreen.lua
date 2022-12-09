@@ -95,7 +95,7 @@ function StartupScreen.initialize()
 	StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
 	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
-		print(Tracker.DataMessage)
+		print(string.format("> %s", Tracker.DataMessage))
 	end
 end
 
@@ -196,11 +196,7 @@ function StartupScreen.openEditAttemptsWindow()
 				StartupScreen.Buttons.AttemptsCount:updateSelf()
 				StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
-				local filename = Main.GetAttemptsFile()
-				if filename ~= nil then
-					Main.WriteAttemptsCounter(filename, newAttemptsCount)
-				end
-
+				Main.WriteAttemptsCounterToFile(Main.GetAttemptsFile(), newAttemptsCount)
 				Program.redraw(true)
 			end
 		end

@@ -31,11 +31,6 @@ function Main.Initialize()
 
 	Main.SetupEmulatorInfo()
 
-	 -- Clearing the console for each new game helps with troubleshooting issues
-	-- if Main.IsOnBizhawk() then -- currently being done in IronmonTracker.lua instead
-	-- 	console.clear()
-	-- end
-
 	-- Check the version of BizHawk that is running
 	if Main.IsOnBizhawk() and not Main.SupportedBizhawkVersion() then
 		print("This version of BizHawk is not supported for use with the Tracker.\nPlease update to version 2.8 or higher.")
@@ -47,8 +42,10 @@ function Main.Initialize()
 		return false
 	end
 
-	local onWindows = FileManager.setupWorkingDirectory()
-	Main.OS = onWindows and "Windows" or "Linux"
+	if Main.OS == nil then -- potentially fix weird reset issue with some users and quickload
+		local onWindows = FileManager.setupWorkingDirectory()
+		Main.OS = onWindows and "Windows" or "Linux"
+	end
 
 	if not FileManager.loadTrackerFiles() then
 		return false
@@ -59,9 +56,7 @@ function Main.Initialize()
 		Main.SaveSettings(true)
 
 		-- No Settings file means this is the first time the tracker has run, so bounce out for Bizhawk to force a restart
-		if Main.IsOnBizhawk() then -- Likely no longer need this: "and Options.FIRST_RUN"
-			-- Options.FIRST_RUN = false
-			-- Main.SaveSettings(true)
+		if Main.IsOnBizhawk() then
 			print("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			return false
@@ -71,14 +66,14 @@ function Main.Initialize()
 	Main.ReadAttemptsCounter()
 	Main.CheckForVersionUpdate()
 
-	print(string.format(">> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
+	print(string.format("> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 	return true
 end
 
 -- Waits for game to be loaded, then begins the Main loop
 function Main.Run()
 	if GameSettings.getRomName() == "Null" then
-		print("Waiting for a game ROM to be loaded... (File -> Open ROM)")
+		print("> Waiting for a game ROM to be loaded... (File -> Open ROM)")
 	end
 	local romLoaded = false
 	while not romLoaded do
@@ -91,8 +86,8 @@ function Main.Run()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == "Unsupported Game" then
-		print("Unsupported Game detected, please load a supported game ROM")
-		print("Check the README.txt file in the tracker folder for supported games")
+		print("> Unsupported Game detected, please load a supported game ROM")
+		print("> Check the README.txt file in the tracker folder for supported games")
 		if Main.IsOnBizhawk() then
 			---@diagnostic disable-next-line: undefined-global
 			client.SetGameExtraPadding(0, 0, 0, 0)
@@ -128,20 +123,20 @@ function Main.Run()
 		end
 		if Main.startCallbackId == nil then
 			---@diagnostic disable-next-line: undefined-global
+			-- TODO: Need to properly clear out and restart stuff if game changes, e.g. from FRLG to RSE
 			Main.startCallbackId = callbacks:add("start", Main.TestFunc) -- required for manually loading roms
 		end
 	end
 end
 
 function Main.TestFunc()
-	print("RESTART HAS OCCURRED!")
+	print("[DEBUG] A new ROM has been loaded into the Emulator.")
 end
 
 -- Check which emulator is in use
 function Main.SetupEmulatorInfo()
 	local frameAdvanceFunc
-	-- This function 'createBuffer' only exists on mGBA
-	if console.createBuffer == nil then
+	if console.createBuffer == nil then -- This function doesn't exist in Bizhawk, only mGBA
 		Main.Emulator = Main.EMU.BIZHAWK
 		frameAdvanceFunc = function()
 			---@diagnostic disable-next-line: undefined-global
@@ -190,7 +185,7 @@ function Main.LoadFileManager()
 
 	local fileManagerFile = io.open(fileManagerPath, "r")
 	if fileManagerFile == nil then
-		fileManagerPath = IronmonTracker.workingDir .. fileManagerPath
+		fileManagerPath = (IronmonTracker.workingDir or "") .. fileManagerPath
 		fileManagerFile = io.open(fileManagerPath, "r")
 		if fileManagerFile == nil then
 			print("Unable to load " .. fileManagerPath .. "\nMake sure all of the downloaded Tracker's files are still together.")
@@ -265,7 +260,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
-		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.URLS.VERSION)
+		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
 		local pipe = io.popen(update_cmd) or ""
 		if pipe ~= "" then
 			local response = pipe:read("*all") or ""
@@ -437,14 +432,14 @@ function Main.GenerateNextRom()
 	local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	local attemptsfilename = string.format("%s %s%s", filename, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
 	local nextromname = string.format("%s %s%s", filename, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
-	local nextrompath = FileManager.getAbsPath(nextromname)
+	local nextrompath = FileManager.prependDir(nextromname)
 
 	local previousRomName = Main.SaveCurrentRom(nextromname)
 
 	-- mGBA only, need to unload current ROM but loading another temp ROM
 	if previousRomName ~= nil and not Main.IsOnBizhawk() then
 		---@diagnostic disable-next-line: undefined-global
-		emu:loadFile(FileManager.getAbsPath(previousRomName))
+		emu:loadFile(FileManager.prependDir(previousRomName))
 	end
 
 	local javacommand = string.format(
@@ -455,7 +450,7 @@ function Main.GenerateNextRom()
 		nextrompath
 	)
 
-	local pipe = io.popen(string.format("%s 2>%s", javacommand, FileManager.getAbsPath(FileManager.Files.RANDOMIZER_ERROR_LOG)))
+	local pipe = io.popen(string.format("%s 2>%s", javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
 	if pipe ~= nil then
 		local output = pipe:read("*all")
 		print("> " .. output)
@@ -485,14 +480,14 @@ function Main.SaveCurrentRom(filename)
 	end
 
 	local filenameCopy = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, FileManager.PostFixes.PREVIOUSATTEMPT)
-	local filepath = FileManager.getAbsPath(filename)
-	local filepathCopy = FileManager.getAbsPath(filenameCopy)
+	local filepath = FileManager.prependDir(filename)
+	local filepathCopy = FileManager.prependDir(filenameCopy)
 
 	if FileManager.CopyFile(filepath, filepathCopy, "overwrite") then
 		local logFilename = filename .. FileManager.Extensions.RANDOMIZER_LOGFILE
 		local logFilenameCopy = filenameCopy .. FileManager.Extensions.RANDOMIZER_LOGFILE
-		local logpath = FileManager.getAbsPath(logFilename)
-		local logpathCopy = FileManager.getAbsPath(logFilenameCopy)
+		local logpath = FileManager.prependDir(logFilename)
+		local logpathCopy = FileManager.prependDir(logFilenameCopy)
 
 		FileManager.CopyFile(logpath, logpathCopy, "overwrite")
 
@@ -502,10 +497,13 @@ function Main.SaveCurrentRom(filename)
 	return nil
 end
 
--- Increment the attempts counter through a .txt file
+-- Uses a `filename` to lookup/create a .txt file to hold the attempts counter, incremented by one
 function Main.IncrementAttemptsCounter(filename, defaultStart)
-	local filepath = FileManager.getPathIfExists(filename)
-	if filepath ~= nil then
+	-- If the file doesn't exist yet, define the path to create it later
+	local filepath = FileManager.prependDir(filename)
+	if defaultStart ~= nil then
+		Main.currentSeed = defaultStart
+	else
 		local attemptsRead = io.open(filepath, "r")
 		if attemptsRead ~= nil then
 			local attemptsText = attemptsRead:read("*a")
@@ -514,25 +512,20 @@ function Main.IncrementAttemptsCounter(filename, defaultStart)
 				Main.currentSeed = tonumber(attemptsText)
 			end
 		end
-	elseif defaultStart ~= nil then
-		Main.currentSeed = defaultStart
 	end
 
 	Main.currentSeed = Main.currentSeed + 1
-	Main.WriteAttemptsCounter(filename, Main.currentSeed)
+	Main.WriteAttemptsCounterToFile(filepath, Main.currentSeed)
 end
 
 function Main.ReadAttemptsCounter()
 	local filepath = Main.GetAttemptsFile()
-
-	if filepath ~= nil then
-		local attemptsRead = io.open(filepath, "r")
-		if attemptsRead ~= nil then
-			local attemptsText = attemptsRead:read("*a")
-			attemptsRead:close()
-			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-				Main.currentSeed = tonumber(attemptsText)
-			end
+	local attemptsRead = io.open(filepath, "r")
+	if attemptsRead ~= nil then
+		local attemptsText = attemptsRead:read("*a")
+		attemptsRead:close()
+		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+			Main.currentSeed = tonumber(attemptsText)
 		end
 	else
 		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
@@ -544,10 +537,10 @@ function Main.ReadAttemptsCounter()
 	end
 end
 
-function Main.WriteAttemptsCounter(filename, attemptsCount)
+function Main.WriteAttemptsCounterToFile(filepath, attemptsCount)
 	attemptsCount = attemptsCount or Main.currentSeed
 
-	local attemptsWrite = io.open(FileManager.getAbsPath(filename), "w")
+	local attemptsWrite = io.open(filepath, "w")
 	if attemptsWrite ~= nil then
 		attemptsWrite:write(attemptsCount)
 		attemptsWrite:close()
@@ -569,6 +562,10 @@ function Main.GetAttemptsFile()
 		filepath = FileManager.getPathIfExists(filename)
 	end
 
+	if filepath == nil then
+		filepath = FileManager.prependDir(string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS))
+	end
+
 	return filepath
 end
 
@@ -576,7 +573,7 @@ end
 function Main.LoadSettings()
 	local settings = nil
 
-	local file = io.open(FileManager.getAbsPath(FileManager.Files.SETTINGS))
+	local file = io.open(FileManager.prependDir(FileManager.Files.SETTINGS))
 	if file ~= nil then
 		settings = Inifile.parse(file:read("*a"), "memory")
 		io.close(file)
@@ -591,9 +588,6 @@ function Main.LoadSettings()
 
 	-- [CONFIG]
 	if settings.config ~= nil then
-		if settings.config.FIRST_RUN ~= nil then
-			Options.FIRST_RUN = settings.config.FIRST_RUN
-		end
 		if settings.config.RemindMeLater ~= nil then
 			Main.Version.remindMe = settings.config.RemindMeLater
 		end
@@ -676,7 +670,6 @@ function Main.SaveSettings(forced)
 	if settings.theme == nil then settings.theme = {} end
 
 	-- [CONFIG]
-	settings.config.FIRST_RUN = Options.FIRST_RUN
 	settings.config.RemindMeLater = Main.Version.remindMe
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
@@ -707,7 +700,7 @@ function Main.SaveSettings(forced)
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
-	Inifile.save(FileManager.getAbsPath(FileManager.Files.SETTINGS), settings)
+	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
 end

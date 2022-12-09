@@ -382,7 +382,7 @@ function Drawing.setAnimatedPokemon(pokemonID)
 				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
 			elseif fileExists then
 				-- For mGBA, duplicate the image file so it can be rendered by external programs
-				local animatedImageFile = FileManager.getAbsPath(FileManager.Files.Other.ANIMATED_POKEMON)
+				local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
 				FileManager.CopyFile(imagepath, animatedImageFile, "overwrite")
 			end
 		end

@@ -12,7 +12,7 @@ Tracker.ForceUpdateData = {
 
 Tracker.LoadStatusMessages = {
 	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
-	fromFile = "Tracker data loaded from file", -- file name is appended later
+	fromFile = "Previously saved Tracker data for this game has been loaded",
 	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
 	unableLoadFile = "Unable to load Tracker data from selected file",
 }
@@ -23,7 +23,7 @@ function Tracker.initialize()
 
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = FileManager.getAbsPath(GameSettings.getTrackerAutoSaveName())
+		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
 		local success, msg = Tracker.loadData(filepath)
 		if not success and msg ~= nil and string.find(msg, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
 			-- Print any error that isn't "missing autosave tdat file"
@@ -31,7 +31,7 @@ function Tracker.initialize()
 		end
 	else
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
-		print(Tracker.DataMessage)
+		print(string.format("> %s", Tracker.DataMessage))
 	end
 end
 
@@ -532,9 +532,9 @@ function Tracker.loadData(filepath, forced)
 		end
 	end
 
-	local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
-	local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
-
-	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
+	-- Removing for now as the name wasn't really helpful and I wanted a more clear message
+	-- local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
+	-- local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
+	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile --.. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
 	return true, Tracker.DataMessage
 end

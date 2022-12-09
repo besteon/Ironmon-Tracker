@@ -190,12 +190,12 @@ end
 function NavigationMenu.openWikiBrowserWindow()
 	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', FileManager.URLS.WIKI))
+		os.execute(string.format('start "" "%s"', FileManager.Urls.WIKI))
 	else
 		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', FileManager.URLS.WIKI))
+		os.execute(string.format('open "" "%s"', FileManager.Urls.WIKI))
 		Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-		print(string.format("Help Wiki: %s", FileManager.URLS.WIKI))
+		print(string.format("Help Wiki: %s", FileManager.Urls.WIKI))
 	end
 end
 

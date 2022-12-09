@@ -259,7 +259,7 @@ function GameSettings.setGameVersion(gameversion)
 
 	-- Load non-English language data
 	local gameLanguage = GameSettings.language
-	local langFolder = FileManager.getAbsPath(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
+	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	if gameLanguage == "Spanish" then
 		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
 		SpainData.updateToSpainData()
