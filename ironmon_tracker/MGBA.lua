@@ -79,7 +79,7 @@ end
 MGBA.Screens = {
 	-- The default names (keys) of each screens on the mGBA Scripting window
 	SettingsMenu = {
-		name = string.format("%s Settings", MGBA.Symbols.Menu.Hamburger),
+		name = string.format("%s Tracker Settings (v%s)", MGBA.Symbols.Menu.Hamburger, Main.TrackerVersion),
 	},
 	TrackerSetup = {
 		name = string.format(" %s General Setup", MGBA.Symbols.Menu.ListItem),
