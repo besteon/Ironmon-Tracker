@@ -137,23 +137,19 @@ function FileManager.setupWorkingDirectory()
 	if FileManager.dir:sub(-1) ~= FileManager.slash then
 		FileManager.dir = FileManager.dir .. FileManager.slash
 	end
-
-	return success
 end
 
--- Attempts to load all required tracker files. Returns true if successful; false otherwise.
-function FileManager.loadTrackerFiles()
-	for _, filename in ipairs(FileManager.Files.LuaCode) do
-		local filepath = FileManager.getPathIfExists(FileManager.Folders.TrackerCode .. FileManager.slash .. filename)
-		if filepath ~= nil then
-			dofile(filepath)
-		else
-			print("Unable to load " .. filename .. "\nMake sure all of the downloaded Tracker's files are still together.")
-			Main.DisplayError("Unable to load " .. filename .. "\n\nMake sure all of the downloaded Tracker's files are still together.")
-			return false
-		end
+-- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
+function FileManager.loadLuaFile(filename)
+	local filepath = FileManager.getPathIfExists(FileManager.Folders.TrackerCode .. FileManager.slash .. filename)
+	if filepath ~= nil then
+		dofile(filepath)
+		return true
+	else
+		print("Unable to load " .. filename .. "\nMake sure all of the downloaded Tracker's files are still together.")
+		Main.DisplayError("Unable to load " .. filename .. "\n\nMake sure all of the downloaded Tracker's files are still together.")
+		return false
 	end
-	return true
 end
 
 -- Returns a properly formatted path that contains only the correct path-separators based on the OS

@@ -1,7 +1,7 @@
 AbilityData = {}
 
 function AbilityData.isValid(abilityId)
-	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities and abilityId ~= 76
+	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities -- and abilityId ~= 76 -- Allow Cacophony to be looked up
 end
 
 function AbilityData.populateAbilityDropdown(abilityList)
@@ -421,7 +421,7 @@ AbilityData.Abilities = {
 	{
 		id = 76,
 		name = "Cacophony", -- Unused in game but still takes this slot
-		description = "Soundproof before it was cool.",
+		description = "Immune to sound-based moves. These moves are:\nGrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar.",
 	},
 	{
 		id = 77,

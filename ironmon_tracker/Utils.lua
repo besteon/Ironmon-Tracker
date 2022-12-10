@@ -102,6 +102,28 @@ function Utils.formatNumberWithCommas(number)
   return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
+-- Only works in Lua 5.3+, and only needed for mGBA
+function Utils.formatUTF8(format, ...)
+	if Main.IsOnBizhawk() then
+		return string.format(format, ...)
+	end
+	local args, strings, pos = {...}, {}, 0
+	for spec in format:gmatch'%%.-([%a%%])' do
+		pos = pos + 1
+		local s = args[pos]
+		if spec == 's' and type(s) == 'string' and s ~= '' then
+			table.insert(strings, s)
+			---@diagnostic disable-next-line: undefined-global
+			args[pos] = '\1'..('\2'):rep(utf8.len(s)-1) -- utf8.len required to properly size utf-8 chars
+		end
+	end
+	return (
+		---@diagnostic disable-next-line: deprecated
+		format:format(table.unpack(args))
+			:gsub('\1\2*', function() return table.remove(strings, 1) end)
+	)
+end
+
 -- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
 -- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua

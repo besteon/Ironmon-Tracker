@@ -37,13 +37,13 @@ MGBADisplay.DataFormatter = {
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = string.format("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
 		else
 			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 		end
 
 		if tonumber(data.p.weight) ~= nil then
-			data.p.weight = string.format("%s kg", data.p.weight)
+			data.p.weight = Utils.formatUTF8("%s kg", data.p.weight)
 		else
 			data.p.weight = Constants.BLANKLINE
 		end
@@ -91,7 +91,7 @@ MGBADisplay.DataFormatter = {
 		end
 
 		if data.m.category == MoveData.Categories.PHYSICAL or data.m.category == MoveData.Categories.SPECIAL then
-			data.m.category = string.format("%s (%s)", data.m.category, MGBADisplay.Symbols.Category[data.m.category])
+			data.m.category = Utils.formatUTF8("%s (%s)", data.m.category, MGBADisplay.Symbols.Category[data.m.category])
 		end
 
 		data.m.iscontact = Utils.inlineIf(data.m.iscontact, "Yes", "No")
@@ -106,7 +106,7 @@ MGBADisplay.DataFormatter = {
 		local originalPokemonBar = " %-12s  " .. justify4 .. "    %s"
 
 		if not RouteData.hasRoute(data.r.id) then
-			data.r.name = string.format("UNKNOWN AREA (%s)", math.floor(data.r.id))
+			data.r.name = Utils.formatUTF8("UNKNOWN AREA (%s)", math.floor(data.r.id))
 		else
 			data.r.name = data.r.name:upper()
 		end
@@ -121,22 +121,22 @@ MGBADisplay.DataFormatter = {
 				local level = "Lv."
 				if enc.minLv ~= 0 then
 					if enc.maxLv ~= 0 and enc.minLv ~= enc.maxLv then
-						level = string.format("Lv.%s-%s", math.floor(enc.minLv), math.floor(enc.maxLv))
+						level = Utils.formatUTF8("Lv.%s-%s", math.floor(enc.minLv), math.floor(enc.maxLv))
 					else
-						level = string.format("Lv.%s", math.floor(enc.minLv))
+						level = Utils.formatUTF8("Lv.%s", math.floor(enc.minLv))
 					end
 				else
 					level = ""
 				end
-				table.insert(area.originalLines, string.format(originalPokemonBar, name, rate, level))
+				table.insert(area.originalLines, Utils.formatUTF8(originalPokemonBar, name, rate, level))
 			end
 
 			area.trackedLines = {}
 			for i = 1, area.totalPossible, 1 do
 				if PokemonData.isValid(area.trackedIDs[i]) then
-					table.insert(area.trackedLines, string.format(" %s", PokemonData.Pokemon[area.trackedIDs[i]].name))
+					table.insert(area.trackedLines, Utils.formatUTF8(" %s", PokemonData.Pokemon[area.trackedIDs[i]].name))
 				else
-					table.insert(area.trackedLines, string.format(" %s", unseenPokemon))
+					table.insert(area.trackedLines, Utils.formatUTF8(" %s", unseenPokemon))
 				end
 			end
 		end
@@ -149,12 +149,12 @@ MGBADisplay.DataFormatter = {
 		end
 
 		if data.p.status ~= "" then
-			data.p.status = string.format("[%s]", data.p.status)
+			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
 		end
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = string.format("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
 		else
 			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
 		end
@@ -172,7 +172,7 @@ MGBADisplay.DataFormatter = {
 				end
 			else
 				local statBtn = TrackerScreen.Buttons[statKey] or {}
-				data.p[statKey] = string.format(" %s ", Constants.STAT_STATES[statBtn.statState or 0].text)
+				data.p[statKey] = Utils.formatUTF8(" %s ", Constants.STAT_STATES[statBtn.statState or 0].text)
 			end
 
 			local stageChange = data.p.stages[statKey] - 6
@@ -187,7 +187,7 @@ MGBADisplay.DataFormatter = {
 
 		if not data.x.viewingOwn and Input.StatHighlighter:shouldDisplay() then
 			local selectedStat = Input.StatHighlighter:getSelectedStat()
-			data.p[selectedStat] = string.format("[%s]", data.p[selectedStat]:sub(2, 2))
+			data.p[selectedStat] = Utils.formatUTF8("[%s]", data.p[selectedStat]:sub(2, 2))
 		end
 
 		for _, move in ipairs(data.m.moves) do
@@ -207,26 +207,26 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
-		table.insert(lines, string.format("%-2s %-20s [%s]", "#", "Option", "Enabled"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
 		for i = 1, 7, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, string.format(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
 			end
 		end
 
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Change with: OPTION "# button(s)"')
-		table.insert(lines, string.format("%-2s %-13s %16s", "#", "Controls", "GBA Buttons"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", "Controls", "GBA Buttons"))
 		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, string.format(controlBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(controlBar, i, opt.displayName, opt:getValue()))
 			end
 		end
 		local qid = 13 -- "Quickload"
 		if MGBA.OptionMap[qid] ~= nil then
-			table.insert(lines, string.format("%-2s %-13s %16s", qid, MGBA.OptionMap[qid].displayName, MGBA.OptionMap[qid]:getValue()))
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid].displayName, MGBA.OptionMap[qid]:getValue()))
 		end
 
 		table.insert(lines, "---------------------------------")
@@ -241,11 +241,11 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
-		table.insert(lines, string.format("%-2s %-20s [%s]", "#", "Option", "Enabled"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
 		for i = 20, 27, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, string.format(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
 			end
 		end
 		table.insert(lines, "---------------------------------")
@@ -265,12 +265,12 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "---------------------------------")
 
 		table.insert(lines, 'Choose a mode with: OPTION "#"')
-		table.insert(lines, string.format("%-2s %-19s [%s]", "#", "Mode", "Selected"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", "Mode", "Selected"))
 
 		for i = 30, 31, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, string.format(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
 			end
 		end
 		table.insert(lines, "---------------------------------")
@@ -284,8 +284,8 @@ MGBADisplay.LineBuilder = {
 				if foldername == "" then
 					foldername = "(NOT SET)"
 				end
-				table.insert(lines, string.format(fileBar, romFolderId, opt.displayName .. " *"))
-				table.insert(lines, string.format(" %-32s", foldername))
+				table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt.displayName .. " *"))
+				table.insert(lines, Utils.formatUTF8(" %-32s", foldername))
 			end
 			table.insert(lines, "")
 			table.insert(lines, '* Set above files in Settings.ini')
@@ -300,8 +300,8 @@ MGBADisplay.LineBuilder = {
 					elseif filename == "" then
 						filename = "(NOT SET)"
 					end
-					table.insert(lines, string.format(fileBar, i, opt.displayName .. ": *"))
-					table.insert(lines, string.format(" %-32s", filename))
+					table.insert(lines, Utils.formatUTF8(fileBar, i, opt.displayName .. ": *"))
+					table.insert(lines, Utils.formatUTF8(" %-32s", filename))
 					table.insert(lines, "")
 				end
 			end
@@ -311,7 +311,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "---------------------------------")
 
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-		table.insert(lines, string.format("Button Combo: %19s", quickloadCombo))
+		table.insert(lines, Utils.formatUTF8("Button Combo: %19s", quickloadCombo))
 		table.insert(lines, "")
 
 		return lines
@@ -331,8 +331,8 @@ MGBADisplay.LineBuilder = {
 			table.insert(lines, "  New version update available!")
 			table.insert(lines, "")
 		end
-		table.insert(lines, string.format(columnBar, "Current version:", Main.TrackerVersion or Constants.BLANKLINE))
-		table.insert(lines, string.format(columnBar, versionStatus, Main.Version.latestAvailable or Constants.BLANKLINE))
+		table.insert(lines, Utils.formatUTF8(columnBar, "Current version:", Main.TrackerVersion or Constants.BLANKLINE))
+		table.insert(lines, Utils.formatUTF8(columnBar, versionStatus, Main.Version.latestAvailable or Constants.BLANKLINE))
 		table.insert(lines, "---------------------------------")
 
 		table.insert(lines, "Manually check for new updates:")
@@ -371,7 +371,7 @@ MGBADisplay.LineBuilder = {
 		for _, command in ipairs(commandList) do
 			if command.usageSyntax ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
-				table.insert(lines, string.format(commandBar, commandName, commandParams))
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
 		table.insert(lines, "")
@@ -380,7 +380,7 @@ MGBADisplay.LineBuilder = {
 		for _, command in ipairs(commandList) do
 			if command.exampleUsage ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
-				table.insert(lines, string.format(commandBar, commandName, commandParams))
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
 
@@ -408,7 +408,7 @@ MGBADisplay.LineBuilder = {
 		for _, command in ipairs(commandList) do
 			if command.usageSyntax ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
-				table.insert(lines, string.format(commandBar, commandName, commandParams))
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
 		table.insert(lines, "")
@@ -417,7 +417,7 @@ MGBADisplay.LineBuilder = {
 		for _, command in ipairs(commandList) do
 			if command.exampleUsage ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
-				table.insert(lines, string.format(commandBar, commandName, commandParams))
+				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
 
@@ -429,19 +429,20 @@ MGBADisplay.LineBuilder = {
 		MGBADisplay.DataFormatter.formatPokemonInfo(data)
 
 		local labelBar = "%-12s %s"
-		table.insert(lines, string.format("%-13s%s", data.p.name, string.format("[%s]", data.p.typeline)))
-		table.insert(lines, string.format(labelBar, "BST:", data.p.bst))
-		table.insert(lines, string.format(labelBar, "Weight:", data.p.weight))
-		table.insert(lines, string.format(labelBar, "Evolution:", data.p.evodetails))
+		table.insert(lines, Utils.formatUTF8("%-13s%s", data.p.name, Utils.formatUTF8("[%s]", data.p.typeline)))
+		table.insert(lines, Utils.formatUTF8(labelBar, "BST:", data.p.bst))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Weight:", data.p.weight))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Evolution:", data.p.evodetails))
 
+		table.insert(lines, "")
 		table.insert(lines, "Level-up moves:")
 		MGBADisplay.Utils.addLinesWrapped(lines, data.p.moveslearned)
 
 		table.insert(lines, "")
 		for _, label in ipairs(MGBADisplay.OrderedLists.Effectiveness) do
 			if data.e.list[label] ~= nil then
-				table.insert(lines, string.format("%s:", label))
-				MGBADisplay.Utils.addLinesWrapped(lines, string.format(" %s", data.e.list[label]))
+				table.insert(lines, Utils.formatUTF8("%s:", label))
+				MGBADisplay.Utils.addLinesWrapped(lines, Utils.formatUTF8(" %s", data.e.list[label]))
 			end
 		end
 
@@ -457,13 +458,13 @@ MGBADisplay.LineBuilder = {
 		MGBADisplay.DataFormatter.formatMoveInfo(data)
 
 		local labelBar = "%-12s %s"
-		table.insert(lines, string.format(labelBar, data.m.name, string.format("[%s]", data.m.type)))
-		table.insert(lines, string.format(labelBar, "Category:", data.m.category))
-		table.insert(lines, string.format(labelBar, "Contact:", data.m.iscontact))
-		table.insert(lines, string.format(labelBar, "PP:", data.m.pp))
-		table.insert(lines, string.format(labelBar, "Power:", data.m.power))
-		table.insert(lines, string.format(labelBar, "Accuracy:", data.m.accuracy))
-		table.insert(lines, string.format(labelBar, "Priority:", data.m.priority))
+		table.insert(lines, Utils.formatUTF8(labelBar, data.m.name, Utils.formatUTF8("[%s]", data.m.type)))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Category:", data.m.category))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Contact:", data.m.iscontact))
+		table.insert(lines, Utils.formatUTF8(labelBar, "PP:", data.m.pp))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Power:", data.m.power))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Accuracy:", data.m.accuracy))
+		table.insert(lines, Utils.formatUTF8(labelBar, "Priority:", data.m.priority))
 
 		if data.m.summary ~= Constants.BLANKLINE then
 			table.insert(lines, "")
@@ -495,7 +496,7 @@ MGBADisplay.LineBuilder = {
 
 		MGBADisplay.DataFormatter.formatRouteInfo(data)
 
-		table.insert(lines, string.format("%-22s%11s", data.r.name, "[Tracked]"))
+		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[Tracked]"))
 		table.insert(lines, "")
 
 		-- No wild encounters, such as a building, don't show anything else
@@ -506,7 +507,7 @@ MGBADisplay.LineBuilder = {
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
 			local area = data.e[encounterArea]
 			if area.totalPossible > 0 then -- Only display areas that have encounters
-				table.insert(lines, string.format("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
+				table.insert(lines, Utils.formatUTF8("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
 				for _, line in ipairs(area.trackedLines) do
 					table.insert(lines, line)
 				end
@@ -518,7 +519,7 @@ MGBADisplay.LineBuilder = {
 	buildOriginalRouteInfo = function(data)
 		local lines = {}
 
-		table.insert(lines, string.format("%-22s%11s", data.r.name, "[Original]"))
+		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[Original]"))
 		table.insert(lines, "")
 
 		-- No wild encounters, such as a building, don't show anything else
@@ -529,7 +530,7 @@ MGBADisplay.LineBuilder = {
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
 			local area = data.e[encounterArea]
 			if area.totalPossible > 0 then -- Only display areas that have encounters
-				table.insert(lines, string.format("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
+				table.insert(lines, Utils.formatUTF8("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
 				for _, line in ipairs(area.originalLines) do
 					table.insert(lines, line)
 				end
@@ -546,13 +547,13 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "")
 
 		local attemptsCount = tostring(Main.currentSeed) or Constants.BLANKLINE
-		table.insert(lines, string.format(statBar, "Total attempts:", attemptsCount))
+		table.insert(lines, Utils.formatUTF8(statBar, "Total attempts:", attemptsCount))
 		table.insert(lines, "")
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do
 			statPair.name = statPair.name:gsub("é", "e") -- The 'é' character doesn't work with format padding like %-20s
 			local formattedValue = Utils.formatNumberWithCommas(statPair.getValue() or 0)
-			table.insert(lines, string.format(statBar, statPair.name .. ":", formattedValue))
+			table.insert(lines, Utils.formatUTF8(statBar, statPair.name .. ":", formattedValue))
 		end
 
 		return lines
@@ -567,53 +568,53 @@ MGBADisplay.LineBuilder = {
 
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			formattedStats[statKey] = string.format("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], data.p[statKey], data.p.stages[statKey])
+			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], data.p[statKey], data.p.stages[statKey])
 		end
 
 		-- Header and top dividing line (with types)
-		lines[1] = string.format("%-23s%-5s%-5s", string.format("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
-		lines[2] = string.format("%-23s%-10s", data.p.typeline, "----------")
+		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
+		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, "----------")
 
 		-- Top six lines of the box: Pokemon related stuff
 		local topFormattedLine = "%-23s%-10s"
-		local levelLine = string.format("Lv.%s (%s)", data.p.level, data.p.evo)
+		local levelLine = Utils.formatUTF8("Lv.%s (%s)", data.p.level, data.p.evo)
 		if data.x.viewingOwn then
-			local hpLine = string.format("HP: %s/%s", data.p.curHP, data.p.hp)
-			lines[3] = string.format(topFormattedLine, hpLine, formattedStats.hp)
-			lines[4] = string.format(topFormattedLine, levelLine, formattedStats.atk)
+			local hpLine = Utils.formatUTF8("HP: %s/%s", data.p.curHP, data.p.hp)
+			lines[3] = Utils.formatUTF8(topFormattedLine, hpLine, formattedStats.hp)
+			lines[4] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.atk)
 
 			if Options["Track PC Heals"] then
-				local survivalHeals = string.format("Survival PCs: %s", data.x.pcheals)
-				lines[7] = string.format(topFormattedLine, survivalHeals, formattedStats.spd)
+				local survivalHeals = Utils.formatUTF8("Survival PCs: %s", data.x.pcheals)
+				lines[7] = Utils.formatUTF8(topFormattedLine, survivalHeals, formattedStats.spd)
 			else
-				lines[7] = string.format(topFormattedLine, "", formattedStats.spd)
+				lines[7] = Utils.formatUTF8(topFormattedLine, "", formattedStats.spd)
 			end
 
-			local availableHeals = string.format("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum)
-			lines[8] = string.format(topFormattedLine, availableHeals, formattedStats.spe)
+			local availableHeals = Utils.formatUTF8("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum)
+			lines[8] = Utils.formatUTF8(topFormattedLine, availableHeals, formattedStats.spe)
 		else
-			lines[3] = string.format(topFormattedLine, levelLine, formattedStats.hp)
+			lines[3] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.hp)
 
 			local lastLevelSeen
 			if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
-				lastLevelSeen = string.format("Last seen Lv.%s", data.p.lastlevel)
+				lastLevelSeen = Utils.formatUTF8("Last seen Lv.%s", data.p.lastlevel)
 			else
 				lastLevelSeen = "New encounter!"
 			end
-			lines[4] = string.format(topFormattedLine, lastLevelSeen, formattedStats.atk)
+			lines[4] = Utils.formatUTF8(topFormattedLine, lastLevelSeen, formattedStats.atk)
 
-			local encountersText = string.format("Seen %s: %s", Utils.inlineIf(Battle.isWildEncounter, "in the wild", "on trainers"), data.x.encounters)
-			lines[7] = string.format(topFormattedLine, encountersText, formattedStats.spd)
-			lines[8] = string.format(topFormattedLine, data.x.route, formattedStats.spe)
+			local encountersText = Utils.formatUTF8("Seen %s: %s", Utils.inlineIf(Battle.isWildEncounter, "in the wild", "on trainers"), data.x.encounters)
+			lines[7] = Utils.formatUTF8(topFormattedLine, encountersText, formattedStats.spd)
+			lines[8] = Utils.formatUTF8(topFormattedLine, data.x.route, formattedStats.spe)
 		end
 
-		lines[5] = string.format(topFormattedLine, data.p.line1, formattedStats.def)
-		lines[6] = string.format(topFormattedLine, data.p.line2, formattedStats.spa)
+		lines[5] = Utils.formatUTF8(topFormattedLine, data.p.line1, formattedStats.def)
+		lines[6] = Utils.formatUTF8(topFormattedLine, data.p.line2, formattedStats.spa)
 		table.insert(lines, "")
 
 		-- Bottom five lines of the box: Move related stuff
 		local botFormattedLine = "%-19s%-3s%-7s%-4s"
-		table.insert(lines, string.format(botFormattedLine, data.m.nextmoveheader, "PP", "  Pow", "Acc"))
+		table.insert(lines, Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "  Pow", "Acc"))
 		table.insert(lines, "---------------------------------")
 		for i, move in ipairs(data.m.moves) do
 			local nameText = move.name
@@ -625,14 +626,14 @@ MGBADisplay.LineBuilder = {
 			if move.isstab then
 				powerText = powerText .. MGBADisplay.Symbols.Stab
 			end
-			powerText = string.format(justify3, powerText)
+			powerText = Utils.formatUTF8(justify3, powerText)
 			if move.showeffective then
 				powerText = (MGBADisplay.Symbols.Effectiveness[move.effectiveness] or "  ") .. powerText
 			else
 				powerText = (MGBADisplay.Symbols.Effectiveness[1] or "  ") .. powerText
 			end
 
-			table.insert(lines, string.format(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
+			table.insert(lines, Utils.formatUTF8(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
 		end
 		table.insert(lines, "---------------------------------")
 
@@ -649,8 +650,8 @@ MGBADisplay.LineBuilder = {
 			local remainingFraction = math.floor(Program.ActiveRepel.stepCount * repelBarSize / Program.ActiveRepel.duration)
 			local repelFillBar = string.rep("=", remainingFraction)
 			if Program.ActiveRepel.stepCount > 0 then
-				repelFillBar = string.format("%-".. repelBarSize .. "s", repelFillBar)
-				table.insert(lines, string.format("Repel: %26s", string.format("[%s]", repelFillBar))) -- right-align
+				repelFillBar = Utils.formatUTF8("%-".. repelBarSize .. "s", repelFillBar)
+				table.insert(lines, Utils.formatUTF8("Repel: %26s", Utils.formatUTF8("[%s]", repelFillBar))) -- right-align
 			end
 		end
 		table.insert(lines, "---------------------------------")

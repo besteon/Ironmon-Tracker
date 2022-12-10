@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "8" }
+Main.Version = { major = "7", minor = "0", patch = "9" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -38,17 +38,22 @@ function Main.Initialize()
 		return false
 	end
 
-	if not Main.LoadFileManager() then
+	if not Main.SetupFileManager() then
 		return false
 	end
 
 	if Main.OS == nil then -- potentially fix weird reset issue with some users and quickload
-		local onWindows = FileManager.setupWorkingDirectory()
-		Main.OS = onWindows and "Windows" or "Linux"
+		if FileManager.slash == "\\" then
+			Main.OS = "Windows"
+		else
+			Main.OS = "Linux"
+		end
 	end
 
-	if not FileManager.loadTrackerFiles() then
-		return false
+	for _, filename in ipairs(FileManager.Files.LuaCode) do
+		if not FileManager.loadLuaFile(filename) then
+			return false
+		end
 	end
 
 	-- Create the Settings file if it doesn't exist
@@ -59,6 +64,8 @@ function Main.Initialize()
 		if Main.IsOnBizhawk() then
 			print("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
+			---@diagnostic disable-next-line: undefined-global
+			client.SetGameExtraPadding(0, 0, 0, 0)
 			return false
 		end
 	end
@@ -70,30 +77,51 @@ function Main.Initialize()
 	return true
 end
 
--- Waits for game to be loaded, then begins the Main loop
+-- Waits for game to be loaded, then begins the Main loop. From here after, do NOT trust values from IronmonTracker.lua
 function Main.Run()
-	if GameSettings.getRomName() == "Null" then
-		print("> Waiting for a game ROM to be loaded... (File -> Open ROM)")
-	end
-	local romLoaded = false
-	while not romLoaded do
-		if GameSettings.getRomName() ~= "Null" then romLoaded = true end
-		Main.frameAdvance()
+	if Main.IsOnBizhawk() then
+		-- mGBA hates infinite loops. This "wait for startup" is handled differently
+		if GameSettings.getRomName() == nil or GameSettings.getRomName() == "Null" then
+			print("> Waiting for a game ROM to be loaded... (File -> Open ROM)")
+		end
+		local romLoaded = false
+		while not romLoaded do
+			if GameSettings.getRomName() ~= nil and GameSettings.getRomName() ~= "Null" then
+				romLoaded = true
+			end
+			Main.frameAdvance()
+		end
+	else
+		-- mGBA specific loops
+		if Main.frameCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
+		end
+		if Main.keysreadCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
+		end
+		if Main.startCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.startCallbackId = callbacks:add("start", Main.SpecialRestart) -- required for manually loading roms
+		end
+		---@diagnostic disable-next-line: undefined-global
+		if emu == nil then
+			print("> Waiting for a game ROM to be loaded... (mGBA Emulator -> File -> Load ROM...)")
+			return
+		end
 	end
 
 	Memory.initialize()
 	GameSettings.initialize()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
-	if GameSettings.gamename == "Unsupported Game" then
+	if GameSettings.gamename == nil or GameSettings.gamename == "Unsupported Game" then
 		print("> Unsupported Game detected, please load a supported game ROM")
 		print("> Check the README.txt file in the tracker folder for supported games")
 		if Main.IsOnBizhawk() then
 			---@diagnostic disable-next-line: undefined-global
 			client.SetGameExtraPadding(0, 0, 0, 0)
-			while true do
-				Main.frameAdvance()
-			end
 		end
 		return
 	end
@@ -111,39 +139,27 @@ function Main.Run()
 		end
 
 		Main.LoadNextRom()
-	else -- mGBA specific loops
+	else
 		MGBA.printStartupInstructions()
-		if Main.frameCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
-			Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
-		end
-		if Main.keysreadCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
-			Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
-		end
-		if Main.startCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
-			-- TODO: Need to properly clear out and restart stuff if game changes, e.g. from FRLG to RSE
-			Main.startCallbackId = callbacks:add("start", Main.TestFunc) -- required for manually loading roms
-		end
 	end
 end
 
-function Main.TestFunc()
+function Main.SpecialRestart()
 	print("[DEBUG] A new ROM has been loaded into the Emulator.")
+	Main.Run()
 end
 
 -- Check which emulator is in use
 function Main.SetupEmulatorInfo()
 	local frameAdvanceFunc
 	if console.createBuffer == nil then -- This function doesn't exist in Bizhawk, only mGBA
-		Main.Emulator = Main.EMU.BIZHAWK
+		Main.emulator = Main.EMU.BIZHAWK
 		frameAdvanceFunc = function()
 			---@diagnostic disable-next-line: undefined-global
 			emu.frameadvance()
 		end
 	else
-		Main.Emulator = Main.EMU.MGBA
+		Main.emulator = Main.EMU.MGBA
 		frameAdvanceFunc = function()
 			-- ---@diagnostic disable-next-line: undefined-global
 			-- emu:runFrame() -- don't use this, use callbacks:add("frame", func) instead
@@ -153,7 +169,7 @@ function Main.SetupEmulatorInfo()
 end
 
 function Main.IsOnBizhawk()
-	return Main.Emulator == Main.EMU.BIZHAWK
+	return Main.emulator == Main.EMU.BIZHAWK
 end
 
 -- Checks if Bizhawk version is 2.8 or later
@@ -179,7 +195,7 @@ function Main.SupportedBizhawkVersion()
 	return false
 end
 
-function Main.LoadFileManager()
+function Main.SetupFileManager()
 	local slash = package.config:sub(1,1) or "\\" -- Windows is \ and Linux is /
 	local fileManagerPath = "ironmon_tracker" .. slash .. "FileManager.lua"
 
@@ -194,7 +210,9 @@ function Main.LoadFileManager()
 		end
 	end
 	io.close(fileManagerFile)
+
 	dofile(fileManagerPath)
+	FileManager.setupWorkingDirectory()
 
 	return true
 end
@@ -383,7 +401,7 @@ function Main.GetNextRomFromFolder()
 		return nil
 	end
 
-	local romname = GameSettings.getRomName()
+	local romname = GameSettings.getRomName() or ""
 
 	-- Split the ROM name into its prefix and numerical values
 	local romprefix = string.match(romname, '[^0-9]+') or ""
@@ -529,7 +547,7 @@ function Main.ReadAttemptsCounter()
 		end
 	else
 		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
-		local romname = GameSettings.getRomName()
+		local romname = GameSettings.getRomName() or ""
 		local romnumber = string.match(romname, '[0-9]+') or "1"
 		if romnumber ~= "1" then
 			Main.currentSeed = tonumber(romnumber)
@@ -548,7 +566,7 @@ function Main.WriteAttemptsCounterToFile(filepath, attemptsCount)
 end
 
 function Main.GetAttemptsFile()
-	local romname = GameSettings.getRomName()
+	local romname = GameSettings.getRomName() or ""
 	local romprefix = string.match(romname, '[^0-9]+') or "" -- remove numbers
 	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
 

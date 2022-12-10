@@ -348,7 +348,7 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.AnimatedPokemon.requiresRelocating = true
 
 	-- Return focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
-	os.execute(string.format('AppActivate(%s)', GameSettings.getRomName()))
+	os.execute(string.format('AppActivate(%s)', GameSettings.getRomName() or ""))
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)

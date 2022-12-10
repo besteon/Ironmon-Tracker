@@ -510,7 +510,7 @@ end
 function Battle.updateLookupInfo()
 	if Main.IsOnBizhawk() then return end -- currently just mGBA
 
-	if not MGBA.Screens.LookupPokemon.manuallySet then -- prevent changing if player manually looked up a Pokémon
+	if not MGBA.Screens.LookupPokemon.manuallySet and Program.Frames.waitToDraw == 0 then -- prevent changing if player manually looked up a Pokémon
 		-- Auto lookup the enemy Pokémon being fought
 		local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
 		MGBA.Screens.LookupPokemon:setData(pokemon.pokemonID, false)

@@ -19,11 +19,6 @@ Constants.Font = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
-Constants.Words = {
-	POKEMON = "Pok\233mon",
-	POKE = "Pok\233",
-}
-
 Constants.ButtonTypes = {
 	FULL_BORDER = 1,
 	NO_BORDER = 2,
@@ -162,12 +157,6 @@ Constants.OrderedLists = {
 		"Team Rocket",
 		"USS Galactic",
 		"Cozy Fall Leaves",
-	},
-	TIPS = { -- currently disabled, may use later
-		"Helpful tips are shown down here.", -- Skipped after it's shown once
-		"Tracked data is auto-saved after every battle.",
-		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
-		"Click on any " .. Constants.Words.POKEMON .. " or move to learn more about it.",
 	},
 }
 
@@ -385,4 +374,268 @@ Constants.PixelImages = {
 		{2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2},
 		{2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2},
 	},
+}
+
+Constants.CharMap = {
+	["À"] = {
+		[Main.EMU.BIZHAWK] = "\192",
+		[Main.EMU.MGBA] = "À",
+	},
+	["Á"] = {
+		[Main.EMU.BIZHAWK] = "\193",
+		[Main.EMU.MGBA] = "Á",
+	},
+	["Â"] = {
+		[Main.EMU.BIZHAWK] = "\194",
+		[Main.EMU.MGBA] = "Â",
+	},
+	["Ã"] = {
+		[Main.EMU.BIZHAWK] = "\195",
+		[Main.EMU.MGBA] = "Ã",
+	},
+	["Ä"] = {
+		[Main.EMU.BIZHAWK] = "\196",
+		[Main.EMU.MGBA] = "Ä",
+	},
+	["Å"] = {
+		[Main.EMU.BIZHAWK] = "\197",
+		[Main.EMU.MGBA] = "Å",
+	},
+	["Æ"] = {
+		[Main.EMU.BIZHAWK] = "\198",
+		[Main.EMU.MGBA] = "Æ",
+	},
+	["Ç"] = {
+		[Main.EMU.BIZHAWK] = "\199",
+		[Main.EMU.MGBA] = "Ç",
+	},
+	["È"] = {
+		[Main.EMU.BIZHAWK] = "\200",
+		[Main.EMU.MGBA] = "È",
+	},
+	["É"] = {
+		[Main.EMU.BIZHAWK] = "\201",
+		[Main.EMU.MGBA] = "É",
+	},
+	["Ê"] = {
+		[Main.EMU.BIZHAWK] = "\202",
+		[Main.EMU.MGBA] = "Ê",
+	},
+	["Ë"] = {
+		[Main.EMU.BIZHAWK] = "\203",
+		[Main.EMU.MGBA] = "Ë",
+	},
+	["Ì"] = {
+		[Main.EMU.BIZHAWK] = "\204",
+		[Main.EMU.MGBA] = "Ì",
+	},
+	["Í"] = {
+		[Main.EMU.BIZHAWK] = "\205",
+		[Main.EMU.MGBA] = "Í",
+	},
+	["Î"] = {
+		[Main.EMU.BIZHAWK] = "\206",
+		[Main.EMU.MGBA] = "Î",
+	},
+	["Ï"] = {
+		[Main.EMU.BIZHAWK] = "\207",
+		[Main.EMU.MGBA] = "Ï",
+	},
+	["Ð"] = {
+		[Main.EMU.BIZHAWK] = "\208",
+		[Main.EMU.MGBA] = "Ð",
+	},
+	["Ñ"] = {
+		[Main.EMU.BIZHAWK] = "\209",
+		[Main.EMU.MGBA] = "Ñ",
+	},
+	["Ò"] = {
+		[Main.EMU.BIZHAWK] = "\210",
+		[Main.EMU.MGBA] = "Ò",
+	},
+	["Ó"] = {
+		[Main.EMU.BIZHAWK] = "\211",
+		[Main.EMU.MGBA] = "Ó",
+	},
+	["Ô"] = {
+		[Main.EMU.BIZHAWK] = "\212",
+		[Main.EMU.MGBA] = "Ô",
+	},
+	["Õ"] = {
+		[Main.EMU.BIZHAWK] = "\213",
+		[Main.EMU.MGBA] = "Õ",
+	},
+	["Ö"] = {
+		[Main.EMU.BIZHAWK] = "\214",
+		[Main.EMU.MGBA] = "Ö",
+	},
+	["Ø"] = {
+		[Main.EMU.BIZHAWK] = "\216",
+		[Main.EMU.MGBA] = "Ø",
+	},
+	["Ù"] = {
+		[Main.EMU.BIZHAWK] = "\217",
+		[Main.EMU.MGBA] = "Ù",
+	},
+	["Ú"] = {
+		[Main.EMU.BIZHAWK] = "\218",
+		[Main.EMU.MGBA] = "Ú",
+	},
+	["Û"] = {
+		[Main.EMU.BIZHAWK] = "\219",
+		[Main.EMU.MGBA] = "Û",
+	},
+	["Ü"] = {
+		[Main.EMU.BIZHAWK] = "\220",
+		[Main.EMU.MGBA] = "Ü",
+	},
+	["Ý"] = {
+		[Main.EMU.BIZHAWK] = "\221",
+		[Main.EMU.MGBA] = "Ý",
+	},
+	["Þ"] = {
+		[Main.EMU.BIZHAWK] = "\222",
+		[Main.EMU.MGBA] = "Þ",
+	},
+	["ß"] = {
+		[Main.EMU.BIZHAWK] = "\223",
+		[Main.EMU.MGBA] = "ß",
+	},
+	["à"] = {
+		[Main.EMU.BIZHAWK] = "\224",
+		[Main.EMU.MGBA] = "à",
+	},
+	["á"] = {
+		[Main.EMU.BIZHAWK] = "\225",
+		[Main.EMU.MGBA] = "á",
+	},
+	["â"] = {
+		[Main.EMU.BIZHAWK] = "\226",
+		[Main.EMU.MGBA] = "â",
+	},
+	["ã"] = {
+		[Main.EMU.BIZHAWK] = "\227",
+		[Main.EMU.MGBA] = "ã",
+	},
+	["ä"] = {
+		[Main.EMU.BIZHAWK] = "\228",
+		[Main.EMU.MGBA] = "ä",
+	},
+	["å"] = {
+		[Main.EMU.BIZHAWK] = "\229",
+		[Main.EMU.MGBA] = "å",
+	},
+	["æ"] = {
+		[Main.EMU.BIZHAWK] = "\230",
+		[Main.EMU.MGBA] = "æ",
+	},
+	["ç"] = {
+		[Main.EMU.BIZHAWK] = "\231",
+		[Main.EMU.MGBA] = "ç",
+	},
+	["è"] = {
+		[Main.EMU.BIZHAWK] = "\232",
+		[Main.EMU.MGBA] = "è",
+	},
+	["é"] = {
+		[Main.EMU.BIZHAWK] = "\233",
+		[Main.EMU.MGBA] = "é",
+	},
+	["ê"] = {
+		[Main.EMU.BIZHAWK] = "\234",
+		[Main.EMU.MGBA] = "ê",
+	},
+	["ë"] = {
+		[Main.EMU.BIZHAWK] = "\235",
+		[Main.EMU.MGBA] = "ë",
+	},
+	["ì "] = {
+		[Main.EMU.BIZHAWK] = "\236",
+		[Main.EMU.MGBA] = "ì ",
+	},
+	["í"] = {
+		[Main.EMU.BIZHAWK] = "\237",
+		[Main.EMU.MGBA] = "í",
+	},
+	["î"] = {
+		[Main.EMU.BIZHAWK] = "\238",
+		[Main.EMU.MGBA] = "î",
+	},
+	["ï"] = {
+		[Main.EMU.BIZHAWK] = "\239",
+		[Main.EMU.MGBA] = "ï",
+	},
+	["ð"] = {
+		[Main.EMU.BIZHAWK] = "\240",
+		[Main.EMU.MGBA] = "ð",
+	},
+	["ñ"] = {
+		[Main.EMU.BIZHAWK] = "\241",
+		[Main.EMU.MGBA] = "ñ",
+	},
+	["ò"] = {
+		[Main.EMU.BIZHAWK] = "\242",
+		[Main.EMU.MGBA] = "ò",
+	},
+	["ó"] = {
+		[Main.EMU.BIZHAWK] = "\243",
+		[Main.EMU.MGBA] = "ó",
+	},
+	["ô"] = {
+		[Main.EMU.BIZHAWK] = "\244",
+		[Main.EMU.MGBA] = "ô",
+	},
+	["õ"] = {
+		[Main.EMU.BIZHAWK] = "\245",
+		[Main.EMU.MGBA] = "õ",
+	},
+	["ö"] = {
+		[Main.EMU.BIZHAWK] = "\246",
+		[Main.EMU.MGBA] = "ö",
+	},
+	["ø"] = {
+		[Main.EMU.BIZHAWK] = "\248",
+		[Main.EMU.MGBA] = "ø",
+	},
+	["ù"] = {
+		[Main.EMU.BIZHAWK] = "\249",
+		[Main.EMU.MGBA] = "ù",
+	},
+	["ú"] = {
+		[Main.EMU.BIZHAWK] = "\250",
+		[Main.EMU.MGBA] = "ú",
+	},
+	["û"] = {
+		[Main.EMU.BIZHAWK] = "\251",
+		[Main.EMU.MGBA] = "û",
+	},
+	["ü"] = {
+		[Main.EMU.BIZHAWK] = "\252",
+		[Main.EMU.MGBA] = "ü",
+	},
+	["ý"] = {
+		[Main.EMU.BIZHAWK] = "\253",
+		[Main.EMU.MGBA] = "ý",
+	},
+	["þ"] = {
+		[Main.EMU.BIZHAWK] = "\254",
+		[Main.EMU.MGBA] = "þ",
+	},
+	["ÿ"] = {
+		[Main.EMU.BIZHAWK] = "\255",
+		[Main.EMU.MGBA] = "ÿ",
+	},
+}
+
+-- Returns a renderable character for the appropriate emulator
+function Constants.getC(character)
+	if Constants.CharMap[character] ~= nil and Constants.CharMap[character][Main.emulator] ~= nil then
+		return Constants.CharMap[character][Main.emulator]
+	end
+	return Constants.HIDDEN_INFO
+end
+
+Constants.Words = {
+	POKEMON = "Pok" .. Constants.getC("é") .. "mon",
+	POKE = "Pok" .. Constants.getC("é"),
 }

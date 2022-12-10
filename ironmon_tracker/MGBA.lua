@@ -10,7 +10,7 @@ MGBA.Symbols = {
 }
 
 function MGBA.initialize()
-	MGBA.updateSpecialWords()
+	MGBA.shortenDashes()
 	MGBA.ScreenUtils.createTextBuffers()
 	MGBA.buildOptionMapDefaults()
 
@@ -52,56 +52,22 @@ function MGBA.activateQuickload()
 	Main.LoadNextRom()
 end
 
--- Adjust some written Constants so that they display properly
-function MGBA.updateSpecialWords()
-	-- Keep these the same old values
-	AbilityData.DefaultAbility.name = Constants.BLANKLINE
-	AbilityData.DefaultAbility.description = Constants.BLANKLINE
+function MGBA.shortenDashes()
+	AbilityData.DefaultAbility.name = "---"
+	AbilityData.DefaultAbility.description = "---"
 
-	local pokemonWord = "Pokémon"
-	local pokeWord = "Poké"
-
-	-- First replace existing words with new ones
 	for _, move in pairs(MoveData.Moves) do
-		if move.summary:find(Constants.Words.POKEMON) then
-			move.summary = move.summary:gsub(Constants.Words.POKEMON, pokemonWord)
+		if move.priority ~= nil then
+			if move.priority:sub(1, 3) == "-- " then
+				move.priority = "-" .. move.priority:sub(4)
+			elseif move.priority:sub(1, 2) == "+ " then
+				move.priority = "+" .. move.priority:sub(3)
+			end
 		end
 	end
-	for _, ability in pairs(AbilityData.Abilities) do
-		if ability.description:find(Constants.Words.POKEMON) then
-			ability.description = ability.description:gsub(Constants.Words.POKEMON, pokemonWord)
-		end
-		if ability.description:find(Constants.Words.POKE) then
-			ability.description = ability.description:gsub(Constants.Words.POKE, pokeWord)
-		end
-		if ability.descriptionEmerald ~= nil and ability.descriptionEmerald:find(Constants.Words.POKEMON) then
-			ability.descriptionEmerald = ability.descriptionEmerald:gsub(Constants.Words.POKEMON, pokemonWord)
-		end
-		if ability.descriptionEmerald ~= nil and ability.descriptionEmerald:find(Constants.Words.POKE) then
-			ability.descriptionEmerald = ability.descriptionEmerald:gsub(Constants.Words.POKE, pokeWord)
-		end
-	end
-	for _, route in pairs(RouteData.Info) do
-		if route.name:find(Constants.Words.POKEMON) then
-			route.name = route.name:gsub(Constants.Words.POKEMON, pokemonWord)
-		end
-		if route.name:find(Constants.Words.POKE) then
-			route.name = route.name:gsub(Constants.Words.POKE, pokeWord)
-		end
-	end
-	for _, statPair in pairs(StatsScreen.StatTables) do
-		if statPair.name:find(Constants.Words.POKEMON) then
-			statPair.name = statPair.name:gsub(Constants.Words.POKEMON, pokemonWord)
-		end
-		if statPair.name:find(Constants.Words.POKE) then
-			statPair.name = statPair.name:gsub(Constants.Words.POKE, pokeWord)
-		end
-	end
-	Constants.Words.POKEMON = pokemonWord
-	Constants.Words.POKE = pokeWord
 
-	Constants.BLANKLINE = "--" -- change from triple dash to double
-	Constants.STAT_STATES[2].text = "-" -- change from double dash to single
+	Constants.BLANKLINE = "--"
+	Constants.STAT_STATES[2].text = "-"
 end
 
 -- The screens themselves, which include modifier functions and TextBuffer access.
@@ -190,14 +156,20 @@ MGBA.Screens = {
 	},
 	LookupMove = {
 		name = string.format(" %s Move", MGBA.Symbols.Menu.ListItem),
+		lastTurnLookup = -1,
 		setData = function(self, moveId, setByUser)
 			if self.moveId ~= moveId and MoveData.isValid(moveId) then
 				local labelToAppend = MoveData.Moves[moveId].name or Constants.BLANKLINE
 				MGBA.ScreenUtils.setLabel(MGBA.Screens.LookupMove, labelToAppend)
 			end
 			self.moveId = moveId or 0
+			-- self.manuallySet = setByUser or false
 		end,
 		updateData = function(self)
+			-- May or may not use this yet, leaving it commented out
+			-- if self.manuallySet and self.labelTimer ~= nil and self.labelTimer == 0 then
+			-- 	self.manuallySet = false
+			-- end
 			self:checkForEnemyAttack()
 
 			-- Automatically default to showing a random Move
@@ -211,7 +183,10 @@ MGBA.Screens = {
 			end
 		end,
 		checkForEnemyAttack = function(self)
-			if Battle.inBattle and not Battle.enemyHasAttacked and Battle.actualEnemyMoveId ~= 0 and MoveData.isValid(Battle.actualEnemyMoveId) then
+			if not Battle.inBattle and self.lastTurnLookup ~= -1 then
+				self.lastTurnLookup = -1
+			elseif not Battle.enemyHasAttacked and MoveData.isValid(Battle.actualEnemyMoveId) and self.lastTurnLookup ~= Battle.turnCount then
+				self.lastTurnLookup = Battle.turnCount
 				self:setData(Battle.actualEnemyMoveId, false)
 			end
 		end,
@@ -360,11 +335,24 @@ MGBA.ScreenUtils = {
 -- Ordered list of options that can be changed via the OPTION "#" function.
 -- Each has 'optionKey', 'displayName', 'updateSelf', and 'getValue'; many defined in MGBA.buildOptionMapDefaults()
 MGBA.OptionMap = {
-	-- TRACKER SETUP (#1-#5, #10-#13)
+	-- TRACKER SETUP (#1-#7, #10-#13)
 	[1] = { optionKey = "Right justified numbers", displayName = "Right justified numbers", },
 	[2] = { optionKey = "Auto save tracked game data", displayName = "Autosave tracked game data", },
 	[3] = { optionKey = "Track PC Heals", displayName = "Track PC Heals", },
-	[4] = { optionKey = "PC heals count downward", displayName = "PC heals count downward", },
+	[4] = {
+		optionKey = "PC heals count downward",
+		displayName = "PC heals count downward",
+		updateFunction = function(self)
+			if Options[self.optionKey] ~= nil then
+				-- If PC Heal tracking switched, invert the count
+				Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+				Options[self.optionKey] = not Options[self.optionKey]
+				Options.forceSave()
+				return true
+			end
+			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+		end,
+	},
 	[5] = { optionKey = "Display pedometer", displayName = "Display step pedometer", },
 	[6] = { optionKey = "Display repel usage", displayName = "Display repel usage", },
 	[7] = {
