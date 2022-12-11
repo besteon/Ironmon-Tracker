@@ -78,7 +78,7 @@ end
 
 function Program.mainLoop()
 	if Main.loadNextSeed and not Main.IsOnBizhawk() then -- required escape for mGBA
-		MGBA.activateQuickload()
+		Main.LoadNextRom()
 		return
 	end
 	Input.checkForInput()

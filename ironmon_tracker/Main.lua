@@ -45,14 +45,12 @@ function Main.Initialize()
 		return false
 	end
 
-	if Main.OS == nil then -- potentially fix weird reset issue with some users and quickload
-		if FileManager.slash == "\\" then
-			Main.OS = "Windows"
-		else
-			Main.OS = "Linux"
-			if Main.IsOnBizhawk() then -- for now assume special characters render fine on Linux
-				Main.supportsSpecialChars = true
-			end
+	if FileManager.slash == "\\" then
+		Main.OS = "Windows"
+	else
+		Main.OS = "Linux"
+		if Main.IsOnBizhawk() then -- for now assume special characters render fine on Linux
+			Main.supportsSpecialChars = true
 		end
 	end
 
@@ -85,8 +83,6 @@ end
 
 -- Waits for game to be loaded, then begins the Main loop. From here after, do NOT trust values from IronmonTracker.lua
 function Main.Run()
-	Main.RunDebugFunc()
-
 	if Main.IsOnBizhawk() then
 		-- mGBA hates infinite loops. This "wait for startup" is handled differently
 		if GameSettings.getRomName() == nil or GameSettings.getRomName() == "Null" then
@@ -101,22 +97,25 @@ function Main.Run()
 		end
 	else
 		-- mGBA specific loops
-		if Main.frameCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
-			Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
-		end
-		if Main.keysreadCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
-			Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
-		end
 		if Main.startCallbackId == nil then
 			---@diagnostic disable-next-line: undefined-global
-			Main.startCallbackId = callbacks:add("start", Main.SpecialRestart) -- required for manually loading roms
+			Main.startCallbackId = callbacks:add("start", Main.Run)
 		end
+		if Main.stopCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.stopCallbackId = callbacks:add("stop", MGBA.stopRunLoops)
+		end
+		if Main.shutdownCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.shutdownCallbackId = callbacks:add("shutdown", MGBA.stopRunLoops)
+		end
+
 		---@diagnostic disable-next-line: undefined-global
 		if emu == nil then
 			print("> Waiting for a game ROM to be loaded... (mGBA Emulator -> File -> Load ROM...)")
 			return
+		else
+			MGBA.startRunLoops()
 		end
 	end
 
@@ -150,11 +149,6 @@ function Main.Run()
 	else
 		MGBA.printStartupInstructions()
 	end
-end
-
-function Main.SpecialRestart()
-	print("> [DEBUG] A new ROM has been loaded into the Emulator.")
-	Main.Run()
 end
 
 -- Check which emulator is in use
@@ -282,8 +276,8 @@ end
 -- allowing patches to seamlessly update without bothering every end-user
 -- forcedCheck: if true, will force an update check (please use sparingly)
 function Main.CheckForVersionUpdate(forcedCheck)
-	if Main.IsOnBizhawk() and Main.OS ~= "Windows" then
-		-- io.popen only works on Bizhawk if on Windows
+	-- Update check not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
 		return
 	end
 
@@ -381,7 +375,7 @@ function Main.LoadNextRom()
 	if nextRomInfo ~= nil then
 		-- After successfully generating the next ROM to load, increment the attempts counter
 		Main.currentSeed = Main.currentSeed + 1
-		Main.WriteAttemptsCounterToFile(nextRomInfo.attemptsFileName)
+		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 
 		Tracker.resetData()
 		if Main.IsOnBizhawk() then
@@ -475,16 +469,17 @@ function Main.GetNextRomFromFolder()
 	return {
 		fileName = filenameFromFolder,
 		filePath = (files.quickloadPath or "") .. filenameFromFolder,
-		attemptsFileName = attemptsFileName,
+		attemptsFilePath = FileManager.prependDir(attemptsFileName),
 	}
 end
 
 function Main.GenerateNextRom()
-	-- if Main.OS ~= "Windows" then
-	-- 	print("The auto-generate a new ROM feature is only supported on Windows OS.")
-	-- 	Main.DisplayError("The auto-generate a new ROM feature is only supported on Windows OS.\n\nPlease use the other Quickload option: From a ROMs Folder.")
-	-- 	return nil
-	-- end
+	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+		print("The auto-generate a new ROM feature is only supported on Windows OS or Bizhawk 2.9+.")
+		Main.DisplayError("The auto-generate a new ROM feature is only supported on Windows OS or Bizhawk 2.9+.\n\nPlease use the other Quickload option: From a ROMs Folder.")
+		return nil
+	end
 
 	local files = Main.GetQuickloadFiles()
 
@@ -493,7 +488,11 @@ function Main.GenerateNextRom()
 		Main.DisplayError("Files missing that are required for Quick-load to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> Tracker Setup -> Quick-load")
 		return nil
 	elseif #files.jarList > 1 or #files.settingsList > 1 or #files.romList > 1 then
-		-- Error message already displayed in Main.GetQuickloadFiles()
+		local msg1 = string.format("[Quickload ERROR] Too many GBA/JAR/RNQS files found in the quickload folder.")
+		local msg2 = string.format("Please remove all-but-one of each these types of files from the folder.")
+		print("> " .. msg1)
+		print("> " .. msg2)
+		Main.DisplayError(msg1 .. "\n" .. msg2)
 		return nil
 	end
 
@@ -539,7 +538,7 @@ function Main.GenerateNextRom()
 	return {
 		fileName = nextRomName,
 		filePath = nextRomPath,
-		attemptsFileName = attemptsFileName,
+		attemptsFilePath = FileManager.prependDir(attemptsFileName),
 	}
 end
 
@@ -560,7 +559,7 @@ function Main.GetQuickloadFiles()
 		return fileLists
 	end
 
-	local extensions = {
+	local listsByExtension = {
 		["jar"] = fileLists.jarList,
 		["rnqs"] = fileLists.settingsList,
 		["gba"] = fileLists.romList,
@@ -579,26 +578,8 @@ function Main.GetQuickloadFiles()
 	local quickloadFileNames = FileManager.getFilesFromDirectory(fileLists.quickloadPath)
 	for _, filename in pairs(quickloadFileNames) do
 		local ext = FileManager.extractFileExtensionFromPath(filename) or ""
-		if extensions[ext] ~= nil then
-			table.insert(extensions[ext], filename)
-		end
-	end
-
-	if Options["Generate ROM each time"] then
-		local excessFilesExt = {}
-		for key, listOfFiles in pairs(extensions) do
-			-- Too many files present, unsure which should be used
-			if #listOfFiles > 1 then
-				table.insert(excessFilesExt, key)
-			end
-		end
-		local excessFiles = table.concat(excessFilesExt, " ")
-		if excessFiles ~= "" then
-			local msg1 = string.format("[Quickload ERROR] Too many %s files found in the quickload folder.", excessFiles:upper())
-			local msg2 = string.format("Please remove all-but-one of each these types of files from the folder.")
-			print("> " .. msg1)
-			print("> " .. msg2)
-			Main.DisplayError(msg1 .. "\n" .. msg2)
+		if listsByExtension[ext] ~= nil then
+			table.insert(listsByExtension[ext], filename)
 		end
 	end
 
@@ -619,13 +600,6 @@ function Main.FindSmallestSeedFromQuickloadFiles()
 		end
 	end
 	return smallestSeed or -1
-end
-
-function Main.RunDebugFunc()
-	-- print(" ----- DEBUG START -----")
-
-
-	-- print(" -----  DEBUG END  -----")
 end
 
 -- Creates a backup copy of a ROM 'filename' and its log file, labeling them as "PreviousAttempt"
@@ -651,65 +625,6 @@ function Main.SaveCurrentRom(filename)
 	end
 
 	return nil
-end
-
--- Uses a `filename` to lookup/create a .txt file to hold the attempts counter, incremented by one
--- function Main.IncrementAttemptsCounter(filename, defaultStart)
--- 	-- If the file doesn't exist yet, define the path to create it later
--- 	local filepath = FileManager.prependDir(filename)
--- 	if defaultStart ~= nil then
--- 		Main.currentSeed = defaultStart
--- 	else
--- 		local attemptsRead = io.open(filepath, "r")
--- 		if attemptsRead ~= nil then
--- 			local attemptsText = attemptsRead:read("*a")
--- 			attemptsRead:close()
--- 			if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
--- 				Main.currentSeed = tonumber(attemptsText)
--- 			end
--- 		end
--- 	end
-
--- 	Main.currentSeed = Main.currentSeed + 1
--- 	Main.WriteAttemptsCounterToFile(filepath, Main.currentSeed)
--- end
-
--- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name
-function Main.ReadAttemptsCount()
-	local filepath = Main.GetAttemptsFile()
-	local attemptsRead = io.open(filepath, "r")
-	if attemptsRead ~= nil then
-		local attemptsText = attemptsRead:read("*a")
-		attemptsRead:close()
-		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
-			Main.currentSeed = tonumber(attemptsText)
-		end
-		-- Utils.printDebug("1st: %s", Main.currentSeed)
-	elseif Options["Use premade ROMs"] and (Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "") then -- mostly for mGBA
-		local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
-		if smallestSeedNumber ~= -1 then
-			Main.currentSeed = smallestSeedNumber
-		end
-		-- Utils.printDebug("2nd: %s", Main.currentSeed)
-	else -- mostly for Bizhawk
-		-- Otherwise, check the ROM name for an attempt count, eg "Fire Red 213"
-		local romname = GameSettings.getRomName() or ""
-		local romnumber = string.match(romname, '[0-9]+') or "1"
-		if romnumber ~= "1" then
-			Main.currentSeed = tonumber(romnumber)
-		end
-		-- Utils.printDebug("3rd: %s", Main.currentSeed)
-	end
-end
-
-function Main.WriteAttemptsCounterToFile(filepath, attemptsCount)
-	attemptsCount = attemptsCount or Main.currentSeed
-
-	local attemptsWrite = io.open(filepath, "w")
-	if attemptsWrite ~= nil then
-		attemptsWrite:write(attemptsCount)
-		attemptsWrite:close()
-	end
 end
 
 function Main.GetAttemptsFile()
@@ -744,6 +659,43 @@ function Main.GetAttemptsFile()
 	end
 
 	return filepath
+end
+
+-- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name
+function Main.ReadAttemptsCount()
+	local filepath = Main.GetAttemptsFile()
+	local attemptsRead = io.open(filepath, "r")
+
+	-- First check if a matching "attempts file" already exists, if so read from that
+	if attemptsRead ~= nil then
+		local attemptsText = attemptsRead:read("*a")
+		attemptsRead:close()
+		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
+			Main.currentSeed = tonumber(attemptsText)
+		end
+	elseif Options["Use premade ROMs"] and (Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "") then -- mostly for mGBA
+		local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
+		if smallestSeedNumber ~= -1 then
+			Main.currentSeed = smallestSeedNumber
+		end
+	else -- mostly for Bizhawk
+		local romname = GameSettings.getRomName() or ""
+		local romnumber = string.match(romname, '[0-9]+') or "1"
+		if romnumber ~= "1" then
+			Main.currentSeed = tonumber(romnumber)
+		end
+	end
+	-- Otherwise, leave the attempts count at default, which is 1
+end
+
+function Main.WriteAttemptsCountToFile(filepath, attemptsCount)
+	attemptsCount = attemptsCount or Main.currentSeed
+
+	local attemptsWrite = io.open(filepath, "w")
+	if attemptsWrite ~= nil then
+		attemptsWrite:write(attemptsCount)
+		attemptsWrite:close()
+	end
 end
 
 -- Get the user settings saved on disk and create the base Settings object; returns true if successfully reads in file

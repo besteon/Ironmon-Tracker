@@ -275,39 +275,48 @@ MGBADisplay.LineBuilder = {
 		end
 		table.insert(lines, "---------------------------------")
 
-		local fileBar = "%-2s %-30s"
+		-- local fileBar = "%-2s %-30s"
 		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.Options.Enabled then
-			local romFolderId = 32
-			local opt = MGBA.OptionMap[romFolderId]
-			if opt ~= nil then
-				local foldername = opt:getValue()
-				if foldername == "" then
-					foldername = "(NOT SET)"
-				end
-				table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt.displayName .. " *"))
-				table.insert(lines, Utils.formatUTF8(" %-32s", foldername))
-			end
-			table.insert(lines, "")
-			table.insert(lines, '* Set above files in Settings.ini')
+			-- local romFolderId = 32
+			-- local opt = MGBA.OptionMap[romFolderId]
+			-- if opt ~= nil then
+			-- 	local foldername = opt:getValue()
+			-- 	if foldername == "" then
+			-- 		foldername = "(NOT SET)"
+			-- 	end
+			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt.displayName .. " *"))
+			-- 	table.insert(lines, Utils.formatUTF8(" %-32s", foldername))
+			-- end
+			-- table.insert(lines, "")
+			-- table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
+			table.insert(lines, "Required Files:")
+			table.insert(lines, "- Multiple GBA ROM files with #'s")
 		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.Options.Enabled then
-			for i = 33, 35, 1 do
-				local opt = MGBA.OptionMap[i]
-				if opt ~= nil then
-					local filename = opt:getValue()
-					if filename:len() > 32 then
-						filename = filename:sub(1, 29) .. "..."
-					elseif filename == "" then
-						filename = "(NOT SET)"
-					end
-					table.insert(lines, Utils.formatUTF8(fileBar, i, opt.displayName .. ": *"))
-					table.insert(lines, Utils.formatUTF8(" %-32s", filename))
-					table.insert(lines, "")
-				end
-			end
-			table.insert(lines, '* Set above files in Settings.ini')
+			-- for i = 33, 35, 1 do
+			-- 	local opt = MGBA.OptionMap[i]
+			-- 	if opt ~= nil then
+			-- 		local filename = opt:getValue()
+			-- 		if filename:len() > 32 then
+			-- 			filename = filename:sub(1, 29) .. "..."
+			-- 		elseif filename == "" then
+			-- 			filename = "(NOT SET)"
+			-- 		end
+			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt.displayName .. ": *"))
+			-- 		table.insert(lines, Utils.formatUTF8(" %-32s", filename))
+			-- 		table.insert(lines, "")
+			-- 	end
+			-- end
+			-- table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set file: OPTION "# filepath"') -- temp hide this option from user
+			table.insert(lines, "Required Files (only 1 of each):")
+			table.insert(lines, "- JAR file from your Randomizer")
+			table.insert(lines, "- RNQS Randomizer settings file")
+			table.insert(lines, "- GBA ROM file to randomize")
 		end
+
+		table.insert(lines, "---------------------------------")
+		MGBADisplay.Utils.addLinesWrapped(lines, "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.")
 		table.insert(lines, "---------------------------------")
 
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
@@ -341,10 +350,10 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "View release notes:")
 		table.insert(lines, " RELEASENOTES()")
 		table.insert(lines, "")
-		table.insert(lines, "Automatic update: *")
+		table.insert(lines, "Automatic update:") -- temp removed asterisk
 		table.insert(lines, " UPDATENOW()")
-		table.insert(lines, "")
-		table.insert(lines, "* Usually only works on Windows")
+		-- table.insert(lines, "")
+		-- table.insert(lines, "* Usually only works on Windows")
 		table.insert(lines, "---------------------------------")
 
 		return lines

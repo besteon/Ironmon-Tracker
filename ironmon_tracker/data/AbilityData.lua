@@ -44,7 +44,7 @@ AbilityData.Abilities = {
 	{
 		id = 5,
 		name = "Sturdy",
-		description = "Cannot be hit by OHKO moves (Fissure, Horn Drill, Guillotine, Sheer Cold).",
+		description = "Cannot be hit by one-hit KO moves (Fissure, Horn Drill, Guillotine, Sheer Cold).",
 	},
 	{
 		id = 6,

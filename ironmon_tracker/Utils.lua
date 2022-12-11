@@ -102,9 +102,10 @@ function Utils.formatNumberWithCommas(number)
   return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
--- Only works in Lua 5.3+, and only needed for mGBA
+-- Replacement for string.format() that works with UTF8 special characters
 function Utils.formatUTF8(format, ...)
-	if Main.IsOnBizhawk() then
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		-- Doesn't work in Lua 5.1
 		return string.format(format, ...)
 	end
 	local args, strings, pos = {...}, {}, 0

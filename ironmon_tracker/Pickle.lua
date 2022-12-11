@@ -68,8 +68,8 @@ function Pickle.unpickle(s)
 	local datastringToLoad = "return " .. s
 
 	local gentables
-	if Main.IsOnBizhawk() then
-		-- Using 'loadstring' over 'load' because Bizhawk runs on Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		-- Using 'loadstring' over 'load' because Bizhawk 2.8 runs on Lua 5.1
 		---@diagnostic disable-next-line: deprecated
 		gentables = loadstring(datastringToLoad)
 	else

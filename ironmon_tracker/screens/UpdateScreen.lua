@@ -51,13 +51,14 @@ UpdateScreen.Buttons = {
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function()
-			if Main.OS == "Windows" then
-				UpdateScreen.performAutoUpdate()
-			else
-				-- Auto-update currently only works on Windows. For non-Windows, open a browser window with a link for manual download...
+			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+			if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+				-- In such a case, open a browser window with a link for manual download...
 				UpdateScreen.openReleaseNotesWindow()
 				-- ... and swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 				UpdateScreen.remindMeLater()
+			else
+				UpdateScreen.performAutoUpdate()
 			end
 		end
 	},
@@ -137,7 +138,8 @@ function UpdateScreen.initialize()
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
 	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
-	if Main.IsOnBizhawk() and Main.OS ~= "Windows" then
+	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
 		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
 	end
 end
@@ -177,7 +179,8 @@ end
 
 function UpdateScreen.executeBatchOperations()
 	-- For non-Windows OS, likely need to use something other than a .bat file
-	if Main.IsOnBizhawk() and Main.OS ~= "Windows" then
+	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
 		return false
 	end
 

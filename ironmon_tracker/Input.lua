@@ -59,6 +59,7 @@ Input.StatHighlighter = {
 
 function Input.checkForInput()
 	if not Main.IsOnBizhawk() then
+		-- mGBA handles its own input loops
 		return
 	end
 

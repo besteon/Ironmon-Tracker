@@ -196,7 +196,7 @@ function StartupScreen.openEditAttemptsWindow()
 				StartupScreen.Buttons.AttemptsCount:updateSelf()
 				StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
-				Main.WriteAttemptsCounterToFile(Main.GetAttemptsFile(), newAttemptsCount)
+				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
 				Program.redraw(true)
 			end
 		end

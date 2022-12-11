@@ -57,7 +57,7 @@ function GameSettings.getRomName()
 		return gameinfo.getromname() or ""
 	else
 		---@diagnostic disable-next-line: undefined-global
-		if emu == nil then return nil end
+		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
 		---@diagnostic disable-next-line: undefined-global
 		return emu:getGameTitle() or ""
 	end

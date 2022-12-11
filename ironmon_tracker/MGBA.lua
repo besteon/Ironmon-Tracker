@@ -36,20 +36,36 @@ function MGBA.printStartupInstructions()
 	print("")
 end
 
-function MGBA.activateQuickload()
-	-- if Main.frameCallbackId ~= nil then
-	-- 	---@diagnostic disable-next-line: undefined-global
-	-- 	callbacks:remove(Main.frameCallbackId)
-	-- end
-	-- if Main.keysreadCallbackId ~= nil then
-	-- 	---@diagnostic disable-next-line: undefined-global
-	-- 	callbacks:remove(Main.keysreadCallbackId)
-	-- end
-	-- if Main.startCallbackId ~= nil then
-	-- 	---@diagnostic disable-next-line: undefined-global
-	-- 	callbacks:remove(Main.startCallbackId)
-	-- end
-	Main.LoadNextRom()
+function MGBA.startRunLoops()
+	local wasRunningAlready = (Main.frameCallbackId ~= nil or Main.keysreadCallbackId ~= nil)
+
+	if Main.frameCallbackId == nil then
+		---@diagnostic disable-next-line: undefined-global
+		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
+	end
+	if Main.keysreadCallbackId == nil then
+		---@diagnostic disable-next-line: undefined-global
+		Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
+	end
+
+	if not wasRunningAlready then
+		print("> [DEBUG] Emulation started!")
+	end
+end
+
+function MGBA.stopRunLoops()
+	if Main.frameCallbackId ~= nil then
+		---@diagnostic disable-next-line: undefined-global
+		callbacks:remove(Main.frameCallbackId)
+		Main.frameCallbackId = nil
+	end
+	if Main.keysreadCallbackId ~= nil then
+		---@diagnostic disable-next-line: undefined-global
+		callbacks:remove(Main.keysreadCallbackId)
+		Main.keysreadCallbackId = nil
+	end
+
+	print("> [DEBUG] Emulation stopped.")
 end
 
 function MGBA.shortenDashes()
@@ -903,7 +919,7 @@ MGBA.CommandMap = {
 			local prevAttemptsCount = Main.currentSeed
 			Main.currentSeed = math.floor(number)
 			if prevAttemptsCount ~= Main.currentSeed then
-				Main.WriteAttemptsCounterToFile(Main.GetAttemptsFile(), Main.currentSeed)
+				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), Main.currentSeed)
 				Program.redraw(true)
 				print(string.format(' Updating Attempts count from "%s" to "%s"', prevAttemptsCount, Main.currentSeed))
 			else
