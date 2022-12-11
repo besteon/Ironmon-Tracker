@@ -191,7 +191,7 @@ function StartupScreen.openEditAttemptsWindow()
 		local formInput = forms.gettext(textBox)
 		if formInput ~= nil and formInput ~= "" then
 			local newAttemptsCount = tonumber(formInput)
-			if newAttemptsCount ~= nil then
+			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
 				Main.currentSeed = newAttemptsCount
 				StartupScreen.Buttons.AttemptsCount:updateSelf()
 				StartupScreen.Buttons.AttemptsEdit:updateSelf()

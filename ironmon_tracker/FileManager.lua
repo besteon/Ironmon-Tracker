@@ -5,6 +5,7 @@ FileManager.slash = package.config:sub(1,1) or "\\"
 
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
+	Quickload = "quickload",
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
@@ -163,6 +164,28 @@ function FileManager.formatPathForOS(path)
 	return path
 end
 
+-- Returns a list of file names found in a given folder
+function FileManager.getFilesFromDirectory(folderpath)
+	local files = {}
+	if folderpath == nil or io.popen == nil then return files end
+
+	local scanDirCommand
+	if Main.OS == "Windows" then
+		scanDirCommand = string.format('dir "%s" /b', folderpath)
+	else
+		scanDirCommand = string.format('ls -a "%s"', folderpath)
+	end
+	local pfile = io.popen(scanDirCommand)
+	if pfile ~= nil then
+		for filename in pfile:lines() do
+			table.insert(files, filename)
+		end
+		pfile:close()
+	end
+
+	return files
+end
+
 -- There is probably a better way to do this
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	return FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Images .. FileManager.slash ..
@@ -186,9 +209,9 @@ end
 function FileManager.extractFileNameFromPath(path)
 	if path == nil or path == "" then return "" end
 
-	local nameStartIndex = path:match("^.*()" .. FileManager.slash) -- path to file
+	local nameStartIndex = path:match("^.*()" .. FileManager.slash) or 0 -- path to file
 	local nameEndIndex = path:match("^.*()%.") -- file extension
-	if nameStartIndex ~= nil and nameEndIndex ~= nil then
+	if nameEndIndex ~= nil then
 		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
 		if filename ~= nil then
 			return filename

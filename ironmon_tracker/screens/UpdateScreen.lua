@@ -137,7 +137,7 @@ function UpdateScreen.initialize()
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
 	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
-	if Main.OS ~= "Windows" then
+	if Main.IsOnBizhawk() and Main.OS ~= "Windows" then
 		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
 	end
 end
@@ -177,7 +177,7 @@ end
 
 function UpdateScreen.executeBatchOperations()
 	-- For non-Windows OS, likely need to use something other than a .bat file
-	if Main.OS ~= "Windows" then
+	if Main.IsOnBizhawk() and Main.OS ~= "Windows" then
 		return false
 	end
 

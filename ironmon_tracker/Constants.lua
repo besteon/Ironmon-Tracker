@@ -376,261 +376,76 @@ Constants.PixelImages = {
 	},
 }
 
+-- Table of special characters to return based on whether emulator supports those special characters [true/false]
 Constants.CharMap = {
-	["À"] = {
-		[Main.EMU.BIZHAWK] = "\192",
-		[Main.EMU.MGBA] = "À",
-	},
-	["Á"] = {
-		[Main.EMU.BIZHAWK] = "\193",
-		[Main.EMU.MGBA] = "Á",
-	},
-	["Â"] = {
-		[Main.EMU.BIZHAWK] = "\194",
-		[Main.EMU.MGBA] = "Â",
-	},
-	["Ã"] = {
-		[Main.EMU.BIZHAWK] = "\195",
-		[Main.EMU.MGBA] = "Ã",
-	},
-	["Ä"] = {
-		[Main.EMU.BIZHAWK] = "\196",
-		[Main.EMU.MGBA] = "Ä",
-	},
-	["Å"] = {
-		[Main.EMU.BIZHAWK] = "\197",
-		[Main.EMU.MGBA] = "Å",
-	},
-	["Æ"] = {
-		[Main.EMU.BIZHAWK] = "\198",
-		[Main.EMU.MGBA] = "Æ",
-	},
-	["Ç"] = {
-		[Main.EMU.BIZHAWK] = "\199",
-		[Main.EMU.MGBA] = "Ç",
-	},
-	["È"] = {
-		[Main.EMU.BIZHAWK] = "\200",
-		[Main.EMU.MGBA] = "È",
-	},
-	["É"] = {
-		[Main.EMU.BIZHAWK] = "\201",
-		[Main.EMU.MGBA] = "É",
-	},
-	["Ê"] = {
-		[Main.EMU.BIZHAWK] = "\202",
-		[Main.EMU.MGBA] = "Ê",
-	},
-	["Ë"] = {
-		[Main.EMU.BIZHAWK] = "\203",
-		[Main.EMU.MGBA] = "Ë",
-	},
-	["Ì"] = {
-		[Main.EMU.BIZHAWK] = "\204",
-		[Main.EMU.MGBA] = "Ì",
-	},
-	["Í"] = {
-		[Main.EMU.BIZHAWK] = "\205",
-		[Main.EMU.MGBA] = "Í",
-	},
-	["Î"] = {
-		[Main.EMU.BIZHAWK] = "\206",
-		[Main.EMU.MGBA] = "Î",
-	},
-	["Ï"] = {
-		[Main.EMU.BIZHAWK] = "\207",
-		[Main.EMU.MGBA] = "Ï",
-	},
-	["Ð"] = {
-		[Main.EMU.BIZHAWK] = "\208",
-		[Main.EMU.MGBA] = "Ð",
-	},
-	["Ñ"] = {
-		[Main.EMU.BIZHAWK] = "\209",
-		[Main.EMU.MGBA] = "Ñ",
-	},
-	["Ò"] = {
-		[Main.EMU.BIZHAWK] = "\210",
-		[Main.EMU.MGBA] = "Ò",
-	},
-	["Ó"] = {
-		[Main.EMU.BIZHAWK] = "\211",
-		[Main.EMU.MGBA] = "Ó",
-	},
-	["Ô"] = {
-		[Main.EMU.BIZHAWK] = "\212",
-		[Main.EMU.MGBA] = "Ô",
-	},
-	["Õ"] = {
-		[Main.EMU.BIZHAWK] = "\213",
-		[Main.EMU.MGBA] = "Õ",
-	},
-	["Ö"] = {
-		[Main.EMU.BIZHAWK] = "\214",
-		[Main.EMU.MGBA] = "Ö",
-	},
-	["Ø"] = {
-		[Main.EMU.BIZHAWK] = "\216",
-		[Main.EMU.MGBA] = "Ø",
-	},
-	["Ù"] = {
-		[Main.EMU.BIZHAWK] = "\217",
-		[Main.EMU.MGBA] = "Ù",
-	},
-	["Ú"] = {
-		[Main.EMU.BIZHAWK] = "\218",
-		[Main.EMU.MGBA] = "Ú",
-	},
-	["Û"] = {
-		[Main.EMU.BIZHAWK] = "\219",
-		[Main.EMU.MGBA] = "Û",
-	},
-	["Ü"] = {
-		[Main.EMU.BIZHAWK] = "\220",
-		[Main.EMU.MGBA] = "Ü",
-	},
-	["Ý"] = {
-		[Main.EMU.BIZHAWK] = "\221",
-		[Main.EMU.MGBA] = "Ý",
-	},
-	["Þ"] = {
-		[Main.EMU.BIZHAWK] = "\222",
-		[Main.EMU.MGBA] = "Þ",
-	},
-	["ß"] = {
-		[Main.EMU.BIZHAWK] = "\223",
-		[Main.EMU.MGBA] = "ß",
-	},
-	["à"] = {
-		[Main.EMU.BIZHAWK] = "\224",
-		[Main.EMU.MGBA] = "à",
-	},
-	["á"] = {
-		[Main.EMU.BIZHAWK] = "\225",
-		[Main.EMU.MGBA] = "á",
-	},
-	["â"] = {
-		[Main.EMU.BIZHAWK] = "\226",
-		[Main.EMU.MGBA] = "â",
-	},
-	["ã"] = {
-		[Main.EMU.BIZHAWK] = "\227",
-		[Main.EMU.MGBA] = "ã",
-	},
-	["ä"] = {
-		[Main.EMU.BIZHAWK] = "\228",
-		[Main.EMU.MGBA] = "ä",
-	},
-	["å"] = {
-		[Main.EMU.BIZHAWK] = "\229",
-		[Main.EMU.MGBA] = "å",
-	},
-	["æ"] = {
-		[Main.EMU.BIZHAWK] = "\230",
-		[Main.EMU.MGBA] = "æ",
-	},
-	["ç"] = {
-		[Main.EMU.BIZHAWK] = "\231",
-		[Main.EMU.MGBA] = "ç",
-	},
-	["è"] = {
-		[Main.EMU.BIZHAWK] = "\232",
-		[Main.EMU.MGBA] = "è",
-	},
-	["é"] = {
-		[Main.EMU.BIZHAWK] = "\233",
-		[Main.EMU.MGBA] = "é",
-	},
-	["ê"] = {
-		[Main.EMU.BIZHAWK] = "\234",
-		[Main.EMU.MGBA] = "ê",
-	},
-	["ë"] = {
-		[Main.EMU.BIZHAWK] = "\235",
-		[Main.EMU.MGBA] = "ë",
-	},
-	["ì "] = {
-		[Main.EMU.BIZHAWK] = "\236",
-		[Main.EMU.MGBA] = "ì ",
-	},
-	["í"] = {
-		[Main.EMU.BIZHAWK] = "\237",
-		[Main.EMU.MGBA] = "í",
-	},
-	["î"] = {
-		[Main.EMU.BIZHAWK] = "\238",
-		[Main.EMU.MGBA] = "î",
-	},
-	["ï"] = {
-		[Main.EMU.BIZHAWK] = "\239",
-		[Main.EMU.MGBA] = "ï",
-	},
-	["ð"] = {
-		[Main.EMU.BIZHAWK] = "\240",
-		[Main.EMU.MGBA] = "ð",
-	},
-	["ñ"] = {
-		[Main.EMU.BIZHAWK] = "\241",
-		[Main.EMU.MGBA] = "ñ",
-	},
-	["ò"] = {
-		[Main.EMU.BIZHAWK] = "\242",
-		[Main.EMU.MGBA] = "ò",
-	},
-	["ó"] = {
-		[Main.EMU.BIZHAWK] = "\243",
-		[Main.EMU.MGBA] = "ó",
-	},
-	["ô"] = {
-		[Main.EMU.BIZHAWK] = "\244",
-		[Main.EMU.MGBA] = "ô",
-	},
-	["õ"] = {
-		[Main.EMU.BIZHAWK] = "\245",
-		[Main.EMU.MGBA] = "õ",
-	},
-	["ö"] = {
-		[Main.EMU.BIZHAWK] = "\246",
-		[Main.EMU.MGBA] = "ö",
-	},
-	["ø"] = {
-		[Main.EMU.BIZHAWK] = "\248",
-		[Main.EMU.MGBA] = "ø",
-	},
-	["ù"] = {
-		[Main.EMU.BIZHAWK] = "\249",
-		[Main.EMU.MGBA] = "ù",
-	},
-	["ú"] = {
-		[Main.EMU.BIZHAWK] = "\250",
-		[Main.EMU.MGBA] = "ú",
-	},
-	["û"] = {
-		[Main.EMU.BIZHAWK] = "\251",
-		[Main.EMU.MGBA] = "û",
-	},
-	["ü"] = {
-		[Main.EMU.BIZHAWK] = "\252",
-		[Main.EMU.MGBA] = "ü",
-	},
-	["ý"] = {
-		[Main.EMU.BIZHAWK] = "\253",
-		[Main.EMU.MGBA] = "ý",
-	},
-	["þ"] = {
-		[Main.EMU.BIZHAWK] = "\254",
-		[Main.EMU.MGBA] = "þ",
-	},
-	["ÿ"] = {
-		[Main.EMU.BIZHAWK] = "\255",
-		[Main.EMU.MGBA] = "ÿ",
-	},
+	["À"] = { [false] = "\192", [true] = "À", },
+	["Á"] = { [false] = "\193", [true] = "Á", },
+	["Â"] = { [false] = "\194", [true] = "Â", },
+	["Ã"] = { [false] = "\195", [true] = "Ã", },
+	["Ä"] = { [false] = "\196", [true] = "Ä", },
+	["Å"] = { [false] = "\197", [true] = "Å", },
+	["Æ"] = { [false] = "\198", [true] = "Æ", },
+	["Ç"] = { [false] = "\199", [true] = "Ç", },
+	["È"] = { [false] = "\200", [true] = "È", },
+	["É"] = { [false] = "\201", [true] = "É", },
+	["Ê"] = { [false] = "\202", [true] = "Ê", },
+	["Ë"] = { [false] = "\203", [true] = "Ë", },
+	["Ì"] = { [false] = "\204", [true] = "Ì", },
+	["Í"] = { [false] = "\205", [true] = "Í", },
+	["Î"] = { [false] = "\206", [true] = "Î", },
+	["Ï"] = { [false] = "\207", [true] = "Ï", },
+	["Ð"] = { [false] = "\208", [true] = "Ð", },
+	["Ñ"] = { [false] = "\209", [true] = "Ñ", },
+	["Ò"] = { [false] = "\210", [true] = "Ò", },
+	["Ó"] = { [false] = "\211", [true] = "Ó", },
+	["Ô"] = { [false] = "\212", [true] = "Ô", },
+	["Õ"] = { [false] = "\213", [true] = "Õ", },
+	["Ö"] = { [false] = "\214", [true] = "Ö", },
+	["Ø"] = { [false] = "\216", [true] = "Ø", },
+	["Ù"] = { [false] = "\217", [true] = "Ù", },
+	["Ú"] = { [false] = "\218", [true] = "Ú", },
+	["Û"] = { [false] = "\219", [true] = "Û", },
+	["Ü"] = { [false] = "\220", [true] = "Ü", },
+	["Ý"] = { [false] = "\221", [true] = "Ý", },
+	["Þ"] = { [false] = "\222", [true] = "Þ", },
+	["ß"] = { [false] = "\223", [true] = "ß", },
+	["à"] = { [false] = "\224", [true] = "à", },
+	["á"] = { [false] = "\225", [true] = "á", },
+	["â"] = { [false] = "\226", [true] = "â", },
+	["ã"] = { [false] = "\227", [true] = "ã", },
+	["ä"] = { [false] = "\228", [true] = "ä", },
+	["å"] = { [false] = "\229", [true] = "å", },
+	["æ"] = { [false] = "\230", [true] = "æ", },
+	["ç"] = { [false] = "\231", [true] = "ç", },
+	["è"] = { [false] = "\232", [true] = "è", },
+	["é"] = { [false] = "\233", [true] = "é", },
+	["ê"] = { [false] = "\234", [true] = "ê", },
+	["ë"] = { [false] = "\235", [true] = "ë", },
+	["ì"] = { [false] = "\236", [true] = "ì", },
+	["í"] = { [false] = "\237", [true] = "í", },
+	["î"] = { [false] = "\238", [true] = "î", },
+	["ï"] = { [false] = "\239", [true] = "ï", },
+	["ð"] = { [false] = "\240", [true] = "ð", },
+	["ñ"] = { [false] = "\241", [true] = "ñ", },
+	["ò"] = { [false] = "\242", [true] = "ò", },
+	["ó"] = { [false] = "\243", [true] = "ó", },
+	["ô"] = { [false] = "\244", [true] = "ô", },
+	["õ"] = { [false] = "\245", [true] = "õ", },
+	["ö"] = { [false] = "\246", [true] = "ö", },
+	["ø"] = { [false] = "\248", [true] = "ø", },
+	["ù"] = { [false] = "\249", [true] = "ù", },
+	["ú"] = { [false] = "\250", [true] = "ú", },
+	["û"] = { [false] = "\251", [true] = "û", },
+	["ü"] = { [false] = "\252", [true] = "ü", },
+	["ý"] = { [false] = "\253", [true] = "ý", },
+	["þ"] = { [false] = "\254", [true] = "þ", },
+	["ÿ"] = { [false] = "\255", [true] = "ÿ", },
 }
 
 -- Returns a renderable character for the appropriate emulator
 function Constants.getC(character)
-	if Constants.CharMap[character] ~= nil and Constants.CharMap[character][Main.emulator] ~= nil then
-		return Constants.CharMap[character][Main.emulator]
+	if Constants.CharMap[character] ~= nil then
+		return Constants.CharMap[character][Main.supportsSpecialChars] or Constants.HIDDEN_INFO
 	end
 	return Constants.HIDDEN_INFO
 end
