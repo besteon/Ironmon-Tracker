@@ -177,6 +177,9 @@ function NavigationMenu.initialize()
 	end
 
 	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
+	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
+		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
+	end
 	NavigationMenu.Buttons.QuickloadSettings:updateText()
 	NavigationMenu.Buttons.CheckForUpdates:updateText()
 

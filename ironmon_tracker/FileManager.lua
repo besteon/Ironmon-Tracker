@@ -99,7 +99,7 @@ end
 
 -- Returns the filepath that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
 function FileManager.getPathIfExists(filepath)
-	if filepath == nil then return nil end
+	if filepath == nil or filepath == "" then return nil end -- empty filepaths return true on Linux as directories are considered files
 
 	local file = io.open(filepath, "r")
 	if file ~= nil then
@@ -173,7 +173,8 @@ function FileManager.getFilesFromDirectory(folderpath)
 	if Main.OS == "Windows" then
 		scanDirCommand = string.format('dir "%s" /b', folderpath)
 	else
-		scanDirCommand = string.format('ls -a "%s"', folderpath)
+		-- Note: "-A" removes "." and ".." from the listing
+		scanDirCommand = string.format('ls -A "%s"', folderpath)
 	end
 	local pfile = io.popen(scanDirCommand)
 	if pfile ~= nil then

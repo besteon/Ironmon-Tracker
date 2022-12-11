@@ -201,6 +201,7 @@ function UpdateScreen.executeBatchOperations()
 		string.format('del "%s\\.gitattributes" /q', folderName),
 		string.format('del "%s\\.gitignore" /q', folderName),
 		string.format('del "%s\\README.md" /q', folderName),
+		string.format('del "%s\\quickload\\.gitignore" /q', folderName),
 		string.format('xcopy "%s" /s /y /q', folderName),
 		string.format('rmdir "%s" /s /q', folderName),
 		'echo; && echo Version update completed successfully.',
@@ -238,6 +239,12 @@ function UpdateScreen.ignoreTheUpdate()
 end
 
 function UpdateScreen.openReleaseNotesWindow()
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+	end
+
 	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
 		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
@@ -246,6 +253,10 @@ function UpdateScreen.openReleaseNotesWindow()
 		os.execute(string.format('open "" "%s"', FileManager.Urls.DOWNLOAD))
 		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
 		print(string.format("Release Notes: %s", FileManager.Urls.DOWNLOAD))
+	end
+
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 

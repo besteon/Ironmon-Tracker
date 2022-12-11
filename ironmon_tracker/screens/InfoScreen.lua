@@ -842,7 +842,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	offsetY = offsetY + 6
 
 	-- EMERALD DESCRIPTION
-	if data.a.descriptionEmerald ~= nil then
+	if data.a.descriptionEmerald ~= nil and data.a.descriptionEmerald ~= Constants.BLANKLINE then
 		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, "italics")
 		offsetY = offsetY + linespacing + 1
 		local wrappedSummary = Utils.getWordWrapLines(data.a.descriptionEmerald, 31)
@@ -905,7 +905,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		Drawing.drawButton(iconButton, boxBotShadow)
 
 		if iconButton.rate ~= nil then
-			local rateText = (iconButton.rate * 100) .. "%"
+			local rateText = math.floor(iconButton.rate * 100) .. "%"
 			local rateOffset = Utils.inlineIf(iconButton.rate == 1.00, 5, Utils.inlineIf(iconButton.rate >= 0.1, 7, 9)) -- centering
 			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
 			Drawing.drawText(x + rateOffset, y - 1, rateText, Theme.COLORS["Lower box text"], boxBotShadow)

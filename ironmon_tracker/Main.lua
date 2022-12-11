@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "10" }
+Main.Version = { major = "7", minor = "0", patch = "11" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -286,6 +286,13 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+		local wasSoundOn
+		if Main.IsOnBizhawk() then
+			-- Disable Bizhawk sound while the update check is in process
+			wasSoundOn = client.GetSoundOn()
+			client.SetSoundOn(false)
+		end
+
 		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
 		local pipe = io.popen(update_cmd) or ""
 		if pipe ~= "" then
@@ -314,6 +321,10 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			Main.Version.dateChecked = todaysDate
 			-- Track the latest available version
 			Main.Version.latestAvailable = latestReleasedVersion
+		end
+
+		if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+			client.SetSoundOn(wasSoundOn)
 		end
 	end
 
