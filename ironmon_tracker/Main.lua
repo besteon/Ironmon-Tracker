@@ -101,6 +101,10 @@ function Main.Run()
 			---@diagnostic disable-next-line: undefined-global
 			Main.startCallbackId = callbacks:add("start", Main.Run)
 		end
+		if Main.resetCallbackId == nil then
+			---@diagnostic disable-next-line: undefined-global
+			Main.resetCallbackId = callbacks:add("reset", Main.Run) -- start doesn't get trigged on-reset
+		end
 		if Main.stopCallbackId == nil then
 			---@diagnostic disable-next-line: undefined-global
 			Main.stopCallbackId = callbacks:add("stop", MGBA.stopRunLoops)
@@ -393,13 +397,17 @@ function Main.LoadNextRom()
 			if Main.emulator == Main.EMU.BIZHAWK28 then
 				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 			end
-			print("> New ROM \"" .. nextRomInfo.fileName .. "\" is being loaded.")
+			if Options["Use premade ROMs"] then
+				print("> New ROM \"" .. nextRomInfo.fileName .. "\" is being loaded.")
+			end
 			client.openrom(nextRomInfo.filePath)
 		else
 			---@diagnostic disable-next-line: undefined-global
 			local success = emu:loadFile(nextRomInfo.filePath)
 			if success then
-				print("> New ROM \"" .. nextRomInfo.fileName .. "\" is being loaded.")
+				if Options["Use premade ROMs"] then
+					print("> New ROM \"" .. nextRomInfo.fileName .. "\" is being loaded.")
+				end
 				---@diagnostic disable-next-line: undefined-global
 				emu:reset()
 				return
@@ -533,14 +541,18 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local pipe = io.popen(string.format("%s 2>%s", javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
+	local success = false
+	local pipe = io.popen(string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
 	if pipe ~= nil then
 		local output = pipe:read("*all")
-		print("> " .. output)
+		success = (output:find("Randomized successfully!", 1, true) ~= nil) -- It's possible this message changes in the future?
+		if not success and output ~= "" then -- only print if something went wrong
+			print("> " .. output)
+		end
 	end
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
-	if not FileManager.fileExists(nextRomPath) then
+	if not success or not FileManager.fileExists(nextRomPath) then
 		print("> The Randomizer ZX program failed to generate a ROM. Check the generated " .. FileManager.Files.RANDOMIZER_ERROR_LOG .. " file for errors.")
 		Main.DisplayError("The Randomizer ZX program failed to generate a ROM.\n\nCheck the " .. FileManager.Files.RANDOMIZER_ERROR_LOG .. " file in the tracker folder for errors.")
 		return nil

@@ -116,6 +116,8 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
+		Program.updateMapLocation() -- trying this here to solve many future problems
+
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
@@ -129,12 +131,16 @@ function Program.update()
 		end
 	end
 
+	-- Don't bother reading game data before a game even begins
+	if not Program.isValidMapLocation() then
+		return
+	end
+
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
-			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen

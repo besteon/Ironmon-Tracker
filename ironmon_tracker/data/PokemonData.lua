@@ -160,7 +160,7 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	end
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local abilityId = pokemon.abilities[abilityNum + 1] -- stored from memory as [0 or 1]
+	local abilityId = pokemon.abilities[abilityNum + 1] -- abilityNum stored from memory as [0 or 1]
 	return abilityId
 end
 

@@ -63,11 +63,17 @@ Battle.IndexMap = {
 }
 
 function Battle.update()
+	if not Program.isValidMapLocation() then
+		return
+	end
+
 	if Program.Frames.highAccuracyUpdate == 0 and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
 	end
 
-	if not Battle.inBattle then return end
+	if not Battle.inBattle then
+		return
+	end
 
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Battle.updateHighAccuracy()

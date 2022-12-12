@@ -263,6 +263,8 @@ MGBADisplay.LineBuilder = {
 		local optionBar = "%-2s %-26s [%s]"
 		table.insert(lines, MGBA.Screens.QuickloadSetup.headerText:upper())
 		table.insert(lines, "---------------------------------")
+		MGBADisplay.Utils.addLinesWrapped(lines, "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.")
+		table.insert(lines, "---------------------------------")
 
 		table.insert(lines, 'Choose a mode with: OPTION "#"')
 		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", "Mode", "Selected"))
@@ -316,11 +318,11 @@ MGBADisplay.LineBuilder = {
 		end
 
 		table.insert(lines, "---------------------------------")
-		MGBADisplay.Utils.addLinesWrapped(lines, "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.")
-		table.insert(lines, "---------------------------------")
 
+		local instructionBar = "%-14s %-18s"
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-		table.insert(lines, Utils.formatUTF8("Button Combo: %19s", quickloadCombo))
+		table.insert(lines, Utils.formatUTF8(instructionBar, "Button Combo:", quickloadCombo))
+		table.insert(lines, Utils.formatUTF8(instructionBar, "Text Command:", MGBA.CommandMap["QUICKLOAD"].exampleUsage))
 		table.insert(lines, "")
 
 		return lines
@@ -408,9 +410,9 @@ MGBADisplay.LineBuilder = {
 		local commandList = {
 			MGBA.CommandMap["HELP"],
 			MGBA.CommandMap["PCHEALS"],
-			MGBA.CommandMap["CREDITS"],
-			MGBA.CommandMap["HELPWIKI"],
 			MGBA.CommandMap["ATTEMPTS"],
+			MGBA.CommandMap["HELPWIKI"],
+			MGBA.CommandMap["CREDITS"],
 		}
 
 		table.insert(lines, "Usage Syntax:")
@@ -573,15 +575,18 @@ MGBADisplay.LineBuilder = {
 		MGBADisplay.DataFormatter.formatTrackerScreen(data)
 
 		-- %-#s means to left-align, padding out the right-part of the string with spaces
+		local justify2 = Utils.inlineIf(Options["Right justified numbers"], "%2s", "%-2s")
 		local justify3 = Utils.inlineIf(Options["Right justified numbers"], "%3s", "%-3s")
 
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], data.p[statKey], data.p.stages[statKey])
+			local statText = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
+			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statText, data.p.stages[statKey])
 		end
 
 		-- Header and top dividing line (with types)
-		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), "BST", data.p.bst)
+		local bstAligned = Utils.formatUTF8(justify3, data.p.bst)
+		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), "BST", bstAligned)
 		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, "----------")
 
 		-- Top six lines of the box: Pokemon related stuff
@@ -642,7 +647,10 @@ MGBADisplay.LineBuilder = {
 				powerText = (MGBADisplay.Symbols.Effectiveness[1] or "  ") .. powerText
 			end
 
-			table.insert(lines, Utils.formatUTF8(botFormattedLine, nameText, move.pp, powerText, move.accuracy))
+			local ppAligned = Utils.formatUTF8(justify2, move.pp)
+			local accuracyAligned = Utils.formatUTF8(justify3, move.accuracy)
+
+			table.insert(lines, Utils.formatUTF8(botFormattedLine, nameText, ppAligned, powerText, accuracyAligned))
 		end
 		table.insert(lines, "---------------------------------")
 

@@ -37,8 +37,6 @@ function MGBA.printStartupInstructions()
 end
 
 function MGBA.startRunLoops()
-	local wasRunningAlready = (Main.frameCallbackId ~= nil or Main.keysreadCallbackId ~= nil)
-
 	if Main.frameCallbackId == nil then
 		---@diagnostic disable-next-line: undefined-global
 		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
@@ -46,10 +44,6 @@ function MGBA.startRunLoops()
 	if Main.keysreadCallbackId == nil then
 		---@diagnostic disable-next-line: undefined-global
 		Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
-	end
-
-	if not wasRunningAlready then
-		print("> [DEBUG] Emulation started!")
 	end
 end
 
@@ -64,8 +58,6 @@ function MGBA.stopRunLoops()
 		callbacks:remove(Main.keysreadCallbackId)
 		Main.keysreadCallbackId = nil
 	end
-
-	print("> [DEBUG] Emulation stopped.")
 end
 
 function MGBA.shortenDashes()
@@ -877,18 +869,11 @@ MGBA.CommandMap = {
 			end
 		end,
 	},
-	["RELOAD"] = {
-		usageSyntax = 'RELOAD()',
-		exampleUsage = 'RELOAD()',
+	["QUICKLOAD"] = {
+		usageSyntax = 'QUICKLOAD()',
+		exampleUsage = 'QUICKLOAD()',
 		execute = function(self, params)
-			-- RESTART doesn't work since we don't have control over the TextBuffers that have already been created; can't remove them
-			if true then return end
-			print("Restarting the Tracker. Saving tracked data and settings.")
-			if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
-				Tracker.saveData()
-			end
-			Main.SaveSettings(true)
-			IronmonTracker.startTracker()
+			Main.loadNextSeed = true
 		end,
 	},
 	["HELPWIKI"] = {
@@ -1007,10 +992,10 @@ function UpdateNow(...) UPDATENOW(...) end
 ---@diagnostic disable-next-line: lowercase-global
 function updatenow(...) UPDATENOW(...) end
 
-function RELOAD(...) MGBA.CommandMap["RELOAD"]:execute(...) end
-function Reload(...) RELOAD(...) end
+function QUICKLOAD(...) MGBA.CommandMap["QUICKLOAD"]:execute(...) end
+function Quickload(...) QUICKLOAD(...) end
 ---@diagnostic disable-next-line: lowercase-global
-function reload(...) RELOAD(...) end
+function quickload(...) QUICKLOAD(...) end
 
 function HELPWIKI(...) MGBA.CommandMap["HELPWIKI"]:execute(...) end
 function HelpWiki(...) HELPWIKI(...) end
