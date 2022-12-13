@@ -48,21 +48,21 @@ function AutoUpdater.setupEmulatorSpecifics()
 end
 
 function AutoUpdater.performStandaloneUpdate()
-	local archiveFolder
+	local releaseFolderPath
 
 	-- Check if the download was completed and extracted, but the update halted before it was removed
 	local updaterFilePath = IronmonTracker.workingDir .. AutoUpdater.archiveFolder .. AutoUpdater.slash .. AutoUpdater.thisFileName
 	local file = io.open(updaterFilePath, "r")
 	if file == nil then
-		archiveFolder = AutoUpdater.downloadAndExtract()
-		if archiveFolder == nil then
+		releaseFolderPath = AutoUpdater.downloadAndExtract()
+		if releaseFolderPath == nil then
 			return false
 		end
 	end
 	io.close(file)
 
-	archiveFolder = archiveFolder or AutoUpdater.archiveFolder
-	local success = AutoUpdater.updateFiles(archiveFolder)
+	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. AutoUpdater.archiveFolder)
+	local success = AutoUpdater.updateFiles(releaseFolderPath)
 	if not success then
 		return false
 	end
