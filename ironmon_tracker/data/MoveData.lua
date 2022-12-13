@@ -85,9 +85,9 @@ MoveData.StatusMovesWillFail = {
 	["73"] = { [PokemonData.Types.GRASS] = true }, -- Leech Seed
 	["77"] = { [PokemonData.Types.STEEL] = true }, -- PoisonPowder
 	["86"] = { [PokemonData.Types.GROUND] = true }, -- Thunder Wave
-	["92"] = { [PokemonData.Types.STEEL] = true }, -- Toxic
+	["92"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Toxic
 	["137"] = { [PokemonData.Types.GHOST] = true }, -- Glare
-	["139"] = { [PokemonData.Types.STEEL] = true }, -- Poison Gas
+	["139"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Poison Gas
 	["261"] = { [PokemonData.Types.FIRE] = true }, -- Will-O-Wisp
 }
 
