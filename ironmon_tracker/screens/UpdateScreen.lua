@@ -162,8 +162,17 @@ function UpdateScreen.performAutoUpdate()
 		Tracker.saveData()
 	end
 
-	-- Execute the batch set of operations
-	local success = UpdateScreen.executeBatchOperations()
+	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+	local success = false
+	if Main.OS == "Windows" or Main.emulator ~= Main.EMU.BIZHAWK28 then
+		local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
+
+		-- Attempt to replace the local AutoUpdater with the newly downloaded one
+		FileManager.loadLuaFile(AutoUpdater.archiveFolder .. FileManager.slash .. AutoUpdater.thisFileName, true)
+
+		success = AutoUpdater.updateFiles(archiveFolderPath)
+	end
+
 	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
 	Program.redraw(true)
 
@@ -175,51 +184,6 @@ function UpdateScreen.performAutoUpdate()
 		Main.Version.showUpdate = false
 		Main.SaveSettings(true)
 	end
-end
-
-function UpdateScreen.executeBatchOperations()
-	-- For non-Windows OS, likely need to use something other than a .bat file
-	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
-	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		return false
-	end
-
-	-- Temp Files/Folders used by batch operations
-	local archiveName = "Ironmon-Tracker-main.tar.gz"
-	local folderName = "Ironmon-Tracker-main"
-
-	-- Each individual command listed in order, to be appended together later
-	local batchCommands = {
-		'(echo Downloading the latest Ironmon Tracker version.',
-		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', FileManager.Urls.TAR, archiveName),
-		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
-		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
-		'echo; && echo Applying the update; copying over files.',
-		string.format('rmdir "%s\\.vscode" /s /q', folderName),
-		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q', folderName),
-		string.format('del "%s\\.editorconfig" /q', folderName),
-		string.format('del "%s\\.gitattributes" /q', folderName),
-		string.format('del "%s\\.gitignore" /q', folderName),
-		string.format('del "%s\\README.md" /q', folderName),
-		string.format('del "%s\\quickload\\.gitignore" /q', folderName),
-		string.format('xcopy "%s" /s /y /q', folderName),
-		string.format('rmdir "%s" /s /q', folderName),
-		'echo; && echo Version update completed successfully.',
-		'timeout /t 3) || pause', -- Pause if any of the commands fail, those grouped between ( )
-	}
-
-	local combined_cmd = table.concat(batchCommands, ' && ')
-
-	print(string.format("Performing version update to %s", Main.Version.latestAvailable))
-
-	local result = os.execute(combined_cmd)
-	if result ~= 0 then -- 0 = successful
-		print("Update-Error: Unable to download, extract, or overwrite files in Tracker folder.")
-		return false
-	end
-
-	print("Update completed successfully.")
-	return true
 end
 
 function UpdateScreen.remindMeLater()

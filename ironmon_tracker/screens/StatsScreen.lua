@@ -11,6 +11,10 @@ StatsScreen = {
 
 StatsScreen.StatTables = {
 	{
+		name = "Total attempts",
+		getValue = function() return Main.currentSeed or 1 end,
+	},
+	{
 		name = Constants.Words.POKE .. "centers used",
 		getValue = function()
 			local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER) or 0
@@ -31,10 +35,10 @@ StatsScreen.StatTables = {
 		name = Constants.Words.POKEMON .. " caught",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.POKEMON_CAPTURES) or 0 end,
 	},
-	-- { -- Temporarily removing this as it's confusing: it's not # items bought but rather # of bulk purchases
-	-- 	name = "Bulk Shop Purcahses",
-	-- 	getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
-	-- },
+	{ -- Temporarily adding this back in: it's not # items bought but rather # of bulk purchases
+		name = "Bulk shop purchases",
+		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
+	},
 	{
 		name = "Game saves",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0 end,

@@ -20,6 +20,7 @@ FileManager.Files = {
 	SETTINGS = "Settings.ini",
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
+	AUTOUPDATER = "AutoUpdater.lua",
 
 	-- All of the files required by the tracker
 	LuaCode = {
@@ -97,9 +98,10 @@ function FileManager.fileExists(filepath)
 	return FileManager.getPathIfExists(filepath) ~= nil
 end
 
--- Returns the filepath that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
+-- Returns the path that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
 function FileManager.getPathIfExists(filepath)
-	if filepath == nil or filepath == "" then return nil end -- empty filepaths return true on Linux as directories are considered files
+	-- Empty filepaths "" can be opened successfully on Linux, as directories are considered files
+	if filepath == nil or filepath == "" then return nil end
 
 	local file = io.open(filepath, "r")
 	if file ~= nil then
@@ -141,16 +143,27 @@ function FileManager.setupWorkingDirectory()
 end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
-function FileManager.loadLuaFile(filename)
+function FileManager.loadLuaFile(filename, silenceErrors)
+	-- First try and load the file from the folder that contains most/all the Tracker lua code
 	local filepath = FileManager.getPathIfExists(FileManager.Folders.TrackerCode .. FileManager.slash .. filename)
 	if filepath ~= nil then
 		dofile(filepath)
 		return true
-	else
+	end
+
+	-- Otherwise, check if the file exists on the root Tracker folder (AutoUpdater.lua lives here)
+	filepath = FileManager.getPathIfExists(filename)
+	if filepath ~= nil then
+		dofile(filepath)
+		return true
+	end
+
+	if not silenceErrors then
 		print("Unable to load " .. filename .. "\nMake sure all of the downloaded Tracker's files are still together.")
 		Main.DisplayError("Unable to load " .. filename .. "\n\nMake sure all of the downloaded Tracker's files are still together.")
-		return false
 	end
+
+	return false
 end
 
 -- Returns a properly formatted path that contains only the correct path-separators based on the OS

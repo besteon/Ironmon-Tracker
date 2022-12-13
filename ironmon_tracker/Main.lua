@@ -59,6 +59,9 @@ function Main.Initialize()
 			return false
 		end
 	end
+	if not FileManager.loadLuaFile(FileManager.Files.AUTOUPDATER) then
+		return false
+	end
 
 	-- Create the Settings file if it doesn't exist
 	if not Main.LoadSettings() then

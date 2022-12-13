@@ -71,7 +71,7 @@ Constants.GAME_STATS = { -- Enums for in-game stats
 	RESTED_AT_HOME = 16,
 	USED_ROCK_SMASH = 19,
 	USED_STRUGGLE = 27, -- Total number of times the player has had to use Struggle
-	SHOPPED = 38, -- Total number of items purchased from a shop
+	SHOPPED = 38, -- Total number of bulk purchases made from a shop (# individual interactions with an npc)
 }
 
 Constants.PreloadedThemes = {

@@ -62,8 +62,8 @@ function IronmonTracker.tryLoad()
 	end
 
 	-- Verify the Main.lua Tracker file exists
-	local mailFilePath = IronmonTracker.workingDir .. "ironmon_tracker/Main.lua"
-	local file = io.open(mailFilePath, "r")
+	local mainFilePath = IronmonTracker.workingDir .. "ironmon_tracker/Main.lua"
+	local file = io.open(mainFilePath, "r")
 	if file == nil then
 		print('> Error starting up the Tracker: Unable to load all of the required Tracker files.')
 		print('> The "Ironmon-Tracker.lua" script file should be in the same folder as the other Tracker files that came with the release download.')
@@ -72,7 +72,7 @@ function IronmonTracker.tryLoad()
 	io.close(file)
 
 	-- Load the Main Tracker script which will setup all the other files
-	dofile(mailFilePath)
+	dofile(mainFilePath)
 	return true
 end
 
