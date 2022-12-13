@@ -855,13 +855,20 @@ MGBA.CommandMap = {
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
 			print(string.format(' %s (check "Update" sidebar for status)', UpdateScreen.States.IN_PROGRESS))
-			-- UpdateScreen.performAutoUpdate() -- TODO: commented to prevent accidental code overwrrite; uncomment later
-			if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+
+			local success = false
+			local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
+			if archiveFolderPath ~= nil then
+				-- Attempt to replace the local AutoUpdater with the newly downloaded one
+				FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
+				success = AutoUpdater.updateFiles(archiveFolderPath)
+			end
+
+			if success then
 				print("")
 				print(" You can now restart the Tracker to apply the update. Exit any battle first.")
 				print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
 				print(" - Then click File -> Reset")
-				-- reload() -- currently doesn't work well on mGBA, see below
 			else
 				print("")
 				print(" The update was not succesful. You can manually update from the online release:")

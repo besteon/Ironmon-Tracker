@@ -166,24 +166,26 @@ function UpdateScreen.performAutoUpdate()
 	local success = false
 	if Main.OS == "Windows" or Main.emulator ~= Main.EMU.BIZHAWK28 then
 		local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
-
-		-- Attempt to replace the local AutoUpdater with the newly downloaded one
-		FileManager.loadLuaFile(AutoUpdater.archiveFolder .. FileManager.slash .. AutoUpdater.thisFileName, true)
-
-		success = AutoUpdater.updateFiles(archiveFolderPath)
+		if archiveFolderPath ~= nil then
+			-- Attempt to replace the local AutoUpdater with the newly downloaded one
+			FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
+			success = AutoUpdater.updateFiles(archiveFolderPath)
+		end
 	end
-
-	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
-	Program.redraw(true)
 
 	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
 	end
 
-	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+	if success then
+		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
 		Main.SaveSettings(true)
+	else
+		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
+
+	Program.redraw(true)
 end
 
 function UpdateScreen.remindMeLater()
