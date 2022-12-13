@@ -82,13 +82,13 @@ MoveData.TypeToEffectiveness = {
 
 -- Is true when a Status move fails/doesn't work against a checked move type
 MoveData.StatusMovesWillFail = {
-	["73"] = { [PokemonData.Types.GRASS] = true }, -- Leech Seed
-	["77"] = { [PokemonData.Types.STEEL] = true }, -- PoisonPowder
-	["86"] = { [PokemonData.Types.GROUND] = true }, -- Thunder Wave
+	["73"] = { [PokemonData.Types.GRASS] = true, }, -- Leech Seed
+	["77"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- PoisonPowder
+	["86"] = { [PokemonData.Types.GROUND] = true, }, -- Thunder Wave
 	["92"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Toxic
-	["137"] = { [PokemonData.Types.GHOST] = true }, -- Glare
+	["137"] = { [PokemonData.Types.GHOST] = true, }, -- Glare
 	["139"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Poison Gas
-	["261"] = { [PokemonData.Types.FIRE] = true }, -- Will-O-Wisp
+	["261"] = { [PokemonData.Types.FIRE] = true, }, -- Will-O-Wisp
 }
 
 MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected by STAB)
