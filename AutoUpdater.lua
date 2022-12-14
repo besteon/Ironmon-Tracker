@@ -9,6 +9,9 @@ AutoUpdater = {
 	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
+	DEV_TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
+	devArchive = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
+	devFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
@@ -80,14 +83,14 @@ function AutoUpdater.downloadAndExtract(tarUrl)
 	print("> Downloading release archive and extracting files.")
 
 	-- Temp Files/Folders used by batch operations
-	local archiveFilePath = IronmonTracker.workingDir .. AutoUpdater.archiveName
-	local extractedFolderPath = IronmonTracker.workingDir .. AutoUpdater.archiveFolder
+	local archiveFilePath = IronmonTracker.workingDir .. (AutoUpdater.devArchive or AutoUpdater.archiveName)
+	local extractedFolderPath = IronmonTracker.workingDir .. (AutoUpdater.devFolder or AutoUpdater.archiveFolder)
 
 	local isOnWindows = (AutoUpdater.slash == "\\")
 	local command, err1 = AutoUpdater.buildDownloadExtractCommand(tarUrl, archiveFilePath, extractedFolderPath, isOnWindows)
 
 	local result = os.execute(command)
-	if result ~= 0 then -- 0 = successful
+	if not (result == true or result == 0) then -- true / 0 = successful
 		print("> ERROR: " .. err1)
 		print("> Archive: " .. (tarUrl or "URL N/A"))
 		return nil
@@ -107,7 +110,7 @@ function AutoUpdater.updateFiles(archiveFolderPath)
 	local command, err1, err2 = AutoUpdater.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
 
 	local result = os.execute(command)
-	if result ~= 0 then -- 0 = successful
+	if not (result == true or result == 0) then -- true / 0 = successful
 		print("> ERROR: " .. err1)
 		print("> " .. err2)
 		return false
@@ -128,15 +131,15 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 	local pauseCommand
 
 	local foldersToRemove = {
-		string.format('%s%s.vscode', extractedFolder, AutoUpdater.slash),
-		string.format('%s%sironmon_tracker%sDebug', extractedFolder, AutoUpdater.slash),
+		string.format('%s.vscode', extractedFolder .. AutoUpdater.slash),
+		string.format('%sironmon_tracker%sDebug', extractedFolder .. AutoUpdater.slash, AutoUpdater.slash),
 	}
 	local filesToRemove = {
-		string.format('%s%s.editorconfig', extractedFolder, AutoUpdater.slash),
-		string.format('%s%s.gitattributes', extractedFolder, AutoUpdater.slash),
-		string.format('%s%s.gitignore', extractedFolder, AutoUpdater.slash),
-		string.format('%s%sREADME.md', extractedFolder, AutoUpdater.slash),
-		string.format('%s%squickload%s.gitignore', extractedFolder, AutoUpdater.slash, AutoUpdater.slash), -- this will error until new release is live
+		string.format('%s.editorconfig', extractedFolder .. AutoUpdater.slash),
+		string.format('%s.gitattributes', extractedFolder .. AutoUpdater.slash),
+		string.format('%s.gitignore', extractedFolder .. AutoUpdater.slash),
+		string.format('%sREADME.md', extractedFolder .. AutoUpdater.slash),
+		string.format('%squickload%s.gitignore', extractedFolder .. AutoUpdater.slash, AutoUpdater.slash), -- this will error until new release is live
 	}
 
 	if isOnWindows then
@@ -145,7 +148,8 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			string.format('echo;'),
 			string.format('echo %s', messages.extracting),
-			string.format('tar -xf "%s" && del "%s"', archive, archive),
+			string.format('tar -xf "%s"', archive),
+			string.format('del "%s"', archive),
 		}
 		for _, folder in ipairs(foldersToRemove) do
 			table.insert(batchCommands, string.format('rmdir "%s" /s /q', folder))
@@ -160,7 +164,9 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			string.format('echo'),
 			string.format('echo %s', messages.extracting),
-			string.format('tar -xf "%s" && rm -f "%s"', archive, archive),
+			string.format('mkdir -p "%s"', extractedFolder),
+			string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir), --extractedFolder), -- unsure which is correct, might be specific to dev
+			string.format('rm -rf "%s"', archive),
 		}
 		for _, folder in ipairs(foldersToRemove) do
 			table.insert(batchCommands, string.format('rm -rf "%s"', folder))
@@ -169,6 +175,10 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			table.insert(batchCommands, string.format('rm -f "%s"', file))
 		end
 		pauseCommand = string.format('echo && echo %s && read -n1 -rp "Press any key to continue..."', messages.error1)
+
+		-- Print out messages, as a terminal window doesn't always appear to show status
+		print(messages.downloading)
+		print(messages.extracting)
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )
@@ -211,9 +221,13 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('rm -rf "%s"', extractedFolder),
 			string.format('echo'),
 			string.format('echo %s', messages.completed),
-			string.format('sleep %s', sleepTime),
+			-- string.format('sleep %s', sleepTime),
 		}
 		pauseCommand = string.format('echo && echo %s && echo %s && read -n1 -rp "Press any key to continue..."', messages.error1, messages.error2)
+
+		-- Print out messages, as a terminal window doesn't always appear to show status
+		print(messages.filesready)
+		print(messages.updating)
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )

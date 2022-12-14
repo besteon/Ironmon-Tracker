@@ -91,6 +91,7 @@ FileManager.Urls = {
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
+	DEV_TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
 }
 
 -- Returns true if a file exists at its absolute file path; false otherwise

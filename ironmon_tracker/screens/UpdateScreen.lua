@@ -215,10 +215,13 @@ function UpdateScreen.openReleaseNotesWindow()
 	if Main.OS == "Windows" then
 		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
 	else
-		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', FileManager.Urls.DOWNLOAD))
-		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-		print(string.format("Release Notes: %s", FileManager.Urls.DOWNLOAD))
+		local result1 = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX
+		local result2 = os.execute(string.format('xdg-open "%s"', FileManager.Urls.DOWNLOAD)) -- Linux
+
+		if not result1 and not result2 then
+			Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
+			print(string.format("> Release Notes: %s", FileManager.Urls.DOWNLOAD))
+		end
 	end
 
 	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then

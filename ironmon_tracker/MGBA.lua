@@ -854,7 +854,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'UPDATENOW()',
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
-			print(string.format(' %s (check "Update" sidebar for status)', UpdateScreen.States.IN_PROGRESS))
+			print(string.format('> %s (check "Update" sidebar for status)', UpdateScreen.States.IN_PROGRESS))
 
 			local success = false
 			local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
@@ -866,13 +866,13 @@ MGBA.CommandMap = {
 
 			if success then
 				print("")
-				print(" You can now restart the Tracker to apply the update. Exit any battle first.")
-				print(" - On mGBA Scripting Window, click File -> Load script (or Load recent script)")
-				print(" - Then click File -> Reset")
+				print("> You can now restart the Tracker to apply the update. Exit any battle first.")
+				print("> On mGBA Scripting Window, click File -> Load script (or Load recent script)")
+				print("> Then click File -> Reset")
 			else
-				print("")
-				print(" The update was not succesful. You can manually update from the online release:")
-				print(string.format(" - %s", FileManager.Urls.DOWNLOAD))
+				-- print("")
+				-- print("> The update was not succesful. You can manually update from the online release:")
+				-- print(string.format("> %s", FileManager.Urls.DOWNLOAD))
 			end
 		end,
 	},
