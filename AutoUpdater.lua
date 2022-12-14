@@ -9,9 +9,12 @@ AutoUpdater = {
 	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
-	DEV_TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
-	devArchive = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
-	devFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
+	Dev = {
+		enabled = true,
+		TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
+		archiveName = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
+		archiveFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
+	}
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
@@ -23,6 +26,18 @@ function AutoUpdater.start()
 
 	AutoUpdater.setupEmulatorSpecifics()
 	AutoUpdater.performStandaloneUpdate()
+end
+
+function AutoUpdater.getTAR()
+	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.TAR else return AutoUpdater.TAR end
+end
+
+function AutoUpdater.getArchiveName()
+	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.archiveName else return AutoUpdater.archiveName end
+end
+
+function AutoUpdater.getArchiveFolder()
+	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.archiveFolder else return AutoUpdater.archiveFolder end
 end
 
 function AutoUpdater.setupEmulatorSpecifics()
@@ -54,17 +69,18 @@ function AutoUpdater.performStandaloneUpdate()
 	local releaseFolderPath
 
 	-- Check if the download was completed and extracted, but the update halted before it was removed
-	local updaterFilePath = IronmonTracker.workingDir .. AutoUpdater.archiveFolder .. AutoUpdater.slash .. AutoUpdater.thisFileName
+	local updaterFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder() .. AutoUpdater.slash .. AutoUpdater.thisFileName
 	local file = io.open(updaterFilePath, "r")
 	if file == nil then
 		releaseFolderPath = AutoUpdater.downloadAndExtract()
 		if releaseFolderPath == nil then
 			return false
 		end
+	else
+		file:close()
 	end
-	io.close(file)
 
-	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. AutoUpdater.archiveFolder)
+	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder())
 	local success = AutoUpdater.updateFiles(releaseFolderPath)
 	if not success then
 		return false
@@ -72,19 +88,19 @@ function AutoUpdater.performStandaloneUpdate()
 
 	print("> Version update successful!")
 	print("")
-	print(string.format('> Please restart your emulator and load the main "%s" script.', AutoUpdater.trackerFileName))
+	print(string.format('Please restart your emulator and load the main "%s" script.', AutoUpdater.trackerFileName))
 	return true
 end
 
 -- Returns the folderpath that contains the extracted release files from the downloaded archive 'tarURL'; returns nil if something failed
 function AutoUpdater.downloadAndExtract(tarUrl)
-	tarUrl = tarUrl or AutoUpdater.TAR
+	tarUrl = tarUrl or AutoUpdater.getTAR()
 
 	print("> Downloading release archive and extracting files.")
 
 	-- Temp Files/Folders used by batch operations
-	local archiveFilePath = IronmonTracker.workingDir .. (AutoUpdater.devArchive or AutoUpdater.archiveName)
-	local extractedFolderPath = IronmonTracker.workingDir .. (AutoUpdater.devFolder or AutoUpdater.archiveFolder)
+	local archiveFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveName()
+	local extractedFolderPath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder()
 
 	local isOnWindows = (AutoUpdater.slash == "\\")
 	local command, err1 = AutoUpdater.buildDownloadExtractCommand(tarUrl, archiveFilePath, extractedFolderPath, isOnWindows)
@@ -174,7 +190,8 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		for _, file in ipairs(filesToRemove) do
 			table.insert(batchCommands, string.format('rm -f "%s"', file))
 		end
-		pauseCommand = string.format('echo && echo %s && read -n1 -rp "Press any key to continue..."', messages.error1)
+		-- Temp removing the "pause" as can't tell if it was causing issues.
+		pauseCommand = string.format('echo && echo %s', messages.error1)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
 		print(messages.downloading)
@@ -192,7 +209,7 @@ end
 function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local messages = {
 		filesready = "New release files downloaded and ready for update.",
-		updating = "Applying the update; copying over files.",
+		updating = "Applying the update, copying over files.",
 		completed = "Version update completed successfully.",
 		error1 = "Unable to copy over and update Tracker files.",
 		error2 = string.format('Try restarting the emulator and loading ONLY the "%s" script.', AutoUpdater.thisFileName),
@@ -217,13 +234,14 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
 			string.format('echo %s', messages.updating),
-			string.format('cp -r "%s" "%s"', extractedFolder .. AutoUpdater.slash .. ".", IronmonTracker.workingDir),
+			string.format('cp -fr "%s" "%s"', extractedFolder .. AutoUpdater.slash .. ".", IronmonTracker.workingDir),
 			string.format('rm -rf "%s"', extractedFolder),
 			string.format('echo'),
 			string.format('echo %s', messages.completed),
 			-- string.format('sleep %s', sleepTime),
 		}
-		pauseCommand = string.format('echo && echo %s && echo %s && read -n1 -rp "Press any key to continue..."', messages.error1, messages.error2)
+		-- Temp removing the "pause" as can't tell if it was causing issues.
+		pauseCommand = string.format('echo && echo %s && echo %s', messages.error1, messages.error2)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
 		print(messages.filesready)

@@ -847,17 +847,16 @@ MGBA.CommandMap = {
 		exampleUsage = 'RELEASENOTES()',
 		execute = function(self, params)
 			UpdateScreen.openReleaseNotesWindow()
-			print(string.format("Release notes: %s", FileManager.Urls.DOWNLOAD))
 		end,
 	},
 	["UPDATENOW"] = {
 		usageSyntax = 'UPDATENOW()',
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
-			print(string.format('> %s (check "Update" sidebar for status)', UpdateScreen.States.IN_PROGRESS))
+			print(string.format('> %s', UpdateScreen.States.IN_PROGRESS))
 
 			local success = false
-			local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
+			local archiveFolderPath = AutoUpdater.downloadAndExtract(AutoUpdater.getTAR())
 			if archiveFolderPath ~= nil then
 				-- Attempt to replace the local AutoUpdater with the newly downloaded one
 				FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
@@ -866,9 +865,10 @@ MGBA.CommandMap = {
 
 			if success then
 				print("")
-				print("> You can now restart the Tracker to apply the update. Exit any battle first.")
-				print("> On mGBA Scripting Window, click File -> Load script (or Load recent script)")
-				print("> Then click File -> Reset")
+				print("> Follow these steps to restart the Tracker to apply the update:")
+				print(" 1) Complete any battles first")
+				print(" 2) On the mGBA scripting window: Click File -> Reset")
+				print(" 3) Click File -> Load script (or Load recent script)")
 			else
 				-- print("")
 				-- print("> The update was not succesful. You can manually update from the online release:")
