@@ -191,14 +191,27 @@ function NavigationMenu.initialize()
 end
 
 function NavigationMenu.openWikiBrowserWindow()
-	-- The first parameter is the title of the window, the second is the url
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+	end
+
 	if Main.OS == "Windows" then
+		-- The first parameter is the title of the window, the second is the url
 		os.execute(string.format('start "" "%s"', FileManager.Urls.WIKI))
 	else
-		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', FileManager.Urls.WIKI))
-		Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-		print(string.format("Help Wiki: %s", FileManager.Urls.WIKI))
+		local result1 = os.execute(string.format('open "%s"', FileManager.Urls.WIKI)) -- Mac OSX
+		local result2 = os.execute(string.format('xdg-open "%s"', FileManager.Urls.WIKI)) -- Linux
+
+		if not result1 and not result2 then
+			Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
+			print(string.format("> Release Notes: %s", FileManager.Urls.WIKI))
+		end
+	end
+
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 

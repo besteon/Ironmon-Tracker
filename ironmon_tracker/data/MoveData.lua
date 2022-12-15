@@ -2952,7 +2952,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power doubles if the user is poisoned, paralyzed, or burned.",
+		summary = "Power doubles if the user is poisoned, paralyzed, or burned. The burn's effect of halving the damage done is still applied.",
 	},
 	{
 		id = "264",

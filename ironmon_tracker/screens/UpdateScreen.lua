@@ -211,8 +211,8 @@ function UpdateScreen.openReleaseNotesWindow()
 		client.SetSoundOn(false)
 	end
 
-	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
+		-- The first parameter is the title of the window, the second is the url
 		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
 	else
 		local result1 = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX

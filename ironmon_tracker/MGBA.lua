@@ -853,7 +853,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'UPDATENOW()',
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
-			print(string.format('> %s', UpdateScreen.States.IN_PROGRESS))
+			print(string.format('> Update in progress, please wait...'))
 
 			local success = false
 			local archiveFolderPath = AutoUpdater.downloadAndExtract(AutoUpdater.getTAR())
@@ -864,6 +864,7 @@ MGBA.CommandMap = {
 			end
 
 			if success then
+				print("> Auto-update successful!")
 				print("")
 				print("> Follow these steps to restart the Tracker to apply the update:")
 				print(" 1) Complete any battles first")
@@ -887,8 +888,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'HELPWIKI()',
 		exampleUsage = 'HELPWIKI()',
 		execute = function(self, params)
-			print(string.format(" Check out the Tracker's Help Wiki using the link below for tips and features:"))
-			print(string.format(" %s", FileManager.Urls.WIKI))
+			NavigationMenu.openWikiBrowserWindow()
 		end,
 	},
 	["ATTEMPTS"] = {

@@ -10,7 +10,7 @@ AutoUpdater = {
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
 	Dev = {
-		enabled = true,
+		enabled = true, -- TODO: Change this to false and remove branch-specific references below on release
 		TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
 		archiveName = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
 		archiveFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
@@ -96,7 +96,7 @@ end
 function AutoUpdater.downloadAndExtract(tarUrl)
 	tarUrl = tarUrl or AutoUpdater.getTAR()
 
-	print("> Downloading release archive and extracting files.")
+	print("> Step 1: Downloading release and extracting files...")
 
 	-- Temp Files/Folders used by batch operations
 	local archiveFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveName()
@@ -121,6 +121,8 @@ function AutoUpdater.updateFiles(archiveFolderPath)
 	if archiveFolderPath == nil then
 		return false
 	end
+
+	print("> Step 2: Updating Tracker files...")
 
 	local isOnWindows = (AutoUpdater.slash == "\\")
 	local command, err1, err2 = AutoUpdater.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
@@ -162,7 +164,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		batchCommands = {
 			string.format('echo %s', messages.downloading),
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
-			string.format('echo;'),
+			'echo;',
 			string.format('echo %s', messages.extracting),
 			string.format('tar -xf "%s"', archive),
 			string.format('del "%s"', archive),
@@ -178,7 +180,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		batchCommands = {
 			string.format('echo %s', messages.downloading),
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
-			string.format('echo'),
+			'echo',
 			string.format('echo %s', messages.extracting),
 			string.format('mkdir -p "%s"', extractedFolder),
 			string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir), --extractedFolder), -- unsure which is correct, might be specific to dev
@@ -194,8 +196,8 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		pauseCommand = string.format('echo && echo %s', messages.error1)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
-		print(messages.downloading)
-		print(messages.extracting)
+		print(string.format(">> %s", messages.downloading))
+		print(string.format(">> %s", messages.extracting))
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )
@@ -225,7 +227,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('echo %s', messages.updating),
 			string.format('xcopy "%s" /s /y /q', extractedFolder),
 			string.format('rmdir "%s" /s /q', extractedFolder),
-			string.format('echo;'),
+			'echo;',
 			string.format('echo %s', messages.completed),
 			string.format('timeout /t %s', sleepTime),
 		}
@@ -236,16 +238,15 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('echo %s', messages.updating),
 			string.format('cp -fr "%s" "%s"', extractedFolder .. AutoUpdater.slash .. ".", IronmonTracker.workingDir),
 			string.format('rm -rf "%s"', extractedFolder),
-			string.format('echo'),
+			'echo',
 			string.format('echo %s', messages.completed),
-			-- string.format('sleep %s', sleepTime),
 		}
 		-- Temp removing the "pause" as can't tell if it was causing issues.
 		pauseCommand = string.format('echo && echo %s && echo %s', messages.error1, messages.error2)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
-		print(messages.filesready)
-		print(messages.updating)
+		print(string.format(">> %s", messages.filesready))
+		print(string.format(">> %s", messages.updating))
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )
