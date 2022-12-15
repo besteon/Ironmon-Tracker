@@ -24,10 +24,10 @@ function Tracker.initialize()
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
 		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
-		local success, msg = Tracker.loadData(filepath)
-		if not success and msg ~= nil and string.find(msg, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
+		local success, err = Tracker.loadData(filepath)
+		if not success and err ~= nil and string.find(err, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
 			-- Print any error that isn't "missing autosave tdat file"
-			print(msg)
+			print("> " .. err)
 		end
 	else
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
@@ -165,7 +165,7 @@ function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 	if trackedPokemon.statmarkings[statStage] ~= nil then
 		trackedPokemon.statmarkings[statStage] = statState
 	else
-		print("[ERROR] stat stage does not exist: " .. statStage)
+		print(string.format("> ERROR: The stat stage %s does not exist.", statStage))
 	end
 end
 
@@ -508,12 +508,12 @@ function Tracker.loadData(filepath, forced)
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
-		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+		return false, string.format("ERROR: TDAT file, %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
 	end
 
 	local fileData = FileManager.readTableFromFile(filepath)
 	if fileData == nil then
-		return false, string.format("[ERROR] %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+		return false, string.format("ERROR: %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
 	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file

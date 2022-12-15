@@ -316,7 +316,7 @@ function FileManager.writeTableToFile(table, filename)
 		end
 		file:close()
 	else
-		print("[ERROR] Unable to create auto-save file: " .. filename)
+		print("> ERROR: Unable to create auto-save file: " .. filename)
 	end
 end
 
@@ -371,7 +371,7 @@ function FileManager.addCustomThemeToFile(themeName, themeCode)
 		file:write("\n")
 		file:close()
 	else
-		print(string.format("[ERROR] Unable to save custom Theme \"%s\" to file: %s", themeName, FileManager.Files.THEME_PRESETS))
+		print(string.format('> ERROR: Unable to save custom Theme "%s" to file: %s', themeName, FileManager.Files.THEME_PRESETS))
 	end
 end
 
@@ -387,7 +387,7 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 
 	local file = io.open(themeFilePath, "w")
 	if file == nil then
-		print(string.format("[ERROR] Unable to remove custom Theme \"%s\" from file: %s", themeName, FileManager.Files.THEME_PRESETS))
+		print(string.format('> ERROR: Unable to remove custom Theme "%s" from file: %s', themeName, FileManager.Files.THEME_PRESETS))
 		return false
 	end
 

@@ -36,7 +36,7 @@ function MGBA.printStartupInstructions()
 	print("")
 end
 
-function MGBA.startRunLoops()
+function MGBA.setupActiveRunCallbacks()
 	if Main.frameCallbackId == nil then
 		---@diagnostic disable-next-line: undefined-global
 		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
@@ -47,7 +47,7 @@ function MGBA.startRunLoops()
 	end
 end
 
-function MGBA.stopRunLoops()
+function MGBA.removeActiveRunCallbacks()
 	if Main.frameCallbackId ~= nil then
 		---@diagnostic disable-next-line: undefined-global
 		callbacks:remove(Main.frameCallbackId)
