@@ -6,12 +6,12 @@ AutoUpdater = {
 	thisFileName = "AutoUpdater.lua",
 	trackerFileName = "Ironmon-Tracker.lua",
 	slash = package.config:sub(1,1) or "\\", -- Windows is \ and Linux is /
-	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
+	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
 	Dev = {
 		enabled = true, -- TODO: Change this to false and remove branch-specific references below on release
-		TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
+		TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
 		archiveName = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
 		archiveFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
 	}
@@ -28,8 +28,8 @@ function AutoUpdater.start()
 	AutoUpdater.performStandaloneUpdate()
 end
 
-function AutoUpdater.getTAR()
-	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.TAR else return AutoUpdater.TAR end
+function AutoUpdater.getTARURL()
+	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.TAR_URL else return AutoUpdater.TAR_URL end
 end
 
 function AutoUpdater.getArchiveName()
@@ -52,6 +52,15 @@ function AutoUpdater.setupEmulatorSpecifics()
 	if IronmonTracker.workingDir == nil then -- required to prevent overwrite in rare cases
 		local pathLookup = debug.getinfo(2, "S").source:sub(2)
 		IronmonTracker.workingDir = pathLookup:match("(.*[/\\])") or ""
+
+		-- Format path for OS
+		if AutoUpdater.slash == "/" then
+			IronmonTracker.workingDir = IronmonTracker.workingDir:gsub("\\", "/")
+		else
+			IronmonTracker.workingDir = IronmonTracker.workingDir:gsub("/", "\\")
+		end
+
+		-- Add trailing slash if missing
 		if IronmonTracker.workingDir ~= "" and IronmonTracker.workingDir:sub(-1) ~= AutoUpdater.slash then
 			IronmonTracker.workingDir = IronmonTracker.workingDir .. AutoUpdater.slash
 		end
@@ -94,7 +103,7 @@ end
 
 -- Returns the folderpath that contains the extracted release files from the downloaded archive 'tarURL'; returns nil if something failed
 function AutoUpdater.downloadAndExtract(tarUrl)
-	tarUrl = tarUrl or AutoUpdater.getTAR()
+	tarUrl = tarUrl or AutoUpdater.getTARURL()
 
 	print("> Step 1: Downloading release and extracting files...")
 
@@ -166,7 +175,8 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			'echo;',
 			string.format('echo %s', messages.extracting),
-			string.format('tar -xf "%s"', archive),
+			string.format('cd "%s"', IronmonTracker.workingDir),
+			string.format('tar -xzf "%s"', archive),
 			string.format('del "%s"', archive),
 		}
 		for _, folder in ipairs(foldersToRemove) do
@@ -175,7 +185,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		for _, file in ipairs(filesToRemove) do
 			table.insert(batchCommands, string.format('del "%s" /q /f', file))
 		end
-		pauseCommand = string.format("echo; && echo %s && pause", messages.error1)
+		pauseCommand = string.format("echo; && echo %s && pause && exit /b 6", messages.error1)
 	else
 		batchCommands = {
 			string.format('echo %s', messages.downloading),
@@ -193,7 +203,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			table.insert(batchCommands, string.format('rm -f "%s"', file))
 		end
 		-- Temp removing the "pause" as can't tell if it was causing issues.
-		pauseCommand = string.format('echo && echo %s', messages.error1)
+		pauseCommand = string.format('echo && echo %s && exit 6', messages.error1)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
 		print(string.format(">> %s", messages.downloading))
@@ -224,6 +234,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	if isOnWindows then
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
+			string.format('cd "%s"', IronmonTracker.workingDir),
 			string.format('echo %s', messages.updating),
 			string.format('xcopy "%s" /s /y /q', extractedFolder),
 			string.format('rmdir "%s" /s /q', extractedFolder),
@@ -231,7 +242,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('echo %s', messages.completed),
 			string.format('timeout /t %s', sleepTime),
 		}
-		pauseCommand = string.format("echo; && echo %s && echo %s && pause", messages.error1, messages.error2)
+		pauseCommand = string.format("echo; && echo %s && echo %s && pause && exit /b 6", messages.error1, messages.error2)
 	else
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
@@ -242,7 +253,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 			string.format('echo %s', messages.completed),
 		}
 		-- Temp removing the "pause" as can't tell if it was causing issues.
-		pauseCommand = string.format('echo && echo %s && echo %s', messages.error1, messages.error2)
+		pauseCommand = string.format('echo && echo %s && echo %s && exit 6', messages.error1, messages.error2)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
 		print(string.format(">> %s", messages.filesready))

@@ -141,6 +141,7 @@ function FileManager.setupWorkingDirectory()
 	if FileManager.dir:sub(-1) ~= FileManager.slash then
 		FileManager.dir = FileManager.dir .. FileManager.slash
 	end
+	IronmonTracker.workingDir = FileManager.dir -- required so AutoUpdater works regardless of standalone execution
 end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.

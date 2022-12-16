@@ -853,10 +853,11 @@ MGBA.CommandMap = {
 		usageSyntax = 'UPDATENOW()',
 		exampleUsage = 'UPDATENOW()',
 		execute = function(self, params)
-			print(string.format('> Update in progress, please wait...'))
+			print("> Update in progress, please wait...")
+			print("")
 
 			local success = false
-			local archiveFolderPath = AutoUpdater.downloadAndExtract(AutoUpdater.getTAR())
+			local archiveFolderPath = AutoUpdater.downloadAndExtract(AutoUpdater.getTARURL())
 			if archiveFolderPath ~= nil then
 				-- Attempt to replace the local AutoUpdater with the newly downloaded one
 				FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
