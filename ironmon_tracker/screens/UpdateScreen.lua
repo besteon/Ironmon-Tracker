@@ -165,7 +165,7 @@ function UpdateScreen.performAutoUpdate()
 	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 	local success = false
 	if Main.OS == "Windows" or Main.emulator ~= Main.EMU.BIZHAWK28 then
-		local archiveFolderPath = AutoUpdater.downloadAndExtract(FileManager.Urls.TAR)
+		local archiveFolderPath = AutoUpdater.downloadAndExtract()
 		if archiveFolderPath ~= nil then
 			-- Attempt to replace the local AutoUpdater with the newly downloaded one
 			FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)

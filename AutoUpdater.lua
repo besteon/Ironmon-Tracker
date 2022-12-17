@@ -102,12 +102,11 @@ function AutoUpdater.performStandaloneUpdate()
 end
 
 -- Returns the folderpath that contains the extracted release files from the downloaded archive 'tarURL'; returns nil if something failed
-function AutoUpdater.downloadAndExtract(tarUrl)
-	tarUrl = tarUrl or AutoUpdater.getTARURL()
-
+function AutoUpdater.downloadAndExtract()
 	print("> Step 1: Downloading release and extracting files...")
 
 	-- Temp Files/Folders used by batch operations
+	local tarUrl = AutoUpdater.getTARURL()
 	local archiveFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveName()
 	local extractedFolderPath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder()
 
