@@ -50,9 +50,6 @@ function Main.Initialize()
 		Main.OS = "Windows"
 	else
 		Main.OS = "Linux"
-		if Main.IsOnBizhawk() then -- for now assume special characters render fine on Linux
-			Main.supportsSpecialChars = true
-		end
 	end
 
 	for _, filename in ipairs(FileManager.Files.LuaCode) do

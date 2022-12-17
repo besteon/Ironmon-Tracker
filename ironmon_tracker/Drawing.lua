@@ -62,13 +62,13 @@ function Drawing.drawStatusIcon(status, x, y)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
-	-- For some reason on Linux the text offset by 1 pixel (tested on Bizhawk 2.9)
+	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
 	if Main.OS == "Linux" then
 		x = x + 1
 		y = y - 1
 	end
 
-	if Theme.DRAW_TEXT_SHADOWS then
+	if Theme.DRAW_TEXT_SHADOWS and size == nil then -- For now, don't draw shadows for smaller-than-normal text (old behavior)
 		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
 	end
 	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
@@ -285,6 +285,12 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	gui.drawRectangle(x, y + 17, 35, 6, themeColors["Upper box border"]) -- Top box's Heals in Bag area
 	gui.drawRectangle(x, y + 28, width, 22, themeColors["Lower box border"], themeColors["Lower box background"]) -- Bottom box
 	gui.drawRectangle(x, y + 46, width, 4, themeColors["Lower box border"]) -- Bottom box's badge area
+
+	-- For some reason on Linux the tiny text is offset by an additional 1 pixel (tested on Bizhawk 2.9)
+	if Main.OS == "Linux" then
+		x = x - 1
+		y = y - 1
+	end
 
 	-- Draw the "Pokemon info"
 	Drawing.drawText(x + 10, y + 0, "------------", themeColors["Default text"], nil, fontSize, fontFamily)

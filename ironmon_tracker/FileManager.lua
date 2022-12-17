@@ -149,6 +149,12 @@ function FileManager.setupWorkingDirectory()
 	if FileManager.dir:sub(-1) ~= FileManager.slash then
 		FileManager.dir = FileManager.dir .. FileManager.slash
 	end
+
+	-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
+	if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
+		FileManager.dir = ""
+	end
+
 	IronmonTracker.workingDir = FileManager.dir -- required so AutoUpdater works regardless of standalone execution
 end
 
@@ -190,7 +196,11 @@ end
 -- Returns a list of file names found in a given folder
 function FileManager.getFilesFromDirectory(folderpath)
 	local files = {}
-	if folderpath == nil or io.popen == nil then return files end
+
+	-- io.popen not supported on Linux Bizhawk 2.8, Lua 5.1
+	if folderpath == nil or (Main.OS ~= "Windows" and Main.emulator == Main.EMU.BIZHAWK28) then
+		return files
+	end
 
 	local scanDirCommand
 	if Main.OS == "Windows" then

@@ -843,7 +843,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- EMERALD DESCRIPTION
 	if data.a.descriptionEmerald ~= nil and data.a.descriptionEmerald ~= Constants.BLANKLINE then
-		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, nil, nil, "italics")
+		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing + 1
 		local wrappedSummary = Utils.getWordWrapLines(data.a.descriptionEmerald, 31)
 

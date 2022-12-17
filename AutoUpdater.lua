@@ -205,8 +205,8 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		pauseCommand = string.format('echo && echo %s && exit 6', messages.error1)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
-		print(string.format(">> %s", messages.downloading))
-		print(string.format(">> %s", messages.extracting))
+		print(string.format(".. %s", messages.downloading))
+		print(string.format(".. %s", messages.extracting))
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )
@@ -255,8 +255,8 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		pauseCommand = string.format('echo && echo %s && echo %s && exit 6', messages.error1, messages.error2)
 
 		-- Print out messages, as a terminal window doesn't always appear to show status
-		print(string.format(">> %s", messages.filesready))
-		print(string.format(">> %s", messages.updating))
+		print(string.format(".. %s", messages.filesready))
+		print(string.format(".. %s", messages.updating))
 	end
 
 	-- Pause if any of the commands fail, those grouped between ( )
