@@ -215,12 +215,14 @@ function UpdateScreen.openReleaseNotesWindow()
 		-- The first parameter is the title of the window, the second is the url
 		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
 	else
-		local result1 = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX
-		local result2 = os.execute(string.format('xdg-open "%s"', FileManager.Urls.DOWNLOAD)) -- Linux
-
-		if not result1 and not result2 then
-			Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-			print(string.format("> Release Notes: %s", FileManager.Urls.DOWNLOAD))
+		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
+		local success = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX
+		if not success then
+			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.DOWNLOAD)) -- Linux
+			if not success then
+				Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
+				print(string.format("> Release Notes: %s", FileManager.Urls.DOWNLOAD))
+			end
 		end
 	end
 

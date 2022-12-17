@@ -60,12 +60,15 @@ function IronmonTracker.tryLoad()
 		local pathLookup = debug.getinfo(2, "S").source:sub(2)
 		IronmonTracker.workingDir = pathLookup:match("(.*[/\\])") or ""
 	end
+	if IronmonTracker.isOnBizhawk and IronmonTracker.workingDir == "/" then -- specifically for Bizhawk on Linux
+		IronmonTracker.workingDir = ""
+	end
 
 	-- Verify the Main.lua Tracker file exists
 	local mainFilePath = IronmonTracker.workingDir .. "ironmon_tracker/Main.lua"
 	local file = io.open(mainFilePath, "r")
 	if file == nil then
-		print('> Error starting up the Tracker: Unable to load all of the required Tracker files.')
+		print('> Error starting up the Tracker: Unable to load the required main Tracker file.')
 		print('> The "Ironmon-Tracker.lua" script file should be in the same folder as the other Tracker files that came with the release download.')
 		return false
 	end

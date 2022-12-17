@@ -126,11 +126,19 @@ function FileManager.prependDir(filenameOrPath)
 	return FileManager.dir .. (filenameOrPath or "")
 end
 
--- Returns true if on Windows. This setup required specifically for Bizhawk on Windows.
+-- An absolute path working directory is required for Bizhawk (Windows or Linux)
 function FileManager.setupWorkingDirectory()
 	FileManager.dir = IronmonTracker.workingDir or ""
-	-- Working directory, used for absolute paths
-	local function exeCD() return io.popen("cd") end
+
+	local getDirCommand
+	if FileManager.slash == "\\" then -- Windows
+		getDirCommand = "cd"
+	else -- Linux
+		getDirCommand = "pwd"
+	end
+
+	local function exeCD() return io.popen(getDirCommand) end
+
 	local success, ret, err = xpcall(exeCD, debug.traceback)
 	if success and Main.IsOnBizhawk() and FileManager.dir == "" then
 		FileManager.dir = ret:read()

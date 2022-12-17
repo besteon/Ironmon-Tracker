@@ -542,9 +542,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY - 3
 	local pokemonName = data.p.name:upper()
 	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+		Drawing.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
-	gui.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -711,9 +711,9 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	-- MOVE NAME
 	data.m.name = data.m.name:upper()
 	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(offsetX + 1 - 1, offsetY + 1 - 3, data.m.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+		Drawing.drawText(offsetX + 1 - 1, offsetY + 1 - 3, data.m.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
-	gui.drawText(offsetX - 1, offsetY - 3, data.m.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawText(offsetX - 1, offsetY - 3, data.m.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	if data.x.ownHasHiddenPower then
 		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
@@ -820,9 +820,9 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	-- Ability NAME
 	data.a.name = data.a.name:upper():gsub(" ", "  ")
 	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(offsetX - 1 + 1, offsetY + 1 - 3, data.a.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
+		Drawing.drawText(offsetX - 1 + 1, offsetY + 1 - 3, data.a.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
 	end
-	gui.drawText(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawText(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.lookupAbility
@@ -843,7 +843,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- EMERALD DESCRIPTION
 	if data.a.descriptionEmerald ~= nil and data.a.descriptionEmerald ~= Constants.BLANKLINE then
-		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, "italics")
+		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow, nil, nil, "italics")
 		offsetY = offsetY + linespacing + 1
 		local wrappedSummary = Utils.getWordWrapLines(data.a.descriptionEmerald, 31)
 
