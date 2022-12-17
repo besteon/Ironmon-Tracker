@@ -175,7 +175,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			'echo;',
 			string.format('echo %s', messages.extracting),
-			string.format('cd "%s"', IronmonTracker.workingDir),
+			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('tar -xzf "%s"', archive),
 			string.format('del "%s"', archive),
 		}
@@ -217,7 +217,7 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
--- Known issue is XCOPY seems to fail if Tracker is kept on OneDrive or in a secure folder
+-- TODO: Known issue is XCOPY seems to fail if Tracker is kept on OneDrive or in a secure folder
 function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local messages = {
 		filesready = "New release files downloaded and ready for update.",
@@ -234,7 +234,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	if isOnWindows then
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
-			string.format('cd "%s"', IronmonTracker.workingDir),
+			string.format('cd "%s"', IronmonTracker.workingDir), -- required for mGBA on Windows
 			string.format('echo %s', messages.updating),
 			string.format('xcopy "%s" /s /y /q', extractedFolder),
 			string.format('rmdir "%s" /s /q', extractedFolder),

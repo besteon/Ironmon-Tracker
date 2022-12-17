@@ -1,13 +1,14 @@
 MGBADisplay = {}
 
 MGBADisplay.Symbols = {
-	Stab = "!",
-	Effectiveness = { -- 2 char width
-		[0] = "X ",
+	StabL = "[",
+	StabR = "]",
+	Effectiveness = { -- 2 char width, right-aligned
+		[0] = " X",
 		[0.25] = "--",
-		[0.5] = "- ",
+		[0.5] = " -",
 		[1] = "  ",
-		[2] = "+ ",
+		[2] = " +",
 		[4] = "++",
 	},
 	Category = {
@@ -352,10 +353,8 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "View release notes:")
 		table.insert(lines, " RELEASENOTES()")
 		table.insert(lines, "")
-		table.insert(lines, "Automatic update:") -- temp removed asterisk
+		table.insert(lines, "Automatic update:")
 		table.insert(lines, " UPDATENOW()")
-		-- table.insert(lines, "")
-		-- table.insert(lines, "* Usually only works on Windows")
 		table.insert(lines, "---------------------------------")
 
 		return lines
@@ -577,6 +576,7 @@ MGBADisplay.LineBuilder = {
 		-- %-#s means to left-align, padding out the right-part of the string with spaces
 		local justify2 = Utils.inlineIf(Options["Right justified numbers"], "%2s", "%-2s")
 		local justify3 = Utils.inlineIf(Options["Right justified numbers"], "%3s", "%-3s")
+		local justify5 = Utils.inlineIf(Options["Right justified numbers"], "%5s", "%-5s")
 
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
@@ -627,8 +627,8 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "")
 
 		-- Bottom five lines of the box: Move related stuff
-		local botFormattedLine = "%-19s%-3s%-7s%-4s"
-		table.insert(lines, Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "  Pow", "Acc"))
+		local botFormattedLine = "%-18s%-3s%-7s  %-3s"
+		table.insert(lines, Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "   Pow", "Acc"))
 		table.insert(lines, "---------------------------------")
 		for i, move in ipairs(data.m.moves) do
 			local nameText = move.name
@@ -638,9 +638,12 @@ MGBADisplay.LineBuilder = {
 
 			local powerText = tostring(move.power):sub(1, 3) -- for move powers with too much text (eg "100x")
 			if move.isstab then
-				powerText = powerText .. MGBADisplay.Symbols.Stab
+				powerText = MGBADisplay.Symbols.StabL .. powerText .. MGBADisplay.Symbols.StabR
+			else
+				powerText = " " .. powerText .. " "
 			end
-			powerText = Utils.formatUTF8(justify3, powerText)
+			powerText = Utils.formatUTF8(justify5, powerText)
+
 			if move.showeffective then
 				powerText = (MGBADisplay.Symbols.Effectiveness[move.effectiveness] or "  ") .. powerText
 			else
