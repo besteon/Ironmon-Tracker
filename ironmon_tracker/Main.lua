@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "15" }
+Main.Version = { major = "7", minor = "0", patch = "16" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -728,7 +728,6 @@ function Main.ReadAttemptsCount()
 		if attemptsText ~= nil and tonumber(attemptsText) ~= nil then
 			Main.currentSeed = tonumber(attemptsText)
 		end
-		print("> DEBUG: Loading attempts count from existing file: " .. tostring(filepath))
 	elseif Options["Use premade ROMs"] then
 		if Main.IsOnBizhawk() then -- mostly for Bizhawk
 			local romname = GameSettings.getRomName() or ""
@@ -736,13 +735,11 @@ function Main.ReadAttemptsCount()
 			if romnumber ~= "1" then
 				Main.currentSeed = tonumber(romnumber)
 			end
-			print("> DEBUG: Loading attempts count from the ROM Name: " .. tostring(romname))
 		elseif Options["Use premade ROMs"] and (Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "") then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then
 				Main.currentSeed = smallestSeedNumber
 			end
-			print("> DEBUG: Loading attempts count from first ROM found in ROMs folder.")
 		end
 	end
 	-- Otherwise, leave the attempts count at default, which is 1

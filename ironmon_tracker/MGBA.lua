@@ -856,26 +856,12 @@ MGBA.CommandMap = {
 			print("> Update in progress, please wait...")
 			print("")
 
-			local success = false
-			local archiveFolderPath = AutoUpdater.downloadAndExtract()
-			if archiveFolderPath ~= nil then
-				-- Attempt to replace the local AutoUpdater with the newly downloaded one
-				FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
-				success = AutoUpdater.updateFiles(archiveFolderPath)
-			end
-
-			if success then
-				print("> Step 3: Verifying update... Auto-update successful!") -- no actual verification, just looks nice
+			if AutoUpdater.performParallelUpdate() then
 				print("")
 				print("> Follow these steps to restart the Tracker to apply the update:")
-				print(" 1) Complete any battles first")
+				print(" 1) Complete any ongoing battles first")
 				print(" 2) On the mGBA scripting window: Click File -> Reset")
 				print(" 3) Click File -> Load script (or Load recent script)")
-			else
-				-- Uneeded failure messages for now, as the AutoUpdater already explains what went wrong.
-				-- print("")
-				-- print("> The update was not succesful. You can manually update from the online release:")
-				-- print(string.format("> %s", FileManager.Urls.DOWNLOAD))
 			end
 		end,
 	},

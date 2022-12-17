@@ -14,7 +14,13 @@ AutoUpdater = {
 		TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
 		archiveName = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
 		archiveFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
-	}
+	},
+	Messages = {
+		step1 = "Step 1: Downloading release and extracting files...",
+		step1a = "Step 1: Existing release already downloaded and ready to use.",
+		step2 = "Step 2: Updating Tracker files...",
+		step3 = "Step 3: Verifying update... Auto-update successful!",
+	},
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
@@ -74,36 +80,60 @@ function AutoUpdater.setupEmulatorSpecifics()
 	end
 end
 
+-- The full update process to be run while the Tracker code is active and loaded. Returns [true/false] based on success
+function AutoUpdater.performParallelUpdate()
+	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.OS ~= "Windows" and Main.emulator == Main.EMU.BIZHAWK28 then
+		return false
+	end
+
+	local archiveFolderPath = AutoUpdater.downloadAndExtract()
+	if archiveFolderPath == nil then
+		return false
+	end
+
+	-- Attempt to replace the local AutoUpdater.lua with the newly downloaded one
+	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
+
+	local success = AutoUpdater.updateFiles(archiveFolderPath)
+	if success then
+		print(string.format("> %s", AutoUpdater.Messages.step3))
+	end
+	return success
+end
+
+-- The full update process to be run WITHOUT any other Tracker code loaded. Returns [true/false] based on success
 function AutoUpdater.performStandaloneUpdate()
 	local releaseFolderPath
 
 	-- Check if the download was completed and extracted, but the update halted before it was removed
 	local updaterFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder() .. AutoUpdater.slash .. AutoUpdater.thisFileName
 	local file = io.open(updaterFilePath, "r")
-	if file == nil then
+	if file ~= nil then
+		file:close()
+		print(string.format("> %s", AutoUpdater.Messages.step1a))
+	else
 		releaseFolderPath = AutoUpdater.downloadAndExtract()
 		if releaseFolderPath == nil then
 			return false
 		end
-	else
-		file:close()
 	end
 
 	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder())
+
 	local success = AutoUpdater.updateFiles(releaseFolderPath)
-	if not success then
-		return false
+	if success then
+		print(string.format("> %s", AutoUpdater.Messages.step3))
+		print("")
+		print(string.format('Please restart your emulator and load the main "%s" script.', AutoUpdater.trackerFileName))
 	end
 
-	print("> Version update successful!")
-	print("")
-	print(string.format('Please restart your emulator and load the main "%s" script.', AutoUpdater.trackerFileName))
-	return true
+	return success
 end
 
 -- Returns the folderpath that contains the extracted release files from the downloaded archive 'tarURL'; returns nil if something failed
 function AutoUpdater.downloadAndExtract()
-	print("> Step 1: Downloading release and extracting files...")
+	print(string.format("> %s", AutoUpdater.Messages.step1))
 
 	-- Temp Files/Folders used by batch operations
 	local tarUrl = AutoUpdater.getTARURL()
@@ -130,7 +160,7 @@ function AutoUpdater.updateFiles(archiveFolderPath)
 		return false
 	end
 
-	print("> Step 2: Updating Tracker files...")
+	print(string.format("> %s", AutoUpdater.Messages.step2))
 
 	local isOnWindows = (AutoUpdater.slash == "\\")
 	local command, err1, err2 = AutoUpdater.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
@@ -165,7 +195,6 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 		string.format('%s.gitattributes', extractedFolder .. AutoUpdater.slash),
 		string.format('%s.gitignore', extractedFolder .. AutoUpdater.slash),
 		string.format('%sREADME.md', extractedFolder .. AutoUpdater.slash),
-		string.format('%squickload%s.gitignore', extractedFolder .. AutoUpdater.slash, AutoUpdater.slash), -- this will error until new release is live
 	}
 
 	if isOnWindows then

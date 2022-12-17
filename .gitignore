@@ -4,6 +4,10 @@ Settings.ini
 *.sav
 *.log
 *Attempts.txt
+quickload/*.gba
+quickload/*.sav
+quickload/*.jar
+quickload/*.rnqs
 ironmon_tracker/images/pokemonAnimated/*.gif
 AnimatedPokemon.gif
 RandomizerErrorLog.txt
