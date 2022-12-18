@@ -353,7 +353,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, "View release notes:")
 		table.insert(lines, " RELEASENOTES()")
 		table.insert(lines, "")
-		table.insert(lines, "Automatic update:")
+		table.insert(lines, "Download & install automatically:")
 		table.insert(lines, " UPDATENOW()")
 		table.insert(lines, "---------------------------------")
 

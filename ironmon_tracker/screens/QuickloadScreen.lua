@@ -92,13 +92,19 @@ QuickloadScreen.Buttons = {
 
 function QuickloadScreen.initialize()
 	for setKey, setValue in pairs(QuickloadScreen.SetButtonSetup) do
-		local isSetCorrectly = (setKey == "ROMs Folder" and Options.FILES[setKey] ~= "") or FileManager.fileExists(Options.FILES[setKey])
 		QuickloadScreen.Buttons[setKey] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			text = Utils.inlineIf(isSetCorrectly, "Clear", " SET"),
+			text = " SET",
 			labelText = setKey,
-			isSet = isSetCorrectly,
+			isSet = false,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, setValue.offsetY, 24, 11 },
+			updateText = function(self)
+				if self.isSet then
+					self.text = "Clear"
+				else
+					self.text = " SET"
+				end
+			end,
 			onClick = function(self)
 				if self.isSet then
 					QuickloadScreen.clearButton(self)
@@ -109,24 +115,51 @@ function QuickloadScreen.initialize()
 			clickFunction = nil,
 		}
 	end
-	QuickloadScreen.Buttons["ROMs Folder"].clickFunction = QuickloadScreen.handleSetRomFolder
-	QuickloadScreen.Buttons["Randomizer JAR"].clickFunction = QuickloadScreen.handleSetRandomizerJar
-	QuickloadScreen.Buttons["Source ROM"].clickFunction = QuickloadScreen.handleSetSourceRom
-	QuickloadScreen.Buttons["Settings File"].clickFunction = QuickloadScreen.handleSetCustomSettings
+
+	local romfolderBtn = QuickloadScreen.Buttons["ROMs Folder"]
+	local jarBtn = QuickloadScreen.Buttons["Randomizer JAR"]
+	local gbaBtn = QuickloadScreen.Buttons["Source ROM"]
+	local rnqsBtn = QuickloadScreen.Buttons["Settings File"]
+
+	romfolderBtn.clickFunction = QuickloadScreen.handleSetRomFolder
+	jarBtn.clickFunction = QuickloadScreen.handleSetRandomizerJar
+	gbaBtn.clickFunction = QuickloadScreen.handleSetSourceRom
+	rnqsBtn.clickFunction = QuickloadScreen.handleSetCustomSettings
+
+	-- Determine if the files are setup properly based on Settings.ini filepaths or files found in [quickload] folder
+	local quickloadFiles = Main.GetQuickloadFiles()
+	romfolderBtn.isSet = (#quickloadFiles.romList > 1) -- ROMs correct if two or more roms found in 'quickloadPath' folder
+	jarBtn.isSet = (#quickloadFiles.jarList == 1) -- JAR correct if exactly one file
+	gbaBtn.isSet = (#quickloadFiles.romList == 1) -- GBA correct if exactly one file
+	rnqsBtn.isSet = (#quickloadFiles.settingsList == 1) -- RNQS correct if exactly one file
 
 	for _, button in pairs(QuickloadScreen.Buttons) do
 		button.textColor = QuickloadScreen.textColor
 		button.boxColors = { QuickloadScreen.borderColor, QuickloadScreen.boxFillColor }
+		if button.updateText ~= nil then
+			button:updateText()
+		end
 	end
 
-	QuickloadScreen.Buttons.ButtonCombo:updateText()
+	-- If neither premade seeds nor generate ROM each time are enabled, try turning one on if files are setup already
+	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
+		if jarBtn.isSet and gbaBtn.isSet and rnqsBtn.isSet then
+			Options[QuickloadScreen.OptionKeys[2]] = true
+			Options.settingsUpdated = true
+		elseif romfolderBtn.isSet then
+			Options[QuickloadScreen.OptionKeys[1]] = true
+			Options.settingsUpdated = true
+		end
+	elseif Options[QuickloadScreen.OptionKeys[1]] and Options[QuickloadScreen.OptionKeys[2]] then
+		-- If both premade seeds and generate ROM each time are enabled, turn one off
+		Options[QuickloadScreen.OptionKeys[2]] = false
+		Options.settingsUpdated = true
+	end
+	Main.SaveSettings() -- save settings if any of them changed
+
 	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[QuickloadScreen.OptionKeys[1]]
 	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[QuickloadScreen.OptionKeys[2]]
-
-	-- If both premade seeds and generate ROM each time are enabled, turn one off
-	if Options[QuickloadScreen.OptionKeys[1]] and Options[QuickloadScreen.OptionKeys[2]] then
-		QuickloadScreen.Buttons.GenerateRom:onClick()
-	end
+	NavigationMenu.Buttons.QuickloadSettings:updateText()
 end
 
 function QuickloadScreen.handleSetRomFolder(button)
@@ -272,16 +305,20 @@ function QuickloadScreen.drawScreen()
 		if QuickloadScreen.Buttons["ROMs Folder"].isSet then
 			foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 125, "Folder: " .. foldername, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		if foldername ~= "" then
+			Drawing.drawText(topboxX + 2, topboxY + 125, "Folder: " .. foldername, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+		end
 	elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
 		local filename = ""
 		if QuickloadScreen.Buttons["Settings File"].isSet then
 			filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 		end
-		if filename:len() < 18 then
-			filename = "Settings: " .. filename
+		if filename ~= "" then
+			if filename:len() < 18 then
+				filename = "Settings: " .. filename
+			end
+			Drawing.drawText(topboxX + 2, topboxY + 125, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 		end
-		Drawing.drawText(topboxX + 2, topboxY + 125, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	end
 
 	-- Draw all buttons

@@ -140,6 +140,7 @@ function Main.Run()
 	end
 
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
+	Main.ReadAttemptsCount() -- recheck attempts count if different game is loaded
 	Main.InitializeAllTrackerFiles()
 
 	if Main.IsOnBizhawk() then
@@ -562,6 +563,7 @@ end
 
 -- Returns a table containing [jars, settings, roms, quickloadPath] either from Settings.ini or from the Quickload folder
 function Main.GetQuickloadFiles()
+	-- Each item in the lists is an absolute file path
 	local fileLists = {
 		jarList = {},
 		settingsList = {},
@@ -569,19 +571,13 @@ function Main.GetQuickloadFiles()
 		quickloadPath = nil,
 	}
 
-	-- If all three supplied exists, use those over anything else
+	-- If all three supplied exists, shortcut to using those over anything else
 	if Options["Generate ROM each time"] and FileManager.fileExists(Options.FILES["Randomizer JAR"]) and FileManager.fileExists(Options.FILES["Settings File"]) and FileManager.fileExists(Options.FILES["Source ROM"]) then
 		table.insert(fileLists.jarList, Options.FILES["Randomizer JAR"])
 		table.insert(fileLists.settingsList, Options.FILES["Settings File"])
 		table.insert(fileLists.romList, Options.FILES["Source ROM"])
 		return fileLists
 	end
-
-	local listsByExtension = {
-		["jar"] = fileLists.jarList,
-		["rnqs"] = fileLists.settingsList,
-		["gba"] = fileLists.romList,
-	}
 
 	-- Search the quickload folder for compatible files used for quickload
 	if Options["Use premade ROMs"] and Options["ROMs Folder"] ~= nil and Options["ROMs Folder"] ~= "" then
@@ -594,11 +590,30 @@ function Main.GetQuickloadFiles()
 		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload .. FileManager.slash)
 	end
 
+	local listsByExtension = {
+		["jar"] = fileLists.jarList,
+		["rnqs"] = fileLists.settingsList,
+		["gba"] = fileLists.romList,
+	}
+
 	local quickloadFileNames = FileManager.getFilesFromDirectory(fileLists.quickloadPath)
 	for _, filename in pairs(quickloadFileNames) do
 		local ext = FileManager.extractFileExtensionFromPath(filename) or ""
 		if listsByExtension[ext] ~= nil then
 			table.insert(listsByExtension[ext], filename)
+		end
+	end
+
+	-- If some files were missing from the folder, check again from Options if they were partially added in from Settings.ini
+	if Options["Generate ROM each time"] then
+		if #fileLists.jarList == 0 and FileManager.fileExists(Options.FILES["Randomizer JAR"]) then
+			table.insert(fileLists.jarList, Options.FILES["Randomizer JAR"])
+		end
+		if #fileLists.settingsList == 0 and FileManager.fileExists(Options.FILES["Settings File"]) then
+			table.insert(fileLists.settingsList, Options.FILES["Settings File"])
+		end
+		if #fileLists.romList == 0 and FileManager.fileExists(Options.FILES["Source ROM"]) then
+			table.insert(fileLists.romList, Options.FILES["Source ROM"])
 		end
 	end
 
@@ -639,7 +654,7 @@ function Main.GetNextBizhawkRomInfoLegacy()
 	return nextRomName, nextRomPath
 end
 
--- Returns the smalls seed number from among files found in the quickload folder
+-- Returns the smallest seed number from among files found in the quickload folder
 function Main.FindSmallestSeedFromQuickloadFiles()
 	local smallestSeed
 	local quickloadFiles = Main.GetQuickloadFiles()

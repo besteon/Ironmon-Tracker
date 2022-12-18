@@ -40,7 +40,7 @@ NavigationMenu.Buttons = {
 			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
 				self.textColor = NavigationMenu.textColor
 			else
-				-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
+				-- If neither quickload option is enabled, then highlight it to draw user's attention
 				self.textColor = "Intermediate text"
 			end
 		end,
