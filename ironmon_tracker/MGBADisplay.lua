@@ -323,7 +323,7 @@ MGBADisplay.LineBuilder = {
 		local instructionBar = "%-14s %-18s"
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
 		table.insert(lines, Utils.formatUTF8(instructionBar, "Button Combo:", quickloadCombo))
-		table.insert(lines, Utils.formatUTF8(instructionBar, "Text Command:", MGBA.CommandMap["QUICKLOAD"].exampleUsage))
+		table.insert(lines, Utils.formatUTF8(instructionBar, "Text Command:", MGBA.CommandMap["QUICKLOAD"].usageExample))
 		table.insert(lines, "")
 
 		return lines
@@ -388,8 +388,8 @@ MGBADisplay.LineBuilder = {
 
 		table.insert(lines, "Example Usage:")
 		for _, command in ipairs(commandList) do
-			if command.exampleUsage ~= nil then
-				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
+			if command.usageExample ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
 				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
@@ -412,6 +412,7 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["ATTEMPTS"],
 			MGBA.CommandMap["HELPWIKI"],
 			MGBA.CommandMap["CREDITS"],
+			MGBA.CommandMap["ALLCOMMANDS"],
 		}
 
 		table.insert(lines, "Usage Syntax:")
@@ -425,8 +426,8 @@ MGBADisplay.LineBuilder = {
 
 		table.insert(lines, "Example Usage:")
 		for _, command in ipairs(commandList) do
-			if command.exampleUsage ~= nil then
-				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.exampleUsage)
+			if command.usageExample ~= nil then
+				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
 				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
@@ -554,10 +555,6 @@ MGBADisplay.LineBuilder = {
 
 		local statBar = "%-21s%s"
 		table.insert(lines, MGBA.Screens.Stats.headerText:upper())
-		table.insert(lines, "")
-
-		local attemptsCount = tostring(Main.currentSeed) or Constants.BLANKLINE
-		table.insert(lines, Utils.formatUTF8(statBar, "Total attempts:", attemptsCount))
 		table.insert(lines, "")
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do

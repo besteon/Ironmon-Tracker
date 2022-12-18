@@ -550,31 +550,68 @@ end
 -- Unordered list of commands, where the command's name is the table's key
 MGBA.CommandMap = {
 	-- ["EXAMPLECOMMAND"] = {
+	--	description = "A short explanation of what this command does", -- This gets printed to the console directly
 	-- 	usageSyntax = 'SYNTAX',
-	-- 	exampleUsage = 'EXAMPLE "params"', -- Ideally should be shorter than screenWidth-1 (32)
+	-- 	usageExample = 'EXAMPLE "params"', -- Ideally should be shorter than screenWidth-1 (32)
 	-- 	execute = function(self, params) end,
 	-- },
+	["ALLCOMMANDS"] = {
+		description = 'Lists every available command. Use HELP "command" to learn more about any command.',
+		usageSyntax = 'ALLCOMMANDS()',
+		usageExample = 'ALLCOMMANDS()',
+		execute = function(self, params)
+			print('List of all available commands. Learn how to use them with: HELP "command"')
+
+			local commandsOrdered = {}
+			for commandName, _ in pairs(MGBA.CommandMap) do
+				if commandName ~= "ALLCOMMANDS" then
+					table.insert(commandsOrdered, commandName)
+				end
+			end
+			table.sort(commandsOrdered)
+
+			for i=1, #commandsOrdered, 2 do
+				local commandPair = string.format("* %-15s", commandsOrdered[i] or "")
+				if commandsOrdered[i + 1] ~= nil then
+					commandPair = commandPair .. " * " .. commandsOrdered[i + 1]
+				end
+				print(commandPair)
+			end
+		end,
+	},
 	["HELP"] = {
+		description = "Used to explain the function of other commands and how to use them.",
 		usageSyntax = 'HELP "command"',
-		exampleUsage = 'HELP "POKEMON"',
+		usageExample = 'HELP "POKEMON"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
 				print(' - Where "command" is the name of a command.')
 				return
 			end
+
 			local command = MGBA.CommandMap[params:upper()]
 			if command == nil then
-				print(string.format(' Command "%s" not found. Check list of commands on the sidebar.', params:upper()))
+				print(string.format(' Command "%s" not found. Check list of commands on the left sidebar.', params:upper()))
 				return
 			end
-			print(string.format(" Usage: %s", command.usageSyntax))
-			print(string.format(" Example: %s", command.exampleUsage))
+
+			if command.description ~= nil then
+				print(string.format(" %s", command.description))
+				print("")
+			end
+			if command.usageSyntax ~= nil then
+				print(string.format(" Usage: %s", command.usageSyntax))
+			end
+			if command.usageExample ~= nil and command.usageExample ~= command.usageSyntax then
+				print(string.format(" Example: %s", command.usageExample))
+			end
 		end,
 	},
 	["NOTE"] = {
+		description = "Sets the tracked note for the opposing " .. Constants.Words.POKEMON .. " currently being viewed.",
 		usageSyntax = 'NOTE "text"',
-		exampleUsage = 'NOTE "Very fast, no HP"',
+		usageExample = 'NOTE "Very fast, no HP"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -600,8 +637,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["POKEMON"] = {
+		description = "Looks up useful " .. Constants.Words.POKE .. "dex info about a " .. Constants.Words.POKEMON .. ", shown on the left sidebar.",
 		usageSyntax = 'POKEMON "name"',
-		exampleUsage = 'POKEMON "Shuckle"',
+		usageExample = 'POKEMON "Shuckle"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -622,8 +660,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["MOVE"] = {
+		description = "Looks up useful information about a " .. Constants.Words.POKEMON .. " move, shown on the left sidebar.",
 		usageSyntax = 'MOVE "name"',
-		exampleUsage = 'MOVE "Wrap"',
+		usageExample = 'MOVE "Wrap"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -644,8 +683,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["ABILITY"] = {
+		description = "Looks up useful information about a " .. Constants.Words.POKEMON .. " ability, shown on the left sidebar.",
 		usageSyntax = 'ABILITY "name"',
-		exampleUsage = 'ABILITY "Flash Fire"',
+		usageExample = 'ABILITY "Flash Fire"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -666,8 +706,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["ROUTE"] = {
+		description = "Looks up useful information about a route, shown on the left sidebar.\n Tip: Try adding a floor number after a route name, e.g. Mt. Moon 1F",
 		usageSyntax = 'ROUTE "name"',
-		exampleUsage = 'ROUTE "Route 2"',
+		usageExample = 'ROUTE "Route 2"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -688,8 +729,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["OPTION"] = {
+		description = "Toggles an option ON or OFF.\n For some options, you'll need to provide additional text to change it.",
 		usageSyntax = 'OPTION "#"',
-		exampleUsage = 'OPTION "13"',
+		usageExample = 'OPTION "13"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -705,7 +747,7 @@ MGBA.CommandMap = {
 			end
 
 			optionNumber = tonumber(optionNumber)
-			local _, _, params = params:match("(%d+)(%s+)(.+)") -- Everything but the first number
+			local _, _, actualParams = params:match("(%d+)(%s+)(.+)") -- Everything but the first number
 
 			local opt = MGBA.OptionMap[optionNumber]
 			if opt == nil then
@@ -713,26 +755,27 @@ MGBA.CommandMap = {
 				return
 			end
 
-			local success, msg = opt:updateSelf(params)
+			local success, msg = opt:updateSelf(actualParams)
 			if success then
 				Program.redraw(true)
 				local newValue = opt:getValue()
 				if newValue == MGBADisplay.Symbols.Options.Enabled then
-					newValue = " to ON."
+					newValue = "to ON."
 				elseif newValue == MGBADisplay.Symbols.Options.Disabled then
-					newValue = " to OFF."
+					newValue = "to OFF."
 				else
-					newValue = string.format(" to %s", newValue)
+					newValue = string.format("to %s", newValue)
 				end
-				print(string.format(' Updating option #%s: "%s"%s', optionNumber, opt.displayName, newValue))
+				print(string.format(' Updating option #%s: "%s" %s', optionNumber, opt.displayName, newValue))
 			else
-				print(string.format(' [Error] %s', msg or "Unknown error has occured."))
+				print(string.format(' [Error] %s', msg or "An unknown error has occured."))
 			end
 		end,
 	},
 	["PCHEALS"] = {
+		description = "Allows you to manually change the tracked " .. Constants.Words.POKE .. "center usage counter to a different number.",
 		usageSyntax = 'PCHEALS "#"',
-		exampleUsage = 'PCHEALS "5"',
+		usageExample = 'PCHEALS "5"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -755,11 +798,13 @@ MGBA.CommandMap = {
 		end,
 	},
 	["CREDITS"] = {
+		description = "Displays a list of team members who helped contribute to creating the Ironmon Tracker.",
 		usageSyntax = 'CREDITS()',
-		exampleUsage = 'CREDITS()',
+		usageExample = 'CREDITS()',
 		execute = function(self, params)
 			print(string.format("%-15s %s", "Created by:", Main.CreditsList.CreatedBy))
-			print("\nContributors:")
+			print("")
+			print("Contributors:")
 			for i=1, #Main.CreditsList.Contributors, 2 do
 				local contributorPair = string.format("* %-13s", Main.CreditsList.Contributors[i] or "")
 				if Main.CreditsList.Contributors[i + 1] ~= nil then
@@ -770,8 +815,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["SAVEDATA"] = {
+		description = "Saves all tracked data for your current game.\n The TDAT save file can be found in your main Tracker folder.",
 		usageSyntax = 'SAVEDATA "filename"',
-		exampleUsage = 'SAVEDATA "FireRed Seed 12"',
+		usageExample = 'SAVEDATA "FireRed Seed 12"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -788,8 +834,9 @@ MGBA.CommandMap = {
 		end,
 	},
 	["LOADDATA"] = {
+		description = "Loads tracked data from a past game playthrough.\n Loads from a TDAT file found in your main Tracker folder.",
 		usageSyntax = 'LOADDATA "filename"',
-		exampleUsage = 'LOADDATA "FireRed Seed 12"',
+		usageExample = 'LOADDATA "FireRed Seed 12"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -819,16 +866,18 @@ MGBA.CommandMap = {
 		end,
 	},
 	["CLEARDATA"] = {
+		description = "Clears out all current tracked data for the current game.\n Can help fix situations where wrong data keeps showing up.",
 		usageSyntax = 'CLEARDATA()',
-		exampleUsage = 'CLEARDATA()',
+		usageExample = 'CLEARDATA()',
 		execute = function(self, params)
 			Tracker.resetData()
 			print(" All tracked data for this game has been cleared.")
 		end,
 	},
 	["CHECKUPDATE"] = {
+		description = "Checks online to see if a new version of the Tracker is available, shown on the left sidebar.",
 		usageSyntax = 'CHECKUPDATE()',
-		exampleUsage = 'CHECKUPDATE()',
+		usageExample = 'CHECKUPDATE()',
 		execute = function(self, params)
 			Main.CheckForVersionUpdate(true)
 			if not Main.isOnLatestVersion() then
@@ -843,15 +892,17 @@ MGBA.CommandMap = {
 		end,
 	},
 	["RELEASENOTES"] = {
+		description = "Opens a browser window with details about the current version's release notes.",
 		usageSyntax = 'RELEASENOTES()',
-		exampleUsage = 'RELEASENOTES()',
+		usageExample = 'RELEASENOTES()',
 		execute = function(self, params)
 			UpdateScreen.openReleaseNotesWindow()
 		end,
 	},
 	["UPDATENOW"] = {
+		description = "Automatically updates the Tracker by downloading and installing the latest release.",
 		usageSyntax = 'UPDATENOW()',
-		exampleUsage = 'UPDATENOW()',
+		usageExample = 'UPDATENOW()',
 		execute = function(self, params)
 			print("> Update in progress, please wait...")
 			print("")
@@ -866,22 +917,25 @@ MGBA.CommandMap = {
 		end,
 	},
 	["QUICKLOAD"] = {
+		description = "Forces the Tracker to Quickload a new game ROM.",
 		usageSyntax = 'QUICKLOAD()',
-		exampleUsage = 'QUICKLOAD()',
+		usageExample = 'QUICKLOAD()',
 		execute = function(self, params)
 			Main.loadNextSeed = true
 		end,
 	},
 	["HELPWIKI"] = {
+		description = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.",
 		usageSyntax = 'HELPWIKI()',
-		exampleUsage = 'HELPWIKI()',
+		usageExample = 'HELPWIKI()',
 		execute = function(self, params)
 			NavigationMenu.openWikiBrowserWindow()
 		end,
 	},
 	["ATTEMPTS"] = {
+		description = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar",
 		usageSyntax = 'ATTEMPTS "#"',
-		exampleUsage = 'ATTEMPTS "123"',
+		usageExample = 'ATTEMPTS "123"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
@@ -890,7 +944,7 @@ MGBA.CommandMap = {
 			end
 
 			local number = tonumber(params:match("^%d+") or "")
-			if number == nil then
+			if number == nil or number <= 0 then
 				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
 				print(' - Where # is a positive number.')
 				return
@@ -901,9 +955,9 @@ MGBA.CommandMap = {
 			if prevAttemptsCount ~= Main.currentSeed then
 				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), Main.currentSeed)
 				Program.redraw(true)
-				print(string.format(' Updating Attempts count from "%s" to "%s"', prevAttemptsCount, Main.currentSeed))
+				print(string.format(' Updating Attempts counter from "%s" to "%s"', prevAttemptsCount, Main.currentSeed))
 			else
-				print(string.format(' Attempts count already set to "%s"', Main.currentSeed))
+				print(string.format(' Attempts counter already set to "%s"', Main.currentSeed))
 			end
 		end,
 	},
@@ -911,6 +965,11 @@ MGBA.CommandMap = {
 
 -- Global functions required by mGBA input prompts
 -- Each written in the form of: funcname "parameter(s) as text only"
+
+function ALLCOMMANDS(...) MGBA.CommandMap["ALLCOMMANDS"]:execute(...) end
+function AllCommands(...) ALLCOMMANDS(...) end
+---@diagnostic disable-next-line: lowercase-global
+function allcommands(...) ALLCOMMANDS(...) end
 
 function HELP(...) MGBA.CommandMap["HELP"]:execute(...) end
 function Help(...) HELP(...) end
