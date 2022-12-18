@@ -399,7 +399,7 @@ MGBADisplay.LineBuilder = {
 	buildCommandsOther = function()
 		local lines = {}
 
-		local commandBar = " %-10s%-s"
+		local commandBar = " %-13s%-s"
 		table.insert(lines, MGBA.Screens.CommandsOther.headerText:upper())
 
 		local usageInstructions = 'To use, type into below textbox. Example command: PCHEALS "10"'
@@ -409,6 +409,7 @@ MGBADisplay.LineBuilder = {
 		local commandList = {
 			MGBA.CommandMap["HELP"],
 			MGBA.CommandMap["PCHEALS"],
+			MGBA.CommandMap["HIDDENPOWER"],
 			MGBA.CommandMap["ATTEMPTS"],
 			MGBA.CommandMap["HELPWIKI"],
 			MGBA.CommandMap["CREDITS"],

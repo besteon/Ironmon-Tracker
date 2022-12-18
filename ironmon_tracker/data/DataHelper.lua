@@ -73,6 +73,16 @@ function DataHelper.findRouteId(name)
 	return id or RouteData.BlankRoute.id
 end
 
+-- Searches for a Pokémon Type by name, finds the best match; returns nil if no match found
+function DataHelper.findPokemonType(typeName)
+	if typeName == nil or typeName == "" then
+		return nil
+	end
+
+	local type, _ = Utils.getClosestWord(typeName:lower(), PokemonData.Types, 3)
+	return type
+end
+
 -- Returns a table with all of the important display data safely formatted to draw on screen.
 -- forceView: optional, if true forces view as viewingOwn, otherwise forces enemy view
 function DataHelper.buildTrackerScreenDisplay(forceView)

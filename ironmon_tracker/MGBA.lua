@@ -772,6 +772,45 @@ MGBA.CommandMap = {
 			end
 		end,
 	},
+	["HIDDENPOWER"] = {
+		description = "Sets the type of Hidden Power for your active " .. Constants.Words.POKEMON .. ".\n This helps show move effectiveness calculations while in battle.",
+		usageSyntax = 'HIDDENPOWER "type"',
+		usageExample = 'HIDDENPOWER "Water"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
+				print(' - Where "type" is a valid ' .. Constants.Words.POKEMON .. ' type.')
+				return
+			end
+
+			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
+			local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			if not PokemonData.isValid(pokemonViewed.pokemonID) then
+				print(string.format(" [Command Error] You don't have a %s yet.", Constants.Words.POKEMON))
+				return
+			elseif not Utils.pokemonHasMove(pokemonViewed, "Hidden Power") then
+				print(string.format(" [Command Error] Your %s doesn't have the move Hidden Power.", Constants.Words.POKEMON))
+				return
+			end
+
+			local typeName = Utils.firstToUpper(params:lower())
+			local hpType = DataHelper.findPokemonType(typeName)
+			if hpType ~= nil then
+				Tracker.TrackHiddenPowerType(pokemonViewed.personality, hpType)
+				Program.redraw(true)
+				local pokemonData = PokemonData.Pokemon[pokemonViewed.pokemonID]
+				print(string.format(" %s's (Lv.%s) Hidden Power's type set to: %s", pokemonData.name, pokemonViewed.level, typeName))
+
+				if Options["Show move effectiveness"] then
+					print(" Hidden Power's move effectiveness is visible on the Tracker while in battle.")
+				else
+					print(' Enable the "Show move effectiveness" option to see this type while in battle.')
+				end
+			else
+				print(string.format(" Unable to find type: %s", typeName))
+			end
+		end,
+	},
 	["PCHEALS"] = {
 		description = "Allows you to manually change the tracked " .. Constants.Words.POKE .. "center usage counter to a different number.",
 		usageSyntax = 'PCHEALS "#"',
@@ -1010,6 +1049,11 @@ function PCHEALS(...) MGBA.CommandMap["PCHEALS"]:execute(...) end
 function PCHeals(...) PCHEALS(...) end
 ---@diagnostic disable-next-line: lowercase-global
 function pcheals(...) PCHEALS(...) end
+
+function HIDDENPOWER(...) MGBA.CommandMap["HIDDENPOWER"]:execute(...) end
+function HiddenPower(...) HIDDENPOWER(...) end
+---@diagnostic disable-next-line: lowercase-global
+function hiddenpower(...) HIDDENPOWER(...) end
 
 function CREDITS(...) MGBA.CommandMap["CREDITS"]:execute(...) end
 function Credits(...) CREDITS(...) end

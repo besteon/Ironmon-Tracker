@@ -258,14 +258,14 @@ function Tracker.TrackNote(pokemonID, note)
 	trackedPokemon.note = note
 end
 
-function Tracker.TrackHiddenPowerType(moveType)
-	if moveType == nil then return end
+function Tracker.TrackHiddenPowerType(personality, moveType)
+	if personality == nil or moveType == nil then return end
 
-	local viewedPokemon = Battle.getViewedPokemon(true)
-
-	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
-		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
+	if personality == 0 or PokemonData.Types[moveType] == nil then
+		return
 	end
+
+	Tracker.Data.hiddenPowers[personality] = moveType
 end
 
 function Tracker.isTrackingMove(pokemonID, moveId, level)

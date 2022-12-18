@@ -174,9 +174,8 @@ InfoScreen.Buttons = {
 			if not self:isVisible() then return end
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Battle.getViewedPokemon(true)
-			if Utils.pokemonHasMove(pokemon, "Hidden Power") then
-
+			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, "Hidden Power") then
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType()
 				local typeId = 0
@@ -191,7 +190,7 @@ InfoScreen.Buttons = {
 
 				-- Then use the next index in sequence [1 -> 2], [2 -> 3], ... [N -> 1]
 				typeId = (typeId % #MoveData.HiddenPowerTypeList) + 1
-				Tracker.TrackHiddenPowerType(MoveData.HiddenPowerTypeList[typeId])
+				Tracker.TrackHiddenPowerType(pokemon.personality, MoveData.HiddenPowerTypeList[typeId])
 				Program.redraw(true)
 			end
 		end
