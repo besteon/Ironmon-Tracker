@@ -341,7 +341,7 @@ MGBA.ScreenUtils = {
 }
 
 -- Ordered list of options that can be changed via the OPTION "#" function.
--- Each has 'optionKey', 'displayName', 'updateSelf', and 'getValue'; many defined in MGBA.buildOptionMapDefaults()
+-- Each has 'optionKey'/'themeKey', 'displayName', 'updateSelf', and 'getValue'; many defined in MGBA.buildOptionMapDefaults()
 MGBA.OptionMap = {
 	-- TRACKER SETUP (#1-#7, #10-#13)
 	[1] = { optionKey = "Right justified numbers", displayName = "Right justified numbers", },
@@ -350,15 +350,15 @@ MGBA.OptionMap = {
 	[4] = {
 		optionKey = "PC heals count downward",
 		displayName = "PC heals count downward",
-		updateFunction = function(self)
-			if Options[self.optionKey] ~= nil then
-				-- If PC Heal tracking switched, invert the count
-				Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				Options[self.optionKey] = not Options[self.optionKey]
-				Options.forceSave()
-				return true
+		updateSelf = function(self)
+			if Options[self.optionKey] == nil then
+				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 			end
-			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+			-- If PC Heal tracking switched, invert the count
+			Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+			Options[self.optionKey] = not Options[self.optionKey]
+			Options.forceSave()
+			return true
 		end,
 	},
 	[5] = { optionKey = "Display pedometer", displayName = "Display step pedometer", },
@@ -367,61 +367,83 @@ MGBA.OptionMap = {
 		optionKey = "Animated Pokemon popout",
 		displayName = "Animated Pokemon GIF",
 		updateSelf = function(self, params)
-			if Options[self.optionKey] ~= nil then
-				-- First test if this add-on is installed properly
-				local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
-				local isAvailable = FileManager.fileExists(abraGif)
-				if not Options[self.optionKey] and not isAvailable then -- attempt to turn it on, but can't
-					return false, "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up."
-				end
-
-				Options[self.optionKey] = not Options[self.optionKey]
-				Options.forceSave()
-				return true
+			if Options[self.optionKey] == nil then
+				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 			end
-			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+			-- First test if this add-on is installed properly
+			local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
+			local isAvailable = FileManager.fileExists(abraGif)
+			if not Options[self.optionKey] and not isAvailable then -- attempt to turn it on, but can't
+				return false, "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up."
+			end
+
+			Options[self.optionKey] = not Options[self.optionKey]
+			Options.forceSave()
+			return true
 		end,
 	},
 	[10] = { optionKey = "Toggle view", displayName = "Swap viewed Pokemon", },
 	[11] = { optionKey = "Cycle through stats", displayName = "Cycle through stats", },
 	[12] = { optionKey = "Mark stat", displayName = "Mark a stat [+/-]", },
 	[13] = { optionKey = "Load next seed", displayName = "Quickload", },
-	-- GAMEPLAY OPTIONS (#20-27)
+	-- GAMEPLAY OPTIONS (#20-28)
 	[20] = { optionKey = "Auto swap to enemy", displayName = "Auto swap to enemy", },
 	[21] = { optionKey = "Hide stats until summary shown", displayName = "View summary to see stats", },
-	[22] = { optionKey = "Show physical special icons", displayName = "Physical/Special icons", },
-	[23] = { optionKey = "Show move effectiveness", displayName = "Show move effectiveness", },
-	[24] = { optionKey = "Calculate variable damage", displayName = "Calculate variable damage", },
-	[25] = { optionKey = "Count enemy PP usage", displayName = "Count enemy PP usage", },
-	[26] = { optionKey = "Show last damage calcs", displayName = "Show last damage calcs", },
-	[27] = { optionKey = "Reveal info if randomized", displayName = "Reveal info if randomized", },
+	[22] = {
+		themeKey = "MOVE_TYPES_ENABLED",
+		displayName = "Show move types",
+		getValue = function(self)
+			if Theme[self.themeKey] == true then
+				return MGBADisplay.Symbols.Options.Enabled
+			else
+				return MGBADisplay.Symbols.Options.Disabled
+			end
+		end,
+		updateSelf = function(self)
+			if Theme[self.themeKey] == nil then
+				return false, string.format("Theme key \"%s\" doesn't exist.", tostring(self.themeKey))
+			end
+
+			Theme[self.themeKey] = not Theme[self.themeKey]
+			Theme.settingsUpdated = true
+			Main.SaveSettings()
+			Program.redraw(true)
+			return true
+		end,
+	},
+	[23] = { optionKey = "Show physical special icons", displayName = "Physical/Special icons", },
+	[24] = { optionKey = "Show move effectiveness", displayName = "Show move effectiveness", },
+	[25] = { optionKey = "Calculate variable damage", displayName = "Calculate variable damage", },
+	[26] = { optionKey = "Count enemy PP usage", displayName = "Count enemy PP usage", },
+	[27] = { optionKey = "Show last damage calcs", displayName = "Show last damage calcs", },
+	[28] = { optionKey = "Reveal info if randomized", displayName = "Reveal info if randomized", },
 	-- QUICKLOAD SETUP (#30-#35)
 	[30] = {
 		optionKey = "Use premade ROMs",
 		displayName = "Use premade ROMs",
 		updateSelf = function(self, params)
-			if Options[self.optionKey] ~= nil then
-				Options[self.optionKey] = not Options[self.optionKey]
-				-- Only one can be enabled at a time
-				Options["Generate ROM each time"] = false
-				Options.forceSave()
-				return true
+			if Options[self.optionKey] == nil then
+				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 			end
-			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+			Options[self.optionKey] = not Options[self.optionKey]
+			-- Only one can be enabled at a time
+			Options["Generate ROM each time"] = false
+			Options.forceSave()
+			return true
 		end,
 		},
 	[31] = {
 		optionKey = "Generate ROM each time",
 		displayName = "Generate a ROM each time",
 		updateSelf = function(self, params)
-			if Options[self.optionKey] ~= nil then
-				Options[self.optionKey] = not Options[self.optionKey]
-				-- Only one can be enabled at a time
-				Options["Use premade ROMs"] = false
-				Options.forceSave()
-				return true
+			if Options[self.optionKey] == nil then
+				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 			end
-			return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+			Options[self.optionKey] = not Options[self.optionKey]
+			-- Only one can be enabled at a time
+			Options["Use premade ROMs"] = false
+			Options.forceSave()
+			return true
 		end,
 	},
 	[32] = {
@@ -524,22 +546,22 @@ function MGBA.buildOptionMapDefaults()
 			if opt.optionKey == "Load next seed" or opt.optionKey == "Toggle view" or opt.optionKey == "Cycle through stats" or opt.optionKey == "Mark stat" then
 				updateFunction = function(self, params)
 					local comboFormatted = Utils.formatControls(params) or ""
-					if comboFormatted ~= "" then
-						Options.CONTROLS[self.optionKey] = comboFormatted
-						Options.forceSave()
-						return true
+					if comboFormatted == "" then
+						return false, "Button input required; available buttons: A, B, L, R, Start, Select"
 					end
-					return false, "Button input required; available buttons: A, B, L, R, Start, Select"
+					Options.CONTROLS[self.optionKey] = comboFormatted
+					Options.forceSave()
+					return true
 				end
 			else
 				-- Otherwise, toggle the option's boolean value
 				updateFunction = function(self)
-					if Options[self.optionKey] ~= nil then
-						Options[self.optionKey] = not Options[self.optionKey]
-						Options.forceSave()
-						return true
+					if Options[self.optionKey] == nil then
+						return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
 					end
-					return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+					Options[self.optionKey] = not Options[self.optionKey]
+					Options.forceSave()
+					return true
 				end
 			end
 			opt.updateSelf = updateFunction

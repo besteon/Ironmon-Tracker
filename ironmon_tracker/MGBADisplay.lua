@@ -49,6 +49,9 @@ MGBADisplay.DataFormatter = {
 			data.p.weight = Constants.BLANKLINE
 		end
 		data.p.evodetails = table.concat(data.p.evo, listSeparator)
+		if data.p.evodetails == Constants.BLANKLINE then
+			data.p.evodetails = "None"
+		end
 
 		if data.p.movelvls == {} or #data.p.movelvls == 0 then
 			data.p.moveslearned = "None"
@@ -243,7 +246,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
-		for i = 20, 27, 1 do
+		for i = 20, 28, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
@@ -276,7 +279,7 @@ MGBADisplay.LineBuilder = {
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
 			end
 		end
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, "")
 
 		-- local fileBar = "%-2s %-30s"
 		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.Options.Enabled then
@@ -295,6 +298,8 @@ MGBADisplay.LineBuilder = {
 			-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
 			table.insert(lines, "Required Files:")
 			table.insert(lines, "- Multiple GBA ROM files with #'s")
+			table.insert(lines, "")
+			table.insert(lines, "")
 		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.Options.Enabled then
 			-- for i = 33, 35, 1 do
 			-- 	local opt = MGBA.OptionMap[i]
@@ -626,15 +631,24 @@ MGBADisplay.LineBuilder = {
 
 		-- Bottom five lines of the box: Move related stuff
 		local botFormattedLine = "%-18s%-3s%-7s  %-3s"
-		table.insert(lines, Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "   Pow", "Acc"))
-		table.insert(lines, "---------------------------------")
+		local moveHeader = Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "   Pow", "Acc")
+		local moveDivider = "---------------------------------"
+		if Theme.MOVE_TYPES_ENABLED then
+			moveHeader = string.format("%s   %s", moveHeader, "Type")
+			moveDivider = string.format("%s   %s", moveDivider, "------")
+		end
+		table.insert(lines, moveHeader)
+		table.insert(lines, moveDivider)
 		for i, move in ipairs(data.m.moves) do
 			local nameText = move.name
 			if Options["Show physical special icons"] and (data.x.viewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 				nameText = (MGBADisplay.Symbols.Category[move.category] or " ") .. " " .. nameText
 			end
 
+			local ppAligned = Utils.formatUTF8(justify2, move.pp)
+			local accuracyAligned = Utils.formatUTF8(justify3, move.accuracy)
 			local powerText = tostring(move.power):sub(1, 3) -- for move powers with too much text (eg "100x")
+
 			if move.isstab then
 				powerText = MGBADisplay.Symbols.StabL .. powerText .. MGBADisplay.Symbols.StabR
 			else
@@ -648,10 +662,15 @@ MGBADisplay.LineBuilder = {
 				powerText = (MGBADisplay.Symbols.Effectiveness[1] or "  ") .. powerText
 			end
 
-			local ppAligned = Utils.formatUTF8(justify2, move.pp)
-			local accuracyAligned = Utils.formatUTF8(justify3, move.accuracy)
+			local moveLine = Utils.formatUTF8(botFormattedLine, nameText, ppAligned, powerText, accuracyAligned)
 
-			table.insert(lines, Utils.formatUTF8(botFormattedLine, nameText, ppAligned, powerText, accuracyAligned))
+			-- Append the move type as text if this option is enabled (ON by default)
+			-- Note: this goes out of bounds of the normal Tracker box, but really no other good solution
+			if Theme.MOVE_TYPES_ENABLED then
+				moveLine = string.format("%s   %s", moveLine, move.type or MoveData.BlankMove.type)
+			end
+
+			table.insert(lines, moveLine)
 		end
 		table.insert(lines, "---------------------------------")
 
