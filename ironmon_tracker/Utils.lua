@@ -699,11 +699,8 @@ end
 function Utils.setFormLocation(handle, x, y)
 	if handle == nil then return end
 	local ribbonHight = 64 -- so we are below the ribbon menu
-	---@diagnostic disable-next-line: undefined-global
 	local actualLocation = client.transformPoint(x,y)
-	---@diagnostic disable-next-line: undefined-global
 	forms.setproperty(handle, "Left", client.xpos() + actualLocation['x'] )
-	---@diagnostic disable-next-line: undefined-global
 	forms.setproperty(handle, "Top", client.ypos() + actualLocation['y'] + ribbonHight)
 end
 

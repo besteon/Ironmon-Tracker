@@ -19,9 +19,7 @@ Drawing.AnimatedPokemon = {
 
 function Drawing.initialize()
 	if Main.IsOnBizhawk() then
-		---@diagnostic disable-next-line: undefined-global
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
-		---@diagnostic disable-next-line: undefined-global
 		gui.defaultTextBackground(0)
 	end
 end

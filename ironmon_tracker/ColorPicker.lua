@@ -195,7 +195,6 @@ function ColorPicker:handleInput()
 			self:convertHSVtoColorPicker()
 		end
 	end
-	---@diagnostic disable-next-line: undefined-global
 	local mouse = input.getmouse()
 	local leftPress = mouse["Left"]
 	if leftPress then

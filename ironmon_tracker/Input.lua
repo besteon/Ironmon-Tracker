@@ -66,7 +66,6 @@ function Input.checkForInput()
 		Input.currentColorPicker:handleInput()
 	else
 		-- Check inputs from the Mouse
-		---@diagnostic disable-next-line: undefined-global
 		local mouseInput = input.getmouse()
 		if mouseInput["Left"] and not Input.prevMouseInput["Left"] then
 			local xmouse = mouseInput["X"]
@@ -83,10 +82,8 @@ end
 function Input.getJoypadInputFormatted()
 	if Main.IsOnBizhawk() then
 		-- Check inputs from the Joypad controller
-		---@diagnostic disable-next-line: undefined-global
 		return joypad.get()
 	else
-		---@diagnostic disable-next-line: undefined-global
 		local keysMasked = emu:getKeys()
 
 		return {

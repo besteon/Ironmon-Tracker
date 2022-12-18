@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field
 Memory = {}
 
 function Memory.initialize()
@@ -5,37 +6,30 @@ function Memory.initialize()
 	if Main.IsOnBizhawk() then
 		Memory.read8 = function(addr)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.read_u8(a, m)
 		end
 		Memory.read16 = function(addr)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.read_u16_le(a, m)
 		end
 		Memory.read32 = function(addr)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.read_u32_le(a, m)
 		end
 		Memory.write8 = function(addr, value)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.write_u8(a, value, m)
 		end
 		Memory.write16 = function(addr, value)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.write_u16_le(a, value, m)
 		end
 		Memory.write32 = function(addr, value)
 			local m, a = Memory.splitDomainAndAddress(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return memory.write_u32_le(a, value, m)
 		end
 	else
 		Memory.read8 = function(addr)
-			---@diagnostic disable-next-line: undefined-global
 			return emu:read8(addr)
 		end
 		Memory.read16 = function(addr)
@@ -44,11 +38,8 @@ function Memory.initialize()
 		Memory.read32 = function(addr)
 			return Memory.read16(addr) + Utils.bit_lshift(Memory.read16(addr + 0x02), 16)
 		end
-		---@diagnostic disable-next-line: undefined-global
 		Memory.write8 = function(addr, value) return emu:write8(addr, value) end
-		---@diagnostic disable-next-line: undefined-global
 		Memory.write16 = function(addr, value) return emu:write16(addr, value) end
-		---@diagnostic disable-next-line: undefined-global
 		Memory.write32 = function(addr, value) return emu:write32(addr, value) end
 	end
 end

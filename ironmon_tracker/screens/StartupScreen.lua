@@ -77,10 +77,8 @@ StartupScreen.Buttons = {
 					B = true,
 					Select = true,
 				}
-				---@diagnostic disable-next-line: undefined-global
 				joypad.set(joypadButtons)
 				Main.frameAdvance()
-				---@diagnostic disable-next-line: undefined-global
 				joypad.set(joypadButtons)
 			end
 		end

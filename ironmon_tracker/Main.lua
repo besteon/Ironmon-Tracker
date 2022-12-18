@@ -69,7 +69,6 @@ function Main.Initialize()
 		if Main.IsOnBizhawk() then
 			print("> ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
-			---@diagnostic disable-next-line: undefined-global
 			client.SetGameExtraPadding(0, 0, 0, 0)
 			return false
 		end
@@ -102,23 +101,18 @@ function Main.Run()
 	else
 		-- mGBA specific callbacks
 		if Main.startCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
 			Main.startCallbackId = callbacks:add("start", Main.Run)
 		end
 		if Main.resetCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
 			Main.resetCallbackId = callbacks:add("reset", Main.Run) -- start doesn't get trigged on-reset
 		end
 		if Main.stopCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
 			Main.stopCallbackId = callbacks:add("stop", MGBA.removeActiveRunCallbacks)
 		end
 		if Main.shutdownCallbackId == nil then
-			---@diagnostic disable-next-line: undefined-global
 			Main.shutdownCallbackId = callbacks:add("shutdown", MGBA.removeActiveRunCallbacks)
 		end
 
-		---@diagnostic disable-next-line: undefined-global
 		if emu == nil then
 			print("> Waiting for a game ROM to be loaded... (mGBA Emulator -> File -> Load ROM...)")
 			return
@@ -135,7 +129,6 @@ function Main.Run()
 		print("> Unsupported Game detected, please load a supported game ROM")
 		print("> Check the README.txt file in the tracker folder for supported games")
 		if Main.IsOnBizhawk() then
-			---@diagnostic disable-next-line: undefined-global
 			client.SetGameExtraPadding(0, 0, 0, 0)
 		end
 		return
@@ -147,7 +140,6 @@ function Main.Run()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
 	if Main.IsOnBizhawk() then
-		---@diagnostic disable-next-line: undefined-global
 		event.onexit(Program.HandleExit, "HandleExit")
 
 		while Main.loadNextSeed == false do
@@ -168,14 +160,12 @@ function Main.SetupEmulatorInfo()
 		Main.emulator = Main.GetBizhawkVersion()
 		Main.supportsSpecialChars = (Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE)
 		frameAdvanceFunc = function()
-			---@diagnostic disable-next-line: undefined-global
 			emu.frameadvance()
 		end
 	else
 		Main.emulator = Main.EMU.MGBA
 		Main.supportsSpecialChars = true
 		frameAdvanceFunc = function()
-			-- ---@diagnostic disable-next-line: undefined-global
 			-- emu:runFrame() -- don't use this, use callbacks:add("frame", func) instead
 		end
 	end
@@ -411,13 +401,11 @@ function Main.LoadNextRom()
 			end
 			client.openrom(nextRomInfo.filePath)
 		else
-			---@diagnostic disable-next-line: undefined-global
 			local success = emu:loadFile(nextRomInfo.filePath)
 			if success then
 				if Options["Use premade ROMs"] then
 					print('> Loading next ROM: "%s"', nextRomInfo.fileName)
 				end
-				---@diagnostic disable-next-line: undefined-global
 				emu:reset()
 				return
 			else
@@ -525,7 +513,6 @@ function Main.GenerateNextRom()
 
 	-- mGBA only, need to unload current ROM but loading another temp ROM
 	if previousRomName ~= nil and not Main.IsOnBizhawk() then
-		---@diagnostic disable-next-line: undefined-global
 		emu:loadFile(FileManager.prependDir(previousRomName))
 	end
 

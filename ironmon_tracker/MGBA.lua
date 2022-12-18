@@ -39,23 +39,19 @@ end
 
 function MGBA.setupActiveRunCallbacks()
 	if Main.frameCallbackId == nil then
-		---@diagnostic disable-next-line: undefined-global
 		Main.frameCallbackId = callbacks:add("frame", Program.mainLoop)
 	end
 	if Main.keysreadCallbackId == nil then
-		---@diagnostic disable-next-line: undefined-global
 		Main.keysreadCallbackId = callbacks:add("keysRead", Input.checkJoypadInput)
 	end
 end
 
 function MGBA.removeActiveRunCallbacks()
 	if Main.frameCallbackId ~= nil then
-		---@diagnostic disable-next-line: undefined-global
 		callbacks:remove(Main.frameCallbackId)
 		Main.frameCallbackId = nil
 	end
 	if Main.keysreadCallbackId ~= nil then
-		---@diagnostic disable-next-line: undefined-global
 		callbacks:remove(Main.keysreadCallbackId)
 		Main.keysreadCallbackId = nil
 	end
@@ -1030,100 +1026,80 @@ MGBA.CommandMap = {
 
 function ALLCOMMANDS(...) MGBA.CommandMap["ALLCOMMANDS"]:execute(...) end
 function AllCommands(...) ALLCOMMANDS(...) end
----@diagnostic disable-next-line: lowercase-global
 function allcommands(...) ALLCOMMANDS(...) end
 
 function HELP(...) MGBA.CommandMap["HELP"]:execute(...) end
 function Help(...) HELP(...) end
----@diagnostic disable-next-line: lowercase-global
 function help(...) HELP(...) end
 
 function NOTE(...) MGBA.CommandMap["NOTE"]:execute(...) end
 function Note(...) NOTE(...) end
----@diagnostic disable-next-line: lowercase-global
 function note(...) NOTE(...) end
 
 function POKEMON(...) MGBA.CommandMap["POKEMON"]:execute(...) end
 function Pokemon(...) POKEMON(...) end
----@diagnostic disable-next-line: lowercase-global
 function pokemon(...) POKEMON(...) end
 
 function MOVE(...) MGBA.CommandMap["MOVE"]:execute(...) end
 function Move(...) MOVE(...) end
----@diagnostic disable-next-line: lowercase-global
 function move(...) MOVE(...) end
 
 function ABILITY(...) MGBA.CommandMap["ABILITY"]:execute(...) end
 function Ability(...) ABILITY(...) end
----@diagnostic disable-next-line: lowercase-global
 function ability(...) ABILITY(...) end
 
 function ROUTE(...) MGBA.CommandMap["ROUTE"]:execute(...) end
 function Route(...) ROUTE(...) end
----@diagnostic disable-next-line: lowercase-global
 function route(...) ROUTE(...) end
 
 function OPTION(...) MGBA.CommandMap["OPTION"]:execute(...) end
 function Option(...) OPTION(...) end
----@diagnostic disable-next-line: lowercase-global
 function option(...) OPTION(...) end
 
 function PCHEALS(...) MGBA.CommandMap["PCHEALS"]:execute(...) end
 function PCHeals(...) PCHEALS(...) end
----@diagnostic disable-next-line: lowercase-global
 function pcheals(...) PCHEALS(...) end
 
 function HIDDENPOWER(...) MGBA.CommandMap["HIDDENPOWER"]:execute(...) end
 function HiddenPower(...) HIDDENPOWER(...) end
----@diagnostic disable-next-line: lowercase-global
 function hiddenpower(...) HIDDENPOWER(...) end
 
 function CREDITS(...) MGBA.CommandMap["CREDITS"]:execute(...) end
 function Credits(...) CREDITS(...) end
----@diagnostic disable-next-line: lowercase-global
 function credits(...) CREDITS(...) end
 
 function SAVEDATA(...) MGBA.CommandMap["SAVEDATA"]:execute(...) end
 function SaveData(...) SAVEDATA(...) end
----@diagnostic disable-next-line: lowercase-global
 function savedata(...) SAVEDATA(...) end
 
 function LOADDATA(...) MGBA.CommandMap["LOADDATA"]:execute(...) end
 function LoadData(...) LOADDATA(...) end
----@diagnostic disable-next-line: lowercase-global
 function loaddata(...) LOADDATA(...) end
 
 function CLEARDATA(...) MGBA.CommandMap["CLEARDATA"]:execute(...) end
 function ClearData(...) CLEARDATA(...) end
----@diagnostic disable-next-line: lowercase-global
 function cleardata(...) CLEARDATA(...) end
 
 function CHECKUPDATE(...) MGBA.CommandMap["CHECKUPDATE"]:execute(...) end
 function CheckUpdate(...) CHECKUPDATE(...) end
----@diagnostic disable-next-line: lowercase-global
 function checkupdate(...) CHECKUPDATE(...) end
 
 function RELEASENOTES(...) MGBA.CommandMap["RELEASENOTES"]:execute(...) end
 function ReleaseNotes(...) RELEASENOTES(...) end
----@diagnostic disable-next-line: lowercase-global
 function releasenotes(...) RELEASENOTES(...) end
 
 function UPDATENOW(...) MGBA.CommandMap["UPDATENOW"]:execute(...) end
 function UpdateNow(...) UPDATENOW(...) end
----@diagnostic disable-next-line: lowercase-global
 function updatenow(...) UPDATENOW(...) end
 
 function QUICKLOAD(...) MGBA.CommandMap["QUICKLOAD"]:execute(...) end
 function Quickload(...) QUICKLOAD(...) end
----@diagnostic disable-next-line: lowercase-global
 function quickload(...) QUICKLOAD(...) end
 
 function HELPWIKI(...) MGBA.CommandMap["HELPWIKI"]:execute(...) end
 function HelpWiki(...) HELPWIKI(...) end
----@diagnostic disable-next-line: lowercase-global
 function helpwiki(...) HELPWIKI(...) end
 
 function ATTEMPTS(...) MGBA.CommandMap["ATTEMPTS"]:execute(...) end
 function Attempts(...) ATTEMPTS(...) end
----@diagnostic disable-next-line: lowercase-global
 function attempts(...) ATTEMPTS(...) end

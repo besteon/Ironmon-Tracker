@@ -53,19 +53,15 @@ end
 
 function GameSettings.getRomName()
 	if Main.IsOnBizhawk() then
-		---@diagnostic disable-next-line: undefined-global
 		return gameinfo.getromname() or ""
 	else
-		---@diagnostic disable-next-line: undefined-global
 		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
-		---@diagnostic disable-next-line: undefined-global
 		return emu:getGameTitle() or ""
 	end
 end
 
 function GameSettings.getRomHash()
 	if Main.IsOnBizhawk() then
-		---@diagnostic disable-next-line: undefined-global
 		return gameinfo.getromhash() or ""
 	else
 		---@diagnostic disable-next-line: undefined-global
