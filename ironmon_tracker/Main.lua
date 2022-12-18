@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "16" }
+Main.Version = { major = "7", minor = "0", patch = "17" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -77,6 +77,8 @@ function Main.Initialize()
 
 	print(string.format("> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
+	-- Get the quickload files just once to be used in several places during start-up, removed later
+	Main.tempQuickloadFiles = Main.GetQuickloadFiles()
 	Main.ReadAttemptsCount()
 	Main.CheckForVersionUpdate()
 
@@ -140,8 +142,9 @@ function Main.Run()
 	end
 
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
-	Main.ReadAttemptsCount() -- recheck attempts count if different game is loaded
+	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
 	Main.InitializeAllTrackerFiles()
+	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
 	if Main.IsOnBizhawk() then
 		---@diagnostic disable-next-line: undefined-global
@@ -657,7 +660,7 @@ end
 -- Returns the smallest seed number from among files found in the quickload folder
 function Main.FindSmallestSeedFromQuickloadFiles()
 	local smallestSeed
-	local quickloadFiles = Main.GetQuickloadFiles()
+	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 	for _, filename in ipairs(quickloadFiles.romList) do
 		local seedNumberText = string.match(filename, '[0-9]+')
 		if seedNumberText ~= nil then
@@ -706,7 +709,7 @@ function Main.GetAttemptsFile()
 	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
-		local quickloadFiles = Main.GetQuickloadFiles()
+		local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 		if #quickloadFiles.settingsList > 0 then
 			settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1])
 		end

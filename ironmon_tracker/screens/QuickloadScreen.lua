@@ -127,7 +127,7 @@ function QuickloadScreen.initialize()
 	rnqsBtn.clickFunction = QuickloadScreen.handleSetCustomSettings
 
 	-- Determine if the files are setup properly based on Settings.ini filepaths or files found in [quickload] folder
-	local quickloadFiles = Main.GetQuickloadFiles()
+	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 	romfolderBtn.isSet = (#quickloadFiles.romList > 1) -- ROMs correct if two or more roms found in 'quickloadPath' folder
 	jarBtn.isSet = (#quickloadFiles.jarList == 1) -- JAR correct if exactly one file
 	gbaBtn.isSet = (#quickloadFiles.romList == 1) -- GBA correct if exactly one file

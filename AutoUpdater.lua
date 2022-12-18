@@ -10,10 +10,10 @@ AutoUpdater = {
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
 	Dev = {
-		enabled = true, -- TODO: Change this to false and remove branch-specific references below on release
-		TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
-		archiveName = "Ironmon-Tracker-utdzac-mgba-support-ohmy.tar.gz",
-		archiveFolder = "Ironmon-Tracker-utdzac-mgba-support-ohmy",
+		enabled = false, -- Verify this remains "false" for main release
+		TAR_URL = "",
+		archiveName = "",
+		archiveFolder = "",
 	},
 	Messages = {
 		step1 = "Step 1: Downloading release and extracting files...",

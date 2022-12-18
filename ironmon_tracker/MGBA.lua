@@ -28,12 +28,13 @@ end
 
 function MGBA.printStartupInstructions()
 	print("")
-	print('On the left sidebar, click on any screen to see settings, commands, and info.')
-	print('To use any command, surround the command options with "quotation marks"')
-	print('For example, to look up a ' .. Constants.Words.POKEMON .. ', type in the below box:')
+	print("- Click on the menus on the left sidebar to see different information screens.")
+	print("- To use commands, type the command into the box below.")
+	print('  Surround the command options with "quotation marks". For example:')
+	print('    POKEMON "Pikachu"')
 	print("")
-	print('POKEMON "Pikachu"')
-	print("")
+	print('- If you\'re unsure of what a command does, you can use: HELP "command"')
+	print("- More information can be found on the Tracker's wiki by typing: HELPWIKI()")
 end
 
 function MGBA.setupActiveRunCallbacks()
