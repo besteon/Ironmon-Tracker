@@ -31,7 +31,6 @@ function Tracker.initialize()
 		end
 	else
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
-		print(string.format("> %s", Tracker.DataMessage))
 	end
 end
 
@@ -385,7 +384,7 @@ function Tracker.getNote(pokemonID)
 	end
 end
 
--- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
+-- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
 	local viewedPokemon = Battle.getViewedPokemon(true)
 

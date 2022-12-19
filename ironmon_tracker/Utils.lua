@@ -594,11 +594,14 @@ function Utils.estimateIVs(pokemon)
 	end
 end
 
-function Utils.pokemonHasMove(pokemon, moveName)
-	if pokemon == nil or moveName == nil then return false end
+function Utils.pokemonHasMove(pokemon, moveId)
+	if pokemon == nil or moveId == nil then return false end
+
+	moveId = tonumber(moveId) -- requires moveId is a number, unsure how often it gets sent as a string
+	if moveId == nil then return false end
 
 	for _, move in pairs(pokemon.moves) do
-		if move.id ~= 0 and moveName == MoveData.Moves[move.id].name then
+		if move.id ~= 0 and move.id ~= nil and moveId == move.id then
 			return true
 		end
 	end

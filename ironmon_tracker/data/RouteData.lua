@@ -3321,10 +3321,10 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
-	RouteData.Info[54] = { name = "Mom's House", }
-	RouteData.Info[55] = { name = "Your Room", }
-	RouteData.Info[56] = { name = "Rival's House 1F", }
-	RouteData.Info[57] = { name = "Rival's House 2F", }
+	RouteData.Info[54] = { name = "Brendan's House 1F", }
+	RouteData.Info[55] = { name = "Brendan's House 2F", }
+	RouteData.Info[56] = { name = "May's House 1F", }
+	RouteData.Info[57] = { name = "May's House 2F", }
 	RouteData.Info[58] = { name = "Prof. Birch's Lab", }
 	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
 	RouteData.Info[62] = { name = Constants.Words.POKEMON .. " Center 2F", }

@@ -223,17 +223,18 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		local move = data.m.moves[i]
 
+		move.id = tonumber(move.id) or 0
 		move.starred = stars[i] ~= nil and stars[i] ~= ""
 
 		-- Update: Specific Moves
-		if move.name == "Hidden Power" and data.x.viewingOwn then
+		if move.id == 237 and data.x.viewingOwn then -- 237 = Hidden Power
 			move.type = Tracker.getHiddenPowerType()
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
-			if move.name == "Weather Ball" then
+			if move.id == 311 then -- 311 = Weather Ball
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
 				move.category = MoveData.TypeToCategory[move.type]
-			elseif move.name == "Low Kick" and Battle.inBattle and opposingPokemon ~= nil then
+			elseif move.id == 67 and Battle.inBattle and opposingPokemon ~= nil then -- 67 = Low Kick
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
 					targetWeight = opposingPokemon.weight
@@ -244,11 +245,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 				move.power = Utils.calculateWeightBasedDamage(move.power, targetWeight)
 			elseif data.x.viewingOwn then
-				if move.name == "Flail" or move.name == "Reversal" then
+				if move.id == 175 or move.id == 179 then -- 175 = Flail, 179 = Reversal
 					move.power = Utils.calculateLowHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.name == "Eruption" or move.name == "Water Spout" then
+				elseif move.id == 284 or move.id == 323 then -- 284 = Eruption, 323 = Water Spout
 					move.power = Utils.calculateHighHPBasedDamage(move.power, viewedPokemon.curHP, viewedPokemon.stats.hp)
-				elseif move.name == "Return" or move.name == "Frustration" then
+				elseif move.id == 216 or move.id == 218 then -- 216 = Return, 218 = Frustration
 					move.power = Utils.calculateFriendshipBasedDamage(move.power, viewedPokemon.friendship)
 				end
 			end
@@ -277,7 +278,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			elseif Options["Count enemy PP usage"] then
 				-- Interate over tracked moves, since we don't know the full move list
 				for _, actualMove in pairs(viewedPokemon.moves) do
-					if tonumber(actualMove.id) == tonumber(move.id) then
+					if tonumber(actualMove.id) == move.id then -- unsure if first tonumber() is needed, not awake enough
 						move.pp = actualMove.pp
 					end
 				end
@@ -418,9 +419,9 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	data.m.summary = move.summary or Constants.BLANKLINE
 
 	local ownLeadPokemon = Battle.getViewedPokemon(true)
-	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.name)
+	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.id)
 
-	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, "Hidden Power") then -- 237 = Hidden Power
+	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, 237) then -- 237 = Hidden Power
 		data.m.type = Tracker.getHiddenPowerType() or PokemonData.Types.UNKNOWN
 		data.m.category = MoveData.TypeToCategory[data.m.type]
 		data.x.ownHasHiddenPower = true

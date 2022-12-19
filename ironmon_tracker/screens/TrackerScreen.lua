@@ -925,9 +925,9 @@ function TrackerScreen.drawMovesArea(data)
 		local moveTypeColor = Utils.inlineIf(move.name == MoveData.BlankMove.name, Theme.COLORS["Lower box text"], Constants.MoveTypeColors[move.type])
 		local movePowerColor = Theme.COLORS["Lower box text"]
 
-		if move.name == "Hidden Power" and Tracker.Data.isViewingOwn then
+		if move.id == 237 and Tracker.Data.isViewingOwn then -- 237 = Hidden Power
 			moveTypeColor = Utils.inlineIf(move.type == PokemonData.Types.UNKNOWN, Theme.COLORS["Lower box text"], Constants.MoveTypeColors[move.type])
-		elseif move.name == "Weather Ball" and Options["Calculate variable damage"] then
+		elseif move.id == 67 and Options["Calculate variable damage"] then -- 67 = Weather Ball
 			moveTypeColor = Constants.MoveTypeColors[move.type]
 		end
 

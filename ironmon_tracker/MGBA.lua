@@ -807,7 +807,7 @@ MGBA.CommandMap = {
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
 				print(string.format(" [Command Error] You don't have a %s yet.", Constants.Words.POKEMON))
 				return
-			elseif not Utils.pokemonHasMove(pokemonViewed, "Hidden Power") then
+			elseif not Utils.pokemonHasMove(pokemonViewed, 237) then -- 237 = Hidden Power
 				print(string.format(" [Command Error] Your %s doesn't have the move Hidden Power.", Constants.Words.POKEMON))
 				return
 			end

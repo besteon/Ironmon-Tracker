@@ -175,7 +175,7 @@ InfoScreen.Buttons = {
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, "Hidden Power") then
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType()
 				local typeId = 0
