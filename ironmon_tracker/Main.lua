@@ -599,8 +599,6 @@ function Main.GetQuickloadFiles()
 		end
 	end
 
-	Utils.printDebug("%s %s %s", #fileLists.jarList, #fileLists.settingsList, #fileLists.romList)
-
 	-- If some files were missing from the folder, check again from Options if they were partially added in from Settings.ini
 	if Options["Generate ROM each time"] then
 		if #fileLists.jarList == 0 and FileManager.fileExists(Options.FILES["Randomizer JAR"]) then
