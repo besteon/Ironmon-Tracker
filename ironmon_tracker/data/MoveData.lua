@@ -1168,7 +1168,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit " .. Constants.Words.POKEMON .. " using Dig.",
 	},
 	{
 		id = "91",
@@ -3037,7 +3037,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Switches held items with the target. This move fails if neither " .. Constants.Words.POKEMON .. " are holding an item, or in a battle with a wild Pokemon.",
+		summary = "Switches held items with the target. Fails if used by a wild " .. Constants.Words.POKEMON .. ", or if both " .. Constants.Words.POKEMON .. " don't have items, or against a Substitute.",
 	},
 	{
 		id = "272",

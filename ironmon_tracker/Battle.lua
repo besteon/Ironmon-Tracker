@@ -250,7 +250,7 @@ function Battle.updateTrackedInfo()
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 
-		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
+		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 and currentAction == 0 then
 			-- 0 = MOVE_USED
 			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
 				if Battle.AbilityChangeData.prevAction ~= actionCount then
