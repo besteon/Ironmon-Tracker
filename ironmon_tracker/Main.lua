@@ -400,19 +400,19 @@ function Main.LoadNextRom()
 				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 			end
 			if Options["Use premade ROMs"] then
-				print('> Loading next ROM: "%s"', nextRomInfo.fileName)
+				print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
 			end
 			client.openrom(nextRomInfo.filePath)
 		else
 			local success = emu:loadFile(nextRomInfo.filePath)
 			if success then
 				if Options["Use premade ROMs"] then
-					print('> Loading next ROM: "%s"', nextRomInfo.fileName)
+					print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
 				end
 				emu:reset()
 				return
 			else
-				print("> ERROR: Unable to Quickload next ROM: " .. nextRomInfo.fileName)
+				print(string.format('> ERROR: Unable to Quickload next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
 		end
 	elseif Options["Use premade ROMs"] or Options["Generate ROM each time"] then
@@ -459,12 +459,14 @@ function Main.GetNextRomFromFolder()
 			end
 		end
 	end
-	nextRomPath = nextRomPath or quickloadFiles.quickloadPath or ""
+	if nextRomPath == nil and quickloadFiles.quickloadPath ~= nil then
+		nextRomPath = quickloadFiles.quickloadPath .. (nextRomName or "")
+	end
 
-	if nextRomName == nil or not FileManager.fileExists(nextRomPath .. nextRomName) then
+	if nextRomName == nil or not FileManager.fileExists(nextRomPath) then
 		nextRomName = nextRomName or (GameSettings.getRomName() or "UNNAMED") .. FileManager.Extensions.GBA_ROM
-		print(string.format("> ERROR: Unable to find next ROM to load. Currently loaded ROM: %s", nextRomName))
-		Main.DisplayError(string.format("Unable to find next ROM to load. Currently loaded ROM: %s", nextRomName) .. "\n\nMake sure your ROMs are numbered sequentially and the ROMs folder is correct.")
+		print(string.format("> ERROR: Unable to find next ROM to load: %s", nextRomName))
+		Main.DisplayError(string.format("Unable to find next ROM to load: %s", nextRomName) .. "\n\nMake sure your ROMs are numbered sequentially and the ROMs folder is correct.")
 		return nil
 	end
 
@@ -474,7 +476,7 @@ function Main.GetNextRomFromFolder()
 
 	return {
 		fileName = nextRomName,
-		filePath = nextRomPath .. nextRomName,
+		filePath = nextRomPath,
 		attemptsFilePath = FileManager.prependDir(attemptsFileName),
 	}
 end
