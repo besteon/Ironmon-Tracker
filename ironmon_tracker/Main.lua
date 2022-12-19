@@ -139,6 +139,9 @@ function Main.Run()
 	Main.InitializeAllTrackerFiles()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
+	-- Final garbage collection prior to game loops beginning
+	collectgarbage()
+
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
 
