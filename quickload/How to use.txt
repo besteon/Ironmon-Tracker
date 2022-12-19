@@ -54,7 +54,7 @@ The [quickload] folder contains the following files:
 ---------------------------
        FINISH SETUP
 ---------------------------
-Once you placed the required files into the [quickload] folder, the last step is to let the Tracker know which of these two options you want to use.
+Once you've placed the required files into the [quickload] folder, the last step is to let the Tracker know which of these two options you want to use.
 To do so, simply load up the Tracker, then go to the Quickload setup page under Tracker settings.
 Finally, select which of the two options you intend to use:
   (1) Premade ROMs

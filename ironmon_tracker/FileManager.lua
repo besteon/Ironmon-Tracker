@@ -89,9 +89,7 @@ FileManager.Extensions = {
 FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
-	TAR = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
-	DEV_TAR = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/utdzac/mgba-support-ohmy.tar.gz",
 }
 
 -- Returns true if a file exists at its absolute file path; false otherwise
@@ -137,11 +135,14 @@ function FileManager.setupWorkingDirectory()
 		getDirCommand = "pwd"
 	end
 
+	-- Bizhawk handles current working directory differently, this is the only way to get it
 	local function exeCD() return io.popen(getDirCommand) end
-
 	local success, ret, err = xpcall(exeCD, debug.traceback)
 	if success and Main.IsOnBizhawk() and FileManager.dir == "" then
 		FileManager.dir = ret:read()
+	end
+	if ret ~= nil then
+		ret:close()
 	end
 
 	-- Properly format the working directory
@@ -222,8 +223,13 @@ end
 
 -- There is probably a better way to do this
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
-	return FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Images .. FileManager.slash ..
-	tostring(imageFolder) .. FileManager.slash .. tostring(imageName) .. (imageExtension or ""))
+	local listOfPaths = {
+		FileManager.Folders.TrackerCode,
+		FileManager.Folders.Images,
+		tostring(imageFolder),
+		tostring(imageName) .. (imageExtension or "")
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
 function FileManager.extractFolderNameFromPath(path)
