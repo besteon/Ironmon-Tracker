@@ -171,7 +171,8 @@ function QuickloadScreen.handleSetRomFolder(button)
 	local file = forms.openfile("SELECT A ROM", path, filterOptions)
 	if file ~= "" then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
-		file = file:sub(0, (file:match(FileManager.slash) or 1) - 1)
+		local pattern = "^.*()" .. FileManager.slash
+		file = file:sub(0, (file:match(pattern) or 1) - 1)
 
 		if file == nil or file == "" then
 			Options.FILES[button.labelText] = ""
