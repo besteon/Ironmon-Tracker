@@ -54,6 +54,7 @@ QuickloadScreen.Buttons = {
 				QuickloadScreen.Buttons.GenerateRom.toggleState = false
 				Options.updateSetting(QuickloadScreen.Buttons.GenerateRom.text, false)
 			end
+			QuickloadScreen.verifyOptions()
 			Options.forceSave()
 		end
 	},
@@ -75,6 +76,7 @@ QuickloadScreen.Buttons = {
 				QuickloadScreen.Buttons.PremadeRoms.toggleState = false
 				Options.updateSetting(QuickloadScreen.Buttons.PremadeRoms.text, false)
 			end
+			QuickloadScreen.verifyOptions()
 			Options.forceSave()
 		end
 	},
@@ -126,20 +128,12 @@ function QuickloadScreen.initialize()
 	gbaBtn.clickFunction = QuickloadScreen.handleSetSourceRom
 	rnqsBtn.clickFunction = QuickloadScreen.handleSetCustomSettings
 
-	-- Determine if the files are setup properly based on Settings.ini filepaths or files found in [quickload] folder
-	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
-	romfolderBtn.isSet = (#quickloadFiles.romList > 1) -- ROMs correct if two or more roms found in 'quickloadPath' folder
-	jarBtn.isSet = (#quickloadFiles.jarList == 1) -- JAR correct if exactly one file
-	gbaBtn.isSet = (#quickloadFiles.romList == 1) -- GBA correct if exactly one file
-	rnqsBtn.isSet = (#quickloadFiles.settingsList == 1) -- RNQS correct if exactly one file
-
 	for _, button in pairs(QuickloadScreen.Buttons) do
 		button.textColor = QuickloadScreen.textColor
 		button.boxColors = { QuickloadScreen.borderColor, QuickloadScreen.boxFillColor }
-		if button.updateText ~= nil then
-			button:updateText()
-		end
 	end
+
+	QuickloadScreen.verifyOptions()
 
 	-- If neither premade seeds nor generate ROM each time are enabled, try turning one on if files are setup already
 	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
@@ -160,6 +154,26 @@ function QuickloadScreen.initialize()
 	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[QuickloadScreen.OptionKeys[1]]
 	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[QuickloadScreen.OptionKeys[2]]
 	NavigationMenu.Buttons.QuickloadSettings:updateText()
+end
+
+function QuickloadScreen.verifyOptions()
+	local romfolderBtn = QuickloadScreen.Buttons["ROMs Folder"]
+	local jarBtn = QuickloadScreen.Buttons["Randomizer JAR"]
+	local gbaBtn = QuickloadScreen.Buttons["Source ROM"]
+	local rnqsBtn = QuickloadScreen.Buttons["Settings File"]
+
+	-- Determine if the files are setup properly based on Settings.ini filepaths or files found in [quickload] folder
+	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
+	romfolderBtn.isSet = (#quickloadFiles.romList > 1) -- ROMs correct if two or more roms found in 'quickloadPath' folder
+	jarBtn.isSet = (#quickloadFiles.jarList == 1) -- JAR correct if exactly one file
+	gbaBtn.isSet = (#quickloadFiles.romList == 1) -- GBA correct if exactly one file
+	rnqsBtn.isSet = (#quickloadFiles.settingsList == 1) -- RNQS correct if exactly one file
+
+	for _, button in pairs(QuickloadScreen.Buttons) do
+		if button.updateText ~= nil then
+			button:updateText()
+		end
+	end
 end
 
 function QuickloadScreen.handleSetRomFolder(button)

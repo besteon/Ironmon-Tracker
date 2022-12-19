@@ -235,6 +235,10 @@ end
 function FileManager.extractFolderNameFromPath(path)
 	if path == nil or path == "" then return "" end
 
+	if path:sub(-1) == FileManager.slash then
+		path = path:sub(1, -2)
+	end
+
 	local folderStartIndex = path:match("^.*()[\\/]") -- path to folder
 	if folderStartIndex ~= nil then
 		local foldername = path:sub(folderStartIndex + 1)

@@ -74,7 +74,7 @@ function Main.Initialize()
 		end
 	end
 
-	print(string.format("> Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
+	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
 	-- Get the quickload files just once to be used in several places during start-up, removed later
 	Main.tempQuickloadFiles = Main.GetQuickloadFiles()
@@ -575,12 +575,12 @@ function Main.GetQuickloadFiles()
 	end
 
 	-- Search the quickload folder for compatible files used for quickload
-	if Options["Use premade ROMs"] and Options["ROMs Folder"] ~= nil and Options["ROMs Folder"] ~= "" then
+	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil and Options.FILES["ROMs Folder"] ~= "" then
 		-- First make sure the ROMs Folder ends with a slash
-		if Options["ROMs Folder"]:sub(-1) ~= FileManager.slash then
-			Options["ROMs Folder"] = Options["ROMs Folder"] .. FileManager.slash
+		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
+			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
 		end
-		fileLists.quickloadPath = Options["ROMs Folder"] -- Assumes absolute path
+		fileLists.quickloadPath = Options.FILES["ROMs Folder"] -- Assumes absolute path
 	else
 		fileLists.quickloadPath = FileManager.prependDir(FileManager.Folders.Quickload .. FileManager.slash)
 	end
@@ -598,6 +598,8 @@ function Main.GetQuickloadFiles()
 			table.insert(listsByExtension[ext], filename)
 		end
 	end
+
+	Utils.printDebug("%s %s %s", #fileLists.jarList, #fileLists.settingsList, #fileLists.romList)
 
 	-- If some files were missing from the folder, check again from Options if they were partially added in from Settings.ini
 	if Options["Generate ROM each time"] then
