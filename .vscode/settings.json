@@ -13,7 +13,8 @@
 		"input",
 		"forms",
 		"console",
-		"debug"
+		"debug",
+		"callbacks",
 	],
 	"Lua.runtime.version": "Lua 5.1",
 	"Lua.workspace.checkThirdParty": false

@@ -1,6 +1,6 @@
 Tracker = {}
 Tracker.Data = {}
-Tracker.DataMessage = ""
+Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
 -- When Tracker data changes between versions, this will force new data into the tracker
 -- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
@@ -12,18 +12,25 @@ Tracker.ForceUpdateData = {
 
 Tracker.LoadStatusMessages = {
 	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
-	fromFile = "Tracker data loaded from file", -- file name is appended later
+	fromFile = "Previously saved Tracker data for this game has been loaded",
 	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
+	unableLoadFile = "Unable to load Tracker data from selected file",
 }
 
 function Tracker.initialize()
+	-- First create a default, non-nil Tracker Data
+	Tracker.resetData()
+
+	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = GameSettings.getTrackerAutoSaveName()
-		Tracker.loadData(filepath)
+		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
+		local success, err = Tracker.loadData(filepath)
+		if not success and err ~= nil and string.find(err, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
+			-- Print any error that isn't "missing autosave tdat file"
+			print("> " .. err)
+		end
 	else
-		Tracker.resetData()
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
-		print(Tracker.DataMessage)
 	end
 end
 
@@ -157,7 +164,7 @@ function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 	if trackedPokemon.statmarkings[statStage] ~= nil then
 		trackedPokemon.statmarkings[statStage] = statState
 	else
-		print("[ERROR] stat stage does not exist: " .. statStage)
+		print(string.format("> ERROR: The stat stage %s does not exist.", statStage))
 	end
 end
 
@@ -250,14 +257,14 @@ function Tracker.TrackNote(pokemonID, note)
 	trackedPokemon.note = note
 end
 
-function Tracker.TrackHiddenPowerType(moveType)
-	if moveType == nil then return end
+function Tracker.TrackHiddenPowerType(personality, moveType)
+	if personality == nil or moveType == nil then return end
 
-	local viewedPokemon = Battle.getViewedPokemon(true)
-
-	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
-		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
+	if personality == 0 or PokemonData.Types[moveType] == nil then
+		return
 	end
+
+	Tracker.Data.hiddenPowers[personality] = moveType
 end
 
 function Tracker.isTrackingMove(pokemonID, moveId, level)
@@ -365,6 +372,10 @@ end
 
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 function Tracker.getNote(pokemonID)
+	if pokemonID == 413 then -- Ghost
+		return "Spoooky!"
+	end
+
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.note == nil then
 		return ""
@@ -373,7 +384,7 @@ function Tracker.getNote(pokemonID)
 	end
 end
 
--- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
+-- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
 	local viewedPokemon = Battle.getViewedPokemon(true)
 
@@ -451,7 +462,7 @@ function Tracker.resetData()
 	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
-		romHash = gameinfo.getromhash(),
+		romHash = GameSettings.getRomHash(),
 
 		trainerID = 0,
 		allPokemon = {}, -- Used to track information about all pokemon seen thus far
@@ -484,42 +495,45 @@ function Tracker.resetData()
 	}
 end
 
-function Tracker.saveData(filepath)
-	filepath = filepath or GameSettings.getTrackerAutoSaveName()
-	Utils.writeTableToFile(Tracker.Data, filepath)
+function Tracker.saveData(filename)
+	filename = filename or GameSettings.getTrackerAutoSaveName()
+	FileManager.writeTableToFile(Tracker.Data, filename)
 end
 
-function Tracker.loadData(filepath)
+-- Attempts to load Tracked data from the file 'filepath', returns true if successful or no matching data found (resets tracked data)
+-- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
+function Tracker.loadData(filepath, forced)
+	-- Loose safety check to ensure a valid data file is loaded
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
+	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
+		return false, string.format("ERROR: TDAT file, %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+	end
+
+	local fileData = FileManager.readTableFromFile(filepath)
+	if fileData == nil then
+		return false, string.format("ERROR: %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
 	Tracker.resetData()
 
-	-- Loose safety check to ensure a valid data file is loaded
-	local fileData = nil
-	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
-		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
-		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
-	else
-		fileData = Utils.readTableFromFile(filepath)
-	end
-
-	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
-	if fileData ~= nil and fileData.romHash ~= nil and fileData.romHash == Tracker.Data.romHash then
-		for k, v in pairs(fileData) do
-			-- Only add data elements if the current Tracker data schema uses it
-			if Tracker.Data[k] ~= nil then
-				Tracker.Data[k] = v
-			end
-		end
-		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
-		local fileNameIndex = string.match(filepath, slashpattern)
-		local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
-
-		Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
-	else
+	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
+	if not forced and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
 		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
+		return true, Tracker.DataMessage
 	end
 
-	print(Tracker.DataMessage)
+	for k, v in pairs(fileData) do
+		-- Only add data elements if the current Tracker data schema uses it
+		if Tracker.Data[k] ~= nil then
+			Tracker.Data[k] = v
+		end
+	end
+
+	-- Removing for now as the name wasn't really helpful and I wanted a more clear message
+	-- local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
+	-- local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
+	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile --.. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
+	return true, Tracker.DataMessage
 end

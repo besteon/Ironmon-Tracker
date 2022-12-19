@@ -26,7 +26,7 @@ StartupScreen.Buttons = {
 		pokemonID = 0,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
+			local imagepath = FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 			return imagepath
 		end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
@@ -71,14 +71,16 @@ StartupScreen.Buttons = {
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return false end, -- TODO: For now, we aren't using this button
 		onClick = function(self)
-			local joypadButtons = {
-				Up = true,
-				B = true,
-				Select = true,
-			}
-			joypad.set(joypadButtons)
-			emu.frameadvance()
-			joypad.set(joypadButtons)
+			if Main.IsOnBizhawk() then
+				local joypadButtons = {
+					Up = true,
+					B = true,
+					Select = true,
+				}
+				joypad.set(joypadButtons)
+				Main.frameAdvance()
+				joypad.set(joypadButtons)
+			end
 		end
 	},
 }
@@ -89,6 +91,10 @@ function StartupScreen.initialize()
 	-- Update the attempts count to the current seed number
 	StartupScreen.Buttons.AttemptsCount:updateSelf()
 	StartupScreen.Buttons.AttemptsEdit:updateSelf()
+
+	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
+		print(string.format("> %s", Tracker.DataMessage))
+	end
 end
 
 function StartupScreen.setPokemonIcon(displayOption)
@@ -124,7 +130,7 @@ function StartupScreen.openChoosePokemonWindow()
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
-	local allPokemon = PokemonData.toList()
+	local allPokemon = PokemonData.namesToList()
 	table.insert(allPokemon, "-- Based on attempt #")
 	table.insert(allPokemon, "-- Random each time")
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options
@@ -183,16 +189,12 @@ function StartupScreen.openEditAttemptsWindow()
 		local formInput = forms.gettext(textBox)
 		if formInput ~= nil and formInput ~= "" then
 			local newAttemptsCount = tonumber(formInput)
-			if newAttemptsCount ~= nil then
+			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
 				Main.currentSeed = newAttemptsCount
 				StartupScreen.Buttons.AttemptsCount:updateSelf()
 				StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
-				local filename = Main.GetAttemptsFile()
-				if filename ~= nil then
-					Main.WriteAttemptsCounter(filename, newAttemptsCount)
-				end
-
+				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
 				Program.redraw(true)
 			end
 		end
