@@ -244,9 +244,9 @@ function Theme.initialize()
 end
 
 function Theme.loadPresets()
-	if not Main.FileExists(Constants.Files.THEME_PRESETS) then return end
+	if not FileManager.fileExists(FileManager.Files.THEME_PRESETS) then return end
 
-	for index, line in ipairs(Utils.readLinesFromFile(Constants.Files.THEME_PRESETS)) do
+	for index, line in ipairs(FileManager.readLinesFromFile(FileManager.Files.THEME_PRESETS)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeCode = line:sub(firstHexIndex)
@@ -539,12 +539,12 @@ function Theme.openSaveCurrentThemeWindow()
 
 			-- If a theme with that name already exists, replace it; otherwise add a reference for it
 			if Theme.PresetStrings[themeName] ~= nil then
-				Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
+				FileManager.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
 			else
 				table.insert(Theme.PresetsOrdered, themeName)
 			end
 
-			Utils.addCustomThemeToFile(themeName, themeCode)
+			FileManager.addCustomThemeToFile(themeName, themeCode)
 			Theme.PresetStrings[themeName] = themeCode
 			Theme.refreshThemePreview()
 
@@ -562,14 +562,14 @@ end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
 function Theme.populateThemePresets()
-	if Main.FileExists(Constants.Files.THEME_PRESETS) then
+	if FileManager.fileExists(FileManager.Files.THEME_PRESETS) then
 		return
 	end
 
 	-- Add in the preloaded themes in a predefined order (important to show "Theme" vs. "Theme v2" naming)
 	for _, themeName in ipairs(Constants.OrderedLists.PRELOADED_THEMES) do
 		local themeCode = Constants.PreloadedThemes[themeName]
-		Utils.addCustomThemeToFile(themeName, themeCode)
+		FileManager.addCustomThemeToFile(themeName, themeCode)
 	end
 end
 
@@ -583,7 +583,7 @@ function Theme.tryRemoveThemePreset()
 			-- Remove the Theme from the ThemePresets.txt file, and each Preset table
 			local themeNameToRemove = Theme.PresetsOrdered[Theme.Screen.currentPreview]
 			local themeCodeToRemove = Theme.PresetStrings[themeNameToRemove]
-			Utils.removeCustomThemeFromFile(themeNameToRemove, themeCodeToRemove)
+			FileManager.removeCustomThemeFromFile(themeNameToRemove, themeCodeToRemove)
 			table.remove(Theme.PresetsOrdered, Theme.Screen.currentPreview)
 			Theme.PresetStrings[themeNameToRemove] = nil
 

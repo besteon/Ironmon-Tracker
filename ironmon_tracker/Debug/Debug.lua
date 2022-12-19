@@ -62,7 +62,7 @@ function Debug.setPokemonData(formsTable)
     local attacksOffset = (MiscData.TableData.attack[personality % 24 + 1] - 1) * 12
     -- local effortOffset = (MiscData.TableData.effort[personality % 24 + 1] - 1) * 12 if we would like to use it in the future
     local miscOffset = (MiscData.TableData.misc[personality % 24 + 1] - 1) * 12
-    local magicWord = bit.bxor(personality,Memory.readdword(addr + 4))
+    local magicWord = Utils.bit_xor(personality,Memory.readdword(addr + 4))
     Debug.setGrowth(magicWord,formsTable,addr + 32 + growthOffset)
     Debug.setAttacks(magicWord,formsTable,addr + 32 + attacksOffset)
     -- Debug.setEvAndCond(magicWord,formsTable,addr + 32 + effortOffset)
@@ -76,7 +76,7 @@ function Debug.setCheckSum(magicWord,addr)
     local oldchecksum = Memory.readword(addr + checksumOffset)
     for i=0,11 do
         local read = Memory.readdword(addr + 32 + i * 4)
-        local val = bit.bxor(magicWord,read)
+        local val = Utils.bit_xor(magicWord,read)
         checksum = checksum + Utils.getbits(val,0,16) + Utils.getbits(val,16,16)
 
     end
@@ -93,10 +93,10 @@ function Debug.setMisc(magicWord,formsTable,addrMisc)
     -- other u32
     local abilityChoice = forms.gettext(formsTable["ability"])
     if abilityChoice ~= "Unchanged" then
-        local misc2 = bit.bxor(magicWord,Memory.readdword(addrMisc + 4))
-        if abilityChoice == "1" then misc2 = bit.band(0x7FFFFFFF,misc2) -- clearing bit 31 ability bit
-        else misc2 = bit.bor(0x80000000,misc2) end -- setting bit 31 ability bit
-        Memory.writedword(addrMisc + 4,bit.bxor(magicWord,misc2))
+        local misc2 = Utils.bit_xor(magicWord,Memory.readdword(addrMisc + 4))
+        if abilityChoice == "1" then misc2 = Utils.bit_and(0x7FFFFFFF,misc2) -- clearing bit 31 ability bit
+        else misc2 = Utils.bit_or(0x80000000,misc2) end -- setting bit 31 ability bit
+        Memory.writedword(addrMisc + 4,Utils.bit_xor(magicWord,misc2))
     end
 end
 
@@ -113,7 +113,7 @@ function Debug.setEvAndCond(magicWord,formsTable,addrEffort)
     -- smart u8
     -- tough u8
     -- sheen u8
-    
+
     --this is for if in the future we would like to write ev and such
 end
 
@@ -133,14 +133,14 @@ function Debug.setAttacks(magicWord,formsTable,addrAttacks)
         local moveChoice = forms.gettext(formsTable["move"..i])
         local moveChoice2 = forms.gettext(formsTable["move"..i + 1])
         if moveChoice ~= "Unchanged" or moveChoice2 ~="Unchanged" then
-            local oldmoves = bit.bxor(Memory.readdword(addrAttacks + (i-1) *2),magicWord)
+            local oldmoves = Utils.bit_xor(Memory.readdword(addrAttacks + (i-1) *2),magicWord)
             local moveId = Utils.inlineIf(moveChoice == "Unchanged",Utils.getbits(oldmoves,0,16) ,Debug.moveToId(moveChoice))
             local move2Id = Utils.inlineIf(moveChoice2 == "Unchanged",Utils.getbits(oldmoves,16,16) ,Debug.moveToId(moveChoice2))
-            local toWrite = bit.lshift(move2Id,16) + moveId
-            Memory.writedword(addrAttacks + (i-1) * 2,bit.bxor(magicWord,toWrite)) --write move 2 moves because it easier this way with magicword
+            local toWrite = Utils.bit_lshift(move2Id,16) + moveId
+            Memory.writedword(addrAttacks + (i-1) * 2,Utils.bit_xor(magicWord,toWrite)) --write move 2 moves because it easier this way with magicword
         end
     end
-    Memory.writedword(addrAttacks+8,bit.bxor(magicWord,0xFFFFFFFF))
+    Memory.writedword(addrAttacks+8,Utils.bit_xor(magicWord,0xFFFFFFFF))
 end
 
 function Debug.moveToId(movename)
@@ -171,7 +171,7 @@ function Debug.setGrowth(magicWord,formsTable,addrGrowth)
                 break
             end
         end
-        Memory.writeword(addrGrowth,bit.bxor(magicWord2Byte,speciesid))
+        Memory.writeword(addrGrowth,Utils.bit_xor(magicWord2Byte,speciesid))
     end
 end
 

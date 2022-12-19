@@ -63,16 +63,19 @@ RouteData.Locations = {
 	IsInLab = {},
 }
 
-function RouteData.setupRouteInfo(gameId)
+function RouteData.initialize()
 	local maxMapId = 0
 
-	if gameId == 1 or gameId == 2 then
+	if GameSettings.game == 1 or GameSettings.game == 2 then
 		maxMapId = RouteData.setupRouteInfoAsRSE()
-	elseif gameId == 3 then
+	elseif GameSettings.game == 3 then
 		maxMapId = RouteData.setupRouteInfoAsFRLG()
 	end
 
 	RouteData.populateAvailableRoutes(maxMapId)
+
+	-- At some point we might want to implement this so that wild encounter data is automatic
+	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function RouteData.populateAvailableRoutes(maxMapId)
@@ -131,7 +134,7 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	-- Check if a special type of encounter has occurred, see list below
 	if battleFlags > 4 and not isSafariEncounter then -- 4 (0b100) is the default base value
 		local isFirstEncounter = Utils.getbits(battleFlags, 4, 1) == 1
-		local staticFlags = bit.rshift(battleFlags, 10) -- untested but probably accurate, likely separate later
+		local staticFlags = Utils.bit_rshift(battleFlags, 10) -- untested but probably accurate, likely separate later
 		if Utils.getbits(battleFlags, 3, 1) == 1 then
 			return RouteData.EncounterArea.TRAINER
 		elseif isFirstEncounter and GameSettings.versiongroup == 1 then -- RSE first battle only
@@ -254,7 +257,7 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	local pIndex = RouteData.getIndexForGameVersion()
 	local areaInfo = {}
 	-- Eventually fix this by more clearly separating a route's name from its encounters. eg. (encounters.wild)
----@diagnostic disable-next-line: param-type-mismatch
+	---@diagnostic disable-next-line: param-type-mismatch
 	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
 		local pokemonID
 		if type(encounter.pokemonID) == "number" then
@@ -275,9 +278,9 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 		if PokemonData.isValid(pokemonID) then
 			table.insert(areaInfo, {
 				pokemonID = pokemonID,
-				rate = rate,
-				minLv = encounter.minLv,
-				maxLv = encounter.maxLv,
+				rate = rate or 0,
+				minLv = encounter.minLv or 0,
+				maxLv = encounter.maxLv or 0,
 			})
 		end
 	end
@@ -373,6 +376,11 @@ function RouteData.readWildPokemonInfoFromMemory()
 	end
 end
 
+RouteData.BlankRoute = {
+	id = 0,
+	name = Constants.BLANKLINE,
+}
+
 -- https://github.com/pret/pokefirered/blob/918ed2d31eeeb036230d0912cc2527b83788bc85/include/constants/layouts.h
 -- https://www.serebii.net/pokearth/kanto/3rd/route1.shtml
 function RouteData.setupRouteInfoAsFRLG()
@@ -398,8 +406,13 @@ function RouteData.setupRouteInfoAsFRLG()
 
 	RouteData.Info = {
 		[1] = { name = "Mom's House", },
+		[2] = { name = "Your Room", },
+		[3] = { name = "Rival's House", },
+		[4] = { name = "Rival's Room", },
 		[5] = { name = "Oak's Lab", },
 		[8] = { name = Constants.Words.POKEMON .. " Center", },
+		[9] = { name = Constants.Words.POKEMON .. " Center 2F", },
+		[10] = { name = Constants.Words.POKE .. "Mart", },
 		[12] = { name = "Cerulean Gym", },
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },
@@ -409,6 +422,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[34] = { name = "Saffron Gym", },
 		[36] = { name = "Cinnabar Gym", },
 		[37] = { name = "Viridian Gym", },
+		[77] = { name = "Safari Rest House", },
 		[78] = { name = "Pallet Town",
 			[RouteData.EncounterArea.SURFING] = {
 				{ pokemonID = 72, rate = 1.00, minLv = 5, maxLv = 40, },
@@ -2370,7 +2384,7 @@ end
 -- https://www.serebii.net/pokearth/hoenn/3rd/route101.shtml
 function RouteData.setupRouteInfoAsRSE()
 	-- Ruby/Sapphire has LAYOUT_LILYCOVE_CITY_EMPTY_MAP 108, offset all "mapId > 107" by +1
-	local isGameEmerald = GameSettings.versioncolor == "Emerald"
+	local isGameEmerald = (GameSettings.versioncolor == "Emerald")
 	local offset = Utils.inlineIf(isGameEmerald, 0, 1)
 
 	RouteData.Locations.CanPCHeal = {
@@ -2399,38 +2413,38 @@ function RouteData.setupRouteInfoAsRSE()
 
 	RouteData.Info[1] = { name = "Petalburg City",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 183, rate = 1.00, },
+			{ pokemonID = 183, rate = 1.00, minLv = 5, maxLv = 35, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 118, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 118, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 118, rate = 0.20, },
-			{ pokemonID = 341, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 118, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 341, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 341, rate = 1.00, },
+			{ pokemonID = 341, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[2] = { name = "Slateport City",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 1.00, },
+			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[3] = { name = "Mauville City", }
@@ -2438,22 +2452,22 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[5] = { name = "Fortree City", }
 	RouteData.Info[6] = { name = "Lilycove City",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 0.85, },
-			{ pokemonID = 120, rate = 0.15, },
+			{ pokemonID = 320, rate = 0.85, minLv = 25, maxLv = 45, },
+			{ pokemonID = 120, rate = 0.15, minLv = 25, maxLv = 30, },
 		},
 	}
 	RouteData.Info[7] = { name = "Mossdeep City",
@@ -2517,16 +2531,16 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[11] = { name = "Oldale Town", }
 	RouteData.Info[12] = { name = "Dewford Town",
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 1.00, },
+			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[13] = { name = "Lavaridge Town", }
@@ -2554,145 +2568,145 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[17] = { name = "Route 101",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,265}, rate = 0.45, },
-			{ pokemonID = {265,265,261}, rate = 0.45, },
-			{ pokemonID = {261,261,263}, rate = 0.10, },
+			{ pokemonID = {263,263,265}, rate = 0.45, minLv = 2, maxLv = 3, },
+			{ pokemonID = {265,265,261}, rate = 0.45, minLv = 2, maxLv = 3, },
+			{ pokemonID = {261,261,263}, rate = 0.10, minLv = 2, maxLv = 3, },
 		},
 		[RouteData.EncounterArea.STATIC] = {
-			{ pokemonID = 265, rate = 1.00, },
+			{ pokemonID = 265, rate = 1.00, minLv = 2, maxLv = 2, },
 		},
 	}
 	RouteData.Info[18] = { name = "Route 102",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,265}, rate = 0.30, },
-			{ pokemonID = {265,265,261}, rate = 0.30, },
-			{ pokemonID = {273,270,270}, rate = 0.20, },
-			{ pokemonID = {261,261,263}, rate = 0.15, },
-			{ pokemonID = 280, rate = 0.04, },
-			{ pokemonID = {283,283,273}, rate = 0.01, },
+			{ pokemonID = {263,263,265}, rate = 0.30, minLv = 3, maxLv = 4, },
+			{ pokemonID = {265,265,261}, rate = 0.30, minLv = 3, maxLv = 4, },
+			{ pokemonID = {273,270,270}, rate = 0.20, minLv = 3, maxLv = 4, },
+			{ pokemonID = {261,261,263}, rate = 0.15, minLv = 3, maxLv = 4, },
+			{ pokemonID = 280, rate = 0.04, minLv = 4, maxLv = 4, },
+			{ pokemonID = {283,283,273}, rate = 0.01, minLv = 3, maxLv = 3, },
 		},
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 183, rate = 0.99, },
-			{ pokemonID = {283,283,118}, rate = 0.01, },
+			{ pokemonID = 183, rate = 0.99, minLv = 5, maxLv = 25, },
+			{ pokemonID = {283,283,118}, rate = 0.01, minLv = 20, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 118, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 118, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 118, rate = 0.20, },
-			{ pokemonID = 341, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 118, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 341, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 341, rate = 1.00, },
+			{ pokemonID = 341, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[19] = { name = "Route 103",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,261}, rate = 0.60, },
-			{ pokemonID = {261,261,263}, rate = 0.30, },
-			{ pokemonID = 278, rate = 0.10, },
+			{ pokemonID = {263,263,261}, rate = 0.60, minLv = 2, maxLv = 4, },
+			{ pokemonID = {261,261,263}, rate = 0.30, minLv = 2, maxLv = 4, },
+			{ pokemonID = 278, rate = 0.10, minLv = 2, maxLv = 4, },
 		},
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 0.60, },
-			{ pokemonID = 319, rate = 0.40, },
+			{ pokemonID = 320, rate = 0.60, minLv = 25, maxLv = 45, },
+			{ pokemonID = 319, rate = 0.40, minLv = 30, maxLv = 35, },
 		},
 	}
 	RouteData.Info[20] = { name = "Route 104",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,261}, rate = {0.50,0.50,0.40}, },
-			{ pokemonID = {-1,-1,183}, rate = 0.20, },
-			{ pokemonID = 265, rate = {0.30,0.30,0.20}, },
-			{ pokemonID = 276, rate = 0.10, },
-			{ pokemonID = 278, rate = 0.10, },
+			{ pokemonID = {263,263,261}, rate = {0.50,0.50,0.40}, minLv = 4, maxLv = 5, },
+			{ pokemonID = {-1,-1,183}, rate = 0.20, minLv = 4, maxLv = 5, },
+			{ pokemonID = 265, rate = {0.30,0.30,0.20}, minLv = 4, maxLv = 5, },
+			{ pokemonID = 276, rate = 0.10, minLv = 4, maxLv = 5, },
+			{ pokemonID = 278, rate = 0.10, minLv = 3, maxLv = 5, },
 		},
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 278, rate = 0.95, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 278, rate = 0.95, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 1.00, },
+			{ pokemonID = 129, rate = 1.00, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 1.00, },
+			{ pokemonID = 129, rate = 1.00, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 129, rate = 1.00, },
+			{ pokemonID = 129, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[21] = { name = "Route 105",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 1.00, },
+			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 		[RouteData.EncounterArea.STATIC] = {
-			{ pokemonID = 378, rate = 1.00, },
+			{ pokemonID = 378, rate = 1.00, minLv = 40, maxLv = 40, },
 		},
 	}
 	RouteData.Info[22] = { name = "Route 106",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 1.00, },
+			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[23] = { name = "Route 107",
 		[RouteData.EncounterArea.SURFING] = {
-			{ pokemonID = 72, rate = 0.60, },
-			{ pokemonID = 278, rate = 0.35, },
-			{ pokemonID = 279, rate = 0.05, },
+			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
+			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
+			{ pokemonID = 279, rate = 0.05, minLv = 25, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.OLDROD] = {
-			{ pokemonID = 129, rate = 0.70, },
-			{ pokemonID = 72, rate = 0.30, },
+			{ pokemonID = 129, rate = 0.70, minLv = 5, maxLv = 10, },
+			{ pokemonID = 72, rate = 0.30, minLv = 5, maxLv = 10, },
 		},
 		[RouteData.EncounterArea.GOODROD] = {
-			{ pokemonID = 129, rate = 0.60, },
-			{ pokemonID = 72, rate = 0.20, },
-			{ pokemonID = 320, rate = 0.20, },
+			{ pokemonID = 129, rate = 0.60, minLv = 10, maxLv = 30, },
+			{ pokemonID = 72, rate = 0.20, minLv = 10, maxLv = 30, },
+			{ pokemonID = 320, rate = 0.20, minLv = 10, maxLv = 30, },
 		},
 		[RouteData.EncounterArea.SUPERROD] = {
-			{ pokemonID = 320, rate = 1.00, },
+			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
 	RouteData.Info[24] = { name = "Route 108",
@@ -3307,8 +3321,14 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
-	RouteData.Info[54] = { name = "Mom's House", }
+	RouteData.Info[54] = { name = "Brendan's House 1F", }
+	RouteData.Info[55] = { name = "Brendan's House 2F", }
+	RouteData.Info[56] = { name = "May's House 1F", }
+	RouteData.Info[57] = { name = "May's House 2F", }
+	RouteData.Info[58] = { name = "Prof. Birch's Lab", }
 	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
+	RouteData.Info[62] = { name = Constants.Words.POKEMON .. " Center 2F", }
+	RouteData.Info[63] = { name = Constants.Words.POKE .. "Mart", }
 	RouteData.Info[65] = { name = "Dewford Gym", }
 	RouteData.Info[69] = { name = "Lavaridge Gym 1F", }
 	RouteData.Info[70] = { name = "Lavaridge Gym B1F", }
