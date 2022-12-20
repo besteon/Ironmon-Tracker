@@ -311,6 +311,7 @@ function GameSettings.setEwramAddresses()
 		gHitMarker = { 0x02024c6c, 0x02024280, 0x02023dd0 },
 		gBattleCommunication = { 0x02024d1e, 0x02024332, 0x02023e82 },
 		gBattleOutcome = { 0x02024d26, 0x0202433a, 0x02023e8a }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+		gBattleStructPtr = { nil, 0x0202449c, 0x02023fe8 },
 		gBattleWeather = { 0x02024db8, 0x020243cc, 0x02023f1c },
 		gMoveToLearn = { 0x02024e82, 0x020244e2, 0x02024022 },
 		gMapHeader = { 0x0202e828, 0x02037318, 0x02036dfc },

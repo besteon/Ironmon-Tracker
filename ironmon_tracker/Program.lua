@@ -155,6 +155,12 @@ function Program.update()
 				end
 			end
 
+			-- Check if a Pokemon in the player's party is learning a move, if so track it
+			local learnedInfoTable = Program.getLearnedMoveInfoTable()
+			if learnedInfoTable.pokemonID ~= nil then
+				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
+			end
+
 			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
@@ -482,16 +488,43 @@ function Program.HandleExit()
 	forms.destroyall()
 end
 
-function Program.getLearnedMoveId()
+-- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
+function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
 	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
-		return moveToLearnId
-	else
-		return nil
+
+		local battleStructAddress
+		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
+			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
+		else
+			battleStructAddress = 0x02000000 -- gSharedMem, unsure if correct
+		end
+
+		local partyIndex = Memory.readbyte(battleStructAddress + 0x10) + 1 -- expGetterMonId: Party index of player (1-6)
+		local pokemon = Tracker.getPokemon(partyIndex, true)
+		if pokemon ~= nil then
+			return {
+				pokemonID = pokemon.pokemonID,
+				level = pokemon.level,
+				moveId = moveToLearnId,
+			}
+		end
+
+		return {
+			pokemonID = nil,
+			level = nil,
+			moveId = moveToLearnId,
+		}
 	end
+
+	return {
+		pokemonID = nil,
+		level = nil,
+		moveId = nil,
+	}
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
