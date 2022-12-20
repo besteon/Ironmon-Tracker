@@ -34,6 +34,7 @@ Program.Screens = {
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
+	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -500,7 +501,7 @@ function Program.getLearnedMoveInfoTable()
 		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
 			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
 		else
-			battleStructAddress = 0x02000000 -- gSharedMem, unsure if correct
+			battleStructAddress = 0x02000000 -- gSharedMem
 		end
 
 		local partyIndex = Memory.readbyte(battleStructAddress + 0x10) + 1 -- expGetterMonId: Party index of player (1-6)

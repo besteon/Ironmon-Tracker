@@ -189,6 +189,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, TrackedDataScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.STATS then
 		Input.checkButtonsClicked(xmouse, ymouse, StatsScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
 	end
 
 	-- Check if mouse clicked on the game screen itself

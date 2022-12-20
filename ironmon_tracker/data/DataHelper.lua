@@ -386,8 +386,9 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	if ownLeadPokemon.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = ownLeadPokemon.level
+	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	if pokemonViewed.pokemonID == pokemon.pokemonID then
+		data.x.viewedPokemonLevel = pokemonViewed.level
 	else
 		data.x.viewedPokemonLevel = 0
 	end

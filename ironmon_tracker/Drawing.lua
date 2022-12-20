@@ -166,11 +166,19 @@ function Drawing.drawButton(button, shadowcolor)
 	local y = button.box[2]
 	local width = button.box[3]
 	local height = button.box[4]
+	local bordercolor
+	local fillcolor
+	if button.boxColors ~= nil then
+		bordercolor = Theme.COLORS[button.boxColors[1]]
+		fillcolor = Theme.COLORS[button.boxColors[2]]
+	else
+		bordercolor = Theme.COLORS["Upper box border"]
+		fillcolor = Theme.COLORS["Upper box background"]
+	end
 
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
-		local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
-		local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
+
 
 		-- Draw the box's shadow and the box border
 		if shadowcolor ~= nil then
@@ -227,6 +235,19 @@ function Drawing.drawButton(button, shadowcolor)
 				y = y - 1 -- Move up the negative stat mark 1px
 			end
 			Drawing.drawText(x, y - 1, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
+	elseif button.type == Constants.ButtonTypes.CIRCLE then
+		-- Draw the circle's shadow and the circle border
+		if shadowcolor ~= nil then
+			gui.drawEllipse(x + 1, y + 1, width, height, shadowcolor, fillcolor)
+		end
+		gui.drawEllipse(x, y, width, height, bordercolor, fillcolor)
+		if button.text ~= nil and button.text ~= "" then
+			if width < 10 or y < 10 then
+				x = x - 1
+				y = y - 1
+			end
+			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
 		end
 	end
 end

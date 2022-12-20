@@ -277,8 +277,8 @@ function Utils.calculateMoveStars(pokemonID, level)
 	end
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
-	local pokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if pokemon.moves == nil then
+	local trackedMoves = Tracker.getMoves(pokemonID)
+	if trackedMoves[1].moveId == 0 then
 		return stars
 	end
 
@@ -286,29 +286,29 @@ function Utils.calculateMoveStars(pokemonID, level)
 	local movesLearnedSince = { 0, 0, 0, 0 }
 	local allMoveLevels = PokemonData.Pokemon[pokemonID].movelvls[GameSettings.versiongroup]
 	for _, lv in pairs(allMoveLevels) do
-		for moveIndex, move in pairs(pokemon.moves) do
-			if lv > move.level and lv <= level then
-				movesLearnedSince[moveIndex] = movesLearnedSince[moveIndex] + 1
+		for i = 1, 4, 1 do
+			if lv > trackedMoves[i].level and lv <= level then
+				movesLearnedSince[i] = movesLearnedSince[i] + 1
 			end
 		end
 	end
 
 	-- Determine which moves are the oldest, by ranking them against their levels learnt.
 	local moveAgeRank = { 1, 1, 1, 1 }
-	for moveIndex, move in pairs(pokemon.moves) do
-		for moveIndexCompare, moveCompare in pairs(pokemon.moves) do
-			if moveIndex ~= moveIndexCompare then
-				if move.level > moveCompare.level then
-					moveAgeRank[moveIndex] = moveAgeRank[moveIndex] + 1
+	for i = 1, 4, 1 do
+		for moveIndexCompare, moveCompare in pairs(trackedMoves) do
+			if i ~= moveIndexCompare then
+				if trackedMoves[i].level > moveCompare.level then
+					moveAgeRank[i] = moveAgeRank[i] + 1
 				end
 			end
 		end
 	end
 
 	-- A move is only star'd if it was possible it has been forgotten
-	for moveIndex, move in pairs(pokemon.moves) do
-		if move.level ~= 1 and movesLearnedSince[moveIndex] >= moveAgeRank[moveIndex] then
-			stars[moveIndex] = "*"
+	for i = 1, 4, 1 do
+		if trackedMoves[i].level ~= 1 and movesLearnedSince[i] >= moveAgeRank[i] then
+			stars[i] = "*"
 		end
 	end
 

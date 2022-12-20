@@ -28,6 +28,7 @@ Constants.ButtonTypes = {
 	PIXELIMAGE = 6,
 	POKEMON_ICON = 7,
 	STAT_STAGE = 8,
+	CIRCLE = 9,
 }
 
 Constants.STAT_STATES = {

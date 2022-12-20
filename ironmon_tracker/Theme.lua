@@ -156,6 +156,7 @@ Theme.Buttons = {
 				Theme.DRAW_TEXT_SHADOWS = Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS
 				Theme.Buttons.DrawTextShadows.toggleState = Theme.DRAW_TEXT_SHADOWS
 
+				TrackerScreen.setNextMoveLevelHighlight(true)
 				Main.SaveSettings(true)
 				Theme.refreshThemePreview()
 			end
@@ -203,7 +204,7 @@ Theme.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			TrackerScreen.getNextMoveLevelHighlight(false) -- Update the next move level highlight color
+			TrackerScreen.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
 			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
 			if Theme.Screen.displayingThemeManager then

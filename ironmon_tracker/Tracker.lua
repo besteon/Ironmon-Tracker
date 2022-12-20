@@ -169,48 +169,60 @@ function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
+-- Also tracks the minimum and maximum level of the Pokemon that used the move
 function Tracker.TrackMove(pokemonID, moveId, level)
-	if not MoveData.isValid(moveId) or moveId == 165 or Tracker.isTrackingMove(pokemonID, moveId, level) then
-		-- MoveId 165 is Struggle, don't track that
+	if not MoveData.isValid(moveId) or moveId == 165 then -- 165 = Struggle
 		return
 	end
 
-	-- If no move data exist, set this as the first move
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedMove = { -- Ultimately the tracked data about the move to store
+		id = moveId,
+		level = level,
+		minLv = level,
+		maxLv = level,
+	}
+
+	Utils.printDebug("DEBUG: Tracking:  %-12s | %-12s | lv.%s", PokemonData.Pokemon[pokemonID].name, MoveData.Moves[moveId].name, level)
+
+	-- If no move data exist, set this as the first move
 	if trackedPokemon.moves == nil then
 		trackedPokemon.moves = {
-			{ id = moveId, level = level },
+			trackedMove,
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
 		}
-	else
-		-- First check if the move has been seen before
-		local moveIndexSeen = 0
-		for key, value in pairs(trackedPokemon.moves) do
-			if value.id == moveId then
-				moveIndexSeen = key
-			end
+		return
+	end
+
+	-- First check if the move has been seen before
+	local moveIndexSeen = 0
+	for key, value in pairs(trackedPokemon.moves) do
+		if value.id == moveId then
+			moveIndexSeen = key
+			break
+		end
+	end
+
+	-- If the move has already been seen, update its level
+	local moveSeen = trackedPokemon.moves[moveIndexSeen]
+	if moveSeen ~= nil then
+		-- If known min/max levels are still min/max, keep those instead
+		if moveSeen.minLv ~= nil and moveSeen.minLv < level then
+			trackedMove.minLv = moveSeen.minLv
+		end
+		if moveSeen.maxLv ~= nil and moveSeen.maxLv > level  then
+			trackedMove.maxLv = moveSeen.maxLv
 		end
 
-		-- If the move has already been seen, update its level (do we even need this?)
-		if moveIndexSeen ~= 0 then
-			-- TODO: Maybe we only update if the information on the level at which the Pokemon knows the move is more helpful
-			-- For example, if the new level is lower than the current known level? Unsure if this breaks anything
-			trackedPokemon.moves[moveIndexSeen] = {
-				id = moveId,
-				level = level
-			}
-		-- Otherwise it's a new move, shift all the moves down and get rid of the fourth move
-		else
-			trackedPokemon.moves[4] = trackedPokemon.moves[3]
-			trackedPokemon.moves[3] = trackedPokemon.moves[2]
-			trackedPokemon.moves[2] = trackedPokemon.moves[1]
-			trackedPokemon.moves[1] = {
-				id = moveId,
-				level = level
-			}
+		trackedPokemon.moves[moveIndexSeen] = trackedMove
+	else
+		-- If the oldest tracked move is a placeholder, remove it
+		if trackedPokemon.moves[4].id == 0 then
+			trackedPokemon.moves[4] = nil
 		end
+		table.insert(trackedPokemon.moves, 1, trackedMove)
 	end
 end
 
@@ -273,8 +285,9 @@ function Tracker.isTrackingMove(pokemonID, moveId, level)
 		return false
 	end
 
-	for _, move in pairs(trackedPokemon.moves) do
-		if move.id == moveId and move.level == level then
+	for _, move in ipairs(trackedPokemon.moves) do -- intentionall check ALL tracked moves
+		-- If the move doesn't provide any new information, consider it tracked
+		if moveId == move.id and level >= move.level then
 			return true
 		end
 	end
