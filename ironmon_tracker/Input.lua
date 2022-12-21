@@ -4,13 +4,64 @@ Input = {
 	currentColorPicker = nil,
 }
 
-Input.controller = {
+Input.StatHighlighter = {
 	statIndex = 1, -- Value between 1 and 6 (for each stat stage)
-	framesSinceInput = 120,
-	boxVisibleFrames = 120,
+	framesSinceInput = 150,
+	framesHighlightMax = 150,
+	framesToHighlight = 30, -- Highlight the selected stat every other N frames
+	getSelectedStat = function(self)
+		if self.statIndex < 1 then
+			self.statIndex = 1
+		elseif self.statIndex > #Constants.OrderedLists.STATSTAGES then
+			self.statIndex = #Constants.OrderedLists.STATSTAGES
+		end
+
+		return Constants.OrderedLists.STATSTAGES[self.statIndex]
+	end,
+	-- Cycle through the six visible stats to enable marking them as high/low/neutral
+	cycleToNextStat = function(self)
+		if Tracker.Data.isViewingOwn then return end
+		if self.framesSinceInput < self.framesHighlightMax then
+			self.statIndex = (self.statIndex % 6) + 1
+		end
+		self.framesSinceInput = 0
+		Program.redraw(true)
+	end,
+	markSelectedStat = function(self)
+		if not self:isActive() then return end
+		self.framesSinceInput = 0
+		local statKey = self:getSelectedStat()
+		local statButton = TrackerScreen.Buttons[statKey]
+		statButton:onClick()
+	end,
+	resetSelectedStat = function(self)
+		self.statIndex = 1
+	end,
+	-- The selected stat to highlight is only visible N frames
+	incrementHighlightedFrames = function(self)
+		if not self:isActive() then return end
+		self.framesSinceInput = self.framesSinceInput + 1
+		if self.framesSinceInput == self.framesHighlightMax then
+			Program.redraw(true)
+		end
+	end,
+	isActive = function(self)
+		return not Tracker.Data.isViewingOwn and self.framesSinceInput < self.framesHighlightMax
+	end,
+	shouldDisplay = function(self)
+		if not self:isActive() then
+			return false
+		else
+			return (self.framesSinceInput % (self.framesToHighlight * 2)) < self.framesToHighlight
+		end
+	end,
 }
 
 function Input.checkForInput()
+	if not Main.IsOnBizhawk() then
+		return
+	end
+
 	if Input.currentColorPicker ~= nil then
 		Input.currentColorPicker:handleInput()
 	else
@@ -23,71 +74,92 @@ function Input.checkForInput()
 		end
 		Input.prevMouseInput = mouseInput
 
-		-- Check inputs from the Joypad controller
-		local joypadButtons = joypad.get()
-		Input.checkJoypadInput(joypadButtons)
-		Input.prevJoypadInput = joypadButtons
+		Input.checkJoypadInput()
 	end
 end
 
-function Input.checkJoypadInput(joypadButtons)
+-- returns a table such that 'table[button] = true' if that button is being pressed
+function Input.getJoypadInputFormatted()
+	if Main.IsOnBizhawk() then
+		-- Check inputs from the Joypad controller
+		return joypad.get()
+	else
+		local keysMasked = emu:getKeys()
+
+		return {
+			["A"] = Utils.getbits(keysMasked, 0, 1) == 1,
+			["B"] = Utils.getbits(keysMasked, 1, 1) == 1,
+			["Select"] = Utils.getbits(keysMasked, 2, 1) == 1,
+			["Start"] = Utils.getbits(keysMasked, 3, 1) == 1,
+			["Right"] = Utils.getbits(keysMasked, 4, 1) == 1,
+			["Left"] = Utils.getbits(keysMasked, 5, 1) == 1,
+			["Up"] = Utils.getbits(keysMasked, 6, 1) == 1,
+			["Down"] = Utils.getbits(keysMasked, 7, 1) == 1,
+			["R"] = Utils.getbits(keysMasked, 8, 1) == 1,
+			["L"] = Utils.getbits(keysMasked, 9, 1) == 1,
+		}
+	end
+end
+
+function Input.checkJoypadInput()
+	local joypadButtons = Input.getJoypadInputFormatted()
+
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
-		if Battle.inBattle then
-			Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
-			if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
-				--swap sides on returning to allied side
-				Battle.isViewingLeft = not Battle.isViewingLeft
-				--undo changes for special double battles
-				if Battle.isViewingLeft == false and Battle.Combatants.RightOwn > Battle.partySize then
-					Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
-				end
-				-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
-				Program.Frames.three_sec_update = 30
-			end
-		end
-		Program.redraw(true)
+		Input.togglePokemonViewed()
 	end
 
 	-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
 	if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.prevJoypadInput[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
-		Input.controller.statIndex = (Input.controller.statIndex % 6) + 1
-		Input.controller.framesSinceInput = 0
-		Program.redraw(true)
+		Input.StatHighlighter:cycleToNextStat()
 	else
-		if Input.controller.framesSinceInput == Input.controller.boxVisibleFrames - 1 then
-			Program.redraw(true)
-		end
-		if Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
-			Input.controller.framesSinceInput = Input.controller.framesSinceInput + 1
-		end
+		Input.StatHighlighter:incrementHighlightedFrames()
 	end
 
 	-- "Options.CONTROLS["Load next seed"]"
-	local allPressed = true
-	for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
-		if joypadButtons[button] ~= true then
-			allPressed = false
+	if not Main.loadNextSeed then
+		local allPressed = true
+		for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
+			if joypadButtons[button] ~= true then
+				allPressed = false
+			end
 		end
-	end
-	if allPressed == true then
-		Main.loadNextSeed = true
+		if allPressed == true then
+			Main.loadNextSeed = true
+		end
 	end
 
 	-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat
 	if joypadButtons[Options.CONTROLS["Mark stat"]] and Input.prevJoypadInput[Options.CONTROLS["Mark stat"]] ~= joypadButtons[Options.CONTROLS["Mark stat"]] then
-		if Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
-			Input.controller.framesSinceInput = 0
+		Input.StatHighlighter:markSelectedStat()
+	end
 
-			-- This might be redundant, but adding in the extra safety check
-			if Input.controller.statIndex < 1 then Input.controller.statIndex = 1 end
-			if Input.controller.statIndex > 6 then Input.controller.statIndex = 6 end
+	-- Save the joypad inputs to prevent triggering on the next frame (no autofire)
+	Input.prevJoypadInput = joypadButtons
+end
 
-			local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
-			local statButton = TrackerScreen.Buttons[statKey]
-			statButton:onClick()
+function Input.togglePokemonViewed()
+	if Battle.inBattle then
+		Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
+
+		-- Check toggling through other Pokemon available in doubles battles
+		if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
+			--swap sides on returning to allied side
+			Battle.isViewingLeft = not Battle.isViewingLeft
+			--undo changes for special double battles
+			if Battle.isViewingLeft == false and Battle.Combatants.RightOwn > Battle.partySize then
+				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
+			end
+		end
+
+		if Tracker.Data.isViewingOwn then
+			-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
+			Program.Frames.three_sec_update = 30
 		end
 	end
+
+	-- Always redraw the screen to show any changes; Toggle works as a refresh button
+	Program.redraw(true)
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
@@ -117,39 +189,26 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, TrackedDataScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.STATS then
 		Input.checkButtonsClicked(xmouse, ymouse, StatsScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
 	-- Clicked on a new move learned, show info
-	if Input.isInRange(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
+	if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
 		-- Only lookup/show move if not editing settings
 		if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
-			local moveId = Program.getLearnedMoveId()
-			if moveId ~= nil then
-				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveId)
+			local learnedInfoTable = Program.getLearnedMoveInfoTable()
+			if learnedInfoTable.moveId ~= nil then
+				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
 			end
 		end
 	end
 end
 
-function Input.resetControllerIndex()
-	-- Start at the end, so when the next stat controler button is pressed it will wrap around to the 1st box
-	Input.controller.statIndex = 6
-end
-
---[[
-	Checks if a mouse click is within a range and returning true.
-	xmouse, ymouse: number -> coordinates of the mouse
-	x, y: number -> starting coordinate of the region being tested for clicks
-	xregion, yregion -> size of the region being tested from the starting coordinates
-]]
-function Input.isInRange(xmouse, ymouse, x, y, xregion, yregion)
-	if xmouse >= x and xmouse <= x + xregion then
-		if ymouse >= y and ymouse <= y + yregion then
-			return true
-		end
-	end
-	return false
+function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
+	return (xmouse >= x and xmouse <= x + width) and (ymouse >= y and ymouse <= y + height)
 end
 
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
@@ -160,9 +219,9 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 
 			-- If the button has an override for which area to check for mouse clicks, use that
 			if button.clickableArea ~= nil then
-				isAreaClicked = Input.isInRange(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
+				isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
 			else
-				isAreaClicked = Input.isInRange(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
+				isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
 			end
 
 			if isAreaClicked and button.onClick ~= nil then
@@ -189,7 +248,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 		local moveOffsetX = Constants.SCREEN.WIDTH + 7
 		local moveOffsetY = 95
 		for moveIndex = 1, 4, 1 do
-			if Input.isInRange(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+			if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
 				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
 				break
 			end

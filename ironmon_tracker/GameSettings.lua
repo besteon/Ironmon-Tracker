@@ -30,12 +30,15 @@ GameSettings.ABILITIES = {}
 -- 		- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
 
 function GameSettings.initialize()
-	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
-	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
-
+	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
 	GameSettings.setGameInfo(gamecode)
-	if GameSettings.gamename == "Unsupported Game" then return end -- Skip rest of setup if game not supported
 
+	-- Skip rest of setup if game not supported
+	if GameSettings.gamename == "Unsupported Game" then
+		return
+	end
+
+	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
 	-- 0x02...
@@ -46,10 +49,26 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
-
-	-- Set up route data for the game
-	RouteData.setupRouteInfo(GameSettings.game)
 end
+
+function GameSettings.getRomName()
+	if Main.IsOnBizhawk() then
+		return gameinfo.getromname() or ""
+	else
+		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
+		return emu:getGameTitle() or ""
+	end
+end
+
+function GameSettings.getRomHash()
+	if Main.IsOnBizhawk() then
+		return gameinfo.getromhash() or ""
+	else
+		---@diagnostic disable-next-line: undefined-global
+		return emu:checksum(C.CHECKSUM.CRC32) or ""
+	end
+end
+
 
 function GameSettings.setGameInfo(gamecode)
 	-- Mapped by key=gamecode
@@ -137,14 +156,15 @@ function GameSettings.setGameInfo(gamecode)
 		},
 	}
 
-	if games[gamecode] ~= nil then
-		GameSettings.game = games[gamecode].GAME_NUMBER
-		GameSettings.gamename = games[gamecode].GAME_NAME
-		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
-		GameSettings.versioncolor = games[gamecode].VERSION_COLOR
-		GameSettings.language = games[gamecode].LANGUAGE
-		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
-		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
+	local game = games[gamecode]
+	if game ~= nil then
+		GameSettings.game = game.GAME_NUMBER
+		GameSettings.gamename = game.GAME_NAME
+		GameSettings.versiongroup = game.VERSION_GROUP
+		GameSettings.versioncolor = game.VERSION_COLOR
+		GameSettings.language = game.LANGUAGE
+		GameSettings.badgePrefix = game.BADGE_PREFIX
+		GameSettings.badgeXOffsets = game.BADGE_XOFFSETS
 	else
 		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
@@ -233,21 +253,22 @@ function GameSettings.setGameVersion(gameversion)
 		},
 	}
 
-	print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
+	-- print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
 
 	-- Load non-English language data
 	local gameLanguage = GameSettings.language
+	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	if gameLanguage == "Spanish" then
-		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
 		SpainData.updateToSpainData()
 	elseif gameLanguage == "Italian" then
-		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.ItalyData)
 		ItalyData.updateToItalyData()
 	elseif gameLanguage == "French" then
-		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.FranceData)
 		FranceData.updateToFranceData()
 	elseif gameLanguage == "German" then
-		dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
+		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
 		GermanyData.updateToGermanyData()
 	end
 
@@ -290,6 +311,7 @@ function GameSettings.setEwramAddresses()
 		gHitMarker = { 0x02024c6c, 0x02024280, 0x02023dd0 },
 		gBattleCommunication = { 0x02024d1e, 0x02024332, 0x02023e82 },
 		gBattleOutcome = { 0x02024d26, 0x0202433a, 0x02023e8a }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+		gBattleStructPtr = { nil, 0x0202449c, 0x02023fe8 },
 		gBattleWeather = { 0x02024db8, 0x020243cc, 0x02023f1c },
 		gMoveToLearn = { 0x02024e82, 0x020244e2, 0x02024022 },
 		gMapHeader = { 0x0202e828, 0x02037318, 0x02036dfc },
@@ -517,7 +539,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x82db1b6,},
 			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262,},
 			{ 0x81d8fa8, 0x81d9018,}
-		},		
+		},
 	}
 
 	for key, address in pairs(addresses) do
@@ -775,7 +797,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x82db609,},
 			{ 0x81d9458, 0x81d94c8, 0x81d8f8a, 0x81d68c2, 0x81d7c2a, 0x81dd6ee,},
 			{ 0x81d9434, 0x81d94a4,}
-		},		
+		},
 		-- BattleScript_CantMakeAsleep + 0x8
 		CantMakeAsleep = {
 			{ 0x081d6fe8, 0x081d7000, 0x081d7000 },
@@ -1001,7 +1023,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = Constants.Files.PostFixes.AUTOSAVE .. Constants.Files.Extensions.TRACKED_DATA
+	local filenameEnding = FileManager.PostFixes.AUTOSAVE .. FileManager.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding

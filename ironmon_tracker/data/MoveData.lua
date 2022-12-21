@@ -2,12 +2,19 @@ MoveData = {
 	totalMoves = 354,
 }
 
+MoveData.IsRand = {
+	moveType = false,
+	movePower = false,
+	moveAccuracy = false,
+	movePP = false,
+}
+
 -- Move categories identify the type of attack a move is: physical, special, or status
 MoveData.Categories = {
-	NONE = 0,
-	PHYSICAL = 1,
-	SPECIAL = 2,
-	STATUS = 3,
+	NONE = "None",
+	PHYSICAL = "Physical",
+	SPECIAL = "Special",
+	STATUS = "Status",
 }
 
 --List of pokemon types used to cycle through types when the Hidden Power button is clicked
@@ -75,26 +82,13 @@ MoveData.TypeToEffectiveness = {
 
 -- Is true when a Status move fails/doesn't work against a checked move type
 MoveData.StatusMovesWillFail = {
-	["73"] = { [PokemonData.Types.GRASS] = true }, -- Leech Seed
-	["77"] = { [PokemonData.Types.STEEL] = true }, -- PoisonPowder
-	["86"] = { [PokemonData.Types.GROUND] = true }, -- Thunder Wave
-	["92"] = { [PokemonData.Types.STEEL] = true }, -- Toxic
-	["137"] = { [PokemonData.Types.GHOST] = true }, -- Glare
-	["139"] = { [PokemonData.Types.STEEL] = true }, -- Poison Gas
-	["261"] = { [PokemonData.Types.FIRE] = true }, -- Will-O-Wisp
-}
-
-MoveData.BlankMove = {
-	id = "0",
-	name = Constants.BLANKLINE,
-	type = PokemonData.Types.UNKNOWN,
-	power = "0",
-	pp = "0",
-	accuracy = "0",
-	category = MoveData.Categories.NONE,
-	iscontact = false,
-	priority = "0",
-	summary = "",
+	["73"] = { [PokemonData.Types.GRASS] = true, }, -- Leech Seed
+	["77"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- PoisonPowder
+	["86"] = { [PokemonData.Types.GROUND] = true, }, -- Thunder Wave
+	["92"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Toxic
+	["137"] = { [PokemonData.Types.GHOST] = true, }, -- Glare
+	["139"] = { [PokemonData.Types.STEEL] = true, [PokemonData.Types.POISON] = true, }, -- Poison Gas
+	["261"] = { [PokemonData.Types.FIRE] = true, }, -- Will-O-Wisp
 }
 
 MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected by STAB)
@@ -103,18 +97,11 @@ MoveData.IsTypelessMove = { -- Moves which inflict typeless damage (unaffected b
 	["353"] = true, -- Doom Desire
 }
 
-MoveData.IsRand = {
-	moveType = false,
-	movePower = false,
-	moveAccuracy = false,
-	movePP = false,
-}
-
--- Reads the Move's type, power, accuracy, and pp
-function MoveData.readDataFromMemory()
+function MoveData.initialize()
+	-- Reads the Move's type, power, accuracy, and pp
 	-- If any data at all was randomized, read in full move data from memory
 	if MoveData.checkIfDataIsRandomized() then
-		print("Randomized move data detected, reading from game memory...")
+		-- print("Randomized move data detected, reading from game memory...")
 		for moveId=1, MoveData.totalMoves, 1 do
 			local moveData = MoveData.Moves[moveId]
 
@@ -147,7 +134,7 @@ function MoveData.readDataFromMemory()
 		if MoveData.IsRand.movePP then
 			datalog = datalog .. "PP, "
 		end
-		print(datalog:sub(1, -3)) -- Remove trailing ", "
+		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 
@@ -212,6 +199,19 @@ end
 function MoveData.isValid(moveId)
 	return moveId ~= nil and moveId >= 1 and moveId <= MoveData.totalMoves
 end
+
+MoveData.BlankMove = {
+	id = "0",
+	name = Constants.BLANKLINE,
+	type = PokemonData.Types.UNKNOWN,
+	power = "0",
+	pp = "0",
+	accuracy = "0",
+	category = MoveData.Categories.NONE,
+	iscontact = false,
+	priority = "0",
+	summary = "",
+}
 
 --[[
 The various Pokémon moves (Gen 3)
@@ -1168,7 +1168,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "30",
 		category = MoveData.Categories.PHYSICAL,
-		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokemon using Dig.",
+		summary = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit " .. Constants.Words.POKEMON .. " using Dig.",
 	},
 	{
 		id = "91",
@@ -2453,7 +2453,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "0",
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all major status conditions. Fails against " .. Constants.Words.POKEMON .. " with Soundproof.",
 	},
 	{
 		id = "216",
@@ -2952,7 +2952,7 @@ MoveData.Moves = {
 		accuracy = "100",
 		category = MoveData.Categories.PHYSICAL,
 		iscontact = true,
-		summary = "Power doubles if the user is poisoned, paralyzed, or burned.",
+		summary = "Power doubles if the user is poisoned, paralyzed, or burned. The burn's effect of halving the damage done is still applied.",
 	},
 	{
 		id = "264",
@@ -3037,7 +3037,7 @@ MoveData.Moves = {
 		pp = "10",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Switches held items with the target. This move fails if neither " .. Constants.Words.POKEMON .. " are holding an item, or in a battle with a wild Pokemon.",
+		summary = "Switches held items with the target. Fails if used by a wild " .. Constants.Words.POKEMON .. ", or if both " .. Constants.Words.POKEMON .. " don't have items, or against a Substitute.",
 	},
 	{
 		id = "272",
@@ -3464,7 +3464,7 @@ MoveData.Moves = {
 		pp = "5",
 		accuracy = "0",
 		category = MoveData.Categories.STATUS,
-		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all status conditions.",
+		summary = "Cures all " .. Constants.Words.POKEMON .. " in the user's party of all major status conditions.",
 	},
 	{
 		id = "313",

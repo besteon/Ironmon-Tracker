@@ -51,13 +51,14 @@ UpdateScreen.Buttons = {
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
 		onClick = function()
-			if Main.OS == "Windows" then
-				UpdateScreen.performAutoUpdate()
-			else
-				-- Auto-update currently only works on Windows. For non-Windows, open a browser window with a link for manual download...
+			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+			if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+				-- In such a case, open a browser window with a link for manual download...
 				UpdateScreen.openReleaseNotesWindow()
 				-- ... and swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 				UpdateScreen.remindMeLater()
+			else
+				UpdateScreen.performAutoUpdate()
 			end
 		end
 	},
@@ -137,7 +138,8 @@ function UpdateScreen.initialize()
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
 	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
-	if Main.OS ~= "Windows" then
+	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
 		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
 	end
 end
@@ -146,74 +148,33 @@ function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	-- Disable Bizhawk sound while the update is in process
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		-- Disable Bizhawk sound while the update is in process
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
+		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
+	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 		Tracker.saveData()
 	end
 
-	gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-	emu.frameadvance() -- Required to allow the redraw to occur before batch commands begin
+	if UpdateOrInstall.performParallelUpdate() then
+		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
+		Main.Version.showUpdate = false
+		Main.SaveSettings(true)
+	else
+		UpdateScreen.currentState = UpdateScreen.States.ERROR
+	end
 
-	-- Execute the batch set of operations
-	local success = UpdateScreen.executeBatchOperations()
-	UpdateScreen.currentState = Utils.inlineIf(success, UpdateScreen.States.SUCCESS, UpdateScreen.States.ERROR)
-	Program.redraw(true)
-
-	if client.GetSoundOn() ~= wasSoundOn then
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)
 	end
 
-	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
-		Main.Version.showUpdate = false
-		Main.SaveSettings(true)
-	end
-end
-
-function UpdateScreen.executeBatchOperations()
-	-- For non-Windows OS, likely need to use something other than a .bat file
-	if Main.OS ~= "Windows" then
-		return false
-	end
-
-	-- Temp Files/Folders used by batch operations
-	local archiveName = "Ironmon-Tracker-main.tar.gz"
-	local folderName = "Ironmon-Tracker-main"
-
-	-- Each individual command listed in order, to be appended together later
-	local batchCommands = {
-		'(echo Downloading the latest Ironmon Tracker version.',
-		string.format('curl -L "%s" -o "%s" --ssl-no-revoke', Constants.Release.TAR_URL, archiveName),
-		'echo; && echo Extracting downloaded files.', -- "echo;" prints a new line
-		string.format('tar -xf "%s" && del "%s"', archiveName, archiveName),
-		'echo; && echo Applying the update; copying over files.',
-		string.format('rmdir "%s\\.vscode" /s /q', folderName),
-		string.format('rmdir "%s\\ironmon_tracker\\Debug" /s /q', folderName),
-		string.format('del "%s\\.editorconfig" /q', folderName),
-		string.format('del "%s\\.gitattributes" /q', folderName),
-		string.format('del "%s\\.gitignore" /q', folderName),
-		string.format('del "%s\\README.md" /q', folderName),
-		string.format('xcopy "%s" /s /y /q', folderName),
-		string.format('rmdir "%s" /s /q', folderName),
-		'echo; && echo Version update completed successfully.',
-		'timeout /t 3) || pause', -- Pause if any of the commands fail, those grouped between ( )
-	}
-
-	local combined_cmd = table.concat(batchCommands, ' && ')
-
-	print(string.format("Performing version update to %s", Main.Version.latestAvailable))
-
-	local result = os.execute(combined_cmd)
-	if result ~= 0 then -- 0 = successful
-		print("Update-Error: Unable to download, extract, or overwrite files in Tracker folder.")
-		return false
-	end
-
-	print("Update completed successfully.")
-	return true
+	Program.redraw(true)
 end
 
 function UpdateScreen.remindMeLater()
@@ -233,14 +194,29 @@ function UpdateScreen.ignoreTheUpdate()
 end
 
 function UpdateScreen.openReleaseNotesWindow()
-	-- The first parameter is the title of the window, the second is the url
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+	end
+
 	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
+		-- The first parameter is the title of the window, the second is the url
+		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
 	else
-		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
-		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-		print(string.format("Release Notes: %s", Constants.Release.DOWNLOAD_URL))
+		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
+		local success = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX
+		if not success then
+			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.DOWNLOAD)) -- Linux
+			if not success then
+				Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
+				print(string.format("> Release Notes: %s", FileManager.Urls.DOWNLOAD))
+			end
+		end
+	end
+
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 
