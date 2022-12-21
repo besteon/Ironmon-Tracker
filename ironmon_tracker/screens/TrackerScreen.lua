@@ -312,7 +312,7 @@ function TrackerScreen.initialize()
 			onClick = function(self)
 				if not self:isVisible() then return end
 
-				self.statState = ((self.statState + 1) % 3)
+				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.text = Constants.STAT_STATES[self.statState].text
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 

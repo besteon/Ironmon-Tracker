@@ -223,8 +223,8 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
-			if button.text == Constants.STAT_STATES[2].text then
-				y = y - 1 -- Move up the negative stat mark 1px
+			if button.text == Constants.STAT_STATES[2].text or button.text == Constants.STAT_STATES[3].text then
+				y = y - 1 -- Move up the negative/neutral stat mark 1px
 			end
 			Drawing.drawText(x, y - 1, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
