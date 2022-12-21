@@ -22,9 +22,9 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
 
 For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
 
-The following games/languages are currently supported:
+Currently supported Pokémon games / languages:
 
-| Version  | Pokémon Ruby | Pokémon Sapphire | Pokémon Emerald | Pokémon FireRed | Pokémon LeafGreen |
+| Version  | Ruby | Sapphire | Emerald | FireRed | LeafGreen |
 | :------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
 | English  | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
 | Spanish  | ❌ | ❌ | ❌ | ✔️ | ❌ |
@@ -33,7 +33,7 @@ The following games/languages are currently supported:
 | German   | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | Japanese | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-We'd ideally like to support all non-English versions if we can, see [here](https://github.com/besteon/Ironmon-Tracker/issues/62) for progress updates if you're curious.
+We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
 
 ## Installation
 
@@ -70,7 +70,7 @@ If you're planning to implement a new feature, we'd ask that you either open a f
 
 Generally, we try to avoid revealing too much information that a player can't gather themself in-game in some way. For example, we *won't* show a Pokémon's EVs and IVs directly as you don't get that information in the games. We also like to try and make toggleable options for certain features for those that would rather have them disabled.
 
-Additionally, if the feature involves a UI element on the tracker screen, we want to make it as clear and simple to use as we can. There's limited space on the tracker screens so we also want to avoid cramming too many things in. When it comes to displaying something on the tracker we want to make it clear to both users and potential stream viewers.
+Additionally, if the feature involves a UI element on the tracker screen, we want to make it as clear and simple to use as we can. There's limited space on the tracker screens so we also want to avoid cramming too many things in or extending the current size of the tracker (as this would mess with many people's stream layouts).
 
 ### Development Set-Up
 
@@ -79,19 +79,28 @@ There are a couple of VS Code extensions which we recommend, which should automa
 - [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig): To help with consistent formatting.
 - [vscode-lua](https://marketplace.visualstudio.com/items?itemName=trixnz.vscode-lua): Provides intellisense and linting for Lua.
 
-Bizhawk currently uses Lua 5.1, and provides some additional [Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions) which allow for communicating with and drawing on the emulator.
+Lua Versions:
+- Bizhawk 2.8 uses Lua 5.1, this is the version currently set in our `.vscode/settings.json` file for linting.
+- Bizhawk 2.9 and mGBA use Lua 5.4
+   - Since we intend to still support Bizhawk 2.8 the code must be compatible with both Lua 5.1 and 5.4
+
+Emu-specific Lua documentation:
+- [Bizhawk Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions)
+- [mGBA Scripting API](https://mgba.io/docs/scripting.html)
 
 ### Branches and Processes
 
-The Ironmon-Tracker main repository has three branches:
+The primary branches of the Ironmon-Tracker repository are as follows:
 
 - Main: This is kept in a state of the latest release. We merge into this branch from staging when we are ready to do the final checks and make a new release.
-- Staging: This is essentially the "beta" build of the next release, where the majority of contributions merge into. If you are contributing a feature we'd ask that you make your Pull request to this branch.
-- Bugfixes: As the name implies, this branch is for any quick/minor bugfixes. It regularly gets updated to match and pull fixes into the staging branch. If your contribution is a bugfix of some sort, we'd recommend making the Pull request to this branch.
+- Staging: This is essentially the "beta" build of the next release, where the majority of contributions merge into.
+- Bugfixes: This branch is for any quick/minor bugfixes. It regularly gets updated to match and pull fixes into the staging branch.
 
-The workflow we'd recommend for contributing is as follows:
+**Make your PRs to either Staging or Bugfixes, whichever is more fitting for the contribution.**
+
+The workflow we'd recommend for contributing:
 
 1. Create a fork of the repository.
 2. Create a branch on your local fork for your new feature/contribution. Make your commits to this branch.
-3. When you are ready to send it to us for review, open a Pull Request back to the main repository. Request to merge into either Staging or Bugfixes depending on what the contribution is (see above).
+3. When you are ready to send it to us for review, open a Pull Request back to this repository. Request to merge into either Staging or Bugfixes depending on what the contribution is (see above).
 4. We'll review the Pull Request and decide whether it needs some changes / more work or if we're happy to merge it in.

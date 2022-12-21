@@ -9,11 +9,11 @@ AutoUpdater = {
 	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
-	Dev = {
+	Dev = { -- Beta testers can have this enabled to receive live updates from STAGING branch
 		enabled = false, -- Verify this remains "false" for main release
-		TAR_URL = "",
-		archiveName = "",
-		archiveFolder = "",
+		TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/staging.tar.gz",
+		archiveName = "Ironmon-Tracker-staging.tar.gz",
+		archiveFolder = "Ironmon-Tracker-staging",
 	},
 	Messages = {
 		step1 = "Step 1: Downloading release and extracting files...",
