@@ -153,6 +153,25 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
+	MovesHistory = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "",
+		textColor = "Intermediate text", -- set later after highlight color is calculated
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 77, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 69, 81, 10, 10 },
+		boxColors = { "Header text", "Main background" },
+		isVisible = function()
+			local viewedPokemon = Tracker.getViewedPokemon()
+			return viewedPokemon ~= nil and PokemonData.isValid(viewedPokemon.pokemonID)
+		end,
+		onClick = function(self)
+			local viewedPokemon = Tracker.getViewedPokemon()
+			if viewedPokemon ~= nil and MoveHistoryScreen.buildOutHistory(viewedPokemon.pokemonID, viewedPokemon.level) then
+				Program.changeScreenView(Program.Screens.MOVE_HISTORY)
+			end
+		end
+	},
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
@@ -353,14 +372,14 @@ function TrackerScreen.initialize()
 	end
 
 	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
-	TrackerScreen.getNextMoveLevelHighlight(true)
+	TrackerScreen.setNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
 
 	TrackerScreen.randomlyChooseBall()
 end
 
 -- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
-function TrackerScreen.getNextMoveLevelHighlight(forced)
+function TrackerScreen.setNextMoveLevelHighlight(forced)
 	if not forced and not Theme.settingsUpdated then return end
 	local mainBGColor = Theme.COLORS["Main background"]
 	local maxContrast = 0
@@ -374,7 +393,10 @@ function TrackerScreen.getNextMoveLevelHighlight(forced)
 			end
 		end
 	end
-	TrackerScreen.nextMoveLevelHighlight =  Theme.COLORS[colorKey]
+	TrackerScreen.nextMoveLevelHighlight = Theme.COLORS[colorKey]
+
+	-- Update any buttons with new color
+	TrackerScreen.Buttons.MovesHistory.textColor = colorKey
 end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data

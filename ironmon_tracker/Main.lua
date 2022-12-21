@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "18" }
+Main.Version = { major = "7", minor = "0", patch = "20" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -275,6 +275,7 @@ function Main.InitializeAllTrackerFiles()
 	GameOptionsScreen.initialize()
 	TrackedDataScreen.initialize()
 	StatsScreen.initialize()
+	MoveHistoryScreen.initialize()
 end
 
 -- Determines if there is an update to the current Tracker version

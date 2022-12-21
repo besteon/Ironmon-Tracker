@@ -1,5 +1,6 @@
 Program = {
 	currentScreen = 1,
+	previousScreens = {}, -- breadcrumbs for clicking the Back button
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
@@ -34,6 +35,7 @@ Program.Screens = {
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
+	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -132,7 +134,19 @@ function Program.redraw(forced)
 end
 
 function Program.changeScreenView(screen)
+	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
 	Program.currentScreen = screen
+	Program.redraw(true)
+end
+
+-- TODO: Currently unused, implement later
+function Program.goBackToPreviousScreen()
+	Utils.printDebug("DEBUG: From %s previous screens.", #Program.previousScreens)
+	if #Program.previousScreens == 0 then
+		Program.currentScreen = Program.Screens.TRACKER
+	else
+		Program.currentScreen = table.remove(Program.previousScreens)
+	end
 	Program.redraw(true)
 end
 
@@ -183,6 +197,12 @@ function Program.update()
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
 				end
+			end
+
+			-- Check if a Pokemon in the player's party is learning a move, if so track it
+			local learnedInfoTable = Program.getLearnedMoveInfoTable()
+			if learnedInfoTable.pokemonID ~= nil then
+				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
 			end
 
 			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
@@ -270,6 +290,7 @@ function Program.updatePokemonTeams()
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
+		local previousPersonality = Tracker.Data.ownTeam[i]
 		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
@@ -296,6 +317,13 @@ function Program.updatePokemonTeams()
 				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+
+				-- If this is a newly caught Pokémon, track all of its moves. Can't do this later cause TMs/HMs
+				if previousPersonality == 0 then
+					for _, move in ipairs(newPokemonData.moves) do
+						Tracker.TrackMove(newPokemonData.pokemonID, move.id, newPokemonData.level)
+					end
+				end
 			end
 		end
 
@@ -515,16 +543,43 @@ function Program.HandleExit()
 	forms.destroyall()
 end
 
-function Program.getLearnedMoveId()
+-- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
+function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
 	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
-		return moveToLearnId
-	else
-		return nil
+
+		local battleStructAddress
+		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
+			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
+		else
+			battleStructAddress = 0x02000000 -- gSharedMem
+		end
+
+		local partyIndex = Memory.readbyte(battleStructAddress + 0x10) + 1 -- expGetterMonId: Party index of player (1-6)
+		local pokemon = Tracker.getPokemon(partyIndex, true)
+		if pokemon ~= nil then
+			return {
+				pokemonID = pokemon.pokemonID,
+				level = pokemon.level,
+				moveId = moveToLearnId,
+			}
+		end
+
+		return {
+			pokemonID = nil,
+			level = nil,
+			moveId = moveToLearnId,
+		}
 	end
+
+	return {
+		pokemonID = nil,
+		level = nil,
+		moveId = nil,
+	}
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)

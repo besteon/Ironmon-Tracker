@@ -72,6 +72,10 @@ function Battle.update()
 	end
 
 	if not Battle.inBattle then
+		-- For cases when closing the Tracker mid battle and loading it after battle
+		if not Tracker.Data.isViewingOwn then
+			Tracker.Data.isViewingOwn = true
+		end
 		return
 	end
 
@@ -564,6 +568,8 @@ function Battle.beginNewBattle()
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
+	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
+		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -632,6 +638,8 @@ function Battle.endCurrentBattle()
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
+		Program.currentScreen = Program.Screens.TRACKER
+	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Program.currentScreen = Program.Screens.TRACKER
 	end
 

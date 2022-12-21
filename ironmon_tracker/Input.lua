@@ -189,6 +189,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Input.checkButtonsClicked(xmouse, ymouse, TrackedDataScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.STATS then
 		Input.checkButtonsClicked(xmouse, ymouse, StatsScreen.Buttons)
+	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
@@ -196,9 +199,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 	if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
 		-- Only lookup/show move if not editing settings
 		if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
-			local moveId = Program.getLearnedMoveId()
-			if moveId ~= nil then
-				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveId)
+			local learnedInfoTable = Program.getLearnedMoveInfoTable()
+			if learnedInfoTable.moveId ~= nil then
+				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
 			end
 		end
 	end
