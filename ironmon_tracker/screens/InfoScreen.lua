@@ -601,7 +601,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 	for i, moveLvl in ipairs(data.p.movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
-		local nextBoxX = ((i - 1) % 8) * boxWidth-- 8 possible columns
+		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
 		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
 		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
 

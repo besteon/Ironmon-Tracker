@@ -1,9 +1,9 @@
 MoveHistoryScreen = {
 	Labels = {
-		headerMoves = "Moves used",
-		headerLevelSeen = "Level seen:",
+		headerMoves = "Move used at level:",
 		headerMin = "Min",
 		headerMax = "Max",
+		noTrackedMoves = "(No tracked move data yet)",
 		pageFormat = "Page %s/%s" -- Page 1/3
 	},
 	Colors = {
@@ -18,7 +18,7 @@ MoveHistoryScreen = {
 MoveHistoryScreen.Pagination = {
 	currentPage = 0,
 	totalPages = 0,
-	itemsPerPage = 9,
+	itemsPerPage = 7,
 	getPageText = function(self)
 		if self.totalPages <= 1 then return "Page" end
 		return string.format(MoveHistoryScreen.Labels.pageFormat, self.currentPage, self.totalPages)
@@ -129,8 +129,8 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 	table.sort(MoveHistoryScreen.TemporaryButtons, sortFunc)
 
 	-- After sorting the moves, determine which are visible on which page, and where on the page vertically
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 13
-	local startY = Constants.SCREEN.MARGIN + 33
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12
+	local startY = Constants.SCREEN.MARGIN + 55
 	local linespacing = Constants.SCREEN.LINESPACING + 0
 
 	for index, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
@@ -208,28 +208,81 @@ function MoveHistoryScreen.drawScreen()
 		Drawing.drawText(topboxX + 2, topboxY + 2, pokemonName, shadowcolor, nil, 12, Constants.Font.FAMILY, "bold")
 	end
 	Drawing.drawText(topboxX + 1, topboxY + 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], nil, 12, Constants.Font.FAMILY, "bold")
-	topboxY = topboxY + Constants.SCREEN.LINESPACING + 11
+	topboxY = topboxY + Constants.SCREEN.LINESPACING + 4
+
+	MoveHistoryScreen.drawMovesLearnedBoxes(topboxX + 1, topboxY + 1)
+	topboxY = topboxY + Constants.SCREEN.LINESPACING * 2 + 8
 
 	-- Draw all moves in the tracked move history
 	local offsetX = topboxX + 13
-	Drawing.drawText(offsetX + 71, topboxY - 9, MoveHistoryScreen.Labels.headerLevelSeen, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
-	Drawing.drawText(offsetX, topboxY, MoveHistoryScreen.Labels.headerMoves, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
-	Drawing.drawText(offsetX + 71, topboxY, MoveHistoryScreen.Labels.headerMin, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
-	Drawing.drawText(offsetX + 97, topboxY, MoveHistoryScreen.Labels.headerMax, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	local minColX, maxColX = 74, 99
+	Drawing.drawText(offsetX - 8, topboxY, MoveHistoryScreen.Labels.headerMoves, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	Drawing.drawText(offsetX + minColX, topboxY, MoveHistoryScreen.Labels.headerMin, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	Drawing.drawText(offsetX + maxColX, topboxY, MoveHistoryScreen.Labels.headerMax, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING
 
-	for _, button in pairs(MoveHistoryScreen.TemporaryButtons) do
+	for _, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
 		if button:isVisible() then
 			local minLvTxt = button.trackedMove.minLv or button.trackedMove.level
 			local maxLvTxt = button.trackedMove.maxLv or button.trackedMove.level
 			Drawing.drawText(button.box[1], button.box[2], button.text, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + 71, button.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + 97, button.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+			Drawing.drawNumber(button.box[1] + minColX + 3, button.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+			Drawing.drawNumber(button.box[1] + maxColX + 3, button.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 		end
+	end
+
+	if #MoveHistoryScreen.TemporaryButtons == 0 then
+		Drawing.drawText(offsetX, topboxY + 5, MoveHistoryScreen.Labels.noTrackedMoves, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	end
 
 	-- Draw all buttons
 	for _, button in pairs(MoveHistoryScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
+end
+
+function MoveHistoryScreen.drawMovesLearnedBoxes(offsetX, offsetY)
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
+
+	local pokemon = PokemonData.Pokemon[MoveHistoryScreen.pokemonID]
+	local movelvls = pokemon.movelvls[GameSettings.versiongroup]
+
+	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
+	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local viewedPokemonLevel
+	if pokemonViewed.pokemonID == pokemon.pokemonID then
+		viewedPokemonLevel = pokemonViewed.level
+	else
+		viewedPokemonLevel = 0
+	end
+
+	local boxWidth = 16
+	local boxHeight = 13
+	if #movelvls == 0 then -- If the Pokemon learns no moves at all
+		Drawing.drawText(offsetX + 6, offsetY, "Does not learn any moves", Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+	end
+	for i, moveLvl in ipairs(movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
+		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
+		local nextBoxY = Utils.inlineIf(i <= 8, 0, 1) * boxHeight -- 2 possible rows
+		local lvlSpacing = (2 - string.len(tostring(moveLvl))) * 3
+
+		-- Draw the level box
+		gui.drawRectangle(offsetX + nextBoxX + 5 + 1, offsetY + nextBoxY + 2, boxWidth, boxHeight, shadowcolor, shadowcolor)
+		gui.drawRectangle(offsetX + nextBoxX + 5, offsetY + nextBoxY + 1, boxWidth, boxHeight, Theme.COLORS[MoveHistoryScreen.Colors.border], Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
+
+		-- Indicate which moves have already been learned if the Pokemon being viewed is one of the ones in battle (yours/enemy)
+		local nextBoxTextColor
+		if viewedPokemonLevel == 0 then
+			nextBoxTextColor = Theme.COLORS[MoveHistoryScreen.Colors.text]
+		elseif moveLvl <= viewedPokemonLevel then
+			nextBoxTextColor = Theme.COLORS["Negative text"]
+		else
+			nextBoxTextColor = Theme.COLORS["Positive text"]
+		end
+
+		-- Draw the level inside the box
+		Drawing.drawText(offsetX + nextBoxX + 7 + lvlSpacing, offsetY + nextBoxY + 2, moveLvl, nextBoxTextColor, shadowcolor)
+	end
+
+	return Utils.inlineIf(#movelvls <= 8, 1, 2) -- return number of lines drawn
 end
