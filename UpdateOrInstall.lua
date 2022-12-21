@@ -26,7 +26,7 @@ UpdateOrInstall.Messages = {
 	step3 = "Step 3: Verifying update... Auto-update successful!",
 	confirmFreshInstall = "Would you like to download and INSTALL the Tracker?",
 	confirmUpdate = "Would you like to download and UPDATE the Tracker?",
-	confirmYesNo = "To confirm: please type YES() or NO() in the scripting box below:",
+	confirmYesNo = "To confirm, please type YES() or NO() in the scripting box below:",
 	closeAndReopen = string.format('Please restart your emulator and load the main "%s" script.', UpdateOrInstall.trackerFileName),
 }
 
@@ -282,10 +282,15 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', tarUrl, archive),
 			'echo',
 			string.format('echo %s', messages.extracting),
-			string.format('mkdir -p "%s"', extractedFolder),
-			string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir), --extractedFolder), -- unsure which is correct, might be specific to dev
-			string.format('rm -rf "%s"', archive),
 		}
+		if IronmonTracker.isOnBizhawk then -- Required because Bizhawk doesn't use absolute paths
+			table.insert(batchCommands, string.format('tar -xzf "%s" --overwrite', archive))
+		else
+			table.insert(batchCommands, string.format('mkdir -p "%s"', extractedFolder))
+			table.insert(batchCommands, string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir))
+		end
+		table.insert(batchCommands, string.format('rm -rf "%s"', archive))
+
 		for _, folder in ipairs(foldersToRemove) do
 			table.insert(batchCommands, string.format('rm -rf "%s"', folder))
 		end
@@ -334,10 +339,16 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		}
 		pauseCommand = string.format("echo; && echo %s && echo %s && pause && exit /b 6", messages.error1, messages.error2)
 	else
+		local destinationFolder
+		if IronmonTracker.isOnBizhawk then
+			destinationFolder = "." -- current directory
+		else
+			destinationFolder = IronmonTracker.workingDir
+		end
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
 			string.format('echo %s', messages.updating),
-			string.format('cp -fr "%s" "%s"', extractedFolder .. UpdateOrInstall.slash .. ".", IronmonTracker.workingDir),
+			string.format('cp -fr "%s" "%s"', extractedFolder .. UpdateOrInstall.slash .. ".", destinationFolder),
 			string.format('rm -rf "%s"', extractedFolder),
 			'echo',
 			string.format('echo %s', messages.completed),
