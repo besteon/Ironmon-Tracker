@@ -34,6 +34,7 @@ MiscData.StatusType = {
 }
 
 MiscData.StatusCodeMap = {
+	[MiscData.StatusType.None] = "",
 	[MiscData.StatusType.Burn] = "BRN",
 	[MiscData.StatusType.Freeze] = "FRZ",
 	[MiscData.StatusType.Paralyze] = "PAR",

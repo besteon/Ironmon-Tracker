@@ -3,22 +3,6 @@ Constants = {}
 Constants.BLANKLINE = "---"
 Constants.HIDDEN_INFO = "?"
 
-Constants.Files = {
-	SETTINGS = "Settings.ini",
-	THEME_PRESETS = "ThemePresets.txt",
-	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
-	PostFixes = {
-		ATTEMPTS_FILE = "Attempts.txt",
-		AUTORANDOMIZED = "AutoRandomized",
-		PREVIOUSATTEMPT = "PreviousAttempt",
-		AUTOSAVE = "AutoSave",
-	},
-	Extensions = {
-		GBA_ROM = ".gba",
-		TRACKED_DATA = ".tdat",
-	}
-}
-
 Constants.SCREEN = {
 	HEIGHT = 160,
 	WIDTH = 240,
@@ -35,18 +19,6 @@ Constants.Font = {
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
 
-Constants.Words = {
-	POKEMON = "Pok\233mon",
-	POKE = "Pok\233",
-}
-
-Constants.Release = {
-	VERSION_URL = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
-	DOWNLOAD_URL = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
-	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
-	WIKI_URL = "https://github.com/besteon/Ironmon-Tracker/wiki",
-}
-
 Constants.ButtonTypes = {
 	FULL_BORDER = 1,
 	NO_BORDER = 2,
@@ -59,7 +31,7 @@ Constants.ButtonTypes = {
 }
 
 Constants.STAT_STATES = {
-	[0] = { text = "", textColor = "Default text" },
+	[0] = { text = " ", textColor = "Default text" },
 	[1] = { text = "+", textColor = "Positive text" },
 	[2] = { text = "--", textColor = "Negative text" },
 }
@@ -99,7 +71,7 @@ Constants.GAME_STATS = { -- Enums for in-game stats
 	RESTED_AT_HOME = 16,
 	USED_ROCK_SMASH = 19,
 	USED_STRUGGLE = 27, -- Total number of times the player has had to use Struggle
-	SHOPPED = 38, -- Total number of items purchased from a shop
+	SHOPPED = 38, -- Total number of bulk purchases made from a shop (# individual interactions with an npc)
 }
 
 Constants.PreloadedThemes = {
@@ -186,17 +158,11 @@ Constants.OrderedLists = {
 		"USS Galactic",
 		"Cozy Fall Leaves",
 	},
-	TIPS = { -- currently disabled, may use later
-		"Helpful tips are shown down here.", -- Skipped after it's shown once
-		"Tracked data is auto-saved after every battle.",
-		"Switch " .. Constants.Words.POKEMON .. " views by pressing the 'Start' button.", -- referenced by Options.initialize()
-		"Click on any " .. Constants.Words.POKEMON .. " or move to learn more about it.",
-	},
 }
 
 Constants.PixelImages = {
 	BLANK = { { 0 } }, -- Helpful for padding out certain buttons
-	GEAR = {
+	GEAR = { -- 8x8
 		{0,0,0,1,1,0,0,0},
 		{0,1,1,1,1,1,1,0},
 		{0,1,1,1,1,1,1,0},
@@ -206,7 +172,7 @@ Constants.PixelImages = {
 		{0,1,1,1,1,1,1,0},
 		{0,0,0,1,1,0,0,0},
 	},
-	PHYSICAL = {
+	PHYSICAL = { -- 7x7
 		{1,0,0,1,0,0,1},
 		{0,1,0,1,0,1,0},
 		{0,0,1,1,1,0,0},
@@ -215,7 +181,7 @@ Constants.PixelImages = {
 		{0,1,0,1,0,1,0},
 		{1,0,0,1,0,0,1},
 	},
-	SPECIAL = {
+	SPECIAL = { -- 7x7
 		{0,0,1,1,1,0,0},
 		{0,1,0,0,0,1,0},
 		{1,0,0,1,0,0,1},
@@ -224,7 +190,7 @@ Constants.PixelImages = {
 		{0,1,0,0,0,1,0},
 		{0,0,1,1,1,0,0},
 	},
-	NOTEPAD = {
+	NOTEPAD = { -- 11x11
 		{0,0,0,0,0,0,0,0,0,1,1},
 		{0,0,0,0,0,0,0,0,1,0,1},
 		{1,1,1,1,1,1,1,1,1,1,0},
@@ -237,7 +203,7 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,1,0,0},
 		{1,1,1,1,1,1,1,1,1,0,0},
 	},
-	MAGNIFYING_GLASS = {
+	MAGNIFYING_GLASS = { -- 10x10
 		{0,0,1,1,1,0,0,0,0,0},
 		{0,1,0,0,0,1,0,0,0,0},
 		{1,0,0,0,0,0,1,0,0,0},
@@ -249,7 +215,7 @@ Constants.PixelImages = {
 		{0,0,0,0,0,0,0,1,1,1},
 		{0,0,0,0,0,0,0,0,1,1},
 	},
-	CLOCK = {
+	CLOCK = { -- 10x10
 		{0,0,1,1,1,1,1,1,0,0},
 		{0,1,0,0,0,0,0,0,1,0},
 		{1,0,0,0,1,0,0,0,0,1},
@@ -261,7 +227,7 @@ Constants.PixelImages = {
 		{0,1,0,0,0,0,0,0,1,0},
 		{0,0,1,1,1,1,1,1,0,0},
 	},
-	INSTALL_BOX = {
+	INSTALL_BOX = { -- 9x9
 		{0,0,0,0,1,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0},
 		{0,0,0,0,1,0,0,0,0},
@@ -272,7 +238,7 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,1},
 		{1,1,1,1,1,1,1,1,1},
 	},
-	PREVIOUS_BUTTON = {
+	PREVIOUS_BUTTON = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,0,0},
 		{0,0,1,1,0,0,0,0,0,0},
@@ -284,7 +250,7 @@ Constants.PixelImages = {
 		{0,0,0,1,1,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0},
 	},
-	NEXT_BUTTON = {
+	NEXT_BUTTON = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,1,1,0,0,0},
 		{0,0,0,0,0,0,1,1,0,0},
@@ -296,7 +262,7 @@ Constants.PixelImages = {
 		{0,0,0,0,0,1,1,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0},
 	},
-	DOWN_ARROW = {
+	DOWN_ARROW = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,1,1,0,0,0,0},
 		{0,0,0,0,1,1,0,0,0,0},
@@ -308,7 +274,7 @@ Constants.PixelImages = {
 		{0,0,0,1,1,1,1,0,0,0},
 		{0,0,0,0,1,1,0,0,0,0},
 	},
-	MAP_PINDROP = {
+	MAP_PINDROP = { -- 8x12
 		{0,0,1,1,1,1,0,0},
 		{0,1,1,1,1,1,1,0},
 		{1,1,1,0,0,1,1,1},
@@ -322,7 +288,7 @@ Constants.PixelImages = {
 		{0,0,0,1,1,0,0,0},
 		{0,0,0,1,1,0,0,0},
 	},
-	SWORD_ATTACK = {
+	SWORD_ATTACK = { -- 14x13
 		{0,0,0,0,0,0,0,0,0,0,0,1,1,0},
 		{0,0,0,0,0,0,0,0,0,0,1,0,1,0},
 		{0,0,0,0,0,0,0,0,0,1,0,1,1,0},
@@ -337,7 +303,7 @@ Constants.PixelImages = {
 		{1,0,1,0,1,1,0,0,0,0,0,0,0,0},
 		{1,1,0,0,0,1,1,0,0,0,0,0,0,0},
 	},
-	CHECKMARK = {
+	CHECKMARK = { -- 12x11
 		{0,0,0,0,0,0,0,0,0,0,1,1},
 		{0,0,0,0,0,0,0,0,0,1,1,1},
 		{0,0,0,0,0,0,0,0,1,1,1,0},
@@ -350,7 +316,7 @@ Constants.PixelImages = {
 		{0,0,1,1,1,1,0,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,0,0,0,0},
 	},
-	CROSS = {
+	CROSS = { -- 11x11
 		{1,1,0,0,0,0,0,0,0,1,1},
 		{1,1,1,0,0,0,0,0,1,1,1},
 		{0,1,1,1,0,0,0,1,1,1,0},
@@ -363,7 +329,7 @@ Constants.PixelImages = {
 		{1,1,1,0,0,0,0,0,1,1,1},
 		{1,1,0,0,0,0,0,0,0,1,1},
 	},
-	POKEBALL = {
+	POKEBALL = { -- 12x12
 		{0,0,0,0,1,1,1,1,0,0,0,0},
 		{0,0,1,1,2,2,2,2,1,1,0,0},
 		{0,1,2,2,2,3,2,2,2,2,1,0},
@@ -377,7 +343,7 @@ Constants.PixelImages = {
 		{0,0,1,1,3,3,3,3,1,1,0,0},
 		{0,0,0,0,1,1,1,1,0,0,0,0},
 	},
-	DICE = {
+	DICE = { -- 13x14
 		{0,0,0,0,0,1,1,1,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,1,1,0,0,0},
 		{0,1,1,0,0,0,0,0,0,0,1,1,0},
@@ -393,7 +359,7 @@ Constants.PixelImages = {
 		{0,0,0,1,1,0,1,0,1,1,0,0,0},
 		{0,0,0,0,0,1,1,1,0,0,0,0,0},
 	},
-	GBA = {
+	GBA = { -- 22x13
 		{2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2},
 		{2,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,2},
 		{1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1},
@@ -408,4 +374,83 @@ Constants.PixelImages = {
 		{2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2},
 		{2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2},
 	},
+}
+
+-- Table of special characters to return based on whether emulator supports those special characters [true/false]
+Constants.CharMap = {
+	["À"] = { [false] = "\192", [true] = "À", },
+	["Á"] = { [false] = "\193", [true] = "Á", },
+	["Â"] = { [false] = "\194", [true] = "Â", },
+	["Ã"] = { [false] = "\195", [true] = "Ã", },
+	["Ä"] = { [false] = "\196", [true] = "Ä", },
+	["Å"] = { [false] = "\197", [true] = "Å", },
+	["Æ"] = { [false] = "\198", [true] = "Æ", },
+	["Ç"] = { [false] = "\199", [true] = "Ç", },
+	["È"] = { [false] = "\200", [true] = "È", },
+	["É"] = { [false] = "\201", [true] = "É", },
+	["Ê"] = { [false] = "\202", [true] = "Ê", },
+	["Ë"] = { [false] = "\203", [true] = "Ë", },
+	["Ì"] = { [false] = "\204", [true] = "Ì", },
+	["Í"] = { [false] = "\205", [true] = "Í", },
+	["Î"] = { [false] = "\206", [true] = "Î", },
+	["Ï"] = { [false] = "\207", [true] = "Ï", },
+	["Ð"] = { [false] = "\208", [true] = "Ð", },
+	["Ñ"] = { [false] = "\209", [true] = "Ñ", },
+	["Ò"] = { [false] = "\210", [true] = "Ò", },
+	["Ó"] = { [false] = "\211", [true] = "Ó", },
+	["Ô"] = { [false] = "\212", [true] = "Ô", },
+	["Õ"] = { [false] = "\213", [true] = "Õ", },
+	["Ö"] = { [false] = "\214", [true] = "Ö", },
+	["Ø"] = { [false] = "\216", [true] = "Ø", },
+	["Ù"] = { [false] = "\217", [true] = "Ù", },
+	["Ú"] = { [false] = "\218", [true] = "Ú", },
+	["Û"] = { [false] = "\219", [true] = "Û", },
+	["Ü"] = { [false] = "\220", [true] = "Ü", },
+	["Ý"] = { [false] = "\221", [true] = "Ý", },
+	["Þ"] = { [false] = "\222", [true] = "Þ", },
+	["ß"] = { [false] = "\223", [true] = "ß", },
+	["à"] = { [false] = "\224", [true] = "à", },
+	["á"] = { [false] = "\225", [true] = "á", },
+	["â"] = { [false] = "\226", [true] = "â", },
+	["ã"] = { [false] = "\227", [true] = "ã", },
+	["ä"] = { [false] = "\228", [true] = "ä", },
+	["å"] = { [false] = "\229", [true] = "å", },
+	["æ"] = { [false] = "\230", [true] = "æ", },
+	["ç"] = { [false] = "\231", [true] = "ç", },
+	["è"] = { [false] = "\232", [true] = "è", },
+	["é"] = { [false] = "\233", [true] = "é", },
+	["ê"] = { [false] = "\234", [true] = "ê", },
+	["ë"] = { [false] = "\235", [true] = "ë", },
+	["ì"] = { [false] = "\236", [true] = "ì", },
+	["í"] = { [false] = "\237", [true] = "í", },
+	["î"] = { [false] = "\238", [true] = "î", },
+	["ï"] = { [false] = "\239", [true] = "ï", },
+	["ð"] = { [false] = "\240", [true] = "ð", },
+	["ñ"] = { [false] = "\241", [true] = "ñ", },
+	["ò"] = { [false] = "\242", [true] = "ò", },
+	["ó"] = { [false] = "\243", [true] = "ó", },
+	["ô"] = { [false] = "\244", [true] = "ô", },
+	["õ"] = { [false] = "\245", [true] = "õ", },
+	["ö"] = { [false] = "\246", [true] = "ö", },
+	["ø"] = { [false] = "\248", [true] = "ø", },
+	["ù"] = { [false] = "\249", [true] = "ù", },
+	["ú"] = { [false] = "\250", [true] = "ú", },
+	["û"] = { [false] = "\251", [true] = "û", },
+	["ü"] = { [false] = "\252", [true] = "ü", },
+	["ý"] = { [false] = "\253", [true] = "ý", },
+	["þ"] = { [false] = "\254", [true] = "þ", },
+	["ÿ"] = { [false] = "\255", [true] = "ÿ", },
+}
+
+-- Returns a renderable character for the appropriate emulator
+function Constants.getC(character)
+	if Constants.CharMap[character] ~= nil then
+		return Constants.CharMap[character][Main.supportsSpecialChars] or Constants.HIDDEN_INFO
+	end
+	return Constants.HIDDEN_INFO
+end
+
+Constants.Words = {
+	POKEMON = "Pok" .. Constants.getC("é") .. "mon",
+	POKE = "Pok" .. Constants.getC("é"),
 }
