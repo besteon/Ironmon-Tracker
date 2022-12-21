@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "0", patch = "20" }
+Main.Version = { major = "7", minor = "1", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -12,8 +12,8 @@ Main.EMU = {
 	MGBA = "mGBA", -- Lua 5.4
 	BIZHAWK_OLD = "Bizhawk Old", -- Non-compatible Bizhawk version
 	BIZHAWK28 = "Bizhawk 2.8", -- Lua 5.1
-	BIZHAWK29 = "Bizhawk 2.9", -- Lua 5.3+?
-	BIZHAWK_FUTURE = "Bizhawk Future", -- Lua 5.3+?
+	BIZHAWK29 = "Bizhawk 2.9", -- Lua 5.4
+	BIZHAWK_FUTURE = "Bizhawk Future", -- Lua 5.4
 }
 
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true

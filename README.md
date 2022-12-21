@@ -6,7 +6,7 @@
 
 ## General Information
 
-Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) used to track ironMON attempts.
+Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html) (v0.10.0 or higher) used to track ironMON attempts.
 
 For more information on ironMON, see <http://ironmon.gg>
 
@@ -37,8 +37,12 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Installation
 
-1. **Get Bizhawk**: If you haven't used BizHawk before, [download the emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
-   - If you are on windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first.
+1. **Get a Supported Emulator**:
+   - We recommend using the Bizhawk emulator (Windows/Linux only).
+	   - [Download Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
+		- If you are on windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first.
+	- Alternatively, you can use the MGBA emulator (Windows/Mac/Linux).
+	   - [Download MGBA](https://mgba.io/downloads.html) (v0.10.0 or higher)
 2. **Download the Tracker**: You can get the latest project release from the [releases](https://github.com/besteon/Ironmon-Tracker/releases/latest) section.
    - The main branch contains some extra dev files not intended for the main releases. You can clone this if you want but for most users we'd recommend the downloads in the releases section.
 	- The staging branch may have additional features not fully tested. If you're feeling adventurous then you are more than welcome to clone this. If you come across issues then let us know, providing full logs and output from the lua console for any errors.
@@ -48,15 +52,13 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-- **_NEW!!_ Automatic Self-Updater! (Finally)**
+- **_NEW!!_ MGBA Emulator Support!**
 
-![image](https://user-images.githubusercontent.com/4258818/200697878-3b6a2cdd-1d6a-400b-b18c-f927c32f1c6f.png)
+![image](https://user-images.githubusercontent.com/4258818/209012095-c2c4d9d7-7f09-4764-afe4-1461f77ceb16.png)
 
-- **_NEW!!_ Virtual Pet Icon Set!**
+- **_NEW!!_ Full Tracked Move History**
 
-Created by Ryastoise
-
-![image](https://user-images.githubusercontent.com/4258818/200044699-5f30af18-0be3-494c-b939-41bc5cf1dc0a.png)
+![image](https://user-images.githubusercontent.com/4258818/208857705-f4414043-7f19-40da-bbaa-2a75cc759d5a.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
