@@ -34,6 +34,7 @@ Constants.STAT_STATES = {
 	[0] = { text = " ", textColor = "Default text" },
 	[1] = { text = "+", textColor = "Positive text" },
 	[2] = { text = "--", textColor = "Negative text" },
+	[3] = { text = "=", textColor = "Default text" },
 }
 
 Constants.MoveTypeColors = {
