@@ -27,7 +27,7 @@ UpdateOrInstall.Messages = {
 	confirmFreshInstall = "Would you like to download and INSTALL the Tracker?",
 	confirmUpdate = "Would you like to download and UPDATE the Tracker?",
 	confirmYesNo = "To confirm: please type YES() or NO() in the scripting box below:",
-	closeAndReopen = string.format('Please close and re-open the emulator, then load the "%s" script.', UpdateOrInstall.trackerFileName),
+	closeAndReopen = string.format('Please restart your emulator and load the main "%s" script.', UpdateOrInstall.trackerFileName),
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
@@ -89,34 +89,36 @@ end
 
 function UpdateOrInstall.popupConfirmationWindow()
 	-- First check if any other tracker files exist to determine if this is a new install (non-functional difference)
-	local confirmationMsg
+	local confirmationMsg, windowTitle
 	local trackerFile = io.open(IronmonTracker.workingDir .. UpdateOrInstall.trackerFileName, "r")
 	if trackerFile == nil then
 		confirmationMsg = UpdateOrInstall.Messages.confirmFreshInstall
+		windowTitle = "Installer"
 	else
 		confirmationMsg = UpdateOrInstall.Messages.confirmUpdate
+		windowTitle = "Updater"
 		io.close(trackerFile)
 	end
 
 	-- Only Bizhawk allows popup form windows
 	if IronmonTracker.isOnBizhawk then
 		client.pause()
-		local form = forms.newform(400, 150, "Install or Update?", function() client.unpause() end)
+		local form = forms.newform(340, 120, string.format("Ironmon Tracker %s", windowTitle), function() client.unpause() end)
 		local actualLocation = client.transformPoint(100, 50)
 		forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 		forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
-		forms.label(form, confirmationMsg, 18, 10, 350, 65)
+		forms.label(form, confirmationMsg, 18, 10, 320, 20)
 		forms.button(form, "Yes", function()
 			client.unpause()
 			forms.destroy(form)
 			UpdateOrInstall.performStandaloneUpdate()
-		end, 130, 80)
+		end, 80, 40)
 		forms.button(form, "No", function()
 			client.unpause()
 			forms.destroy(form)
 			print(UpdateOrInstall.Messages.closeAndReopen)
-		end, 160, 80)
+		end, 160, 40)
 	else
 		print(confirmationMsg)
 		print(string.format("> %s", UpdateOrInstall.Messages.confirmYesNo))
@@ -185,7 +187,7 @@ function UpdateOrInstall.performStandaloneUpdate()
 	if success then
 		print(string.format("> %s", UpdateOrInstall.Messages.step3))
 		print("")
-		print(string.format('Please restart your emulator and load the main "%s" script.', UpdateOrInstall.trackerFileName))
+		print(UpdateOrInstall.Messages.closeAndReopen)
 	end
 
 	return success
