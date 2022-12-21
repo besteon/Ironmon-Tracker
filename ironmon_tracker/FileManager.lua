@@ -20,7 +20,7 @@ FileManager.Files = {
 	SETTINGS = "Settings.ini",
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
-	AUTOUPDATER = "AutoUpdater.lua",
+	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 
 	-- All of the files required by the tracker
 	LuaCode = {
@@ -157,7 +157,7 @@ function FileManager.setupWorkingDirectory()
 		FileManager.dir = ""
 	end
 
-	IronmonTracker.workingDir = FileManager.dir -- required so AutoUpdater works regardless of standalone execution
+	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
 end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
@@ -169,7 +169,7 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 		return true
 	end
 
-	-- Otherwise, check if the file exists on the root Tracker folder (AutoUpdater.lua lives here)
+	-- Otherwise, check if the file exists on the root Tracker folder (UpdateOrInstall.lua lives here)
 	filepath = FileManager.getPathIfExists(filename)
 	if filepath ~= nil then
 		dofile(filepath)

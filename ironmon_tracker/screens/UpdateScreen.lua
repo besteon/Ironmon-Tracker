@@ -162,7 +162,7 @@ function UpdateScreen.performAutoUpdate()
 		Tracker.saveData()
 	end
 
-	if AutoUpdater.performParallelUpdate() then
+	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
 		Main.SaveSettings(true)

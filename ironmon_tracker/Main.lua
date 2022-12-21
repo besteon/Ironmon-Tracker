@@ -57,7 +57,7 @@ function Main.Initialize()
 			return false
 		end
 	end
-	if not FileManager.loadLuaFile(FileManager.Files.AUTOUPDATER) then
+	if not FileManager.loadLuaFile(FileManager.Files.UPDATE_OR_INSTALL) then
 		return false
 	end
 
@@ -66,7 +66,7 @@ function Main.Initialize()
 		Main.SaveSettings(true)
 
 		-- No Settings file means this is the first time the tracker has run, so bounce out for Bizhawk to force a restart
-		if Main.IsOnBizhawk() then
+		if Main.IsOnBizhawk() then -- TODO: Possible we only need to do this for Bizhawk 2.8, not 2.9; will test later
 			print("> ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
 			client.SetGameExtraPadding(0, 0, 0, 0)

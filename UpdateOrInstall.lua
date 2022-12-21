@@ -2,51 +2,58 @@
 -- In this way, this file will always be the latest version possible and allow for properly updating files
 
 -- Lots of redundancy here as this file is meant to work as a standalong or as part of the full Tracker script
-AutoUpdater = {
-	thisFileName = "AutoUpdater.lua",
+UpdateOrInstall = {
+	thisFileName = "UpdateOrInstall.lua",
 	trackerFileName = "Ironmon-Tracker.lua",
 	slash = package.config:sub(1,1) or "\\", -- Windows is \ and Linux is /
 	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/main.tar.gz",
 	archiveName = "Ironmon-Tracker-main.tar.gz",
 	archiveFolder = "Ironmon-Tracker-main",
-	Dev = { -- Beta testers can have this enabled to receive live updates from STAGING branch
-		enabled = false, -- Verify this remains "false" for main release
-		TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/staging.tar.gz",
-		archiveName = "Ironmon-Tracker-staging.tar.gz",
-		archiveFolder = "Ironmon-Tracker-staging",
-	},
-	Messages = {
-		step1 = "Step 1: Downloading release and extracting files...",
-		step1a = "Step 1: Existing release already downloaded and ready to use.",
-		step2 = "Step 2: Updating Tracker files...",
-		step3 = "Step 3: Verifying update... Auto-update successful!",
-	},
+}
+
+-- Beta testers can have this enabled to receive live updates from STAGING branch
+UpdateOrInstall.Dev = {
+	enabled = false, -- Verify this remains "false" for main release
+	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/staging.tar.gz",
+	archiveName = "Ironmon-Tracker-staging.tar.gz",
+	archiveFolder = "Ironmon-Tracker-staging",
+}
+
+UpdateOrInstall.Messages = {
+	step1 = "Step 1: Downloading release and extracting files...",
+	step1a = "Step 1: Existing release already downloaded and ready to use.",
+	step2 = "Step 2: Updating Tracker files...",
+	step3 = "Step 3: Verifying update... Auto-update successful!",
+	confirmFreshInstall = "Would you like to download and INSTALL the Tracker?",
+	confirmUpdate = "Would you like to download and UPDATE the Tracker?",
+	confirmYesNo = "To confirm: please type YES() or NO() in the scripting box below:",
+	closeAndReopen = string.format('Please close and re-open the emulator, then load the "%s" script.', UpdateOrInstall.trackerFileName),
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
-function AutoUpdater.start()
+function UpdateOrInstall.start()
 	-- Do NOT perform the standalone update if this file is loaded alongside the Tracker
 	if IronmonTracker ~= nil then
 		return
 	end
 
-	AutoUpdater.setupEmulatorSpecifics()
-	AutoUpdater.performStandaloneUpdate()
+	UpdateOrInstall.setupEmulatorSpecifics()
+	UpdateOrInstall.popupConfirmationWindow()
 end
 
-function AutoUpdater.getTARURL()
-	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.TAR_URL else return AutoUpdater.TAR_URL end
+function UpdateOrInstall.getTARURL()
+	if UpdateOrInstall.Dev.enabled then return UpdateOrInstall.Dev.TAR_URL else return UpdateOrInstall.TAR_URL end
 end
 
-function AutoUpdater.getArchiveName()
-	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.archiveName else return AutoUpdater.archiveName end
+function UpdateOrInstall.getArchiveName()
+	if UpdateOrInstall.Dev.enabled then return UpdateOrInstall.Dev.archiveName else return UpdateOrInstall.archiveName end
 end
 
-function AutoUpdater.getArchiveFolder()
-	if AutoUpdater.Dev.enabled then return AutoUpdater.Dev.archiveFolder else return AutoUpdater.archiveFolder end
+function UpdateOrInstall.getArchiveFolder()
+	if UpdateOrInstall.Dev.enabled then return UpdateOrInstall.Dev.archiveFolder else return UpdateOrInstall.archiveFolder end
 end
 
-function AutoUpdater.setupEmulatorSpecifics()
+function UpdateOrInstall.setupEmulatorSpecifics()
 	if IronmonTracker == nil then -- redundant safety check
 		IronmonTracker = {}
 	end
@@ -60,15 +67,15 @@ function AutoUpdater.setupEmulatorSpecifics()
 		IronmonTracker.workingDir = pathLookup:match("(.*[/\\])") or ""
 
 		-- Format path for OS
-		if AutoUpdater.slash == "/" then
+		if UpdateOrInstall.slash == "/" then
 			IronmonTracker.workingDir = IronmonTracker.workingDir:gsub("\\", "/")
 		else
 			IronmonTracker.workingDir = IronmonTracker.workingDir:gsub("/", "\\")
 		end
 
 		-- Add trailing slash if missing
-		if IronmonTracker.workingDir ~= "" and IronmonTracker.workingDir:sub(-1) ~= AutoUpdater.slash then
-			IronmonTracker.workingDir = IronmonTracker.workingDir .. AutoUpdater.slash
+		if IronmonTracker.workingDir ~= "" and IronmonTracker.workingDir:sub(-1) ~= UpdateOrInstall.slash then
+			IronmonTracker.workingDir = IronmonTracker.workingDir .. UpdateOrInstall.slash
 		end
 	end
 
@@ -80,68 +87,121 @@ function AutoUpdater.setupEmulatorSpecifics()
 	end
 end
 
+function UpdateOrInstall.popupConfirmationWindow()
+	-- First check if any other tracker files exist to determine if this is a new install (non-functional difference)
+	local confirmationMsg
+	local trackerFile = io.open(IronmonTracker.workingDir .. UpdateOrInstall.trackerFileName, "r")
+	if trackerFile == nil then
+		confirmationMsg = UpdateOrInstall.Messages.confirmFreshInstall
+	else
+		confirmationMsg = UpdateOrInstall.Messages.confirmUpdate
+		io.close(trackerFile)
+	end
+
+	-- Only Bizhawk allows popup form windows
+	if IronmonTracker.isOnBizhawk then
+		client.pause()
+		local form = forms.newform(400, 150, "Install or Update?", function() client.unpause() end)
+		local actualLocation = client.transformPoint(100, 50)
+		forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
+		forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
+
+		forms.label(form, confirmationMsg, 18, 10, 350, 65)
+		forms.button(form, "Yes", function()
+			client.unpause()
+			forms.destroy(form)
+			UpdateOrInstall.performStandaloneUpdate()
+		end, 130, 80)
+		forms.button(form, "No", function()
+			client.unpause()
+			forms.destroy(form)
+			print(UpdateOrInstall.Messages.closeAndReopen)
+		end, 160, 80)
+	else
+		print(confirmationMsg)
+		print(string.format("> %s", UpdateOrInstall.Messages.confirmYesNo))
+	end
+end
+
+-- Only add in the YES/NO commands if this is a standalone install
+if Main == nil then
+	function YES(...)
+		UpdateOrInstall.performStandaloneUpdate()
+	end
+	function Yes(...) YES(...) end
+	---@diagnostic disable-next-line: lowercase-global
+	function yes(...) YES(...) end
+	function NO(...)
+		print("")
+		print(UpdateOrInstall.Messages.closeAndReopen)
+	end
+	function No(...) NO(...) end
+	---@diagnostic disable-next-line: lowercase-global
+	function no(...) NO(...) end
+end
+
 -- The full update process to be run while the Tracker code is active and loaded. Returns [true/false] based on success
-function AutoUpdater.performParallelUpdate()
+function UpdateOrInstall.performParallelUpdate()
 	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 	if Main.OS ~= "Windows" and Main.emulator == Main.EMU.BIZHAWK28 then
 		return false
 	end
 
-	local archiveFolderPath = AutoUpdater.downloadAndExtract()
+	local archiveFolderPath = UpdateOrInstall.downloadAndExtract()
 	if archiveFolderPath == nil then
 		return false
 	end
 
-	-- Attempt to replace the local AutoUpdater.lua with the newly downloaded one
-	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.AUTOUPDATER, true)
+	-- Attempt to replace the local UpdateOrInstall.lua with the newly downloaded one
+	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UpdateOrInstall, true)
 
-	local success = AutoUpdater.updateFiles(archiveFolderPath)
+	local success = UpdateOrInstall.updateFiles(archiveFolderPath)
 	if success then
-		print(string.format("> %s", AutoUpdater.Messages.step3))
+		print(string.format("> %s", UpdateOrInstall.Messages.step3))
 	end
 	return success
 end
 
 -- The full update process to be run WITHOUT any other Tracker code loaded. Returns [true/false] based on success
-function AutoUpdater.performStandaloneUpdate()
+function UpdateOrInstall.performStandaloneUpdate()
 	local releaseFolderPath
 
 	-- Check if the download was completed and extracted, but the update halted before it was removed
-	local updaterFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder() .. AutoUpdater.slash .. AutoUpdater.thisFileName
+	local updaterFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder() .. UpdateOrInstall.slash .. UpdateOrInstall.thisFileName
 	local file = io.open(updaterFilePath, "r")
 	if file ~= nil then
 		file:close()
-		print(string.format("> %s", AutoUpdater.Messages.step1a))
+		print(string.format("> %s", UpdateOrInstall.Messages.step1a))
 	else
-		releaseFolderPath = AutoUpdater.downloadAndExtract()
+		releaseFolderPath = UpdateOrInstall.downloadAndExtract()
 		if releaseFolderPath == nil then
 			return false
 		end
 	end
 
-	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder())
+	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder())
 
-	local success = AutoUpdater.updateFiles(releaseFolderPath)
+	local success = UpdateOrInstall.updateFiles(releaseFolderPath)
 	if success then
-		print(string.format("> %s", AutoUpdater.Messages.step3))
+		print(string.format("> %s", UpdateOrInstall.Messages.step3))
 		print("")
-		print(string.format('Please restart your emulator and load the main "%s" script.', AutoUpdater.trackerFileName))
+		print(string.format('Please restart your emulator and load the main "%s" script.', UpdateOrInstall.trackerFileName))
 	end
 
 	return success
 end
 
 -- Returns the folderpath that contains the extracted release files from the downloaded archive 'tarURL'; returns nil if something failed
-function AutoUpdater.downloadAndExtract()
-	print(string.format("> %s", AutoUpdater.Messages.step1))
+function UpdateOrInstall.downloadAndExtract()
+	print(string.format("> %s", UpdateOrInstall.Messages.step1))
 
 	-- Temp Files/Folders used by batch operations
-	local tarUrl = AutoUpdater.getTARURL()
-	local archiveFilePath = IronmonTracker.workingDir .. AutoUpdater.getArchiveName()
-	local extractedFolderPath = IronmonTracker.workingDir .. AutoUpdater.getArchiveFolder()
+	local tarUrl = UpdateOrInstall.getTARURL()
+	local archiveFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveName()
+	local extractedFolderPath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder()
 
-	local isOnWindows = (AutoUpdater.slash == "\\")
-	local command, err1 = AutoUpdater.buildDownloadExtractCommand(tarUrl, archiveFilePath, extractedFolderPath, isOnWindows)
+	local isOnWindows = (UpdateOrInstall.slash == "\\")
+	local command, err1 = UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archiveFilePath, extractedFolderPath, isOnWindows)
 
 	local result = os.execute(command)
 	if not (result == true or result == 0) then -- true / 0 = successful
@@ -154,16 +214,16 @@ function AutoUpdater.downloadAndExtract()
 end
 
 -- Copies files from the archive folder to the Tracker folder itself, replacing them
-function AutoUpdater.updateFiles(archiveFolderPath)
+function UpdateOrInstall.updateFiles(archiveFolderPath)
 	-- For cases when the download/extract operation fails, but the client continues to try and update anyway
 	if archiveFolderPath == nil then
 		return false
 	end
 
-	print(string.format("> %s", AutoUpdater.Messages.step2))
+	print(string.format("> %s", UpdateOrInstall.Messages.step2))
 
-	local isOnWindows = (AutoUpdater.slash == "\\")
-	local command, err1, err2 = AutoUpdater.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
+	local isOnWindows = (UpdateOrInstall.slash == "\\")
+	local command, err1, err2 = UpdateOrInstall.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
 
 	local result = os.execute(command)
 	if not (result == true or result == 0) then -- true / 0 = successful
@@ -176,7 +236,7 @@ function AutoUpdater.updateFiles(archiveFolderPath)
 end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
-function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolder, isOnWindows)
+function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedFolder, isOnWindows)
 	local messages = {
 		downloading = "Downloading the latest Ironmon Tracker version.",
 		extracting = "Extracting downloaded files.",
@@ -187,14 +247,14 @@ function AutoUpdater.buildDownloadExtractCommand(tarUrl, archive, extractedFolde
 	local pauseCommand
 
 	local foldersToRemove = {
-		string.format('%s.vscode', extractedFolder .. AutoUpdater.slash),
-		string.format('%sironmon_tracker%sDebug', extractedFolder .. AutoUpdater.slash, AutoUpdater.slash),
+		string.format('%s.vscode', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%sironmon_tracker%sDebug', extractedFolder .. UpdateOrInstall.slash, UpdateOrInstall.slash),
 	}
 	local filesToRemove = {
-		string.format('%s.editorconfig', extractedFolder .. AutoUpdater.slash),
-		string.format('%s.gitattributes', extractedFolder .. AutoUpdater.slash),
-		string.format('%s.gitignore', extractedFolder .. AutoUpdater.slash),
-		string.format('%sREADME.md', extractedFolder .. AutoUpdater.slash),
+		string.format('%s.editorconfig', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%s.gitattributes', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%s.gitignore', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%sREADME.md', extractedFolder .. UpdateOrInstall.slash),
 	}
 
 	if isOnWindows then
@@ -246,13 +306,13 @@ end
 
 -- Returns a string of batch commands to run based on the operating system, also returns error messages
 -- TODO: Known issue is XCOPY seems to fail if Tracker is kept on OneDrive or in a secure folder
-function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
+function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local messages = {
 		filesready = "New release files downloaded and ready for update.",
 		updating = "Applying the update, copying over files.",
 		completed = "Version update completed successfully.",
 		error1 = "Unable to copy over and update Tracker files.",
-		error2 = string.format('Try restarting the emulator and loading ONLY the "%s" script.', AutoUpdater.thisFileName),
+		error2 = string.format('Try restarting the emulator and loading ONLY the "%s" script.', UpdateOrInstall.thisFileName),
 	}
 
 	local batchCommands = {}
@@ -275,7 +335,7 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 		batchCommands = {
 			string.format('echo %s', messages.filesready),
 			string.format('echo %s', messages.updating),
-			string.format('cp -fr "%s" "%s"', extractedFolder .. AutoUpdater.slash .. ".", IronmonTracker.workingDir),
+			string.format('cp -fr "%s" "%s"', extractedFolder .. UpdateOrInstall.slash .. ".", IronmonTracker.workingDir),
 			string.format('rm -rf "%s"', extractedFolder),
 			'echo',
 			string.format('echo %s', messages.completed),
@@ -294,4 +354,4 @@ function AutoUpdater.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	return combinedCommand, messages.error1, messages.error2
 end
 
-AutoUpdater.start()
+UpdateOrInstall.start()

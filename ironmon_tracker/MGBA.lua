@@ -965,7 +965,7 @@ MGBA.CommandMap = {
 			print("> Update in progress, please wait...")
 			print("")
 
-			if AutoUpdater.performParallelUpdate() then
+			if UpdateOrInstall.performParallelUpdate() then
 				print("")
 				print("> Follow these steps to restart the Tracker to apply the update:")
 				print(" 1) Complete any ongoing battles first")
