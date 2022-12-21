@@ -183,7 +183,7 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 		maxLv = level,
 	}
 
-	Utils.printDebug("DEBUG: Tracking:  %-12s | %-12s | lv.%s", PokemonData.Pokemon[pokemonID].name, MoveData.Moves[moveId].name, level)
+	-- Utils.printDebug("DEBUG: Tracking:  %-12s | %-12s | lv.%s", PokemonData.Pokemon[pokemonID].name, MoveData.Moves[moveId].name, level)
 
 	-- If no move data exist, set this as the first move
 	if trackedPokemon.moves == nil then

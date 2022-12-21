@@ -336,9 +336,16 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local header = "Moves " .. movesLearned .. "/" .. #allMoveLevels
+	local movesText = "Moves"
+	local nextMoveSpacing = 13
+	if #Tracker.getMoves(pokemonID) > 4 then
+		movesText = movesText .. "*"
+		nextMoveSpacing = nextMoveSpacing + 1
+	end
+
+	local header = string.format("%s %s/%s", movesText, movesLearned, #allMoveLevels)
 	if foundNextMove then
-		local nextMoveSpacing = 13 + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
+		nextMoveSpacing = nextMoveSpacing + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
 		header = header .. " (" .. nextMoveLevel .. ")"
 		return header, nextMoveLevel, nextMoveSpacing
 	else

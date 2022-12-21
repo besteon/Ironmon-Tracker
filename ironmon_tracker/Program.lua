@@ -1,5 +1,6 @@
 Program = {
 	currentScreen = 1,
+	previousScreens = {}, -- breadcrumbs for clicking the Back button
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
@@ -103,7 +104,19 @@ function Program.redraw(forced)
 end
 
 function Program.changeScreenView(screen)
+	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
 	Program.currentScreen = screen
+	Program.redraw(true)
+end
+
+-- TODO: Currently unused, implement later
+function Program.goBackToPreviousScreen()
+	Utils.printDebug("DEBUG: From %s previous screens.", #Program.previousScreens)
+	if #Program.previousScreens == 0 then
+		Program.currentScreen = Program.Screens.TRACKER
+	else
+		Program.currentScreen = table.remove(Program.previousScreens)
+	end
 	Program.redraw(true)
 end
 
@@ -244,6 +257,7 @@ function Program.updatePokemonTeams()
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
+		local previousPersonality = Tracker.Data.ownTeam[i]
 		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
@@ -270,6 +284,13 @@ function Program.updatePokemonTeams()
 				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+
+				-- If this is a newly caught Pokémon, track all of its moves. Can't do this later cause TMs/HMs
+				if previousPersonality == 0 then
+					for _, move in ipairs(newPokemonData.moves) do
+						Tracker.TrackMove(newPokemonData.pokemonID, move.id, newPokemonData.level)
+					end
+				end
 			end
 		end
 

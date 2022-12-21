@@ -73,6 +73,17 @@ InfoScreen.Buttons = {
 			InfoScreen.showNextPokemon(-1)
 		end
 	},
+	moveHistory = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		-- Invisible button area for the moves learned boxes
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 70, 130, 23, },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		onClick = function (self)
+			if MoveHistoryScreen.buildOutHistory(InfoScreen.infoLookup) then
+				Program.changeScreenView(Program.Screens.MOVE_HISTORY)
+			end
+		end,
+	},
 	lookupRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
@@ -154,16 +165,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return true end,
-		onClick = function(self)
-			InfoScreen.viewScreen = 0
-			InfoScreen.infoLookup = 0
-			if InfoScreen.prevScreen > 0 then
-				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
-			else
-				InfoScreen.clearScreenData()
-				Program.changeScreenView(Program.Screens.TRACKER)
-			end
-		end
+		onClick = function(self) InfoScreen.Buttons.back:onClick() end,
 	},
 	HiddenPower = {
 		type = Constants.ButtonTypes.NO_BORDER,
