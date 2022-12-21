@@ -60,7 +60,7 @@ Program.AutoSaver = {
 	framesUntilNextSave = -1,
 	updateSaveCount = function(self) -- returns true if the savecount has been updated
 		local currentSaveCount = Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0
-		if currentSaveCount > self.knownSaveCount and currentSaveCount < 9999 then -- mem read sometimes huge number
+		if currentSaveCount > self.knownSaveCount and currentSaveCount < 99999 then -- mem read sometimes huge number
 			self.knownSaveCount = currentSaveCount
 			return true
 		end
@@ -70,7 +70,7 @@ Program.AutoSaver = {
 		if not Main.IsOnBizhawk() then return end -- flush saveRAM only for Bizhawk
 		if self.framesUntilNextSave == 0 then
 			client.saveram()
-			self.framesUntilNextSave = - 1 -- prevent step frame ticks and additional saves
+			self.framesUntilNextSave = -1 -- prevent step frame ticks and additional saves
 		end
 		if self:updateSaveCount() then
 			self.framesUntilNextSave = 10 * 60
