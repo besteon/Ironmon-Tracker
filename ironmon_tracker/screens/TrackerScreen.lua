@@ -672,6 +672,7 @@ end
 
 function TrackerScreen.randomlyChooseBall()
 	TrackerScreen.PokeBalls.chosenBall = math.random(3)
+	return TrackerScreen.PokeBalls.chosenBall
 end
 
 function TrackerScreen.canShowBallPicker()

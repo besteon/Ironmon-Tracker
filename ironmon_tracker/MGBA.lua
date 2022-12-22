@@ -1019,6 +1019,16 @@ MGBA.CommandMap = {
 			end
 		end,
 	},
+	["RANDOMBALL"] = {
+		description = "Chooses a random " .. Constants.Words.POKEMON .. " starter " .. Constants.Words.POKE .. "ball from among: Left, Middle, Right",
+		usageSyntax = 'RANDOMBALL()',
+		usageExample = 'RANDOMBALL()',
+		execute = function(self, params)
+			local ballChoice = TrackerScreen.randomlyChooseBall() -- 1, 2, or 3
+			local chosenBallText = TrackerScreen.PokeBalls.Labels[ballChoice] or Constants.BLANKLINE
+			print(string.format(" Randomly chosen starter %sball: %s", Constants.Words.POKE, chosenBallText))
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -1103,3 +1113,7 @@ function helpwiki(...) HELPWIKI(...) end
 function ATTEMPTS(...) MGBA.CommandMap["ATTEMPTS"]:execute(...) end
 function Attempts(...) ATTEMPTS(...) end
 function attempts(...) ATTEMPTS(...) end
+
+function RANDOMBALL(...) MGBA.CommandMap["RANDOMBALL"]:execute(...) end
+function RandomBall(...) RANDOMBALL(...) end
+function randomball(...) RANDOMBALL(...) end
