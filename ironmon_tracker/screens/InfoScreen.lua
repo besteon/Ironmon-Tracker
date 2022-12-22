@@ -167,14 +167,18 @@ InfoScreen.Buttons = {
 		isVisible = function() return true end,
 		onClick = function(self) InfoScreen.Buttons.back:onClick() end,
 	},
-	HiddenPower = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		clickableArea = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
-		box = { Constants.SCREEN.WIDTH + 111, 8, 31, 13 },
-		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO end,
+	HiddenPowerPrev = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 116, Constants.SCREEN.MARGIN + 31, 10, 10 },
+		isVisible = function()
+			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO then return false end
+			-- Only reveal the HP set arrows if the player's active Pokemon has the move
+			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
+		end,
 		onClick = function(self)
-			if not self:isVisible() then return end
-
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
@@ -189,7 +193,39 @@ InfoScreen.Buttons = {
 						end
 					end
 				end
-
+				-- Then use the previous index in sequence [2 -> 1], [1 -> N], ... [N -> N-1]
+				typeId = ((typeId - 2 + #MoveData.HiddenPowerTypeList) % #MoveData.HiddenPowerTypeList) + 1
+				Tracker.TrackHiddenPowerType(pokemon.personality, MoveData.HiddenPowerTypeList[typeId])
+				Program.redraw(true)
+			end
+		end
+	},
+	HiddenPowerNext = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.NEXT_BUTTON,
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + 129, Constants.SCREEN.MARGIN + 31, 10, 10 },
+		isVisible = function()
+			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO then return false end
+			-- Only reveal the HP set arrows if the player's active Pokemon has the move
+			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
+		end,
+		onClick = function(self)
+			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
+			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
+				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
+				local oldType = Tracker.getHiddenPowerType()
+				local typeId = 0
+				if oldType ~= nil then
+					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do
+						if hptype == oldType then
+							typeId = index
+							break
+						end
+					end
+				end
 				-- Then use the next index in sequence [1 -> 2], [2 -> 3], ... [N -> 1]
 				typeId = (typeId % #MoveData.HiddenPowerTypeList) + 1
 				Tracker.TrackHiddenPowerType(pokemon.personality, MoveData.HiddenPowerTypeList[typeId])
@@ -717,7 +753,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	Drawing.drawText(offsetX - 1, offsetY - 3, data.m.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	if data.x.ownHasHiddenPower then
-		Drawing.drawText(offsetX + 96, offsetY + linespacing * 2 - 4, "Set type ^", Theme.COLORS["Positive text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX + 103, offsetY + linespacing * 2 - 4, "Set type", Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 
 	-- TYPE ICON
@@ -785,6 +821,8 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	end
 
 	-- Draw all buttons
+	Drawing.drawButton(InfoScreen.Buttons.HiddenPowerPrev, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.HiddenPowerNext, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.lookupMove, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
 
