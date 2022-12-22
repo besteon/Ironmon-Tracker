@@ -928,6 +928,11 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
 
 	-- Redraw next move level in the header with a different color if close to learning new move
+	if #Tracker.getMoves(data.p.id) > 4 then
+		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
+	end
+
+	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
 		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmovelevel, TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
 	end
