@@ -173,7 +173,7 @@ InfoScreen.Buttons = {
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, Constants.SCREEN.MARGIN + 31, 10, 10 },
 		isVisible = function()
-			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO then return false end
+			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
 			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
@@ -205,12 +205,7 @@ InfoScreen.Buttons = {
 		image = Constants.PixelImages.NEXT_BUTTON,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 129, Constants.SCREEN.MARGIN + 31, 10, 10 },
-		isVisible = function()
-			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO then return false end
-			-- Only reveal the HP set arrows if the player's active Pokemon has the move
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
-		end,
+		isVisible = function() return InfoScreen.Buttons.HiddenPowerPrev:isVisible() end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
