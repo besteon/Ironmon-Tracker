@@ -17,6 +17,13 @@ Drawing.AnimatedPokemon = {
 	requiresRelocating = false,
 }
 
+function Drawing.initialize()
+	if Main.IsOnBizhawk() then
+		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
+		gui.defaultTextBackground(0)
+	end
+end
+
 function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
@@ -35,7 +42,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y)
 	end
 
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. pokemonID .. iconset.extension
+	local imagepath = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
 
 	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
 end
@@ -43,34 +50,41 @@ end
 function Drawing.drawTypeIcon(type, x, y)
 	if type == nil or type == "" then return end
 
-	gui.drawImage(Main.DataFolder .. "/images/types/" .. type .. ".png", x, y, 30, 12)
+	gui.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
 end
 
 function Drawing.drawStatusIcon(status, x, y)
 	if status == nil or status == "" then return end
 
-	gui.drawImage(Main.DataFolder .. "/images/status/" .. status .. ".png", x, y, 16, 8)
+	gui.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
 end
 
-function Drawing.drawText(x, y, text, color, shadowcolor, style)
-	if Theme.DRAW_TEXT_SHADOWS then
-		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
+	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
+	if Main.OS == "Linux" then
+		x = x + 1
+		y = y - 1
 	end
-	gui.drawText(x, y, text, color, nil, Constants.Font.SIZE, Constants.Font.FAMILY, style)
+
+	if Theme.DRAW_TEXT_SHADOWS and size == nil then -- For now, don't draw shadows for smaller-than-normal text (old behavior)
+		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
+	end
+	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
+	gui.drawText(x, y, text, color, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
 end
 
-function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, style)
+function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, size, family, style)
 	if Options["Right justified numbers"] then
-		Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
+		Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, size, family, style)
 	else
-		Drawing.drawText(x, y, number, color, shadowcolor, style)
+		Drawing.drawText(x, y, number, color, shadowcolor, size, family, style)
 	end
 end
 
-function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, style)
+function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, size, family, style)
 	local new_spacing = (spacing - string.len(tostring(number))) * 5
 	if number == Constants.BLANKLINE then new_spacing = 8 end
-	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, style)
+	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, size, family, style)
 end
 
 function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor)
@@ -131,11 +145,8 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 end
 
 function Drawing.drawInputOverlay()
-	if not Tracker.Data.isViewingOwn and Input.controller.framesSinceInput < Input.controller.boxVisibleFrames then
-		if Input.controller.statIndex < 1 then Input.controller.statIndex = 1 end
-		if Input.controller.statIndex > 6 then Input.controller.statIndex = 6 end
-
-		local statKey = Constants.OrderedLists.STATSTAGES[Input.controller.statIndex]
+	if not Tracker.Data.isViewingOwn and Input.StatHighlighter:shouldDisplay() then
+		local statKey = Input.StatHighlighter:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey]
 		if statButton ~= nil then
 			gui.drawRectangle(statButton.box[1], statButton.box[2], statButton.box[3], statButton.box[4], Theme.COLORS["Intermediate text"], 0x000000)
@@ -155,11 +166,19 @@ function Drawing.drawButton(button, shadowcolor)
 	local y = button.box[2]
 	local width = button.box[3]
 	local height = button.box[4]
+	local bordercolor
+	local fillcolor
+	if button.boxColors ~= nil then
+		bordercolor = Theme.COLORS[button.boxColors[1]]
+		fillcolor = Theme.COLORS[button.boxColors[2]]
+	else
+		bordercolor = Theme.COLORS["Upper box border"]
+		fillcolor = Theme.COLORS["Upper box background"]
+	end
 
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
-		local bordercolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[1]], Theme.COLORS["Upper box border"])
-		local fillcolor = Utils.inlineIf(button.boxColors ~= nil, Theme.COLORS[button.boxColors[2]], Theme.COLORS["Upper box background"])
+
 
 		-- Draw the box's shadow and the box border
 		if shadowcolor ~= nil then
@@ -212,21 +231,38 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
-			if button.text == Constants.STAT_STATES[2].text then
-				y = y - 1 -- Move up the negative stat mark 1px
+			if button.text == Constants.STAT_STATES[2].text or button.text == Constants.STAT_STATES[3].text then
+				y = y - 1 -- Move up the negative/neutral stat mark 1px
 			end
 			Drawing.drawText(x, y - 1, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
+	elseif button.type == Constants.ButtonTypes.CIRCLE then
+		-- Draw the circle's shadow and the circle border
+		if shadowcolor ~= nil then
+			gui.drawEllipse(x + 1, y + 1, width, height, shadowcolor, fillcolor)
+		end
+		gui.drawEllipse(x, y, width, height, bordercolor, fillcolor)
+		if button.text ~= nil and button.text ~= "" then
+			if width < 10 or y < 10 then
+				x = x - 1
+				y = y - 1
+			end
+			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
 		end
 	end
 end
 
 function Drawing.drawScreen(screenFunc)
-	if screenFunc ~= nil and type(screenFunc) == "function" then
-		screenFunc()
-	end
-	-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-	if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
-		Drawing.drawRepelUsage()
+	if Main.IsOnBizhawk() then
+		if screenFunc ~= nil and type(screenFunc) == "function" then
+			screenFunc()
+		end
+		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
+		if Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation() and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
+			Drawing.drawRepelUsage()
+		end
+	else
+		MGBA.ScreenUtils.updateTextBuffers()
 	end
 end
 
@@ -269,27 +305,33 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	gui.drawRectangle(x, y + 28, width, 22, themeColors["Lower box border"], themeColors["Lower box background"]) -- Bottom box
 	gui.drawRectangle(x, y + 46, width, 4, themeColors["Lower box border"]) -- Bottom box's badge area
 
+	-- For some reason on Linux the tiny text is offset by an additional 1 pixel (tested on Bizhawk 2.9)
+	if Main.OS == "Linux" then
+		x = x - 1
+		y = y - 1
+	end
+
 	-- Draw the "Pokemon info"
-	gui.drawText(x + 10, y + 0, "------------", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 30, y + 0, "=", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 10, y + 3, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 10, y + 6, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 10, y + 9, "--- ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 10, y + 12, "------ ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 1, y + 16, "------ ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 1, y + 18, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 10, y + 0, "------------", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 30, y + 0, "=", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 10, y + 3, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 10, y + 6, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 10, y + 9, "--- ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 10, y + 12, "------ ------", themeColors["Intermediate text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 16, "------ ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 18, "--- ---", themeColors["Default text"], nil, fontSize, fontFamily)
 
 	-- Draw the "stats"
-	gui.drawText(x + 36, y + 0, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 3, "---   ---", themeColors["Positive text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 6, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 9, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 12, "---   ---", themeColors["Negative text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 15, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 36, y + 18, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 0, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 3, "---   ---", themeColors["Positive text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 6, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 9, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 12, "---   ---", themeColors["Negative text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 15, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 36, y + 18, "---   ---", themeColors["Default text"], nil, fontSize, fontFamily)
 
 	-- Draw "header"
-	gui.drawText(x, y + 23, "------- --- ---     ---  ----  ----", themeColors["Header text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x, y + 23, "------- --- ---     ---  ----  ----", themeColors["Header text"], nil, fontSize, fontFamily)
 
 	-- Draw the "moves"
 	local moveCategory = Utils.inlineIf(Options["Show physical special icons"], "=", "")
@@ -301,19 +343,19 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	if not displayColorBars then
 		moveText = moveText:sub(1, -2) .. " "
 	end
-	gui.drawText(x + 1, y + 28, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 1, y + 32, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 1, y + 36, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
-	gui.drawText(x + 1, y + 40, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 28, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 32, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 36, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
+	Drawing.drawText(x + 1, y + 40, moveText .. "     ---  ----  ----", themeColors["Lower box text"], nil, fontSize, fontFamily)
 
 	-- Draw the "badges"
 	for i=0, 7, 1 do
-		gui.drawText(x + 2 + (i*6), y + 45, "--", themeColors["Lower box text"], nil, fontSize, fontFamily)
+		Drawing.drawText(x + 2 + (i*6), y + 45, "--", themeColors["Lower box text"], nil, fontSize, fontFamily)
 	end
 end
 
 function Drawing.setupAnimatedPictureBox()
-	if not Options["Animated Pokemon popout"] then return end
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
 
 	Drawing.AnimatedPokemon:destroy()
 
@@ -338,14 +380,15 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.AnimatedPokemon.requiresRelocating = true
 
 	-- Return focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
-	os.execute("AppActivate(" .. gameinfo.getromname() .. ")")
+	os.execute(string.format('AppActivate(%s)', GameSettings.getRomName() or ""))
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)
-	if pokemonID == nil or pokemonID == 0 then return end
+	if not Options["Animated Pokemon popout"] or pokemonID == nil or pokemonID == 0 then
+		return
+	end
 
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
-
 
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 		local pokemonData = PokemonData.Pokemon[pokemonID]
@@ -354,21 +397,25 @@ function Drawing.setAnimatedPokemon(pokemonID)
 			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
 			local lowerPokemonName = pokemonData.name:lower()
-			local imagepath = Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/" .. lowerPokemonName .. ".gif"
-			if Main.FileExists(imagepath) then
-				-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
-				forms.setproperty(pictureBox, "Visible", false)
-				forms.setproperty(pictureBox, "ImageLocation", "")
-				forms.setproperty(pictureBox, "Left", 1)
-				forms.setproperty(pictureBox, "Top", 1)
-				forms.setproperty(pictureBox, "Width", 1)
-				forms.setproperty(pictureBox, "Height", 1)
-				forms.setproperty(pictureBox, "ImageLocation", imagepath)
-				Drawing.AnimatedPokemon.requiresRelocating = true
-
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", false)
-			else
-				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", true)
+			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
+			local fileExists = FileManager.fileExists(imagepath)
+			if Main.IsOnBizhawk() then
+				if fileExists then
+					-- Reset any previous Picture Box so that the new image will "AutoSize" and expand it
+					forms.setproperty(pictureBox, "Visible", false)
+					forms.setproperty(pictureBox, "ImageLocation", "")
+					forms.setproperty(pictureBox, "Left", 1)
+					forms.setproperty(pictureBox, "Top", 1)
+					forms.setproperty(pictureBox, "Width", 1)
+					forms.setproperty(pictureBox, "Height", 1)
+					forms.setproperty(pictureBox, "ImageLocation", imagepath)
+					Drawing.AnimatedPokemon.requiresRelocating = true
+				end
+				forms.setproperty(Drawing.AnimatedPokemon.addonMissing, "Visible", not fileExists)
+			elseif fileExists then
+				-- For mGBA, duplicate the image file so it can be rendered by external programs
+				local animatedImageFile = FileManager.prependDir(FileManager.Files.Other.ANIMATED_POKEMON)
+				FileManager.CopyFile(imagepath, animatedImageFile, "overwrite")
 			end
 		end
 	end
@@ -376,6 +423,8 @@ end
 
 -- When the image is first set, the image size (width/height) is unknown. It requires a few frames before it can be updated
 function Drawing.relocateAnimatedPokemon()
+	if not Options["Animated Pokemon popout"] or not Main.IsOnBizhawk() then return end
+
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	-- If the image is the same, then attempt to relocate it based on it's height
@@ -400,9 +449,12 @@ end
 
 -- If a repel is currently active, draws an icon with a bar indicating remaining repel usage
 function Drawing.drawRepelUsage()
+	if not Main.IsOnBizhawk() then return end
+
 	local xOffset = Constants.SCREEN.WIDTH - 24
 	-- Draw repel item icon
-	gui.drawImage(Main.DataFolder .. "/images/icons/repelUsage.png", xOffset, 0)
+	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
+	gui.drawImage(repelImage, xOffset, 0)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
