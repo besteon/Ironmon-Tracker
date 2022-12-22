@@ -1,6 +1,6 @@
 MoveHistoryScreen = {
 	Labels = {
-		headerMoves = "Move used at level:",
+		headerMoves = "Move seen at level:",
 		headerMin = "Min",
 		headerMax = "Max",
 		noTrackedMoves = "(No tracked move data yet)",

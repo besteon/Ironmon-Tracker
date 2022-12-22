@@ -40,7 +40,8 @@ We'd ideally like to support all non-English versions if we can, progress update
 1. **Get a Supported Emulator**:
    - We recommend using the Bizhawk emulator (Windows/Linux only).
 	   - [Download Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
-		- If you are on windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first.
+		- If you are on Windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first
+		- If you are on Linux, we recommend using Bizhawk 2.9 or higher
 	- Alternatively, you can use the MGBA emulator (Windows/Mac/Linux).
 	   - [Download MGBA](https://mgba.io/downloads.html) (v0.10.0 or higher)
 2. **Download the Tracker**: You can get the latest project release from the [releases](https://github.com/besteon/Ironmon-Tracker/releases/latest) section.
@@ -58,7 +59,7 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 - **_NEW!!_ Full Tracked Move History**
 
-![image](https://user-images.githubusercontent.com/4258818/208857705-f4414043-7f19-40da-bbaa-2a75cc759d5a.png)
+![image](https://user-images.githubusercontent.com/4258818/209043481-ad71a433-92ca-47f1-9e24-94790dab70dc.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
