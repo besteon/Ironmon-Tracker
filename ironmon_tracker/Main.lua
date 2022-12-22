@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "1", patch = "4" }
+Main.Version = { major = "7", minor = "1", patch = "5" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -300,13 +300,19 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			client.SetSoundOn(false)
 		end
 
-		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
-		local pipe = io.popen(update_cmd) or ""
-		if pipe ~= "" then
-			local response = pipe:read("*all") or ""
+		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
+		local success, file = FileManager.tryPOpen(updatecheckCommand)
+		if success then
+			local response
+			if file.read ~= nil then
+				response = file:read("*all")
+			end
+			if file.close ~= nil then
+				file:close()
+			end
 
 			-- Get version number formatted as [major].[minor].[patch]
-			local _, _, major, minor, patch = string.match(response, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
 			major = major or Main.Version.major
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
@@ -483,12 +489,13 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
+	-- TODO: Temp allowing it to work using os.execute()
 	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
-	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
-		Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
-		return nil
-	end
+	-- if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+	-- 	print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
+	-- 	Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
+	-- 	return nil
+	-- end
 
 	local files = Main.GetQuickloadFiles()
 
@@ -530,13 +537,25 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success = false
-	local pipe = io.popen(string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
-	if pipe ~= nil then
-		local output = pipe:read("*all")
-		success = (output:find("Randomized successfully!", 1, true) ~= nil) -- It's possible this message changes in the future?
-		if not success and output ~= "" then -- only print if something went wrong
-			print("> ERROR: " .. output)
+	local success, file
+	if Main.OS ~= "Windows" and (Main.emulator == Main.EMU.MGBA or Main.emulator == Main.EMU.BIZHAWK28) then
+		local result = os.execute(javacommand)
+		success = (result == true or result == 0)
+	else
+		local generateRomCommand = string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+		success, file = FileManager.tryPOpen(generateRomCommand)
+		if success then
+			if file.read ~= nil then
+				local output = file:read("*all") or ""
+				-- It's possible this message changes in the future?
+				success = (output:find("Randomized successfully!", 1, true) ~= nil)
+				if not success and output ~= "" then -- only print if something went wrong
+					print("> ERROR: " .. output)
+				end
+			end
+			if file.close ~= nil then
+				file:close()
+			end
 		end
 	end
 

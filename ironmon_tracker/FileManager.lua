@@ -137,13 +137,14 @@ function FileManager.setupWorkingDirectory()
 	end
 
 	-- Bizhawk handles current working directory differently, this is the only way to get it
-	local function exeCD() return io.popen(getDirCommand) end
-	local success, ret, err = xpcall(exeCD, debug.traceback)
-	if success and Main.IsOnBizhawk() and FileManager.dir == "" then
-		FileManager.dir = ret:read()
-	end
-	if ret ~= nil then
-		ret:close()
+	local success, file = FileManager.tryPOpen(getDirCommand)
+	if success then
+		if file.read ~= nil and Main.IsOnBizhawk() and FileManager.dir == "" then
+			FileManager.dir = file:read()
+		end
+		if file.close ~= nil then
+			file:close()
+		end
 	end
 
 	-- Properly format the working directory
@@ -158,6 +159,14 @@ function FileManager.setupWorkingDirectory()
 	end
 
 	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
+end
+
+-- Attempts to execute a popen command, returning two results: success, file. Remember to safely close the file (check for nil twice)
+function FileManager.tryPOpen(command)
+	if command == nil then return false, command end
+	local function executeCommand() return io.popen(command) end
+	local success, ret, _ = xpcall(executeCommand, debug.traceback) -- 3rd return is error message
+	return (success and ret ~= nil), ret
 end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
@@ -199,7 +208,7 @@ end
 function FileManager.getFilesFromDirectory(folderpath)
 	local files = {}
 
-	-- io.popen not supported on Linux Bizhawk 2.8, Lua 5.1
+	-- Not supported on Linux Bizhawk 2.8, Lua 5.1
 	if folderpath == nil or (Main.OS ~= "Windows" and Main.emulator == Main.EMU.BIZHAWK28) then
 		return files
 	end
@@ -211,12 +220,16 @@ function FileManager.getFilesFromDirectory(folderpath)
 		-- Note: "-A" removes "." and ".." from the listing
 		scanDirCommand = string.format('ls -A "%s"', folderpath)
 	end
-	local pfile = io.popen(scanDirCommand)
-	if pfile ~= nil then
-		for filename in pfile:lines() do
-			table.insert(files, filename)
+	local success, file = FileManager.tryPOpen(scanDirCommand)
+	if success then
+		if file.lines ~= nil then
+			for filename in file:lines() do
+				table.insert(files, filename)
+			end
 		end
-		pfile:close()
+		if file.close ~= nil then
+			file:close()
+		end
 	end
 
 	return files
