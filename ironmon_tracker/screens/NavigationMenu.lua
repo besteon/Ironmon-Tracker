@@ -73,10 +73,11 @@ NavigationMenu.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			if Main.isOnLatestVersion() then
-				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
-			else
+			-- Always show the update menu if using a dev build, to allow updating from dev branch
+			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+			else
+				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
 			end
 			Program.changeScreenView(Program.Screens.UPDATE)
 		end
