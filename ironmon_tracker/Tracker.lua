@@ -270,11 +270,7 @@ function Tracker.TrackNote(pokemonID, note)
 end
 
 function Tracker.TrackHiddenPowerType(personality, moveType)
-	if personality == nil or moveType == nil then return end
-
-	if personality == 0 or PokemonData.Types[moveType] == nil then
-		return
-	end
+	if personality == nil or moveType == nil or personality == 0 then return end
 
 	Tracker.Data.hiddenPowers[personality] = moveType
 end

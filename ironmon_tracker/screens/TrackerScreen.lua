@@ -672,6 +672,7 @@ end
 
 function TrackerScreen.randomlyChooseBall()
 	TrackerScreen.PokeBalls.chosenBall = math.random(3)
+	return TrackerScreen.PokeBalls.chosenBall
 end
 
 function TrackerScreen.canShowBallPicker()
@@ -925,6 +926,11 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, moveOffsetY - moveTableHeaderHeightDiff, "PP", Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, moveOffsetY - moveTableHeaderHeightDiff, "Pow", Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
+
+	-- Redraw next move level in the header with a different color if close to learning new move
+	if #Tracker.getMoves(data.p.id) > 4 then
+		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
+	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then

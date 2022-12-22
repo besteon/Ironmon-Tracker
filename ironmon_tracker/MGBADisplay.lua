@@ -416,6 +416,7 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["PCHEALS"],
 			MGBA.CommandMap["HIDDENPOWER"],
 			MGBA.CommandMap["ATTEMPTS"],
+			MGBA.CommandMap["RANDOMBALL"],
 			MGBA.CommandMap["HELPWIKI"],
 			MGBA.CommandMap["CREDITS"],
 			MGBA.CommandMap["ALLCOMMANDS"],
