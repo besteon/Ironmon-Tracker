@@ -300,13 +300,19 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			client.SetSoundOn(false)
 		end
 
-		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
-		local pipe = io.popen(update_cmd) or ""
-		if pipe ~= "" then
-			local response = pipe:read("*all") or ""
+		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
+		local success, file = FileManager.tryPOpen(updatecheckCommand)
+		if success then
+			local response
+			if file.read ~= nil then
+				response = file:read("*all")
+			end
+			if file.close ~= nil then
+				file:close()
+			end
 
 			-- Get version number formatted as [major].[minor].[patch]
-			local _, _, major, minor, patch = string.match(response, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
 			major = major or Main.Version.major
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
@@ -530,13 +536,20 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success = false
-	local pipe = io.popen(string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
-	if pipe ~= nil then
-		local output = pipe:read("*all")
-		success = (output:find("Randomized successfully!", 1, true) ~= nil) -- It's possible this message changes in the future?
-		if not success and output ~= "" then -- only print if something went wrong
-			print("> ERROR: " .. output)
+	local generateRomCommand = string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+	local success, file = FileManager.tryPOpen(generateRomCommand)
+	if success then
+		local output
+		if file.read ~= nil then
+			output = file:read("*all") or ""
+			-- It's possible this message changes in the future?
+			success = (output:find("Randomized successfully!", 1, true) ~= nil)
+			if not success and output ~= "" then -- only print if something went wrong
+				print("> ERROR: " .. output)
+			end
+		end
+		if file.close ~= nil then
+			file:close()
 		end
 	end
 
