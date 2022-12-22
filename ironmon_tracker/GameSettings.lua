@@ -341,6 +341,7 @@ function GameSettings.setEwramAddresses()
 		gBattleTerrain = { nil, 0x02022ff0, 0x02022b50 },
 		-- This address doesn't exist at all in RS
 		sStartMenuWindowId = { nil, 0x0203cd8c, 0x0203abe0 },
+		sSaveDialogDelay = { nil, 0x2037620, nil},
 	}
 
 	for key, address in pairs(addresses) do
@@ -373,6 +374,7 @@ function GameSettings.setIwramAddresses()
 		-- IWRAM addresses present in all games
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },
 		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x03004fe0 } },
+		sSaveDialogDelay = {{ 0x30006ac}, {nil, nil}, {0x3000fa8, 0x3000fa8,}},
 	}
 
 	local languageIndex = Utils.inlineIf(GameSettings.language == "English", 1, 2)
