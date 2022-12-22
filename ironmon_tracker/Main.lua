@@ -538,7 +538,7 @@ function Main.GenerateNextRom()
 	)
 
 	local success, file
-	if Main.emulator == Main.EMU.MGBA or (Main.IsOnBizhawk() and Main.OS == "Linux") then
+	if Main.emulator == Main.EMU.MGBA or (Main.emulator == Main.EMU.BIZHAWK28 and Main.OS == "Linux") then
 		local result = os.execute(javacommand)
 		success = (result == true or result == 0)
 	else
