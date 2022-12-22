@@ -84,7 +84,7 @@ function TrackedDataScreen.openSaveDataPrompt()
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
-	local suggestedFileName = GameSettings.getRomName() or ""
+	local suggestedFileName = gameinfo.getromname()
 
 	forms.label(form, "Enter a filename to save Tracker data to:", 18, 10, 300, 20)
 	local saveTextBox = forms.textbox(form, suggestedFileName, 200, 30, nil, 20, 30)
@@ -92,8 +92,8 @@ function TrackedDataScreen.openSaveDataPrompt()
 	forms.button(form, "Save Data", function()
 		local formInput = forms.gettext(saveTextBox)
 		if formInput ~= nil and formInput ~= "" then
-			if formInput:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
-				formInput = formInput .. FileManager.Extensions.TRACKED_DATA
+			if formInput:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+				formInput = formInput .. Constants.Files.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(formInput)
 		end
@@ -107,22 +107,19 @@ function TrackedDataScreen.openSaveDataPrompt()
 end
 
 function TrackedDataScreen.openLoadDataPrompt()
-	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.TRACKED_DATA
+	local suggestedFileName = gameinfo.getromname() .. Constants.Files.Extensions.TRACKED_DATA
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
-	local workingDir = FileManager.dir
+	local workingDir = Utils.getWorkingDirectory()
 	if workingDir ~= "" then
-		workingDir = workingDir:sub(1, -2) -- remove trailing slash
+		workingDir = workingDir:sub(1, -2) -- remove trailing "/"
 	end
 
 	local wasSoundOn = client.GetSoundOn()
 	client.SetSoundOn(false)
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
-		local success, msg = Tracker.loadData(filepath)
-		if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
-			print(msg) -- output info on the load, regardless if successfully
-		end
+		Tracker.loadData(filepath)
 	end
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)

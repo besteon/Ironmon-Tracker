@@ -110,7 +110,7 @@ function AddItems.addItem(formsTable)
 	local address = Utils.getSaveBlock1Addr()
 	address = address + bagPocketOffset + bagPocketSlot
 	local key = Utils.getEncryptionKey(2)
-	if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
+	if key ~= nil then quantity = bit.bxor(quantity, key) end
 
 	Memory.writeword(address, itemID)
 	Memory.writeword(address + 2, quantity)

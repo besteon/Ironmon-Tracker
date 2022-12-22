@@ -73,9 +73,9 @@ function ExtrasScreen.initialize()
 		button.boxColors = { ExtrasScreen.Colors.border, ExtrasScreen.Colors.boxFill }
 	end
 
-	local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
+	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
 	local animatedBtnOption = ExtrasScreen.Buttons["Animated Pokemon popout"]
-	if not FileManager.fileExists(abraGif) and animatedBtnOption ~= nil then
+	if not animatedAddonInstalled and animatedBtnOption ~= nil then
 		animatedBtnOption.disabled = true
 	end
 end

@@ -2,33 +2,28 @@ PokemonData = {
 	totalPokemon = 411,
 }
 
-PokemonData.IsRand = {
-	pokemonTypes = false,
-	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
-}
-
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
 PokemonData.Types = {
-	NORMAL = "normal",
-	FIGHTING = "fighting",
-	FLYING = "flying",
-	POISON = "poison",
-	GROUND = "ground",
-	ROCK = "rock",
-	BUG = "bug",
-	GHOST = "ghost",
-	STEEL = "steel",
-	FIRE = "fire",
-	WATER = "water",
-	GRASS = "grass",
-	ELECTRIC = "electric",
-	PSYCHIC = "psychic",
-	ICE = "ice",
-	DRAGON = "dragon",
-	DARK = "dark",
-	-- FAIRY = "fairy", -- Currently unused. Expect this to be unused in Gen 1-5
-	UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
-	EMPTY = "", -- No second type for this Pokémon or an empty field
+		NORMAL = "normal",
+		FIGHTING = "fighting",
+		FLYING = "flying",
+		POISON = "poison",
+		GROUND = "ground",
+		ROCK = "rock",
+		BUG = "bug",
+		GHOST = "ghost",
+		STEEL = "steel",
+		FIRE = "fire",
+		WATER = "water",
+		GRASS = "grass",
+		ELECTRIC = "electric",
+		PSYCHIC = "psychic",
+		ICE = "ice",
+		DRAGON = "dragon",
+		DARK = "dark",
+		FAIRY = "fairy", -- Expect this to be unused in Gen 1-5
+		UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
+		EMPTY = "", -- No second type for this Pokémon or an empty field
 }
 
 -- Enumerated constants that defines various evolution possibilities
@@ -49,7 +44,7 @@ PokemonData.Evolutions = {
 PokemonData.BlankPokemon = {
 	pokemonID = 0,
 	name = Constants.BLANKLINE,
-	types = { PokemonData.Types.UNKNOWN, PokemonData.Types.EMPTY },
+	types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
 	abilities = { 0, 0 },
 	evolution = PokemonData.Evolutions.NONE,
 	bst = Constants.BLANKLINE,
@@ -57,11 +52,16 @@ PokemonData.BlankPokemon = {
 	weight = 0.0,
 }
 
-function PokemonData.initialize()
-	-- Reads the types and abilities for each Pokemon in the Pokedex
+PokemonData.IsRand = {
+	pokemonTypes = false,
+	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
+}
+
+-- Reads the types and abilities for each Pokemon in the Pokedex
+function PokemonData.readDataFromMemory()
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
-		-- print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
+		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
 		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
@@ -85,14 +85,7 @@ function PokemonData.initialize()
 		if PokemonData.IsRand.pokemonAbilities then
 			datalog = datalog .. "Abilities, "
 		end
-		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
-	end
-
-	-- Add in pokemon IDs since they were never manually included in the past
-	for id, pokemon in ipairs(PokemonData.Pokemon) do
-		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
-			pokemon.pokemonID = id
-		end
+		print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 end
 
@@ -160,7 +153,7 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	end
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local abilityId = pokemon.abilities[abilityNum + 1] -- abilityNum stored from memory as [0 or 1]
+	local abilityId = pokemon.abilities[abilityNum + 1] -- stored from memory as [0 or 1]
 	return abilityId
 end
 
@@ -183,47 +176,14 @@ function PokemonData.getIdFromName(pokemonName)
 	return nil
 end
 
-function PokemonData.namesToList()
-	local pokemonNames = {}
-	for _, pokemon in ipairs(PokemonData.Pokemon) do
+function PokemonData.toList()
+	local allPokemon = {}
+	for _, pokemon in pairs(PokemonData.Pokemon) do
 		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
-			table.insert(pokemonNames, pokemon.name)
+			table.insert(allPokemon, pokemon.name)
 		end
 	end
-	return pokemonNames
-end
-
--- Returns a table that contains the type weaknesses, resistances, and immunities for a Pokémon, listed as type-strings
-function PokemonData.getEffectiveness(pokemonID)
-	local effectiveness = {
-		[0] = {},
-		[0.25] = {},
-		[0.5] = {},
-		[1] = {},
-		[2] = {},
-		[4] = {},
-	}
-
-	if not PokemonData.isValid(pokemonID) then
-		return effectiveness
-	end
-
-	local pokemon = PokemonData.Pokemon[pokemonID]
-
-	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
-		local total = 1
-		if typeMultiplier[pokemon.types[1]] ~= nil then
-			total = total * typeMultiplier[pokemon.types[1]]
-		end
-		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
-			total = total * typeMultiplier[pokemon.types[2]]
-		end
-		if effectiveness[total] ~= nil then
-			table.insert(effectiveness[total], moveType)
-		end
-	end
-
-	return effectiveness
+	return allPokemon
 end
 
 PokemonData.TypeIndexMap = {

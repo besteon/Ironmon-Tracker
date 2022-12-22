@@ -1,6 +1,5 @@
 Program = {
 	currentScreen = 1,
-	previousScreens = {}, -- breadcrumbs for clicking the Back button
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
@@ -34,8 +33,6 @@ Program.Screens = {
 	GAME_SETTINGS = GameOptionsScreen.drawScreen,
 	THEME = Theme.drawScreen,
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
-	STATS = StatsScreen.drawScreen,
-	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -54,28 +51,7 @@ Program.Pedometer = {
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
-	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Battle.battleStarting end,
-}
-
-Program.AutoSaver = {
-	knownSaveCount = 0,
-	framesUntilNextSave = -1,
-	updateSaveCount = function(self) -- returns true if the savecount has been updated
-		local currentSaveCount = Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0
-		local saveSuccessCountdown = Memory.readbyte(GameSettings.sSaveDialogDelay) or 0
-		-- Starts at 60 on success, then immediately decrements to 59 before checking if the save menu should close
-		if saveSuccessCountdown == 60 and currentSaveCount > self.knownSaveCount and currentSaveCount < 99999 then
-			self.knownSaveCount = currentSaveCount
-			return true
-		end
-		return false
-	end,
-	checkForNextSave = function(self)
-		if not Main.IsOnBizhawk() then return end -- flush saveRAM only for Bizhawk
-		if self:updateSaveCount() then
-			client.saveram()
-		end
-	end
+	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu end,
 }
 
 function Program.initialize()
@@ -92,20 +68,20 @@ function Program.initialize()
 		Program.friendshipRequired = friendshipRequired
 	end
 
-	Program.AutoSaver:updateSaveCount()
-
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
+
+	PokemonData.readDataFromMemory()
+	MoveData.readDataFromMemory()
+
+	-- At some point we might want to implement this so that wild encounter data is automatic
+	-- RouteData.readWildPokemonInfoFromMemory()
 end
 
 function Program.mainLoop()
-	if Main.loadNextSeed and not Main.IsOnBizhawk() then -- required escape for mGBA
-		Main.LoadNextRom()
-		return
-	end
 	Input.checkForInput()
 	Program.update()
 	Battle.update()
@@ -127,19 +103,7 @@ function Program.redraw(forced)
 end
 
 function Program.changeScreenView(screen)
-	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
 	Program.currentScreen = screen
-	Program.redraw(true)
-end
-
--- TODO: Currently unused, implement later
-function Program.goBackToPreviousScreen()
-	Utils.printDebug("DEBUG: From %s previous screens.", #Program.previousScreens)
-	if #Program.previousScreens == 0 then
-		Program.currentScreen = Program.Screens.TRACKER
-	else
-		Program.currentScreen = table.remove(Program.previousScreens)
-	end
 	Program.redraw(true)
 end
 
@@ -153,8 +117,6 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
-		Program.updateMapLocation() -- trying this here to solve many future problems
-
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
 			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
@@ -168,16 +130,12 @@ function Program.update()
 		end
 	end
 
-	-- Don't bother reading game data before a game even begins
-	if not Program.isValidMapLocation() then
-		return
-	end
-
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
 		Program.inCatchingTutorial = Program.isInCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
+			Program.updateMapLocation()
 			Program.updatePokemonTeams()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
@@ -190,12 +148,6 @@ function Program.update()
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
 				end
-			end
-
-			-- Check if a Pokemon in the player's party is learning a move, if so track it
-			local learnedInfoTable = Program.getLearnedMoveInfoTable()
-			if learnedInfoTable.pokemonID ~= nil then
-				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
 			end
 
 			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
@@ -211,8 +163,6 @@ function Program.update()
 			if Program.Pedometer:isInUse() then
 				Program.Pedometer.totalSteps = Utils.getGameStat(Constants.GAME_STATS.GAME_STAT_STEPS)
 			end
-
-			Program.AutoSaver:checkForNextSave()
 		end
 	end
 
@@ -282,7 +232,6 @@ function Program.updatePokemonTeams()
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
-		-- local previousPersonality = Tracker.Data.ownTeam[i] -- See below
 		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
@@ -309,14 +258,6 @@ function Program.updatePokemonTeams()
 				-- newPokemonData.trainerID = nil
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
-
-				-- TODO: Removing for now until some better option is available, not sure there is one
-				-- If this is a newly caught Pokémon, track all of its moves. Can't do this later cause TMs/HMs
-				-- if previousPersonality == 0 then
-				-- 	for _, move in ipairs(newPokemonData.moves) do
-				-- 		Tracker.TrackMove(newPokemonData.pokemonID, move.id, newPokemonData.level)
-				-- 	end
-				-- end
 			end
 		end
 
@@ -349,7 +290,7 @@ end
 
 function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
-	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
+	local magicword = bit.bxor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
 	local aux          = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
@@ -358,20 +299,20 @@ function Program.readNewPokemon(startAddress, personality)
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
-	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	-- local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
-	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
-	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
-	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
-	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
-	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	local growth1 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
+	-- local growth2 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
+	local growth3 = bit.bxor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
+	local attack1 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
+	local attack2 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
+	local attack3 = bit.bxor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local misc2   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	-- Unused data memory reads
-	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
-	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
-	-- local misc1   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
-	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
+	-- local effort1 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	-- local effort2 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
+	-- local effort3 = bit.bxor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
+	-- local misc1   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+	-- local misc3   = bit.bxor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
 	-- local cs = Utils.addhalves(growth1) + Utils.addhalves(growth2) + Utils.addhalves(growth3)
@@ -410,12 +351,12 @@ function Program.readNewPokemon(startAddress, personality)
 	local def_and_speed = Memory.readdword(startAddress + 92)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
-	return {
+	local pokemonData = {
 		personality = personality,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
-		friendship = Utils.getbits(growth3, 8, 8),
+		friendship = Utils.getbits(growth3, 72, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
 		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
@@ -447,6 +388,8 @@ function Program.readNewPokemon(startAddress, personality)
 		-- ev1 = effort1,
 		-- ev2 = effort2,
 	}
+
+	return pokemonData
 end
 
 function Program.updatePCHeals()
@@ -516,14 +459,7 @@ end
 
 function Program.updateMapLocation()
 	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
-	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
-
-	-- If the player is in a new area, auto-lookup for mGBA screen
-	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
-		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
-		MGBA.Screens.LookupRoute:setData(newMapId, isFirstLocation)
-	end
-	Battle.CurrentRoute.mapId = newMapId
+	Battle.CurrentRoute.mapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 end
 
 -- More or less used to determine if the player has begun playing the game, returns true if so.
@@ -536,43 +472,16 @@ function Program.HandleExit()
 	forms.destroyall()
 end
 
--- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
-function Program.getLearnedMoveInfoTable()
+function Program.getLearnedMoveId()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
 
 	-- If the battle message relates to learning a new move, read in that move id
 	if GameSettings.BattleScript_LearnMoveLoop <= battleMsg and battleMsg <= GameSettings.BattleScript_LearnMoveReturn then
 		local moveToLearnId = Memory.readword(GameSettings.gMoveToLearn)
-
-		local battleStructAddress
-		if GameSettings.gBattleStructPtr ~= nil then -- Pointer unavailable in RS
-			battleStructAddress = Memory.readdword(GameSettings.gBattleStructPtr)
-		else
-			battleStructAddress = 0x02000000 -- gSharedMem
-		end
-
-		local partyIndex = Memory.readbyte(battleStructAddress + 0x10) + 1 -- expGetterMonId: Party index of player (1-6)
-		local pokemon = Tracker.getPokemon(partyIndex, true)
-		if pokemon ~= nil then
-			return {
-				pokemonID = pokemon.pokemonID,
-				level = pokemon.level,
-				moveId = moveToLearnId,
-			}
-		end
-
-		return {
-			pokemonID = nil,
-			level = nil,
-			moveId = moveToLearnId,
-		}
+		return moveToLearnId
+	else
+		return nil
 	end
-
-	return {
-		pokemonID = nil,
-		level = nil,
-		moveId = nil,
-	}
 end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
@@ -732,7 +641,7 @@ function Program.getBagItems()
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
 			if itemID ~= 0 then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
+				if key ~= nil then quantity = bit.bxor(quantity, key) end
 
 				if MiscData.HealingItems[itemID] ~= nil then
 					healingItems[itemID] = quantity

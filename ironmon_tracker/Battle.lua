@@ -63,21 +63,11 @@ Battle.IndexMap = {
 }
 
 function Battle.update()
-	if not Program.isValidMapLocation() then
-		return
-	end
-
 	if Program.Frames.highAccuracyUpdate == 0 and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
 	end
 
-	if not Battle.inBattle then
-		-- For cases when closing the Tracker mid battle and loading it after battle
-		if not Tracker.Data.isViewingOwn then
-			Tracker.Data.isViewingOwn = true
-		end
-		return
-	end
+	if not Battle.inBattle then return end
 
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Battle.updateHighAccuracy()
@@ -115,7 +105,6 @@ end
 function Battle.updateLowAccuracy()
 	Battle.updateViewSlots()
 	Battle.updateTrackedInfo()
-	Battle.updateLookupInfo()
 end
 
 -- isOwn: true if it belongs to the player; false otherwise
@@ -205,18 +194,11 @@ function Battle.processBattleTurn()
 				end
 
 				Battle.lastEnemyMoveId = enemyMoveId
-				Battle.actualEnemyMoveId = enemyMoveId
 				Battle.damageReceived = Battle.damageReceived + damageDelta
 				Battle.prevDamageTotal = currDamageTotal
 			end
 		else
 			Battle.prevDamageTotal = currDamageTotal
-		end
-	elseif Battle.attacker % 2 ~= 0 then
-		-- For recording any move (including non-damaging moves) to be used by mGBA Move Info Lookup
-		local actualEnemyMoveId = Memory.readword(GameSettings.gBattleResults + 0x24)
-		if actualEnemyMoveId ~= 0 then
-			Battle.actualEnemyMoveId = actualEnemyMoveId
 		end
 	end
 
@@ -254,7 +236,7 @@ function Battle.updateTrackedInfo()
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 
-		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 and currentAction == 0 then
+		if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
 			-- 0 = MOVE_USED
 			if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
 				if Battle.AbilityChangeData.prevAction ~= actionCount then
@@ -264,7 +246,7 @@ function Battle.updateTrackedInfo()
 					local hitFlags = Memory.readdword(GameSettings.gHitMarker)
 					local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
 					--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
-					if Utils.bit_and(hitFlags,0x80000) == 0 then
+					if bit.band(hitFlags,0x80000) == 0 then
 						-- Track move so long as the mon was able to use it
 						local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
 						local transformData = Battle.BattleAbilities[Battle.attacker % 2][attackerSlot].transformData
@@ -289,7 +271,7 @@ function Battle.updateTrackedInfo()
 							end
 
 							--Only track ability-changing moves if they also did not fail/miss
-							if Utils.bit_and(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+							if bit.band(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
 								Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 							end
 						end
@@ -326,9 +308,6 @@ function Battle.updateTrackedInfo()
 				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
 				if abilityOwner ~= nil then
 					Tracker.TrackAbility(abilityOwner.pokemonID, battleMon.ability)
-					if not Main.IsOnBizhawk() then -- currently just mGBA
-						MGBA.Screens.LookupAbility:setData(battleMon.ability, false)
-					end
 				end
 			end
 		end
@@ -517,16 +496,6 @@ function Battle.checkAbilitiesToTrack()
 	return combatantIndexesToTrack
 end
 
-function Battle.updateLookupInfo()
-	if Main.IsOnBizhawk() then return end -- currently just mGBA
-
-	if not MGBA.Screens.LookupPokemon.manuallySet and Program.Frames.waitToDraw == 0 then -- prevent changing if player manually looked up a Pokémon
-		-- Auto lookup the enemy Pokémon being fought
-		local pokemon = Battle.getViewedPokemon(false) or PokemonData.BlankPokemon
-		MGBA.Screens.LookupPokemon:setData(pokemon.pokemonID, false)
-	end
-end
-
 function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
@@ -562,22 +531,16 @@ function Battle.beginNewBattle()
 		RightOther = 2,
 	}
 	Battle.populateBattleAbilityObject()
-	Input.StatHighlighter:resetSelectedStat()
+	Input.resetControllerIndex()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
-		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
-
-	if not Main.IsOnBizhawk() then
-		MGBA.Screens.LookupPokemon.manuallySet = false
-	end
 end
 
 function Battle.endCurrentBattle()
@@ -602,7 +565,6 @@ function Battle.endCurrentBattle()
 	Battle.battleStarting = false
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
-	Battle.actualEnemyMoveId = 0
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
@@ -639,8 +601,6 @@ function Battle.endCurrentBattle()
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
-		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
@@ -659,12 +619,9 @@ function Battle.changeOpposingPokemonView(isLeft)
 	if Options["Auto swap to enemy"] then
 		Tracker.Data.isViewingOwn = false
 		Battle.isViewingLeft = isLeft
-		if not Main.IsOnBizhawk() then
-			MGBA.Screens.LookupPokemon.manuallySet = false
-		end
 	end
 
-	Input.StatHighlighter:resetSelectedStat()
+	Input.resetControllerIndex()
 
 	-- Delay drawing the new pokemon, because of send out animation
 	Program.Frames.waitToDraw = 0
@@ -802,7 +759,7 @@ function Battle.trackTransformedMoves()
 			currentSelectingMon = i
 			break
 		else
-			currentSelectingMon = Utils.bit_rshift(currentSelectingMon, 1)
+			currentSelectingMon = bit.rshift(currentSelectingMon, 1)
 		end
 	end
 

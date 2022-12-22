@@ -1,6 +1,6 @@
 Tracker = {}
 Tracker.Data = {}
-Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
+Tracker.DataMessage = ""
 
 -- When Tracker data changes between versions, this will force new data into the tracker
 -- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
@@ -12,25 +12,18 @@ Tracker.ForceUpdateData = {
 
 Tracker.LoadStatusMessages = {
 	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
-	fromFile = "Previously saved Tracker data for this game has been loaded",
+	fromFile = "Tracker data loaded from file", -- file name is appended later
 	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
-	unableLoadFile = "Unable to load Tracker data from selected file",
 }
 
 function Tracker.initialize()
-	-- First create a default, non-nil Tracker Data
-	Tracker.resetData()
-
-	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
-		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
-		local success, err = Tracker.loadData(filepath)
-		if not success and err ~= nil and string.find(err, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
-			-- Print any error that isn't "missing autosave tdat file"
-			print("> " .. err)
-		end
+		local filepath = GameSettings.getTrackerAutoSaveName()
+		Tracker.loadData(filepath)
 	else
+		Tracker.resetData()
 		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
+		print(Tracker.DataMessage)
 	end
 end
 
@@ -164,65 +157,53 @@ function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 	if trackedPokemon.statmarkings[statStage] ~= nil then
 		trackedPokemon.statmarkings[statStage] = statState
 	else
-		print(string.format("> ERROR: The stat stage %s does not exist.", statStage))
+		print("[ERROR] stat stage does not exist: " .. statStage)
 	end
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
--- Also tracks the minimum and maximum level of the Pokemon that used the move
 function Tracker.TrackMove(pokemonID, moveId, level)
-	if not MoveData.isValid(moveId) or moveId == 165 then -- 165 = Struggle
+	if not MoveData.isValid(moveId) or moveId == 165 or Tracker.isTrackingMove(pokemonID, moveId, level) then
+		-- MoveId 165 is Struggle, don't track that
 		return
 	end
 
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	local trackedMove = { -- Ultimately the tracked data about the move to store
-		id = moveId,
-		level = level,
-		minLv = level,
-		maxLv = level,
-	}
-
-	-- Utils.printDebug("DEBUG: Tracking:  %-12s | %-12s | lv.%s", PokemonData.Pokemon[pokemonID].name, MoveData.Moves[moveId].name, level)
-
 	-- If no move data exist, set this as the first move
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.moves == nil then
 		trackedPokemon.moves = {
-			trackedMove,
+			{ id = moveId, level = level },
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
 		}
-		return
-	end
-
-	-- First check if the move has been seen before
-	local moveIndexSeen = 0
-	for key, value in pairs(trackedPokemon.moves) do
-		if value.id == moveId then
-			moveIndexSeen = key
-			break
-		end
-	end
-
-	-- If the move has already been seen, update its level
-	local moveSeen = trackedPokemon.moves[moveIndexSeen]
-	if moveSeen ~= nil then
-		-- If known min/max levels are still min/max, keep those instead
-		if moveSeen.minLv ~= nil and moveSeen.minLv < level then
-			trackedMove.minLv = moveSeen.minLv
-		end
-		if moveSeen.maxLv ~= nil and moveSeen.maxLv > level  then
-			trackedMove.maxLv = moveSeen.maxLv
-		end
-
-		trackedPokemon.moves[moveIndexSeen] = trackedMove
 	else
-		-- If the oldest tracked move is a placeholder, remove it
-		if trackedPokemon.moves[4].id == 0 then
-			trackedPokemon.moves[4] = nil
+		-- First check if the move has been seen before
+		local moveIndexSeen = 0
+		for key, value in pairs(trackedPokemon.moves) do
+			if value.id == moveId then
+				moveIndexSeen = key
+			end
 		end
-		table.insert(trackedPokemon.moves, 1, trackedMove)
+
+		-- If the move has already been seen, update its level (do we even need this?)
+		if moveIndexSeen ~= 0 then
+			-- TODO: Maybe we only update if the information on the level at which the Pokemon knows the move is more helpful
+			-- For example, if the new level is lower than the current known level? Unsure if this breaks anything
+			trackedPokemon.moves[moveIndexSeen] = {
+				id = moveId,
+				level = level
+			}
+		-- Otherwise it's a new move, shift all the moves down and get rid of the fourth move
+		else
+			trackedPokemon.moves[4] = trackedPokemon.moves[3]
+			trackedPokemon.moves[3] = trackedPokemon.moves[2]
+			trackedPokemon.moves[2] = trackedPokemon.moves[1]
+			trackedPokemon.moves[1] = {
+				id = moveId,
+				level = level
+			}
+		end
 	end
 end
 
@@ -269,10 +250,14 @@ function Tracker.TrackNote(pokemonID, note)
 	trackedPokemon.note = note
 end
 
-function Tracker.TrackHiddenPowerType(personality, moveType)
-	if personality == nil or moveType == nil or personality == 0 then return end
+function Tracker.TrackHiddenPowerType(moveType)
+	if moveType == nil then return end
 
-	Tracker.Data.hiddenPowers[personality] = moveType
+	local viewedPokemon = Battle.getViewedPokemon(true)
+
+	if viewedPokemon ~= nil and viewedPokemon.personality ~= 0 then
+		Tracker.Data.hiddenPowers[viewedPokemon.personality] = moveType
+	end
 end
 
 function Tracker.isTrackingMove(pokemonID, moveId, level)
@@ -281,9 +266,8 @@ function Tracker.isTrackingMove(pokemonID, moveId, level)
 		return false
 	end
 
-	for _, move in ipairs(trackedPokemon.moves) do -- intentionall check ALL tracked moves
-		-- If the move doesn't provide any new information, consider it tracked
-		if moveId == move.id and level >= move.level then
+	for _, move in pairs(trackedPokemon.moves) do
+		if move.id == moveId and move.level == level then
 			return true
 		end
 	end
@@ -381,10 +365,6 @@ end
 
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
 function Tracker.getNote(pokemonID)
-	if pokemonID == 413 then -- Ghost
-		return "Spoooky!"
-	end
-
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if trackedPokemon.note == nil then
 		return ""
@@ -393,7 +373,7 @@ function Tracker.getNote(pokemonID)
 	end
 end
 
--- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
+-- If the viewed Pokemon has the move "Hidden Power", return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
 	local viewedPokemon = Battle.getViewedPokemon(true)
 
@@ -471,7 +451,7 @@ function Tracker.resetData()
 	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
-		romHash = GameSettings.getRomHash(),
+		romHash = gameinfo.getromhash(),
 
 		trainerID = 0,
 		allPokemon = {}, -- Used to track information about all pokemon seen thus far
@@ -504,45 +484,42 @@ function Tracker.resetData()
 	}
 end
 
-function Tracker.saveData(filename)
-	filename = filename or GameSettings.getTrackerAutoSaveName()
-	FileManager.writeTableToFile(Tracker.Data, filename)
+function Tracker.saveData(filepath)
+	filepath = filepath or GameSettings.getTrackerAutoSaveName()
+	Utils.writeTableToFile(Tracker.Data, filepath)
 end
 
--- Attempts to load Tracked data from the file 'filepath', returns true if successful or no matching data found (resets tracked data)
--- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
-function Tracker.loadData(filepath, forced)
-	-- Loose safety check to ensure a valid data file is loaded
+function Tracker.loadData(filepath)
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
-	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
-		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
-		return false, string.format("ERROR: TDAT file, %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
-	end
-
-	local fileData = FileManager.readTableFromFile(filepath)
-	if fileData == nil then
-		return false, string.format("ERROR: %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
-	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
 	Tracker.resetData()
 
-	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
-	if not forced and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
-		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
-		return true, Tracker.DataMessage
+	-- Loose safety check to ensure a valid data file is loaded
+	local fileData = nil
+	if filepath:sub(-5):lower() ~= Constants.Files.Extensions.TRACKED_DATA then
+		print("[ERROR] Unable to load Tracker data from selected file: " .. filepath)
+		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
+	else
+		fileData = Utils.readTableFromFile(filepath)
 	end
 
-	for k, v in pairs(fileData) do
-		-- Only add data elements if the current Tracker data schema uses it
-		if Tracker.Data[k] ~= nil then
-			Tracker.Data[k] = v
+	-- If the loaded data's romHash matches this current game exactly, use it; otherwise use the empty data
+	if fileData ~= nil and fileData.romHash ~= nil and fileData.romHash == Tracker.Data.romHash then
+		for k, v in pairs(fileData) do
+			-- Only add data elements if the current Tracker data schema uses it
+			if Tracker.Data[k] ~= nil then
+				Tracker.Data[k] = v
+			end
 		end
+		local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+		local fileNameIndex = string.match(filepath, slashpattern)
+		local filename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
+
+		Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile .. Utils.inlineIf(filename ~= "", ": " .. filename, "")
+	else
+		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
 	end
 
-	-- Removing for now as the name wasn't really helpful and I wanted a more clear message
-	-- local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
-	-- local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
-	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile --.. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
-	return true, Tracker.DataMessage
+	print(Tracker.DataMessage)
 end

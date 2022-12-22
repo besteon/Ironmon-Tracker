@@ -6,7 +6,7 @@
 
 ## General Information
 
-Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html) (v0.10.0 or higher) used to track ironMON attempts.
+Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) used to track ironMON attempts.
 
 For more information on ironMON, see <http://ironmon.gg>
 
@@ -22,9 +22,9 @@ This project is based on [MKDasher's PokemonBizhawkLua project](https://github.c
 
 For NDS (gen 4/5) games, please use the [NDS Ironmon Tracker](https://github.com/Brian0255/NDS-Ironmon-Tracker) by OnlySpaghettiCode
 
-Currently supported Pokémon games / languages:
+The following games/languages are currently supported:
 
-| Version  | Ruby | Sapphire | Emerald | FireRed | LeafGreen |
+| Version  | Pokémon Ruby | Pokémon Sapphire | Pokémon Emerald | Pokémon FireRed | Pokémon LeafGreen |
 | :------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
 | English  | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
 | Spanish  | ❌ | ❌ | ❌ | ✔️ | ❌ |
@@ -33,17 +33,12 @@ Currently supported Pokémon games / languages:
 | German   | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | Japanese | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
+We'd ideally like to support all non-English versions if we can, see [here](https://github.com/besteon/Ironmon-Tracker/issues/62) for progress updates if you're curious.
 
 ## Installation
 
-1. **Get a Supported Emulator**:
-   - We recommend using the Bizhawk emulator (Windows/Linux only).
-	   - [Download Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
-		- If you are on Windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first
-		- If you are on Linux, we recommend using Bizhawk 2.9 or higher
-	- Alternatively, you can use the MGBA emulator (Windows/Mac/Linux).
-	   - [Download MGBA](https://mgba.io/downloads.html) (v0.10.0 or higher)
+1. **Get Bizhawk**: If you haven't used BizHawk before, [download the emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
+   - If you are on windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first.
 2. **Download the Tracker**: You can get the latest project release from the [releases](https://github.com/besteon/Ironmon-Tracker/releases/latest) section.
    - The main branch contains some extra dev files not intended for the main releases. You can clone this if you want but for most users we'd recommend the downloads in the releases section.
 	- The staging branch may have additional features not fully tested. If you're feeling adventurous then you are more than welcome to clone this. If you come across issues then let us know, providing full logs and output from the lua console for any errors.
@@ -53,13 +48,15 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-- **_NEW!!_ MGBA Emulator Support!**
+- **_NEW!!_ Automatic Self-Updater! (Finally)**
 
-![image](https://user-images.githubusercontent.com/4258818/209012095-c2c4d9d7-7f09-4764-afe4-1461f77ceb16.png)
+![image](https://user-images.githubusercontent.com/4258818/200697878-3b6a2cdd-1d6a-400b-b18c-f927c32f1c6f.png)
 
-- **_NEW!!_ Full Tracked Move History**
+- **_NEW!!_ Virtual Pet Icon Set!**
 
-![image](https://user-images.githubusercontent.com/4258818/209043481-ad71a433-92ca-47f1-9e24-94790dab70dc.png)
+Created by Ryastoise
+
+![image](https://user-images.githubusercontent.com/4258818/200044699-5f30af18-0be3-494c-b939-41bc5cf1dc0a.png)
 
 See the project's Wiki for a full [version changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
@@ -73,7 +70,7 @@ If you're planning to implement a new feature, we'd ask that you either open a f
 
 Generally, we try to avoid revealing too much information that a player can't gather themself in-game in some way. For example, we *won't* show a Pokémon's EVs and IVs directly as you don't get that information in the games. We also like to try and make toggleable options for certain features for those that would rather have them disabled.
 
-Additionally, if the feature involves a UI element on the tracker screen, we want to make it as clear and simple to use as we can. There's limited space on the tracker screens so we also want to avoid cramming too many things in or extending the current size of the tracker (as this would mess with many people's stream layouts).
+Additionally, if the feature involves a UI element on the tracker screen, we want to make it as clear and simple to use as we can. There's limited space on the tracker screens so we also want to avoid cramming too many things in. When it comes to displaying something on the tracker we want to make it clear to both users and potential stream viewers.
 
 ### Development Set-Up
 
@@ -82,28 +79,19 @@ There are a couple of VS Code extensions which we recommend, which should automa
 - [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig): To help with consistent formatting.
 - [vscode-lua](https://marketplace.visualstudio.com/items?itemName=trixnz.vscode-lua): Provides intellisense and linting for Lua.
 
-Lua Versions:
-- Bizhawk 2.8 uses Lua 5.1, this is the version currently set in our `.vscode/settings.json` file for linting.
-- Bizhawk 2.9 and mGBA use Lua 5.4
-   - Since we intend to still support Bizhawk 2.8 the code must be compatible with both Lua 5.1 and 5.4
-
-Emu-specific Lua documentation:
-- [Bizhawk Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions)
-- [mGBA Scripting API](https://mgba.io/docs/scripting.html)
+Bizhawk currently uses Lua 5.1, and provides some additional [Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions) which allow for communicating with and drawing on the emulator.
 
 ### Branches and Processes
 
-The primary branches of the Ironmon-Tracker repository are as follows:
+The Ironmon-Tracker main repository has three branches:
 
 - Main: This is kept in a state of the latest release. We merge into this branch from staging when we are ready to do the final checks and make a new release.
-- Staging: This is essentially the "beta" build of the next release, where the majority of contributions merge into.
-- Bugfixes: This branch is for any quick/minor bugfixes. It regularly gets updated to match and pull fixes into the staging branch.
+- Staging: This is essentially the "beta" build of the next release, where the majority of contributions merge into. If you are contributing a feature we'd ask that you make your Pull request to this branch.
+- Bugfixes: As the name implies, this branch is for any quick/minor bugfixes. It regularly gets updated to match and pull fixes into the staging branch. If your contribution is a bugfix of some sort, we'd recommend making the Pull request to this branch.
 
-**Make your PRs to either Staging or Bugfixes, whichever is more fitting for the contribution.**
-
-The workflow we'd recommend for contributing:
+The workflow we'd recommend for contributing is as follows:
 
 1. Create a fork of the repository.
 2. Create a branch on your local fork for your new feature/contribution. Make your commits to this branch.
-3. When you are ready to send it to us for review, open a Pull Request back to this repository. Request to merge into either Staging or Bugfixes depending on what the contribution is (see above).
+3. When you are ready to send it to us for review, open a Pull Request back to the main repository. Request to merge into either Staging or Bugfixes depending on what the contribution is (see above).
 4. We'll review the Pull Request and decide whether it needs some changes / more work or if we're happy to merge it in.

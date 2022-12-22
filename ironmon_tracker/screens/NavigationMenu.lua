@@ -40,7 +40,7 @@ NavigationMenu.Buttons = {
 			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
 				self.textColor = NavigationMenu.textColor
 			else
-				-- If neither quickload option is enabled, then highlight it to draw user's attention
+				-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
 				self.textColor = "Intermediate text"
 			end
 		end,
@@ -73,11 +73,10 @@ NavigationMenu.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			-- Always show the update menu if using a dev build, to allow updating from dev branch
-			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
-				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-			else
+			if Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
+			else
+				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 			end
 			Program.changeScreenView(Program.Screens.UPDATE)
 		end
@@ -171,9 +170,6 @@ function NavigationMenu.initialize()
 	end
 
 	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
-	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
-		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
-	end
 	NavigationMenu.Buttons.QuickloadSettings:updateText()
 	NavigationMenu.Buttons.CheckForUpdates:updateText()
 
@@ -185,29 +181,14 @@ function NavigationMenu.initialize()
 end
 
 function NavigationMenu.openWikiBrowserWindow()
-	local wasSoundOn
-	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
-	end
-
+	-- The first parameter is the title of the window, the second is the url
 	if Main.OS == "Windows" then
-		-- The first parameter is the title of the window, the second is the url
-		os.execute(string.format('start "" "%s"', FileManager.Urls.WIKI))
+		os.execute(string.format('start "" "%s"', Constants.Release.WIKI_URL))
 	else
-		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
-		local success = os.execute(string.format('open "%s"', FileManager.Urls.WIKI)) -- Mac OSX
-		if not success then
-			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.WIKI)) -- Linux
-			if not success then
-				Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-				print(string.format("> Github Wiki: %s", FileManager.Urls.WIKI))
-			end
-		end
-	end
-
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
+		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
+		os.execute(string.format('open "" "%s"', Constants.Release.WIKI_URL))
+		Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
+		print(string.format("Help Wiki: %s", Constants.Release.WIKI_URL))
 	end
 end
 
@@ -294,8 +275,7 @@ function NavigationMenu.drawCredits()
 
 	Drawing.drawText(offsetX, offsetY, "Created by:", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
 	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
-	gui.drawImage(espeonImage, topboxColX + 40, offsetY - 13, 32, 32)
+	gui.drawImage(Main.DataFolder .. "/images/pokemon/196.gif", topboxColX + 40, offsetY - 13, 32, 32) -- Espeon
 	offsetY = offsetY + linespacing + 10
 
 	Drawing.drawText(offsetX, offsetY, "Contributors: ", Theme.COLORS[NavigationMenu.textColor], shadowcolor)

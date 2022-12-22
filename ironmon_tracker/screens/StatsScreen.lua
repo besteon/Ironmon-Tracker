@@ -11,11 +11,7 @@ StatsScreen = {
 
 StatsScreen.StatTables = {
 	{
-		name = "Total attempts",
-		getValue = function() return Main.currentSeed or 1 end,
-	},
-	{
-		name = Constants.Words.POKE .. "centers used",
+		name = Constants.Words.POKE .. "centers Used",
 		getValue = function()
 			local gameStat_UsedPokecenter = Utils.getGameStat(Constants.GAME_STATS.USED_POKECENTER) or 0
 			local gameStat_RestedAtHome = Utils.getGameStat(Constants.GAME_STATS.RESTED_AT_HOME) or 0
@@ -24,31 +20,31 @@ StatsScreen.StatTables = {
 		end,
 	},
 	{
-		name = "Trainer battles",
+		name = "Trainer Battles",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0 end,
 	},
 	{
-		name = "Wild encounters",
+		name = "Wild Encounters",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES) or 0 end,
 	},
 	{
-		name = Constants.Words.POKEMON .. " caught",
+		name = Constants.Words.POKEMON .. " Caught",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.POKEMON_CAPTURES) or 0 end,
 	},
-	{ -- Temporarily adding this back in: it's not # items bought but rather # of bulk purchases
-		name = "Bulk shop purchases",
-		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
-	},
+	-- { -- Temporarily removing this as it's confusing: it's not # items bought but rather # of bulk purchases
+	-- 	name = "Bulk Shop Purcahses",
+	-- 	getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SHOPPED) or 0 end,
+	-- },
 	{
-		name = "Game saves",
+		name = "Game Saves",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0 end,
 	},
 	{
-		name = "Total steps",
+		name = "Total Steps",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.STEPS) or 0 end,
 	},
 	{
-		name = "Struggles used",
+		name = "Struggles Used",
 		getValue = function() return Utils.getGameStat(Constants.GAME_STATS.USED_STRUGGLE) or 0 end,
 	},
 }

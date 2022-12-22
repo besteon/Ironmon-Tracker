@@ -1,43 +1,8 @@
 Utils = {}
 
--- Bitwise AND operation
-function Utils.bit_and(value1, value2)
-	return Utils.bit_oper(value1, value2, 4)
-end
-
--- Bitwise OR operation
-function Utils.bit_or(value1, value2)
-	return Utils.bit_oper(value1, value2, 1)
-end
-
--- Bitwise XOR operation
-function Utils.bit_xor(value1, value2)
-	return Utils.bit_oper(value1, value2, 3)
-end
-
--- operand: 1 = OR, 3 = XOR, 4 = AND
-function Utils.bit_oper(a, b, operand)
-	local r, m, s = 0, 2^31, nil
-	repeat
-		s,a,b = a+b+m, a%m, b%m
-		r,m = r + m*operand%(s-a-b), m/2
-	until m < 1
-	return math.floor(r)
-end
-
--- Shifts bits of 'value', 'n' bits to the left
-function Utils.bit_lshift(value, n)
-	return math.floor(value) * (2 ^ n)
-end
-
--- Shifts bits of 'value', 'n' bits to the right
-function Utils.bit_rshift(value, n)
-	return math.floor(value / (2 ^ n))
-end
-
 -- gets bits from least significant to most
 function Utils.getbits(value, startIndex, numBits)
-	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
+	return bit.rshift(value, startIndex) % bit.lshift(1, numBits)
 end
 
 function Utils.addhalves(value)
@@ -46,43 +11,16 @@ function Utils.addhalves(value)
 	return b + c
 end
 
--- Goal is to change from little to big endian, or vice-versa. Likely a better way to do this
-function Utils.reverseEndian32(value)
-	local a = Utils.bit_and(value, 0xFF000000)
-	local b = Utils.bit_and(value, 0x00FF0000)
-	local c = Utils.bit_and(value, 0x0000FF00)
-	local d = Utils.bit_and(value, 0x000000FF)
-	return Utils.bit_lshift(d, 24) + Utils.bit_lshift(c, 8) + Utils.bit_rshift(b, 8) + Utils.bit_rshift(a, 24)
-end
-
 -- If the `condition` is true, the value in `T` is returned, else the value in `F` is returned
 function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end
 end
 
-function Utils.printDebug(message, ...)
-	if ... ~= nil then
-		message = string.format(message, ...)
-	end
+function Utils.printDebug(message)
 	if message ~= Utils.prevMessage then
 		print(message)
 		Utils.prevMessage = message
 	end
-end
-
--- Alters the string by changing the first character to uppercase
-function Utils.firstToUpper(str)
-	if str == nil or str == "" then return str end
-	return str:gsub("^%l", string.upper)
-end
-
--- Format "START" as "Start", and "a" as "A"
-function Utils.formatControls(gbaButtons)
-	local controlCombination = ""
-	for txtInput in string.gmatch(gbaButtons or "", '([^,%s]+)') do
-		controlCombination = controlCombination .. txtInput:sub(1,1):upper() .. txtInput:sub(2):lower() .. ", "
-	end
-	return controlCombination:sub(1, -3) or ""
 end
 
 function Utils.centerTextOffset(text, charSize, width)
@@ -100,73 +38,6 @@ function Utils.formatNumberWithCommas(number)
 
   -- reverse the int-string back remove an optional comma and put the optional minus and fractional part back
   return minus .. int:reverse():gsub("^,", "") .. fraction
-end
-
--- Replacement for string.format() that works with UTF8 special characters
-function Utils.formatUTF8(format, ...)
-	if Main.emulator == Main.EMU.BIZHAWK28 then
-		-- Doesn't work in Lua 5.1
-		return string.format(format, ...)
-	end
-	local args, strings, pos = {...}, {}, 0
-	for spec in format:gmatch'%%.-([%a%%])' do
-		pos = pos + 1
-		local s = args[pos]
-		if spec == 's' and type(s) == 'string' and s ~= '' then
-			table.insert(strings, s)
-			---@diagnostic disable-next-line: undefined-global
-			args[pos] = '\1'..('\2'):rep(utf8.len(s)-1) -- utf8.len required to properly size utf-8 chars
-		end
-	end
-	return (
-		---@diagnostic disable-next-line: deprecated
-		format:format(table.unpack(args))
-			:gsub('\1\2*', function() return table.remove(strings, 1) end)
-	)
-end
-
--- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
--- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
--- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
-function Utils.getClosestWord(word, wordlist, threshold)
-	if word == nil or word == "" then return word end
-	local function min(a, b, c) return math.min(math.min(a, b), c) end
-	local function matrix(row, col)
-		local m = {}
-		for i = 1,row do
-			m[i] = {}
-			for j = 1,col do m[i][j] = 0 end
-		end
-		return m
-	end
-	local function lev(strA, strB)
-		local M = matrix(#strA + 1, #strB + 1)
-		local cost
-		local row, col = #M, #M[1]
-		for i = 1, row do M[i][1] = i - 1 end
-		for j = 1, col do M[1][j] = j - 1 end
-		for i = 2, row do
-			for j = 2, col do
-				if (strA:sub(i-1, i-1) == strB:sub(j-1, j-1)) then cost = 0
-				else cost = 1
-				end
-				M[i][j] = min(M[i-1][j] + 1, M[i][j-1] + 1, M[i-1][j-1] + cost)
-			end
-		end
-		return M[row][col]
-	end
-	local closestDistance = -1
-	local closestWordKey
-	for key, val in pairs(wordlist) do
-		local levRes = lev(word, val)
-		if levRes < closestDistance or closestDistance == -1 then
-			closestDistance = levRes
-			closestWordKey = key
-		end
-	end
-	if closestDistance <= threshold then return closestWordKey, wordlist[closestWordKey]
-	else return nil, word
-	end
 end
 
 function Utils.randomPokemonID()
@@ -210,16 +81,28 @@ function Utils.calcShadowColor(color, scale)
 	scale = scale or 0.92
 	local color_hexval = (color - 0xFF000000)
 
-	local r = Utils.bit_rshift(color_hexval, 16)
-	local g = Utils.bit_rshift(Utils.bit_and(color_hexval, 0x00FF00), 8)
-	local b = Utils.bit_and(color_hexval, 0x0000FF)
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
+
+	--[[
+	local scale = 0x10 -- read as: 6.25%
+	local isDarkBG = (1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255) >= 0.5;
+	if isDarkBG then
+		scale = 0x90 -- read as: 56.25%
+	end
+	-- scale RGB values down to make them darker
+	r = r - r * scale / 0x100
+	g = g - g * scale / 0x100
+	b = b - b * scale / 0x100
+	]]--
 
 	r = math.max(r * scale, 0)
 	g = math.max(g * scale, 0)
 	b = math.max(b * scale, 0)
 
 	-- build color with new hex values
-	color_hexval = Utils.bit_lshift(r, 16) + Utils.bit_lshift(g, 8) + b
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -227,16 +110,16 @@ end
 function Utils.calcGrayscale(color, scale)
 	scale = scale or 0.80
 	local color_hexval = (color - 0xFF000000)
-	local r = Utils.bit_rshift(color_hexval, 16)
-	local g = Utils.bit_rshift(Utils.bit_and(color_hexval, 0x00FF00), 8)
-	local b = Utils.bit_and(color_hexval, 0x0000FF)
+	local r = bit.rshift(color_hexval, 16)
+	local g = bit.rshift(bit.band(color_hexval, 0x00FF00), 8)
+	local b = bit.band(color_hexval, 0x0000FF)
 	local gray = 0.2989 * r + 0.5870 * g + 0.1140 * b -- CCIR 601 spec weights
 
 	r = math.max(gray * scale + r * (1 - scale), 0)
 	g = math.max(gray * scale + g * (1 - scale), 0)
 	b = math.max(gray * scale + b * (1 - scale), 0)
 
-	color_hexval = Utils.bit_lshift(r, 16) + Utils.bit_lshift(g, 8) + b
+	color_hexval = bit.lshift(r, 16) + bit.lshift(g, 8) + b
 	return (0xFF000000 + color_hexval)
 end
 
@@ -251,9 +134,9 @@ function Utils.calculateContrastRatio(color1, color2)
 		local sB = tonumber(hex:sub(5,6), 16) / 255
 
 		-- Obtain the luminances from sRGB values
-		local lR = Utils.inlineIf(sR <= 0.04045, sR / 12.92, ((sR + 0.055) / 1.055) ^ 2.4)
-		local lG = Utils.inlineIf(sG <= 0.04045, sG / 12.92, ((sG + 0.055) / 1.055) ^ 2.4)
-		local lB = Utils.inlineIf(sB <= 0.04045, sB / 12.92, ((sB + 0.055) / 1.055) ^ 2.4)
+		local lR = Utils.inlineIf(sR <= 0.04045, sR / 12.92, math.pow((sR + 0.055) / 1.055, 2.4))
+		local lG = Utils.inlineIf(sG <= 0.04045, sG / 12.92, math.pow((sG + 0.055) / 1.055, 2.4))
+		local lB = Utils.inlineIf(sB <= 0.04045, sB / 12.92, math.pow((sB + 0.055) / 1.055, 2.4))
 
 		return 0.2126 * lR + 0.7152 * lG + 0.0722 * lB
 	end
@@ -277,8 +160,8 @@ function Utils.calculateMoveStars(pokemonID, level)
 	end
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
-	local trackedMoves = Tracker.getMoves(pokemonID)
-	if trackedMoves[1].moveId == 0 then
+	local pokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	if pokemon.moves == nil then
 		return stars
 	end
 
@@ -286,29 +169,29 @@ function Utils.calculateMoveStars(pokemonID, level)
 	local movesLearnedSince = { 0, 0, 0, 0 }
 	local allMoveLevels = PokemonData.Pokemon[pokemonID].movelvls[GameSettings.versiongroup]
 	for _, lv in pairs(allMoveLevels) do
-		for i = 1, 4, 1 do
-			if lv > trackedMoves[i].level and lv <= level then
-				movesLearnedSince[i] = movesLearnedSince[i] + 1
+		for moveIndex, move in pairs(pokemon.moves) do
+			if lv > move.level and lv <= level then
+				movesLearnedSince[moveIndex] = movesLearnedSince[moveIndex] + 1
 			end
 		end
 	end
 
 	-- Determine which moves are the oldest, by ranking them against their levels learnt.
 	local moveAgeRank = { 1, 1, 1, 1 }
-	for i = 1, 4, 1 do
-		for moveIndexCompare, moveCompare in pairs(trackedMoves) do
-			if i ~= moveIndexCompare then
-				if trackedMoves[i].level > moveCompare.level then
-					moveAgeRank[i] = moveAgeRank[i] + 1
+	for moveIndex, move in pairs(pokemon.moves) do
+		for moveIndexCompare, moveCompare in pairs(pokemon.moves) do
+			if moveIndex ~= moveIndexCompare then
+				if move.level > moveCompare.level then
+					moveAgeRank[moveIndex] = moveAgeRank[moveIndex] + 1
 				end
 			end
 		end
 	end
 
 	-- A move is only star'd if it was possible it has been forgotten
-	for i = 1, 4, 1 do
-		if trackedMoves[i].level ~= 1 and movesLearnedSince[i] >= moveAgeRank[i] then
-			stars[i] = "*"
+	for moveIndex, move in pairs(pokemon.moves) do
+		if move.level ~= 1 and movesLearnedSince[moveIndex] >= moveAgeRank[moveIndex] then
+			stars[moveIndex] = "*"
 		end
 	end
 
@@ -336,16 +219,9 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local movesText = "Moves"
-	local nextMoveSpacing = 13
-	if #Tracker.getMoves(pokemonID) > 4 then
-		movesText = movesText .. "*"
-		nextMoveSpacing = nextMoveSpacing + 1
-	end
-
-	local header = string.format("%s %s/%s", movesText, movesLearned, #allMoveLevels)
+	local header = "Moves " .. movesLearned .. "/" .. #allMoveLevels
 	if foundNextMove then
-		nextMoveSpacing = nextMoveSpacing + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
+		local nextMoveSpacing = 13 + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
 		header = header .. " (" .. nextMoveLevel .. ")"
 		return header, nextMoveLevel, nextMoveSpacing
 	else
@@ -353,7 +229,6 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	end
 end
 
--- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
 	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
 		return { Constants.BLANKLINE }
@@ -435,7 +310,7 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 
 	-- Moves that calculate specific damage amounts still check immunities, but otherwise ignore type-effectiveness
 	-- Examples: Fissure, Mirror Coat, Dragon Rage, Bide, Endeavor
-	if (move.power == "0" or move.power == Constants.BLANKLINE) and total ~= 0.0 then
+	if move.power == "0" and total ~= 0.0 then
 		return 1.0
 	else
 		return total
@@ -444,12 +319,12 @@ end
 
 -- moveType required for Hidden Power tracked type
 function Utils.isSTAB(move, moveType, comparedTypes)
-	if move == nil or comparedTypes == nil or moveType == PokemonData.Types.UNKNOWN then
+	if move == nil or comparedTypes == nil or move.power == "0" then
 		return false
 	end
 
-	-- If move type is typeless or otherwise can't be stab
-	if MoveData.IsTypelessMove[move.id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
+	-- If type is unknown or typeless
+	if MoveData.IsTypelessMove[move.id] or moveType == PokemonData.Types.UNKNOWN then
 		return false
 	end
 
@@ -601,14 +476,11 @@ function Utils.estimateIVs(pokemon)
 	end
 end
 
-function Utils.pokemonHasMove(pokemon, moveId)
-	if pokemon == nil or moveId == nil then return false end
-
-	moveId = tonumber(moveId) -- requires moveId is a number, unsure how often it gets sent as a string
-	if moveId == nil then return false end
+function Utils.pokemonHasMove(pokemon, moveName)
+	if pokemon == nil or moveName == nil then return false end
 
 	for _, move in pairs(pokemon.moves) do
-		if move.id ~= 0 and move.id ~= nil and moveId == move.id then
+		if move.id ~= 0 and moveName == MoveData.Moves[move.id].name then
 			return true
 		end
 	end
@@ -703,6 +575,60 @@ function Utils.getWordWrapLines(str, limit)
 	return lines
 end
 
+function Utils.writeTableToFile(table, filename)
+	local file = io.open(filename, "w")
+
+	if file ~= nil then
+		local dataString = Pickle.pickle(table)
+
+		--append a trailing \n if one is absent
+		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
+		for dataLine in dataString:gmatch("(.-)\n") do
+			file:write(dataLine)
+			file:write("\n")
+		end
+		file:close()
+	else
+		print("[ERROR] Unable to create auto-save file: " .. filename)
+	end
+end
+
+function Utils.readTableFromFile(filename)
+	local tableData = nil
+	local file = io.open(filename, "r")
+
+	if file ~= nil then
+		local dataString = file:read("*a")
+
+		if dataString ~= nil and dataString ~= "" then
+			tableData = Pickle.unpickle(dataString)
+		end
+		file:close()
+	end
+
+	return tableData
+end
+
+-- Returns a table that contains an entry for each line from a file
+function Utils.readLinesFromFile(filename)
+	local lines = {}
+
+	local file = io.open(filename, "r")
+	if file ~= nil then
+		local fileContents = file:read("*a")
+		if fileContents ~= nil and fileContents ~= "" then
+			for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
+				if line ~= nil then
+					table.insert(lines, line)
+				end
+			end
+		end
+		file:close()
+	end
+
+	return lines
+end
+
 --sets the form location relative to the game window
 --this function does what the built in forms.setlocation function supposed to do
 --currently that function is bugged and should be fixed in 2.9
@@ -721,26 +647,19 @@ function Utils.getSaveBlock1Addr()
 	return Memory.readdword(GameSettings.gSaveBlock1ptr)
 end
 
--- Gets the current game's encryption key
--- Size is the number of bytes (1/2/4) to return an encryption key of
 function Utils.getEncryptionKey(size)
+	-- Gets the current game's encryption key
+	-- Size is the number of bytes to return an encryption key of
 	if GameSettings.game == 1 then -- Ruby/Sapphire don't have an encryption key
 		return nil
 	end
 	local saveBlock2addr = Memory.readdword(GameSettings.gSaveBlock2ptr)
-	local address = saveBlock2addr + GameSettings.EncryptionKeyOffset
-	if size == 1 then
-		return Memory.read8(address)
-	elseif size == 2 then
-		return Memory.read16(address)
-	else
-		return Memory.read32(address)
-	end
+	return Memory.read(saveBlock2addr + GameSettings.EncryptionKeyOffset, size)
 end
 
--- Reads the game stat stored at statIndex in memory
--- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
 function Utils.getGameStat(statIndex)
+	-- Reads the game stat stored at statIndex in memory
+	-- https://github.com/pret/pokefirered/blob/master/include/constants/game_stat.h
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local gameStatsAddr = saveBlock1Addr + GameSettings.gameStatsOffset
 
@@ -748,8 +667,112 @@ function Utils.getGameStat(statIndex)
 
 	local key = Utils.getEncryptionKey(4) -- Want a 32-bit key
 	if key ~= nil then
-		gameStatValue = Utils.bit_xor(gameStatValue, key)
+		gameStatValue = bit.bxor(gameStatValue, key)
 	end
 
-	return math.floor(gameStatValue)
+	return gameStatValue
+end
+
+function Utils.getWorkingDirectory()
+	if Main.Directory ~= nil then
+		return Main.Directory .. "/"
+	else
+		return ""
+	end
+end
+
+function Utils.extractFolderNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local folderStartIndex = path:match("^.*()[\\/]") -- path to folder
+	if folderStartIndex ~= nil then
+		local foldername = path:sub(folderStartIndex + 1)
+		if foldername ~= nil then
+			return foldername
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileNameFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local slashpattern = Utils.inlineIf(Main.OS == "Windows", "^.*()\\", "^.*()/")
+	local nameStartIndex = path:match(slashpattern) -- path to file
+	local nameEndIndex = path:match("^.*()%.") -- file extension
+	if nameStartIndex ~= nil and nameEndIndex ~= nil then
+		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
+		if filename ~= nil then
+			return filename
+		end
+	end
+
+	return ""
+end
+
+function Utils.extractFileExtensionFromPath(path)
+	if path == nil or path == "" then return "" end
+
+	local extStartIndex = path:match("^.*()%.") -- file extension
+	if extStartIndex ~= nil then
+		local extension = path:sub(extStartIndex + 1)
+		if extension ~= nil then
+			return extension:lower()
+		end
+	end
+
+	return ""
+end
+
+function Utils.addCustomThemeToFile(themeName, themeCode)
+	if themeName == nil or themeCode == nil then
+		return
+	end
+
+	local file = io.open(Constants.Files.THEME_PRESETS, "a")
+
+	if file ~= nil then
+		file:write(string.format("%s %s", themeName, themeCode))
+		file:write("\n")
+		file:close()
+	else
+		print(string.format("[ERROR] Unable to save custom Theme \"%s\" to file: %s", themeName, Constants.Files.THEME_PRESETS))
+	end
+end
+
+-- Removes a saved Theme preset by rewriting the file with all presets, but excluding the one that is being removed
+function Utils.removeCustomThemeFromFile(themeName, themeCode)
+	if themeName == nil or themeCode == nil or not Main.FileExists(Constants.Files.THEME_PRESETS) then
+		return false
+	end
+
+	local existingThemePresets = Utils.readLinesFromFile(Constants.Files.THEME_PRESETS)
+
+	local file = io.open(Constants.Files.THEME_PRESETS, "w")
+	if file == nil then
+		print(string.format("[ERROR] Unable to remove custom Theme \"%s\" from file: %s", themeName, Constants.Files.THEME_PRESETS))
+		return false
+	end
+
+	for index, line in ipairs(existingThemePresets) do
+		local firstHexIndex = line:find("%x%x%x%x%x%x")
+		if firstHexIndex ~= nil then
+			local themeLineCode = line:sub(firstHexIndex)
+			local themeLineName
+			if firstHexIndex <= 2 then
+				themeLineName = "Untitled " .. index
+			else
+				themeLineName = line:sub(1, firstHexIndex - 2)
+			end
+
+			if themeLineName ~= themeName and themeLineCode ~= themeCode then
+				file:write(line)
+				file:write("\n")
+			end
+		end
+	end
+	file:close()
+
+	return true
 end
