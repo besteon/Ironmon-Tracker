@@ -489,12 +489,13 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
+	-- TODO: Temp allowing it to work using os.execute()
 	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
-	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
-		Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
-		return nil
-	end
+	-- if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+	-- 	print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
+	-- 	Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
+	-- 	return nil
+	-- end
 
 	local files = Main.GetQuickloadFiles()
 
@@ -536,20 +537,25 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local generateRomCommand = string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
-	local success, file = FileManager.tryPOpen(generateRomCommand)
-	if success then
-		local output
-		if file.read ~= nil then
-			output = file:read("*all") or ""
-			-- It's possible this message changes in the future?
-			success = (output:find("Randomized successfully!", 1, true) ~= nil)
-			if not success and output ~= "" then -- only print if something went wrong
-				print("> ERROR: " .. output)
+	local success, file
+	if Main.emulator == Main.EMU.MGBA or (Main.IsOnBizhawk() and Main.OS == "Linux") then
+		local result = os.execute(javacommand)
+		success = (result == true or result == 0)
+	else
+		local generateRomCommand = string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+		success, file = FileManager.tryPOpen(generateRomCommand)
+		if success then
+			if file.read ~= nil then
+				local output = file:read("*all") or ""
+				-- It's possible this message changes in the future?
+				success = (output:find("Randomized successfully!", 1, true) ~= nil)
+				if not success and output ~= "" then -- only print if something went wrong
+					print("> ERROR: " .. output)
+				end
 			end
-		end
-		if file.close ~= nil then
-			file:close()
+			if file.close ~= nil then
+				file:close()
+			end
 		end
 	end
 
