@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "1", patch = "5" }
+Main.Version = { major = "7", minor = "1", patch = "6" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -61,18 +61,7 @@ function Main.Initialize()
 		return false
 	end
 
-	-- Create the Settings file if it doesn't exist
-	if not Main.LoadSettings() then
-		Main.SaveSettings(true)
-
-		-- No Settings file means this is the first time the tracker has run, so bounce out for Bizhawk to force a restart
-		if Main.IsOnBizhawk() then -- TODO: Possible we only need to do this for Bizhawk 2.8, not 2.9; will test later
-			print("> ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
-			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
-			client.SetGameExtraPadding(0, 0, 0, 0)
-			return false
-		end
-	end
+	Main.LoadSettings()
 
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
@@ -293,6 +282,9 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+		-- Track that an update was checked today, so no additional api calls are performed today
+		Main.Version.dateChecked = todaysDate
+
 		local wasSoundOn
 		if Main.IsOnBizhawk() then
 			-- Disable Bizhawk sound while the update check is in process
@@ -301,15 +293,9 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		end
 
 		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
-		local success, file = FileManager.tryPOpen(updatecheckCommand)
+		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
 		if success then
-			local response
-			if file.read ~= nil then
-				response = file:read("*all")
-			end
-			if file.close ~= nil then
-				file:close()
-			end
+			local response = table.concat(fileLines, "\n")
 
 			-- Get version number formatted as [major].[minor].[patch]
 			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
@@ -330,8 +316,6 @@ function Main.CheckForVersionUpdate(forcedCheck)
 				Main.Version.showUpdate = true
 			end
 
-			-- Track that an update was checked today, so no additional api calls are performed today
-			Main.Version.dateChecked = todaysDate
 			-- Track the latest available version
 			Main.Version.latestAvailable = latestReleasedVersion
 		end
@@ -537,25 +521,14 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success, file
-	if Main.OS ~= "Windows" and (Main.emulator == Main.EMU.MGBA or Main.emulator == Main.EMU.BIZHAWK28) then
-		local result = os.execute(javacommand)
-		success = (result == true or result == 0)
-	else
-		local generateRomCommand = string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
-		success, file = FileManager.tryPOpen(generateRomCommand)
-		if success then
-			if file.read ~= nil then
-				local output = file:read("*all") or ""
-				-- It's possible this message changes in the future?
-				success = (output:find("Randomized successfully!", 1, true) ~= nil)
-				if not success and output ~= "" then -- only print if something went wrong
-					print("> ERROR: " .. output)
-				end
-			end
-			if file.close ~= nil then
-				file:close()
-			end
+	local success, fileLines = FileManager.tryOsExecute(javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+	if success then
+		local output = table.concat(fileLines, "\n")
+		-- It's possible this message changes in the future?
+		---@diagnostic disable-next-line: cast-local-type
+		success = (output:find("Randomized successfully!", 1, true) ~= nil)
+		if not success and output ~= "" then -- only print if something went wrong
+			print("> ERROR: " .. output)
 		end
 	end
 

@@ -27,6 +27,11 @@ function MGBA.clearConsole()
 end
 
 function MGBA.printStartupInstructions()
+	-- Lazy solution to spot it from doubling instructions if you load script before game ROM
+	if MGBA.hasPrintedInstructions then
+		return
+	end
+
 	print("")
 	print("- Click on the menus on the left sidebar to see different information screens.")
 	print("- To use commands, type the command into the box below.")
@@ -35,6 +40,7 @@ function MGBA.printStartupInstructions()
 	print("")
 	print('- If you\'re unsure of what a command does, you can use: HELP "command"')
 	print("- More information can be found on the Tracker's wiki by typing: HELPWIKI()")
+	MGBA.hasPrintedInstructions = true
 end
 
 function MGBA.setupActiveRunCallbacks()
