@@ -161,9 +161,11 @@ end
 
 -- Attempts to execute the command, returning two results: success, outputTable
 function FileManager.tryOsExecute(command, errorFile)
-	errorFile = errorFile or "&1"
 	local tempOutputFile = FileManager.prependDir(FileManager.Files.OSEXECUTE_OUTPUT)
-	local commandWithOutput = string.format('%s >"%s" 2>"%s"', command, tempOutputFile, errorFile)
+	local commandWithOutput = string.format('%s >"%s"', command, tempOutputFile)
+	if errorFile ~= nil then
+		commandWithOutput = string.format('%s 2>"%s"', commandWithOutput, errorFile)
+	end
 	local result = os.execute(commandWithOutput)
 	local success = (result == true or result == 0) -- 0 = success in some cases
 	if not success then
