@@ -252,7 +252,7 @@ function Battle.updateTrackedInfo()
 	if not Battle.moveDelayed() and not Battle.isGhost then
 
 		-- Handle Focus punch separately
-		if not Battle.battleMsg == GameSettings.BattleScript_FocusPunchSetUp then
+		if Battle.battleMsg ~= GameSettings.BattleScript_FocusPunchSetUp then
 		-- Check if we are on a new action cycle (Range 0 to numBattlers - 1)
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
