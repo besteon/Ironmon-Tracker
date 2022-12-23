@@ -155,7 +155,7 @@ function UpdateOrInstall.performParallelUpdate()
 	end
 
 	-- Attempt to replace the local UpdateOrInstall.lua with the newly downloaded one
-	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UpdateOrInstall, true)
+	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UPDATE_OR_INSTALL, true)
 
 	local success = UpdateOrInstall.updateFiles(archiveFolderPath)
 	if success then
