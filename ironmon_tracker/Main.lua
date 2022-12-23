@@ -61,6 +61,8 @@ function Main.Initialize()
 		return false
 	end
 
+	Main.LoadSettings()
+
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
 	-- Get the quickload files just once to be used in several places during start-up, removed later
@@ -280,6 +282,9 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+		-- Track that an update was checked today, so no additional api calls are performed today
+		Main.Version.dateChecked = todaysDate
+
 		local wasSoundOn
 		if Main.IsOnBizhawk() then
 			-- Disable Bizhawk sound while the update check is in process
@@ -311,8 +316,6 @@ function Main.CheckForVersionUpdate(forcedCheck)
 				Main.Version.showUpdate = true
 			end
 
-			-- Track that an update was checked today, so no additional api calls are performed today
-			Main.Version.dateChecked = todaysDate
 			-- Track the latest available version
 			Main.Version.latestAvailable = latestReleasedVersion
 		end

@@ -31,6 +31,26 @@ StartupScreen.Buttons = {
 		end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
 	},
+	UpdateAvailable = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "",
+		textColor = "Positive text",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 12, 30, 10 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 74, Constants.SCREEN.MARGIN + 12, 10, 10 },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function(self) return self.text == "*" end, -- check on text instead of Main.isOnLatestVersion() again
+		updateSelf = function(self)
+			if not Main.isOnLatestVersion() then
+				self.text = "*"
+				if string.len(Main.TrackerVersion or "") > 5 then
+					self.box[1] = self.box[1] + 4
+				end
+			else
+				self.text = ""
+			end
+		end,
+		onClick = function(self) Program.changeScreenView(Program.Screens.UPDATE) end
+	},
 	AttemptsCount = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = Constants.BLANKLINE,
@@ -88,7 +108,7 @@ StartupScreen.Buttons = {
 function StartupScreen.initialize()
 	StartupScreen.setPokemonIcon(Options["Startup Pokemon displayed"])
 
-	-- Update the attempts count to the current seed number
+	StartupScreen.Buttons.UpdateAvailable:updateSelf()
 	StartupScreen.Buttons.AttemptsCount:updateSelf()
 	StartupScreen.Buttons.AttemptsEdit:updateSelf()
 
@@ -248,6 +268,7 @@ function StartupScreen.drawScreen()
 
 	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.version, topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
+	Drawing.drawButton(StartupScreen.Buttons.UpdateAvailable, topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.game, topBox.text, topBox.shadow)
