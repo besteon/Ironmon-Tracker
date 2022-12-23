@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "1", patch = "4" }
+Main.Version = { major = "7", minor = "1", patch = "6" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -61,18 +61,7 @@ function Main.Initialize()
 		return false
 	end
 
-	-- Create the Settings file if it doesn't exist
-	if not Main.LoadSettings() then
-		Main.SaveSettings(true)
-
-		-- No Settings file means this is the first time the tracker has run, so bounce out for Bizhawk to force a restart
-		if Main.IsOnBizhawk() then -- TODO: Possible we only need to do this for Bizhawk 2.8, not 2.9; will test later
-			print("> ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
-			Main.DisplayError("ATTENTION: Please close and re-open Bizhawk to enable the Tracker.")
-			client.SetGameExtraPadding(0, 0, 0, 0)
-			return false
-		end
-	end
+	Main.LoadSettings()
 
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
@@ -293,6 +282,9 @@ function Main.CheckForVersionUpdate(forcedCheck)
 
 	-- Only notify about updates once per day
 	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+		-- Track that an update was checked today, so no additional api calls are performed today
+		Main.Version.dateChecked = todaysDate
+
 		local wasSoundOn
 		if Main.IsOnBizhawk() then
 			-- Disable Bizhawk sound while the update check is in process
@@ -300,13 +292,13 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			client.SetSoundOn(false)
 		end
 
-		local update_cmd = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
-		local pipe = io.popen(update_cmd) or ""
-		if pipe ~= "" then
-			local response = pipe:read("*all") or ""
+		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
+		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
+		if success then
+			local response = table.concat(fileLines, "\n")
 
 			-- Get version number formatted as [major].[minor].[patch]
-			local _, _, major, minor, patch = string.match(response, '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
 			major = major or Main.Version.major
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
@@ -324,8 +316,6 @@ function Main.CheckForVersionUpdate(forcedCheck)
 				Main.Version.showUpdate = true
 			end
 
-			-- Track that an update was checked today, so no additional api calls are performed today
-			Main.Version.dateChecked = todaysDate
 			-- Track the latest available version
 			Main.Version.latestAvailable = latestReleasedVersion
 		end
@@ -483,12 +473,13 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
+	-- TODO: Temp allowing it to work using os.execute()
 	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
-	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
-		Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
-		return nil
-	end
+	-- if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+	-- 	print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
+	-- 	Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
+	-- 	return nil
+	-- end
 
 	local files = Main.GetQuickloadFiles()
 
@@ -530,11 +521,12 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success = false
-	local pipe = io.popen(string.format('%s 2>"%s"', javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)))
-	if pipe ~= nil then
-		local output = pipe:read("*all")
-		success = (output:find("Randomized successfully!", 1, true) ~= nil) -- It's possible this message changes in the future?
+	local success, fileLines = FileManager.tryOsExecute(javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+	if success then
+		local output = table.concat(fileLines, "\n")
+		-- It's possible this message changes in the future?
+		---@diagnostic disable-next-line: cast-local-type
+		success = (output:find("Randomized successfully!", 1, true) ~= nil)
 		if not success and output ~= "" then -- only print if something went wrong
 			print("> ERROR: " .. output)
 		end

@@ -1,7 +1,7 @@
 -- This file is NOT automatically loaded on Tracker startup; only loads *after* new update files are downloaded
 -- In this way, this file will always be the latest version possible and allow for properly updating files
 
--- Lots of redundancy here as this file is meant to work as a standalong or as part of the full Tracker script
+-- Lots of redundancy here as this file is meant to work as a standalone or as part of the full Tracker script
 UpdateOrInstall = {
 	thisFileName = "UpdateOrInstall.lua",
 	trackerFileName = "Ironmon-Tracker.lua",
@@ -155,7 +155,7 @@ function UpdateOrInstall.performParallelUpdate()
 	end
 
 	-- Attempt to replace the local UpdateOrInstall.lua with the newly downloaded one
-	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UpdateOrInstall, true)
+	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UPDATE_OR_INSTALL, true)
 
 	local success = UpdateOrInstall.updateFiles(archiveFolderPath)
 	if success then
@@ -287,7 +287,9 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 			table.insert(batchCommands, string.format('tar -xzf "%s" --overwrite', archive))
 		else
 			table.insert(batchCommands, string.format('mkdir -p "%s"', extractedFolder))
-			table.insert(batchCommands, string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir))
+			local linuxExtract = string.format('tar -xzf "%s" --overwrite -C "%s"', archive, IronmonTracker.workingDir)
+			local macExtract = string.format('tar -xzf "%s" -C "%s"', archive, IronmonTracker.workingDir)
+			table.insert(batchCommands, string.format("(%s || %s)", linuxExtract, macExtract))
 		end
 		table.insert(batchCommands, string.format('rm -rf "%s"', archive))
 

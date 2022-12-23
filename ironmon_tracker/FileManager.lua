@@ -21,6 +21,7 @@ FileManager.Files = {
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
+	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 
 	-- All of the files required by the tracker
 	LuaCode = {
@@ -137,13 +138,11 @@ function FileManager.setupWorkingDirectory()
 	end
 
 	-- Bizhawk handles current working directory differently, this is the only way to get it
-	local function exeCD() return io.popen(getDirCommand) end
-	local success, ret, err = xpcall(exeCD, debug.traceback)
-	if success and Main.IsOnBizhawk() and FileManager.dir == "" then
-		FileManager.dir = ret:read()
-	end
-	if ret ~= nil then
-		ret:close()
+	local success, fileLines = FileManager.tryOsExecute(getDirCommand)
+	if success then
+		if #fileLines >= 1 and Main.IsOnBizhawk() and FileManager.dir == "" then
+			FileManager.dir = fileLines[1]
+		end
 	end
 
 	-- Properly format the working directory
@@ -159,6 +158,30 @@ function FileManager.setupWorkingDirectory()
 
 	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
 end
+
+-- Attempts to execute the command, returning two results: success, outputTable
+function FileManager.tryOsExecute(command, errorFile)
+	local tempOutputFile = FileManager.prependDir(FileManager.Files.OSEXECUTE_OUTPUT)
+	local commandWithOutput = string.format('%s >"%s"', command, tempOutputFile)
+	if errorFile ~= nil then
+		commandWithOutput = string.format('%s 2>"%s"', commandWithOutput, errorFile)
+	end
+	local result = os.execute(commandWithOutput)
+	local success = (result == true or result == 0) -- 0 = success in some cases
+	if not success then
+		return success, {}
+	end
+	return success, FileManager.readLinesFromFile(tempOutputFile)
+end
+
+-- Currently unused, use FileManager.tryOsExecute instead.
+-- Attempts to execute a popen command, returning two results: success, file. Remember to safely close the file (check for nil twice)
+-- function FileManager.tryPOpen(command)
+-- 	if command == nil then return false, command end
+-- 	local function executeCommand() return io.popen(command) end
+-- 	local success, ret, _ = xpcall(executeCommand, debug.traceback) -- 3rd return is error message
+-- 	return (success and ret ~= nil), ret
+-- end
 
 -- Attempts to load a file as Lua code. Returns true if successful; false otherwise.
 function FileManager.loadLuaFile(filename, silenceErrors)
@@ -199,7 +222,7 @@ end
 function FileManager.getFilesFromDirectory(folderpath)
 	local files = {}
 
-	-- io.popen not supported on Linux Bizhawk 2.8, Lua 5.1
+	-- Not supported on Linux Bizhawk 2.8, Lua 5.1
 	if folderpath == nil or (Main.OS ~= "Windows" and Main.emulator == Main.EMU.BIZHAWK28) then
 		return files
 	end
@@ -211,12 +234,11 @@ function FileManager.getFilesFromDirectory(folderpath)
 		-- Note: "-A" removes "." and ".." from the listing
 		scanDirCommand = string.format('ls -A "%s"', folderpath)
 	end
-	local pfile = io.popen(scanDirCommand)
-	if pfile ~= nil then
-		for filename in pfile:lines() do
+	local success, fileLines = FileManager.tryOsExecute(scanDirCommand)
+	if success then
+		for _, filename in ipairs(fileLines) do
 			table.insert(files, filename)
 		end
-		pfile:close()
 	end
 
 	return files
@@ -367,23 +389,29 @@ function FileManager.readTableFromFile(filepath)
 	return tableData
 end
 
--- Returns a table that contains an entry for each line from a file
+-- Returns a table that contains an entry for each line from a filename/filepath
 function FileManager.readLinesFromFile(filename)
 	local lines = {}
 
-	local filepath = FileManager.prependDir(filename)
+	local filepath = FileManager.getPathIfExists(filename)
+	if filepath == nil then
+		return lines
+	end
+
 	local file = io.open(filepath, "r")
-	if file ~= nil then
-		local fileContents = file:read("*a")
-		if fileContents ~= nil and fileContents ~= "" then
-			for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
-				if line ~= nil then
-					table.insert(lines, line)
-				end
+	if file == nil then
+		return lines
+	end
+
+	local fileContents = file:read("*a")
+	if fileContents ~= nil and fileContents ~= "" then
+		for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
+			if line ~= nil then
+				table.insert(lines, line)
 			end
 		end
-		file:close()
 	end
+	file:close()
 
 	return lines
 end
