@@ -70,6 +70,9 @@ function Main.Initialize()
 	Main.ReadAttemptsCount()
 	Main.CheckForVersionUpdate()
 
+	-- TODO: Temporary
+	RandomizerLog.parseLog()
+
 	return true
 end
 
