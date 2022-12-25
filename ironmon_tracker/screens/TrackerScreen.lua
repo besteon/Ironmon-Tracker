@@ -11,8 +11,7 @@ TrackerScreen.Buttons = {
 				pokemonID = pokemon.pokemonID
 			end
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-			return imagepath
+			return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },

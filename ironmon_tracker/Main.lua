@@ -388,6 +388,7 @@ function Main.LoadNextRom()
 		Tracker.resetData()
 
 		if Main.IsOnBizhawk() then
+			GameOverScreen.clearTempSaveStates()
 			if Main.emulator == Main.EMU.BIZHAWK28 then
 				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 			end

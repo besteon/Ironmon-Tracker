@@ -562,6 +562,8 @@ end
 function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
+	GameOverScreen.createTempSaveState()
+
 	Program.Frames.battleDataDelay = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
@@ -577,12 +579,12 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
-        -- RS allocated a dword for the party size
-        if GameSettings.game == 1 then
-	        Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
-        else
-	        Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
-        end
+	-- RS allocated a dword for the party size
+	if GameSettings.game == 1 then
+		Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
+	else
+		Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
+	end
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
@@ -678,6 +680,14 @@ function Battle.endCurrentBattle()
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
+end
+
+function Battle.resetBattle()
+	local oldSaveDataFrames = Program.Frames.saveData
+	Battle.endCurrentBattle()
+	Battle.beginNewBattle()
+	Program.Frames.waitToDraw = 60
+	Program.Frames.saveData = oldSaveDataFrames
 end
 
 function Battle.handleNewTurn()
