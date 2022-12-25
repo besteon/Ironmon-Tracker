@@ -70,9 +70,6 @@ function Main.Initialize()
 	Main.ReadAttemptsCount()
 	Main.CheckForVersionUpdate()
 
-	-- TODO: Temporary
-	RandomizerLog.parseLog()
-
 	return true
 end
 
@@ -268,6 +265,7 @@ function Main.InitializeAllTrackerFiles()
 	TrackedDataScreen.initialize()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
+	GameOverScreen.initialize()
 end
 
 -- Determines if there is an update to the current Tracker version

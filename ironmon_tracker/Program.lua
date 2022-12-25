@@ -36,6 +36,7 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
+	GAMEOVER = GameOverScreen.drawScreen,
 }
 
 Program.GameData = {

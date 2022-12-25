@@ -6,6 +6,7 @@ FileManager.slash = package.config:sub(1,1) or "\\"
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
 	Quickload = "quickload",
+	SavedGames = "saved_games", -- needs to be created first to be used
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
@@ -52,6 +53,7 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
 		"Input.lua",
 		"Drawing.lua",
 		"Program.lua",
