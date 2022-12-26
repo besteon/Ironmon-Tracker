@@ -90,6 +90,7 @@ FileManager.Extensions = {
 	ATTEMPTS = ".txt",
 	ANIMATED_POKEMON = ".gif",
 	BADGE = ".png",
+	SAVESTATE = ".State", -- Bizhawk save-state
 }
 
 FileManager.Urls = {
@@ -220,6 +221,18 @@ function FileManager.formatPathForOS(path)
 		path = path:gsub("/", "\\")
 	end
 	return path
+end
+
+-- Returns true if it creates the folder, false if it already exists (I think)
+function FileManager.createFolder(folderpath)
+	if folderpath == nil then return end
+	local command
+	if Main.OS == "Windows" then
+		command = string.format('mkdir "%s"', folderpath)
+	else
+		command = string.format('mkdir -p "%s"', folderpath)
+	end
+	return FileManager.tryOsExecute(command)
 end
 
 -- Returns a list of file names found in a given folder

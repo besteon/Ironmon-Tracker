@@ -227,13 +227,13 @@ function GameOverScreen.saveCurrentGameFiles()
 		return false
 	end
 
-	-- TODO: Might need to create the savePathDir first, test later
+	FileManager.createFolder(FileManager.prependDir(FileManager.Folders.SavedGames))
 
-	local rompathToSave = savePathDir .. romnameToSave
+	local rompathToSave = savePathDir .. romnameToSave .. FileManager.Extensions.GBA_ROM
 	-- Don't replace existing save games, instead make a new one based on current time
 	if FileManager.fileExists(rompathToSave) then
-		romnameToSave = string.format("%s %s", (os.time()), romname)
-		rompathToSave = savePathDir .. romnameToSave
+		romnameToSave = string.format("%s %s", os.time(), romname)
+		rompathToSave = savePathDir .. romnameToSave .. FileManager.Extensions.GBA_ROM
 	end
 	if not FileManager.CopyFile(rompath, rompathToSave, "overwrite") then
 		print("> ERROR: Unable to save a copy of your game's ROM file.")
@@ -262,6 +262,10 @@ function GameOverScreen.saveCurrentGameFiles()
 			return false
 		end
 	end
+
+	local savestatePath = savePathDir .. romnameToSave .. FileManager.Extensions.SAVESTATE
+	---@diagnostic disable-next-line: undefined-global
+	savestate.save(savestatePath)
 
 	return true
 end

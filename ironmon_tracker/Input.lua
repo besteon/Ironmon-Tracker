@@ -198,8 +198,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	-- Check if mouse clicked on the game screen itself
 	if LogViewerOverlay.isDisplayed then
+		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.TabBarButtons)
 		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.PagedButtons)
 		for _, buttonSet in pairs(LogViewerOverlay.PagedButtons) do
 			Input.checkButtonsClicked(xmouse, ymouse, buttonSet)
 		end

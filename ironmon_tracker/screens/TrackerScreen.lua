@@ -289,7 +289,6 @@ TrackerScreen.CarouselTypes = {
 TrackerScreen.carouselIndex = 1
 TrackerScreen.tipMessageIndex = 0
 TrackerScreen.CarouselItems = {}
-TrackerScreen.nextMoveLevelHighlight = 0xFFFFFF00
 
 TrackerScreen.PokeBalls = {
 	chosenBall = -1,
@@ -371,31 +370,10 @@ function TrackerScreen.initialize()
 	end
 
 	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
-	TrackerScreen.setNextMoveLevelHighlight(true)
+	Theme.setNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
 
 	TrackerScreen.randomlyChooseBall()
-end
-
--- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
-function TrackerScreen.setNextMoveLevelHighlight(forced)
-	if not forced and not Theme.settingsUpdated then return end
-	local mainBGColor = Theme.COLORS["Main background"]
-	local maxContrast = 0
-	local colorKey = ""
-	for key, color in pairs(Theme.COLORS) do
-		if color ~= mainBGColor and color ~= Theme.COLORS["Header text"] and color ~= Theme.COLORS["Default text"] then
-			local bgContrast = Utils.calculateContrastRatio(color, mainBGColor)
-			if bgContrast > maxContrast then
-				maxContrast = bgContrast
-				colorKey = key
-			end
-		end
-	end
-	TrackerScreen.nextMoveLevelHighlight = Theme.COLORS[colorKey]
-
-	-- Update any buttons with new color
-	TrackerScreen.Buttons.MovesHistory.textColor = colorKey
 end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
@@ -928,12 +906,12 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if #Tracker.getMoves(data.p.id) > 4 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
-		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmovelevel, TrackerScreen.nextMoveLevelHighlight, bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Draw the Moves view box
