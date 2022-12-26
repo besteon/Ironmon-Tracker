@@ -101,9 +101,6 @@ RandomizerLog.GymTMs = {
 
 -- Parses the log file at 'filepath' into the data object RandomizerLog.Data
 function RandomizerLog.parseLog(filepath)
-	filepath = filepath or RandomizerLog.getLogFilePath()
-
-
 	local logLines = FileManager.readLinesFromFile(filepath)
 	if #logLines == 0 then
 		return false
@@ -124,11 +121,6 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.removeMappings()
 
 	return true
-end
-
--- Attempts to get the Randomizer log filepath based on the currently loaded ROM's filepath (usually both in same folder)
-function RandomizerLog.getLogFilePath()
-	return FileManager.prependDir("FRLG Kaizo AutoRandomized.gba.log") -- TODO: replace with actual log logic
 end
 
 -- Returns sanitized input from the log file to be compatible with the Tracker. Trims spacing.

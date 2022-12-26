@@ -15,11 +15,6 @@ Program = {
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
-	ActiveRepel = {
-		inUse = false,
-		stepCount = 0,
-		duration = 100,
-	},
 }
 
 Program.Screens = {
@@ -48,6 +43,17 @@ Program.GameData = {
 			[97] = 0, -- Water Stone
 			[98] = 0, -- Leaf Stone
 	},
+}
+
+Program.ActiveRepel = {
+	inUse = false,
+	stepCount = 0,
+	duration = 100,
+	shouldDisplay = function(self)
+		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
+		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogViewerOverlay.isDisplayed
+		return enabledAndAllowed and not hasConflict
+	end,
 }
 
 Program.Pedometer = {
@@ -123,8 +129,10 @@ function Program.redraw(forced)
 	end
 
 	Program.Frames.waitToDraw = 30
-
 	Drawing.drawScreen(Program.currentScreen)
+	if LogViewerOverlay.isDisplayed and Main.IsOnBizhawk() then
+		LogViewerOverlay.drawScreen()
+	end
 end
 
 function Program.changeScreenView(screen)

@@ -36,6 +36,7 @@ GameOverScreen.Buttons = {
 		text = GameOverScreen.Labels.continuePlaying,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22, Constants.SCREEN.MARGIN + 86, 95, 12 },
 		onClick = function(self)
+			LogViewerOverlay.isDisplayed = false
 			GameOverScreen.resetLabels()
 			Program.changeScreenView(Program.Screens.TRACKER)
 		end,
@@ -58,6 +59,8 @@ GameOverScreen.Buttons = {
 				self.confirmAction = true
 				Program.redraw(true)
 			else
+				GameOverScreen.trainerBattlesLost = GameOverScreen.trainerBattlesLost - 1
+				LogViewerOverlay.isDisplayed = false
 				GameOverScreen.resetLabels()
 				Program.changeScreenView(Program.Screens.TRACKER)
 				GameOverScreen.loadTempSaveState()
@@ -263,7 +266,7 @@ function GameOverScreen.saveCurrentGameFiles()
 	return true
 end
 
--- Attempts to open the current game's log file (if any). Unsure if this will always be discoverable, hence openLogFile function
+--Attempts to get the Randomizer log filepath based on the currently loaded ROM's filepath (usually both in same folder)
 function GameOverScreen.viewLogFile()
 	local romname, rompath
 	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
@@ -291,9 +294,7 @@ function GameOverScreen.viewLogFile()
 		return false
 	end
 
-	-- TODO: parse and show on game screen
-	RandomizerLog.parseLog(logpath)
-	return true
+	return LogViewerOverlay.parseAndDisplay(logpath)
 end
 
 -- Prompts user to select a log file to parse, then displays the parsed data on a new left-screen
@@ -310,8 +311,7 @@ function GameOverScreen.openLogFilePrompt()
 	client.SetSoundOn(false)
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= nil and filepath ~= "" then
-		-- TODO: parse and show on game screen
-		RandomizerLog.parseLog(filepath)
+		LogViewerOverlay.parseAndDisplay(filepath)
 	end
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)

@@ -4,7 +4,7 @@ MoveHistoryScreen = {
 		headerMin = "Min",
 		headerMax = "Max",
 		noTrackedMoves = "(No tracked move data yet)",
-		pageFormat = "Page %s/%s" -- Page 1/3
+		pageFormat = "Page %s/%s" -- e.g. Page 1/3
 	},
 	Colors = {
 		text = "Lower box text",

@@ -266,6 +266,7 @@ function Main.InitializeAllTrackerFiles()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
 	GameOverScreen.initialize()
+	LogViewerOverlay.initialize()
 end
 
 -- Determines if there is an update to the current Tracker version
