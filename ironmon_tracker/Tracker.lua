@@ -176,19 +176,11 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	end
 
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	local trackedMove = { -- Ultimately the tracked data about the move to store
-		id = moveId,
-		level = level,
-		minLv = level,
-		maxLv = level,
-	}
-
-	-- Utils.printDebug("DEBUG: Tracking:  %-12s | %-12s | lv.%s", PokemonData.Pokemon[pokemonID].name, MoveData.Moves[moveId].name, level)
 
 	-- If no move data exist, set this as the first move
 	if trackedPokemon.moves == nil then
 		trackedPokemon.moves = {
-			trackedMove,
+			{ id = moveId, level = level, minLv = level, maxLv = level, },
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
 			{ id = 0, level = 1 },
@@ -205,24 +197,31 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 		end
 	end
 
-	-- If the move has already been seen, update its level
+	-- If the move hasn't been seen or tracked yet, add it
 	local moveSeen = trackedPokemon.moves[moveIndexSeen]
-	if moveSeen ~= nil then
-		-- If known min/max levels are still min/max, keep those instead
-		if moveSeen.minLv ~= nil and moveSeen.minLv < level then
-			trackedMove.minLv = moveSeen.minLv
-		end
-		if moveSeen.maxLv ~= nil and moveSeen.maxLv > level  then
-			trackedMove.maxLv = moveSeen.maxLv
-		end
-
-		trackedPokemon.moves[moveIndexSeen] = trackedMove
-	else
+	if moveSeen == nil then
 		-- If the oldest tracked move is a placeholder, remove it
 		if trackedPokemon.moves[4].id == 0 then
 			trackedPokemon.moves[4] = nil
 		end
-		table.insert(trackedPokemon.moves, 1, trackedMove)
+		table.insert(trackedPokemon.moves, 1, { id = moveId, level = level, minLv = level, maxLv = level, })
+		return
+	end
+
+	-- Otherwise, update the existing move's level information
+	moveSeen.level = level
+	if moveSeen.minLv == nil or level < moveSeen.minLv then
+		moveSeen.minLv = level
+	end
+	if moveSeen.maxLv == nil or level > moveSeen.maxLv then
+		moveSeen.maxLv = level
+	end
+	-- If the move isn't on the list of top 4 moves, move it to the front
+	if moveIndexSeen > 4 then
+		for j = moveIndexSeen, 2, -1 do
+			trackedPokemon.moves[j] = trackedPokemon.moves[j - 1]
+		end
+		trackedPokemon.moves[1] = moveSeen
 	end
 end
 
