@@ -32,6 +32,7 @@ Options = {
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,
 	["Display pedometer"] = false,
+	["Dev branch updates"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",

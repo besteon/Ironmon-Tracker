@@ -124,6 +124,7 @@ Constants.OrderedLists = {
 		"Display repel usage",
 		"Startup Pokemon displayed",
 		"Display pedometer",
+		"Dev branch updates",
 	},
 	CONTROLS = {
 		"Load next seed",

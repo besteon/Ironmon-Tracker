@@ -212,7 +212,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
 		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
-		for i = 1, 7, 1 do
+		for i = 1, 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
 				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))

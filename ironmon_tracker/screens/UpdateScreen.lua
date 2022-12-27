@@ -25,6 +25,28 @@ UpdateScreen = {
 }
 
 UpdateScreen.Buttons = {
+	DevOptIn = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text = " Dev branch updates",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, 8, 8 },
+		toggleState = false, -- update later in initialize
+		toggleColor = "Positive text",
+		onClick = function(self)
+			-- Toggle the setting and store the change to be saved later in Settings.ini
+			self.toggleState = not self.toggleState
+			UpdateOrInstall.Dev.enabled = self.toggleState
+
+			if UpdateOrInstall.Dev.enabled then
+				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+			else
+				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
+			end
+
+			Options.updateSetting(self.text, self.toggleState)
+			Options.forceSave()
+		end
+	},
 	CheckForUpdates = {
 		text = "Check for Updates", -- Can also be "No Updates Available"
 		image = Constants.PixelImages.INSTALL_BOX,
@@ -128,10 +150,18 @@ function UpdateScreen.initialize()
 	end
 
 	for _, button in pairs(UpdateScreen.Buttons) do
-		button.type = Constants.ButtonTypes.FULL_BORDER
-		button.textColor = "Lower box text"
-		button.boxColors = { "Lower box border", "Lower box background" }
+		if button.type == nil then
+			button.type = Constants.ButtonTypes.FULL_BORDER
+		end
+		if button.textColor == nil then
+			button.textColor = "Lower box text"
+		end
+		if button.boxColors == nil then
+			button.boxColors = { "Lower box border", "Lower box background" }
+		end
 	end
+
+	UpdateScreen.Buttons.DevOptIn.toggleState = Options["Dev branch updates"] or false
 
 	-- These buttons share a location, but visiable at different times based on Update Status
 	UpdateScreen.Buttons.CheckForUpdates.box = UpdateScreen.Buttons.UpdateNow.box
@@ -261,11 +291,11 @@ function UpdateScreen.drawScreen()
 	Drawing.drawText(topBox.x + 12, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing + 5
 
-	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
-	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
-	textLineY = textLineY + linespacing
-
-	if not Main.isOnLatestVersion() then
+	if Main.isOnLatestVersion() then
+		Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
+		Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
+		textLineY = textLineY + linespacing
+	else
 		Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
 		Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
 		textLineY = textLineY + linespacing
