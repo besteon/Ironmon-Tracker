@@ -67,7 +67,27 @@ RandomizerLog.Sectors = {
 RandomizerLog.Data = {}
 
 RandomizerLog.GymTMs = {
-	FRLG = {
+	[1] = { -- Game #: Ruby / Sapphire
+		{ leader = "Roxanne", number = 39, },
+		{ leader = "Brawly", number = 8, },
+		{ leader = "Wattson", number = 34, },
+		{ leader = "Flannery", number = 50, },
+		{ leader = "Norman", number = 42, },
+		{ leader = "Winona", number = 40, },
+		{ leader = "Tate & Liza", number = 4, },
+		{ leader = "Juan", number = 3, },
+	},
+	[2] = { -- Game #: Emerald
+		{ leader = "Roxanne", number = 39, },
+		{ leader = "Brawly", number = 8, },
+		{ leader = "Wattson", number = 34, },
+		{ leader = "Flannery", number = 50, },
+		{ leader = "Norman", number = 42, },
+		{ leader = "Winona", number = 40, },
+		{ leader = "Tate & Liza", number = 4, },
+		{ leader = "Wallace", number = 3, },
+	},
+	[3] = { -- Game #: Fire Red / Leaf Green
 		{ leader = "Brock", number = 39, },
 		{ leader = "Misty", number = 3, },
 		{ leader = "Lt. Surge", number = 34, },
@@ -76,26 +96,6 @@ RandomizerLog.GymTMs = {
 		{ leader = "Sabrina", number = 4, },
 		{ leader = "Blaine", number = 38, },
 		{ leader = "Giovanni", number = 26, },
-	},
-	RS = {
-		{ leader = "Roxanne", number = 39, },
-		{ leader = "Brawly", number = 8, },
-		{ leader = "Wattson", number = 34, },
-		{ leader = "Flannery", number = 50, },
-		{ leader = "Norman", number = 42, },
-		{ leader = "Winona", number = 40, },
-		{ leader = "Take & Liza", number = 4, },
-		{ leader = "Juan", number = 3, },
-	},
-	E = {
-		{ leader = "Roxanne", number = 39, },
-		{ leader = "Brawly", number = 8, },
-		{ leader = "Wattson", number = 34, },
-		{ leader = "Flannery", number = 50, },
-		{ leader = "Norman", number = 42, },
-		{ leader = "Winona", number = 40, },
-		{ leader = "Take & Liza", number = 4, },
-		{ leader = "Wallace", number = 3, },
 	},
 }
 
@@ -128,6 +128,7 @@ function RandomizerLog.formatInput(str)
 	if str == nil then return nil end
 	str = str:gsub("♀", " F")
 	str = str:gsub("♂", " M")
+	str = str:gsub("’", "'")
 	str = str:gsub("é", Constants.getC("é"))
 	str = str:gsub("%[PK%]%[MN%]", "PKMN")
 	str = str:match("^%s*(.*)%s*$") or str -- remove leading/trailing spaces
@@ -219,15 +220,14 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 	-- Parse the sector
 	local line = table.remove(logLines, 1)
 	while line ~= nil do
-		local pokemon, hp, atk, def, spatk, spdef, spd, helditems = string.match(line, RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
+		local pokemon, hp, atk, def, spa, spd, spe, helditems = string.match(line, RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
 
 		-- If nothing matches, end of sector
-		if pokemon == nil or spd == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
+		if pokemon == nil or spe == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
 			table.insert(logLines, 1, line)
 			return
 		end
-		-- Utils.printDebug("%s %s %s %s %s %s %s %s", pokemon or "N/A", hp or "N/A", atk or "N/A", def or "N/A", spatk or "N/A", spdef or "N/A", spd or "N/A", helditems or "N/A")
 
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
 		local pokemonData = RandomizerLog.Data.Pokemon[pokemonId]
@@ -236,9 +236,9 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 			pokemonData.BaseStats.hp = tonumber(hp) or 0
 			pokemonData.BaseStats.atk = tonumber(atk) or 0
 			pokemonData.BaseStats.def = tonumber(def) or 0
-			pokemonData.BaseStats.spatk = tonumber(spatk) or 0
-			pokemonData.BaseStats.spdef = tonumber(spdef) or 0
+			pokemonData.BaseStats.spa = tonumber(spa) or 0
 			pokemonData.BaseStats.spd = tonumber(spd) or 0
+			pokemonData.BaseStats.spe = tonumber(spe) or 0
 			if helditems ~= nil and helditems ~= "" then
 				pokemonData.BaseStats.helditems = RandomizerLog.formatInput(helditems)
 			end
@@ -352,12 +352,12 @@ function RandomizerLog.parseTMCompatibility(logLines)
 		end
 
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
-		RandomizerLog.Data.Pokemon[pokemonId].TMs = {}
+		RandomizerLog.Data.Pokemon[pokemonId].TMMoves = {}
 
 		for tm_number in string.gmatch(tms, RandomizerLog.Sectors.TMCompatibility.TMPattern) do
 			tm_number = tonumber(RandomizerLog.formatInput(tm_number) or "") -- nil if not a number
 			if tm_number ~= nil and RandomizerLog.Data.TMs[tm_number] ~= nil then
-				table.insert(RandomizerLog.Data.Pokemon[pokemonId].TMs, tm_number)
+				table.insert(RandomizerLog.Data.Pokemon[pokemonId].TMMoves, tm_number)
 			end
 		end
 		line = table.remove(logLines, 1)

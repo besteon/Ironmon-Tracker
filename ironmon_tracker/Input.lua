@@ -200,6 +200,7 @@ function Input.checkMouseInput(xmouse, ymouse)
 	if LogViewerOverlay.isDisplayed then
 		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.TabBarButtons)
 		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, LogViewerOverlay.TemporaryButtons)
 		for _, buttonSet in pairs(LogViewerOverlay.PagedButtons) do
 			Input.checkButtonsClicked(xmouse, ymouse, buttonSet)
 		end
