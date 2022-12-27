@@ -66,12 +66,16 @@ LogViewerOverlay.Pagination = {
 			self.totalPages = 1
 			LogViewerOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(tabInfoId)
 			LogViewerOverlay.buildPokemonTempButtons(LogViewerOverlay.currentTabData)
-			table.insert(LogViewerOverlay.TabHistory, prevTab)
+			if prevTab.tab ~= LogViewerOverlay.Tabs.POKEMON_ZOOM then
+				table.insert(LogViewerOverlay.TabHistory, prevTab)
+			end
 		elseif newTab == LogViewerOverlay.Tabs.TRAINER_ZOOM then
 			self.totalPages = 1
 			LogViewerOverlay.currentTabData = DataHelper.buildTrainerLogDisplay(tabInfoId)
 			LogViewerOverlay.buildTrainerTempButtons(LogViewerOverlay.currentTabData)
-			table.insert(LogViewerOverlay.TabHistory, prevTab)
+			if prevTab.tab ~= LogViewerOverlay.Tabs.TRAINER_ZOOM then
+				table.insert(LogViewerOverlay.TabHistory, prevTab)
+			end
 		elseif newTab == LogViewerOverlay.Tabs.GO_BACK then
 			prevTab = table.remove(LogViewerOverlay.TabHistory)
 			self:changeTab(prevTab.tab, prevTab.page, prevTab.infoId)
@@ -368,6 +372,7 @@ function LogViewerOverlay.buildPagedButtons()
 		local jumpBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			text = letter,
+			textColor = "Default text",
 			tab = LogViewerOverlay.Tabs.POKEMON,
 			box = { LogViewerOverlay.margin + offsetX, LogViewerOverlay.tabHeight + 2, 8, 10 },
 			isVisible = function(self) return LogViewerOverlay.currentTab == self.tab end,
@@ -424,6 +429,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		local abilityBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			text = btnText,
+			textColor = "Lower box text",
 			abilityId = abilityId,
 			tab = LogViewerOverlay.Tabs.POKEMON_ZOOM,
 			box = { LogViewerOverlay.margin + 1, LogViewerOverlay.tabHeight + offsetY + 13, 60, 11 },

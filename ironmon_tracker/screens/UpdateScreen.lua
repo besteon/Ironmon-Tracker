@@ -30,6 +30,8 @@ UpdateScreen.Buttons = {
 		text = " Dev branch updates",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, 8, 8 },
+		textColor = "Default text",
+		boxColors = { "Upper box border", "Upper box background" },
 		toggleState = false, -- update later in initialize
 		toggleColor = "Positive text",
 		onClick = function(self)
@@ -361,7 +363,11 @@ function UpdateScreen.drawScreen()
 				end
 				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
 			else
-				Drawing.drawButton(button, botBox.shadow)
+				if button.boxColors ~= nil and button.boxColors[2] == "Upper box background" then
+					Drawing.drawButton(button, topBox.shadow)
+				else
+					Drawing.drawButton(button, botBox.shadow)
+				end
 			end
 		end
 	end
