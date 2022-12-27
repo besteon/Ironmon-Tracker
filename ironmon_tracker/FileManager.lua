@@ -6,6 +6,7 @@ FileManager.slash = package.config:sub(1,1) or "\\"
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
 	Quickload = "quickload",
+	SavedGames = "saved_games", -- needs to be created first to be used
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
@@ -33,6 +34,7 @@ FileManager.Files = {
 		FileManager.Folders.DataCode .. FileManager.slash .. "MiscData.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "RouteData.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua",
+		FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua",
 		"Memory.lua",
 		"GameSettings.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua",
@@ -51,6 +53,8 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "LogViewerOverlay.lua",
 		"Input.lua",
 		"Drawing.lua",
 		"Program.lua",
@@ -86,6 +90,7 @@ FileManager.Extensions = {
 	ATTEMPTS = ".txt",
 	ANIMATED_POKEMON = ".gif",
 	BADGE = ".png",
+	SAVESTATE = ".State", -- Bizhawk save-state
 }
 
 FileManager.Urls = {
@@ -216,6 +221,18 @@ function FileManager.formatPathForOS(path)
 		path = path:gsub("/", "\\")
 	end
 	return path
+end
+
+-- Returns true if it creates the folder, false if it already exists (I think)
+function FileManager.createFolder(folderpath)
+	if folderpath == nil then return end
+	local command
+	if Main.OS == "Windows" then
+		command = string.format('mkdir "%s"', folderpath)
+	else
+		command = string.format('mkdir -p "%s"', folderpath)
+	end
+	return FileManager.tryOsExecute(command)
 end
 
 -- Returns a list of file names found in a given folder

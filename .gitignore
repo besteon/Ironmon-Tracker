@@ -2,6 +2,7 @@ Settings.ini
 *.tdat
 *.gba
 *.sav
+*.State
 *.log
 *Attempts.txt
 quickload/*.gba

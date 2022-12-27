@@ -485,8 +485,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			getIconPath = function(self)
 				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				local imagepath = FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-				return imagepath
+				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 			end,
 			pokemonID = pokemonID,
 			rate = rate,

@@ -531,3 +531,79 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 	return data
 end
+
+function DataHelper.buildPokemonLogDisplay(pokemonID)
+	local data = {}
+	data.p = {} -- data about the Pokemon itself
+	data.x = {} -- misc data to display, such as notes
+
+	-- TODO: (Types, Abilities, etc) need to be read-in from the log in case its not the current game being viewed
+	local pokemonDex
+	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
+		pokemonDex = PokemonData.BlankPokemon
+		return data -- likely want a safer way
+	else
+		pokemonDex = PokemonData.Pokemon[pokemonID]
+	end
+	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
+
+	data.p.id = pokemonDex.pokemonID or 0
+	data.p.name = pokemonDex.name or Constants.BLANKLINE
+	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
+	data.p.types = { pokemonDex.types[1], pokemonDex.types[2] }
+	data.p.abilities = {
+		PokemonData.getAbilityId(pokemonDex.pokemonID, 0),
+		PokemonData.getAbilityId(pokemonDex.pokemonID, 1),
+	}
+
+	-- The following are all Randomizer Log information
+	if pokemonLog.BaseStats ~= nil then
+		data.p.helditems = pokemonLog.BaseStats.helditems or Constants.BLANKLINE -- unsure how this is formatted
+	else
+		data.p.helditems = Constants.BLANKLINE
+	end
+
+	-- The Pokemon's randomized base stats
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		if pokemonLog.BaseStats ~= nil then
+			data.p[statKey] = pokemonLog.BaseStats[statKey] or Constants.BLANKLINE
+		else
+			data.p[statKey] = Constants.BLANKLINE
+		end
+	end
+
+	-- The Pokemon's randomized evolutions
+	data.p.evos = {}
+	for _, evoId in ipairs(pokemonLog.Evolutions or {}) do
+		local evoInfo = {
+			id = evoId,
+			name = PokemonData.Pokemon[evoId].name,
+		}
+		table.insert(data.p.evos, evoInfo)
+	end
+
+	-- The Pokemon's level-up move list, in order of levels
+	data.p.moves = {}
+	for _, move in ipairs(pokemonLog.MoveSet or {}) do
+		local moveInfo = {
+			id = move.moveId,
+			level = move.level,
+			name = MoveData.Moves[move.moveId].name,
+		}
+		table.insert(data.p.moves, moveInfo)
+	end
+
+	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
+	data.p.tmmoves = {}
+	for _, tm_number in ipairs(pokemonLog.TMMoves or {}) do
+		local moveId = RandomizerLog.Data.TMs[tm_number] or 0
+		local tmInfo = {
+			tm = tm_number,
+			moveId = moveId,
+			moveName = MoveData.Moves[moveId].name,
+		}
+		table.insert(data.p.tmmoves, tmInfo)
+	end
+
+	return data
+end

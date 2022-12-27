@@ -15,11 +15,6 @@ Program = {
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
-	ActiveRepel = {
-		inUse = false,
-		stepCount = 0,
-		duration = 100,
-	},
 }
 
 Program.Screens = {
@@ -36,6 +31,7 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
+	GAMEOVER = GameOverScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -49,12 +45,27 @@ Program.GameData = {
 	},
 }
 
+Program.ActiveRepel = {
+	inUse = false,
+	stepCount = 0,
+	duration = 100,
+	shouldDisplay = function(self)
+		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
+		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogViewerOverlay.isDisplayed
+		return enabledAndAllowed and not hasConflict
+	end,
+}
+
 Program.Pedometer = {
 	totalSteps = 0, -- updated from GAME_STATS
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
-	isInUse = function(self) return Options["Display pedometer"] and not Battle.inBattle and not Battle.battleStarting end,
+	isInUse = function(self)
+		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
+		local hasConflict = Battle.inBattle or Battle.battleStarting or GameOverScreen.isDisplayed or LogViewerOverlay.isDisplayed
+		return enabledAndAllowed and not hasConflict
+	end,
 }
 
 Program.AutoSaver = {
@@ -122,8 +133,10 @@ function Program.redraw(forced)
 	end
 
 	Program.Frames.waitToDraw = 30
-
 	Drawing.drawScreen(Program.currentScreen)
+	if LogViewerOverlay.isDisplayed and Main.IsOnBizhawk() then
+		LogViewerOverlay.drawScreen()
+	end
 end
 
 function Program.changeScreenView(screen)

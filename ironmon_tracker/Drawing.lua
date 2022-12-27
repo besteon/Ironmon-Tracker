@@ -28,12 +28,13 @@ function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
 
-function Drawing.drawBackgroundAndMargins(x, y, width, height)
+function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	x = x or Constants.SCREEN.WIDTH
 	y = y or 0
 	width = width or Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP
 	height = height or Constants.SCREEN.HEIGHT
-	gui.drawRectangle(x, y, width, height, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	bgcolor = bgcolor or Theme.COLORS["Main background"]
+	gui.drawRectangle(x, y, width, height, bgcolor, bgcolor)
 end
 
 function Drawing.drawPokemonIcon(pokemonID, x, y)
@@ -258,7 +259,7 @@ function Drawing.drawScreen(screenFunc)
 			screenFunc()
 		end
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation() and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
+		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
 		end
 	else
