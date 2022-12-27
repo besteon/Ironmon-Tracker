@@ -673,20 +673,30 @@ function LogViewerOverlay.drawScreen()
 		height = Constants.SCREEN.HEIGHT - LogViewerOverlay.tabHeight - LogViewerOverlay.margin - 1,
 	}
 
-	local shadowcolor
+	local borderColor, shadowcolor
 	if LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON then
-		shadowcolor = LogViewerOverlay.drawPokemonTab(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawPokemonTab(box.x, box.y, box.width, box.height)
+		gui.drawLine(box.x + 2, box.y - 2, box.x + 40, box.y - 2, Theme.COLORS[Theme.headerHighlightKey])
 	elseif LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.TRAINER then
-		shadowcolor = LogViewerOverlay.drawTrainersTab(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawTrainersTab(box.x, box.y, box.width, box.height)
+		gui.drawLine(box.x + 48, box.y - 2, box.x + 78, box.y - 2, Theme.COLORS[Theme.headerHighlightKey])
 	elseif LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.TMS then
-		shadowcolor = LogViewerOverlay.drawTMsTab(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawTMsTab(box.x, box.y, box.width, box.height)
+		gui.drawLine(box.x + 86, box.y - 2, box.x + 100, box.y - 2, Theme.COLORS[Theme.headerHighlightKey])
 	elseif LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.MISC then
-		shadowcolor = LogViewerOverlay.drawMiscTab(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawMiscTab(box.x, box.y, box.width, box.height)
+		gui.drawLine(box.x + 107, box.y - 2, box.x + 126, box.y - 2, Theme.COLORS[Theme.headerHighlightKey])
 	elseif LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM then
-		shadowcolor = LogViewerOverlay.drawPokemonZoomed(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawPokemonZoomed(box.x, box.y, box.width, box.height)
 	elseif LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.TRAINER_ZOOM then
-		shadowcolor = LogViewerOverlay.drawTrainerZoomed(box.x, box.y, box.width, box.height)
+		borderColor, shadowcolor = LogViewerOverlay.drawTrainerZoomed(box.x, box.y, box.width, box.height)
 	end
+
+	-- Draw tab dividers
+	gui.drawLine(box.x, 1, box.x, box.y - 1, borderColor or Theme.COLORS["Upper box border"])
+	gui.drawLine(box.x + 44, 1, box.x + 44, box.y - 1, borderColor or Theme.COLORS["Upper box border"])
+	gui.drawLine(box.x + 82, 1, box.x + 82, box.y - 1, borderColor or Theme.COLORS["Header text"])
+	gui.drawLine(box.x + 104, 1, box.x + 104, box.y - 1, borderColor or Theme.COLORS["Header text"])
 
 	-- Draw all buttons
 	local bgColor = Utils.calcShadowColor(Theme.COLORS["Main background"]) -- Note, "header text" doesn't do shadows for transparency bgs
@@ -712,7 +722,7 @@ function LogViewerOverlay.drawPokemonTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
 
 function LogViewerOverlay.drawTrainersTab(x, y, width, height)
@@ -723,7 +733,7 @@ function LogViewerOverlay.drawTrainersTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
 
 function LogViewerOverlay.drawTMsTab(x, y, width, height)
@@ -734,7 +744,7 @@ function LogViewerOverlay.drawTMsTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
 
 function LogViewerOverlay.drawMiscTab(x, y, width, height)
@@ -745,7 +755,7 @@ function LogViewerOverlay.drawMiscTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
 
 function LogViewerOverlay.drawPokemonZoomed(x, y, width, height)
@@ -834,7 +844,7 @@ function LogViewerOverlay.drawPokemonZoomed(x, y, width, height)
 		Drawing.drawButton(button, shadowcolor)
 	end
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
 
 function LogViewerOverlay.drawTrainerZoomed(x, y, width, height)
@@ -845,5 +855,5 @@ function LogViewerOverlay.drawTrainerZoomed(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	return shadowcolor
+	return borderColor, shadowcolor
 end
