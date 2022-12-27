@@ -337,6 +337,7 @@ function LogViewerOverlay.buildPagedButtons()
 			local button = {
 				type = Constants.ButtonTypes.POKEMON_ICON,
 				pokemonID = id,
+				pokemonName = PokemonData.Pokemon[id].name,
 				tab = LogViewerOverlay.Tabs.POKEMON,
 				isVisible = function(self)
 					return LogViewerOverlay.currentTab == self.tab and LogViewerOverlay.Pagination.currentPage == self.pageVisible
@@ -354,11 +355,52 @@ function LogViewerOverlay.buildPagedButtons()
 		end
 	end
 
-	-- After sorting the moves, determine which are visible on which page, and where on the page vertically
+	-- After sorting, determine which are visible on which page using grid align
 	local startX = LogViewerOverlay.margin + 4
 	local startY = LogViewerOverlay.margin + LogViewerOverlay.tabHeight + 7
 
+	table.sort(LogViewerOverlay.PagedButtons.Pokemon, function(a, b) return a.pokemonID < b.pokemonID end)
 	LogViewerOverlay.gridAlign(LogViewerOverlay.PagedButtons.Pokemon, startX, startY, 32, 32, 1, LogViewerOverlay.Pagination.pokemonPerPage)
+
+	local offsetX = 5
+	local alphabet = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ?"
+	for letter in alphabet:gmatch("(.)") do
+		local jumpBtn = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			text = letter,
+			tab = LogViewerOverlay.Tabs.POKEMON,
+			box = { LogViewerOverlay.margin + offsetX, LogViewerOverlay.tabHeight + 2, 8, 10 },
+			isVisible = function(self) return LogViewerOverlay.currentTab == self.tab end,
+			onClick = function(self)
+				if self.text == "#" then
+					table.sort(LogViewerOverlay.PagedButtons.Pokemon, function(a, b) return a.pokemonID < b.pokemonID end)
+					LogViewerOverlay.gridAlign(LogViewerOverlay.PagedButtons.Pokemon, startX, startY, 32, 32, 1, LogViewerOverlay.Pagination.pokemonPerPage)
+					LogViewerOverlay.Pagination.currentPage = 1
+					LogViewerOverlay.TabBarButtons.CurrentPage:updateText()
+					Program.redraw(true)
+				elseif self.text == "?" then
+					local pokemonId = Utils.randomPokemonID()
+					LogViewerOverlay.Pagination:changeTab(LogViewerOverlay.Tabs.POKEMON_ZOOM, 1, pokemonId)
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonId) -- implied redraw
+				else
+					table.sort(LogViewerOverlay.PagedButtons.Pokemon, function(a, b) return a.pokemonName < b.pokemonName end)
+					LogViewerOverlay.gridAlign(LogViewerOverlay.PagedButtons.Pokemon, startX, startY, 32, 32, 1, LogViewerOverlay.Pagination.pokemonPerPage)
+					local pageToJump = 1
+					for _, pokemonBtn in ipairs(LogViewerOverlay.PagedButtons.Pokemon) do
+						if self.text == pokemonBtn.pokemonName:sub(1, 1):upper() then
+							pageToJump = pokemonBtn.pageVisible or 1
+							break
+						end
+					end
+					LogViewerOverlay.Pagination.currentPage = pageToJump
+					LogViewerOverlay.TabBarButtons.CurrentPage:updateText()
+					Program.redraw(true)
+				end
+			end,
+		}
+		table.insert(LogViewerOverlay.Buttons, jumpBtn)
+		offsetX = offsetX + 8
+	end
 end
 
 function LogViewerOverlay.buildPokemonTempButtons(data)
@@ -441,6 +483,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		textColor = "Lower box text",
 		tab = LogViewerOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
 		box = { movesColX, movesRowY, 60, 11 },
+		isVisible = function(self) return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM end,
 		updateText = function(self)
 			if LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab then
 				self.text = string.format(LogViewerOverlay.Labels.tabFormat, self.tab)
@@ -463,6 +506,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		textColor = "Lower box text",
 		tab = LogViewerOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
 		box = { movesColX + 70, movesRowY, 60, 11 },
+		isVisible = function(self) return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM end,
 		updateText = function(self)
 			if LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab then
 				self.text = string.format(LogViewerOverlay.Labels.tabFormat, self.tab)
@@ -493,7 +537,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 			tab = LogViewerOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
 			pageVisible = math.ceil(i / LogViewerOverlay.PokemonMovesPagination.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY, 80, 11 },
-			isVisible = function(self) return LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab and LogViewerOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
+			isVisible = function(self) return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab and LogViewerOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
 			onClick = function(self)
 				if MoveData.isValid(self.moveId) then
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
@@ -526,7 +570,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 			tab = LogViewerOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
 			pageVisible = math.ceil(i / LogViewerOverlay.PokemonMovesPagination.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY, 80, 11 },
-			isVisible = function(self) return LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab and LogViewerOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
+			isVisible = function(self) return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.currentTab == self.tab and LogViewerOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
 			onClick = function(self)
 				if MoveData.isValid(self.moveId) then
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
@@ -547,7 +591,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		image = Constants.PixelImages.UP_ARROW,
 		textColor = "Lower box text",
 		box = { movesColX + 105, movesRowY + 33, 10, 10 },
-		isVisible = function() return LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
+		isVisible = function() return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
 			LogViewerOverlay.PokemonMovesPagination:prevPage()
 			Program.redraw(true)
@@ -558,7 +602,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		image = Constants.PixelImages.DOWN_ARROW,
 		textColor = "Lower box text",
 		box = { movesColX + 105, movesRowY + 70, 10, 10 },
-		isVisible = function() return LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
+		isVisible = function() return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
 			LogViewerOverlay.PokemonMovesPagination:nextPage()
 			Program.redraw(true)
