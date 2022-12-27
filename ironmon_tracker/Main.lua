@@ -403,6 +403,7 @@ function Main.LoadNextRom()
 				if Options["Use premade ROMs"] then
 					print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
 				end
+				MGBA.hasPrintedInstructions = false
 				emu:reset()
 				return
 			else
