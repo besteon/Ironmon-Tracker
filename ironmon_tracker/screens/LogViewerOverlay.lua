@@ -247,7 +247,7 @@ LogViewerOverlay.TabBarButtons = {
 	XIcon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.CROSS,
-		textColor = "Negative text",
+		textColor = "Header text",
 		box = { LogViewerOverlay.margin + 226, 0, 11, 11 },
 		updateText = function(self)
 			if LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM or LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.TRAINER_ZOOM then
@@ -418,6 +418,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		data.p.abilities[2] = nil
 	end
 
+	-- ABILITIES
 	offsetY = 0
 	for i, abilityId in ipairs(data.p.abilities) do
 		local btnText
@@ -444,11 +445,12 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		offsetY = offsetY + Constants.SCREEN.LINESPACING
 	end
 
+	-- POKEMON ICON
 	local viewedPokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		pokemonID = data.p.id,
 		tab = LogViewerOverlay.Tabs.POKEMON_ZOOM,
-		box = { LogViewerOverlay.margin + 70, LogViewerOverlay.tabHeight, 32, 32 },
+		box = { LogViewerOverlay.margin + 74, LogViewerOverlay.tabHeight, 32, 32 },
 		isVisible = function(self) return LogViewerOverlay.currentTab == self.tab end,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -460,13 +462,14 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 	}
 	table.insert(LogViewerOverlay.TemporaryButtons, viewedPokemonIcon)
 
+	-- POKEMON EVOLUTIONS
 	offsetX = 0
 	for _, evoInfo in ipairs(data.p.evos) do
 		local evoBtn = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			pokemonID = evoInfo.id,
 			tab = LogViewerOverlay.Tabs.POKEMON_ZOOM,
-			box = { LogViewerOverlay.margin + 120 + offsetX, LogViewerOverlay.tabHeight, 32, 32 },
+			box = { LogViewerOverlay.margin + 124 + offsetX, LogViewerOverlay.tabHeight, 32, 32 },
 			isVisible = function(self) return LogViewerOverlay.currentTab == self.tab end,
 			getIconPath = function(self)
 				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -478,7 +481,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 			end,
 		}
 		table.insert(LogViewerOverlay.TemporaryButtons, evoBtn)
-		offsetX = offsetX + 38
+		offsetX = offsetX + 37
 	end
 
 	local movesColX = LogViewerOverlay.margin + 118
@@ -596,7 +599,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.UP_ARROW,
 		textColor = "Lower box text",
-		box = { movesColX + 105, movesRowY + 33, 10, 10 },
+		box = { movesColX + 107, movesRowY + 33, 10, 10 },
 		isVisible = function() return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
 			LogViewerOverlay.PokemonMovesPagination:prevPage()
@@ -607,7 +610,7 @@ function LogViewerOverlay.buildPokemonTempButtons(data)
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.DOWN_ARROW,
 		textColor = "Lower box text",
-		box = { movesColX + 105, movesRowY + 70, 10, 10 },
+		box = { movesColX + 107, movesRowY + 70, 10, 10 },
 		isVisible = function() return LogViewerOverlay.currentTab == LogViewerOverlay.Tabs.POKEMON_ZOOM and LogViewerOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
 			LogViewerOverlay.PokemonMovesPagination:nextPage()
@@ -786,7 +789,7 @@ function LogViewerOverlay.drawPokemonZoomed(x, y, width, height)
 
 	-- EVO ARROW
 	if #data.p.evos > 0 then
-		Drawing.drawImageAsPixels(Constants.PixelImages.NEXT_BUTTON, x + 105, y + 14, { textColor }, shadowcolor)
+		Drawing.drawImageAsPixels(Constants.PixelImages.NEXT_BUTTON, x + 109, y + 14, { textColor }, shadowcolor)
 	end
 
 	local statBox = {
