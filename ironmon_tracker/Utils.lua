@@ -189,11 +189,11 @@ end
 -- Estimated total number of trainers (ids) found from log files
 function Utils.randomTrainerID()
 	if GameSettings.game == 1 then -- Game #: Ruby / Sapphire
-		return 693
+		return math.random(693)
 	elseif GameSettings.game == 2 then -- Game #: Emerald
-		return 854
+		return math.random(854)
 	elseif GameSettings.game == 3 then -- Game #: Fire Red / Leaf Green
-		return 742
+		return math.random(742)
 	end
 	return 0
 end

@@ -607,3 +607,55 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	return data
 end
+
+function DataHelper.buildTrainerLogDisplay(trainerId)
+	local data = {}
+	data.t = {} -- data about the Trainer itself
+	data.p = {} -- data about each Pokemon in the Trainer's party
+	data.x = {} -- misc data to display, such as notes
+
+	if trainerId == nil or RandomizerLog.Data.Trainers[trainerId] == nil then
+		return data
+	end
+
+	local trainer = RandomizerLog.Data.Trainers[trainerId]
+	local trainerInfo = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+
+	data.t.id = trainerId
+	data.t.filename = trainerInfo.filename
+
+	if trainerInfo.name ~= "Unknown" then
+		data.t.name = trainerInfo.name
+	else
+		data.t.name = Utils.firstToUpper(trainer.name)
+	end
+
+	for _, partyMon in ipairs(trainer.party or {}) do
+		local pokemonInfo = {
+			id = partyMon.pokemonID or 0,
+			name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE,
+			level = partyMon.level or 0,
+			moves = {},
+			helditem = partyMon.helditem,
+		}
+		local movesLeftToAdd = 4
+		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}
+		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
+		for j = #pokemonMoves, 1, -1 do
+			if pokemonMoves[j].level <= partyMon.level then
+				local moveToAdd = {
+					moveId = pokemonMoves[j].moveId,
+					name = MoveData.Moves[pokemonMoves[j].moveId].name,
+				}
+				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
+				movesLeftToAdd = movesLeftToAdd - 1
+				if movesLeftToAdd <= 0 then
+					break
+				end
+			end
+		end
+		table.insert(data.p, pokemonInfo)
+	end
+
+	return data
+end

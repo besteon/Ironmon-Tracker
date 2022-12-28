@@ -290,6 +290,15 @@ function Tracker.isTrackingMove(pokemonID, moveId, level)
 	return false
 end
 
+function Tracker.tryTrackWhichRival(trainerId)
+	if trainerId == nil or trainerId == 0 or Tracker.Data.whichRival ~= nil then return end
+
+	local trainer = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+	if trainer ~= nil and trainer.whichRival ~= nil then -- verify this trainer is a rival trainer
+		Tracker.Data.whichRival = trainer.whichRival
+	end
+end
+
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
 function Tracker.getMoves(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -500,6 +509,7 @@ function Tracker.resetData()
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES), -- Tally of fishing encounters, to track when one occurs
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH), -- Tally of rock smash uses, to track encounters
 		isNewGame = true, -- Flag for new game, to check if stored trainerID is correct
+		whichRival = nil, -- To determine which rival the player will fight through the entire game, based on starter ball selection
 	}
 end
 

@@ -1212,11 +1212,11 @@ end
 -- Returns a table with trainer info { name, filterGroup, filename, }
 function RandomizerLog.getTrainerInfo(trainerId, game)
 	if game == nil or trainerId == nil or RandomizerLog.GameAndTrainerMap[game] == nil or RandomizerLog.GameAndTrainerMap[game][trainerId] == nil then
-		local which = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
+		local randomIcon = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
 		return {
-			name = Constants.BLANKLINE,
+			name = "Unknown",
 			group = "Other",
-			filename = "unknown-" .. which,
+			filename = "unknown-" .. randomIcon,
 		}
 	end
 	return RandomizerLog.GameAndTrainerMap[game][trainerId]
@@ -1224,12 +1224,13 @@ end
 
 -- Mapped by [GameNumber][TrainerId] = data table with filename
 RandomizerLog.TrainerFileInfo = {
+	maxWidth = 58,
 	maxHeight = 63,
 	-- Aim to have width at 42+ and height 63
-	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 6, },
+	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 3, },
 	["frlg-rival-b"] =			{ width = 42, height = 60, offsetY = 2, },
 	["frlg-rival-c"] =			{ width = 42, height = 57, offsetY = 3, },
-	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, },
+	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, offsetY = 2, },
 	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 3, offsetY = 2, },
 	["frlg-gymleader-3"] =		{ width = 43, height = 61, offsetY = 2, },
 	["frlg-gymleader-4"] =		{ width = 43, height = 57, offsetX = 2, offsetY = 3, },
@@ -1245,6 +1246,12 @@ RandomizerLog.TrainerFileInfo = {
 	["unknown-b"] =				{ width = 42, height = 55, offsetY = 8, },
 }
 
+RandomizerLog.TrainerGroups = {
+	Rival = "Rival",
+	Gym = "Gym",
+	Elite4 = "Elite 4",
+	Other = "Other",
+}
 RandomizerLog.GameAndTrainerMap = {
 	[1] = { -- Game #: Ruby / Sapphire
 
@@ -1255,184 +1262,208 @@ RandomizerLog.GameAndTrainerMap = {
 	[3] = { -- Game #: Fire Red / Leaf Green
 		[350] = {
 			name = "Giovanni",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-8",
 		},
 		[410] = {
 			name = "Lorelei",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-elitefour-1",
 		},
 		[411] = {
 			name = "Bruno",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-elitefour-2",
 		},
 		[412] = {
 			name = "Agatha",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-elitefour-3",
 		},
 		[413] = {
 			name = "Lance",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-elitefour-4",
 		},
 		[414] = {
 			name = "Brock",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-1",
 		},
 		[415] = {
 			name = "Misty",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-2",
 		},
 		[416] = {
 			name = "Lt. Surge",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-3",
 		},
 		[417] = {
 			name = "Erika",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-4",
 		},
 		[418] = {
 			name = "Koga",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-5",
 		},
 		[419] = {
 			name = "Blaine",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-7",
 		},
 		[420] = {
 			name = "Sabrina",
-			group = "Gym",
+			group = RandomizerLog.TrainerGroups.Gym,
 			filename = "frlg-gymleader-6",
 		},
 		-- The follow rivals are shown three times each, in order of starter located in the Middle ball, then Left, then Right
 		[326] = {
 			name = "Rival 1", -- Rival chose the Middle Ball
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Middle",
 		},
 		[327] = {
 			name = "Rival 1", -- Rival chose the Left Ball
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Left",
 		},
 		[328] = {
 			name = "Rival 1", -- Rival chose the Right Ball
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Right",
 		},
 		[329] = {
 			name = "Rival 2",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Middle",
 		},
 		[330] = {
 			name = "Rival 2",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Left",
 		},
 		[331] = {
 			name = "Rival 2",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Right",
 		},
 		[332] = {
 			name = "Rival 3",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Middle",
 		},
 		[333] = {
 			name = "Rival 3",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Left",
 		},
 		[334] = {
 			name = "Rival 3",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Right",
 		},
 		[426] = {
 			name = "Rival 4",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Middle",
 		},
 		[427] = {
 			name = "Rival 4",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Left",
 		},
 		[428] = {
 			name = "Rival 4",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Right",
 		},
 		[429] = {
 			name = "Rival 5",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Middle",
 		},
 		[430] = {
 			name = "Rival 5",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Left",
 		},
 		[431] = {
 			name = "Rival 5",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-b",
+			whichRival = "Right",
 		},
 		[432] = {
 			name = "Rival 6",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Middle",
 		},
 		[433] = {
 			name = "Rival 6",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Left",
 		},
 		[434] = {
 			name = "Rival 6",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-c",
+			whichRival = "Right",
 		},
 		[435] = {
 			name = "Rival 7",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Middle",
 		},
 		[436] = {
 			name = "Rival 7",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Left",
 		},
 		[437] = {
 			name = "Rival 7",
-			group = "Rival",
+			group = RandomizerLog.TrainerGroups.Rival,
 			filename = "frlg-rival-a",
+			whichRival = "Right",
 		},
 		[438] = {
 			name = "Champion",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-rival-c",
+			whichRival = "Middle",
 		},
 		[439] = {
 			name = "Champion",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-rival-c",
+			whichRival = "Left",
 		},
 		[440] = {
 			name = "Champion",
-			group = "Elite 4",
+			group = RandomizerLog.TrainerGroups.Elite4,
 			filename = "frlg-rival-c",
+			whichRival = "Right",
 		},
 	},
 }

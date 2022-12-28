@@ -2,10 +2,11 @@ LogOverlay = {
 	Labels = {
 		header = "Log Viewer",
 		bstStatBox = "Base Stats",
-		bstTotalFormat = "Total: %s",
+		bstTotalFormat = "Total: %s", -- e.g. Total: 505
 		gymTMIndicator = "(Gym)",
 		tabFormat = "%s",
-		pageFormat = "Page %s/%s" -- e.g. Page 1/3
+		pageFormat = "Page %s/%s", -- e.g. Page 1/3
+		partyPokemonLevelFormat = "Lv.%s", -- e.g. Lv.23
 	},
 	Tabs = {
 		POKEMON = Constants.Words.POKEMON,
@@ -58,7 +59,7 @@ LogOverlay.Windower = {
 			LogOverlay.TabHistory = {}
 		elseif newTab == LogOverlay.Tabs.POKEMON_ZOOM then
 			LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(tabInfoId)
-			LogOverlay.buildPokemonTempButtons(LogOverlay.currentTabData)
+			LogOverlay.buildPokemonZoomButtons(LogOverlay.currentTabData)
 			if prevTab.tab ~= LogOverlay.Tabs.POKEMON_ZOOM then
 				table.insert(LogOverlay.TabHistory, prevTab)
 			end
@@ -406,9 +407,7 @@ function LogOverlay.buildPagedButtons()
 		end
 	end
 
-	LogOverlay.realignPokemonGrid()
-
-	-- Build topbar page navigation
+	-- Build Pokemon navigation
 	local navOffsetX = navStartX
 	local navLabels = { "#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "(?)", }
 	local navBtnInfo = Constants.CharWidths
@@ -469,8 +468,10 @@ function LogOverlay.buildPagedButtons()
 
 	-- Build Trainer buttons
 	LogOverlay.PagedButtons.Trainers = {}
-	for id, _ in pairs(RandomizerLog.Data.Trainers) do
+	for id, trainerData in pairs(RandomizerLog.Data.Trainers) do
 		local trainerInfo = RandomizerLog.getTrainerInfo(id, GameSettings.game)
+		-- Implement actual name laters when full trainer list is ready
+		-- local customName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
 		local fileInfo = RandomizerLog.TrainerFileInfo[trainerInfo.filename] or { width = 40, height = 40 }
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
@@ -482,7 +483,15 @@ function LogOverlay.buildPagedButtons()
 			group = trainerInfo.group,
 			tab = LogOverlay.Tabs.TRAINER,
 			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
-			includeInGrid = function(self) return LogOverlay.Windower.filterGrid == "By Class" or LogOverlay.Windower.filterGrid == self.group end,
+			includeInGrid = function(self)
+				local shouldInclude = LogOverlay.Windower.filterGrid == "By Class" or LogOverlay.Windower.filterGrid == self.group
+				local shouldExclude = trainerInfo.name == "Unknown"
+				-- Exclude extra rivals
+				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
+					shouldExclude = true
+				end
+				return shouldInclude and not shouldExclude
+			end,
 			onClick = function(self)
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.trainerId)
 				Program.redraw(true)
@@ -491,16 +500,23 @@ function LogOverlay.buildPagedButtons()
 		}
 		table.insert(LogOverlay.PagedButtons.Trainers, button)
 	end
-	--LogOverlay.realignTrainerGrid()
 
+	-- Build Trainer navigation
 	navOffsetX = navStartX + 20
-	navLabels = { "By Class", "Rival", "Gym", "Elite 4", "Other", "(?)" }
+	navLabels = {
+		"By Class",
+		RandomizerLog.TrainerGroups.Rival,
+		RandomizerLog.TrainerGroups.Gym,
+		RandomizerLog.TrainerGroups.Elite4,
+		RandomizerLog.TrainerGroups.Other,
+		"(?)",
+	}
 	navBtnInfo = {
 		["By Class"] = { width = 34, },
-		["Rival"] = { width = 22, sortFunc = function(a, b) return a.text < b.text end, },
-		["Gym"] = { width = 21, sortFunc = function(a, b) return a.filename < b.filename end, },
-		["Elite 4"] = { width = 27, sortFunc = function(a, b) return a.filename < b.filename end, },
-		["Other"] = { width = 25, sortFunc = function(a, b) return a.text < b.text end, },
+		[RandomizerLog.TrainerGroups.Rival] = { width = 22, sortFunc = function(a, b) return a.text < b.text end, },
+		[RandomizerLog.TrainerGroups.Gym] = { width = 21, sortFunc = function(a, b) return a.filename < b.filename end, },
+		[RandomizerLog.TrainerGroups.Elite4] = { width = 27, sortFunc = function(a, b) return a.filename < b.filename end, },
+		[RandomizerLog.TrainerGroups.Other] = { width = 25, sortFunc = function(a, b) return a.text < b.text end, },
 		["(?)"] = { width = 12, },
 	}
 	for _, navLabel in ipairs(navLabels) do
@@ -542,6 +558,9 @@ function LogOverlay.buildPagedButtons()
 		table.insert(LogOverlay.Buttons, jumpBtn)
 		navOffsetX = navOffsetX + navBtnInfo[navLabel].width + 6
 	end
+
+	-- First main page viewed by default is the Pokemon Window, so set that up now
+	LogOverlay.realignPokemonGrid()
 end
 
 -- Also sets LogOverlay.Windower: { currentPage, totalPages, filterGrid }
@@ -565,8 +584,12 @@ function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 	sortFunc = sortFunc or (function(a, b)
 		if a.group < b.group then
 			return true
-		elseif a.group == b.group and a.filename < b.filename then
-			return true
+		elseif a.group == b.group then
+			if a.group == RandomizerLog.TrainerGroups.Rival then -- special sort for rival #s
+				return a.text < b.text
+			elseif a.filename < b.filename then
+				return true
+			end
 		end
 		return false
 	end)
@@ -581,7 +604,70 @@ function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 	LogOverlay.Buttons.CurrentPage:updateText()
 end
 
-function LogOverlay.buildPokemonTempButtons(data)
+-- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
+-- Returns total pages
+function LogOverlay.gridAlign(buttonList, startX, startY, width, height, colSpacer, rowSpacer)
+	local offsetX, offsetY = 0, 0
+	local maxWidth = Constants.SCREEN.WIDTH - LogOverlay.margin
+	local maxHeight = Constants.SCREEN.HEIGHT - LogOverlay.margin
+	local rowHeightMax = 0
+
+	local itemCount = 0
+	local itemsPerPage = nil
+	for _, button in ipairs(buttonList) do
+		if button:includeInGrid() then
+			local w, h, extraX, extraY = width, height, 0, 0
+			if button.dimensions ~= nil then
+				w = button.dimensions.width or width or 40
+				h = button.dimensions.height or height or 40
+				extraX = button.dimensions.extraX or 0
+				extraY = button.dimensions.extraY or 0
+			end
+
+			-- Check if new width requires starting a new row
+			if (startX + offsetX + w) > maxWidth then
+				offsetX = 0
+				offsetY = offsetY + rowHeightMax + rowSpacer
+				rowHeightMax = 0
+			end
+			-- Check if new height requires starting a new page
+			if (startY + offsetY + h) > maxHeight then
+				offsetX, offsetY, rowHeightMax = 0, 0, 0
+				if itemsPerPage == nil then
+					itemsPerPage = itemCount
+				end
+			end
+
+			itemCount = itemCount + 1
+			local x = startX + offsetX + extraX
+			local y = startY + offsetY + extraY
+			button.clickableArea = { x, y + 4, w, h - 4 }
+			button.box = { x, y, w, h }
+			if itemsPerPage == nil then
+				button.pageVisible = 1
+			else
+				button.pageVisible = math.ceil(itemCount / itemsPerPage)
+			end
+
+			if h > rowHeightMax then
+				rowHeightMax = h
+			end
+
+			offsetX = offsetX + w + colSpacer
+		else
+			button.pageVisible = -1
+		end
+	end
+
+	-- Return number of items per page, total pages
+	if itemsPerPage == nil then
+		return 1
+	else
+		return math.ceil(itemCount / itemsPerPage)
+	end
+end
+
+function LogOverlay.buildPokemonZoomButtons(data)
 	LogOverlay.TemporaryButtons = {}
 
 	local offsetX, offsetY
@@ -628,7 +714,9 @@ function LogOverlay.buildPokemonTempButtons(data)
 			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 		end,
 		onClick = function(self)
-			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+			if PokemonData.isValid(self.pokemonID) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+			end
 		end,
 	}
 	table.insert(LogOverlay.TemporaryButtons, viewedPokemonIcon)
@@ -815,66 +903,83 @@ function LogOverlay.buildPokemonTempButtons(data)
 	LogOverlay.PokemonMovesPagination:changeTab(LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES)
 end
 
--- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
--- Returns total pages
-function LogOverlay.gridAlign(buttonList, startX, startY, width, height, colSpacer, rowSpacer)
+function LogOverlay.buildTrainerTempButtons(data)
+	LogOverlay.TemporaryButtons = {}
+
+	local partyListX, partyListY = LogOverlay.margin + 1, LogOverlay.tabHeight + 76
+	local startX, startY = LogOverlay.margin + 60, LogOverlay.tabHeight + 2
 	local offsetX, offsetY = 0, 0
-	local maxWidth = Constants.SCREEN.WIDTH - LogOverlay.margin
-	local maxHeight = Constants.SCREEN.HEIGHT - LogOverlay.margin
-	local rowHeightMax = 0
-
-	local itemCount = 0
-	local itemsPerPage = nil
-	for _, button in ipairs(buttonList) do
-		if button:includeInGrid() then
-			local w, h, extraX, extraY = width, height, 0, 0
-			if button.dimensions ~= nil then
-				w = button.dimensions.width or width or 40
-				h = button.dimensions.height or height or 40
-				extraX = button.dimensions.extraX or 0
-				extraY = button.dimensions.extraY or 0
-			end
-
-			-- Check if new width requires starting a new row
-			if (startX + offsetX + w) > maxWidth then
-				offsetX = 0
-				offsetY = offsetY + rowHeightMax + rowSpacer
-				rowHeightMax = 0
-			end
-			-- Check if new height requires starting a new page
-			if (startY + offsetY + h) > maxHeight then
-				offsetX, offsetY, rowHeightMax = 0, 0, 0
-				if itemsPerPage == nil then
-					itemsPerPage = itemCount
+	local colOffset, rowOffset = 86, 49 -- 2nd column, and 2nd/3rd rows
+	for i, partyPokemon in ipairs(data.p or {}) do
+		-- PARTY POKEMON
+		local pokemonNameButton = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			text = string.format("%s. %s", i, partyPokemon.name), -- e.g. "1. Shuckle"
+			textColor = "Lower box text",
+			pokemonID = partyPokemon.id,
+			tab = LogOverlay.Tabs.TRAINER_ZOOM,
+			box = { partyListX, partyListY, 60, 11 },
+			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+			onClick = function(self)
+				if PokemonData.isValid(self.pokemonID) then
+					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
 				end
-			end
+			end,
+		}
+		partyListY = partyListY + Constants.SCREEN.LINESPACING
+		local pokemonIconButton = {
+			type = Constants.ButtonTypes.POKEMON_ICON,
+			pokemonID = partyPokemon.id,
+			text = string.format(LogOverlay.Labels.partyPokemonLevelFormat, partyPokemon.level),
+			tab = LogOverlay.Tabs.TRAINER_ZOOM,
+			clickableArea = { startX + offsetX, startY + offsetY, 32, 29, },
+			box = { startX + offsetX, startY + offsetY - 4, 32, 32, },
+			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+			getIconPath = function(self)
+				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+			end,
+			onClick = function(self)
+				if PokemonData.isValid(self.pokemonID) then
+					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+				end
+			end,
+		}
+		table.insert(LogOverlay.TemporaryButtons, pokemonNameButton)
+		table.insert(LogOverlay.TemporaryButtons, pokemonIconButton)
 
-			itemCount = itemCount + 1
-			local x = startX + offsetX + extraX
-			local y = startY + offsetY + extraY
-			button.clickableArea = { x, y + 4, w, h - 4 }
-			button.box = { x, y, w, h }
-			if itemsPerPage == nil then
-				button.pageVisible = 1
-			else
-				button.pageVisible = math.ceil(itemCount / itemsPerPage)
-			end
+		-- helditem = partyMon.helditem ???
 
-			if h > rowHeightMax then
-				rowHeightMax = h
-			end
-
-			offsetX = offsetX + w + colSpacer
-		else
-			button.pageVisible = -1
+		-- PARTY POKEMON's MOVES
+		local moveOffsetX = startX + offsetX + 30
+		local moveOffsetY = startY + offsetY
+		for _, moveInfo in ipairs(partyPokemon.moves or {}) do
+			local moveBtn = {
+				type = Constants.ButtonTypes.NO_BORDER,
+				text = moveInfo.name,
+				textColor = "Lower box text",
+				moveId = moveInfo.moveId,
+				tab = LogOverlay.Tabs.TRAINER_ZOOM,
+				box = { moveOffsetX, moveOffsetY, 60, 11 },
+				isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+				onClick = function(self)
+					if MoveData.isValid(self.moveId) then
+						InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
+					end
+				end,
+			}
+			table.insert(LogOverlay.TemporaryButtons, moveBtn)
+			moveOffsetY = moveOffsetY + Constants.SCREEN.LINESPACING - 1
 		end
-	end
 
-	-- Return number of items per page, total pages
-	if itemsPerPage == nil then
-		return 1
-	else
-		return math.ceil(itemCount / itemsPerPage)
+		if i % 2 == 1 then
+			offsetX = offsetX + colOffset
+		else
+			offsetX = 0
+			offsetY = offsetY + rowOffset
+		end
 	end
 end
 
@@ -998,7 +1103,8 @@ function LogOverlay.drawTrainersTab(x, y, width, height)
 			local offsetX = button.box[1] + button.box[3] / 2 - nameWidth / 2
 			local offsetY = button.box[2] + RandomizerLog.TrainerFileInfo.maxHeight - bottomPadding - (button.dimensions.extraY or 0)
 			gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor, fillColor)
-			Drawing.drawText(offsetX, offsetY, button.text, highlightColor)
+			-- gui.drawLine(offsetX - 1, offsetY + bottomPadding + 2, offsetX - 1 + nameWidth + 5, offsetY + bottomPadding + 2, borderColor)
+			Drawing.drawText(offsetX, offsetY, button.text, textColor)
 		end
 	end
 
@@ -1039,7 +1145,7 @@ function LogOverlay.drawPokemonZoomed(x, y, width, height)
 	local data = LogOverlay.currentTabData
 	if not PokemonData.isValid(pokemonID) then
 		return shadowcolor
-	elseif data == nil then -- ideally this is done only once on tabchange
+	elseif data == nil then -- ideally this is done only once on tab change
 		LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(pokemonID)
 		data = LogOverlay.currentTabData
 	end
@@ -1123,6 +1229,33 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 	local shadowcolor = Utils.calcShadowColor(fillColor)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
+
+	local trainerId = LogOverlay.currentTabInfoId
+	local data = LogOverlay.currentTabData
+	if RandomizerLog.Data.Trainers[trainerId] == nil then
+		return shadowcolor
+	elseif data == nil then -- ideally this is done only once on tab change
+		LogOverlay.currentTabData = DataHelper.buildTrainerLogDisplay(trainerId)
+		data = LogOverlay.currentTabData
+	end
+
+	-- TRAINER NAME AND ICON
+	local trainerIcon = FileManager.buildImagePath(FileManager.Folders.Trainers, data.t.filename, FileManager.Extensions.TRAINER)
+	local nameWidth = Utils.calcWordPixelLength(data.t.name:upper())
+	local nameOffsetX = (RandomizerLog.TrainerFileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
+	Drawing.drawText(x + nameOffsetX + 3, y + 2, data.t.name:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
+	local iconWidth = RandomizerLog.TrainerFileInfo[data.t.filename].width
+	local iconOffsetX = (RandomizerLog.TrainerFileInfo.maxWidth - iconWidth) / 2 -- center the trainer icon a bit
+	gui.drawImage(trainerIcon, x + iconOffsetX + 3, y + 16)
+
+	for _, button in pairs(LogOverlay.TemporaryButtons) do
+		Drawing.drawButton(button, shadowcolor)
+		if button:isVisible() and button.type == Constants.ButtonTypes.POKEMON_ICON then
+			local levelOffsetX = button.box[1] + 6
+			local levelOffsetY = button.box[2] + button.box[4] + 2
+			Drawing.drawText(levelOffsetX, levelOffsetY, button.text, textColor, shadowcolor)
+		end
+	end
 
 	return borderColor, shadowcolor
 end
