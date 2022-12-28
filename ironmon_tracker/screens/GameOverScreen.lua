@@ -36,7 +36,7 @@ GameOverScreen.Buttons = {
 		text = GameOverScreen.Labels.continuePlaying,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22, Constants.SCREEN.MARGIN + 86, 95, 12 },
 		onClick = function(self)
-			LogViewerOverlay.isDisplayed = false
+			LogOverlay.isDisplayed = false
 			GameOverScreen.resetLabels()
 			Program.changeScreenView(Program.Screens.TRACKER)
 		end,
@@ -60,7 +60,7 @@ GameOverScreen.Buttons = {
 				Program.redraw(true)
 			else
 				GameOverScreen.trainerBattlesLost = GameOverScreen.trainerBattlesLost - 1
-				LogViewerOverlay.isDisplayed = false
+				LogOverlay.isDisplayed = false
 				GameOverScreen.resetLabels()
 				Program.changeScreenView(Program.Screens.TRACKER)
 				GameOverScreen.loadTempSaveState()
@@ -298,7 +298,7 @@ function GameOverScreen.viewLogFile()
 		return false
 	end
 
-	return LogViewerOverlay.parseAndDisplay(logpath)
+	return LogOverlay.parseAndDisplay(logpath)
 end
 
 -- Prompts user to select a log file to parse, then displays the parsed data on a new left-screen
@@ -315,7 +315,7 @@ function GameOverScreen.openLogFilePrompt()
 	client.SetSoundOn(false)
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= nil and filepath ~= "" then
-		LogViewerOverlay.parseAndDisplay(filepath)
+		LogOverlay.parseAndDisplay(filepath)
 	end
 	if client.GetSoundOn() ~= wasSoundOn then
 		client.SetSoundOn(wasSoundOn)

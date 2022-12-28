@@ -51,7 +51,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogViewerOverlay.isDisplayed
+		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -63,7 +63,7 @@ Program.Pedometer = {
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or GameOverScreen.isDisplayed or LogViewerOverlay.isDisplayed
+		local hasConflict = Battle.inBattle or Battle.battleStarting or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -134,8 +134,8 @@ function Program.redraw(forced)
 
 	Program.Frames.waitToDraw = 30
 	Drawing.drawScreen(Program.currentScreen)
-	if LogViewerOverlay.isDisplayed and Main.IsOnBizhawk() then
-		LogViewerOverlay.drawScreen()
+	if LogOverlay.isDisplayed and Main.IsOnBizhawk() then
+		LogOverlay.drawScreen()
 	end
 end
 
