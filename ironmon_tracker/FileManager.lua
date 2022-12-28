@@ -12,6 +12,7 @@ FileManager.Folders = {
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
 	Images = "images",
+	Trainers = "trainers",
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
@@ -89,6 +90,7 @@ FileManager.Extensions = {
 	TRACKED_DATA = ".tdat",
 	ATTEMPTS = ".txt",
 	ANIMATED_POKEMON = ".gif",
+	TRAINER = ".png",
 	BADGE = ".png",
 	SAVESTATE = ".State", -- Bizhawk save-state
 }

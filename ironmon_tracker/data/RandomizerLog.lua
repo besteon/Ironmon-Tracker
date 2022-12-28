@@ -383,7 +383,10 @@ function RandomizerLog.parseTrainers(logLines)
 			return
 		end
 
-		RandomizerLog.Data.Trainers[trainer_num] = {}
+		RandomizerLog.Data.Trainers[trainer_num] = {
+			name = trainername, -- likely in the form of TRAINER CLASS + TRAINER NAME
+			party = {},
+		}
 
 		for partypokemon in string.gmatch(party, RandomizerLog.Sectors.Trainers.PartyPattern) do
 			local pokemon, helditem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
@@ -400,7 +403,7 @@ function RandomizerLog.parseTrainers(logLines)
 					helditem = helditem,
 					level = level,
 				}
-				table.insert(RandomizerLog.Data.Trainers[trainer_num], partyPokemon)
+				table.insert(RandomizerLog.Data.Trainers[trainer_num].party, partyPokemon)
 			end
 		end
 		line = table.remove(logLines, 1)
@@ -1205,6 +1208,234 @@ function RandomizerLog.setupMappings()
 		["psycho boost"] = 354,
 	}
 end
+
+-- Returns a table with trainer info { name, filterGroup, filename, }
+function RandomizerLog.getTrainerInfo(trainerId, game)
+	if game == nil or trainerId == nil or RandomizerLog.GameAndTrainerMap[game] == nil or RandomizerLog.GameAndTrainerMap[game][trainerId] == nil then
+		local which = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
+		return {
+			name = Constants.BLANKLINE,
+			group = "Other",
+			filename = "unknown-" .. which,
+		}
+	end
+	return RandomizerLog.GameAndTrainerMap[game][trainerId]
+end
+
+-- Mapped by [GameNumber][TrainerId] = data table with filename
+RandomizerLog.TrainerFileInfo = {
+	maxHeight = 63,
+	-- Aim to have width at 42+ and height 63
+	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 6, },
+	["frlg-rival-b"] =			{ width = 42, height = 60, offsetY = 2, },
+	["frlg-rival-c"] =			{ width = 42, height = 57, offsetY = 3, },
+	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, },
+	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 3, offsetY = 2, },
+	["frlg-gymleader-3"] =		{ width = 43, height = 61, offsetY = 2, },
+	["frlg-gymleader-4"] =		{ width = 43, height = 57, offsetX = 2, offsetY = 3, },
+	["frlg-gymleader-5"] =		{ width = 46, height = 54, offsetY = 4, },
+	["frlg-gymleader-6"] =		{ width = 43, height = 56, offsetY = 4, },
+	["frlg-gymleader-7"] =		{ width = 44, height = 61, offsetY = 2, },
+	["frlg-gymleader-8"] =		{ width = 42, height = 63, offsetX = 2, offsetY = 1, },
+	["frlg-elitefour-1"] =		{ width = 38, height = 62, offsetY = 2, },
+	["frlg-elitefour-2"] =		{ width = 53, height = 52, offsetY = 5, },
+	["frlg-elitefour-3"] =		{ width = 30, height = 57, offsetX = 1, offsetY = 3, },
+	["frlg-elitefour-4"] =		{ width = 58, height = 60, offsetY = 3, },
+	["unknown-a"] =				{ width = 42, height = 55, offsetY = 8, },
+	["unknown-b"] =				{ width = 42, height = 55, offsetY = 8, },
+}
+
+RandomizerLog.GameAndTrainerMap = {
+	[1] = { -- Game #: Ruby / Sapphire
+
+	},
+	[2] = { -- Game #: Emerald
+
+	},
+	[3] = { -- Game #: Fire Red / Leaf Green
+		[350] = {
+			name = "Giovanni",
+			group = "Gym",
+			filename = "frlg-gymleader-8",
+		},
+		[410] = {
+			name = "Lorelei",
+			group = "Elite 4",
+			filename = "frlg-elitefour-1",
+		},
+		[411] = {
+			name = "Bruno",
+			group = "Elite 4",
+			filename = "frlg-elitefour-2",
+		},
+		[412] = {
+			name = "Agatha",
+			group = "Elite 4",
+			filename = "frlg-elitefour-3",
+		},
+		[413] = {
+			name = "Lance",
+			group = "Elite 4",
+			filename = "frlg-elitefour-4",
+		},
+		[414] = {
+			name = "Brock",
+			group = "Gym",
+			filename = "frlg-gymleader-1",
+		},
+		[415] = {
+			name = "Misty",
+			group = "Gym",
+			filename = "frlg-gymleader-2",
+		},
+		[416] = {
+			name = "Lt. Surge",
+			group = "Gym",
+			filename = "frlg-gymleader-3",
+		},
+		[417] = {
+			name = "Erika",
+			group = "Gym",
+			filename = "frlg-gymleader-4",
+		},
+		[418] = {
+			name = "Koga",
+			group = "Gym",
+			filename = "frlg-gymleader-5",
+		},
+		[419] = {
+			name = "Blaine",
+			group = "Gym",
+			filename = "frlg-gymleader-7",
+		},
+		[420] = {
+			name = "Sabrina",
+			group = "Gym",
+			filename = "frlg-gymleader-6",
+		},
+		-- The follow rivals are shown three times each, in order of starter located in the Middle ball, then Left, then Right
+		[326] = {
+			name = "Rival 1", -- Rival chose the Middle Ball
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[327] = {
+			name = "Rival 1", -- Rival chose the Left Ball
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[328] = {
+			name = "Rival 1", -- Rival chose the Right Ball
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[329] = {
+			name = "Rival 2",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[330] = {
+			name = "Rival 2",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[331] = {
+			name = "Rival 2",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[332] = {
+			name = "Rival 3",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[333] = {
+			name = "Rival 3",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[334] = {
+			name = "Rival 3",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[426] = {
+			name = "Rival 4",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[427] = {
+			name = "Rival 4",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[428] = {
+			name = "Rival 4",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[429] = {
+			name = "Rival 5",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[430] = {
+			name = "Rival 5",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[431] = {
+			name = "Rival 5",
+			group = "Rival",
+			filename = "frlg-rival-b",
+		},
+		[432] = {
+			name = "Rival 6",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[433] = {
+			name = "Rival 6",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[434] = {
+			name = "Rival 6",
+			group = "Rival",
+			filename = "frlg-rival-c",
+		},
+		[435] = {
+			name = "Rival 7",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[436] = {
+			name = "Rival 7",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[437] = {
+			name = "Rival 7",
+			group = "Rival",
+			filename = "frlg-rival-a",
+		},
+		[438] = {
+			name = "Champion",
+			group = "Elite 4",
+			filename = "frlg-rival-c",
+		},
+		[439] = {
+			name = "Champion",
+			group = "Elite 4",
+			filename = "frlg-rival-c",
+		},
+		[440] = {
+			name = "Champion",
+			group = "Elite 4",
+			filename = "frlg-rival-c",
+		},
+	},
+}
 
 function RandomizerLog.removeMappings()
 	RandomizerLog.PokemonNameToIdMap = nil
