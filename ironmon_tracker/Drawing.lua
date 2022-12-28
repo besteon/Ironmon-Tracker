@@ -251,6 +251,11 @@ function Drawing.drawButton(button, shadowcolor)
 			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
 		end
 	end
+
+	-- Draw anything extra that the button defines
+	if button.draw ~= nil then
+		button:draw()
+	end
 end
 
 function Drawing.drawScreen(screenFunc)

@@ -350,7 +350,7 @@ function GameOverScreen.drawScreen()
 		fill = Theme.COLORS["Lower box background"],
 		shadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"]),
 	}
-	local topcolX = 80
+	local topcolX = 78
 	local textLineY = topBox.y + 2
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 

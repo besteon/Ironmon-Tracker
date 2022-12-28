@@ -39,7 +39,7 @@ UpdateScreen.Buttons = {
 			self.toggleState = not self.toggleState
 			UpdateOrInstall.Dev.enabled = self.toggleState
 
-			if UpdateOrInstall.Dev.enabled then
+			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 			else
 				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
