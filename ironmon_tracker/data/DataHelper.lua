@@ -595,10 +595,10 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
-	for _, tm_number in ipairs(pokemonLog.TMMoves or {}) do
-		local moveId = RandomizerLog.Data.TMs[tm_number] or 0
+	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
+		local moveId = RandomizerLog.Data.TMs[tmNumber] or 0
 		local tmInfo = {
-			tm = tm_number,
+			tm = tmNumber,
 			moveId = moveId,
 			moveName = MoveData.Moves[moveId].name,
 		}
@@ -621,13 +621,13 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	local trainer = RandomizerLog.Data.Trainers[trainerId]
 	local trainerInfo = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
 
-	data.t.id = trainerId
-	data.t.filename = trainerInfo.filename
+	data.t.id = trainerId or 0
+	data.t.filename = trainerInfo.filename or Constants.BLANKLINE
 
 	if trainerInfo.name ~= "Unknown" then
-		data.t.name = trainerInfo.name
+		data.t.name = trainerInfo.name or Constants.BLANKLINE
 	else
-		data.t.name = Utils.firstToUpper(trainer.name)
+		data.t.name = Utils.firstToUpper(trainer.name) or Constants.BLANKLINE
 	end
 
 	for _, partyMon in ipairs(trainer.party or {}) do
@@ -656,6 +656,9 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 		end
 		table.insert(data.p, pokemonInfo)
 	end
+
+	-- Gym number (if applicable), otherwise nil
+	data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
 
 	return data
 end

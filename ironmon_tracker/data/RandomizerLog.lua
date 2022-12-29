@@ -35,7 +35,7 @@ RandomizerLog.Sectors = {
 	},
 	TMMoves = {
 		Header = "TM Moves",
-		-- Matches: tm_number, movename
+		-- Matches: tmNumber, movename
 		TMPattern = "^TM(%d+)%s(.*)",
 	},
 	TMCompatibility = {
@@ -43,7 +43,7 @@ RandomizerLog.Sectors = {
 		Header = "TM Compatibility",
 		-- Matches: pokemon
 		NextMonPattern = "^[%s%d]+%s" .. RandomizerLog.Patterns.PokemonName .. "%s*|(.*)",
-		-- Matches: tm_number
+		-- Matches: tmNumber
 		TMPattern = "TM(%d+)",
 	},
 	Trainers = {
@@ -332,18 +332,18 @@ function RandomizerLog.parseTMMoves(logLines)
 	-- Parse the sector
 	local line = table.remove(logLines, 1)
 	while line ~= nil do
-		local tm_number, movename = string.match(line, RandomizerLog.Sectors.TMMoves.TMPattern)
-		tm_number = tonumber(RandomizerLog.formatInput(tm_number) or "") -- nil if not a number
+		local tmNumber, movename = string.match(line, RandomizerLog.Sectors.TMMoves.TMPattern)
+		tmNumber = tonumber(RandomizerLog.formatInput(tmNumber) or "") -- nil if not a number
 		movename = RandomizerLog.formatInput(movename)
 
 		-- If nothing matches, end of sector
-		if tm_number == nil or movename == nil or RandomizerLog.MoveNameToIdMap[movename] == nil then
+		if tmNumber == nil or movename == nil or RandomizerLog.MoveNameToIdMap[movename] == nil then
 			table.insert(logLines, 1, line)
 			return
 		end
 
 		local moveId = RandomizerLog.MoveNameToIdMap[movename]
-		RandomizerLog.Data.TMs[tm_number] = moveId
+		RandomizerLog.Data.TMs[tmNumber] = moveId
 
 		line = table.remove(logLines, 1)
 	end
@@ -370,10 +370,10 @@ function RandomizerLog.parseTMCompatibility(logLines)
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
 		RandomizerLog.Data.Pokemon[pokemonId].TMMoves = {}
 
-		for tm_number in string.gmatch(tms, RandomizerLog.Sectors.TMCompatibility.TMPattern) do
-			tm_number = tonumber(RandomizerLog.formatInput(tm_number) or "") -- nil if not a number
-			if tm_number ~= nil and RandomizerLog.Data.TMs[tm_number] ~= nil then
-				table.insert(RandomizerLog.Data.Pokemon[pokemonId].TMMoves, tm_number)
+		for tmNumber in string.gmatch(tms, RandomizerLog.Sectors.TMCompatibility.TMPattern) do
+			tmNumber = tonumber(RandomizerLog.formatInput(tmNumber) or "") -- nil if not a number
+			if tmNumber ~= nil and RandomizerLog.Data.TMs[tmNumber] ~= nil then
+				table.insert(RandomizerLog.Data.Pokemon[pokemonId].TMMoves, tmNumber)
 			end
 		end
 		line = table.remove(logLines, 1)
