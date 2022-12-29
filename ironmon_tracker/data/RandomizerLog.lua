@@ -5,6 +5,7 @@ RandomizerLog.Patterns = {
 	RandomizerVersion = "Randomizer Version:%s*([%d%.]+)%s*$", -- Note, log file line 1 does NOT start with this
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
+	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
 	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂]+)",
 	-- MoveName = "([%u%d%.'%-]+)", -- might figure out later
 	-- ItemName = "([%u%d%.'%-]+)", -- might figure out later
@@ -60,6 +61,9 @@ RandomizerLog.Sectors = {
 		LevelPattern = "",
 		PercentPattern = "",
 		ItemsPattern = "",
+	},
+	GameInfo = {
+		Header = "%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-", -- :(
 	},
 }
 
@@ -118,6 +122,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parseTMCompatibility(logLines)
 	RandomizerLog.parseTrainers(logLines)
 	RandomizerLog.parsePickupItems(logLines)
+	RandomizerLog.parseRandomizerGame(logLines)
 	RandomizerLog.removeMappings()
 
 	return true
@@ -176,6 +181,17 @@ function RandomizerLog.parseRandomizerSettings(logLines)
 	RandomizerLog.Data.Settings.Version = version
 	RandomizerLog.Data.Settings.RandomSeed = randomSeed
 	RandomizerLog.Data.Settings.SettingsString = settingsString
+end
+
+-- This sector is near the end of the file
+function RandomizerLog.parseRandomizerGame(logLines)
+	local sectorHeader = RandomizerLog.Patterns.getSectorHeaderPattern(RandomizerLog.Sectors.GameInfo.Header)
+	if not RandomizerLog.seekSectorStart(logLines, sectorHeader) then
+		return
+	end
+
+	local game = string.match(table.remove(logLines, 1), RandomizerLog.Patterns.RandomizerGame)
+	RandomizerLog.Data.Settings.Game = game
 end
 
 function RandomizerLog.parseEvolutions(logLines)

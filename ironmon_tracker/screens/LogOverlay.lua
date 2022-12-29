@@ -321,6 +321,16 @@ LogOverlay.Buttons = {
 			Program.redraw(true)
 		end,
 	},
+	ShareRandomizer = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Share Seed",
+		textColor = "Default text",
+		tab = LogOverlay.Tabs.MISC,
+		box = { Constants.SCREEN.WIDTH - LogOverlay.margin - 55, LogOverlay.tabHeight + 16, 50, 11 },
+		boxColors = { "Upper box border", "Upper box background" },
+		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+		onClick = function(self) LogOverlay.openRandomizerShareWindow() end,
+	},
 }
 
 -- Holds temporary buttons that only exist while drilling down on specific log info, e.g. pokemon evo icons
@@ -1005,6 +1015,42 @@ function LogOverlay.refreshInnerButtons()
 	end
 end
 
+function LogOverlay.openRandomizerShareWindow()
+	Program.destroyActiveForm()
+	local form = forms.newform(515, 235, "Share Randomizer Seed", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+
+	local randomizerInfo = {
+		{
+			label = Constants.Words.POKEMON .. " Game:",
+			value = RandomizerLog.Data.Settings.Game or Constants.BLANKLINE,
+		},
+		{
+			label = "Randomizer Version:",
+			value = RandomizerLog.Data.Settings.Version or Constants.BLANKLINE,
+		},
+		{
+			label = "Random Seed:",
+			value = RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE,
+		},
+		{
+			label = "Settings String:",
+			value = RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE,
+		},
+	}
+	local shareExport = {}
+	for _, infoSection in ipairs(randomizerInfo) do
+		table.insert(shareExport, string.format("%s %s", infoSection.label, infoSection.value))
+	end
+
+	forms.label(form, "Share the randomized seed for this game:", 9, 10, 300, 20)
+	forms.textbox(form, table.concat(shareExport, " \r\n"), 480, 120, nil, 10, 35, true, false, "Vertical")
+	forms.button(form, "Close", function()
+		forms.destroy(form)
+	end, 212, 165)
+end
+
 -- DRAWING FUNCTIONS
 function LogOverlay.drawScreen()
 	Drawing.drawBackgroundAndMargins(0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT)
@@ -1104,7 +1150,8 @@ function LogOverlay.drawTrainersTab(x, y, width, height)
 			local offsetY = button.box[2] + RandomizerLog.TrainerFileInfo.maxHeight - bottomPadding - (button.dimensions.extraY or 0)
 			gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor, fillColor)
 			-- gui.drawLine(offsetX - 1, offsetY + bottomPadding + 2, offsetX - 1 + nameWidth + 5, offsetY + bottomPadding + 2, borderColor)
-			Drawing.drawText(offsetX, offsetY, button.text, textColor)
+			Drawing.drawText(offsetX, offsetY, button.text, textColor, shadowcolor)
+			gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor) -- to cutoff the shadows
 		end
 	end
 
@@ -1130,6 +1177,55 @@ function LogOverlay.drawMiscTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
+	local rInfo = {
+		Game = {
+			label = Constants.Words.POKEMON .. " Game:",
+			value = RandomizerLog.Data.Settings.Game or Constants.BLANKLINE,
+		},
+		Version = {
+			label = "Randomizer Version:",
+			value = RandomizerLog.Data.Settings.Version or Constants.BLANKLINE,
+		},
+		Seed = {
+			label = "Random Seed:",
+			value = RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE,
+		},
+		Settings = {
+			label = "Settings String:",
+			value = RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE,
+		},
+	}
+	local offsetX = x + 3
+	local offsetY = y + 3
+	local rowSpacer = 3
+	local colOffsetX = 100
+	Drawing.drawText(offsetX, offsetY, rInfo.Game.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Game.value, textColor, shadowcolor)
+	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
+
+	Drawing.drawText(offsetX, offsetY, rInfo.Version.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Version.value, textColor, shadowcolor)
+	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
+
+	Drawing.drawText(offsetX, offsetY, rInfo.Seed.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Seed.value, textColor, shadowcolor)
+	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
+
+	Drawing.drawText(offsetX, offsetY, rInfo.Settings.label, textColor, shadowcolor)
+	offsetY = offsetY + Constants.SCREEN.LINESPACING + 1
+
+	local settingsString = rInfo.Settings.value
+	offsetX = offsetX + 8
+	for i = 1, 999, 38 do
+		if settingsString:sub(i, i + 37) == "" then
+			break
+		end
+		Drawing.drawText(offsetX, offsetY, settingsString:sub(i, i + 37), textColor, shadowcolor)
+		offsetY = offsetY + Constants.SCREEN.LINESPACING
+	end
+	offsetY = offsetY + 1
+	offsetX = offsetX - 8
+
 	return borderColor, shadowcolor
 end
 
@@ -1144,7 +1240,7 @@ function LogOverlay.drawPokemonZoomed(x, y, width, height)
 	local pokemonID = LogOverlay.currentTabInfoId
 	local data = LogOverlay.currentTabData
 	if not PokemonData.isValid(pokemonID) then
-		return shadowcolor
+		return borderColor, shadowcolor
 	elseif data == nil then -- ideally this is done only once on tab change
 		LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(pokemonID)
 		data = LogOverlay.currentTabData
@@ -1233,7 +1329,7 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 	local trainerId = LogOverlay.currentTabInfoId
 	local data = LogOverlay.currentTabData
 	if RandomizerLog.Data.Trainers[trainerId] == nil then
-		return shadowcolor
+		return borderColor, shadowcolor
 	elseif data == nil then -- ideally this is done only once on tab change
 		LogOverlay.currentTabData = DataHelper.buildTrainerLogDisplay(trainerId)
 		data = LogOverlay.currentTabData
