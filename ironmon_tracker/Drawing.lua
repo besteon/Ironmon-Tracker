@@ -178,9 +178,7 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 
 	-- First draw a box if
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
-
-
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
 		if shadowcolor ~= nil then
 			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
@@ -249,6 +247,26 @@ function Drawing.drawButton(button, shadowcolor)
 				y = y - 1
 			end
 			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
+		end
+	elseif button.type == Constants.ButtonTypes.ICON_BORDER then
+		local offsetX = 17
+		local offsetY = math.max(math.floor((height - Constants.SCREEN.LINESPACING) / 2), 0)
+		if button.text ~= nil and button.text ~= "" then
+			Drawing.drawText(x + offsetX, y + offsetY, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
+		if button.image ~= nil then
+			local imageWidth = #button.image[1]
+			local imageHeight = #button.image
+			offsetX = math.max(math.floor((16 - imageWidth) / 2), 0) + 1
+			offsetY = math.max(math.floor((16 - imageHeight) / 2), 0) + 1
+			local iconColors = {}
+			for _, pixelColor in ipairs(button.iconColors or {}) do
+				table.insert(iconColors, Theme.COLORS[pixelColor])
+			end
+			if #iconColors == 0 then -- default to using the border color
+				table.insert(iconColors, bordercolor)
+			end
+			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end
 	end
 

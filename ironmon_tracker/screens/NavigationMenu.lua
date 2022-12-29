@@ -23,6 +23,7 @@ NavigationMenu.Buttons = {
 	Extras = {
 		text = "Extras",
 		image = Constants.PixelImages.POKEBALL,
+		iconColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.EXTRAS) end
 	},
@@ -91,7 +92,7 @@ NavigationMenu.Buttons = {
 	MirageButton = {
 		text = "It's a secret...",
 		image = Constants.PixelImages.POKEBALL,
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 110, 110, 15 },
 		timesClicked = 0,
 		canBeSeenToday = false,
@@ -152,22 +153,20 @@ NavigationMenu.OrderedMenuList = {
 
 function NavigationMenu.initialize()
 	local btnWidth = 63
-	local btnHeight = 15
+	local btnHeight = 16
 	local spacer = 6
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 16 + spacer
-	local leftCol = true
-	for _, button in ipairs(NavigationMenu.OrderedMenuList) do
-		button.type = Constants.ButtonTypes.FULL_BORDER
+	local startY = Constants.SCREEN.MARGIN + 12 + spacer
+	for i, button in ipairs(NavigationMenu.OrderedMenuList) do
+		button.type = Constants.ButtonTypes.ICON_BORDER
 		button.box = { startX, startY, btnWidth, btnHeight }
 
-		if leftCol then
+		if i % 2 == 1 then -- left column
 			startX = startX + btnWidth + spacer
-		else
+		else -- right column
 			startY = startY + btnHeight + spacer
 			startX = startX - btnWidth - spacer
 		end
-		leftCol = not leftCol
 	end
 
 	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
@@ -245,33 +244,33 @@ function NavigationMenu.drawScreen()
 	for _, button in pairs(NavigationMenu.Buttons) do
 		if button.isVisible == nil or button:isVisible() then
 			if button.image ~= nil then
-				local x = button.box[1]
-				local y = button.box[2]
-				local holdText = button.text
+				-- local x = button.box[1]
+				-- local y = button.box[2]
+				-- local holdText = button.text
 
-				button.text = ""
+				-- button.text = ""
 				Drawing.drawButton(button, shadowcolor)
-				button.text = holdText
-				Drawing.drawText(x + 16, y + 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
+				-- button.text = holdText
+				-- Drawing.drawText(x + 16, y + 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
 
-				-- TODO: Eventually make the Draw Button more flexible for centering its contents
-				if button.image == Constants.PixelImages.GEAR then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.PHYSICAL then
-					y = y + 3
-					x = x + 1
-				elseif button.image == Constants.PixelImages.MAGNIFYING_GLASS then
-					y = y + 1
-				elseif button.image == Constants.PixelImages.INSTALL_BOX then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.POKEBALL then
-					x = x - 1
-				elseif button.image == Constants.PixelImages.CLOCK then
-					y = y + 1
-				end
-				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor], Theme.COLORS[NavigationMenu.boxFillColor] }, shadowcolor)
+				-- -- TODO: Eventually make the Draw Button more flexible for centering its contents
+				-- if button.image == Constants.PixelImages.GEAR then
+				-- 	y = y + 2
+				-- 	x = x + 1
+				-- elseif button.image == Constants.PixelImages.PHYSICAL then
+				-- 	y = y + 3
+				-- 	x = x + 1
+				-- elseif button.image == Constants.PixelImages.MAGNIFYING_GLASS then
+				-- 	y = y + 1
+				-- elseif button.image == Constants.PixelImages.INSTALL_BOX then
+				-- 	y = y + 2
+				-- 	x = x + 1
+				-- elseif button.image == Constants.PixelImages.POKEBALL then
+				-- 	x = x - 1
+				-- elseif button.image == Constants.PixelImages.CLOCK then
+				-- 	y = y + 1
+				-- end
+				-- Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor], Theme.COLORS[NavigationMenu.boxFillColor] }, shadowcolor)
 			else
 				Drawing.drawButton(button, shadowcolor)
 			end

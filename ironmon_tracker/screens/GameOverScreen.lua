@@ -1,25 +1,43 @@
 GameOverScreen = {
 	Labels = {
-		headerTop = Constants.BLANKLINE .. "  G a m e O v e r  " .. Constants.BLANKLINE,
-		attemptNumber = "Attempt:",
+		headerTop = "G a m e O v e r",
+		announcer = "Announcer:",
+		attemptNumber = "Attempt",
 		trainersDefeated = "Trainers defeated:",
-		continuePlaying = "     " .. "Continue Playing",
-		restartBattle = "       " .. "Retry the Battle",
-		restartBattleConfirm = "        " .. "Are you sure?",
-		saveGameFiles = "        " .. "Save this Run",
-		saveSuccessful = "Saved in Tracker folder!",
-		saveFailed = "      " .. "Unable to save",
-		viewLogFile = " View the Log",
-		viewLogFailed = " (Error) Try -->",
-		openLogFile = " Open a Log",
+		continuePlaying = "Continue playing",
+		retryBattle = "Retry the battle",
+		restartBattleConfirm = "Are you sure?",
+		saveGameFiles = "Save this attempt",
+		saveSuccessful = "Saved in tracker folder!",
+		saveFailed = "Unable to save",
+		viewLogFile = "Inspect the log",
+		openLogFile = "Open a log file",
 	},
+	AnnouncerQuotes = {
+		"What's the matter trainer?",
+		"What will the trainer do now?",
+		"Oh! Another failure!",
+		"Boom!",
+		"Devastating!",
+		"Gone! It didn't stand a chance!",
+		-- "There's a distinct difference in the number of remaining " .. Constants.Words.POKEMON .. ".", -- too long
+		"Can strategy overcome the level disadvantage?",
+		"It's in no condition to fight!",
+		"This is a battle between obviously mismatched " .. Constants.Words.POKEMON .. ".",
+		"The " .. Constants.Words.POKEMON .. " returns to its " .. Constants.Words.POKE .. " Ball.",
+		"Down! That didn't take much!",
+		"That one hurt!",
+		"And there goes the battle!",
+		"What a wild turn of events!",
+	},
+	chosenQuoteIndex = 1,
 }
 
 GameOverScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 10, 31, 29 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 6, 32, 32 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 107, 5, 31, 29 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 107, 1, 32, 32 },
 		teamIndex = 1,
 		getIconPath = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
@@ -28,27 +46,31 @@ GameOverScreen.Buttons = {
 		end,
 		onClick = function(self)
 			GameOverScreen.nextTeamPokemon(self.teamIndex)
+			-- GameOverScreen.chosenQuoteIndex = GameOverScreen.chosenQuoteIndex % #GameOverScreen.AnnouncerQuotes + 1 -- Optionally, cycle in order
+			GameOverScreen.randomizeAnnouncerQuote()
 			Program.redraw(true)
 		end,
 	},
 	ContinuePlaying = {
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.NEXT_BUTTON,
 		text = GameOverScreen.Labels.continuePlaying,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22, Constants.SCREEN.MARGIN + 86, 95, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 66, 112, 16 },
 		onClick = function(self)
 			LogOverlay.isDisplayed = false
-			GameOverScreen.resetLabels()
+			GameOverScreen.refreshButtons()
 			Program.changeScreenView(Program.Screens.TRACKER)
 		end,
 	},
-	RestartBattle = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = GameOverScreen.Labels.restartBattle,
+	RetryBattle = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.SWORD_ATTACK,
+		text = GameOverScreen.Labels.retryBattle,
 		confirmAction = false,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22, Constants.SCREEN.MARGIN + 101, 95, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 87, 112, 16 },
 		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil end,
-		resetText = function(self)
-			self.text = GameOverScreen.Labels.restartBattle
+		updateText = function(self)
+			self.text = GameOverScreen.Labels.retryBattle
 			self.textColor = "Lower box text"
 			self.confirmAction = false
 		end,
@@ -61,19 +83,20 @@ GameOverScreen.Buttons = {
 			else
 				GameOverScreen.trainerBattlesLost = GameOverScreen.trainerBattlesLost - 1
 				LogOverlay.isDisplayed = false
-				GameOverScreen.resetLabels()
+				GameOverScreen.refreshButtons()
 				Program.changeScreenView(Program.Screens.TRACKER)
 				GameOverScreen.loadTempSaveState()
 			end
 		end,
 	},
 	SaveGameFiles = {
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.INSTALL_BOX,
 		text = GameOverScreen.Labels.saveGameFiles,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 22, Constants.SCREEN.MARGIN + 116, 95, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 108, 112, 16 },
 		-- Only visible if the player is using the Tracker's Quickload feature
 		isVisible = function(self) return Options["Use premade ROMs"] or Options["Generate ROM each time"] end,
-		resetText = function(self)
+		updateText = function(self)
 			self.text = GameOverScreen.Labels.saveGameFiles
 			self.textColor = "Lower box text"
 		end,
@@ -91,27 +114,23 @@ GameOverScreen.Buttons = {
 		end,
 	},
 	ViewLogFile = {
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		text = GameOverScreen.Labels.viewLogFile,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 133, 57, 12 },
-		-- Only visible if the player is using the Tracker's Quickload feature
-		isVisible = function(self) return Options["Use premade ROMs"] or Options["Generate ROM each time"] end,
-		resetText = function(self)
-			self.text = GameOverScreen.Labels.viewLogFile
-			self.textColor = "Lower box text"
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 129, 112, 16 },
+		isVisible = function(self) return true end,
+		updateText = function(self)
+			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
+				self.text = GameOverScreen.Labels.viewLogFile
+			else
+				self.text = GameOverScreen.Labels.openLogFile
+			end
 		end,
 		onClick = function(self)
 			if not GameOverScreen.viewLogFile() then
-				self.text = GameOverScreen.Labels.viewLogFailed
-				self.textColor = "Negative text"
+				GameOverScreen.openLogFilePrompt()
 			end
 		end,
-	},
-	OpenLogFile = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = GameOverScreen.Labels.openLogFile,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 78, Constants.SCREEN.MARGIN + 133, 52, 12 },
-		onClick = function(self) GameOverScreen.openLogFilePrompt() end,
 	},
 }
 
@@ -124,13 +143,25 @@ function GameOverScreen.initialize()
 		button.textColor = "Lower box text"
 		button.boxColors = { "Lower box border", "Lower box background" }
 	end
-	GameOverScreen.resetLabels()
+	GameOverScreen.refreshButtons()
+	GameOverScreen.randomizeAnnouncerQuote()
 end
 
-function GameOverScreen.resetLabels()
+function GameOverScreen.randomizeAnnouncerQuote()
+	local currentQuoteIndex = GameOverScreen.chosenQuoteIndex
+	local totalQuotes = #GameOverScreen.AnnouncerQuotes
+	local retries = 0
+	while GameOverScreen.chosenQuoteIndex == currentQuoteIndex and retries < 50 do
+		GameOverScreen.chosenQuoteIndex = math.random(totalQuotes)
+		retries = retries + 1
+	end
+	return GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
+end
+
+function GameOverScreen.refreshButtons()
 	for _, button in pairs(GameOverScreen.Buttons) do
-		if button.resetText ~= nil then
-			button:resetText()
+		if button.updateText ~= nil then
+			button:updateText()
 		end
 	end
 end
@@ -334,7 +365,7 @@ function GameOverScreen.drawScreen()
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = 76,
+		height = 56,
 		text = Theme.COLORS["Default text"],
 		border = Theme.COLORS["Upper box border"],
 		fill = Theme.COLORS["Upper box background"],
@@ -350,48 +381,64 @@ function GameOverScreen.drawScreen()
 		fill = Theme.COLORS["Lower box background"],
 		shadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"]),
 	}
-	local topcolX = 78
 	local textLineY = topBox.y + 2
-	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	-- Draw top border box
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header text
-	Drawing.drawText(topBox.x + 29, textLineY, GameOverScreen.Labels.headerTop:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
-	textLineY = textLineY + linespacing + 1
+	Drawing.drawText(topBox.x + 2, textLineY, GameOverScreen.Labels.headerTop:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw some game stats
 	local attemptNumber = Main.currentSeed or 1
-	Drawing.drawText(topBox.x + 3, textLineY, GameOverScreen.Labels.attemptNumber, topBox.text, topBox.shadow)
-	Drawing.drawText(topBox.x + topcolX, textLineY, Utils.formatNumberWithCommas(attemptNumber), topBox.text, topBox.shadow)
-	textLineY = textLineY + linespacing
+	if attemptNumber ~= 1 then
+		local attemptsText = string.format("%s:  %s", GameOverScreen.Labels.attemptNumber, Utils.formatNumberWithCommas(attemptNumber))
+		-- local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(attemptsText) / 2) - 1
+		Drawing.drawText(topBox.x + 2, textLineY, attemptsText, topBox.text, topBox.shadow)
+	end
+	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local trainersDefeated = Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0
-	trainersDefeated = trainersDefeated - (GameOverScreen.trainerBattlesLost or 0) -- Decreased by trainer battles lost
-	Drawing.drawText(topBox.x + 3, textLineY, GameOverScreen.Labels.trainersDefeated, topBox.text, topBox.shadow)
-	Drawing.drawText(topBox.x + topcolX, textLineY, Utils.formatNumberWithCommas(trainersDefeated), topBox.text, topBox.shadow)
-	textLineY = textLineY + linespacing
+	-- Draw announcer quote
+	-- Drawing.drawText(topBox.x + 2, textLineY, GameOverScreen.Labels.announcer, topBox.text, topBox.shadow)
+	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+
+	local announcerQuote = GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
+	local wrappedQuote = Utils.getWordWrapLines(announcerQuote, 30)
+	textLineY = textLineY + 5 * (2 - #wrappedQuote)
+	for _, line in pairs(wrappedQuote) do
+		local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(line) / 2) - 1
+		Drawing.drawText(topBox.x + centerOffsetX, textLineY, line, topBox.text, topBox.shadow)
+		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+	end
+
+	-- TODO: Might add back in later
+
+	-- local trainersDefeated = Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES) or 0
+	-- trainersDefeated = trainersDefeated - (GameOverScreen.trainerBattlesLost or 0) -- Decreased by trainer battles lost
+	-- Drawing.drawText(topBox.x + 3, textLineY, GameOverScreen.Labels.trainersDefeated, topBox.text, topBox.shadow)
+	-- Drawing.drawText(topBox.x + topcolX, textLineY, Utils.formatNumberWithCommas(trainersDefeated), topBox.text, topBox.shadow)
+	-- textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw the Team Pokemon's stats and bst
-	textLineY = textLineY + linespacing + 2
-	local pokemonOnTeam = Tracker.getPokemon(GameOverScreen.Buttons.PokemonIcon.teamIndex or 1, true) or Tracker.getDefaultPokemon()
-	if pokemonOnTeam ~= nil then
-		local statColSpacing = 19
-		local statLineX = topBox.x + 5
-		for _, statLabel in ipairs(Constants.OrderedLists.STATSTAGES) do
-			local offsetX = 0
-			if Options["Right justified numbers"] then
-				offsetX = 15 - statLabel:len() * 5
-			end
-			Drawing.drawText(statLineX + offsetX, textLineY, statLabel:upper(), topBox.text, topBox.shadow)
-			Drawing.drawNumber(statLineX, textLineY + 10, pokemonOnTeam.stats[statLabel], 3, topBox.text, topBox.shadow)
-			statLineX = statLineX + statColSpacing
-		end
-		Drawing.drawText(statLineX, textLineY, "BST", topBox.text, topBox.shadow)
-		Drawing.drawNumber(statLineX, textLineY + 10, PokemonData.Pokemon[pokemonOnTeam.pokemonID].bst, 3, topBox.text, topBox.shadow)
-	end
+	-- textLineY = textLineY + 2
+	-- local pokemonOnTeam = Tracker.getPokemon(GameOverScreen.Buttons.PokemonIcon.teamIndex or 1, true) or Tracker.getDefaultPokemon()
+	-- if pokemonOnTeam ~= nil then
+	-- 	local statColSpacing = 19
+	-- 	local statLineX = topBox.x + 28
+	-- 	for _, statLabel in ipairs(Constants.OrderedLists.STATSTAGES) do
+	-- 		local offsetX = 0
+	-- 		if Options["Right justified numbers"] then
+	-- 			offsetX = 15 - statLabel:len() * 5
+	-- 		end
+	-- 		Drawing.drawText(statLineX + offsetX, textLineY, statLabel:upper(), topBox.text, topBox.shadow)
+	-- 		Drawing.drawNumber(statLineX, textLineY + 10, pokemonOnTeam.stats[statLabel], 3, topBox.text, topBox.shadow)
+	-- 		statLineX = statLineX + statColSpacing
+	-- 	end
+	-- 	-- Drawing.drawText(statLineX, textLineY, "BST", topBox.text, topBox.shadow)
+	-- 	-- Drawing.drawNumber(statLineX, textLineY + 10, PokemonData.Pokemon[pokemonOnTeam.pokemonID].bst, 3, topBox.text, topBox.shadow)
+	-- end
 
 	-- Draw bottom border box
 	gui.defaultTextBackground(botBox.fill)

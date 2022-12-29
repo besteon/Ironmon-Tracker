@@ -1247,7 +1247,7 @@ RandomizerLog.TrainerFileInfo = {
 	["frlg-rival-b"] =			{ width = 42, height = 60, offsetY = 2, },
 	["frlg-rival-c"] =			{ width = 42, height = 57, offsetY = 3, },
 	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, offsetY = 2, },
-	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 3, offsetY = 2, },
+	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 2, offsetY = 2, },
 	["frlg-gymleader-3"] =		{ width = 43, height = 61, offsetY = 2, },
 	["frlg-gymleader-4"] =		{ width = 43, height = 57, offsetX = 2, offsetY = 3, },
 	["frlg-gymleader-5"] =		{ width = 46, height = 54, offsetY = 4, },

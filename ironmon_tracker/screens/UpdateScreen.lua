@@ -52,7 +52,7 @@ UpdateScreen.Buttons = {
 	CheckForUpdates = {
 		text = "Check for Updates", -- Can also be "No Updates Available"
 		image = Constants.PixelImages.INSTALL_BOX,
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 112, 110, 15 },
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
 		onClick = function(self)
@@ -153,7 +153,7 @@ function UpdateScreen.initialize()
 
 	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.type == nil then
-			button.type = Constants.ButtonTypes.FULL_BORDER
+			button.type = Constants.ButtonTypes.ICON_BORDER
 		end
 		if button.textColor == nil then
 			button.textColor = "Lower box text"
@@ -343,31 +343,10 @@ function UpdateScreen.drawScreen()
 	-- Draw all buttons, manually
 	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.isVisible == nil or button:isVisible() then
-			if button.image ~= nil then
-				local x = button.box[1]
-				local y = button.box[2]
-				local holdText = button.text
-
-				button.text = ""
-				Drawing.drawButton(button, botBox.shadow)
-				button.text = holdText
-				Drawing.drawText(x + 17, y + 2, button.text, Theme.COLORS[button.textColor], botBox.shadow)
-
-				-- TODO: Eventually make the Draw Button more flexible for centering its contents
-				if button.image == Constants.PixelImages.INSTALL_BOX then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.CLOCK then
-					y = y + 1
-					x = x + 1
-				end
-				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
+			if button.boxColors ~= nil and button.boxColors[2] == "Upper box background" then
+				Drawing.drawButton(button, topBox.shadow)
 			else
-				if button.boxColors ~= nil and button.boxColors[2] == "Upper box background" then
-					Drawing.drawButton(button, topBox.shadow)
-				else
-					Drawing.drawButton(button, botBox.shadow)
-				end
+				Drawing.drawButton(button, botBox.shadow)
 			end
 		end
 	end

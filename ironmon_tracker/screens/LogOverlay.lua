@@ -1323,7 +1323,7 @@ function LogOverlay.drawTMsTab(x, y, width, height)
 		if button:isVisible() and LogOverlay.Windower.filterGrid == "Gym TMs" then
 			local badgeName = GameSettings.badgePrefix .. "_badge" .. button.gymNumber
 			local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
-			gui.drawImage(badgeImage, button.box[1] - 18, button.box[2])
+			gui.drawImage(badgeImage, button.box[1] - 18, button.box[2] - 2)
 
 			local gymLabel = string.format("Gym %s", button.gymNumber or 0)
 			Drawing.drawText(button.box[1] + gymColOffsetX, button.box[2], button.gymLeader or Constants.BLANKLINE, textColor, shadowcolor)
