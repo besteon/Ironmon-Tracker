@@ -520,14 +520,16 @@ function LogOverlay.buildPagedButtons()
 		RandomizerLog.TrainerGroups.Rival,
 		RandomizerLog.TrainerGroups.Gym,
 		RandomizerLog.TrainerGroups.Elite4,
+		RandomizerLog.TrainerGroups.Boss,
 		-- RandomizerLog.TrainerGroups.Other,
 		"(?)",
 	}
 	navBtnInfo = {
 		["By Class"] = { width = 34, },
 		[RandomizerLog.TrainerGroups.Rival] = { width = 22, sortFunc = function(a, b) return a.text < b.text end, },
-		[RandomizerLog.TrainerGroups.Gym] = { width = 21, sortFunc = function(a, b) return a.filename < b.filename end, },
-		[RandomizerLog.TrainerGroups.Elite4] = { width = 27, sortFunc = function(a, b) return a.filename < b.filename end, },
+		[RandomizerLog.TrainerGroups.Gym] = { width = 21, sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end, },
+		[RandomizerLog.TrainerGroups.Elite4] = { width = 27, sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end, },
+		[RandomizerLog.TrainerGroups.Boss] = { width = 21, sortFunc = function(a, b) return a.text < b.text end, },
 		-- [RandomizerLog.TrainerGroups.Other] = { width = 25, sortFunc = function(a, b) return a.text < b.text end, },
 		["(?)"] = { width = 12, },
 	}
@@ -688,7 +690,7 @@ function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 		if a.group < b.group then
 			return true
 		elseif a.group == b.group then
-			if a.group == RandomizerLog.TrainerGroups.Rival then -- special sort for rival #s
+			if a.group == RandomizerLog.TrainerGroups.Rival or a.group == RandomizerLog.TrainerGroups.Boss then -- special sort for rival/wally #s
 				return a.text < b.text
 			elseif a.filename < b.filename then
 				return true
@@ -1528,7 +1530,7 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 		Drawing.drawButton(button, shadowcolor)
 		-- Draw the Pokemon's level text below the icon
 		if button:isVisible() and button.type == Constants.ButtonTypes.POKEMON_ICON then
-			local levelOffsetX = button.box[1] + 6
+			local levelOffsetX = button.box[1] + 5
 			local levelOffsetY = button.box[2] + button.box[4] + 2
 			Drawing.drawText(levelOffsetX, levelOffsetY, button.text, textColor, shadowcolor)
 		end
