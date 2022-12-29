@@ -286,14 +286,14 @@ LogOverlay.Buttons = {
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.PREVIOUS_BUTTON,
-		textColor = "Upper box border",
+		textColor = "Default text",
 		box = { LogOverlay.margin + 4, LogOverlay.tabHeight + 65, 10, 10, },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
 		updateText = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
-				self.textColor = "Lower box border"
+				self.textColor = "Lower box text"
 			else
-				self.textColor = "Upper box border"
+				self.textColor = "Default text"
 			end
 		end,
 		onClick = function(self)
@@ -305,14 +305,14 @@ LogOverlay.Buttons = {
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NEXT_BUTTON,
-		textColor = "Upper box border",
+		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH - LogOverlay.margin - 13, LogOverlay.tabHeight + 65, 10, 10, },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
 		updateText = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
-				self.textColor = "Lower box border"
+				self.textColor = "Lower box text"
 			else
-				self.textColor = "Upper box border"
+				self.textColor = "Default text"
 			end
 		end,
 		onClick = function(self)
@@ -886,7 +886,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local upArrow = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.UP_ARROW,
-		textColor = "Lower box border",
+		textColor = "Lower box text",
 		box = { movesColX + 107, movesRowY + 24 + Utils.inlineIf(hasEvo, 0, 10), 10, 10 },
 		isVisible = function() return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
@@ -897,7 +897,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local downArrow = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.DOWN_ARROW,
-		textColor = "Lower box border",
+		textColor = "Lower box text",
 		box = { movesColX + 107, movesRowY + 81 + Utils.inlineIf(hasEvo, 0, 30), 10, 10 },
 		isVisible = function() return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.totalPages > 1 end,
 		onClick = function(self)
@@ -1021,6 +1021,7 @@ function LogOverlay.openRandomizerShareWindow()
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
 
+	local newline = "\r\n"
 	local randomizerInfo = {
 		{
 			label = Constants.Words.POKEMON .. " Game:",
@@ -1035,7 +1036,7 @@ function LogOverlay.openRandomizerShareWindow()
 			value = RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE,
 		},
 		{
-			label = "Settings String:",
+			label = newline .. "Settings String:",
 			value = RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE,
 		},
 	}
@@ -1044,8 +1045,8 @@ function LogOverlay.openRandomizerShareWindow()
 		table.insert(shareExport, string.format("%s %s", infoSection.label, infoSection.value))
 	end
 
-	forms.label(form, "Share the randomized seed for this game:", 9, 10, 300, 20)
-	forms.textbox(form, table.concat(shareExport, " \r\n"), 480, 120, nil, 10, 35, true, false, "Vertical")
+	forms.label(form, "Share the randomized seed for this game. Load it through Randomizer --> Premade Seed.", 9, 10, 495, 20)
+	forms.textbox(form, table.concat(shareExport, " " .. newline), 480, 120, nil, 10, 35, true, false, "Vertical")
 	forms.button(form, "Close", function()
 		forms.destroy(form)
 	end, 212, 165)
@@ -1257,7 +1258,7 @@ function LogOverlay.drawPokemonZoomed(x, y, width, height)
 
 	-- EVOLUTION ARROW
 	if #data.p.evos > 0 then
-		Drawing.drawImageAsPixels(Constants.PixelImages.NEXT_BUTTON, x + 109, y + 14, { borderColor }, shadowcolor)
+		Drawing.drawImageAsPixels(Constants.PixelImages.NEXT_BUTTON, x + 109, y + 14, { textColor }, shadowcolor)
 	end
 
 	local statBox = {
