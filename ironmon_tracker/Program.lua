@@ -545,8 +545,11 @@ function Program.isValidMapLocation()
 end
 
 function Program.HandleExit()
-	Drawing.clearGUI()
-	forms.destroyall()
+	if Main.IsOnBizhawk() then
+		gui.clearImageCache()
+		Drawing.clearGUI()
+		forms.destroyall()
+	end
 end
 
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.

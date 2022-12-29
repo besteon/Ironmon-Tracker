@@ -127,8 +127,24 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		onClick = function(self)
+			local wasSoundOn
+			if Main.IsOnBizhawk() then
+				-- Disable Bizhawk sound while the update is in process
+				wasSoundOn = client.GetSoundOn()
+				client.SetSoundOn(false)
+			end
+
 			if not GameOverScreen.viewLogFile() then
-				GameOverScreen.openLogFilePrompt()
+				-- If the log file was already parsed, re-use that
+				if RandomizerLog.Data.Settings ~= nil then
+					LogOverlay.parseAndDisplay()
+				else
+					GameOverScreen.openLogFilePrompt()
+				end
+			end
+
+			if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+				client.SetSoundOn(wasSoundOn)
 			end
 		end,
 	},
@@ -405,9 +421,10 @@ function GameOverScreen.drawScreen()
 	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 
 	local announcerQuote = GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
-	local wrappedQuote = Utils.getWordWrapLines(announcerQuote, 30)
-	textLineY = textLineY + 5 * (2 - #wrappedQuote)
-	for _, line in pairs(wrappedQuote) do
+	local wrappedQuotes = Utils.getWordWrapLines(announcerQuote, 30)
+	local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
+	textLineY = textLineY + 5 * (2 - #firstTwoLines)
+	for _, line in pairs(firstTwoLines) do
 		local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(line) / 2) - 1
 		Drawing.drawText(topBox.x + centerOffsetX, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1

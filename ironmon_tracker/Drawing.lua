@@ -272,7 +272,7 @@ function Drawing.drawButton(button, shadowcolor)
 
 	-- Draw anything extra that the button defines
 	if button.draw ~= nil then
-		button:draw()
+		button:draw(shadowcolor)
 	end
 end
 
