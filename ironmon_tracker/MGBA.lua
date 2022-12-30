@@ -385,6 +385,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
+	[8] = { optionKey = "Dev branch updates", displayName = "Dev branch updates", },
 	[10] = { optionKey = "Toggle view", displayName = "Swap viewed Pokemon", },
 	[11] = { optionKey = "Cycle through stats", displayName = "Cycle through stats", },
 	[12] = { optionKey = "Mark stat", displayName = "Mark a stat [+/-]", },

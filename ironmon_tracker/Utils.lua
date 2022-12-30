@@ -91,6 +91,15 @@ function Utils.centerTextOffset(text, charSize, width)
 	return (width - (charSize * text:len())) / 2
 end
 
+function Utils.calcWordPixelLength(text)
+	if text == nil or #text == 0 then return 0 end
+    local totalLength = 0
+    for c in text:gmatch("(.)") do
+		totalLength = totalLength + (Constants.CharWidths[c] or 1) + 1
+    end
+    return totalLength - 1 -- remove trailing space-pixel
+end
+
 -- Accepts a number, positive or negative and with/without fractions, and returns a string formatted as "12,345.6789"
 function Utils.formatNumberWithCommas(number)
 	local _, _, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
@@ -175,6 +184,18 @@ function Utils.randomPokemonID()
 		pokemonID = pokemonID + 25
 	end
 	return pokemonID
+end
+
+-- Estimated total number of trainers (ids) found from log files
+function Utils.randomTrainerID()
+	if GameSettings.game == 1 then -- Game #: Ruby / Sapphire
+		return math.random(693)
+	elseif GameSettings.game == 2 then -- Game #: Emerald
+		return math.random(854)
+	elseif GameSettings.game == 3 then -- Game #: Fire Red / Leaf Green
+		return math.random(742)
+	end
+	return 0
 end
 
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)

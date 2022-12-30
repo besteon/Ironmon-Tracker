@@ -25,10 +25,34 @@ UpdateScreen = {
 }
 
 UpdateScreen.Buttons = {
+	DevOptIn = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text = " Dev branch updates",
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 33, 8, 8 },
+		textColor = "Default text",
+		boxColors = { "Upper box border", "Upper box background" },
+		toggleState = false, -- update later in initialize
+		toggleColor = "Positive text",
+		onClick = function(self)
+			-- Toggle the setting and store the change to be saved later in Settings.ini
+			self.toggleState = not self.toggleState
+			UpdateOrInstall.Dev.enabled = self.toggleState
+
+			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
+				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+			else
+				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
+			end
+
+			Options.updateSetting(self.text, self.toggleState)
+			Options.forceSave()
+		end
+	},
 	CheckForUpdates = {
 		text = "Check for Updates", -- Can also be "No Updates Available"
 		image = Constants.PixelImages.INSTALL_BOX,
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 112, 110, 15 },
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
 		onClick = function(self)
@@ -128,10 +152,18 @@ function UpdateScreen.initialize()
 	end
 
 	for _, button in pairs(UpdateScreen.Buttons) do
-		button.type = Constants.ButtonTypes.FULL_BORDER
-		button.textColor = "Lower box text"
-		button.boxColors = { "Lower box border", "Lower box background" }
+		if button.type == nil then
+			button.type = Constants.ButtonTypes.ICON_BORDER
+		end
+		if button.textColor == nil then
+			button.textColor = "Lower box text"
+		end
+		if button.boxColors == nil then
+			button.boxColors = { "Lower box border", "Lower box background" }
+		end
 	end
+
+	UpdateScreen.Buttons.DevOptIn.toggleState = Options["Dev branch updates"] or false
 
 	-- These buttons share a location, but visiable at different times based on Update Status
 	UpdateScreen.Buttons.CheckForUpdates.box = UpdateScreen.Buttons.UpdateNow.box
@@ -261,11 +293,11 @@ function UpdateScreen.drawScreen()
 	Drawing.drawText(topBox.x + 12, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing + 5
 
-	Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
-	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
-	textLineY = textLineY + linespacing
-
-	if not Main.isOnLatestVersion() then
+	if Main.isOnLatestVersion() then
+		Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.currentVersion, topBox.text, topBox.shadow)
+		Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
+		textLineY = textLineY + linespacing
+	else
 		Drawing.drawText(topBox.x + 8, textLineY, UpdateScreen.Labels.newVersion, topBox.text, topBox.shadow)
 		Drawing.drawText(topcolX, textLineY, Main.Version.latestAvailable, Theme.COLORS["Positive text"], topBox.shadow)
 		textLineY = textLineY + linespacing
@@ -311,25 +343,8 @@ function UpdateScreen.drawScreen()
 	-- Draw all buttons, manually
 	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.isVisible == nil or button:isVisible() then
-			if button.image ~= nil then
-				local x = button.box[1]
-				local y = button.box[2]
-				local holdText = button.text
-
-				button.text = ""
-				Drawing.drawButton(button, botBox.shadow)
-				button.text = holdText
-				Drawing.drawText(x + 17, y + 2, button.text, Theme.COLORS[button.textColor], botBox.shadow)
-
-				-- TODO: Eventually make the Draw Button more flexible for centering its contents
-				if button.image == Constants.PixelImages.INSTALL_BOX then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.CLOCK then
-					y = y + 1
-					x = x + 1
-				end
-				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[button.boxColors[1]] }, botBox.shadow)
+			if button.boxColors ~= nil and button.boxColors[2] == "Upper box background" then
+				Drawing.drawButton(button, topBox.shadow)
 			else
 				Drawing.drawButton(button, botBox.shadow)
 			end

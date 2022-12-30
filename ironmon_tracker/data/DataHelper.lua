@@ -531,3 +531,134 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 	return data
 end
+
+function DataHelper.buildPokemonLogDisplay(pokemonID)
+	local data = {}
+	data.p = {} -- data about the Pokemon itself
+	data.x = {} -- misc data to display, such as notes
+
+	-- TODO: (Types, Abilities, etc) need to be read-in from the log in case its not the current game being viewed
+	local pokemonDex
+	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
+		pokemonDex = PokemonData.BlankPokemon
+		return data -- likely want a safer way
+	else
+		pokemonDex = PokemonData.Pokemon[pokemonID]
+	end
+	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
+
+	data.p.id = pokemonDex.pokemonID or 0
+	data.p.name = pokemonDex.name or Constants.BLANKLINE
+	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
+	data.p.types = { pokemonDex.types[1], pokemonDex.types[2] }
+	data.p.abilities = {
+		PokemonData.getAbilityId(pokemonDex.pokemonID, 0),
+		PokemonData.getAbilityId(pokemonDex.pokemonID, 1),
+	}
+
+	-- The following are all Randomizer Log information
+	if pokemonLog.BaseStats ~= nil then
+		data.p.helditems = pokemonLog.BaseStats.helditems or Constants.BLANKLINE -- unsure how this is formatted
+	else
+		data.p.helditems = Constants.BLANKLINE
+	end
+
+	-- The Pokemon's randomized base stats
+	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+		if pokemonLog.BaseStats ~= nil then
+			data.p[statKey] = pokemonLog.BaseStats[statKey] or Constants.BLANKLINE
+		else
+			data.p[statKey] = Constants.BLANKLINE
+		end
+	end
+
+	-- The Pokemon's randomized evolutions
+	data.p.evos = {}
+	for _, evoId in ipairs(pokemonLog.Evolutions or {}) do
+		local evoInfo = {
+			id = evoId,
+			name = PokemonData.Pokemon[evoId].name,
+		}
+		table.insert(data.p.evos, evoInfo)
+	end
+
+	-- The Pokemon's level-up move list, in order of levels
+	data.p.moves = {}
+	for _, move in ipairs(pokemonLog.MoveSet or {}) do
+		local moveInfo = {
+			id = move.moveId,
+			level = move.level,
+			name = MoveData.Moves[move.moveId].name,
+		}
+		table.insert(data.p.moves, moveInfo)
+	end
+
+	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
+	data.p.tmmoves = {}
+	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
+		local moveId = RandomizerLog.Data.TMs[tmNumber] or 0
+		local tmInfo = {
+			tm = tmNumber,
+			moveId = moveId,
+			moveName = MoveData.Moves[moveId].name,
+		}
+		table.insert(data.p.tmmoves, tmInfo)
+	end
+
+	return data
+end
+
+function DataHelper.buildTrainerLogDisplay(trainerId)
+	local data = {}
+	data.t = {} -- data about the Trainer itself
+	data.p = {} -- data about each Pokemon in the Trainer's party
+	data.x = {} -- misc data to display, such as notes
+
+	if trainerId == nil or RandomizerLog.Data.Trainers[trainerId] == nil then
+		return data
+	end
+
+	local trainer = RandomizerLog.Data.Trainers[trainerId]
+	local trainerInfo = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+
+	data.t.id = trainerId or 0
+	data.t.filename = trainerInfo.filename or Constants.BLANKLINE
+
+	if trainerInfo.name ~= "Unknown" then
+		data.t.name = trainerInfo.name or Constants.BLANKLINE
+	else
+		data.t.name = Utils.firstToUpper(trainer.name) or Constants.BLANKLINE
+	end
+
+	for _, partyMon in ipairs(trainer.party or {}) do
+		local pokemonInfo = {
+			id = partyMon.pokemonID or 0,
+			name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE,
+			level = partyMon.level or 0,
+			moves = {},
+			helditem = partyMon.helditem,
+		}
+		local movesLeftToAdd = 4
+		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}
+		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
+		for j = #pokemonMoves, 1, -1 do
+			if pokemonMoves[j].level <= partyMon.level then
+				local moveToAdd = {
+					moveId = pokemonMoves[j].moveId,
+					name = MoveData.Moves[pokemonMoves[j].moveId].name,
+				}
+				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
+				movesLeftToAdd = movesLeftToAdd - 1
+				if movesLeftToAdd <= 0 then
+					break
+				end
+			end
+		end
+		table.insert(data.p, pokemonInfo)
+	end
+
+	-- Gym number (if applicable), otherwise nil
+	data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
+
+	return data
+end

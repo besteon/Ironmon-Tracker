@@ -28,12 +28,13 @@ function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
 end
 
-function Drawing.drawBackgroundAndMargins(x, y, width, height)
+function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	x = x or Constants.SCREEN.WIDTH
 	y = y or 0
 	width = width or Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP
 	height = height or Constants.SCREEN.HEIGHT
-	gui.drawRectangle(x, y, width, height, Theme.COLORS["Main background"], Theme.COLORS["Main background"])
+	bgcolor = bgcolor or Theme.COLORS["Main background"]
+	gui.drawRectangle(x, y, width, height, bgcolor, bgcolor)
 end
 
 function Drawing.drawPokemonIcon(pokemonID, x, y)
@@ -177,9 +178,7 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 
 	-- First draw a box if
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE then
-
-
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
 		if shadowcolor ~= nil then
 			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
@@ -249,6 +248,31 @@ function Drawing.drawButton(button, shadowcolor)
 			end
 			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
 		end
+	elseif button.type == Constants.ButtonTypes.ICON_BORDER then
+		local offsetX = 17
+		local offsetY = math.max(math.floor((height - Constants.SCREEN.LINESPACING) / 2), 0)
+		if button.text ~= nil and button.text ~= "" then
+			Drawing.drawText(x + offsetX, y + offsetY, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		end
+		if button.image ~= nil then
+			local imageWidth = #button.image[1]
+			local imageHeight = #button.image
+			offsetX = math.max(math.floor((16 - imageWidth) / 2), 0) + 1
+			offsetY = math.max(math.floor((16 - imageHeight) / 2), 0) + 1
+			local iconColors = {}
+			for _, pixelColor in ipairs(button.iconColors or {}) do
+				table.insert(iconColors, Theme.COLORS[pixelColor])
+			end
+			if #iconColors == 0 then -- default to using the border color
+				table.insert(iconColors, bordercolor)
+			end
+			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
+		end
+	end
+
+	-- Draw anything extra that the button defines
+	if button.draw ~= nil then
+		button:draw(shadowcolor)
 	end
 end
 
@@ -258,7 +282,7 @@ function Drawing.drawScreen(screenFunc)
 			screenFunc()
 		end
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation() and not (Battle.inBattle or Battle.battleStarting) and not Program.inStartMenu then
+		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
 		end
 	else

@@ -295,6 +295,8 @@ function GameSettings.setEwramAddresses()
 		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
 		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, 0x02023fc4 + 0x17 },
 		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
+		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, 0x020386ae },
+		gTrainerBattleOpponent_B = { nil, 0x02038bcc, nil }, -- Emerald Only
 		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, 0x0203b140 },
 		gBattleTypeFlags = { 0x020239f8, 0x02022fec, 0x02022b4c },
 		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, 0x02023bc8 },

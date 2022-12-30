@@ -52,15 +52,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### MGBA Emulator Support
+### Full Randomizer Log Viewer
 
-The Tracker is now compatible with the mGBA emulator. It is now also compatible on both Mac and Linux.
-
-![image](https://user-images.githubusercontent.com/4258818/209012095-c2c4d9d7-7f09-4764-afe4-1461f77ceb16.png)
-
-### Full Tracked Move History
-
-![image](https://user-images.githubusercontent.com/4258818/209043481-ad71a433-92ca-47f1-9e24-94790dab70dc.png)
+![image](https://user-images.githubusercontent.com/4258818/210026570-860a32a1-a5f8-4b08-8b39-90fe350ba114.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

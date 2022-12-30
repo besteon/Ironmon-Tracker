@@ -1,6 +1,7 @@
 Theme = {
 	-- Tracks if any theme elements were modified so we know if we need to save them to the Settings.ini file
 	settingsUpdated = false,
+	headerHighlightKey = "Intermediate text",
 
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
@@ -156,7 +157,7 @@ Theme.Buttons = {
 				Theme.DRAW_TEXT_SHADOWS = Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS
 				Theme.Buttons.DrawTextShadows.toggleState = Theme.DRAW_TEXT_SHADOWS
 
-				TrackerScreen.setNextMoveLevelHighlight(true)
+				Theme.setNextMoveLevelHighlight(true)
 				Main.SaveSettings(true)
 				Theme.refreshThemePreview()
 			end
@@ -204,7 +205,7 @@ Theme.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			TrackerScreen.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
+			Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
 			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
 			if Theme.Screen.displayingThemeManager then
@@ -266,6 +267,29 @@ function Theme.loadPresets()
 			end
 		end
 	end
+end
+
+-- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
+function Theme.setNextMoveLevelHighlight(forced)
+	if not forced and not Theme.settingsUpdated then return end
+	local mainBGColor = Theme.COLORS["Main background"]
+	local maxContrast = 0
+	local colorKey = ""
+	for key, color in pairs(Theme.COLORS) do
+		if color ~= mainBGColor and color ~= Theme.COLORS["Header text"] and color ~= Theme.COLORS["Default text"] then
+			local bgContrast = Utils.calculateContrastRatio(color, mainBGColor)
+			if bgContrast > maxContrast then
+				maxContrast = bgContrast
+				colorKey = key
+			end
+		end
+	end
+	Theme.headerHighlightKey = colorKey
+
+	-- Update any buttons with new color
+	TrackerScreen.Buttons.MovesHistory.textColor = colorKey
+	LogOverlay.refreshTabBar()
+	LogOverlay.Buttons.CurrentPage.textColor = colorKey -- temporary
 end
 
 -- Attempts to fill in missing theme code information for old theme codes

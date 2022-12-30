@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "1", patch = "7" }
+Main.Version = { major = "7", minor = "2", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -265,6 +265,8 @@ function Main.InitializeAllTrackerFiles()
 	TrackedDataScreen.initialize()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
+	GameOverScreen.initialize()
+	LogOverlay.initialize()
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -387,6 +389,7 @@ function Main.LoadNextRom()
 		Tracker.resetData()
 
 		if Main.IsOnBizhawk() then
+			GameOverScreen.clearTempSaveStates()
 			if Main.emulator == Main.EMU.BIZHAWK28 then
 				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 			end
@@ -400,6 +403,7 @@ function Main.LoadNextRom()
 				if Options["Use premade ROMs"] then
 					print(string.format('> Loading next ROM: %s', nextRomInfo.fileName))
 				end
+				MGBA.hasPrintedInstructions = false
 				emu:reset()
 				return
 			else
@@ -807,6 +811,7 @@ function Main.LoadSettings()
 			end
 		end
 	end
+	UpdateOrInstall.Dev.enabled = Options["Dev branch updates"] or false
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then

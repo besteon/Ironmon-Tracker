@@ -97,12 +97,21 @@ function Battle.updateBattleStatus()
 		Battle.battleStarting = true
 	end
 	Battle.totalBattles = totalBattles
+
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
 		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
 		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
 		Battle.beginNewBattle()
 	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
+	end
+	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
+		if not Battle.isWildEncounter then
+			GameOverScreen.incrementLosses()
+		end
+		GameOverScreen.randomizeAnnouncerQuote()
+		GameOverScreen.nextTeamPokemon()
+		Program.changeScreenView(Program.Screens.GAMEOVER)
 	end
 end
 
@@ -556,6 +565,8 @@ end
 function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
+	GameOverScreen.createTempSaveState()
+
 	Program.Frames.battleDataDelay = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
@@ -571,15 +582,22 @@ function Battle.beginNewBattle()
 	Battle.Synchronize.turnCount = 0
 	Battle.Synchronize.attacker = -1
 	Battle.Synchronize.battlerTarget = -1
-        -- RS allocated a dword for the party size
-        if GameSettings.game == 1 then
-	        Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
-        else
-	        Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
-        end
+	-- RS allocated a dword for the party size
+	if GameSettings.game == 1 then
+		Battle.partySize = Memory.readdword(GameSettings.gPlayerPartyCount)
+	else
+		Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
+	end
 	Battle.isGhost = false
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
+	-- TODO: Is this FRLG only?
+	if Tracker.Data.whichRival == nil then
+		local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+		Tracker.tryTrackWhichRival(opposingTrainerId)
+	end
+
 	Battle.isViewingLeft = true
 	Battle.Combatants = {
 		LeftOwn = 1,
@@ -672,6 +690,14 @@ function Battle.endCurrentBattle()
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
+end
+
+function Battle.resetBattle()
+	local oldSaveDataFrames = Program.Frames.saveData
+	Battle.endCurrentBattle()
+	Battle.beginNewBattle()
+	Program.Frames.waitToDraw = 60
+	Program.Frames.saveData = oldSaveDataFrames
 end
 
 function Battle.handleNewTurn()

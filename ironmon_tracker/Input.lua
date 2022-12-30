@@ -192,16 +192,28 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
+	elseif Program.currentScreen == Program.Screens.GAMEOVER then
+		Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
-	-- Clicked on a new move learned, show info
-	if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
-		-- Only lookup/show move if not editing settings
-		if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
-			local learnedInfoTable = Program.getLearnedMoveInfoTable()
-			if learnedInfoTable.moveId ~= nil then
-				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
+	if LogOverlay.isDisplayed then
+		-- Order here matters
+		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TemporaryButtons)
+		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TabBarButtons)
+		for _, buttonSet in pairs(LogOverlay.PagedButtons) do
+			Input.checkButtonsClicked(xmouse, ymouse, buttonSet)
+		end
+	else
+		-- Clicked on a new move learned, show info
+		if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
+			-- Only lookup/show move if not editing settings
+			if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
+				local learnedInfoTable = Program.getLearnedMoveInfoTable()
+				if learnedInfoTable.moveId ~= nil then
+					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
+				end
 			end
 		end
 	end
@@ -220,8 +232,10 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			-- If the button has an override for which area to check for mouse clicks, use that
 			if button.clickableArea ~= nil then
 				isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
-			else
+			elseif button.box ~= nil then
 				isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
+			else
+				isAreaClicked = false
 			end
 
 			if isAreaClicked and button.onClick ~= nil then

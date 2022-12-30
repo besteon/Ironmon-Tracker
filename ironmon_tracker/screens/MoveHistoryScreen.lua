@@ -4,7 +4,7 @@ MoveHistoryScreen = {
 		headerMin = "Min",
 		headerMax = "Max",
 		noTrackedMoves = "(No tracked move data yet)",
-		pageFormat = "Page %s/%s" -- Page 1/3
+		pageFormat = "Page %s/%s" -- e.g. Page 1/3
 	},
 	Colors = {
 		text = "Lower box text",
@@ -68,7 +68,7 @@ MoveHistoryScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
 		onClick = function(self)
-			MoveHistoryScreen.Pagination:prevPage()
+			MoveHistoryScreen.Pagination:nextPage()
 			MoveHistoryScreen.Buttons.CurrentPage:updateText()
 			Program.redraw(true)
 		end
