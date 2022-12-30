@@ -20,6 +20,7 @@ UpdateOrInstall.Dev = {
 }
 
 UpdateOrInstall.Messages = {
+	updateBegin = " --- Update/Install in progress ---",
 	step1 = "Step 1: Downloading release and extracting files...",
 	step1a = "Step 1: Existing release already downloaded and ready to use.",
 	step2 = "Step 2: Updating Tracker files...",
@@ -28,6 +29,8 @@ UpdateOrInstall.Messages = {
 	confirmUpdate = "Would you like to download and UPDATE the Tracker?",
 	confirmYesNo = "To confirm, please type YES() or NO() in the scripting box below:",
 	closeAndReopen = string.format('Please restart your emulator and load the main "%s" script.', UpdateOrInstall.trackerFileName),
+	conflict1 = "The Tracker cannot automatically finish updating due to a conflict.",
+	conflict2 = 'Restart the emulator and load the "UpdateOrInstall.lua" file found in your Tracker folder.',
 }
 
 -- Allows for loading just this single file manually to try an auto-update again
@@ -149,6 +152,8 @@ function UpdateOrInstall.performParallelUpdate()
 		return false
 	end
 
+	print(string.format("> %s", UpdateOrInstall.Messages.updateBegin))
+
 	local archiveFolderPath = UpdateOrInstall.downloadAndExtract()
 	if archiveFolderPath == nil then
 		return false
@@ -156,6 +161,9 @@ function UpdateOrInstall.performParallelUpdate()
 
 	-- Attempt to replace the local UpdateOrInstall.lua with the newly downloaded one
 	FileManager.loadLuaFile(archiveFolderPath .. FileManager.slash .. FileManager.Files.UPDATE_OR_INSTALL, true)
+	-- NOTE: After the new file is loaded, this function still operates exactly as written.
+	-- Don't trust new code you put in this function call.
+	-- If you want new code from the download to be applied, include it in one of the following function calls: e.g. updateFiles()
 
 	local success = UpdateOrInstall.updateFiles(archiveFolderPath)
 	if success then
@@ -166,6 +174,7 @@ end
 
 -- The full update process to be run WITHOUT any other Tracker code loaded. Returns [true/false] based on success
 function UpdateOrInstall.performStandaloneUpdate()
+	print(string.format("> %s", UpdateOrInstall.Messages.updateBegin))
 	local releaseFolderPath
 
 	-- Check if the download was completed and extracted, but the update halted before it was removed
@@ -225,6 +234,18 @@ function UpdateOrInstall.updateFiles(archiveFolderPath)
 	print(string.format("> %s", UpdateOrInstall.Messages.step2))
 
 	local isOnWindows = (UpdateOrInstall.slash == "\\")
+
+	local okayToUpdate, reason = UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindows)
+	if not okayToUpdate then
+		print("")
+		print("> ERROR: " .. UpdateOrInstall.Messages.conflict1)
+		if reason ~= nil then
+			print("> REASON: " .. reason)
+		end
+		print("> TO FIX: " .. UpdateOrInstall.Messages.conflict2)
+		return false
+	end
+
 	local command, err1, err2 = UpdateOrInstall.buildCopyFilesCommand(archiveFolderPath, isOnWindows)
 
 	local result = os.execute(command)
@@ -367,6 +388,32 @@ function UpdateOrInstall.buildCopyFilesCommand(extractedFolder, isOnWindows)
 	local combinedCommand = string.format("(%s) || (%s)", table.concat(batchCommands, ' && '), pauseCommand)
 
 	return combinedCommand, messages.error1, messages.error2
+end
+
+-- In some cases, a user's computer setup or environment will prevent them from replacing currently loaded Tracker files
+-- These checks must be done *after* the download, since existing old tracker code won't have this function
+function UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindows)
+	if Main == nil then -- Implies standalone update
+		return true
+	end
+
+	if isOnWindows then
+		-- COMMAND BREAKS: Usually OneDrive breaks this: string.format('xcopy "%s" /s /y /q', extractedFolder)
+		local onedrivePattern = "([Oo][Nn][Ee][Dd][Rr][Ii][Vv][Ee])"
+		local result1 = string.find(archiveFolderPath, onedrivePattern)
+		if string.find(archiveFolderPath, onedrivePattern) ~= nil then
+			return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
+		end
+
+		-- FILEPATH BREAKS: Tracker located on a non-primary harddrive: e.g. D:\ or E:\
+		local driveLetterPattern = "^(.).*"
+		local result2 = string.match(archiveFolderPath, driveLetterPattern)
+		if string.match(archiveFolderPath, driveLetterPattern) ~= "C" then
+			return false, "Tracker files are not on the primary harddrive C:\\ and cannot be edited while Bizhawk is open."
+		end
+	end
+
+	return true
 end
 
 UpdateOrInstall.start()
