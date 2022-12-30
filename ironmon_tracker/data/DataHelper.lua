@@ -566,9 +566,9 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's randomized base stats
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		if pokemonLog.BaseStats ~= nil then
-			data.p[statKey] = pokemonLog.BaseStats[statKey] or Constants.BLANKLINE
+			data.p[statKey] = pokemonLog.BaseStats[statKey] or 0
 		else
-			data.p[statKey] = Constants.BLANKLINE
+			data.p[statKey] = 0
 		end
 	end
 
