@@ -570,13 +570,13 @@ function LogOverlay.buildPagedButtons()
 			label = RandomizerLog.TrainerGroups.Boss,
 			sortFunc = function(a, b) return a.text < b.text end,
 		},
-		-- {
+		-- { -- Temp Removing both of these until better data gets sorted out
 		-- 	label = RandomizerLog.TrainerGroups.Other,
 		-- 	sortFunc = function(a, b) return a.text < b.text end,
 		-- },
-		{
-			label = "(?)",
-		},
+		-- {
+		-- 	label = "(?)",
+		-- },
 	}
 	for _, navLabel in ipairs(navLabels) do
 		local labelWidth = Utils.calcWordPixelLength(navLabel.label) + 4
