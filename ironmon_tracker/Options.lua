@@ -98,12 +98,6 @@ Options.StartupIcon = {
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
 
 function Options.initialize()
-	-- Check if the Toggle View controller button is not default, and update the tip message if so.
-	local toggleViewValue = Options.CONTROLS["Toggle view"]
-	if toggleViewValue ~= "Start" then
-		Constants.OrderedLists.TIPS[3] = Constants.OrderedLists.TIPS[3]:gsub("Start", toggleViewValue)
-	end
-
 	Drawing.AnimatedPokemon:create()
 end
 
