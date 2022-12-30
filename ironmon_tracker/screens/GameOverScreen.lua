@@ -160,7 +160,6 @@ function GameOverScreen.initialize()
 		button.boxColors = { "Lower box border", "Lower box background" }
 	end
 	GameOverScreen.refreshButtons()
-	GameOverScreen.randomizeAnnouncerQuote()
 end
 
 function GameOverScreen.randomizeAnnouncerQuote()
@@ -184,7 +183,7 @@ end
 
 -- Returns true if the conditions are correct to display the screen
 function GameOverScreen.shouldDisplay(battleOutcome)
-	if battleOutcome ~= 2 then -- Didn't lose the Battle
+	if battleOutcome ~= 2 and battleOutcome ~= 3 then -- Didn't lose or tie the Battle
 		if GameOverScreen.isDisplayed then
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end

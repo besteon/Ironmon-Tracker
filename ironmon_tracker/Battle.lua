@@ -109,6 +109,7 @@ function Battle.updateBattleStatus()
 		if not Battle.isWildEncounter then
 			GameOverScreen.incrementLosses()
 		end
+		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
 		Program.changeScreenView(Program.Screens.GAMEOVER)
 	end

@@ -1287,7 +1287,7 @@ RandomizerLog.TrainerFileInfo = {
 }
 
 RandomizerLog.TrainerGroups = {
-	Class = "Class",
+	All = "All",
 	Rival = "Rival",
 	Gym = "Gym",
 	Elite4 = "Elite 4",
