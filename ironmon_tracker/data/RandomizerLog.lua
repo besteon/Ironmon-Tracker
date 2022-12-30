@@ -6,9 +6,9 @@ RandomizerLog.Patterns = {
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
-	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂]+)",
-	-- MoveName = "([%u%d%.'%-]+)", -- might figure out later
-	-- ItemName = "([%u%d%.'%-]+)", -- might figure out later
+	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂%?]+).-",
+	-- MoveName = "([%u%d%.'%-%?]+)", -- might figure out later
+	-- ItemName = "([%u%d%.'%-%?]+)", -- might figure out later
 	getSectorHeaderPattern = function(sectorName)
 		return "^%-?%-?" .. (sectorName or "") .. ":?%-?%-?$"
 	end,
@@ -136,11 +136,28 @@ function RandomizerLog.formatInput(str)
 	if str == nil then return nil end
 	str = str:gsub("♀", " F")
 	str = str:gsub("♂", " M")
+	str = str:gsub("%?", "")
 	str = str:gsub("’", "'")
 	str = str:gsub("é", Constants.getC("é"))
 	str = str:gsub("%[PK%]%[MN%]", "PKMN")
 	str = str:match("^%s*(.*)%s*$") or str -- remove leading/trailing spaces
 	return str:lower()
+end
+
+RandomizerLog.currentNidoranIsF = true
+
+-- In some cases, the ♀/♂ in nidoran's names are stripped out. This is only way to figure out which is which
+function RandomizerLog.alternateNidorans(name)
+	if name == nil or name == "" or name:lower() ~= "nidoran" then return name end
+
+	local correctName
+	if RandomizerLog.currentNidoranIsF then
+		correctName = name .. " f"
+	else
+		correctName = name .. " m"
+	end
+	RandomizerLog.currentNidoranIsF = not RandomizerLog.currentNidoranIsF
+	return correctName
 end
 
 -- Clears out the parsed data and initializes it for each valid PokemonId
@@ -207,6 +224,7 @@ function RandomizerLog.parseEvolutions(logLines)
 	while index <= #logLines do
 		local pokemon, evos = string.match(logLines[index] or "", RandomizerLog.Sectors.Evolutions.PokemonEvosPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or evos == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -218,6 +236,7 @@ function RandomizerLog.parseEvolutions(logLines)
 
 		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
 			evo = RandomizerLog.formatInput(evo)
+			evo = RandomizerLog.alternateNidorans(evo)
 			if RandomizerLog.PokemonNameToIdMap[evo] ~= nil then
 				table.insert(RandomizerLog.Data.Pokemon[pokemonId].Evolutions, RandomizerLog.PokemonNameToIdMap[evo])
 			end
@@ -237,6 +256,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 	while index <= #logLines do
 		local pokemon, hp, atk, def, spa, spd, spe, helditems = string.match(logLines[index] or "", RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or spe == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -272,6 +292,7 @@ function RandomizerLog.parseMoveSets(logLines)
 	while index <= #logLines do
 		local pokemon = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.NextMonPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- Search for the next Pokémon's name, or the end of sector
 		-- I might fix this whole mess later when I'm awake
@@ -282,6 +303,7 @@ function RandomizerLog.parseMoveSets(logLines)
 			index = index + 1
 			pokemon = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.NextMonPattern)
 			pokemon = RandomizerLog.formatInput(pokemon)
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
 		end
 
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
@@ -346,6 +368,7 @@ function RandomizerLog.parseTMCompatibility(logLines)
 	while index <= #logLines do
 		local pokemon, tms = string.match(logLines[index] or "", RandomizerLog.Sectors.TMCompatibility.NextMonPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or tms == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -390,6 +413,7 @@ function RandomizerLog.parseTrainers(logLines)
 		for partypokemon in string.gmatch(party, RandomizerLog.Sectors.Trainers.PartyPattern) do
 			local pokemon, helditem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
 			pokemon = RandomizerLog.formatInput(pokemon)
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
 			helditem = RandomizerLog.formatInput(helditem)
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
 			if helditem == "" then
@@ -543,6 +567,8 @@ function RandomizerLog.setupMappings()
 		["magnemite"] = 81,
 		["magneton"] = 82,
 		["farfetch'd"] = 83,
+		["farfetchd"] = 83,
+		["farfetch"] = 83,
 		["doduo"] = 84,
 		["dodrio"] = 85,
 		["seel"] = 86,
