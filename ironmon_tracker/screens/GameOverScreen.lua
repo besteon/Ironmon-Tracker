@@ -29,6 +29,13 @@ GameOverScreen = {
 		"That one hurt!",
 		"And there goes the battle!",
 		"What a wild turn of events!",
+		"Taken down on the word go!",
+		"Woah! That was overpowering!",
+		"It's finally taken down!",
+		"Harsh blow!",
+		"That was brutal!",
+		"Nailed the weak spot!",
+		"Hey! What's it doing? Down it goes!",
 	},
 	chosenQuoteIndex = 1,
 }
@@ -160,7 +167,6 @@ function GameOverScreen.initialize()
 		button.boxColors = { "Lower box border", "Lower box background" }
 	end
 	GameOverScreen.refreshButtons()
-	GameOverScreen.randomizeAnnouncerQuote()
 end
 
 function GameOverScreen.randomizeAnnouncerQuote()
@@ -184,7 +190,7 @@ end
 
 -- Returns true if the conditions are correct to display the screen
 function GameOverScreen.shouldDisplay(battleOutcome)
-	if battleOutcome ~= 2 then -- Didn't lose the Battle
+	if battleOutcome ~= 2 and battleOutcome ~= 3 then -- Didn't lose or tie the Battle
 		if GameOverScreen.isDisplayed then
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end

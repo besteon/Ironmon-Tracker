@@ -246,21 +246,21 @@ LogOverlay.TabBarButtons = {
 	},
 	XIcon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.CROSS,
+		image = Constants.PixelImages.CLOSE,
 		textColor = Theme.headerHighlightKey,
-		box = { LogOverlay.margin + 226, 0, 11, 11 },
+		box = { LogOverlay.margin + 228, 2, 10, 10 },
 		updateText = function(self)
 			self.textColor = Theme.headerHighlightKey
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.image = Constants.PixelImages.PREVIOUS_BUTTON
 				self.box[2] = 1
 			else
-				self.image = Constants.PixelImages.CROSS
-				self.box[2] = 0
+				self.image = Constants.PixelImages.CLOSE
+				self.box[2] = 2
 			end
 		end,
 		onClick = function(self)
-			if self.image == Constants.PixelImages.CROSS then
+			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
 				Program.changeScreenView(Program.Screens.GAMEOVER)
@@ -505,7 +505,7 @@ function LogOverlay.buildPagedButtons()
 			tab = LogOverlay.Tabs.TRAINER,
 			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				local shouldInclude = LogOverlay.Windower.filterGrid == RandomizerLog.TrainerGroups.Class or LogOverlay.Windower.filterGrid == self.group
+				local shouldInclude = LogOverlay.Windower.filterGrid == RandomizerLog.TrainerGroups.All or LogOverlay.Windower.filterGrid == self.group
 				local shouldExclude = trainerInfo.name == "Unknown"
 				-- Exclude extra rivals
 				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
@@ -540,7 +540,7 @@ function LogOverlay.buildPagedButtons()
 	navOffsetX = navStartX + 37
 	navLabels = {
 		{
-			label = RandomizerLog.TrainerGroups.Class,
+			label = RandomizerLog.TrainerGroups.All,
 			sortFunc = function(a, b)
 				if a.group < b.group then
 					return true
