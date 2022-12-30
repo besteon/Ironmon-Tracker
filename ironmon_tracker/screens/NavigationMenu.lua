@@ -23,7 +23,7 @@ NavigationMenu.Buttons = {
 	Extras = {
 		text = "Extras",
 		image = Constants.PixelImages.POKEBALL,
-		iconColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
+		iconColors = { NavigationMenu.textColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.EXTRAS) end
 	},

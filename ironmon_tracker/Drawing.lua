@@ -263,8 +263,8 @@ function Drawing.drawButton(button, shadowcolor)
 			for _, pixelColor in ipairs(button.iconColors or {}) do
 				table.insert(iconColors, Theme.COLORS[pixelColor])
 			end
-			if #iconColors == 0 then -- default to using the border color
-				table.insert(iconColors, bordercolor)
+			if #iconColors == 0 then -- default to using the same text color
+				table.insert(iconColors, Theme.COLORS[button.textColor])
 			end
 			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end

@@ -399,11 +399,6 @@ function TrackerScreen.buildCarousel()
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		framesToShow = 180,
 		getContentList = function(pokemonID)
-			-- If the player doesn't have a Pokemon, display something else useful instead
-			-- if pokemonID == 0 then
-			-- 	return { Constants.OrderedLists.TIPS[TrackerScreen.tipMessageIndex] }
-			-- end
-
 			local noteText = Tracker.getNote(pokemonID)
 			if Main.IsOnBizhawk() then
 				if noteText ~= nil and noteText ~= "" then
@@ -513,16 +508,6 @@ function TrackerScreen.getCurrentCarouselItem()
 		local nextCarousel = TrackerScreen.getNextVisibleCarouselItem(TrackerScreen.carouselIndex)
 		TrackerScreen.carouselIndex = nextCarousel.type
 		Program.Frames.carouselActive = 0
-
-		-- When carousel switches to the Notes display, prepare the next tip message to display
-		if false and nextCarousel ~= carousel and TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES then -- currently disabled, will use later
-			local numTips = #Constants.OrderedLists.TIPS
-			if TrackerScreen.tipMessageIndex == numTips then
-				TrackerScreen.tipMessageIndex = 2 -- Skip "helpful tip" message if that's next up
-			else
-				TrackerScreen.tipMessageIndex = (TrackerScreen.tipMessageIndex % numTips) + 1
-			end
-		end
 
 		return nextCarousel
 	end

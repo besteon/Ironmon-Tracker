@@ -592,7 +592,6 @@ function Battle.beginNewBattle()
 
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
-	-- TODO: Is this FRLG only?
 	if Tracker.Data.whichRival == nil then
 		local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 		Tracker.tryTrackWhichRival(opposingTrainerId)
