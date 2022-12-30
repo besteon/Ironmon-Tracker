@@ -90,15 +90,15 @@ Emu-specific Lua documentation:
 
 The primary branches of the Ironmon-Tracker repository are as follows:
 
-- **Main**: This is kept in a state of the latest release. We merge into this branch from staging when we are ready to do the final checks and make a new release.
-- **Staging**: This is essentially the "beta" build of the next release, where the majority of contributions merge into.
-- **Bugfixes**: This branch is for any quick/minor bugfixes. It regularly gets updated to match and pull fixes into the staging branch.
+- **Main**: This is kept in a state of the latest release. We merge into this branch from dev when we are ready to do the final checks and make a new release.
+- **Dev**: This is essentially the "staging" build of the next release, where the majority of contributions merge into.
+- **Beta-Test**: This branch is for test builds that Tracker users can opt-in to trying out. It regularly gets updated with new features from the dev branch.
 
-**Make your PRs to either Staging or Bugfixes, whichever is more fitting for the contribution.**
+**Make your PRs to the Dev branch.**
 
 The workflow we'd recommend for contributing:
 
 1. Create a fork of the repository.
 2. Create a branch on your local fork for your new feature/contribution. Make your commits to this branch.
-3. When you are ready to send it to us for review, open a Pull Request back to this repository. Request to merge into either **Staging** or **Bugfixes** depending on what the contribution is (see above).
+3. When you are ready to send it to us for review, open a Pull Request back to this repository. Request to merge into the **Dev** branch.
 4. We'll review the Pull Request and decide whether it needs some changes / more work or if we're happy to merge it in.
