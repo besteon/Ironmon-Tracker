@@ -5,8 +5,6 @@ Settings.ini
 *.State
 *.log
 *Attempts.txt
-quickload/*.gba
-quickload/*.sav
 quickload/*.jar
 quickload/*.rnqs
 ironmon_tracker/osexecute-output.txt

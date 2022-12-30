@@ -29,6 +29,13 @@ GameOverScreen = {
 		"That one hurt!",
 		"And there goes the battle!",
 		"What a wild turn of events!",
+		"Taken down on the word go!",
+		"Woah! That was overpowering!",
+		"It's finally taken down!",
+		"Harsh blow!",
+		"That was brutal!",
+		"Nailed the weak spot!",
+		"Hey! What's it doing? Down it goes!",
 	},
 	chosenQuoteIndex = 1,
 }
