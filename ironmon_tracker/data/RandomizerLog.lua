@@ -65,8 +65,7 @@ RandomizerLog.Sectors = {
 		ItemsPattern = "",
 	},
 	GameInfo = {
-		-- :(
-		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-"),
+		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern(string.rep("%-", 66)),
 	},
 }
 
