@@ -14,9 +14,9 @@ UpdateOrInstall = {
 -- Beta testers can have this enabled to receive live updates from STAGING branch
 UpdateOrInstall.Dev = {
 	enabled = false, -- Verify this remains "false" for main release
-	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/staging.tar.gz",
-	archiveName = "Ironmon-Tracker-staging.tar.gz",
-	archiveFolder = "Ironmon-Tracker-staging",
+	TAR_URL = "https://github.com/besteon/Ironmon-Tracker/archive/refs/heads/beta-test.tar.gz",
+	archiveName = "Ironmon-Tracker-beta-test.tar.gz",
+	archiveFolder = "Ironmon-Tracker-beta-test",
 }
 
 UpdateOrInstall.Messages = {
