@@ -60,7 +60,7 @@ GameOverScreen.Buttons = {
 	},
 	ContinuePlaying = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		text = GameOverScreen.Labels.continuePlaying,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 66, 112, 16 },
 		onClick = function(self)

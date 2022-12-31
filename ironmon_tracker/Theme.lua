@@ -97,7 +97,7 @@ Theme.Buttons = {
 	},
 	CyclePresetBackward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
@@ -110,7 +110,7 @@ Theme.Buttons = {
 	},
 	CyclePresetForward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)

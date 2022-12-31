@@ -293,7 +293,7 @@ end
 function Tracker.tryTrackWhichRival(trainerId)
 	if trainerId == nil or trainerId == 0 or Tracker.Data.whichRival ~= nil then return end
 
-	local trainer = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+	local trainer = TrainerData.getTrainerInfo(trainerId)
 	if trainer ~= nil and trainer.whichRival ~= nil then -- verify this trainer is a rival trainer
 		Tracker.Data.whichRival = trainer.whichRival
 	end

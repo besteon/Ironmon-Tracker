@@ -51,7 +51,7 @@ InfoScreen.Buttons = {
 	},
 	nextPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 99, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
@@ -63,7 +63,7 @@ InfoScreen.Buttons = {
 	},
 	previousPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 85, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
@@ -114,7 +114,7 @@ InfoScreen.Buttons = {
 	},
 	previousRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + 6, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
@@ -128,7 +128,7 @@ InfoScreen.Buttons = {
 	},
 	nextRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + 136, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
@@ -169,7 +169,7 @@ InfoScreen.Buttons = {
 	},
 	HiddenPowerPrev = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 116, Constants.SCREEN.MARGIN + 31, 10, 10 },
 		isVisible = function()
@@ -202,7 +202,7 @@ InfoScreen.Buttons = {
 	},
 	HiddenPowerNext = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 129, Constants.SCREEN.MARGIN + 31, 10, 10 },
 		isVisible = function() return InfoScreen.Buttons.HiddenPowerPrev:isVisible() end,

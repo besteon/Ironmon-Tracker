@@ -89,6 +89,12 @@ NavigationMenu.Buttons = {
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.STATS) end
 	},
+	StreamerTools = {
+		text = "Streaming",
+		image = Constants.PixelImages.SPECIAL,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(Program.Screens.STREAMER) end
+	},
 	MirageButton = {
 		text = "It's a secret...",
 		image = Constants.PixelImages.POKEBALL,
@@ -149,6 +155,7 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.ManageTrackedData,
 	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
+	NavigationMenu.Buttons.StreamerTools,
 }
 
 function NavigationMenu.initialize()
@@ -186,7 +193,8 @@ function NavigationMenu.initialize()
 	-- Yet another fun Easter Egg that shows up only once in a while
 	if math.random(256) == 1 then
 		NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
-		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+		-- Disabling to allow room for more buttons
+		-- NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
 	end
 end
 
@@ -242,38 +250,10 @@ function NavigationMenu.drawScreen()
 
 	-- Draw all buttons, manually
 	for _, button in pairs(NavigationMenu.Buttons) do
-		if button.isVisible == nil or button:isVisible() then
-			if button.image ~= nil then
-				-- local x = button.box[1]
-				-- local y = button.box[2]
-				-- local holdText = button.text
-
-				-- button.text = ""
-				Drawing.drawButton(button, shadowcolor)
-				-- button.text = holdText
-				-- Drawing.drawText(x + 16, y + 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
-
-				-- -- TODO: Eventually make the Draw Button more flexible for centering its contents
-				-- if button.image == Constants.PixelImages.GEAR then
-				-- 	y = y + 2
-				-- 	x = x + 1
-				-- elseif button.image == Constants.PixelImages.PHYSICAL then
-				-- 	y = y + 3
-				-- 	x = x + 1
-				-- elseif button.image == Constants.PixelImages.MAGNIFYING_GLASS then
-				-- 	y = y + 1
-				-- elseif button.image == Constants.PixelImages.INSTALL_BOX then
-				-- 	y = y + 2
-				-- 	x = x + 1
-				-- elseif button.image == Constants.PixelImages.POKEBALL then
-				-- 	x = x - 1
-				-- elseif button.image == Constants.PixelImages.CLOCK then
-				-- 	y = y + 1
-				-- end
-				-- Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor], Theme.COLORS[NavigationMenu.boxFillColor] }, shadowcolor)
-			else
-				Drawing.drawButton(button, shadowcolor)
-			end
+		if button == NavigationMenu.Buttons.VersionInfo then
+			Drawing.drawButton(button, headerShadow)
+		else
+			Drawing.drawButton(button, shadowcolor)
 		end
 	end
 end

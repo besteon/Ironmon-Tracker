@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "2", patch = "1" }
+Main.Version = { major = "7", minor = "2", patch = "2" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -242,6 +242,7 @@ function Main.InitializeAllTrackerFiles()
 	PokemonData.initialize()
 	MoveData.initialize()
 	RouteData.initialize()
+	TrainerData.initialize()
 
 	Program.initialize()
 	Drawing.initialize()
@@ -266,6 +267,7 @@ function Main.InitializeAllTrackerFiles()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
 	GameOverScreen.initialize()
+	StreamerScreen.initialize()
 	LogOverlay.initialize()
 end
 

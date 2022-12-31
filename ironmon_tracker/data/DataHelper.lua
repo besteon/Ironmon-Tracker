@@ -566,9 +566,9 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's randomized base stats
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		if pokemonLog.BaseStats ~= nil then
-			data.p[statKey] = pokemonLog.BaseStats[statKey] or Constants.BLANKLINE
+			data.p[statKey] = pokemonLog.BaseStats[statKey] or 0
 		else
-			data.p[statKey] = Constants.BLANKLINE
+			data.p[statKey] = 0
 		end
 	end
 
@@ -619,7 +619,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	end
 
 	local trainer = RandomizerLog.Data.Trainers[trainerId]
-	local trainerInfo = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+	local trainerInfo = TrainerData.getTrainerInfo(trainerId)
 
 	data.t.id = trainerId or 0
 	data.t.filename = trainerInfo.filename or Constants.BLANKLINE

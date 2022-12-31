@@ -33,6 +33,9 @@ Options = {
 	["Display repel usage"] = false,
 	["Display pedometer"] = false,
 	["Dev branch updates"] = false,
+	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
+	["Startup favorites"] = "1,4,7",
+	["Show on new game screen"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",

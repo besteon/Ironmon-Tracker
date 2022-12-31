@@ -3534,6 +3534,9 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = {353,355,355}, rate = 0.10, },
 		},
 	}
+	RouteData.Info[143 + offset] = { name = "Aqua Hideout 1F", }
+	RouteData.Info[144 + offset] = { name = "Aqua Hideout B1F", }
+	RouteData.Info[145 + offset] = { name = "Aqua Hideout B2F", }
 
 	RouteData.Info[147 + offset] = { name = "Seafloor Cavern",
 		[RouteData.EncounterArea.LAND] = {

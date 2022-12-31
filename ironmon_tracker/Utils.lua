@@ -85,6 +85,12 @@ function Utils.formatControls(gbaButtons)
 	return controlCombination:sub(1, -3) or ""
 end
 
+-- Returns an offset that will center-align the given text based on a specified area's width
+function Utils.getCenteredTextX(text, areaWidth)
+	local textSize = Utils.calcWordPixelLength(text or "")
+	return math.max((areaWidth or 0) / 2 - textSize / 2, 0)
+end
+
 function Utils.centerTextOffset(text, charSize, width)
 	charSize = charSize or 4
 	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))
@@ -132,6 +138,40 @@ function Utils.formatUTF8(format, ...)
 		format:format(table.unpack(args))
 			:gsub('\1\2*', function() return table.remove(strings, 1) end)
 	)
+end
+
+-- Safely formats the text and encodes any special characters (if incompatible with the emulator)
+function Utils.formatSpecialCharacters(text)
+	if text == nil or text == "" then return "" end
+
+	-- For each known special character, attempt to replace it
+	for char, _ in pairs(Constants.CharMap) do
+		if string.find(text, char, 1, true) ~= nil then
+			text = text:gsub(char, Constants.getC(char))
+		end
+	end
+
+	return text
+end
+
+-- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
+function Utils.encodeDecodeForSettingsIni(text, doEncode)
+	if text == nil or text == "" then return "" end
+
+	local charsToEncode = {
+		{ raw = "\n", encoded = "\\n", },
+		{ raw = "\r", encoded = "\\r", },
+	}
+
+	for _, char in pairs(charsToEncode) do
+		if doEncode then
+			text = text:gsub(char.raw, char.encoded)
+		else
+			text = text:gsub(char.encoded, char.raw)
+		end
+	end
+
+	return text
 end
 
 -- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
@@ -359,7 +399,8 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 
 	local movesText = "Moves"
 	local nextMoveSpacing = 13
-	if #Tracker.getMoves(pokemonID) > 4 then
+	-- Don't show the asterisk on your own Pokemon
+	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
 		nextMoveSpacing = nextMoveSpacing + 1
 	end
@@ -376,48 +417,45 @@ end
 
 -- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
-		return { Constants.BLANKLINE }
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].detailed
+	end
+
+	local evoInfo = PokemonData.EvoMethods[evoMethod]
+
+	 -- Evolves only by leveling up
+	if evoInfo == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].detailed[1]
+		return { string.format(levelFormat, evoMethod) }
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
+		local friendFormat = evoInfo.detailed[1]
+		local amt
 		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
-			return { Program.friendshipRequired .. " Friendship" }
+			amt = Program.friendshipRequired
 		else
-			return { "220 Friendship" }
+			amt = 220
 		end
-	elseif evoMethod == PokemonData.Evolutions.STONES then
-		return { "5 Diff. Stones" }
-	elseif evoMethod == PokemonData.Evolutions.THUNDER then
-		return { "Thunder Stone" }
-	elseif evoMethod == PokemonData.Evolutions.FIRE then
-		return { "Fire Stone" }
-	elseif evoMethod == PokemonData.Evolutions.WATER then
-		return { "Water Stone" }
-	elseif evoMethod == PokemonData.Evolutions.MOON then
-		return { "Moon Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF then
-		return { "Leaf Stone" }
-	elseif evoMethod == PokemonData.Evolutions.SUN then
-		return { "Sun Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF_SUN then
-		return {
-			"Leaf Stone or",
-			"Sun Stone",
-		}
-	elseif evoMethod == "37/WTR" then
-		return {
-			"Level 37 or",
-			"Water Stone",
-		}
-	elseif evoMethod == "30/WTR" then
-		return {
-			"Level 30 or",
-			"Water Stone",
-		}
-	else -- Otherwise, the evo is just a level
-		return { "Level " .. evoMethod }
+		return { string.format(friendFormat, amt) }
 	end
+
+	return evoInfo.detailed
+end
+
+-- Returns a list of evolution details (shortened text) for a given Pokemon's evolution
+function Utils.getShortenedEvolutionsInfo(evoMethod)
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].short
+	end
+
+	 -- Evolves only by leveling up
+	if PokemonData.EvoMethods[evoMethod] == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].short[1]
+		return { string.format(levelFormat, evoMethod) }
+	end
+
+	return PokemonData.EvoMethods[evoMethod].short
 end
 
 -- moveType required for Hidden Power tracked type

@@ -32,6 +32,7 @@ Program.Screens = {
 	STATS = StatsScreen.drawScreen,
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
 	GAMEOVER = GameOverScreen.drawScreen,
+	STREAMER = StreamerScreen.drawScreen,
 }
 
 Program.GameData = {
