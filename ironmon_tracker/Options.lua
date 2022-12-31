@@ -96,6 +96,7 @@ Options.IconSetMap = {
 Options.StartupIcon = {
 	random = "Random",
 	attempts = "Attempts",
+	none = "None",
 }
 
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts

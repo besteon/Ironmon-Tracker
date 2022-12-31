@@ -139,10 +139,6 @@ function StartupScreen.initialize()
 		end
 	end
 
-	-- StartupScreen.Buttons.UpdateAvailable:updateSelf()
-	-- StartupScreen.Buttons.AttemptsCount:updateSelf()
-	-- StartupScreen.Buttons.AttemptsEdit:updateSelf()
-
 	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
 		print(string.format("> %s", Tracker.DataMessage))
 	end
@@ -161,6 +157,9 @@ function StartupScreen.setPokemonIcon(displayOption)
 			pokemonID = pokemonID + 25
 		end
 		Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
+	elseif displayOption == Options.StartupIcon.none then
+		pokemonID = 0
+		Options["Startup Pokemon displayed"] = Options.StartupIcon.none
 	else
 		-- The option is a pokemonID already
 		local id = tonumber(displayOption) or -1
@@ -184,6 +183,7 @@ function StartupScreen.openChoosePokemonWindow()
 	local allPokemon = PokemonData.namesToList()
 	table.insert(allPokemon, "-- Based on attempt #")
 	table.insert(allPokemon, "-- Random each time")
+	table.insert(allPokemon, "-- None")
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options
 
 	forms.label(form, "Choose a Pokemon to show during startup:", 49, 10, 250, 20)
@@ -197,6 +197,8 @@ function StartupScreen.openChoosePokemonWindow()
 		initialChoice = "-- Based on attempt #"
 	elseif Options["Startup Pokemon displayed"] == Options.StartupIcon.random then
 		initialChoice = "-- Random each time"
+	elseif Options["Startup Pokemon displayed"] == Options.StartupIcon.none then
+		initialChoice = "-- None"
 	else
 		initialChoice = PokemonData.Pokemon[Options["Startup Pokemon displayed"] or "1"].name
 	end
@@ -209,6 +211,8 @@ function StartupScreen.openChoosePokemonWindow()
 			optionSelected = Options.StartupIcon.attempts
 		elseif optionSelected == "-- Random each time" then
 			optionSelected = Options.StartupIcon.random
+		elseif optionSelected == "-- None" then
+			optionSelected = Options.StartupIcon.none
 		elseif optionSelected ~= "..................................." then
 			-- The option is a Pokemon's name and needs to be convered to an ID
 			optionSelected = PokemonData.getIdFromName(optionSelected) or -1
