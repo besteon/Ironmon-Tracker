@@ -44,7 +44,7 @@ TrainerData.FileInfo = {
 
 	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 3, },
 	["frlg-rival-b"] =			{ width = 42, height = 60, offsetX = 0, offsetY = 2, },
-	["frlg-rival-c"] =			{ width = 42, height = 57, offsetX = 0, offsetY = 3, },
+	["frlg-rival-c"] =			{ width = 42, height = 60, offsetX = 0, offsetY = 3, },
 	["frlg-blackbelt"] =		{ width = 52, height = 61, offsetX = 0, offsetY = 1, },
 	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, offsetY = 2, },
 	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 2, offsetY = 2, },

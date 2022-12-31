@@ -376,48 +376,45 @@ end
 
 -- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
-		return { Constants.BLANKLINE }
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].detailed
+	end
+
+	local evoInfo = PokemonData.EvoMethods[evoMethod]
+
+	 -- Evolves only by leveling up
+	if evoInfo == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].detailed[1]
+		return { string.format(levelFormat, evoMethod) }
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
+		local friendFormat = evoInfo.detailed[1]
+		local amt
 		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
-			return { Program.friendshipRequired .. " Friendship" }
+			amt = Program.friendshipRequired
 		else
-			return { "220 Friendship" }
+			amt = 220
 		end
-	elseif evoMethod == PokemonData.Evolutions.STONES then
-		return { "5 Diff. Stones" }
-	elseif evoMethod == PokemonData.Evolutions.THUNDER then
-		return { "Thunder Stone" }
-	elseif evoMethod == PokemonData.Evolutions.FIRE then
-		return { "Fire Stone" }
-	elseif evoMethod == PokemonData.Evolutions.WATER then
-		return { "Water Stone" }
-	elseif evoMethod == PokemonData.Evolutions.MOON then
-		return { "Moon Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF then
-		return { "Leaf Stone" }
-	elseif evoMethod == PokemonData.Evolutions.SUN then
-		return { "Sun Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF_SUN then
-		return {
-			"Leaf Stone or",
-			"Sun Stone",
-		}
-	elseif evoMethod == "37/WTR" then
-		return {
-			"Level 37 or",
-			"Water Stone",
-		}
-	elseif evoMethod == "30/WTR" then
-		return {
-			"Level 30 or",
-			"Water Stone",
-		}
-	else -- Otherwise, the evo is just a level
-		return { "Level " .. evoMethod }
+		return { string.format(friendFormat, amt) }
 	end
+
+	return evoInfo.detailed
+end
+
+-- Returns a list of evolution details (shortened text) for a given Pokemon's evolution
+function Utils.getShortenedEvolutionsInfo(evoMethod)
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].short
+	end
+
+	 -- Evolves only by leveling up
+	if PokemonData.EvoMethods[evoMethod] == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].short[1]
+		return { string.format(levelFormat, evoMethod) }
+	end
+
+	return PokemonData.EvoMethods[evoMethod].short
 end
 
 -- moveType required for Hidden Power tracked type

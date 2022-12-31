@@ -35,15 +35,73 @@ PokemonData.Types = {
 -- This enum does NOT include levels for evolution, only stones, friendship, no evolution, etc.
 PokemonData.Evolutions = {
 	NONE = Constants.BLANKLINE, -- This Pokémon does not evolve.
-	FRIEND = "FRND", -- High friendship
+	LEVEL = "LEVEL", -- Unused directly, necessary as an info index
+	FRIEND = "FRIEND", -- High friendship
 	STONES = "STONE", -- Various evolution stone items
-	THUNDER = "THNDR", -- Thunder stone item
+	THUNDER = "THUNDER", -- Thunder stone item
 	FIRE = "FIRE", -- Fire stone item
 	WATER = "WATER", -- Water stone item
 	MOON = "MOON", -- Moon stone item
 	LEAF = "LEAF", -- Leaf stone item
 	SUN = "SUN", -- Sun stone item
 	LEAF_SUN = "LF/SN", -- Leaf or Sun stone items
+	WATER30 = "30/WTR", -- Water stone item or at level 30
+	WATER37 = "37/WTR", -- Water stone item or at level 37
+}
+-- Table of Evolution methods as a short or detailed list, each containing the evo method(s)
+PokemonData.EvoMethods = {
+	[PokemonData.Evolutions.NONE] = {
+		short = { Constants.BLANKLINE, },
+		detailed = { Constants.BLANKLINE, },
+	},
+	[PokemonData.Evolutions.LEVEL] = {
+		short = { "Lv.%s", }, -- requires level parameter
+		detailed = { "Level %s", }, -- requires level value
+	},
+	[PokemonData.Evolutions.FRIEND] = {
+		short = { "Friend", },
+		detailed = { "%s Friendship", }, -- requires friendship value
+	},
+	[PokemonData.Evolutions.STONES] = {
+		short = { "Thunder", "Water", "Fire", "Sun", "Moon", },
+		detailed = { "5 Diff. Stones", },
+	},
+	[PokemonData.Evolutions.THUNDER] = {
+		short = { "Thunder", },
+		detailed = { "Thunder Stone", },
+	},
+	[PokemonData.Evolutions.WATER] = {
+		short = { "Water", },
+		detailed = { "Water Stone", },
+	},
+	[PokemonData.Evolutions.FIRE] = {
+		short = { "Fire", },
+		detailed = { "Fire Stone", },
+	},
+	[PokemonData.Evolutions.LEAF] = {
+		short = { "Leaf", },
+		detailed = { "Leaf Stone", },
+	},
+	[PokemonData.Evolutions.SUN] = {
+		short = { "Sun", },
+		detailed = { "Sun Stone", },
+	},
+	[PokemonData.Evolutions.MOON] = {
+		short = { "Moon", },
+		detailed = { "Moon Stone", },
+	},
+	[PokemonData.Evolutions.LEAF_SUN] = {
+		short = { "Leaf", "Sun", },
+		detailed = { "Leaf Stone", "Sun Stone", },
+	},
+	[PokemonData.Evolutions.WATER30] = {
+		short = { "Lv.30", "Water", },
+		detailed = { "Level 30", "Water Stone", },
+	},
+	[PokemonData.Evolutions.WATER37] = {
+		short = { "Lv.37", "Water", },
+		detailed = { "Level 37", "Water Stone", },
+	},
 }
 
 PokemonData.BlankPokemon = {
@@ -741,7 +799,7 @@ PokemonData.Pokemon = {
 	{
 		name = "Poliwhirl",
 		types = { PokemonData.Types.WATER, PokemonData.Types.EMPTY },
-		evolution = "37/WTR", -- Level 37 replaces trade evolution for Politoed
+		evolution = PokemonData.Evolutions.WATER37, -- Level 37 replaces trade evolution for Politoed
 		bst = "385",
 		movelvls = { { 7, 13, 19, 27, 35, 43, 51 }, { 7, 13, 19, 27, 35, 43, 51 } },
 		weight = 20.0
@@ -885,7 +943,7 @@ PokemonData.Pokemon = {
 	{
 		name = "Slowpoke",
 		types = { PokemonData.Types.WATER, PokemonData.Types.PSYCHIC },
-		evolution = "37/WTR", -- Water stone replaces trade evolution to Slowking
+		evolution = PokemonData.Evolutions.WATER37, -- Water stone replaces trade evolution to Slowking
 		bst = "315",
 		movelvls = { { 6, 15, 20, 29, 34, 43, 48 }, { 6, 13, 17, 24, 29, 36, 40, 47 } },
 		weight = 36.0
@@ -3237,7 +3295,7 @@ PokemonData.Pokemon = {
 	{
 		name = "Clamperl",
 		types = { PokemonData.Types.WATER, PokemonData.Types.EMPTY },
-		evolution = "30/WTR", -- Level 30 and stone replace trade evolution
+		evolution = PokemonData.Evolutions.WATER30, -- Level 30 and stone replace trade evolution
 		bst = "345",
 		movelvls = { {}, {} },
 		weight = 52.5
