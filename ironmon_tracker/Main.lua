@@ -267,6 +267,7 @@ function Main.InitializeAllTrackerFiles()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
 	GameOverScreen.initialize()
+	StreamerScreen.initialize()
 	LogOverlay.initialize()
 end
 

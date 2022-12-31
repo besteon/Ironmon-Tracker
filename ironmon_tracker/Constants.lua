@@ -126,6 +126,9 @@ Constants.OrderedLists = {
 		"Startup Pokemon displayed",
 		"Display pedometer",
 		"Dev branch updates",
+		"Welcome message",
+		"Startup favorites",
+		"Show on new game screen",
 	},
 	CONTROLS = {
 		"Load next seed",

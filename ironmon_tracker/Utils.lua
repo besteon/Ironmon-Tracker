@@ -85,6 +85,12 @@ function Utils.formatControls(gbaButtons)
 	return controlCombination:sub(1, -3) or ""
 end
 
+-- Returns an offset that will center-align the given text based on a specified area's width
+function Utils.getCenteredTextX(text, areaWidth)
+	local textSize = Utils.calcWordPixelLength(text or "")
+	return math.max((areaWidth or 0) / 2 - textSize / 2, 0)
+end
+
 function Utils.centerTextOffset(text, charSize, width)
 	charSize = charSize or 4
 	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))
@@ -132,6 +138,40 @@ function Utils.formatUTF8(format, ...)
 		format:format(table.unpack(args))
 			:gsub('\1\2*', function() return table.remove(strings, 1) end)
 	)
+end
+
+-- Safely formats the text and encodes any special characters (if incompatible with the emulator)
+function Utils.formatSpecialCharacters(text)
+	if text == nil or text == "" then return "" end
+
+	-- For each known special character, attempt to replace it
+	for char, _ in pairs(Constants.CharMap) do
+		if string.find(text, char, 1, true) ~= nil then
+			text = text:gsub(char, Constants.getC(char))
+		end
+	end
+
+	return text
+end
+
+-- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
+function Utils.encodeDecodeForSettingsIni(text, doEncode)
+	if text == nil or text == "" then return "" end
+
+	local charsToEncode = {
+		{ raw = "\n", encoded = "\\n", },
+		{ raw = "\r", encoded = "\\r", },
+	}
+
+	for _, char in pairs(charsToEncode) do
+		if doEncode then
+			text = text:gsub(char.raw, char.encoded)
+		else
+			text = text:gsub(char.encoded, char.raw)
+		end
+	end
+
+	return text
 end
 
 -- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
