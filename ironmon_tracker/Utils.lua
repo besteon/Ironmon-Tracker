@@ -399,7 +399,8 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 
 	local movesText = "Moves"
 	local nextMoveSpacing = 13
-	if #Tracker.getMoves(pokemonID) > 4 then
+	-- Don't show the asterisk on your own Pokemon
+	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
 		nextMoveSpacing = nextMoveSpacing + 1
 	end
