@@ -36,6 +36,7 @@ FileManager.Files = {
 		FileManager.Folders.DataCode .. FileManager.slash .. "RouteData.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua",
+		FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua",
 		"Memory.lua",
 		"GameSettings.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua",

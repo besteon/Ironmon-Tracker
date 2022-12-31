@@ -242,6 +242,7 @@ function Main.InitializeAllTrackerFiles()
 	PokemonData.initialize()
 	MoveData.initialize()
 	RouteData.initialize()
+	TrainerData.initialize()
 
 	Program.initialize()
 	Drawing.initialize()

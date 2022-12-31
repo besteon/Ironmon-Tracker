@@ -478,7 +478,7 @@ function LogOverlay.buildPagedButtons()
 
 	-- Determine gym TMs for the game, they'll be highlighted
 	local gymTMs = {}
-	for i, gymTM in ipairs(RandomizerLog.GymTMs[GameSettings.game]) do
+	for i, gymTM in ipairs(TrainerData.GymTMs) do
 		gymTMs[gymTM.number] = {
 			leader = gymTM.leader,
 			gymNumber = i,
@@ -489,11 +489,11 @@ function LogOverlay.buildPagedButtons()
 	-- Build Trainer buttons
 	LogOverlay.PagedButtons.Trainers = {}
 	for id, trainerData in pairs(RandomizerLog.Data.Trainers) do
-		local trainerInfo = RandomizerLog.getTrainerInfo(id, GameSettings.game)
+		local trainerInfo = TrainerData.getTrainerInfo(id)
 		-- TODO: Implement actual name laters when full trainer list is ready
 		-- local customName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
 		local customName = trainerInfo.name
-		local fileInfo = RandomizerLog.TrainerFileInfo[trainerInfo.filename] or { width = 40, height = 40 }
+		local fileInfo = TrainerData.FileInfo[trainerInfo.filename] or { width = 40, height = 40 }
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
 			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInfo.filename, FileManager.Extensions.TRAINER),
@@ -505,7 +505,7 @@ function LogOverlay.buildPagedButtons()
 			tab = LogOverlay.Tabs.TRAINER,
 			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				local shouldInclude = LogOverlay.Windower.filterGrid == RandomizerLog.TrainerGroups.All or LogOverlay.Windower.filterGrid == self.group
+				local shouldInclude = LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All or LogOverlay.Windower.filterGrid == self.group
 				local shouldExclude = trainerInfo.name == "Unknown"
 				-- Exclude extra rivals
 				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
@@ -520,7 +520,7 @@ function LogOverlay.buildPagedButtons()
 			end,
 		}
 
-		if trainerInfo ~= nil and trainerInfo.group == RandomizerLog.TrainerGroups.Gym then
+		if trainerInfo ~= nil and trainerInfo.group == TrainerData.TrainerGroups.Gym then
 			local gymNumber = tonumber(trainerInfo.filename:sub(-1)) -- e.g. "frlg-gymleader-1"
 			if gymNumber ~= nil then
 				-- Find the gym leader's TM and add it's trainer id to that tm info
@@ -540,12 +540,12 @@ function LogOverlay.buildPagedButtons()
 	navOffsetX = navStartX + 37
 	navLabels = {
 		{
-			label = RandomizerLog.TrainerGroups.All,
+			label = TrainerData.TrainerGroups.All,
 			sortFunc = function(a, b)
 				if a.group < b.group then
 					return true
 				elseif a.group == b.group then
-					if a.group == RandomizerLog.TrainerGroups.Rival or a.group == RandomizerLog.TrainerGroups.Boss then -- special sort for rival/wally #s
+					if a.group == TrainerData.TrainerGroups.Rival or a.group == TrainerData.TrainerGroups.Boss then -- special sort for rival/wally #s
 						return a.text < b.text
 					elseif a.filename < b.filename then
 						return a.filename < b.filename
@@ -555,23 +555,23 @@ function LogOverlay.buildPagedButtons()
 			end,
 		},
 		{
-			label = RandomizerLog.TrainerGroups.Rival,
+			label = TrainerData.TrainerGroups.Rival,
 			sortFunc = function(a, b) return a.text < b.text end,
 		},
 		{
-			label = RandomizerLog.TrainerGroups.Gym,
+			label = TrainerData.TrainerGroups.Gym,
 			sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end,
 		},
 		{
-			label = RandomizerLog.TrainerGroups.Elite4,
+			label = TrainerData.TrainerGroups.Elite4,
 			sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end,
 		},
 		{
-			label = RandomizerLog.TrainerGroups.Boss,
+			label = TrainerData.TrainerGroups.Boss,
 			sortFunc = function(a, b) return a.text < b.text end,
 		},
 		-- { -- Temp Removing both of these until better data gets sorted out
-		-- 	label = RandomizerLog.TrainerGroups.Other,
+		-- 	label = TrainerData.TrainerGroups.Other,
 		-- 	sortFunc = function(a, b) return a.text < b.text end,
 		-- },
 		-- {
@@ -734,7 +734,7 @@ end
 -- Also sets LogOverlay.Windower: { currentPage, totalPages, filterGrid }
 function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 	-- Default to showing Gym filterGroup
-	LogOverlay.Windower.filterGrid = gridFilter or RandomizerLog.TrainerGroups.Gym
+	LogOverlay.Windower.filterGrid = gridFilter or TrainerData.TrainerGroups.Gym
 	sortFunc = sortFunc or (function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end)
 
 	local buttonSet = LogOverlay.PagedButtons.Trainers
@@ -1037,7 +1037,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 
 	-- Determine gym TMs for the game, they'll be highlighted
 	local gymTMs = {}
-	for _, gymTM in pairs(RandomizerLog.GymTMs[GameSettings.game]) do
+	for _, gymTM in pairs(TrainerData.GymTMs) do
 		gymTMs[gymTM.number] = gymTM.leader
 	end
 
@@ -1370,7 +1370,7 @@ function LogOverlay.drawTrainersTab(x, y, width, height)
 			-- Draw a centered box for the Trainer's name
 			local nameWidth = Utils.calcWordPixelLength(button.text)
 			local offsetX = button.box[1] + button.box[3] / 2 - nameWidth / 2
-			local offsetY = button.box[2] + RandomizerLog.TrainerFileInfo.maxHeight - bottomPadding - (button.dimensions.extraY or 0)
+			local offsetY = button.box[2] + TrainerData.FileInfo.maxHeight - bottomPadding - (button.dimensions.extraY or 0)
 			gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor, fillColor)
 			Drawing.drawText(offsetX, offsetY, button.text, textColor, shadowcolor)
 			gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor) -- to cutoff the shadows
@@ -1579,13 +1579,13 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 
 	-- TRAINER NAME
 	local nameWidth = Utils.calcWordPixelLength(data.t.name:upper())
-	local nameOffsetX = (RandomizerLog.TrainerFileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
+	local nameOffsetX = (TrainerData.FileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
 	Drawing.drawText(x + nameOffsetX + badgeOffsetX + 3, y + 2, data.t.name:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- TRAINER ICON
 	local trainerIcon = FileManager.buildImagePath(FileManager.Folders.Trainers, data.t.filename, FileManager.Extensions.TRAINER)
-	local iconWidth = RandomizerLog.TrainerFileInfo[data.t.filename].width
-	local iconOffsetX = (RandomizerLog.TrainerFileInfo.maxWidth - iconWidth) / 2 -- center the trainer icon a bit
+	local iconWidth = TrainerData.FileInfo[data.t.filename].width
+	local iconOffsetX = (TrainerData.FileInfo.maxWidth - iconWidth) / 2 -- center the trainer icon a bit
 	gui.drawImage(trainerIcon, x + iconOffsetX + 3, y + 16)
 
 	for _, button in pairs(LogOverlay.TemporaryButtons) do

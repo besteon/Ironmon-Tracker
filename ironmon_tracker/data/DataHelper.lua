@@ -619,7 +619,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	end
 
 	local trainer = RandomizerLog.Data.Trainers[trainerId]
-	local trainerInfo = RandomizerLog.getTrainerInfo(trainerId, GameSettings.game)
+	local trainerInfo = TrainerData.getTrainerInfo(trainerId)
 
 	data.t.id = trainerId or 0
 	data.t.filename = trainerInfo.filename or Constants.BLANKLINE
