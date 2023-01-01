@@ -907,3 +907,22 @@ function Battle.moveDelayed()
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedUnfroze -- Pause for "X thawed out"
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedUnfroze2 -- Thawed out 2
 end
+
+-- During double battles, this is the Pokemon the targeting cursor is pointing at (either enemy or your partner)
+-- Returns: slot(1-6), isOwn(true/false)
+function Battle.getCursorTargetInfo()
+	-- Not all games have this address
+	if GameSettings.gMultiUsePlayerCursor == nil then
+		return 0, true
+	end
+
+	-- 0 or 2 if player, 1 or 3 if enemy, 255 = no target
+	local target = Memory.readbyte(GameSettings.gMultiUsePlayerCursor)
+	if target < 1 or target > 4 then
+		return 0, true
+	end
+
+	local whichCombatant = Battle.IndexMap[target] or 0
+	local isOwn = target % 2 == 0
+	return Battle.Combatants[whichCombatant] or 0, isOwn
+end

@@ -55,6 +55,35 @@ function Utils.reverseEndian32(value)
 	return Utils.bit_lshift(d, 24) + Utils.bit_lshift(c, 8) + Utils.bit_rshift(b, 8) + Utils.bit_rshift(a, 24)
 end
 
+-- DEBUG function: Continually reads section of Memory (inclusive) looking for changes, and outputting if a change occurs
+function Utils.watchMemoryRange(startAddr, size, initialPrint)
+	size = (size or 0) - 1
+	if startAddr == nil or size < 0 then return end
+
+	if Utils.prevAddrs == nil then
+		Utils.prevAddrsMessage = ""
+		Utils.prevAddrs = {}
+	end
+
+	local changedAddrMessage = ""
+
+	local addrValues = {} -- table of: key=addr, value=val
+	for i = startAddr, startAddr + size, 1 do
+		addrValues[i] = Memory.readbyte(i)
+		if Utils.prevAddrs[i] ~= addrValues[i] then
+			changedAddrMessage = changedAddrMessage .. string.format("0x%x: %s\r\n", i, addrValues[i])
+		end
+	end
+
+	if changedAddrMessage ~= "" and (initialPrint or #Utils.prevAddrs > 0) and Utils.prevAddrsMessage ~= changedAddrMessage then
+		Utils.prevAddrsMessage = changedAddrMessage
+		changedAddrMessage = changedAddrMessage .. "----- ----- ----- -----"
+		print(changedAddrMessage)
+	end
+
+	Utils.prevAddrs = addrValues -- replace previous addresses and values with the new ones
+end
+
 -- If the `condition` is true, the value in `T` is returned, else the value in `F` is returned
 function Utils.inlineIf(condition, T, F)
 	if condition then return T else return F end

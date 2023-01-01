@@ -551,6 +551,7 @@ function Program.HandleExit()
 	if Main.IsOnBizhawk() then
 		gui.clearImageCache()
 		Drawing.clearGUI()
+		client.SetGameExtraPadding(0, 0, 0, 0)
 		forms.destroyall()
 	end
 end
@@ -596,7 +597,9 @@ end
 
 -- Useful for dynamically getting the Pokemon's types if they have changed somehow (Color change, Transform, etc)
 function Program.getPokemonTypes(isOwn, isLeft)
-	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + Utils.inlineIf(isOwn, 0x0, 0x58) + Utils.inlineIf(isLeft, 0x0, 0xB0))
+	local ownerAddressOffset = Utils.inlineIf(isOwn, 0x0, 0x58)
+	local leftAddressOffset = Utils.inlineIf(isLeft, 0x0, 0xB0)
+	local typesData = Memory.readword(GameSettings.gBattleMons + 0x21 + ownerAddressOffset + leftAddressOffset)
 	return {
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 0, 8)],
 		PokemonData.TypeIndexMap[Utils.getbits(typesData, 8, 8)],
