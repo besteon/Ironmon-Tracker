@@ -4,6 +4,7 @@ Battle = {
 	battleStarting = false,
 	isWildEncounter = false,
 	isGhost = false,
+	defeatedSteven = false, -- Used exclusively for Emerald
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
 	partySize = 6,
@@ -678,12 +679,18 @@ function Battle.endCurrentBattle()
 		end
 	end
 
+	local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Program.currentScreen = Program.Screens.TRACKER
+	elseif GameSettings.game == 2 and opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
+		Battle.defeatedSteven = true
+		Program.currentScreen = Program.Screens.GAMEOVER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen

@@ -61,6 +61,7 @@ RouteData.Locations = {
 	CanPCHeal = {},
 	CanObtainBadge = {}, -- Currently unused for the time being
 	IsInLab = {},
+	IsInHallOfFame = {},
 }
 
 function RouteData.initialize()
@@ -402,6 +403,9 @@ function RouteData.setupRouteInfoAsFRLG()
 	}
 	RouteData.Locations.IsInLab = {
 		[5] = true,
+	}
+	RouteData.Locations.IsInHallOfFame = {
+		[218] = true,
 	}
 
 	RouteData.Info = {
@@ -2408,6 +2412,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
+	if not isGameEmerald then
+		-- Ironmon ends after Steven battle, not e4. This is handled by Battle.endCurrentBattle()
+		RouteData.Locations.IsInHallOfFame = {
+			[298 + offset] = true,
+		}
+	end
 
 	RouteData.Info = {}
 

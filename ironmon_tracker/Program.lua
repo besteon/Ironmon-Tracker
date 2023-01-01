@@ -197,6 +197,8 @@ function Program.update()
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 			if Program.currentScreen == Program.Screens.STARTUP and Program.isValidMapLocation() then
 				Program.currentScreen = Program.Screens.TRACKER
+			elseif Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId] then
+				Program.currentScreen = Program.Screens.GAMEOVER
 			end
 
 			-- Check if summary screen has being shown
