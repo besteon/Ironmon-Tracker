@@ -400,14 +400,12 @@ function UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindo
 	if isOnWindows then
 		-- COMMAND BREAKS: Usually OneDrive breaks this: string.format('xcopy "%s" /s /y /q', extractedFolder)
 		local onedrivePattern = "([Oo][Nn][Ee][Dd][Rr][Ii][Vv][Ee])"
-		local result1 = string.find(archiveFolderPath, onedrivePattern)
 		if string.find(archiveFolderPath, onedrivePattern) ~= nil then
 			return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
 		end
 
 		-- FILEPATH BREAKS: Tracker located on a non-primary harddrive: e.g. D:\ or E:\
 		local driveLetterPattern = "^(.).*"
-		local result2 = string.match(archiveFolderPath, driveLetterPattern)
 		if string.match(archiveFolderPath, driveLetterPattern) ~= "C" then
 			return false, "Tracker files are not on the primary harddrive C:\\ and cannot be edited while Bizhawk is open."
 		end
