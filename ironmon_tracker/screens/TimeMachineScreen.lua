@@ -162,7 +162,7 @@ function TimeMachineScreen.cleanupOldRestorePoints(forceRemoveAll)
 		return
 	elseif #TimeMachineScreen.RestorePoints <= TimeMachineScreen.maxRestorePoints then
 		return
-	elseif Program.currentScreen ~= Program.Screens.TIME_MACHINE then
+	elseif Program.currentScreen == Program.Screens.TIME_MACHINE then
 		-- Don't remove anything if the user is viewing the restore points, as they may use one of them
 		return
 	end
