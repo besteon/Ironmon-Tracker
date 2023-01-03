@@ -129,6 +129,7 @@ Constants.OrderedLists = {
 		"Welcome message",
 		"Startup favorites",
 		"Show on new game screen",
+		"Enable restore points",
 	},
 	CONTROLS = {
 		"Load next seed",

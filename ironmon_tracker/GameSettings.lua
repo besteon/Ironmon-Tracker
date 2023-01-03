@@ -374,6 +374,9 @@ function GameSettings.setIwramAddresses()
 		gSaveBlock1ptr = { { nil, nil }, { 0x03005d8c }, { 0x03005008, 0x03004f58 } },
 		gSaveBlock2ptr = { { nil, nil }, { 0x03005d90 }, { 0x0300500c, 0x03004f5c } },
 
+		-- R/S: making a guess that this is correct for doubles battle move target pokemon selection cursor: 03004344 g 00000004 gUnknown_03004344
+		gMultiUsePlayerCursor = { { 0x03004344 }, { 0x03005d74 }, { 0x03004ff4, nil }, },
+
 		-- IWRAM addresses present in all games
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },
 		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x03004fe0 } },

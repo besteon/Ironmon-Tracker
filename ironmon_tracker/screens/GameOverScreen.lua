@@ -8,7 +8,7 @@ GameOverScreen = {
 		retryBattle = "Retry the battle",
 		restartBattleConfirm = "Are you sure?",
 		saveGameFiles = "Save this attempt",
-		saveSuccessful = "Saved in tracker folder!",
+		saveSuccessful = "Saved in: saved- games",
 		saveFailed = "Unable to save",
 		viewLogFile = "Inspect the log",
 		openLogFile = "Open a log file",
@@ -43,8 +43,8 @@ GameOverScreen = {
 GameOverScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 107, 5, 31, 29 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 107, 1, 32, 32 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106, 6, 31, 29 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106, 2, 32, 32 },
 		teamIndex = 1,
 		getIconPath = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
@@ -64,6 +64,10 @@ GameOverScreen.Buttons = {
 		text = GameOverScreen.Labels.continuePlaying,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 66, 112, 16 },
 		onClick = function(self)
+			-- Clear out this flag if player continues playing
+			if Battle.defeatedSteven then
+				Battle.defeatedSteven = false
+			end
 			LogOverlay.isDisplayed = false
 			GameOverScreen.refreshButtons()
 			Program.changeScreenView(Program.Screens.TRACKER)
@@ -75,7 +79,7 @@ GameOverScreen.Buttons = {
 		text = GameOverScreen.Labels.retryBattle,
 		confirmAction = false,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 87, 112, 16 },
-		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil end,
+		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and not Battle.defeatedSteven end,
 		updateText = function(self)
 			self.text = GameOverScreen.Labels.retryBattle
 			self.textColor = "Lower box text"
@@ -422,18 +426,22 @@ function GameOverScreen.drawScreen()
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	-- Draw announcer quote
-	-- Drawing.drawText(topBox.x + 2, textLineY, GameOverScreen.Labels.announcer, topBox.text, topBox.shadow)
-	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+	local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
 
-	local announcerQuote = GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
-	local wrappedQuotes = Utils.getWordWrapLines(announcerQuote, 30)
-	local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
-	textLineY = textLineY + 5 * (2 - #firstTwoLines)
-	for _, line in pairs(firstTwoLines) do
-		local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(line) / 2) - 1
-		Drawing.drawText(topBox.x + centerOffsetX, textLineY, line, topBox.text, topBox.shadow)
+	-- Draw announcer quote, but not if player beats the e4/steven
+	if not inHallOfFame and not Battle.defeatedSteven then
+		-- Drawing.drawText(topBox.x + 2, textLineY, GameOverScreen.Labels.announcer, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+
+		local announcerQuote = GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
+		local wrappedQuotes = Utils.getWordWrapLines(announcerQuote, 30)
+		local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
+		textLineY = textLineY + 5 * (2 - #firstTwoLines)
+		for _, line in pairs(firstTwoLines) do
+			local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(line) / 2) - 1
+			Drawing.drawText(topBox.x + centerOffsetX, textLineY, line, topBox.text, topBox.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+		end
 	end
 
 	-- TODO: Might add back in later

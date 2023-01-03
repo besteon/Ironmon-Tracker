@@ -4,6 +4,7 @@ Battle = {
 	battleStarting = false,
 	isWildEncounter = false,
 	isGhost = false,
+	defeatedSteven = false, -- Used exclusively for Emerald
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
 	partySize = 6,
@@ -678,12 +679,18 @@ function Battle.endCurrentBattle()
 		end
 	end
 
+	local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == Program.Screens.INFO then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Program.currentScreen = Program.Screens.TRACKER
+	elseif GameSettings.game == 2 and opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
+		Battle.defeatedSteven = true
+		Program.currentScreen = Program.Screens.GAMEOVER
 	end
 
 	-- Delay drawing the return to viewing your pokemon screen
@@ -899,4 +906,25 @@ function Battle.moveDelayed()
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsFrozen3 -- Frozen animation 2
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedUnfroze -- Pause for "X thawed out"
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedUnfroze2 -- Thawed out 2
+end
+
+-- During double battles, this is the Pokemon the targeting cursor is pointing at (either enemy or your partner)
+-- Returns: slot(1-6), isOwn(true/false)
+function Battle.getDoublesCursorTargetInfo()
+	-- Not all games have this address
+	if GameSettings.gMultiUsePlayerCursor == nil or Battle.numBattlers == 2 then
+		return Battle.Combatants.LeftOther, false
+	end
+
+	-- 0 or 2 if player, 1 or 3 if enemy, 255 = no target
+	local target = Memory.readbyte(GameSettings.gMultiUsePlayerCursor)
+
+	-- Default anything out of bounds to targetting the enemy on left
+	if target == 255 or target < 0 or target > 4 then
+		return Battle.Combatants.LeftOther, false
+	end
+
+	local whichCombatant = Battle.IndexMap[target] or 0
+	local isOwn = target % 2 == 0
+	return Battle.Combatants[whichCombatant] or Battle.Combatants.LeftOther, isOwn
 end

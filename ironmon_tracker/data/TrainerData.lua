@@ -25,6 +25,9 @@ TrainerData.FileInfo = {
 	["rs-rival-brendan"] =		{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
 	["rs-rival-may"] =			{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
 	["rse-wally"] =				{ width = 38, height = 57, offsetX = 10, offsetY = 4, },
+	["rse-archie"] =			{ width = 38, height = 63, offsetX = 8, offsetY = 0, },
+	["rse-maxie"] =				{ width = 38, height = 63, offsetX = 9, offsetY = 0, },
+	["rse-tabitha"] =			{ width = 50, height = 62, offsetX = 0, offsetY = 0, },
 	["rse-gymleader-1"] =		{ width = 35, height = 54, offsetX = 4, offsetY = 6, },
 	["rse-gymleader-2"] =		{ width = 51, height = 61, offsetX = 0, offsetY = 2, },
 	["rse-gymleader-3"] =		{ width = 35, height = 60, offsetX = 0, offsetY = 2, },
@@ -306,6 +309,36 @@ function TrainerData.setupTrainersAsRubySapphire()
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "rs-rival-may",
 			whichRival = "May Right",
+		},
+		[1] = {
+			name = "Archie 1",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-archie",
+		},
+		[35] = {
+			name = "Archie 2",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-archie",
+		},
+		[34] = {
+			name = "Archie 3",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-archie",
+		},
+		[566] = {
+			name = "Maxie 1",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
+		},
+		[602] = {
+			name = "Maxie 2",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
+		},
+		[601] = {
+			name = "Maxie 3",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
 		},
 		[656] = {
 			name = "Wally 1",
@@ -597,6 +630,31 @@ function TrainerData.setupTrainersAsEmerald()
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-may",
 			whichRival = "May Right",
+		},
+		[34] = {
+			name = "Archie",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-archie",
+		},
+		[514] = {
+			name = "Tabitha (duo)",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-tabitha",
+		},
+		[602] = {
+			name = "Maxie 1",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
+		},
+		[601] = {
+			name = "Maxie 2",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
+		},
+		[734] = {
+			name = "Maxie (duo)",
+			group = TrainerData.TrainerGroups.Boss,
+			filename = "rse-maxie",
 		},
 		[656] = {
 			name = "Wally 1",

@@ -36,6 +36,7 @@ Options = {
 	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
 	["Startup favorites"] = "1,4,7",
 	["Show on new game screen"] = false,
+	["Enable restore points"] = true,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
@@ -96,6 +97,7 @@ Options.IconSetMap = {
 Options.StartupIcon = {
 	random = "Random",
 	attempts = "Attempts",
+	none = "None",
 }
 
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
