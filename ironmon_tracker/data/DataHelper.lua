@@ -96,14 +96,14 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.viewingOwn = forceView
 	end
 
-	--Assume we are always looking at the left pokemon on the opposing side for move effectiveness
+	-- If not in doubles, this defaults to [Battle.Combatants.LeftOther, false]
+	local cursorSlot, targetIsOwn = Battle.getDoublesCursorTargetInfo()
+
 	local viewedPokemon
 	local opposingPokemon -- currently used exclusively for Low Kick weight calcs
-	local cursorSlot, targetIsOwn = Battle.getCursorTargetInfo()
 	if data.x.viewingOwn then
-		local battlerCursorIsOn = Utils.inlineIf(cursorSlot ~= 0, cursorSlot, Battle.Combatants.LeftOther)
 		viewedPokemon = Battle.getViewedPokemon(true)
-		opposingPokemon = Tracker.getPokemon(battlerCursorIsOn, targetIsOwn)
+		opposingPokemon = Tracker.getPokemon(cursorSlot, targetIsOwn)
 	else
 		viewedPokemon = Battle.getViewedPokemon(false)
 		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
