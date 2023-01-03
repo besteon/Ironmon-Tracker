@@ -1,7 +1,7 @@
 TimeMachineScreen = {
 	Labels = {
 		header = "Time Machine",
-		description = "Restore points are created automatically as you play. Select one to go back in time.",
+		description = "Select a restore point below to go back to that point in time.",
 		noRestorePoints = "No restore points are available; one is created every 5 minutes.",
 		pageFormat = "Page %s/%s", -- e.g. Page 1/3
 		restoreTimeFormat = "created %s minute%s ago", -- e.g. Created 5 minutes ago
@@ -51,6 +51,20 @@ TimeMachineScreen.Pager = {
 }
 
 TimeMachineScreen.Buttons = {
+	EnableRestorePoints = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text = " Enable restore points", -- offset with a space for appearance
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
+		toggleState = true, -- update later in initialize
+		toggleColor = "Positive text",
+		onClick = function(self)
+			-- Toggle the setting and store the change to be saved later in Settings.ini
+			self.toggleState = not self.toggleState
+			Options.updateSetting("Enable restore points", self.toggleState)
+			Options.forceSave()
+		end
+	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "", -- Set later via updateText()
@@ -102,11 +116,18 @@ function TimeMachineScreen.initialize()
 			button.boxColors = { TimeMachineScreen.Colors.border, TimeMachineScreen.Colors.boxFill }
 		end
 	end
+	TimeMachineScreen.Buttons.EnableRestorePoints.toggleState = Options["Enable restore points"]
+
 	TimeMachineScreen.timeLastCreatedRP = os.time()
 	TimeMachineScreen.Buttons.CurrentPage:updateText()
 end
 
 function TimeMachineScreen.checkCreatingRestorePoint()
+	-- Reasons not to create a restore point; once it's okay to make one (i.e. finish a battle) time catches up and a new state is created
+	if not Options["Enable restore points"] or Battle.inBattle or Battle.battleStarting then
+		return
+	end
+
 	local secSinceLastRP = os.time() - TimeMachineScreen.timeLastCreatedRP
 
 	-- Only create a restore point if enough time has elapsed
@@ -289,8 +310,6 @@ function TimeMachineScreen.drawScreen()
 		fill = Theme.COLORS[TimeMachineScreen.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[TimeMachineScreen.Colors.boxFill]),
 	}
-	local textLineY = topBox.y + 2
-
 	local headerText = TimeMachineScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local offsetX = Utils.getCenteredTextX(headerText, topBox.width)
@@ -298,8 +317,9 @@ function TimeMachineScreen.drawScreen()
 
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
+	local textLineY = topBox.y + Constants.SCREEN.LINESPACING + 3 -- make room for first checkbox
 
-	local wrappedDesc = Utils.getWordWrapLines(TimeMachineScreen.Labels.description, 31)
+	local wrappedDesc = Utils.getWordWrapLines(TimeMachineScreen.Labels.description, 32)
 	for _, line in pairs(wrappedDesc) do
 		Drawing.drawText(topBox.x + 3, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
