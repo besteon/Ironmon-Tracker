@@ -268,6 +268,7 @@ function Main.InitializeAllTrackerFiles()
 	MoveHistoryScreen.initialize()
 	GameOverScreen.initialize()
 	StreamerScreen.initialize()
+	TimeMachineScreen.initialize()
 	LogOverlay.initialize()
 end
 
@@ -392,6 +393,7 @@ function Main.LoadNextRom()
 
 		if Main.IsOnBizhawk() then
 			GameOverScreen.clearTempSaveStates()
+			TimeMachineScreen.cleanupOldRestorePoints(true)
 			if Main.emulator == Main.EMU.BIZHAWK28 then
 				client.closerom() -- This appears to not be needed for Bizhawk 2.9+
 			end

@@ -12,6 +12,7 @@ Program = {
 		lowAccuracyUpdate = 30, -- counts down
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
+		restorePoint = 10 * 60 * 60, -- counts down
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
@@ -33,6 +34,7 @@ Program.Screens = {
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
 	GAMEOVER = GameOverScreen.drawScreen,
 	STREAMER = StreamerScreen.drawScreen,
+	TIME_MACHINE = TimeMachineScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -246,6 +248,10 @@ function Program.update()
 			Tracker.saveData()
 		end
 	end
+
+	if Program.Frames.restorePoint == 0 then
+		TimeMachineScreen.createRestorePoint()
+	end
 end
 
 function Program.stepFrames()
@@ -253,6 +259,7 @@ function Program.stepFrames()
 	Program.Frames.lowAccuracyUpdate = (Program.Frames.lowAccuracyUpdate - 1) % 30
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
+	Program.Frames.restorePoint = (Program.Frames.restorePoint - 1) % (10 * 60 * 60)
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
 end
 
