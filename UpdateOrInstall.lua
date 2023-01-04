@@ -177,18 +177,19 @@ function UpdateOrInstall.performStandaloneUpdate()
 	print(string.format("> %s", UpdateOrInstall.Messages.updateBegin))
 	local releaseFolderPath
 
+	-- Temporarily removing this, as it can potentiall cause issues when a failed update prevents grabbing the actual latest (maybe two weeks has passed)
 	-- Check if the download was completed and extracted, but the update halted before it was removed
-	local updaterFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder() .. UpdateOrInstall.slash .. UpdateOrInstall.thisFileName
-	local file = io.open(updaterFilePath, "r")
-	if file ~= nil then
-		file:close()
-		print(string.format("> %s", UpdateOrInstall.Messages.step1a))
-	else
+	-- local updaterFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder() .. UpdateOrInstall.slash .. UpdateOrInstall.thisFileName
+	-- local file = io.open(updaterFilePath, "r")
+	-- if file ~= nil then
+		-- file:close()
+		-- print(string.format("> %s", UpdateOrInstall.Messages.step1a))
+	-- else
 		releaseFolderPath = UpdateOrInstall.downloadAndExtract()
 		if releaseFolderPath == nil then
 			return false
 		end
-	end
+	-- end
 
 	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder())
 
