@@ -469,13 +469,13 @@ function TrainerData.setupTrainersAsEmerald()
 			filename = "e-rival-brendan",
 			whichRival = "Brendan Right",
 		},
-		[592] = {
+		[593] = {
 			name = "Brendan 2",
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-brendan",
 			whichRival = "Brendan Left",
 		},
-		[593] = {
+		[592] = {
 			name = "Brendan 2",
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-brendan",
@@ -559,19 +559,19 @@ function TrainerData.setupTrainersAsEmerald()
 			filename = "e-rival-may",
 			whichRival = "May Right",
 		},
-		[768] = {
+		[600] = {
 			name = "May 2",
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-may",
 			whichRival = "May Left",
 		},
-		[769] = {
+		[768] = {
 			name = "May 2",
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-may",
 			whichRival = "May Middle",
 		},
-		[600] = {
+		[769] = {
 			name = "May 2",
 			group = TrainerData.TrainerGroups.Rival,
 			filename = "e-rival-may",
