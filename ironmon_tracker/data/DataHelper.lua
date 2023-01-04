@@ -103,7 +103,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local opposingPokemon -- currently used exclusively for Low Kick weight calcs
 	if data.x.viewingOwn then
 		viewedPokemon = Battle.getViewedPokemon(true)
-		opposingPokemon = Tracker.getPokemon(cursorSlot, targetIsOwn)
+		if Battle.numBattlers == 2 then
+			opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
+		else
+			opposingPokemon = Tracker.getPokemon(cursorSlot, targetIsOwn)
+		end
 	else
 		viewedPokemon = Battle.getViewedPokemon(false)
 		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
@@ -317,7 +321,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
-			local isCursorOnLeft = (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
+			local isCursorOnLeft = (Battle.numBattlers == 2) or (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
 			local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
 			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
 		else
