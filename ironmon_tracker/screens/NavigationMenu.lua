@@ -23,6 +23,7 @@ NavigationMenu.Buttons = {
 	Extras = {
 		text = "Extras",
 		image = Constants.PixelImages.POKEBALL,
+		iconColors = { NavigationMenu.textColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.EXTRAS) end
 	},
@@ -40,7 +41,7 @@ NavigationMenu.Buttons = {
 			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
 				self.textColor = NavigationMenu.textColor
 			else
-				-- If neither quickload option is enabled (somehow), then highlight it to draw user's attention
+				-- If neither quickload option is enabled, then highlight it to draw user's attention
 				self.textColor = "Intermediate text"
 			end
 		end,
@@ -48,7 +49,7 @@ NavigationMenu.Buttons = {
 	},
 	ThemeCustomization = {
 		text = "Theme",
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		image = Constants.PixelImages.NOTEPAD,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
@@ -73,18 +74,31 @@ NavigationMenu.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			if Main.isOnLatestVersion() then
-				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
-			else
+			-- Always show the update menu if using a dev build, to allow updating from dev branch
+			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+			else
+				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
 			end
 			Program.changeScreenView(Program.Screens.UPDATE)
 		end
 	},
+	ViewStats = {
+		text = "Stats",
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(Program.Screens.STATS) end
+	},
+	StreamerTools = {
+		text = "Streaming",
+		image = Constants.PixelImages.SPECIAL,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function() Program.changeScreenView(Program.Screens.STREAMER) end
+	},
 	MirageButton = {
 		text = "It's a secret...",
 		image = Constants.PixelImages.POKEBALL,
-		type = Constants.ButtonTypes.FULL_BORDER,
+		type = Constants.ButtonTypes.ICON_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 110, 110, 15 },
 		timesClicked = 0,
 		canBeSeenToday = false,
@@ -139,27 +153,27 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.QuickloadSettings,
 	NavigationMenu.Buttons.ThemeCustomization,
 	NavigationMenu.Buttons.ManageTrackedData,
+	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
+	NavigationMenu.Buttons.StreamerTools,
 }
 
 function NavigationMenu.initialize()
 	local btnWidth = 63
-	local btnHeight = 15
+	local btnHeight = 16
 	local spacer = 6
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 16 + spacer
-	local leftCol = true
-	for _, button in ipairs(NavigationMenu.OrderedMenuList) do
-		button.type = Constants.ButtonTypes.FULL_BORDER
+	local startY = Constants.SCREEN.MARGIN + 12 + spacer
+	for i, button in ipairs(NavigationMenu.OrderedMenuList) do
+		button.type = Constants.ButtonTypes.ICON_BORDER
 		button.box = { startX, startY, btnWidth, btnHeight }
 
-		if leftCol then
+		if i % 2 == 1 then -- left column
 			startX = startX + btnWidth + spacer
-		else
+		else -- right column
 			startY = startY + btnHeight + spacer
 			startX = startX - btnWidth - spacer
 		end
-		leftCol = not leftCol
 	end
 
 	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
@@ -170,25 +184,44 @@ function NavigationMenu.initialize()
 	end
 
 	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
+	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
+		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
+	end
 	NavigationMenu.Buttons.QuickloadSettings:updateText()
 	NavigationMenu.Buttons.CheckForUpdates:updateText()
 
 	-- Yet another fun Easter Egg that shows up only once in a while
 	if math.random(256) == 1 then
 		NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
-		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+		-- Disabling to allow room for more buttons
+		-- NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
 	end
 end
 
 function NavigationMenu.openWikiBrowserWindow()
-	-- The first parameter is the title of the window, the second is the url
+	local wasSoundOn
+	if Main.IsOnBizhawk() then
+		wasSoundOn = client.GetSoundOn()
+		client.SetSoundOn(false)
+	end
+
 	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.WIKI_URL))
+		-- The first parameter is the title of the window, the second is the url
+		os.execute(string.format('start "" "%s"', FileManager.Urls.WIKI))
 	else
-		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', Constants.Release.WIKI_URL))
-		Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-		print(string.format("Help Wiki: %s", Constants.Release.WIKI_URL))
+		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
+		local success = os.execute(string.format('open "%s"', FileManager.Urls.WIKI)) -- Mac OSX
+		if not success then
+			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.WIKI)) -- Linux
+			if not success then
+				Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
+				print(string.format("> Github Wiki: %s", FileManager.Urls.WIKI))
+			end
+		end
+	end
+
+	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
+		client.SetSoundOn(wasSoundOn)
 	end
 end
 
@@ -217,38 +250,10 @@ function NavigationMenu.drawScreen()
 
 	-- Draw all buttons, manually
 	for _, button in pairs(NavigationMenu.Buttons) do
-		if button.isVisible == nil or button:isVisible() then
-			if button.image ~= nil then
-				local x = button.box[1]
-				local y = button.box[2]
-				local holdText = button.text
-
-				button.text = ""
-				Drawing.drawButton(button, shadowcolor)
-				button.text = holdText
-				Drawing.drawText(x + 16, y + 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
-
-				-- TODO: Eventually make the Draw Button more flexible for centering its contents
-				if button.image == Constants.PixelImages.GEAR then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.PHYSICAL then
-					y = y + 3
-					x = x + 1
-				elseif button.image == Constants.PixelImages.MAGNIFYING_GLASS then
-					y = y + 1
-				elseif button.image == Constants.PixelImages.INSTALL_BOX then
-					y = y + 2
-					x = x + 1
-				elseif button.image == Constants.PixelImages.POKEBALL then
-					x = x - 1
-				elseif button.image == Constants.PixelImages.CLOCK then
-					y = y + 1
-				end
-				Drawing.drawImageAsPixels(button.image, x + 4, y + 2, { Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor], Theme.COLORS[NavigationMenu.boxFillColor] }, shadowcolor)
-			else
-				Drawing.drawButton(button, shadowcolor)
-			end
+		if button == NavigationMenu.Buttons.VersionInfo then
+			Drawing.drawButton(button, headerShadow)
+		else
+			Drawing.drawButton(button, shadowcolor)
 		end
 	end
 end
@@ -275,7 +280,8 @@ function NavigationMenu.drawCredits()
 
 	Drawing.drawText(offsetX, offsetY, "Created by:", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
 	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	gui.drawImage(Main.DataFolder .. "/images/pokemon/196.gif", topboxColX + 40, offsetY - 13, 32, 32) -- Espeon
+	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
+	gui.drawImage(espeonImage, topboxColX + 40, offsetY - 13, 32, 32)
 	offsetY = offsetY + linespacing + 10
 
 	Drawing.drawText(offsetX, offsetY, "Contributors: ", Theme.COLORS[NavigationMenu.textColor], shadowcolor)

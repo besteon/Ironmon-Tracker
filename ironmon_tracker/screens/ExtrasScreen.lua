@@ -17,6 +17,17 @@ ExtrasScreen.OptionKeys = {
 }
 
 ExtrasScreen.Buttons = {
+	TimeMachine = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		text = "Time Machine",
+		image = Constants.PixelImages.CLOCK,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16},
+		-- isVisible = function() return true end,
+		onClick = function()
+			TimeMachineScreen.buildOutPagedButtons()
+			Program.changeScreenView(Program.Screens.TIME_MACHINE)
+		end
+	},
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = " Estimate " .. Constants.Words.POKEMON .. " IV Potential",
@@ -69,8 +80,12 @@ function ExtrasScreen.initialize()
 	end
 
 	for _, button in pairs(ExtrasScreen.Buttons) do
-		button.textColor = ExtrasScreen.Colors.text
-		button.boxColors = { ExtrasScreen.Colors.border, ExtrasScreen.Colors.boxFill }
+		if button.textColor == nil then
+			button.textColor = ExtrasScreen.Colors.text
+		end
+		if button.boxColors == nil then
+			button.boxColors = { ExtrasScreen.Colors.border, ExtrasScreen.Colors.boxFill }
+		end
 	end
 
 	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")

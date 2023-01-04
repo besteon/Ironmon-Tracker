@@ -189,3 +189,33 @@ if GameSettings == nil then
 else
     Debug.createEditPokeForm()
 end
+
+-- Continually reads section of Memory (inclusive) of 'size' bytes looking for changes, and outputting if a change occurs.
+-- initialPrint: Always outputs first pass if true
+function Debug.watchMemoryRange(startAddr, size, initialPrint)
+	size = (size or 0) - 1
+	if startAddr == nil or size < 0 then return end
+
+	if Utils.prevAddrs == nil then
+		Utils.prevAddrsMessage = ""
+		Utils.prevAddrs = {}
+	end
+
+	local changedAddrMessage = ""
+
+	local addrValues = {} -- table of: key=addr, value=val
+	for i = startAddr, startAddr + size, 1 do
+		addrValues[i] = Memory.readbyte(i)
+		if Utils.prevAddrs[i] ~= addrValues[i] then
+			changedAddrMessage = changedAddrMessage .. string.format("0x%x: %s\r\n", i, addrValues[i])
+		end
+	end
+
+	if changedAddrMessage ~= "" and (initialPrint or #Utils.prevAddrs > 0) and Utils.prevAddrsMessage ~= changedAddrMessage then
+		Utils.prevAddrsMessage = changedAddrMessage
+		changedAddrMessage = changedAddrMessage .. "----- ----- ----- -----"
+		print(changedAddrMessage)
+	end
+
+	Utils.prevAddrs = addrValues -- replace previous addresses and values with the new ones
+end

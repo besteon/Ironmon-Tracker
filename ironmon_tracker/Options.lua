@@ -32,6 +32,11 @@ Options = {
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,
 	["Display pedometer"] = false,
+	["Dev branch updates"] = false,
+	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
+	["Startup favorites"] = "1,4,7",
+	["Show on new game screen"] = false,
+	["Enable restore points"] = true,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
@@ -92,17 +97,12 @@ Options.IconSetMap = {
 Options.StartupIcon = {
 	random = "Random",
 	attempts = "Attempts",
+	none = "None",
 }
 
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
 
 function Options.initialize()
-	-- Check if the Toggle View controller button is not default, and update the tip message if so.
-	local toggleViewValue = Options.CONTROLS["Toggle view"]
-	if toggleViewValue ~= "Start" then
-		Constants.OrderedLists.TIPS[3] = Constants.OrderedLists.TIPS[3]:gsub("Start", toggleViewValue)
-	end
-
 	Drawing.AnimatedPokemon:create()
 end
 

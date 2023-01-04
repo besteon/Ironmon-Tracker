@@ -274,6 +274,8 @@ function GameSettings.setEwramAddresses()
 		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
 		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, 0x02023fc4 + 0x17 },
 		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
+		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, 0x020386ae },
+		gTrainerBattleOpponent_B = { nil, 0x02038bcc, nil }, -- Emerald Only
 		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, 0x0203b140 },
 		gBattleTypeFlags = { 0x020239f8, 0x02022fec, 0x02022b4c },
 		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, 0x02023bc8 },
@@ -348,6 +350,9 @@ function GameSettings.setIwramAddresses()
 		-- Addresses only in Em/FRLG
 		gSaveBlock1ptr = { { nil, nil }, { 0x03005d8c }, { 0x03005008, 0x03004f58 } },
 		gSaveBlock2ptr = { { nil, nil }, { 0x03005d90 }, { 0x0300500c, 0x03004f5c } },
+
+		-- R/S: making a guess that this is correct for doubles battle move target pokemon selection cursor: 03004344 g 00000004 gUnknown_03004344
+		gMultiUsePlayerCursor = { { 0x03004344 }, { 0x03005d74 }, { 0x03004ff4, nil }, },
 
 		-- IWRAM addresses present in all games
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },

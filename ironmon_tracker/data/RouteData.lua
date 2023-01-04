@@ -61,6 +61,7 @@ RouteData.Locations = {
 	CanPCHeal = {},
 	CanObtainBadge = {}, -- Currently unused for the time being
 	IsInLab = {},
+	IsInHallOfFame = {},
 }
 
 function RouteData.setupRouteInfo(gameId)
@@ -394,6 +395,9 @@ function RouteData.setupRouteInfoAsFRLG()
 	}
 	RouteData.Locations.IsInLab = {
 		[5] = true,
+	}
+	RouteData.Locations.IsInHallOfFame = {
+		[218] = true,
 	}
 
 	RouteData.Info = {
@@ -2394,6 +2398,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
+	if not isGameEmerald then
+		-- Ironmon ends after Steven battle, not e4. This is handled by Battle.endCurrentBattle()
+		RouteData.Locations.IsInHallOfFame = {
+			[298 + offset] = true,
+		}
+	end
 
 	RouteData.Info = {}
 
@@ -3514,6 +3524,9 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = {353,355,355}, rate = 0.10, },
 		},
 	}
+	RouteData.Info[143 + offset] = { name = "Aqua Hideout 1F", }
+	RouteData.Info[144 + offset] = { name = "Aqua Hideout B1F", }
+	RouteData.Info[145 + offset] = { name = "Aqua Hideout B2F", }
 
 	RouteData.Info[147 + offset] = { name = "Seafloor Cavern",
 		[RouteData.EncounterArea.LAND] = {
@@ -3819,6 +3832,15 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
+	RouteData.Info[243 + offset] = { name = "Seashore House", }
+	RouteData.Info[247 + offset] = { name = "Trick House 1", }
+	RouteData.Info[248 + offset] = { name = "Trick House 2", }
+	RouteData.Info[249 + offset] = { name = "Trick House 3", }
+	RouteData.Info[250 + offset] = { name = "Trick House 4", }
+	RouteData.Info[251 + offset] = { name = "Trick House 5", }
+	RouteData.Info[252 + offset] = { name = "Trick House 6", }
+	RouteData.Info[253 + offset] = { name = "Trick House 7", }
+	RouteData.Info[254 + offset] = { name = "Trick House 8", }
 	RouteData.Info[270 + offset] = { name = Constants.Words.POKEMON .. " League PC", }
 	RouteData.Info[271 + offset] = { name = "Weather Institute 1F", }
 	RouteData.Info[272 + offset] = { name = "Weather Institute 2F", }

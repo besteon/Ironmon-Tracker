@@ -30,8 +30,7 @@ SetupScreen.Buttons = {
 		pokemonID = 1,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			local imagepath = Main.DataFolder .. "/images/" .. iconset.folder .. "/" .. self.pokemonID .. iconset.extension
-			return imagepath
+			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 		end,
 		onClick = function(self)
 			self.pokemonID = Utils.randomPokemonID()
@@ -41,7 +40,7 @@ SetupScreen.Buttons = {
 	},
 	CycleIconForward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
@@ -54,7 +53,7 @@ SetupScreen.Buttons = {
 	},
 	CycleIconBackward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
@@ -105,15 +104,6 @@ function SetupScreen.initialize()
 				if self.text == "PC heals count downward" then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
 				end
-
-				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
-				if self.text == "Animated Pokemon popout" then
-					if self.toggleState then
-						Drawing.AnimatedPokemon:create()
-					else
-						Drawing.AnimatedPokemon:destroy()
-					end
-				end
 			end
 		}
 		startY = startY + linespacing
@@ -129,9 +119,9 @@ function SetupScreen.initialize()
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
-	local animatedAddonInstalled = Main.FileExists(Utils.getWorkingDirectory() .. Main.DataFolder .. "/images/pokemonAnimated/abra.gif")
+	local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
-	if not animatedAddonInstalled and animatedBtnOption ~= nil then
+	if not FileManager.fileExists(abraGif) and animatedBtnOption ~= nil then
 		animatedBtnOption.disabled = true
 	end
 end
@@ -161,14 +151,8 @@ function SetupScreen.openEditControlsWindow()
 	forms.button(form,"Save && Close", function()
 		index = 1
 		for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
-			local controlCombination = ""
-			for txtInput in string.gmatch(forms.gettext(inputTextboxes[index]), '([^,%s]+)') do
-				-- Format "START" as "Start"
-				controlCombination = controlCombination .. txtInput:sub(1,1):upper() .. txtInput:sub(2):lower() .. ", "
-			end
-			controlCombination = controlCombination:sub(1, -3)
-
-			if controlCombination ~= nil and controlCombination ~= "" then
+			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[index] or ""))
+			if controlCombination ~= "" then
 				Options.CONTROLS[controlKey] = controlCombination
 			end
 			index = index + 1

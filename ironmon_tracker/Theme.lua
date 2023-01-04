@@ -1,6 +1,7 @@
 Theme = {
 	-- Tracks if any theme elements were modified so we know if we need to save them to the Settings.ini file
 	settingsUpdated = false,
+	headerHighlightKey = "Intermediate text",
 
 	-- 'Default' Theme, but will get replaced by what's in Settings.ini
 	COLORS = {
@@ -96,7 +97,7 @@ Theme.Buttons = {
 	},
 	CyclePresetBackward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
@@ -109,7 +110,7 @@ Theme.Buttons = {
 	},
 	CyclePresetForward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
@@ -156,6 +157,7 @@ Theme.Buttons = {
 				Theme.DRAW_TEXT_SHADOWS = Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS
 				Theme.Buttons.DrawTextShadows.toggleState = Theme.DRAW_TEXT_SHADOWS
 
+				Theme.setNextMoveLevelHighlight(true)
 				Main.SaveSettings(true)
 				Theme.refreshThemePreview()
 			end
@@ -203,7 +205,7 @@ Theme.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			TrackerScreen.getNextMoveLevelHighlight(false) -- Update the next move level highlight color
+			Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
 			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
 			if Theme.Screen.displayingThemeManager then
@@ -244,9 +246,9 @@ function Theme.initialize()
 end
 
 function Theme.loadPresets()
-	if not Main.FileExists(Constants.Files.THEME_PRESETS) then return end
+	if not FileManager.fileExists(FileManager.Files.THEME_PRESETS) then return end
 
-	for index, line in ipairs(Utils.readLinesFromFile(Constants.Files.THEME_PRESETS)) do
+	for index, line in ipairs(FileManager.readLinesFromFile(FileManager.Files.THEME_PRESETS)) do
 		local firstHexIndex = line:find("%x%x%x%x%x%x")
 		if firstHexIndex ~= nil then
 			local themeCode = line:sub(firstHexIndex)
@@ -265,6 +267,29 @@ function Theme.loadPresets()
 			end
 		end
 	end
+end
+
+-- Calculates a color for the next move level highlighting based off contrast ratios of chosen theme colors
+function Theme.setNextMoveLevelHighlight(forced)
+	if not forced and not Theme.settingsUpdated then return end
+	local mainBGColor = Theme.COLORS["Main background"]
+	local maxContrast = 0
+	local colorKey = ""
+	for key, color in pairs(Theme.COLORS) do
+		if color ~= mainBGColor and color ~= Theme.COLORS["Header text"] and color ~= Theme.COLORS["Default text"] then
+			local bgContrast = Utils.calculateContrastRatio(color, mainBGColor)
+			if bgContrast > maxContrast then
+				maxContrast = bgContrast
+				colorKey = key
+			end
+		end
+	end
+	Theme.headerHighlightKey = colorKey
+
+	-- Update any buttons with new color
+	TrackerScreen.Buttons.MovesHistory.textColor = colorKey
+	LogOverlay.refreshTabBar()
+	LogOverlay.Buttons.CurrentPage.textColor = colorKey -- temporary
 end
 
 -- Attempts to fill in missing theme code information for old theme codes
@@ -539,12 +564,12 @@ function Theme.openSaveCurrentThemeWindow()
 
 			-- If a theme with that name already exists, replace it; otherwise add a reference for it
 			if Theme.PresetStrings[themeName] ~= nil then
-				Utils.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
+				FileManager.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
 			else
 				table.insert(Theme.PresetsOrdered, themeName)
 			end
 
-			Utils.addCustomThemeToFile(themeName, themeCode)
+			FileManager.addCustomThemeToFile(themeName, themeCode)
 			Theme.PresetStrings[themeName] = themeCode
 			Theme.refreshThemePreview()
 
@@ -562,14 +587,14 @@ end
 
 -- Preloaded Theme Presets are added to the Theme Presets file only if that file doesn't already exist
 function Theme.populateThemePresets()
-	if Main.FileExists(Constants.Files.THEME_PRESETS) then
+	if FileManager.fileExists(FileManager.Files.THEME_PRESETS) then
 		return
 	end
 
 	-- Add in the preloaded themes in a predefined order (important to show "Theme" vs. "Theme v2" naming)
 	for _, themeName in ipairs(Constants.OrderedLists.PRELOADED_THEMES) do
 		local themeCode = Constants.PreloadedThemes[themeName]
-		Utils.addCustomThemeToFile(themeName, themeCode)
+		FileManager.addCustomThemeToFile(themeName, themeCode)
 	end
 end
 
@@ -583,7 +608,7 @@ function Theme.tryRemoveThemePreset()
 			-- Remove the Theme from the ThemePresets.txt file, and each Preset table
 			local themeNameToRemove = Theme.PresetsOrdered[Theme.Screen.currentPreview]
 			local themeCodeToRemove = Theme.PresetStrings[themeNameToRemove]
-			Utils.removeCustomThemeFromFile(themeNameToRemove, themeCodeToRemove)
+			FileManager.removeCustomThemeFromFile(themeNameToRemove, themeCodeToRemove)
 			table.remove(Theme.PresetsOrdered, Theme.Screen.currentPreview)
 			Theme.PresetStrings[themeNameToRemove] = nil
 

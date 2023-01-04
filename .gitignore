@@ -1,8 +1,14 @@
 Settings.ini
 *.tdat
 *.gba
+*.sav
+*.State
 *.log
 *Attempts.txt
+quickload/*.jar
+quickload/*.rnqs
+ironmon_tracker/osexecute-output.txt
 ironmon_tracker/images/pokemonAnimated/*.gif
+AnimatedPokemon.gif
 RandomizerErrorLog.txt
 ThemePresets.txt
