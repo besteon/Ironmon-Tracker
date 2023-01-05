@@ -55,7 +55,7 @@ RandomizerLog.Sectors = {
 		-- Matches: partypokemon (pokemon name with held item and level info)
 		PartyPattern = "([^,]+)",
 		-- Matches: pokemon, helditem[optional], level
-		PartyPokemonPattern = RandomizerLog.Patterns.PokemonName .. "@?(.-)%sLv(%d+)",
+		PartyPokemonPattern = "%s*" .. RandomizerLog.Patterns.PokemonName .. "@?(.-)%sLv(%d+)",
 	},
 	-- Currently unused
 	PickupItems = {
