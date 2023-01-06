@@ -6,7 +6,8 @@
 
 ## General Information
 
-Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html) (v0.10.0 or higher) used to track IronMon attempts.
+Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html)* (v0.10.0 or higher) used to track IronMon attempts.
+> *mGBA's lua scripting is currently limited and doesn't provide any drawing functionality, this means the tracker on mGBA is purely text-based in the scripting window as we can't draw images/screens like on Bizhawk.
 
 For more information on IronMon, see <http://ironmon.gg>
 
