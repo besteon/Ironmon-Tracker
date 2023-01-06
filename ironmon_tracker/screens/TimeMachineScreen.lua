@@ -118,7 +118,8 @@ function TimeMachineScreen.initialize()
 	end
 	TimeMachineScreen.Buttons.EnableRestorePoints.toggleState = Options["Enable restore points"]
 
-	TimeMachineScreen.timeLastCreatedRP = os.time()
+	-- First restore point to be made at the 2 minute mark
+	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 120)
 	TimeMachineScreen.Buttons.CurrentPage:updateText()
 end
 
