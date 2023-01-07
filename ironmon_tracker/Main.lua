@@ -171,7 +171,7 @@ end
 -- Checks if Bizhawk version is 2.8 or later
 function Main.GetBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
-	if client == nil or client.getversion == nil then return false end
+	if client == nil or client.getversion == nil then return Main.EMU.BIZHAWK_OLD end
 
 	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
 	local major, minor = string.match(client.getversion(), "(%d+)%.(%d+)")
