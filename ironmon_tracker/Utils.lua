@@ -85,6 +85,12 @@ function Utils.formatControls(gbaButtons)
 	return controlCombination:sub(1, -3) or ""
 end
 
+-- Returns an offset that will center-align the given text based on a specified area's width
+function Utils.getCenteredTextX(text, areaWidth)
+	local textSize = Utils.calcWordPixelLength(text or "")
+	return math.max((areaWidth or 0) / 2 - textSize / 2, 0)
+end
+
 function Utils.centerTextOffset(text, charSize, width)
 	charSize = charSize or 4
 	width = width or (Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2))
@@ -132,6 +138,40 @@ function Utils.formatUTF8(format, ...)
 		format:format(table.unpack(args))
 			:gsub('\1\2*', function() return table.remove(strings, 1) end)
 	)
+end
+
+-- Safely formats the text and encodes any special characters (if incompatible with the emulator)
+function Utils.formatSpecialCharacters(text)
+	if text == nil or text == "" then return "" end
+
+	-- For each known special character, attempt to replace it
+	for char, _ in pairs(Constants.CharMap) do
+		if string.find(text, char, 1, true) ~= nil then
+			text = text:gsub(char, Constants.getC(char))
+		end
+	end
+
+	return text
+end
+
+-- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
+function Utils.encodeDecodeForSettingsIni(text, doEncode)
+	if text == nil or text == "" then return "" end
+
+	local charsToEncode = {
+		{ raw = "\n", encoded = "\\n", },
+		{ raw = "\r", encoded = "\\r", },
+	}
+
+	for _, char in pairs(charsToEncode) do
+		if doEncode then
+			text = text:gsub(char.raw, char.encoded)
+		else
+			text = text:gsub(char.encoded, char.raw)
+		end
+	end
+
+	return text
 end
 
 -- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
@@ -359,7 +399,8 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 
 	local movesText = "Moves"
 	local nextMoveSpacing = 13
-	if #Tracker.getMoves(pokemonID) > 4 then
+	-- Don't show the asterisk on your own Pokemon
+	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
 		nextMoveSpacing = nextMoveSpacing + 1
 	end
@@ -376,48 +417,45 @@ end
 
 -- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil or evoMethod == PokemonData.Evolutions.NONE then
-		return { Constants.BLANKLINE }
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].detailed
+	end
+
+	local evoInfo = PokemonData.EvoMethods[evoMethod]
+
+	 -- Evolves only by leveling up
+	if evoInfo == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].detailed[1]
+		return { string.format(levelFormat, evoMethod) }
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
+		local friendFormat = evoInfo.detailed[1]
+		local amt
 		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
-			return { Program.friendshipRequired .. " Friendship" }
+			amt = Program.friendshipRequired
 		else
-			return { "220 Friendship" }
+			amt = 220
 		end
-	elseif evoMethod == PokemonData.Evolutions.STONES then
-		return { "5 Diff. Stones" }
-	elseif evoMethod == PokemonData.Evolutions.THUNDER then
-		return { "Thunder Stone" }
-	elseif evoMethod == PokemonData.Evolutions.FIRE then
-		return { "Fire Stone" }
-	elseif evoMethod == PokemonData.Evolutions.WATER then
-		return { "Water Stone" }
-	elseif evoMethod == PokemonData.Evolutions.MOON then
-		return { "Moon Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF then
-		return { "Leaf Stone" }
-	elseif evoMethod == PokemonData.Evolutions.SUN then
-		return { "Sun Stone" }
-	elseif evoMethod == PokemonData.Evolutions.LEAF_SUN then
-		return {
-			"Leaf Stone or",
-			"Sun Stone",
-		}
-	elseif evoMethod == "37/WTR" then
-		return {
-			"Level 37 or",
-			"Water Stone",
-		}
-	elseif evoMethod == "30/WTR" then
-		return {
-			"Level 30 or",
-			"Water Stone",
-		}
-	else -- Otherwise, the evo is just a level
-		return { "Level " .. evoMethod }
+		return { string.format(friendFormat, amt) }
 	end
+
+	return evoInfo.detailed
+end
+
+-- Returns a list of evolution details (shortened text) for a given Pokemon's evolution
+function Utils.getShortenedEvolutionsInfo(evoMethod)
+	if evoMethod == nil then
+		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].short
+	end
+
+	 -- Evolves only by leveling up
+	if PokemonData.EvoMethods[evoMethod] == nil then
+		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].short[1]
+		return { string.format(levelFormat, evoMethod) }
+	end
+
+	return PokemonData.EvoMethods[evoMethod].short
 end
 
 -- moveType required for Hidden Power tracked type
@@ -773,4 +811,99 @@ function Utils.getGameStat(statIndex)
 	end
 
 	return math.floor(gameStatValue)
+end
+
+-- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
+-- Returns total pages
+function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
+	listVerticallyFirst = (listVerticallyFirst == true)
+	cutoffX = cutoffX or Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+	cutoffY = cutoffY or Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN
+
+	local offsetX, offsetY = 0, 0
+	local maxItemSize = 0
+	local itemCount = 0
+	local itemsPerPage = nil
+	for _, button in ipairs(buttonList) do
+		if button.includeInGrid == nil or button:includeInGrid() then
+			button.dimensions = button.dimensions or {}
+
+			local w, h, extraX, extraY
+			w = button.dimensions.width or 40
+			h = button.dimensions.height or 40
+			extraX = button.dimensions.extraX or 0
+			extraY = button.dimensions.extraY or 0
+
+			if listVerticallyFirst then
+				-- Check if new height requires starting a new column
+				if (startY + offsetY + h) > cutoffY then
+					offsetX = offsetX + maxItemSize + colSpacer
+					offsetY = 0
+					maxItemSize = 0
+				end
+				-- Check if new width requires starting a new page
+				if (startX + offsetX + w) > cutoffX then
+					offsetX, offsetY, maxItemSize = 0, 0, 0
+					if itemsPerPage == nil then
+						itemsPerPage = itemCount
+						if itemsPerPage == 0 then
+							return 0
+						end
+					end
+				end
+			else
+				-- Check if new width requires starting a new row
+				if (startX + offsetX + w) > cutoffX then
+					offsetX = 0
+					offsetY = offsetY + maxItemSize + rowSpacer
+					maxItemSize = 0
+				end
+				-- Check if new height requires starting a new page
+				if (startY + offsetY + h) > cutoffY then
+					offsetX, offsetY, maxItemSize = 0, 0, 0
+					if itemsPerPage == nil then
+						itemsPerPage = itemCount
+						if itemsPerPage == 0 then
+							return 0
+						end
+					end
+				end
+			end
+
+			itemCount = itemCount + 1
+			local x = startX + offsetX + extraX
+			local y = startY + offsetY + extraY
+			if button.type == Constants.ButtonTypes.POKEMON_ICON then
+				button.clickableArea = { x, y + 4, w, h - 4 }
+			end
+			button.box = { x, y, w, h }
+			if itemsPerPage == nil then
+				button.pageVisible = 1
+			else
+				button.pageVisible = math.ceil(itemCount / itemsPerPage)
+			end
+
+			if listVerticallyFirst then
+				if w > maxItemSize then
+					maxItemSize = w
+				end
+				offsetY = offsetY + h + rowSpacer
+			else
+				if h > maxItemSize then
+					maxItemSize = h
+				end
+				offsetX = offsetX + w + colSpacer
+			end
+
+		else
+			button.pageVisible = -1
+		end
+	end
+
+	-- Return number of items per page, total pages
+	if itemsPerPage == nil then
+		return 1
+	else
+		return math.ceil(itemCount / itemsPerPage)
+	end
 end

@@ -1,6 +1,7 @@
 UpdateScreen = {
 	Labels = {
 		title = "Tracker Update Available",
+		titleCheck = "Tracker Update Check",
 		currentVersion = "Current version:",
 		newVersion = "New version available:",
 		questionHeader = "What would you like to do?",
@@ -286,11 +287,12 @@ function UpdateScreen.drawScreen()
 
 	local titleText
 	if UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK then
-		titleText = "Tracker Update Check?"
+		titleText = UpdateScreen.Labels.titleCheck:upper()
 	else
-		titleText = UpdateScreen.Labels.title
+		titleText = UpdateScreen.Labels.title:upper()
 	end
-	Drawing.drawText(topBox.x + 12, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	local offsetX = Utils.getCenteredTextX(titleText, topBox.width)
+	Drawing.drawText(topBox.x + offsetX, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing + 5
 
 	if Main.isOnLatestVersion() then

@@ -890,7 +890,7 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
 
 	-- Redraw next move level in the header with a different color if close to learning new move
-	if #Tracker.getMoves(data.p.id) > 4 then
+	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
 		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 

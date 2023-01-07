@@ -53,7 +53,7 @@ MoveHistoryScreen.Buttons = {
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
 		onClick = function(self)
@@ -64,7 +64,7 @@ MoveHistoryScreen.Buttons = {
 	},
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
 		onClick = function(self)

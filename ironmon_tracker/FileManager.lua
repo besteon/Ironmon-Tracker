@@ -36,6 +36,7 @@ FileManager.Files = {
 		FileManager.Folders.DataCode .. FileManager.slash .. "RouteData.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua",
 		FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua",
+		FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua",
 		"Memory.lua",
 		"GameSettings.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua",
@@ -55,6 +56,8 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua",
 		"Input.lua",
 		"Drawing.lua",
@@ -173,6 +176,11 @@ function FileManager.tryOsExecute(command, errorFile)
 	if errorFile ~= nil then
 		commandWithOutput = string.format('%s 2>"%s"', commandWithOutput, errorFile)
 	end
+
+	-- An attempted fix to allow non-english characters in paths; but this is only half of it, so it's incomplete.
+	-- Leaving this here in case some more research is done to figure out how to work around this.
+	local foreignCompatibleCommand = "@chcp 65001>nul && " .. commandWithOutput
+
 	local result = os.execute(commandWithOutput)
 	local success = (result == true or result == 0) -- 0 = success in some cases
 	if not success then

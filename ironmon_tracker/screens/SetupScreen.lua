@@ -40,7 +40,7 @@ SetupScreen.Buttons = {
 	},
 	CycleIconForward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NEXT_BUTTON,
+		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
@@ -53,7 +53,7 @@ SetupScreen.Buttons = {
 	},
 	CycleIconBackward = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.PREVIOUS_BUTTON,
+		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])

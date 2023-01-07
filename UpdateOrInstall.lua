@@ -177,18 +177,19 @@ function UpdateOrInstall.performStandaloneUpdate()
 	print(string.format("> %s", UpdateOrInstall.Messages.updateBegin))
 	local releaseFolderPath
 
+	-- Temporarily removing this, as it can potentiall cause issues when a failed update prevents grabbing the actual latest (maybe two weeks has passed)
 	-- Check if the download was completed and extracted, but the update halted before it was removed
-	local updaterFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder() .. UpdateOrInstall.slash .. UpdateOrInstall.thisFileName
-	local file = io.open(updaterFilePath, "r")
-	if file ~= nil then
-		file:close()
-		print(string.format("> %s", UpdateOrInstall.Messages.step1a))
-	else
+	-- local updaterFilePath = IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder() .. UpdateOrInstall.slash .. UpdateOrInstall.thisFileName
+	-- local file = io.open(updaterFilePath, "r")
+	-- if file ~= nil then
+		-- file:close()
+		-- print(string.format("> %s", UpdateOrInstall.Messages.step1a))
+	-- else
 		releaseFolderPath = UpdateOrInstall.downloadAndExtract()
 		if releaseFolderPath == nil then
 			return false
 		end
-	end
+	-- end
 
 	releaseFolderPath = releaseFolderPath or (IronmonTracker.workingDir .. UpdateOrInstall.getArchiveFolder())
 
@@ -400,14 +401,12 @@ function UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindo
 	if isOnWindows then
 		-- COMMAND BREAKS: Usually OneDrive breaks this: string.format('xcopy "%s" /s /y /q', extractedFolder)
 		local onedrivePattern = "([Oo][Nn][Ee][Dd][Rr][Ii][Vv][Ee])"
-		local result1 = string.find(archiveFolderPath, onedrivePattern)
 		if string.find(archiveFolderPath, onedrivePattern) ~= nil then
 			return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
 		end
 
 		-- FILEPATH BREAKS: Tracker located on a non-primary harddrive: e.g. D:\ or E:\
 		local driveLetterPattern = "^(.).*"
-		local result2 = string.match(archiveFolderPath, driveLetterPattern)
 		if string.match(archiveFolderPath, driveLetterPattern) ~= "C" then
 			return false, "Tracker files are not on the primary harddrive C:\\ and cannot be edited while Bizhawk is open."
 		end

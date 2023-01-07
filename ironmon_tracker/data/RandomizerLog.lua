@@ -6,9 +6,9 @@ RandomizerLog.Patterns = {
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
-	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂]+)",
-	-- MoveName = "([%u%d%.'%-]+)", -- might figure out later
-	-- ItemName = "([%u%d%.'%-]+)", -- might figure out later
+	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂%?]+).-",
+	-- MoveName = "([%u%d%.'%-%?]+)", -- might figure out later
+	-- ItemName = "([%u%d%.'%-%?]+)", -- might figure out later
 	getSectorHeaderPattern = function(sectorName)
 		return "^%-?%-?" .. (sectorName or "") .. ":?%-?%-?$"
 	end,
@@ -55,7 +55,7 @@ RandomizerLog.Sectors = {
 		-- Matches: partypokemon (pokemon name with held item and level info)
 		PartyPattern = "([^,]+)",
 		-- Matches: pokemon, helditem[optional], level
-		PartyPokemonPattern = RandomizerLog.Patterns.PokemonName .. "@?(.-)%sLv(%d+)",
+		PartyPokemonPattern = "%s*" .. RandomizerLog.Patterns.PokemonName .. "@?(.-)%sLv(%d+)",
 	},
 	-- Currently unused
 	PickupItems = {
@@ -65,46 +65,12 @@ RandomizerLog.Sectors = {
 		ItemsPattern = "",
 	},
 	GameInfo = {
-		-- :(
-		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-%-"),
+		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern(string.rep("%-", 66)),
 	},
 }
 
 -- A table of parsed data from the log file: Settings, Pokemon, TMs, Trainers, PickupItems
 RandomizerLog.Data = {}
-
-RandomizerLog.GymTMs = {
-	[1] = { -- Game #: Ruby / Sapphire
-		{ leader = "Roxanne", number = 39, },
-		{ leader = "Brawly", number = 8, },
-		{ leader = "Wattson", number = 34, },
-		{ leader = "Flannery", number = 50, },
-		{ leader = "Norman", number = 42, },
-		{ leader = "Winona", number = 40, },
-		{ leader = "Tate & Liza", number = 4, },
-		{ leader = "Wallace", number = 3, },
-	},
-	[2] = { -- Game #: Emerald
-		{ leader = "Roxanne", number = 39, },
-		{ leader = "Brawly", number = 8, },
-		{ leader = "Wattson", number = 34, },
-		{ leader = "Flannery", number = 50, },
-		{ leader = "Norman", number = 42, },
-		{ leader = "Winona", number = 40, },
-		{ leader = "Tate & Liza", number = 4, },
-		{ leader = "Juan", number = 3, },
-	},
-	[3] = { -- Game #: Fire Red / Leaf Green
-		{ leader = "Brock", number = 39, },
-		{ leader = "Misty", number = 3, },
-		{ leader = "Lt. Surge", number = 34, },
-		{ leader = "Erika", number = 19, },
-		{ leader = "Koga", number = 6, },
-		{ leader = "Sabrina", number = 4, },
-		{ leader = "Blaine", number = 38, },
-		{ leader = "Giovanni", number = 26, },
-	},
-}
 
 -- Parses the log file at 'filepath' into the data object RandomizerLog.Data
 function RandomizerLog.parseLog(filepath)
@@ -136,11 +102,28 @@ function RandomizerLog.formatInput(str)
 	if str == nil then return nil end
 	str = str:gsub("♀", " F")
 	str = str:gsub("♂", " M")
+	str = str:gsub("%?", "")
 	str = str:gsub("’", "'")
 	str = str:gsub("é", Constants.getC("é"))
 	str = str:gsub("%[PK%]%[MN%]", "PKMN")
 	str = str:match("^%s*(.*)%s*$") or str -- remove leading/trailing spaces
 	return str:lower()
+end
+
+RandomizerLog.currentNidoranIsF = true
+
+-- In some cases, the ♀/♂ in nidoran's names are stripped out. This is only way to figure out which is which
+function RandomizerLog.alternateNidorans(name)
+	if name == nil or name == "" or name:lower() ~= "nidoran" then return name end
+
+	local correctName
+	if RandomizerLog.currentNidoranIsF then
+		correctName = name .. " f"
+	else
+		correctName = name .. " m"
+	end
+	RandomizerLog.currentNidoranIsF = not RandomizerLog.currentNidoranIsF
+	return correctName
 end
 
 -- Clears out the parsed data and initializes it for each valid PokemonId
@@ -207,6 +190,7 @@ function RandomizerLog.parseEvolutions(logLines)
 	while index <= #logLines do
 		local pokemon, evos = string.match(logLines[index] or "", RandomizerLog.Sectors.Evolutions.PokemonEvosPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or evos == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -218,6 +202,7 @@ function RandomizerLog.parseEvolutions(logLines)
 
 		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
 			evo = RandomizerLog.formatInput(evo)
+			evo = RandomizerLog.alternateNidorans(evo)
 			if RandomizerLog.PokemonNameToIdMap[evo] ~= nil then
 				table.insert(RandomizerLog.Data.Pokemon[pokemonId].Evolutions, RandomizerLog.PokemonNameToIdMap[evo])
 			end
@@ -237,6 +222,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 	while index <= #logLines do
 		local pokemon, hp, atk, def, spa, spd, spe, helditems = string.match(logLines[index] or "", RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or spe == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -272,6 +258,7 @@ function RandomizerLog.parseMoveSets(logLines)
 	while index <= #logLines do
 		local pokemon = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.NextMonPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- Search for the next Pokémon's name, or the end of sector
 		-- I might fix this whole mess later when I'm awake
@@ -282,6 +269,7 @@ function RandomizerLog.parseMoveSets(logLines)
 			index = index + 1
 			pokemon = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.NextMonPattern)
 			pokemon = RandomizerLog.formatInput(pokemon)
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
 		end
 
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
@@ -346,6 +334,7 @@ function RandomizerLog.parseTMCompatibility(logLines)
 	while index <= #logLines do
 		local pokemon, tms = string.match(logLines[index] or "", RandomizerLog.Sectors.TMCompatibility.NextMonPattern)
 		pokemon = RandomizerLog.formatInput(pokemon)
+		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 		-- If nothing matches, end of sector
 		if pokemon == nil or tms == nil or RandomizerLog.PokemonNameToIdMap[pokemon] == nil then
@@ -390,6 +379,7 @@ function RandomizerLog.parseTrainers(logLines)
 		for partypokemon in string.gmatch(party, RandomizerLog.Sectors.Trainers.PartyPattern) do
 			local pokemon, helditem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
 			pokemon = RandomizerLog.formatInput(pokemon)
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
 			helditem = RandomizerLog.formatInput(helditem)
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
 			if helditem == "" then
@@ -543,6 +533,8 @@ function RandomizerLog.setupMappings()
 		["magnemite"] = 81,
 		["magneton"] = 82,
 		["farfetch'd"] = 83,
+		["farfetchd"] = 83,
+		["farfetch"] = 83,
 		["doduo"] = 84,
 		["dodrio"] = 85,
 		["seel"] = 86,
@@ -1206,823 +1198,6 @@ function RandomizerLog.setupMappings()
 		["psycho boost"] = 354,
 	}
 end
-
--- Returns a table with trainer info { name, filterGroup, filename, }
-function RandomizerLog.getTrainerInfo(trainerId, game)
-	if game == nil or trainerId == nil or RandomizerLog.GameAndTrainerMap[game] == nil or RandomizerLog.GameAndTrainerMap[game][trainerId] == nil then
-		local randomIcon = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
-		return {
-			name = "Unknown",
-			group = "Other",
-			filename = "unknown-" .. randomIcon,
-		}
-	end
-	return RandomizerLog.GameAndTrainerMap[game][trainerId]
-end
-
--- Mapped by [GameNumber][TrainerId] = data table with filename
-RandomizerLog.TrainerFileInfo = {
-	-- Aim to have width at 42+ and height 63
-	maxWidth = 58,
-	maxHeight = 63,
-
-	["e-rival-brendan"] =		{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["e-rival-may"] =			{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rs-rival-brendan"] =		{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rs-rival-may"] =			{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rse-wally"] =				{ width = 38, height = 57, offsetX = 10, offsetY = 4, },
-	["rse-gymleader-1"] =		{ width = 35, height = 54, offsetX = 4, offsetY = 6, },
-	["rse-gymleader-2"] =		{ width = 51, height = 61, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-3"] =		{ width = 35, height = 60, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-4"] =		{ width = 45, height = 61, offsetX = 3, offsetY = 2, },
-	["rse-gymleader-5"] =		{ width = 35, height = 63, offsetX = 0, offsetY = 0, },
-	["rse-gymleader-6"] =		{ width = 45, height = 60, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-7"] =		{ width = 57, height = 54, offsetX = 0, offsetY = 4, },
-	["rse-elitefour-1"] =		{ width = 40, height = 54, offsetX = 0, offsetY = 6, },
-	["rse-elitefour-2"] =		{ width = 38, height = 57, offsetX = 5, offsetY = 4, },
-	["rse-elitefour-3"] =		{ width = 40, height = 61, offsetX = 0, offsetY = 2, },
-	["rse-elitefour-4"] =		{ width = 47, height = 63, offsetX = 3, offsetY = 1, },
-	["e-gymleader-8"] =			{ width = 40, height = 63, offsetX = 0, offsetY = 3, },
-	["rs-gymleader-8"] =		{ width = 48, height = 55, offsetX = 0, offsetY = 6, },
-	["e-elitefour-champ"] =		{ width = 56, height = 59, offsetX = 0, offsetY = 2, },
-	["rs-elitefour-champ"] =	{ width = 34, height = 63, offsetX = 0, offsetY = 0, },
-	["e-final-steven"] =		{ width = 34, height = 63, offsetX = 0, offsetY = 2, },
-
-	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 3, },
-	["frlg-rival-b"] =			{ width = 42, height = 60, offsetX = 0, offsetY = 2, },
-	["frlg-rival-c"] =			{ width = 42, height = 57, offsetX = 0, offsetY = 3, },
-	["frlg-blackbelt"] =		{ width = 52, height = 61, offsetX = 0, offsetY = 1, },
-	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, offsetY = 2, },
-	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 2, offsetY = 2, },
-	["frlg-gymleader-3"] =		{ width = 43, height = 61, offsetX = 0, offsetY = 2, },
-	["frlg-gymleader-4"] =		{ width = 43, height = 57, offsetX = 2, offsetY = 3, },
-	["frlg-gymleader-5"] =		{ width = 46, height = 54, offsetX = 0, offsetY = 4, },
-	["frlg-gymleader-6"] =		{ width = 43, height = 56, offsetX = 0, offsetY = 4, },
-	["frlg-gymleader-7"] =		{ width = 44, height = 61, offsetX = 0, offsetY = 2, },
-	["frlg-gymleader-8"] =		{ width = 42, height = 63, offsetX = 2, offsetY = 1, },
-	["frlg-elitefour-1"] =		{ width = 38, height = 62, offsetX = 0, offsetY = 2, },
-	["frlg-elitefour-2"] =		{ width = 53, height = 52, offsetX = 0, offsetY = 5, },
-	["frlg-elitefour-3"] =		{ width = 30, height = 57, offsetX = 1, offsetY = 3, },
-	["frlg-elitefour-4"] =		{ width = 58, height = 60, offsetX = 0, offsetY = 3, },
-	["unknown-a"] =				{ width = 42, height = 55, offsetX = 0, offsetY = 8, },
-	["unknown-b"] =				{ width = 42, height = 55, offsetX = 0, offsetY = 8, },
-}
-
-RandomizerLog.TrainerGroups = {
-	All = "All",
-	Rival = "Rival",
-	Gym = "Gym",
-	Elite4 = "Elite 4",
-	Boss = "Boss",
-	Other = "Other",
-}
-RandomizerLog.GameAndTrainerMap = {
-	[1] = { -- Game #: Ruby / Sapphire
-		[261] = {
-			name = "Sidney",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-1",
-		},
-		[262] = {
-			name = "Phoebe",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-2",
-		},
-		[263] = {
-			name = "Glacia",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-3",
-		},
-		[264] = {
-			name = "Drake",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-4",
-		},
-		[265] = {
-			name = "Roxanne",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-1",
-		},
-		[266] = {
-			name = "Brawly",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-2",
-		},
-		[267] = {
-			name = "Wattson",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-3",
-		},
-		[268] = {
-			name = "Flannery",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-4",
-		},
-		[269] = {
-			name = "Norman",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-5",
-		},
-		[270] = {
-			name = "Winona",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-6",
-		},
-		[271] = {
-			name = "Tate & Liza",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-7",
-		},
-		[272] = {
-			name = "Wallace",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rs-gymleader-8",
-		},
-		[335] = {
-			name = "Steven",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rs-elitefour-champ",
-		},
-		[520] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[523] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[526] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[521] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[524] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[527] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[522] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[525] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[528] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[661] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[662] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[663] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[529] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[532] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[535] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[530] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[533] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[536] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[531] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[534] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[537] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[664] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[665] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[666] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[656] = {
-			name = "Wally 1",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[519] = {
-			name = "Wally 2",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[657] = {
-			name = "Wally 3",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[658] = {
-			name = "Wally 4",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[659] = {
-			name = "Wally 5",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[660] = {
-			name = "Wally 6",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-	},
-	[2] = { -- Game #: Emerald
-		[261] = {
-			name = "Sidney",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-1",
-		},
-		[262] = {
-			name = "Phoebe",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-2",
-		},
-		[263] = {
-			name = "Glacia",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-3",
-		},
-		[264] = {
-			name = "Drake",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "rse-elitefour-4",
-		},
-		[265] = {
-			name = "Roxanne",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-1",
-		},
-		[266] = {
-			name = "Brawly",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-2",
-		},
-		[267] = {
-			name = "Wattson",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-3",
-		},
-		[268] = {
-			name = "Flannery",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-4",
-		},
-		[269] = {
-			name = "Norman",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-5",
-		},
-		[270] = {
-			name = "Winona",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-6",
-		},
-		[271] = {
-			name = "Tate & Liza",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "rse-gymleader-7",
-		},
-		[272] = {
-			name = "Juan",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "e-gymleader-8",
-		},
-		[335] = {
-			name = "Wallace",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "e-elitefour-champ",
-		},
-		[520] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[523] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[526] = {
-			name = "Brendan 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[592] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[593] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[599] = {
-			name = "Brendan 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[521] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[524] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[527] = {
-			name = "Brendan 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[522] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[525] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[528] = {
-			name = "Brendan 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[661] = {
-			name = "Brendan 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[662] = {
-			name = "Brendan 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[663] = {
-			name = "Brendan 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[529] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[532] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[535] = {
-			name = "May 1",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[768] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[769] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[600] = {
-			name = "May 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[530] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[533] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[536] = {
-			name = "May 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[531] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[534] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[537] = {
-			name = "May 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[664] = {
-			name = "May 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[665] = {
-			name = "May 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[666] = {
-			name = "May 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[656] = {
-			name = "Wally 1",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[519] = {
-			name = "Wally 2",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[657] = {
-			name = "Wally 3",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[658] = {
-			name = "Wally 4",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[659] = {
-			name = "Wally 5",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[660] = {
-			name = "Wally 6",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[804] = {
-			name = "Steven",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "e-final-steven",
-		},
-	},
-	[3] = { -- Game #: Fire Red / Leaf Green
-		[410] = {
-			name = "Lorelei",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-elitefour-1",
-		},
-		[411] = {
-			name = "Bruno",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-elitefour-2",
-		},
-		[412] = {
-			name = "Agatha",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-elitefour-3",
-		},
-		[413] = {
-			name = "Lance",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-elitefour-4",
-		},
-		[414] = {
-			name = "Brock",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-1",
-		},
-		[415] = {
-			name = "Misty",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-2",
-		},
-		[416] = {
-			name = "Lt. Surge",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-3",
-		},
-		[417] = {
-			name = "Erika",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-4",
-		},
-		[418] = {
-			name = "Koga",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-5",
-		},
-		[420] = {
-			name = "Sabrina",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-6",
-		},
-		[419] = {
-			name = "Blaine",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-7",
-		},
-		[350] = {
-			name = "Giovanni",
-			group = RandomizerLog.TrainerGroups.Gym,
-			filename = "frlg-gymleader-8",
-		},
-		-- The follow rivals are shown three times each, in order of starter located in the Middle ball, then Left, then Right
-		[326] = {
-			name = "Rival 1", -- Rival chose the Middle Ball
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Middle",
-		},
-		[327] = {
-			name = "Rival 1", -- Rival chose the Left Ball
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Left",
-		},
-		[328] = {
-			name = "Rival 1", -- Rival chose the Right Ball
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Right",
-		},
-		[329] = {
-			name = "Rival 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Middle",
-		},
-		[330] = {
-			name = "Rival 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Left",
-		},
-		[331] = {
-			name = "Rival 2",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Right",
-		},
-		[332] = {
-			name = "Rival 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Middle",
-		},
-		[333] = {
-			name = "Rival 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Left",
-		},
-		[334] = {
-			name = "Rival 3",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Right",
-		},
-		[426] = {
-			name = "Rival 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Middle",
-		},
-		[427] = {
-			name = "Rival 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Left",
-		},
-		[428] = {
-			name = "Rival 4",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Right",
-		},
-		[429] = {
-			name = "Rival 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Middle",
-		},
-		[430] = {
-			name = "Rival 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Left",
-		},
-		[431] = {
-			name = "Rival 5",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-b",
-			whichRival = "Right",
-		},
-		[432] = {
-			name = "Rival 6",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Middle",
-		},
-		[433] = {
-			name = "Rival 6",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Left",
-		},
-		[434] = {
-			name = "Rival 6",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-c",
-			whichRival = "Right",
-		},
-		[435] = {
-			name = "Rival 7",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Middle",
-		},
-		[436] = {
-			name = "Rival 7",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Left",
-		},
-		[437] = {
-			name = "Rival 7",
-			group = RandomizerLog.TrainerGroups.Rival,
-			filename = "frlg-rival-a",
-			whichRival = "Right",
-		},
-		[438] = {
-			name = "Champion",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-rival-c",
-			whichRival = "Middle",
-		},
-		[439] = {
-			name = "Champion",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-rival-c",
-			whichRival = "Left",
-		},
-		[440] = {
-			name = "Champion",
-			group = RandomizerLog.TrainerGroups.Elite4,
-			filename = "frlg-rival-c",
-			whichRival = "Right",
-		},
-		[348] = {
-			name = "Giovanni 1",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "frlg-gymleader-8",
-		},
-		[349] = {
-			name = "Giovanni 2",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "frlg-gymleader-8",
-		},
-		[317] = {
-			name = "Dojo Leader",
-			group = RandomizerLog.TrainerGroups.Boss,
-			filename = "frlg-blackbelt",
-		},
-	},
-}
 
 function RandomizerLog.removeMappings()
 	RandomizerLog.PokemonNameToIdMap = nil

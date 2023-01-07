@@ -126,6 +126,10 @@ Constants.OrderedLists = {
 		"Startup Pokemon displayed",
 		"Display pedometer",
 		"Dev branch updates",
+		"Welcome message",
+		"Startup favorites",
+		"Show on new game screen",
+		"Enable restore points",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -242,7 +246,7 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,1},
 		{1,1,1,1,1,1,1,1,1},
 	},
-	PREVIOUS_BUTTON = { -- 10x10
+	LEFT_ARROW = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,0,0},
 		{0,0,1,1,0,0,0,0,0,0},
@@ -254,7 +258,7 @@ Constants.PixelImages = {
 		{0,0,0,1,1,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0},
 	},
-	NEXT_BUTTON = { -- 10x10
+	RIGHT_ARROW = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,1,1,0,0,0},
 		{0,0,0,0,0,0,1,1,0,0},
@@ -424,6 +428,8 @@ Constants.CharWidths = {
 	["#"] = 5,
 	["&"] = 5,
 	["?"] = 4,
+	["<"] = 4,
+	[">"] = 4,
 	a = 4,
     A = 5,
     b = 4,
