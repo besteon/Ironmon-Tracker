@@ -128,8 +128,8 @@ function TimeMachineScreen.initialize()
 	end
 	TimeMachineScreen.Buttons.EnableRestorePoints.toggleState = Options["Enable restore points"]
 
-	-- First restore point to be made at the 2 minute mark
-	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 120)
+	-- First restore point to be made at the 8 second mark, for second chance at choosing a diff starter
+	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 8)
 	TimeMachineScreen.Buttons.CurrentPage:updateText()
 end
 
