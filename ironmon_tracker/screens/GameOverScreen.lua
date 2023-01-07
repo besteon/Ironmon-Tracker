@@ -12,6 +12,7 @@ GameOverScreen = {
 		saveFailed = "Unable to save",
 		viewLogFile = "Inspect the log",
 		openLogFile = "Open a log file",
+		winningQuote = "CONGRATULATIONS!!"
 	},
 	AnnouncerQuotes = {
 		"What's the matter trainer?",
@@ -425,14 +426,22 @@ function GameOverScreen.drawScreen()
 		Drawing.drawText(topBox.x + 2, textLineY, attemptsText, topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
+	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 
 	local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
 
-	-- Draw announcer quote, but not if player beats the e4/steven
-	if not inHallOfFame and not Battle.defeatedSteven then
+	-- Draw the game winning message or a random Pokémon Stadium announcer quote
+	if inHallOfFame or Battle.defeatedSteven then
+		local wrappedQuotes = Utils.getWordWrapLines(GameOverScreen.Labels.winningQuote, 30)
+		local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
+		textLineY = textLineY + 5 * (2 - #firstTwoLines)
+		for _, line in pairs(firstTwoLines) do
+			local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(line) / 2) - 1
+			Drawing.drawText(topBox.x + centerOffsetX, textLineY, line, topBox.text, topBox.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+		end
+	else
 		-- Drawing.drawText(topBox.x + 2, textLineY, GameOverScreen.Labels.announcer, topBox.text, topBox.shadow)
-		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
-
 		local announcerQuote = GameOverScreen.AnnouncerQuotes[GameOverScreen.chosenQuoteIndex]
 		local wrappedQuotes = Utils.getWordWrapLines(announcerQuote, 30)
 		local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
