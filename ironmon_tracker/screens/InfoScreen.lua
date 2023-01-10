@@ -13,7 +13,7 @@ InfoScreen.Screens = {
 }
 
 InfoScreen.Buttons = {
-	lookupMove = {
+	LookupMove = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
@@ -25,7 +25,7 @@ InfoScreen.Buttons = {
 			InfoScreen.openMoveInfoWindow()
 		end
 	},
-	lookupAbility = {
+	LookupAbility = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
@@ -37,7 +37,7 @@ InfoScreen.Buttons = {
 			InfoScreen.openAbilityInfoWindow()
 		end
 	},
-	lookupPokemon = {
+	LookupPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
@@ -49,7 +49,7 @@ InfoScreen.Buttons = {
 			InfoScreen.openPokemonInfoWindow()
 		end
 	},
-	nextPokemon = {
+	NextPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Default text",
@@ -61,7 +61,7 @@ InfoScreen.Buttons = {
 			InfoScreen.showNextPokemon()
 		end
 	},
-	previousPokemon = {
+	PreviousPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Default text",
@@ -73,7 +73,7 @@ InfoScreen.Buttons = {
 			InfoScreen.showNextPokemon(-1)
 		end
 	},
-	moveHistory = {
+	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		-- Invisible button area for the moves learned boxes
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 70, 130, 23, },
@@ -84,7 +84,17 @@ InfoScreen.Buttons = {
 			end
 		end,
 	},
-	lookupRoute = {
+	EffectivenessList = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		-- Invisible button area for the type defenses boxes
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 92, 130, 40, },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		onClick = function (self)
+			TypeDefensesScreen.pokemonID = InfoScreen.infoLookup
+			Program.changeScreenView(Program.Screens.TYPE_DEFENSES)
+		end,
+	},
+	LookupRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
@@ -96,7 +106,7 @@ InfoScreen.Buttons = {
 			InfoScreen.openRouteInfoWindow()
 		end
 	},
-	showOriginalRoute = {
+	ShowOriginalRoute = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text = "Show original route data",
 		textColor = "Default text",
@@ -112,7 +122,7 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	previousRoute = {
+	PreviousRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Header text",
@@ -126,7 +136,7 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	nextRoute = {
+	NextRoute = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Header text",
@@ -140,7 +150,7 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	back = {
+	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		textColor = "Lower box text",
@@ -158,14 +168,14 @@ InfoScreen.Buttons = {
 			end
 		end
 	},
-	backTop = {
+	BackTop = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return true end,
-		onClick = function(self) InfoScreen.Buttons.back:onClick() end,
+		onClick = function(self) InfoScreen.Buttons.Back:onClick() end,
 	},
 	HiddenPowerPrev = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -265,7 +275,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreen = 0
 	InfoScreen.infoLookup = 0
 	InfoScreen.prevScreenInfo = 0
-	InfoScreen.Buttons.showOriginalRoute.toggleState = false
+	InfoScreen.Buttons.ShowOriginalRoute.toggleState = false
 end
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
@@ -435,7 +445,7 @@ function InfoScreen.openRouteInfoWindow()
 
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
-			InfoScreen.Buttons.showOriginalRoute.toggleState = false
+			InfoScreen.Buttons.ShowOriginalRoute.toggleState = false
 			Program.redraw(true)
 		end
 		client.unpause()
@@ -448,7 +458,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local areaInfo
 	local totalPossible
-	if InfoScreen.Buttons.showOriginalRoute.toggleState then
+	if InfoScreen.Buttons.ShowOriginalRoute.toggleState then
 		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 		totalPossible = #areaInfo
 	else
@@ -703,10 +713,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.Buttons.lookupPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.nextPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.previousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.LookupPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.Back, boxInfoBotShadow)
 	InfoScreen.drawNotepadArea()
 	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
 end
@@ -817,8 +827,8 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	-- Draw all buttons
 	Drawing.drawButton(InfoScreen.Buttons.HiddenPowerPrev, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.HiddenPowerNext, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.lookupMove, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.back, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.LookupMove, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.Back, boxInfoBotShadow)
 
 	-- Easter egg
 	if moveId == 150 then -- 150 = Splash
@@ -858,7 +868,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	Drawing.drawText(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
 
 	--SEARCH ICON
-	local lookupAbility = InfoScreen.Buttons.lookupAbility
+	local lookupAbility = InfoScreen.Buttons.LookupAbility
 	lookupAbility.box = {Constants.SCREEN.WIDTH + 133, offsetY, 10, 10,}
 	Drawing.drawButton(lookupAbility, boxInfoTopShadow)
 	offsetY = offsetY + linespacing * 2 - 5
@@ -886,7 +896,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 		end
 	end
 
-	Drawing.drawButton(InfoScreen.Buttons.backTop, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.BackTop, boxInfoTopShadow)
 end
 
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
@@ -911,7 +921,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, { Theme.COLORS["Default text"] }, boxTopShadow)
 	Drawing.drawText(boxX + 13, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
 
-	Drawing.drawButton(InfoScreen.Buttons.showOriginalRoute, boxTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.ShowOriginalRoute, boxTopShadow)
 
 	-- BOT BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
@@ -922,7 +932,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
-	if not InfoScreen.Buttons.showOriginalRoute.toggleState then
+	if not InfoScreen.Buttons.ShowOriginalRoute.toggleState then
 		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Lower box text"], boxBotShadow)
 	end
 
@@ -946,10 +956,10 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 
 	-- Draw all buttons
-	Drawing.drawButton(InfoScreen.Buttons.lookupRoute, boxTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.nextRoute, bgHeaderShadow)
-	Drawing.drawButton(InfoScreen.Buttons.previousRoute, bgHeaderShadow)
-	Drawing.drawButton(InfoScreen.Buttons.back, boxBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.LookupRoute, boxTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.NextRoute, bgHeaderShadow)
+	Drawing.drawButton(InfoScreen.Buttons.PreviousRoute, bgHeaderShadow)
+	Drawing.drawButton(InfoScreen.Buttons.Back, boxBotShadow)
 end
 
 function InfoScreen.drawNotepadArea()

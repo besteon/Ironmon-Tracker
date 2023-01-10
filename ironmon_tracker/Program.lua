@@ -31,6 +31,7 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
+	TYPE_DEFENSES = TypeDefensesScreen.drawScreen,
 	GAMEOVER = GameOverScreen.drawScreen,
 	STREAMER = StreamerScreen.drawScreen,
 	TIME_MACHINE = TimeMachineScreen.drawScreen,

@@ -192,6 +192,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
+	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
+		Input.checkButtonsClicked(xmouse, ymouse, TypeDefensesScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.GAMEOVER then
 		Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.STREAMER then

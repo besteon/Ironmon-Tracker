@@ -55,6 +55,7 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua",
@@ -271,7 +272,6 @@ function FileManager.getFilesFromDirectory(folderpath)
 	return files
 end
 
--- There is probably a better way to do this
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
