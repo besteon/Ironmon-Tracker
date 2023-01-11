@@ -13,11 +13,10 @@ TrackerScreen.Buttons = {
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
 		end,
-		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 29 },
+		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
 			local pokemonID = 0
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
@@ -26,6 +25,20 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonID)
 		end
 	},
+	TypeDefenses = {
+		-- Invisible button area for the type defenses boxes
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 27, 30, 24, },
+		isVisible = function()
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			return PokemonData.isValid(pokemon.pokemonID)
+		end,
+		onClick = function (self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID)
+			Program.changeScreenView(Program.Screens.TYPE_DEFENSES)
+		end,
+	},
 	SettingsGear = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.GEAR,
@@ -33,7 +46,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 92, 7, 7, 7 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			Program.changeScreenView(Program.Screens.NAVIGATION)
 		end
 	},
@@ -59,8 +71,6 @@ TrackerScreen.Buttons = {
 		toggleColor = "Positive text",
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
-			if not self:isVisible() then return end
-
 			self.toggleState = not self.toggleState
 			Program.redraw(true)
 		end
@@ -72,8 +82,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
-			if not self:isVisible() then return end
-
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
@@ -87,8 +95,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
-			if not self:isVisible() then return end
-
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
@@ -104,7 +110,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			if not RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea) then return end
 
 			local routeInfo = {
@@ -122,7 +127,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -138,7 +142,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				local abilityId
@@ -180,7 +183,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.NOTES end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				TrackerScreen.openNotePadWindow(pokemon.pokemonID)
@@ -196,7 +198,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.LAST_ATTACK end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			-- Eventually clicking this will show a Move History screen
 		end
 	},
@@ -209,7 +210,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 8, 12 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local routeInfo = {
 				mapId = Battle.CurrentRoute.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
