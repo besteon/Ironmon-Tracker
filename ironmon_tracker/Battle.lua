@@ -614,6 +614,8 @@ function Battle.beginNewBattle()
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Program.currentScreen = Program.Screens.TRACKER
+	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
+		Program.currentScreen = Program.Screens.TRACKER
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -687,6 +689,8 @@ function Battle.endCurrentBattle()
 		InfoScreen.clearScreenData()
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
+		Program.currentScreen = Program.Screens.TRACKER
+	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif GameSettings.game == 2 and opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
 		Battle.defeatedSteven = true
