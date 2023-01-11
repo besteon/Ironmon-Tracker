@@ -76,9 +76,13 @@ MoveHistoryScreen.Buttons = {
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 136, 24, 11 },
 		onClick = function(self)
-			Program.changeScreenView(Program.Screens.TRACKER)
+			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
+				Program.changeScreenView(Program.Screens.TRACKER)
+			else
+				Program.changeScreenView(Program.Screens.INFO)
+			end
 		end
 	},
 }

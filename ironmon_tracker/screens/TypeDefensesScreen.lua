@@ -1,11 +1,10 @@
 TypeDefensesScreen = {
 	Labels = {
 		headerFormat = "%s's Type Defenses", -- e.g. Shuckle's Type Defenses
+		pageFormat = "Page %s/%s", -- e.g. Page 1/3
 		immunities = "Immunities",
-		resistsBig = "Resistances",
-		resistsSmall = "Resistances",
-		weakSmall = "Weaknesses",
-		weakBig = "Weaknesses",
+		resistances = "Resistances",
+		weaknesses = "Weaknesses",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -17,15 +16,78 @@ TypeDefensesScreen = {
 }
 
 TypeDefensesScreen.Buttons = {
+	CurrentPage = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "", -- Set later via updateText()
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
+		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
+		updateText = function(self)
+			self.text = TypeDefensesScreen.Pager:getPageText()
+		end,
+	},
+	PrevPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.LEFT_ARROW,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
+		onClick = function(self)
+			TypeDefensesScreen.Pager:prevPage()
+			TypeDefensesScreen.Buttons.CurrentPage:updateText()
+			Program.redraw(true)
+		end
+	},
+	NextPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.RIGHT_ARROW,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
+		onClick = function(self)
+			TypeDefensesScreen.Pager:nextPage()
+			TypeDefensesScreen.Buttons.CurrentPage:updateText()
+			Program.redraw(true)
+		end
+	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 136, 24, 11 },
 		onClick = function(self)
 			TypeDefensesScreen.pokemonID = nil
-			Program.changeScreenView(Program.Screens.INFO)
+			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
+				Program.changeScreenView(Program.Screens.TRACKER)
+			else
+				Program.changeScreenView(Program.Screens.INFO)
+			end
 		end
 	},
+}
+
+TypeDefensesScreen.Pager = {
+	Buttons = {},
+	currentPage = 0,
+	totalPages = 0,
+	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
+		table.sort(self.Buttons, self.defaultSort)
+		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
+		local cutoffY = Constants.SCREEN.HEIGHT - 20
+		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
+		self.currentPage = 1
+		self.totalPages = totalPages or 1
+		TypeDefensesScreen.Buttons.CurrentPage:updateText()
+	end,
+	defaultSort = function(a, b) return a.ordinal < b.ordinal end,
+	getPageText = function(self)
+		if self.totalPages <= 1 then return "Page" end
+		return string.format(TypeDefensesScreen.Labels.pageFormat, self.currentPage, self.totalPages)
+	end,
+	prevPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+	end,
+	nextPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = (self.currentPage % self.totalPages) + 1
+	end,
 }
 
 function TypeDefensesScreen.initialize()
@@ -46,6 +108,58 @@ function TypeDefensesScreen.refresh()
 			button:updateSelf()
 		end
 	end
+	for _, button in pairs(TypeDefensesScreen.Pager.Buttons) do
+		if button.updateSelf ~= nil then
+			button:updateSelf()
+		end
+	end
+end
+
+function TypeDefensesScreen.buildOutPagedButtons(pokemonID)
+	TypeDefensesScreen.Pager.Buttons = {}
+
+	if not PokemonData.isValid(pokemonID) then
+		return
+	end
+	TypeDefensesScreen.pokemonID = pokemonID -- Used for displaying the Pokemon's name in the header
+
+	local typesPerLine = 4
+	local pokemonDefenses = PokemonData.getEffectiveness(pokemonID)
+	local defenseLayout = {
+		{ prefix = "0x",	label = TypeDefensesScreen.Labels.immunities,	types = pokemonDefenses[0], },
+		{ prefix = "1/4x",	label = TypeDefensesScreen.Labels.resistances,	types = pokemonDefenses[0.25], },
+		{ prefix = "1/2x",	label = TypeDefensesScreen.Labels.resistances,	types = pokemonDefenses[0.5], },
+		{ prefix = "2x",	label = TypeDefensesScreen.Labels.weaknesses,	types = pokemonDefenses[2], },
+		{ prefix = "4x",	label = TypeDefensesScreen.Labels.weaknesses,	types = pokemonDefenses[4], },
+	}
+
+	for i, defenseInfo in pairs(defenseLayout) do
+		if #defenseInfo.types > 0 then
+			local labelText = string.format("%s %s", defenseInfo.prefix, defenseInfo.label)
+			local btnHeight = Constants.SCREEN.LINESPACING + 2 + math.ceil(#defenseInfo.types / typesPerLine) * 13
+			local button = {
+				type = Constants.ButtonTypes.NO_BORDER,
+				text = labelText,
+				textColor = TypeDefensesScreen.Colors.text,
+				dimensions = { width = 130, height = btnHeight, },
+				ordinal = i,
+				isVisible = function(self) return TypeDefensesScreen.Pager.currentPage == self.pageVisible end,
+				draw = function(self, shadowcolor)
+					local borderColor = Theme.COLORS[TypeDefensesScreen.Colors.border]
+					TypeDefensesScreen.drawTypeBoxes(self.box[1] - 4, self.box[2] + Constants.SCREEN.LINESPACING + 2, defenseInfo.types, borderColor, shadowcolor)
+				end,
+			}
+			table.insert(TypeDefensesScreen.Pager.Buttons, button)
+		end
+	end
+
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
+	local y = Constants.SCREEN.MARGIN + Constants.SCREEN.LINESPACING + 2
+	local colSpacer = 1
+	local rowSpacer = 3
+	TypeDefensesScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
+
+	return true
 end
 
 -- DRAWING FUNCTIONS
@@ -62,7 +176,7 @@ function TypeDefensesScreen.drawScreen()
 		fill = Theme.COLORS[TypeDefensesScreen.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[TypeDefensesScreen.Colors.boxFill]),
 	}
-	local lineY = topBox.y
+	local lineY = topBox.y + 1
 
 	-- Draw top border box
 	gui.defaultTextBackground(topBox.fill)
@@ -85,27 +199,14 @@ function TypeDefensesScreen.drawScreen()
 	lineY = lineY + Constants.SCREEN.LINESPACING + 2
 
 	-- Draw each of the type defenses for the Pokemon
-	local pokemonDefenses = PokemonData.getEffectiveness(TypeDefensesScreen.pokemonID)
-	local defenseLayout = {
-		{ prefix = "0x",	label = TypeDefensesScreen.Labels.immunities, 	types = pokemonDefenses[0], },
-		{ prefix = "1/4x",	label = TypeDefensesScreen.Labels.resistsBig, 	types = pokemonDefenses[0.25], },
-		{ prefix = "1/2x",	label = TypeDefensesScreen.Labels.resistsSmall, types = pokemonDefenses[0.5], },
-		{ prefix = "2x",	label = TypeDefensesScreen.Labels.weakSmall, 	types = pokemonDefenses[2], },
-		{ prefix = "4x",	label = TypeDefensesScreen.Labels.weakBig, 		types = pokemonDefenses[4], },
-	}
-	for _, defenseInfo in ipairs(defenseLayout) do
-		local linesUsed = TypeDefensesScreen.drawTypeBoxes(topBox.x + 1, lineY + Constants.SCREEN.LINESPACING + 2, defenseInfo.types, topBox.border, topBox.shadow)
-		if linesUsed > 0 then
-			local labelText = string.format("%s %s", defenseInfo.prefix, defenseInfo.label)
-			Drawing.drawText(topBox.x + 6, lineY, labelText, topBox.text, topBox.shadow)
-			lineY = lineY + Constants.SCREEN.LINESPACING + 13 * linesUsed + 4
-		end
+	for _, button in pairs(TypeDefensesScreen.Pager.Buttons) do
+		Drawing.drawButton(button, topBox.shadow)
 	end
 end
 
 function TypeDefensesScreen.drawTypeBoxes(x, y, types, borderColor, shadowcolor)
 	if #types == 0 then
-		return 0
+		return
 	end
 
 	local paddingLeft = 8
@@ -124,6 +225,4 @@ function TypeDefensesScreen.drawTypeBoxes(x, y, types, borderColor, shadowcolor)
 			offsetY = offsetY + boxH
 		end
 	end
-
-	return math.ceil(#types / 4) -- 4 boxes per line
 end

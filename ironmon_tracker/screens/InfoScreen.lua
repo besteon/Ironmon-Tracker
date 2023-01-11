@@ -20,10 +20,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.MOVE_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.openMoveInfoWindow()
-		end
+		onClick = function(self) InfoScreen.openMoveInfoWindow() end
 	},
 	LookupAbility = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -32,10 +29,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 133, 60, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ABILITY_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.openAbilityInfoWindow()
-		end
+		onClick = function(self) InfoScreen.openAbilityInfoWindow() end
 	},
 	LookupPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -44,10 +38,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.openPokemonInfoWindow()
-		end
+		onClick = function(self) InfoScreen.openPokemonInfoWindow() end
 	},
 	NextPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -56,10 +47,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 99, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.showNextPokemon()
-		end
+		onClick = function(self) InfoScreen.showNextPokemon() end
 	},
 	PreviousPokemon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -68,29 +56,38 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 85, 23, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.showNextPokemon(-1)
-		end
+		onClick = function(self) InfoScreen.showNextPokemon(-1) end
 	},
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		-- Invisible button area for the moves learned boxes
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 70, 130, 23, },
+		text = "History",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 70, 28, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		draw = function(self)
+			local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
+			local y1, y2 = self.box[2] + self.box[4], self.box[2] + self.box[4]
+			gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+		end,
 		onClick = function (self)
 			if MoveHistoryScreen.buildOutHistory(InfoScreen.infoLookup) then
 				Program.changeScreenView(Program.Screens.MOVE_HISTORY)
 			end
 		end,
 	},
-	EffectivenessList = {
+	TypeDefenses = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		-- Invisible button area for the type defenses boxes
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 92, 130, 40, },
+		text = "Show resistances",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 68, Constants.SCREEN.MARGIN + 97, 68, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		draw = function(self)
+			local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
+			local y1, y2 = self.box[2] + self.box[4], self.box[2] + self.box[4]
+			gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+		end,
 		onClick = function (self)
-			TypeDefensesScreen.pokemonID = InfoScreen.infoLookup
+			TypeDefensesScreen.buildOutPagedButtons(InfoScreen.infoLookup)
 			Program.changeScreenView(Program.Screens.TYPE_DEFENSES)
 		end,
 	},
@@ -101,10 +98,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 132, 9, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			InfoScreen.openRouteInfoWindow()
-		end
+		onClick = function(self) InfoScreen.openRouteInfoWindow() end
 	},
 	ShowOriginalRoute = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -117,7 +111,6 @@ InfoScreen.Buttons = {
 		toggleColor = "Positive text",
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			self.toggleState = not self.toggleState
 			Program.redraw(true)
 		end
@@ -129,7 +122,6 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 6, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local mapId = InfoScreen.infoLookup.mapId
 			local encounterArea = InfoScreen.infoLookup.encounterArea
 			InfoScreen.infoLookup.encounterArea = RouteData.getPreviousAvailableEncounterArea(mapId, encounterArea)
@@ -143,7 +135,6 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 136, 37, 10, 10, },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
-			if not self:isVisible() then return end
 			local mapId = InfoScreen.infoLookup.mapId
 			local encounterArea = InfoScreen.infoLookup.encounterArea
 			InfoScreen.infoLookup.encounterArea = RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
@@ -253,10 +244,7 @@ InfoScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 142, 110, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 142, 11, 11 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
-		onClick = function(self)
-			if not self:isVisible() then return end
-			TrackerScreen.openNotePadWindow(InfoScreen.infoLookup)
-		end,
+		onClick = function(self) TrackerScreen.openNotePadWindow(InfoScreen.infoLookup) end,
 	}
 }
 
@@ -633,6 +621,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	botOffsetY = botOffsetY + 1
 
 	-- MOVES LEVEL BOXES
+	if InfoScreen.Buttons.MoveHistory.box[2] ~= botOffsetY then
+		InfoScreen.Buttons.MoveHistory.box[2] = botOffsetY
+	end
 	Drawing.drawText(offsetX, botOffsetY, "Learns a move at level:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
@@ -668,10 +659,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 
 	-- WEAK TO
-	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
-	if #data.e[4] > 0 then
-		Drawing.drawText(offsetColumnX, botOffsetY, "(white bars = x4 weak)", Theme.COLORS["Lower box text"], boxInfoBotShadow)
+	if InfoScreen.Buttons.TypeDefenses.box[2] ~= botOffsetY then
+		InfoScreen.Buttons.TypeDefenses.box[2] = botOffsetY
 	end
+	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 3
 
 	-- Temporarily storing things as a single set of weaknesses, filtered out later, but ideally we display all type-effectiveness
@@ -716,6 +707,8 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.LookupPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.Back, boxInfoBotShadow)
 	InfoScreen.drawNotepadArea()
 	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
