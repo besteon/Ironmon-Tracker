@@ -18,10 +18,10 @@ TypeDefensesScreen = {
 TypeDefensesScreen.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
+		text = "", -- Set later via updateSelf()
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
-		updateText = function(self)
+		updateSelf = function(self)
 			self.text = TypeDefensesScreen.Pager:getPageText()
 		end,
 	},
@@ -32,7 +32,7 @@ TypeDefensesScreen.Buttons = {
 		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TypeDefensesScreen.Pager:prevPage()
-			TypeDefensesScreen.Buttons.CurrentPage:updateText()
+			TypeDefensesScreen.Buttons.CurrentPage:updateSelf()
 			Program.redraw(true)
 		end
 	},
@@ -43,7 +43,7 @@ TypeDefensesScreen.Buttons = {
 		isVisible = function() return TypeDefensesScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TypeDefensesScreen.Pager:nextPage()
-			TypeDefensesScreen.Buttons.CurrentPage:updateText()
+			TypeDefensesScreen.Buttons.CurrentPage:updateSelf()
 			Program.redraw(true)
 		end
 	},
@@ -73,7 +73,7 @@ TypeDefensesScreen.Pager = {
 		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
-		TypeDefensesScreen.Buttons.CurrentPage:updateText()
+		TypeDefensesScreen.Buttons.CurrentPage:updateSelf()
 	end,
 	defaultSort = function(a, b) return a.ordinal < b.ordinal end,
 	getPageText = function(self)
