@@ -693,9 +693,7 @@ function Main.SaveCurrentRom(filename)
 end
 
 function Main.GetAttemptsFile()
-	local loadedRomName = GameSettings.getRomName() or ""
-	local romprefix = string.match(loadedRomName, '[^0-9]+') or "" -- remove numbers
-	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
+	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
@@ -703,7 +701,6 @@ function Main.GetAttemptsFile()
 	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
-		local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
 		if #quickloadFiles.settingsList > 0 then
 			settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1])
 		end
@@ -713,12 +710,27 @@ function Main.GetAttemptsFile()
 		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
 	end
 
+	-- Return early if an attemptsFilePath has been found
+	if attemptsFilePath ~= nil then
+		return attemptsFilePath
+	end
+
 	-- Otherwise, check if an attempts file exists based on the ROM file name (w/o numbers)
 	-- The case when using Quickload method: premade ROMS
-	if attemptsFilePath == nil then
-		attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
+	local quickloadRomName = ""
+	-- If on Bizhawk, can just get the currently loaded ROM
+	-- mGBA however does NOT return the filename, so need to use the quickload folder files
+	if Main.IsOnBizhawk() then
+		quickloadRomName = GameSettings.getRomName() or ""
+	elseif #quickloadFiles.romList > 0 then
+		quickloadRomName = quickloadFiles.romList[1]
 	end
+
+	local romprefix = string.match(quickloadRomName, '[^0-9]+') or "" -- remove numbers
+	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
+
+	attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
 
 	-- Otherwise, create an attempts file using the name provided by the emulator itself
 	if attemptsFilePath == nil then
