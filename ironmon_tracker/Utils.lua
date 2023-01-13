@@ -464,15 +464,17 @@ function Utils.netEffectiveness(move, moveType, comparedTypes)
 		return 1.0
 	end
 
+	local id = tostring(move.id)
+
 	-- If the move type is typeless or unknown, effectiveness check is ignored
-	if MoveData.IsTypelessMove[move.id] or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
+	if MoveData.IsTypelessMove[id] or moveType == PokemonData.Types.UNKNOWN or moveType == Constants.BLANKLINE then
 		return 1.0
 	end
 
 	-- Most status moves also ignore type effectiveness. Examples: Growl, Confuse Ray, Sand-Attack
 	if move.category == MoveData.Categories.STATUS then
 		-- Some status moves care about immunities. Examples: Toxic, Thunder Wave, Leech Seed
-		if MoveData.StatusMovesWillFail[move.id] ~= nil and (MoveData.StatusMovesWillFail[move.id][comparedTypes[1]] or MoveData.StatusMovesWillFail[move.id][comparedTypes[2]]) then
+		if MoveData.StatusMovesWillFail[id] ~= nil and (MoveData.StatusMovesWillFail[id][comparedTypes[1]] or MoveData.StatusMovesWillFail[id][comparedTypes[2]]) then
 			return 0.0
 		else
 			return 1.0
@@ -507,8 +509,10 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 		return false
 	end
 
+	local id = tostring(move.id)
+
 	-- If move type is typeless or otherwise can't be stab
-	if MoveData.IsTypelessMove[move.id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
+	if MoveData.IsTypelessMove[id] or move.category == MoveData.Categories.STATUS or move.power == "0" or move.power == Constants.BLANKLINE then
 		return false
 	end
 
