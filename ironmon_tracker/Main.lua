@@ -693,7 +693,8 @@ function Main.SaveCurrentRom(filename)
 end
 
 function Main.GetAttemptsFile()
-	local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
+	-- If temp quickload files are available, use those instead of spending resources to look them up
+	local quickloadFiles = Main.tempQuickloadFiles
 
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
@@ -701,6 +702,7 @@ function Main.GetAttemptsFile()
 	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
+		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
 		if #quickloadFiles.settingsList > 0 then
 			settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1])
 		end
@@ -708,22 +710,23 @@ function Main.GetAttemptsFile()
 	if settingsFileName ~= nil then
 		attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
 		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
-	end
 
-	-- Return early if an attemptsFilePath has been found
-	if attemptsFilePath ~= nil then
-		return attemptsFilePath
+		-- Return early if an attemptsFilePath has been found
+		if attemptsFilePath ~= nil then
+			return attemptsFilePath
+		end
 	end
 
 	-- Otherwise, check if an attempts file exists based on the ROM file name (w/o numbers)
 	-- The case when using Quickload method: premade ROMS
-	local quickloadRomName = ""
+	local quickloadRomName
 	-- If on Bizhawk, can just get the currently loaded ROM
 	-- mGBA however does NOT return the filename, so need to use the quickload folder files
 	if Main.IsOnBizhawk() then
 		quickloadRomName = GameSettings.getRomName() or ""
-	elseif #quickloadFiles.romList > 0 then
-		quickloadRomName = quickloadFiles.romList[1]
+	else
+		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
+		quickloadRomName = quickloadFiles.romList[1] or ""
 	end
 
 	local romprefix = string.match(quickloadRomName, '[^0-9]+') or "" -- remove numbers
