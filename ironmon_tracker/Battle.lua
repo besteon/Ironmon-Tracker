@@ -911,17 +911,24 @@ end
 -- During double battles, this is the Pokemon the targeting cursor is pointing at (either enemy or your partner)
 -- Returns: slot(1-6), isOwn(true/false)
 function Battle.getDoublesCursorTargetInfo()
+	local defaultCombatant, defaultOwner
+	if Tracker.Data.isViewingOwn then
+		defaultCombatant, defaultOwner = Battle.Combatants.LeftOther, false
+	else
+		defaultCombatant, defaultOwner = Battle.Combatants.LeftOwn, true
+	end
+
 	-- Not all games have this address
 	if GameSettings.gMultiUsePlayerCursor == nil or Battle.numBattlers == 2 then
-		return Battle.Combatants.LeftOther, false
+		return defaultCombatant, defaultOwner
 	end
 
 	-- 0 or 2 if player, 1 or 3 if enemy, 255 = no target
 	local target = Memory.readbyte(GameSettings.gMultiUsePlayerCursor)
 
-	-- Default anything out of bounds to targetting the enemy on left
+	-- Default anything out of bounds
 	if target == 255 or target < 0 or target > 4 then
-		return Battle.Combatants.LeftOther, false
+		return defaultCombatant, defaultOwner
 	end
 
 	local whichCombatant = Battle.IndexMap[target] or 0
