@@ -405,11 +405,12 @@ function UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindo
 			return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
 		end
 
+		-- Temporarily removing this check, as I think it's likely okay to allow. Want to do more testing here.
 		-- FILEPATH BREAKS: Tracker located on a non-primary harddrive: e.g. D:\ or E:\
-		local driveLetterPattern = "^(.).*"
-		if string.match(archiveFolderPath, driveLetterPattern) ~= "C" then
-			return false, "Tracker files are not on the primary harddrive C:\\ and cannot be edited while Bizhawk is open."
-		end
+		-- local driveLetterPattern = "^(.).*"
+		-- if string.match(archiveFolderPath, driveLetterPattern) ~= "C" then
+		-- 	return false, "Tracker files are not on the primary harddrive C:\\ and cannot be edited while Bizhawk is open."
+		-- end
 	end
 
 	return true
