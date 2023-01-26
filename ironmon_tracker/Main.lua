@@ -286,8 +286,8 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	-- %x - Date representation for current locale (Standard date string), eg. "25/04/07"
 	local todaysDate = os.date("%x")
 
-	-- Only notify about updates once per day
-	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+	-- Only notify about updates once per day. Note: 1st run of bizhawk results in date being an integer not a string
+	if forcedCheck or tostring(todaysDate) ~= tostring(Main.Version.dateChecked) then
 		-- Track that an update was checked today, so no additional api calls are performed today
 		Main.Version.dateChecked = todaysDate
 
