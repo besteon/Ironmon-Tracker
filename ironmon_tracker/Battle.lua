@@ -85,6 +85,9 @@ function Battle.update()
 	end
 	if Program.Frames.lowAccuracyUpdate == 0 then
 		Battle.updateLowAccuracy()
+		if CustomCode.enabled and CustomCode.afterBattleDataUpdate ~= nil then
+			CustomCode.afterBattleDataUpdate()
+		end
 	end
 end
 

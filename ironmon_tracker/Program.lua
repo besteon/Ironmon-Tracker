@@ -174,10 +174,6 @@ function Program.destroyActiveForm()
 end
 
 function Program.update()
-	if CustomCode.enabled and CustomCode.beforeDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
-		CustomCode.beforeDataUpdate()
-	end
-
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Program.updateMapLocation() -- trying this here to solve many future problems
@@ -261,8 +257,8 @@ function Program.update()
 		end
 	end
 
-	if CustomCode.enabled and CustomCode.afterDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
-		CustomCode.afterDataUpdate()
+	if CustomCode.enabled and CustomCode.afterProgramDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
+		CustomCode.afterProgramDataUpdate()
 	end
 end
 
