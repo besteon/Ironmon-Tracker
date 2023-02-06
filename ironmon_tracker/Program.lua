@@ -123,6 +123,9 @@ function Program.mainLoop()
 	Input.checkForInput()
 	Program.update()
 	Battle.update()
+	if CustomCode.enabled and CustomCode.afterEachFrame ~= nil then
+		CustomCode.afterEachFrame()
+	end
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
 end
