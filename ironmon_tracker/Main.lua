@@ -62,7 +62,7 @@ function Main.Initialize()
 	end
 
 	-- If Custom Code addon isn't installed, disable all calls to its functions
-	if not FileManager.loadLuaFile(FileManager.Files.CUSTOM_CODE) then
+	if not FileManager.loadLuaFile(FileManager.Files.CUSTOM_CODE, true) then
 		CustomCode = { enabled = false }
 	end
 

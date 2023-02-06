@@ -289,7 +289,7 @@ function FileManager.getCustomFolderPath()
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
 		FileManager.Folders.Custom,
-		"",
+		"", -- Necessary to include a trailing slash, helps with appending a filename
 	}
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
