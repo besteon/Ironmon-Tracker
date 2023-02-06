@@ -140,6 +140,10 @@ function Program.redraw(forced)
 	if LogOverlay.isDisplayed and Main.IsOnBizhawk() then
 		LogOverlay.drawScreen()
 	end
+
+	if CustomCode.enabled and CustomCode.afterRedraw ~= nil then
+		CustomCode.afterRedraw()
+	end
 end
 
 function Program.changeScreenView(screen)
@@ -167,6 +171,10 @@ function Program.destroyActiveForm()
 end
 
 function Program.update()
+	if CustomCode.enabled and CustomCode.beforeDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
+		CustomCode.beforeDataUpdate()
+	end
+
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Program.updateMapLocation() -- trying this here to solve many future problems
@@ -248,6 +256,10 @@ function Program.update()
 		if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 			Tracker.saveData()
 		end
+	end
+
+	if CustomCode.enabled and CustomCode.afterDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
+		CustomCode.afterDataUpdate()
 	end
 end
 

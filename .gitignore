@@ -8,6 +8,7 @@ Settings.ini
 quickload/*.jar
 quickload/*.rnqs
 ironmon_tracker/osexecute-output.txt
+ironmon_tracker/Custom/*.lua
 ironmon_tracker/images/pokemonAnimated/*.gif
 AnimatedPokemon.gif
 RandomizerErrorLog.txt
