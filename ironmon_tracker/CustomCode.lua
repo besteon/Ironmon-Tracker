@@ -70,7 +70,7 @@ function CustomCode.startup()
 				customTable.author = customTable.author or CustomCode.Labels.unknownAuthor
 				customTable.description = customTable.description or ""
 				table.insert(CustomCode.objects, customTable)
-				table.insert(filesLoaded.successful, filename)
+				table.insert(filesLoaded.successful, customTable.name)
 			end
 		else
 			table.insert(filesLoaded.failed, filename)
