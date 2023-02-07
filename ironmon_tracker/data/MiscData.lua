@@ -125,7 +125,7 @@ MiscData.HealingItems = {
 	[22] = {
 		id = 22,
 		name = "Super Potion",
-		amount = 60,
+		amount = 50,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
 	},
