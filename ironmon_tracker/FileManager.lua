@@ -25,7 +25,7 @@ FileManager.Files = {
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
-	CUSTOM_CODE = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Custom .. FileManager.slash .. "CustomCode.lua",
+	CUSTOM_CODE_SETTINGS = "CustomCodeSettings.lua",
 
 	-- All of the files required by the tracker
 	LuaCode = {
@@ -70,6 +70,7 @@ FileManager.Files = {
 		"Tracker.lua",
 		"MGBA.lua",
 		"MGBADisplay.lua",
+		"CustomCode.lua",
 	},
 	LanguageCode = {
 		SpainData = "SpainData.lua",

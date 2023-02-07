@@ -61,11 +61,6 @@ function Main.Initialize()
 		return false
 	end
 
-	-- If Custom Code addon isn't installed, disable all calls to its functions
-	if not FileManager.loadLuaFile(FileManager.Files.CUSTOM_CODE, true) then
-		CustomCode = { enabled = false }
-	end
-
 	Main.LoadSettings()
 
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
@@ -277,6 +272,7 @@ function Main.InitializeAllTrackerFiles()
 	TimeMachineScreen.initialize()
 	LogOverlay.initialize()
 
+	CustomCode.initialize()
 	if CustomCode.enabled and CustomCode.startup ~= nil then
 		CustomCode.startup()
 	end
