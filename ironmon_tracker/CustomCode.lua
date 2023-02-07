@@ -121,8 +121,8 @@ function CustomCode.afterBattleEnds()
 	CustomCode.execFunctions("afterBattleEnds")
 end
 
--- Executed before a button is clicked, and only once per button
--- button: the button object being clicked
-function CustomCode.beforeButtonClicked(button)
-	CustomCode.execFunctions("beforeButtonClicked", button)
+-- Executed before a button's onClick() is processed, and only once per click per button
+-- Param: button: the button object being clicked
+function CustomCode.onButtonClicked(button)
+	CustomCode.execFunctions("onButtonClicked", button)
 end
