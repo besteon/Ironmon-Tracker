@@ -445,7 +445,7 @@ function FileManager.readLinesFromFile(filename)
 
 	local fileContents = file:read("*a")
 	if fileContents ~= nil and fileContents ~= "" then
-		for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
+		for line in fileContents:gmatch("([^\r\n]+)[\r\n]*") do
 			if line ~= nil then
 				table.insert(lines, line)
 			end
