@@ -85,6 +85,9 @@ function Battle.update()
 	end
 	if Program.Frames.lowAccuracyUpdate == 0 then
 		Battle.updateLowAccuracy()
+		if CustomCode.enabled and CustomCode.afterBattleDataUpdate ~= nil then
+			CustomCode.afterBattleDataUpdate()
+		end
 	end
 end
 
@@ -624,6 +627,10 @@ function Battle.beginNewBattle()
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
 	end
+
+	if CustomCode.enabled and CustomCode.afterBattleBegins ~= nil then
+		CustomCode.afterBattleBegins()
+	end
 end
 
 function Battle.endCurrentBattle()
@@ -700,6 +707,10 @@ function Battle.endCurrentBattle()
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
+
+	if CustomCode.enabled and CustomCode.afterBattleEnds ~= nil then
+		CustomCode.afterBattleEnds()
+	end
 end
 
 function Battle.resetBattle()

@@ -271,6 +271,11 @@ function Main.InitializeAllTrackerFiles()
 	StreamerScreen.initialize()
 	TimeMachineScreen.initialize()
 	LogOverlay.initialize()
+
+	CustomCode.initialize()
+	if CustomCode.enabled and CustomCode.startup ~= nil then
+		CustomCode.startup()
+	end
 end
 
 -- Determines if there is an update to the current Tracker version

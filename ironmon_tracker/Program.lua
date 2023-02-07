@@ -123,6 +123,9 @@ function Program.mainLoop()
 	Input.checkForInput()
 	Program.update()
 	Battle.update()
+	if CustomCode.enabled and CustomCode.afterEachFrame ~= nil then
+		CustomCode.afterEachFrame()
+	end
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
 end
@@ -139,6 +142,10 @@ function Program.redraw(forced)
 	Drawing.drawScreen(Program.currentScreen)
 	if LogOverlay.isDisplayed and Main.IsOnBizhawk() then
 		LogOverlay.drawScreen()
+	end
+
+	if CustomCode.enabled and CustomCode.afterRedraw ~= nil then
+		CustomCode.afterRedraw()
 	end
 end
 
@@ -248,6 +255,10 @@ function Program.update()
 		if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 			Tracker.saveData()
 		end
+	end
+
+	if CustomCode.enabled and CustomCode.afterProgramDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
+		CustomCode.afterProgramDataUpdate()
 	end
 end
 
