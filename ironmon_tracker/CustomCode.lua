@@ -10,6 +10,7 @@ CustomCode = {
 	Labels = {
 		filesLoadSuccess = "Custom Code files loaded",
 		filesLoadFailure = "Failed to load",
+		unknownAuthor = "Unknown",
 	},
 }
 
@@ -57,12 +58,20 @@ function CustomCode.startup()
 		local filepath = FileManager.getPathIfExists(customCodeFolder .. filename)
 		if filepath ~= nil then
 			local customObject = dofile(filepath)
+			local customTable
 			if type(customObject) == "function" then
-				table.insert(CustomCode.objects, customObject() or {})
+				customTable = customObject() or {}
 			elseif type(customObject) == "table" then
-				table.insert(CustomCode.objects, customObject)
+				customTable = customObject
 			end
-			table.insert(filesLoaded.successful, filename)
+
+			if customTable ~= nil then
+				customTable.name = customTable.name or filename:match("(.+)%.[Ll][Uu][Aa]$") or filename
+				customTable.author = customTable.author or CustomCode.Labels.unknownAuthor
+				customTable.description = customTable.description or ""
+				table.insert(CustomCode.objects, customTable)
+				table.insert(filesLoaded.successful, filename)
+			end
 		else
 			table.insert(filesLoaded.failed, filename)
 		end
