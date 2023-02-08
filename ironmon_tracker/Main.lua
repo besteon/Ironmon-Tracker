@@ -936,12 +936,18 @@ function Main.SaveSettings(forced)
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
 	-- [EXTENSIONS]
-	for extKey, extension in ipairs(CustomCode.ExtensionLibrary) do
-		-- local encodedKey = string.gsub(extKey, " ", "_")
+	for extKey, extension in pairs(CustomCode.ExtensionLibrary) do
 		settings.extensions[extKey] = extension.isEnabled or false
 	end
 
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
+end
+
+function Main.RemoveMetaSetting(section, key)
+	if section == nil or key == nil or section == "" or key == "" then return end
+	if Main.MetaSettings[section] ~= nil then
+		Main.MetaSettings[section][key] = nil
+	end
 end

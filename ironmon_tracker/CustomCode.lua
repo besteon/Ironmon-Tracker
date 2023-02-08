@@ -22,14 +22,7 @@ CustomCode = {
 	EnabledExtensions = {},
 }
 
--- extensionKey:match("(.+)%.[Ll][Uu][Aa]$")
-
 function CustomCode.initialize()
-	CustomCode.loadExtensions()
-end
-
-function CustomCode.loadExtensions()
-	local customCodeFolder = FileManager.getCustomFolderPath()
 	local filesLoaded = {
 		successful = {},
 		failed = {},
@@ -37,35 +30,14 @@ function CustomCode.loadExtensions()
 
 	CustomCode.EnabledExtensions = {}
 	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
-		local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
-
-		if filepath ~= nil then
-			local extObj = dofile(filepath)
-			local extTable
-			if type(extObj) == "function" then
-				extTable = extObj() or {}
-			elseif type(extObj) == "table" then
-				extTable = extObj
-			end
-
-			if extTable ~= nil then
-				extension.isLoaded = true
-				extension.name = extTable.name or extensionKey
-				extension.author = extTable.author or CustomCode.Labels.unknownAuthor
-				extension.description = extTable.description or ""
+		if CustomCode.loadExtension(extensionKey) then
+			if extension.isEnabled then
 				table.insert(filesLoaded.successful, extension.name)
-
-				if extension.isEnabled then
-					CustomCode.enableExtension(extensionKey)
-				end
 			end
-		end
-
-		if not extension.isLoaded then
-			extension.isLoaded = false
-			extension.name = extensionKey
-			extension.author = CustomCode.Labels.unknownAuthor
-			extension.description = ""
+		else
+			CustomCode.disableExtension(extensionKey)
+			CustomCode.ExtensionLibrary[extensionKey] = nil
+			Main.RemoveMetaSetting("extensions", extensionKey)
 			table.insert(filesLoaded.failed, extensionKey)
 		end
 	end
@@ -73,35 +45,104 @@ function CustomCode.loadExtensions()
 	if #filesLoaded.successful > 0 then
 		print(string.format("%s: %s", CustomCode.Labels.filesLoadSuccess, table.concat(filesLoaded.successful, ", ")))
 	end
-	if #filesLoaded.failed > 0 then
-		print(string.format("%s: %s", CustomCode.Labels.filesLoadFailure, table.concat(filesLoaded.failed, ", ")))
+	-- For now, don't display old extension files that failed to load
+	-- if #filesLoaded.failed > 0 then
+	-- 	print(string.format("%s: %s", CustomCode.Labels.filesLoadFailure, table.concat(filesLoaded.failed, ", ")))
+	-- end
+end
+
+-- Loads a single extension based on its key (filename)
+function CustomCode.loadExtension(extensionKey)
+	if extensionKey == nil or extensionKey == "" then return end
+
+	if CustomCode.ExtensionLibrary[extensionKey] == nil then
+		CustomCode.ExtensionLibrary[extensionKey] = {}
 	end
+	local extension = CustomCode.ExtensionLibrary[extensionKey]
+	extension.isEnabled = extension.isEnabled or false
+
+	local customCodeFolder = FileManager.getCustomFolderPath()
+	local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
+
+	if filepath ~= nil then
+		local extObj = dofile(filepath)
+		local extTable
+		if type(extObj) == "function" then
+			extTable = extObj() or {}
+		elseif type(extObj) == "table" then
+			extTable = extObj
+		end
+
+		if extTable ~= nil then
+			-- Replace any matching extension with the newly loaded one
+			extTable.isEnabled = extension.isEnabled
+			extTable.isLoaded = true
+			extTable.name = extTable.name or extensionKey
+			extTable.author = extTable.author or CustomCode.Labels.unknownAuthor
+			extTable.description = extTable.description or ""
+			CustomCode.ExtensionLibrary[extensionKey] = extTable
+
+			if extTable.isEnabled then -- If already enabled by user Settings.ini, enable it and call startup
+				CustomCode.enableExtension(extensionKey)
+			end
+			return true
+		end
+	end
+
+	if not extension.isLoaded then
+		extension.isLoaded = false
+		extension.name = extensionKey
+		extension.author = CustomCode.Labels.unknownAuthor
+		extension.description = ""
+	end
+
+	return extension.isLoaded
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
 function CustomCode.enableExtension(extensionKey)
 	local extension = CustomCode.ExtensionLibrary[extensionKey]
-	if extension ~= nil then
-		extension.isEnabled = true
-		table.insert(CustomCode.EnabledExtensions, extension)
+	if extension == nil then
+		return
 	end
+
+	-- Enable and startup the extension
+	if not extension.isEnabled then
+		extension.isEnabled = true
+		if CustomCode.isEnabled() and type(extension["startup"]) == "function" then
+			extension.startup()
+		end
+	end
+
+	-- Add the extension to the EnabledExtensions list, allowing its functions to integrate into the Tracker
+	table.insert(CustomCode.EnabledExtensions, extension)
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
 function CustomCode.disableExtension(extensionKey)
 	local extension = CustomCode.ExtensionLibrary[extensionKey]
-	if extension ~= nil then
+	if extension == nil then
+		return
+	end
+
+	-- Disable and unload the extension
+	if extension.isEnabled then
 		extension.isEnabled = false
-		local indexFound = -1
-		for i, ext in ipairs(CustomCode.EnabledExtensions) do
-			if ext.name == extension.name then
-				indexFound = i
-				break
-			end
+		if CustomCode.isEnabled() and type(extension["unload"]) == "function" then
+			extension.unload()
 		end
-		if indexFound ~= -1 then
-			table.remove(CustomCode.EnabledExtensions, indexFound)
+	end
+
+	-- Remove the extension from the EnabledExtensions list, preventing its functions from being called
+	local indexFound = -1
+	for i, ext in ipairs(CustomCode.EnabledExtensions) do
+		if ext.name == extension.name then
+			indexFound = i
+			break
 		end
+	end
+	if indexFound ~= -1 then
+		table.remove(CustomCode.EnabledExtensions, indexFound)
 	end
 end
 
@@ -128,6 +169,12 @@ end
 function CustomCode.startup()
 	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("startup")
+end
+
+-- Executed only once: when the extension is disabled by the user, necessary to undo any customizations, if able
+function CustomCode.unload()
+	if not CustomCode.isEnabled() then return end
+	CustomCode.execFunctions("unload")
 end
 
 -- [Bizhawk only] Executed each frame (60 frames per second)

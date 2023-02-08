@@ -1,8 +1,8 @@
 CustomExtensionsScreen = {
 	Labels = {
 		header = "Custom Extensions",
-		pageFormat = "Page %s/%s", -- e.g. Page 1/3
-		noExtensions = "No Extensions Found",
+		pageFormat = "Pg. %s/%s", -- e.g. Pg. 1/3
+		noExtensions = "No custom extensions found",
 	},
 	Colors = {
 		text = "Default text",
@@ -15,7 +15,7 @@ CustomExtensionsScreen.Pager = {
 	Buttons = {},
 	currentPage = 0,
 	totalPages = 0,
-	defaultSort = function(a, b) return a.name > b.name end,
+	defaultSort = function(a, b) return a.extension.name < b.extension.name end, -- Order ascending by extension name
 	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
 		table.sort(self.Buttons, self.defaultSort)
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
@@ -27,7 +27,8 @@ CustomExtensionsScreen.Pager = {
 	end,
 	getPageText = function(self)
 		if self.totalPages <= 1 then return "Page" end
-		return string.format(CustomExtensionsScreen.Labels.pageFormat, self.currentPage, self.totalPages)
+		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
+		return buffer .. string.format(CustomExtensionsScreen.Labels.pageFormat, self.currentPage, self.totalPages)
 	end,
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
@@ -42,7 +43,7 @@ CustomExtensionsScreen.Pager = {
 CustomExtensionsScreen.Buttons = {
 	EnableCustomExtensions = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = " Enable custom extensions", -- offset with a space for appearance
+		text = " Allow custom code to run", -- offset with a space for appearance
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
 		toggleState = true, -- update later in initialize
@@ -57,7 +58,7 @@ CustomExtensionsScreen.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "", -- Set later via updateText()
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, Constants.SCREEN.MARGIN + 135, 50, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return CustomExtensionsScreen.Pager.totalPages > 1 end,
 		updateText = function(self)
 			self.text = CustomExtensionsScreen.Pager:getPageText()
@@ -66,7 +67,7 @@ CustomExtensionsScreen.Buttons = {
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 39, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return CustomExtensionsScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			CustomExtensionsScreen.Pager:prevPage()
@@ -88,7 +89,7 @@ CustomExtensionsScreen.Buttons = {
 	RefreshExtensionList = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Refresh",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 31, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
 		onClick = function(self)
 			CustomExtensionsScreen.refreshExtensionList()
 			CustomExtensionsScreen.buildOutPagedButtons()
@@ -120,55 +121,80 @@ function CustomExtensionsScreen.initialize()
 end
 
 function CustomExtensionsScreen.refreshExtensionList()
+	-- Used to help remove any inactive or missing extension files
+	local activeExtensions = {}
+
 	local customFolderPath = FileManager.getCustomFolderPath()
 	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
 	for _, filename in pairs(customFiles) do
 		local name = FileManager.extractFileNameFromPath(filename) or ""
 		local ext = FileManager.extractFileExtensionFromPath(filename) or ""
-		Utils.printDebug("name: %s, ext: %s", name, ext)
+		ext = "." .. ext
+
+		-- Load any new Lua code files, but only if they don't already exist
+		if ext == FileManager.Extensions.LUA_CODE then
+			if CustomCode.ExtensionLibrary[name] == nil then
+				CustomCode.loadExtension(name)
+			end
+			activeExtensions[name] = true
+		end
 	end
+
+	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
+		if not activeExtensions[extensionKey] then
+			CustomCode.disableExtension(extensionKey)
+			CustomCode.ExtensionLibrary[extensionKey] = nil
+			Main.RemoveMetaSetting("extensions", extensionKey)
+		end
+	end
+
+	Main.SaveSettings(true)
 end
 
 function CustomExtensionsScreen.buildOutPagedButtons()
 	CustomExtensionsScreen.Pager.Buttons = {}
 
-	for _, extension in pairs(CustomCode.ExtensionLibrary) do
+	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
+		local image = Utils.inlineIf(extension.isEnabled, Constants.PixelImages.CHECKMARK, Constants.PixelImages.CROSS)
+		local iconColors = Utils.inlineIf(extension.isEnabled, { "Positive text", }, { "Negative text", })
 		local button = {
 			type = Constants.ButtonTypes.ICON_BORDER,
-			image = Constants.PixelImages.CHECKMARK,
+			image = image,
 			text = extension.name or Constants.BLANKLINE,
 			textColor = CustomExtensionsScreen.Colors.text,
-			iconColors = Utils.inlineIf(extension.isEnabled, { "Positive text", }, { "Negative text", }),
+			iconColors = iconColors,
 			extension = extension,
-			dimensions = { width = 124, height = 16, },
+			extensionKey = extensionKey,
+			dimensions = { width = 132, height = 16, },
 			isVisible = function(self) return CustomExtensionsScreen.Pager.currentPage == self.pageVisible end,
 			updateText = function(self)
 				if self.extension.isEnabled then
+					self.image = Constants.PixelImages.CHECKMARK
 					self.iconColors = { "Positive text", }
 				else
+					self.image = Constants.PixelImages.CROSS
 					self.iconColors = { "Negative text", }
 				end
 			end,
-			-- draw = function(self, shadowcolor)
-			-- 	local minutesAgo = math.ceil((os.time() - restorePoint.timestamp) / 60)
-			-- 	local includeS = Utils.inlineIf(minutesAgo ~= 1, "s", "")
-			-- 	local timestampText = string.format(CustomExtensionsScreen.Labels.restoreTimeFormat, minutesAgo, includeS)
-			-- 	local rightAlignOffset = self.box[3] - Utils.calcWordPixelLength(timestampText) - 2
-			-- 	Drawing.drawText(self.box[1] + rightAlignOffset, self.box[2] + self.box[4] + 1, timestampText, Theme.COLORS[CustomExtensionsScreen.Colors.text], shadowcolor)
-			-- end,
 			onClick = function(self)
-				-- TODO: Navigate to single screen to show enable/disable options; for now, toggle it
-				self.extension.isEnabled = not self.extension.isEnabled
+				-- TODO: Probably navigate to single screen to show enable/disable options; for now, toggle it
+				if self.extension.isEnabled then
+					CustomCode.disableExtension(self.extensionKey)
+				else
+					CustomCode.enableExtension(self.extensionKey)
+				end
 				self:updateText()
+				Main.SaveSettings(true)
+				Program.redraw(true)
 			end,
 		}
 		table.insert(CustomExtensionsScreen.Pager.Buttons, button)
 	end
 
-	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8
-	local y = Constants.SCREEN.MARGIN + 48
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
+	local y = Constants.SCREEN.MARGIN + 29
 	local colSpacer = 1
-	local rowSpacer = Constants.SCREEN.LINESPACING + 7
+	local rowSpacer = 5
 	CustomExtensionsScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
 
 	return true

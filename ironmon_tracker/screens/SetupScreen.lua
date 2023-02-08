@@ -76,6 +76,7 @@ SetupScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 61, Constants.SCREEN.MARGIN + 135, 47, 11 },
 		onClick = function()
 			Main.SaveSettings()
+			CustomExtensionsScreen.buildOutPagedButtons()
 			Program.changeScreenView(Program.Screens.EXTENSIONS)
 		end
 	},

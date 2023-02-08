@@ -253,7 +253,7 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			end
 
 			if isAreaClicked and button.onClick ~= nil then
-				CustomCode.beforeButtonClicked(button)
+				CustomCode.onButtonClicked(button)
 				button:onClick()
 			end
 		end
