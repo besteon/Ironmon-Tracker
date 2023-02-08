@@ -37,6 +37,7 @@ Options = {
 	["Startup favorites"] = "1,4,7",
 	["Show on new game screen"] = false,
 	["Enable restore points"] = true,
+	["Enable custom extensions"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",

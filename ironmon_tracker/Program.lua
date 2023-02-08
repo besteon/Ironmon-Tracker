@@ -35,6 +35,7 @@ Program.Screens = {
 	GAMEOVER = GameOverScreen.drawScreen,
 	STREAMER = StreamerScreen.drawScreen,
 	TIME_MACHINE = TimeMachineScreen.drawScreen,
+	EXTENSIONS = CustomExtensionsScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -123,9 +124,7 @@ function Program.mainLoop()
 	Input.checkForInput()
 	Program.update()
 	Battle.update()
-	if CustomCode.enabled and CustomCode.afterEachFrame ~= nil then
-		CustomCode.afterEachFrame()
-	end
+	CustomCode.afterEachFrame()
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
 end
@@ -144,9 +143,7 @@ function Program.redraw(forced)
 		LogOverlay.drawScreen()
 	end
 
-	if CustomCode.enabled and CustomCode.afterRedraw ~= nil then
-		CustomCode.afterRedraw()
-	end
+	CustomCode.afterRedraw()
 end
 
 function Program.changeScreenView(screen)
@@ -257,7 +254,7 @@ function Program.update()
 		end
 	end
 
-	if CustomCode.enabled and CustomCode.afterProgramDataUpdate ~= nil and Program.Frames.lowAccuracyUpdate == 0 then
+	if Program.Frames.lowAccuracyUpdate == 0 then
 		CustomCode.afterProgramDataUpdate()
 	end
 end

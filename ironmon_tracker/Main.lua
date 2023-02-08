@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "2", patch = "7" }
+Main.Version = { major = "7", minor = "2", patch = "8" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -270,12 +270,11 @@ function Main.InitializeAllTrackerFiles()
 	GameOverScreen.initialize()
 	StreamerScreen.initialize()
 	TimeMachineScreen.initialize()
+	CustomExtensionsScreen.initialize()
 	LogOverlay.initialize()
 
 	CustomCode.initialize()
-	if CustomCode.enabled and CustomCode.startup ~= nil then
-		CustomCode.startup()
-	end
+	CustomCode.startup()
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -870,6 +869,22 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [EXTENSIONS]
+	if settings.extensions ~= nil then
+		for extKey, extValue in pairs(settings.extensions) do
+			if extValue ~= nil then
+				if CustomCode.ExtensionLibrary[extKey] == nil then
+					CustomCode.ExtensionLibrary[extKey] = {
+						isEnabled = extValue,
+						isLoaded = false,
+					}
+				else
+					CustomCode.ExtensionLibrary[extKey].isEnabled = extValue
+				end
+			end
+		end
+	end
+
 	return true
 end
 
@@ -887,6 +902,7 @@ function Main.SaveSettings(forced)
 	if settings.tracker == nil then settings.tracker = {} end
 	if settings.controls == nil then settings.controls = {} end
 	if settings.theme == nil then settings.theme = {} end
+	if settings.extensions == nil then settings.extensions = {} end
 
 	-- [CONFIG]
 	settings.config.RemindMeLater = Main.Version.remindMe
@@ -919,7 +935,19 @@ function Main.SaveSettings(forced)
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
+	-- [EXTENSIONS]
+	for extKey, extension in pairs(CustomCode.ExtensionLibrary) do
+		settings.extensions[extKey] = extension.isEnabled or false
+	end
+
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
+end
+
+function Main.RemoveMetaSetting(section, key)
+	if section == nil or key == nil or section == "" or key == "" then return end
+	if Main.MetaSettings[section] ~= nil then
+		Main.MetaSettings[section][key] = nil
+	end
 end

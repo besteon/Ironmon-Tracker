@@ -85,9 +85,7 @@ function Battle.update()
 	end
 	if Program.Frames.lowAccuracyUpdate == 0 then
 		Battle.updateLowAccuracy()
-		if CustomCode.enabled and CustomCode.afterBattleDataUpdate ~= nil then
-			CustomCode.afterBattleDataUpdate()
-		end
+		CustomCode.afterBattleDataUpdate()
 	end
 end
 
@@ -628,9 +626,7 @@ function Battle.beginNewBattle()
 		MGBA.Screens.LookupPokemon.manuallySet = false
 	end
 
-	if CustomCode.enabled and CustomCode.afterBattleBegins ~= nil then
-		CustomCode.afterBattleBegins()
-	end
+	CustomCode.afterBattleBegins()
 end
 
 function Battle.endCurrentBattle()
@@ -708,9 +704,7 @@ function Battle.endCurrentBattle()
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 
-	if CustomCode.enabled and CustomCode.afterBattleEnds ~= nil then
-		CustomCode.afterBattleEnds()
-	end
+	CustomCode.afterBattleEnds()
 end
 
 function Battle.resetBattle()

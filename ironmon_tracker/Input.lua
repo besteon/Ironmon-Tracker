@@ -76,9 +76,7 @@ function Input.checkForInput()
 
 		Input.checkJoypadInput()
 
-		if CustomCode.enabled and CustomCode.inputCheckBizhawk ~= nil then
-			CustomCode.inputCheckBizhawk()
-		end
+		CustomCode.inputCheckBizhawk()
 	end
 end
 
@@ -108,9 +106,7 @@ end
 function Input.checkJoypadInput()
 	local joypadButtons = Input.getJoypadInputFormatted()
 
-	if CustomCode.enabled and CustomCode.inputCheckMGBA ~= nil and not Main.IsOnBizhawk() then
-		CustomCode.inputCheckMGBA()
-	end
+	CustomCode.inputCheckMGBA()
 
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
@@ -209,6 +205,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.TIME_MACHINE then
 		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Pager.Buttons)
+	elseif Program.currentScreen == Program.Screens.EXTENSIONS then
+		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
@@ -254,9 +253,7 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			end
 
 			if isAreaClicked and button.onClick ~= nil then
-				if CustomCode.enabled and CustomCode.beforeButtonClicked ~= nil then
-					CustomCode.beforeButtonClicked(button)
-				end
+				CustomCode.onButtonClicked(button)
 				button:onClick()
 			end
 		end
