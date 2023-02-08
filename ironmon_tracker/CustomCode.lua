@@ -1,79 +1,72 @@
-----------------------------------------------------------------------------------------------
--- Avoid modifying this file if at all possible, so that customizations remain upgrade safe --
-----------------------------------------------------------------------------------------------
 CustomCode = {
-	-- To enable custom code to be run by the Tracker, set to 'true'; or set to 'false' to disable all custom code
-	enabled = false,
-	-- A list of custom code files to load, each should match the Custom Code template and return an object with functions
-	filenames = {},
-
 	Labels = {
-		filesLoadSuccess = "Custom Code files loaded",
-		filesLoadFailure = "Failed to load",
+		filesLoadSuccess = "Extensions Loaded",
+		filesLoadFailure = "Extensions Missing",
 		unknownAuthor = "Unknown",
 	},
+
+	-- Available extensions that are currently known about that are likely present in the 'Custom' folder
+	ExtensionLibrary = {
+		--[[ -- Example extension entry below, "FileName" omits the file extension ".lua"
+			["FileName"] = {
+				isEnabled = false, -- If the user has enabled or disabled this extension
+				isLoaded = false, -- If the extension file was found and successfully loaded
+				name = "My Extension",
+				author = "My Username",
+				description = "Lorem Ipsum",
+			},
+		]]
+	},
+
+	-- An ordered list of extensions that are currently enabled, with Tracker code integrations
+	EnabledExtensions = {},
 }
 
+-- extensionKey:match("(.+)%.[Ll][Uu][Aa]$")
+
 function CustomCode.initialize()
-	local customCodeFolder = FileManager.getCustomFolderPath()
-	local filepath = FileManager.getPathIfExists(customCodeFolder .. FileManager.Files.CUSTOM_CODE_SETTINGS)
-	if filepath ~= nil then
-		local settingsObj = dofile(filepath)
-		local settings = {}
-		if type(settingsObj) == "function" then
-			settings = settingsObj() or {}
-		end
-
-		CustomCode.enabled = (settings.enabled == true)
-		CustomCode.filenames = settings.filenames or {}
-
-		if #CustomCode.filenames == 0 then
-			CustomCode.enabled = false
-		end
-	else
-		-- Silently fail, as this means the custom code add-on wasn't installed or in use
-	end
+	CustomCode.loadExtensions()
 end
 
--- Simulates an interface-like function execution for custom code files
-function CustomCode.execFunctions(func, ...)
-	for _, obj in ipairs(CustomCode.objects) do
-		local functToExec = obj[func]
-		if type(functToExec) == "function" then
-			functToExec(...)
-		end
-	end
-end
-
--- Executed only once: when the Tracker finishes starting up and after it loads all other required files and code
-function CustomCode.startup()
-	CustomCode.objects = {}
+function CustomCode.loadExtensions()
 	local customCodeFolder = FileManager.getCustomFolderPath()
 	local filesLoaded = {
 		successful = {},
 		failed = {},
 	}
 
-	for _, filename in ipairs(CustomCode.filenames) do
-		local filepath = FileManager.getPathIfExists(customCodeFolder .. filename)
+	CustomCode.EnabledExtensions = {}
+	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
+		local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
+
 		if filepath ~= nil then
-			local customObject = dofile(filepath)
-			local customTable
-			if type(customObject) == "function" then
-				customTable = customObject() or {}
-			elseif type(customObject) == "table" then
-				customTable = customObject
+			local extObj = dofile(filepath)
+			local extTable
+			if type(extObj) == "function" then
+				extTable = extObj() or {}
+			elseif type(extObj) == "table" then
+				extTable = extObj
 			end
 
-			if customTable ~= nil then
-				customTable.name = customTable.name or filename:match("(.+)%.[Ll][Uu][Aa]$") or filename
-				customTable.author = customTable.author or CustomCode.Labels.unknownAuthor
-				customTable.description = customTable.description or ""
-				table.insert(CustomCode.objects, customTable)
-				table.insert(filesLoaded.successful, customTable.name)
+			if extTable ~= nil then
+				extension.isLoaded = true
+				extension.name = extTable.name or extensionKey
+				extension.author = extTable.author or CustomCode.Labels.unknownAuthor
+				extension.description = extTable.description or ""
+				table.insert(filesLoaded.successful, extension.name)
+
+				if extension.isEnabled then
+					CustomCode.enableExtension(extensionKey)
+				end
 			end
-		else
-			table.insert(filesLoaded.failed, filename)
+		end
+
+		if not extension.isLoaded then
+			extension.isLoaded = false
+			extension.name = extensionKey
+			extension.author = CustomCode.Labels.unknownAuthor
+			extension.description = ""
+			table.insert(filesLoaded.failed, extensionKey)
 		end
 	end
 
@@ -83,55 +76,114 @@ function CustomCode.startup()
 	if #filesLoaded.failed > 0 then
 		print(string.format("%s: %s", CustomCode.Labels.filesLoadFailure, table.concat(filesLoaded.failed, ", ")))
 	end
+end
 
+-- extensionName: the name of the custom extension found in the ExtensionLibrary
+function CustomCode.enableExtension(extensionKey)
+	local extension = CustomCode.ExtensionLibrary[extensionKey]
+	if extension ~= nil then
+		extension.isEnabled = true
+		table.insert(CustomCode.EnabledExtensions, extension)
+	end
+end
+
+-- extensionName: the name of the custom extension found in the ExtensionLibrary
+function CustomCode.disableExtension(extensionKey)
+	local extension = CustomCode.ExtensionLibrary[extensionKey]
+	if extension ~= nil then
+		extension.isEnabled = false
+		local indexFound = -1
+		for i, ext in ipairs(CustomCode.EnabledExtensions) do
+			if ext.name == extension.name then
+				indexFound = i
+				break
+			end
+		end
+		if indexFound ~= -1 then
+			table.remove(CustomCode.EnabledExtensions, indexFound)
+		end
+	end
+end
+
+-- Simulates an interface-like function execution for custom code files
+function CustomCode.execFunctions(func, ...)
+	for _, obj in ipairs(CustomCode.EnabledExtensions) do
+		local functToExec = obj[func]
+		if type(functToExec) == "function" then
+			functToExec(...)
+		end
+	end
+end
+
+-- Returns true if the settings option for custom code extensions is enabled; false otherwise
+function CustomCode.isEnabled()
+	return Options["Enable custom extensions"]
+end
+
+--------------------------------------------------------------------------------------------------
+-- Avoid modifying anything below this line if possible, so that extensions remain upgrade safe --
+--------------------------------------------------------------------------------------------------
+
+-- Executed only once: when the Tracker finishes starting up and after it loads all other required files and code
+function CustomCode.startup()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("startup")
 end
 
 -- [Bizhawk only] Executed each frame (60 frames per second)
 -- CAUTION: Avoid unnecessary calculations here, as this can easily affect performance.
 function CustomCode.inputCheckBizhawk()
+	if not CustomCode.isEnabled() or not Main.IsOnBizhawk() then return end
 	CustomCode.execFunctions("inputCheckBizhawk")
 end
 
 -- [MGBA only] Executed each frame (60 frames per second)
 -- CAUTION: Avoid unnecessary calculations here, as this can easily affect performance.
 function CustomCode.inputCheckMGBA()
+	if not CustomCode.isEnabled() or Main.IsOnBizhawk() then return end
 	CustomCode.execFunctions("inputCheckMGBA")
 end
 
 -- Executed each frame, after most data from game memory is read in but before any natural redraw events occur
 -- CAUTION: Avoid code here if possible, as this can easily affect performance. Most Tracker updates occur at 30-frame intervals, some at 10-frame.
 function CustomCode.afterEachFrame()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterEachFrame")
 end
 
 -- Executed once every 30 frames, after most data from game memory is read in
 function CustomCode.afterProgramDataUpdate()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterProgramDataUpdate")
 end
 
 -- Executed once every 30 frames, after any battle-related data from game memory is read in
 function CustomCode.afterBattleDataUpdate()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleDataUpdate")
 end
 
 -- Executed once every 30 frames or after any redraw event is scheduled (e.g. most button presses)
 function CustomCode.afterRedraw()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterRedraw")
 end
 
 -- Executed after a new battle begins (wild or trainer), and only once per battle
 function CustomCode.afterBattleBegins()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleBegins")
 end
 
 -- Executed after a battle ends, and only once per battle
 function CustomCode.afterBattleEnds()
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleEnds")
 end
 
 -- Executed before a button's onClick() is processed, and only once per click per button
 -- Param: button: the button object being clicked
 function CustomCode.onButtonClicked(button)
+	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("onButtonClicked", button)
 end

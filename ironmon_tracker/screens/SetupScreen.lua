@@ -70,6 +70,15 @@ SetupScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 53, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
+	Extensions = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Extensions",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 61, Constants.SCREEN.MARGIN + 135, 47, 11 },
+		onClick = function()
+			Main.SaveSettings()
+			Program.changeScreenView(Program.Screens.EXTENSIONS)
+		end
+	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "Back",

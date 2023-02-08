@@ -25,7 +25,6 @@ FileManager.Files = {
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
-	CUSTOM_CODE_SETTINGS = "CustomCodeSettings.lua",
 
 	-- All of the files required by the tracker
 	LuaCode = {
@@ -61,6 +60,7 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua",
 		"Input.lua",
 		"Drawing.lua",
@@ -100,6 +100,7 @@ FileManager.Extensions = {
 	TRAINER = ".png",
 	BADGE = ".png",
 	SAVESTATE = ".State", -- Bizhawk save-state
+	LUA_CODE = ".lua",
 }
 
 FileManager.Urls = {
