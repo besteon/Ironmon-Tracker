@@ -51,7 +51,16 @@ CustomExtensionsScreen.Buttons = {
 		onClick = function(self)
 			-- Toggle the setting and store the change to be saved later in Settings.ini
 			self.toggleState = not self.toggleState
-			Options.updateSetting("Enable custom extensions", self.toggleState)
+
+			if self.toggleState then
+				-- First allow for custom code to be run, then activate paged buttons and run startup()
+				Options.updateSetting("Enable custom extensions", self.toggleState)
+				CustomExtensionsScreen.togglePagedButtons(self.toggleState)
+			else
+				-- First deactivate paged buttons and run unload(), then stop custom code from running
+				CustomExtensionsScreen.togglePagedButtons(self.toggleState)
+				Options.updateSetting("Enable custom extensions", self.toggleState)
+			end
 			Options.forceSave()
 		end
 	},
@@ -157,23 +166,37 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
 		local image = Utils.inlineIf(extension.isEnabled, Constants.PixelImages.CHECKMARK, Constants.PixelImages.CROSS)
 		local iconColors = Utils.inlineIf(extension.isEnabled, { "Positive text", }, { "Negative text", })
+
+		-- If the button itself is disabled and not active
+		local isBtnDisabled = not Options["Enable custom extensions"]
+		local textColor = Utils.inlineIf(isBtnDisabled, "Negative text", CustomExtensionsScreen.Colors.text)
+
 		local button = {
 			type = Constants.ButtonTypes.ICON_BORDER,
 			image = image,
 			text = extension.name or Constants.BLANKLINE,
-			textColor = CustomExtensionsScreen.Colors.text,
+			textColor = textColor,
 			iconColors = iconColors,
 			extension = extension,
 			extensionKey = extensionKey,
 			dimensions = { width = 132, height = 16, },
+			disabled = isBtnDisabled,
 			isVisible = function(self) return CustomExtensionsScreen.Pager.currentPage == self.pageVisible end,
 			updateText = function(self)
+				-- Check if the extension itself is enabled, and update the icon accordingly
 				if self.extension.isEnabled then
 					self.image = Constants.PixelImages.CHECKMARK
 					self.iconColors = { "Positive text", }
 				else
 					self.image = Constants.PixelImages.CROSS
 					self.iconColors = { "Negative text", }
+				end
+
+				-- Check if the button is disabled, and update text color accordingly
+				if self.disabled then
+					self.textColor = "Negative text"
+				else
+					self.textColor = CustomExtensionsScreen.Colors.text
 				end
 			end,
 			onClick = function(self)
@@ -213,6 +236,20 @@ function CustomExtensionsScreen.resetButtons()
 	end
 end
 
+-- Turns all of the paged buttons ON (makeActive = true) or OFF (makeActive = false), calling startup/unload appropriately
+-- If they are OFF, they cannot be pressed and have "Negative text" color
+function CustomExtensionsScreen.togglePagedButtons(makeActive)
+	for _, button in ipairs(CustomExtensionsScreen.Pager.Buttons) do
+		button.disabled = not makeActive
+		button:updateText()
+	end
+	if makeActive then
+		CustomCode.startup()
+	else
+		CustomCode.unload()
+	end
+end
+
 -- DRAWING FUNCTIONS
 function CustomExtensionsScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
@@ -236,12 +273,6 @@ function CustomExtensionsScreen.drawScreen()
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 	local textLineY = topBox.y + Constants.SCREEN.LINESPACING + 3 -- make room for first checkbox
-
-	-- local wrappedDesc = Utils.getWordWrapLines(CustomExtensionsScreen.Labels.description, 32)
-	-- for _, line in pairs(wrappedDesc) do
-	-- 	Drawing.drawText(topBox.x + 3, textLineY, line, topBox.text, topBox.shadow)
-	-- 	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
-	-- end
 
 	if #CustomExtensionsScreen.Pager.Buttons == 0 then
 		local wrappedDesc = Utils.getWordWrapLines(CustomExtensionsScreen.Labels.noExtensions, 32)
