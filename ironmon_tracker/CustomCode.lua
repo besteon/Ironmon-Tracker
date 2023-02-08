@@ -32,7 +32,8 @@ function CustomCode.initialize()
 	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
 		if CustomCode.loadExtension(extensionKey) then
 			if extension.isEnabled then
-				table.insert(filesLoaded.successful, extension.name)
+				local extensionName = CustomCode.ExtensionLibrary[extensionKey].name -- loop value changes from the load
+				table.insert(filesLoaded.successful, extensionName)
 			end
 		else
 			CustomCode.disableExtension(extensionKey)
