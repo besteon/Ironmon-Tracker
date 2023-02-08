@@ -5,13 +5,13 @@ FileManager.slash = package.config:sub(1,1) or "\\"
 
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
+	Custom = "extensions",
 	Quickload = "quickload",
 	SavedGames = "saved_games", -- needs to be created first to be used
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
-	Custom = "Custom",
 	Images = "images",
 	Trainers = "trainers",
 	Badges = "badges",
@@ -289,7 +289,6 @@ end
 -- Returns a properly formatted folder path where custom code files are located
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {
-		FileManager.Folders.TrackerCode,
 		FileManager.Folders.Custom,
 		"", -- Necessary to include a trailing slash, helps with appending a filename
 	}

@@ -1,0 +1,17 @@
+------------------------
+ CUSTOM CODE EXTENSIONS
+------------------------
+Extensions allow anyone to write custom code that integrates with the Ironmon Tracker script.
+These extensions can be anything, from new features or improvements to existing features.
+Developers can create and share their own extensions with ease.
+
+To learn more, visit the wiki: https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions
+
+To add a custom extension to your Tracker:
+- Simply place the extension's files inside the "extensions" folder found in your Tracker folder.
+- Enable or disable extensions from within the Tracker by navigating to Settings -> Setup -> Extensions.
+
+To create your own custom extension:
+- Take a look at the "CodeExtensionTemplate.lua.txt" file found in the "extensions" folder.
+- This file is a template for what a custom code extension might look like.
+- Other examples of working extensions can be found on the Tracker's wiki

@@ -172,7 +172,7 @@ function CustomCode.startup()
 	CustomCode.execFunctions("startup")
 end
 
--- Executed only once: when the extension is disabled by the user, necessary to undo any customizations, if able
+-- Executed only once: When the extension is disabled by the user, necessary to undo any customizations, if able
 function CustomCode.unload()
 	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("unload")
