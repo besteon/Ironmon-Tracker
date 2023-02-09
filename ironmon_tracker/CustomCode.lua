@@ -5,7 +5,7 @@ CustomCode = {
 		unknownAuthor = "Unknown",
 	},
 
-	-- Available extensions that are currently known about that are likely present in the 'Custom' folder
+	-- Available extensions that are currently known about that are likely present in the 'extensions' folder
 	ExtensionLibrary = {
 		--[[ -- Example extension entry below, "FileName" omits the file extension ".lua"
 			["FileName"] = {

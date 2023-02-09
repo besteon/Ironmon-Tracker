@@ -58,8 +58,8 @@ local function CodeExtensionTemplate()
 	-- CAUTION: Avoid unnecessary calculations here, as this can easily affect performance.
 	function self.inputCheckBizhawk()
 		-- Uncomment to use, otherwise leave commented out
-			-- local mouseInput = input.getmouse()
-			-- local joypadButtons = Input.getJoypadInputFormatted()
+			-- local mouseInput = input.getmouse() -- lowercase 'input' pulls directly from Bizhawk API
+			-- local joypadButtons = Input.getJoypadInputFormatted() -- uppercase 'Input' uses Tracker formatted input
 		-- [ADD CODE HERE]
 	end
 
