@@ -4,6 +4,9 @@ NavigationMenu = {
 	borderColor = "Upper box border",
 	boxFillColor = "Upper box background",
 	showCredits = false,
+	Labels = {
+		wikiBrowserErrMsg = "Check the Lua Console for a link to the Tracker's Help Wiki.",
+	},
 }
 
 NavigationMenu.Buttons = {
@@ -199,30 +202,7 @@ function NavigationMenu.initialize()
 end
 
 function NavigationMenu.openWikiBrowserWindow()
-	local wasSoundOn
-	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
-	end
-
-	if Main.OS == "Windows" then
-		-- The first parameter is the title of the window, the second is the url
-		os.execute(string.format('start "" "%s"', FileManager.Urls.WIKI))
-	else
-		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
-		local success = os.execute(string.format('open "%s"', FileManager.Urls.WIKI)) -- Mac OSX
-		if not success then
-			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.WIKI)) -- Linux
-			if not success then
-				Main.DisplayError("Check the Lua Console for a link to the Tracker's Help Wiki.")
-				print(string.format("> Github Wiki: %s", FileManager.Urls.WIKI))
-			end
-		end
-	end
-
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.openBrowserWindow(FileManager.Urls.WIKI, NavigationMenu.Labels.wikiBrowserErrMsg)
 end
 
 -- DRAWING FUNCTIONS

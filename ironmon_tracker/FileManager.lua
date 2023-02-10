@@ -107,6 +107,7 @@ FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
+	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 }
 
 -- Returns true if a file exists at its absolute file path; false otherwise

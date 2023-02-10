@@ -6,19 +6,12 @@ CustomCode = {
 	},
 
 	-- Available extensions that are currently known about that are likely present in the 'extensions' folder
-	ExtensionLibrary = {
-		--[[ -- Example extension entry below, "FileName" omits the file extension ".lua"
-			["FileName"] = {
-				isEnabled = false, -- If the user has enabled or disabled this extension
-				isLoaded = false, -- If the extension file was found and successfully loaded
-				name = "My Extension",
-				author = "My Username",
-				description = "Lorem Ipsum",
-			},
-		]]
-	},
+	-- Each 'key' is the filename of the extension
+	-- Each 'value' contains a 'isEnabled', 'isLoaded', and the 'selfObject' which contains the extension's functions and attributes
+	ExtensionLibrary = {},
 
-	-- An ordered list of extensions that are currently enabled, with Tracker code integrations
+	-- An ordered list of extensions (references to ExtensionLibrary list items) that are currently enabled
+	-- Only extension present in this list are "enabled" and integrated into Tracker code
 	EnabledExtensions = {},
 }
 
@@ -29,10 +22,11 @@ function CustomCode.initialize()
 	}
 
 	CustomCode.EnabledExtensions = {}
-	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
-		if CustomCode.loadExtension(extensionKey) then
-			if extension.isEnabled then
-				local extensionName = CustomCode.ExtensionLibrary[extensionKey].name -- loop value changes from the load
+	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
+		local loadedExtension = CustomCode.loadExtension(extensionKey)
+		if loadedExtension ~= nil then
+			if loadedExtension.isEnabled and loadedExtension.selfObject ~= nil then
+				local extensionName = loadedExtension.selfObject.name or extensionKey
 				table.insert(filesLoaded.successful, extensionName)
 			end
 		else
@@ -52,52 +46,55 @@ function CustomCode.initialize()
 	-- end
 end
 
--- Loads a single extension based on its key (filename)
+-- Loads a single extension based on its key (filename) and returns it; if load fails, returns nil
 function CustomCode.loadExtension(extensionKey)
-	if extensionKey == nil or extensionKey == "" then return end
-
-	if CustomCode.ExtensionLibrary[extensionKey] == nil then
-		CustomCode.ExtensionLibrary[extensionKey] = {}
+	if extensionKey == nil or extensionKey == "" then
+		return nil
 	end
-	local extension = CustomCode.ExtensionLibrary[extensionKey]
-	extension.isEnabled = extension.isEnabled or false
 
 	local customCodeFolder = FileManager.getCustomFolderPath()
 	local filepath = FileManager.getPathIfExists(customCodeFolder .. extensionKey .. FileManager.Extensions.LUA_CODE)
 
-	if filepath ~= nil then
-		local extObj = dofile(filepath)
-		local extTable
-		if type(extObj) == "function" then
-			extTable = extObj() or {}
-		elseif type(extObj) == "table" then
-			extTable = extObj
-		end
-
-		if extTable ~= nil then
-			-- Replace any matching extension with the newly loaded one
-			extTable.isEnabled = extension.isEnabled
-			extTable.isLoaded = true
-			extTable.name = extTable.name or extensionKey
-			extTable.author = extTable.author or CustomCode.Labels.unknownAuthor
-			extTable.description = extTable.description or ""
-			CustomCode.ExtensionLibrary[extensionKey] = extTable
-
-			if extTable.isEnabled then -- If already enabled by user Settings.ini, enable it and call startup
-				CustomCode.enableExtension(extensionKey)
-			end
-			return true
-		end
+	if filepath == nil then
+		return nil
 	end
 
-	if not extension.isLoaded then
-		extension.isLoaded = false
-		extension.name = extensionKey
-		extension.author = CustomCode.Labels.unknownAuthor
-		extension.description = ""
+	-- Load the extension code
+	local extensionReturnObject = dofile(filepath)
+	local selfObject
+	if type(extensionReturnObject) == "function" then
+		selfObject = extensionReturnObject() or {}
+	elseif type(extensionReturnObject) == "table" then
+		selfObject = extensionReturnObject
 	end
 
-	return extension.isLoaded
+	if selfObject == nil then
+		return nil
+	end
+
+	-- Check for required attributes from the extension
+	selfObject.name = selfObject.name or extensionKey
+	selfObject.author = selfObject.author or CustomCode.Labels.unknownAuthor
+	selfObject.description = selfObject.description or ""
+	selfObject.version = selfObject.version or "0.0"
+
+	-- If the extension is new (not part of Settings.ini), create space for it
+	if CustomCode.ExtensionLibrary[extensionKey] == nil then
+		CustomCode.ExtensionLibrary[extensionKey] = {}
+	end
+
+	-- Keep known attributes of existing extension, replace others with newly loaded pieces
+	local extensionToLoad = CustomCode.ExtensionLibrary[extensionKey]
+	extensionToLoad.isEnabled = extensionToLoad.isEnabled or false
+	extensionToLoad.isLoaded = true
+	extensionToLoad.selfObject = selfObject
+
+	-- If already enabled by user Settings.ini, enable it and call startup
+	if extensionToLoad.isEnabled then
+		CustomCode.enableExtension(extensionKey)
+	end
+
+	return extensionToLoad
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
@@ -107,11 +104,17 @@ function CustomCode.enableExtension(extensionKey)
 		return
 	end
 
+	-- If something went wrong and the extension never properly loaded, disable it
+	if extension.selfObject == nil then
+		extension.isEnabled = false
+		return
+	end
+
 	-- Enable and startup the extension
 	if not extension.isEnabled then
 		extension.isEnabled = true
-		if CustomCode.isEnabled() and type(extension["startup"]) == "function" then
-			extension.startup()
+		if CustomCode.isEnabled() and type(extension.selfObject["startup"]) == "function" then
+			extension.selfObject.startup()
 		end
 	end
 
@@ -126,18 +129,24 @@ function CustomCode.disableExtension(extensionKey)
 		return
 	end
 
+	-- If something went wrong and the extension never properly loaded, disable it
+	if extension.selfObject == nil then
+		extension.isEnabled = false
+		return
+	end
+
 	-- Disable and unload the extension
 	if extension.isEnabled then
 		extension.isEnabled = false
-		if CustomCode.isEnabled() and type(extension["unload"]) == "function" then
-			extension.unload()
+		if CustomCode.isEnabled() and type(extension.selfObject["unload"]) == "function" then
+			extension.selfObject.unload()
 		end
 	end
 
 	-- Remove the extension from the EnabledExtensions list, preventing its functions from being called
 	local indexFound = -1
 	for i, ext in ipairs(CustomCode.EnabledExtensions) do
-		if ext.name == extension.name then
+		if ext.selfObject.name == extension.selfObject.name then
 			indexFound = i
 			break
 		end
@@ -149,8 +158,8 @@ end
 
 -- Simulates an interface-like function execution for custom code files
 function CustomCode.execFunctions(func, ...)
-	for _, obj in ipairs(CustomCode.EnabledExtensions) do
-		local functToExec = obj[func]
+	for _, ext in ipairs(CustomCode.EnabledExtensions) do
+		local functToExec = ext.selfObject[func]
 		if type(functToExec) == "function" then
 			functToExec(...)
 		end
@@ -166,7 +175,7 @@ end
 -- Avoid modifying anything below this line if possible, so that extensions remain upgrade safe --
 --------------------------------------------------------------------------------------------------
 
--- Executed only once: when the Tracker finishes starting up and after it loads all other required files and code
+-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 function CustomCode.startup()
 	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("startup")

@@ -2,7 +2,7 @@ CustomExtensionsScreen = {
 	Labels = {
 		header = "Custom Extensions",
 		pageFormat = "Pg. %s/%s", -- e.g. Pg. 1/3
-		noExtensions = "No custom extensions found",
+		noExtensions = "You currently don't have any custom extensions installed.",
 	},
 	Colors = {
 		text = "Default text",
@@ -15,7 +15,7 @@ CustomExtensionsScreen.Pager = {
 	Buttons = {},
 	currentPage = 0,
 	totalPages = 0,
-	defaultSort = function(a, b) return a.extension.name < b.extension.name end, -- Order ascending by extension name
+	defaultSort = function(a, b) return a.extension.selfObject.name < b.extension.selfObject.name end, -- Order ascending by extension name
 	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
 		table.sort(self.Buttons, self.defaultSort)
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
@@ -62,6 +62,16 @@ CustomExtensionsScreen.Buttons = {
 				Options.updateSetting("Enable custom extensions", self.toggleState)
 			end
 			Options.forceSave()
+		end
+	},
+	GetExtensions = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.INSTALL_BOX,
+		text = "Get Extensions",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 28, Constants.SCREEN.MARGIN + 70, 80, 16 },
+		isVisible = function() return #CustomExtensionsScreen.Pager.Buttons == 0 end,
+		onClick = function(self)
+			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
 		end
 	},
 	CurrentPage = {
@@ -174,7 +184,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 		local button = {
 			type = Constants.ButtonTypes.ICON_BORDER,
 			image = image,
-			text = extension.name or Constants.BLANKLINE,
+			text = extension.selfObject.name or Constants.BLANKLINE,
 			textColor = textColor,
 			iconColors = iconColors,
 			extension = extension,
@@ -200,7 +210,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 				end
 			end,
 			onClick = function(self)
-				-- TODO: Probably navigate to single screen to show enable/disable options; for now, toggle it
+				-- TODO: Later want to navigate to single screen to show options: enable/disable, configure, remove, etc.
 				if self.extension.isEnabled then
 					CustomCode.disableExtension(self.extensionKey)
 				else
@@ -276,10 +286,11 @@ function CustomExtensionsScreen.drawScreen()
 
 	if #CustomExtensionsScreen.Pager.Buttons == 0 then
 		local wrappedDesc = Utils.getWordWrapLines(CustomExtensionsScreen.Labels.noExtensions, 32)
-		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+		textLineY = textLineY + Constants.SCREEN.LINESPACING
 		for _, line in pairs(wrappedDesc) do
-			Drawing.drawText(topBox.x + 3, textLineY, line, Theme.COLORS["Negative text"], topBox.shadow)
-			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+			local centeredOffset = Utils.getCenteredTextX(line, topBox.width)
+			Drawing.drawText(topBox.x + centeredOffset, textLineY, line, Theme.COLORS["Intermediate text"], topBox.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING
 		end
 	end
 

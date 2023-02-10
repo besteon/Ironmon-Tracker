@@ -13,7 +13,7 @@ local function CodeExtensionTemplate()
 	self.description = "This is a template file for my fancy custom code extension."
 	self.version = "1.0"
 
-	-- Executed only once: when the Tracker finishes starting up and after it loads all other required files and code
+	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
 		-- [ADD CODE HERE]
 	end
