@@ -53,9 +53,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Full Randomizer Log Viewer
+### Custom Code Extensions
 
-![image](https://user-images.githubusercontent.com/4258818/210026570-860a32a1-a5f8-4b08-8b39-90fe350ba114.png)
+![image](https://user-images.githubusercontent.com/4258818/218183892-744fab56-6ed0-4797-bf7e-3c313cc017ef.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
