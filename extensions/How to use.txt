@@ -9,7 +9,7 @@ To learn more, visit the wiki: https://github.com/besteon/Ironmon-Tracker/wiki/T
 
 To add a custom extension to your Tracker:
 - Simply place the extension's files inside the "extensions" folder found in your Tracker folder.
-- Enable or disable extensions from within the Tracker by navigating to Settings -> Setup -> Extensions.
+- Enable or disable extensions from within the Tracker by navigating to Settings -> Extensions.
 
 To create your own custom extension:
 - Take a look at the "CodeExtensionTemplate.lua.txt" file found in the "extensions" folder.
