@@ -98,6 +98,15 @@ NavigationMenu.Buttons = {
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(Program.Screens.STREAMER) end
 	},
+	Extensions = {
+		text = "Extensions",
+		image = Constants.PixelImages.INSTALL_BOX,
+		isVisible = function() return not NavigationMenu.showCredits end,
+		onClick = function()
+			CustomExtensionsScreen.buildOutPagedButtons()
+			Program.changeScreenView(Program.Screens.EXTENSIONS)
+		end
+	},
 	MirageButton = {
 		text = "It's a secret...",
 		image = Constants.PixelImages.POKEBALL,
@@ -159,6 +168,7 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
 	NavigationMenu.Buttons.StreamerTools,
+	NavigationMenu.Buttons.Extensions,
 }
 
 function NavigationMenu.initialize()
