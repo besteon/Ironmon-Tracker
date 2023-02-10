@@ -72,9 +72,9 @@ end
 function ColorPicker:RGB_to_Hex()
 	--%02x: 0 means replace " "s with "0"s, 2 is width, x means hex
 	return string.format("%02x%02x%02x",
-		self.red,
-		self.green,
-		self.blue)
+		math.floor(self.red),
+		math.floor(self.green),
+		math.floor(self.blue))
 end
 
 function ColorPicker:updateCirclePreview()
@@ -291,7 +291,7 @@ function ColorPicker:HSV_to_RGB()
 		self.blue = hue2rgb(p, q, hue - 1 / 3);
 	end
 
-	self.red, self.green, self.blue =  self.red * 255, self.green * 255, self.blue * 255
+	self.red, self.green, self.blue = self.red * 255, self.green * 255, self.blue * 255
 end
 
 function ColorPicker:HEX_to_RGB (hex)
@@ -303,7 +303,7 @@ function ColorPicker:HEX_to_RGB (hex)
 end
 
 function ColorPicker:RGB_to_HSL()
-	local r,g,b = self.red,self.green,self.blue
+	local r, g, b = self.red, self.green, self.blue
 
 	local R, G, B = r / 255, g / 255, b / 255
 	local max, min = math.max(R, G, B), math.min(R, G, B)

@@ -53,7 +53,7 @@ MiscData.Natures = {
 }
 
 MiscData.Items = {
-	"Master Ball", "Ultra Ball", "Great Ball", "Pok\233 Ball", "Safari Ball", "Net Ball", "Dive Ball", "Nest Ball",
+	"Master Ball", "Ultra Ball", "Great Ball", "Pok" .. Constants.getC("é") .. " Ball", "Safari Ball", "Net Ball", "Dive Ball", "Nest Ball",
 	"Repeat Ball", "Timer Ball", "Luxury Ball", "Premier Ball", "Potion", "Antidote", "Burn Heal", "Ice Heal", "Awakening",
 	"Parlyz Heal", "Full Restore", "Max Potion", "Hyper Potion", "Super Potion", "Full Heal", "Revive", "Max Revive", "Fresh Water",
 	"Soda Pop", "Lemonade", "Moomoo Milk", "EnergyPowder", "Energy Root", "Heal Powder", "Revival Herb", "Ether", "Max Ether",
@@ -61,7 +61,7 @@ MiscData.Items = {
 	"Sacred Ash", "Shoal Salt", "Shoal Shell", "Red Shard", "Blue Shard", "Yellow Shard", "Green Shard", "unknown", "unknown",
 	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "HP Up", "Protein",
 	"Iron", "Carbos", "Calcium", "Rare Candy", "PP Up", "Zinc", "PP Max", "unknown", "Guard Spec.", "Dire Hit", "X Attack",
-	"X Defend", "X Speed", "X Accuracy", "X Special", "Pok\233 Doll", "Fluffy Tail", "unknown", "Super Repel", "Max Repel",
+	"X Defend", "X Speed", "X Accuracy", "X Special", "Pok" .. Constants.getC("é") .. " Doll", "Fluffy Tail", "unknown", "Super Repel", "Max Repel",
 	"Escape Rope", "Repel", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "Sun Stone", "Moon Stone",
 	"Fire Stone", "Thunder Stone", "Water Stone", "Leaf Stone", "unknown", "unknown", "unknown", "unknown", "TinyMushroom",
 	"Big Mushroom", "unknown", "Pearl", "Big Pearl", "Stardust", "Star Piece", "Nugget", "Heart Scale", "unknown", "unknown",
@@ -82,13 +82,13 @@ MiscData.Items = {
 	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown",
 	"unknown", "unknown", "unknown", "Red Scarf", "Blue Scarf", "Pink Scarf", "Green Scarf", "Yellow Scarf", "Mach Bike", "Coin Case",
 	"Itemfinder", "Old Rod", "Good Rod", "Super Rod", "S.S. Ticket", "Contest Pass", "unknown", "Wailmer Pail", "Devon Goods",
-	"Soot Sack", "Basement Key", "Acro Bike", "Pok\233block Case", "Letter", "Eon Ticket", "Red Orb", "Blue Orb", "Scanner", "Go-Goggles",
+	"Soot Sack", "Basement Key", "Acro Bike", "Pok" .. Constants.getC("é") .. "block Case", "Letter", "Eon Ticket", "Red Orb", "Blue Orb", "Scanner", "Go-Goggles",
 	"Meteorite", "Rm. 1 Key", "Rm. 2 Key", "Rm. 4 Key", "Rm. 6 Key", "Storage Key", "Root Fossil", "Claw Fossil", "Devon Scope",
 	"TM01", "TM02", "TM03", "TM04", "TM05", "TM06", "TM07", "TM08", "TM09", "TM10", "TM11", "TM12", "TM13", "TM14", "TM15",
 	"TM16", "TM17", "TM18", "TM19", "TM20", "TM21", "TM22", "TM23", "TM24", "TM25", "TM26", "TM27", "TM28", "TM29", "TM30",
 	"TM31", "TM32", "TM33", "TM34", "TM35", "TM36", "TM37", "TM38", "TM39", "TM40", "TM41", "TM42", "TM43", "TM44", "TM45",
 	"TM46", "TM47", "TM48", "TM49", "TM50", "HM01", "HM02", "HM03", "HM04", "HM05", "HM06", "HM07", "HM08", "unknown", "unknown",
-	"Oak's Parcel","Pok\233 Flute", "Secret Key", "Bike Voucher", "Gold Teeth", "Old Amber", "Card Key", "Lift Key", "Helix Fossil", "Dome Fossil", "Silph Scope",
+	"Oak's Parcel","Pok" .. Constants.getC("é") .. " Flute", "Secret Key", "Bike Voucher", "Gold Teeth", "Old Amber", "Card Key", "Lift Key", "Helix Fossil", "Dome Fossil", "Silph Scope",
 	"Bicycle", "Town Map", "Vs. Seeker", "Fame Checker", "TM Case", "Berry Pouch", "Teachy TV", "Tri-Pass", "Rainbow Pass", "Tea",
 	"MysticTicket", "AuroraTicket", "Powder Jar", "Ruby", "Sapphire", "Magma Emblem", "Old Sea Map"
 }
@@ -125,7 +125,7 @@ MiscData.HealingItems = {
 	[22] = {
 		id = 22,
 		name = "Super Potion",
-		amount = 60,
+		amount = 50,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
 	},

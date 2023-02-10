@@ -75,6 +75,8 @@ function Input.checkForInput()
 		Input.prevMouseInput = mouseInput
 
 		Input.checkJoypadInput()
+
+		CustomCode.inputCheckBizhawk()
 	end
 end
 
@@ -103,6 +105,8 @@ end
 
 function Input.checkJoypadInput()
 	local joypadButtons = Input.getJoypadInputFormatted()
+
+	CustomCode.inputCheckMGBA()
 
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
@@ -192,6 +196,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
+	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
+		Input.checkButtonsClicked(xmouse, ymouse, TypeDefensesScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.GAMEOVER then
 		Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
 	elseif Program.currentScreen == Program.Screens.STREAMER then
@@ -199,6 +205,9 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.TIME_MACHINE then
 		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Pager.Buttons)
+	elseif Program.currentScreen == Program.Screens.EXTENSIONS then
+		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
+		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
 	end
 
 	-- Check if mouse clicked on the game screen itself
@@ -244,6 +253,7 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			end
 
 			if isAreaClicked and button.onClick ~= nil then
+				CustomCode.onButtonClicked(button)
 				button:onClick()
 			end
 		end

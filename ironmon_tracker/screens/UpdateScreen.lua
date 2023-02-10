@@ -15,6 +15,7 @@ UpdateScreen = {
 		inProgressMsg = "Check external Window for status.",
 		safeReloadMsg = "You can safely reload the Tracker:",
 		errorOccurredMsg = "Please try updating manually:",
+		releaseNotesErrMsg = "Check the Lua Console for a link to the Tracker's Release Notes."
 	},
 	States = {
 		NEEDS_CHECK = "Already on the latest version.", -- Not displayed anywhere visually
@@ -227,30 +228,7 @@ function UpdateScreen.ignoreTheUpdate()
 end
 
 function UpdateScreen.openReleaseNotesWindow()
-	local wasSoundOn
-	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
-	end
-
-	if Main.OS == "Windows" then
-		-- The first parameter is the title of the window, the second is the url
-		os.execute(string.format('start "" "%s"', FileManager.Urls.DOWNLOAD))
-	else
-		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
-		local success = os.execute(string.format('open "%s"', FileManager.Urls.DOWNLOAD)) -- Mac OSX
-		if not success then
-			success = os.execute(string.format('xdg-open "%s"', FileManager.Urls.DOWNLOAD)) -- Linux
-			if not success then
-				Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-				print(string.format("> Release Notes: %s", FileManager.Urls.DOWNLOAD))
-			end
-		end
-	end
-
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
 end
 
 -- DRAWING FUNCTIONS

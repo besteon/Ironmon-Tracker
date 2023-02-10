@@ -68,7 +68,7 @@ TimeMachineScreen.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "", -- Set later via updateText()
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		updateText = function(self)
 			self.text = TimeMachineScreen.Pager:getPageText()
@@ -77,7 +77,7 @@ TimeMachineScreen.Buttons = {
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 39, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:prevPage()
@@ -88,11 +88,21 @@ TimeMachineScreen.Buttons = {
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:nextPage()
 			TimeMachineScreen.Buttons.CurrentPage:updateText()
+			Program.redraw(true)
+		end
+	},
+	CreateNewRestorePoint = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Create",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 30, 11 },
+		onClick = function(self)
+			TimeMachineScreen.createRestorePoint()
+			TimeMachineScreen.buildOutPagedButtons()
 			Program.redraw(true)
 		end
 	},
@@ -118,7 +128,8 @@ function TimeMachineScreen.initialize()
 	end
 	TimeMachineScreen.Buttons.EnableRestorePoints.toggleState = Options["Enable restore points"]
 
-	TimeMachineScreen.timeLastCreatedRP = os.time()
+	-- First restore point to be made at the 8 second mark, for second chance at choosing a diff starter
+	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 8)
 	TimeMachineScreen.Buttons.CurrentPage:updateText()
 end
 
