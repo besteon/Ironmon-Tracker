@@ -56,7 +56,8 @@ Program.ActiveRepel = {
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
-		return enabledAndAllowed and not hasConflict
+		local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
 }
 
