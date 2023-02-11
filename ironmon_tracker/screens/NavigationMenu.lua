@@ -52,7 +52,7 @@ NavigationMenu.Buttons = {
 	},
 	ThemeCustomization = {
 		text = "Theme",
-		image = Constants.PixelImages.NOTEPAD,
+		image = Constants.PixelImages.SPARKLES,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
@@ -100,7 +100,7 @@ NavigationMenu.Buttons = {
 	},
 	Extensions = {
 		text = "Extensions",
-		image = Constants.PixelImages.INSTALL_BOX,
+		image = Constants.PixelImages.EXTENSIONS,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			CustomExtensionsScreen.buildOutPagedButtons()
