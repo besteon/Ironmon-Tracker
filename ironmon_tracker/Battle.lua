@@ -4,6 +4,7 @@ Battle = {
 	battleStarting = false,
 	isWildEncounter = false,
 	isGhost = false,
+	opposingTrainerId = 0,
 	defeatedSteven = false, -- Used exclusively for Emerald
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
@@ -61,6 +62,15 @@ Battle.IndexMap = {
 	[1] = "LeftOther",
 	[2] = "RightOwn",
 	[3] = "RightOther",
+}
+
+Battle.EnemyTrainersToHideAlly = {
+	[1] = {}, -- Ruby/Sapphire
+	[2] = { -- Emerald
+		[514] = true, -- Tabitha (duo)
+		[734] = true, -- Maxie (duo)
+	},
+	[3] = {}, -- FRLG
 }
 
 function Battle.update()
@@ -592,11 +602,12 @@ function Battle.beginNewBattle()
 	end
 	Battle.isGhost = false
 
+	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
 	if Tracker.Data.whichRival == nil then
-		local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
-		Tracker.tryTrackWhichRival(opposingTrainerId)
+		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
 	end
 
 	Battle.isViewingLeft = true
@@ -684,7 +695,6 @@ function Battle.endCurrentBattle()
 		end
 	end
 
-	local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
@@ -695,10 +705,12 @@ function Battle.endCurrentBattle()
 		Program.currentScreen = Program.Screens.TRACKER
 	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
 		Program.currentScreen = Program.Screens.TRACKER
-	elseif GameSettings.game == 2 and opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
+	elseif GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
 		Battle.defeatedSteven = true
 		Program.currentScreen = Program.Screens.GAMEOVER
 	end
+
+	Battle.opposingTrainerId = 0
 
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)

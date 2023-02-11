@@ -148,10 +148,12 @@ function Input.togglePokemonViewed()
 
 		-- Check toggling through other Pokemon available in doubles battles
 		if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
-			--swap sides on returning to allied side
+			-- Swap sides on returning to allied side
 			Battle.isViewingLeft = not Battle.isViewingLeft
-			--undo changes for special double battles
-			if Battle.isViewingLeft == false and Battle.Combatants.RightOwn > Battle.partySize then
+
+			-- For some doubles battles, do not reveal your ally partner's Pokémon (such as Emerald Steven fight)
+			local shouldHideAlly = Battle.EnemyTrainersToHideAlly[GameSettings.game or 1][Battle.opposingTrainerId or 0]
+			if not Battle.isViewingLeft and shouldHideAlly then
 				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
 		end
