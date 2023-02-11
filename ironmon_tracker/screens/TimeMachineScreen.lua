@@ -243,6 +243,7 @@ function TimeMachineScreen.buildOutPagedButtons()
 			type = Constants.ButtonTypes.FULL_BORDER,
 			text = rpLabel,
 			textColor = TimeMachineScreen.Colors.text,
+			boxColors = { TimeMachineScreen.Colors.border, TimeMachineScreen.Colors.boxFill, },
 			restorePointId = restorePoint.id or 0,
 			restorePointLabel = restorePoint.label,
 			timestamp = restorePoint.timestamp or os.time(),
