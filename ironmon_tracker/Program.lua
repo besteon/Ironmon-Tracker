@@ -36,6 +36,7 @@ Program.Screens = {
 	STREAMER = StreamerScreen.drawScreen,
 	TIME_MACHINE = TimeMachineScreen.drawScreen,
 	EXTENSIONS = CustomExtensionsScreen.drawScreen,
+	SINGLE_EXTENSION = SingleExtensionScreen.drawScreen,
 }
 
 Program.GameData = {

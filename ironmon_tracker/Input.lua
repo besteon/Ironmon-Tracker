@@ -210,6 +210,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 	elseif Program.currentScreen == Program.Screens.EXTENSIONS then
 		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
 		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
+	elseif Program.currentScreen == Program.Screens.SINGLE_EXTENSION then
+		Input.checkButtonsClicked(xmouse, ymouse, SingleExtensionScreen.Buttons)
 	end
 
 	-- Check if mouse clicked on the game screen itself

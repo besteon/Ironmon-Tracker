@@ -61,6 +61,7 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "SingleExtensionScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua",
 		"Input.lua",
 		"Drawing.lua",

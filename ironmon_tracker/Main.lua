@@ -271,6 +271,7 @@ function Main.InitializeAllTrackerFiles()
 	StreamerScreen.initialize()
 	TimeMachineScreen.initialize()
 	CustomExtensionsScreen.initialize()
+	SingleExtensionScreen.initialize()
 	LogOverlay.initialize()
 
 	CustomCode.initialize()
