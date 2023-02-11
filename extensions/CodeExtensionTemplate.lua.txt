@@ -12,6 +12,14 @@ local function CodeExtensionTemplate()
 	self.author = "My Username"
 	self.description = "This is a template file for my fancy custom code extension."
 	self.version = "1.0"
+	self.url = "https://github.com/MyUsername/ExtensionRepo" -- Remove or set to nil if no host website available for this extension
+
+	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
+	-- Remove this function if you choose not to include a way for the user to configure options for your extension
+	-- NOTE: You'll need to implement a way to save & load changes for your extension options, similar to Tracker's Settings.ini file
+	function self.configureOptions()
+		-- [ADD CODE HERE]
+	end
 
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
