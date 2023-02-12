@@ -45,6 +45,7 @@ CustomExtensionsScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = "(Get more)",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN - 2, 46, 12 },
+		isVisible = function() return #CustomExtensionsScreen.Pager.Buttons > 0 end,
 		onClick = function(self)
 			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
 		end
