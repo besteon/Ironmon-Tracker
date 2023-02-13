@@ -67,7 +67,8 @@ function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
 		y = y - 1
 	end
 
-	if Theme.DRAW_TEXT_SHADOWS and size == nil then -- For now, don't draw shadows for smaller-than-normal text (old behavior)
+	-- For now, don't draw shadows for smaller-than-normal text (old behavior)
+	if Theme.DRAW_TEXT_SHADOWS and shadowcolor ~= nil and size == nil then
 		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
 	end
 	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
