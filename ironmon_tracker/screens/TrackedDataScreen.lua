@@ -115,8 +115,8 @@ function TrackedDataScreen.openLoadDataPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	Utils.tempDisableBizhawkSound()
+
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
 		local success, msg = Tracker.loadData(filepath)
@@ -124,9 +124,8 @@ function TrackedDataScreen.openLoadDataPrompt()
 			print(msg) -- output info on the load, regardless if successfully
 		end
 	end
-	if client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+
+	Utils.tempEnableBizhawkSound()
 end
 
 function TrackedDataScreen.tryClearData()

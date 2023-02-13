@@ -7,11 +7,14 @@ SingleExtensionScreen = {
 		enabledOff = "OFF",
 		viewOnline = "View Online",
 		options = "Options",
+		checkForUpdates = "Check for Updates",
+		updateAvailable = "Update Available",
+		noUpdateFound = "No Update Found",
 	},
 	Colors = {
-		text = "Default text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
+		text = "Lower box text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
 	},
 	column2offsetX = 50,
 	extension = nil,
@@ -54,6 +57,37 @@ SingleExtensionScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
+	CheckForUpdates = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = SingleExtensionScreen.Labels.checkForUpdates,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, 76, 11 },
+		isVisible = function(self)
+			return SingleExtensionScreen.extension ~= nil and SingleExtensionScreen.extension.selfObject.checkForUpdates ~= nil
+		end,
+		resetText = function(self)
+			self.text = SingleExtensionScreen.Labels.checkForUpdates
+			self.textColor = SingleExtensionScreen.Colors.text
+		end,
+		onClick = function(self)
+			local updateFunc = SingleExtensionScreen.extension.selfObject.checkForUpdates
+			if type(updateFunc) == "function" then
+				local isUpdateAvailable, updateUrl = updateFunc()
+
+				if isUpdateAvailable then
+					self.text = SingleExtensionScreen.Labels.updateAvailable
+					self.textColor = "Positive text"
+
+					if updateUrl ~= nil then
+						Utils.openBrowserWindow(updateUrl)
+					end
+				else
+					self.text = SingleExtensionScreen.Labels.noUpdateFound
+					self.textColor = SingleExtensionScreen.Colors.text
+				end
+			end
+			Program.redraw(true)
+		end,
+	},
 	ViewOnline = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		text = SingleExtensionScreen.Labels.viewOnline,
@@ -86,6 +120,7 @@ SingleExtensionScreen.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
+			SingleExtensionScreen.Buttons.CheckForUpdates:resetText()
 			CustomExtensionsScreen.refreshButtons()
 			Program.changeScreenView(Program.Screens.EXTENSIONS)
 		end,
@@ -168,11 +203,19 @@ function SingleExtensionScreen.drawScreen()
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Description
-	textLineY = textLineY + 8
+	textLineY = textLineY + 2
 	local wrappedDesc = Utils.getWordWrapLines(extension.selfObject.description, 32)
+	-- There is only room for 6 or 7 total lines to be shown for the short description
+	local linesShown = 0
+	local totalLinesCanShow = Utils.inlineIf(SingleExtensionScreen.Buttons.CheckForUpdates:isVisible(), 6, 7)
 	for _, line in pairs(wrappedDesc) do
 		Drawing.drawText(topBox.x + 2, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING
+
+		linesShown = linesShown + 1
+		if linesShown >= totalLinesCanShow then
+			break
+		end
 	end
 
 	-- Draw all buttons

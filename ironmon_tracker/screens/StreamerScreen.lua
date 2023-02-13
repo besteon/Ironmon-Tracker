@@ -6,6 +6,14 @@ StreamerScreen = {
 		editButton = " Edit",
 		favorites = "Favorite " .. Constants.Words.POKEMON .. ":",
 	},
+	Colors = {
+		upperText = "Default text",
+		upperBorder = "Upper box border",
+		upperBoxFill = "Upper box background",
+		lowerText = "Lower box text",
+		lowerBorder = "Lower box border",
+		lowerBoxFill = "Lower box background",
+	},
 }
 
 StreamerScreen.Buttons = {
@@ -105,10 +113,10 @@ StreamerScreen.Buttons = {
 function StreamerScreen.initialize()
 	for _, button in pairs(StreamerScreen.Buttons) do
 		if button.textColor == nil then
-			button.textColor = "Default text"
+			button.textColor = StreamerScreen.Colors.upperText
 		end
 		if button.boxColors == nil then
-			button.boxColors = { "Upper box border", "Upper box background" }
+			button.boxColors = { StreamerScreen.Colors.upperBorder, StreamerScreen.Colors.upperBoxFill }
 		end
 	end
 
@@ -215,10 +223,10 @@ function StreamerScreen.drawScreen()
 		y = Constants.SCREEN.MARGIN + 10,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
-		text = Theme.COLORS["Default text"],
-		border = Theme.COLORS["Upper box border"],
-		fill = Theme.COLORS["Upper box background"],
-		shadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"]),
+		text = Theme.COLORS[StreamerScreen.Colors.upperText],
+		border = Theme.COLORS[StreamerScreen.Colors.upperBorder],
+		fill = Theme.COLORS[StreamerScreen.Colors.upperBoxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[StreamerScreen.Colors.upperBoxFill]),
 	}
 	-- Will use the bottom-box later for OAuth Twitch stuff
 	local botBox = {
@@ -226,10 +234,10 @@ function StreamerScreen.drawScreen()
 		y = topBox.y + topBox.height + 5,
 		width = topBox.width,
 		height = Constants.SCREEN.HEIGHT - topBox.height - 15,
-		text = Theme.COLORS["Lower box text"],
-		border = Theme.COLORS["Lower box border"],
-		fill = Theme.COLORS["Lower box background"],
-		shadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"]),
+		text = Theme.COLORS[StreamerScreen.Colors.lowerText],
+		border = Theme.COLORS[StreamerScreen.Colors.lowerBorder],
+		fill = Theme.COLORS[StreamerScreen.Colors.lowerBoxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[StreamerScreen.Colors.lowerBoxFill]),
 	}
 	local textLineY = topBox.y + 2
 
@@ -245,7 +253,7 @@ function StreamerScreen.drawScreen()
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw Favorites Label
-	Drawing.drawText(topBox.x + 3, topBox.y + 40, StreamerScreen.Labels.favorites, Theme.COLORS["Default text"], topBox.shadow)
+	Drawing.drawText(topBox.x + 3, topBox.y + 40, StreamerScreen.Labels.favorites, topBox.text, topBox.shadow)
 
 	-- Draw bottom border box
 	-- gui.defaultTextBackground(botBox.fill)
@@ -253,7 +261,12 @@ function StreamerScreen.drawScreen()
 
 	-- Draw all buttons
 	for _, button in pairs(StreamerScreen.Buttons) do
-		local buttonShadow = Utils.inlineIf(button.boxColors[2] == "Upper box background", topBox.shadow, botBox.shadow)
+		local buttonShadow
+		if button.boxColors[2] == StreamerScreen.Colors.upperBoxFill then
+			buttonShadow = topBox.shadow
+		else
+			buttonShadow = botBox.shadow
+		end
 		Drawing.drawButton(button, buttonShadow)
 	end
 end

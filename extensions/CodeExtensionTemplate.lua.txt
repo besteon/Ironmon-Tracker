@@ -21,6 +21,21 @@ local function CodeExtensionTemplate()
 		-- [ADD CODE HERE]
 	end
 
+	-- Executed when the user clicks the "Check for Updates" button while viewing the extension details within the Tracker's UI
+	-- Returns [true, downloadUrl] if an update is available (downloadUrl auto opens in browser for user); otherwise returns [false, downloadUrl]
+	-- Remove this function if you choose not to implement a version update check for your extension
+	function self.checkForUpdates()
+		-- Replace "MyUsername" and "ExtensionRepo" in the below URL to match your repo url
+		local versionCheckUrl = "https://api.github.com/repos/MyUsername/ExtensionRepo/releases/latest"
+		-- Update the pattern below to match your version. You can check what this looks like by visiting the above url
+		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"'
+		-- Replace "MyUsername" and "ExtensionRepo" in the below URL to match your repo url
+		local downloadUrl = "https://github.com/MyUsername/ExtensionRepo/releases/latest"
+
+		local isUpdateAvailable = Utils.checkForVersionUpdate(versionCheckUrl, self.version, versionResponsePattern, nil)
+		return isUpdateAvailable, downloadUrl
+	end
+
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
 		-- [ADD CODE HERE]

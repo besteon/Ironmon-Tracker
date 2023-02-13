@@ -296,12 +296,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		-- Track that an update was checked today, so no additional api calls are performed today
 		Main.Version.dateChecked = todaysDate
 
-		local wasSoundOn
-		if Main.IsOnBizhawk() then
-			-- Disable Bizhawk sound while the update check is in process
-			wasSoundOn = client.GetSoundOn()
-			client.SetSoundOn(false)
-		end
+		Utils.tempDisableBizhawkSound()
 
 		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
 		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
@@ -331,9 +326,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			Main.Version.latestAvailable = latestReleasedVersion
 		end
 
-		if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-			client.SetSoundOn(wasSoundOn)
-		end
+		Utils.tempEnableBizhawkSound()
 	end
 
 	Main.SaveSettings(true)
@@ -372,10 +365,9 @@ end
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
 
-	local wasSoundOn
+	Utils.tempDisableBizhawkSound()
+
 	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	else
 		MGBA.clearConsole()
@@ -425,9 +417,7 @@ function Main.LoadNextRom()
 		print(string.format("> Unable to Quickload next ROM; couldn't %s one.", quickloadVerb))
 	end
 
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.tempEnableBizhawkSound()
 
 	Main.Run()
 end

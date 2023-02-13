@@ -182,11 +182,9 @@ function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	local wasSoundOn
+	Utils.tempDisableBizhawkSound()
+
 	if Main.IsOnBizhawk() then
-		-- Disable Bizhawk sound while the update is in process
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
 		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
 	end
@@ -204,9 +202,7 @@ function UpdateScreen.performAutoUpdate()
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
 
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.tempEnableBizhawkSound()
 
 	Program.redraw(true)
 end

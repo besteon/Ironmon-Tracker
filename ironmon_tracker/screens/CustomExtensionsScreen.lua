@@ -5,7 +5,7 @@ CustomExtensionsScreen = {
 		noExtensions = "You currently don't have any custom extensions installed.",
 	},
 	Colors = {
-		text = "Default text",
+		text = "Lower box text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
 	},
