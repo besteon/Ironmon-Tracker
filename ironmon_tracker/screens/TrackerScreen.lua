@@ -731,10 +731,13 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
 		if data.p.evo ~= Constants.BLANKLINE then
-			-- Draw over the evo method in the new color to reflect if evo is possible/soon
+			-- Draw over the evo method in the new color to reflect if evo is possible/ready
 			local evoTextColor = Theme.COLORS["Default text"]
 			if Tracker.Data.isViewingOwn then
-				if data.p.evo == "SOON" or Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level) or Utils.isReadyToEvolveByStone(data.p.evo) then
+				local evoReadyFriendship = (data.p.evo == PokemonData.Evolutions.FRIEND_READY)
+				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
+				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
+				if evoReadyFriendship or evoReadyLevel or evoReadyStone then
 					evoTextColor = Theme.COLORS["Positive text"]
 				elseif data.p.evo ~= Constants.BLANKLINE then
 					evoTextColor = Theme.COLORS["Intermediate text"]

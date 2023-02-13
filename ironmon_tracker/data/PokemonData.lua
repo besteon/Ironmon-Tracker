@@ -37,6 +37,7 @@ PokemonData.Evolutions = {
 	NONE = Constants.BLANKLINE, -- This Pokémon does not evolve.
 	LEVEL = "LEVEL", -- Unused directly, necessary as an info index
 	FRIEND = "FRIEND", -- High friendship
+	FRIEND_READY = "READY", -- High friendship, Pokémon has enough friendship to evolve
 	STONES = "STONE", -- Various evolution stone items
 	THUNDER = "THUNDER", -- Thunder stone item
 	FIRE = "FIRE", -- Fire stone item
