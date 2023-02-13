@@ -50,6 +50,8 @@ SingleExtensionScreen.Buttons = {
 			if SingleExtensionScreen.extension.isEnabled then
 				CustomCode.disableExtension(SingleExtensionScreen.extensionKey)
 			else
+				-- Reload the extension first in case it was updated or changed
+				CustomCode.loadExtension(SingleExtensionScreen.extensionKey)
 				CustomCode.enableExtension(SingleExtensionScreen.extensionKey)
 			end
 			self:updateSelf()

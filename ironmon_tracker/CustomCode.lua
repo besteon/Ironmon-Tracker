@@ -84,17 +84,17 @@ function CustomCode.loadExtension(extensionKey)
 	end
 
 	-- Keep known attributes of existing extension, replace others with newly loaded pieces
-	local extensionToLoad = CustomCode.ExtensionLibrary[extensionKey]
-	extensionToLoad.isEnabled = extensionToLoad.isEnabled or false
-	extensionToLoad.isLoaded = true
-	extensionToLoad.selfObject = selfObject
+	local loadedExtension = CustomCode.ExtensionLibrary[extensionKey]
+	loadedExtension.isEnabled = loadedExtension.isEnabled or false
+	loadedExtension.isLoaded = true
+	loadedExtension.selfObject = selfObject
 
 	-- If already enabled by user Settings.ini, enable it and call startup
-	if extensionToLoad.isEnabled then
+	if loadedExtension.isEnabled then
 		CustomCode.enableExtension(extensionKey)
 	end
 
-	return extensionToLoad
+	return loadedExtension
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
