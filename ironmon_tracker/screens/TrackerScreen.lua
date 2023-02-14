@@ -1,4 +1,6 @@
-TrackerScreen = {}
+TrackerScreen = {
+
+}
 
 TrackerScreen.Buttons = {
 	PokemonIcon = {
@@ -36,7 +38,7 @@ TrackerScreen.Buttons = {
 		onClick = function (self)
 			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID)
-			Program.changeScreenView(Program.Screens.TYPE_DEFENSES)
+			Program.changeScreenView(TypeDefensesScreen)
 		end,
 	},
 	SettingsGear = {
@@ -46,7 +48,7 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 92, 7, 7, 7 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 	RerollBallPicker = {
@@ -170,7 +172,7 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			local viewedPokemon = Tracker.getViewedPokemon()
 			if viewedPokemon ~= nil and MoveHistoryScreen.buildOutHistory(viewedPokemon.pokemonID, viewedPokemon.level) then
-				Program.changeScreenView(Program.Screens.MOVE_HISTORY)
+				Program.changeScreenView(MoveHistoryScreen)
 			end
 		end
 	},
@@ -640,6 +642,21 @@ end
 function TrackerScreen.canShowBallPicker()
 	-- If the player is in the lab without any Pokemon
 	return Options["Show random ball picker"] and RouteData.Locations.IsInLab[Battle.CurrentRoute.mapId] and Tracker.getPokemon(1, true) == nil
+end
+
+-- USER INPUT FUNCTIONS
+function TrackerScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, TrackerScreen.Buttons)
+	Input.checkAnyMovesClicked(xmouse, ymouse)
+
+	-- Check if mouse clicked on the game screen: on a new move learned, show info
+	local gameFooterHeight = 45
+	if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - gameFooterHeight, Constants.SCREEN.WIDTH, gameFooterHeight) then
+		local learnedInfoTable = Program.getLearnedMoveInfoTable()
+		if learnedInfoTable.moveId ~= nil then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
+		end
+	end
 end
 
 -- DRAWING FUNCTIONS

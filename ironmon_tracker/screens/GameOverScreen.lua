@@ -71,7 +71,7 @@ GameOverScreen.Buttons = {
 			end
 			LogOverlay.isDisplayed = false
 			GameOverScreen.refreshButtons()
-			Program.changeScreenView(Program.Screens.TRACKER)
+			Program.changeScreenView(TrackerScreen)
 		end,
 	},
 	RetryBattle = {
@@ -96,7 +96,7 @@ GameOverScreen.Buttons = {
 				GameOverScreen.trainerBattlesLost = GameOverScreen.trainerBattlesLost - 1
 				LogOverlay.isDisplayed = false
 				GameOverScreen.refreshButtons()
-				Program.changeScreenView(Program.Screens.TRACKER)
+				Program.changeScreenView(TrackerScreen)
 				GameOverScreen.loadTempSaveState()
 			end
 		end,
@@ -370,6 +370,11 @@ function GameOverScreen.openLogFilePrompt()
 	end
 
 	Utils.tempEnableBizhawkSound()
+end
+
+-- USER INPUT FUNCTIONS
+function GameOverScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

@@ -87,7 +87,7 @@ QuickloadScreen.Buttons = {
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the Tracker Setup screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -282,6 +282,11 @@ function QuickloadScreen.clearButton(button)
 	button.text = " SET"
 	Options.FILES[button.labelText] = ""
 	Options.forceSave()
+end
+
+-- USER INPUT FUNCTIONS
+function QuickloadScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, QuickloadScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

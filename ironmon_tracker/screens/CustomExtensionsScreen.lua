@@ -130,7 +130,7 @@ CustomExtensionsScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			CustomExtensionsScreen.refreshButtons()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -221,7 +221,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 			end,
 			onClick = function(self)
 				SingleExtensionScreen.setupScreenWithInfo(self.extensionKey, self.extension)
-				Program.changeScreenView(Program.Screens.SINGLE_EXTENSION)
+				Program.changeScreenView(SingleExtensionScreen)
 			end,
 		}
 		table.insert(CustomExtensionsScreen.Pager.Buttons, button)
@@ -261,6 +261,12 @@ function CustomExtensionsScreen.togglePagedButtons(makeActive)
 	else
 		CustomCode.unload()
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function CustomExtensionsScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS

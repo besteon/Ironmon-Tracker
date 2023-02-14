@@ -16,7 +16,7 @@ StartupScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.GEAR,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, 8, 7, 7 },
-		onClick = function(self) Program.changeScreenView(Program.Screens.NAVIGATION) end
+		onClick = function(self) Program.changeScreenView(NavigationMenu) end
 	},
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
@@ -46,7 +46,7 @@ StartupScreen.Buttons = {
 				self.text = ""
 			end
 		end,
-		onClick = function(self) Program.changeScreenView(Program.Screens.UPDATE) end
+		onClick = function(self) Program.changeScreenView(UpdateScreen) end
 	},
 	AttemptsCount = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -76,7 +76,7 @@ StartupScreen.Buttons = {
 		boxColors = { "Lower box border", "Lower box background" },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 128, Constants.SCREEN.MARGIN + 137, 10, 10 },
 		isVisible = function() return not Options["Show on new game screen"] and Options["Welcome message"] == "" end,
-		onClick = function(self) Program.changeScreenView(Program.Screens.STREAMER) end
+		onClick = function(self) Program.changeScreenView(StreamerScreen) end
 	},
 	EraseGame = { -- Currently unused
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -260,6 +260,11 @@ function StartupScreen.openEditAttemptsWindow()
 		client.unpause()
 		forms.destroy(form)
 	end, 157, 60)
+end
+
+-- USER INPUT FUNCTIONS
+function StartupScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, StartupScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

@@ -1,8 +1,12 @@
 GameOptionsScreen = {
-	headerText = "Gameplay Options",
-	textColor = "Lower box text",
-	borderColor = "Lower box border",
-	boxFillColor = "Lower box background",
+	Labels = {
+		header = "Gameplay Options",
+	},
+	Colors = {
+		text = "Lower box text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
+	},
 }
 
 GameOptionsScreen.OptionKeys = {
@@ -24,7 +28,7 @@ GameOptionsScreen.Buttons = {
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -58,31 +62,47 @@ function GameOptionsScreen.initialize()
 	end
 
 	for _, button in pairs(GameOptionsScreen.Buttons) do
-		button.textColor = GameOptionsScreen.textColor
-		button.boxColors = { GameOptionsScreen.borderColor, GameOptionsScreen.boxFillColor }
+		if button.textColor == nil then
+			button.textColor = GameOptionsScreen.Colors.text
+		end
+		if button.boxColors == nil then
+			button.boxColors = { GameOptionsScreen.Colors.border, GameOptionsScreen.Colors.boxFill }
+		end
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function GameOptionsScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, GameOptionsScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function GameOptionsScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[GameOptionsScreen.boxFillColor])
+	gui.defaultTextBackground(Theme.COLORS[GameOptionsScreen.Colors.boxFill])
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[GameOptionsScreen.boxFillColor])
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+	local topBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+		text = Theme.COLORS[GameOptionsScreen.Colors.text],
+		border = Theme.COLORS[GameOptionsScreen.Colors.border],
+		fill = Theme.COLORS[GameOptionsScreen.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[GameOptionsScreen.Colors.boxFill]),
+	}
 
 	-- Draw header text
+	local headerText = GameOptionsScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, GameOptionsScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	local centerOffsetX = Utils.getCenteredTextX(headerText, topBox.width)
+	Drawing.drawText(topBox.x + centerOffsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[GameOptionsScreen.borderColor], Theme.COLORS[GameOptionsScreen.boxFillColor])
+	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw all buttons
 	for _, button in pairs(GameOptionsScreen.Buttons) do
-		Drawing.drawButton(button, shadowcolor)
+		Drawing.drawButton(button, topBox.shadow)
 	end
 end

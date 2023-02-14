@@ -52,8 +52,8 @@ function Main.Initialize()
 		Main.OS = "Linux"
 	end
 
-	for _, filename in ipairs(FileManager.Files.LuaCode) do
-		if not FileManager.loadLuaFile(filename) then
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		if not FileManager.loadLuaFile(luafile.filepath) then
 			return false
 		end
 	end
@@ -238,43 +238,20 @@ function Main.DisplayError(errMessage)
 end
 
 function Main.InitializeAllTrackerFiles()
-	-- Initialize everything in the proper order
-	PokemonData.initialize()
-	MoveData.initialize()
-	RouteData.initialize()
-	TrainerData.initialize()
-
-	Program.initialize()
-	Drawing.initialize()
-	Options.initialize()
-	Theme.initialize()
-	Tracker.initialize()
-
-	if not Main.IsOnBizhawk() then
-		MGBA.initialize()
-		MGBADisplay.initialize()
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G -- Lua 5.1 only
+	else
+		globalRef = _ENV -- Lua 5.4
 	end
 
-	TrackerScreen.initialize()
-	NavigationMenu.initialize()
-	StartupScreen.initialize()
-	UpdateScreen.initialize()
-	SetupScreen.initialize()
-	ExtrasScreen.initialize()
-	QuickloadScreen.initialize()
-	GameOptionsScreen.initialize()
-	TrackedDataScreen.initialize()
-	StatsScreen.initialize()
-	MoveHistoryScreen.initialize()
-	TypeDefensesScreen.initialize()
-	GameOverScreen.initialize()
-	StreamerScreen.initialize()
-	TimeMachineScreen.initialize()
-	CustomExtensionsScreen.initialize()
-	SingleExtensionScreen.initialize()
-	LogOverlay.initialize()
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""]
+		if type(luaObject.initialize) == "function" then
+			luaObject.initialize()
+		end
+	end
 
-	CustomCode.initialize()
 	CustomCode.startup()
 end
 

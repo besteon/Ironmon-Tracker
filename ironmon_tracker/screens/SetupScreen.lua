@@ -77,7 +77,7 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -169,6 +169,11 @@ function SetupScreen.openEditControlsWindow()
 		client.unpause()
 		forms.destroy(form)
 	end, 230, offsetY + 5, 65, 30)
+end
+
+-- USER INPUT FUNCTIONS
+function SetupScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, SetupScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

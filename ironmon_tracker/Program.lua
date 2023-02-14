@@ -17,28 +17,6 @@ Program = {
 	},
 }
 
-Program.Screens = {
-	TRACKER = TrackerScreen.drawScreen,
-	INFO = InfoScreen.drawScreen,
-	NAVIGATION = NavigationMenu.drawScreen,
-	STARTUP = StartupScreen.drawScreen,
-	UPDATE = UpdateScreen.drawScreen,
-	SETUP = SetupScreen.drawScreen,
-	EXTRAS = ExtrasScreen.drawScreen,
-	QUICKLOAD = QuickloadScreen.drawScreen,
-	GAME_SETTINGS = GameOptionsScreen.drawScreen,
-	THEME = Theme.drawScreen,
-	MANAGE_DATA = TrackedDataScreen.drawScreen,
-	STATS = StatsScreen.drawScreen,
-	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
-	TYPE_DEFENSES = TypeDefensesScreen.drawScreen,
-	GAMEOVER = GameOverScreen.drawScreen,
-	STREAMER = StreamerScreen.drawScreen,
-	TIME_MACHINE = TimeMachineScreen.drawScreen,
-	EXTENSIONS = CustomExtensionsScreen.drawScreen,
-	SINGLE_EXTENSION = SingleExtensionScreen.drawScreen,
-}
-
 Program.GameData = {
 	evolutionStones = { -- The evolution stones currently in bag
 			[93] = 0, -- Sun Stone
@@ -98,9 +76,9 @@ Program.AutoSaver = {
 function Program.initialize()
 	-- If an update is available, offer that up first before going to the Tracker StartupScreen
 	if Main.Version.showUpdate then
-		Program.currentScreen = Program.Screens.UPDATE
+		Program.currentScreen = UpdateScreen
 	else
-		Program.currentScreen = Program.Screens.STARTUP
+		Program.currentScreen = StartupScreen
 	end
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
@@ -140,9 +118,23 @@ function Program.redraw(forced)
 	end
 
 	Program.Frames.waitToDraw = 30
-	Drawing.drawScreen(Program.currentScreen)
-	if LogOverlay.isDisplayed and Main.IsOnBizhawk() then
-		LogOverlay.drawScreen()
+
+	if Main.IsOnBizhawk() then
+		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+			Program.currentScreen.drawScreen()
+		end
+
+		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
+		if Program.ActiveRepel:shouldDisplay() then
+			Drawing.drawRepelUsage()
+		end
+
+		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
+		if LogOverlay.isDisplayed then
+			LogOverlay.drawScreen()
+		end
+	else
+		MGBA.ScreenUtils.updateTextBuffers()
 	end
 
 	CustomCode.afterRedraw()
@@ -158,7 +150,7 @@ end
 function Program.goBackToPreviousScreen()
 	Utils.printDebug("DEBUG: From %s previous screens.", #Program.previousScreens)
 	if #Program.previousScreens == 0 then
-		Program.currentScreen = Program.Screens.TRACKER
+		Program.currentScreen = TrackerScreen
 	else
 		Program.currentScreen = table.remove(Program.previousScreens)
 	end
@@ -203,10 +195,10 @@ function Program.update()
 			Program.updatePokemonTeams()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == Program.Screens.STARTUP and Program.isValidMapLocation() then
-				Program.currentScreen = Program.Screens.TRACKER
+			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
+				Program.currentScreen = TrackerScreen
 			elseif Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId] then
-				Program.currentScreen = Program.Screens.GAMEOVER
+				Program.currentScreen = GameOverScreen
 			end
 
 			-- Check if summary screen has being shown

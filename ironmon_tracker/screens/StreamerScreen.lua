@@ -105,7 +105,7 @@ StreamerScreen.Buttons = {
 		-- boxColors = { "Lower box border", "Lower box background" }, -- leave for when adding in second box later
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -212,6 +212,11 @@ function StreamerScreen.saveFavorites()
 	}
 	Options["Startup favorites"] = table.concat(favoriteIds, ",")
 	Main.SaveSettings(true)
+end
+
+-- USER INPUT FUNCTIONS
+function StreamerScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, StreamerScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

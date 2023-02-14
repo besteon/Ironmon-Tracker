@@ -131,7 +131,7 @@ UpdateScreen.Buttons = {
 		onClick = function(self)
 			-- Reset the CheckForUpdates button text
 			UpdateScreen.Buttons.CheckForUpdates.text = "Check for Updates"
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -211,7 +211,7 @@ function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
@@ -219,12 +219,17 @@ function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
 function UpdateScreen.openReleaseNotesWindow()
 	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
+end
+
+-- USER INPUT FUNCTIONS
+function UpdateScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

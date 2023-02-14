@@ -162,7 +162,7 @@ function ColorPicker:show()
 	client.unpause()
 
 	-- Changes the tracker screen back to the main screen so you can see theme updates live
-	Program.changeScreenView(Program.Screens.TRACKER)
+	Program.changeScreenView(TrackerScreen)
 end
 
 function ColorPicker:onClick()
@@ -178,7 +178,7 @@ end
 function ColorPicker:onClose()
 	Theme.COLORS[self.colorkey] = tonumber(self.originalColor)
 	Theme.settingsUpdated = true
-	Program.changeScreenView(Program.Screens.THEME)
+	Program.changeScreenView(Theme)
 	Input.currentColorPicker = nil
 	forms.destroy(self.mainForm)
 	Drawing.AnimatedPokemon:create()
