@@ -5,6 +5,10 @@ CustomCode = {
 		unknownAuthor = "Unknown",
 	},
 
+	-- When an extension's code errors, that is logged here and then printed.
+	-- Future errors of the same message are not printed, to avoid cluttering the Lua Console.
+	KnownErrors = {},
+
 	-- Available extensions that are currently known about that are likely present in the 'extensions' folder
 	-- Each 'key' is the filename of the extension
 	-- Each 'value' contains a 'isEnabled', 'isLoaded', and the 'selfObject' which contains the extension's functions and attributes
@@ -14,6 +18,11 @@ CustomCode = {
 	-- Only extension present in this list are "enabled" and integrated into Tracker code
 	EnabledExtensions = {},
 }
+
+-- Returns true if the settings option for custom code extensions is enabled; false otherwise
+function CustomCode.isEnabled()
+	return Options["Enable custom extensions"]
+end
 
 function CustomCode.initialize()
 	local filesLoaded = {
@@ -157,18 +166,39 @@ function CustomCode.disableExtension(extensionKey)
 end
 
 -- Simulates an interface-like function execution for custom code files
-function CustomCode.execFunctions(func, ...)
+function CustomCode.execFunctions(funcLabel, ...)
+	if not CustomCode.isEnabled() then return end
+
 	for _, ext in ipairs(CustomCode.EnabledExtensions) do
-		local functToExec = ext.selfObject[func]
+		local functToExec = ext.selfObject[funcLabel]
 		if type(functToExec) == "function" then
-			functToExec(...)
+			local params = ...
+			local funcWithParams = function() functToExec(params) end
+			CustomCode.tryExecute(funcLabel, funcWithParams)
 		end
 	end
 end
 
--- Returns true if the settings option for custom code extensions is enabled; false otherwise
-function CustomCode.isEnabled()
-	return Options["Enable custom extensions"]
+function CustomCode.tryExecute(functionLabel, functToExec)
+	CustomCode.funcBeingExecuted = functionLabel
+	local result = xpcall(functToExec, CustomCode.logError)
+	CustomCode.funcBeingExecuted = nil
+	return result
+end
+
+function CustomCode.logError(err)
+	local errorAsString = tostring(err)
+	local errorLabel
+	if CustomCode.funcBeingExecuted ~= nil then
+		errorLabel = string.format("[ERROR:%s] %s", CustomCode.funcBeingExecuted, errorAsString)
+	else
+		errorLabel = string.format("[ERROR] %s", errorAsString)
+	end
+
+	if not CustomCode.KnownErrors[errorLabel] then
+		CustomCode.KnownErrors[errorLabel] = true
+		print(errorLabel)
+	end
 end
 
 --------------------------------------------------------------------------------------------------
@@ -177,70 +207,61 @@ end
 
 -- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 function CustomCode.startup()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("startup")
 end
 
 -- Executed only once: When the extension is disabled by the user, necessary to undo any customizations, if able
 function CustomCode.unload()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("unload")
 end
 
 -- [Bizhawk only] Executed each frame (60 frames per second)
 -- CAUTION: Avoid unnecessary calculations here, as this can easily affect performance.
 function CustomCode.inputCheckBizhawk()
-	if not CustomCode.isEnabled() or not Main.IsOnBizhawk() then return end
+	if not Main.IsOnBizhawk() then return end
 	CustomCode.execFunctions("inputCheckBizhawk")
 end
 
 -- [MGBA only] Executed each frame (60 frames per second)
 -- CAUTION: Avoid unnecessary calculations here, as this can easily affect performance.
 function CustomCode.inputCheckMGBA()
-	if not CustomCode.isEnabled() or Main.IsOnBizhawk() then return end
+	if Main.IsOnBizhawk() then return end
 	CustomCode.execFunctions("inputCheckMGBA")
 end
 
 -- Executed each frame, after most data from game memory is read in but before any natural redraw events occur
 -- CAUTION: Avoid code here if possible, as this can easily affect performance. Most Tracker updates occur at 30-frame intervals, some at 10-frame.
 function CustomCode.afterEachFrame()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterEachFrame")
 end
 
 -- Executed once every 30 frames, after most data from game memory is read in
 function CustomCode.afterProgramDataUpdate()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterProgramDataUpdate")
 end
 
 -- Executed once every 30 frames, after any battle-related data from game memory is read in
 function CustomCode.afterBattleDataUpdate()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleDataUpdate")
 end
 
 -- Executed once every 30 frames or after any redraw event is scheduled (e.g. most button presses)
 function CustomCode.afterRedraw()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterRedraw")
 end
 
 -- Executed after a new battle begins (wild or trainer), and only once per battle
 function CustomCode.afterBattleBegins()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleBegins")
 end
 
 -- Executed after a battle ends, and only once per battle
 function CustomCode.afterBattleEnds()
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("afterBattleEnds")
 end
 
 -- Executed before a button's onClick() is processed, and only once per click per button
 -- Param: button: the button object being clicked
 function CustomCode.onButtonClicked(button)
-	if not CustomCode.isEnabled() then return end
 	CustomCode.execFunctions("onButtonClicked", button)
 end
