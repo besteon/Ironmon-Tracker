@@ -52,30 +52,14 @@ function Main.Initialize()
 		Main.OS = "Linux"
 	end
 
-	local globalRef
-	if Main.emulator == Main.EMU.BIZHAWK28 then
-		globalRef = _G
-	else
-		globalRef = _ENV
-	end
-
-	local screens = {}
 	for _, luafile in ipairs(FileManager.LuaCode) do
 		if not FileManager.loadLuaFile(luafile.filepath) then
 			return false
-		end
-
-		-- Check if the loaded global object is a "screen", used for input/drawing checks
-		local luaObject = globalRef[luafile.name or ""]
-		if luaObject.Key ~= nil and type(luaObject.checkInput) == "function" or type(luaObject.drawScreen) == "function" then
-			screens[luaObject.Key] = luaObject
 		end
 	end
 	if not FileManager.loadLuaFile(FileManager.Files.UPDATE_OR_INSTALL) then
 		return false
 	end
-
-	Program.Screens = screens
 
 	Main.LoadSettings()
 

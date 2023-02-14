@@ -1,5 +1,5 @@
 TrackerScreen = {
-	Key = "TrackerScreen",
+
 }
 
 TrackerScreen.Buttons = {

@@ -1,5 +1,4 @@
 SingleExtensionScreen = {
-	Key = "SingleExtensionScreen",
 	Labels = {
 		authorBy = "By:",
 		version = "Version:",

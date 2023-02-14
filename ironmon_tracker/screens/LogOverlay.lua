@@ -1,5 +1,4 @@
 LogOverlay = {
-	Key = "LogOverlay",
 	Labels = {
 		header = "Log Viewer",
 		bstStatBox = "Base Stats",

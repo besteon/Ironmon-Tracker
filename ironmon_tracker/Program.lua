@@ -15,7 +15,6 @@ Program = {
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
 	},
-	Screens = {}, -- Set later in Main.lua after all files/screens are loaded
 }
 
 Program.GameData = {

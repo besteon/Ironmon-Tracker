@@ -1,5 +1,4 @@
 TypeDefensesScreen = {
-	Key = "TypeDefensesScreen",
 	Labels = {
 		headerFormat = "%s's Type Defenses", -- e.g. Shuckle's Type Defenses
 		pageFormat = "Page %s/%s", -- e.g. Page 1/3

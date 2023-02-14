@@ -1,5 +1,4 @@
 UpdateScreen = {
-	Key = "UpdateScreen",
 	Labels = {
 		title = "Tracker Update Available",
 		titleCheck = "Tracker Update Check",

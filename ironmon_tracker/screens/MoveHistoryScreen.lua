@@ -1,5 +1,4 @@
 MoveHistoryScreen = {
-	Key = "MoveHistoryScreen",
 	Labels = {
 		headerMoves = "Move seen at level:",
 		headerMin = "Min",

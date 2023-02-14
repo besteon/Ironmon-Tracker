@@ -1,5 +1,4 @@
  TrackedDataScreen = {
-	Key = "TrackedDataScreen",
 	headerText = "Manage Tracked Data",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",

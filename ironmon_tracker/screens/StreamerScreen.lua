@@ -1,5 +1,4 @@
 StreamerScreen = {
-	Key = "StreamerScreen",
 	Labels = {
 		header = "Streamer Tools",
 		attemptsCount = "Attempts Count:",

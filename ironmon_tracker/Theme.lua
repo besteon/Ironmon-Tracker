@@ -1,6 +1,4 @@
 Theme = {
-	Key = "Theme",
-
 	-- Tracks if any theme elements were modified so we know if we need to save them to the Settings.ini file
 	settingsUpdated = false,
 	headerHighlightKey = "Intermediate text",

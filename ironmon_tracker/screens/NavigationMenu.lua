@@ -1,5 +1,4 @@
 NavigationMenu = {
-	Key = "NavigationMenu",
 	headerText = "Tracker Settings",
 	textColor = "Default text",
 	borderColor = "Upper box border",

@@ -1,5 +1,4 @@
 InfoScreen = {
-	Key = "InfoScreen",
 	viewScreen = 0,
 	prevScreen = 0,
 	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterArea}'

@@ -1,5 +1,4 @@
 CustomExtensionsScreen = {
-	Key = "CustomExtensionsScreen",
 	Labels = {
 		header = "Custom Extensions",
 		pageFormat = "Pg. %s/%s", -- e.g. Pg. 1/3

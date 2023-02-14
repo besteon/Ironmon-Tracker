@@ -1,5 +1,4 @@
 StartupScreen = {
-	Key = "StartupScreen",
 	Labels = {
 		title = "Ironmon Tracker",
 		version = "Version:",

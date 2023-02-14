@@ -1,5 +1,4 @@
 ExtrasScreen = {
-	Key = "ExtrasScreen",
 	Labels = {
 		header = "Tracker Extras",
 	},

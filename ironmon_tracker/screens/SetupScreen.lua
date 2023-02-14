@@ -1,5 +1,4 @@
 SetupScreen = {
-	Key = "SetupScreen",
 	headerText = "Tracker Setup",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",

@@ -1,5 +1,4 @@
 StatsScreen = {
-	Key = "StatsScreen",
 	Labels = {
 		header = "Game Stats",
 	},

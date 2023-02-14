@@ -1,5 +1,4 @@
 GameOptionsScreen = {
-	Key = "GameOptionsScreen",
 	headerText = "Gameplay Options",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",

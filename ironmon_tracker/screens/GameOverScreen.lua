@@ -1,5 +1,4 @@
 GameOverScreen = {
-	Key = "GameOverScreen",
 	Labels = {
 		headerTop = "G a m e O v e r",
 		announcer = "Announcer:",

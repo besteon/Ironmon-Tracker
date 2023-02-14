@@ -1,5 +1,4 @@
 QuickloadScreen = {
-	Key = "QuickloadScreen",
 	headerText = "Quickload Setup",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",

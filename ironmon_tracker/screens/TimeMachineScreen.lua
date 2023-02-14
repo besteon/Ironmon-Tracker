@@ -1,5 +1,4 @@
 TimeMachineScreen = {
-	Key = "TimeMachineScreen",
 	Labels = {
 		header = "Time Machine",
 		description = "Select a restore point below to go back to that point in time.",
