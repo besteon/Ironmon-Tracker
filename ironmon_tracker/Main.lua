@@ -240,9 +240,9 @@ end
 function Main.InitializeAllTrackerFiles()
 	local globalRef
 	if Main.emulator == Main.EMU.BIZHAWK28 then
-		globalRef = _G
+		globalRef = _G -- Lua 5.1 only
 	else
-		globalRef = _ENV
+		globalRef = _ENV -- Lua 5.4
 	end
 
 	for _, luafile in ipairs(FileManager.LuaCode) do
@@ -251,43 +251,6 @@ function Main.InitializeAllTrackerFiles()
 			luaObject.initialize()
 		end
 	end
-
-	-- TODO: Leaving this in for now, as I'm not convinced the "load order" in FileManger is good enough
-	-- Initialize everything in the proper order
-	-- PokemonData.initialize()
-	-- MoveData.initialize()
-	-- RouteData.initialize()
-	-- TrainerData.initialize()
-
-	-- Program.initialize()
-	-- Drawing.initialize()
-	-- Options.initialize()
-	-- Theme.initialize()
-	-- Tracker.initialize()
-
-	-- MGBA.initialize()
-	-- MGBADisplay.initialize()
-
-	-- TrackerScreen.initialize()
-	-- NavigationMenu.initialize()
-	-- StartupScreen.initialize()
-	-- UpdateScreen.initialize()
-	-- SetupScreen.initialize()
-	-- ExtrasScreen.initialize()
-	-- QuickloadScreen.initialize()
-	-- GameOptionsScreen.initialize()
-	-- TrackedDataScreen.initialize()
-	-- StatsScreen.initialize()
-	-- MoveHistoryScreen.initialize()
-	-- TypeDefensesScreen.initialize()
-	-- GameOverScreen.initialize()
-	-- StreamerScreen.initialize()
-	-- TimeMachineScreen.initialize()
-	-- CustomExtensionsScreen.initialize()
-	-- SingleExtensionScreen.initialize()
-	-- LogOverlay.initialize()
-
-	-- CustomCode.initialize()
 
 	CustomCode.startup()
 end

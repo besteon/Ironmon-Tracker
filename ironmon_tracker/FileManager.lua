@@ -64,10 +64,15 @@ FileManager.Urls = {
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 }
 
--- An ordered list of all lua code files that are used by the Tracker, loaded in the ordered listed
+-- All Lua code files used by the Tracker, loaded and initialized in the order listed
 FileManager.LuaCode = {
+	-- First set of core files
 	{ name = "Inifile", filepath = "Inifile.lua", },
 	{ name = "Constants", filepath = "Constants.lua", },
+	{ name = "Utils", filepath = "Utils.lua", },
+	{ name = "Memory", filepath = "Memory.lua", },
+	{ name = "GameSettings", filepath = "GameSettings.lua", },
+	-- Data files
 	{ name = "PokemonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonData.lua", },
 	{ name = "MoveData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MoveData.lua", },
 	{ name = "AbilityData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "AbilityData.lua", },
@@ -76,14 +81,21 @@ FileManager.LuaCode = {
 	{ name = "DataHelper", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
-	{ name = "Memory", filepath = "Memory.lua", },
-	{ name = "GameSettings", filepath = "GameSettings.lua", },
-	{ name = "InfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua", },
+	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Theme", filepath = "Theme.lua", },
 	{ name = "ColorPicker", filepath = "ColorPicker.lua", },
-	{ name = "Utils", filepath = "Utils.lua", },
+	{ name = "Input", filepath = "Input.lua", },
+	{ name = "Drawing", filepath = "Drawing.lua", },
+	{ name = "Program", filepath = "Program.lua", },
+	{ name = "Battle", filepath = "Battle.lua", },
+	{ name = "Pickle", filepath = "Pickle.lua", },
+	{ name = "Tracker", filepath = "Tracker.lua", },
+	{ name = "MGBA", filepath = "MGBA.lua", },
+	-- Screen files
+	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
 	{ name = "TrackerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackerScreen.lua", },
+	{ name = "InfoScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "InfoScreen.lua", },
 	{ name = "NavigationMenu", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "NavigationMenu.lua", },
 	{ name = "StartupScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StartupScreen.lua", },
 	{ name = "UpdateScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "UpdateScreen.lua", },
@@ -101,14 +113,7 @@ FileManager.LuaCode = {
 	{ name = "CustomExtensionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua", },
 	{ name = "SingleExtensionScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "SingleExtensionScreen.lua", },
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
-	{ name = "Input", filepath = "Input.lua", },
-	{ name = "Drawing", filepath = "Drawing.lua", },
-	{ name = "Program", filepath = "Program.lua", },
-	{ name = "Battle", filepath = "Battle.lua", },
-	{ name = "Pickle", filepath = "Pickle.lua", },
-	{ name = "Tracker", filepath = "Tracker.lua", },
-	{ name = "MGBA", filepath = "MGBA.lua", },
-	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
+	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
 
