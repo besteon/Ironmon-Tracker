@@ -1,4 +1,5 @@
 ExtrasScreen = {
+	Key = "ExtrasScreen",
 	Labels = {
 		header = "Tracker Extras",
 	},
@@ -25,7 +26,7 @@ ExtrasScreen.Buttons = {
 		-- isVisible = function() return true end,
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
-			Program.changeScreenView(Program.Screens.TIME_MACHINE)
+			Program.changeScreenView(TimeMachineScreen)
 		end
 	},
 	EstimateIVs = {
@@ -43,7 +44,7 @@ ExtrasScreen.Buttons = {
 			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -121,6 +122,11 @@ function ExtrasScreen.displayJudgeMessage()
 		ExtrasScreen.Buttons.EstimateIVs.ivText = "Estimate is unavailable."
 	end
 	Program.redraw(true)
+end
+
+-- USER INPUT FUNCTIONS
+function ExtrasScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, ExtrasScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

@@ -1,4 +1,5 @@
 LogOverlay = {
+	Key = "LogOverlay",
 	Labels = {
 		header = "Log Viewer",
 		bstStatBox = "Base Stats",
@@ -268,7 +269,7 @@ LogOverlay.TabBarButtons = {
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
-				Program.changeScreenView(Program.Screens.GAMEOVER)
+				Program.changeScreenView(GameOverScreen)
 			else -- Constants.PixelImages.PREVIOUS_BUTTON
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.GO_BACK)
 				Program.redraw(true)
@@ -1350,8 +1351,23 @@ function LogOverlay.openRandomizerShareWindow()
 	end, 212, 165)
 end
 
+-- USER INPUT FUNCTIONS
+function LogOverlay.checkInput(xmouse, ymouse)
+	if not LogOverlay.isDisplayed then return end
+
+	-- Order here matters
+	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TemporaryButtons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TabBarButtons)
+	for _, buttonSet in pairs(LogOverlay.PagedButtons) do
+		Input.checkButtonsClicked(xmouse, ymouse, buttonSet)
+	end
+end
+
 -- DRAWING FUNCTIONS
 function LogOverlay.drawScreen()
+	if not LogOverlay.isDisplayed then return end
+
 	Drawing.drawBackgroundAndMargins(0, 0, Constants.SCREEN.WIDTH, Constants.SCREEN.HEIGHT)
 
 	local box = {

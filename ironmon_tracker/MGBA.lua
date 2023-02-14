@@ -10,6 +10,8 @@ MGBA.Symbols = {
 }
 
 function MGBA.initialize()
+	if Main.IsOnBizhawk() then return end
+
 	MGBA.shortenDashes()
 	MGBA.ScreenUtils.createTextBuffers()
 	MGBA.buildOptionMapDefaults()

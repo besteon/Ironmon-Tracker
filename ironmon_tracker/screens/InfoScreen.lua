@@ -1,4 +1,5 @@
 InfoScreen = {
+	Key = "InfoScreen",
 	viewScreen = 0,
 	prevScreen = 0,
 	infoLookup = 0, -- Possibilities: 'pokemonID', 'moveId', 'abilityId', or '{mapId, encounterArea}'
@@ -71,7 +72,7 @@ InfoScreen.Buttons = {
 		end,
 		onClick = function (self)
 			if MoveHistoryScreen.buildOutHistory(InfoScreen.infoLookup) then
-				Program.changeScreenView(Program.Screens.MOVE_HISTORY)
+				Program.changeScreenView(MoveHistoryScreen)
 			end
 		end,
 	},
@@ -88,7 +89,7 @@ InfoScreen.Buttons = {
 		end,
 		onClick = function (self)
 			TypeDefensesScreen.buildOutPagedButtons(InfoScreen.infoLookup)
-			Program.changeScreenView(Program.Screens.TYPE_DEFENSES)
+			Program.changeScreenView(TypeDefensesScreen)
 		end,
 	},
 	LookupRoute = {
@@ -155,7 +156,7 @@ InfoScreen.Buttons = {
 				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
 			else
 				InfoScreen.clearScreenData()
-				Program.changeScreenView(Program.Screens.TRACKER)
+				Program.changeScreenView(TrackerScreen)
 			end
 		end
 	},
@@ -255,7 +256,7 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.prevScreenInfo = InfoScreen.infoLookup
 	InfoScreen.viewScreen = screen
 	InfoScreen.infoLookup = info
-	Program.changeScreenView(Program.Screens.INFO)
+	Program.changeScreenView(InfoScreen)
 end
 
 function InfoScreen.clearScreenData()
@@ -507,13 +508,28 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	return iconButtons
 end
 
+-- USER INPUT FUNCTIONS
+function InfoScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.TemporaryButtons)
+
+	-- Check if mouse clicked on the game screen: on a new move learned, show info
+	local gameFooterHeight = 45
+	if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - gameFooterHeight, Constants.SCREEN.WIDTH, gameFooterHeight) then
+		local learnedInfoTable = Program.getLearnedMoveInfoTable()
+		if learnedInfoTable.moveId ~= nil then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
+		end
+	end
+end
+
 -- DRAWING FUNCTIONS
 function InfoScreen.drawScreen()
 	if InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO then
 		local pokemonID = InfoScreen.infoLookup
 		-- Only draw valid pokemon data, pokemonID = 0 is blank move data
 		if not PokemonData.isValid(pokemonID) then
-			Program.changeScreenView(Program.Screens.TRACKER)
+			Program.changeScreenView(TrackerScreen)
 		else
 			InfoScreen.drawPokemonInfoScreen(pokemonID)
 		end
@@ -521,7 +537,7 @@ function InfoScreen.drawScreen()
 		local moveId = InfoScreen.infoLookup
 		-- Only draw valid move data, moveId = 0 is blank move data
 		if not MoveData.isValid(moveId) then
-			Program.changeScreenView(Program.Screens.TRACKER)
+			Program.changeScreenView(TrackerScreen)
 		else
 			InfoScreen.drawMoveInfoScreen(moveId)
 		end
@@ -529,7 +545,7 @@ function InfoScreen.drawScreen()
 		-- Only draw valid route data
 		local mapId = InfoScreen.infoLookup.mapId
 		if not RouteData.hasRoute(mapId) then
-			Program.changeScreenView(Program.Screens.TRACKER)
+			Program.changeScreenView(TrackerScreen)
 		else
 			local encounterArea = InfoScreen.infoLookup.encounterArea or RouteData.EncounterArea.LAND
 			if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then

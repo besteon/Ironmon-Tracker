@@ -52,14 +52,30 @@ function Main.Initialize()
 		Main.OS = "Linux"
 	end
 
-	for _, filename in ipairs(FileManager.Files.LuaCode) do
-		if not FileManager.loadLuaFile(filename) then
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G
+	else
+		globalRef = _ENV
+	end
+
+	local screens = {}
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		if not FileManager.loadLuaFile(luafile.filepath) then
 			return false
+		end
+
+		-- Check if the loaded global object is a "screen", used for input/drawing checks
+		local luaObject = globalRef[luafile.name or ""]
+		if luaObject.Key ~= nil and type(luaObject.checkInput) == "function" or type(luaObject.drawScreen) == "function" then
+			screens[luaObject.Key] = luaObject
 		end
 	end
 	if not FileManager.loadLuaFile(FileManager.Files.UPDATE_OR_INSTALL) then
 		return false
 	end
+
+	Program.Screens = screens
 
 	Main.LoadSettings()
 
@@ -238,43 +254,57 @@ function Main.DisplayError(errMessage)
 end
 
 function Main.InitializeAllTrackerFiles()
-	-- Initialize everything in the proper order
-	PokemonData.initialize()
-	MoveData.initialize()
-	RouteData.initialize()
-	TrainerData.initialize()
-
-	Program.initialize()
-	Drawing.initialize()
-	Options.initialize()
-	Theme.initialize()
-	Tracker.initialize()
-
-	if not Main.IsOnBizhawk() then
-		MGBA.initialize()
-		MGBADisplay.initialize()
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G
+	else
+		globalRef = _ENV
 	end
 
-	TrackerScreen.initialize()
-	NavigationMenu.initialize()
-	StartupScreen.initialize()
-	UpdateScreen.initialize()
-	SetupScreen.initialize()
-	ExtrasScreen.initialize()
-	QuickloadScreen.initialize()
-	GameOptionsScreen.initialize()
-	TrackedDataScreen.initialize()
-	StatsScreen.initialize()
-	MoveHistoryScreen.initialize()
-	TypeDefensesScreen.initialize()
-	GameOverScreen.initialize()
-	StreamerScreen.initialize()
-	TimeMachineScreen.initialize()
-	CustomExtensionsScreen.initialize()
-	SingleExtensionScreen.initialize()
-	LogOverlay.initialize()
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""]
+		if type(luaObject.initialize) == "function" then
+			luaObject.initialize()
+		end
+	end
 
-	CustomCode.initialize()
+	-- TODO: Leaving this in for now, as I'm not convinced the "load order" in FileManger is good enough
+	-- Initialize everything in the proper order
+	-- PokemonData.initialize()
+	-- MoveData.initialize()
+	-- RouteData.initialize()
+	-- TrainerData.initialize()
+
+	-- Program.initialize()
+	-- Drawing.initialize()
+	-- Options.initialize()
+	-- Theme.initialize()
+	-- Tracker.initialize()
+
+	-- MGBA.initialize()
+	-- MGBADisplay.initialize()
+
+	-- TrackerScreen.initialize()
+	-- NavigationMenu.initialize()
+	-- StartupScreen.initialize()
+	-- UpdateScreen.initialize()
+	-- SetupScreen.initialize()
+	-- ExtrasScreen.initialize()
+	-- QuickloadScreen.initialize()
+	-- GameOptionsScreen.initialize()
+	-- TrackedDataScreen.initialize()
+	-- StatsScreen.initialize()
+	-- MoveHistoryScreen.initialize()
+	-- TypeDefensesScreen.initialize()
+	-- GameOverScreen.initialize()
+	-- StreamerScreen.initialize()
+	-- TimeMachineScreen.initialize()
+	-- CustomExtensionsScreen.initialize()
+	-- SingleExtensionScreen.initialize()
+	-- LogOverlay.initialize()
+
+	-- CustomCode.initialize()
+
 	CustomCode.startup()
 end
 

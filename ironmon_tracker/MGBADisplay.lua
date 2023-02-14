@@ -27,6 +27,7 @@ MGBADisplay.OrderedLists = {
 }
 
 function MGBADisplay.initialize()
+	if Main.IsOnBizhawk() then return end
 	-- Currently unused
 end
 

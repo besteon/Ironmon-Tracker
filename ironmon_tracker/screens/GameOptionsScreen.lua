@@ -1,4 +1,5 @@
 GameOptionsScreen = {
+	Key = "GameOptionsScreen",
 	headerText = "Gameplay Options",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
@@ -24,7 +25,7 @@ GameOptionsScreen.Buttons = {
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -61,6 +62,11 @@ function GameOptionsScreen.initialize()
 		button.textColor = GameOptionsScreen.textColor
 		button.boxColors = { GameOptionsScreen.borderColor, GameOptionsScreen.boxFillColor }
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function GameOptionsScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, GameOptionsScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

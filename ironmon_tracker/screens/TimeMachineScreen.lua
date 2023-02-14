@@ -1,4 +1,5 @@
 TimeMachineScreen = {
+	Key = "TimeMachineScreen",
 	Labels = {
 		header = "Time Machine",
 		description = "Select a restore point below to go back to that point in time.",
@@ -112,7 +113,7 @@ TimeMachineScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			TimeMachineScreen.resetButtons()
-			Program.changeScreenView(Program.Screens.EXTRAS)
+			Program.changeScreenView(ExtrasScreen)
 		end
 	},
 }
@@ -194,7 +195,7 @@ function TimeMachineScreen.cleanupOldRestorePoints(forceRemoveAll)
 		return
 	elseif #TimeMachineScreen.RestorePoints <= TimeMachineScreen.maxRestorePoints then
 		return
-	elseif Program.currentScreen == Program.Screens.TIME_MACHINE then
+	elseif Program.currentScreen == TimeMachineScreen then
 		-- Don't remove anything if the user is viewing the restore points, as they may use one of them
 		return
 	end
@@ -305,6 +306,12 @@ function TimeMachineScreen.resetButtons()
 			button:updateText()
 		end
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function TimeMachineScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS

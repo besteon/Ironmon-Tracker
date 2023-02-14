@@ -277,20 +277,6 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 end
 
-function Drawing.drawScreen(screenFunc)
-	if Main.IsOnBizhawk() then
-		if screenFunc ~= nil and type(screenFunc) == "function" then
-			screenFunc()
-		end
-		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Program.ActiveRepel:shouldDisplay() then
-			Drawing.drawRepelUsage()
-		end
-	else
-		MGBA.ScreenUtils.updateTextBuffers()
-	end
-end
-
 function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	if imageMatrix == nil then return end
 

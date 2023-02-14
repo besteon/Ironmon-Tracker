@@ -1,4 +1,5 @@
 StatsScreen = {
+	Key = "StatsScreen",
 	Labels = {
 		header = "Game Stats",
 	},
@@ -59,7 +60,7 @@ StatsScreen.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -80,6 +81,11 @@ function StatsScreen.initialize()
 		button.textColor = StatsScreen.Colors.text
 		button.boxColors = { StatsScreen.Colors.border, StatsScreen.Colors.boxFill }
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function StatsScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, StatsScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

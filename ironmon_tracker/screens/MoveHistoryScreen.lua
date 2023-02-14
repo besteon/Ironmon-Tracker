@@ -1,4 +1,5 @@
 MoveHistoryScreen = {
+	Key = "MoveHistoryScreen",
 	Labels = {
 		headerMoves = "Move seen at level:",
 		headerMin = "Min",
@@ -79,9 +80,9 @@ MoveHistoryScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 136, 24, 11 },
 		onClick = function(self)
 			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-				Program.changeScreenView(Program.Screens.TRACKER)
+				Program.changeScreenView(TrackerScreen)
 			else
-				Program.changeScreenView(Program.Screens.INFO)
+				Program.changeScreenView(InfoScreen)
 			end
 		end
 	},
@@ -183,6 +184,12 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 		client.unpause()
 		forms.destroy(pokedexLookup)
 	end, 212, 29)
+end
+
+-- USER INPUT FUNCTIONS
+function MoveHistoryScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
 end
 
 -- DRAWING FUNCTIONS

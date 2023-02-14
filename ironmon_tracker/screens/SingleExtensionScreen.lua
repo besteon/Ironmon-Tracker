@@ -1,4 +1,5 @@
 SingleExtensionScreen = {
+	Key = "SingleExtensionScreen",
 	Labels = {
 		authorBy = "By:",
 		version = "Version:",
@@ -124,7 +125,7 @@ SingleExtensionScreen.Buttons = {
 		onClick = function(self)
 			SingleExtensionScreen.Buttons.CheckForUpdates:resetText()
 			CustomExtensionsScreen.refreshButtons()
-			Program.changeScreenView(Program.Screens.EXTENSIONS)
+			Program.changeScreenView(CustomExtensionsScreen)
 		end,
 	},
 }
@@ -164,6 +165,11 @@ function SingleExtensionScreen.getEmptyExtension()
 			description = "(Description not available)",
 		},
 	}
+end
+
+-- USER INPUT FUNCTIONS
+function SingleExtensionScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, SingleExtensionScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS
