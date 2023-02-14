@@ -1,6 +1,14 @@
 ExtrasScreen = {
 	Labels = {
 		header = "Tracker Extras",
+		timeMachineBtn = "Time Machine",
+		estimateIvBtn = " Estimate " .. Constants.Words.POKEMON .. " IV Potential",
+		resultIs = "is",
+		resultOutstanding = "Outstanding!!!",
+		resultQuiteImpressive = "Quite impressive!!",
+		resultAboveAverage = "Above average!",
+		resultDecent = "Decent.",
+		resultUnavailable = "Estimate is unavailable.",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -19,7 +27,7 @@ ExtrasScreen.OptionKeys = {
 ExtrasScreen.Buttons = {
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		text = "Time Machine",
+		text = ExtrasScreen.Labels.timeMachineBtn,
 		image = Constants.PixelImages.CLOCK,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16},
 		-- isVisible = function() return true end,
@@ -30,7 +38,7 @@ ExtrasScreen.Buttons = {
 	},
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = " Estimate " .. Constants.Words.POKEMON .. " IV Potential",
+		text = ExtrasScreen.Labels.estimateIvBtn,
 		ivText = "",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 109, 130, 11 },
 		onClick = function() ExtrasScreen.displayJudgeMessage() end
@@ -98,27 +106,28 @@ end
 function ExtrasScreen.displayJudgeMessage()
 	local leadPokemon = Battle.getViewedPokemon(true)
 	if leadPokemon ~= nil and PokemonData.isValid(leadPokemon.pokemonID) then
-		-- https://bulbapedia.bulbagarden.net/wiki/Stats_judge
+		-- Source: https://bulbapedia.bulbagarden.net/wiki/Stats_judge
 		local result
 		local ivEstimate = Utils.estimateIVs(leadPokemon) * 186
 		if ivEstimate >= 151 then
-			result = "Outstanding!!!"
+			result = ExtrasScreen.Labels.resultOutstanding
 		elseif ivEstimate >= 121 and ivEstimate <= 150 then
-			result = "Quite impressive!!"
+			result = ExtrasScreen.Labels.resultQuiteImpressive
 		elseif ivEstimate >= 91 and ivEstimate <= 120 then
-			result = "Above average!"
+			result = ExtrasScreen.Labels.resultAboveAverage
 		else
-			result = "Decent."
+			result = ExtrasScreen.Labels.resultDecent
 		end
 
-		ExtrasScreen.Buttons.EstimateIVs.ivText = PokemonData.Pokemon[leadPokemon.pokemonID].name .. " is: " .. result
+		local pokemonName = PokemonData.Pokemon[leadPokemon.pokemonID].name
+		ExtrasScreen.Buttons.EstimateIVs.ivText = string.format("%s %s: %s", pokemonName, ExtrasScreen.Labels.resultIs, result)
 
 		-- Joey's Rattata meme (saving for later)
 		-- local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
 		-- local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
 		-- message = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
 	else
-		ExtrasScreen.Buttons.EstimateIVs.ivText = "Estimate is unavailable."
+		ExtrasScreen.Buttons.EstimateIVs.ivText = ExtrasScreen.Labels.resultUnavailable
 	end
 	Program.redraw(true)
 end
