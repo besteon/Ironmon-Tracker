@@ -165,6 +165,38 @@ function CustomCode.disableExtension(extensionKey)
 	end
 end
 
+function CustomCode.refreshExtensionList()
+	-- Used to help remove any inactive or missing extension files
+	local activeExtensions = {}
+
+	local customFolderPath = FileManager.getCustomFolderPath()
+	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
+	for _, filename in pairs(customFiles) do
+		local name = FileManager.extractFileNameFromPath(filename) or ""
+		local ext = FileManager.extractFileExtensionFromPath(filename) or ""
+		ext = "." .. ext
+
+		-- Load any new Lua code files, but only if they don't already exist
+		if ext == FileManager.Extensions.LUA_CODE then
+			if CustomCode.ExtensionLibrary[name] == nil then
+				CustomCode.loadExtension(name)
+			end
+			activeExtensions[name] = true
+		end
+	end
+
+	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
+		if not activeExtensions[extensionKey] then
+			CustomCode.disableExtension(extensionKey)
+			CustomCode.ExtensionLibrary[extensionKey] = nil
+			Main.RemoveMetaSetting("extensions", extensionKey)
+		end
+	end
+	collectgarbage()
+
+	Main.SaveSettings(true)
+end
+
 -- Simulates an interface-like function execution for custom code files
 function CustomCode.execFunctions(funcLabel, ...)
 	if not CustomCode.isEnabled() then return end
