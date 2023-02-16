@@ -61,8 +61,9 @@ InfoScreen.Buttons = {
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "History",
-		textColor = "Default text",
+		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 70, 28, 10, },
+		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		draw = function(self)
 			local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
@@ -78,8 +79,9 @@ InfoScreen.Buttons = {
 	TypeDefenses = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		text = "Show resistances",
-		textColor = "Default text",
+		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 68, Constants.SCREEN.MARGIN + 97, 68, 10, },
+		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		draw = function(self)
 			local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
@@ -722,8 +724,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.LookupPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoTopShadow)
+
+	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoBotShadow)
+	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.Back, boxInfoBotShadow)
 	InfoScreen.drawNotepadArea()
 	Drawing.drawButton(InfoScreen.Buttons.NotepadTracking, boxInfoBotShadow)
