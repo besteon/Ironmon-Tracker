@@ -54,9 +54,9 @@ TypeDefensesScreen.Buttons = {
 		onClick = function(self)
 			TypeDefensesScreen.pokemonID = nil
 			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-				Program.changeScreenView(Program.Screens.TRACKER)
+				Program.changeScreenView(TrackerScreen)
 			else
-				Program.changeScreenView(Program.Screens.INFO)
+				Program.changeScreenView(InfoScreen)
 			end
 		end
 	},
@@ -160,6 +160,11 @@ function TypeDefensesScreen.buildOutPagedButtons(pokemonID)
 	TypeDefensesScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
 
 	return true
+end
+
+-- USER INPUT FUNCTIONS
+function TypeDefensesScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, TypeDefensesScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

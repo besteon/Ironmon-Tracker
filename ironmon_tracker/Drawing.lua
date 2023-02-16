@@ -67,7 +67,8 @@ function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
 		y = y - 1
 	end
 
-	if Theme.DRAW_TEXT_SHADOWS and size == nil then -- For now, don't draw shadows for smaller-than-normal text (old behavior)
+	-- For now, don't draw shadows for smaller-than-normal text (old behavior)
+	if Theme.DRAW_TEXT_SHADOWS and shadowcolor ~= nil and size == nil then
 		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
 	end
 	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
@@ -273,20 +274,6 @@ function Drawing.drawButton(button, shadowcolor)
 	-- Draw anything extra that the button defines
 	if button.draw ~= nil then
 		button:draw(shadowcolor)
-	end
-end
-
-function Drawing.drawScreen(screenFunc)
-	if Main.IsOnBizhawk() then
-		if screenFunc ~= nil and type(screenFunc) == "function" then
-			screenFunc()
-		end
-		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Program.ActiveRepel:shouldDisplay() then
-			Drawing.drawRepelUsage()
-		end
-	else
-		MGBA.ScreenUtils.updateTextBuffers()
 	end
 end
 

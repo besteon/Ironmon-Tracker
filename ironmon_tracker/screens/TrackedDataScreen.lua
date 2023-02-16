@@ -46,7 +46,7 @@ TrackedDataScreen.Buttons = {
 
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -115,15 +115,14 @@ function TrackedDataScreen.openLoadDataPrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing "/"
 	end
 
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	Utils.tempDisableBizhawkSound()
+
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
 		Tracker.loadData(filepath)
 	end
-	if client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+
+	Utils.tempEnableBizhawkSound()
 end
 
 function TrackedDataScreen.tryClearData()
@@ -142,6 +141,11 @@ function TrackedDataScreen.tryClearData()
 
 		Program.redraw(true)
 	end
+end
+
+-- USER INPUT FUNCTIONS
+function TrackedDataScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, TrackedDataScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

@@ -209,7 +209,7 @@ Theme.Buttons = {
 			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
 			if Theme.Screen.displayingThemeManager then
-				Program.changeScreenView(Program.Screens.NAVIGATION)
+				Program.changeScreenView(NavigationMenu)
 			else
 				Theme.Screen.displayingThemeManager = true
 				Theme.refreshThemePreview() -- also performs a screen redraw
@@ -401,7 +401,7 @@ function Theme.importThemeFromText(themeCode, applyTheme)
 	if applyTheme then
 		Theme.settingsUpdated = true
 	end
-	if Program.currentScreen == Program.Screens.THEME then
+	if Program.currentScreen == Theme then
 		Program.redraw(true)
 	end
 
@@ -624,6 +624,11 @@ function Theme.tryRemoveThemePreset()
 		removeBtn.confirmRemove = true
 	end
 	Program.redraw(true)
+end
+
+-- USER INPUT FUNCTIONS
+function Theme.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, Theme.Buttons)
 end
 
 -- DRAWING FUNCTIONS

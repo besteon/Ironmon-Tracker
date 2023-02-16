@@ -71,7 +71,7 @@ GameOverScreen.Buttons = {
 			end
 			LogOverlay.isDisplayed = false
 			GameOverScreen.refreshButtons()
-			Program.changeScreenView(Program.Screens.TRACKER)
+			Program.changeScreenView(TrackerScreen)
 		end,
 	},
 	RetryBattle = {
@@ -96,7 +96,7 @@ GameOverScreen.Buttons = {
 				GameOverScreen.trainerBattlesLost = GameOverScreen.trainerBattlesLost - 1
 				LogOverlay.isDisplayed = false
 				GameOverScreen.refreshButtons()
-				Program.changeScreenView(Program.Screens.TRACKER)
+				Program.changeScreenView(TrackerScreen)
 				GameOverScreen.loadTempSaveState()
 			end
 		end,
@@ -139,12 +139,7 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			local wasSoundOn
-			if Main.IsOnBizhawk() then
-				-- Disable Bizhawk sound while the update is in process
-				wasSoundOn = client.GetSoundOn()
-				client.SetSoundOn(false)
-			end
+			Utils.tempDisableBizhawkSound()
 
 			if not GameOverScreen.viewLogFile() then
 				-- If the log file was already parsed, re-use that
@@ -155,9 +150,7 @@ GameOverScreen.Buttons = {
 				end
 			end
 
-			if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-				client.SetSoundOn(wasSoundOn)
-			end
+			Utils.tempEnableBizhawkSound()
 		end,
 	},
 }
@@ -369,15 +362,19 @@ function GameOverScreen.openLogFilePrompt()
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	Utils.tempDisableBizhawkSound()
+
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= nil and filepath ~= "" then
 		LogOverlay.parseAndDisplay(filepath)
 	end
-	if client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+
+	Utils.tempEnableBizhawkSound()
+end
+
+-- USER INPUT FUNCTIONS
+function GameOverScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

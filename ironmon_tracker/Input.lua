@@ -148,10 +148,12 @@ function Input.togglePokemonViewed()
 
 		-- Check toggling through other Pokemon available in doubles battles
 		if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
-			--swap sides on returning to allied side
+			-- Swap sides on returning to allied side
 			Battle.isViewingLeft = not Battle.isViewingLeft
-			--undo changes for special double battles
-			if Battle.isViewingLeft == false and Battle.Combatants.RightOwn > Battle.partySize then
+
+			-- For some doubles battles, do not reveal your ally partner's Pokémon (such as Emerald Steven fight)
+			local shouldHideAlly = Battle.EnemyTrainersToHideAlly[GameSettings.game or 1][Battle.opposingTrainerId or 0]
+			if not Battle.isViewingLeft and shouldHideAlly then
 				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 			end
 		end
@@ -167,69 +169,13 @@ function Input.togglePokemonViewed()
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
-	if Program.currentScreen == Program.Screens.TRACKER then
-		Input.checkButtonsClicked(xmouse, ymouse, TrackerScreen.Buttons)
-		Input.checkAnyMovesClicked(xmouse, ymouse)
-	elseif Program.currentScreen == Program.Screens.INFO then
-		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, InfoScreen.TemporaryButtons)
-	elseif Program.currentScreen == Program.Screens.NAVIGATION then
-		Input.checkButtonsClicked(xmouse, ymouse, NavigationMenu.Buttons)
-	elseif Program.currentScreen == Program.Screens.STARTUP then
-		Input.checkButtonsClicked(xmouse, ymouse, StartupScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.UPDATE then
-		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.SETUP then
-		Input.checkButtonsClicked(xmouse, ymouse, SetupScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.EXTRAS then
-		Input.checkButtonsClicked(xmouse, ymouse, ExtrasScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.QUICKLOAD then
-		Input.checkButtonsClicked(xmouse, ymouse, QuickloadScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.GAME_SETTINGS then
-		Input.checkButtonsClicked(xmouse, ymouse, GameOptionsScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.THEME then
-		Input.checkButtonsClicked(xmouse, ymouse, Theme.Buttons)
-	elseif Program.currentScreen == Program.Screens.MANAGE_DATA then
-		Input.checkButtonsClicked(xmouse, ymouse, TrackedDataScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.STATS then
-		Input.checkButtonsClicked(xmouse, ymouse, StatsScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
-		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, MoveHistoryScreen.TemporaryButtons)
-	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
-		Input.checkButtonsClicked(xmouse, ymouse, TypeDefensesScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.GAMEOVER then
-		Input.checkButtonsClicked(xmouse, ymouse, GameOverScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.STREAMER then
-		Input.checkButtonsClicked(xmouse, ymouse, StreamerScreen.Buttons)
-	elseif Program.currentScreen == Program.Screens.TIME_MACHINE then
-		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, TimeMachineScreen.Pager.Buttons)
-	elseif Program.currentScreen == Program.Screens.EXTENSIONS then
-		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
+	if Program.currentScreen ~= nil and type(Program.currentScreen.checkInput) == "function" then
+		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
 
-	-- Check if mouse clicked on the game screen itself
+	-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 	if LogOverlay.isDisplayed then
-		-- Order here matters
-		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TemporaryButtons)
-		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.Buttons)
-		Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TabBarButtons)
-		for _, buttonSet in pairs(LogOverlay.PagedButtons) do
-			Input.checkButtonsClicked(xmouse, ymouse, buttonSet)
-		end
-	else
-		-- Clicked on a new move learned, show info
-		if Input.isMouseInArea(xmouse, ymouse, 0, Constants.SCREEN.HEIGHT - 45, Constants.SCREEN.WIDTH, 45) then
-			-- Only lookup/show move if not editing settings
-			if Program.currentScreen == Program.Screens.TRACKER or Program.currentScreen == Program.Screens.INFO then
-				local learnedInfoTable = Program.getLearnedMoveInfoTable()
-				if learnedInfoTable.moveId ~= nil then
-					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, learnedInfoTable.moveId)
-				end
-			end
-		end
+		LogOverlay.checkInput(xmouse, ymouse)
 	end
 end
 

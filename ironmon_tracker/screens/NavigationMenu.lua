@@ -21,20 +21,20 @@ NavigationMenu.Buttons = {
 		text = "Setup",
 		image = Constants.PixelImages.NOTEPAD,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.SETUP) end
+		onClick = function() Program.changeScreenView(SetupScreen) end
 	},
 	Extras = {
 		text = "Extras",
 		image = Constants.PixelImages.POKEBALL,
 		iconColors = { NavigationMenu.textColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.EXTRAS) end
+		onClick = function() Program.changeScreenView(ExtrasScreen) end
 	},
 	GameplaySettings = {
 		text = "Gameplay",
 		image = Constants.PixelImages.PHYSICAL,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.GAME_SETTINGS) end
+		onClick = function() Program.changeScreenView(GameOptionsScreen) end
 	},
 	QuickloadSettings = {
 		text = "Quickload",
@@ -48,22 +48,22 @@ NavigationMenu.Buttons = {
 				self.textColor = "Intermediate text"
 			end
 		end,
-		onClick = function() Program.changeScreenView(Program.Screens.QUICKLOAD) end
+		onClick = function() Program.changeScreenView(QuickloadScreen) end
 	},
 	ThemeCustomization = {
 		text = "Theme",
-		image = Constants.PixelImages.NOTEPAD,
+		image = Constants.PixelImages.SPARKLES,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
-			Program.changeScreenView(Program.Screens.THEME)
+			Program.changeScreenView(Theme)
 		end
 	},
 	ManageTrackedData = {
 		text = "Data",
 		image = Constants.PixelImages.GEAR,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.MANAGE_DATA) end
+		onClick = function() Program.changeScreenView(TrackedDataScreen) end
 	},
 	CheckForUpdates = {
 		text = "Update",
@@ -83,28 +83,28 @@ NavigationMenu.Buttons = {
 			else
 				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
 			end
-			Program.changeScreenView(Program.Screens.UPDATE)
+			Program.changeScreenView(UpdateScreen)
 		end
 	},
 	ViewStats = {
 		text = "Stats",
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.STATS) end
+		onClick = function() Program.changeScreenView(StatsScreen) end
 	},
 	StreamerTools = {
 		text = "Streaming",
 		image = Constants.PixelImages.SPECIAL,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(Program.Screens.STREAMER) end
+		onClick = function() Program.changeScreenView(StreamerScreen) end
 	},
 	Extensions = {
 		text = "Extensions",
-		image = Constants.PixelImages.INSTALL_BOX,
+		image = Constants.PixelImages.EXTENSIONS,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			CustomExtensionsScreen.buildOutPagedButtons()
-			Program.changeScreenView(Program.Screens.EXTENSIONS)
+			Program.changeScreenView(CustomExtensionsScreen)
 		end
 	},
 	MirageButton = {
@@ -149,9 +149,9 @@ NavigationMenu.Buttons = {
 				Program.redraw(true)
 			else
 				if Program.isValidMapLocation() then
-					Program.changeScreenView(Program.Screens.TRACKER)
+					Program.changeScreenView(TrackerScreen)
 				else
-					Program.changeScreenView(Program.Screens.STARTUP)
+					Program.changeScreenView(StartupScreen)
 				end
 			end
 		end
@@ -213,6 +213,11 @@ end
 
 function NavigationMenu.openWikiBrowserWindow()
 	Utils.openBrowserWindow(FileManager.Urls.WIKI, NavigationMenu.Labels.wikiBrowserErrMsg)
+end
+
+-- USER INPUT FUNCTIONS
+function NavigationMenu.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, NavigationMenu.Buttons)
 end
 
 -- DRAWING FUNCTIONS

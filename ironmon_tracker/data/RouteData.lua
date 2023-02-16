@@ -2378,7 +2378,8 @@ function RouteData.setupRouteInfoAsRSE()
 	local offset = Utils.inlineIf(isGameEmerald, 0, 1)
 
 	RouteData.Locations.CanPCHeal = {
-		[54] = true, -- Mom's house
+		[54] = true, -- Brendan's house
+		[56] = true, -- May's house
 		[61] = true, -- Most Pokemon Centers
 		[71] = true, -- Lavaridge Town
 		[270 + offset] = true, -- Pokemon League

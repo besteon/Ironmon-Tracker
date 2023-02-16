@@ -130,7 +130,7 @@ UpdateScreen.Buttons = {
 		onClick = function(self)
 			-- Reset the CheckForUpdates button text
 			UpdateScreen.Buttons.CheckForUpdates.text = "Check for Updates"
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -180,9 +180,12 @@ function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	-- Disable Bizhawk sound while the update is in process
-	local wasSoundOn = client.GetSoundOn()
-	client.SetSoundOn(false)
+	Utils.tempDisableBizhawkSound()
+
+	if Main.IsOnBizhawk() then
+		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
+		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
+	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
@@ -213,6 +216,7 @@ function UpdateScreen.executeBatchOperations()
 		return false
 	end
 
+	Utils.tempEnableBizhawkSound()
 	-- Temp Files/Folders used by batch operations
 	local archiveName = "Ironmon-Tracker-main.tar.gz"
 	local folderName = "Ironmon-Tracker-main"
@@ -254,7 +258,7 @@ function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
@@ -262,12 +266,17 @@ function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
 function UpdateScreen.openReleaseNotesWindow()
 	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
+end
+
+-- USER INPUT FUNCTIONS
+function UpdateScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS
