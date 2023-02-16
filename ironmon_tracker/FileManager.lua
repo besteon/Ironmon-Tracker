@@ -5,6 +5,7 @@ FileManager.slash = package.config:sub(1,1) or "\\"
 
 FileManager.Folders = {
 	TrackerCode = "ironmon_tracker",
+	Custom = "extensions",
 	Quickload = "quickload",
 	SavedGames = "saved_games", -- needs to be created first to be used
 	DataCode = "data",
@@ -55,9 +56,11 @@ FileManager.Files = {
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua",
+		FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua",
 		FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua",
 		"Input.lua",
 		"Drawing.lua",
@@ -67,6 +70,7 @@ FileManager.Files = {
 		"Tracker.lua",
 		"MGBA.lua",
 		"MGBADisplay.lua",
+		"CustomCode.lua",
 	},
 	LanguageCode = {
 		SpainData = "SpainData.lua",
@@ -96,12 +100,14 @@ FileManager.Extensions = {
 	TRAINER = ".png",
 	BADGE = ".png",
 	SAVESTATE = ".State", -- Bizhawk save-state
+	LUA_CODE = ".lua",
 }
 
 FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
+	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 }
 
 -- Returns true if a file exists at its absolute file path; false otherwise
@@ -271,13 +277,21 @@ function FileManager.getFilesFromDirectory(folderpath)
 	return files
 end
 
--- There is probably a better way to do this
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
 		FileManager.Folders.Images,
 		tostring(imageFolder),
 		tostring(imageName) .. (imageExtension or "")
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
+-- Returns a properly formatted folder path where custom code files are located
+function FileManager.getCustomFolderPath()
+	local listOfPaths = {
+		FileManager.Folders.Custom,
+		"", -- Necessary to include a trailing slash, helps with appending a filename
 	}
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
@@ -432,7 +446,7 @@ function FileManager.readLinesFromFile(filename)
 
 	local fileContents = file:read("*a")
 	if fileContents ~= nil and fileContents ~= "" then
-		for line in fileContents:gmatch("([^\r\n]+)\r?\n") do
+		for line in fileContents:gmatch("([^\r\n]+)[\r\n]*") do
 			if line ~= nil then
 				table.insert(lines, line)
 			end

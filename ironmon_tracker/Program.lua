@@ -31,9 +31,11 @@ Program.Screens = {
 	MANAGE_DATA = TrackedDataScreen.drawScreen,
 	STATS = StatsScreen.drawScreen,
 	MOVE_HISTORY = MoveHistoryScreen.drawScreen,
+	TYPE_DEFENSES = TypeDefensesScreen.drawScreen,
 	GAMEOVER = GameOverScreen.drawScreen,
 	STREAMER = StreamerScreen.drawScreen,
 	TIME_MACHINE = TimeMachineScreen.drawScreen,
+	EXTENSIONS = CustomExtensionsScreen.drawScreen,
 }
 
 Program.GameData = {
@@ -54,7 +56,8 @@ Program.ActiveRepel = {
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
-		return enabledAndAllowed and not hasConflict
+		local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
 }
 
@@ -122,6 +125,7 @@ function Program.mainLoop()
 	Input.checkForInput()
 	Program.update()
 	Battle.update()
+	CustomCode.afterEachFrame()
 	Program.redraw(false)
 	Program.stepFrames() -- TODO: Really want a better way to handle this
 end
@@ -139,6 +143,8 @@ function Program.redraw(forced)
 	if LogOverlay.isDisplayed and Main.IsOnBizhawk() then
 		LogOverlay.drawScreen()
 	end
+
+	CustomCode.afterRedraw()
 end
 
 function Program.changeScreenView(screen)
@@ -247,6 +253,10 @@ function Program.update()
 		if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 			Tracker.saveData()
 		end
+	end
+
+	if Program.Frames.lowAccuracyUpdate == 0 then
+		CustomCode.afterProgramDataUpdate()
 	end
 end
 

@@ -15,6 +15,7 @@ UpdateScreen = {
 		inProgressMsg = "Check external Window for status.",
 		safeReloadMsg = "You can safely reload the Tracker:",
 		errorOccurredMsg = "Please try updating manually:",
+		releaseNotesErrMsg = "Check the Lua Console for a link to the Tracker's Release Notes."
 	},
 	States = {
 		NEEDS_CHECK = "Already on the latest version.", -- Not displayed anywhere visually
@@ -266,15 +267,7 @@ function UpdateScreen.ignoreTheUpdate()
 end
 
 function UpdateScreen.openReleaseNotesWindow()
-	-- The first parameter is the title of the window, the second is the url
-	if Main.OS == "Windows" then
-		os.execute(string.format('start "" "%s"', Constants.Release.DOWNLOAD_URL))
-	else
-		-- Currently doesn't work on Bizhawk on Linux, but unsure of any available working solution
-		os.execute(string.format('open "" "%s"', Constants.Release.DOWNLOAD_URL))
-		Main.DisplayError("Check the Lua Console for a link to the Tracker's Release Notes.")
-		print(string.format("Release Notes: %s", Constants.Release.DOWNLOAD_URL))
-	end
+	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
 end
 
 -- DRAWING FUNCTIONS

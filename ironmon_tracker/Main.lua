@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "2", patch = "6" }
+Main.Version = { major = "7", minor = "3", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -171,7 +171,7 @@ end
 -- Checks if Bizhawk version is 2.8 or later
 function Main.GetBizhawkVersion()
 	-- Significantly older Bizhawk versions don't have a client.getversion function
-	if client == nil or client.getversion == nil then return false end
+	if client == nil or client.getversion == nil then return Main.EMU.BIZHAWK_OLD end
 
 	-- Check the major and minor version numbers separately, to account for versions such as "2.10"
 	local major, minor = string.match(client.getversion(), "(%d+)%.(%d+)")
@@ -266,10 +266,15 @@ function Main.InitializeAllTrackerFiles()
 	TrackedDataScreen.initialize()
 	StatsScreen.initialize()
 	MoveHistoryScreen.initialize()
+	TypeDefensesScreen.initialize()
 	GameOverScreen.initialize()
 	StreamerScreen.initialize()
 	TimeMachineScreen.initialize()
+	CustomExtensionsScreen.initialize()
 	LogOverlay.initialize()
+
+	CustomCode.initialize()
+	CustomCode.startup()
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -285,8 +290,8 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	-- %x - Date representation for current locale (Standard date string), eg. "25/04/07"
 	local todaysDate = os.date("%x")
 
-	-- Only notify about updates once per day
-	if forcedCheck or todaysDate ~= Main.Version.dateChecked then
+	-- Only notify about updates once per day. Note: 1st run of bizhawk results in date being an integer not a string
+	if forcedCheck or tostring(todaysDate) ~= tostring(Main.Version.dateChecked) then
 		-- Track that an update was checked today, so no additional api calls are performed today
 		Main.Version.dateChecked = todaysDate
 
@@ -692,9 +697,8 @@ function Main.SaveCurrentRom(filename)
 end
 
 function Main.GetAttemptsFile()
-	local loadedRomName = GameSettings.getRomName() or ""
-	local romprefix = string.match(loadedRomName, '[^0-9]+') or "" -- remove numbers
-	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
+	-- If temp quickload files are available, use those instead of spending resources to look them up
+	local quickloadFiles = Main.tempQuickloadFiles
 
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
@@ -702,7 +706,7 @@ function Main.GetAttemptsFile()
 	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
-		local quickloadFiles = Main.tempQuickloadFiles or Main.GetQuickloadFiles()
+		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
 		if #quickloadFiles.settingsList > 0 then
 			settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1])
 		end
@@ -710,14 +714,30 @@ function Main.GetAttemptsFile()
 	if settingsFileName ~= nil then
 		attemptsFileName = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
 		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
+
+		-- Return early if an attemptsFilePath has been found
+		if attemptsFilePath ~= nil then
+			return attemptsFilePath
+		end
 	end
 
 	-- Otherwise, check if an attempts file exists based on the ROM file name (w/o numbers)
 	-- The case when using Quickload method: premade ROMS
-	if attemptsFilePath == nil then
-		attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
-		attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
+	local quickloadRomName
+	-- If on Bizhawk, can just get the currently loaded ROM
+	-- mGBA however does NOT return the filename, so need to use the quickload folder files
+	if Main.IsOnBizhawk() then
+		quickloadRomName = GameSettings.getRomName() or ""
+	else
+		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
+		quickloadRomName = quickloadFiles.romList[1] or ""
 	end
+
+	local romprefix = string.match(quickloadRomName, '[^0-9]+') or "" -- remove numbers
+	romprefix = romprefix:gsub(" " .. FileManager.PostFixes.AUTORANDOMIZED, "") -- remove quickload post-fix
+
+	attemptsFileName = string.format("%s %s%s", romprefix, FileManager.PostFixes.ATTEMPTS_FILE, FileManager.Extensions.ATTEMPTS)
+	attemptsFilePath = FileManager.getPathIfExists(attemptsFileName)
 
 	-- Otherwise, create an attempts file using the name provided by the emulator itself
 	if attemptsFilePath == nil then
@@ -849,6 +869,22 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [EXTENSIONS]
+	if settings.extensions ~= nil then
+		for extKey, extValue in pairs(settings.extensions) do
+			if extValue ~= nil then
+				if CustomCode.ExtensionLibrary[extKey] == nil then
+					CustomCode.ExtensionLibrary[extKey] = {
+						isEnabled = extValue,
+						isLoaded = false,
+					}
+				else
+					CustomCode.ExtensionLibrary[extKey].isEnabled = extValue
+				end
+			end
+		end
+	end
+
 	return true
 end
 
@@ -866,6 +902,7 @@ function Main.SaveSettings(forced)
 	if settings.tracker == nil then settings.tracker = {} end
 	if settings.controls == nil then settings.controls = {} end
 	if settings.theme == nil then settings.theme = {} end
+	if settings.extensions == nil then settings.extensions = {} end
 
 	-- [CONFIG]
 	settings.config.RemindMeLater = Main.Version.remindMe
@@ -898,7 +935,19 @@ function Main.SaveSettings(forced)
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
 
+	-- [EXTENSIONS]
+	for extKey, extension in pairs(CustomCode.ExtensionLibrary) do
+		settings.extensions[extKey] = extension.isEnabled or false
+	end
+
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
+end
+
+function Main.RemoveMetaSetting(section, key)
+	if section == nil or key == nil or section == "" or key == "" then return end
+	if Main.MetaSettings[section] ~= nil then
+		Main.MetaSettings[section][key] = nil
+	end
 end

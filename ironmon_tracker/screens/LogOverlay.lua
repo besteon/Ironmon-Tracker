@@ -9,6 +9,7 @@ LogOverlay = {
 		partyPokemonLevelFormat = "Lv.%s", -- e.g. Lv.23
 		filterBy = "Filter by:",
 		showMoreEvos = "See more",
+		shareSeed = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.",
 	},
 	Tabs = {
 		POKEMON = Constants.Words.POKEMON,
@@ -1342,7 +1343,7 @@ function LogOverlay.openRandomizerShareWindow()
 		table.insert(shareExport, string.format("%s %s", infoSection.label, infoSection.value))
 	end
 
-	forms.label(form, "Share the randomized seed for this game. Load it through Randomizer --> Premade Seed.", 9, 10, 495, 20)
+	forms.label(form, LogOverlay.Labels.shareSeed, 9, 10, 495, 20)
 	forms.textbox(form, table.concat(shareExport, " " .. newline), 480, 120, nil, 10, 35, true, false, "Vertical")
 	forms.button(form, "Close", function()
 		forms.destroy(form)

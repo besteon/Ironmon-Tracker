@@ -130,6 +130,7 @@ Constants.OrderedLists = {
 		"Startup favorites",
 		"Show on new game screen",
 		"Enable restore points",
+		"Enable custom extensions",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -430,6 +431,7 @@ Constants.CharWidths = {
 	["?"] = 4,
 	["<"] = 4,
 	[">"] = 4,
+	["/"] = 4,
 	a = 4,
     A = 5,
     b = 4,
