@@ -4,6 +4,7 @@ Battle = {
 	battleStarting = false,
 	isWildEncounter = false,
 	isGhost = false,
+	opposingTrainerId = 0,
 	defeatedSteven = false, -- Used exclusively for Emerald
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
@@ -63,6 +64,15 @@ Battle.IndexMap = {
 	[3] = "RightOther",
 }
 
+Battle.EnemyTrainersToHideAlly = {
+	[1] = {}, -- Ruby/Sapphire
+	[2] = { -- Emerald
+		[514] = true, -- Tabitha (duo)
+		[734] = true, -- Maxie (duo)
+	},
+	[3] = {}, -- FRLG
+}
+
 function Battle.update()
 	if not Program.isValidMapLocation() then
 		return
@@ -113,7 +123,7 @@ function Battle.updateBattleStatus()
 		end
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
-		Program.changeScreenView(Program.Screens.GAMEOVER)
+		Program.changeScreenView(GameOverScreen)
 	end
 end
 
@@ -592,11 +602,12 @@ function Battle.beginNewBattle()
 	end
 	Battle.isGhost = false
 
+	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+
 	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
 	if Tracker.Data.whichRival == nil then
-		local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
-		Tracker.tryTrackWhichRival(opposingTrainerId)
+		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
 	end
 
 	Battle.isViewingLeft = true
@@ -610,13 +621,13 @@ function Battle.beginNewBattle()
 	Input.StatHighlighter:resetSelectedStat()
 
 	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
-	if Program.currentScreen == Program.Screens.INFO then
+	if Program.currentScreen == InfoScreen then
 		InfoScreen.clearScreenData()
-		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
-		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
-		Program.currentScreen = Program.Screens.TRACKER
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == MoveHistoryScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == TypeDefensesScreen then
+		Program.currentScreen = TrackerScreen
 	end
 
 	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
@@ -684,21 +695,22 @@ function Battle.endCurrentBattle()
 		end
 	end
 
-	local opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
-	if Program.currentScreen == Program.Screens.INFO then
+	if Program.currentScreen == InfoScreen then
 		InfoScreen.clearScreenData()
-		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.MOVE_HISTORY then
-		Program.currentScreen = Program.Screens.TRACKER
-	elseif Program.currentScreen == Program.Screens.TYPE_DEFENSES then
-		Program.currentScreen = Program.Screens.TRACKER
-	elseif GameSettings.game == 2 and opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == MoveHistoryScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == TypeDefensesScreen then
+		Program.currentScreen = TrackerScreen
+	elseif GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
 		Battle.defeatedSteven = true
-		Program.currentScreen = Program.Screens.GAMEOVER
+		Program.currentScreen = GameOverScreen
 	end
+
+	Battle.opposingTrainerId = 0
 
 	-- Delay drawing the return to viewing your pokemon screen
 	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)

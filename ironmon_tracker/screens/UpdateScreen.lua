@@ -131,7 +131,7 @@ UpdateScreen.Buttons = {
 		onClick = function(self)
 			-- Reset the CheckForUpdates button text
 			UpdateScreen.Buttons.CheckForUpdates.text = "Check for Updates"
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -182,11 +182,9 @@ function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
-	local wasSoundOn
+	Utils.tempDisableBizhawkSound()
+
 	if Main.IsOnBizhawk() then
-		-- Disable Bizhawk sound while the update is in process
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
 		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
 	end
@@ -204,9 +202,7 @@ function UpdateScreen.performAutoUpdate()
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
 
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.tempEnableBizhawkSound()
 
 	Program.redraw(true)
 end
@@ -215,7 +211,7 @@ function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
@@ -223,12 +219,17 @@ function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
 	Main.Version.showUpdate = false
 	Main.SaveSettings(true)
-	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), Program.Screens.TRACKER, Program.Screens.STARTUP)
+	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
 end
 
 function UpdateScreen.openReleaseNotesWindow()
 	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
+end
+
+-- USER INPUT FUNCTIONS
+function UpdateScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
 end
 
 -- DRAWING FUNCTIONS

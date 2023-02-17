@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "3", patch = "0" }
+Main.Version = { major = "7", minor = "3", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -52,8 +52,8 @@ function Main.Initialize()
 		Main.OS = "Linux"
 	end
 
-	for _, filename in ipairs(FileManager.Files.LuaCode) do
-		if not FileManager.loadLuaFile(filename) then
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		if not FileManager.loadLuaFile(luafile.filepath) then
 			return false
 		end
 	end
@@ -238,42 +238,20 @@ function Main.DisplayError(errMessage)
 end
 
 function Main.InitializeAllTrackerFiles()
-	-- Initialize everything in the proper order
-	PokemonData.initialize()
-	MoveData.initialize()
-	RouteData.initialize()
-	TrainerData.initialize()
-
-	Program.initialize()
-	Drawing.initialize()
-	Options.initialize()
-	Theme.initialize()
-	Tracker.initialize()
-
-	if not Main.IsOnBizhawk() then
-		MGBA.initialize()
-		MGBADisplay.initialize()
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G -- Lua 5.1 only
+	else
+		globalRef = _ENV -- Lua 5.4
 	end
 
-	TrackerScreen.initialize()
-	NavigationMenu.initialize()
-	StartupScreen.initialize()
-	UpdateScreen.initialize()
-	SetupScreen.initialize()
-	ExtrasScreen.initialize()
-	QuickloadScreen.initialize()
-	GameOptionsScreen.initialize()
-	TrackedDataScreen.initialize()
-	StatsScreen.initialize()
-	MoveHistoryScreen.initialize()
-	TypeDefensesScreen.initialize()
-	GameOverScreen.initialize()
-	StreamerScreen.initialize()
-	TimeMachineScreen.initialize()
-	CustomExtensionsScreen.initialize()
-	LogOverlay.initialize()
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""]
+		if type(luaObject.initialize) == "function" then
+			luaObject.initialize()
+		end
+	end
 
-	CustomCode.initialize()
 	CustomCode.startup()
 end
 
@@ -295,12 +273,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		-- Track that an update was checked today, so no additional api calls are performed today
 		Main.Version.dateChecked = todaysDate
 
-		local wasSoundOn
-		if Main.IsOnBizhawk() then
-			-- Disable Bizhawk sound while the update check is in process
-			wasSoundOn = client.GetSoundOn()
-			client.SetSoundOn(false)
-		end
+		Utils.tempDisableBizhawkSound()
 
 		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
 		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
@@ -330,9 +303,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			Main.Version.latestAvailable = latestReleasedVersion
 		end
 
-		if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-			client.SetSoundOn(wasSoundOn)
-		end
+		Utils.tempEnableBizhawkSound()
 	end
 
 	Main.SaveSettings(true)
@@ -371,10 +342,9 @@ end
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
 
-	local wasSoundOn
+	Utils.tempDisableBizhawkSound()
+
 	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
 		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	else
 		MGBA.clearConsole()
@@ -424,9 +394,7 @@ function Main.LoadNextRom()
 		print(string.format("> Unable to Quickload next ROM; couldn't %s one.", quickloadVerb))
 	end
 
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.tempEnableBizhawkSound()
 
 	Main.Run()
 end

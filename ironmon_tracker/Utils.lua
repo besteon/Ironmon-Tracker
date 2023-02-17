@@ -942,3 +942,57 @@ function Utils.openBrowserWindow(url, notifyMessage)
 		client.SetSoundOn(wasSoundOn)
 	end
 end
+
+-- Remembers the setting if Bizhawk sound was enabled/disabled, then turns off Bizhawk sound.
+-- Useful anytime a pop-up or prompt appears via Bizhawk, causes loud stuttering noises
+function Utils.tempDisableBizhawkSound()
+	if not Main.IsOnBizhawk() then return end
+	Utils.wasSoundOn = client.GetSoundOn()
+	client.SetSoundOn(false)
+end
+
+-- Restores the sound setting remembered from tempDisableBizhawkSound()
+function Utils.tempEnableBizhawkSound()
+	if not Main.IsOnBizhawk() then return end
+	if client.GetSoundOn() ~= Utils.wasSoundOn and Utils.wasSoundOn ~= nil then
+		client.SetSoundOn(Utils.wasSoundOn)
+	end
+end
+
+-- Returns true if an update is available (checked via compareFunc (optional), or default); otherwise returns false
+function Utils.checkForVersionUpdate(url, currentVersion, versionResponsePattern, compareFunc)
+	if url == nil or url == "" or currentVersion == nil or currentVersion == "" or versionResponsePattern == nil or versionResponsePattern == "" then
+		return false
+	end
+
+	-- Update check not supported on Linux Bizhawk 2.8, Lua 5.1
+	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+		return false
+	end
+
+	local isUpdateAvailable = false
+
+	-- If no comparison function provided, default to a strict not-equals comparison
+	if type(compareFunc) ~= "function" then
+		compareFunc = function(a, b) return a ~= b end
+	end
+
+	Utils.tempDisableBizhawkSound()
+
+	local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', url)
+	local success, responseLines = FileManager.tryOsExecute(updatecheckCommand)
+	if success then
+		local response = table.concat(responseLines, "\n")
+
+		-- Get version number formatted as [major].[minor]
+		local latestVersion = string.match(response or "", versionResponsePattern) or "0"
+
+		if compareFunc(currentVersion, latestVersion) then
+			isUpdateAvailable = true
+		end
+	end
+
+	Utils.tempEnableBizhawkSound()
+
+	return isUpdateAvailable
+end

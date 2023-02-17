@@ -5,9 +5,9 @@ CustomExtensionsScreen = {
 		noExtensions = "You currently don't have any custom extensions installed.",
 	},
 	Colors = {
-		text = "Default text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
+		text = "Lower box text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
 	},
 }
 
@@ -41,6 +41,15 @@ CustomExtensionsScreen.Pager = {
 }
 
 CustomExtensionsScreen.Buttons = {
+	GetExtensionsSmall = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "(Get more)",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 93, Constants.SCREEN.MARGIN - 2, 47, 12 },
+		isVisible = function() return #CustomExtensionsScreen.Pager.Buttons > 0 end,
+		onClick = function(self)
+			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
+		end
+	},
 	EnableCustomExtensions = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text = " Allow custom code to run", -- offset with a space for appearance
@@ -110,7 +119,7 @@ CustomExtensionsScreen.Buttons = {
 		text = "Refresh",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
 		onClick = function(self)
-			CustomExtensionsScreen.refreshExtensionList()
+			CustomCode.refreshExtensionList()
 			CustomExtensionsScreen.buildOutPagedButtons()
 			Program.redraw(true)
 		end
@@ -120,8 +129,8 @@ CustomExtensionsScreen.Buttons = {
 		text = "Back",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			CustomExtensionsScreen.resetButtons()
-			Program.changeScreenView(Program.Screens.NAVIGATION)
+			CustomExtensionsScreen.refreshButtons()
+			Program.changeScreenView(NavigationMenu)
 		end
 	},
 }
@@ -137,37 +146,6 @@ function CustomExtensionsScreen.initialize()
 	end
 	CustomExtensionsScreen.Buttons.EnableCustomExtensions.toggleState = Options["Enable custom extensions"]
 	CustomExtensionsScreen.Buttons.CurrentPage:updateText()
-end
-
-function CustomExtensionsScreen.refreshExtensionList()
-	-- Used to help remove any inactive or missing extension files
-	local activeExtensions = {}
-
-	local customFolderPath = FileManager.getCustomFolderPath()
-	local customFiles = FileManager.getFilesFromDirectory(customFolderPath)
-	for _, filename in pairs(customFiles) do
-		local name = FileManager.extractFileNameFromPath(filename) or ""
-		local ext = FileManager.extractFileExtensionFromPath(filename) or ""
-		ext = "." .. ext
-
-		-- Load any new Lua code files, but only if they don't already exist
-		if ext == FileManager.Extensions.LUA_CODE then
-			if CustomCode.ExtensionLibrary[name] == nil then
-				CustomCode.loadExtension(name)
-			end
-			activeExtensions[name] = true
-		end
-	end
-
-	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
-		if not activeExtensions[extensionKey] then
-			CustomCode.disableExtension(extensionKey)
-			CustomCode.ExtensionLibrary[extensionKey] = nil
-			Main.RemoveMetaSetting("extensions", extensionKey)
-		end
-	end
-
-	Main.SaveSettings(true)
 end
 
 function CustomExtensionsScreen.buildOutPagedButtons()
@@ -187,6 +165,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 			text = extension.selfObject.name or Constants.BLANKLINE,
 			textColor = textColor,
 			iconColors = iconColors,
+			boxColors = { CustomExtensionsScreen.Colors.border, CustomExtensionsScreen.Colors.boxFill, },
 			extension = extension,
 			extensionKey = extensionKey,
 			dimensions = { width = 132, height = 16, },
@@ -210,15 +189,8 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 				end
 			end,
 			onClick = function(self)
-				-- TODO: Later want to navigate to single screen to show options: enable/disable, configure, remove, etc.
-				if self.extension.isEnabled then
-					CustomCode.disableExtension(self.extensionKey)
-				else
-					CustomCode.enableExtension(self.extensionKey)
-				end
-				self:updateText()
-				Main.SaveSettings(true)
-				Program.redraw(true)
+				SingleExtensionScreen.setupScreenWithInfo(self.extensionKey, self.extension)
+				Program.changeScreenView(SingleExtensionScreen)
 			end,
 		}
 		table.insert(CustomExtensionsScreen.Pager.Buttons, button)
@@ -233,7 +205,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 	return true
 end
 
-function CustomExtensionsScreen.resetButtons()
+function CustomExtensionsScreen.refreshButtons()
 	for _, button in pairs(CustomExtensionsScreen.Buttons) do
 		if button.updateText ~= nil then
 			button:updateText()
@@ -260,6 +232,12 @@ function CustomExtensionsScreen.togglePagedButtons(makeActive)
 	end
 end
 
+-- USER INPUT FUNCTIONS
+function CustomExtensionsScreen.checkInput(xmouse, ymouse)
+	Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, CustomExtensionsScreen.Pager.Buttons)
+end
+
 -- DRAWING FUNCTIONS
 function CustomExtensionsScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
@@ -277,8 +255,7 @@ function CustomExtensionsScreen.drawScreen()
 	}
 	local headerText = CustomExtensionsScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local offsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + offsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x - 1, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
@@ -296,7 +273,11 @@ function CustomExtensionsScreen.drawScreen()
 
 	-- Draw all buttons
 	for _, button in pairs(CustomExtensionsScreen.Buttons) do
-		Drawing.drawButton(button, topBox.shadow)
+		if button == CustomExtensionsScreen.Buttons.GetExtensionsSmall then
+			Drawing.drawButton(button, nil)
+		else
+			Drawing.drawButton(button, topBox.shadow)
+		end
 	end
 	for _, button in pairs(CustomExtensionsScreen.Pager.Buttons) do
 		Drawing.drawButton(button, topBox.shadow)
