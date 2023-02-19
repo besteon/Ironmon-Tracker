@@ -13,6 +13,7 @@ UpdateScreen = {
 		manualDownloadText = "Manual Download",
 
 		inProgressMsg = "Check external Window for status.",
+		afterRestartMsg = "Please close and reopen Bizhawk",
 		safeReloadMsg = "You can safely reload the Tracker:",
 		errorOccurredMsg = "Please try updating manually:",
 		releaseNotesErrMsg = "Check the Lua Console for a link to the Tracker's Release Notes."
@@ -20,6 +21,7 @@ UpdateScreen = {
 	States = {
 		NEEDS_CHECK = "Already on the latest version.", -- Not displayed anywhere visually
 		NOT_UPDATED = "Update not yet started.", -- Not displayed anywhere visually
+		AFTER_RESTART = "Update is ready when you restart.",
 		IN_PROGRESS = "Update in progress,  please wait...",
 		SUCCESS = "The auto-update was successful.",
 		ERROR = "Error with auto-updater.",
@@ -84,14 +86,18 @@ UpdateScreen.Buttons = {
 				-- ... and swap back to main Tracker screen. Implied to remind later if they forget to manually update.
 				UpdateScreen.remindMeLater()
 			else
-				UpdateScreen.performAutoUpdate()
+				if Main.Version.updateAfterRestart then
+					UpdateScreen.performAutoUpdate()
+				else
+					UpdateScreen.prepareForUpdateAfterRestart()
+				end
 			end
 		end
 	},
 	RemindMeLater = {
 		text = UpdateScreen.Labels.remindMeText,
 		image = Constants.PixelImages.CLOCK,
-		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
+		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.AFTER_RESTART end,
 		onClick = function() UpdateScreen.remindMeLater() end
 	},
 	IgnoreUpdate = {
@@ -178,6 +184,13 @@ function UpdateScreen.initialize()
 	end
 end
 
+function UpdateScreen.prepareForUpdateAfterRestart()
+	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
+	Main.Version.updateAfterRestart = true
+	Main.SaveSettings(true)
+	Program.redraw(true)
+end
+
 function UpdateScreen.performAutoUpdate()
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
@@ -197,6 +210,7 @@ function UpdateScreen.performAutoUpdate()
 	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
+		Main.Version.updateAfterRestart = false
 		Main.SaveSettings(true)
 	else
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
@@ -204,12 +218,18 @@ function UpdateScreen.performAutoUpdate()
 
 	Utils.tempEnableBizhawkSound()
 
-	Program.redraw(true)
+	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
+	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		IronmonTracker.startTracker()
+	else
+		Program.redraw(true)
+	end
 end
 
 function UpdateScreen.remindMeLater()
 	Main.Version.remindMe = true
 	Main.Version.showUpdate = false
+	Main.Version.updateAfterRestart = false
 	Main.SaveSettings(true)
 	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
@@ -218,6 +238,7 @@ end
 function UpdateScreen.ignoreTheUpdate()
 	Main.Version.remindMe = false
 	Main.Version.showUpdate = false
+	Main.Version.updateAfterRestart = false
 	Main.SaveSettings(true)
 	local screenToShow = Utils.inlineIf(Program.isValidMapLocation(), TrackerScreen, StartupScreen)
 	Program.changeScreenView(screenToShow)
@@ -306,6 +327,9 @@ function UpdateScreen.drawScreen()
 	if UpdateScreen.currentState == UpdateScreen.States.IN_PROGRESS then
 		updateStatusColor = Theme.COLORS["Intermediate text"]
 		updateStatusMsg = UpdateScreen.Labels.inProgressMsg
+	elseif UpdateScreen.currentState == UpdateScreen.States.AFTER_RESTART then
+		updateStatusColor = Theme.COLORS["Intermediate text"]
+		updateStatusMsg = UpdateScreen.Labels.afterRestartMsg
 	elseif UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
 		updateStatusColor = Theme.COLORS["Positive text"]
 		updateStatusMsg = UpdateScreen.Labels.safeReloadMsg
