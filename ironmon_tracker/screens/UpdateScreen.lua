@@ -15,7 +15,7 @@ UpdateScreen = {
 		inProgressMsg = "Check external Window for status.",
 		afterRestartMsg = "Please close and reopen Bizhawk",
 		safeReloadMsg = "You can safely reload the Tracker:",
-		errorOccurredMsg = "Please try updating manually:",
+		errorOccurredMsg = string.format("Then load:  %s", FileManager.Files.UPDATE_OR_INSTALL),
 		releaseNotesErrMsg = "Check the Lua Console for a link to the Tracker's Release Notes."
 	},
 	States = {
@@ -24,7 +24,7 @@ UpdateScreen = {
 		AFTER_RESTART = "Update is ready when you restart.",
 		IN_PROGRESS = "Update in progress,  please wait...",
 		SUCCESS = "The auto-update was successful.",
-		ERROR = "Error with auto-updater.",
+		ERROR = "ERROR: Please restart Bizhawk...",
 	},
 }
 
