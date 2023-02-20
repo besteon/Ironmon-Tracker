@@ -18,6 +18,7 @@ GameOptionsScreen.OptionKeys = {
 	"Count enemy PP usage",
 	"Show last damage calcs",
 	"Reveal info if randomized",
+	"Calculate eff move damage and accuracy",
 }
 
 GameOptionsScreen.Buttons = {
