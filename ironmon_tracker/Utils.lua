@@ -529,46 +529,30 @@ end
 -- Calculates the actual accuracy for a move based on the move's accuracy and the attacker's and defender's accuracy/evasion stages
 function Utils.effectiveAccuracy(moveAccuracy, selfAcccuracyStage, enemyEvasionStage)
 	-- TODO: Check compoundeyes, sand veil, hustle, brightpowder.
-	-- create acc vs eva table
-		--[[ accuracy table from pret decomp battle_script_commands.c line 588
-	{ 33, 100}, // -6
-	{ 36, 100}, // -5
-	{ 43, 100}, // -4
-	{ 50, 100}, // -3
-	{ 60, 100}, // -2
-	{ 75, 100}, // -1
-	{  1,   1}, //  0
-	{133, 100}, // +1
-	{166, 100}, // +2
-	{  2,   1}, // +3
-	{233, 100}, // +4
-	{133,  50}, // +5
-	{  3,   1}, // +6
-
-	comapundeyes boost is 1.3
+	--[[
+	compoundeyes boost is 1.3
 	sand veil eva boost is 1.2 (or 0.8 acc)
 	hustle loss is 0.2 or 0.8 acc
 
 	accuracy is simply increased by 6 then subtracted by evasion, so the minimum accuracy modifier is 0.33 and the max is 3.0 (decomp battle_script_commands.c starting at line 1099)
 	e.g 1 accuracy (-4) vs 1 evasion (-4) = 0.33 instead of something like 0.25
 
-
-	other factors are calculated after this, thos factors being compoundeyes, sand veil, hustle, and brightpowder
+	other factors are calculated after this, these factors being compoundeyes, sand veil, hustle, and brightpowder
 	]]
 	local accTable = {
-		{33,100},
-		{36,100},
-		{43,100},
-		{50,100},
-		{60,100},
-		{75,100},
-		{1,1},
-		{133,100},
-		{166,100},
-		{2,1},
-		{233,100},
-		{133,50},
-		{3,1}
+		{33,100}, -- -6
+		{36,100}, -- -5
+		{43,100}, -- -4
+		{50,100}, -- -3
+		{60,100}, -- -2
+		{75,100}, -- -1
+		{1,1}, -- 0
+		{133,100}, -- +1
+		{166,100}, -- +2
+		{2,1}, -- +3
+		{233,100}, -- +4
+		{133,50}, -- +5
+		{3,1} -- +6
 	}
 	selfAcccuracyStage = selfAcccuracyStage - 6
 	enemyEvasionStage = enemyEvasionStage - 6
