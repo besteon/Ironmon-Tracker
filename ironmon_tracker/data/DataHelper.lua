@@ -320,24 +320,12 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle
 
 		-- Update: Calculate move effectiveness
-        if move.showeffective then
-            local isCursorOnLeft = (Battle.numBattlers == 2) or
-                (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
-            local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
-            move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
-        else
-            move.effectiveness = 1
-        end
-		if Options["Calculate eff dmg/acc"] then
-			if move.accuracy ~= Constants.BLANKLINE then
-				move.accuracy = Utils.calculateEffectiveAccuracy(move.accuracy, viewedPokemon, opposingPokemon)
-			end
-			if move.power ~= Constants.BLANKLINE then
-                move.power = math.floor(move.power * move.effectiveness)
-				if move.isstab then
-					move.power = math.floor(move.power * 1.5)
-				end
-			end
+		if move.showeffective then
+			local isCursorOnLeft = (Battle.numBattlers == 2) or (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
+			local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
+			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
+		else
+			move.effectiveness = 1
 		end
 	end
 
@@ -358,8 +346,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 	else
 		data.x.encounters = 0
-    end
-
+	end
 
 	return data
 end
