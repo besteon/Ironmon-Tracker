@@ -38,6 +38,7 @@ Options = {
 	["Show on new game screen"] = false,
 	["Enable restore points"] = true,
 	["Enable custom extensions"] = false,
+	["Calculate eff dmg/acc"] = true,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
