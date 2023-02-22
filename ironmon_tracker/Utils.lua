@@ -527,40 +527,35 @@ function Utils.isSTAB(move, moveType, comparedTypes)
 end
 
 -- Calculates the actual accuracy for a move based on the move's accuracy and the attacker's and defender's accuracy/evasion stages
-function Utils.effectiveAccuracy(moveAccuracy, selfAcccuracyStage, enemyEvasionStage)
-	-- TODO: Check compoundeyes, sand veil, hustle, brightpowder.
-	--[[
-	compoundeyes boost is 1.3
-	sand veil eva boost is 1.2 (or 0.8 acc)
-	hustle loss is 0.2 or 0.8 acc
+function Utils.calculateEffectiveAccuracy(moveAccuracy, viewedPokemon, opposingPokemon)
+    -- TODO: Check compoundeyes, sand veil, hustle, brightpowder.
 
-	accuracy is simply increased by 6 then subtracted by evasion, so the minimum accuracy modifier is 0.33 and the max is 3.0 (decomp battle_script_commands.c starting at line 1099)
-	e.g 1 accuracy (-4) vs 1 evasion (-4) = 0.33 instead of something like 0.25
+    if viewedPokemon == nil or opposingPokemon == nil then
+        return moveAccuracy
+    end
 
-	other factors are calculated after this, these factors being compoundeyes, sand veil, hustle, and brightpowder
-	]]
-	local accTable = {
-		{33,100}, -- -6
-		{36,100}, -- -5
-		{43,100}, -- -4
-		{50,100}, -- -3
-		{60,100}, -- -2
-		{75,100}, -- -1
-		{1,1}, -- 0
-		{133,100}, -- +1
-		{166,100}, -- +2
-		{2,1}, -- +3
-		{233,100}, -- +4
-		{133,50}, -- +5
-		{3,1} -- +6
-	}
-	selfAcccuracyStage = selfAcccuracyStage - 6
-	enemyEvasionStage = enemyEvasionStage - 6
+   local selfAcccuracyStage = viewedPokemon.statStages.acc
+	local enemyEvasionStage = opposingPokemon.statStages.eva
+
+   local accEvaStage = selfAcccuracyStage + 6 - enemyEvasionStage
+	local accStageRatios = {
+		{33, 100},  -- -6
+		{36, 100},  -- -5
+		{43, 100},  -- -4
+		{50, 100},  -- -3
+		{60, 100},  -- -2
+		{75, 100},  -- -1
+		{1, 1},     -- 0
+		{133, 100}, -- +1
+		{166, 100}, -- +2
+		{2, 1},     -- +3
+		{233, 100}, -- +4
+		{133, 50},  -- +5
+		{3, 1}      -- +6
+		}
 
 	local minStage = 0
 	local maxStage = 12
-
-	local  accEvaStage = selfAcccuracyStage + 6 - enemyEvasionStage
 
 	if accEvaStage < minStage then
 		accEvaStage = minStage
@@ -568,9 +563,19 @@ function Utils.effectiveAccuracy(moveAccuracy, selfAcccuracyStage, enemyEvasionS
 		accEvaStage = maxStage
 	end
 
-	local accMod = accTable[accEvaStage][1] * moveAccuracy / accTable[accEvaStage][2]
+    local modifiedAccuracy = math.floor(moveAccuracy * accStageRatios[accEvaStage + 1][1] /
+    accStageRatios[accEvaStage + 1][2])
 
-	return accMod
+	 
+
+	if modifiedAccuracy < 0 then
+		modifiedAccuracy = 0
+	elseif modifiedAccuracy > 100 then
+		modifiedAccuracy = 100
+	end
+
+	return modifiedAccuracy
+
 end
 
 -- For Low Kick & Grass Knot. Weight in kg. Bounds are inclusive per decompiled code.

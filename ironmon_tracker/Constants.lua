@@ -131,7 +131,7 @@ Constants.OrderedLists = {
 		"Show on new game screen",
 		"Enable restore points",
 		"Enable custom extensions",
-		"Calculate eff move damage and accuracy",
+		"Calculate eff dmg/acc",
 	},
 	CONTROLS = {
 		"Load next seed",
