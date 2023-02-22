@@ -174,15 +174,15 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- Update: Held Item and Ability area(s)
 	data.p.line1 = Constants.BLANKLINE
-	data.p.line2 = Constants.BLANKLINE
-	if data.x.viewingOwn then
+    data.p.line2 = Constants.BLANKLINE
+    if data.x.viewingOwn then
 		if viewedPokemon.heldItem ~= nil and viewedPokemon.heldItem ~= 0 then
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
 		local abilityId = PokemonData.getAbilityId(viewedPokemon.pokemonID, viewedPokemon.abilityNum)
-		if abilityId ~= nil and abilityId ~= 0 then
-			data.p.line2 = AbilityData.Abilities[abilityId].name
-		end
+        if abilityId ~= nil and abilityId ~= 0 then
+            data.p.line2 = AbilityData.Abilities[abilityId].name
+        end
 	else
 		local trackedAbilities = Tracker.getAbilities(viewedPokemon.pokemonID)
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
@@ -320,20 +320,20 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle
 
 		-- Update: Calculate move effectiveness
-        if move.showeffective then
+		if move.showeffective then
             local isCursorOnLeft = (Battle.numBattlers == 2) or
                 (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
-            local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
-            move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
-        else
-            move.effectiveness = 1
-        end
+			local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
+			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
+		else
+			move.effectiveness = 1
+		end
 		if Options["Calculate eff dmg/acc"] then
-			if move.accuracy ~= Constants.BLANKLINE then
-				move.accuracy = Utils.calculateEffectiveAccuracy(move.accuracy, viewedPokemon, opposingPokemon)
-			end
-			if move.power ~= Constants.BLANKLINE then
-                move.power = math.floor(move.power * move.effectiveness)
+				if tonumber(move.power) ~= nil then
+					move.accuracy = Utils.calculateEffectiveAccuracy(move.accuracy, viewedPokemon, opposingPokemon)
+					end
+			if tonumber(move.power) ~= nil then
+				move.power = math.floor(move.power * move.effectiveness)
 				if move.isstab then
 					move.power = math.floor(move.power * 1.5)
 				end
@@ -358,7 +358,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 	else
 		data.x.encounters = 0
-    end
+	end
 
 
 	return data

@@ -534,6 +534,10 @@ function Utils.calculateEffectiveAccuracy(moveAccuracy, viewedPokemon, opposingP
         return moveAccuracy
     end
 
+	if moveAccuracy == nil or moveAccuracy == Constants.BLANKLINE or moveAccuracy == string then
+		return moveAccuracy
+	end
+
    local selfAcccuracyStage = viewedPokemon.statStages.acc
 	local enemyEvasionStage = opposingPokemon.statStages.eva
 
@@ -566,8 +570,8 @@ function Utils.calculateEffectiveAccuracy(moveAccuracy, viewedPokemon, opposingP
     local modifiedAccuracy = math.floor(moveAccuracy * accStageRatios[accEvaStage + 1][1] /
     accStageRatios[accEvaStage + 1][2])
 
-	 
 
+	 
 	if modifiedAccuracy < 0 then
 		modifiedAccuracy = 0
 	elseif modifiedAccuracy > 100 then
