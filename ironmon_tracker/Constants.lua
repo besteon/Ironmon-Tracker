@@ -119,6 +119,7 @@ Constants.OrderedLists = {
 		"Pokemon icon set",
 		"Show last damage calcs",
 		"Reveal info if randomized",
+		"Show experience points bar",
 		"Animated Pokemon popout",
 		"Use premade ROMs",
 		"Generate ROM each time",

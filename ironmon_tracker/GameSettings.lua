@@ -423,6 +423,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8 },
 			{ 0x08254760, 0x082547d0 },
 		},
+		gExperienceTables = {
+			{ 0x081fdf78, 0x081fdf90, 0x081fdf90 },
+			{ 0x081fdf08, 0x081fdf20, 0x081fdf20 },
+			{ 0x0831f72c },
+			{ 0x08253ae4, 0x08253b54, nil, nil, nil, nil }, -- TODO: Find foreign addresses for these
+			{ 0x08253ac0, 0x08253b30 },
+		},
 		-- GetEvolutionTargetSpecies + 0x13E
 		FriendshipRequiredToEvo = {
 			{ 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
