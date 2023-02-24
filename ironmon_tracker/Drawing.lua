@@ -314,8 +314,11 @@ function Drawing.drawExpBar(x, y, width, height, percentFill, barColors, rightTo
 	local remainingWidth = math.floor(width * percentFill + 0.5)
 	local rightAlignedOffset = Utils.inlineIf(rightToLeft == true, width - remainingWidth, 0)
 
-	-- Draw outer border bar
-	gui.drawRectangle(x, y, width, height, barColors[2], barColors[3])
+	-- Draw outer border bar, a rounded rectangle
+	gui.drawLine(x + 1, y, x + width - 1, y, barColors[2])
+	gui.drawLine(x + 1, y + height, x + width - 1, y + height, barColors[2])
+	gui.drawLine(x, y + 1, x, y + height - 1, barColors[2])
+	gui.drawLine(x + width, y + 1, x + width, y + height - 1, barColors[2])
 	-- Draw inner colored bar for the percentage filled
 	gui.drawRectangle(x + rightAlignedOffset, y, remainingWidth, height, 0x00000000, barColors[1])
 end
