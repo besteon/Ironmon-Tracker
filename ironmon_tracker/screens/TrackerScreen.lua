@@ -296,6 +296,7 @@ TrackerScreen.PokeBalls = {
 	chosenBall = -1,
 	ColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }, -- Colors used to draw all Pokeballs
 	ColorListGray = { 0xFF000000, Utils.calcGrayscale(0xFFF04037, 0.6), 0xFFFFFFFF, },
+	ColorListFainted = { 0xFF000000, 0x22F04037, 0x44FFFFFF, },
 	Labels = {
 		[1] = "Left",
 		[2] = "Middle",
@@ -831,16 +832,19 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
 	elseif Battle.inBattle then
-		local encounterText
+		local encounterText, routeText
 		if Battle.isWildEncounter then
 			encounterText = "Seen in the wild: " .. data.x.encounters
+			routeText = data.x.route
 		else
 			encounterText = "Seen on trainers: " .. data.x.encounters
+			routeText = string.format("Team:")
+			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
 		Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, data.x.route, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
 	end
 end
 

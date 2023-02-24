@@ -323,6 +323,23 @@ function Drawing.drawExpBar(x, y, width, height, percentFill, barColors, rightTo
 	gui.drawRectangle(x + rightAlignedOffset, y, remainingWidth, height, 0x00000000, barColors[1])
 end
 
+function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
+	local offsetX = 0
+	for i=1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, false)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			local colorList
+			if pokemon.curHP > 0 then
+				colorList = TrackerScreen.PokeBalls.ColorList
+			else
+				colorList = TrackerScreen.PokeBalls.ColorListFainted
+			end
+			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x + offsetX, y, colorList, shadowcolor)
+		end
+		offsetX = offsetX + 9
+	end
+end
+
 -- Draws a tiny Tracker (50x50) on screen for purposes of previewing a Theme
 function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	local width = 50

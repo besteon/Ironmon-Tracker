@@ -622,9 +622,18 @@ MGBADisplay.LineBuilder = {
 			end
 			lines[4] = Utils.formatUTF8(topFormattedLine, lastLevelSeen, formattedStats.atk)
 
-			local encountersText = Utils.formatUTF8("Seen %s: %s", Utils.inlineIf(Battle.isWildEncounter, "in the wild", "on trainers"), data.x.encounters)
+			local encountersText, routeText
+			if Battle.isWildEncounter then
+				encountersText = Utils.formatUTF8("Seen in the wild: %s", data.x.encounters)
+				routeText = data.x.route
+			else
+				local numKOs, totalMons = Program.getTeamCounts()
+				encountersText = Utils.formatUTF8("Seen on trainers: %s", data.x.encounters)
+				routeText = Utils.formatUTF8("%s KO'd: %s/%s", Constants.Words.POKEMON, numKOs, totalMons)
+			end
+
 			lines[7] = Utils.formatUTF8(topFormattedLine, encountersText, formattedStats.spd)
-			lines[8] = Utils.formatUTF8(topFormattedLine, data.x.route, formattedStats.spe)
+			lines[8] = Utils.formatUTF8(topFormattedLine, routeText, formattedStats.spe)
 		end
 
 		lines[5] = Utils.formatUTF8(topFormattedLine, data.p.line1, formattedStats.def)
