@@ -427,7 +427,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081fdf78, 0x081fdf90, 0x081fdf90 },
 			{ 0x081fdf08, 0x081fdf20, 0x081fdf20 },
 			{ 0x0831f72c },
-			{ 0x08253ae4, 0x08253b54, nil, nil, nil, nil }, -- TODO: Find foreign addresses for these
+			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08 },
 			{ 0x08253ac0, 0x08253b30 },
 		},
 		-- GetEvolutionTargetSpecies + 0x13E
