@@ -112,6 +112,7 @@ Constants.OrderedLists = {
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",
+		"Determine friendship readiness",
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
