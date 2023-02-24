@@ -20,6 +20,7 @@ Options = {
 	["Show physical special icons"] = true,
 	["Show move effectiveness"] = true,
 	["Calculate variable damage"] = true,
+	["Determine friendship readiness"] = true,
 	["Count enemy PP usage"] = true,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
