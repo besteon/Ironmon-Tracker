@@ -18,6 +18,7 @@ GameOptionsScreen.OptionKeys = {
 	"Count enemy PP usage",
 	"Show last damage calcs",
 	"Reveal info if randomized",
+	"Show experience points bar",
 }
 
 GameOptionsScreen.Buttons = {

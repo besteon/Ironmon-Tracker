@@ -7,6 +7,9 @@ Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked
 Tracker.ForceUpdateData = {
 	pokemonData = {
 		abilityNum = true,
+		experience = true,
+		currentExp = true,
+		totalExp = true,
 	},
 }
 
@@ -448,6 +451,9 @@ function Tracker.getDefaultPokemon()
 		movelvls = { {}, {} },
 		weight = 0.0,
 		personality = 0,
+		experience = 0,
+		currentExp = 0,
+		totalExp = 100,
 		friendship = 0,
 		heldItem = 0,
 		level = 0,

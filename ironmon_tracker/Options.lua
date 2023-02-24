@@ -27,6 +27,7 @@ Options = {
 	["Pokemon icon set"] = "1", -- Original icon set
 	["Show last damage calcs"] = true,
 	["Reveal info if randomized"] = true,
+	["Show experience points bar"] = false,
 	["Animated Pokemon popout"] = false,
 	["Use premade ROMs"] = false,
 	["Generate ROM each time"] = false,

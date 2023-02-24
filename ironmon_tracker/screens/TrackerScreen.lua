@@ -732,9 +732,19 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		extraInfoColor = Theme.COLORS["Intermediate text"]
 	end
 
-	local levelEvoText = "Lv." .. data.p.level .. " ("
-	local evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
-	levelEvoText = levelEvoText .. data.p.evo .. ")"
+	local levelEvoText, evoSpacing
+	if data.p.evo == Constants.BLANKLINE then
+		levelEvoText = string.format("Lv.%s", data.p.level)
+	else
+		levelEvoText = string.format("Lv.%s (", data.p.level)
+		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
+		levelEvoText = levelEvoText .. data.p.evo .. ")"
+	end
+
+	-- Squeeze text together a bit to show the exp bar
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		linespacing = linespacing - 1
+	end
 
 	-- POKEMON NAME
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.name, Theme.COLORS["Default text"], shadowcolor)
@@ -747,7 +757,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
-		if data.p.evo ~= Constants.BLANKLINE then
+		if data.p.evo ~= Constants.BLANKLINE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
 			local evoTextColor = Theme.COLORS["Default text"]
 			if Tracker.Data.isViewingOwn then
@@ -771,6 +781,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 	end
 
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		local expPercentage = data.p.curExp / data.p.totalExp
+		Drawing.drawExpBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
+		offsetY = offsetY + 5
+	end
+
 	-- Tracker.Data.isViewingOwn and
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
@@ -781,6 +797,11 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.line2, Theme.COLORS["Intermediate text"], shadowcolor)
 	offsetY = offsetY + linespacing
+
+	-- Unsqueeze the text
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		linespacing = linespacing + 1
+	end
 
 	-- HEALS INFO / ENCOUNTER INFO
 	local infoBoxHeight = 23
