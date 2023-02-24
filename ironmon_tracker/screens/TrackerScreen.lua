@@ -760,7 +760,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		if data.p.evo ~= Constants.BLANKLINE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
 			local evoTextColor = Theme.COLORS["Default text"]
-			if Tracker.Data.isViewingOwn then
+			if Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
 				local evoReadyFriendship = (data.p.evo == PokemonData.Evolutions.FRIEND_READY)
 				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
 				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)

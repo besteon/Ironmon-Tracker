@@ -170,7 +170,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- Update: Pokemon Evolution
-	if data.x.viewingOwn and data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired then
+	local isFriendEvoReady = data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired
+	if Options["Determine friendship readiness"] and data.x.viewingOwn and isFriendEvoReady then
 		data.p.evo = PokemonData.Evolutions.FRIEND_READY
 	end
 
