@@ -582,7 +582,7 @@ end
 -- For Return & Frustration
 -- Only shows if close to max strength; won't return exact values to avoid revealing friendship amount
 function Utils.calculateFriendshipBasedDamage(movePower, friendship)
-	if movePower ~= ">FR" and movePower ~= "<FR" then
+	if not Options["Determine friendship readiness"] or (movePower ~= ">FR" and movePower ~= "<FR") then
 		return movePower
 	end
 

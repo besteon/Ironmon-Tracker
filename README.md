@@ -53,9 +53,10 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Custom Code Extensions
+### EXP Bar and Trainer Team Info
 
-![image](https://user-images.githubusercontent.com/4258818/218183892-744fab56-6ed0-4797-bf7e-3c313cc017ef.png)
+![image](https://user-images.githubusercontent.com/4258818/221065010-77261f6d-53e2-449e-ae6e-e6f878ebc32a.png)
+![image](https://user-images.githubusercontent.com/4258818/221167414-74ad6de1-8e64-46dc-9341-8583786ad391.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
