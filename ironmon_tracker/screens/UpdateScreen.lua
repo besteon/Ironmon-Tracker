@@ -5,7 +5,9 @@ UpdateScreen = {
 		currentVersion = "Current version:",
 		newVersion = "New version available:",
 		questionHeader = "What would you like to do?",
-		updateAutoText = "Update automatically",
+		updatePrepareText = "Prepare for update",
+		updateNowText = "Update now",
+		updateDownloadText = "Open download link",
 		remindMeText = "Remind me tomorrow",
 		ignoreUpdateText = "( Skip this update )",
 		releaseNotesText = "View release notes",
@@ -75,10 +77,22 @@ UpdateScreen.Buttons = {
 		end
 	},
 	UpdateNow = {
-		text = UpdateScreen.Labels.updateAutoText,
+		text = UpdateScreen.Labels.updatePrepareText,
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
-		onClick = function()
+		updateSelf = function(self)
+			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
+			if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
+				self.text = UpdateScreen.Labels.updateDownloadText
+				return
+			end
+			if Main.Version.updateAfterRestart then
+				self.text = UpdateScreen.Labels.updateNowText
+			else
+				self.text = UpdateScreen.Labels.updatePrepareText
+			end
+		end,
+		onClick = function(self)
 			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 			if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
 				-- In such a case, open a browser window with a link for manual download...
@@ -90,6 +104,7 @@ UpdateScreen.Buttons = {
 					UpdateScreen.performAutoUpdate()
 				else
 					UpdateScreen.prepareForUpdateAfterRestart()
+					self:updateSelf()
 				end
 			end
 		end
@@ -178,9 +193,14 @@ function UpdateScreen.initialize()
 	UpdateScreen.Buttons.ReloadTracker.box = UpdateScreen.Buttons.RemindMeLater.box
 	UpdateScreen.Buttons.ManualDownload.box = UpdateScreen.Buttons.RemindMeLater.box
 
-	-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
-	if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-		UpdateScreen.Buttons.UpdateNow.text = "Open download link"
+	UpdateScreen.refreshButtons()
+end
+
+function UpdateScreen.refreshButtons()
+	for _, button in pairs(UpdateScreen.Buttons) do
+		if button.updateSelf ~= nil then
+			button:updateSelf()
+		end
 	end
 end
 
