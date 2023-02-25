@@ -139,6 +139,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.bst = viewedPokemon.bst or Constants.BLANKLINE
 	data.p.lastlevel = Tracker.getLastLevelSeen(viewedPokemon.pokemonID) or ""
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
+	data.p.curExp = viewedPokemon.currentExp or 0
+	data.p.totalExp = viewedPokemon.totalExp or 100
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature
@@ -168,7 +170,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- Update: Pokemon Evolution
-	if data.x.viewingOwn and data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired then
+	local isFriendEvoReady = data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired
+	if Options["Determine friendship readiness"] and data.x.viewingOwn and isFriendEvoReady then
 		data.p.evo = PokemonData.Evolutions.FRIEND_READY
 	end
 

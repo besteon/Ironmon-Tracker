@@ -329,6 +329,11 @@ function Program.updatePokemonTeams()
 				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
 				-- newPokemonData.trainerID = nil
 
+				-- Include experience information for each Pokemon in the player's team
+				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
+				newPokemonData.currentExp = curExp
+				newPokemonData.totalExp = totalExp
+
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 
 				-- TODO: Removing for now until some better option is available, not sure there is one
@@ -380,7 +385,7 @@ function Program.readNewPokemon(startAddress, personality)
 
 	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	-- local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
+	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Experience
 	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
@@ -436,6 +441,7 @@ function Program.readNewPokemon(startAddress, personality)
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
+		experience = growth2,
 		friendship = Utils.getbits(growth3, 8, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
@@ -462,12 +468,46 @@ function Program.readNewPokemon(startAddress, personality)
 
 		-- Unused data that can be added back in later
 		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
-		-- experience = Utils.getbits(growth2, 32, 31), -- Unused
 		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
 		-- iv = misc2,
 		-- ev1 = effort1,
 		-- ev2 = effort2,
 	}
+end
+
+-- Returns two values [numKOd, total] for a given Trainer's Pokémon team.
+function Program.getTeamCounts()
+	local numKOd, total = 0, 0
+	for i = 1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, false)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			total = total + 1
+			if pokemon.curHP <= 0 then
+				numKOd = numKOd + 1
+			end
+		end
+	end
+
+	return numKOd, total
+end
+
+-- Returns two exp values that describe the amount of experience points needed to reach the next level.
+-- currentExp: A value between 0 and 'totalExp'
+-- totalExp: The amount of exp needed to reach the next level
+function Program.getNextLevelExp(pokemonID, level, experience)
+	if not PokemonData.isValid(pokemonID) or level == nil or level >= 100 or experience == nil or GameSettings.gExperienceTables == nil then
+		return 0, 100 -- arbitrary returned values to indicate this information isn't found and it's 0% of the way to next level
+	end
+
+	local growthRateIndex = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x13)
+	local expTableOffset = GameSettings.gExperienceTables + (growthRateIndex * 0x194) + (level * 0x4)
+	local expAtLv = Memory.readdword(expTableOffset)
+	local expAtNextLv = Memory.readdword(expTableOffset + 0x4)
+
+	local currentExp = experience - expAtLv
+	local totalExp = expAtNextLv - expAtLv
+
+	return currentExp, totalExp
 end
 
 function Program.updatePCHeals()

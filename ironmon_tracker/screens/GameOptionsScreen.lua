@@ -12,9 +12,11 @@ GameOptionsScreen = {
 GameOptionsScreen.OptionKeys = {
 	"Auto swap to enemy",
 	"Hide stats until summary shown",  -- Text referenced in initialize()
+	"Show experience points bar",
 	"Show physical special icons",
 	"Show move effectiveness",
 	"Calculate variable damage",
+	"Determine friendship readiness",
 	"Count enemy PP usage",
 	"Show last damage calcs",
 	"Reveal info if randomized",

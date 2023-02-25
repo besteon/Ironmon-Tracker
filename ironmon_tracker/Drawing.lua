@@ -301,6 +301,45 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	end
 end
 
+-- Draws an experience bar (partially filled based on exp needed to level); width/height is just the size of the bar fill, does not include border
+function Drawing.drawExpBar(x, y, width, height, percentFill, barColors, rightToLeft)
+	if not Main.IsOnBizhawk() then return end
+
+	-- Define default colors, to be safe
+	if barColors == nil then barColors = {} end
+	if barColors[1] == nil then barColors[1] = Theme.COLORS["Default text"] end
+	if barColors[2] == nil then barColors[2] = Theme.COLORS["Upper box border"] end
+	if barColors[3] == nil then barColors[3] = Theme.COLORS["Upper box background"] end
+
+	local remainingWidth = math.floor(width * percentFill + 0.5)
+	local rightAlignedOffset = Utils.inlineIf(rightToLeft == true, width - remainingWidth, 0)
+
+	-- Draw outer border bar, a rounded rectangle
+	gui.drawLine(x + 1, y, x + width - 1, y, barColors[2])
+	gui.drawLine(x + 1, y + height, x + width - 1, y + height, barColors[2])
+	gui.drawLine(x, y + 1, x, y + height - 1, barColors[2])
+	gui.drawLine(x + width, y + 1, x + width, y + height - 1, barColors[2])
+	-- Draw inner colored bar for the percentage filled
+	gui.drawRectangle(x + rightAlignedOffset, y, remainingWidth, height, 0x00000000, barColors[1])
+end
+
+function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
+	local offsetX = 0
+	for i=1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, false)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			local colorList
+			if pokemon.curHP > 0 then
+				colorList = TrackerScreen.PokeBalls.ColorList
+			else
+				colorList = TrackerScreen.PokeBalls.ColorListFainted
+			end
+			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x + offsetX, y, colorList, shadowcolor)
+		end
+		offsetX = offsetX + 9
+	end
+end
+
 -- Draws a tiny Tracker (50x50) on screen for purposes of previewing a Theme
 function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	local width = 50

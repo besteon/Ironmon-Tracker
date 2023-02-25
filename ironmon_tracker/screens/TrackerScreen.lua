@@ -296,6 +296,7 @@ TrackerScreen.PokeBalls = {
 	chosenBall = -1,
 	ColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }, -- Colors used to draw all Pokeballs
 	ColorListGray = { 0xFF000000, Utils.calcGrayscale(0xFFF04037, 0.6), 0xFFFFFFFF, },
+	ColorListFainted = { 0xFF000000, 0x22F04037, 0x44FFFFFF, },
 	Labels = {
 		[1] = "Left",
 		[2] = "Middle",
@@ -732,9 +733,19 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		extraInfoColor = Theme.COLORS["Intermediate text"]
 	end
 
-	local levelEvoText = "Lv." .. data.p.level .. " ("
-	local evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
-	levelEvoText = levelEvoText .. data.p.evo .. ")"
+	local levelEvoText, evoSpacing
+	if data.p.evo == Constants.BLANKLINE then
+		levelEvoText = string.format("Lv.%s", data.p.level)
+	else
+		levelEvoText = string.format("Lv.%s (", data.p.level)
+		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
+		levelEvoText = levelEvoText .. data.p.evo .. ")"
+	end
+
+	-- Squeeze text together a bit to show the exp bar
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		linespacing = linespacing - 1
+	end
 
 	-- POKEMON NAME
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.name, Theme.COLORS["Default text"], shadowcolor)
@@ -747,10 +758,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
-		if data.p.evo ~= Constants.BLANKLINE then
+		if data.p.evo ~= Constants.BLANKLINE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
 			local evoTextColor = Theme.COLORS["Default text"]
-			if Tracker.Data.isViewingOwn then
+			if Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
 				local evoReadyFriendship = (data.p.evo == PokemonData.Evolutions.FRIEND_READY)
 				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
 				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
@@ -771,6 +782,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 	end
 
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		local expPercentage = data.p.curExp / data.p.totalExp
+		Drawing.drawExpBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
+		offsetY = offsetY + 5
+	end
+
 	-- Tracker.Data.isViewingOwn and
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
@@ -781,6 +798,11 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.line2, Theme.COLORS["Intermediate text"], shadowcolor)
 	offsetY = offsetY + linespacing
+
+	-- Unsqueeze the text
+	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+		linespacing = linespacing + 1
+	end
 
 	-- HEALS INFO / ENCOUNTER INFO
 	local infoBoxHeight = 23
@@ -810,16 +832,19 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		end
 	elseif Battle.inBattle then
-		local encounterText
+		local encounterText, routeText
 		if Battle.isWildEncounter then
 			encounterText = "Seen in the wild: " .. data.x.encounters
+			routeText = data.x.route
 		else
 			encounterText = "Seen on trainers: " .. data.x.encounters
+			routeText = string.format("Team:")
+			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
 		Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, data.x.route, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
 	end
 end
 
