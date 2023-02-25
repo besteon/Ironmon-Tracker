@@ -3016,7 +3016,7 @@ MoveData.Moves = {
 		pp = "20",
 		accuracy = "100",
 		category = MoveData.Categories.STATUS,
-		summary = "Prevents the target " .. Constants.Words.POKEMON .. " from using Status category moves: any move that isn't Physical or Special.",
+		summary = "Prevents the target " .. Constants.Words.POKEMON .. " from using Status category moves; moves that aren't Physical or Special. Bypasses Substitute. This effect lasts 2 turns.",
 	},
 	{
 		id = "270",
