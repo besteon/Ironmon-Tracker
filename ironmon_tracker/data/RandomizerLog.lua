@@ -2,11 +2,12 @@
 RandomizerLog = {}
 
 RandomizerLog.Patterns = {
-	RandomizerVersion = "Randomizer Version:%s*([%d%.]+)%s*$", -- Note: log file line 1 does NOT start with "Rando..."
+	-- Acount for possible -dev or -beta in version string
+	RandomizerVersion = "Randomizer Version:%s*([%d%.]+).*$", -- Note: log file line 1 does NOT start with "Rando..."
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
-	PokemonName = "([%u%d%.]* ?[%u%d%.'%-♀♂%?]+).-",
+	PokemonName = "(%u%a*%s?[%a%d%.’'%-♀♂ ]*%s?[%a%d%.’'%-♀♂ ]*)",
 	-- MoveName = "([%u%d%.'%-%?]+)", -- might figure out later
 	-- ItemName = "([%u%d%.'%-%?]+)", -- might figure out later
 	getSectorHeaderPattern = function(sectorName)
@@ -106,7 +107,7 @@ function RandomizerLog.formatInput(str)
 	str = str:gsub("’", "'")
 	str = str:gsub("é", Constants.getC("é"))
 	str = str:gsub("%[PK%]%[MN%]", "PKMN")
-	str = str:match("^%s*(.*)%s*$") or str -- remove leading/trailing spaces
+	str = str:match("^%s*(.-)%s*$") or str -- remove leading/trailing spaces
 	return str:lower()
 end
 
