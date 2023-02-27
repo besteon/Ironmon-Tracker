@@ -324,8 +324,9 @@ function Drawing.drawExpBar(x, y, width, height, percentFill, barColors, rightTo
 end
 
 function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
+	local drawnFirstBall = false
 	local offsetX = 0
-	for i=1, 6, 1 do
+	for i=6, 1, -1 do -- Reverse order to match in-game team display
 		local pokemon = Tracker.getPokemon(i, false)
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 			local colorList
@@ -335,8 +336,13 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 				colorList = TrackerScreen.PokeBalls.ColorListFainted
 			end
 			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x + offsetX, y, colorList, shadowcolor)
+			drawnFirstBall = true
 		end
-		offsetX = offsetX + 9
+		-- Used to left-align the pokeballs, but allows for leaving spaces for doubles battles
+		-- In-game it's displayed as "_00_00" but this will now show "00_00" instead of "0000"
+		if drawnFirstBall then
+			offsetX = offsetX + 9
+		end
 	end
 end
 
