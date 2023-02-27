@@ -9,6 +9,7 @@ Constants.SCREEN = {
 	UP_GAP = 0,
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
+	BOTTOM_AREA = 60,
 	MARGIN = 5,
 	LINESPACING = 11,
 }

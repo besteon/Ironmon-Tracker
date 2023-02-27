@@ -124,6 +124,11 @@ function Program.redraw(forced)
 			Program.currentScreen.drawScreen()
 		end
 
+		-- TODO: Replace "true" with the Options["Enable Team Preview"]
+		if true then
+			Drawing.drawTeamDisplay()
+		end
+
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
 		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
