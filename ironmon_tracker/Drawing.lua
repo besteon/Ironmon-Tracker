@@ -373,7 +373,7 @@ function Drawing.drawTeamDisplay()
 
 	local boxX, boxY = canvas.x, canvas.y --(canvas.x + canvas.margin), (canvas.y + canvas.margin)
 	local barHeight = 3
-	local colOffset = 33
+	local colOffset = 34
 	for i=1, 6, 1 do
 		local pokemon = Tracker.getPokemon(i, true)
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
@@ -381,27 +381,31 @@ function Drawing.drawTeamDisplay()
 			local finalboxOffset = Utils.inlineIf(i == 6, -1, 0)
 			gui.drawRectangle(boxX, boxY, pokeBox.width + finalboxOffset, pokeBox.height, pokeBox.border, pokeBox.fill)
 
+			-- Pokemon's Nickname
+			Drawing.drawText(boxX + 1, yOffset, pokemon.nickname, pokeBox.text, pokeBox.shadow)
+			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
+
 			-- Pokemon Icon & Status
 			local pokemonIcon = FileManager.buildImagePath(iconset.folder, tostring(pokemon.pokemonID or 0), iconset.extension)
-			gui.drawImage(pokemonIcon, boxX, boxY - 6 + iconset.yOffset)
+			gui.drawImage(pokemonIcon, boxX + 1, yOffset - 6 + iconset.yOffset)
 
 			local status = MiscData.StatusCodeMap[pokemon.status] or ""
 			if pokemon.curHP <= 0 then
-				Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Faint], boxX + 15, yOffset + 1)
+				Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Faint], boxX + 16, yOffset + 1)
 			elseif status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-				Drawing.drawStatusIcon(status, boxX + 15, yOffset + 1)
+				Drawing.drawStatusIcon(status, boxX + 16, yOffset + 1)
 			end
 
 			-- Pokemon Types
-			yOffset = yOffset + 3
+			yOffset = yOffset + 2
 			local types = PokemonData.Pokemon[pokemon.pokemonID].types
 			Drawing.drawTypeIcon(types[1], boxX + colOffset, yOffset)
 			yOffset = yOffset + 12
 			if types[2] ~= types[1] then
 				Drawing.drawTypeIcon(types[2], boxX + colOffset, yOffset)
 			end
-			yOffset = yOffset + 12
-			-- yOffset = yOffset + 2
+			yOffset = yOffset + 13
+
 
 			-- Pokemon Level
 			local levelText = string.format("Lv.%s", pokemon.level or 0)
@@ -418,13 +422,13 @@ function Drawing.drawTeamDisplay()
 			else
 				hpBarColors[1] = Theme.COLORS["Negative text"]
 			end
-			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 3, barHeight, hpPercentage, hpBarColors)
+			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 2, barHeight, hpPercentage, hpBarColors)
 			yOffset = yOffset + barHeight + 0
 
 			-- Pokemon EXP Bar
 			local expPercentage = (pokemon.currentExp or 0) / (pokemon.totalExp or 100)
 			local expBarColors = { pokeBox.text, pokeBox.border, pokeBox.fill }
-			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 3, barHeight, expPercentage, expBarColors)
+			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 2, barHeight, expPercentage, expBarColors)
 			yOffset = yOffset + barHeight + 2
 
 			-- Pokemon Item

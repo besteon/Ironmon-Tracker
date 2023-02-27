@@ -379,6 +379,7 @@ function Program.updatePokemonTeams()
 end
 
 function Program.readNewPokemon(startAddress, personality)
+	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
@@ -388,7 +389,7 @@ function Program.readNewPokemon(startAddress, personality)
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
-	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
 	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Experience
 	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
@@ -396,6 +397,15 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
 	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+
+	local nickname = ""
+	for i=0, 9, 1 do
+		local charByte = Memory.readbyte(startAddress + 8 + i)
+		if charByte ~= 0xFF then -- end of sequence
+			nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+		end
+	end
+	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
 	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
@@ -443,6 +453,7 @@ function Program.readNewPokemon(startAddress, personality)
 
 	return {
 		personality = personality,
+		nickname = nickname,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),

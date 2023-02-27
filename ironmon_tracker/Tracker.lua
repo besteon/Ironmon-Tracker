@@ -10,6 +10,7 @@ Tracker.ForceUpdateData = {
 		experience = true,
 		currentExp = true,
 		totalExp = true,
+		nickname = true,
 	},
 }
 
@@ -444,6 +445,7 @@ function Tracker.getDefaultPokemon()
 	return {
 		pokemonID = 0,
 		name = Constants.BLANKLINE,
+		nickname = Constants.BLANKLINE,
 		types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
 		abilities = { 0, 0 },
 		evolution = PokemonData.Evolutions.NONE,
