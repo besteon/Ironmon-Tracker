@@ -1,0 +1,21 @@
+name: Feature Request
+description: Use this to suggest new features or changes to the Ironmon Tracker
+title: "[Feature Request]: "
+labels: ["Feature Request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you submit a feature request, please check our main README about [what is a good fit for the Ironmon Tracker](https://github.com/besteon/Ironmon-Tracker#what-is-a-good-fit-for-the-ironmon-tracker).
+  - type: textarea
+    id: description
+    attributes:
+      label: Tell us about your request
+      description: Provide a detailed description of your request, as well as reasons for why it would be a good improvement to the tracker.
+    validations:
+      required: true
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Additional Information
+      description: "Leave any other relevant comments or screenshots here. Tip: You can attach images by dragging them into this box!"
