@@ -1,0 +1,38 @@
+name: Custom Code Extensions
+description: Use this to submit your custom code extension (or idea for one)
+title: "[Custom Code Extension]: "
+labels: ["Custom Code Extension"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before you submit a custom code extension or idea, please check our main README about [what is a good fit for the Ironmon Tracker](https://github.com/besteon/Ironmon-Tracker#what-is-a-good-fit-for-the-ironmon-tracker).
+        
+        Also check our [User-Created Extensions](https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#user-created-extensions) to see if your idea already exists.
+  - type: dropdown
+    id: idea-or-submission
+    attributes:
+      label: Are you submitting an extension, or an idea?
+      options:
+        - Extension
+        - Idea
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Tell us about your extension / idea
+      description: Provide a detailed description of your extension / idea.
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Link to extension
+      description: If you are submitting an extension you made, provide the URL where people can find it here.
+      placeholder: https://github.com/[USER]/[REPOSITORY]
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Additional Information
+      description: "Leave any other relevant comments or screenshots here. Tip: You can attach images by dragging them into this box!"
