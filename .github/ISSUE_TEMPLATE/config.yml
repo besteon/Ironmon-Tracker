@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ironmon Tracker Wiki
+    url: https://github.com/besteon/Ironmon-Tracker/wiki
+    about: Check our wiki for information about the Ironmon Tracker
+  - name: Ironmon Discord Server
+    url: https://discord.com/invite/jFPYsZAhjX
+    about: You can also contact us in the Ironmon Discord if you have questions about the tracker
