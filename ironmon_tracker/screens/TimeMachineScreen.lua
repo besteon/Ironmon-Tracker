@@ -157,8 +157,8 @@ function TimeMachineScreen.createRestorePoint(label)
 
 	if label == nil then
 		local mapLocationName
-		if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
-			mapLocationName = RouteData.Info[Battle.CurrentRoute.mapId].name
+		if RouteData.hasRoute(Program.GameData.mapId) then
+			mapLocationName = RouteData.Info[Program.GameData.mapId].name
 		else
 			mapLocationName = "Unknown Area"
 		end

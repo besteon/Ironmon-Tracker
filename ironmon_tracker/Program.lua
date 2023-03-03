@@ -4,7 +4,6 @@ Program = {
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
-	friendshipRequired = 220,
 	activeFormId = 0,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -18,6 +17,8 @@ Program = {
 }
 
 Program.GameData = {
+	mapId = 0, -- was previously Battle.CurrentRoute.mapId
+	friendshipRequired = 220,
 	evolutionStones = { -- The evolution stones currently in bag
 			[93] = 0, -- Sun Stone
 			[94] = 0, -- Moon Stone
@@ -35,7 +36,7 @@ Program.ActiveRepel = {
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
-		local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
 }
@@ -84,7 +85,7 @@ function Program.initialize()
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
-		Program.friendshipRequired = friendshipRequired
+		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
 	Program.AutoSaver:updateSaveCount()
@@ -202,7 +203,7 @@ function Program.update()
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
 				Program.currentScreen = TrackerScreen
-			elseif Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId] then
+			elseif Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] then
 				Program.currentScreen = GameOverScreen
 			end
 
@@ -537,7 +538,7 @@ function Program.updatePCHeals()
 	end
 
 	-- Make sure the player is in a map location that can perform a PC heal
-	if not RouteData.Locations.CanPCHeal[Battle.CurrentRoute.mapId] then
+	if not RouteData.Locations.CanPCHeal[Program.GameData.mapId] then
 		return
 	end
 
@@ -592,20 +593,19 @@ function Program.updateBadgesObtained()
 end
 
 function Program.updateMapLocation()
-	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
 	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 
 	-- If the player is in a new area, auto-lookup for mGBA screen
-	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
-		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
+	if not Main.IsOnBizhawk() and newMapId ~= Program.GameData.mapId then
+		local isFirstLocation = Program.GameData.mapId == nil or Program.GameData.mapId == 0
 		MGBA.Screens.LookupRoute:setData(newMapId, isFirstLocation)
 	end
-	Battle.CurrentRoute.mapId = newMapId
+	Program.GameData.mapId = newMapId
 end
 
 -- More or less used to determine if the player has begun playing the game, returns true if so.
 function Program.isValidMapLocation()
-	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
+	return Program.GameData.mapId ~= nil and Program.GameData.mapId ~= 0
 end
 
 function Program.HandleExit()

@@ -432,8 +432,8 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 	if evoMethod == PokemonData.Evolutions.FRIEND then
 		local friendFormat = evoInfo.detailed[1]
 		local amt
-		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
-			amt = Program.friendshipRequired
+		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
+			amt = Program.GameData.friendshipRequired
 		else
 			amt = 220
 		end

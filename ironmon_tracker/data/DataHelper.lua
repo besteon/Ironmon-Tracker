@@ -170,7 +170,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- Update: Pokemon Evolution
-	local isFriendEvoReady = data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired
+	local isFriendEvoReady = data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.GameData.friendshipRequired
 	if Options["Determine friendship readiness"] and data.x.viewingOwn and isFriendEvoReady then
 		data.p.evo = PokemonData.Evolutions.FRIEND_READY
 	end
@@ -338,8 +338,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.pcheals = Tracker.Data.centerHeals
 
 	data.x.route = Constants.BLANKLINE
-	if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
-		data.x.route = RouteData.Info[Battle.CurrentRoute.mapId].name or Constants.BLANKLINE
+	if RouteData.hasRoute(Program.GameData.mapId) then
+		data.x.route = RouteData.Info[Program.GameData.mapId].name or Constants.BLANKLINE
 	end
 
 	if Battle.inBattle then
