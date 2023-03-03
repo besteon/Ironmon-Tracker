@@ -38,7 +38,6 @@ Battle = {
 	},
 	-- "Low accuracy" values
 	CurrentRoute = {
-		mapId = 0,
 		encounterArea = RouteData.EncounterArea.LAND,
 		hasInfo = false,
 	},
@@ -458,10 +457,10 @@ function Battle.checkEnemyEncounter(opposingPokemon)
 		end
 	end
 
-	Battle.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
+	Battle.CurrentRoute.hasInfo = RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 
 	if Battle.isWildEncounter and Battle.CurrentRoute.hasInfo then
-		Tracker.TrackRouteEncounter(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
+		Tracker.TrackRouteEncounter(Program.GameData.mapId, Battle.CurrentRoute.encounterArea, opposingPokemon.pokemonID)
 	end
 end
 
