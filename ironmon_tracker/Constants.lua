@@ -454,6 +454,7 @@ Constants.PixelImages = {
 Constants.CharWidths = {
 	[" "] = 1,
     ["%"] = 7,
+    ["0"] = 4,
     ["1"] = 3,
     ["2"] = 4,
     ["3"] = 4,

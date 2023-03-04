@@ -39,6 +39,7 @@ GameOverScreen = {
 		"Hey! What's it doing? Down it goes!",
 	},
 	chosenQuoteIndex = 1,
+	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
 }
 
 GameOverScreen.Buttons = {

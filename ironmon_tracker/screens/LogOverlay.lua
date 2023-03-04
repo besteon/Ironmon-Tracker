@@ -3,7 +3,8 @@ LogOverlay = {
 		header = "Log Viewer",
 		bstStatBox = "Base Stats",
 		bstTotalFormat = "Total: %s", -- e.g. Total: 505
-		gymTMIndicator = "(Gym)",
+		gymTMs = "Gym TMs",
+		otherTMs = "Other TMs",
 		tabFormat = "%s",
 		pageFormat = "Page %s/%s", -- e.g. Page 1/3
 		partyPokemonLevelFormat = "Lv.%s", -- e.g. Lv.23
@@ -1085,18 +1086,31 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	table.insert(LogOverlay.TemporaryButtons, levelupMovesTab)
 	table.insert(LogOverlay.TemporaryButtons, tmMovesTab)
 
+	local moveCategoryOffset = 90
+
 	-- LEARNABLE MOVES
 	offsetY = 0
 	for i, moveInfo in ipairs(data.p.moves) do
+		local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", "Lower box text")
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			text = string.format("%02d  %s", moveInfo.level, moveInfo.name),
-			textColor = "Lower box text",
+			textColor = moveColor,
 			moveId = moveInfo.id,
 			tab = LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
 			pageVisible = math.ceil(i / LogOverlay.PokemonMovesPagination.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.currentTab == self.tab and LogOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
+			draw = function (self, shadowcolor)
+				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
+					local move = MoveData.Moves[self.moveId]
+					if move.category == MoveData.Categories.PHYSICAL then
+						Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+					elseif move.category == MoveData.Categories.SPECIAL then
+						Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+					end
+				end
+			end,
 			onClick = function(self)
 				if MoveData.isValid(self.moveId) then
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
@@ -1111,25 +1125,57 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		end
 	end
 
-	-- Determine gym TMs for the game, they'll be highlighted
-	local gymTMs = {}
-	for _, gymTM in pairs(TrainerData.GymTMs) do
-		gymTMs[gymTM.number] = gymTM.leader
+	-- LEARNABLE TMS
+	local sortGymsFirst = function(a, b) return (a.gymNum * 1000 + a.tm) < (b.gymNum * 1000 + b.tm) end
+	table.sort(data.p.tmmoves, sortGymsFirst)
+
+	-- Add a spacer to separate Gym TMs from regular TMs
+	for i, tmInfo in ipairs(data.p.tmmoves) do
+		if tmInfo.gymNum > 8 then
+			if i ~= 1 then
+				table.insert(data.p.tmmoves, i, { label = LogOverlay.Labels.otherTMs})
+				table.insert(data.p.tmmoves, 1, { label = LogOverlay.Labels.gymTMs})
+				break
+			else
+				table.insert(data.p.tmmoves, 1, { label = LogOverlay.Labels.otherTMs})
+				break
+			end
+		end
 	end
 
-	-- LEARNABLE TMS
 	offsetY = 0
 	for i, tmInfo in ipairs(data.p.tmmoves) do
-		local gymAppend = Utils.inlineIf(gymTMs[tmInfo.tm], " " .. LogOverlay.Labels.gymTMIndicator, "")
+		local moveText, moveColor
+		if tmInfo.label ~= nil then
+			moveText = tmInfo.label
+			moveColor = "Intermediate text"
+		else
+			moveText = string.format("TM%02d  %s", tmInfo.tm, tmInfo.moveName)
+			if tmInfo.isstab then
+				moveColor = "Positive text"
+			else
+				moveColor = "Lower box text"
+			end
+		end
 		local moveBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			text = string.format("TM%02d  %s%s", tmInfo.tm, tmInfo.moveName, gymAppend),
-			textColor = Utils.inlineIf(gymTMs[tmInfo.tm], "Intermediate text", "Lower box text"),
+			text = moveText,
+			textColor = moveColor,
 			moveId = tmInfo.moveId,
 			tab = LogOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
 			pageVisible = math.ceil(i / LogOverlay.PokemonMovesPagination.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.currentTab == self.tab and LogOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
+			draw = function (self, shadowcolor)
+				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
+					local move = MoveData.Moves[self.moveId]
+					if move.category == MoveData.Categories.PHYSICAL then
+						Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+					elseif move.category == MoveData.Categories.SPECIAL then
+						Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+					end
+				end
+			end,
 			onClick = function(self)
 				if MoveData.isValid(self.moveId) then
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw

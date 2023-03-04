@@ -595,22 +595,33 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
 	for _, move in ipairs(pokemonLog.MoveSet or {}) do
+		local moveDex = MoveData.Moves[move.moveId]
 		local moveInfo = {
 			id = move.moveId,
 			level = move.level,
-			name = MoveData.Moves[move.moveId].name,
+			name = moveDex.name,
+			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
 		table.insert(data.p.moves, moveInfo)
+	end
+
+	-- Determine gym TMs for the game
+	local gymTMs = {}
+	for gymNum, gymTM in ipairs(TrainerData.GymTMs) do
+		gymTMs[gymTM.number] = gymNum
 	end
 
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
 	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
 		local moveId = RandomizerLog.Data.TMs[tmNumber] or 0
+		local moveDex = MoveData.Moves[moveId]
 		local tmInfo = {
 			tm = tmNumber,
 			moveId = moveId,
 			moveName = MoveData.Moves[moveId].name,
+			gymNum = gymTMs[tmNumber] or 9,
+			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
 		table.insert(data.p.tmmoves, tmInfo)
 	end

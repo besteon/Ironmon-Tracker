@@ -200,11 +200,16 @@ function Program.update()
 			Program.updatePokemonTeams()
 			TeamViewArea.buildOutPartyScreen()
 
-			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
-				Program.currentScreen = TrackerScreen
-			elseif Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] then
-				Program.currentScreen = GameOverScreen
+			if Program.isValidMapLocation() then
+				if Program.currentScreen == StartupScreen then
+					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+					Program.currentScreen = TrackerScreen
+				elseif RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] and not GameOverScreen.enteredFromSpecialLocation then
+					GameOverScreen.enteredFromSpecialLocation = true
+					Program.currentScreen = GameOverScreen
+				end
+			elseif GameOverScreen.enteredFromSpecialLocation then
+				GameOverScreen.enteredFromSpecialLocation = false
 			end
 
 			-- Check if summary screen has being shown
