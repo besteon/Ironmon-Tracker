@@ -18,6 +18,7 @@ ViewLogWarningScreen = {
 		boxFill = "Lower box background",
 	},
 }
+-- Used to more easily place the "Yes" button
 local buttonYOffset = Constants.SCREEN.MARGIN + 10 + ((#ViewLogWarningScreen.Labels.warnings + 1) * (Constants.SCREEN.LINESPACING)) + 4
 
 ViewLogWarningScreen.Buttons = {
@@ -28,6 +29,7 @@ ViewLogWarningScreen.Buttons = {
 
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, buttonYOffset, 112, 16 },
 		onClick = function(self)
+			-- Function lifted from GameOverScreen.lua
 			ViewLogWarningScreen.viewLogWarning = true
 			Utils.tempDisableBizhawkSound()
 			if not GameOverScreen.viewLogFile() then
@@ -55,10 +57,6 @@ ViewLogWarningScreen.Buttons = {
 }
 
 function ViewLogWarningScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 14
-	local linespacing = Constants.SCREEN.LINESPACING + 1
-
 	for _, button in pairs(ViewLogWarningScreen.Buttons) do
 		if button.textColor == nil then
 			button.textColor = ViewLogWarningScreen.Colors.text
@@ -100,7 +98,6 @@ function ViewLogWarningScreen.drawScreen()
 	for _, button in pairs(ViewLogWarningScreen.Buttons) do
 		Drawing.drawButton(button, topBox.shadow)
 	end
-	local warningTextEndY = 0
 	-- Draw warning text
 	for i in ipairs(ViewLogWarningScreen.Labels.warnings) do
 		local text = ViewLogWarningScreen.Labels.warnings[i]
