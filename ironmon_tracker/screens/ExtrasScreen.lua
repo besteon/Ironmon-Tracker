@@ -9,6 +9,7 @@ ExtrasScreen = {
 		resultAboveAverage = "Above average!",
 		resultDecent = "Decent.",
 		resultUnavailable = "Estimate is unavailable.",
+		viewLogFile = "Inspect the log",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -25,6 +26,23 @@ ExtrasScreen.OptionKeys = {
 }
 
 ExtrasScreen.Buttons = {
+	ViewLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		text = GameOverScreen.Labels.viewLogFile,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 69, 112, 16 },
+		isVisible = function(self) return true end,
+		updateText = function(self)
+			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
+				self.text = GameOverScreen.Labels.viewLogFile
+			else
+				self.text = GameOverScreen.Labels.openLogFile
+			end
+		end,
+		onClick = function(self)
+			Program.changeScreenView(ViewLogWarningScreen)
+		end,
+	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		text = ExtrasScreen.Labels.timeMachineBtn,
