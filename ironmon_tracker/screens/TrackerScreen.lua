@@ -784,7 +784,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
 		local expPercentage = data.p.curExp / data.p.totalExp
-		Drawing.drawExpBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
+		Drawing.drawPercentageBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
 		offsetY = offsetY + 5
 	end
 

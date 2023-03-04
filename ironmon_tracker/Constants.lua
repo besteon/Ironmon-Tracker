@@ -9,6 +9,7 @@ Constants.SCREEN = {
 	UP_GAP = 0,
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
+	BOTTOM_AREA = 70,
 	MARGIN = 5,
 	LINESPACING = 11,
 }
@@ -133,6 +134,7 @@ Constants.OrderedLists = {
 		"Show on new game screen",
 		"Enable restore points",
 		"Enable custom extensions",
+		"Show Team View",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -529,6 +531,12 @@ Constants.CharWidths = {
 
 -- Table of special characters to return based on whether emulator supports those special characters [true/false]
 Constants.CharMap = {
+	["♂"] = { [false] = Constants.HIDDEN_INFO, [true] = "♂", },
+	["♀"] = { [false] = Constants.HIDDEN_INFO, [true] = "♀", },
+	["…"] = { [false] = '..', [true] = "…", },
+	["“"] = { [false] = '"', [true] = "“", },
+	["”"] = { [false] = '"', [true] = "”", },
+	["‘"] = { [false] = "'", [true] = "‘", },
 	["À"] = { [false] = "\192", [true] = "À", },
 	["Á"] = { [false] = "\193", [true] = "Á", },
 	["Â"] = { [false] = "\194", [true] = "Â", },
