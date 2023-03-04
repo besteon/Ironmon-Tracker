@@ -173,7 +173,10 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
 
-	-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
+	-- The extra screens don't occupy the same screen space and need their own check
+	if TeamViewArea.isDisplayed() then
+		TeamViewArea.checkInput(xmouse, ymouse)
+	end
 	if LogOverlay.isDisplayed then
 		LogOverlay.checkInput(xmouse, ymouse)
 	end

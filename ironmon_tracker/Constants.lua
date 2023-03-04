@@ -134,6 +134,7 @@ Constants.OrderedLists = {
 		"Show on new game screen",
 		"Enable restore points",
 		"Enable custom extensions",
+		"Show Team View",
 	},
 	CONTROLS = {
 		"Load next seed",

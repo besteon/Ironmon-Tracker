@@ -19,9 +19,7 @@ Drawing.AnimatedPokemon = {
 
 function Drawing.initialize()
 	if Main.IsOnBizhawk() then
-		-- TODO: Replace "true" with the Options["Enable Team Preview"]
-		local bottomArea = Utils.inlineIf(true, Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
-		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, bottomArea)
+		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
 	end
 end
@@ -344,115 +342,6 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 		-- In-game it's displayed as "_00_00" but this will now show "00_00" instead of "0000"
 		if drawnFirstBall then
 			offsetX = offsetX + 9
-		end
-	end
-end
-
--- Displays the player's full team of six Pokémon below the gameplay/Tracker screen, in an expanded drawing space
-function Drawing.drawTeamDisplay()
-	local canvas = {
-		x = 0,
-		y = Constants.SCREEN.HEIGHT,
-		width = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP,
-		height = Constants.SCREEN.BOTTOM_AREA,
-		margin = 2, -- Currently unused
-		fill = Theme.COLORS["Main background"],
-	}
-	local pokeBox = {
-		width = math.floor(canvas.width / 6),
-		height = canvas.height - 1,
-		text = Theme.COLORS["Default text"],
-		border = Theme.COLORS["Upper box border"],
-		fill = Theme.COLORS["Upper box background"],
-		shadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"]),
-	}
-
-	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.fill, canvas.fill)
-
-	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-
-	local boxX, boxY = canvas.x, canvas.y --(canvas.x + canvas.margin), (canvas.y + canvas.margin)
-	local barHeight = 3
-	local colOffset = 34
-	for i=1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, true)
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-			local yOffset = boxY
-			local finalboxOffset = Utils.inlineIf(i == 6, -1, 0)
-			gui.drawRectangle(boxX, boxY, pokeBox.width + finalboxOffset, pokeBox.height, pokeBox.border, pokeBox.fill)
-
-			-- Pokemon's Nickname
-			Drawing.drawText(boxX + 1, yOffset, pokemon.nickname, pokeBox.text, pokeBox.shadow)
-			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
-
-			-- Pokemon Icon & Status
-			local pokemonIcon = FileManager.buildImagePath(iconset.folder, tostring(pokemon.pokemonID or 0), iconset.extension)
-			gui.drawImage(pokemonIcon, boxX + 1, yOffset - 6 + iconset.yOffset)
-
-			local status = MiscData.StatusCodeMap[pokemon.status] or ""
-			if pokemon.curHP <= 0 then
-				Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Faint], boxX + 16, yOffset + 1)
-			elseif status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-				Drawing.drawStatusIcon(status, boxX + 16, yOffset + 1)
-			end
-
-			-- Pokemon Types
-			yOffset = yOffset + 2
-			local types = PokemonData.Pokemon[pokemon.pokemonID].types
-			Drawing.drawTypeIcon(types[1], boxX + colOffset, yOffset)
-			yOffset = yOffset + 12
-			if types[2] ~= types[1] then
-				Drawing.drawTypeIcon(types[2], boxX + colOffset, yOffset)
-			end
-			yOffset = yOffset + 13
-
-
-			-- Pokemon Level
-			local levelText = string.format("Lv.%s", pokemon.level or 0)
-			Drawing.drawText(boxX + 1, yOffset, levelText, pokeBox.text, pokeBox.shadow)
-			yOffset = yOffset + 2
-
-			-- Pokemon HP Bar
-			local hpPercentage = (pokemon.curHP or 0) / (pokemon.stats.hp or 100)
-			local hpBarColors = { Theme.COLORS["Positive text"], pokeBox.border, pokeBox.fill }
-			if hpPercentage >= 0.50 then
-				hpBarColors[1] = Theme.COLORS["Positive text"]
-			elseif hpPercentage >= 0.20 then
-				hpBarColors[1] = Theme.COLORS["Intermediate text"]
-			else
-				hpBarColors[1] = Theme.COLORS["Negative text"]
-			end
-			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 2, barHeight, hpPercentage, hpBarColors)
-			yOffset = yOffset + barHeight + 0
-
-			-- Pokemon EXP Bar
-			local expPercentage = (pokemon.currentExp or 0) / (pokemon.totalExp or 100)
-			local expBarColors = { pokeBox.text, pokeBox.border, pokeBox.fill }
-			Drawing.drawPercentageBar(boxX + colOffset, yOffset, pokeBox.width - colOffset - 2, barHeight, expPercentage, expBarColors)
-			yOffset = yOffset + barHeight + 2
-
-			-- Pokemon Item
-			local itemText
-			if pokemon.heldItem ~= nil and pokemon.heldItem ~= 0 then
-				itemText = MiscData.Items[pokemon.heldItem]
-			else
-				itemText = Constants.BLANKLINE
-			end
-			Drawing.drawText(boxX + 1, yOffset, itemText, pokeBox.text, pokeBox.shadow)
-			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
-
-			-- Pokemon Ability
-			local abilityText
-			local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
-			if abilityId ~= nil and abilityId ~= 0 then
-				abilityText = AbilityData.Abilities[abilityId].name
-			else
-				abilityText = Constants.BLANKLINE
-			end
-			Drawing.drawText(boxX + 1, yOffset, abilityText, pokeBox.text, pokeBox.shadow)
-			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
-
-			boxX = boxX + pokeBox.width
 		end
 	end
 end

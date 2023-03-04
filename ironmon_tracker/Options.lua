@@ -40,6 +40,7 @@ Options = {
 	["Show on new game screen"] = false,
 	["Enable restore points"] = true,
 	["Enable custom extensions"] = false,
+	["Show Team View"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",

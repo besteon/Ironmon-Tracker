@@ -1,282 +1,232 @@
--- TODO: Redo this whole file to match Drawing.drawTeamDisplay()
-
+-- Displays the player's full team of six Pokémon below the gameplay/Tracker screen, in an expanded drawing space
 TeamViewArea = {
-	Labels = {
-		header = "Team View",
-		pageFormat = "Pg. %s/%s", -- e.g. Pg. 1/3
-		noExtensions = "You currently don't have any custom extensions installed.",
-	},
+	Labels = {},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
 	},
-}
-
-TeamViewArea.Pager = {
-	Buttons = {},
-	currentPage = 0,
-	totalPages = 0,
-	defaultSort = function(a, b) return a.extension.selfObject.name < b.extension.selfObject.name end, -- Order ascending by extension name
-	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
-		table.sort(self.Buttons, self.defaultSort)
-		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
-		local cutoffY = Constants.SCREEN.HEIGHT - 20
-		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
-		self.currentPage = 1
-		self.totalPages = totalPages or 1
-		TeamViewArea.Buttons.CurrentPage:updateText()
-	end,
-	getPageText = function(self)
-		if self.totalPages <= 1 then return "Page" end
-		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
-		return buffer .. string.format(TeamViewArea.Labels.pageFormat, self.currentPage, self.totalPages)
-	end,
-	prevPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
-	end,
-	nextPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = (self.currentPage % self.totalPages) + 1
-	end,
-}
-
-TeamViewArea.Buttons = {
-	GetExtensionsSmall = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "(Get more)",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 93, Constants.SCREEN.MARGIN - 2, 47, 12 },
-		isVisible = function() return #TeamViewArea.Pager.Buttons > 0 end,
-		onClick = function(self)
-			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
-		end
-	},
-	EnableCustomExtensions = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		text = " Allow custom code to run", -- offset with a space for appearance
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
-		toggleState = true, -- update later in initialize
-		toggleColor = "Positive text",
-		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-
-			if self.toggleState then
-				-- First allow for custom code to be run, then activate paged buttons and run startup()
-				Options.updateSetting("Enable custom extensions", self.toggleState)
-				TeamViewArea.togglePagedButtons(self.toggleState)
-			else
-				-- First deactivate paged buttons and run unload(), then stop custom code from running
-				TeamViewArea.togglePagedButtons(self.toggleState)
-				Options.updateSetting("Enable custom extensions", self.toggleState)
-			end
-			Options.forceSave()
-		end
-	},
-	GetExtensions = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.INSTALL_BOX,
-		text = "Get Extensions",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 28, Constants.SCREEN.MARGIN + 70, 80, 16 },
-		isVisible = function() return #TeamViewArea.Pager.Buttons == 0 end,
-		onClick = function(self)
-			Utils.openBrowserWindow(FileManager.Urls.EXTENSIONS)
-		end
-	},
-	CurrentPage = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 135, 50, 10, },
-		isVisible = function() return TeamViewArea.Pager.totalPages > 1 end,
-		updateText = function(self)
-			self.text = TeamViewArea.Pager:getPageText()
-		end,
-	},
-	PrevPage = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44, Constants.SCREEN.MARGIN + 136, 10, 10, },
-		isVisible = function() return TeamViewArea.Pager.totalPages > 1 end,
-		onClick = function(self)
-			TeamViewArea.Pager:prevPage()
-			TeamViewArea.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
-		end
-	},
-	NextPage = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 136, 10, 10, },
-		isVisible = function() return TeamViewArea.Pager.totalPages > 1 end,
-		onClick = function(self)
-			TeamViewArea.Pager:nextPage()
-			TeamViewArea.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
-		end
-	},
-	RefreshExtensionList = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Refresh",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
-		onClick = function(self)
-			CustomCode.refreshExtensionList()
-			TeamViewArea.buildOutPagedButtons()
-			Program.redraw(true)
-		end
-	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			TeamViewArea.refreshButtons()
-			Program.changeScreenView(NavigationMenu)
-		end
+	Canvas = {
+		x = 0,
+		y = Constants.SCREEN.HEIGHT,
+		width = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP,
+		height = Constants.SCREEN.BOTTOM_AREA,
+		margin = 2, -- Currently unused
+		fill = Theme.COLORS["Main background"],
 	},
 }
+
+-- Created later in TeamViewArea.buildOutButtons()
+TeamViewArea.PartyPokemon = {}
 
 function TeamViewArea.initialize()
-	for _, button in pairs(TeamViewArea.Buttons) do
-		if button.textColor == nil then
-			button.textColor = TeamViewArea.Colors.text
-		end
-		if button.boxColors == nil then
-			button.boxColors = { TeamViewArea.Colors.border, TeamViewArea.Colors.boxFill }
-		end
-	end
-	TeamViewArea.Buttons.EnableCustomExtensions.toggleState = Options["Enable custom extensions"]
-	TeamViewArea.Buttons.CurrentPage:updateText()
+	TeamViewArea.refreshDisplayPadding()
 end
 
-function TeamViewArea.buildOutPagedButtons()
-	TeamViewArea.Pager.Buttons = {}
-
-	for extensionKey, extension in pairs(CustomCode.ExtensionLibrary) do
-		local image = Utils.inlineIf(extension.isEnabled, Constants.PixelImages.CHECKMARK, Constants.PixelImages.CROSS)
-		local iconColors = Utils.inlineIf(extension.isEnabled, { "Positive text", }, { "Negative text", })
-
-		-- If the button itself is disabled and not active
-		local isBtnDisabled = not Options["Enable custom extensions"]
-		local textColor = Utils.inlineIf(isBtnDisabled, "Negative text", TeamViewArea.Colors.text)
-
-		local button = {
-			type = Constants.ButtonTypes.ICON_BORDER,
-			image = image,
-			text = extension.selfObject.name or Constants.BLANKLINE,
-			textColor = textColor,
-			iconColors = iconColors,
-			boxColors = { TeamViewArea.Colors.border, TeamViewArea.Colors.boxFill, },
-			extension = extension,
-			extensionKey = extensionKey,
-			dimensions = { width = 132, height = 16, },
-			disabled = isBtnDisabled,
-			isVisible = function(self) return TeamViewArea.Pager.currentPage == self.pageVisible end,
-			updateText = function(self)
-				-- Check if the extension itself is enabled, and update the icon accordingly
-				if self.extension.isEnabled then
-					self.image = Constants.PixelImages.CHECKMARK
-					self.iconColors = { "Positive text", }
-				else
-					self.image = Constants.PixelImages.CROSS
-					self.iconColors = { "Negative text", }
-				end
-
-				-- Check if the button is disabled, and update text color accordingly
-				if self.disabled then
-					self.textColor = "Negative text"
-				else
-					self.textColor = TeamViewArea.Colors.text
-				end
-			end,
-			onClick = function(self)
-				SingleExtensionScreen.setupScreenWithInfo(self.extensionKey, self.extension)
-				Program.changeScreenView(SingleExtensionScreen)
-			end,
-		}
-		table.insert(TeamViewArea.Pager.Buttons, button)
-	end
-
-	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local y = Constants.SCREEN.MARGIN + 29
-	local colSpacer = 1
-	local rowSpacer = 5
-	TeamViewArea.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
-
-	return true
+function TeamViewArea.isDisplayed()
+	return Options["Show Team View"]
 end
 
-function TeamViewArea.refreshButtons()
-	for _, button in pairs(TeamViewArea.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
-		end
-	end
-	for _, button in pairs(TeamViewArea.Pager.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
+function TeamViewArea.refreshDisplayPadding()
+	if not Main.IsOnBizhawk() then return end
+	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
+	client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, bottomAreaPadding)
+end
+
+function TeamViewArea.buildOutPartyScreen()
+	if not TeamViewArea.isDisplayed() then return end
+
+	TeamViewArea.PartyPokemon = {}
+
+	local nextBoxX = TeamViewArea.Canvas.x
+	local nextBoxY = TeamViewArea.Canvas.y
+	local boxWidth = math.floor(TeamViewArea.Canvas.width / 6)
+	local boxHeight = TeamViewArea.Canvas.height - 1
+	for i=1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, true)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			local partyMember = TeamViewArea.createPartyMemberBox(pokemon, nextBoxX, nextBoxY, boxWidth, boxHeight)
+			if partyMember ~= nil then
+				table.insert(TeamViewArea.PartyPokemon, partyMember)
+				nextBoxX = nextBoxX + partyMember.width
+			end
 		end
 	end
 end
 
--- Turns all of the paged buttons ON (makeActive = true) or OFF (makeActive = false), calling startup/unload appropriately
--- If they are OFF, they cannot be pressed and have "Negative text" color
-function TeamViewArea.togglePagedButtons(makeActive)
-	for _, button in ipairs(TeamViewArea.Pager.Buttons) do
-		button.disabled = not makeActive
-		button:updateText()
+function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
+	local barHeight = 3
+	local colOffset = 34
+	local finalboxOffset = Utils.inlineIf(x + width == Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, -1, 0)
+
+	local partyMember = {
+		x = x,
+		y = y,
+		width = width,
+		height = height,
+		Buttons = {},
+		updateSelf = function(self)
+			-- Update colors
+			self.text = Theme.COLORS["Default text"]
+			self.border = Theme.COLORS["Upper box border"]
+			self.fill = Theme.COLORS["Upper box background"]
+			self.shadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+			for _, button in pairs(self.Buttons) do
+				button.textColor = "Default text"
+				button.boxColors = { "Upper box border", "Upper box background" }
+			end
+		end,
+		draw = function(self)
+			self:updateSelf()
+			gui.drawRectangle(self.x, self.y, self.width + finalboxOffset, self.height, self.border, self.fill)
+			local yOffset = self.y
+
+			-- Draw all the clickable buttons
+			for _, button in pairs(self.Buttons) do
+				Drawing.drawButton(button, self.shadow)
+			end
+
+			-- Pokemon's Nickname
+			Drawing.drawText(self.x + 1, yOffset, pokemon.nickname, self.text, self.shadow)
+			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
+
+			-- Pokemon's Status (if any)
+			local status = MiscData.StatusCodeMap[pokemon.status] or ""
+			if pokemon.curHP <= 0 then
+				Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Faint], self.x + 16, yOffset + 1)
+			elseif status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
+				Drawing.drawStatusIcon(status, self.x + 16, yOffset + 1)
+			end
+
+			-- Pokemon Types
+			yOffset = yOffset + 2
+			local types = PokemonData.Pokemon[pokemon.pokemonID].types
+			Drawing.drawTypeIcon(types[1], self.x + colOffset, yOffset)
+			yOffset = yOffset + 12
+			if types[2] ~= types[1] then
+				Drawing.drawTypeIcon(types[2], self.x + colOffset, yOffset)
+			end
+			yOffset = yOffset + 13
+
+			-- Pokemon LevelPattern
+			local levelText = string.format("Lv.%s", pokemon.level or 0)
+			Drawing.drawText(self.x + 1, yOffset, levelText, self.text, self.shadow)
+			yOffset = yOffset + 2
+
+			-- Pokemon HP Bar
+			local hpPercentage = (pokemon.curHP or 0) / (pokemon.stats.hp or 100)
+			local hpBarColors = { Theme.COLORS["Positive text"], self.border, self.fill }
+			if hpPercentage >= 0.50 then
+				hpBarColors[1] = Theme.COLORS["Positive text"]
+			elseif hpPercentage >= 0.20 then
+				hpBarColors[1] = Theme.COLORS["Intermediate text"]
+			else
+				hpBarColors[1] = Theme.COLORS["Negative text"]
+			end
+			Drawing.drawPercentageBar(self.x + colOffset, yOffset, self.width - colOffset - 2, barHeight, hpPercentage, hpBarColors)
+			yOffset = yOffset + barHeight + 0
+
+			-- Pokemon EXP Bar
+			local expPercentage = (pokemon.currentExp or 0) / (pokemon.totalExp or 100)
+			local expBarColors = { self.text, self.border, self.fill }
+			Drawing.drawPercentageBar(self.x + colOffset, yOffset, self.width - colOffset - 2, barHeight, expPercentage, expBarColors)
+			yOffset = yOffset + barHeight + 2
+		end,
+	}
+
+	local yOffset = y + Constants.SCREEN.LINESPACING
+	local iconBtn = {
+		pokemonID = pokemon.pokemonID,
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		getIconPath = function(self)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		end,
+		clickableArea = { x + 1, yOffset, 32, 27 },
+		box = { x + 1, yOffset - 7, 32, 32 },
+		onClick = function(self)
+			if PokemonData.isValid(self.pokemonID) then
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
+			end
+		end
+	}
+	table.insert(partyMember.Buttons, iconBtn)
+
+	local typeDefensesBtn = {
+		-- Invisible button area for the type defenses boxes
+		pokemonID = pokemon.pokemonID,
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { x + colOffset, yOffset, 30, 24, },
+		onClick = function (self)
+			if PokemonData.isValid(self.pokemonID) then
+				TypeDefensesScreen.buildOutPagedButtons(self.pokemonID)
+				Program.changeScreenView(TypeDefensesScreen)
+			end
+		end,
+	}
+	table.insert(partyMember.Buttons, typeDefensesBtn)
+
+	-- Pokemon Item
+	yOffset = yOffset + Constants.SCREEN.LINESPACING + 25
+	local itemBtn = {
+		text = MiscData.Items[pokemon.heldItem or 0] or Constants.BLANKLINE,
+		itemId = pokemon.heldItem or 0,
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { x, yOffset, partyMember.width - 2, Constants.SCREEN.LINESPACING, },
+		onClick = function (self)
+			-- Implement sometime in the future
+			-- if self.itemId ~= nil and self.itemId ~= 0 then
+			-- 	InfoScreen.changeScreenView(InfoScreen.Screens.ITEM_INFO, self.itemId)
+			-- end
+		end,
+	}
+	table.insert(partyMember.Buttons, itemBtn)
+
+	-- Pokemon Ability
+	yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
+	local abilityText
+	local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+	if abilityId ~= nil and abilityId ~= 0 then
+		abilityText = AbilityData.Abilities[abilityId].name
+	else
+		abilityText = Constants.BLANKLINE
 	end
+	local abilityBtn = {
+		text = abilityText,
+		abilityId = abilityId,
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { x, yOffset, partyMember.width - 2, Constants.SCREEN.LINESPACING, },
+		onClick = function (self)
+			if self.abilityId ~= nil and self.abilityId ~= 0 then
+				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, self.abilityId)
+			end
+		end,
+	}
+	table.insert(partyMember.Buttons, abilityBtn)
+
+	return partyMember
 end
 
 -- USER INPUT FUNCTIONS
 function TeamViewArea.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, TeamViewArea.Buttons)
-	Input.checkButtonsClicked(xmouse, ymouse, TeamViewArea.Pager.Buttons)
+	if not TeamViewArea.isDisplayed() then return end
+
+	for _, partyMember in ipairs(TeamViewArea.PartyPokemon) do
+		if partyMember.Buttons ~= nil then
+			Input.checkButtonsClicked(xmouse, ymouse, partyMember.Buttons)
+		end
+	end
 end
 
 -- DRAWING FUNCTIONS
 function TeamViewArea.drawScreen()
-	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[TeamViewArea.Colors.boxFill])
+	if not TeamViewArea.isDisplayed() then return end
 
-	local topBox = {
-		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = Constants.SCREEN.MARGIN + 10,
-		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
-		text = Theme.COLORS[TeamViewArea.Colors.text],
-		border = Theme.COLORS[TeamViewArea.Colors.border],
-		fill = Theme.COLORS[TeamViewArea.Colors.boxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[TeamViewArea.Colors.boxFill]),
-	}
-	local headerText = TeamViewArea.Labels.header:upper()
-	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topBox.x - 1, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	gui.drawRectangle(TeamViewArea.Canvas.x, TeamViewArea.Canvas.y, TeamViewArea.Canvas.width, TeamViewArea.Canvas.height, TeamViewArea.Canvas.fill, TeamViewArea.Canvas.fill)
 
-	-- Draw top border box
-	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
-	local textLineY = topBox.y + Constants.SCREEN.LINESPACING + 3 -- make room for first checkbox
-
-	if #TeamViewArea.Pager.Buttons == 0 then
-		local wrappedDesc = Utils.getWordWrapLines(TeamViewArea.Labels.noExtensions, 32)
-		textLineY = textLineY + Constants.SCREEN.LINESPACING
-		for _, line in pairs(wrappedDesc) do
-			local centeredOffset = Utils.getCenteredTextX(line, topBox.width)
-			Drawing.drawText(topBox.x + centeredOffset, textLineY, line, Theme.COLORS["Intermediate text"], topBox.shadow)
-			textLineY = textLineY + Constants.SCREEN.LINESPACING
+	for _, partyMember in ipairs(TeamViewArea.PartyPokemon) do
+		if type(partyMember.draw) == "function" then
+			partyMember:draw()
 		end
-	end
-
-	-- Draw all buttons
-	for _, button in pairs(TeamViewArea.Buttons) do
-		if button == TeamViewArea.Buttons.GetExtensionsSmall then
-			Drawing.drawButton(button, nil)
-		else
-			Drawing.drawButton(button, topBox.shadow)
-		end
-	end
-	for _, button in pairs(TeamViewArea.Pager.Buttons) do
-		Drawing.drawButton(button, topBox.shadow)
 	end
 end

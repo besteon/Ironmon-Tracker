@@ -125,9 +125,8 @@ function Program.redraw(forced)
 			Program.currentScreen.drawScreen()
 		end
 
-		-- TODO: Replace "true" with the Options["Enable Team Preview"]
-		if true then
-			Drawing.drawTeamDisplay()
+		if TeamViewArea.isDisplayed() then
+			TeamViewArea.drawScreen()
 		end
 
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
@@ -199,6 +198,7 @@ function Program.update()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updatePokemonTeams()
+			TeamViewArea.buildOutPartyScreen()
 
 			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
