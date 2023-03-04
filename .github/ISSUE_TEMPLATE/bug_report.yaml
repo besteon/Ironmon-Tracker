@@ -1,0 +1,66 @@
+name: Bug Report
+description: Use this to report any bugs with the Ironmon Tracker
+title: "[Bug]: "
+labels: ["Bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! We just need some information to help understand what is going on.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of the bug. Include relevant details of what happened and what you expect to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Describe how we can make this bug happen ourselves.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: What tracker version are you using?
+      description: You can find this from the tracker's settings menu or the lua/scripting console output as you load the tracker.
+      placeholder: e.g. v7.3.2
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: What operating system are you using?
+      placeholder: e.g. Windows 10, Linux, MacOS
+    validations:
+      required: true
+  - type: dropdown
+    id: emulators
+    attributes:
+      label: What emulator(s) are you seeing the problem on?
+      multiple: true
+      options:
+        - Bizhawk 2.8
+        - Bizhawk 2.9
+        - mGBA 0.10.0
+        - mGBA 0.10.1
+        - Other (Tell us in Additional Information)
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please check the lua/scripting console for errors. Copy and paste the entire output into this box.
+      render: shell
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Additional Information
+      description: "Leave any other relevant comments or screenshots here. Tip: You can attach images by dragging them into this box!"
