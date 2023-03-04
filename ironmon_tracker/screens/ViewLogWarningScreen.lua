@@ -1,13 +1,17 @@
 ViewLogWarningScreen = {
 	Labels = {
-		warnings =
-		{ "Are you sure you want to view the",
-			"log file? Viewing the log file wihout ",
-			"completing a run or losing a battle ",
-			"is considered cheating.",
-			"",
-			"If you are unsure,",
-			"please do not view the log file." },
+		warnings1 = {
+			{ "Are you sure you want to view the",   "Intermediate text" },
+			{ "log file?",                           "Intermediate text" },
+			{ "",                                    "" },
+			{ "In Ironmon, it's against the spirit", "" },
+			{ "of the challenge to view log info",   "" },
+			{ "about the game before it's over.",    "" },
+		},
+		warnings2= {
+			{ "If you are unsure, simply do not", "" },
+			{ "view the log file.",               "" }
+		},
 		header = "! ! W A R N I N G ! !",
 		yes = "Yes, I'm sure",
 	},
@@ -19,15 +23,21 @@ ViewLogWarningScreen = {
 	},
 }
 -- Used to more easily place the "Yes" button
-local buttonYOffset = Constants.SCREEN.MARGIN + 10 + ((#ViewLogWarningScreen.Labels.warnings + 1) * (Constants.SCREEN.LINESPACING)) + 4
+local buttonHeight = 16
+local buttonWidth = 75
+local buttonYOffset = Constants.SCREEN.MARGIN + 10 +
+	 ((#ViewLogWarningScreen.Labels.warnings1 + 1) * (Constants.SCREEN.LINESPACING))
+-- Center the "Yes" button
+local buttonXOffset = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN +
+	 ((Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)) / 2) - (buttonWidth / 2)
 
 ViewLogWarningScreen.Buttons = {
 	Yes = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.WARNING,
 		text = ViewLogWarningScreen.Labels.yes,
-
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, buttonYOffset, 112, 16 },
+		box = { buttonXOffset, buttonYOffset, buttonWidth, buttonHeight },
+		textColor = "Intermediate text",
 		onClick = function(self)
 			-- Function lifted from GameOverScreen.lua
 			ViewLogWarningScreen.viewLogWarning = true
@@ -89,7 +99,7 @@ function ViewLogWarningScreen.drawScreen()
 	local headerText = ViewLogWarningScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local centerOffsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + centerOffsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"],
+	Drawing.drawText(topBox.x + centerOffsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS[ViewLogWarningScreen.Colors.text],
 		headerShadow)
 
 	-- Draw top border box
@@ -99,11 +109,28 @@ function ViewLogWarningScreen.drawScreen()
 		Drawing.drawButton(button, topBox.shadow)
 	end
 	-- Draw warning text
-	for i in ipairs(ViewLogWarningScreen.Labels.warnings) do
-		local text = ViewLogWarningScreen.Labels.warnings[i]
+	for i in ipairs(ViewLogWarningScreen.Labels.warnings1) do
+		local text = ViewLogWarningScreen.Labels.warnings1[i][1]
+		local color = ViewLogWarningScreen.Labels.warnings1[i][2]
+		if color == "" then
+			color = ViewLogWarningScreen.Colors.text
+		end
 		local shadow = Utils.calcShadowColor(Theme.COLORS[ViewLogWarningScreen.Colors.boxFill])
 		local centerOffsetX = Utils.getCenteredTextX(text, topBox.width)
-		Drawing.drawText(topBox.x + centerOffsetX, topBox.y + (i * Constants.SCREEN.LINESPACING) + 2, text, topBox.text,
+		Drawing.drawText(topBox.x + centerOffsetX, topBox.y + (i * Constants.SCREEN.LINESPACING) - 9, text,
+			Theme.COLORS[color],
+			shadow)
+	end
+	for i in ipairs(ViewLogWarningScreen.Labels.warnings2) do
+		local text = ViewLogWarningScreen.Labels.warnings2[i][1]
+		local color = ViewLogWarningScreen.Labels.warnings2[i][2]
+		if color == "" then
+			color = ViewLogWarningScreen.Colors.text
+		end
+		local shadow = Utils.calcShadowColor(Theme.COLORS[ViewLogWarningScreen.Colors.boxFill])
+		local centerOffsetX = Utils.getCenteredTextX(text, topBox.width)
+		Drawing.drawText(topBox.x + centerOffsetX, buttonYOffset + buttonHeight + (i * Constants.SCREEN.LINESPACING) - 4, text,
+			Theme.COLORS[color],
 			shadow)
 	end
 end
