@@ -31,14 +31,6 @@ ExtrasScreen.Buttons = {
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		text = ExtrasScreen.Labels.viewLogFile,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 69, 78, 16 },
-		isVisible = function(self) return true end,
-		updateText = function(self)
-			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
-				self.text = GameOverScreen.Labels.viewLogFile
-			else
-				self.text = GameOverScreen.Labels.openLogFile
-			end
-		end,
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
 		end,
