@@ -53,10 +53,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### EXP Bar and Trainer Team Info
+### Pokémon Team Preview
 
-![image](https://user-images.githubusercontent.com/4258818/221065010-77261f6d-53e2-449e-ae6e-e6f878ebc32a.png)
-![image](https://user-images.githubusercontent.com/4258818/221167414-74ad6de1-8e64-46dc-9341-8583786ad391.png)
+![image](https://user-images.githubusercontent.com/4258818/222870062-098a7a63-a134-4513-bd55-dce8b8de430d.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
