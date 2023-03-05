@@ -39,6 +39,7 @@ GameOverScreen = {
 		"Hey! What's it doing? Down it goes!",
 	},
 	chosenQuoteIndex = 1,
+	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
 }
 
 GameOverScreen.Buttons = {
@@ -425,7 +426,7 @@ function GameOverScreen.drawScreen()
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 
-	local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+	local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 
 	-- Draw the game winning message or a random Pokémon Stadium announcer quote
 	if inHallOfFame or Battle.defeatedSteven then

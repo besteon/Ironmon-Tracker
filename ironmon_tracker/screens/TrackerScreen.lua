@@ -112,10 +112,10 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
-			if not RouteData.hasRouteEncounterArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea) then return end
+			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
 			local routeInfo = {
-				mapId = Battle.CurrentRoute.mapId,
+				mapId = Program.GameData.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
@@ -213,7 +213,7 @@ TrackerScreen.Buttons = {
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.ROUTE_INFO end,
 		onClick = function(self)
 			local routeInfo = {
-				mapId = Battle.CurrentRoute.mapId,
+				mapId = Program.GameData.mapId,
 				encounterArea = Battle.CurrentRoute.encounterArea,
 			}
 			InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
@@ -457,9 +457,9 @@ function TrackerScreen.buildCarousel()
 		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Battle.inBattle and Battle.CurrentRoute.hasInfo end,
 		framesToShow = 180,
 		getContentList = function()
-			-- local routeInfo = RouteData.Info[Battle.CurrentRoute.mapId]
-			local totalPossible = RouteData.countPokemonInArea(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
-			local routeEncounters = Tracker.getRouteEncounters(Battle.CurrentRoute.mapId, Battle.CurrentRoute.encounterArea)
+			-- local routeInfo = RouteData.Info[Program.GameData.mapId]
+			local totalPossible = RouteData.countPokemonInArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
+			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
 			if Battle.CurrentRoute.encounterArea == RouteData.EncounterArea.ROCKSMASH then
@@ -642,7 +642,7 @@ end
 
 function TrackerScreen.canShowBallPicker()
 	-- If the player is in the lab without any Pokemon
-	return Options["Show random ball picker"] and RouteData.Locations.IsInLab[Battle.CurrentRoute.mapId] and Tracker.getPokemon(1, true) == nil
+	return Options["Show random ball picker"] and RouteData.Locations.IsInLab[Program.GameData.mapId] and Tracker.getPokemon(1, true) == nil
 end
 
 -- USER INPUT FUNCTIONS
@@ -784,7 +784,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
 		local expPercentage = data.p.curExp / data.p.totalExp
-		Drawing.drawExpBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
+		Drawing.drawPercentageBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
 		offsetY = offsetY + 5
 	end
 

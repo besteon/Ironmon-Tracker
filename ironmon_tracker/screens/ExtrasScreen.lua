@@ -9,6 +9,7 @@ ExtrasScreen = {
 		resultAboveAverage = "Above average!",
 		resultDecent = "Decent.",
 		resultUnavailable = "Estimate is unavailable.",
+		viewLogFile = "View the log",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -25,6 +26,15 @@ ExtrasScreen.OptionKeys = {
 }
 
 ExtrasScreen.Buttons = {
+	ViewLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		text = ExtrasScreen.Labels.viewLogFile,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 69, 78, 16 },
+		onClick = function(self)
+			Program.changeScreenView(ViewLogWarningScreen)
+		end,
+	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		text = ExtrasScreen.Labels.timeMachineBtn,

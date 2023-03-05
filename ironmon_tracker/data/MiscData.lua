@@ -30,6 +30,7 @@ MiscData.StatusType = {
 	Freeze = 4,
 	Paralyze = 5,
 	Toxic = 6,
+	Faint = 50,
 	All = 100,
 }
 
@@ -41,6 +42,7 @@ MiscData.StatusCodeMap = {
 	[MiscData.StatusType.Poison] = "PSN",
 	[MiscData.StatusType.Toxic] = "PSN",
 	[MiscData.StatusType.Sleep] = "SLP",
+	[MiscData.StatusType.Faint] = "FNT",
 }
 
 -- Currently unused data

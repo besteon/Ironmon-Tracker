@@ -9,6 +9,7 @@ Constants.SCREEN = {
 	UP_GAP = 0,
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
+	BOTTOM_AREA = 70,
 	MARGIN = 5,
 	LINESPACING = 11,
 }
@@ -133,6 +134,7 @@ Constants.OrderedLists = {
 		"Show on new game screen",
 		"Enable restore points",
 		"Enable custom extensions",
+		"Show Team View",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -237,6 +239,18 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,0,1},
 		{0,1,0,0,0,0,0,0,1,0},
 		{0,0,1,1,1,1,1,1,0,0},
+	},
+	WARNING = { -- 9x9
+		{0,0,0,1,1,1,0,0,0},
+		{0,1,1,1,1,1,1,1,0},
+		{0,1,1,1,0,1,1,1,0},
+		{1,1,1,1,0,1,1,1,1},
+		{1,1,1,1,0,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1},
+		{0,1,1,1,0,1,1,1,0},
+		{0,1,1,1,1,1,1,1,0},
+		{0,0,0,1,1,1,0,0,0},
+
 	},
 	INSTALL_BOX = { -- 9x9
 		{0,0,0,0,1,0,0,0,0},
@@ -452,6 +466,7 @@ Constants.PixelImages = {
 Constants.CharWidths = {
 	[" "] = 1,
     ["%"] = 7,
+    ["0"] = 4,
     ["1"] = 3,
     ["2"] = 4,
     ["3"] = 4,
@@ -529,6 +544,12 @@ Constants.CharWidths = {
 
 -- Table of special characters to return based on whether emulator supports those special characters [true/false]
 Constants.CharMap = {
+	["♂"] = { [false] = Constants.HIDDEN_INFO, [true] = "♂", },
+	["♀"] = { [false] = Constants.HIDDEN_INFO, [true] = "♀", },
+	["…"] = { [false] = '..', [true] = "…", },
+	["“"] = { [false] = '"', [true] = "“", },
+	["”"] = { [false] = '"', [true] = "”", },
+	["‘"] = { [false] = "'", [true] = "‘", },
 	["À"] = { [false] = "\192", [true] = "À", },
 	["Á"] = { [false] = "\193", [true] = "Á", },
 	["Â"] = { [false] = "\194", [true] = "Â", },

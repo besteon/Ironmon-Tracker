@@ -272,6 +272,7 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 
 	local foldersToRemove = {
 		string.format('%s.vscode', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%s.github', extractedFolder .. UpdateOrInstall.slash),
 		string.format('%sironmon_tracker%sDebug', extractedFolder .. UpdateOrInstall.slash, UpdateOrInstall.slash),
 	}
 	local filesToRemove = {

@@ -4,7 +4,6 @@ Program = {
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
-	friendshipRequired = 220,
 	activeFormId = 0,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -18,6 +17,8 @@ Program = {
 }
 
 Program.GameData = {
+	mapId = 0, -- was previously Battle.CurrentRoute.mapId
+	friendshipRequired = 220,
 	evolutionStones = { -- The evolution stones currently in bag
 			[93] = 0, -- Sun Stone
 			[94] = 0, -- Moon Stone
@@ -35,7 +36,7 @@ Program.ActiveRepel = {
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
-		local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
 }
@@ -84,7 +85,7 @@ function Program.initialize()
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
-		Program.friendshipRequired = friendshipRequired
+		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
 	Program.AutoSaver:updateSaveCount()
@@ -120,10 +121,6 @@ function Program.redraw(forced)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
-			Program.currentScreen.drawScreen()
-		end
-
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
 		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
@@ -132,6 +129,14 @@ function Program.redraw(forced)
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 		if LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
+		end
+
+		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+			Program.currentScreen.drawScreen()
+		end
+
+		if TeamViewArea.isDisplayed() then
+			TeamViewArea.drawScreen()
 		end
 	else
 		MGBA.ScreenUtils.updateTextBuffers()
@@ -193,12 +198,18 @@ function Program.update()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updatePokemonTeams()
+			TeamViewArea.buildOutPartyScreen()
 
-			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
-				Program.currentScreen = TrackerScreen
-			elseif Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId] then
-				Program.currentScreen = GameOverScreen
+			if Program.isValidMapLocation() then
+				if Program.currentScreen == StartupScreen then
+					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+					Program.currentScreen = TrackerScreen
+				elseif RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] and not GameOverScreen.enteredFromSpecialLocation then
+					GameOverScreen.enteredFromSpecialLocation = true
+					Program.currentScreen = GameOverScreen
+				end
+			elseif GameOverScreen.enteredFromSpecialLocation then
+				GameOverScreen.enteredFromSpecialLocation = false
 			end
 
 			-- Check if summary screen has being shown
@@ -374,6 +385,7 @@ function Program.updatePokemonTeams()
 end
 
 function Program.readNewPokemon(startAddress, personality)
+	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
@@ -383,7 +395,7 @@ function Program.readNewPokemon(startAddress, personality)
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
-	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
 	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Experience
 	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
@@ -391,6 +403,15 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
 	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+
+	local nickname = ""
+	for i=0, 9, 1 do
+		local charByte = Memory.readbyte(startAddress + 8 + i)
+		if charByte ~= 0xFF then -- end of sequence
+			nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+		end
+	end
+	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
 	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
@@ -438,6 +459,7 @@ function Program.readNewPokemon(startAddress, personality)
 
 	return {
 		personality = personality,
+		nickname = nickname,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
@@ -521,7 +543,7 @@ function Program.updatePCHeals()
 	end
 
 	-- Make sure the player is in a map location that can perform a PC heal
-	if not RouteData.Locations.CanPCHeal[Battle.CurrentRoute.mapId] then
+	if not RouteData.Locations.CanPCHeal[Program.GameData.mapId] then
 		return
 	end
 
@@ -576,20 +598,19 @@ function Program.updateBadgesObtained()
 end
 
 function Program.updateMapLocation()
-	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
 	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 
 	-- If the player is in a new area, auto-lookup for mGBA screen
-	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
-		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
+	if not Main.IsOnBizhawk() and newMapId ~= Program.GameData.mapId then
+		local isFirstLocation = Program.GameData.mapId == nil or Program.GameData.mapId == 0
 		MGBA.Screens.LookupRoute:setData(newMapId, isFirstLocation)
 	end
-	Battle.CurrentRoute.mapId = newMapId
+	Program.GameData.mapId = newMapId
 end
 
 -- More or less used to determine if the player has begun playing the game, returns true if so.
 function Program.isValidMapLocation()
-	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
+	return Program.GameData.mapId ~= nil and Program.GameData.mapId ~= 0
 end
 
 function Program.HandleExit()

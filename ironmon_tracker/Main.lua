@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "3", patch = "2" }
+Main.Version = { major = "7", minor = "4", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -880,6 +880,15 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [EXTCONFIG]
+	if settings.extconfig ~= nil then
+		for key, val in pairs(settings.extconfig) do
+			if val ~= nil then
+				Main.SetMetaSetting("extconfig", key, val)
+			end
+		end
+	end
+
 	return true
 end
 
@@ -936,9 +945,20 @@ function Main.SaveSettings(forced)
 		settings.extensions[extKey] = extension.isEnabled or false
 	end
 
+	-- [EXTCONFIG]
+	-- Implied to save all things in settings.extconfig
+
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
+end
+
+function Main.SetMetaSetting(section, key, value)
+	if section == nil or key == nil or value == nil or section == "" or key == "" then return end
+	if Main.MetaSettings[section] == nil then
+		Main.MetaSettings[section] = {}
+	end
+	Main.MetaSettings[section][key] = value
 end
 
 function Main.RemoveMetaSetting(section, key)

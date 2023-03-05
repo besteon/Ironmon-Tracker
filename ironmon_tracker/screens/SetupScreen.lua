@@ -7,6 +7,7 @@ SetupScreen = {
 }
 
 SetupScreen.OptionKeys = {
+	"Show Team View", -- Text referenced in initialize()
 	"Right justified numbers",
 	"Disable mainscreen carousel",
 	"Track PC Heals",
@@ -103,6 +104,10 @@ function SetupScreen.initialize()
 				-- If PC Heal tracking switched, invert the count
 				if self.text == "PC heals count downward" then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+				elseif self.text == "Show Team View" then
+					TeamViewArea.refreshDisplayPadding()
+					TeamViewArea.buildOutPartyScreen()
+					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
 				end
 			end
 		}
