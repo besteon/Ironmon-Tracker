@@ -121,14 +121,6 @@ function Program.redraw(forced)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
-			Program.currentScreen.drawScreen()
-		end
-
-		if TeamViewArea.isDisplayed() then
-			TeamViewArea.drawScreen()
-		end
-
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
 		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
@@ -137,6 +129,14 @@ function Program.redraw(forced)
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 		if LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
+		end
+
+		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+			Program.currentScreen.drawScreen()
+		end
+
+		if TeamViewArea.isDisplayed() then
+			TeamViewArea.drawScreen()
 		end
 	else
 		MGBA.ScreenUtils.updateTextBuffers()

@@ -14,7 +14,7 @@ TeamViewArea = {
 		width = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP,
 		height = Constants.SCREEN.BOTTOM_AREA,
 		margin = 2, -- Currently unused
-		fill = Theme.COLORS["Main background"],
+		fillColor = "Main background",
 	},
 }
 
@@ -256,7 +256,8 @@ end
 function TeamViewArea.drawScreen()
 	if not TeamViewArea.isDisplayed() then return end
 
-	gui.drawRectangle(TeamViewArea.Canvas.x, TeamViewArea.Canvas.y, TeamViewArea.Canvas.width, TeamViewArea.Canvas.height, TeamViewArea.Canvas.fill, TeamViewArea.Canvas.fill)
+	local bgColor = Theme.COLORS[TeamViewArea.Canvas.fillColor]
+	gui.drawRectangle(TeamViewArea.Canvas.x, TeamViewArea.Canvas.y, TeamViewArea.Canvas.width, TeamViewArea.Canvas.height, bgColor, bgColor)
 
 	for _, partyMember in ipairs(TeamViewArea.PartyPokemon) do
 		if type(partyMember.draw) == "function" then
