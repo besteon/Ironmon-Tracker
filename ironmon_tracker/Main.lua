@@ -758,7 +758,7 @@ function Main.ReadAttemptsCount()
 			if romnumber ~= "1" then
 				Main.currentSeed = tonumber(romnumber)
 			end
-		elseif Options["Use premade ROMs"] and (Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "") then -- mostly for mGBA
+		elseif Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then
 				Main.currentSeed = smallestSeedNumber
