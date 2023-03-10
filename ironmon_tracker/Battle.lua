@@ -352,7 +352,7 @@ function Battle.updateTrackedInfo()
 	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then
 		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
-		Battle.updateStatStages(ownLeftPokemon, true)
+		Battle.updateStatStages(ownLeftPokemon, true, true)
 	end
 
 	if Battle.numBattlers == 4 then
@@ -360,7 +360,7 @@ function Battle.updateTrackedInfo()
 		if ownRightPokemon ~= nil and Battle.Combatants.RightOwn <= Battle.partySize then
 			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
-			Battle.updateStatStages(ownRightPokemon, true)
+			Battle.updateStatStages(ownRightPokemon, true, false)
 		end
 	end
 	--Don't track anything for Ghost opponents
@@ -380,13 +380,13 @@ function Battle.updateTrackedInfo()
 		end
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		if otherLeftPokemon ~= nil then
-			Battle.updateStatStages(otherLeftPokemon, false)
+			Battle.updateStatStages(otherLeftPokemon, false, true)
 			Battle.checkEnemyEncounter(otherLeftPokemon)
 		end
 		if Battle.numBattlers == 4 then
 			local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 			if otherRightPokemon ~= nil then
-				Battle.updateStatStages(otherRightPokemon, false)
+				Battle.updateStatStages(otherRightPokemon, false, false)
 				Battle.checkEnemyEncounter(otherRightPokemon)
 			end
 		end
@@ -400,10 +400,11 @@ function Battle.readBattleValues()
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget) % Battle.numBattlers
 end
 
-function Battle.updateStatStages(pokemon, isOwn)
+function Battle.updateStatStages(pokemon, isOwn, isLeft)
 	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
-	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
-	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
+	local isLeftOffset = Utils.inlineIf(isLeft, 0x0, 0xB0)
+	local hp_atk_def_speed = Memory.readdword(startAddress + isLeftOffset + 0x18)
+	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + isLeftOffset + 0x1C)
 
 	pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
 	if pokemon.statStages.hp ~= 0 then
