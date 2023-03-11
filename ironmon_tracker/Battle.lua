@@ -936,8 +936,18 @@ function Battle.getDoublesCursorTargetInfo()
 	local defaultCombatant, defaultOwner
 	if Tracker.Data.isViewingOwn then
 		defaultCombatant, defaultOwner = Battle.Combatants.LeftOther, false
+		-- For doubles: use the other pokemon on the Right if the Left pokemon is KO'd
+		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
+		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
+			defaultCombatant = Battle.Combatants.RightOther
+		end
 	else
 		defaultCombatant, defaultOwner = Battle.Combatants.LeftOwn, true
+		-- For doubles: use your other pokemon on the Right if the Left pokemon is KO'd
+		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
+		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
+			defaultCombatant = Battle.Combatants.RightOwn
+		end
 	end
 
 	-- Not all games have this address
