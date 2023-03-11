@@ -110,8 +110,7 @@ function Battle.updateBattleStatus()
 	Battle.totalBattles = totalBattles
 
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
-		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
-		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
+		-- Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- NOTE: doesn't work well, temporarily removing
 		Battle.beginNewBattle()
 	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
@@ -578,6 +577,7 @@ function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
 	GameOverScreen.createTempSaveState()
+	Program.updateBattleEncounterType()
 
 	Program.Frames.battleDataDelay = 60
 
@@ -660,6 +660,7 @@ function Battle.endCurrentBattle()
 	Battle.partySize = 6
 	Battle.inBattle = false
 	Battle.battleStarting = false
+	Battle.isWildEncounter = false -- default battle type is trainer battle
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
 	Battle.actualEnemyMoveId = 0
