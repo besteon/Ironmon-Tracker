@@ -110,8 +110,7 @@ function Battle.updateBattleStatus()
 	Battle.totalBattles = totalBattles
 
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
-		Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- testing this shorter version
-		-- Battle.isWildEncounter = Tracker.Data.trainerID ~= nil and Tracker.Data.trainerID ~= 0 and Tracker.Data.trainerID == opposingPokemon.trainerID
+		-- Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- NOTE: doesn't work well, temporarily removing
 		Battle.beginNewBattle()
 	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
@@ -352,7 +351,7 @@ function Battle.updateTrackedInfo()
 	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then
 		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
 		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
-		Battle.updateStatStages(ownLeftPokemon, true)
+		Battle.updateStatStages(ownLeftPokemon, true, true)
 	end
 
 	if Battle.numBattlers == 4 then
@@ -360,7 +359,7 @@ function Battle.updateTrackedInfo()
 		if ownRightPokemon ~= nil and Battle.Combatants.RightOwn <= Battle.partySize then
 			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
 			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
-			Battle.updateStatStages(ownRightPokemon, true)
+			Battle.updateStatStages(ownRightPokemon, true, false)
 		end
 	end
 	--Don't track anything for Ghost opponents
@@ -380,13 +379,13 @@ function Battle.updateTrackedInfo()
 		end
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		if otherLeftPokemon ~= nil then
-			Battle.updateStatStages(otherLeftPokemon, false)
+			Battle.updateStatStages(otherLeftPokemon, false, true)
 			Battle.checkEnemyEncounter(otherLeftPokemon)
 		end
 		if Battle.numBattlers == 4 then
 			local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 			if otherRightPokemon ~= nil then
-				Battle.updateStatStages(otherRightPokemon, false)
+				Battle.updateStatStages(otherRightPokemon, false, false)
 				Battle.checkEnemyEncounter(otherRightPokemon)
 			end
 		end
@@ -400,10 +399,11 @@ function Battle.readBattleValues()
 	Battle.battlerTarget = Memory.readbyte(GameSettings.gBattlerTarget) % Battle.numBattlers
 end
 
-function Battle.updateStatStages(pokemon, isOwn)
+function Battle.updateStatStages(pokemon, isOwn, isLeft)
 	local startAddress = GameSettings.gBattleMons + Utils.inlineIf(isOwn, 0x0, 0x58)
-	local hp_atk_def_speed = Memory.readdword(startAddress + 0x18)
-	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + 0x1C)
+	local isLeftOffset = Utils.inlineIf(isLeft, 0x0, 0xB0)
+	local hp_atk_def_speed = Memory.readdword(startAddress + isLeftOffset + 0x18)
+	local spatk_spdef_acc_evasion = Memory.readdword(startAddress + isLeftOffset + 0x1C)
 
 	pokemon.statStages.hp = Utils.getbits(hp_atk_def_speed, 0, 8)
 	if pokemon.statStages.hp ~= 0 then
@@ -577,6 +577,7 @@ function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
 	GameOverScreen.createTempSaveState()
+	Program.updateBattleEncounterType()
 
 	Program.Frames.battleDataDelay = 60
 
@@ -659,6 +660,7 @@ function Battle.endCurrentBattle()
 	Battle.partySize = 6
 	Battle.inBattle = false
 	Battle.battleStarting = false
+	Battle.isWildEncounter = false -- default battle type is trainer battle
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
 	Battle.actualEnemyMoveId = 0
@@ -934,8 +936,18 @@ function Battle.getDoublesCursorTargetInfo()
 	local defaultCombatant, defaultOwner
 	if Tracker.Data.isViewingOwn then
 		defaultCombatant, defaultOwner = Battle.Combatants.LeftOther, false
+		-- For doubles: use the other pokemon on the Right if the Left pokemon is KO'd
+		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
+		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
+			defaultCombatant = Battle.Combatants.RightOther
+		end
 	else
 		defaultCombatant, defaultOwner = Battle.Combatants.LeftOwn, true
+		-- For doubles: use your other pokemon on the Right if the Left pokemon is KO'd
+		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
+		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
+			defaultCombatant = Battle.Combatants.RightOwn
+		end
 	end
 
 	-- Not all games have this address

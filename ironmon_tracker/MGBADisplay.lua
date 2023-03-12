@@ -197,7 +197,11 @@ MGBADisplay.DataFormatter = {
 
 		for _, move in ipairs(data.m.moves) do
 			move.name = move.name .. Utils.inlineIf(move.starred, "*", "")
-			move.type = Utils.firstToUpper(move.type)
+			if move.type == nil or move.type == MoveData.BlankMove.type then
+				move.type = Constants.BLANKLINE
+			else
+				move.type = Utils.firstToUpper(move.type)
+			end
 		end
 	end,
 }
@@ -596,7 +600,10 @@ MGBADisplay.LineBuilder = {
 
 		-- Top six lines of the box: Pokemon related stuff
 		local topFormattedLine = "%-23s%-10s"
-		local levelLine = Utils.formatUTF8("Lv.%s (%s)", data.p.level, data.p.evo)
+		local levelLine = Utils.formatUTF8("Lv.%s", data.p.level)
+		if data.p.evo ~= Constants.BLANKLINE then
+			levelLine = Utils.formatUTF8("%s (%s)", levelLine, data.p.evo)
+		end
 		if data.x.viewingOwn then
 			local hpLine = Utils.formatUTF8("HP: %s/%s", data.p.curHP, data.p.hp)
 			lines[3] = Utils.formatUTF8(topFormattedLine, hpLine, formattedStats.hp)
@@ -627,9 +634,9 @@ MGBADisplay.LineBuilder = {
 				encountersText = Utils.formatUTF8("Seen in the wild: %s", data.x.encounters)
 				routeText = data.x.route
 			else
-				local numKOs, totalMons = Program.getTeamCounts()
+				local numAlive, totalMons = Program.getTeamCounts()
 				encountersText = Utils.formatUTF8("Seen on trainers: %s", data.x.encounters)
-				routeText = Utils.formatUTF8("%s KO'd: %s/%s", Constants.Words.POKEMON, numKOs, totalMons)
+				routeText = Utils.formatUTF8("Trainer team: %s/%s", numAlive, totalMons)
 			end
 
 			lines[7] = Utils.formatUTF8(topFormattedLine, encountersText, formattedStats.spd)
@@ -678,7 +685,7 @@ MGBADisplay.LineBuilder = {
 			-- Append the move type as text if this option is enabled (ON by default)
 			-- Note: this goes out of bounds of the normal Tracker box, but really no other good solution
 			if Theme.MOVE_TYPES_ENABLED then
-				moveLine = string.format("%s   %s", moveLine, move.type or MoveData.BlankMove.type)
+				moveLine = string.format("%s   %s", moveLine, move.type)
 			end
 
 			table.insert(lines, moveLine)

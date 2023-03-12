@@ -18,6 +18,8 @@ Program = {
 
 Program.GameData = {
 	mapId = 0, -- was previously Battle.CurrentRoute.mapId
+	wildBattles = -999, -- used to track differences in GAME STATS
+	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
 	evolutionStones = { -- The evolution stones currently in bag
 			[93] = 0, -- Sun Stone
@@ -88,6 +90,7 @@ function Program.initialize()
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
+	Program.updateBattleEncounterType()
 	Program.AutoSaver:updateSaveCount()
 
 	-- Update data asap
@@ -217,6 +220,10 @@ function Program.update()
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
 				end
+			end
+
+			if not Battle.inBattle then
+				Program.updateBattleEncounterType()
 			end
 
 			-- Check if a Pokemon in the player's party is learning a move, if so track it
@@ -497,20 +504,20 @@ function Program.readNewPokemon(startAddress, personality)
 	}
 end
 
--- Returns two values [numKOd, total] for a given Trainer's Pokémon team.
+-- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
-	local numKOd, total = 0, 0
+	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
 		local pokemon = Tracker.getPokemon(i, false)
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
-			if pokemon.curHP <= 0 then
-				numKOd = numKOd + 1
+			if (pokemon.curHP or 0) > 0 then
+				numAlive = numAlive + 1
 			end
 		end
 	end
 
-	return numKOd, total
+	return numAlive, total
 end
 
 -- Returns two exp values that describe the amount of experience points needed to reach the next level.
@@ -530,6 +537,21 @@ function Program.getNextLevelExp(pokemonID, level, experience)
 	local totalExp = expAtNextLv - expAtLv
 
 	return currentExp, totalExp
+end
+
+-- Determine if the battle is a wild or trainer battle. Note, this isn't foolproof if tracker is loaded during an active battle
+function Program.updateBattleEncounterType()
+	local newWildBattles = Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES)
+	local newTrainerBattles = Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES)
+
+	if newWildBattles - Program.GameData.wildBattles == 1 then -- difference of +1
+		Battle.isWildEncounter = true
+	elseif newTrainerBattles - Program.GameData.trainerBattles == 1 then -- difference of +1
+		Battle.isWildEncounter = false
+	end
+
+	Program.GameData.wildBattles = newWildBattles
+	Program.GameData.trainerBattles = newTrainerBattles
 end
 
 function Program.updatePCHeals()
