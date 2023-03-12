@@ -504,20 +504,20 @@ function Program.readNewPokemon(startAddress, personality)
 	}
 end
 
--- Returns two values [numKOd, total] for a given Trainer's Pokémon team.
+-- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
-	local numKOd, total = 0, 0
+	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
 		local pokemon = Tracker.getPokemon(i, false)
 		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
-			if pokemon.curHP <= 0 then
-				numKOd = numKOd + 1
+			if (pokemon.curHP or 0) > 0 then
+				numAlive = numAlive + 1
 			end
 		end
 	end
 
-	return numKOd, total
+	return numAlive, total
 end
 
 -- Returns two exp values that describe the amount of experience points needed to reach the next level.
