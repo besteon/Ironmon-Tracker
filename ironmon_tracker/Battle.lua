@@ -931,39 +931,52 @@ function Battle.moveDelayed()
 end
 
 -- During double battles, this is the Pokemon the targeting cursor is pointing at (either enemy or your partner)
--- Returns: slot(1-6), isOwn(true/false)
+-- Returns: targetInfo table { slot(1-6), target(0,2,1,3), isLeft(true/false), isOwner(true/false) }
 function Battle.getDoublesCursorTargetInfo()
-	local defaultCombatant, defaultOwner
+	-- target: top row are enemies, bottom row are owners
+	-- 3 1
+	-- 0 2
+	local targetInfo = {}
+
 	if Tracker.Data.isViewingOwn then
-		defaultCombatant, defaultOwner = Battle.Combatants.LeftOther, false
-		-- For doubles: use the other pokemon on the Right if the Left pokemon is KO'd
-		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
-		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
-			defaultCombatant = Battle.Combatants.RightOther
-		end
+		targetInfo.slot = Battle.Combatants.LeftOther
+		targetInfo.target = 1
+		targetInfo.isLeft = true
+		targetInfo.isOwner = false
 	else
-		defaultCombatant, defaultOwner = Battle.Combatants.LeftOwn, true
-		-- For doubles: use your other pokemon on the Right if the Left pokemon is KO'd
-		local leftPokemon = Tracker.getPokemon(defaultCombatant, defaultOwner)
-		if Battle.numBattlers > 2 and leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
-			defaultCombatant = Battle.Combatants.RightOwn
-		end
+		targetInfo.slot = Battle.Combatants.LeftOwn
+		targetInfo.target = 0
+		targetInfo.isLeft = true
+		targetInfo.isOwner = true
+	end
+
+	if Battle.numBattlers == 2 then
+		return targetInfo
+	end
+
+	-- For doubles: use the other pokemon if the primary pokemon is KO'd
+	local leftPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner)
+	if leftPokemon ~= nil and (leftPokemon.curHP or 0) == 0 then
+		targetInfo.slot = Utils.inlineIf(targetInfo.isOwner, Battle.Combatants.RightOwn, Battle.Combatants.RightOther)
+		targetInfo.target = Utils.inlineIf(targetInfo.isOwner, 2, 3)
+		targetInfo.isLeft = false
 	end
 
 	-- Not all games have this address
-	if GameSettings.gMultiUsePlayerCursor == nil or Battle.numBattlers == 2 then
-		return defaultCombatant, defaultOwner
+	if GameSettings.gMultiUsePlayerCursor == nil then
+		return targetInfo
 	end
 
-	-- 0 or 2 if player, 1 or 3 if enemy, 255 = no target
 	local target = Memory.readbyte(GameSettings.gMultiUsePlayerCursor)
-
-	-- Default anything out of bounds
-	if target == 255 or target < 0 or target > 4 then
-		return defaultCombatant, defaultOwner
+	if target < 0 or target > 4 then
+		-- If not target selected, the value is 255
+		return targetInfo
 	end
 
-	local whichCombatant = Battle.IndexMap[target] or 0
-	local isOwn = target % 2 == 0
-	return Battle.Combatants[whichCombatant] or Battle.Combatants.LeftOther, isOwn
+	targetInfo.slot = Battle.Combatants[Battle.IndexMap[target] or 0] or Battle.Combatants.LeftOther
+	targetInfo.target = target
+	targetInfo.isLeft = (targetInfo.target == 0 or targetInfo.target == 1)
+	targetInfo.isOwner = (target % 2 == 0)
+
+	return targetInfo
 end
