@@ -96,11 +96,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.viewingOwn = forceView
 	end
 
-	-- Mostly useful for doubles; if viewing own, defaults to { slot=Battle.Combatants.LeftOther, target=1, isLeft=true, isOwner=false }
 	local targetInfo = Battle.getDoublesCursorTargetInfo()
-
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
-	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner)-- currently used exclusively for Low Kick weight calcs
+	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
