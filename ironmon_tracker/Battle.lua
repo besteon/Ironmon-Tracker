@@ -100,18 +100,20 @@ end
 
 -- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 function Battle.updateBattleStatus()
-	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
 	local firstMonID = Memory.readword(GameSettings.gBattleMons)
-	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
+	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
+
 	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) then
+	if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
 		Battle.battleStarting = true
 	end
 	Battle.totalBattles = totalBattles
 
-	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and numBattlers ~= 0 and PokemonData.isValid(firstMonID) then
+	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
+	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
+	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		-- Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- NOTE: doesn't work well, temporarily removing
 		Battle.beginNewBattle()
 	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
