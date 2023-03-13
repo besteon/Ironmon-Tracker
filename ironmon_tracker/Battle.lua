@@ -964,14 +964,14 @@ function Battle.getDoublesCursorTargetInfo()
 		targetInfo.isLeft = false
 	end
 
-	-- Viewing an enemy pokemon should always calc stats against your default pokemon; Also, not all games have this address
-	if not Tracker.Data.isViewingOwn or GameSettings.gMultiUsePlayerCursor == nil then
+	-- Not all games have this address
+	if GameSettings.gMultiUsePlayerCursor == nil then
 		return targetInfo
 	end
 
 	local target = Memory.readbyte(GameSettings.gMultiUsePlayerCursor)
 	if target < 0 or target > 4 then
-		-- If no is target selected, the value is 255
+		-- If not target selected, the value is 255
 		return targetInfo
 	end
 
