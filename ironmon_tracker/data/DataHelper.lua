@@ -96,22 +96,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.viewingOwn = forceView
 	end
 
-	-- If not in doubles, this defaults to [Battle.Combatants.LeftOther, false]
-	local cursorSlot, targetIsOwn = Battle.getDoublesCursorTargetInfo()
-
-	local viewedPokemon
-	local opposingPokemon -- currently used exclusively for Low Kick weight calcs
-	if data.x.viewingOwn then
-		viewedPokemon = Battle.getViewedPokemon(true)
-		if Battle.numBattlers == 2 then
-			opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
-		else
-			opposingPokemon = Tracker.getPokemon(cursorSlot, targetIsOwn)
-		end
-	else
-		viewedPokemon = Battle.getViewedPokemon(false)
-		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-	end
+	local targetInfo = Battle.getDoublesCursorTargetInfo()
+	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
+	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
@@ -324,8 +311,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
-			local isCursorOnLeft = (Battle.numBattlers == 2) or (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
-			local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
+			local enemyTypes = Program.getPokemonTypes(targetInfo.isOwner, targetInfo.isLeft)
 			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
 		else
 			move.effectiveness = 1
