@@ -205,6 +205,11 @@ function RandomizerLog.parseEvolutions(logLines)
 			evo = RandomizerLog.alternateNidorans(evo)
 			if RandomizerLog.PokemonNameToIdMap[evo] ~= nil then
 				table.insert(RandomizerLog.Data.Pokemon[pokemonId].Evolutions, RandomizerLog.PokemonNameToIdMap[evo])
+				-- Add pre-evolutions to the evolved Pokemon
+				if RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions == nil then
+					RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions = {}
+				end
+				table.insert(RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions, pokemonId)
 			end
 		end
 
