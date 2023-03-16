@@ -29,7 +29,9 @@ LogOverlay = {
 	currentTab = nil,
 	currentTabInfoId = nil,
 	isDisplayed = false,
+	currentPreEvoSet = 1,
 	currentEvoSet = 1, -- Ideally move this somewhere else
+	prevEvosPerSet = 1,
 	evosPerSet = 3, -- Ideally move this somewhere else
 }
 
@@ -888,6 +890,13 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		data.p.abilities[2] = nil
 	end
 
+	local abilityButtonArea ={
+		x=LogOverlay.margin + 1,
+		y=LogOverlay.tabHeight + 13,
+		w=60,
+		h=Constants.SCREEN.LINESPACING*2
+	}
+
 	-- ABILITIES
 	offsetY = 0
 	for i, abilityId in ipairs(data.p.abilities) do
@@ -903,7 +912,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			textColor = "Lower box text",
 			abilityId = abilityId,
 			tab = LogOverlay.Tabs.POKEMON_ZOOM,
-			box = { LogOverlay.margin + 1, LogOverlay.tabHeight + offsetY + 13, 60, 11 },
+			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 			onClick = function(self)
 				if AbilityData.isValid(abilityId) then
@@ -915,107 +924,84 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		offsetY = offsetY + Constants.SCREEN.LINESPACING
 	end
 
---[[ 	-- POKEMON ICON
-	local offsetEvoY = Utils.inlineIf(#data.p.evos > 0, -3, 0)
-	local viewedPokemonIcon = {
-		type = Constants.ButtonTypes.POKEMON_ICON,
-		pokemonID = data.p.id,
-		tab = LogOverlay.Tabs.POKEMON_ZOOM,
-		clickableArea = { LogOverlay.margin + 75, LogOverlay.tabHeight + offsetEvoY + 4, 32, 29 },
-		box = { LogOverlay.margin + 75, LogOverlay.tabHeight + offsetEvoY, 32, 32 },
-		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			--[[
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
-		onClick = function(self)
-			if PokemonData.isValid(self.pokemonID) then
-				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
-			end
-		end,
-	}
-	table.insert(LogOverlay.TemporaryButtons, viewedPokemonIcon) ]]
-
-	-- POKEMON EVOLUTIONS
-	offsetX = 0
-	local hasPrevEvo = data.p.prevos ~= nil
+	local hasPrevEvo = #data.p.prevos > 0
 	local hasEvo = #data.p.evos > 0 or hasPrevEvo
-	local evosShortened = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
 
-	local pokemonIconList = {}
-	local pokemonIconButtons = {}
+	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
+	-- Harder to get pre-evo methods
+	local preEvoMethods = {}
+
+	local preEvoList = {}
+	local evoList = {}
 	if hasPrevEvo then
 		-- Add prevos to list
 		for i, prev in ipairs(data.p.prevos) do
-			console.log(prev.id)
-			table.insert(pokemonIconList, prev.id)
+			table.insert(preEvoList,{
+				name = PokemonData.Pokemon[prev.id].name,
+				id = prev.id
+			})
 		end
 	end
-	-- Add current pokemon to list
-	table.insert(pokemonIconList, data.p.id)
 	if hasEvo then
 		-- Add evos to list
 		for i, evoInfo in ipairs(data.p.evos) do
-			console.log(evoInfo.id)
-			table.insert(pokemonIconList, evoInfo.id)
+			table.insert(evoList,
+			{
+				name = PokemonData.Pokemon[evoInfo.id].name,
+				id = evoInfo.id,
+				method = evoMethods[i]
+			})
 		end
+		-- At evo methods to list
+
 	end
-
-	local pokemonIconXYRange = {
-		start = {
-			x = LogOverlay.margin + 75,
-			y = LogOverlay.tabHeight + LogOverlay.margin
-		},
-	stop = {
-			x = Constants.SCREEN.WIDTH - (LogOverlay.margin * 2),
-			y = LogOverlay.tabHeight + LogOverlay.margin + 32
-		} }
 	local pokemonIconSize = 32
-	local pokemonIconSpacing = 2
-	local pokemonIconRangeWidth = pokemonIconXYRange.stop.x - pokemonIconXYRange.start.x
-	local pokemonIconRangeHeight = pokemonIconXYRange.stop.y - pokemonIconXYRange.start.y
+	local pokemonIconSpacing = 4
+	local evoLabelTextHeight = 7
+	local evoArrowSize = 10
+
+	local pokemonIconRange = {
+		x = LogOverlay.margin + 75,
+		y = LogOverlay.tabHeight - 2,
+		w = function(self) return Constants.SCREEN.WIDTH - self.x - LogOverlay.margin - 1 end,
+		h = pokemonIconSize + evoLabelTextHeight,
+	}
 
 
-	-- Redo the pokemon icon buttons
-	console.log(pokemonIconList)
-	for i, pokemon in ipairs(pokemonIconList) do
-		-- Calculate x and y
-		-- Icon width is 32, wrap around when it reaches the end of the screen
-		local x = pokemonIconXYRange.start.x +
-		((i - 1) % (pokemonIconRangeWidth / (pokemonIconSize + pokemonIconSpacing))) *
-		(pokemonIconSize + pokemonIconSpacing)
-		-- y is the same for all icons
-		local y = pokemonIconXYRange.start.y
-		local evoset = 1
-		-- Calculate evoset based on i and the number of evos
-		-- Use similar logic to logic for x, but if i is greater than the number of icons that can fit then its evoset is 2
-		if ((i - 1) / (pokemonIconRangeWidth / (pokemonIconSize + pokemonIconSpacing))) >= 1 then
-			evoset = 2
+
+
+	for i,preEvo in ipairs(preEvoList) do
+		-- Only ever draw 1 pre-evo icon
+		-- Find prev evo text
+		-- Account for prev evo having multiple evos
+		-- Account for evo having multiple prevos
+
+		local evoText = ""
+		-- Get pre-evos list of evos
+		local preEvoEvoMethodList = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[preEvo.id].evolution)
+		local preEvoEvoMonList = RandomizerLog.Data.Pokemon[preEvo.id].Evolutions
+
+		-- Find the evo that matches the current pokemon
+		for j, evo in ipairs(preEvoEvoMonList) do
+			if evo == data.p.id then
+				evoText = preEvoEvoMethodList[j]
+			end
 		end
-		-- Figure out text for evo or prevos
-		local text = ""
-		-- evosShortened is a table of evo methods by id
-		-- pre evos
-		if i <= #data.p.prevos then
-			text = evosShortened[data.p.prevos[i]] or ""
-		-- evos
-		elseif i > #data.p.prevos + 1 then
-			text = evosShortened[i] or ""
-		end
 
-		console.log("i: " .. i .. ", x: " .. x .. ", y: " .. y .. ", evoset: " .. evoset .. ", text: " .. text)
-		console.log(pokemon)
-
-		local pokemonIcon = {
+		local x = pokemonIconRange.x
+		local y = pokemonIconRange.y
+		local textOffset = #preEvoList == 1 or false
+		
+		local preEvoButton = {
 			textColor = "Lower box text",
-			text = text or Constants.BLANKLINE,
+			text = evoText,
 			type = Constants.ButtonTypes.POKEMON_ICON,
-			pokemonID = pokemon,
-			evoset = evoset,
-			clickableArea = { x, y, 32, 39 },
-			box = { x, y, 32, 32 },
-			isVisible = function(self) return evoset == 1 and LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
+			pokemonID = preEvo.id,
+			clickableArea = { x, y, pokemonIconSize, pokemonIconSize + evoLabelTextHeight },
+			box = { x, y, pokemonIconSize, pokemonIconSize },
+			preEvoSet = i,
+			isVisible = function(self) return self.preEvoSet == LogOverlay.currentPreEvoSet and
+				LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
 			getIconPath = function(self)
 				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
@@ -1023,61 +1009,124 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
 					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
-				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 				end
 			end,
 			draw = function(self, shadowcolor)
 				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
+				-- Center text
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text, Theme.COLORS[self.textColor], shadowcolor)
+				if textOffset then
+					-- Add half of the space between viewedPokemonIcon and evoButton
+					centeringOffsetX = centeringOffsetX + (evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2
+				end
+
+				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text,
+				Theme.COLORS[self.textColor], shadowcolor)
 			end
 		}
-		table.insert(pokemonIconButtons, pokemonIcon)
-		table.insert(LogOverlay.TemporaryButtons, pokemonIcon)
+		table.insert(LogOverlay.TemporaryButtons, preEvoButton)
+
 	end
-	--[[
-	for i, evoInfo in ipairs(data.p.evos) do
-		local evoBtn = {
-			type = Constants.ButtonTypes.POKEMON_ICON,
-			text = evosShortened[i] or Constants.BLANKLINE,
+
+	-- Main pokemon icon
+	local mainPokemonBox = {
+		pokemonIconRange.x,
+		pokemonIconRange.y,
+		pokemonIconSize,
+		pokemonIconSize,
+	}
+	if hasPrevEvo then
+		mainPokemonBox[1] = mainPokemonBox[1] + pokemonIconSize + pokemonIconSpacing + evoArrowSize
+		LogOverlay.evosPerSet = 2
+	else
+		LogOverlay.evosPerSet = 3
+	end
+	local viewedPokemonIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		pokemonID = data.p.id,
+		tab = LogOverlay.Tabs.POKEMON_ZOOM,
+		box = mainPokemonBox,
+		clickableArea = {
+			mainPokemonBox[1],
+			mainPokemonBox[2],
+			mainPokemonBox[3],
+			mainPokemonBox[4] + evoLabelTextHeight
+		},
+		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+		getIconPath = function(self)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		end,
+		onClick = function(self)
+			if PokemonData.isValid(self.pokemonID) then
+				LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
+			end
+		end,
+	}
+	table.insert(LogOverlay.TemporaryButtons, viewedPokemonIcon)
+
+	-- Evo icons
+	local numIconSets = math.ceil(#evoList / LogOverlay.evosPerSet)
+	local iconset = 1
+	local xOffset = evoArrowSize
+	local textOffset = #evoList == 1 or false
+	for i, evo in ipairs(evoList) do
+		local evoButton = {
 			textColor = "Lower box text",
-			pokemonID = evoInfo.id,
-			tab = LogOverlay.Tabs.POKEMON_ZOOM,
-			clickableArea = { LogOverlay.margin + 125 + offsetX, LogOverlay.tabHeight + offsetEvoY + 4, 32, 39 }, -- taller to include evo-text below it
-			box = { LogOverlay.margin + 125 + offsetX, LogOverlay.tabHeight + offsetEvoY, 32, 32 },
-			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.currentEvoSet == math.ceil(i / LogOverlay.evosPerSet) end,
+			text = evo.method,
+			type = Constants.ButtonTypes.POKEMON_ICON,
+			pokemonID = evo.id,
+			clickableArea = {xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing, pokemonIconRange.y, pokemonIconSize, pokemonIconSize + evoLabelTextHeight},
+			box = {xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing, pokemonIconRange.y, pokemonIconSize, pokemonIconSize},
+			evoSet = iconset,
+			isVisible = function(self) return self.evoSet == LogOverlay.currentEvoSet and
+				LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
 			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]] --]]
-				--[[
+				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 			end,
-			draw = function(self, shadowcolor)
-				-- Draw the evo method below the icon
-				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
-				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text, Theme.COLORS[self.textColor], shadowcolor)
-			end,
 			onClick = function(self)
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
-				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+				if PokemonData.isValid(self.pokemonID) then
+					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
+				end
 			end,
+			draw = function(self, shadowcolor)
+				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
+				-- Center text
+				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
+				if textOffset then
+					-- Subtract half of the space between viewedPokemonIcon and evoButton
+					centeringOffsetX = centeringOffsetX - (evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2
+				end
+
+				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text,
+				Theme.COLORS[self.textColor], shadowcolor)
+			end
 		}
-		table.insert(LogOverlay.TemporaryButtons, evoBtn)
+		table.insert(LogOverlay.TemporaryButtons, evoButton)
 		if i % LogOverlay.evosPerSet == 0 then
-			-- Start a new evo set
-			offsetX = 0
+			iconset = iconset + 1
+			xOffset = evoArrowSize
 		else
-			offsetX = offsetX + 37
+			xOffset = xOffset + pokemonIconSize + pokemonIconSpacing
 		end
 	end
-	]]
+
 	-- EVOLUTION ARROW
-	--[[ if hasEvo then
+	 if hasEvo then
 		local evoArrow = {
 			type = Constants.ButtonTypes.PIXELIMAGE,
 			image = Constants.PixelImages.RIGHT_ARROW,
 			textColor = "Lower box text",
-			box = { LogOverlay.margin + 110, LogOverlay.tabHeight + 14, 10, 10 },
+			box = {
+				viewedPokemonIcon.box[1]+pokemonIconSpacing/2+pokemonIconSize,
+				pokemonIconRange.y+(pokemonIconRange.h/2),
+				evoArrowSize,
+				evoArrowSize
+			},
 			isVisible = function() return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and #data.p.evos > 0 end,
 			onClick = function(self)
 				LogOverlay.currentEvoSet = LogOverlay.currentEvoSet % math.ceil(#data.p.evos / LogOverlay.evosPerSet) + 1
@@ -1087,33 +1136,29 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		table.insert(LogOverlay.TemporaryButtons, evoArrow)
 	end
 
-	-- MORE EVOS BUTTON JUST FOR EEVEE
-	if data.p.id == 133 then -- 133 = Eevee
-		local moreEvosBtn = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			text = LogOverlay.Labels.showMoreEvos,
+	-- PREV EVOLUTION ARROW
+	if hasPrevEvo then
+		local prevEvoArrow = {
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.RIGHT_ARROW,
 			textColor = "Lower box text",
-			boxColors = { "Lower box border", "Lower box background", },
-			box = { LogOverlay.margin + 70, LogOverlay.tabHeight + 29, Utils.calcWordPixelLength(LogOverlay.Labels.showMoreEvos) + 2, 10 },
-			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and #data.p.evos > 3 end,
-			updateText = function(self)
-				local totalSeenSoFar = LogOverlay.currentEvoSet * LogOverlay.evosPerSet
-				self.text = string.format(LogOverlay.Labels.showMoreEvos, totalSeenSoFar, #data.p.evos)
-			end,
-			draw = function(self)
-				-- Draw an underline if selected
-				local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
-				local y1, y2 = self.box[2] + self.box[4], self.box[2] + self.box[4]
-				gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
-			end,
+			box = {
+				viewedPokemonIcon.box[1]-pokemonIconSpacing/2-evoArrowSize,
+				pokemonIconRange.y+(pokemonIconRange.h/2),
+				evoArrowSize,
+				evoArrowSize
+			},
+			isVisible = function() return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and #data.p.prevos > 0 end,
 			onClick = function(self)
-				self:updateText()
-				LogOverlay.currentEvoSet = LogOverlay.currentEvoSet % math.ceil(#data.p.evos / LogOverlay.evosPerSet) + 1
+				LogOverlay.currentPreEvoSet = LogOverlay.currentPreEvoSet - 1
+				if LogOverlay.currentPreEvoSet <= 0 then
+					LogOverlay.currentPreEvoSet = math.ceil(#data.p.prevos / LogOverlay.prevEvosPerSet)
+				end
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.TemporaryButtons, moreEvosBtn)
-	end ]]
+		table.insert(LogOverlay.TemporaryButtons, prevEvoArrow)
+	end
 
 	local movesColX = LogOverlay.margin + 118
 	local movesRowY = LogOverlay.tabHeight + Utils.inlineIf(hasEvo, 42, 0)
