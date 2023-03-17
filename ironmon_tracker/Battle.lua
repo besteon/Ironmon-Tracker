@@ -105,10 +105,12 @@ function Battle.updateBattleStatus()
 	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
 
 	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
-		Battle.battleStarting = true
+	if totalBattles <= 0xFFFFFF then -- Prevents bad data read due to address shifts related to battles starting
+		if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
+			Battle.battleStarting = true
+		end
+		Battle.totalBattles = totalBattles
 	end
-	Battle.totalBattles = totalBattles
 
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
