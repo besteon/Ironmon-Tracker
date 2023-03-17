@@ -31,6 +31,7 @@ Constants.ButtonTypes = {
 	STAT_STAGE = 8,
 	CIRCLE = 9,
 	ICON_BORDER = 10,
+	CHEVRON = 11,
 }
 
 Constants.STAT_STATES = {

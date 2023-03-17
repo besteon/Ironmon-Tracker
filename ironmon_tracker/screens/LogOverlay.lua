@@ -991,7 +991,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		local x = pokemonIconRange.x
 		local y = pokemonIconRange.y
 		local textOffset = #preEvoList == 1 or false
-		
+
 		local preEvoButton = {
 			textColor = "Lower box text",
 			text = evoText,
@@ -1018,10 +1018,10 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
 				if textOffset then
 					-- Add half of the space between viewedPokemonIcon and evoButton
-					centeringOffsetX = centeringOffsetX + (evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2
+					centeringOffsetX = centeringOffsetX + ((evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2 )- 1
 				end
 
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text,
+				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self.text,
 				Theme.COLORS[self.textColor], shadowcolor)
 			end
 		}
@@ -1058,9 +1058,13 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
 		end,
+		draw = function(self)
+			-- Draw box around icon
+			gui.drawRectangle(self.box[1], self.box[2]-1+evoLabelTextHeight, pokemonIconSize-1,pokemonIconSize-4, Theme.COLORS["Lower box text"])
+
+		end,
 		onClick = function(self)
 			if PokemonData.isValid(self.pokemonID) then
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 			end
 		end,
@@ -1073,13 +1077,19 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local xOffset = evoArrowSize
 	local textOffset = #evoList == 1 or false
 	for i, evo in ipairs(evoList) do
+		local evoBox = {
+			xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing,
+			pokemonIconRange.y,
+			pokemonIconSize,
+			pokemonIconSize,
+		}
 		local evoButton = {
 			textColor = "Lower box text",
 			text = evo.method,
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			pokemonID = evo.id,
-			clickableArea = {xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing, pokemonIconRange.y, pokemonIconSize, pokemonIconSize + evoLabelTextHeight},
-			box = {xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing, pokemonIconRange.y, pokemonIconSize, pokemonIconSize},
+			clickableArea = {evoBox[1], evoBox[2], evoBox[3], evoBox[4] + evoLabelTextHeight},
+			box = evoBox,
 			evoSet = iconset,
 			isVisible = function(self) return self.evoSet == LogOverlay.currentEvoSet and
 				LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
@@ -1099,10 +1109,10 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
 				if textOffset then
 					-- Subtract half of the space between viewedPokemonIcon and evoButton
-					centeringOffsetX = centeringOffsetX - (evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2
+					centeringOffsetX = centeringOffsetX - ((evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2)  - 1
 				end
 
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 1, self.text,
+				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self.text,
 				Theme.COLORS[self.textColor], shadowcolor)
 			end
 		}
@@ -1111,10 +1121,10 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			iconset = iconset + 1
 			xOffset = evoArrowSize
 		else
-			xOffset = xOffset + pokemonIconSize + pokemonIconSpacing
+			xOffset = xOffset + pokemonIconSize + (pokemonIconSpacing/2)
 		end
 	end
-
+	local evoArrowX = viewedPokemonIcon.box[1]+pokemonIconSpacing/2+pokemonIconSize
 	-- EVOLUTION ARROW
 	 if hasEvo then
 		local evoArrow = {
@@ -1122,7 +1132,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			image = Constants.PixelImages.RIGHT_ARROW,
 			textColor = "Lower box text",
 			box = {
-				viewedPokemonIcon.box[1]+pokemonIconSpacing/2+pokemonIconSize,
+				evoArrowX,
 				pokemonIconRange.y+(pokemonIconRange.h/2),
 				evoArrowSize,
 				evoArrowSize
@@ -1159,6 +1169,70 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		}
 		table.insert(LogOverlay.TemporaryButtons, prevEvoArrow)
 	end
+
+	-- Chevrons to indicate current evoset and prevo set
+	local chevronSizeX = 2
+	local chevronSizeY = 4
+	local chevronSpacing = 0
+	local chevronThickness = 2
+
+
+	if #evoList > LogOverlay.evosPerSet then
+		local evosets = math.ceil(#evoList / LogOverlay.evosPerSet)
+		local chevronsTotalWidth = (chevronSizeX + chevronThickness + chevronSpacing + 1) * evosets - chevronSpacing
+
+		local centerX = evoArrowX + evoArrowSize / 2 -1 -- -1 to center it better
+		local startX = centerX - (chevronsTotalWidth / 2)
+
+		local chevronBox = {
+			startX,
+			viewedPokemonIcon.box[2] + pokemonIconSize + Constants.Font.SIZE - ((chevronSizeY + 1) / 2),
+			chevronsTotalWidth,
+			chevronSizeY
+		}
+
+		local chevronButton = {
+			type = Constants.ButtonTypes.NORMAL,
+			box = chevronBox,
+			clickableArea = {
+				startX - (chevronSpacing + 1),
+				chevronBox[2] - (chevronSpacing + 1),
+				chevronsTotalWidth + (chevronSpacing + 1) * 2,
+				chevronSizeY + (chevronSpacing + 1) * 2
+			},
+			color = function(i)
+					if i == LogOverlay.currentEvoSet then
+						return "Positive text"
+					end
+				return "Lower box text"
+			end,
+			isVisible = function() return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and
+				#data.p.evos > LogOverlay.evosPerSet end,
+			draw = function(self)
+				for i = 1, evosets do
+					Drawing.drawChevron(
+						startX + ((i - 1) * (chevronSizeX + chevronSpacing + chevronThickness)),
+						self.box[2],
+						chevronSizeX,
+						chevronSizeY,
+						chevronThickness,
+						"right",
+						self.color(i)
+					)
+				end
+			end,
+			onClick = function(self)
+				LogOverlay.currentEvoSet = LogOverlay.currentEvoSet + 1
+				if LogOverlay.currentEvoSet > evosets then
+					LogOverlay.currentEvoSet = 1
+				end
+				Program.redraw(true)
+			end
+		}
+
+		table.insert(LogOverlay.TemporaryButtons, chevronButton)
+	end
+
 
 	local movesColX = LogOverlay.margin + 118
 	local movesRowY = LogOverlay.tabHeight + Utils.inlineIf(hasEvo, 42, 0)

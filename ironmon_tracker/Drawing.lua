@@ -89,13 +89,22 @@ function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowco
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, size, family, style)
 end
 
-function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor)
+function Drawing.drawChevron(x, y, width, height, thickness, direction, colorName)
+	-- Set default values for width, height, and thickness
+	width = width or 4
+	height = height or 3
+	thickness = thickness or 1
+
+	-- Get the color from the colorName parameter or use the default color
 	local color = Theme.COLORS["Default text"]
+	if colorName and Theme.COLORS[colorName] then
+		color = Theme.COLORS[colorName]
+	elseif colorName == true then
+		color = Theme.COLORS["Positive text"]
+	end
+	-- Draw the chevron
 	local i = 0
 	if direction == "up" then
-		if hasColor then
-			color = Theme.COLORS["Positive text"]
-		end
 		y = y + height + thickness + 1
 		while i < thickness do
 			gui.drawLine(x, y - i, x + (width / 2), y - i - height, color)
@@ -103,18 +112,28 @@ function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor
 			i = i + 1
 		end
 	elseif direction == "down" then
-		if hasColor then
-			color = Theme.COLORS["Negative text"]
-		end
 		y = y + thickness + 2
 		while i < thickness do
 			gui.drawLine(x, y + i, x + (width / 2), y + i + height, color)
 			gui.drawLine(x + (width / 2), y + i + height, x + width, y + i, color)
 			i = i + 1
 		end
+	elseif direction == "left" then
+		x = x + width + thickness + 1
+		while i < thickness do
+			gui.drawLine(x - i, y, x - i - width, y + (height / 2), color)
+			gui.drawLine(x - i - width, y + (height / 2), x - i, y + height, color)
+			i = i + 1
+		end
+	elseif direction == "right" then
+		x = x + thickness + 2
+		while i < thickness do
+			gui.drawLine(x + i, y, x + i + width, y + (height / 2), color)
+			gui.drawLine(x + i + width, y + (height / 2), x + i, y + height, color)
+			i = i + 1
+		end
 	end
 end
-
 -- draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
 -- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
 function Drawing.drawChevrons(x, y, intensity, max)
