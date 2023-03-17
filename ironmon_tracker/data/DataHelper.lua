@@ -223,8 +223,12 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		move.starred = stars[i] ~= nil and stars[i] ~= ""
 
 		-- Update: Specific Moves
-		if move.id == 237 and data.x.viewingOwn then -- 237 = Hidden Power
-			move.type = Tracker.getHiddenPowerType()
+		if move.id == 237 then -- 237 = Hidden Power
+			if data.x.viewingOwn then
+				move.type = Tracker.getHiddenPowerType()
+			else
+				move.type = MoveData.HiddenPowerTypeList[1] -- Unknown type
+			end
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
 			if move.id == 311 then -- 311 = Weather Ball
