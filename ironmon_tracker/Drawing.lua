@@ -97,10 +97,14 @@ function Drawing.drawChevron(x, y, width, height, thickness, direction, colorNam
 
 	-- Get the color from the colorName parameter or use the default color
 	local color = Theme.COLORS["Default text"]
+
 	if colorName and Theme.COLORS[colorName] then
 		color = Theme.COLORS[colorName]
-	elseif colorName == true then
-		color = Theme.COLORS["Positive text"]
+	-- Old cases for up and down
+	elseif colorName == true and direction == "up" then
+        color = Theme.COLORS["Positive text"]
+	elseif colorName == true and direction == "down" then
+		color = Theme.COLORS["Negative text"]
 	end
 	-- Draw the chevron
 	local i = 0
