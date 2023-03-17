@@ -200,25 +200,8 @@ function RandomizerLog.parseEvolutions(logLines)
 
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
 		RandomizerLog.Data.Pokemon[pokemonId].Evolutions = {}
-		local evosTable = {}
-		-- Check if there is  >1 evo by checking for , or "and"
-		local checkComma = string.find(evos, ",%s")
-		local checkAnd = string.find(evos, "%sand%s")
-		if checkComma then -- >2 evos
-			table.insert(evosTable, string.match(evos, "^(.-),%s")) -- first evo before the first comma
-			for evo in string.gmatch(evos, "%s([^,]*),") do -- all evos between the first and last comma. This will have 0 matches for exactly 3 evos
-				table.insert(evosTable, evo)
-			end
-			-- 2 evos after the last comma
-			table.insert(evosTable, string.match(evos, "%s([^,]*)%sand%s"))
-			table.insert(evosTable, string.match(evos, "%sand%s(.*)$"))
-		elseif checkAnd then -- 2 evos
-			table.insert(evosTable, string.match(evos, "^(.-)%sand%s"))
-			table.insert(evosTable, string.match(evos, "%sand%s(.*)$"))
-		elseif checkComma == nil and checkAnd == nil then
-			table.insert(evosTable, evos)
-		end
-		for _, evo in pairs(evosTable) do
+
+		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
 			evo = RandomizerLog.formatInput(evo)
 			evo = RandomizerLog.alternateNidorans(evo)
 			if RandomizerLog.PokemonNameToIdMap[evo] ~= nil then
