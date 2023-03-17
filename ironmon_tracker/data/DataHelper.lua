@@ -96,22 +96,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.viewingOwn = forceView
 	end
 
-	-- If not in doubles, this defaults to [Battle.Combatants.LeftOther, false]
-	local cursorSlot, targetIsOwn = Battle.getDoublesCursorTargetInfo()
-
-	local viewedPokemon
-	local opposingPokemon -- currently used exclusively for Low Kick weight calcs
-	if data.x.viewingOwn then
-		viewedPokemon = Battle.getViewedPokemon(true)
-		if Battle.numBattlers == 2 then
-			opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther, false)
-		else
-			opposingPokemon = Tracker.getPokemon(cursorSlot, targetIsOwn)
-		end
-	else
-		viewedPokemon = Battle.getViewedPokemon(false)
-		opposingPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-	end
+	local targetInfo = Battle.getDoublesCursorTargetInfo()
+	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
+	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
@@ -139,6 +126,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.bst = viewedPokemon.bst or Constants.BLANKLINE
 	data.p.lastlevel = Tracker.getLastLevelSeen(viewedPokemon.pokemonID) or ""
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
+	data.p.curExp = viewedPokemon.currentExp or 0
+	data.p.totalExp = viewedPokemon.totalExp or 100
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature
@@ -168,7 +157,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- Update: Pokemon Evolution
-	if data.x.viewingOwn and data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.friendshipRequired then
+	local isFriendEvoReady = data.p.evo == PokemonData.Evolutions.FRIEND and viewedPokemon.friendship >= Program.GameData.friendshipRequired
+	if Options["Determine friendship readiness"] and data.x.viewingOwn and isFriendEvoReady then
 		data.p.evo = PokemonData.Evolutions.FRIEND_READY
 	end
 
@@ -321,8 +311,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
-			local isCursorOnLeft = (Battle.numBattlers == 2) or (cursorSlot == 0 or cursorSlot == 1) -- 0 & 2 is own and 1 & 3 is enemy
-			local enemyTypes = Program.getPokemonTypes(targetIsOwn, isCursorOnLeft)
+			local enemyTypes = Program.getPokemonTypes(targetInfo.isOwner, targetInfo.isLeft)
 			move.effectiveness = Utils.netEffectiveness(move, move.type, enemyTypes)
 		else
 			move.effectiveness = 1
@@ -335,8 +324,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.pcheals = Tracker.Data.centerHeals
 
 	data.x.route = Constants.BLANKLINE
-	if RouteData.hasRoute(Battle.CurrentRoute.mapId) then
-		data.x.route = RouteData.Info[Battle.CurrentRoute.mapId].name or Constants.BLANKLINE
+	if RouteData.hasRoute(Program.GameData.mapId) then
+		data.x.route = RouteData.Info[Program.GameData.mapId].name or Constants.BLANKLINE
 	end
 
 	if Battle.inBattle then
@@ -592,22 +581,33 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
 	for _, move in ipairs(pokemonLog.MoveSet or {}) do
+		local moveDex = MoveData.Moves[move.moveId]
 		local moveInfo = {
 			id = move.moveId,
 			level = move.level,
-			name = MoveData.Moves[move.moveId].name,
+			name = moveDex.name,
+			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
 		table.insert(data.p.moves, moveInfo)
+	end
+
+	-- Determine gym TMs for the game
+	local gymTMs = {}
+	for gymNum, gymTM in ipairs(TrainerData.GymTMs) do
+		gymTMs[gymTM.number] = gymNum
 	end
 
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
 	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
 		local moveId = RandomizerLog.Data.TMs[tmNumber] or 0
+		local moveDex = MoveData.Moves[moveId]
 		local tmInfo = {
 			tm = tmNumber,
 			moveId = moveId,
 			moveName = MoveData.Moves[moveId].name,
+			gymNum = gymTMs[tmNumber] or 9,
+			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
 		table.insert(data.p.tmmoves, tmInfo)
 	end

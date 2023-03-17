@@ -227,7 +227,7 @@ function Drawing.drawButton(button, shadowcolor)
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			gui.drawImage(imagePath, x, y + iconset.yOffset, width, height)
+			gui.drawImage(imagePath, x, y + (iconset.yOffset or 0), width, height)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if button.text ~= nil and button.text ~= "" then
@@ -297,6 +297,51 @@ function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 				end
 				gui.drawPixel(x + offsetX, y + offsetY, colorList[colorIndex])
 			end
+		end
+	end
+end
+
+-- Draws an experience bar (partially filled based on exp needed to level); width/height is just the size of the bar fill, does not include border
+function Drawing.drawPercentageBar(x, y, width, height, percentFill, barColors, rightToLeft)
+	if not Main.IsOnBizhawk() then return end
+
+	-- Define default colors, to be safe
+	if barColors == nil then barColors = {} end
+	if barColors[1] == nil then barColors[1] = Theme.COLORS["Default text"] end
+	if barColors[2] == nil then barColors[2] = Theme.COLORS["Upper box border"] end
+	if barColors[3] == nil then barColors[3] = Theme.COLORS["Upper box background"] end
+
+	local remainingWidth = math.min(math.floor(width * percentFill + 0.5), width) -- math.min to prevent drawing out-of-bounds
+	local rightAlignedOffset = Utils.inlineIf(rightToLeft == true, width - remainingWidth, 0)
+
+	-- Draw outer border bar, a rounded rectangle
+	gui.drawLine(x + 1, y, x + width - 1, y, barColors[2])
+	gui.drawLine(x + 1, y + height, x + width - 1, y + height, barColors[2])
+	gui.drawLine(x, y + 1, x, y + height - 1, barColors[2])
+	gui.drawLine(x + width, y + 1, x + width, y + height - 1, barColors[2])
+	-- Draw inner colored bar for the percentage filled
+	gui.drawRectangle(x + rightAlignedOffset, y, remainingWidth, height, 0x00000000, barColors[1])
+end
+
+function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
+	local drawnFirstBall = false
+	local offsetX = 0
+	for i=6, 1, -1 do -- Reverse order to match in-game team display
+		local pokemon = Tracker.getPokemon(i, false)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			local colorList
+			if pokemon.curHP > 0 then
+				colorList = TrackerScreen.PokeBalls.ColorList
+			else
+				colorList = TrackerScreen.PokeBalls.ColorListFainted
+			end
+			Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL_SMALL, x + offsetX, y, colorList, shadowcolor)
+			drawnFirstBall = true
+		end
+		-- Used to left-align the pokeballs, but allows for leaving spaces for doubles battles
+		-- In-game it's displayed as "_00_00" but this will now show "00_00" instead of "0000"
+		if drawnFirstBall then
+			offsetX = offsetX + 9
 		end
 	end
 end
@@ -374,7 +419,9 @@ function Drawing.setupAnimatedPictureBox()
 	forms.setproperty(formWindow, "AllowTransparency", true)
 	forms.setproperty(formWindow, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	forms.setproperty(formWindow, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
-	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT)
+
+	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
+	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
 
 	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
 	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.

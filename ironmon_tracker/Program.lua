@@ -4,7 +4,6 @@ Program = {
 	inStartMenu = false,
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
-	friendshipRequired = 220,
 	activeFormId = 0,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -18,6 +17,10 @@ Program = {
 }
 
 Program.GameData = {
+	mapId = 0, -- was previously Battle.CurrentRoute.mapId
+	wildBattles = -999, -- used to track differences in GAME STATS
+	trainerBattles = -999, -- used to track differences in GAME STATS
+	friendshipRequired = 220,
 	evolutionStones = { -- The evolution stones currently in bag
 			[93] = 0, -- Sun Stone
 			[94] = 0, -- Moon Stone
@@ -35,7 +38,7 @@ Program.ActiveRepel = {
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
-		local inHallOfFame = Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId]
+		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
 }
@@ -84,9 +87,10 @@ function Program.initialize()
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
-		Program.friendshipRequired = friendshipRequired
+		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
+	Program.updateBattleEncounterType()
 	Program.AutoSaver:updateSaveCount()
 
 	-- Update data asap
@@ -120,10 +124,6 @@ function Program.redraw(forced)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
-			Program.currentScreen.drawScreen()
-		end
-
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
 		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
@@ -132,6 +132,14 @@ function Program.redraw(forced)
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 		if LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
+		end
+
+		if Program.currentScreen ~= nil and type(Program.currentScreen.drawScreen) == "function" then
+			Program.currentScreen.drawScreen()
+		end
+
+		if TeamViewArea.isDisplayed() then
+			TeamViewArea.drawScreen()
 		end
 	else
 		MGBA.ScreenUtils.updateTextBuffers()
@@ -193,12 +201,18 @@ function Program.update()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updatePokemonTeams()
+			TeamViewArea.buildOutPartyScreen()
 
-			-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
-			if Program.currentScreen == StartupScreen and Program.isValidMapLocation() then
-				Program.currentScreen = TrackerScreen
-			elseif Battle.CurrentRoute.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Battle.CurrentRoute.mapId] then
-				Program.currentScreen = GameOverScreen
+			if Program.isValidMapLocation() then
+				if Program.currentScreen == StartupScreen then
+					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
+					Program.currentScreen = TrackerScreen
+				elseif RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] and not GameOverScreen.enteredFromSpecialLocation then
+					GameOverScreen.enteredFromSpecialLocation = true
+					Program.currentScreen = GameOverScreen
+				end
+			elseif GameOverScreen.enteredFromSpecialLocation then
+				GameOverScreen.enteredFromSpecialLocation = false
 			end
 
 			-- Check if summary screen has being shown
@@ -206,6 +220,10 @@ function Program.update()
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
 				end
+			end
+
+			if not Battle.inBattle then
+				Program.updateBattleEncounterType()
 			end
 
 			-- Check if a Pokemon in the player's party is learning a move, if so track it
@@ -329,6 +347,11 @@ function Program.updatePokemonTeams()
 				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
 				-- newPokemonData.trainerID = nil
 
+				-- Include experience information for each Pokemon in the player's team
+				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
+				newPokemonData.currentExp = curExp
+				newPokemonData.totalExp = totalExp
+
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
 
 				-- TODO: Removing for now until some better option is available, not sure there is one
@@ -369,6 +392,7 @@ function Program.updatePokemonTeams()
 end
 
 function Program.readNewPokemon(startAddress, personality)
+	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
@@ -378,14 +402,23 @@ function Program.readNewPokemon(startAddress, personality)
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
-	-- Pokemon Data structure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
+	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
-	-- local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Currently unused
+	local growth2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 4), magicword) -- Experience
 	local growth3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset + 8), magicword)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
 	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+
+	local nickname = ""
+	for i=0, 9, 1 do
+		local charByte = Memory.readbyte(startAddress + 8 + i)
+		if charByte ~= 0xFF then -- end of sequence
+			nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
+		end
+	end
+	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
 	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
@@ -433,9 +466,11 @@ function Program.readNewPokemon(startAddress, personality)
 
 	return {
 		personality = personality,
+		nickname = nickname,
 		trainerID = Utils.getbits(otid, 0, 16),
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
+		experience = growth2,
 		friendship = Utils.getbits(growth3, 8, 8),
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
@@ -462,12 +497,61 @@ function Program.readNewPokemon(startAddress, personality)
 
 		-- Unused data that can be added back in later
 		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
-		-- experience = Utils.getbits(growth2, 32, 31), -- Unused
 		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
 		-- iv = misc2,
 		-- ev1 = effort1,
 		-- ev2 = effort2,
 	}
+end
+
+-- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
+function Program.getTeamCounts()
+	local numAlive, total = 0, 0
+	for i = 1, 6, 1 do
+		local pokemon = Tracker.getPokemon(i, false)
+		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+			total = total + 1
+			if (pokemon.curHP or 0) > 0 then
+				numAlive = numAlive + 1
+			end
+		end
+	end
+
+	return numAlive, total
+end
+
+-- Returns two exp values that describe the amount of experience points needed to reach the next level.
+-- currentExp: A value between 0 and 'totalExp'
+-- totalExp: The amount of exp needed to reach the next level
+function Program.getNextLevelExp(pokemonID, level, experience)
+	if not PokemonData.isValid(pokemonID) or level == nil or level >= 100 or experience == nil or GameSettings.gExperienceTables == nil then
+		return 0, 100 -- arbitrary returned values to indicate this information isn't found and it's 0% of the way to next level
+	end
+
+	local growthRateIndex = Memory.readbyte(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x13)
+	local expTableOffset = GameSettings.gExperienceTables + (growthRateIndex * 0x194) + (level * 0x4)
+	local expAtLv = Memory.readdword(expTableOffset)
+	local expAtNextLv = Memory.readdword(expTableOffset + 0x4)
+
+	local currentExp = experience - expAtLv
+	local totalExp = expAtNextLv - expAtLv
+
+	return currentExp, totalExp
+end
+
+-- Determine if the battle is a wild or trainer battle. Note, this isn't foolproof if tracker is loaded during an active battle
+function Program.updateBattleEncounterType()
+	local newWildBattles = Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES)
+	local newTrainerBattles = Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES)
+
+	if newWildBattles - Program.GameData.wildBattles == 1 then -- difference of +1
+		Battle.isWildEncounter = true
+	elseif newTrainerBattles - Program.GameData.trainerBattles == 1 then -- difference of +1
+		Battle.isWildEncounter = false
+	end
+
+	Program.GameData.wildBattles = newWildBattles
+	Program.GameData.trainerBattles = newTrainerBattles
 end
 
 function Program.updatePCHeals()
@@ -481,7 +565,7 @@ function Program.updatePCHeals()
 	end
 
 	-- Make sure the player is in a map location that can perform a PC heal
-	if not RouteData.Locations.CanPCHeal[Battle.CurrentRoute.mapId] then
+	if not RouteData.Locations.CanPCHeal[Program.GameData.mapId] then
 		return
 	end
 
@@ -536,20 +620,19 @@ function Program.updateBadgesObtained()
 end
 
 function Program.updateMapLocation()
-	-- For now leaving this attached to "Battle" but eventually we'll want to use map coordinates outside of it
 	local newMapId = Memory.readword(GameSettings.gMapHeader + 0x12) -- 0x12: mapLayoutId
 
 	-- If the player is in a new area, auto-lookup for mGBA screen
-	if not Main.IsOnBizhawk() and newMapId ~= Battle.CurrentRoute.mapId then
-		local isFirstLocation = Battle.CurrentRoute.mapId == nil or Battle.CurrentRoute.mapId == 0
+	if not Main.IsOnBizhawk() and newMapId ~= Program.GameData.mapId then
+		local isFirstLocation = Program.GameData.mapId == nil or Program.GameData.mapId == 0
 		MGBA.Screens.LookupRoute:setData(newMapId, isFirstLocation)
 	end
-	Battle.CurrentRoute.mapId = newMapId
+	Program.GameData.mapId = newMapId
 end
 
 -- More or less used to determine if the player has begun playing the game, returns true if so.
 function Program.isValidMapLocation()
-	return Battle.CurrentRoute.mapId ~= nil and Battle.CurrentRoute.mapId ~= 0
+	return Program.GameData.mapId ~= nil and Program.GameData.mapId ~= 0
 end
 
 function Program.HandleExit()

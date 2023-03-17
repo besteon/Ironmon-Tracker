@@ -9,6 +9,7 @@ Constants.SCREEN = {
 	UP_GAP = 0,
 	DOWN_GAP = 0,
 	RIGHT_GAP = 150,
+	BOTTOM_AREA = 70,
 	MARGIN = 5,
 	LINESPACING = 11,
 }
@@ -112,6 +113,7 @@ Constants.OrderedLists = {
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",
+		"Determine friendship readiness",
 		"Count enemy PP usage",
 		"Track PC Heals",
 		"PC heals count downward",
@@ -119,6 +121,7 @@ Constants.OrderedLists = {
 		"Pokemon icon set",
 		"Show last damage calcs",
 		"Reveal info if randomized",
+		"Show experience points bar",
 		"Animated Pokemon popout",
 		"Use premade ROMs",
 		"Generate ROM each time",
@@ -131,6 +134,7 @@ Constants.OrderedLists = {
 		"Show on new game screen",
 		"Enable restore points",
 		"Enable custom extensions",
+		"Show Team View",
 	},
 	CONTROLS = {
 		"Load next seed",
@@ -235,6 +239,18 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,0,1},
 		{0,1,0,0,0,0,0,0,1,0},
 		{0,0,1,1,1,1,1,1,0,0},
+	},
+	WARNING = { -- 9x9
+		{0,0,0,1,1,1,0,0,0},
+		{0,1,1,1,1,1,1,1,0},
+		{0,1,1,1,0,1,1,1,0},
+		{1,1,1,1,0,1,1,1,1},
+		{1,1,1,1,0,1,1,1,1},
+		{1,1,1,1,1,1,1,1,1},
+		{0,1,1,1,0,1,1,1,0},
+		{0,1,1,1,1,1,1,1,0},
+		{0,0,0,1,1,1,0,0,0},
+
 	},
 	INSTALL_BOX = { -- 9x9
 		{0,0,0,0,1,0,0,0,0},
@@ -375,6 +391,17 @@ Constants.PixelImages = {
 		{0,0,1,1,3,3,3,3,1,1,0,0},
 		{0,0,0,0,1,1,1,1,0,0,0,0},
 	},
+	POKEBALL_SMALL = { -- 9x9
+		{0,0,0,1,1,1,0,0,0},
+		{0,1,1,2,2,2,1,1,0},
+		{0,1,2,2,2,2,2,1,0},
+		{1,2,2,2,1,2,2,2,1},
+		{1,1,1,1,3,1,1,1,1},
+		{1,3,3,3,1,3,3,3,1},
+		{0,1,3,3,3,3,3,1,0},
+		{0,1,1,3,3,3,1,1,0},
+		{0,0,0,1,1,1,0,0,0},
+	},
 	DICE = { -- 13x14
 		{0,0,0,0,0,1,1,1,0,0,0,0,0},
 		{0,0,0,1,1,0,0,0,1,1,0,0,0},
@@ -439,6 +466,7 @@ Constants.PixelImages = {
 Constants.CharWidths = {
 	[" "] = 1,
     ["%"] = 7,
+    ["0"] = 4,
     ["1"] = 3,
     ["2"] = 4,
     ["3"] = 4,
@@ -516,6 +544,12 @@ Constants.CharWidths = {
 
 -- Table of special characters to return based on whether emulator supports those special characters [true/false]
 Constants.CharMap = {
+	["♂"] = { [false] = Constants.HIDDEN_INFO, [true] = "♂", },
+	["♀"] = { [false] = Constants.HIDDEN_INFO, [true] = "♀", },
+	["…"] = { [false] = '..', [true] = "…", },
+	["“"] = { [false] = '"', [true] = "“", },
+	["”"] = { [false] = '"', [true] = "”", },
+	["‘"] = { [false] = "'", [true] = "‘", },
 	["À"] = { [false] = "\192", [true] = "À", },
 	["Á"] = { [false] = "\193", [true] = "Á", },
 	["Â"] = { [false] = "\194", [true] = "Â", },

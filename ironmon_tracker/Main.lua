@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "3", patch = "0" }
+Main.Version = { major = "7", minor = "4", patch = "2" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -23,10 +23,13 @@ function Main.Initialize()
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
+	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
+	Main.Version.updateAfterRestart = false
 
 	Main.MetaSettings = {}
 	Main.currentSeed = 1
 	Main.loadNextSeed = false
+	Main.hasRunOnce = false
 
 	-- Set seed based on epoch seconds; required for other features
 	math.randomseed(os.time() % 100000 * 17) -- seed was acting wonky (read as: predictable), so made it wonkier
@@ -50,6 +53,11 @@ function Main.Initialize()
 		Main.OS = "Windows"
 	else
 		Main.OS = "Linux"
+	end
+
+	-- Check if the Tracker was previously running; used to prevent self-update until a full restart
+	if Program ~= nil then
+		Main.hasRunOnce = (Program.hasRunOnce == true)
 	end
 
 	for _, luafile in ipairs(FileManager.LuaCode) do
@@ -133,6 +141,10 @@ function Main.Run()
 
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
+
+		Main.SelfUpdateAfterRestart()
+		Main.hasRunOnce = true
+		Program.hasRunOnce = true
 
 		while Main.loadNextSeed == false do
 			Program.mainLoop()
@@ -253,6 +265,18 @@ function Main.InitializeAllTrackerFiles()
 	end
 
 	CustomCode.startup()
+end
+
+function Main.SelfUpdateAfterRestart()
+	-- Don't perform the update is the Tracker was previously loaded and files are locked by Bizhawk
+	if not Main.IsOnBizhawk() or Main.hasRunOnce then
+		return
+	end
+
+	if Main.Version.updateAfterRestart then
+		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+		Program.changeScreenView(UpdateScreen)
+	end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -734,7 +758,7 @@ function Main.ReadAttemptsCount()
 			if romnumber ~= "1" then
 				Main.currentSeed = tonumber(romnumber)
 			end
-		elseif Options["Use premade ROMs"] and (Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "") then -- mostly for mGBA
+		elseif Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then
 				Main.currentSeed = smallestSeedNumber
@@ -784,6 +808,9 @@ function Main.LoadSettings()
 		end
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
+		end
+		if settings.config.UpdateAfterRestart ~= nil then
+			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
 		end
 
 		for configKey, _ in pairs(Options.FILES) do
@@ -853,6 +880,15 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [EXTCONFIG]
+	if settings.extconfig ~= nil then
+		for key, val in pairs(settings.extconfig) do
+			if val ~= nil then
+				Main.SetMetaSetting("extconfig", key, val)
+			end
+		end
+	end
+
 	return true
 end
 
@@ -877,6 +913,7 @@ function Main.SaveSettings(forced)
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
+	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
@@ -908,9 +945,20 @@ function Main.SaveSettings(forced)
 		settings.extensions[extKey] = extension.isEnabled or false
 	end
 
+	-- [EXTCONFIG]
+	-- Implied to save all things in settings.extconfig
+
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
 	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
+end
+
+function Main.SetMetaSetting(section, key, value)
+	if section == nil or key == nil or value == nil or section == "" or key == "" then return end
+	if Main.MetaSettings[section] == nil then
+		Main.MetaSettings[section] = {}
+	end
+	Main.MetaSettings[section][key] = value
 end
 
 function Main.RemoveMetaSetting(section, key)

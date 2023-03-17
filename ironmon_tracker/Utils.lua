@@ -432,8 +432,8 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 	if evoMethod == PokemonData.Evolutions.FRIEND then
 		local friendFormat = evoInfo.detailed[1]
 		local amt
-		if Program.friendshipRequired ~= nil and Program.friendshipRequired > 1 then
-			amt = Program.friendshipRequired
+		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
+			amt = Program.GameData.friendshipRequired
 		else
 			amt = 220
 		end
@@ -582,7 +582,7 @@ end
 -- For Return & Frustration
 -- Only shows if close to max strength; won't return exact values to avoid revealing friendship amount
 function Utils.calculateFriendshipBasedDamage(movePower, friendship)
-	if movePower ~= ">FR" and movePower ~= "<FR" then
+	if not Options["Determine friendship readiness"] or (movePower ~= ">FR" and movePower ~= "<FR") then
 		return movePower
 	end
 

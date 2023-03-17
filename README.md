@@ -53,9 +53,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Custom Code Extensions
+### Pokémon Team Preview
 
-![image](https://user-images.githubusercontent.com/4258818/218183892-744fab56-6ed0-4797-bf7e-3c313cc017ef.png)
+![image](https://user-images.githubusercontent.com/4258818/222870062-098a7a63-a134-4513-bd55-dce8b8de430d.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

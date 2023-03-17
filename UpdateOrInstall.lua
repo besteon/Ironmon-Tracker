@@ -272,6 +272,7 @@ function UpdateOrInstall.buildDownloadExtractCommand(tarUrl, archive, extractedF
 
 	local foldersToRemove = {
 		string.format('%s.vscode', extractedFolder .. UpdateOrInstall.slash),
+		string.format('%s.github', extractedFolder .. UpdateOrInstall.slash),
 		string.format('%sironmon_tracker%sDebug', extractedFolder .. UpdateOrInstall.slash, UpdateOrInstall.slash),
 	}
 	local filesToRemove = {
@@ -399,11 +400,12 @@ function UpdateOrInstall.verifyOkayToParallelUpdate(archiveFolderPath, isOnWindo
 	end
 
 	if isOnWindows then
+		-- Temporarily removing this check, as the parallel update is now only allowed after a Bizhawk restart
 		-- COMMAND BREAKS: Usually OneDrive breaks this: string.format('xcopy "%s" /s /y /q', extractedFolder)
-		local onedrivePattern = "([Oo][Nn][Ee][Dd][Rr][Ii][Vv][Ee])"
-		if string.find(archiveFolderPath, onedrivePattern) ~= nil then
-			return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
-		end
+		-- local onedrivePattern = "([Oo][Nn][Ee][Dd][Rr][Ii][Vv][Ee])"
+		-- if string.find(archiveFolderPath, onedrivePattern) ~= nil then
+		-- 	return false, "Tracker files are inside a OneDrive folder and cannot be edited while Bizhawk is open."
+		-- end
 
 		-- Temporarily removing this check, as I think it's likely okay to allow. Want to do more testing here.
 		-- FILEPATH BREAKS: Tracker located on a non-primary harddrive: e.g. D:\ or E:\
