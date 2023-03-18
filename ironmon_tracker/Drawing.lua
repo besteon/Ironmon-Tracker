@@ -88,52 +88,61 @@ function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowco
 	if number == Constants.BLANKLINE then new_spacing = 8 end
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, size, family, style)
 end
-
-function Drawing.drawChevron(x, y, width, height, thickness, direction, colorName)
+--- Draws a chevron on the screen
+---@param x integer @The x coordinate of the top left corner of the chevron
+---@param y integer @The y coordinate of the top left corner of the chevron
+---@param width integer @The width of the chevron
+---@param height integer @The height of the chevron
+---@param thickness integer @The thickness of the chevron
+---@param direction string @The direction the chevron is facing (up, down, left, right)
+---@param color boolean|string @The color of the chevron, can be a color name or a boolean (true = positive if direction is up, negative if direction is down)
+---@return nil
+function Drawing.drawChevron(x, y, width, height, thickness, direction, color)
 	-- Set default values for width, height, and thickness
 	width = width or 4
 	height = height or 3
 	thickness = thickness or 1
 
 	-- Get the color from the colorName parameter or use the default color
-	local color = Theme.COLORS["Default text"]
+	local chevronColor = color or Theme.COLORS["Default text"]
 
-	if colorName and Theme.COLORS[colorName] then
-		color = Theme.COLORS[colorName]
+	if Theme.COLORS[chevronColor] then
+		chevronColor = Theme.COLORS[chevronColor]
+
 	-- Old cases for up and down
-	elseif colorName == true and direction == "up" then
-        color = Theme.COLORS["Positive text"]
-	elseif colorName == true and direction == "down" then
-		color = Theme.COLORS["Negative text"]
+	elseif chevronColor == true and direction == "up" then
+        chevronColor = Theme.COLORS["Positive text"]
+	elseif chevronColor == true and direction == "down" then
+		chevronColor = Theme.COLORS["Negative text"]
 	end
 	-- Draw the chevron
 	local i = 0
 	if direction == "up" then
 		y = y + height + thickness + 1
 		while i < thickness do
-			gui.drawLine(x, y - i, x + (width / 2), y - i - height, color)
-			gui.drawLine(x + (width / 2), y - i - height, x + width, y - i, color)
+			gui.drawLine(x, y - i, x + (width / 2), y - i - height, chevronColor)
+			gui.drawLine(x + (width / 2), y - i - height, x + width, y - i, chevronColor)
 			i = i + 1
 		end
 	elseif direction == "down" then
 		y = y + thickness + 2
 		while i < thickness do
-			gui.drawLine(x, y + i, x + (width / 2), y + i + height, color)
-			gui.drawLine(x + (width / 2), y + i + height, x + width, y + i, color)
+			gui.drawLine(x, y + i, x + (width / 2), y + i + height, chevronColor)
+			gui.drawLine(x + (width / 2), y + i + height, x + width, y + i, chevronColor)
 			i = i + 1
 		end
 	elseif direction == "left" then
 		x = x + width + thickness + 1
 		while i < thickness do
-			gui.drawLine(x - i, y, x - i - width, y + (height / 2), color)
-			gui.drawLine(x - i - width, y + (height / 2), x - i, y + height, color)
+			gui.drawLine(x - i, y, x - i - width, y + (height / 2), chevronColor)
+			gui.drawLine(x - i - width, y + (height / 2), x - i, y + height, chevronColor)
 			i = i + 1
 		end
 	elseif direction == "right" then
 		x = x + thickness + 2
 		while i < thickness do
-			gui.drawLine(x + i, y, x + i + width, y + (height / 2), color)
-			gui.drawLine(x + i + width, y + (height / 2), x + i, y + height, color)
+			gui.drawLine(x + i, y, x + i + width, y + (height / 2), chevronColor)
+			gui.drawLine(x + i + width, y + (height / 2), x + i, y + height, chevronColor)
 			i = i + 1
 		end
 	end
