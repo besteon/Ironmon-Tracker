@@ -33,6 +33,7 @@ LogOverlay = {
 	currentEvoSet = 1, -- Ideally move this somewhere else
 	prevEvosPerSet = 1,
 	evosPerSet = 3, -- Ideally move this somewhere else
+	preEvoSetting = "Show Pre Evolutions"
 }
 
 LogOverlay.Windower = {
@@ -95,6 +96,7 @@ LogOverlay.Windower = {
 		end
 		LogOverlay.refreshTabBar()
 		LogOverlay.refreshInnerButtons()
+		Main.SaveSettings()
 	end,
 }
 
@@ -410,7 +412,39 @@ LogOverlay.NavFilters = {
 }
 
 function LogOverlay.initialize()
+
 	LogOverlay.TabHistory = {}
+
+	local preEvoSettingButton = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text =  LogOverlay.preEvoSetting,
+		textColor = "Default text",
+		boxColors = { "Lower box border", "Lower box background" },
+		tab = LogOverlay.Tabs.MISC,
+		box = {
+			LogOverlay.margin + 3,
+			110,
+			Constants.Font.SIZE-1,
+			Constants.Font.SIZE-1,
+		},
+		clickableArea = {
+			LogOverlay.margin + 3,
+			110,
+			Utils.calcWordPixelLength(LogOverlay.preEvoSetting) + 10,
+			Constants.Font.SIZE,
+		},
+		isVisible = function(self)
+			return LogOverlay.currentTab == self.tab
+		end,
+		toggleState = Options[LogOverlay.preEvoSetting],
+		toggleColor = "Positive text",
+		onClick = function(self)
+			self.toggleState = not self.toggleState
+			Options.updateSetting(self.text, self.toggleState)
+		end,
+	}
+
+	table.insert(LogOverlay.Buttons, preEvoSettingButton)
 	for _, button in pairs(LogOverlay.TabBarButtons) do
 		if button.textColor == nil then
 			button.textColor = "Header text"
@@ -926,23 +960,29 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		offsetY = offsetY + Constants.SCREEN.LINESPACING
 	end
 
-	local hasPrevEvo = #data.p.prevos > 0
-	local hasEvo = #data.p.evos > 0 or hasPrevEvo
 
 	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
 
 	local preEvoList = {}
 	local evoList = {}
-	if hasPrevEvo then
+
+	local hasPrevEvo = #data.p.prevos > 0 or false
+
+	if hasPrevEvo and Options["Show Pre Evolutions"] == true then
 		-- Add prevos to list
 		for i, prev in ipairs(data.p.prevos) do
-			table.insert(preEvoList,{
+			table.insert(preEvoList, {
 				name = PokemonData.Pokemon[prev.id].name,
 				id = prev.id
 			})
 		end
+	else
+		hasPrevEvo = false
 	end
-    if hasEvo then
+
+	local hasEvo = #data.p.evos > 0 or hasPrevEvo
+
+	if hasEvo then
         -- Add evos to list
         for i, evoInfo in ipairs(data.p.evos) do
             table.insert(evoList,
@@ -1059,7 +1099,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local numIconSets = math.ceil(#evoList / LogOverlay.evosPerSet)
 	local iconset = 1
 	local xOffset = evoArrowSize
-	local textOffset = #evoList == 1 or false
 	for i, evo in ipairs(evoList) do
 		local evoBox = {
 			xOffset + viewedPokemonIcon.box[1] + pokemonIconSize + pokemonIconSpacing,
@@ -1855,7 +1894,6 @@ function LogOverlay.drawMiscTab(x, y, width, height)
 
 	return borderColor, shadowcolor
 end
-
 function LogOverlay.drawPokemonZoomed(x, y, width, height)
 	local textColor = Theme.COLORS["Lower box text"]
 	local borderColor = Theme.COLORS["Lower box border"]

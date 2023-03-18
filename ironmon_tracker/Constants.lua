@@ -136,6 +136,7 @@ Constants.OrderedLists = {
 		"Enable restore points",
 		"Enable custom extensions",
 		"Show Team View",
+		"Show Pre Evolutions",
 	},
 	CONTROLS = {
 		"Load next seed",
