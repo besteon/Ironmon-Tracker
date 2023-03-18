@@ -201,15 +201,16 @@ function RandomizerLog.parseEvolutions(logLines)
 		RandomizerLog.Data.Pokemon[pokemonId].Evolutions = {}
 
 		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
-			evo = RandomizerLog.formatInput(evo)
-			evo = RandomizerLog.alternateNidorans(evo)
-			if RandomizerLog.PokemonNameToIdMap[evo] ~= nil then
-				table.insert(RandomizerLog.Data.Pokemon[pokemonId].Evolutions, RandomizerLog.PokemonNameToIdMap[evo])
+			local evoToAdd = RandomizerLog.formatInput(evo)
+			evoToAdd = RandomizerLog.alternateNidorans(evoToAdd)
+			local evoPokemonId = RandomizerLog.PokemonNameToIdMap[evoToAdd]
+			if evoPokemonId ~= nil then
+				table.insert(RandomizerLog.Data.Pokemon[pokemonId].Evolutions, evoPokemonId)
 				-- Add pre-evolutions to the evolved Pokemon
-				if RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions == nil then
-					RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions = {}
+				if RandomizerLog.Data.Pokemon[evoPokemonId].PreEvolutions == nil then
+					RandomizerLog.Data.Pokemon[evoPokemonId].PreEvolutions = {}
 				end
-				table.insert(RandomizerLog.Data.Pokemon[RandomizerLog.PokemonNameToIdMap[evo]].PreEvolutions, pokemonId)
+				table.insert(RandomizerLog.Data.Pokemon[evoPokemonId].PreEvolutions, pokemonId)
 			end
 		end
 
