@@ -1183,9 +1183,9 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			},
 			color = function(i)
 				if i == LogOverlay.currentEvoSet then
-					return "Positive text"
+					return Theme.COLORS["Positive text"]
 				end
-				return "Lower box text"
+				return Theme.COLORS["Lower box text"]
 			end,
 			isVisible = function()
 				return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and
@@ -1240,9 +1240,9 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			},
 			color = function(i)
 				if i == LogOverlay.currentPreEvoSet then
-					return "Positive text"
+					return Theme.COLORS["Positive text"]
 				end
-				return "Lower box text"
+				return Theme.COLORS["Lower box text"]
 			end,
 			isVisible = function()
 				return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and

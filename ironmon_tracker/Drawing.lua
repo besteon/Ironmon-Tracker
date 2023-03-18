@@ -95,26 +95,15 @@ end
 ---@param height integer @The height of the chevron
 ---@param thickness integer @The thickness of the chevron
 ---@param direction string @The direction the chevron is facing (up, down, left, right)
----@param color boolean|string @The color of the chevron, can be a color name or a boolean (true = positive if direction is up, negative if direction is down)
+---@param color integer @The color of the chevron. Likely a hex value from Theme.COLORS
 ---@return nil
 function Drawing.drawChevron(x, y, width, height, thickness, direction, color)
 	-- Set default values for width, height, and thickness
 	width = width or 4
 	height = height or 3
 	thickness = thickness or 1
-	-- Get the color from the colorName parameter or use the default color
-	local color = color or Theme.COLORS["Default text"]
-
-
-	if Theme.COLORS[color] then
-		color = Theme.COLORS[color]
-
-	-- Old cases for up and down
-	elseif color == true and direction == "up" then
-        color = Theme.COLORS["Positive text"]
-	elseif color == true and direction == "down" then
-		color = Theme.COLORS["Negative text"]
-	end
+	-- Use the default text color if no color is specified
+	color = color or Theme.COLORS["Default text"]
 	-- Draw the chevron
 	local i = 0
 	if direction == "up" then
@@ -147,34 +136,56 @@ function Drawing.drawChevron(x, y, width, height, thickness, direction, color)
 		end
 	end
 end
--- draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
--- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
-function Drawing.drawChevrons(x, y, intensity, max)
+--- Draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
+--- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
+--- After 'max' chevrons are drawn, additional chevrons are colored with Positive text color for up, Negative text color for down
+---@param x integer @The x coordinate of the top left corner of the chevron
+---@param y integer @The y coordinate of the top left corner of the chevron
+---@param intensity integer @The intensity of the chevrons
+---@param max integer @The maximum intensity of the chevrons (the number of chevrons drawn)
+---@param width integer @The width of each chevron
+---@param height integer @The height of each chevron
+---@param thickness integer @The thickness of each chevron
+---@param spacing integer @The spacing between chevrons
+function Drawing.drawChevronsVerticalIntensity(x, y, intensity, max, width, height, thickness, spacing)
 	if intensity == 0 then return end
 
+	local direction = "up"
+	if intensity < 0 then
+		direction = "down"
+	end
+	-- Absolute value of intensity
 	local weight = math.abs(intensity)
-	local spacing = 2
 
 	for index = 0, max - 1, 1 do
+		local color = Theme.COLORS["Default text"]
 		if weight > index then
 			local hasColor = weight > max + index
-			Drawing.drawChevron(x, y, 4, 2, 1, Utils.inlineIf(intensity > 0, "up", "down"), hasColor)
+			if hasColor then
+				color = Utils.inlineIf(intensity > 0, Theme.COLORS["Positive text"], Theme.COLORS["Negative text"])
+			end
+			Drawing.drawChevron(x, y, width, height, thickness, direction, color)
 			y = y - spacing
 		end
 	end
 end
 
 function Drawing.drawMoveEffectiveness(x, y, value)
+	local color = Theme.COLORS["Default text"]
 	if value == 2 then
-		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", true)
+		color = Theme.COLORS["Positive text"]
+		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", color)
 	elseif value == 4 then
-		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", true)
-		Drawing.drawChevron(x, y + 2, 4, 2, 1, "up", true)
+		color = Theme.COLORS["Positive text"]
+		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", color)
+		Drawing.drawChevron(x, y + 2, 4, 2, 1, "up", color)
 	elseif value == 0.5 then
-		Drawing.drawChevron(x, y, 4, 2, 1, "down", true)
+		color = Theme.COLORS["Negative text"]
+		Drawing.drawChevron(x, y, 4, 2, 1, "down", color)
 	elseif value == 0.25 then
-		Drawing.drawChevron(x, y, 4, 2, 1, "down", true)
-		Drawing.drawChevron(x, y + 2, 4, 2, 1, "down", true)
+		color = Theme.COLORS["Negative text"]
+		Drawing.drawChevron(x, y, 4, 2, 1, "down", color)
+		Drawing.drawChevron(x, y + 2, 4, 2, 1, "down", color)
 	end
 end
 
