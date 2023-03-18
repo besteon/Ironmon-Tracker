@@ -883,7 +883,9 @@ function LogOverlay.gridAlign(buttonList, startX, startY, width, height, colSpac
 end
 
 function LogOverlay.buildPokemonZoomButtons(data)
-	LogOverlay.TemporaryButtons = {}
+    LogOverlay.TemporaryButtons = {}
+    LogOverlay.currentPreEvoSet = 1
+	LogOverlay.currentEvoSet = 1
 
 	local offsetX, offsetY
 	if data.p.abilities[1] == data.p.abilities[2] then
@@ -928,8 +930,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local hasEvo = #data.p.evos > 0 or hasPrevEvo
 
 	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
-	-- Harder to get pre-evo methods
-	local preEvoMethods = {}
 
 	local preEvoList = {}
 	local evoList = {}
@@ -942,19 +942,19 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			})
 		end
 	end
-	if hasEvo then
-		-- Add evos to list
-		for i, evoInfo in ipairs(data.p.evos) do
-			table.insert(evoList,
-			{
-				name = PokemonData.Pokemon[evoInfo.id].name,
-				id = evoInfo.id,
-				method = evoMethods[i]
-			})
-		end
-		-- At evo methods to list
-
-	end
+    if hasEvo then
+        -- Add evos to list
+        for i, evoInfo in ipairs(data.p.evos) do
+            table.insert(evoList,
+                {
+                    name = PokemonData.Pokemon[evoInfo.id].name,
+                    id = evoInfo.id,
+                    method = evoMethods[i]
+                })
+        end
+        -- At evo methods to list
+    end
+	-- Pre-evos
 	local pokemonIconSize = 32
 	local pokemonIconSpacing = 4
 	local evoLabelTextHeight = 7
@@ -967,14 +967,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		h = pokemonIconSize + evoLabelTextHeight,
 	}
 
-
-
-
 	for i, preEvo in ipairs(preEvoList) do
-		-- Only ever draw 1 pre-evo icon
-		-- Find prev evo text
-		-- Account for prev evo having multiple evos
-		-- Account for evo having multiple prevos
 
 		local evoText = ""
 		-- Get pre-evos list of evos
@@ -1018,11 +1011,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
 				-- Center text
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				if textOffset then
-					-- Add half of the space between viewedPokemonIcon and evoButton
-					centeringOffsetX = centeringOffsetX + ((evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2) - 1
-				end
-
 				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self.text,
 					Theme.COLORS[self.textColor], shadowcolor)
 			end
@@ -1058,11 +1046,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
-		draw = function(self)
-			-- Draw box around icon
-			gui.drawRectangle(self.box[1], self.box[2] - 1 + evoLabelTextHeight, pokemonIconSize - 1, pokemonIconSize - 4,
-			Theme.COLORS["Lower box text"])
 		end,
 		onClick = function(self)
 			if PokemonData.isValid(self.pokemonID) then
@@ -1110,11 +1093,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
 				-- Center text
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				if textOffset then
-					-- Subtract half of the space between viewedPokemonIcon and evoButton
-					centeringOffsetX = centeringOffsetX - ((evoArrowSize + pokemonIconSize + pokemonIconSpacing) / 2) - 1
-				end
-
 				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self.text,
 					Theme.COLORS[self.textColor], shadowcolor)
 			end
