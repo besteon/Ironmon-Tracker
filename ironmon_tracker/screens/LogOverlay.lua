@@ -96,7 +96,6 @@ LogOverlay.Windower = {
 		end
 		LogOverlay.refreshTabBar()
 		LogOverlay.refreshInnerButtons()
-		Main.SaveSettings()
 	end,
 }
 
@@ -419,7 +418,7 @@ function LogOverlay.initialize()
 		type = Constants.ButtonTypes.CHECKBOX,
 		text =  LogOverlay.preEvoSetting,
 		textColor = "Default text",
-		boxColors = { "Lower box border", "Lower box background" },
+		boxColors = { "Upper box border", "Upper box background" },
 		tab = LogOverlay.Tabs.MISC,
 		box = {
 			LogOverlay.margin + 3,
@@ -441,6 +440,7 @@ function LogOverlay.initialize()
 		onClick = function(self)
 			self.toggleState = not self.toggleState
 			Options.updateSetting(self.text, self.toggleState)
+			Main.SaveSettings()
 		end,
 	}
 
@@ -965,10 +965,8 @@ function LogOverlay.buildPokemonZoomButtons(data)
 
 	local preEvoList = {}
 	local evoList = {}
-
-	local hasPrevEvo = #data.p.prevos > 0 or false
-
-	if hasPrevEvo and Options["Show Pre Evolutions"] == true then
+	local hasPrevEvo = Options["Show Pre Evolutions"] and #data.p.prevos > 0
+	if hasPrevEvo then
 		-- Add prevos to list
 		for i, prev in ipairs(data.p.prevos) do
 			table.insert(preEvoList, {
@@ -976,8 +974,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				id = prev.id
 			})
 		end
-	else
-		hasPrevEvo = false
 	end
 
 	local hasEvo = #data.p.evos > 0 or hasPrevEvo
@@ -1023,8 +1019,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 
 		local x = pokemonIconRange.x
 		local y = pokemonIconRange.y
-		local textOffset = #preEvoList == 1 or false
-
 		local preEvoButton = {
 			textColor = "Lower box text",
 			text = evoText,
@@ -1051,8 +1045,9 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				local evoTextSize = Utils.calcWordPixelLength(self.text or "")
 				-- Center text
 				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self.text,
-					Theme.COLORS[self.textColor], shadowcolor)
+				local textX = self.box[1] + centeringOffsetX + pokemonIconSize + pokemonIconSpacing + evoArrowSize
+				local textY = self.box[2] + self.box[4] + 2
+				Drawing.drawText(textX, textY, self.text, Theme.COLORS[self.textColor], shadowcolor)
 			end
 		}
 		table.insert(LogOverlay.TemporaryButtons, preEvoButton)
@@ -1092,6 +1087,22 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 			end
 		end,
+
+		draw = function(self)
+			if Options["Show Pre Evolutions"] and hasEvo then
+
+				Drawing.drawSelectionIndicators(
+					self.box[1],
+					self.box[2] - 1 + evoLabelTextHeight,
+					pokemonIconSize - 1,
+					pokemonIconSize - 4,
+					Theme.COLORS["Intermediate text"],
+					1,
+					5,
+					1
+				)
+			end
+		end
 	}
 	table.insert(LogOverlay.TemporaryButtons, viewedPokemonIcon)
 

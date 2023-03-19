@@ -575,3 +575,67 @@ function Drawing.drawRepelUsage()
 	-- Draw colored bar for remaining usage
 	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
+
+--- Draws an "L" shape at the given coordinates
+--- x and y correspond to the joint of the "L" shape
+--- @param x integer X coordinate of the "L" shape
+--- @param y integer Y coordinate of the "L" shape
+--- @param rotation integer Rotation of the "L" shape, 0 = 0 degrees, 1 = 90 degrees, 2 = 180 degrees, 3 = 270 degrees. At 0 degrees, the "L" shape points to the right and down
+--- @param color integer Color of the "L" shape, current theme colors can be accessed via Theme.COLORS
+--- @param thickness integer Thickness of the "L" shape
+--- @param length integer Length of the "L" shape
+--- @return nil
+function Drawing.drawLShape(x, y, rotation, color, thickness, length)
+	thickness = thickness - 1
+	length = length - 1
+	if rotation == 0 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x, y, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x, y, thickness, length, color, color)
+	elseif rotation == 1 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x - length, y, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x - thickness, y, thickness, length, color, color)
+	elseif rotation == 2 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x - length, y- thickness, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x - thickness, y - length, thickness, length, color, color)
+	elseif rotation == 3 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x, y - thickness, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x, y - length, thickness, length, color, color)
+	end
+end
+
+
+
+--- Draws "L" shaped selection indicators at the corners of the given rectangle
+--- @param x integer X coordinate of the top left corner of the rectangle
+--- @param y integer Y coordinate of the top left corner of the rectangle
+--- @param width integer Width of the rectangle
+--- @param height integer Height of the rectangle
+--- @param color integer Color of the selection indicators, current theme colors can be accessed via Theme.COLORS
+--- @param thickness integer Thickness of the selection indicators
+--- @param segmentLength integer Length of the selection indicators
+--- @param segmentPadding integer Offset of the selection indicators from the corners of the rectangle
+--- @return nil
+function Drawing.drawSelectionIndicators(x, y, width, height, color, thickness, segmentLength, segmentPadding)
+
+	segmentPadding = segmentPadding + thickness -1
+
+	-- Top left
+	Drawing.drawLShape(x - segmentPadding, y - segmentPadding, 0, color, thickness, segmentLength)
+
+	-- Top right
+	Drawing.drawLShape(x + width + segmentPadding, y - segmentPadding, 1, color, thickness, segmentLength)
+
+	-- Bottom right
+	Drawing.drawLShape(x + width + segmentPadding, y + height + segmentPadding, 2, color, thickness, segmentLength)
+
+	-- Bottom left
+	Drawing.drawLShape(x - segmentPadding, y + height + segmentPadding, 3, color, thickness, segmentLength)
+end
