@@ -345,6 +345,35 @@ LogOverlay.Buttons = {
 		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 		onClick = function(self) LogOverlay.openRandomizerShareWindow() end,
 	},
+	preEvoSettingButton = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		text =  LogOverlay.preEvoSetting,
+		textColor = "Default text",
+		boxColors = { "Upper box border", "Upper box background" },
+		tab = LogOverlay.Tabs.MISC,
+		box = {
+			LogOverlay.margin + 3,
+			110,
+			Constants.Font.SIZE-1,
+			Constants.Font.SIZE-1,
+		},
+		clickableArea = {
+			LogOverlay.margin + 3,
+			110,
+			Utils.calcWordPixelLength(LogOverlay.preEvoSetting) + 10,
+			Constants.Font.SIZE,
+		},
+		isVisible = function(self)
+			return LogOverlay.currentTab == self.tab
+		end,
+		toggleState = Options[LogOverlay.preEvoSetting],
+		toggleColor = "Positive text",
+		onClick = function(self)
+			self.toggleState = not self.toggleState
+			Options.updateSetting(self.text, self.toggleState)
+			Main.SaveSettings()
+		end,
+	},
 }
 
 -- Holds temporary buttons that only exist while drilling down on specific log info, e.g. pokemon evo icons
@@ -414,37 +443,8 @@ function LogOverlay.initialize()
 
 	LogOverlay.TabHistory = {}
 
-	local preEvoSettingButton = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		text =  LogOverlay.preEvoSetting,
-		textColor = "Default text",
-		boxColors = { "Upper box border", "Upper box background" },
-		tab = LogOverlay.Tabs.MISC,
-		box = {
-			LogOverlay.margin + 3,
-			110,
-			Constants.Font.SIZE-1,
-			Constants.Font.SIZE-1,
-		},
-		clickableArea = {
-			LogOverlay.margin + 3,
-			110,
-			Utils.calcWordPixelLength(LogOverlay.preEvoSetting) + 10,
-			Constants.Font.SIZE,
-		},
-		isVisible = function(self)
-			return LogOverlay.currentTab == self.tab
-		end,
-		toggleState = Options[LogOverlay.preEvoSetting],
-		toggleColor = "Positive text",
-		onClick = function(self)
-			self.toggleState = not self.toggleState
-			Options.updateSetting(self.text, self.toggleState)
-			Main.SaveSettings()
-		end,
-	}
+	LogOverlay.Buttons.preEvoSettingButton.toggleState = Options[LogOverlay.preEvoSetting]
 
-	table.insert(LogOverlay.Buttons, preEvoSettingButton)
 	for _, button in pairs(LogOverlay.TabBarButtons) do
 		if button.textColor == nil then
 			button.textColor = "Header text"
@@ -1016,7 +1016,11 @@ function LogOverlay.buildPokemonZoomButtons(data)
 				evoText = preEvoEvoMethodList[j]
 			end
 		end
-
+		-- If no match, use the first evo method
+		if not evoText then
+			evoText = preEvoEvoMethodList[1]
+		end
+		print("PreEvo: " .. preEvo.name .. " EvoText: " .. evoText)
 		local x = pokemonIconRange.x
 		local y = pokemonIconRange.y
 		local preEvoButton = {
@@ -1107,7 +1111,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	table.insert(LogOverlay.TemporaryButtons, viewedPokemonIcon)
 
 	-- Evo icons
-	local numIconSets = math.ceil(#evoList / LogOverlay.evosPerSet)
 	local iconset = 1
 	local xOffset = evoArrowSize
 	for i, evo in ipairs(evoList) do
@@ -1117,6 +1120,10 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			pokemonIconSize,
 			pokemonIconSize,
 		}
+		-- If no evo method is given, use the first one
+		if not evo.method then
+			evo.method = evoList[1].method
+		end
 		local evoButton = {
 			textColor = "Lower box text",
 			text = evo.method,
