@@ -200,6 +200,7 @@ function RandomizerLog.parseEvolutions(logLines)
 		local pokemonId = RandomizerLog.PokemonNameToIdMap[pokemon]
 		RandomizerLog.Data.Pokemon[pokemonId].Evolutions = {}
 
+		evos = evos:gsub(" and ", ", ")
 		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
 			local evoToAdd = RandomizerLog.formatInput(evo)
 			evoToAdd = RandomizerLog.alternateNidorans(evoToAdd)
