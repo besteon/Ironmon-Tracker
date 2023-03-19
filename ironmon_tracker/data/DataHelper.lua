@@ -582,6 +582,17 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		table.insert(data.p.evos, evoInfo)
 	end
 
+	-- Pre-evolutions
+	data.p.prevos = {}
+	for _, prevoId in ipairs(pokemonLog.PreEvolutions or {}) do
+		local prevoInfo = {
+			id = prevoId,
+			name = PokemonData.Pokemon[prevoId].name,
+		}
+		table.insert(data.p.prevos, prevoInfo)
+	end
+
+
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
 	for _, move in ipairs(pokemonLog.MoveSet or {}) do

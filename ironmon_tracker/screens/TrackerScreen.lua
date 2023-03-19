@@ -879,7 +879,7 @@ function TrackerScreen.drawStatsArea(data)
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Battle.inBattle then
 			local statStageIntensity = data.p.stages[statKey] - 6 -- between [0 and 12], convert to [-6 and 6]
-			Drawing.drawChevrons(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3)
+			Drawing.drawChevronsVerticalIntensity(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3,4,2,1,2)
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
@@ -900,8 +900,8 @@ function TrackerScreen.drawStatsArea(data)
 		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, "Eva", Theme.COLORS["Default text"], shadowcolor)
 		local accIntensity = data.p.stages.acc - 6
 		local evaIntensity = data.p.stages.eva - 6
-		Drawing.drawChevrons(statOffsetX + 15, statOffsetY + 5, accIntensity, 3)
-		Drawing.drawChevrons(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3)
+		Drawing.drawChevronsVerticalIntensity(statOffsetX + 15, statOffsetY + 5, accIntensity, 3,4,2,1,2)
+		Drawing.drawChevronsVerticalIntensity(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3,4,2,1,2)
 	else
 		Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawNumber(statOffsetX + 25, statOffsetY, data.p.bst, 3, Theme.COLORS["Default text"], shadowcolor)
