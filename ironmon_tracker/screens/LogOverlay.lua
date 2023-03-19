@@ -1020,7 +1020,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		if not evoText then
 			evoText = preEvoEvoMethodList[1]
 		end
-		print("PreEvo: " .. preEvo.name .. " EvoText: " .. evoText)
 		local x = pokemonIconRange.x
 		local y = pokemonIconRange.y
 		local preEvoButton = {
