@@ -1170,7 +1170,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			textColor = "Lower box text",
 			box = {
 				evoArrowX,
-				pokemonIconRange.y + (pokemonIconRange.h / 2),
+				pokemonIconRange.y + (pokemonIconRange.h / 2) - 3,
 				evoArrowSize,
 				evoArrowSize
 			},
@@ -1191,7 +1191,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			textColor = "Lower box text",
 			box = {
 				prevEvoArrowX,
-				pokemonIconRange.y + (pokemonIconRange.h / 2),
+				pokemonIconRange.y + (pokemonIconRange.h / 2) - 3,
 				evoArrowSize,
 				evoArrowSize
 			},
