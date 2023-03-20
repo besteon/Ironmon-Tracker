@@ -218,6 +218,27 @@ function Utils.getClosestWord(word, wordlist, threshold)
 	end
 end
 
+-- Creates a popup Bizhawk form at optional relative location (x,y); returns the created form handle id
+function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockInput)
+	title = title or "Form"
+	width = width or 600
+	height = height or 600
+	x = x or 100
+	y = y or 50
+	onCloseFunc = onCloseFunc or function() client.unpause() end
+	blockInput = (blockInput == true)
+
+	Program.destroyActiveForm()
+	local form = forms.newform(width, height, title, onCloseFunc)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, x, y)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", blockInput)
+	end
+
+	return form
+end
+
 function Utils.randomPokemonID()
 	local pokemonID = math.random(PokemonData.totalPokemon - 25)
 	if pokemonID > 251 then

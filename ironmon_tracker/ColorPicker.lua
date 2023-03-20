@@ -144,20 +144,15 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	Program.destroyActiveForm()
 	Drawing.AnimatedPokemon:destroy() -- animated gif spazzes out, temporarily destroy it
-	self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
-	Program.activeFormId = self.mainForm
-	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(self.mainForm, "BlocksInputWhenFocused", true)
-	end
 
+	self.mainForm = Utils.createBizhawkForm("Color Picker", self.width, self.height, 0, 0, function() self:onClose() end)
+	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 	self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)
 	self.cancelButton = forms.button(self.mainForm,"Cancel", function() self:onClose() end,125,250,65,30)
-
-	forms.setlocation(self.mainForm,self.xPos,self.yPos)
 	self.mainCanvas = forms.pictureBox(self.mainForm,0,0,250,300)
+	forms.setlocation(self.mainForm,self.xPos,self.yPos)
+
 	self:initializeColorWheelSlider()
 	self:drawMainCanvas()
 

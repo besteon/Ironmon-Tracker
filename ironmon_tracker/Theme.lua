@@ -447,13 +447,7 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(515, 125, "Theme Import", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Theme Import", 515, 125)
 
 	forms.label(form, "Enter a theme code string to import (Ctrl+V to paste):", 9, 10, 300, 20)
 	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
@@ -475,13 +469,7 @@ function Theme.openImportWindow()
 end
 
 function Theme.openExportWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(515, 150, "Theme Export", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Theme Export", 515, 150)
 
 	local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview]
 	local themeCode = Theme.PresetStrings[themeName]
@@ -495,13 +483,7 @@ function Theme.openExportWindow()
 end
 
 function Theme.openPresetsWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Lookup a Theme Preset", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Lookup a Theme Preset", 360, 105)
 
 	forms.label(form, "Select a Theme preset to preview:", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(form, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
@@ -530,13 +512,7 @@ function Theme.openPresetsWindow()
 end
 
 function Theme.openSaveCurrentThemeWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(350, 145, "Save Theme As...", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Save Theme As...", 350, 145)
 
 	forms.label(form, "Enter a name for this Theme:", 18, 10, 330, 20)
 	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)

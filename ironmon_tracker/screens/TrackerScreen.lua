@@ -550,13 +550,7 @@ end
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if not PokemonData.isValid(pokemonId) then return end
 
-	Program.destroyActiveForm()
-	local form = forms.newform(465, 220, "Leave a Note", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Leave a Note", 465, 220)
 
 	forms.label(form, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(form, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
@@ -611,13 +605,7 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 end
 
 function TrackerScreen.openEditStepGoalWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(320, 170, "Choose a Step Goal", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Choose a Step Goal", 320, 170)
 
 	forms.label(form, "Pedometer will change color when goal is reached.", 26, 10, 300, 20)
 	forms.label(form, "(Set to 0 to turn-off)", 100, 28, 300, 20)

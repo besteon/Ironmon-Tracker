@@ -151,13 +151,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Pokedex Look up", 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then

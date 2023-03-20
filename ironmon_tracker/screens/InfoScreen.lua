@@ -304,13 +304,7 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Move Look up", 360, 105)
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
@@ -348,13 +342,7 @@ function InfoScreen.openMoveInfoWindow()
 end
 
 function InfoScreen.openAbilityInfoWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Ability Look up", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Ability Look up", 360, 105)
 
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
@@ -393,13 +381,7 @@ function InfoScreen.openAbilityInfoWindow()
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Pokedex Look up", 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
@@ -430,13 +412,7 @@ function InfoScreen.openPokemonInfoWindow()
 end
 
 function InfoScreen.openRouteInfoWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Route Look up", 360, 105)
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 

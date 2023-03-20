@@ -132,13 +132,7 @@ function SetupScreen.initialize()
 end
 
 function SetupScreen.openEditControlsWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(445, 215, "Controller Inputs", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Controller Inputs", 445, 215)
 
 	forms.label(form, "Edit GBA buttons for the Tracker, available buttons: A, B, L, R, Start, Select", 39, 10, 410, 20)
 

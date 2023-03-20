@@ -237,7 +237,8 @@ function Main.DisplayError(errMessage)
 	if not Main.IsOnBizhawk() then return end -- Only Bizhawk allows popup form windows
 
 	client.pause()
-	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an issue!", function() client.unpause() end)
+	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
+	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu

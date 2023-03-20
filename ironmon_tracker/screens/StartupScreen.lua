@@ -175,13 +175,7 @@ function StartupScreen.setPokemonIcon(displayOption)
 end
 
 function StartupScreen.openChoosePokemonWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(330, 145, "Choose a Pokemon", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Choose a Pokemon", 330, 145)
 
 	local allPokemon = PokemonData.namesToList()
 	table.insert(allPokemon, "-- Based on attempt #")
@@ -236,13 +230,7 @@ function StartupScreen.openChoosePokemonWindow()
 end
 
 function StartupScreen.openEditAttemptsWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(320, 130, "Edit Attempts Counter", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
-	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
-	end
+	local form = Utils.createBizhawkForm("Edit Attempts Counter", 320, 130)
 
 	forms.label(form, "Enter the number of attempts:", 48, 10, 300, 20)
 	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
