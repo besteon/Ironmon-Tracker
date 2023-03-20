@@ -234,7 +234,7 @@ TrackerScreen.Buttons = {
 			if Program.Pedometer.goalSteps ~= 0 and stepCount >= Program.Pedometer.goalSteps then
 				self.textColor = "Positive text"
 			else
-				self.textColor = "Default text"
+				self.textColor = "Lower box text"
 			end
 			local formattedStepCount = Utils.formatNumberWithCommas(stepCount)
 			self.text = string.format("Steps: %s", formattedStepCount)
