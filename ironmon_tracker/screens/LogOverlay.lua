@@ -676,7 +676,7 @@ function LogOverlay.buildPagedButtons()
 	end
 
 	LogOverlay.PagedButtons.TMs = {}
-	for tmNumber, moveId in pairs(RandomizerLog.Data.TMs) do
+	for tmNumber, tm in pairs(RandomizerLog.Data.TMs) do
 		local gymLeader, gymNumber, trainerId, filterGroup
 		if gymTMs[tmNumber] ~= nil then
 			gymLeader = gymTMs[tmNumber].leader
@@ -688,12 +688,18 @@ function LogOverlay.buildPagedButtons()
 			gymNumber = 0
 			-- if not a gym TM, then it doesn't have a trainerId or filterGroup
 		end
+		local moveName
+		if MoveData.Moves[tm.moveId] ~= nil then
+			moveName = MoveData.Moves[tm.moveId].name
+		else
+			moveName = tm.name
+		end
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			text = string.format("TM%02d  %s", tmNumber, MoveData.Moves[moveId].name),
+			text = string.format("TM%02d  %s", tmNumber, moveName),
 			textColor = "Default text",
 			tmNumber = tmNumber,
-			moveId = moveId,
+			moveId = tm.moveId,
 			gymLeader = gymLeader,
 			gymNumber = gymNumber,
 			trainerId = trainerId,
