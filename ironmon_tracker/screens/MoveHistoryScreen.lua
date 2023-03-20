@@ -152,9 +152,12 @@ end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
 	Program.destroyActiveForm()
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Program.activeFormId = pokedexLookup
-	Utils.setFormLocation(pokedexLookup, 100, 50)
+	local form = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then
@@ -164,14 +167,14 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Pokemon to look up:", 49, 10, 250, 20)
+	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(pokedexLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
@@ -181,7 +184,7 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 			end
 		end
 		client.unpause()
-		forms.destroy(pokedexLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 

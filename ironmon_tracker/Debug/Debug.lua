@@ -1,9 +1,13 @@
 Debug = {}
 
 function Debug.createEditPokeForm()
-    local editPoke = forms.newform(200,250, "Edit " .. Constants.Words.POKEMON)
-    forms.setproperty(editPoke, "MinimizeBox", false)
-    forms.setproperty(editPoke, "MaximizeBox", false)
+    local form = forms.newform(200,250, "Edit " .. Constants.Words.POKEMON)
+    forms.setproperty(form, "MinimizeBox", false)
+    forms.setproperty(form, "MaximizeBox", false)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
+
     local y = 10
     local x = 10
     local pokedexData = {}
@@ -22,22 +26,22 @@ function Debug.createEditPokeForm()
 		end
 	end
 
-    local species = Debug.createDropDown(editPoke,"Species:",x,y,pokedexData)
+    local species = Debug.createDropDown(form,"Species:",x,y,pokedexData)
     y = y + 25
-    local move1 = Debug.createDropDown(editPoke,"Move 1:",x,y,allmovesData)
+    local move1 = Debug.createDropDown(form,"Move 1:",x,y,allmovesData)
     y = y + 25
-    local move2 = Debug.createDropDown(editPoke,"Move 2:",x,y,allmovesData)
+    local move2 = Debug.createDropDown(form,"Move 2:",x,y,allmovesData)
     y = y + 25
-    local move3 = Debug.createDropDown(editPoke,"Move 3:",x,y,allmovesData)
+    local move3 = Debug.createDropDown(form,"Move 3:",x,y,allmovesData)
     y = y + 25
-    local move4 = Debug.createDropDown(editPoke,"Move 4:",x,y,allmovesData)
+    local move4 = Debug.createDropDown(form,"Move 4:",x,y,allmovesData)
     y = y + 25
-    local partyNum = Debug.createDropDown(editPoke,"Party #",x,y,{"1","2","3","4","5","6"})
+    local partyNum = Debug.createDropDown(form,"Party #",x,y,{"1","2","3","4","5","6"})
     y = y + 25
-    local ability = Debug.createDropDown(editPoke,"Ability:",x,y,{"Unchanged","1","2"})
-    local enemy = forms.checkbox(editPoke,"Opponent",x+10,y+30)
+    local ability = Debug.createDropDown(form,"Ability:",x,y,{"Unchanged","1","2"})
+    local enemy = forms.checkbox(form,"Opponent",x+10,y+30)
     local formTable = {
-        ["mainForm"] = editPoke,
+        ["mainForm"] = form,
         ["species"] = species,
         ["move1"] = move1,
         ["move2"] = move2,
@@ -47,7 +51,7 @@ function Debug.createEditPokeForm()
         ["ability"] = ability,
         ["enemy"] = enemy
     }
-    local setBtn = forms.button(editPoke,"Set",
+    local setBtn = forms.button(form,"Set",
                         function () Debug.setPokemonData(formTable) end,
                         125,y+30,50,20
                     )

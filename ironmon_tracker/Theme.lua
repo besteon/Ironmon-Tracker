@@ -451,6 +451,9 @@ function Theme.openImportWindow()
 	local form = forms.newform(515, 125, "Theme Import", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	forms.label(form, "Enter a theme code string to import (Ctrl+V to paste):", 9, 10, 300, 20)
 	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
@@ -476,6 +479,9 @@ function Theme.openExportWindow()
 	local form = forms.newform(515, 150, "Theme Export", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview]
 	local themeCode = Theme.PresetStrings[themeName]
@@ -490,17 +496,20 @@ end
 
 function Theme.openPresetsWindow()
 	Program.destroyActiveForm()
-	local presetsForm = forms.newform(360, 105, "Lookup a Theme Preset", function() client.unpause() end)
-	Program.activeFormId = presetsForm
-	Utils.setFormLocation(presetsForm, 100, 50)
+	local form = forms.newform(360, 105, "Lookup a Theme Preset", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
-	forms.label(presetsForm, "Select a Theme preset to preview:", 49, 10, 250, 20)
-	local presetDropdown = forms.dropdown(presetsForm, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
+	forms.label(form, "Select a Theme preset to preview:", 49, 10, 250, 20)
+	local presetDropdown = forms.dropdown(form, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
 	forms.setdropdownitems(presetDropdown, Theme.PresetsOrdered, false) -- Required to prevent alphabetizing the list
 	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
-	forms.button(presetsForm, "Preview", function()
+	forms.button(form, "Preview", function()
 		local themeName = forms.gettext(presetDropdown)
 
 		for index, name in ipairs(Theme.PresetsOrdered) do
@@ -516,7 +525,7 @@ function Theme.openPresetsWindow()
 		Theme.importThemeFromText(themeCode, false)
 
 		client.unpause()
-		forms.destroy(presetsForm)
+		forms.destroy(form)
 	end, 212, 29)
 end
 
@@ -525,6 +534,9 @@ function Theme.openSaveCurrentThemeWindow()
 	local form = forms.newform(350, 145, "Save Theme As...", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	forms.label(form, "Enter a name for this Theme:", 18, 10, 330, 20)
 	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)

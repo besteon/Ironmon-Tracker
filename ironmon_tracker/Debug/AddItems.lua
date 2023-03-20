@@ -11,19 +11,22 @@ function AddItems.createAddItemForm()
 		end
 	end
 
-	local addItemForm = forms.newform(170, 115, "Add Items")
-	forms.setproperty(addItemForm, "MinimizeBox", false)
-	forms.setproperty(addItemForm, "MaximizeBox", false)
+	local form = forms.newform(170, 115, "Add Items")
+	forms.setproperty(form, "MinimizeBox", false)
+	forms.setproperty(form, "MaximizeBox", false)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
-	local item = AddItems.createDropDown(addItemForm, "Item:", x, y, itemData)
+	local item = AddItems.createDropDown(form, "Item:", x, y, itemData)
 	y = y + 35
-	local quantity = AddItems.createNumericTextBox(addItemForm, "Quantity:", x, y, 2)
+	local quantity = AddItems.createNumericTextBox(form, "Quantity:", x, y, 2)
 	local formTable = {
-		["mainForm"] = addItemForm,
+		["mainForm"] = form,
 		["item"] = item,
 		["quantity"] = quantity,
 	}
-	local addBtn = forms.button(addItemForm,"Add",
+	local addBtn = forms.button(form,"Add",
 		function () AddItems.addItem(formTable) end,
 		101, y - 2, 50, 20
 	)
@@ -119,18 +122,21 @@ function AddItems.addItem(formsTable)
 end
 
 function AddItems.DisplayUsage()
-	local usagePopup = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Add Items Utility")
-	forms.setproperty(usagePopup, "MinimizeBox", false)
-	forms.setproperty(usagePopup, "MaximizeBox", false)
+	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Add Items Utility")
+	forms.setproperty(form, "MinimizeBox", false)
+	forms.setproperty(form, "MaximizeBox", false)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local actualLocation = client.transformPoint(100, 50)
-	forms.setproperty(usagePopup, "Left", client.xpos() + actualLocation['x'] )
-	forms.setproperty(usagePopup, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
+	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
+	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
 
 	local usageText = "Welcome to the Add Items tool!\nTo use: simply specify an item/quantity and click the \"Add\" button.\n\nIt is HIGHLY recommended to make a savestate to act as a restore point before adding any items (particularly key items), just in case."
-	forms.label(usagePopup, usageText, 18, 10, 350, 65)
-	forms.button(usagePopup, "Close", function()
-		forms.destroy(usagePopup)
+	forms.label(form, usageText, 18, 10, 350, 65)
+	forms.button(form, "Close", function()
+		forms.destroy(form)
 	end, 155, 85)
 end
 

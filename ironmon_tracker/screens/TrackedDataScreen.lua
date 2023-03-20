@@ -83,6 +83,9 @@ function TrackedDataScreen.openSaveDataPrompt()
 	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local suggestedFileName = GameSettings.getRomName() or ""
 

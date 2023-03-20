@@ -305,9 +305,12 @@ end
 
 function InfoScreen.openMoveInfoWindow()
 	Program.destroyActiveForm()
-	local moveLookup = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
-	Program.activeFormId = moveLookup
-	Utils.setFormLocation(moveLookup, 100, 50)
+	local form = forms.newform(360, 105, "Move Look up", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
@@ -317,14 +320,14 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	forms.label(moveLookup, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
-	local moveDropdown = forms.dropdown(moveLookup, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
+	local moveDropdown = forms.dropdown(form, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
 	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
 	forms.settext(moveDropdown, moveName)
 
-	forms.button(moveLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local moveNameFromForm = forms.gettext(moveDropdown)
 		local moveId
 
@@ -340,15 +343,19 @@ function InfoScreen.openMoveInfoWindow()
 			Program.redraw(true)
 		end
 		client.unpause()
-		forms.destroy(moveLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 
 function InfoScreen.openAbilityInfoWindow()
 	Program.destroyActiveForm()
-	local abilityLookup = forms.newform(360, 105, "Ability Look up", function() client.unpause() end)
-	Program.activeFormId = abilityLookup
-	Utils.setFormLocation(abilityLookup, 100, 50)
+	local form = forms.newform(360, 105, "Ability Look up", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
+
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
 		abilityName = AbilityData.DefaultAbility.name
@@ -358,14 +365,14 @@ function InfoScreen.openAbilityInfoWindow()
 	local allAbilitiesData = {}
 	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
 
-	forms.label(abilityLookup, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
-	local abilityDropdown = forms.dropdown(abilityLookup, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
+	local abilityDropdown = forms.dropdown(form, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
 	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
 	forms.settext(abilityDropdown, abilityName)
 
-	forms.button(abilityLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local abilityNameFromForm = forms.gettext(abilityDropdown)
 		local abilityId
 
@@ -381,15 +388,18 @@ function InfoScreen.openAbilityInfoWindow()
 			Program.redraw(true)
 		end
 		client.unpause()
-		forms.destroy(abilityLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 
 function InfoScreen.openPokemonInfoWindow()
 	Program.destroyActiveForm()
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Program.activeFormId = pokedexLookup
-	Utils.setFormLocation(pokedexLookup, 100, 50)
+	local form = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local pokemonName
 	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
@@ -399,14 +409,14 @@ function InfoScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Pokemon to look up:", 49, 10, 250, 20)
+	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(pokedexLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
@@ -415,26 +425,29 @@ function InfoScreen.openPokemonInfoWindow()
 			Program.redraw(true)
 		end
 		client.unpause()
-		forms.destroy(pokedexLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 
 function InfoScreen.openRouteInfoWindow()
 	Program.destroyActiveForm()
-	local routeLookup = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
-	Program.activeFormId = routeLookup
-	Utils.setFormLocation(routeLookup, 100, 50)
+	local form = forms.newform(360, 105, "Route Look up", function() client.unpause() end)
+	Program.activeFormId = form
+	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 
-	forms.label(routeLookup, "Choose a Route to look up:", 49, 10, 250, 20)
-	local routeDropdown = forms.dropdown(routeLookup, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Route to look up:", 49, 10, 250, 20)
+	local routeDropdown = forms.dropdown(form, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
 	forms.setproperty(routeDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(routeDropdown, "AutoCompleteMode", "Append")
 	forms.settext(routeDropdown, routeName)
 
-	forms.button(routeLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local routeNameFromForm = forms.gettext(routeDropdown)
 		local mapId
 
@@ -458,7 +471,7 @@ function InfoScreen.openRouteInfoWindow()
 			Program.redraw(true)
 		end
 		client.unpause()
-		forms.destroy(routeLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 

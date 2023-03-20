@@ -149,6 +149,9 @@ function ColorPicker:show()
 	self.mainForm = forms.newform(self.width,self.height,"Color Picker", function() self:onClose() end)
 	Program.activeFormId = self.mainForm
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(self.mainForm, "BlocksInputWhenFocused", true)
+	end
 
 	self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)
 	self.cancelButton = forms.button(self.mainForm,"Cancel", function() self:onClose() end,125,250,65,30)

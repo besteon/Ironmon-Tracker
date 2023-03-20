@@ -1676,6 +1676,9 @@ function LogOverlay.openRandomizerShareWindow()
 	local form = forms.newform(515, 235, "Share Randomizer Seed", function() client.unpause() end)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, 100, 50)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local newline = "\r\n"
 	local randomizerInfo = {

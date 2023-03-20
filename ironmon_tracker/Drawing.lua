@@ -458,23 +458,26 @@ function Drawing.setupAnimatedPictureBox()
 
 	Drawing.AnimatedPokemon:destroy()
 
-	local formWindow = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
-	forms.setproperty(formWindow, "AllowTransparency", true)
-	forms.setproperty(formWindow, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
-	forms.setproperty(formWindow, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
+	forms.setproperty(form, "AllowTransparency", true)
+	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		forms.setproperty(form, "BlocksInputWhenFocused", true)
+	end
 
 	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
-	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
+	Utils.setFormLocation(form, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
 
-	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
+	local pictureBox = forms.pictureBox(form, 1, 1, 1, 1) -- This gets resized later
 	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
 	forms.setproperty(pictureBox, "Visible", false)
 
-	local addonMissing = forms.label(formWindow, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
+	local addonMissing = forms.label(form, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
 	forms.setproperty(addonMissing, "BackColor", "White")
 	forms.setproperty(addonMissing, "Visible", false)
 
-	Drawing.AnimatedPokemon.formWindow = formWindow
+	Drawing.AnimatedPokemon.formWindow = form
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
 	Drawing.AnimatedPokemon.addonMissing = addonMissing
 	Drawing.AnimatedPokemon.pokemonID = 0
