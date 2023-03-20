@@ -1,5 +1,7 @@
 -- A collection of tools for viewing a Randomized Pokémon game log
-RandomizerLog = {}
+RandomizerLog = {
+	currentLog = nil,
+}
 
 RandomizerLog.Patterns = {
 	RandomizerVersion = "Randomizer Version:%s*([%d%.]+).*$", -- Note: log file line 1 does NOT start with "Rando..."

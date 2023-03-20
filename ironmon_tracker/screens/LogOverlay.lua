@@ -466,6 +466,11 @@ function LogOverlay.initialize()
 end
 
 function LogOverlay.parseAndDisplay(logpath)
+	-- Check for what log we're trying to display, and if it's already been parsed
+	if RandomizerLog.currentLog ~= logpath then
+		RandomizerLog.Data = {}
+		RandomizerLog.currentLog = logpath
+	end
 	-- Check first if data has already been loaded and parsed
 	if RandomizerLog.Data.Settings ~= nil or RandomizerLog.parseLog(logpath) then
 		LogOverlay.isDisplayed = true
