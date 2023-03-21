@@ -33,7 +33,8 @@ LogOverlay = {
 	currentEvoSet = 1, -- Ideally move this somewhere else
 	prevEvosPerSet = 1,
 	evosPerSet = 3, -- Ideally move this somewhere else
-	preEvoSetting = "Show Pre Evolutions"
+    preEvoSetting = "Show Pre Evolutions",
+	isGameOver = false, -- Set to true when game is over, so we known to show game over screen if X is pressed
 }
 
 LogOverlay.Windower = {
@@ -272,7 +273,11 @@ LogOverlay.TabBarButtons = {
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
-				Program.changeScreenView(GameOverScreen)
+				if LogOverlay.isGameOver then
+					Program.changeScreenView(GameOverScreen)
+				else
+					Program.changeScreenView(TrackerScreen)
+				end
 			else -- Constants.PixelImages.PREVIOUS_BUTTON
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.GO_BACK)
 				Program.redraw(true)

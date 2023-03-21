@@ -10,7 +10,7 @@ ExtrasScreen = {
 		resultDecent = "Decent.",
 		resultUnavailable = "Estimate is unavailable.",
         viewLogFile = "View log",
-		viewPreviousLogFile= "Past log",
+		viewPreviousLogFile= "Previous log",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -28,13 +28,39 @@ ExtrasScreen.OptionKeys = {
 -- Holds all the buttons for the screen
 -- Buttons are created in CreateButtons()
 ExtrasScreen.Buttons = {
-
-
+	TimeMachine = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		text = ExtrasScreen.Labels.timeMachineBtn,
+		image = Constants.PixelImages.CLOCK,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16 },
+		-- isVisible = function() return true end,
+		onClick = function()
+			TimeMachineScreen.buildOutPagedButtons()
+			Program.changeScreenView(TimeMachineScreen)
+		end
+	},
+	EstimateIVs = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = ExtrasScreen.Labels.estimateIvBtn,
+		ivText = "",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 109, 130, 11 },
+		onClick = function() ExtrasScreen.displayJudgeMessage() end
+	},
+	Back = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Back",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+		onClick = function(self)
+			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
+			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
+			Main.SaveSettings()
+			Program.changeScreenView(NavigationMenu)
+		end
+	},
 }
 -- Creates the buttons for the screen
 -- Buttons are stored in ExtrasScreen.Buttons
 function ExtrasScreen.CreateButtons()
-	local tempButtons = {}
 
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN + 10
@@ -94,43 +120,8 @@ function ExtrasScreen.CreateButtons()
 		end
 	}
 
-	table.insert(tempButtons, ViewLogFile)
-
-	local TimeMachine = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		text = ExtrasScreen.Labels.timeMachineBtn,
-		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16},
-		-- isVisible = function() return true end,
-		onClick = function()
-			TimeMachineScreen.buildOutPagedButtons()
-			Program.changeScreenView(TimeMachineScreen)
-		end
-	}
-	table.insert(tempButtons, TimeMachine)
-	local EstimateIVs = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = ExtrasScreen.Labels.estimateIvBtn,
-		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 109, 130, 11 },
-		onClick = function() ExtrasScreen.displayJudgeMessage() end
-	}
-	table.insert(tempButtons, EstimateIVs)
-	local Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
-			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			Main.SaveSettings()
-			Program.changeScreenView(NavigationMenu)
-		end
-	}
-	table.insert(tempButtons, Back)
-
-	table.insert(tempButtons, ViewPreviousLogFile)
-	ExtrasScreen.Buttons = tempButtons
+	table.insert(ExtrasScreen.Buttons, ViewLogFile)
+	table.insert(ExtrasScreen.Buttons, ViewPreviousLogFile)
 end
 
 function ExtrasScreen.initialize()

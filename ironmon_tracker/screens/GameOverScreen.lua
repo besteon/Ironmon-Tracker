@@ -70,6 +70,7 @@ GameOverScreen.Buttons = {
 			if Battle.defeatedSteven then
 				Battle.defeatedSteven = false
 			end
+			LogOverlay.isGameOver = false
 			LogOverlay.isDisplayed = false
 			GameOverScreen.refreshButtons()
 			Program.changeScreenView(TrackerScreen)
