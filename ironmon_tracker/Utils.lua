@@ -226,7 +226,7 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	x = x or 100
 	y = y or 50
 	onCloseFunc = onCloseFunc or function() client.unpause() end
-	blockInput = (blockInput == true)
+	blockInput = (blockInput == nil) or (blockInput == true) -- default to true
 
 	Program.destroyActiveForm()
 	local form = forms.newform(width, height, title, onCloseFunc)
