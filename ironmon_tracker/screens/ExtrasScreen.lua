@@ -58,9 +58,9 @@ ExtrasScreen.Buttons = {
 		end
 	},
 }
--- Creates the buttons for the screen
+-- Creates the log view buttons
 -- Buttons are stored in ExtrasScreen.Buttons
-function ExtrasScreen.CreateButtons()
+function ExtrasScreen.createLogViewButtons()
 
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN + 10
@@ -90,7 +90,7 @@ function ExtrasScreen.CreateButtons()
 	viewPrevLogButtonBox[1] = viewLogButtonBox[1] + viewLogButtonBox[3] + Constants.SCREEN.MARGIN
 	viewPrevLogButtonBox[2] = viewLogButtonBox[2]
 
-	local ViewLogFile = {
+	local viewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		text = ExtrasScreen.Labels.viewLogFile,
@@ -100,7 +100,7 @@ function ExtrasScreen.CreateButtons()
 		end,
 	}
 
-	local ViewPreviousLogFile = {
+	local viewPreviousLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		text = ExtrasScreen.Labels.viewPreviousLogFile,
@@ -120,12 +120,12 @@ function ExtrasScreen.CreateButtons()
 		end
 	}
 
-	table.insert(ExtrasScreen.Buttons, ViewLogFile)
-	table.insert(ExtrasScreen.Buttons, ViewPreviousLogFile)
+	table.insert(ExtrasScreen.Buttons, viewLogFile)
+	table.insert(ExtrasScreen.Buttons, viewPreviousLogFile)
 end
 
 function ExtrasScreen.initialize()
-	ExtrasScreen.CreateButtons()
+	ExtrasScreen.createLogViewButtons()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = ExtrasScreen.Buttons[#ExtrasScreen.Buttons].box[2] +
 	ExtrasScreen.Buttons[#ExtrasScreen.Buttons].box[4] + Constants.SCREEN.MARGIN + 2
