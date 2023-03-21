@@ -1771,7 +1771,7 @@ MoveData.Moves = {
 		pp = "15",
 		accuracy = "80",
 		category = MoveData.Categories.SPECIAL,
-		summary = "Deals exact damage of a random amount between 50% and 150% of the user's level.",
+		summary = "Deals a random amount of damage, varying between 50% and 150% of the user's level. Minimum of 1 damage.",
 	},
 	{
 		id = "150",
