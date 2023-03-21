@@ -345,32 +345,20 @@ LogOverlay.Buttons = {
 		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 		onClick = function(self) LogOverlay.openRandomizerShareWindow() end,
 	},
-	preEvoSettingButton = {
+	PreEvoSettingButton = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		text =  LogOverlay.preEvoSetting,
 		textColor = "Default text",
 		boxColors = { "Upper box border", "Upper box background" },
 		tab = LogOverlay.Tabs.MISC,
-		box = {
-			LogOverlay.margin + 3,
-			110,
-			Constants.Font.SIZE-1,
-			Constants.Font.SIZE-1,
-		},
-		clickableArea = {
-			LogOverlay.margin + 3,
-			110,
-			Utils.calcWordPixelLength(LogOverlay.preEvoSetting) + 10,
-			Constants.Font.SIZE,
-		},
-		isVisible = function(self)
-			return LogOverlay.currentTab == self.tab
-		end,
-		toggleState = Options[LogOverlay.preEvoSetting],
+		box = { LogOverlay.margin + 4, 110, Constants.Font.SIZE - 1, Constants.Font.SIZE - 1, },
+		clickableArea = { LogOverlay.margin + 4, 110, Utils.calcWordPixelLength(LogOverlay.preEvoSetting) + 10, Constants.Font.SIZE, },
+		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+		toggleState = false,
 		toggleColor = "Positive text",
 		onClick = function(self)
 			self.toggleState = not self.toggleState
-			Options.updateSetting(self.text, self.toggleState)
+			Options.updateSetting("Show Pre Evolutions", self.toggleState)
 			Main.SaveSettings()
 		end,
 	},
@@ -443,7 +431,7 @@ function LogOverlay.initialize()
 
 	LogOverlay.TabHistory = {}
 
-	LogOverlay.Buttons.preEvoSettingButton.toggleState = Options[LogOverlay.preEvoSetting]
+	LogOverlay.Buttons.PreEvoSettingButton.toggleState = Options[LogOverlay.preEvoSetting]
 
 	for _, button in pairs(LogOverlay.TabBarButtons) do
 		if button.textColor == nil then
@@ -463,6 +451,7 @@ function LogOverlay.initialize()
 	end
 
 	LogOverlay.Buttons.CurrentPage:updateText()
+	LogOverlay.Buttons.PreEvoSettingButton.toggleState = Options["Show Pre Evolutions"]
 end
 
 function LogOverlay.parseAndDisplay(logpath)
