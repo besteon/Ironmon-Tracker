@@ -571,9 +571,10 @@ function Utils.calculateWeightBasedDamage(movePower, weight)
 end
 
 -- For Flail & Reversal. Decompiled code scales fraction to 48, which is why its used here.
+-- Note: For randomized move powers, unsure what these two moves get changed to
 function Utils.calculateLowHPBasedDamage(movePower, currentHP, maxHP)
-	-- For randomized move powers, unsure what these two moves get changed to
-	local fractionHP = currentHP * 48 / maxHP
+	 -- Actual game code doesn't use decimals, uses s32
+	local fractionHP = math.floor(currentHP * 48 / maxHP)
 
 	if fractionHP <= 1 then
 		return "200"
