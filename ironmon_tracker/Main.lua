@@ -831,7 +831,7 @@ function Main.LoadSettings()
 			end
 		end
 	end
-	UpdateOrInstall.Dev.enabled = Options["Dev branch updates"] or false
+	UpdateOrInstall.Dev.enabled = (Options["Dev branch updates"] == true)
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then
