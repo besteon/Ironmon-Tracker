@@ -463,8 +463,10 @@ function LogOverlay.parseAndDisplay(logpath)
 		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
+			Program.redraw(true)
+		else
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1) -- Show Bulbasaur by default; implied redraw
 		end
-		Program.redraw(true)
 	else
 		LogOverlay.isDisplayed = false
 	end
