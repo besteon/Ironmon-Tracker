@@ -197,6 +197,7 @@ Theme.Buttons = {
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
 			Theme.Screen.displayingThemeManager = false
+			Drawing.AnimatedPokemon:destroy() -- animated gif spazzes out, temporarily remove it while editing colors
 			Theme.refreshThemePreview() -- also performs a screen redraw
 		end
 	},
@@ -212,6 +213,7 @@ Theme.Buttons = {
 				Program.changeScreenView(NavigationMenu)
 			else
 				Theme.Screen.displayingThemeManager = true
+				Drawing.AnimatedPokemon:create() -- restore the animated gif
 				Theme.refreshThemePreview() -- also performs a screen redraw
 			end
 		end

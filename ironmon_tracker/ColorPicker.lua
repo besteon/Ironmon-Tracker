@@ -144,8 +144,6 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	Drawing.AnimatedPokemon:destroy() -- animated gif spazzes out, temporarily destroy it
-
 	self.mainForm = Utils.createBizhawkForm("Color Picker", self.width, self.height, 0, 0, function() self:onClose() end)
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 	self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)
@@ -179,7 +177,6 @@ function ColorPicker:onClose()
 	Program.changeScreenView(Theme)
 	Input.currentColorPicker = nil
 	forms.destroy(self.mainForm)
-	Drawing.AnimatedPokemon:create()
 	client.unpause()
 end
 
