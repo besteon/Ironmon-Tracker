@@ -28,12 +28,38 @@ ExtrasScreen.OptionKeys = {
 -- Holds all the buttons for the screen
 -- Buttons are created in CreateButtons()
 ExtrasScreen.Buttons = {
+	ViewLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		text = ExtrasScreen.Labels.viewLogFile,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 55, 16 },
+		onClick = function(self)
+			Program.changeScreenView(ViewLogWarningScreen)
+		end,
+	},
+	ViewPreviousLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		text = ExtrasScreen.Labels.viewPreviousLogFile,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
+		onClick = function(self)
+			Utils.tempDisableBizhawkSound()
+			if not LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT) then
+				-- If the log file was already parsed, re-use that
+				if RandomizerLog.Data.Settings ~= nil then
+					LogOverlay.parseAndDisplay()
+				else
+					LogOverlay.openLogFilePrompt()
+				end
+			end
+			Utils.tempEnableBizhawkSound()
+		end
+	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		text = ExtrasScreen.Labels.timeMachineBtn,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16 },
-		-- isVisible = function() return true end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 88, 78, 16 },
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
 			Program.changeScreenView(TimeMachineScreen)
@@ -58,10 +84,11 @@ ExtrasScreen.Buttons = {
 		end
 	},
 }
+
 -- Creates the log view buttons
 -- Buttons are stored in ExtrasScreen.Buttons
-function ExtrasScreen.createLogViewButtons()
-
+function ExtrasScreen.alignViewLogButtons()
+	-- CURRENTLY UNUSED
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
@@ -90,45 +117,14 @@ function ExtrasScreen.createLogViewButtons()
 	viewPrevLogButtonBox[1] = viewLogButtonBox[1] + viewLogButtonBox[3] + Constants.SCREEN.MARGIN
 	viewPrevLogButtonBox[2] = viewLogButtonBox[2]
 
-	local viewLogFile = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		text = ExtrasScreen.Labels.viewLogFile,
-		box = viewLogButtonBox,
-		onClick = function(self)
-			Program.changeScreenView(ViewLogWarningScreen)
-		end,
-	}
-
-	local viewPreviousLogFile = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		text = ExtrasScreen.Labels.viewPreviousLogFile,
-		box = viewPrevLogButtonBox,
-		onClick = function(self)
-			Utils.tempDisableBizhawkSound()
-			if not LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT) then
-				-- If the log file was already parsed, re-use that
-				if RandomizerLog.Data.Settings ~= nil then
-					LogOverlay.parseAndDisplay()
-				else
-					LogOverlay.openLogFilePrompt()
-				end
-			end
-
-			Utils.tempEnableBizhawkSound()
-		end
-	}
-
-	table.insert(ExtrasScreen.Buttons, viewLogFile)
-	table.insert(ExtrasScreen.Buttons, viewPreviousLogFile)
+	ExtrasScreen.Buttons.ViewLogFile.box = viewLogButtonBox
+	ExtrasScreen.Buttons.ViewPreviousLogFile.box = viewPrevLogButtonBox
 end
 
 function ExtrasScreen.initialize()
-	ExtrasScreen.createLogViewButtons()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = ExtrasScreen.Buttons[#ExtrasScreen.Buttons].box[2] +
-	ExtrasScreen.Buttons[#ExtrasScreen.Buttons].box[4] + Constants.SCREEN.MARGIN + 2
+	-- ExtrasScreen.alignViewLogButtons()
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
+	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + Constants.SCREEN.MARGIN + 2
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(ExtrasScreen.OptionKeys) do
