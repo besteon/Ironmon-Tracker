@@ -44,12 +44,12 @@ ViewLogWarningScreen.Buttons = {
 		onClick = function(self)
 			-- Function lifted from GameOverScreen.lua
 			Utils.tempDisableBizhawkSound()
-			if not GameOverScreen.viewLogFile() then
+			if not LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED) then
 				-- If the log file was already parsed, re-use that
 				if RandomizerLog.Data.Settings ~= nil then
 					LogOverlay.parseAndDisplay()
 				else
-					GameOverScreen.openLogFilePrompt()
+					LogOverlay.openLogFilePrompt()
 				end
 			end
 

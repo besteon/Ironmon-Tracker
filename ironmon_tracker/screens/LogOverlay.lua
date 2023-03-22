@@ -33,7 +33,8 @@ LogOverlay = {
 	currentEvoSet = 1, -- Ideally move this somewhere else
 	prevEvosPerSet = 1,
 	evosPerSet = 3, -- Ideally move this somewhere else
-	preEvoSetting = "Show Pre Evolutions"
+	preEvoSetting = "Show Pre Evolutions",
+	isGameOver = false, -- Set to true when game is over, so we known to show game over screen if X is pressed
 }
 
 LogOverlay.Windower = {
@@ -272,7 +273,11 @@ LogOverlay.TabBarButtons = {
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
-				Program.changeScreenView(GameOverScreen)
+				if LogOverlay.isGameOver then
+					Program.changeScreenView(GameOverScreen)
+				else
+					Program.changeScreenView(TrackerScreen)
+				end
 			else -- Constants.PixelImages.PREVIOUS_BUTTON
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.GO_BACK)
 				Program.redraw(true)
@@ -455,6 +460,11 @@ function LogOverlay.initialize()
 end
 
 function LogOverlay.parseAndDisplay(logpath)
+	-- Check for what log we're trying to display, and if it's already been parsed
+	if RandomizerLog.loadedLogPath ~= logpath then
+		RandomizerLog.Data = {}
+		RandomizerLog.loadedLogPath = logpath
+	end
 	-- Check first if data has already been loaded and parsed
 	if RandomizerLog.Data.Settings ~= nil or RandomizerLog.parseLog(logpath) then
 		LogOverlay.isDisplayed = true
@@ -2037,4 +2047,59 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 	end
 
 	return borderColor, shadowcolor
+end
+
+--- Views the log file via the log overlay screen
+--- @param postFix string The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
+--- @return boolean LogOverlay.isDisplayed
+function LogOverlay.viewLogFile(postFix)
+	if postFix == nil then postFix = FileManager.PostFixes.AUTORANDOMIZED end
+	local romname, rompath
+	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
+		-- First make sure the ROMs Folder ends with a slash
+		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
+			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
+		end
+
+		romname = GameSettings.getRomName() or ""
+		rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
+		if not FileManager.fileExists(rompath) then
+			romname = romname:gsub(" ", "_")
+			rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
+		end
+	elseif Options["Generate ROM each time"] then
+		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
+		local quickloadFiles = Main.GetQuickloadFiles()
+		local settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "")
+		romname = string.format("%s %s%s", settingsFileName, postFix, FileManager.Extensions.GBA_ROM)
+		rompath = FileManager.prependDir(romname)
+	end
+
+	local logpath = FileManager.getPathIfExists((rompath or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE)
+	if logpath == nil then
+		return false
+	end
+
+	return LogOverlay.parseAndDisplay(logpath)
+end
+
+--- Prompts user to select a log file to parse, then displays the parsed data on a new left-screen
+--- @return nil
+function LogOverlay.openLogFilePrompt()
+	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE
+	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
+
+	local workingDir = FileManager.dir
+	if workingDir ~= "" then
+		workingDir = workingDir:sub(1, -2) -- remove trailing slash
+	end
+
+	Utils.tempDisableBizhawkSound()
+
+	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
+	if filepath ~= nil and filepath ~= "" then
+		LogOverlay.parseAndDisplay(filepath)
+	end
+
+	Utils.tempEnableBizhawkSound()
 end
