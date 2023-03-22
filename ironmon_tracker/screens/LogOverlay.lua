@@ -275,6 +275,9 @@ LogOverlay.TabBarButtons = {
 				LogOverlay.isDisplayed = false
 				if LogOverlay.isGameOver then
 					Program.changeScreenView(GameOverScreen)
+				elseif not Program.isValidMapLocation() then
+					-- If the game hasn't started yet
+					Program.changeScreenView(StartupScreen)
 				else
 					Program.changeScreenView(TrackerScreen)
 				end
@@ -473,7 +476,7 @@ function LogOverlay.parseAndDisplay(logpath)
 		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
-			Program.redraw(true)
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
 		else
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1) -- Show Bulbasaur by default; implied redraw
 		end
