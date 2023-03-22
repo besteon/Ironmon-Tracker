@@ -143,12 +143,12 @@ GameOverScreen.Buttons = {
 		onClick = function(self)
 			Utils.tempDisableBizhawkSound()
 
-			if not GameOverScreen.viewLogFile() then
+			if not LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED) then
 				-- If the log file was already parsed, re-use that
 				if RandomizerLog.Data.Settings ~= nil then
 					LogOverlay.parseAndDisplay()
 				else
-					GameOverScreen.openLogFilePrompt()
+					LogOverlay.openLogFilePrompt()
 				end
 			end
 
@@ -323,56 +323,7 @@ function GameOverScreen.saveCurrentGameFiles()
 	return true
 end
 
---Attempts to get the Randomizer log filepath based on the currently loaded ROM's filepath (usually both in same folder)
-function GameOverScreen.viewLogFile()
-	local romname, rompath
-	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
-		-- First make sure the ROMs Folder ends with a slash
-		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
-			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
-		end
 
-		romname = GameSettings.getRomName() or ""
-		rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		if not FileManager.fileExists(rompath) then
-			romname = romname:gsub(" ", "_")
-			rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		end
-	elseif Options["Generate ROM each time"] then
-		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
-		local quickloadFiles = Main.GetQuickloadFiles()
-		local settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "")
-		romname = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.AUTORANDOMIZED, FileManager.Extensions.GBA_ROM)
-		rompath = FileManager.prependDir(romname)
-	end
-
-	local logpath = FileManager.getPathIfExists((rompath or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE)
-	if logpath == nil then
-		return false
-	end
-
-	return LogOverlay.parseAndDisplay(logpath)
-end
-
--- Prompts user to select a log file to parse, then displays the parsed data on a new left-screen
-function GameOverScreen.openLogFilePrompt()
-	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE
-	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"
-
-	local workingDir = FileManager.dir
-	if workingDir ~= "" then
-		workingDir = workingDir:sub(1, -2) -- remove trailing slash
-	end
-
-	Utils.tempDisableBizhawkSound()
-
-	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if filepath ~= nil and filepath ~= "" then
-		LogOverlay.parseAndDisplay(filepath)
-	end
-
-	Utils.tempEnableBizhawkSound()
-end
 
 -- USER INPUT FUNCTIONS
 function GameOverScreen.checkInput(xmouse, ymouse)

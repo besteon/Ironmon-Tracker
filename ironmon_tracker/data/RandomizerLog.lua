@@ -1,6 +1,6 @@
 -- A collection of tools for viewing a Randomized Pokémon game log
 RandomizerLog = {
-	currentLog = nil,
+	loadedLogPath = nil, -- Holds the path of the previously loaded log file. This is used to check if a new file needs to be parsed
 }
 
 RandomizerLog.Patterns = {

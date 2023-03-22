@@ -9,8 +9,8 @@ ExtrasScreen = {
 		resultAboveAverage = "Above average!",
 		resultDecent = "Decent.",
 		resultUnavailable = "Estimate is unavailable.",
-        viewLogFile = "View log",
-		viewPreviousLogFile= "Previous log",
+		viewLogFile = "View log",
+		viewPreviousLogFile = "Previous log",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -107,12 +107,12 @@ function ExtrasScreen.createLogViewButtons()
 		box = viewPrevLogButtonBox,
 		onClick = function(self)
 			Utils.tempDisableBizhawkSound()
-			if not ExtrasScreen.viewPreviousLogFile() then
+			if not LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT) then
+				LogOverlay.openLogFilePrompt()
 				-- If the log file was already parsed, re-use that
 				if RandomizerLog.Data.Settings ~= nil then
 					LogOverlay.parseAndDisplay()
 				else
-					GameOverScreen.openLogFilePrompt()
 				end
 			end
 
@@ -231,39 +231,7 @@ function ExtrasScreen.drawScreen()
 	end
 
 	local ivBtn = ExtrasScreen.Buttons.EstimateIVs
-	if ivBtn then
-		Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor],
+	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor],
 		shadowcolor)
-	end
 end
 
-function ExtrasScreen.viewPreviousLogFile()
-	local romname, rompath
-	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil then
-		-- First make sure the ROMs Folder ends with a slash
-		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
-			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
-		end
-
-		romname = GameSettings.getRomName() or ""
-		rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		if not FileManager.fileExists(rompath) then
-			romname = romname:gsub(" ", "_")
-			rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
-		end
-	elseif Options["Generate ROM each time"] then
-		-- Filename of the AutoRandomized ROM is based on the settings file (for cases of playing Kaizo + Survival + Others)
-		local quickloadFiles = Main.GetQuickloadFiles()
-		local settingsFileName = FileManager.extractFileNameFromPath(quickloadFiles.settingsList[1] or "")
-		romname = string.format("%s %s%s", settingsFileName, FileManager.PostFixes.PREVIOUSATTEMPT,
-		FileManager.Extensions.GBA_ROM)
-		rompath = FileManager.prependDir(romname)
-	end
-
-	local logpath = FileManager.getPathIfExists((rompath or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE)
-	if logpath == nil then
-		return false
-	end
-
-	return LogOverlay.parseAndDisplay(logpath)
-end
