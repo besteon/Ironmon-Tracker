@@ -108,7 +108,6 @@ function ExtrasScreen.createLogViewButtons()
 		onClick = function(self)
 			Utils.tempDisableBizhawkSound()
 			if not LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT) then
-				LogOverlay.openLogFilePrompt()
 				-- If the log file was already parsed, re-use that
 				if RandomizerLog.Data.Settings ~= nil then
 					LogOverlay.parseAndDisplay()
