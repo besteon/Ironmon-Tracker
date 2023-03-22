@@ -76,8 +76,10 @@ RandomizerLog.Data = {}
 
 -- Parses the log file at 'filepath' into the data object RandomizerLog.Data
 function RandomizerLog.parseLog(filepath)
+	Utils.tempDisableBizhawkSound()
 	local logLines = FileManager.readLinesFromFile(filepath)
 	if #logLines == 0 then
+		Utils.tempEnableBizhawkSound()
 		return false
 	end
 
@@ -96,6 +98,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parseRandomizerGame(logLines)
 	RandomizerLog.removeMappings()
 
+	Utils.tempEnableBizhawkSound()
 	return true
 end
 
@@ -276,8 +279,6 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 			if helditems ~= nil and helditems ~= "" then
 				pokemonData.HeldItems = RandomizerLog.formatInput(helditems)
 			end
-		else
-			Utils.printDebug(">%s< >%s<", pokemonId, pokemon)
 		end
 		index = index + 1
 	end

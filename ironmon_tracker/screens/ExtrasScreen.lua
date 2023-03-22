@@ -43,16 +43,7 @@ ExtrasScreen.Buttons = {
 		text = ExtrasScreen.Labels.viewPreviousLogFile,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
 		onClick = function(self)
-			Utils.tempDisableBizhawkSound()
-			if not LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT) then
-				-- If the log file was already parsed, re-use that
-				if RandomizerLog.Data.Settings ~= nil then
-					LogOverlay.parseAndDisplay()
-				else
-					LogOverlay.openLogFilePrompt()
-				end
-			end
-			Utils.tempEnableBizhawkSound()
+			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
 		end
 	},
 	TimeMachine = {

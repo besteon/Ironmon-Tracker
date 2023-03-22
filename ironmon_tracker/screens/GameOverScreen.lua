@@ -141,18 +141,7 @@ GameOverScreen.Buttons = {
 			end
 		end,
 		onClick = function(self)
-			Utils.tempDisableBizhawkSound()
-
-			if not LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED) then
-				-- If the log file was already parsed, re-use that
-				if RandomizerLog.Data.Settings ~= nil then
-					LogOverlay.parseAndDisplay()
-				else
-					LogOverlay.openLogFilePrompt()
-				end
-			end
-
-			Utils.tempEnableBizhawkSound()
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
 		end,
 	},
 }
