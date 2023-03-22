@@ -71,8 +71,10 @@ NavigationMenu.Buttons = {
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		updateText = function(self)
 			if Main.isOnLatestVersion() then
+				self.text = "Update"
 				self.textColor = NavigationMenu.textColor
 			else
+				self.text = "Update *"
 				self.textColor = "Positive text"
 			end
 		end,
