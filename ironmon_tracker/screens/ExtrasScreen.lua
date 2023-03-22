@@ -113,6 +113,7 @@ function ExtrasScreen.createLogViewButtons()
 				if RandomizerLog.Data.Settings ~= nil then
 					LogOverlay.parseAndDisplay()
 				else
+					LogOverlay.openLogFilePrompt()
 				end
 			end
 
