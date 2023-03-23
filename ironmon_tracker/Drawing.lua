@@ -463,7 +463,10 @@ function Drawing.setupAnimatedPictureBox()
 	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
+		local property = "BlocksInputWhenFocused"
+		if (forms.getproperty(form, property) or "") ~= "" then
+			forms.setproperty(form, property, true)
+		end
 	end
 
 	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
