@@ -2054,6 +2054,14 @@ function LogOverlay.getLogFileAutodetected(postFix)
 		end
 
 		romname = GameSettings.getRomName() or ""
+		if postFix == FileManager.PostFixes.PREVIOUSATTEMPT then
+			local currentRomPrefix = string.match(romname, '[^0-9]+') or ""
+			local currentRomNumber = string.match(romname, '[0-9]+') or "0"
+			-- Decrement to the previous ROM and determine its full file path
+			local prevRomName = string.format(currentRomPrefix .. "%0" .. string.len(currentRomNumber) .. "d", tonumber(currentRomNumber) - 1)
+			romname = prevRomName
+		end
+
 		rompath = Options.FILES["ROMs Folder"] .. romname .. FileManager.Extensions.GBA_ROM
 		if not FileManager.fileExists(rompath) then
 			romname = romname:gsub(" ", "_")
@@ -2073,13 +2081,14 @@ function LogOverlay.getLogFileAutodetected(postFix)
 			-- strip out any auto appended postfixes
 			filename = filename:gsub(FileManager.PostFixes.AUTORANDOMIZED, "")
 			filename = filename:gsub(FileManager.PostFixes.PREVIOUSATTEMPT, "")
+			filename = filename:gsub("%.gba", "")
 			filename = filename:gsub(" ", "_")
+			filename = filename:gsub("%d", "")
 			return filename:lower()
 		end
 		local loadedRomName = GameSettings.getRomName() or "N/A"
 		loadedRomName = plainFormatter(loadedRomName .. FileManager.Extensions.GBA_ROM)
 		local autodetectedName = plainFormatter(romname or "")
-		Utils.printDebug(">%s< >%s<", loadedRomName, autodetectedName)
 		if loadedRomName ~= autodetectedName then
 			return nil
 		end
