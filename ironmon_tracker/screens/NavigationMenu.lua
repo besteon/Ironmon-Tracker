@@ -174,6 +174,8 @@ NavigationMenu.OrderedMenuList = {
 }
 
 function NavigationMenu.initialize()
+	NavigationMenu.showCredits = false
+
 	local btnWidth = 63
 	local btnHeight = 16
 	local spacer = 6
