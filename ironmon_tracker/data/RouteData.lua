@@ -2617,8 +2617,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[19] = { name = "Route 103",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,261}, rate = 0.60, minLv = 2, maxLv = 4, },
-			{ pokemonID = {261,261,263}, rate = 0.30, minLv = 2, maxLv = 4, },
-			{ pokemonID = 278, rate = 0.10, minLv = 2, maxLv = 4, },
+			{ pokemonID = {261,261,263}, rate = {0.30,0.30,0.20}, minLv = 2, maxLv = 4, },
+			{ pokemonID = 278, rate = {0.10,0.10,0.20}, minLv = 2, maxLv = 4, },
 		},
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
