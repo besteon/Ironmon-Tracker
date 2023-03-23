@@ -391,6 +391,7 @@ function Main.LoadNextRom()
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		Tracker.resetData()
+		RandomizerLog.loadedLogPath = nil
 
 		if Main.IsOnBizhawk() then
 			GameOverScreen.clearTempSaveStates()
