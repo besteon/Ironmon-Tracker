@@ -100,17 +100,22 @@ end
 
 -- Check if we can enter battle (opposingPokemon check required for lab fight), or if a battle has just finished
 function Battle.updateBattleStatus()
+	local numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
+	local firstMonID = Memory.readword(GameSettings.gBattleMons)
+	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
+
+	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
+	if totalBattles <= 0xFFFFFF then -- Prevents bad data read due to address shifts related to battles starting
+		if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
+			Battle.battleStarting = true
+		end
+		Battle.totalBattles = totalBattles
+	end
+
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
-	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) then
-		Battle.battleStarting = true
-	end
-	Battle.totalBattles = totalBattles
-
-	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil then
-		-- Battle.isWildEncounter = Tracker.Data.trainerID == opposingPokemon.trainerID -- NOTE: doesn't work well, temporarily removing
+	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
 	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
@@ -119,6 +124,7 @@ function Battle.updateBattleStatus()
 		if not Battle.isWildEncounter then
 			GameOverScreen.incrementLosses()
 		end
+		LogOverlay.isGameOver = true
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
 		Program.changeScreenView(GameOverScreen)
@@ -380,13 +386,13 @@ function Battle.updateTrackedInfo()
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		if otherLeftPokemon ~= nil then
 			Battle.updateStatStages(otherLeftPokemon, false, true)
-			Battle.checkEnemyEncounter(otherLeftPokemon)
+			Battle.checkEnemyEncounter(otherLeftPokemon, battleFlags)
 		end
 		if Battle.numBattlers == 4 then
 			local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 			if otherRightPokemon ~= nil then
 				Battle.updateStatStages(otherRightPokemon, false, false)
-				Battle.checkEnemyEncounter(otherRightPokemon)
+				Battle.checkEnemyEncounter(otherRightPokemon, battleFlags)
 			end
 		end
 	end
@@ -424,14 +430,14 @@ function Battle.updateStatStages(pokemon, isOwn, isLeft)
 end
 
 -- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
-function Battle.checkEnemyEncounter(opposingPokemon)
+function Battle.checkEnemyEncounter(opposingPokemon, battleFlags)
 	if opposingPokemon.hasBeenEncountered then return end
 
 	opposingPokemon.hasBeenEncountered = true
 	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
 
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
-	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+	battleFlags = battleFlags or Memory.readdword(GameSettings.gBattleTypeFlags)
 
 	Battle.CurrentRoute.encounterArea = RouteData.getEncounterAreaByTerrain(battleTerrain, battleFlags)
 
@@ -577,7 +583,10 @@ function Battle.beginNewBattle()
 	if Battle.inBattle then return end
 
 	GameOverScreen.createTempSaveState()
-	Program.updateBattleEncounterType()
+
+	-- BATTLE_TYPE_TRAINER (1 << 3)
+	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
+	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
 	Program.Frames.battleDataDelay = 60
 

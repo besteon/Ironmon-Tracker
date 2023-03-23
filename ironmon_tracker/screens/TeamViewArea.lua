@@ -22,7 +22,9 @@ TeamViewArea = {
 TeamViewArea.PartyPokemon = {}
 
 function TeamViewArea.initialize()
-	TeamViewArea.refreshDisplayPadding()
+	if TeamViewArea.isDisplayed() then
+		TeamViewArea.refreshDisplayPadding()
+	end
 end
 
 function TeamViewArea.isDisplayed()

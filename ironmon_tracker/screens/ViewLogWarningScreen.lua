@@ -42,18 +42,7 @@ ViewLogWarningScreen.Buttons = {
 		box = { buttonXOffset, buttonYOffset, buttonWidth, buttonHeight },
 		textColor = "Intermediate text",
 		onClick = function(self)
-			-- Function lifted from GameOverScreen.lua
-			Utils.tempDisableBizhawkSound()
-			if not GameOverScreen.viewLogFile() then
-				-- If the log file was already parsed, re-use that
-				if RandomizerLog.Data.Settings ~= nil then
-					LogOverlay.parseAndDisplay()
-				else
-					GameOverScreen.openLogFilePrompt()
-				end
-			end
-
-			Utils.tempEnableBizhawkSound()
+			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
 		end
 	},
 	-- "Back" button, displayed in the bottom right corner of the screen

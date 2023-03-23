@@ -234,7 +234,7 @@ TrackerScreen.Buttons = {
 			if Program.Pedometer.goalSteps ~= 0 and stepCount >= Program.Pedometer.goalSteps then
 				self.textColor = "Positive text"
 			else
-				self.textColor = "Default text"
+				self.textColor = "Lower box text"
 			end
 			local formattedStepCount = Utils.formatNumberWithCommas(stepCount)
 			self.text = string.format("Steps: %s", formattedStepCount)
@@ -550,13 +550,10 @@ end
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if not PokemonData.isValid(pokemonId) then return end
 
-	Program.destroyActiveForm()
-	local noteForm = forms.newform(465, 220, "Leave a Note", function() client.unpause() end)
-	Program.activeFormId = noteForm
-	Utils.setFormLocation(noteForm, 100, 50)
+	local form = Utils.createBizhawkForm("Leave a Note", 465, 220)
 
-	forms.label(noteForm, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
-	local noteTextBox = forms.textbox(noteForm, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
+	forms.label(form, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
+	local noteTextBox = forms.textbox(form, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
 	local abilityList = {}
 	table.insert(abilityList, Constants.BLANKLINE)
@@ -564,12 +561,12 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 
 	local trackedAbilities = Tracker.getAbilities(pokemonId)
 
-	forms.label(noteForm, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
-	local abilityOneDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
+	forms.label(form, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
+	local abilityOneDropdown = forms.dropdown(form, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityOneDropdown, "AutoCompleteMode", "Append")
-	local abilityTwoDropdown = forms.dropdown(noteForm, {["Init"]="Loading Ability2"}, 10, 110, 145, 30)
+	local abilityTwoDropdown = forms.dropdown(form, {["Init"]="Loading Ability2"}, 10, 110, 145, 30)
 	forms.setdropdownitems(abilityTwoDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
@@ -581,7 +578,7 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id].name)
 	end
 
-	forms.button(noteForm, "Save && Close", function()
+	forms.button(form, "Save && Close", function()
 
 		local formInput = forms.gettext(noteTextBox)
 		local abilityOneText = forms.gettext(abilityOneDropdown)
@@ -592,26 +589,23 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		forms.destroy(noteForm)
+		forms.destroy(form)
 		client.unpause()
 		Program.redraw(true)
-		forms.destroy(noteForm)
+		forms.destroy(form)
 	end, 85, 145, 85, 25)
-	forms.button(noteForm, "Clear Abilities", function()
+	forms.button(form, "Clear Abilities", function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
 	end, 180, 145, 105, 25)
-	forms.button(noteForm, "Cancel", function()
+	forms.button(form, "Cancel", function()
 		client.unpause()
-		forms.destroy(noteForm)
+		forms.destroy(form)
 	end, 295, 145, 55, 25)
 end
 
 function TrackerScreen.openEditStepGoalWindow()
-	Program.destroyActiveForm()
-	local form = forms.newform(320, 170, "Choose a Step Goal", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
+	local form = Utils.createBizhawkForm("Choose a Step Goal", 320, 170)
 
 	forms.label(form, "Pedometer will change color when goal is reached.", 26, 10, 300, 20)
 	forms.label(form, "(Set to 0 to turn-off)", 100, 28, 300, 20)
@@ -879,7 +873,7 @@ function TrackerScreen.drawStatsArea(data)
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Battle.inBattle then
 			local statStageIntensity = data.p.stages[statKey] - 6 -- between [0 and 12], convert to [-6 and 6]
-			Drawing.drawChevrons(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3)
+			Drawing.drawChevronsVerticalIntensity(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3,4,2,1,2)
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
@@ -900,8 +894,8 @@ function TrackerScreen.drawStatsArea(data)
 		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, "Eva", Theme.COLORS["Default text"], shadowcolor)
 		local accIntensity = data.p.stages.acc - 6
 		local evaIntensity = data.p.stages.eva - 6
-		Drawing.drawChevrons(statOffsetX + 15, statOffsetY + 5, accIntensity, 3)
-		Drawing.drawChevrons(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3)
+		Drawing.drawChevronsVerticalIntensity(statOffsetX + 15, statOffsetY + 5, accIntensity, 3,4,2,1,2)
+		Drawing.drawChevronsVerticalIntensity(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3,4,2,1,2)
 	else
 		Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawNumber(statOffsetX + 25, statOffsetY, data.p.bst, 3, Theme.COLORS["Default text"], shadowcolor)

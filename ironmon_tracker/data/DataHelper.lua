@@ -223,8 +223,12 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		move.starred = stars[i] ~= nil and stars[i] ~= ""
 
 		-- Update: Specific Moves
-		if move.id == 237 and data.x.viewingOwn then -- 237 = Hidden Power
-			move.type = Tracker.getHiddenPowerType()
+		if move.id == 237 then -- 237 = Hidden Power
+			if data.x.viewingOwn then
+				move.type = Tracker.getHiddenPowerType()
+			else
+				move.type = MoveData.HiddenPowerTypeList[1] -- Unknown type
+			end
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
 			if move.id == 311 then -- 311 = Weather Ball
@@ -533,7 +537,6 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.p = {} -- data about the Pokemon itself
 	data.x = {} -- misc data to display, such as notes
 
-	-- TODO: (Types, Abilities, etc) need to be read-in from the log in case its not the current game being viewed
 	local pokemonDex
 	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
 		pokemonDex = PokemonData.BlankPokemon
@@ -544,20 +547,19 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
 	data.p.id = pokemonDex.pokemonID or 0
-	data.p.name = pokemonDex.name or Constants.BLANKLINE
+	data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
 	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
-	data.p.types = { pokemonDex.types[1], pokemonDex.types[2] }
+	data.p.types = {
+		pokemonLog.Types[1],
+		pokemonLog.Types[2],
+	}
 	data.p.abilities = {
-		PokemonData.getAbilityId(pokemonDex.pokemonID, 0),
-		PokemonData.getAbilityId(pokemonDex.pokemonID, 1),
+		pokemonLog.Abilities[1],
+		pokemonLog.Abilities[2],
 	}
 
 	-- The following are all Randomizer Log information
-	if pokemonLog.BaseStats ~= nil then
-		data.p.helditems = pokemonLog.BaseStats.helditems or Constants.BLANKLINE -- unsure how this is formatted
-	else
-		data.p.helditems = Constants.BLANKLINE
-	end
+	data.p.helditems = pokemonLog.HeldItems or Constants.BLANKLINE -- unsure how this is formatted
 
 	-- The Pokemon's randomized base stats
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
@@ -578,16 +580,32 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		table.insert(data.p.evos, evoInfo)
 	end
 
+	-- Pre-evolutions
+	data.p.prevos = {}
+	for _, prevoId in ipairs(pokemonLog.PreEvolutions or {}) do
+		local prevoInfo = {
+			id = prevoId,
+			name = PokemonData.Pokemon[prevoId].name,
+		}
+		table.insert(data.p.prevos, prevoInfo)
+	end
+
+
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
 	for _, move in ipairs(pokemonLog.MoveSet or {}) do
-		local moveDex = MoveData.Moves[move.moveId]
 		local moveInfo = {
 			id = move.moveId,
 			level = move.level,
-			name = moveDex.name,
-			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
+		local moveDex = MoveData.Moves[move.moveId]
+		if moveDex ~= nil then
+			moveInfo.name = moveDex.name
+			moveInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		else
+			moveInfo.name = move.name or Constants.BLANKLINE
+			moveInfo.isstab = false
+		end
 		table.insert(data.p.moves, moveInfo)
 	end
 
@@ -600,15 +618,20 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
 	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
-		local moveId = RandomizerLog.Data.TMs[tmNumber] or 0
-		local moveDex = MoveData.Moves[moveId]
+		local tm = RandomizerLog.Data.TMs[tmNumber]
 		local tmInfo = {
 			tm = tmNumber,
-			moveId = moveId,
-			moveName = MoveData.Moves[moveId].name,
+			moveId = tm.moveId,
 			gymNum = gymTMs[tmNumber] or 9,
-			isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types),
 		}
+		local moveDex = MoveData.Moves[tm.moveId]
+		if moveDex ~= nil then
+			tmInfo.moveName = moveDex.name
+			tmInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		else
+			tmInfo.moveName = tm.name or Constants.BLANKLINE
+			tmInfo.isstab = false
+		end
 		table.insert(data.p.tmmoves, tmInfo)
 	end
 
@@ -640,11 +663,12 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	for _, partyMon in ipairs(trainer.party or {}) do
 		local pokemonInfo = {
 			id = partyMon.pokemonID or 0,
-			name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE,
+			name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or Constants.BLANKLINE,
 			level = partyMon.level or 0,
 			moves = {},
 			helditem = partyMon.helditem,
 		}
+
 		local movesLeftToAdd = 4
 		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}
 		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
@@ -652,8 +676,13 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 			if pokemonMoves[j].level <= partyMon.level then
 				local moveToAdd = {
 					moveId = pokemonMoves[j].moveId,
-					name = MoveData.Moves[pokemonMoves[j].moveId].name,
 				}
+				local moveDex = MoveData.Moves[pokemonMoves[j].moveId]
+				if moveDex ~= nil then
+					moveToAdd.name = moveDex.name
+				else
+					moveToAdd.name = pokemonMoves[j].name or Constants.BLANKLINE
+				end
 				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
 				movesLeftToAdd = movesLeftToAdd - 1
 				if movesLeftToAdd <= 0 then

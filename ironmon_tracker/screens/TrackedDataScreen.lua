@@ -79,10 +79,7 @@ function TrackedDataScreen.initialize()
 end
 
 function TrackedDataScreen.openSaveDataPrompt()
-	Program.destroyActiveForm()
-	local form = forms.newform(290, 130, "Save Tracker Data", function() client.unpause() end)
-	Program.activeFormId = form
-	Utils.setFormLocation(form, 100, 50)
+	local form = Utils.createBizhawkForm("Save Tracker Data", 290, 130)
 
 	local suggestedFileName = GameSettings.getRomName() or ""
 
