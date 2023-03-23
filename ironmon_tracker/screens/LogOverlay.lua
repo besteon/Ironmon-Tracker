@@ -436,6 +436,11 @@ LogOverlay.NavFilters = {
 }
 
 function LogOverlay.initialize()
+	LogOverlay.currentTab = nil
+	LogOverlay.isDisplayed = false
+	LogOverlay.isGameOver = false
+	LogOverlay.currentTab = nil
+
 	LogOverlay.TabHistory = {}
 
 	LogOverlay.Buttons.PreEvoSettingButton.toggleState = Options[LogOverlay.preEvoSetting]

@@ -1,7 +1,5 @@
 -- A collection of tools for viewing a Randomized Pokémon game log
-RandomizerLog = {
-	loadedLogPath = nil, -- Holds the path of the previously loaded log file. This is used to check if a new file needs to be parsed
-}
+RandomizerLog = {}
 
 RandomizerLog.Patterns = {
 	RandomizerVersion = "Randomizer Version:%s*([%d%.]+).*$", -- Note: log file line 1 does NOT start with "Rando..."
@@ -71,8 +69,13 @@ RandomizerLog.Sectors = {
 	},
 }
 
--- A table of parsed data from the log file: Settings, Pokemon, TMs, Trainers, PickupItems
-RandomizerLog.Data = {}
+function RandomizerLog.initialize()
+	-- Holds the path of the previously loaded log file. This is used to check if a new file needs to be parsed
+	RandomizerLog.loadedLogPath = nil
+
+	-- A table of parsed data from the log file: Settings, Pokemon, TMs, Trainers, PickupItems
+	RandomizerLog.Data = {}
+end
 
 -- Parses the log file at 'filepath' into the data object RandomizerLog.Data
 function RandomizerLog.parseLog(filepath)
@@ -83,7 +86,7 @@ function RandomizerLog.parseLog(filepath)
 		return false
 	end
 
-	RandomizerLog.resetData()
+	RandomizerLog.initBlankData()
 	RandomizerLog.locateSectorLineStarts(logLines)
 
 	RandomizerLog.setupMappings()
@@ -132,7 +135,7 @@ function RandomizerLog.alternateNidorans(name)
 end
 
 -- Clears out the parsed data and initializes it for each valid PokemonId
-function RandomizerLog.resetData()
+function RandomizerLog.initBlankData()
 	RandomizerLog.Data = {
 		Settings = {},
 		Pokemon = {},

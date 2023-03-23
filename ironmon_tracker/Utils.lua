@@ -233,7 +233,10 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	Program.activeFormId = form
 	Utils.setFormLocation(form, x, y)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", blockInput)
+		local property = "BlocksInputWhenFocused"
+		if (forms.getproperty(form, property) or "") ~= "" then
+			forms.setproperty(form, property, blockInput)
+		end
 	end
 
 	return form

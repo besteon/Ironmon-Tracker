@@ -5,7 +5,10 @@ function Debug.createEditPokeForm()
 	forms.setproperty(form, "MinimizeBox", false)
 	forms.setproperty(form, "MaximizeBox", false)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
-		forms.setproperty(form, "BlocksInputWhenFocused", true)
+		local property = "BlocksInputWhenFocused"
+		if (forms.getproperty(form, property) or "") ~= "" then
+			forms.setproperty(form, property, true)
+		end
 	end
 
 	local y = 10

@@ -150,6 +150,7 @@ function GameOverScreen.initialize()
 	GameOverScreen.isDisplayed = false -- Prevents repeated changing screens due to BattleOutcome persisting
 	GameOverScreen.trainerBattlesLost = 0 -- Total battles counts wins & losses, use this to show wins only
 	GameOverScreen.battleStartSaveState = nil -- Creates a temporary save state in memory, for restarting a battle
+	GameOverScreen.enteredFromSpecialLocation = false
 
 	for _, button in pairs(GameOverScreen.Buttons) do
 		button.textColor = "Lower box text"
