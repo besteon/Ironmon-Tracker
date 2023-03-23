@@ -425,9 +425,10 @@ function TrackerScreen.buildCarousel()
 			local lastAttackMsg
 			-- Currently this only records last move used for damaging moves
 			if MoveData.isValid(Battle.lastEnemyMoveId) then
-				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId]
+				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId] or MoveData.BlankMove
 				if Battle.damageReceived > 0 then
-					lastAttackMsg = string.format("%s: %d damage", moveInfo.name, math.floor(Battle.damageReceived))
+					local damageLabel = Utils.inlineIf(Battle.numBattlers > 2, "Total received", moveInfo.name)
+					lastAttackMsg = string.format("%s: %d damage", damageLabel, math.floor(Battle.damageReceived))
 					local ownPokemon = Battle.getViewedPokemon(true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
 						-- Warn user that the damage taken is potentially lethal
