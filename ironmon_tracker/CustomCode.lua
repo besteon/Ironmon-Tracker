@@ -25,12 +25,15 @@ function CustomCode.isEnabled()
 end
 
 function CustomCode.initialize()
+	CustomCode.KnownErrors = {}
+	CustomCode.EnabledExtensions = {}
+
 	local filesLoaded = {
 		successful = {},
 		failed = {},
 	}
 
-	CustomCode.EnabledExtensions = {}
+	-- Known extensions are loaded during Main.LoadSettings()
 	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
 		local loadedExtension = CustomCode.loadExtension(extensionKey)
 		if loadedExtension ~= nil then
