@@ -35,7 +35,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 92, 9, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 93, 21, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self) InfoScreen.openPokemonInfoWindow() end
@@ -44,7 +44,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 99, 23, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 100, 31, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self) InfoScreen.showNextPokemon() end
@@ -53,7 +53,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 85, 23, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + 87, 31, 10, 10, },
 		boxColors = { "Upper box border", "Upper box background" },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self) InfoScreen.showNextPokemon(-1) end
@@ -191,7 +191,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 116, Constants.SCREEN.MARGIN + 31, 10, 10 },
+		box = { Constants.SCREEN.WIDTH + 113, Constants.SCREEN.MARGIN + 40, 10, 10 },
 		isVisible = function()
 			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
@@ -224,7 +224,7 @@ InfoScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 129, Constants.SCREEN.MARGIN + 31, 10, 10 },
+		box = { Constants.SCREEN.WIDTH + 130, Constants.SCREEN.MARGIN + 40, 10, 10 },
 		isVisible = function() return InfoScreen.Buttons.HiddenPowerPrev:isVisible() end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
@@ -600,10 +600,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = data.p.name:upper()
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(offsetX + 1 - 1, offsetY + 1, pokemonName, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(offsetX - 1, offsetY, pokemonName, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawHeader(offsetX - 1, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow, 15)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -618,7 +615,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if data.p.types[2] ~= data.p.types[1] then
 		Drawing.drawTypeIcon(data.p.types[2], offsetX + 106, offsetY + 49)
 	end
-	offsetY = offsetY + 11 + linespacing
+	offsetY = offsetY + 12 + linespacing
 
 	-- BST
 	Drawing.drawText(offsetX, offsetY, "BST:", Theme.COLORS["Default text"], boxInfoTopShadow)
@@ -775,21 +772,19 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- MOVE NAME
 	data.m.name = data.m.name:upper()
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(offsetX + 1 - 1, offsetY + 1 - 3, data.m.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(offsetX - 1, offsetY - 3, data.m.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawHeader(offsetX - 1, offsetY - 4, data.m.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
-	if data.x.ownHasHiddenPower then
-		Drawing.drawText(offsetX + 103, offsetY + linespacing * 2 - 4, "Set type", Theme.COLORS["Positive text"], boxInfoTopShadow)
-	end
 
 	-- TYPE ICON
-	offsetY = offsetY + 1
+	offsetY = offsetY + linespacing + 4
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	Drawing.drawTypeIcon(data.m.type, offsetX + 106, offsetY + 1)
-	offsetY = offsetY + linespacing
+	offsetY = offsetY - 2
+
+	if data.x.ownHasHiddenPower then
+		Drawing.drawText(offsetX + 103, offsetY + linespacing * 2 - 6, "Set type", Theme.COLORS["Positive text"], boxInfoTopShadow)
+	end
 
 	-- CATEGORY
 	if data.m.category == MoveData.Categories.PHYSICAL then
@@ -886,10 +881,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- Ability NAME
 	data.a.name = data.a.name:upper():gsub(" ", "  ")
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(offsetX - 1 + 1, offsetY + 1 - 3, data.a.name, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawHeader(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.LookupAbility
