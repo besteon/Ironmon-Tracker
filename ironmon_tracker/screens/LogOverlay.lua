@@ -158,6 +158,7 @@ LogOverlay.TabBarButtons = {
 			if LogOverlay.currentTab ~= self.tab then
 				LogOverlay.realignPokemonGrid()
 				LogOverlay.Windower:changeTab(self.tab)
+				Program.changeScreenView(LogSearchScreen)
 				Program.redraw(true)
 			end
 		end,
