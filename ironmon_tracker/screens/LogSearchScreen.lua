@@ -14,41 +14,27 @@ LogSearchScreen = {
 	screenMargin = 2,
 	name = "LogSearchScreen",
 	Buttons = {},
+	SortingFunctions = {
+		alphabetical = function(a, b) return a.pokemonName < b.pokemonName end
+	},
+	maxLetters = 10,
 }
 
-LogSearchScreen.Buttons = {
-	SearchText = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = LogSearchScreen.searchText,
-		box = {
-			LogSearchScreen.topBox.x + LogSearchScreen.screenMargin,
-			LogSearchScreen.topBox.y + LogSearchScreen.screenMargin,
-			LogSearchScreen.topBox.width - (LogSearchScreen.screenMargin * 2),
-			11,
-		},
-		boxColors = { LogSearchScreen.Colors.border, LogSearchScreen.Colors.boxFill },
-		textColor = LogSearchScreen.Colors.text,
-		onClick = function(self)
-			print("Click!")
-		end,
-	},
-}
 --- Initializes the LogSearchScreen
 --- @return nil
 function LogSearchScreen.initialize()
+	LogSearchScreen.createButtons()
+end
+
+function LogSearchScreen.createButtons()
 	local keyboardSize = {
-		width = LogSearchScreen.topBox.width - (LogSearchScreen.screenMargin * 2),
-		height = nil, -- Nil to have the keyboard auto size and have square keys
-	}
-	local keyboardPosition = {
-		-- Center the keyboard horizontally
-		x = LogSearchScreen.topBox.x + (LogSearchScreen.topBox.width / 2) - (keyboardSize.width / 2),
-		y = LogSearchScreen.Buttons.SearchText.box[2] + LogSearchScreen.Buttons.SearchText.box[4] + 1,
+		width = LogSearchScreen.topBox.width,
+		height = 50, -- Nil to have the keyboard auto size and have square keys
 	}
 
 	LogSearchScreen.keyboardBox = {
-		x = keyboardPosition.x,
-		y = keyboardPosition.y,
+		x = LogSearchScreen.topBox.x + (LogSearchScreen.topBox.width / 2) - (keyboardSize.width / 2),
+		y = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - keyboardSize.height,
 		width = keyboardSize.width,
 		height = keyboardSize.height,
 	}
@@ -57,8 +43,46 @@ function LogSearchScreen.initialize()
 		LogSearchScreen.keyboardBox.x,
 		LogSearchScreen.keyboardBox.y,
 		LogSearchScreen.keyboardBox.width,
-		LogSearchScreen.keyboardBox.height
+		LogSearchScreen.keyboardBox.height,
+		0,
+		0,
+		2
 	)
+
+	LogSearchScreen.Buttons.SearchText = {
+		maxLetters = 10,
+		letterSize = 7,
+		type = Constants.ButtonTypes.FULL_BORDER,
+		searchText = {},
+		box = {
+			LogSearchScreen.topBox.x + LogSearchScreen.screenMargin * 4,
+			LogSearchScreen.topBox.y + LogSearchScreen.screenMargin,
+			LogSearchScreen.topBox.width - (LogSearchScreen.screenMargin * 6),
+			13,
+		},
+		boxColors = { LogSearchScreen.Colors.border, LogSearchScreen.Colors.boxFill },
+		textColor = LogSearchScreen.Colors.text,
+		draw = function(self)
+			-- Split searchText into an array of characters
+			for i = 1, #LogSearchScreen.searchText do
+				self.searchText[i] = LogSearchScreen.searchText:sub(i, i)
+			end
+
+			-- Custom draw function to draw the text
+			-- Draw horizontal lines equal to maxLetters to indicate the max length of the text
+			for i = 1, self.maxLetters do
+				local x = self.box[1] + (i - 1) * (self.letterSize + 3) + 2
+				local y = self.box[2] + self.box[4] - 2
+				if i <= #self.searchText then
+					y = y - self.letterSize - 3
+					Drawing.drawText(x, y, self.searchText[i], Theme.COLORS[self.textColor])
+				else
+					local lineColor = Theme.COLORS[LogSearchScreen.Colors.text]
+					gui.drawLine(x, y, x + self.letterSize, y, lineColor)
+				end
+			end
+		end,
+	}
 end
 
 --- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.Buttons
@@ -79,81 +103,70 @@ function LogSearchScreen.buildKeyboardButtons(
 	keyPaddingY,
 	keyboardPadding
 )
-	local keyWidth = 0
-	local keyHeight = 0
-	--- @type table <string,table <string,any>>
-	local keyboard = {}
-	local keyRows = {
-		{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" },
-		{ "a", "s", "d", "f", "g", "h", "j", "k", "l" },
-		{ "z", "x", "c", "v", "b", "n", "m" },
+	-- Set default values for parameters
+	local keyboardX, keyboardY, keyPaddingX, keyPaddingY, keyboardPadding =
+		keyboardX or 0, keyboardY or 0, (keyPaddingX or 1) * 2, (keyPaddingY or 1) * 2, (keyboardPadding or 1) * 2
+
+	-- Define keyboard layout
+	local keyboardLayout = {}
+
+	-- Define keys per row
+	local keysPerRow = {
+		{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" },
+		{ "A", "S", "D", "F", "G", "H", "J", "K", "L" },
+		{ "Z", "X", "C", "V", "B", "N", "M" },
 	}
 
-	-- Default values for parameters
-	keyboardX = keyboardX or 0
-	keyboardY = keyboardY or 0
-
-	keyPaddingX = keyPaddingX or 1
-	keyPaddingY = keyPaddingY or 1
-	keyboardPadding = keyboardPadding or 1
-
-	keyPaddingX = keyPaddingX * 2
-	keyPaddingY = keyPaddingY * 2
-
-	keyboardPadding = keyboardPadding * 2
-
+	-- Calculate key and keyboard dimensions
 	keyboardWidth = keyboardWidth or 150
-	keyboardHeight = keyboardHeight or
-		(((keyboardWidth / #keyRows[1]) * #keyRows) + (keyPaddingY * (#keyRows - 1))) -- Calculate the height to fit all keys with uniform height/width
 
-	keyWidth = keyWidth or 20
-	keyHeight = keyHeight or 20
+	-- Calculate key size to fit within the keyboard with padding between keys and the keyboard border
+	local keyWidth =
+		math.floor((keyboardWidth - (keyPaddingX * (#keysPerRow[1] - 1) + keyboardPadding * 2)) / #keysPerRow[1])
 
-	-- The area that the keys can be drawn in, this is smaller than the keyboard box to allow for padding
-	local keyboardKeyArea = {
-		x = keyboardX + keyboardPadding / 2,
-		y = keyboardY + keyboardPadding / 2,
-		width = keyboardWidth - keyboardPadding,
-		height = keyboardHeight - keyboardPadding,
-	}
+	-- Calculate keyboard height to fit all keys with uniform height
+	keyboardHeight = keyboardHeight or (keyPaddingY * (#keysPerRow - 1) + keyboardPadding * 2 + keyWidth * #keysPerRow)
 
-	-- Integer height and width for the keys to fit in the keyboard box with the padding
-	keyWidth = math.floor((keyboardKeyArea.width - (keyPaddingX * (#keyRows[1] - 1))) / #keyRows[1])
-	keyHeight = math.floor((keyboardKeyArea.height - (keyPaddingY * (#keyRows - 1))) / #keyRows)
+	-- Calculate key height to fit within the keyboard with padding between keys and the keyboard border
+	local keyHeight =
+		math.floor((keyboardHeight - (keyPaddingY * (#keysPerRow - 1) + keyboardPadding * 2)) / #keysPerRow)
 
 	-- Update the keyboard box in global scope to the actual size of the keyboard
 	LogSearchScreen.keyboardBox.width, LogSearchScreen.keyboardBox.height = keyboardWidth, keyboardHeight
 
-	-- Calculate the x and y position of the first key
-	-- Center the keys horizontally and vertically
+	local keyRowX = keyboardX
+		+ math.floor((keyboardWidth - (keyWidth * #keysPerRow[1] + keyPaddingX * (#keysPerRow[1] - 1))) / 2)
+	local keyRowY = keyboardY
+		+ math.floor((keyboardHeight - (keyHeight * #keysPerRow + keyPaddingY * (#keysPerRow - 1))) / 2)
 
-	local keyRowXOffset =
-		math.floor((keyboardWidth - ((keyWidth * #keyRows[1]) + (keyPaddingX * (#keyRows[1] - 1)))) / 2)
-	local keyRowYOffset = math.floor((keyboardHeight - ((keyHeight * #keyRows) + (keyPaddingY * (#keyRows - 1)))) / 2)
-
-	local keyRowX = keyboardX + keyRowXOffset
-	local keyRowY = keyboardY + keyRowYOffset
-	for index, keyRow in ipairs(keyRows) do
+	for index, keyRow in ipairs(keysPerRow) do
 		local rowOffset = math.floor((index - 1) * (0.5 * keyWidth) + 0.5)
-		keyRowX = keyboardX + keyRowXOffset + rowOffset
+		local keyX = keyRowX + rowOffset
 		for _, key in ipairs(keyRow) do
 			local button = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				text = key,
-				box = { keyRowX, keyRowY, keyWidth, keyHeight },
+				box = { keyX, keyRowY, keyWidth, keyHeight },
 				boxColors = { "Lower box border", "Lower box background" },
 				textColor = "Lower box text",
 				onClick = function(self)
-					LogSearchScreen.searchText = LogSearchScreen.searchText .. self.text
+					-- Append the text of the button to the search text if the search text is not full
+					if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
+						LogSearchScreen.searchText = LogSearchScreen.searchText .. self.text
+					end
+					print("Search text: " .. LogSearchScreen.searchText)
+					LogOverlay.realignPokemonGrid(LogSearchScreen.searchText, LogSearchScreen.SortingFunctions.alphabetical)
+					LogOverlay.refreshInnerButtons()
+					Program.redraw(true)
 				end,
 			}
-			keyboard[key] = button
-			keyRowX = keyRowX + keyWidth + keyPaddingX
+			keyboardLayout[key] = button
+			keyX = keyX + keyWidth + keyPaddingX
 		end
 		keyRowY = keyRowY + keyHeight + keyPaddingY
 	end
 
-	return keyboard
+	return keyboardLayout
 end
 
 function LogSearchScreen.checkInput(xmouse, ymouse)
@@ -194,8 +207,12 @@ function LogSearchScreen.drawScreen()
 		if name ~= "Keyboard" then
 			Drawing.drawButton(button, shadowcolor)
 		else
+			local keyShadowColor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 			for letter, key in pairs(button) do
-				Drawing.drawButton(key, shadowcolor)
+				Drawing.drawButton(
+					key
+				--, keyShadowColor
+				)
 			end
 		end
 	end

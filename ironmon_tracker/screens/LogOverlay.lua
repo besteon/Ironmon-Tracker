@@ -486,7 +486,7 @@ function LogOverlay.buildPagedButtons()
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
 				includeInGrid = function(self)
-					return LogOverlay.Windower.filterGrid == "#" or LogOverlay.Windower.filterGrid == self.pokemonName:sub(1,1)
+					return LogOverlay.Windower.filterGrid == "#" or LogOverlay.Windower.filterGrid:lower() == self.pokemonName:sub(1,#LogOverlay.Windower.filterGrid):lower()
 				end,
 				getIconPath = function(self)
 					local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
@@ -739,25 +739,6 @@ function LogOverlay.buildPagedButtons()
 		table.insert(LogOverlay.Buttons, filterBtn)
 		navOffsetX = navOffsetX + labelWidth + 9
 	end
-
-		-- Search bar
-	-- TODO FIX everything
-	-- Checkboxes to filter what to search by
-	-- Possibly multiple search boxes to search by multiple things
-	-- Search by name, type, move, etc.
-
-	-- Also add sort options
-	local searchBox = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		text = "",
-		textColor = "Default text",
-		tab = LogOverlay.Tabs.POKEMON,
-		box = { navOffsetX + 1, navStartY, 100, 11 },
-		isVisible = function(self)
-			return LogOverlay.currentTab == self.tab
-		end,
-	}
-	table.insert(LogOverlay.Buttons, searchBox)
 
 	-- Sort and build out the permanent gym buttons
 	LogOverlay.buildTMGymButtons()
