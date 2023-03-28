@@ -123,6 +123,9 @@ function CustomCode.enableExtension(extensionKey)
 		return
 	end
 
+	-- Add the extension to the EnabledExtensions list, allowing its functions to integrate into the Tracker
+	table.insert(CustomCode.EnabledExtensions, extension)
+
 	-- Enable and startup the extension
 	if not extension.isEnabled then
 		extension.isEnabled = true
@@ -130,9 +133,6 @@ function CustomCode.enableExtension(extensionKey)
 			extension.selfObject.startup()
 		end
 	end
-
-	-- Add the extension to the EnabledExtensions list, allowing its functions to integrate into the Tracker
-	table.insert(CustomCode.EnabledExtensions, extension)
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
