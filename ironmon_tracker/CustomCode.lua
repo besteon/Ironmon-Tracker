@@ -37,7 +37,13 @@ function CustomCode.initialize()
 	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
 		local loadedExtension = CustomCode.loadExtension(extensionKey)
 		if loadedExtension ~= nil then
-			if loadedExtension.isEnabled and loadedExtension.selfObject ~= nil then
+			-- If already enabled by user Settings.ini, enable it and call startup
+			if loadedExtension.isEnabled then
+				CustomCode.enableExtension(extensionKey)
+			end
+
+			-- An extension is successfully loaded if its 'selfObject' contains its properties and functions
+			if loadedExtension.selfObject ~= nil then
 				local extensionName = loadedExtension.selfObject.name or extensionKey
 				table.insert(filesLoaded.successful, extensionName)
 			end
@@ -58,7 +64,7 @@ function CustomCode.initialize()
 	-- end
 end
 
--- Loads a single extension based on its key (filename) and returns it; if load fails, returns nil
+-- Loads a single extension based on its key (filename) and returns it. Doesn't enable it by default
 function CustomCode.loadExtension(extensionKey)
 	if extensionKey == nil or extensionKey == "" then
 		return nil
@@ -100,11 +106,6 @@ function CustomCode.loadExtension(extensionKey)
 	loadedExtension.isEnabled = loadedExtension.isEnabled or false
 	loadedExtension.isLoaded = true
 	loadedExtension.selfObject = selfObject
-
-	-- If already enabled by user Settings.ini, enable it and call startup
-	if loadedExtension.isEnabled then
-		CustomCode.enableExtension(extensionKey)
-	end
 
 	return loadedExtension
 end
