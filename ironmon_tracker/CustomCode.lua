@@ -210,30 +210,32 @@ function CustomCode.execFunctions(funcLabel, ...)
 		if type(functToExec) == "function" then
 			local params = ...
 			local funcWithParams = function() functToExec(params) end
-			CustomCode.tryExecute(funcLabel, funcWithParams)
+			CustomCode.tryExecute(ext.selfObject.name, funcLabel, funcWithParams)
 		end
 	end
 end
 
-function CustomCode.tryExecute(functionLabel, functToExec)
+function CustomCode.tryExecute(extensionKey, functionLabel, functToExec)
+	CustomCode.extBeingExecuted = extensionKey
 	CustomCode.funcBeingExecuted = functionLabel
 	local result = xpcall(functToExec, CustomCode.logError)
+	CustomCode.extBeingExecuted = nil
 	CustomCode.funcBeingExecuted = nil
 	return result
 end
 
 function CustomCode.logError(err)
-	local errorAsString = tostring(err)
-	local errorLabel
-	if CustomCode.funcBeingExecuted ~= nil then
-		errorLabel = string.format("[ERROR:%s] %s", CustomCode.funcBeingExecuted, errorAsString)
+	err = tostring(err)
+	local errorMessage
+	if CustomCode.extBeingExecuted ~= nil or CustomCode.funcBeingExecuted ~= nil then
+		errorMessage = string.format("[%s:%s] %s", CustomCode.extBeingExecuted or "", CustomCode.funcBeingExecuted or "", err)
 	else
-		errorLabel = string.format("[ERROR] %s", errorAsString)
+		errorMessage = string.format("[ERROR] %s", err)
 	end
 
-	if not CustomCode.KnownErrors[errorLabel] then
-		CustomCode.KnownErrors[errorLabel] = true
-		print(errorLabel)
+	if not CustomCode.KnownErrors[errorMessage] then
+		CustomCode.KnownErrors[errorMessage] = true
+		FileManager.logError(errorMessage)
 	end
 end
 
