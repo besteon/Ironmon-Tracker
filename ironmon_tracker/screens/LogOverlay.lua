@@ -282,7 +282,10 @@ LogOverlay.TabBarButtons = {
 				else
 					Program.changeScreenView(TrackerScreen)
 				end
-			else -- Constants.PixelImages.PREVIOUS_BUTTON
+            else -- Constants.PixelImages.PREVIOUS_BUTTON
+				if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM then
+					Program.changeScreenView(LogSearchScreen)
+				end
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.GO_BACK)
 				Program.redraw(true)
 			end
@@ -486,7 +489,14 @@ function LogOverlay.buildPagedButtons()
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
 				includeInGrid = function(self)
-					return LogOverlay.Windower.filterGrid == "#" or LogOverlay.Windower.filterGrid:lower() == self.pokemonName:sub(1,#LogOverlay.Windower.filterGrid):lower()
+                    return
+                        LogOverlay.Windower.filterGrid == "#"
+                        or LogOverlay.Windower.filterGrid:lower() ==
+                        self.pokemonName:sub(1, #LogOverlay.Windower.filterGrid):lower()
+					or -- Check whole word for matches, not just the start
+					(
+						self.pokemonName:lower():find(LogOverlay.Windower.filterGrid:lower())
+					)
 				end,
 				getIconPath = function(self)
 					local iconset = Options.IconSetMap[Options["Pokemon icon set"]]

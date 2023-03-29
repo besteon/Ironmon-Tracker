@@ -32,7 +32,9 @@ Constants.ButtonTypes = {
 	STAT_STAGE = 8,
 	CIRCLE = 9,
 	ICON_BORDER = 10,
-	CHEVRON = 11,
+    CHEVRON = 11,
+    KEYBOARD_KEY = 12,
+	PIXELIMAGE_BORDER = 13,
 }
 
 Constants.STAT_STATES = {

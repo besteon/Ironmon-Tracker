@@ -327,8 +327,31 @@ function Drawing.drawButton(button, shadowcolor)
 			end
 			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end
-	end
+	elseif button.type == Constants.ButtonTypes.KEYBOARD_KEY then
+		-- Draw border
+		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
+		-- Draw text
 
+		Drawing.drawText(x, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
+	elseif button.type == Constants.ButtonTypes.PIXELIMAGE_BORDER then
+		-- Draw border
+        gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
+		if button.padding ~= nil then
+			x = x + button.padding
+			y = y + button.padding
+		end
+		-- Draw image
+		if button.image ~= nil then
+			local iconColors = {}
+			for _, pixelColor in ipairs(button.iconColors or {}) do
+				table.insert(iconColors, Theme.COLORS[pixelColor])
+			end
+			if #iconColors == 0 then -- default to using the same text color
+				table.insert(iconColors, Theme.COLORS[button.textColor])
+			end
+			Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
+		end
+	end
 	-- Draw anything extra that the button defines
 	if button.draw ~= nil then
 		button:draw(shadowcolor)
