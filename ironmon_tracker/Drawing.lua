@@ -236,18 +236,30 @@ function Drawing.drawButton(button, shadowcolor)
 		fillcolor = Theme.COLORS["Upper box background"]
 	end
 
+	local shadowcolorInner = shadowcolor
+	if type(shadowcolor) == "table" then
+		shadowcolorInner = shadowcolor[2]
+		shadowcolor = shadowcolor[1]
+	end
+
 	-- First draw a box if
-	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
-		-- Draw the box's shadow and the box border
-		if shadowcolor ~= nil then
-			gui.drawRectangle(x + 1, y + 1, width, height, shadowcolor, fillcolor)
-		end
+	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER or button.type == Constants.ButtonTypes.PIXELIMAGE_BORDER then
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
+		if shadowcolor ~= nil then
+			if button.clicked ~= nil and button.clicked > 0 then
+				Drawing.drawShadow(button.box, shadowcolorInner, { "top", "left" }, true)
+				button.clicked = button.clicked - 1
+			else
+				Drawing.drawShadow(button.box, shadowcolor, { "bottom", "right" }, false)
+			end
+		end
 	end
 
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
 		if button.text ~= nil and button.text ~= "" then
-			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
+			local offSetX = button.textOffsetX or 0
+			local offSetY = button.textOffsetY or 0
+			Drawing.drawText(x + 1+ offSetX, y+offSetY, button.text, Theme.COLORS[button.textColor], shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.text ~= nil and button.text ~= "" then
@@ -327,15 +339,7 @@ function Drawing.drawButton(button, shadowcolor)
 			end
 			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end
-	elseif button.type == Constants.ButtonTypes.KEYBOARD_KEY then
-		-- Draw border
-		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
-		-- Draw text
-
-		Drawing.drawText(x, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE_BORDER then
-		-- Draw border
-        gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 		if button.padding ~= nil then
 			x = x + button.padding
 			y = y + button.padding
@@ -682,4 +686,56 @@ function Drawing.drawSelectionIndicators(x, y, width, height, color, thickness, 
 
 	-- Bottom left
 	Drawing.drawLShape(x - segmentPadding, y + height + segmentPadding, 3, color, thickness, segmentLength)
+end
+--- Draws a shadow on the edges of the given rectangle, either inside or outside
+--- @param box table<integer,integer,integer,integer> Table containing the x, y, width, and height of the rectangle
+--- @param shadowcolor integer Color of the shadow, current theme colors can be accessed via Theme.COLORS
+--- @param edges table<string> Table containing the edges to draw the shadow on, can contain any of the following values: "top", "bottom", "left", "right"
+--- @param inside boolean Whether to draw the shadow inside the rectangle or outside, defaults to false
+--- @return nil
+function Drawing.drawShadow(box, shadowcolor, edges, inside)
+	inside = inside or false
+
+
+
+	-- Determine the coordinates of lines to draw
+	local cornerX, cornerY, lengthX, lengthY = box[1], box[2], box[3], box[4]
+
+	if inside then
+		cornerX = cornerX + 1
+		cornerY = cornerY + 1
+		lengthX = lengthX - 2
+		lengthY = lengthY - 2
+	end
+
+	-- Find the edges to draw the shadow on
+	local top, bottom, left, right = false, false, false, false
+	for _, edge in ipairs(edges) do
+		if edge == "top" then
+			top = true
+		elseif edge == "bottom" then
+			bottom = true
+		elseif edge == "left" then
+			left = true
+		elseif edge == "right" then
+			right = true
+		end
+	end
+
+	-- Draw the shadow
+	if top then
+		gui.drawLine(cornerX, cornerY, cornerX + lengthX, cornerY, shadowcolor)
+	end
+
+	if left then
+		gui.drawLine(cornerX, cornerY, cornerX, cornerY + lengthY, shadowcolor)
+	end
+
+	if bottom then
+		gui.drawLine(cornerX+1, cornerY+1 + lengthY, cornerX+1 + lengthX, cornerY+1 + lengthY, shadowcolor)
+	end
+
+	if right then
+		gui.drawLine(cornerX+1 + lengthX, cornerY+1, cornerX+1 + lengthX, cornerY+1 + lengthY, shadowcolor)
+	end
 end
