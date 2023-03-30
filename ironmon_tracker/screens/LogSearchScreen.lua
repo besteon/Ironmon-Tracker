@@ -294,11 +294,11 @@ function LogSearchScreen.buildKeyboardButtons(
 				keyPressedShadow = LogSearchScreen.Colors.keyPressedShadow,
 				onClick = function(self)
 					if not LogSearchScreen.filterDropDownOpen then -- Append the text of the button to the search text if the search text is not full
+						self.clicked = 2
 						if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
 							LogSearchScreen.searchText = LogSearchScreen.searchText .. self.text
 						end
 						LogSearchScreen.UpdateSearch()
-						self.clicked = 2
 					end
 				end,
 			}
