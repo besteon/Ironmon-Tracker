@@ -204,6 +204,7 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			if isAreaClicked and button.onClick ~= nil then
 				CustomCode.onButtonClicked(button)
 				button:onClick()
+				break;
 			end
 		end
 	end

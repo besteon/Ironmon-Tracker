@@ -40,6 +40,22 @@ function Utils.getbits(value, startIndex, numBits)
 	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
 end
 
+--maps
+function Utils.generatebitwisemap(value, size)
+	local map = {}
+	for i=0,size-1, 1 do
+		if value % 2 == 1 then
+			map[i] = true
+		else
+			map[i] = false
+		end
+		if value > 0 then
+			Utils.bit_rshift(value, 1)
+		end
+	end
+	return map
+end
+
 function Utils.addhalves(value)
 	local b = Utils.getbits(value, 0, 16)
 	local c = Utils.getbits(value, 16, 16)
