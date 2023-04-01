@@ -132,6 +132,7 @@ function Main.Run()
 	end
 
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
+	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
 	Main.InitializeAllTrackerFiles()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
@@ -147,7 +148,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		while Main.loadNextSeed == false do
-			Program.mainLoop()
+			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
 
@@ -866,6 +867,7 @@ function Main.LoadSettings()
 	end
 
 	-- [EXTENSIONS]
+	CustomCode.ExtensionLibrary = {}
 	if settings.extensions ~= nil then
 		for extKey, extValue in pairs(settings.extensions) do
 			if extValue ~= nil then
