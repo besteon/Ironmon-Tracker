@@ -103,7 +103,7 @@ BattleEffectsScreen = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			text = "Back",
 			textColor = "Default text",
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 135, 24, 11 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				Program.changeScreenView(TrackerScreen)
@@ -111,7 +111,7 @@ BattleEffectsScreen = {
 		},
 		LeftOwnView = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 78, Constants.SCREEN.MARGIN + 46, 32, 32 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
 			boxColors = {"Upper box border", "Upper box background"},
 			getIconPath = function(self)
 				local pokemonID = 3
@@ -134,7 +134,7 @@ BattleEffectsScreen = {
 		LeftOtherView = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 107, Constants.SCREEN.MARGIN + 21, 32, 32 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
 			getIconPath = function(self)
 				local pokemonID = 3
 				--[[local pokemon = Tracker.getViewedPokemon()
@@ -156,7 +156,7 @@ BattleEffectsScreen = {
 		RightOwnView = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 97, Constants.SCREEN.MARGIN + 46, 32, 32 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 36, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
 			getIconPath = function(self)
 				local pokemonID = 3
 				--[[local pokemon = Tracker.getViewedPokemon()
@@ -178,7 +178,7 @@ BattleEffectsScreen = {
 		RightOtherView = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 88, Constants.SCREEN.MARGIN + 21, 32, 32 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 73, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
 			getIconPath = function(self)
 				local pokemonID = 3
 				--[[local pokemon = Tracker.getViewedPokemon()
@@ -199,7 +199,7 @@ BattleEffectsScreen = {
 		},
 		AlliedSideView = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 75, Constants.SCREEN.MARGIN + 43, 40, 21 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 37, 65, 33 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("allied side click")
@@ -211,7 +211,7 @@ BattleEffectsScreen = {
 		},
 		EnemySideView = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 85, Constants.SCREEN.MARGIN + 18, 40, 21 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 37, 65, 33 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("enemy side click")
@@ -790,21 +790,29 @@ end
 function drawTitle()
 	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
-	local offsetColumnX = offsetX + 45
-	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
+	local offsetColumnX = offsetX + 42
+	local offsetY = 0 + Constants.SCREEN.MARGIN + 1
 	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local textColor = Theme.COLORS["Default text"]
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 
 	local screenTitle = "BATTLE EFFECTS"
 
+	--Background
 	Drawing.drawBackgroundAndMargins()
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, offsetY -2, screenTitle, boxInfoTopShadow, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, offsetY - 3, screenTitle, Theme.COLORS["Default text"], nil, 12, Constants.Font.FAMILY, "bold")
+
+	--Header
+	Drawing.drawText(offsetX, offsetY, screenTitle, textColor, nil, 12, Constants.Font.FAMILY, "bold")
+	offsetY = offsetY + 12
+
+	--Battle scope details
+	Drawing.drawText(offsetX,offsetY, "Terrain: " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing
+	Drawing.drawText(offsetX,offsetY, "Weather: " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing
 end
 
 function drawBattleDetailsUI()
