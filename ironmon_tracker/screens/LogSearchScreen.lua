@@ -5,7 +5,6 @@ LogSearchScreen = {
 		lowerBoxText = "Lower box text",
 		lowerBoxBorder = "Lower box border",
 		lowerBoxBG = "Lower box background",
-		upperBoxText = "Upper box text",
 		upperBoxBorder = "Upper box border",
 		upperBoxBG = "Upper box background",
 		headerText = "Header text",
@@ -33,6 +32,8 @@ LogSearchScreen = {
 		"Learnable Move",
 	},
 	filterDropDownOpen = false,
+	currentFilter = "Pokemon Name",
+	--activeFilters = {},
 }
 --- Initializes the LogSearchScreen
 --- @return nil
@@ -180,24 +181,27 @@ function LogSearchScreen.createButtons()
 			LSS.Colors.upperBoxBorder,
 			LSS.Colors.upperBoxBG,
 		},
-		clicked = 0,
 		onClick = function(self)
-			self.clicked = 2
 			LSS.filterDropDownOpen = not LSS.filterDropDownOpen
 		end,
 		draw = function(self, shadowcolor)
 			-- Draw text, not using the default draw function because it can only draw the shadow color of the box itself
-			local text = LSS.filters[1]
-			local textColor = LSS.Colors.lowerBoxText
-			Drawing.drawText(self.box[1] + 1, self.box[2], text, Theme.COLORS[textColor], self.shadowcolor)
+			local text = LSS.currentFilter
+			Drawing.drawText(
+				self.box[1] + 1,
+				self.box[2],
+				text,
+				Theme.COLORS[LSS.Colors.lowerBoxText],
+				LSS.Colors.upperShadowcolor
+			)
 			-- Draw triangle for dropdown
 			local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
 			Drawing.drawImageAsPixels(
 				triangleImage,
 				self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst + 1,
 				self.box[2] + 1,
-				Theme.COLORS[textColor],
-				self.shadowcolor
+				Theme.COLORS[LSS.Colors.lowerBoxText],
+				LSS.Colors.upperShadowcolor
 			)
 			-- Vertical line
 			gui.drawLine(
@@ -209,6 +213,79 @@ function LogSearchScreen.createButtons()
 			)
 		end,
 	}
+	LSS.createUpdateFilterDropdown()
+end
+
+--- Updates the filter dropdown buttons
+function LogSearchScreen.createUpdateFilterDropdown()
+	local buttonNum = 1
+	local LSS = LogSearchScreen
+	for i, filter in ipairs(LSS.filters) do
+		if filter == LSS.currentFilter then
+			LSS.Buttons[filter] = nil
+		else
+			LSS.Buttons[filter] = {
+				type = Constants.ButtonTypes.FULL_BORDER,
+				box = {
+					LSS.Buttons.filterDropDown.box[1],
+					LSS.Buttons.filterDropDown.box[2] + LSS.Buttons.filterDropDown.box[4] * buttonNum,
+					LSS.Buttons.filterDropDown.box[3],
+					Constants.SCREEN.LINESPACING + 1,
+				},
+				boxColors = {
+					LSS.Colors.upperBoxBorder,
+					LSS.Colors.upperBoxBG,
+				},
+				onClick = function(self)
+					LSS.filterDropDownOpen = not LSS.filterDropDownOpen
+					LSS.currentFilter = filter
+					-- TODO Add checkbox and multiple filters at once
+					--[[if LSS.activeFilters[filter] then
+						LSS.activeFilters[filter] = nil
+					else
+						LSS.activeFilters[filter] = true
+					end ]]
+					LSS.createUpdateFilterDropdown()
+				end,
+				isVisible = function(self)
+					return LSS.filterDropDownOpen
+				end,
+				dropDownText = filter,
+				textColor = LSS.Colors.lowerBoxText,
+				draw = function(self, shadowcolor)
+					-- Draw text, not using the default draw function because it can only draw the shadow color of the box itself
+					local text = self.dropDownText
+					Drawing.drawText(
+						self.box[1] + 1,
+						self.box[2],
+						text,
+						Theme.COLORS[self.textColor],
+						LSS.Colors.upperShadowcolor
+					)
+					-- TODO: Add checkbox and multiple filters at once
+					--[[ -- Draw checkbox
+					local checkboxImage = Constants.PixelImages.CHECKBOX
+					Drawing.drawImageAsPixels(
+						checkboxImage,
+						self.box[1] + self.box[3] - #checkboxImage - LogSearchScreen.paddingConst + 1,
+						self.box[2] + 1,
+						Theme.COLORS[self.textColor],
+						LSS.Colors.upperShadowcolor
+					)
+					if LSS.activeFilters[filter] then
+						-- draw checkmark
+						Drawing.drawImageAsPixels(
+							Constants.PixelImages.CHECKMARK,
+							self.box[1] + self.box[3] - #checkboxImage - LogSearchScreen.paddingConst + 1,
+							self.box[2] + 1,
+							Theme.COLORS["Intermediate text"]
+						)
+					end ]]
+				end,
+			}
+			buttonNum = buttonNum + 1
+		end
+	end
 end
 
 function LogSearchScreen.UpdateSearch()

@@ -489,14 +489,45 @@ function LogOverlay.buildPagedButtons()
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
 				includeInGrid = function(self)
-                    return
-                        LogOverlay.Windower.filterGrid == "#"
-                        or LogOverlay.Windower.filterGrid:lower() ==
-                        self.pokemonName:sub(1, #LogOverlay.Windower.filterGrid):lower()
-					or -- Check whole word for matches, not just the start
-					(
-						self.pokemonName:lower():find(LogOverlay.Windower.filterGrid:lower())
-					)
+					local include = false
+
+					if LogOverlay.Windower.filterGrid == "#" then
+						include = true
+						-- Pokemon name
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[1] then
+						include = LogOverlay.Windower.filterGrid:lower() ==
+							self.pokemonName:sub(1, #LogOverlay.Windower.filterGrid):lower() or
+
+							-- Check whole word for matches, not just the start
+							(self.pokemonName:lower():find(LogOverlay.Windower.filterGrid:lower()))
+						-- Ability name
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[2] then
+						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
+							local abilityText = AbilityData.Abilities[ability].name
+							if LogOverlay.Windower.filterGrid:lower() ==
+								abilityText:sub(1, #LogOverlay.Windower.filterGrid):lower() or
+
+								-- Check whole word for matches, not just the start
+								(abilityText:lower():find(LogOverlay.Windower.filterGrid:lower())) then
+								include = true
+								break
+							end
+						end
+						-- Learnable moves
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[3] then
+						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
+								local moveText = move.name
+								if LogOverlay.Windower.filterGrid:lower() ==
+									moveText:sub(1, #LogOverlay.Windower.filterGrid):lower() or
+
+									-- Check whole word for matches, not just the start
+									(moveText:lower():find(LogOverlay.Windower.filterGrid:lower())) then
+									include = true
+									break
+								end
+						end
+					end
+					return include
 				end,
 				getIconPath = function(self)
 					local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
