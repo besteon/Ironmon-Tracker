@@ -1,7 +1,7 @@
 BattleEffectsScreen = {
 
-	viewingGeneralBattleInfo = true,
-	viewingIndividualStatuses = false,
+	viewingGeneralBattleInfo = false,
+	viewingIndividualStatuses = true,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
 	viewedSideIndex = 0;
@@ -73,7 +73,7 @@ BattleEffectsScreen = {
 		[28] = {"Cursed"}, --Curse (from Ghost-type)
 		[29] = {"Foreseeing"}, --Foresight
 		[30] = {"Curled Up"}, --Defense Curl
-		[30] = {"Tormented"}, --Torment
+		[31] = {"Tormented"}, --Torment
 	},
 	Status3NameMap = {
 		[0] = {"Leech Seeded by Left"},
@@ -109,19 +109,10 @@ BattleEffectsScreen = {
 				Program.changeScreenView(TrackerScreen)
 			end
 		},
-		LeftOwnView = {
-			type = Constants.ButtonTypes.POKEMON_ICON,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
+		[0] = { --LeftOwn
+			type = Constants.ButtonTypes.NO_BORDER,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 21, 11, 11 },
 			boxColors = {"Upper box border", "Upper box background"},
-			getIconPath = function(self)
-				local pokemonID = 3
-				--[[local pokemon = Tracker.getViewedPokemon()
-				if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-					pokemonID = pokemon.pokemonID
-				end]]--
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-			end,
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("left own click")
@@ -129,21 +120,13 @@ BattleEffectsScreen = {
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 0
+				Program.redraw(true)
 			end
 		},
-		LeftOtherView = {
-			type = Constants.ButtonTypes.POKEMON_ICON,
+		[1] = { --LeftOther
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 105, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
-			getIconPath = function(self)
-				local pokemonID = 3
-				--[[local pokemon = Tracker.getViewedPokemon()
-				if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-					pokemonID = pokemon.pokemonID
-				end]]--
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-			end,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 125, Constants.SCREEN.MARGIN + 6, 11, 11 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("left other click")
@@ -151,21 +134,13 @@ BattleEffectsScreen = {
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 1
+				Program.redraw(true)
 			end
 		},
-		RightOwnView = {
-			type = Constants.ButtonTypes.POKEMON_ICON,
+		[2] = { --RightOwn
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 36, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
-			getIconPath = function(self)
-				local pokemonID = 3
-				--[[local pokemon = Tracker.getViewedPokemon()
-				if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-					pokemonID = pokemon.pokemonID
-				end]]--
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-			end,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 21, 11, 11 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("right own click")
@@ -173,21 +148,13 @@ BattleEffectsScreen = {
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 2
+				Program.redraw(true)
 			end
 		},
-		RightOtherView = {
-			type = Constants.ButtonTypes.POKEMON_ICON,
+		[3] = { --RightOther
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 73, Constants.SCREEN.MARGIN + 34 - (Options.IconSetMap[Options["Pokemon icon set"]].yOffset or 0), 32, 32 },
-			getIconPath = function(self)
-				local pokemonID = 3
-				--[[local pokemon = Tracker.getViewedPokemon()
-				if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-					pokemonID = pokemon.pokemonID
-				end]]--
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-			end,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110, Constants.SCREEN.MARGIN + 6, 11, 11 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				print ("right other click")
@@ -195,30 +162,35 @@ BattleEffectsScreen = {
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 3
+				Program.redraw(true)
 			end
 		},
-		AlliedSideView = {
+		[4] = { --Ally Team
 			type = Constants.ButtonTypes.FULL_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 37, 65, 33 },
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 19, 40, 15 },
 			isVisible = function() return true end,
 			onClick = function(self)
-				print ("allied side click")
+				print ("enemy side click")
 				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
 				BattleEffectsScreen.viewingIndividualStatuses = false
 				BattleEffectsScreen.viewingSideStauses = true
 				BattleEffectsScreen.viewedSideIndex = 0
+				Program.redraw(true)
 			end
 		},
-		EnemySideView = {
+		[5] = { -- Enemy Team
 			type = Constants.ButtonTypes.FULL_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 72, Constants.SCREEN.MARGIN + 37, 65, 33 },
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 4, 40, 15 },
 			isVisible = function() return true end,
 			onClick = function(self)
-				print ("enemy side click")
+				print ("allied side click")
 				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
 				BattleEffectsScreen.viewingIndividualStatuses = false
 				BattleEffectsScreen.viewingSideStauses = true
 				BattleEffectsScreen.viewedSideIndex = 1
+				Program.redraw(true)
 			end
 		},
 	}
@@ -594,7 +566,8 @@ function loadSideStatuses(index)
 	if index == nil or index < 0 or index > 1 then
 		return
 	end
-	local sideStatuses = Memory.readword(0x0202428e + (index * 0x02))
+	--local sideStatuses = Memory.readword(0x0202428e + (index * 0x02))
+	local sideStatuses = 65535
 	local sideTimersBase = 0x02024294 + (index * 0x0C)
 	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 8)
 	if sideStatusMap[0] then
@@ -791,10 +764,10 @@ function drawTitle()
 	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
-	local offsetColumnX = offsetX + 42
-	local offsetY = 0 + Constants.SCREEN.MARGIN + 1
+	local offsetY = Constants.SCREEN.MARGIN + 1
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS["Default text"]
+	local defaultArrowColorList = {Theme.COLORS["Default text"]}
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 
 	local screenTitle = "BATTLE EFFECTS"
@@ -812,7 +785,47 @@ function drawTitle()
 	Drawing.drawText(offsetX,offsetY, "Terrain: " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(offsetX,offsetY, "Weather: " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 2
+
+	local Xdelta = 40
+	local prefix = "Allied"
+	local suffix = "Team"
+	if BattleEffectsScreen.viewingIndividualStatuses then
+		suffix = "Mon"
+		Xdelta = Xdelta + 2
+		if BattleEffectsScreen.viewedMonIndex % 2 == 1 then
+			prefix = "Enemy"
+			Xdelta = Xdelta -2
+		end
+	elseif BattleEffectsScreen.viewedSideIndex % 2 == 1 then
+		prefix = "Enemy"
+		Xdelta = Xdelta - 2
+	end
+	Drawing.drawText(offsetX + Xdelta,offsetY, prefix .. " " .. suffix, textColor, nil, linespacing, Constants.Font.FAMILY,  "bold")
+
+	Xdelta = 5
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Reflect (Turn 2)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Infatuated", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Leech Seed - Tyranitar (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 1
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Really long string just to limit test", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing
+	offsetY = offsetY + linespacing
+
+	Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, offsetX + 45, offsetY, defaultArrowColorList, null)
+	Drawing.drawText(offsetX + 54, offsetY - 3, "1/5", textColor, nil, linespacing, Constants.Font.FAMILY)
+
+	Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, offsetX + 78, offsetY, defaultArrowColorList, null)
+
 end
 
 function drawBattleDetailsUI()
@@ -825,16 +838,53 @@ function drawPerMonUI()
 end
 
 function drawBattleDiagram()
-	Drawing.drawButton(BattleEffectsScreen.Buttons.AlliedSideView)
-	Drawing.drawButton(BattleEffectsScreen.Buttons.EnemySideView)
-	Drawing.drawButton(BattleEffectsScreen.Buttons.LeftOwnView)
-	Drawing.drawButton(BattleEffectsScreen.Buttons.LeftOtherView)
-	Drawing.drawButton(BattleEffectsScreen.Buttons.RightOwnView)
-	Drawing.drawButton(BattleEffectsScreen.Buttons.RightOtherView)
+	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }
+	local defaultArrowColorList = {Theme.COLORS["Default text"]}
+	local selectedArrowColorList = {Theme.COLORS["Positive text"]}
+
+	if BattleEffectsScreen.viewingSideStauses then
+		BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex)%2)].boxColors = {"Positive text", "Upper box background"}
+		BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex + 1)%2)].boxColors = {"Upper box border", "Upper box background"}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex + 1)%2)])
+		Drawing.drawButton(BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex)%2)])
+	else
+		BattleEffectsScreen.Buttons[4].boxColors = {"Upper box border", "Upper box background"}
+		BattleEffectsScreen.Buttons[5].boxColors = {"Upper box border", "Upper box background"}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[4])
+		Drawing.drawButton(BattleEffectsScreen.Buttons[5])
+	end
+	Drawing.drawButton(BattleEffectsScreen.Buttons[0])
+	Drawing.drawButton(BattleEffectsScreen.Buttons[1])
+	Drawing.drawButton(BattleEffectsScreen.Buttons[2])
+	Drawing.drawButton(BattleEffectsScreen.Buttons[3])
+	if BattleEffectsScreen.viewingSideStauses then
+		if BattleEffectsScreen.viewedSideIndex == 0 then
+			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, defaultArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, selectedArrowColorList, null)
+		else
+			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, defaultArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, selectedArrowColorList, null)
+		end
+	elseif BattleEffectsScreen.viewingIndividualStatuses then
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, defaultArrowColorList, null)
+		Drawing.drawSelectionIndicators(
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[1],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[2],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[3],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[4], Theme.COLORS["Positive text"], 1, 3, 0)
+	end
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[0].box[1], BattleEffectsScreen.Buttons[0].box[2], ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[1].box[1], BattleEffectsScreen.Buttons[1].box[2], ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[2].box[1], BattleEffectsScreen.Buttons[2].box[2], ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[3].box[1], BattleEffectsScreen.Buttons[3].box[2], ballColorList, null)
 end
 
 function BattleEffectsScreen.drawScreen()
-
+	if Battle.inBattle == false then
+		BattleEffectsScreen.Buttons.Back.onClick()
+		return
+	end
 	drawTitle()
 	drawBattleDiagram()
 	drawBattleDetailsUI()
