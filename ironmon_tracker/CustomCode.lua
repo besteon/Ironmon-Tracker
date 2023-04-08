@@ -25,16 +25,25 @@ function CustomCode.isEnabled()
 end
 
 function CustomCode.initialize()
+	CustomCode.KnownErrors = {}
+	CustomCode.EnabledExtensions = {}
+
 	local filesLoaded = {
 		successful = {},
 		failed = {},
 	}
 
-	CustomCode.EnabledExtensions = {}
+	-- Known extensions are loaded during Main.LoadSettings()
 	for extensionKey, _ in pairs(CustomCode.ExtensionLibrary) do
 		local loadedExtension = CustomCode.loadExtension(extensionKey)
 		if loadedExtension ~= nil then
-			if loadedExtension.isEnabled and loadedExtension.selfObject ~= nil then
+			-- If already enabled by user Settings.ini, enable it and call startup
+			if loadedExtension.isEnabled then
+				CustomCode.enableExtension(extensionKey)
+			end
+
+			-- An extension is successfully loaded if its 'selfObject' contains its properties and functions
+			if loadedExtension.selfObject ~= nil then
 				local extensionName = loadedExtension.selfObject.name or extensionKey
 				table.insert(filesLoaded.successful, extensionName)
 			end
@@ -55,7 +64,7 @@ function CustomCode.initialize()
 	-- end
 end
 
--- Loads a single extension based on its key (filename) and returns it; if load fails, returns nil
+-- Loads a single extension based on its key (filename) and returns it. Doesn't enable it by default
 function CustomCode.loadExtension(extensionKey)
 	if extensionKey == nil or extensionKey == "" then
 		return nil
@@ -98,11 +107,6 @@ function CustomCode.loadExtension(extensionKey)
 	loadedExtension.isLoaded = true
 	loadedExtension.selfObject = selfObject
 
-	-- If already enabled by user Settings.ini, enable it and call startup
-	if loadedExtension.isEnabled then
-		CustomCode.enableExtension(extensionKey)
-	end
-
 	return loadedExtension
 end
 
@@ -119,6 +123,9 @@ function CustomCode.enableExtension(extensionKey)
 		return
 	end
 
+	-- Add the extension to the EnabledExtensions list, allowing its functions to integrate into the Tracker
+	table.insert(CustomCode.EnabledExtensions, extension)
+
 	-- Enable and startup the extension
 	if not extension.isEnabled then
 		extension.isEnabled = true
@@ -126,9 +133,6 @@ function CustomCode.enableExtension(extensionKey)
 			extension.selfObject.startup()
 		end
 	end
-
-	-- Add the extension to the EnabledExtensions list, allowing its functions to integrate into the Tracker
-	table.insert(CustomCode.EnabledExtensions, extension)
 end
 
 -- extensionName: the name of the custom extension found in the ExtensionLibrary
@@ -206,30 +210,32 @@ function CustomCode.execFunctions(funcLabel, ...)
 		if type(functToExec) == "function" then
 			local params = ...
 			local funcWithParams = function() functToExec(params) end
-			CustomCode.tryExecute(funcLabel, funcWithParams)
+			CustomCode.tryExecute(ext.selfObject.name, funcLabel, funcWithParams)
 		end
 	end
 end
 
-function CustomCode.tryExecute(functionLabel, functToExec)
+function CustomCode.tryExecute(extensionKey, functionLabel, functToExec)
+	CustomCode.extBeingExecuted = extensionKey
 	CustomCode.funcBeingExecuted = functionLabel
 	local result = xpcall(functToExec, CustomCode.logError)
+	CustomCode.extBeingExecuted = nil
 	CustomCode.funcBeingExecuted = nil
 	return result
 end
 
 function CustomCode.logError(err)
-	local errorAsString = tostring(err)
-	local errorLabel
-	if CustomCode.funcBeingExecuted ~= nil then
-		errorLabel = string.format("[ERROR:%s] %s", CustomCode.funcBeingExecuted, errorAsString)
+	err = tostring(err)
+	local errorMessage
+	if CustomCode.extBeingExecuted ~= nil or CustomCode.funcBeingExecuted ~= nil then
+		errorMessage = string.format("[%s:%s] %s", CustomCode.extBeingExecuted or "", CustomCode.funcBeingExecuted or "", err)
 	else
-		errorLabel = string.format("[ERROR] %s", errorAsString)
+		errorMessage = string.format("[ERROR] %s", err)
 	end
 
-	if not CustomCode.KnownErrors[errorLabel] then
-		CustomCode.KnownErrors[errorLabel] = true
-		print(errorLabel)
+	if not CustomCode.KnownErrors[errorMessage] then
+		CustomCode.KnownErrors[errorMessage] = true
+		FileManager.logError(errorMessage)
 	end
 end
 

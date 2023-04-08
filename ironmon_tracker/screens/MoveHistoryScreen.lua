@@ -211,10 +211,7 @@ function MoveHistoryScreen.drawScreen()
 
 	-- Draw header text
 	local pokemonName = PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name:upper()
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(topboxX + 2, topboxY + 2, pokemonName, shadowcolor, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(topboxX + 1, topboxY + 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawHeader(topboxX, topboxY - 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING + 4
 
 	MoveHistoryScreen.drawMovesLearnedBoxes(topboxX + 1, topboxY + 1)

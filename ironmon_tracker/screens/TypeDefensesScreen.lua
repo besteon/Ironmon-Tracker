@@ -1,6 +1,5 @@
 TypeDefensesScreen = {
 	Labels = {
-		headerFormat = "%s's Type Defenses", -- e.g. Shuckle's Type Defenses
 		pageFormat = "Page %s/%s", -- e.g. Page 1/3
 		immunities = "Immunities",
 		resistances = "Resistances",
@@ -8,7 +7,6 @@ TypeDefensesScreen = {
 	},
 	Colors = {
 		text = "Lower box text",
-		header = "Intermediate text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
 	},
@@ -154,7 +152,7 @@ function TypeDefensesScreen.buildOutPagedButtons(pokemonID)
 	end
 
 	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
-	local y = Constants.SCREEN.MARGIN + Constants.SCREEN.LINESPACING + 2
+	local y = Constants.SCREEN.MARGIN + Constants.SCREEN.LINESPACING + 3
 	local colSpacer = 1
 	local rowSpacer = 3
 	TypeDefensesScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
@@ -197,11 +195,9 @@ function TypeDefensesScreen.drawScreen()
 	end
 
 	-- Draw header text
-	local pokemonName = PokemonData.Pokemon[TypeDefensesScreen.pokemonID].name
-	local headerText = string.format(TypeDefensesScreen.Labels.headerFormat, pokemonName)
-	local centerOffsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + centerOffsetX, lineY, headerText, Theme.COLORS[TypeDefensesScreen.Colors.header], topBox.shadow)
-	lineY = lineY + Constants.SCREEN.LINESPACING + 2
+	local pokemonName = PokemonData.Pokemon[TypeDefensesScreen.pokemonID].name:upper()
+	Drawing.drawHeader(topBox.x, lineY - 2, pokemonName, Theme.COLORS[TypeDefensesScreen.Colors.text], topBox.shadow)
+	lineY = lineY + Constants.SCREEN.LINESPACING + 3
 
 	-- Draw each of the type defenses for the Pokemon
 	for _, button in pairs(TypeDefensesScreen.Pager.Buttons) do
