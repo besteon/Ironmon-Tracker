@@ -600,7 +600,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = data.p.name:upper()
-	Drawing.drawHeader(offsetX - 2, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow, 15)
+	Drawing.drawHeader(offsetX - 2, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -775,7 +775,6 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	data.m.name = data.m.name:upper()
 	Drawing.drawHeader(offsetX - 2, offsetY - 4, data.m.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
-
 	-- TYPE ICON
 	offsetY = offsetY + linespacing + 4
 	gui.drawRectangle(offsetX + 106, offsetY + 1, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
@@ -880,7 +879,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Ability NAME
-	data.a.name = data.a.name:upper():gsub(" ", "  ")
+	data.a.name = data.a.name:upper()
 	Drawing.drawHeader(offsetX - 2, offsetY - 4, data.a.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	--SEARCH ICON

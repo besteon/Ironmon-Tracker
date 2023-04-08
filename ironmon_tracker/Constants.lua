@@ -16,7 +16,7 @@ Constants.SCREEN = {
 
 Constants.Font = {
 	SIZE = 9,
-	HEADERSIZE = 16,
+	HEADERSIZE = 15,
 	FAMILY = "Franklin Gothic Medium",
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
