@@ -1,6 +1,8 @@
 LogSearchScreen = {
 	searchText = "",
+	sortOrder = "alphabetical",
 	filterLabelText = "Filter:",
+	sortLabelText = "Sort by:",
 	Colors = {
 		lowerBoxText = "Lower box text",
 		lowerBoxBorder = "Lower box border",
@@ -20,9 +22,53 @@ LogSearchScreen = {
 	--- @type table<string, table<string,integer|string>>
 	labels = {},
 	Buttons = {},
-	SortingFunctions = {
+	--- @type table<string, string>
+	sortingKeysLabels = {
+		alphabetical = "Alphabetical",
+		pokedexNumber = "Pokedex Number",
+		bst = "BST",
+		hp = "HP",
+		atk = "Attack",
+		def = "Defense",
+		spa = "Sp. Atk",
+		spd = "Sp. Def",
+		spe = "Speed",
+	},
+	sortingDropDown = { "alphabetical", "pokedexNumber", "bst", "atk", "hp", "def", "spa", "spd", "spe" },
+	--- @type table<string, function>
+	sortingFunctions = {
 		alphabetical = function(a, b)
 			return a.pokemonName < b.pokemonName
+		end,
+		pokedexNumber = function(a, b)
+			return a.pokemonID < b.pokemonID
+		end,
+		bst = function(a, b)
+			return PokemonData.Pokemon[a.pokemonID].bst > PokemonData.Pokemon[b.pokemonID].bst
+		end,
+		hp = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["hp"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["hp"]
+		end,
+		atk = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["atk"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["atk"]
+		end,
+		def = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["def"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["def"]
+		end,
+		spa = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spa"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spa"]
+		end,
+		spd = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spd"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spd"]
+		end,
+		spe = function(a, b)
+			return RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spe"]
+				> RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spe"]
 		end,
 	},
 	maxLetters = 10,
@@ -32,28 +78,37 @@ LogSearchScreen = {
 		"Learnable Move",
 	},
 	filterDropDownOpen = false,
+	sortDropDownOpen = false,
 	currentFilter = "Pokemon Name",
 	--activeFilters = {},
 }
 --- Initializes the LogSearchScreen
 --- @return nil
 function LogSearchScreen.initialize()
+	local LSS = LogSearchScreen
 	-- Create the buttons
-	LogSearchScreen.createButtons()
+	LSS.createButtons()
 
 	-- =====LABELS=====
-	LogSearchScreen.labels.header = {
-		x = LogSearchScreen.topBox.x + 15,
+	LSS.labels.header = {
+		x = LSS.topBox.x + 15,
 		y = -3,
 		text = "Search the Log",
-		color = LogSearchScreen.Colors.headerText,
+		color = LSS.Colors.headerText,
 	}
 
-	LogSearchScreen.labels.filterLabel = {
-		x = LogSearchScreen.Buttons.searchText.box[1],
-		y = LogSearchScreen.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LogSearchScreen.paddingConst * 2,
-		text = LogSearchScreen.filterLabelText,
-		color = LogSearchScreen.Colors.lowerBoxText,
+	LSS.labels.filterLabel = {
+		x = LSS.Buttons.searchText.box[1],
+		y = LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2,
+		text = LSS.filterLabelText,
+		color = LSS.Colors.lowerBoxText,
+	}
+
+	LSS.labels.sortLabel = {
+		x = LSS.Buttons.searchText.box[1],
+		y = LSS.topBox.y + LSS.paddingConst + 1,
+		text = LSS.sortLabelText,
+		color = LSS.Colors.lowerBoxText,
 	}
 end
 
@@ -166,6 +221,80 @@ function LogSearchScreen.createButtons()
 
 	-- =====FILTER DROPDOWN BUTTONS=====
 	LSS.createUpdateFilterDropdown()
+	-- ===== SORT ORDER DROPDOWN BUTTONS=====
+	LSS.createUpdateSortOrderDropdown()
+end
+
+function LogSearchScreen.createUpdateSortOrderDropdown()
+	local buttonNum = 0
+	local LSS = LogSearchScreen
+	local topBox = LSS.topBox
+	local initialBox = {
+		topBox.x + Utils.calcWordPixelLength(LSS.sortLabelText .. " ") + LSS.paddingConst * 3,
+		topBox.y + LSS.paddingConst + 1,
+		-- End at end of search text
+		LSS.Buttons.searchText.box[3]
+		- Utils.calcWordPixelLength(LSS.sortLabelText .. " ")
+		- LSS.paddingConst * 2
+		+ 1,
+		Constants.SCREEN.LINESPACING + 1,
+	}
+	for i, sort in ipairs(LSS.sortingDropDown) do
+		local sortLabel = LSS.sortingKeysLabels[sort]
+
+		LSS.Buttons[sort] = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			name = sort,
+			text = sortLabel,
+			box = {
+				initialBox[1],
+				initialBox[2] + initialBox[4] * buttonNum,
+				initialBox[3],
+				Constants.SCREEN.LINESPACING + 1,
+			},
+			boxColors = {
+				LSS.Colors.upperBoxBorder,
+				LSS.Colors.upperBoxBG,
+			},
+			textColor = LSS.Colors.lowerBoxText,
+			onClick = function(self)
+				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
+				if LSS.sortOrder ~= sort then
+					LSS.sortOrder = self.name
+					table.remove(LSS.sortingDropDown, i)
+					table.insert(LSS.sortingDropDown, 1, LSS.sortOrder)
+					LSS.createUpdateSortOrderDropdown()
+					LSS.UpdateSearch()
+				else
+					LSS.createUpdateSortOrderDropdown()
+				end
+			end,
+			isVisible = function(self)
+				return LSS.sortDropDownOpen or LSS.sortOrder == sort
+			end,
+			draw = function(self, shadowcolor)
+				if LSS.sortOrder == sort then
+					local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
+					Drawing.drawImageAsPixels(
+						triangleImage,
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst + 1,
+						self.box[2] + 1,
+						Theme.COLORS[LSS.Colors.lowerBoxText],
+						LSS.Colors.upperShadowcolor
+					)
+					-- Vertical line
+					gui.drawLine(
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst - 1,
+						self.box[2] + 1,
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst - 1,
+						self.box[2] + self.box[4] - 1,
+						Theme.COLORS[self.boxColors[1]]
+					)
+				end
+			end,
+		}
+		buttonNum = buttonNum + 1
+	end
 end
 
 --- Updates the filter dropdown buttons
@@ -198,35 +327,38 @@ function LogSearchScreen.createUpdateFilterDropdown()
 				LSS.Colors.upperBoxBG,
 			},
 			onClick = function(self)
-				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
-				LSS.currentFilter = filter
-				-- Re-order the buttons so the current filter is on top
-				table.remove(LSS.filters, i)
-				table.insert(LSS.filters, 1, filter)
-				LSS.createUpdateFilterDropdown()
-				LogSearchScreen.UpdateSearch()
+				if not LSS.sortDropDownOpen then
+					LSS.filterDropDownOpen = not LSS.filterDropDownOpen
+					if LSS.currentFilter ~= filter then
+						LSS.currentFilter = filter
+						-- Re-order the buttons so the current filter is on top
+						table.remove(LSS.filters, i)
+						table.insert(LSS.filters, 1, filter)
+					end
+					LSS.createUpdateFilterDropdown()
+					LSS.UpdateSearch()
+				end
 			end,
 			isVisible = function(self)
 				return LSS.filterDropDownOpen or filter == LSS.currentFilter
 			end,
 			dropDownText = filter,
 			textColor = LSS.Colors.lowerBoxText,
-			shadowcolor = nil,
 			draw = function(self, shadowcolor)
 				if filter == LSS.currentFilter then
 					local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
 					Drawing.drawImageAsPixels(
 						triangleImage,
-						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst + 1,
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst + 1,
 						self.box[2] + 1,
 						Theme.COLORS[LSS.Colors.lowerBoxText],
 						LSS.Colors.upperShadowcolor
 					)
 					-- Vertical line
 					gui.drawLine(
-						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst - 1,
 						self.box[2] + 1,
-						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
+						self.box[1] + self.box[3] - #triangleImage - LSS.paddingConst - 1,
 						self.box[2] + self.box[4] - 1,
 						Theme.COLORS[self.boxColors[1]]
 					)
@@ -238,7 +370,10 @@ function LogSearchScreen.createUpdateFilterDropdown()
 end
 
 function LogSearchScreen.UpdateSearch()
-	LogOverlay.realignPokemonGrid(LogSearchScreen.searchText, LogSearchScreen.SortingFunctions.alphabetical)
+	LogOverlay.realignPokemonGrid(
+		LogSearchScreen.searchText,
+		LogSearchScreen.sortingFunctions[LogSearchScreen.sortOrder]
+	)
 	LogOverlay.refreshInnerButtons()
 	Program.redraw(true)
 end
@@ -319,7 +454,7 @@ function LogSearchScreen.buildKeyboardButtons(
 				clicked = 0,
 				keyPressedShadow = LogSearchScreen.Colors.keyPressedShadow,
 				onClick = function(self)
-					if not LogSearchScreen.filterDropDownOpen then -- Append the text of the button to the search text if the search text is not full
+					if not LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then -- Append the text of the button to the search text if the search text is not full
 						self.clicked = 2
 						if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
 							LogSearchScreen.searchText = LogSearchScreen.searchText .. self.text
@@ -394,7 +529,10 @@ function LogSearchScreen.drawScreen()
 			end
 			-- Different logic for each filter in LSS.filters
 		elseif Utils.findInTable(LSS.filters, name) then
-			Drawing.drawButton(button, {nil, LSS.Colors.upperShadowcolor})
+			Drawing.drawButton(button, { nil, LSS.Colors.upperShadowcolor })
+			-- Same deal for the sort buttons
+		elseif Utils.findInTable(LSS.sortingDropDown, name) then
+			Drawing.drawButton(button, { nil, LSS.Colors.upperShadowcolor })
 		else
 			Drawing.drawButton(button, shadowcolor)
 		end

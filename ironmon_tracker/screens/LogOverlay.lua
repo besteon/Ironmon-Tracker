@@ -796,17 +796,17 @@ end
 function LogOverlay.realignPokemonGrid(gridFilter, sortFunc)
 	-- Default grid to Pokédex number
 	gridFilter = gridFilter or "#"
-	sortFunc = sortFunc or (function(a, b) return a.pokemonID < b.pokemonID end)
+	sortFunc = sortFunc or LogSearchScreen.sortingFunctions[LogSearchScreen.sortOrder] --pokedexNumber
 
 	LogOverlay.Windower.filterGrid = gridFilter
 
 	local buttonSet = LogOverlay.PagedButtons.Pokemon
-	local x = LogOverlay.margin + 19
-	local y = LogOverlay.tabHeight + 11
+	local x = LogOverlay.margin + 14
+	local y = LogOverlay.tabHeight - 2
 	local itemWidth = 32
 	local itemHeight = 32
-	local horizontalSpacer = 23
-	local verticalSpacer = 1
+	local horizontalSpacer = 27
+	local verticalSpacer = 3
 
 	table.sort(buttonSet, sortFunc)
 	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(buttonSet, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
@@ -1811,24 +1811,37 @@ end
 function LogOverlay.drawPokemonTab(x, y, width, height)
 	local textColor = Theme.COLORS["Default text"]
 	local borderColor = Theme.COLORS["Upper box border"]
-	local fillColor = Theme.COLORS["Upper box background"]
-	local shadowcolor = Utils.calcShadowColor(fillColor)
-	gui.defaultTextBackground(fillColor)
-	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
+	local upperFillColor = Theme.COLORS["Upper box background"]
+	local lowerFillColor = Theme.COLORS["Lower box background"]
+	local lowerShadowcolor = Utils.calcShadowColor(lowerFillColor)
+	local upperShadowcolor = Utils.calcShadowColor(upperFillColor)
+	gui.defaultTextBackground(upperFillColor)
+	gui.drawRectangle(x, y, width, height, borderColor, upperFillColor)
 
 	-- VISIBLE POKEMON ICONS
 	for _, button in pairs(LogOverlay.PagedButtons.Pokemon) do
 		-- First draw the Pokemon Icon
-		Drawing.drawButton(button, shadowcolor)
+		Drawing.drawButton(button, upperShadowcolor)
 		-- Then draw the text on top of it, with a background
 		if button:isVisible() then
 			local pokemonName = PokemonData.Pokemon[button.pokemonID].name
-			gui.drawRectangle(button.box[1], button.box[2] + 1, 32, 9, fillColor, fillColor) -- cut-off top of icon
-			Drawing.drawText(button.box[1] - 5, button.box[2], pokemonName, textColor, shadowcolor)
+			local labelBox = {
+				x = button.box[1] + button.box[3] / 2 - Utils.calcWordPixelLength(pokemonName) / 2 - 4,
+				y = button.box[2] + 28,
+				width = Utils.calcWordPixelLength(pokemonName) + 5,
+				height = 12,
+			}
+			--border
+			gui.drawRectangle(labelBox.x, labelBox.y, labelBox.width, labelBox.height, borderColor, borderColor)
+			--background
+			gui.drawRectangle(labelBox.x + 1, labelBox.y + 1, labelBox.width - 2, labelBox.height - 2, upperFillColor,
+			upperFillColor)
+			--center text
+			Drawing.drawText(labelBox.x + 1, labelBox.y, pokemonName, textColor, nil)
 		end
 	end
 
-	return borderColor, shadowcolor
+	return borderColor, upperShadowcolor
 end
 
 function LogOverlay.drawTrainersTab(x, y, width, height)

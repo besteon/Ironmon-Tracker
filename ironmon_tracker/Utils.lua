@@ -1021,17 +1021,37 @@ function Utils.checkForVersionUpdate(url, currentVersion, versionResponsePattern
 
 	return isUpdateAvailable
 end
---- Checks if a value exists in a table
+
+--- Checks if a value exists in a table, or as the first value of a sub-table
 --- @param tab table The table to search
 --- @param val any The value to search for
 --- @return boolean
 function Utils.findInTable(tab, val)
-    for index, value in ipairs(tab) do
-        -- We grab the first index of our sub-table instead
-        if value == val then
-            return true
-        end
-    end
+	for index, value in ipairs(tab) do
+		-- We grab the first index of our sub-table instead
+		if value == val then
+			return true
+		end
 
-    return false
+		if value[1] == val then
+			return true
+		end
+	end
+
+	return false
+end
+
+
+--- Returns the index of a value in a table
+--- @param tab table The table to search
+--- @param val any The value to search for
+--- @return number
+function Utils.indexOf(tab, val)
+	for index, value in ipairs(tab) do
+		if value == val then
+			return index
+		end
+	end
+
+	return -1
 end

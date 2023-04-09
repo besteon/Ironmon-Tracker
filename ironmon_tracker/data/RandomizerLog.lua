@@ -100,9 +100,6 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parsePickupItems(logLines)
 	RandomizerLog.parseRandomizerGame(logLines)
 	RandomizerLog.removeMappings()
-
-	RandomizerLog.calcExtraData()
-
 	Utils.tempEnableBizhawkSound()
 	return true
 end
@@ -491,31 +488,6 @@ function RandomizerLog.printMoveIds()
 	end
 end
 
-function RandomizerLog.calcExtraData()
-	RandomizerLog.Data.Statistics = {}
-	local pokemonData = RandomizerLog.Data.Pokemon
-	local statKeys = Constants.OrderedLists.STATSTAGES
-
-	-- for each stat make a table
-	for _, key in ipairs(statKeys) do
-		local statTable = {}
-		for id, pokemon in pairs(pokemonData) do
-			table.insert(statTable, { id = id, stat = pokemon.BaseStats[key] })
-		end
-
-		-- sort table by stat
-		table.sort(statTable, function(a, b)
-			return a.stat > b.stat
-		end)
-
-		-- add rank for stat to pokemon
-		for i, data in ipairs(statTable) do
-			pokemonData[data.id].BaseStats[key .. "Rank"] = i
-			-- as percentile to two decimal places
-			pokemonData[data.id].BaseStats[key .. "Percentile"] = math.floor(i / #statTable * 10000) / 100
-		end
-	end
-end
 
 function RandomizerLog.setupMappings()
 	RandomizerLog.PokemonNameToIdMap = {} -- setup later while parsing the first important log sector
