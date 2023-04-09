@@ -494,14 +494,14 @@ function LogOverlay.buildPagedButtons()
 					if LogOverlay.Windower.filterGrid == "#" then
 						include = true
 						-- Pokemon name
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[1] then
+					elseif LogSearchScreen.currentFilter == "Pokemon Name" then
 						include = LogOverlay.Windower.filterGrid:lower() ==
 							self.pokemonName:sub(1, #LogOverlay.Windower.filterGrid):lower() or
 
 							-- Check whole word for matches, not just the start
 							(self.pokemonName:lower():find(LogOverlay.Windower.filterGrid:lower()))
 						-- Ability name
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[2] then
+					elseif LogSearchScreen.currentFilter == "Ability" then
 						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[ability].name
 							if LogOverlay.Windower.filterGrid:lower() ==
@@ -514,7 +514,7 @@ function LogOverlay.buildPagedButtons()
 							end
 						end
 						-- Learnable moves
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.filters[3] then
+					elseif LogSearchScreen.currentFilter == "Learnable Move" then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 								local moveText = move.name
 								if LogOverlay.Windower.filterGrid:lower() ==

@@ -44,7 +44,7 @@ function LogSearchScreen.initialize()
 	-- =====LABELS=====
 	LogSearchScreen.labels.header = {
 		x = LogSearchScreen.topBox.x + 15,
-		y = -4,
+		y = -3,
 		text = "Search the Log",
 		color = LogSearchScreen.Colors.headerText,
 	}
@@ -164,127 +164,76 @@ function LogSearchScreen.createButtons()
 		end,
 	}
 
-	-- =====FILTER DROPDOWN BUTTON=====
-	LSS.Buttons.filterDropDown = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		box = {
-			topBox.x + Utils.calcWordPixelLength(LSS.filterLabelText .. " ") + LSS.paddingConst * 3,
-			LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2,
-			-- End at end of search text
-			LSS.Buttons.searchText.box[3]
-				- Utils.calcWordPixelLength(LSS.filterLabelText .. " ")
-				- LSS.paddingConst * 2
-				+ 1,
-			Constants.SCREEN.LINESPACING + 1,
-		},
-		boxColors = {
-			LSS.Colors.upperBoxBorder,
-			LSS.Colors.upperBoxBG,
-		},
-		onClick = function(self)
-			LSS.filterDropDownOpen = not LSS.filterDropDownOpen
-		end,
-		draw = function(self, shadowcolor)
-			-- Draw text, not using the default draw function because it can only draw the shadow color of the box itself
-			local text = LSS.currentFilter
-			Drawing.drawText(
-				self.box[1] + 1,
-				self.box[2],
-				text,
-				Theme.COLORS[LSS.Colors.lowerBoxText],
-				LSS.Colors.upperShadowcolor
-			)
-			-- Draw triangle for dropdown
-			local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
-			Drawing.drawImageAsPixels(
-				triangleImage,
-				self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst + 1,
-				self.box[2] + 1,
-				Theme.COLORS[LSS.Colors.lowerBoxText],
-				LSS.Colors.upperShadowcolor
-			)
-			-- Vertical line
-			gui.drawLine(
-				self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
-				self.box[2] + 1,
-				self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
-				self.box[2] + self.box[4] - 1,
-				Theme.COLORS[self.boxColors[1]]
-			)
-		end,
-	}
+	-- =====FILTER DROPDOWN BUTTONS=====
 	LSS.createUpdateFilterDropdown()
 end
 
 --- Updates the filter dropdown buttons
 function LogSearchScreen.createUpdateFilterDropdown()
-	local buttonNum = 1
+	local buttonNum = 0
 	local LSS = LogSearchScreen
+	local topBox = LSS.topBox
+	local initialBox = {
+		topBox.x + Utils.calcWordPixelLength(LSS.filterLabelText .. " ") + LSS.paddingConst * 3,
+		LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2,
+		-- End at end of search text
+		LSS.Buttons.searchText.box[3]
+		- Utils.calcWordPixelLength(LSS.filterLabelText .. " ")
+		- LSS.paddingConst * 2
+		+ 1,
+		Constants.SCREEN.LINESPACING + 1,
+	}
 	for i, filter in ipairs(LSS.filters) do
-		if filter == LSS.currentFilter then
-			LSS.Buttons[filter] = nil
-		else
-			LSS.Buttons[filter] = {
-				type = Constants.ButtonTypes.FULL_BORDER,
-				box = {
-					LSS.Buttons.filterDropDown.box[1],
-					LSS.Buttons.filterDropDown.box[2] + LSS.Buttons.filterDropDown.box[4] * buttonNum,
-					LSS.Buttons.filterDropDown.box[3],
-					Constants.SCREEN.LINESPACING + 1,
-				},
-				boxColors = {
-					LSS.Colors.upperBoxBorder,
-					LSS.Colors.upperBoxBG,
-				},
-				onClick = function(self)
-					LSS.filterDropDownOpen = not LSS.filterDropDownOpen
-					LSS.currentFilter = filter
-					-- TODO Add checkbox and multiple filters at once
-					--[[if LSS.activeFilters[filter] then
-						LSS.activeFilters[filter] = nil
-					else
-						LSS.activeFilters[filter] = true
-					end ]]
-					LSS.createUpdateFilterDropdown()
-				end,
-				isVisible = function(self)
-					return LSS.filterDropDownOpen
-				end,
-				dropDownText = filter,
-				textColor = LSS.Colors.lowerBoxText,
-				draw = function(self, shadowcolor)
-					-- Draw text, not using the default draw function because it can only draw the shadow color of the box itself
-					local text = self.dropDownText
-					Drawing.drawText(
-						self.box[1] + 1,
-						self.box[2],
-						text,
-						Theme.COLORS[self.textColor],
-						LSS.Colors.upperShadowcolor
-					)
-					-- TODO: Add checkbox and multiple filters at once
-					--[[ -- Draw checkbox
-					local checkboxImage = Constants.PixelImages.CHECKBOX
+		LSS.Buttons[filter] = {
+			text = filter,
+			type = Constants.ButtonTypes.FULL_BORDER,
+			box = {
+				initialBox[1],
+				initialBox[2] + initialBox[4] * buttonNum,
+				initialBox[3],
+				Constants.SCREEN.LINESPACING + 1,
+			},
+			boxColors = {
+				LSS.Colors.upperBoxBorder,
+				LSS.Colors.upperBoxBG,
+			},
+			onClick = function(self)
+				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
+				LSS.currentFilter = filter
+				-- Re-order the buttons so the current filter is on top
+				table.remove(LSS.filters, i)
+				table.insert(LSS.filters, 1, filter)
+				LSS.createUpdateFilterDropdown()
+				LogSearchScreen.UpdateSearch()
+			end,
+			isVisible = function(self)
+				return LSS.filterDropDownOpen or filter == LSS.currentFilter
+			end,
+			dropDownText = filter,
+			textColor = LSS.Colors.lowerBoxText,
+			shadowcolor = nil,
+			draw = function(self, shadowcolor)
+				if filter == LSS.currentFilter then
+					local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
 					Drawing.drawImageAsPixels(
-						checkboxImage,
-						self.box[1] + self.box[3] - #checkboxImage - LogSearchScreen.paddingConst + 1,
+						triangleImage,
+						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst + 1,
 						self.box[2] + 1,
-						Theme.COLORS[self.textColor],
+						Theme.COLORS[LSS.Colors.lowerBoxText],
 						LSS.Colors.upperShadowcolor
 					)
-					if LSS.activeFilters[filter] then
-						-- draw checkmark
-						Drawing.drawImageAsPixels(
-							Constants.PixelImages.CHECKMARK,
-							self.box[1] + self.box[3] - #checkboxImage - LogSearchScreen.paddingConst + 1,
-							self.box[2] + 1,
-							Theme.COLORS["Intermediate text"]
-						)
-					end ]]
-				end,
-			}
-			buttonNum = buttonNum + 1
-		end
+					-- Vertical line
+					gui.drawLine(
+						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
+						self.box[2] + 1,
+						self.box[1] + self.box[3] - #triangleImage - LogSearchScreen.paddingConst - 1,
+						self.box[2] + self.box[4] - 1,
+						Theme.COLORS[self.boxColors[1]]
+					)
+				end
+			end,
+		}
+		buttonNum = buttonNum + 1
 	end
 end
 
@@ -436,13 +385,16 @@ function LogSearchScreen.drawScreen()
 	for name, button in pairs(LSS.Buttons) do
 		-- don't draw the keyboard buttons, they are drawn below
 		local shadowcolor = button.shadowcolor or LSS.Colors.lowerShadowcolor
+
 		if name == "Keyboard" then
 			shadowcolor = { LSS.Colors.upperShadowcolor, shadowcolor }
+
 			for letter, key in pairs(button) do
 				Drawing.drawButton(key, shadowcolor)
 			end
-		elseif name == "filterDropDown" then
-			Drawing.drawButton(button, { shadowcolor, LSS.Colors.upperShadowcolor })
+			-- Different logic for each filter in LSS.filters
+		elseif Utils.findInTable(LSS.filters, name) then
+			Drawing.drawButton(button, {nil, LSS.Colors.upperShadowcolor})
 		else
 			Drawing.drawButton(button, shadowcolor)
 		end

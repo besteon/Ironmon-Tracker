@@ -258,8 +258,8 @@ function Drawing.drawButton(button, shadowcolor)
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
 		if button.text ~= nil and button.text ~= "" then
 			local offSetX = button.textOffsetX or 0
-			local offSetY = button.textOffsetY or 0
-			Drawing.drawText(x + 1+ offSetX, y+offSetY, button.text, Theme.COLORS[button.textColor], shadowcolor)
+            local offSetY = button.textOffsetY or 0
+			Drawing.drawText(x + 1+ offSetX, y+offSetY, button.text, Theme.COLORS[button.textColor], shadowcolorInner)
 		end
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
 		if button.text ~= nil and button.text ~= "" then
