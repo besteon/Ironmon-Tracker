@@ -312,14 +312,16 @@ LogOverlay.Buttons = {
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		textColor = "Default text",
-		box = { LogOverlay.margin + 4, LogOverlay.tabHeight + 65, 10, 10, },
+		textColor = Theme.headerHighlightKey,
+		shadowcolor = false,
+		-- Left of CurrentPage
+		box = { LogOverlay.margin + 151 - 13, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
 		updateText = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.textColor = "Lower box text"
 			else
-				self.textColor = "Default text"
+				self.textColor = Theme.headerHighlightKey
 			end
 		end,
 		onClick = function(self)
@@ -331,14 +333,16 @@ LogOverlay.Buttons = {
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH - LogOverlay.margin - 13, LogOverlay.tabHeight + 65, 10, 10, },
+		textColor = Theme.headerHighlightKey,
+		shadowcolor = false,
+		-- Right of CurrentPage, account for current page text
+		box = { LogOverlay.margin + 151 + 50 + 3, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
 		updateText = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.textColor = "Lower box text"
 			else
-				self.textColor = "Default text"
+				self.textColor = Theme.headerHighlightKey
 			end
 		end,
 		onClick = function(self)
@@ -541,9 +545,9 @@ function LogOverlay.buildPagedButtons()
 			table.insert(LogOverlay.PagedButtons.Pokemon, button)
 		end
 	end
+local navOffsetX = navStartX
+--[[ 	-- Build Pokemon navigation
 
-	-- Build Pokemon navigation
-	local navOffsetX = navStartX
 	local navLabels = { "#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "(?)", }
 	for _, navLabel in ipairs(navLabels) do
 		local labelWidth = Utils.calcWordPixelLength(navLabel) + 2 -- +2 to make it a bit wider
@@ -595,7 +599,7 @@ function LogOverlay.buildPagedButtons()
 		elseif navLabel == "Z" then
 			navOffsetX = navOffsetX + 8
 		end
-	end
+	end]]
 
 	-- Determine gym TMs for the game, they'll be highlighted
 	local gymTMs = {}

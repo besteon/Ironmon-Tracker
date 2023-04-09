@@ -235,7 +235,9 @@ function Drawing.drawButton(button, shadowcolor)
 		bordercolor = Theme.COLORS["Upper box border"]
 		fillcolor = Theme.COLORS["Upper box background"]
 	end
-
+	if button.shadowcolor == false then
+		shadowcolor = nil
+	end
 	local shadowcolorInner = shadowcolor
 	if type(shadowcolor) == "table" then
 		shadowcolorInner = shadowcolor[2]
