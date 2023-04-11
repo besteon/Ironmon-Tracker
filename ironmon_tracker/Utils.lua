@@ -50,7 +50,7 @@ function Utils.generatebitwisemap(value, size)
 			map[i] = false
 		end
 		if value > 0 then
-			Utils.bit_rshift(value, 1)
+			value = Utils.bit_rshift(value, 1)
 		end
 	end
 	return map

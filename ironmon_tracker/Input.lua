@@ -186,7 +186,31 @@ function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
 	return (xmouse >= x and xmouse <= x + width) and (ymouse >= y and ymouse <= y + height)
 end
 
-function Input.checkButtonsClicked(xmouse, ymouse, buttons)
+function Input.checkButtonsClicked(xmouse, ymouse, buttons,indexed)
+	if indexed then
+		for _, button in ipairs(buttons) do
+			-- Only check for clicks on the button if it's visible (no function implies visibility)
+			if button.isVisible == nil or button:isVisible() then
+				local isAreaClicked
+
+				-- If the button has an override for which area to check for mouse clicks, use that
+				if button.clickableArea ~= nil then
+					isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
+				elseif button.box ~= nil then
+					isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
+				else
+					isAreaClicked = false
+				end
+
+				if isAreaClicked and button.onClick ~= nil then
+					CustomCode.onButtonClicked(button)
+					button:onClick()
+					break;
+				end
+			end
+		end
+		return
+	end
 	for _, button in pairs(buttons) do
 		-- Only check for clicks on the button if it's visible (no function implies visibility)
 		if button.isVisible == nil or button:isVisible() then
@@ -204,7 +228,6 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			if isAreaClicked and button.onClick ~= nil then
 				CustomCode.onButtonClicked(button)
 				button:onClick()
-				break;
 			end
 		end
 	end

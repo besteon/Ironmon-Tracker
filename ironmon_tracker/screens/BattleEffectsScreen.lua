@@ -1,10 +1,14 @@
 BattleEffectsScreen = {
 
 	viewingGeneralBattleInfo = false,
-	viewingIndividualStatuses = true,
+	viewingIndividualStatuses = false,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
-	viewedSideIndex = 0;
+	effectMonIndex = -1,
+	viewedSideIndex = 0,
+	currentPage = 1,
+	numPages = 1,
+	pageSize = 7,
 
 	BattleDetails = {
 		Weather = "None",
@@ -42,64 +46,126 @@ BattleEffectsScreen = {
 		[7] = "Hail",
 		["default"] = "None"
 	},
-	Status2NameMap = {
-		[0] = {"Confused"}, --Confusion
-		[1] = {"Confused"},
-		[2] = {"Confused"},
-		[3] = {"Flinched"}, --Flinch
-		[4] = {"Uproaring"}, --Uproar
-		[5] = {"Uproaring"},
-		[6] = {"Uproaring"},
-		[8] = {"Using Bide"}, --Bide
-		[9] = {"Using Bide"},
-		[10] = {"Attacking Wildly"}, --Thrash, Outrage, Petal Dance
-		[11] = {"Attacking Wildly"},
-		[12] = {"Locked in"}, --Bide, Charge moves, 2-3 turn moves, Uproar, etc.
-		[13] = {"Restrained"}, --Wrap, Fire Spin, Clamp, etc.
-		[14] = {"Restrained"},
-		[15] = {"Restrained"},
-		[16] = {"Infatuated"}, --Attract, Cute Charm; bit determines which mon(s) this one is attracted to
-		[17] = {"Infatuated"},
-		[18] = {"Infatuated"},
-		[19] = {"Infatuated"},
-		[20] = {"Focused"}, --Focus Energy
-		[21] = {"Transformed"}, --Transform
-		[22] = {"Recharging"}, --Hyper Beam, Blast Burn, Hydro Cannon, Frenzy Plant
-		[23] = {"Raging"}, --Rage
-		[24] = {"Behind a Substitute"}, --Substitute
-		[25] = {"Using Destiny Bond"}, -- Destiny Bond
-		[26] = {"Cannot Escape"}, --Trapping moves, Ingrain, etc.
-		[27] = {"Nightmares"}, --Nightmare
-		[28] = {"Cursed"}, --Curse (from Ghost-type)
-		[29] = {"Foreseeing"}, --Foresight
-		[30] = {"Curled Up"}, --Defense Curl
-		[31] = {"Tormented"}, --Torment
+	PerMonNameMap = {
+
 	},
-	Status3NameMap = {
-		[0] = {"Leech Seeded by Left"},
-		[1] = {"Leech Seeded by Enemy"},
-		[2] = {"Leech Seeded"}, --Leech Seed
-		[3] = {"Locked On"}, --Lock-on
-		[4] = {"Locked On (Extra)"},
-		[5] = {"Perishing"}, --Perish Song
-		[6] = {"Airborne"}, --Fly,
-		[7] = {"Underground"}, --Dig
-		[8] = {"Minimized"}, --Minimize
-		[9] = {"Charged"}, --Charge
-		[10] = {"Rooted"}, --Ingrain
-		[11] = {"Drowsy"}, --Yawn
-		[12] = {"Drowsy (Extra)"},
-		[13] = {"Imprisoning"}, --Imprison
-		[14] = {"Grudge"}, --Grudge
-		[15] = {"Perishing"},
-		[16] = {"Sporting Mud"}, --Mud Sport
-		[17] = {"Sporting Water"}, --Water Sport
-		[18] = {"Underwater"}, --Dive
-		[20] = {"Traced"}, --Trace
+	PerSideNameMap = {
 
 	},
 	Buttons = {
-		Back = {
+		[1] = { --LeftOwn
+			type = Constants.ButtonTypes.NO_BORDER,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			boxColors = {"Upper box border", "Upper box background"},
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 0 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = true
+				BattleEffectsScreen.viewingSideStauses = false
+				BattleEffectsScreen.viewedMonIndex = 0
+				Program.redraw(true)
+			end
+		},
+		[2] = { --LeftOther
+			type = Constants.ButtonTypes.NO_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123, Constants.SCREEN.MARGIN + 22, 11, 11 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = true
+				BattleEffectsScreen.viewingSideStauses = false
+				BattleEffectsScreen.viewedMonIndex = 1
+				Program.redraw(true)
+			end
+		},
+		[3] = { --RightOwn
+			type = Constants.ButtonTypes.NO_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = true
+				BattleEffectsScreen.viewingSideStauses = false
+				BattleEffectsScreen.viewedMonIndex = 2
+				Program.redraw(true)
+			end
+		},
+		[4] = { --RightOther
+			type = Constants.ButtonTypes.NO_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110, Constants.SCREEN.MARGIN + 22, 11, 11 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = true
+				BattleEffectsScreen.viewingSideStauses = false
+				BattleEffectsScreen.viewedMonIndex = 3
+				Program.redraw(true)
+			end
+		},
+		[5] = { --Ally Team
+			type = Constants.ButtonTypes.FULL_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 35, 36, 15 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = false
+				BattleEffectsScreen.viewingSideStauses = true
+				BattleEffectsScreen.viewedSideIndex = 0
+				Program.redraw(true)
+			end
+		},
+		[6] = { -- Enemy Team
+			type = Constants.ButtonTypes.FULL_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 20, 36, 15 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
+				BattleEffectsScreen.viewingIndividualStatuses = false
+				BattleEffectsScreen.viewingSideStauses = true
+				BattleEffectsScreen.viewedSideIndex = 1
+				Program.redraw(true)
+			end
+		},
+		[7] = { -- Entire Battle
+			type = Constants.ButtonTypes.FULL_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 90, Constants.SCREEN.MARGIN + 20, 46, 30},
+			isVisible = function() return true end,
+			onClick = function(self)
+				if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then return end
+				BattleEffectsScreen.viewingIndividualStatuses = false
+				BattleEffectsScreen.viewingSideStauses = false
+				BattleEffectsScreen.viewedSideIndex = 0
+				BattleEffectsScreen.viewedMonIndex = 0
+				Program.redraw(true)
+			end
+		},
+		[8] = { --PageLeft
+			type = Constants.ButtonTypes.NO_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage - 1
+				Program.redraw(true)
+			end
+		},
+		[9] = { --PageRight
+			type = Constants.ButtonTypes.NO_BORDER,
+			boxColors = {"Upper box border", "Upper box background"},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			isVisible = function() return true end,
+			onClick = function(self)
+				BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage + 1
+				Program.redraw(true)
+			end
+		},
+		[10] = { --Back
 			type = Constants.ButtonTypes.FULL_BORDER,
 			text = "Back",
 			textColor = "Default text",
@@ -109,90 +175,8 @@ BattleEffectsScreen = {
 				Program.changeScreenView(TrackerScreen)
 			end
 		},
-		[0] = { --LeftOwn
-			type = Constants.ButtonTypes.NO_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 21, 11, 11 },
-			boxColors = {"Upper box border", "Upper box background"},
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("left own click")
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 0 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 0
-				Program.redraw(true)
-			end
-		},
-		[1] = { --LeftOther
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 125, Constants.SCREEN.MARGIN + 6, 11, 11 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("left other click")
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 1
-				Program.redraw(true)
-			end
-		},
-		[2] = { --RightOwn
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 21, 11, 11 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("right own click")
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 2
-				Program.redraw(true)
-			end
-		},
-		[3] = { --RightOther
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110, Constants.SCREEN.MARGIN + 6, 11, 11 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("right other click")
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 3
-				Program.redraw(true)
-			end
-		},
-		[4] = { --Ally Team
-			type = Constants.ButtonTypes.FULL_BORDER,
-			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 19, 40, 15 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("enemy side click")
-				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = false
-				BattleEffectsScreen.viewingSideStauses = true
-				BattleEffectsScreen.viewedSideIndex = 0
-				Program.redraw(true)
-			end
-		},
-		[5] = { -- Enemy Team
-			type = Constants.ButtonTypes.FULL_BORDER,
-			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 4, 40, 15 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				print ("allied side click")
-				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = false
-				BattleEffectsScreen.viewingSideStauses = true
-				BattleEffectsScreen.viewedSideIndex = 1
-				Program.redraw(true)
-			end
-		},
+	},
+	Constants = {
 	}
 }
 
@@ -315,9 +299,9 @@ function loadStatus2(index)
 		local infatuationTarget = Utils.inlineIf(status2Map[16],0,nil) or Utils.inlineIf(status2Map[17],1,nil) or Utils.inlineIf(status2Map[18],2,nil) or Utils.inlineIf(status2Map[19],3,0)
 		if BattleEffectsScreen.PerMonDetails[index]["Attract"] then
 			BattleEffectsScreen.PerMonDetails[index]["Attract"].active=true
-			BattleEffectsScreen.PerMonDetails[index]["Attract"].affectedBy=infatuationTarget
+			BattleEffectsScreen.PerMonDetails[index]["Attract"].source=infatuationTarget
 		else
-			BattleEffectsScreen.PerMonDetails[index]["Attract"] = {active=true, affectedBy=infatuationTarget}
+			BattleEffectsScreen.PerMonDetails[index]["Attract"] = {active=true, source=infatuationTarget}
 		end
 	end
 	if status2Map[20] then
@@ -456,12 +440,13 @@ function loadStatus3(index)
 		end
 	end
 	if status3Map[6] or status3Map[7] or status3Map[18] then
-		local invulnerableType = Utils.inlineIf(status3Map[6],"Air",nil) or Utils.inlineIf(status3Map[7],"Underground",nil) or Utils.inlineIf(status3Map[18],"Underwater","")
+		local invulnerableType = Utils.inlineIf(status3Map[6],"Airborne",nil) or Utils.inlineIf(status3Map[7],"Underground",nil) or Utils.inlineIf(status3Map[18],"Underwater","")
+		print (invulnerableType)
 		if BattleEffectsScreen.PerMonDetails[index]["Semi Invulnerable"] then
 			BattleEffectsScreen.PerMonDetails[index]["Semi Invulnerable"].active = true
 			BattleEffectsScreen.PerMonDetails[index]["Semi Invulnerable"].type = invulnerableType
 		else
-			BattleEffectsScreen.PerMonDetails[index]["Semi Invulnerable"] = {active=true}
+			BattleEffectsScreen.PerMonDetails[index]["Semi Invulnerable"] = {active=true, type = invulnerableType}
 		end
 	end
 	if status3Map[8] then
@@ -651,23 +636,48 @@ function loadDisableStruct(index)
 	end
 	local protectUses = Memory.readbyte(disableStructBase + 0x08)
 	if protectUses ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index]["Protect Uses"] = protectUses
+		if BattleEffectsScreen.PerMonDetails[index]["Protect Uses"] then
+			BattleEffectsScreen.PerMonDetails[index]["Protect Uses"].active = true
+			BattleEffectsScreen.PerMonDetails[index]["Protect Uses"].count = protectUses
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Protect Uses"] = {active = true, count = protectUses}
+		end
 	end
 	local stockpileCount = Memory.readbyte(disableStructBase + 0x09)
 	if stockpileCount ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index]["Stockpile"] = stockpileCount
+		if BattleEffectsScreen.PerMonDetails[index]["Stockpile"] then
+			BattleEffectsScreen.PerMonDetails[index]["Stockpile"].active = true
+			BattleEffectsScreen.PerMonDetails[index]["Stockpile"].count = stockpileCount
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Stockpile"] = {active = true, count = stockpileCount}
+		end
 	end
 	local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
 	if perishSongCount ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index]["Perish Song"] = perishSongCount
+		if BattleEffectsScreen.PerMonDetails[index]["Perish Song"] then
+			BattleEffectsScreen.PerMonDetails[index]["Perish Song"].active = true
+			BattleEffectsScreen.PerMonDetails[index]["Perish Song"].count = perishSongCount
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Perish Song"] = {active = true, count = perishSongCount}
+		end
 	end
 	local furyCutterCount = Memory.readword(disableStructBase + 0x10)
 	if furyCutterCount ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index]["Fury Cutter"] = furyCutterCount
+		if BattleEffectsScreen.PerMonDetails[index]["Fury Cutter"] then
+			BattleEffectsScreen.PerMonDetails[index]["Fury Cutter"].active = true
+			BattleEffectsScreen.PerMonDetails[index]["Fury Cutter"].count = furyCutterCount
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Fury Cutter"] = {active = true, count = furyCutterCount}
+		end
 	end
 	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11),0,4)
 	if rolloutCount ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index]["Rollout"] = rolloutCount
+		if BattleEffectsScreen.PerMonDetails[index]["Rollout"] then
+			BattleEffectsScreen.PerMonDetails[index]["Rollout"].active = true
+			BattleEffectsScreen.PerMonDetails[index]["Rollout"].count = rolloutCount
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Rollout"] = {active = true, count = rolloutCount}
+		end
 	end
 	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13),0,4)
 	if tauntTimer ~= 0 then
@@ -687,7 +697,13 @@ function loadDisableStruct(index)
 		BattleEffectsScreen.PerMonDetails[index]["Lock On"].source = lockOnSource
 	end
 	local truantCheck = Memory.readbyte(disableStructBase + 0x18)
-	BattleEffectsScreen.PerMonDetails[index]["Truant"] = truantCheck % 1 == 1
+	if truantCheck % 1 == 1 then
+		if BattleEffectsScreen.PerMonDetails[index]["Loafing"] then
+			BattleEffectsScreen.PerMonDetails[index]["Loafing"].active = true
+		else
+			BattleEffectsScreen.PerMonDetails[index]["Loafing"] = {active = true}
+		end
+	end
 end
 
 function loadWishStruct(index)
@@ -734,7 +750,7 @@ end
 function BattleEffectsScreen.loadData()
 	loadTerrain()
 	loadWeather()
-	for i=0,3,1 do
+	for i=0,Battle.numBattlers,1 do
 		loadStatus2(i)
 		loadStatus3(i)
 		loadSideStatuses(i)
@@ -763,8 +779,8 @@ end
 function drawTitle()
 	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
-	local offsetY = Constants.SCREEN.MARGIN + 1
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local offsetY = Constants.SCREEN.MARGIN
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS["Default text"]
 	local defaultArrowColorList = {Theme.COLORS["Default text"]}
@@ -778,63 +794,107 @@ function drawTitle()
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	--Header
-	Drawing.drawText(offsetX, offsetY, screenTitle, textColor, nil, 12, Constants.Font.FAMILY, "bold")
-	offsetY = offsetY + 12
+	Drawing.drawText(offsetX, offsetY, screenTitle, textColor, nil, 15, Constants.Font.FAMILY)
+	offsetY = offsetY + 15
+	offsetX = offsetX + 2
 
 	--Battle scope details
 	Drawing.drawText(offsetX,offsetY, "Terrain: " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(offsetX,offsetY, "Weather: " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY)
-	offsetY = offsetY + linespacing + 2
+	offsetY = offsetY - linespacing - linespacing + 33
 
-	local Xdelta = 40
 	local prefix = "Allied"
 	local suffix = "Team"
 	if BattleEffectsScreen.viewingIndividualStatuses then
-		suffix = "Mon"
-		Xdelta = Xdelta + 2
 		if BattleEffectsScreen.viewedMonIndex % 2 == 1 then
 			prefix = "Enemy"
-			Xdelta = Xdelta -2
 		end
+		suffix = "Mon"
+	elseif not BattleEffectsScreen.viewingSideStauses then
+	 	prefix = "Field"
+		suffix = ""
 	elseif BattleEffectsScreen.viewedSideIndex % 2 == 1 then
 		prefix = "Enemy"
-		Xdelta = Xdelta - 2
 	end
-	Drawing.drawText(offsetX + Xdelta,offsetY, prefix .. " " .. suffix, textColor, nil, linespacing, Constants.Font.FAMILY,  "bold")
+	Drawing.drawText(offsetX,offsetY, prefix .. " " .. suffix, textColor, nil, 12, Constants.Font.FAMILY, "bold")
+end
 
-	Xdelta = 5
-	offsetY = offsetY + linespacing + 1
+function drawBattleDetailsUI()
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
+	local offsetY = Constants.SCREEN.MARGIN + 50
+	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local textColor = Theme.COLORS["Default text"]
+	local linesOnPage = 0
+
+	local Xdelta = 2
+	local allBattleStatuses = BattleEffectsScreen.BattleDetails
+	for key, value in pairs(allBattleStatuses) do
+		if key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" and value.active then
+			Drawing.drawText(offsetX,offsetY, key, textColor, nil, linespacing, Constants.Font.FAMILY)
+			offsetY = offsetY + linespacing + 1
+			linesOnPage = linesOnPage + 1
+		end
+		if linesOnPage == BattleEffectsScreen.pageSize then break end
+	end
+end
+
+function drawPerSideUI()
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
+	local offsetY = Constants.SCREEN.MARGIN + 50
+	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local textColor = Theme.COLORS["Default text"]
+
+	local Xdelta = 2
 	Drawing.drawText(offsetX + Xdelta,offsetY, "Reflect (Turn 2)", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
 	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
 	Drawing.drawText(offsetX + Xdelta,offsetY, "Infatuated", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
-	Drawing.drawText(offsetX + Xdelta,offsetY, "Leech Seed - Tyranitar (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Leech Seed - Tyranitar", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
 	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
 	Drawing.drawText(offsetX + Xdelta,offsetY, "Light Screen (Turn 5)", textColor, nil, linespacing, Constants.Font.FAMILY)
 	offsetY = offsetY + linespacing + 1
-	Drawing.drawText(offsetX + Xdelta,offsetY, "Really long string just to limit test", textColor, nil, linespacing, Constants.Font.FAMILY)
-	offsetY = offsetY + linespacing
-	offsetY = offsetY + linespacing
-
-	Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, offsetX + 45, offsetY, defaultArrowColorList, null)
-	Drawing.drawText(offsetX + 54, offsetY - 3, "1/5", textColor, nil, linespacing, Constants.Font.FAMILY)
-
-	Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, offsetX + 78, offsetY, defaultArrowColorList, null)
-
-end
-
-function drawBattleDetailsUI()
-end
-
-function drawPerSideUI()
+	Drawing.drawText(offsetX + Xdelta,offsetY, "Really long string just to test it", textColor, nil, linespacing, Constants.Font.FAMILY)
+	offsetY = offsetY + linespacing + 7
 end
 
 function drawPerMonUI()
+	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
+	local offsetY = Constants.SCREEN.MARGIN + 50
+	local linespacing = Constants.SCREEN.LINESPACING - 1
+	local textColor = Theme.COLORS["Default text"]
+	local linesOnPage = 0
+
+	local Xdelta = 2
+	local allMonStatuses = BattleEffectsScreen.PerMonDetails[BattleEffectsScreen.viewedMonIndex]
+	for key, value in pairs(allMonStatuses) do
+		local text = key
+		if value.active then
+			if value.type then
+				text = text .. " (" .. value.type .. ")"
+			elseif value.move and MoveData.isValid(value.move) then
+				text = text .. " (" .. MoveData.Moves[value.move] .. ")"
+			elseif value.count then
+				text = text .. ": " .. value.count
+			elseif value.remainingTurns then
+				text = text .. ": Turn " .. value.remainingTurns
+			end
+			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+			offsetY = offsetY + linespacing + 1
+			linesOnPage = linesOnPage + 1
+		end
+		if linesOnPage == BattleEffectsScreen.pageSize then break end
+	end
 end
 
 function drawBattleDiagram()
@@ -842,59 +902,92 @@ function drawBattleDiagram()
 	local defaultArrowColorList = {Theme.COLORS["Default text"]}
 	local selectedArrowColorList = {Theme.COLORS["Positive text"]}
 
-	if BattleEffectsScreen.viewingSideStauses then
-		BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex)%2)].boxColors = {"Positive text", "Upper box background"}
-		BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex + 1)%2)].boxColors = {"Upper box border", "Upper box background"}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex + 1)%2)])
-		Drawing.drawButton(BattleEffectsScreen.Buttons[4+((BattleEffectsScreen.viewedSideIndex)%2)])
-	else
-		BattleEffectsScreen.Buttons[4].boxColors = {"Upper box border", "Upper box background"}
-		BattleEffectsScreen.Buttons[5].boxColors = {"Upper box border", "Upper box background"}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[4])
-		Drawing.drawButton(BattleEffectsScreen.Buttons[5])
+	--Draw battle box first so team box is highlighted properly
+	if BattleEffectsScreen.viewingSideStauses or BattleEffectsScreen.viewingIndividualStatuses then
+		BattleEffectsScreen.Buttons[7].boxColors = {"Upper box border", 0x00000000}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[7])
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[7].box[1] + 3, BattleEffectsScreen.Buttons[7].box[2] + 11, defaultArrowColorList, null)
 	end
-	Drawing.drawButton(BattleEffectsScreen.Buttons[0])
+	--Draw Buttons
+	if BattleEffectsScreen.viewingSideStauses then
+		BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex)%2)].boxColors = {"Positive text", "Upper box background"}
+		BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex + 1)%2)].boxColors = {"Upper box border", "Upper box background"}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex + 1)%2)])
+		Drawing.drawButton(BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex)%2)])
+	else
+		BattleEffectsScreen.Buttons[5].boxColors = {"Upper box border", "Upper box background"}
+		BattleEffectsScreen.Buttons[6].boxColors = {"Upper box border", "Upper box background"}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[5])
+		Drawing.drawButton(BattleEffectsScreen.Buttons[6])
+	end
 	Drawing.drawButton(BattleEffectsScreen.Buttons[1])
 	Drawing.drawButton(BattleEffectsScreen.Buttons[2])
 	Drawing.drawButton(BattleEffectsScreen.Buttons[3])
+	Drawing.drawButton(BattleEffectsScreen.Buttons[4])
 	if BattleEffectsScreen.viewingSideStauses then
 		if BattleEffectsScreen.viewedSideIndex == 0 then
-			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, defaultArrowColorList, null)
-			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, selectedArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, selectedArrowColorList, null)
 		else
-			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, defaultArrowColorList, null)
-			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, selectedArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
+			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, selectedArrowColorList, null)
 		end
 	elseif BattleEffectsScreen.viewingIndividualStatuses then
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 130, Constants.SCREEN.MARGIN + 23, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 8, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
 		Drawing.drawSelectionIndicators(
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[1],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[2],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[3],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex].box[4], Theme.COLORS["Positive text"], 1, 3, 0)
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[1],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[2],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[3],
+			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[4], Theme.COLORS["Positive text"], 1, 3, 0)
+	else
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
 	end
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[0].box[1], BattleEffectsScreen.Buttons[0].box[2], ballColorList, null)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[1].box[1], BattleEffectsScreen.Buttons[1].box[2], ballColorList, null)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[2].box[1], BattleEffectsScreen.Buttons[2].box[2], ballColorList, null)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[3].box[1], BattleEffectsScreen.Buttons[3].box[2], ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[4].box[1], BattleEffectsScreen.Buttons[4].box[2], ballColorList, null)
+
+	if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then
+		BattleEffectsScreen.Buttons[7].boxColors = {"Positive text", 0x00000000}
+		Drawing.drawButton(BattleEffectsScreen.Buttons[7])
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[7].box[1] + 3, BattleEffectsScreen.Buttons[7].box[2] + 11, selectedArrowColorList, null)
+	end
+end
+
+function drawPaging()
+	if BattleEffectsScreen.numPages > 1 then
+		if BattleEffectsScreen.currentPage > 1 then
+			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, offsetX + 45, offsetY, defaultArrowColorList, null)
+		end
+		Drawing.drawText(offsetX + 54, offsetY - 3, BattleEffectsScreen.currentPage .. "/" .. BattleEffectsScreen.numPages, textColor, nil, linespacing, Constants.Font.FAMILY)
+		if BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages then
+			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, offsetX + 78, offsetY, defaultArrowColorList, null)
+		end
+	end
 end
 
 function BattleEffectsScreen.drawScreen()
 	if Battle.inBattle == false then
-		BattleEffectsScreen.Buttons.Back.onClick()
+		BattleEffectsScreen.Buttons[10].onClick()
 		return
 	end
 	drawTitle()
 	drawBattleDiagram()
-	drawBattleDetailsUI()
-	drawPerSideUI()
-	drawPerMonUI()
+	if BattleEffectsScreen.viewingIndividualStatuses then
+		drawPerMonUI()
+	elseif BattleEffectsScreen.viewingSideStauses then
+		drawPerSideUI()
+	else
+		drawBattleDetailsUI()
+	end
+	drawPaging()
 	Drawing.drawButton(BattleEffectsScreen.Buttons.Back)
 end
 
 function BattleEffectsScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, BattleEffectsScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, BattleEffectsScreen.Buttons, true)
 end
 --[[
 Various passive battle situations
