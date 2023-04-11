@@ -583,8 +583,8 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
-	local offsetColumnX = offsetX + 43
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
+	local offsetColumnX = offsetX + 42
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 6) - 2 + 9
@@ -600,7 +600,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	-- POKEMON NAME
 	offsetY = offsetY - 3
 	local pokemonName = data.p.name:upper()
-	Drawing.drawHeader(offsetX - 1, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow, 15)
+	Drawing.drawHeader(offsetX - 2, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	-- POKEMON ICON & TYPES
 	offsetY = offsetY - 7
@@ -642,6 +642,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + linespacing
 
 	-- Draw bottom view box and header
+	offsetX = offsetX - 1
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	botOffsetY = offsetY + 3
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
@@ -751,8 +752,8 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 	local boxInfoBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
 
-	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1
-	local offsetColumnX = offsetX + 45
+	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
+	local offsetColumnX = offsetX + 44
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local botOffsetY = offsetY + (linespacing * 7) + 7
@@ -772,8 +773,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 
 	-- MOVE NAME
 	data.m.name = data.m.name:upper()
-	Drawing.drawHeader(offsetX - 1, offsetY - 4, data.m.name, Theme.COLORS["Default text"], boxInfoTopShadow)
-
+	Drawing.drawHeader(offsetX - 2, offsetY - 4, data.m.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	-- TYPE ICON
 	offsetY = offsetY + linespacing + 4
@@ -827,6 +827,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	end
 
 	-- Draw bottom view box and header
+	offsetX = offsetX - 1
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
 	Drawing.drawText(offsetX - 3, botOffsetY - linespacing - 1, "Summary:", Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
@@ -863,14 +864,12 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 
 	-- set the color for text/number shadows for the top boxes
-	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
 
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
 	local offsetColumnX = offsetX + 45
 	local offsetY = 0 + Constants.SCREEN.MARGIN + 3
 	local linespacing = Constants.SCREEN.LINESPACING - 1
-	local botOffsetY = offsetY + (linespacing * 7) + 7
 
 	local data = DataHelper.buildAbilityInfoDisplay(abilityId)
 
@@ -880,8 +879,8 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Ability NAME
-	data.a.name = data.a.name:upper():gsub(" ", "  ")
-	Drawing.drawHeader(offsetX - 1, offsetY - 3, data.a.name, Theme.COLORS["Default text"], boxInfoTopShadow)
+	data.a.name = data.a.name:upper()
+	Drawing.drawHeader(offsetX - 2, offsetY - 4, data.a.name, Theme.COLORS["Default text"], boxInfoTopShadow)
 
 	--SEARCH ICON
 	local lookupAbility = InfoScreen.Buttons.LookupAbility
