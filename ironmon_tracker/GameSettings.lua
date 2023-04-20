@@ -25,6 +25,7 @@ GameSettings.ABILITIES = {}
 -- 				- Italian script addresses = English 1.1 address - 0x2c06
 -- 				- French script addresses = English 1.1 address - 0x189e
 -- 				- German script addresses = English 1.1 address + 0x4226
+-- 				- Japanese script addresses = English 1.1 address + 0x????
 -- 	LeafGreen:
 -- 		- 1.0: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen.sym
 -- 		- 1.1: https://raw.githubusercontent.com/pret/pokefirered/symbols/pokeleafgreen_rev1.sym
@@ -307,6 +308,15 @@ function GameSettings.setGameInfo(gamecode)
 			BADGE_PREFIX = "FRLG",
 			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
 		},
+		[0x4250524A] = {
+			GAME_NUMBER = 3,
+			GAME_NAME = "Pokemon FireRed (J)",
+			VERSION_GROUP = 2,
+			VERSION_COLOR = "FireRed",
+			LANGUAGE = "Japanese",
+			BADGE_PREFIX = "FRLG",
+			BADGE_XOFFSETS = { 0, -2, -2, 0, 1, 1, 0, 1 },
+		},
 		[0x42504745] = {
 			GAME_NUMBER = 3,
 			GAME_NAME = "Pokemon LeafGreen (U)",
@@ -401,6 +411,10 @@ function GameSettings.setGameVersion(gameversion)
 				versionName = "Pokemon Feuerrote",
 				versionIndex = 6,
 			},
+			[0x00630000] = { -- Japanese
+				versionName = "Pokemon FireRed J",
+				versionIndex = 7,
+			},
 		},
 		["LeafGreen"] = {
 			gameIndex = 5,
@@ -432,6 +446,10 @@ function GameSettings.setGameVersion(gameversion)
 	elseif gameLanguage == "German" then
 		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
 		GermanyData.updateToGermanyData()
+	elseif gameLanguage == "Japanese" then
+		print("Japanese ROM Detected. Currently support is limited.")
+		-- dofile(langFolder .. FileManager.Files.LanguageCode.JapaneseData)
+		-- JapaneseData.updateToJapaneseData()
 	end
 
 	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
@@ -567,7 +585,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- 		Ruby { English 1.0, English 1.1, English 1.2 },
 	-- 		Sapphire { English 1.0, English 1.1, English 1.2 },
 	-- 		Emerald { English },
-	-- 		FireRed { English 1.0, English 1.1, Spanish, Italian, French, German },
+	-- 		FireRed { English 1.0, English 1.1, Spanish, Italian, French, German, Japanese },
 	-- 		LeafGreen { English 1.0, English 1.1 },
 	-- }
 	local addresses = {
@@ -575,21 +593,21 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081fb12c, 0x081fb144, 0x081fb144 },
 			{ 0x081fb0bc, 0x081fb0d4, 0x081fb0d4 },
 			{ 0x0831c898 },
-			{ 0x08250c04, 0x08250c74, 0x0824c3cc, 0x08249ce4, 0x0824b054, 0x08250b28 },
+			{ 0x08250c04, 0x08250c74, 0x0824c3cc, 0x08249ce4, 0x0824b054, 0x08250b28, nil },
 			{ 0x08250be0, 0x08250c50 },
 		},
 		gBaseStats = {
 			{ 0x081fec18, 0x081fec30, 0x081fec30 },
 			{ 0x081feba8, 0x081febc0, 0x081febc0 },
 			{ 0x083203cc },
-			{ 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8 },
+			{ 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8, nil },
 			{ 0x08254760, 0x082547d0 },
 		},
 		gExperienceTables = {
 			{ 0x081fdf78, 0x081fdf90, 0x081fdf90 },
 			{ 0x081fdf08, 0x081fdf20, 0x081fdf20 },
 			{ 0x0831f72c },
-			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08 },
+			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, nil },
 			{ 0x08253ac0, 0x08253b30 },
 		},
 		-- GetEvolutionTargetSpecies + 0x13E
@@ -597,7 +615,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
 			{ 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
 			{ 0x0806D1D6 },
-			{ 0x08043002, 0x08043016, 0x08042EEE, 0x08042EEE, 0x08042EDA, 0x08042F02 },
+			{ 0x08043002, 0x08043016, 0x08042EEE, 0x08042EEE, 0x08042EDA, 0x08042F02, nil },
 			{ 0x08043002, 0x08043016 },
 		},
 		--Task_EvolutionScene + 0x1
@@ -605,7 +623,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0811240d, 0x0811244d, 0x0811242d },
 			{ 0x0811240d, 0x0811242d, 0x0811242d },
 			{ 0x0813e571 },
-			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D },
+			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, nil },
 			{ 0x080ce8b1, 0x080ce8c5 },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3
@@ -613,7 +631,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d8e25, 0x081d8e3d, 0x081d8e3d },
 			{ 0x081d8db5, 0x081d8dcd, 0x081d8dcd },
 			{ 0x082daaec },
-			{ 0x081d8912, 0x081d8982, 0x081D8444, 0x081D5D7C, 0x081D70E4, 0x081DCBA8 },
+			{ 0x081d8912, 0x081d8982, 0x081D8444, 0x081D5D7C, 0x081D70E4, 0x081DCBA8, nil },
 			{ 0x081d88ee, 0x081d895e },
 		},
 		-- BattleScript_FocusPunchSetUp + 0x10
@@ -621,7 +639,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d94ea, 0x081d9502, 0x081d9502 },
 			{ 0x081d947a, 0x081d9492, 0x081d9492 },
 			{ 0x082db20f },
-			{ 0x081d9025, 0x081d9095, 0x081d8b57, 0x081d648f, 0x081d77f7, 0x081DD2BB },
+			{ 0x081d9025, 0x081d9095, 0x081d8b57, 0x081d648f, 0x081d77f7, 0x081DD2BB, nil },
 			{ 0x081d9001, 0x081d9071 },
 		},
 		-- BattleScript_TryLearnMoveLoop
@@ -629,91 +647,91 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d8f0f, 0x081d8f27, 0x081d8f27 },
 			{ 0x081d8e9f, 0x081d8eb7, 0x081d8eb7 },
 			{ 0x082dabd9 },
-			{ 0x081d8a11, 0x081d8a81, 0x081D8543, 0x081d5e7B, 0x0081D71E3, 0x081DCCA7 },
+			{ 0x081d8a11, 0x081d8a81, 0x081D8543, 0x081d5e7B, 0x0081D71E3, 0x081DCCA7, nil },
 			{ 0x081d89ed, 0x081d8a5d },
 		},
 		BattleScript_LearnMoveReturn = {
 			{ 0x081d8f61, 0x081d8f79, 0x081d8f79 },
 			{ 0x081d8ef1, 0x081d8f09, 0x081d8f09 },
 			{ 0x082dac2b },
-			{ 0x081d8a63, 0x081d8ad3, 0x081D8595, 0x081D5ECD, 0x081D7235, 0x081DCC55 },
+			{ 0x081d8a63, 0x081d8ad3, 0x081D8595, 0x081D5ECD, 0x081D7235, 0x081DCC55, nil },
 			{ 0x081d8a3f, 0x081d8aaf },
 		},
 		BattleScript_MoveUsedIsFrozen = {
 			{ 0x081d9548, 0x081d9560, 0x081d9560 },
 			{ 0x081d94d8, 0x081d94f0, 0x081d94f0 },
 			{ 0x082db26d },
-			{ 0x081d9083, 0x081D90F3, 0x081D8BB5, 0x081D64ED, 0x081D7855, 0x081D4ECD },
+			{ 0x081d9083, 0x081D90F3, 0x081D8BB5, 0x081D64ED, 0x081D7855, 0x081D4ECD, nil },
 			{ 0x081d905f, 0x081d90cf },
 		},
 		BattleScript_MoveUsedIsFrozen2 = {
 			{ 0x081d954b, 0x081d9563, 0x081d9563 },
 			{ 0x081d94db, 0x081d94f3, 0x081d94f3 },
 			{ 0x082db270 },
-			{ 0x081d9086, 0x081D90F6, 0x081D8BB8, 0x081D64F0, 0x081D7858, 0x081D4ED0 },
+			{ 0x081d9086, 0x081D90F6, 0x081D8BB8, 0x081D64F0, 0x081D7858, 0x081D4ED0, nil },
 			{ 0x081d9062, 0x081d90d2 },
 		},
 		BattleScript_MoveUsedIsFrozen3 = {
 			{ 0x081d954d, 0x081d9565, 0x081d9565 },
 			{ 0x081d94dd, 0x081d94f5, 0x081d94f5 },
 			{ 0x082db272 },
-			{ 0x081d9088, 0x081D90F8, 0x081D8BBA, 0x081D64F2, 0x081D785A, 0x081D4ED2 },
+			{ 0x081d9088, 0x081D90F8, 0x081D8BBA, 0x081D64F2, 0x081D785A, 0x081D4ED2, nil },
 			{ 0x081d9064, 0x081d90d4 },
 		},
 		BattleScript_MoveUsedUnfroze = {
 			{ 0x081d9557, 0x081d956f, 0x081d956f },
 			{ 0x081d94e7, 0x081d94ff, 0x081d94ff },
 			{ 0x082db27c },
-			{ 0x081d9092, 0x081D9102, 0x081D8BC4, 0x081D64FC, 0x081D7864, 0x081D4EDC },
+			{ 0x081d9092, 0x081D9102, 0x081D8BC4, 0x081D64FC, 0x081D7864, 0x081D4EDC, nil },
 			{ 0x081d906e, 0x081d90de },
 		},
 		BattleScript_MoveUsedUnfroze2 = {
 			{ 0x081d955c, 0x081d9574, 0x081d9574 },
 			{ 0x081d94ec, 0x081d9504, 0x081d9504 },
 			{ 0x082db281 },
-			{ 0x081d9097, 0x081D9107, 0x081D8BC9, 0x081D6501, 0x081D7869, 0x081D4EE1 },
+			{ 0x081d9097, 0x081D9107, 0x081D8BC9, 0x081D6501, 0x081D7869, 0x081D4EE1, nil },
 			{ 0x081d9073, 0x081d90e3 },
 		},
 		BattleScript_MoveUsedIsConfused = {
 			{ 0x081d9598, 0x081d95b0, 0x081d95b0 },
 			{ 0x081d9528, 0x081d9540, 0x081d9540 },
 			{ 0x082db2c0 },
-			{ 0x081d90d6, 0x081d9146, 0x081D8C08, 0x081D6540, 0x081D78A8, 0x081DD36C },
+			{ 0x081d90d6, 0x081d9146, 0x081D8C08, 0x081D6540, 0x081D78A8, 0x081DD36C, nil },
 			{ 0x081d90b2, 0x081d9122 },
 		},
 		BattleScript_MoveUsedIsConfused2 = {
 			{ 0x081d95a1, 0x081d95b9, 0x081d95b9 },
 			{ 0x081d9531, 0x081d9549, 0x081d9549 },
 			{ 0x082db2c9 },
-			{ 0x081d90df, 0x081d914f, 0x081D8C11, 0x081D6549, 0x081D78B1, 0x081DD375 },
+			{ 0x081d90df, 0x081d914f, 0x081D8C11, 0x081D6549, 0x081D78B1, 0x081DD375, nil },
 			{ 0x081d90bb, 0x081d912b },
 		},
 		BattleScript_MoveUsedIsConfusedNoMore = {
 			{ 0x081d95d7, 0x081d95ef, 0x081d95ef },
 			{ 0x081d9567, 0x081d957f, 0x081d957f },
 			{ 0x082db303 },
-			{ 0x081d9119, 0x081d9189, 0x081D8C4B, 0x081D6583, 0x081D78EB, 0x081DD3AF },
+			{ 0x081d9119, 0x081d9189, 0x081D8C4B, 0x081D6583, 0x081D78EB, 0x081DD3AF, nil },
 			{ 0x081d90f5, 0x081d9165 },
 		},
 		BattleScript_MoveUsedIsInLove = {
 			{ 0x081d95fe, 0x081d9616, 0x081d9616 },
 			{ 0x081d958e, 0x081d95a6, 0x081d95a6 },
 			{ 0x082db32a },
-			{ 0x081d9140, 0x081D91B0, 0x081D8C72, 0x081D65AA, 0x081D7912, 0x081DD3D6 },
+			{ 0x081d9140, 0x081D91B0, 0x081D8C72, 0x081D65AA, 0x081D7912, 0x081DD3D6, nil },
 			{ 0x081d911c, 0x081d918c },
 		},
 		BattleScript_MoveUsedIsInLove2 = {
 			{ 0x081d9607, 0x081d961f, 0x081d961f },
 			{ 0x081d9597, 0x081d95af, 0x081d95af },
 			{ 0x082db333 },
-			{ 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF },
+			{ 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF, nil },
 			{ 0x081d9125, 0x081d9195 },
 		},
 		BattleScript_SnatchedMove = {
 			{ 0x81d9491, 0x81d94a9, 0x81d94a9,},
 			{ 0x81d9421, 0x81d9439, 0x81d9439,},
 			{ 0x82db1b6,},
-			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262,},
+			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262, nil },
 			{ 0x81d8fa8, 0x81d9018,}
 		},
 	}
@@ -739,7 +757,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 	-- 		Ruby { English 1.0, English 1.1, English 1.2 },
 	-- 		Sapphire { English 1.0, English 1.1, English 1.2 },
 	-- 		Emerald { English },
-	-- 		FireRed { English 1.0, English 1.1, Spanish, Italian, French, German },
+	-- 		FireRed { English 1.0, English 1.1, Spanish, Italian, French, German, Japanese },
 	-- 		LeafGreen { English 1.0, English 1.1 },
 	-- }
 	local abilityScripts = {
@@ -748,7 +766,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9704, 0x081d971c, 0x081d971c },
 			{ 0x081d9694, 0x081d96ac, 0x081d96ac },
 			{ 0x082db430 },
-			{ 0x081d927f, 0x081d92ef, 0x081d8db1, 0x081d66e9, 0x081d7a51, 0x081DD515 },
+			{ 0x081d927f, 0x081d92ef, 0x081d8db1, 0x081d66e9, 0x081d7a51, 0x081DD515, nil },
 			{ 0x081d925b, 0x081d92cb },
 		},
 		-- BattleScript_SpeedBoostActivates + 0x7
@@ -756,7 +774,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d971f, 0x081d9737, 0x081d9737 },
 			{ 0x081d96af, 0x081d96c7, 0x081d96c7 },
 			{ 0x082db44b },
-			{ 0x081d929a, 0x081d930a, 0x081d8dcc, 0x081d6704, 0x081d7a6c, 0x081DD530 },
+			{ 0x081d929a, 0x081d930a, 0x081d8dcc, 0x081d6704, 0x081d7a6c, 0x081DD530, nil },
 			{ 0x081d9276, 0x081d92e6 },
 		},
 		-- RS: BattleScript_1D97F0 + 0x6
@@ -766,7 +784,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d97f6, 0x081d980e, 0x081d980e },
 			{ 0x081d9786, 0x081d979e, 0x081d979e },
 			{ 0x082db522 },
-			{ 0x081d9371, 0x081d93e1, 0x081d8ea3, 0x081d67db, 0x081d7b43, 0x081DD607 },
+			{ 0x081d9371, 0x081d93e1, 0x081d8ea3, 0x081d67db, 0x081d7b43, 0x081DD607, nil },
 			{ 0x081d934d, 0x081d93bd },
 		},
 		-- RS: BattleScript_1D97A1 + 0x3d
@@ -776,7 +794,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d97de, 0x081d97f6, 0x081d97f6 },
 			{ 0x081d976e, 0x081d9786, 0x081d9786 },
 			{ 0x082db50a },
-			{ 0x081d9359, 0x081d93c9, 0x081d8e8b, 0x081d67c3, 0x081d7b2b, 0x081DD5EF },
+			{ 0x081d9359, 0x081d93c9, 0x081d8e8b, 0x081d67c3, 0x081d7b2b, 0x081DD5EF, nil },
 			{ 0x081d9335, 0x081d93a5 },
 		},
 		-- BattleScript_TraceActivates + 0x6
@@ -784,7 +802,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d972c, 0x081d9744, 0x081d9744 },
 			{ 0x081d96bc, 0x081d96d4, 0x081d96d4 },
 			{ 0x082db458 },
-			{ 0x081d92a7, 0x081d9317, 0x081d8dd9, 0x081d6711, 0x081d7a79, 0x081DD53D },
+			{ 0x081d92a7, 0x081d9317, 0x081d8dd9, 0x081d6711, 0x081d7a79, 0x081DD53D, nil },
 			{ 0x081d9283, 0x081d92f3 },
 		},
 		-- RS: BattleScript_1D7E73 + 0x3
@@ -793,7 +811,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d7e76, 0x081d7e8e, 0x081d7e8e },
 			{ 0x081d7e06, 0x081d7e1e, 0x081d7e1e },
 			{ 0x082d99af },
-			{ 0x081d788f, 0x081D78FF, 0x081D7E3D, 0x081D4CF9, 0x081D6061, 0x081DBB25 },
+			{ 0x081d788f, 0x081D78FF, 0x081D7E3D, 0x081D4CF9, 0x081D6061, 0x081DBB25, nil },
 			{ 0x081d787b, 0x081d78eb },
 		},
 		-- BattleScript_SandstreamActivates + 0x0
@@ -801,7 +819,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9744, 0x081d975c, 0x081d975c },
 			{ 0x081d96d4, 0x081d96ec, 0x081d96ec },
 			{ 0x082db470 },
-			{ 0x081d92bf, 0x081d932f, 0x081d8df1, 0x081d6729, 0x081d7a91, 0x081DD555 },
+			{ 0x081d92bf, 0x081d932f, 0x081d8df1, 0x081d6729, 0x081d7a91, 0x081DD555, nil },
 			{ 0x081d929b, 0x081d930b },
 		},
 		-- BattleScript_ShedSkinActivates + 0x3
@@ -809,7 +827,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d975b, 0x081d9773, 0x081d9773 },
 			{ 0x081d96eb, 0x081d9703, 0x081d9703 },
 			{ 0x082db487 },
-			{ 0x081d92d6, 0x081d9346, 0x081d8e08, 0x081d6740, 0x081d7aa8, 0x081DD56C },
+			{ 0x081d92d6, 0x081d9346, 0x081d8e08, 0x081d6740, 0x081d7aa8, 0x081DD56C, nil },
 			{ 0x081d92b2, 0x081d9322 },
 		},
 		-- BattleScript_DroughtActivates + 0x0
@@ -817,7 +835,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d97fe, 0x081d9816, 0x081d9816 },
 			{ 0x081d978e, 0x081d97a6, 0x081d97a6 },
 			{ 0x082db52a },
-			{ 0x081d9379, 0x081d93e9, 0x081d8eab, 0x081d67e3, 0x081d7b4b, 0x081DD60F },
+			{ 0x081d9379, 0x081d93e9, 0x081d8eab, 0x081d67e3, 0x081d7b4b, 0x081DD60F, nil },
 			{ 0x081d9355, 0x081d93c5 },
 		},
 		-- BattleScript_AbilityNoStatLoss + 0x6
@@ -825,7 +843,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98a1, 0x081d98b9, 0x081d98b9 },
 			{ 0x081d9831, 0x081d9849, 0x081d9849 },
 			{ 0x082db5cd },
-			{ 0x081d941c, 0x081d948c, 0x081d8f4e, 0x081d6886, 0x081d7bee, 0x081DD6B2 },
+			{ 0x081d941c, 0x081d948c, 0x081d8f4e, 0x081d6886, 0x081d7bee, 0x081DD6B2, nil },
 			{ 0x081d93f8, 0x081d9468 },
 		},
 		-- BattleScript_AbilityNoSpecificStatLoss + 0x6
@@ -833,7 +851,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9909, 0x081d9921, 0x081d9921 },
 			{ 0x081d9899, 0x081d98b1, 0x081d98b1 },
 			{ 0x082db635 },
-			{ 0x081d9484, 0x081d94f4, 0x081d8fb6, 0x081d68ee, 0x081d7c56, 0x081DD71A },
+			{ 0x081d9484, 0x081d94f4, 0x081d8fb6, 0x081d68ee, 0x081d7c56, 0x081DD71A, nil },
 			{ 0x081d9460, 0x081d94d0 },
 		},
 		-- BattleScript_SturdyPreventsOHKO + 0x6
@@ -841,7 +859,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d982c, 0x081d9844, 0x081d9844 },
 			{ 0x081d97bc, 0x081d97d4, 0x081d97d4 },
 			{ 0x082db558 },
-			{ 0x081d93a7, 0x081d9417, 0x081d8ed9, 0x081d6811, 0x081d7b79, 0x081DD63D },
+			{ 0x081d93a7, 0x081d9417, 0x081d8ed9, 0x081d6811, 0x081d7b79, 0x081DD63D, nil },
 			{ 0x081d9383, 0x081d93f3 },
 		},
 		-- BattleScript_ObliviousPreventsAttraction + 0x0
@@ -849,7 +867,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98c9, 0x081d98e1, 0x081d98e1 },
 			{ 0x081d9859, 0x081d9871, 0x081d9871 },
 			{ 0x082db5f5 },
-			{ 0x081d9444, 0x081d94b4, 0x081d8f76, 0x081d68ae, 0x081d7c16, 0x081DD6DA },
+			{ 0x081d9444, 0x081d94b4, 0x081d8f76, 0x081d68ae, 0x081d7c16, 0x081DD6DA, nil },
 			{ 0x081d9420, 0x081d9490 },
 		},
 		-- BattleScript_ColorChangeActivates + 0x3
@@ -857,7 +875,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9924, 0x081d993c, 0x081d993c },
 			{ 0x081d98b4, 0x081d98cc, 0x081d98cc },
 			{ 0x082db650 },
-			{ 0x081d949f, 0x081d950f, 0x081d8fd1, 0x081d6909, 0x081d7c71, 0x081DD735 },
+			{ 0x081d949f, 0x081d950f, 0x081d8fd1, 0x081d6909, 0x081d7c71, 0x081DD735, nil },
 			{ 0x081d947b, 0x081d94eb },
 		},
 		-- BattleScript_FlashFireBoost + 0x9
@@ -865,7 +883,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9885, 0x081d989d, 0x081d989d },
 			{ 0x081d9815, 0x081d982d, 0x081d982d },
 			{ 0x082db5b1 },
-			{ 0x081d9400, 0x081d9470, 0x081d8f32, 0x081d686a, 0x081d7bd2, 0x081DD696 },
+			{ 0x081d9400, 0x081d9470, 0x081d8f32, 0x081d686a, 0x081d7bd2, 0x081DD696, nil },
 			{ 0x081d93dc, 0x081d944c },
 		},
 		-- BattleScript_OwnTempoPrevents + 0x0
@@ -873,7 +891,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98e5, 0x081d98fd, 0x081d98fd },
 			{ 0x081d9875, 0x081d988d, 0x081d988d },
 			{ 0x082db611 },
-			{ 0x081d9460, 0x081d94d0, 0x081d8f92, 0x081d68ca, 0x081d7c32, 0x081DD6F6 },
+			{ 0x081d9460, 0x081d94d0, 0x081d8f92, 0x081d68ca, 0x081d7c32, 0x081DD6F6, nil },
 			{ 0x081d943c, 0x081d94ac },
 		},
 		-- BattleScript_AbilityPreventsPhasingOut + 0x6
@@ -881,7 +899,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9893, 0x081d98ab, 0x081d98ab },
 			{ 0x081d9823, 0x081d983b, 0x081d983b },
 			{ 0x082db5bf },
-			{ 0x081d940e, 0x081d947e, 0x081d8f40, 0x081d6878, 0x081d7be0, 0x081DD6A4 },
+			{ 0x081d940e, 0x081d947e, 0x081d8f40, 0x081d6878, 0x081d7be0, 0x081DD6A4, nil },
 			{ 0x081d93ea, 0x081d945a },
 		},
 		-- BattleScript_RoughSkinActivates + 0x10
@@ -889,7 +907,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9938, 0x081d9950, 0x081d9950 },
 			{ 0x081d98c8, 0x081d98e0, 0x081d98e0 },
 			{ 0x082db664 },
-			{ 0x081d94b3, 0x081d9523, 0x081d8fe5, 0x081d691d, 0x081d7c85, 0x081DD749 },
+			{ 0x081d94b3, 0x081d9523, 0x081d8fe5, 0x081d691d, 0x081d7c85, 0x081DD749, nil },
 			{ 0x081d948f, 0x081d94ff },
 		},
 		-- BattleScript_CuteCharmActivates + 0x9
@@ -897,7 +915,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d994c, 0x081d9964, 0x081d9964 },
 			{ 0x081d98dc, 0x081d98f4, 0x081d98f4 },
 			{ 0x082db678 },
-			{ 0x081d94c7, 0x081d9537, 0x081d8ff9, 0x081d6931, 0x081d7c99, 0x081DD75D },
+			{ 0x081d94c7, 0x081d9537, 0x081d8ff9, 0x081d6931, 0x081d7c99, 0x081DD75D, nil },
 			{ 0x081d94a3, 0x081d9513 },
 		},
 		-- RS: BattleScript_NoItemSteal + 0x0
@@ -906,7 +924,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9913, 0x081d992b, 0x081d992b },
 			{ 0x081d98a3, 0x081d98bb, 0x081d98bb },
 			{ 0x082db63f },
-			{ 0x081d948e, 0x081d94fe, 0x081d8fc0, 0x081d68f8, 0x081d7c60, 0x081DD724 },
+			{ 0x081d948e, 0x081d94fe, 0x081d8fc0, 0x081d68f8, 0x081d7c60, 0x081DD724, nil },
 			{ 0x081d946a, 0x081d94da },
 		},
 		-- BattleScript_AbsorbUpdateHp + 0x14
@@ -914,7 +932,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d7053, 0x081d706b, 0x081d706b },
 			{ 0x081d6fe3, 0x081d6ffb, 0x081d6ffb },
 			{ 0x082d8b42 },
-			{ 0x081d6a3f, 0x081d6aaf, 0x081d6571, 0x081d3ea9, 0x081d5211, 0x081DACD5 },
+			{ 0x081d6a3f, 0x081d6aaf, 0x081d6571, 0x081d3ea9, 0x081d5211, 0x081DACD5, nil },
 			{ 0x081d6a1b, 0x081d6a8b },
 		},
 		-- BattleScript_TookAttack + 0x7
@@ -922,7 +940,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9819, 0x081d9831, 0x081d9831 },
 			{ 0x081d97a9, 0x081d97c1, 0x081d97c1 },
 			{ 0x082db545 },
-			{ 0x081d9394, 0x081d9404, 0x081D8EC6, 0x081D67FE, 0x081D7B66, 0x081DD62A },
+			{ 0x081d9394, 0x081d9404, 0x081D8EC6, 0x081D67FE, 0x081D7B66, 0x081DD62A, nil },
 			{ 0x081d9370, 0x081d93e0 },
 		},
 		-- BattleScript_MoveHPDrain + 0x14
@@ -930,7 +948,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9857, 0x081d986f, 0x081d986f },
 			{ 0x081d97e7, 0x081d97ff, 0x081d97ff },
 			{ 0x082db583 },
-			{ 0x081d93d2, 0x081d9442, 0x081d8f04, 0x081d683c, 0x081d7ba4, 0x081DD668 },
+			{ 0x081d93d2, 0x081d9442, 0x081d8f04, 0x081d683c, 0x081d7ba4, 0x081DD668, nil },
 			{ 0x081d93ae, 0x081d941e },
 		},
 		-- RS: BattleScript_MoveHPDrain_FullHP + 0x7
@@ -939,7 +957,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d986d, 0x081d9885, 0x081d9885 },
 			{ 0x081d97fd, 0x081d9815, 0x081d9815 },
 			{ 0x082db599 },
-			{ 0x081d93e8, 0x081d9458, 0x081d8f1a, 0x081d6852, 0x081d7bba, 0x081DD67E },
+			{ 0x081d93e8, 0x081d9458, 0x081d8f1a, 0x081d6852, 0x081d7bba, 0x081DD67E, nil },
 			{ 0x081d93c4, 0x081d9434 },
 		},
 		-- BattleScript_PRLZPrevention + 0x8
@@ -947,7 +965,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98b9, 0x081d98d1, 0x081d98d1 },
 			{ 0x081d9849, 0x081d9861, 0x081d9861 },
 			{ 0x082db5e5 },
-			{ 0x081d9434, 0x081d94a4, 0x081d8f66, 0x081d689e, 0x081d7c06, 0x081DD6CA },
+			{ 0x081d9434, 0x081d94a4, 0x081d8f66, 0x081d689e, 0x081d7c06, 0x081DD6CA, nil },
 			{ 0x081d9410, 0x081d9480 },
 		},
 		-- BattleScript_PSNPrevention + 0x8
@@ -955,7 +973,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98c5, 0x081d98dd, 0x081d98dd },
 			{ 0x081d9855, 0x081d986d, 0x081d986d },
 			{ 0x082db5f1 },
-			{ 0x081d9440, 0x081d94b0, 0x081d8f72, 0x081d68aa, 0x081d7c12, 0x081DD6D6 },
+			{ 0x081d9440, 0x081d94b0, 0x081d8f72, 0x081d68aa, 0x081d7c12, 0x081DD6D6, nil },
 			{ 0x081d941c, 0x081d948c },
 		},
 		-- BattleScript_BRNPrevention + 0x8
@@ -963,7 +981,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98ad, 0x081d98c5, 0x081d98c5 },
 			{ 0x081d983d, 0x081d9855, 0x081d9855 },
 			{ 0x082db5d9 },
-			{ 0x081d9428, 0x081d9498, 0x081d8f5a, 0x081d6892, 0x081d7bfa, 0x081DD6BE },
+			{ 0x081d9428, 0x081d9498, 0x081d8f5a, 0x081d6892, 0x081d7bfa, 0x081DD6BE, nil },
 			{ 0x081d9404, 0x081d9474 },
 		},
 		--BattleScript_FlinchPrevention + 0x6
@@ -971,7 +989,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x81d98dd, 0x81d98f5, 0x81d98f5,},
 			{ 0x81d986d, 0x81d9885, 0x81d9885,},
 			{ 0x82db609,},
-			{ 0x81d9458, 0x81d94c8, 0x81d8f8a, 0x81d68c2, 0x81d7c2a, 0x81dd6ee,},
+			{ 0x81d9458, 0x81d94c8, 0x81d8f8a, 0x81d68c2, 0x81d7c2a, 0x81dd6ee, nil },
 			{ 0x81d9434, 0x81d94a4,}
 		},
 		-- BattleScript_CantMakeAsleep + 0x8
@@ -979,7 +997,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d6fe8, 0x081d7000, 0x081d7000 },
 			{ 0x081d6f78, 0x081d6f90, 0x081d6f90 },
 			{ 0x082d8ad7 },
-			{ 0x081d69d4, 0x081d6a44, 0x081d6506, 0x081d3e3e, 0x081d51a6, 0x081DAC6A },
+			{ 0x081d69d4, 0x081d6a44, 0x081d6506, 0x081d3e3e, 0x081d51a6, 0x081DAC6A, nil },
 			{ 0x081d69b0, 0x081d6a20 },
 		},
 		-- BattleScript_PrintAbilityMadeIneffective
@@ -987,7 +1005,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d8839, 0x081d8851, 0x081d8851 },
 			{ 0x081d87c9, 0x081d87e1, 0x081d87e1 },
 			{ 0x082da382 },
-			{ 0x081d8255, 0x81D82C5, 0x081D7D87, 0x081D56BF, 0x081D6A27, 0x081DC4EB },
+			{ 0x081d8255, 0x81D82C5, 0x081D7D87, 0x081D56BF, 0x081D6A27, 0x081DC4EB, nil },
 			{ 0x081d8231, 0x081d82a1 },
 		},
 		-- BattleScript_RainDishActivates + 0x3
@@ -995,7 +1013,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9733, 0x081d974b, 0x081d974b },
 			{ 0x081d96c3, 0x081d96db, 0x081d96db },
 			{ 0x082db45f },
-			{ 0x081d92ae, 0x081d931e, 0x081d8de0, 0x081d6718, 0x081d7a80, 0x081DD544 },
+			{ 0x081d92ae, 0x081d931e, 0x081d8de0, 0x081d6718, 0x081d7a80, 0x081DD544, nil },
 			{ 0x081d928a, 0x081d92fa },
 		},
 		-- BattleScript_MoveUsedLoafingAround + 0x5
@@ -1003,7 +1021,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d997c, 0x081d9994, 0x081d9994 },
 			{ 0x081d990c, 0x081d9924, 0x081d9924 },
 			{ 0x082db6cc },
-			{ 0x081d94f7, 0x081d9567, 0x081d9029, 0x081d6961, 0x081d7cc9, 0x081DD78D },
+			{ 0x081d94f7, 0x081d9567, 0x081d9029, 0x081d6961, 0x081d7cc9, 0x081DD78D, nil },
 			{ 0x081d94d3, 0x081d9543 },
 		},
 		-- BattleScript_RestCantSleep + 0x8
@@ -1011,7 +1029,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d74ce, 0x081d74e6, 0x081d74e6 },
 			{ 0x081d745e, 0x081d7476, 0x081d7476 },
 			{ 0x082d8fce },
-			{ 0x081d6eba, 0x081d6f2a, 0x081d69ec, 0x081d4324, 0x081d568c, 0x081DB150 },
+			{ 0x081d6eba, 0x081d6f2a, 0x081d69ec, 0x081d4324, 0x081d568c, 0x081DB150, nil },
 			{ 0x081d6e96, 0x081d6f06 },
 		},
 		-- BattleScript_MoveEffectSleep + 0x7
@@ -1019,7 +1037,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9645, 0x081d965d, 0x081d965d },
 			{ 0x081d95d5, 0x081d95ed, 0x081d95ed },
 			{ 0x082db371 },
-			{ 0x081d91c0, 0x081d9230, 0x081d8cf2, 0x081d662a, 0x081d7992, 0x081DD456 },
+			{ 0x081d91c0, 0x081d9230, 0x081d8cf2, 0x081d662a, 0x081d7992, 0x081DD456, nil },
 			{ 0x081d919c, 0x081d920c },
 		},
 		-- BattleScript_MoveEffectParalysis + 0x7
@@ -1027,7 +1045,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d968e, 0x081d96a6, 0x081d96a6 },
 			{ 0x081d961e, 0x081d9636, 0x081d9636 },
 			{ 0x082db3ba },
-			{ 0x081d9209, 0x081d9279, 0x081d8d3b, 0x081d6673, 0x081d79db, 0x081DD49F },
+			{ 0x081d9209, 0x081d9279, 0x081d8d3b, 0x081d6673, 0x081d79db, 0x081DD49F, nil },
 			{ 0x081d91e5, 0x081d9255 },
 		},
 		-- BattleScript_MoveEffectPoison + 0x7
@@ -1035,7 +1053,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9661, 0x081d9679, 0x081d9679 },
 			{ 0x081d95f1, 0x081d9609, 0x081d9609 },
 			{ 0x082db38d },
-			{ 0x081d91dc, 0x081d924c, 0x081d8d0e, 0x081d6646, 0x081d79ae, 0x081DD472 },
+			{ 0x081d91dc, 0x081d924c, 0x081d8d0e, 0x081d6646, 0x081d79ae, 0x081DD472, nil },
 			{ 0x081d91b8, 0x081d9228 },
 		},
 		-- BattleScript_MoveEffectBurn + 0x7
@@ -1043,7 +1061,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9670, 0x081d9688, 0x081d9688 },
 			{ 0x081d9600, 0x081d9618, 0x081d9618 },
 			{ 0x082db39c },
-			{ 0x081d91eb, 0x081d925b, 0x081d8d1d, 0x081d6655, 0x081d79bd, 0x081DD481 },
+			{ 0x081d91eb, 0x081d925b, 0x081d8d1d, 0x081d6655, 0x081d79bd, 0x081DD481, nil },
 			{ 0x081d91c7, 0x081d9237 },
 		},
 		-- BattleScript_DampStopsExplosion + 0x6
@@ -1051,7 +1069,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d983a, 0x081d9852, 0x081d9852 },
 			{ 0x081d97ca, 0x081d97e2, 0x081d97e2 },
 			{ 0x082db566 },
-			{ 0x081d93b5, 0x081d9425, 0x081d8ee7, 0x081d681f, 0x081d7b87, 0x081DD64B },
+			{ 0x081d93b5, 0x081d9425, 0x081d8ee7, 0x081d681f, 0x081d7b87, 0x081DD64B, nil },
 			{ 0x081d9391, 0x081d9401 },
 		},
 		-- BattleScript_SoundproofProtected + 0x8
@@ -1059,7 +1077,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d98fb, 0x081d9913, 0x081d9913 },
 			{ 0x081d988b, 0x081d98a3, 0x081d98a3 },
 			{ 0x082db627 },
-			{ 0x081d9476, 0x081d94e6, 0x081d8fa8, 0x081d68e0, 0x081d7c48, 0x081DD70C },
+			{ 0x081d9476, 0x081d94e6, 0x081d8fa8, 0x081d68e0, 0x081d7c48, 0x081DD70C, nil },
 			{ 0x081d9452, 0x081d94c2 },
 		},
 		-- BattleScript_EffectHealBell + 0x29
@@ -1067,7 +1085,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d7bde, 0x081d7bf6, 0x081d7bf6 },
 			{ 0x081d7b6e, 0x081d7b86, 0x081d7b86 },
 			{ 0x082d96ea },
-			{ 0x081d75ca, 0x081d763a, 0x081d70fc, 0x081d4a34, 0x081d5d9c, 0x081DB860 },
+			{ 0x081d75ca, 0x081d763a, 0x081d70fc, 0x081d4a34, 0x081d5d9c, 0x081DB860, nil },
 			{ 0x081d75a6, 0x081d7616 },
 		},
 		-- BattleScript_LeechSeedTurnPrintAndUpdateHp + 0x12
@@ -1075,7 +1093,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 			{ 0x081d9095, 0x081d90ad, 0x081d90ad },
 			{ 0x081d9025, 0x081d903d, 0x081d903d },
 			{ 0x082dad5f },
-			{ 0x081d8b97, 0x081d8c07, 0x081d86c9, 0x081d6001, 0x081d7369, 0x081DCE2D },
+			{ 0x081d8b97, 0x081d8c07, 0x081d86c9, 0x081d6001, 0x081d7369, 0x081DCE2D, nil },
 			{ 0x081d8b73, 0x081d8be3 },
 		},
 	}
