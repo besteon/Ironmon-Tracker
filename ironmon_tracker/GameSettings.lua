@@ -205,7 +205,7 @@ function GameSettings.initialize()
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
 	-- 0x02...
-	GameSettings.setEwramAddresses()
+	GameSettings.setEwramAddresses(gameIndex, versionIndex)
 	-- 0x03...
 	GameSettings.setIwramAddresses()
 	-- 0x08...
@@ -456,53 +456,53 @@ function GameSettings.setGameVersion(gameversion)
 end
 
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
-function GameSettings.setEwramAddresses()
+function GameSettings.setEwramAddresses(gameIndex, versionIndex)
 	-- Use nil values for non-existant / deliberately omitted addresses, and 0x00000000 for placeholder unknowns
-	-- Format: Address = { RS, Emerald, FRLG }
+	-- Format: Address = { RS, Emerald, { FRLG Non-Japanese, FRLG Japanese } }
 	local addresses = {
 		-- Player Stats, exists in IWRAM instead in RS
-		pstats = { nil, 0x020244EC, 0x02024284 },
+		pstats = { nil, 0x020244EC, { 0x02024284, 0x02024284 - 0xA0 }, },
 		-- Enemy Stats, exists in IWRAM instead in RS
-		estats = { nil, 0x02024744, 0x0202402C },
+		estats = { nil, 0x02024744, { 0x0202402C, 0x0202402C + 0x0 }, },
 		-- Player Party Size, exists in IWRAM instead in RS
-		gPlayerPartyCount = { nil, 0x020244e9, 0x02024029 },
+		gPlayerPartyCount = { nil, 0x020244e9, { 0x02024029, 0x02024029 + 0x0 }, },
 
 		-- RS uses this directly (gSharedMem + 0x14800)
 		sEvoInfo = { 0x02014800, nil, nil },
 		-- Em/FRLG uses this pointer instead
-		sEvoStructPtr = { nil, 0x0203ab80, 0x02039a20 },
+		sEvoStructPtr = { nil, 0x0203ab80, { 0x02039a20, 0x02039a20 + 0x0 }, },
 
 		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
-		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, 0x02023fc4 + 0x17 },
+		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, { 0x02023fc4 + 0x17, 0x02023fc4 + 0x17 + 0x0 }, },
 		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
-		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, 0x020386ae },
+		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, { 0x020386ae, 0x020386ae + 0x0 }, },
 		gTrainerBattleOpponent_B = { nil, 0x02038bcc, nil }, -- Emerald Only
-		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, 0x0203b140 },
-		gBattleTypeFlags = { 0x020239f8, 0x02022fec, 0x02022b4c },
-		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, 0x02023bc8 },
-		gBattlersCount = { 0x02024a68, 0x0202406c, 0x02023bcc },
-		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, 0x02023bce },
-		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, 0x02023bda },
-		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, 0x02023be2 },
-		gBattleMons = { 0x02024a80, 0x02024084, 0x02023be4 },
-		gTakenDmg = { 0x02024bf4, 0x020241f8, 0x02023d58 },
-		gBattlerAttacker = { 0x02024c07, 0x0202420B, 0x02023d6b },
-		gBattlerTarget = { 0x02024c08, 0x0202420c, 0x02023d6c },
-		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, 0x02023d74 },
-		gMoveResultFlags = { 0x02024c68, 0x0202427c, 0x02023dcc },
-		gHitMarker = { 0x02024c6c, 0x02024280, 0x02023dd0 },
-		gBattleCommunication = { 0x02024d1e, 0x02024332, 0x02023e82 },
-		gBattleOutcome = { 0x02024d26, 0x0202433a, 0x02023e8a }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-		gBattleStructPtr = { nil, 0x0202449c, 0x02023fe8 },
-		gBattleWeather = { 0x02024db8, 0x020243cc, 0x02023f1c },
-		gMoveToLearn = { 0x02024e82, 0x020244e2, 0x02024022 },
-		gMapHeader = { 0x0202e828, 0x02037318, 0x02036dfc },
-		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, 0x020370d0 },
+		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, { 0x0203b140, 0x0203b140 + 0x0 }, },
+		gBattleTypeFlags = { 0x020239f8, 0x02022fec, { 0x02022b4c, 0x02022b4c + 0x0 }, },
+		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, { 0x02023bc8, 0x02023bc8 + 0x0 }, },
+		gBattlersCount = { 0x02024a68, 0x0202406c, { 0x02023bcc, 0x02023bcc + 0x0 }, },
+		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, { 0x02023bce, 0x02023bce + 0x0 }, },
+		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, { 0x02023bda, 0x02023bda + 0x0 }, },
+		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, { 0x02023be2, 0x02023be2 + 0x0 }, },
+		gBattleMons = { 0x02024a80, 0x02024084, { 0x02023be4, 0x02023be4 }, },
+		gTakenDmg = { 0x02024bf4, 0x020241f8, { 0x02023d58, 0x02023d58 + 0x0 }, },
+		gBattlerAttacker = { 0x02024c07, 0x0202420B, { 0x02023d6b, 0x02023d6b + 0x0 }, },
+		gBattlerTarget = { 0x02024c08, 0x0202420c, { 0x02023d6c, 0x02023d6c + 0x0 }, },
+		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, { 0x02023d74, 0x02023d74 + 0x0 }, },
+		gMoveResultFlags = { 0x02024c68, 0x0202427c, { 0x02023dcc, 0x02023dcc + 0x0 }, },
+		gHitMarker = { 0x02024c6c, 0x02024280, { 0x02023dd0, 0x02023dd0 + 0x0 }, },
+		gBattleCommunication = { 0x02024d1e, 0x02024332, { 0x02023e82, 0x02023e82 + 0x0 }, },
+		gBattleOutcome = { 0x02024d26, 0x0202433a, { 0x02023e8a, 0x02023e8a + 0x0 }, }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+		gBattleStructPtr = { nil, 0x0202449c, { 0x02023fe8, 0x02023fe8 + 0x0 }, },
+		gBattleWeather = { 0x02024db8, 0x020243cc, { 0x02023f1c, 0x02023f1c + 0x0 }, },
+		gMoveToLearn = { 0x02024e82, 0x020244e2, { 0x02024022, 0x02024022 + 0x0 }, },
+		gMapHeader = { 0x0202e828, 0x02037318, { 0x02036dfc, 0x02036dfc - 0xCC }, },
+		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, { 0x020370d0, 0x020370d0 + 0x0 }, },
 		-- RS: gUnknown_0202E8E2
-		sSpecialFlags = { 0x0202e8e2, 0x020375fc, 0x020370e0 }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
-		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, 0x0203ad30 },
+		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + 0x0 }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
+		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + 0x0 }, },
 		-- RS: gAbilitiesPerBank
-		sBattlerAbilities = { 0x0203926c, 0x0203aba4, 0x02039a30 },
+		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + 0x0 }, },
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
@@ -519,16 +519,23 @@ function GameSettings.setEwramAddresses()
 		EncryptionKeyOffset = { nil, 0xAC, 0xF20 },
 
 		-- These addresses are in IWRAM instead in RS, will be set later
-		sBattleBuffersTransferData = { nil, 0x02022d10, 0x02022874 },
-		gBattleTextBuff1 = { nil, 0x02022f58, 0x02022ab8 },
-		gBattleTerrain = { nil, 0x02022ff0, 0x02022b50 },
+		sBattleBuffersTransferData = { nil, 0x02022d10, { 0x02022874, 0x02022874 + 0x0 }, },
+		gBattleTextBuff1 = { nil, 0x02022f58, { 0x02022ab8, 0x02022ab8 + 0x0 }, },
+		gBattleTerrain = { nil, 0x02022ff0, { 0x02022b50, 0x02022b50 + 0x0 }, },
 		-- This address doesn't exist at all in RS
-		sStartMenuWindowId = { nil, 0x0203cd8c, 0x0203abe0 },
+		sStartMenuWindowId = { nil, 0x0203cd8c, { 0x0203abe0, 0x0203abe0 + 0x0 }, },
 		sSaveDialogDelay = { nil, 0x2037620, nil},
 	}
 
 	for key, address in pairs(addresses) do
 		local value = address[GameSettings.game]
+		if GameSettings.game == 3 and type(value) == "table" then
+			if gameIndex == 4 and versionIndex == 7 then -- Japanese FireRed
+				value = value[2]
+			else
+				value = value[1]
+			end
+		end
 		if value ~= nil then
 			GameSettings[key] = value
 		end
@@ -623,7 +630,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0811240d, 0x0811244d, 0x0811242d },
 			{ 0x0811240d, 0x0811242d, 0x0811242d },
 			{ 0x0813e571 },
-			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, nil },
+			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, 0x080cf9f9 },
 			{ 0x080ce8b1, 0x080ce8c5 },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3
@@ -631,7 +638,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d8e25, 0x081d8e3d, 0x081d8e3d },
 			{ 0x081d8db5, 0x081d8dcd, 0x081d8dcd },
 			{ 0x082daaec },
-			{ 0x081d8912, 0x081d8982, 0x081D8444, 0x081D5D7C, 0x081D70E4, 0x081DCBA8, nil },
+			{ 0x081d8912, 0x081d8982, 0x081D8444, 0x081D5D7C, 0x081D70E4, 0x081DCBA8, 0x081bc8ce },
 			{ 0x081d88ee, 0x081d895e },
 		},
 		-- BattleScript_FocusPunchSetUp + 0x10
@@ -639,7 +646,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d94ea, 0x081d9502, 0x081d9502 },
 			{ 0x081d947a, 0x081d9492, 0x081d9492 },
 			{ 0x082db20f },
-			{ 0x081d9025, 0x081d9095, 0x081d8b57, 0x081d648f, 0x081d77f7, 0x081DD2BB, nil },
+			{ 0x081d9025, 0x081d9095, 0x081d8b57, 0x081d648f, 0x081d77f7, 0x081DD2BB, 0x081BCFE1 },
 			{ 0x081d9001, 0x081d9071 },
 		},
 		-- BattleScript_TryLearnMoveLoop
@@ -647,91 +654,91 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081d8f0f, 0x081d8f27, 0x081d8f27 },
 			{ 0x081d8e9f, 0x081d8eb7, 0x081d8eb7 },
 			{ 0x082dabd9 },
-			{ 0x081d8a11, 0x081d8a81, 0x081D8543, 0x081d5e7B, 0x0081D71E3, 0x081DCCA7, nil },
+			{ 0x081d8a11, 0x081d8a81, 0x081D8543, 0x081d5e7B, 0x0081D71E3, 0x081DCCA7, 0x081BC9CD },
 			{ 0x081d89ed, 0x081d8a5d },
 		},
 		BattleScript_LearnMoveReturn = {
 			{ 0x081d8f61, 0x081d8f79, 0x081d8f79 },
 			{ 0x081d8ef1, 0x081d8f09, 0x081d8f09 },
 			{ 0x082dac2b },
-			{ 0x081d8a63, 0x081d8ad3, 0x081D8595, 0x081D5ECD, 0x081D7235, 0x081DCC55, nil },
+			{ 0x081d8a63, 0x081d8ad3, 0x081D8595, 0x081D5ECD, 0x081D7235, 0x081DCC55, 0x081BCA1F },
 			{ 0x081d8a3f, 0x081d8aaf },
 		},
 		BattleScript_MoveUsedIsFrozen = {
 			{ 0x081d9548, 0x081d9560, 0x081d9560 },
 			{ 0x081d94d8, 0x081d94f0, 0x081d94f0 },
 			{ 0x082db26d },
-			{ 0x081d9083, 0x081D90F3, 0x081D8BB5, 0x081D64ED, 0x081D7855, 0x081D4ECD, nil },
+			{ 0x081d9083, 0x081D90F3, 0x081D8BB5, 0x081D64ED, 0x081D7855, 0x081D4ECD, 0x081BD03C },
 			{ 0x081d905f, 0x081d90cf },
 		},
 		BattleScript_MoveUsedIsFrozen2 = {
 			{ 0x081d954b, 0x081d9563, 0x081d9563 },
 			{ 0x081d94db, 0x081d94f3, 0x081d94f3 },
 			{ 0x082db270 },
-			{ 0x081d9086, 0x081D90F6, 0x081D8BB8, 0x081D64F0, 0x081D7858, 0x081D4ED0, nil },
+			{ 0x081d9086, 0x081D90F6, 0x081D8BB8, 0x081D64F0, 0x081D7858, 0x081D4ED0, 0x081BD042 },
 			{ 0x081d9062, 0x081d90d2 },
 		},
 		BattleScript_MoveUsedIsFrozen3 = {
 			{ 0x081d954d, 0x081d9565, 0x081d9565 },
 			{ 0x081d94dd, 0x081d94f5, 0x081d94f5 },
 			{ 0x082db272 },
-			{ 0x081d9088, 0x081D90F8, 0x081D8BBA, 0x081D64F2, 0x081D785A, 0x081D4ED2, nil },
+			{ 0x081d9088, 0x081D90F8, 0x081D8BBA, 0x081D64F2, 0x081D785A, 0x081D4ED2, 0x081BD044 },
 			{ 0x081d9064, 0x081d90d4 },
 		},
 		BattleScript_MoveUsedUnfroze = {
 			{ 0x081d9557, 0x081d956f, 0x081d956f },
 			{ 0x081d94e7, 0x081d94ff, 0x081d94ff },
 			{ 0x082db27c },
-			{ 0x081d9092, 0x081D9102, 0x081D8BC4, 0x081D64FC, 0x081D7864, 0x081D4EDC, nil },
+			{ 0x081d9092, 0x081D9102, 0x081D8BC4, 0x081D64FC, 0x081D7864, 0x081D4EDC, 0x081BD04E },
 			{ 0x081d906e, 0x081d90de },
 		},
 		BattleScript_MoveUsedUnfroze2 = {
 			{ 0x081d955c, 0x081d9574, 0x081d9574 },
 			{ 0x081d94ec, 0x081d9504, 0x081d9504 },
 			{ 0x082db281 },
-			{ 0x081d9097, 0x081D9107, 0x081D8BC9, 0x081D6501, 0x081D7869, 0x081D4EE1, nil },
+			{ 0x081d9097, 0x081D9107, 0x081D8BC9, 0x081D6501, 0x081D7869, 0x081D4EE1, 0x081BD053 },
 			{ 0x081d9073, 0x081d90e3 },
 		},
 		BattleScript_MoveUsedIsConfused = {
 			{ 0x081d9598, 0x081d95b0, 0x081d95b0 },
 			{ 0x081d9528, 0x081d9540, 0x081d9540 },
 			{ 0x082db2c0 },
-			{ 0x081d90d6, 0x081d9146, 0x081D8C08, 0x081D6540, 0x081D78A8, 0x081DD36C, nil },
+			{ 0x081d90d6, 0x081d9146, 0x081D8C08, 0x081D6540, 0x081D78A8, 0x081DD36C, 0x081BD092 },
 			{ 0x081d90b2, 0x081d9122 },
 		},
 		BattleScript_MoveUsedIsConfused2 = {
 			{ 0x081d95a1, 0x081d95b9, 0x081d95b9 },
 			{ 0x081d9531, 0x081d9549, 0x081d9549 },
 			{ 0x082db2c9 },
-			{ 0x081d90df, 0x081d914f, 0x081D8C11, 0x081D6549, 0x081D78B1, 0x081DD375, nil },
+			{ 0x081d90df, 0x081d914f, 0x081D8C11, 0x081D6549, 0x081D78B1, 0x081DD375, 0x081BD09B },
 			{ 0x081d90bb, 0x081d912b },
 		},
 		BattleScript_MoveUsedIsConfusedNoMore = {
 			{ 0x081d95d7, 0x081d95ef, 0x081d95ef },
 			{ 0x081d9567, 0x081d957f, 0x081d957f },
 			{ 0x082db303 },
-			{ 0x081d9119, 0x081d9189, 0x081D8C4B, 0x081D6583, 0x081D78EB, 0x081DD3AF, nil },
+			{ 0x081d9119, 0x081d9189, 0x081D8C4B, 0x081D6583, 0x081D78EB, 0x081DD3AF, 0x081BD0D5 },
 			{ 0x081d90f5, 0x081d9165 },
 		},
 		BattleScript_MoveUsedIsInLove = {
 			{ 0x081d95fe, 0x081d9616, 0x081d9616 },
 			{ 0x081d958e, 0x081d95a6, 0x081d95a6 },
 			{ 0x082db32a },
-			{ 0x081d9140, 0x081D91B0, 0x081D8C72, 0x081D65AA, 0x081D7912, 0x081DD3D6, nil },
+			{ 0x081d9140, 0x081D91B0, 0x081D8C72, 0x081D65AA, 0x081D7912, 0x081DD3D6, 0x081BD0FC },
 			{ 0x081d911c, 0x081d918c },
 		},
 		BattleScript_MoveUsedIsInLove2 = {
 			{ 0x081d9607, 0x081d961f, 0x081d961f },
 			{ 0x081d9597, 0x081d95af, 0x081d95af },
 			{ 0x082db333 },
-			{ 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF, nil },
+			{ 0x081d9149, 0x081D91B9, 0x081D8C7B, 0x081D65B3, 0x081D791B, 0x081DD3DF, 0x081BD105 },
 			{ 0x081d9125, 0x081d9195 },
 		},
 		BattleScript_SnatchedMove = {
 			{ 0x81d9491, 0x81d94a9, 0x81d94a9,},
 			{ 0x81d9421, 0x81d9439, 0x81d9439,},
 			{ 0x82db1b6,},
-			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262, nil },
+			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262, 0x081BCF88 },
 			{ 0x81d8fa8, 0x81d9018,}
 		},
 	}
