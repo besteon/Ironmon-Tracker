@@ -593,14 +593,14 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x081fb12c, 0x081fb144, 0x081fb144 },
 			{ 0x081fb0bc, 0x081fb0d4, 0x081fb0d4 },
 			{ 0x0831c898 },
-			{ 0x08250c04, 0x08250c74, 0x0824c3cc, 0x08249ce4, 0x0824b054, 0x08250b28, nil },
+			{ 0x08250c04, 0x08250c74, 0x0824c3cc, 0x08249ce4, 0x0824b054, 0x08250b28, 0x0820d60c },
 			{ 0x08250be0, 0x08250c50 },
 		},
 		gBaseStats = {
 			{ 0x081fec18, 0x081fec30, 0x081fec30 },
 			{ 0x081feba8, 0x081febc0, 0x081febc0 },
 			{ 0x083203cc },
-			{ 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8, nil },
+			{ 0x08254784, 0x082547f4, 0x0824ff4c, 0x0824d864, 0x0824ebd4, 0x082546a8, 0x0821118c },
 			{ 0x08254760, 0x082547d0 },
 		},
 		gExperienceTables = {
@@ -750,6 +750,7 @@ end
 -- Maps the BattleScript memory addresses to their respective abilityId's for auto-tracking of abilities
 function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 	if gameIndex == nil or versionIndex == nil then return end
+	if versionIndex == 7 then return end -- TODO: Japanese not supported yet, remove this when complete.
 	-- Only have non-english FireRed at the moment
 	-- When adding new non-english games, follow a similar formatting and edit the below format note accordingly
 	-- Format:
