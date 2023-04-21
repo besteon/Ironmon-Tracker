@@ -458,50 +458,56 @@ end
 function GameSettings.setEwramAddresses()
 	-- Use nil values for non-existant / deliberately omitted addresses, and 0x00000000 for placeholder unknowns
 	-- Format: Address = { RS, Emerald, { FRLG Non-Japanese, FRLG Japanese } }
+
+	-- This offset is an educated guess to determine what the address is.
+	-- Given there is no decomp available, there's no way to confirm what the actual address is without testing
+	-- This guess is based on the address difference from confirmed addresses, such as pstats.
+	local jpOffset = -0xA0
+
 	local addresses = {
 		-- Player Stats, exists in IWRAM instead in RS
 		pstats = { nil, 0x020244EC, { 0x02024284, 0x020241E4 }, },
 		-- Enemy Stats, exists in IWRAM instead in RS
-		estats = { nil, 0x02024744, { 0x0202402C, 0x0202402C + -0xA0 }, },
+		estats = { nil, 0x02024744, { 0x0202402C, 0x0202402C + jpOffset }, },
 		-- Player Party Size, exists in IWRAM instead in RS
-		gPlayerPartyCount = { nil, 0x020244e9, { 0x02024029, 0x02024029 + -0xA0 }, },
+		gPlayerPartyCount = { nil, 0x020244e9, { 0x02024029, 0x02024029 + jpOffset }, },
 
 		-- RS uses this directly (gSharedMem + 0x14800)
 		sEvoInfo = { 0x02014800, nil, nil },
 		-- Em/FRLG uses this pointer instead
-		sEvoStructPtr = { nil, 0x0203ab80, { 0x02039a20, 0x02039a20 + -0xA0 }, },
+		sEvoStructPtr = { nil, 0x0203ab80, { 0x02039a20, 0x02039a20 + jpOffset }, },
 
 		-- RS: gBattleStruct (gSharedMem + 0x0) -> scriptingActive, Em/FRLG: gBattleScripting.battler
-		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, { 0x02023fc4 + 0x17, 0x02023fc4 + 0x17 + -0xA0 }, },
+		gBattleScriptingBattler = { 0x02016003, 0x02024474 + 0x17, { 0x02023fc4 + 0x17, 0x02023fc4 + 0x17 + jpOffset }, },
 		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
-		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, { 0x020386ae, 0x020386ae + -0xA0 }, },
+		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, { 0x020386ae, 0x020386ae + jpOffset }, },
 		gTrainerBattleOpponent_B = { nil, 0x02038bcc, nil }, -- Emerald Only
-		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, { 0x0203b140, 0x0203b140 + -0xA0 }, },
-		gBattleTypeFlags = { 0x020239f8, 0x02022fec, { 0x02022b4c, 0x02022b4c + -0xA0 }, },
-		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, { 0x02023bc8, 0x02023bc8 + -0xA0 }, },
+		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, { 0x0203b140, 0x0203b140 + jpOffset }, },
+		gBattleTypeFlags = { 0x020239f8, 0x02022fec, { 0x02022b4c, 0x02022b4c + jpOffset }, },
+		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, { 0x02023bc8, 0x02023bc8 + jpOffset }, },
 		gBattlersCount = { 0x02024a68, 0x0202406c, { 0x02023bcc, 0x02023B2C }, },
-		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, { 0x02023bce, 0x02023bce + -0xA0 }, },
-		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, { 0x02023bda, 0x02023bda + -0xA0 }, },
-		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, { 0x02023be2, 0x02023be2 + -0xA0 }, },
+		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, { 0x02023bce, 0x02023bce + jpOffset }, },
+		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, { 0x02023bda, 0x02023bda + jpOffset }, },
+		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, { 0x02023be2, 0x02023be2 + jpOffset }, },
 		gBattleMons = { 0x02024a80, 0x02024084, { 0x02023be4, 0x02023b44 }, },
-		gTakenDmg = { 0x02024bf4, 0x020241f8, { 0x02023d58, 0x02023d58 + -0xA0 }, },
-		gBattlerAttacker = { 0x02024c07, 0x0202420B, { 0x02023d6b, 0x02023d6b + -0xA0 }, },
-		gBattlerTarget = { 0x02024c08, 0x0202420c, { 0x02023d6c, 0x02023d6c + -0xA0 }, },
-		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, { 0x02023d74, 0x02023d74 + -0xA0 }, },
-		gMoveResultFlags = { 0x02024c68, 0x0202427c, { 0x02023dcc, 0x02023dcc + -0xA0 }, },
-		gHitMarker = { 0x02024c6c, 0x02024280, { 0x02023dd0, 0x02023dd0 + -0xA0 }, },
-		gBattleCommunication = { 0x02024d1e, 0x02024332, { 0x02023e82, 0x02023e82 + -0xA0 }, },
+		gTakenDmg = { 0x02024bf4, 0x020241f8, { 0x02023d58, 0x02023d58 + jpOffset }, },
+		gBattlerAttacker = { 0x02024c07, 0x0202420B, { 0x02023d6b, 0x02023d6b + jpOffset }, },
+		gBattlerTarget = { 0x02024c08, 0x0202420c, { 0x02023d6c, 0x02023d6c + jpOffset }, },
+		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, { 0x02023d74, 0x02023d74 + jpOffset }, },
+		gMoveResultFlags = { 0x02024c68, 0x0202427c, { 0x02023dcc, 0x02023dcc + jpOffset }, },
+		gHitMarker = { 0x02024c6c, 0x02024280, { 0x02023dd0, 0x02023dd0 + jpOffset }, },
+		gBattleCommunication = { 0x02024d1e, 0x02024332, { 0x02023e82, 0x02023e82 + jpOffset }, },
 		gBattleOutcome = { 0x02024d26, 0x0202433a, { 0x02023e8a, 0x02023DEA }, }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-		gBattleStructPtr = { nil, 0x0202449c, { 0x02023fe8, 0x02023fe8 + -0xA0 }, },
-		gBattleWeather = { 0x02024db8, 0x020243cc, { 0x02023f1c, 0x02023f1c + -0xA0 }, },
-		gMoveToLearn = { 0x02024e82, 0x020244e2, { 0x02024022, 0x02024022 + -0xA0 }, },
+		gBattleStructPtr = { nil, 0x0202449c, { 0x02023fe8, 0x02023fe8 + jpOffset }, },
+		gBattleWeather = { 0x02024db8, 0x020243cc, { 0x02023f1c, 0x02023f1c + jpOffset }, },
+		gMoveToLearn = { 0x02024e82, 0x020244e2, { 0x02024022, 0x02024022 + jpOffset }, },
 		gMapHeader = { 0x0202e828, 0x02037318, { 0x02036dfc, 0x02036D30 }, },
-		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, { 0x020370d0, 0x020370d0 + -0xA0 }, },
+		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, { 0x020370d0, 0x020370d0 + jpOffset }, },
 		-- RS: gUnknown_0202E8E2
-		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + -0xA0 }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
-		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + -0xA0 }, },
+		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + jpOffset }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
+		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + jpOffset }, },
 		-- RS: gAbilitiesPerBank
-		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + -0xA0 }, },
+		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
@@ -518,11 +524,11 @@ function GameSettings.setEwramAddresses()
 		EncryptionKeyOffset = { nil, 0xAC, 0xF20 },
 
 		-- These addresses are in IWRAM instead in RS, will be set later
-		sBattleBuffersTransferData = { nil, 0x02022d10, { 0x02022874, 0x02022874 + -0xA0 }, },
-		gBattleTextBuff1 = { nil, 0x02022f58, { 0x02022ab8, 0x02022ab8 + -0xA0 }, },
-		gBattleTerrain = { nil, 0x02022ff0, { 0x02022b50, 0x02022b50 + -0xA0 }, },
+		sBattleBuffersTransferData = { nil, 0x02022d10, { 0x02022874, 0x02022874 + jpOffset }, },
+		gBattleTextBuff1 = { nil, 0x02022f58, { 0x02022ab8, 0x02022ab8 + jpOffset }, },
+		gBattleTerrain = { nil, 0x02022ff0, { 0x02022b50, 0x02022b50 + jpOffset }, },
 		-- This address doesn't exist at all in RS
-		sStartMenuWindowId = { nil, 0x0203cd8c, { 0x0203abe0, 0x0203abe0 + -0xA0 }, },
+		sStartMenuWindowId = { nil, 0x0203cd8c, { 0x0203abe0, 0x0203abe0 + jpOffset }, },
 		sSaveDialogDelay = { nil, 0x2037620, nil},
 	}
 
