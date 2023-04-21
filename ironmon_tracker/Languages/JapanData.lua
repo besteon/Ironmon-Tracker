@@ -1230,6 +1230,34 @@ JapanData.Pokemon = {
 	"チリーン", -- English: CHIMECHO
 }
 
+JapanData.Natures = {
+	"がんばりや", -- English: HARDY
+	"さみしがり", -- English: LONELY
+	"ゆうかん", -- English: BRAVE
+	"いじっぱり", -- English: ADAMANT
+	"やんちゃ", -- English: NAUGHTY
+	"ずぶとい", -- English: BOLD
+	"すなお", -- English: DOCILE
+	"のんき", -- English: RELAXED
+	"わんぱく", -- English: IMPISH
+	"のうてんき", -- English: LAX
+	"おくびょう", -- English: TIMID
+	"せっかち", -- English: HASTY
+	"まじめ", -- English: SERIOUS
+	"ようき", -- English: JOLLY
+	"むじゃき", -- English: NAIVE
+	"ひかえめ", -- English: MODEST
+	"おっとり", -- English: MILD
+	"れいせい", -- English: QUIET
+	"てれや", -- English: BASHFUL
+	"うっかりや", -- English: RASH
+	"おだやか", -- English: CALM
+	"おとなしい", -- English: GENTLE
+	"なまいき", -- English: SASSY
+	"しんちょう", -- English: CAREFUL
+	"きまぐれ", -- English: QUIRKY
+}
+
 function JapanData.updateToJapanData()
 	-- Can't use Japanese characters on non-compatible emulators
 	if not Main.supportsSpecialChars then
