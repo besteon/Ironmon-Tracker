@@ -6,8 +6,8 @@
 
 ## General Information
 
-Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html)* (v0.10.0 or higher) used to track IronMon attempts.
-> *mGBA's lua scripting is currently limited and doesn't provide any drawing functionality, this means the tracker on mGBA is purely text-based in the scripting window as we can't draw images/screens like on Bizhawk.
+Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html)\* (v0.10.0 or higher) used to track IronMon attempts.
+> \*mGBA's lua scripting is currently limited and doesn't provide any drawing functionality, this means the tracker on mGBA is purely text-based in the scripting window as we can't draw images/screens like on Bizhawk.
 
 For more information on IronMon, see <http://ironmon.gg>
 
@@ -23,14 +23,16 @@ For NDS (gen 4/5) games, please use the [NDS IronMon Tracker](https://github.com
 
 Currently supported Pokémon games / languages:
 
-| Version  | Ruby | Sapphire | Emerald | FireRed | LeafGreen |
-| :------: | :----------: | :--------------: | :-------------: | :-------------: | :---------------: |
-| English  | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
-| Spanish  | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| French   | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| Italian  | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| German   | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| Japanese | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Version   | Ruby | Sapphire | Emerald | FireRed | LeafGreen |
+| :-------: | :--: | :------: | :-----: | :-----: | :-------: |
+| English   | ✔️ | ✔️ | ✔️ | ✔️ | ✔️ |
+| Spanish   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| French    | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Italian   | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| German    | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| Japanese* | ❌ | ❌ | ❌ | ✔️ | ❌ |
+> \***For Japanese games you need to use Bizhawk 2.9 or newer.**
+> Bizhawk 2.8 does not let the tracker draw Japanese characters and on mGBA the varying character lengths shift the text-based tracker display out of alignment.
 
 We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
 
@@ -40,9 +42,9 @@ We'd ideally like to support all non-English versions if we can, progress update
    - You can get the latest project release from the [Releases](https://github.com/besteon/Ironmon-Tracker/releases/latest) section of this Github repository.
 2. **Get a Supported Emulator**
    - We recommend using the Bizhawk emulator (Windows/Linux only)
-	  - [Download Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
-	  - If you are on Windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first
-	  - If you are on Linux, we recommend using Bizhawk 2.9 or higher
+      - [Download Bizhawk](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher)
+      - If you are on Windows, make sure to also download and run the [prereq installer](https://github.com/TASEmulators/BizHawk-Prereqs/releases) first
+      - If you are on Linux, we recommend using Bizhawk 2.9 or higher
    - Alternatively, you can use the MGBA emulator (Windows/Mac/Linux)
       - [Download MGBA](https://mgba.io/downloads.html) (v0.10.0 or higher)
 3. **Install and Setup**
@@ -79,11 +81,13 @@ There are a couple of VS Code extensions which we recommend, which should automa
 - [vscode-lua](https://marketplace.visualstudio.com/items?itemName=trixnz.vscode-lua): Provides intellisense and linting for Lua.
 
 Lua Versions:
+
 - Bizhawk 2.8 uses Lua 5.1, this is the version currently set in our `.vscode/settings.json` file for linting.
 - Bizhawk 2.9 and mGBA use Lua 5.4
-   - Since we intend to still support Bizhawk 2.8 the code must be compatible with both Lua 5.1 and 5.4
+  - Since we intend to still support Bizhawk 2.8 the code must be compatible with both Lua 5.1 and 5.4
 
 Emu-specific Lua documentation:
+
 - [Bizhawk Lua Functions](https://tasvideos.org/Bizhawk/LuaFunctions)
 - [mGBA Scripting API](https://mgba.io/docs/scripting.html)
 

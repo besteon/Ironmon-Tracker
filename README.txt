@@ -42,7 +42,11 @@ SUPPORTED GAMES
   - Non-English: currently unsupported
 - Pokémon FireRed
   - English (U): v1.0, v1.1
-  - Non-English: Spanish, French, Italian, German
+  - Non-English: Spanish, French, Italian, German, Japanese*
 - Pokémon LeafGreen
   - English (U): v1.0, v1,1
   - Non-English: currently unsupported
+
+*For Japanese games you need to use Bizhawk 2.9 or newer.
+  Bizhawk 2.8 does not let the tracker draw Japanese characters,
+  and on mGBA the varying character lengths shift the text-based tracker display out of alignment.
