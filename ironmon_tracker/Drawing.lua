@@ -67,6 +67,11 @@ function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
 		y = y - 1
 	end
 
+	-- Need a bit more space when drawing larger characters
+	if GameSettings.language == "Japanese" and Utils.startsWithJapaneseChineseChar(text) then
+		y = y + 1
+	end
+
 	-- For now, don't draw shadows for smaller-than-normal text (old behavior)
 	if Theme.DRAW_TEXT_SHADOWS and shadowcolor ~= nil and size == nil then
 		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
@@ -76,18 +81,11 @@ function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
 end
 
 function Drawing.drawHeader(x, y, text, color, shadowcolor, size, family, style)
-	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
-	if Main.OS == "Linux" then
-		x = x + 1
-		y = y - 1
+	-- Need even more space when drawing larger characters in the header
+	if GameSettings.language == "Japanese" and Utils.startsWithJapaneseChineseChar(text) then
+		y = y + 1
 	end
-
-	-- For now, don't draw shadows for smaller-than-normal text (old behavior)
-	if Theme.DRAW_TEXT_SHADOWS and shadowcolor ~= nil and size == nil then
-		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.HEADERSIZE, family or Constants.Font.FAMILY, style)
-	end
-	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
-	gui.drawText(x, y, text, color, nil, size or Constants.Font.HEADERSIZE, family or Constants.Font.FAMILY, style)
+	Drawing.drawText(x, y, text, color, shadowcolor, size or Constants.Font.HEADERSIZE, family, style)
 end
 
 function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, size, family, style)

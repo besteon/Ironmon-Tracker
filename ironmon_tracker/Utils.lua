@@ -154,6 +154,17 @@ function Utils.formatSpecialCharacters(text)
 	return text
 end
 
+-- Checks if the text starts with a Japanese or Chinese character. Only works on Lua 5.4+
+function Utils.startsWithJapaneseChineseChar(text)
+	if text == nil or not Main.supportsSpecialChars then
+		return false
+	end
+
+	---@diagnostic disable-next-line: err-esc
+	local pattern = "^[\u{3040}-\u{30ff}\u{3400}-\u{4dbf}\u{4e00}-\u{9fff}\u{f900}-\u{faff}\u{ff66}-\u{ff9f}]"
+	return string.match(text, pattern) ~= nil
+end
+
 -- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode
 function Utils.encodeDecodeForSettingsIni(text, doEncode)
 	if text == nil or text == "" then return "" end
