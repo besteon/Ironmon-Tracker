@@ -447,9 +447,8 @@ function GameSettings.setGameVersion(gameversion)
 		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
 		GermanyData.updateToGermanyData()
 	elseif gameLanguage == "Japanese" then
-		print("Japanese ROM Detected. Currently support is limited.")
-		-- dofile(langFolder .. FileManager.Files.LanguageCode.JapaneseData)
-		-- JapaneseData.updateToJapaneseData()
+		dofile(langFolder .. FileManager.Files.LanguageCode.JapanData)
+		JapanData.updateToJapanData()
 	end
 
 	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
