@@ -1113,14 +1113,6 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 		},
 	}
 
-	-- local frlgRunAwayEng = 0x081d8982
-	-- local frlgRunAwayJP = 0x081bc8ce
-	-- for key, addrMap in pairs(abilityScripts) do
-	-- 	local delta = addrMap[gameIndex][2] - frlgRunAwayEng
-	-- 	local newAddr = frlgRunAwayJP + delta
-	-- 	Utils.printDebug("%s: 0x0%x", tostring(key), newAddr)
-	-- end
-
 	-- Map the BattleScript addresses to the relevant abilityID's for ability tracking
 	GameSettings.ABILITIES = {
 		BATTLER = { -- Abiliities where we can use gBattleStruct -> scriptingActive to determine enemy/player
