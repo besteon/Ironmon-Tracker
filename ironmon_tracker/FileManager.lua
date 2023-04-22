@@ -70,6 +70,7 @@ FileManager.Urls = {
 FileManager.LuaCode = {
 	-- First set of core files
 	{ name = "Inifile", filepath = "Inifile.lua", },
+	{ name = "Resources", filepath = "Resources.lua", },
 	{ name = "Constants", filepath = "Constants.lua", },
 	{ name = "TrackerAPI", filepath = "TrackerAPI.lua", },
 	{ name = "Utils", filepath = "Utils.lua", },

@@ -447,8 +447,7 @@ function GameSettings.setGameVersion(gameversion)
 		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
 		GermanyData.updateToGermanyData()
 	elseif gameLanguage == "Japanese" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.JapanData)
-		JapanData.updateToJapanData()
+		Resources.loadLanguage(Resources.Lang.JAPANESE)
 	end
 
 	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
