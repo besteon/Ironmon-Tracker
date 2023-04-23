@@ -1,4 +1,7 @@
 Resources = {}
+-- TODO: Task list:
+-- - Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
+-- - Add Drawing function to draw pokemon type bar with text overlayed
 
 Resources.Languages = {
 	ENGLISH = {
@@ -52,35 +55,35 @@ Resources.Default = {
 Resources.Data = {
 	Game = {
 		PokemonNames = {
-			updateAssets = function(data)
+			updateAll = function(self, data)
 				for index, val in ipairs(PokemonData.Pokemon) do
 					val.name = data[index]
 				end
 			end,
 		},
 		MoveNames = {
-			updateAssets = function(data)
+			updateAll = function(self, data)
 				for index, val in ipairs(MoveData.Moves) do
 					val.name = data[index]
 				end
 			end,
 		},
 		MoveDescriptions = {
-			updateAssets = function(data)
+			updateAll = function(self, data)
 				for index, val in ipairs(MoveData.Moves) do
 					val.summary = data[index]
 				end
 			end,
 		},
 		AbilityNames = {
-			updateAssets = function(data)
+			updateAll = function(self, data)
 				for index, val in ipairs(AbilityData.Abilities) do
 					val.name = data[index]
 				end
 			end,
 		},
 		AbilityDescriptions = {
-			updateAssets = function(data)
+			updateAll = function(self, data)
 				for index, val in ipairs(AbilityData.Abilities) do
 					val.description = data[index].description
 					if data[index].descriptionEmerald ~= nil then
@@ -90,10 +93,16 @@ Resources.Data = {
 			end,
 		},
 		ItemNames = {
-			updateAssets = function(data) MiscData.Items = data end,
+			updateAll = function(self, data) MiscData.Items = data end,
 		},
 		NatureNames = {
-			updateAssets = function(data) MiscData.Natures = data end,
+			updateAll = function(self, data) MiscData.Natures = data end,
+		},
+	},
+	Screen = {
+		TrackerScreen = {
+			Labels = {},
+			updateAll = function(self, data) self.Labels = data end,
 		},
 	},
 }
@@ -169,21 +178,22 @@ function Resources.defineResourceCallbacks()
 		if Resources.LoadedData[category] == nil then
 			Resources.LoadedData[category] = {}
 		end
-		local loadinTable = Resources.LoadedData[category]
+		local loadedCategory = Resources.LoadedData[category]
 		local defaultTable = (Resources.Default.Data or {})[category]
 
 		for key, _ in pairs(Resources.Data[category]) do
 			if data[key] then
-				loadinTable[key] = data[key]
+				loadedCategory[key] = data[key]
 			elseif defaultTable ~= nil then
 				-- Fill in missing data with default data, if available
-				loadinTable[key] = defaultTable[key]
+				loadedCategory[key] = defaultTable[key]
 			end
 		end
 	end
 
 	-- Callback function(s) for loading data from resource files
 	function GameResources(data) dataLoadHelper("Game", data) end
+	function ScreenResources(data) dataLoadHelper("Screen", data) end
 end
 
 -- Updates the Tracker's assets with the loaded resource files (required)
@@ -195,14 +205,15 @@ function Resources.updateTrackerResources()
 		return
 	end
 
-	-- Update all data assets
+	-- Update each asset in each category
 	for category, assetList in pairs(Resources.Data) do
-		-- Update each resource asset in the category
-		for key, asset in pairs(assetList) do
-			local data = (Resources.LoadedData[category] or {})[key]
-
-			if data and type(asset.updateAssets) == "function" then
-				asset.updateAssets(data)
+		local loadedCategory = Resources.LoadedData[category]
+		if loadedCategory then
+			for key, asset in pairs(assetList) do
+				local data = loadedCategory[key]
+				if data and type(asset.updateAll) == "function" then
+					asset:updateAll(data)
+				end
 			end
 		end
 	end
