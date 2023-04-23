@@ -1034,7 +1034,7 @@ MGBA.CommandMap = {
 		usageExample = 'RANDOMBALL()',
 		execute = function(self, params)
 			local ballChoice = TrackerScreen.randomlyChooseBall() -- 1, 2, or 3
-			local chosenBallText = TrackerScreen.PokeBalls.Labels[ballChoice] or Constants.BLANKLINE
+			local chosenBallText = TrackerScreen.PokeBalls.getLabel(ballChoice)
 			print(string.format(" Randomly chosen starter %sball: %s", Constants.Words.POKE, chosenBallText))
 		end,
 	},

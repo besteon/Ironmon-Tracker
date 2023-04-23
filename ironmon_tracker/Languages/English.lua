@@ -1,6 +1,11 @@
 ScreenResources{
 	TrackerScreen = {
+		HPAbbreviation = "HP",
 		LevelAbbreviation = "Lv",
+		RandomBallChosen = "Randomly chosen ball",
+		RandomBallLeft = "Left",
+		RandomBallMiddle = "Middle",
+		RandomBallRight = "Right",
 		HealsInBag = "Heals in Bag",
 		PCHeals = "PC Heals",
 		BattleNewEncounter = "New encounter",
@@ -25,8 +30,10 @@ ScreenResources{
 		SpecielCategoryLetter = "S",
 		LeaveANote = "Leave a note",
 		DamageTaken = "damage",
+		DamageTakenInTeams = "Total received",
 		PedometerSteps = "Steps",
 		PedometerGoal = "Goal",
+		PedometerTotal = "Total",
 		PedometerReset = "Reset",
 		EncounterWalking = "Walking",
 		EncounterSurfing = "Surfing",
@@ -36,7 +43,7 @@ ScreenResources{
 		EncounterSuperRod = "Super Rod",
 		EncounterGoodRod = "Good Rod",
 		EncounterOldRod = "Old Rod",
-		EncounterSeenPokemon = "Seen Pokémon",
+		EncounterSeenPokemon = "Seen Pokémon", -- Likely isn't correct
 	},
 }
 

@@ -2,6 +2,7 @@ Resources = {}
 -- TODO: Task list:
 -- - Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
 -- - Add Drawing function to draw pokemon type bar with text overlayed
+-- - Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 
 Resources.Languages = {
 	ENGLISH = {
@@ -102,7 +103,11 @@ Resources.Data = {
 	Screen = {
 		TrackerScreen = {
 			Labels = {},
-			updateAll = function(self, data) self.Labels = data end,
+			updateAll = function(self, data)
+				for key, val in pairs(data) do
+					self.Labels[key] = val
+				end
+			end,
 		},
 	},
 }
