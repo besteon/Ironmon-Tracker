@@ -70,6 +70,7 @@ function Main.Initialize()
 	end
 
 	Main.LoadSettings()
+	Resources.initialize()
 
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
@@ -120,6 +121,7 @@ function Main.Run()
 
 	Memory.initialize()
 	GameSettings.initialize()
+	Resources.autoDetectForeignLanguage()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == nil or GameSettings.gamename == "Unsupported Game" then

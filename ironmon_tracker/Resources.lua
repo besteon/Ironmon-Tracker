@@ -1,57 +1,85 @@
 Resources = {}
 
-Resources.Lang = {
-	ENGLISH = { DisplayName = "English", FileName = "English.lua", RequiresUTF16 = false, },
-	SPANISH = { DisplayName = "Español", FileName = "Spanish.lua", RequiresUTF16 = false, },
-	FRENCH = { DisplayName = "Français", FileName = "French.lua", RequiresUTF16 = false, },
-	ITALIAN = { DisplayName = "Italiano", FileName = "Italian.lua", RequiresUTF16 = false, },
-	GERMAN = { DisplayName = "Deutsche", FileName = "German.lua", RequiresUTF16 = false, },
-	JAPANESE = { DisplayName = "日本語", FileName = "Japanese.lua", RequiresUTF16 = true, },
-	CHINESE = { DisplayName = "中文", FileName = "Chinese.lua", RequiresUTF16 = true, }, -- Currently not included or supported
+Resources.Languages = {
+	ENGLISH = {
+		Key = "ENGLISH",
+		DisplayName = "English",
+		FileName = "English.lua",
+	},
+	SPANISH = {
+		Key = "SPANISH",
+		DisplayName = "Español",
+		FileName = "Spanish.lua",
+	},
+	FRENCH = {
+		Key = "FRENCH",
+		DisplayName = "Français",
+		FileName = "French.lua",
+	},
+	ITALIAN = {
+		Key = "ITALIAN",
+		DisplayName = "Italiano",
+		FileName = "Italian.lua",
+	},
+	GERMAN = {
+		Key = "GERMAN",
+		DisplayName = "Deutsche",
+		FileName = "German.lua",
+	},
+	JAPANESE = {
+		Key = "JAPANESE",
+		DisplayName = "日本語",
+		FileName = "Japanese.lua",
+		RequiresUTF16 = true,
+	},
+	CHINESE = { -- Currently not included or supported
+		Key = "CHINESE",
+		DisplayName = "中文",
+		FileName = "Chinese.lua",
+		RequiresUTF16 = true,
+	},
 }
-Resources.LoadedData = {}
 
 Resources.Default = {
-	Lang = Resources.Lang.ENGLISH,
-	LoadedData = nil,
+	Language = Resources.Languages.ENGLISH,
+	Data = nil, -- Used to fill in gaps in other language resource data
 }
 
-Resources.DataCategories = {
-	GameData = {
-		{
-			key = "PokemonNames",
+-- Holds all current resources data used by all Tracker assets; data is categorized
+-- For now, it simply holds functions that are used to replace existing data on the Tracker
+-- In the future, it will hold the actual resources, and the Tracker will refer here for that data
+-- Similar to how Themes.COLORS["key"] works.
+Resources.Data = {
+	Game = {
+		PokemonNames = {
 			updateAssets = function(data)
 				for index, val in ipairs(PokemonData.Pokemon) do
 					val.name = data[index]
 				end
 			end,
 		},
-		{
-			key = "MoveNames",
+		MoveNames = {
 			updateAssets = function(data)
 				for index, val in ipairs(MoveData.Moves) do
 					val.name = data[index]
 				end
 			end,
 		},
-		{
-			key = "MoveDescriptions",
+		MoveDescriptions = {
 			updateAssets = function(data)
 				for index, val in ipairs(MoveData.Moves) do
 					val.summary = data[index]
 				end
 			end,
 		},
-		{
-			key = "AbilityNames",
+		AbilityNames = {
 			updateAssets = function(data)
 				for index, val in ipairs(AbilityData.Abilities) do
 					val.name = data[index]
 				end
 			end,
 		},
-		{
-			key = "AbilityDescriptions",
+		AbilityDescriptions = {
 			updateAssets = function(data)
 				for index, val in ipairs(AbilityData.Abilities) do
 					val.description = data[index].description
@@ -61,48 +89,56 @@ Resources.DataCategories = {
 				end
 			end,
 		},
-		{
-			key = "ItemNames",
+		ItemNames = {
 			updateAssets = function(data) MiscData.Items = data end,
 		},
-		{
-			key = "NatureNames",
+		NatureNames = {
 			updateAssets = function(data) MiscData.Natures = data end,
 		},
 	},
 }
 
-function Resources.getLangFolder()
-	return FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
+function Resources.initialize()
+	if Resources.hasInitialized then return end
+
+	Resources.defineResourceCallbacks()
+
+	-- Load in default language data first, to fill in gaps in other language data
+	Resources.loadAndApplyLanguage(Resources.Default.Language)
+
+	-- TODO: Instead of nil, load the language setting from Settings.ini
+	Resources.loadAndApplyLanguage(nil)
+
+	Resources.hasInitialized = true
+end
+
+-- Attempts to automatically change the language based on the game being played.
+-- If a change is detected, this prompts the user to confirm.
+function Resources.autoDetectForeignLanguage()
+	local language = Resources.Languages[GameSettings.language:upper()]
+
+	-- TODO: Also add a setting to the Language screen to ask for "auto-detect game language" default:ON
+	if language == nil or language == Resources.Default.Language then
+		return
+	end
+
+	-- Prompt user if they want to use the language detected from the game loaded, or keep their current language settings
+	if language ~= Resources.currentLanguage then
+		-- Scratch that, prompting each time could get annoying if they intentional want diff languages.
+		-- Thus, also find a way to only prompt when their default language setting hasn't been changed
+		-- TODO: Prompt in both current and new languages
+		-- if not okayToChange then
+		-- 	return
+		-- end
+	end
+
+	Resources.loadAndApplyLanguage(language)
 end
 
 -- Loads resources for the specified language into all of the Tracker's assets
-function Resources.loadLanguage(language)
-	language = language or Resources.Default.Lang
-
-	if language.FileName == nil then
+function Resources.loadAndApplyLanguage(language)
+	if language == nil or language.FileName == nil then
 		return false
-	end
-
-	-- Clear out existing loaded language data
-	Resources.LoadedData = {
-		GameData = {},
-	}
-
-	Resources.defineLoadFunctions()
-
-	-- Load in default language data first, to fill in gaps in other language data
-	local defaultLangFilePath = Resources.getLangFolder() .. Resources.Default.Lang.FileName
-	if Resources.Default.LoadedData == nil and FileManager.fileExists(defaultLangFilePath) then
-		dofile(defaultLangFilePath)
-		Resources.Default.LoadedData = Resources.LoadedData
-	end
-
-	-- If the language being loaded is the default language, the work is already done
-	if language == Resources.Default.Lang then
-		Resources.LoadedData = Resources.Default.LoadedData
-		Resources.updateTrackerResources()
-		return true
 	end
 
 	-- Some languages are supported on some emulators
@@ -111,9 +147,13 @@ function Resources.loadLanguage(language)
 		return false
 	end
 
-	-- Load in the desired language file
-	local langFilePath = Resources.getLangFolder() .. language.FileName
+	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
+	local langFilePath = langFolder .. language.FileName
 	if FileManager.fileExists(langFilePath) then
+		-- Clear out existing loaded language data
+		Resources.LoadedData = {}
+		Resources.currentLanguage = language
+		-- Load the resource data from the file
 		dofile(langFilePath)
 		Resources.updateTrackerResources()
 		return true
@@ -122,45 +162,53 @@ function Resources.loadLanguage(language)
 	end
 end
 
-function Resources.defineLoadFunctions()
-	if Resources.loadFunctionsDefined then return end
+-- Establishes global functions used for loading resource data from resource files
+function Resources.defineResourceCallbacks()
+	-- Sub function used by other resource load functions
+	local function dataLoadHelper(category, data)
+		if Resources.LoadedData[category] == nil then
+			Resources.LoadedData[category] = {}
+		end
+		local loadinTable = Resources.LoadedData[category]
+		local defaultTable = (Resources.Default.Data or {})[category]
 
-	local function dataLoadHelper(struct, data)
-		local loadinTable = Resources.LoadedData[struct]
-		local defaultTable = (Resources.Default.LoadedData or {})[struct]
-
-		for _, obj in ipairs(Resources.DataCategories[struct]) do
-			if data[obj.key] then
-				-- Add in any/all matching data
-				loadinTable[obj.key] = data[obj.key]
+		for key, _ in pairs(Resources.Data[category]) do
+			if data[key] then
+				loadinTable[key] = data[key]
 			elseif defaultTable ~= nil then
 				-- Fill in missing data with default data, if available
-				loadinTable[obj.key] = defaultTable[obj.key]
+				loadinTable[key] = defaultTable[key]
 			end
 		end
 	end
 
-	-- Function(s) for loading game data resources
-	function GameData(data) dataLoadHelper("GameData", data) end
-
-	Resources.loadFunctionsDefined = true
+	-- Callback function(s) for loading data from resource files
+	function GameResources(data) dataLoadHelper("Game", data) end
 end
 
--- Updates the Tracker's assets with the loaded resource files
+-- Updates the Tracker's assets with the loaded resource files (required)
+-- In the future, will likely have Tracker assets pull directly from loaded data
+-- instead of replacing existing data with newly loaded stuff.
 function Resources.updateTrackerResources()
-	-- Load the default language if none present
+	-- If no resource data is loaded, don't update Tracker assets
 	if Resources.LoadedData == nil or Resources.LoadedData == {} then
-		Resources.loadLanguage(Resources.Default.Lang)
+		return
 	end
 
 	-- Update all data assets
-	for category, assets in pairs(Resources.DataCategories) do
+	for category, assetList in pairs(Resources.Data) do
 		-- Update each resource asset in the category
-		for _, asset in ipairs(assets) do
-			local data = Resources.LoadedData[category][asset.key]
-			asset.updateAssets(data)
+		for key, asset in pairs(assetList) do
+			local data = (Resources.LoadedData[category] or {})[key]
+
+			if data and type(asset.updateAssets) == "function" then
+				asset.updateAssets(data)
+			end
 		end
 	end
+
+	-- Clear out the stored loaded data, as it's now been properly applied
+	Resources.LoadedData = nil
 end
 
 -- TODO: Internal function only to turn tracker assets into data files.
@@ -177,7 +225,7 @@ function Resources.fakeOutputDataHelper()
 	file:write("---@diagnostic disable: undefined-global")
 	file:write("\n")
 	file:write("\n")
-	file:write("GameData{")
+	file:write("GameResources{")
 	file:write("\n")
 
 	file:write("	PokemonNames = {")
@@ -231,6 +279,7 @@ function Resources.fakeOutputDataHelper()
 		file:write("\n")
 	end
 	file:write("	},")
+	file:write("\n")
 
 	file:write("	ItemNames = {")
 	file:write("\n")
@@ -250,7 +299,6 @@ function Resources.fakeOutputDataHelper()
 	file:write("	},")
 	file:write("\n")
 
-	-- end GameData
 	file:write("}")
 	file:write("\n")
 	file:close()

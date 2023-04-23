@@ -1,6 +1,4 @@
----@diagnostic disable: undefined-global
-
-GameData{
+GameResources{
 	PokemonNames = {
 		"Bulbasaur",
 		"Ivysaur",

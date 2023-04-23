@@ -193,6 +193,7 @@ GameSettings.GameCharMap = {
 }
 
 function GameSettings.initialize()
+	if GameSettings.hasInitialized then return end
 	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
 	GameSettings.setGameInfo(gamecode)
 
@@ -212,6 +213,7 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
+	GameSettings.hasInitialized = true
 end
 
 function GameSettings.getRomName()
@@ -428,27 +430,6 @@ function GameSettings.setGameVersion(gameversion)
 			},
 		},
 	}
-
-	-- print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
-
-	-- Load non-English language data
-	local gameLanguage = GameSettings.language
-	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
-	if gameLanguage == "Spanish" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
-		SpainData.updateToSpainData()
-	elseif gameLanguage == "Italian" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.ItalyData)
-		ItalyData.updateToItalyData()
-	elseif gameLanguage == "French" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.FranceData)
-		FranceData.updateToFranceData()
-	elseif gameLanguage == "German" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
-		GermanyData.updateToGermanyData()
-	elseif gameLanguage == "Japanese" then
-		Resources.loadLanguage(Resources.Lang.JAPANESE)
-	end
 
 	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
 end
