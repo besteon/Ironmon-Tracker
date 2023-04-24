@@ -914,9 +914,14 @@ function TrackerScreen.drawStatsArea(data)
 			end
 		end
 
+		local langOffset = 0
+		if Resources.currentLanguage == Resources.Languages.JAPANESE then
+			langOffset = 3
+		end
+
 		-- Draw stat label and nature symbol next to it
 		Drawing.drawText(statOffsetX, statOffsetY, statLabels[statKey:upper()], textColor, shadowcolor)
-		Drawing.drawText(statOffsetX + 16, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
+		Drawing.drawText(statOffsetX + 16 + langOffset, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Battle.inBattle then
