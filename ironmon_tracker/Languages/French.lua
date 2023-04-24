@@ -438,7 +438,7 @@ GameResources{
 		"Master Ball", --Master Ball english:Master Ball
 		"Hyper Ball", --Hyper Ball english:Ultra Ball
 		"Super Ball", --Super Ball english:Great Ball
-		Constants.Words.POKE .. " Ball", --Poké Ball english:Poke Ball
+		"Poké Ball", --Poké Ball english:Poke Ball
 		"Safari Ball", --Safari Ball english:Safari Ball
 		"Filet Ball", --Filet Ball english:Net Ball
 		"Scuba Ball", --Scuba Ball english:Dive Ball
@@ -514,7 +514,7 @@ GameResources{
 		"Vitesse +", --Vitesse + english:X Speed
 		"Precision +", --Precision + english:X Accuracy
 		"Special +", --Special + english:X Special
-		Constants.Words.POKE .. "poupee", --Poképoupee english:Poke Doll
+		"Poképoupee", --Poképoupee english:Poke Doll
 		"Queue Skitty", --Queue Skitty english:Fluffy Tail
 		"????????", --???????? english:unknown
 		"Superepousse", --Superepousse english:Super Repel
@@ -784,7 +784,7 @@ GameResources{
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
 		"Colis Chen", --Colis Chen english:Oak's Parcel
-		Constants.Words.POKE .. "flute", --Pokéflute english:Poke Flute
+		"Pokéflute", --Pokéflute english:Poke Flute
 		"Cle Secrete", --Cle Secrete english:Secret Key
 		"Bon Commande", --Bon Commande english:Bike Voucher
 		"Dent D'or", --Dent D'or english:Gold Teeth

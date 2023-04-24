@@ -164,12 +164,16 @@ function Resources.loadAndApplyLanguage(language)
 	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	local langFilePath = langFolder .. language.FileName
 	if FileManager.fileExists(langFilePath) then
-		-- Clear out existing loaded language data
 		Resources.LoadedData = {}
 		Resources.currentLanguage = language
-		-- Load the resource data from the file
+
+		-- Load data into Resources.LoadedData
 		dofile(langFilePath)
-		Resources.updateTrackerResources()
+
+		Resources.sanitizeLoadedData(Resources.LoadedData)
+		Resources.updateTrackerResources(Resources.LoadedData)
+		Resources.LoadedData = nil
+
 		return true
 	else
 		return false
@@ -201,18 +205,42 @@ function Resources.defineResourceCallbacks()
 	function ScreenResources(data) dataLoadHelper("Screen", data) end
 end
 
+-- Replaces non-English characters with the their unicode equivalents
+function Resources.sanitizeLoadedData(data)
+	if Main.supportsSpecialChars then return end
+
+	-- Create a regex pattern of all of the available special characters
+	local specialChars = {}
+	for char, _ in pairs(Constants.CharMap) do
+		table.insert(specialChars, char)
+	end
+	local pattern = string.format("[%s]", table.concat(specialChars))
+
+	-- A function to recursively replace all strings in a table that match that pattern
+	local sanitize -- Yes, this requires two separate lines for "local recursion" in Lua
+	sanitize = function(t)
+		for key, val in pairs(t) do
+			if type(val) == "string" and val:find(pattern) then
+				t[key] = Utils.formatSpecialCharacters(val)
+			elseif type(val) == "table" then
+				sanitize(val)
+			end
+		end
+	end
+	sanitize(data)
+end
+
 -- Updates the Tracker's assets with the loaded resource files (required)
 -- In the future, will likely have Tracker assets pull directly from loaded data
 -- instead of replacing existing data with newly loaded stuff.
-function Resources.updateTrackerResources()
-	-- If no resource data is loaded, don't update Tracker assets
-	if Resources.LoadedData == nil or Resources.LoadedData == {} then
+function Resources.updateTrackerResources(loadedData)
+	if loadedData == nil or loadedData == {} then
 		return
 	end
 
 	-- Update each asset in each category
 	for category, assetList in pairs(Resources.Data) do
-		local loadedCategory = Resources.LoadedData[category]
+		local loadedCategory = loadedData[category]
 		if loadedCategory then
 			for key, asset in pairs(assetList) do
 				local data = loadedCategory[key]
@@ -222,9 +250,6 @@ function Resources.updateTrackerResources()
 			end
 		end
 	end
-
-	-- Clear out the stored loaded data, as it's now been properly applied
-	Resources.LoadedData = nil
 end
 
 -- TODO: Internal function only to turn tracker assets into data files.

@@ -43,7 +43,7 @@ ScreenResources{
 		EncounterSuperRod = "Super Rod",
 		EncounterGoodRod = "Good Rod",
 		EncounterOldRod = "Old Rod",
-		EncounterSeenPokemon = "Seen Pokémon", -- Likely isn't correct
+		EncounterSeenPokemon = "Seen Pokémon",
 	},
 }
 

@@ -16,7 +16,7 @@ GameResources{
 		"Schwerttanz", --Schwerttanz english:Swords Dance
 		"Zerschneider", --Zerschneider english:Cut
 		"Windstoss", --Windstoss english:Gust
-		"Fl" .. Constants.getC("ü") .. "gelschlag", --Flügelschlag english:Wing Attack
+		"Flügelschlag", --Flügelschlag english:Wing Attack
 		"Wirbelwind", --Wirbelwind english:Whirlwind
 		"Fliegen", --Fliegen english:Fly
 		"Klammergriff", --Klammergriff english:Bind
@@ -45,12 +45,12 @@ GameResources{
 		"Silberblick", --Silberblick english:Leer
 		"Biss", --Biss english:Bite
 		"Heuler", --Heuler english:Growl
-		"Br" .. Constants.getC("ü") .. "ller", --Brüller english:Roar
+		"Brüller", --Brüller english:Roar
 		"Gesang", --Gesang english:Sing
 		"Superschall", --Superschall english:Supersonic
 		"Ultraschall", --Ultraschall english:SonicBoom
 		"Aussetzer", --Aussetzer english:Disable
-		"S" .. Constants.getC("ä") .. "ure", --Säure english:Acid
+		"Säure", --Säure english:Acid
 		"Glut", --Glut english:Ember
 		"Flammenwurf", --Flammenwurf english:Flamethrower
 		"Weissnebel", --Weissnebel english:Mist
@@ -65,11 +65,11 @@ GameResources{
 		"Hyperstrahl", --Hyperstrahl english:Hyper Beam
 		"Schnabel", --Schnabel english:Peck
 		"Bohrschnabel", --Bohrschnabel english:Drill Peck
-		Constants.getC("Ü") .. "berroller", --Überroller english:Submission
+		"Überroller", --Überroller english:Submission
 		"Fusskick", --Fusskick english:Low Kick
 		"Konter", --Konter english:Counter
 		"Geowurf", --Geowurf english:Seismic Toss
-		"St" .. Constants.getC("ä") .. "rke", --Stärke english:Strength
+		"Stärke", --Stärke english:Strength
 		"Absorber", --Absorber english:Absorb
 		"Megasauger", --Megasauger english:Mega Drain
 		"Egelsamen", --Egelsamen english:Leech Seed
@@ -79,7 +79,7 @@ GameResources{
 		"Giftpuder", --Giftpuder english:PoisonPowder
 		"Stachelspore", --Stachelspore english:Stun Spore
 		"Schlafpuder", --Schlafpuder english:Sleep Powder
-		"Bl" .. Constants.getC("ä") .. "ttertanz", --Blättertanz english:Petal Dance
+		"Blättertanz", --Blättertanz english:Petal Dance
 		"Fadenschuss", --Fadenschuss english:String Shot
 		"Drachenwut", --Drachenwut english:Dragon Rage
 		"Feuerwirbel", --Feuerwirbel english:Fire Spin
@@ -96,7 +96,7 @@ GameResources{
 		"Psychokinese", --Psychokinese english:Psychic
 		"Hypnose", --Hypnose english:Hypnosis
 		"Meditation", --Meditation english:Meditate
-		"Agilit" .. Constants.getC("ä") .. "t", --Agilität english:Agility
+		"Agilität", --Agilität english:Agility
 		"Ruckzuckhieb", --Ruckzuckhieb english:Quick Attack
 		"Raserei", --Raserei english:Rage
 		"Teleport", --Teleport english:Teleport
@@ -105,7 +105,7 @@ GameResources{
 		"Kreideschrei", --Kreideschrei english:Screech
 		"Doppelteam", --Doppelteam english:Double Team
 		"Genesung", --Genesung english:Recover
-		"H" .. Constants.getC("ä") .. "rtner", --Härtner english:Harden
+		"Härtner", --Härtner english:Harden
 		"Komprimator", --Komprimator english:Minimize
 		"Rauchwolke", --Rauchwolke english:SmokeScreen
 		"Konfustrahl", --Konfustrahl english:Confuse Ray
@@ -129,7 +129,7 @@ GameResources{
 		"Kaskade", --Kaskade english:Waterfall
 		"Schnapper", --Schnapper english:Clamp
 		"Sternschauer", --Sternschauer english:Swift
-		"Sch" .. Constants.getC("ä") .. "delwumme", --Schädelwumme english:Skull Bash
+		"Schädelwumme", --Schädelwumme english:Skull Bash
 		"Dornkanone", --Dornkanone english:Spike Cannon
 		"Umklammerung", --Umklammerung english:Constrict
 		"Amnesie", --Amnesie english:Amnesia
@@ -150,7 +150,7 @@ GameResources{
 		"Blitz", --Blitz english:Flash
 		"Psywelle", --Psywelle english:Psywave
 		"Platscher", --Platscher english:Splash
-		"S" .. Constants.getC("ä") .. "urepanzer", --Säurepanzer english:Acid Armor
+		"Säurepanzer", --Säurepanzer english:Acid Armor
 		"Krabbhammer", --Krabbhammer english:Crabhammer
 		"Explosion", --Explosion english:Explosion
 		"Kratzfurie", --Kratzfurie english:Fury Swipes
@@ -158,7 +158,7 @@ GameResources{
 		"Erholung", --Erholung english:Rest
 		"Steinhagel", --Steinhagel english:Rock Slide
 		"Hyperzahn", --Hyperzahn english:Hyper Fang
-		"Sch" .. Constants.getC("ä") .. "rfer", --Schärfer english:Sharpen
+		"Schärfer", --Schärfer english:Sharpen
 		"Umwandlung", --Umwandlung english:Conversion
 		"Triplette", --Triplette english:Tri Attack
 		"Superzahn", --Superzahn english:Super Fang
@@ -207,21 +207,21 @@ GameResources{
 		"Walzer", --Walzer english:Rollout
 		"Trugschlag", --Trugschlag english:False Swipe
 		"Angeberei", --Angeberei english:Swagger
-		"Milchgetr" .. Constants.getC("ä") .. "nk", --Milchgetränk english:Milk Drink
+		"Milchgetränk", --Milchgetränk english:Milk Drink
 		"Funkensprung", --Funkensprung english:Spark
 		"Zornklinge", --Zornklinge english:Fury Cutter
-		"Stahlfl" .. Constants.getC("ü") .. "gel", --Stahlflügel english:Steel Wing
+		"Stahlflügel", --Stahlflügel english:Steel Wing
 		"Horrorblick", --Horrorblick english:Mean Look
 		"Anziehung", --Anziehung english:Attract
 		"Schlafrede", --Schlafrede english:Sleep Talk
 		"Vitalglocke", --Vitalglocke english:Heal Bell
-		"R" .. Constants.getC("ü") .. "ckkehr", --Rückkehr english:Return
+		"Rückkehr", --Rückkehr english:Return
 		"Geschenk", --Geschenk english:Present
 		"Frustration", --Frustration english:Frustration
 		"Bodyguard", --Bodyguard english:Safeguard
 		"Leidteiler", --Leidteiler english:Pain Split
-		"L" .. Constants.getC("ä") .. "uterfeuer", --Läuterfeuer english:Sacred Fire
-		"Intensit" .. Constants.getC("ä") .. "t", --Intensität english:Magnitude
+		"Läuterfeuer", --Läuterfeuer english:Sacred Fire
+		"Intensität", --Intensität english:Magnitude
 		"Wuchtschlag", --Wuchtschlag english:DynamicPunch
 		"Vielender", --Vielender english:Megahorn
 		"Feuerodem", --Feuerodem english:DragonBreath
@@ -232,7 +232,7 @@ GameResources{
 		"Lockduft", --Lockduft english:Sweet Scent
 		"Eisenschweif", --Eisenschweif english:Iron Tail
 		"Metallklaue", --Metallklaue english:Metal Claw
-		Constants.getC("Ü") .. "berwurf", --Überwurf english:Vital Throw
+		"Überwurf", --Überwurf english:Vital Throw
 		"Morgengrauen", --Morgengrauen english:Morning Sun
 		"Synthese", --Synthese english:Synthesis
 		"Mondschein", --Mondschein english:Moonlight
@@ -248,9 +248,9 @@ GameResources{
 		"Antik-Kraft", --Antik-Kraft english:AncientPower
 		"Spukball", --Spukball english:Shadow Ball
 		"Seher", --Seher english:Future Sight
-		"Zertr" .. Constants.getC("ü") .. "mmerer", --Zertrümmerer english:Rock Smash
+		"Zertrümmerer", --Zertrümmerer english:Rock Smash
 		"Whirlpool", --Whirlpool english:Whirlpool
-		"Pr" .. Constants.getC("ü") .. "gler", --Prügler english:Beat Up
+		"Prügler", --Prügler english:Beat Up
 		"Mogelhieb", --Mogelhieb english:Fake Out
 		"Aufruhr", --Aufruhr english:Uproar
 		"Horter", --Horter english:Stockpile
@@ -268,7 +268,7 @@ GameResources{
 		"Spotlight", --Spotlight english:Follow Me
 		"Natur-Kraft", --Natur-Kraft english:Nature Power
 		"Ladevorgang", --Ladevorgang english:Charge
-		"Verh" .. Constants.getC("ö") .. "hner", --Verhöhner english:Taunt
+		"Verhöhner", --Verhöhner english:Taunt
 		"Rechte Hand", --Rechte Hand english:Helping Hand
 		"Trickbetrug", --Trickbetrug english:Trick
 		"Rollentausch", --Rollentausch english:Role Play
@@ -280,7 +280,7 @@ GameResources{
 		"Aufbereitung", --Aufbereitung english:Recycle
 		"Vergeltung", --Vergeltung english:Revenge
 		"Durchbruch", --Durchbruch english:Brick Break
-		"G" .. Constants.getC("ä") .. "hner", --Gähner english:Yawn
+		"Gähner", --Gähner english:Yawn
 		"Abschlag", --Abschlag english:Knock Off
 		"Notsituation", --Notsituation english:Endeavor
 		"Eruption", --Eruption english:Eruption
@@ -288,7 +288,7 @@ GameResources{
 		"Begrenzer", --Begrenzer english:Imprison
 		"Heilung", --Heilung english:Refresh
 		"Nachspiel", --Nachspiel english:Grudge
-		Constants.getC("Ü") .. "bernahme", --Übernahme english:Snatch
+		"Übernahme", --Übernahme english:Snatch
 		"Geheimpower", --Geheimpower english:Secret Power
 		"Taucher", --Taucher english:Dive
 		"Armstoss", --Armstoss english:Arm Thrust
@@ -312,29 +312,29 @@ GameResources{
 		"Erstauner", --Erstauner english:Astonish
 		"Meteorologe", --Meteorologe english:Weather Ball
 		"Aromakur", --Aromakur english:Aromatherapy
-		"Trugtr" .. Constants.getC("ä") .. "ne", --Trugträne english:Fake Tears
+		"Trugträne", --Trugträne english:Fake Tears
 		"Windschnitt", --Windschnitt english:Air Cutter
 		"Hitzekoller", --Hitzekoller english:Overheat
-		"Schn" .. Constants.getC("ü") .. "ffler", --Schnüffler english:Odor Sleuth
+		"Schnüffler", --Schnüffler english:Odor Sleuth
 		"Felsgrab", --Felsgrab english:Rock Tomb
 		"Silberhauch", --Silberhauch english:Silver Wind
 		"Metallsound", --Metallsound english:Metal Sound
-		"Grasfl" .. Constants.getC("ö") .. "te", --Grasflöte english:GrassWhistle
+		"Grasflöte", --Grasflöte english:GrassWhistle
 		"Spasskanone", --Spasskanone english:Tickle
 		"Kosmik-Kraft", --Kosmik-Kraft english:Cosmic Power
-		"Fontr" .. Constants.getC("ä") .. "nen", --Fontränen english:Water Spout
+		"Fontränen", --Fontränen english:Water Spout
 		"Ampelleuchte", --Ampelleuchte english:Signal Beam
 		"Finsterfaust", --Finsterfaust english:Shadow Punch
 		"Sondersensor", --Sondersensor english:Extrasensory
 		"Himmelhieb", --Himmelhieb english:Sky Uppercut
 		"Sandgrab", --Sandgrab english:Sand Tomb
-		"Eisesk" .. Constants.getC("ä") .. "lte", --Eiseskälte english:Sheer Cold
-		"Lehmbr" .. Constants.getC("ü") .. "he", --Lehmbrühe english:Muddy Water
+		"Eiseskälte", --Eiseskälte english:Sheer Cold
+		"Lehmbrühe", --Lehmbrühe english:Muddy Water
 		"Kugelsaat", --Kugelsaat english:Bullet Seed
 		"Aero-Ass", --Aero-Ass english:Aerial Ace
 		"Eisspeer", --Eisspeer english:Icicle Spear
 		"Eisenabwehr", --Eisenabwehr english:Iron Defense
-		"R" .. Constants.getC("ü") .. "ckentzug", --Rückentzug english:Block
+		"Rückentzug", --Rückentzug english:Block
 		"Jauler", --Jauler english:Howl
 		"Drachenklaue", --Drachenklaue english:Dragon Claw
 		"Fauna-Statue", --Fauna-Statue english:Frenzy Plant
@@ -362,18 +362,18 @@ GameResources{
 		"Kampfpanzer", --Kampfpanzer english:Battle Armor
 		"Robustheit", --Robustheit english:Sturdy
 		"Feuchtigkeit", --Feuchtigkeit english:Damp
-		"Flexibilit" .. Constants.getC("ä") .. "t", --Flexibilität english:Limber
+		"Flexibilität", --Flexibilität english:Limber
 		"Sandschleier", --Sandschleier english:Sand Veil
 		"Statik", --Statik english:Static
 		"Voltabsorber", --Voltabsorber english:Volt Absorb
 		"H2o-Absorber", --H2o-Absorber english:Water Absorb
-		"D" .. Constants.getC("ö") .. "sigkeit", --Dösigkeit english:Oblivious
+		"Dösigkeit", --Dösigkeit english:Oblivious
 		"Wolke Sieben", --Wolke Sieben english:Cloud Nine
 		"Facettenauge", --Facettenauge english:Compoundeyes
 		"Insomnia", --Insomnia english:Insomnia
 		"Farbwechsel", --Farbwechsel english:Color Change
-		"Immunit" .. Constants.getC("ä") .. "t", --Immunität english:Immunity
-		"Feuerf" .. Constants.getC("ä") .. "nger", --Feuerfänger english:Flash Fire
+		"Immunität", --Immunität english:Immunity
+		"Feuerfänger", --Feuerfänger english:Flash Fire
 		"Puderabwehr", --Puderabwehr english:Shield Dust
 		"Tempomacher", --Tempomacher english:Own Tempo
 		"Saugnapf", --Saugnapf english:Suction Cups
@@ -386,31 +386,31 @@ GameResources{
 		"Synchro", --Synchro english:Synchronize
 		"Neutraltorso", --Neutraltorso english:Clear Body
 		"Innere Kraft", --Innere Kraft english:Natural Cure
-		"Blitzf" .. Constants.getC("ä") .. "nger", --Blitzfänger english:Lightningrod
+		"Blitzfänger", --Blitzfänger english:Lightningrod
 		"Edelmut", --Edelmut english:Serene Grace
 		"Wassertempo", --Wassertempo english:Swift Swim
 		"Chlorophyll", --Chlorophyll english:Chlorophyll
 		"Erleuchtung", --Erleuchtung english:Illuminate
-		"F" .. Constants.getC("ä") .. "hrte", --Fährte english:Trace
+		"Fährte", --Fährte english:Trace
 		"Kraftkoloss", --Kraftkoloss english:Huge Power
 		"Giftdorn", --Giftdorn english:Poison Point
 		"Konzentrator", --Konzentrator english:Inner Focus
 		"Magmapanzer", --Magmapanzer english:Magma Armor
-		"Aquah" .. Constants.getC("ü") .. "lle", --Aquahülle english:Water Veil
+		"Aquahülle", --Aquahülle english:Water Veil
 		"Magnetfalle", --Magnetfalle english:Magnet Pull
-		"L" .. Constants.getC("ä") .. "rmschutz", --Lärmschutz english:Soundproof
+		"Lärmschutz", --Lärmschutz english:Soundproof
 		"Regengenuss", --Regengenuss english:Rain Dish
 		"Sandsturm", --Sandsturm english:Sand Stream
 		"Erzwinger", --Erzwinger english:Pressure
 		"Speckschicht", --Speckschicht english:Thick Fat
-		"Fr" .. Constants.getC("ü") .. "hwecker", --Frühwecker english:Early Bird
-		"Flammk" .. Constants.getC("ö") .. "rper", --Flammkörper english:Flame Body
+		"Frühwecker", --Frühwecker english:Early Bird
+		"Flammkörper", --Flammkörper english:Flame Body
 		"Angsthase", --Angsthase english:Run Away
 		"Adlerauge", --Adlerauge english:Keen Eye
 		"Scherenmacht", --Scherenmacht english:Hyper Cutter
 		"Mitnahme", --Mitnahme english:Pickup
 		"Schnarchnase", --Schnarchnase english:Truant
-		Constants.getC("Ü") .. "bereifer", --Übereifer english:Hustle
+		"Übereifer", --Übereifer english:Hustle
 		"Charmebolzen", --Charmebolzen english:Cute Charm
 		"Plus", --Plus english:Plus
 		"Minus", --Minus english:Minus
@@ -420,12 +420,12 @@ GameResources{
 		"Adrenalin", --Adrenalin english:Guts
 		"Notschutz", --Notschutz english:Marvel Scale
 		"Kloakensosse", --Kloakensosse english:Liquid Ooze
-		"Notd" .. Constants.getC("ü") .. "nger", --Notdünger english:Overgrow
+		"Notdünger", --Notdünger english:Overgrow
 		"Grossbrand", --Grossbrand english:Blaze
 		"Sturzbach", --Sturzbach english:Torrent
 		"Hexaplaga", --Hexaplaga english:Swarm
 		"Steinhaupt", --Steinhaupt english:Rock Head
-		"D" .. Constants.getC("ü") .. "rre", --Dürre english:Drought
+		"Dürre", --Dürre english:Drought
 		"Auswegslos", --Auswegslos english:Arena Trap
 		"Munterkeit", --Munterkeit english:Vital Spirit
 		"Pulverrauch", --Pulverrauch english:White Smoke
@@ -438,7 +438,7 @@ GameResources{
 		"Meisterball", --Meisterball english:Master Ball
 		"Hyperball", --Hyperball english:Ultra Ball
 		"Superball", --Superball english:Great Ball
-		Constants.Words.POKE .. "ball", --Pokéball english:Poké Ball
+		"Pokéball", --Pokéball english:Poké Ball
 		"Safariball", --Safariball english:Safari Ball
 		"Netzball", --Netzball english:Net Ball
 		"Tauchball", --Tauchball english:Dive Ball
@@ -468,24 +468,24 @@ GameResources{
 		"Kraftwurzel", --Kraftwurzel english:Energy Root
 		"Heilpuder", --Heilpuder english:Heal Powder
 		"Vitalkraut", --Vitalkraut english:Revival Herb
-		Constants.getC("Ä") .. "ther", --Äther english:Ether
-		"Top-" .. Constants.getC("Ä") .. "ther", --Top-Äther english:Max Ether
+		"Äther", --Äther english:Ether
+		"Top-Äther", --Top-Äther english:Max Ether
 		"Elixier", --Elixier english:Elixir
 		"Top-Elixier", --Top-Elixier english:Max Elixir
 		"Lavakeks", --Lavakeks english:Lava Cookie
-		"Blaue Fl" .. Constants.getC("ö") .. "te", --Blaue Flöte english:Blue Flute
-		"Gelbe Fl" .. Constants.getC("ö") .. "te", --Gelbe Flöte english:Yellow Flute
-		"Rote Fl" .. Constants.getC("ö") .. "te", --Rote Flöte english:Red Flute
-		"Schw. Fl" .. Constants.getC("ö") .. "te", --Schw. Flöte english:Black Flute
-		"Weisse Fl" .. Constants.getC("ö") .. "te", --Weisse Flöte english:White Flute
+		"Blaue Flöte", --Blaue Flöte english:Blue Flute
+		"Gelbe Flöte", --Gelbe Flöte english:Yellow Flute
+		"Rote Flöte", --Rote Flöte english:Red Flute
+		"Schw. Flöte", --Schw. Flöte english:Black Flute
+		"Weisse Flöte", --Weisse Flöte english:White Flute
 		"Beerensaft", --Beerensaft english:Berry Juice
 		"Zauberasche", --Zauberasche english:Sacred Ash
-		"K" .. Constants.getC("ü") .. "stensalz", --Küstensalz english:Shoal Salt
-		"K" .. Constants.getC("ü") .. "stenschale", --Küstenschale english:Shoal Shell
-		"Purpurst" .. Constants.getC("ü") .. "ck", --Purpurstück english:Red Shard
-		"Indigost" .. Constants.getC("ü") .. "ck", --Indigostück english:Blue Shard
-		"Gelbst" .. Constants.getC("ü") .. "ck", --Gelbstück english:Yellow Shard
-		"Gr" .. Constants.getC("ü") .. "nst" .. Constants.getC("ü") .. "ck", --Grünstück english:Green Shard
+		"Küstensalz", --Küstensalz english:Shoal Salt
+		"Küstenschale", --Küstenschale english:Shoal Shell
+		"Purpurstück", --Purpurstück english:Red Shard
+		"Indigostück", --Indigostück english:Blue Shard
+		"Gelbstück", --Gelbstück english:Yellow Shard
+		"Grünstück", --Grünstück english:Green Shard
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
@@ -514,7 +514,7 @@ GameResources{
 		"X-Tempo", --X-Tempo english:X Speed
 		"X-Treffer", --X-Treffer english:X Accuracy
 		"X-Spezial", --X-Spezial english:X Special
-		Constants.Words.POKE .. "puppe", --Poképuppe english:Poké Doll
+		"Poképuppe", --Poképuppe english:Poké Doll
 		"Eneco-Rute", --Eneco-Rute english:Fluffy Tail
 		"????????", --???????? english:unknown
 		"Superschutz", --Superschutz english:Super Repel
@@ -543,7 +543,7 @@ GameResources{
 		"Perle", --Perle english:Pearl
 		"Riesenperle", --Riesenperle english:Big Pearl
 		"Sternenstaub", --Sternenstaub english:Stardust
-		"Sternenst" .. Constants.getC("ü") .. "ck", --Sternenstück english:Star Piece
+		"Sternenstück", --Sternenstück english:Star Piece
 		"Nugget", --Nugget english:Nugget
 		"Herzschuppe", --Herzschuppe english:Heart Scale
 		"????????", --???????? english:unknown
@@ -623,7 +623,7 @@ GameResources{
 		"Wahlband", --Wahlband english:Choice Band
 		"King-Stein", --King-Stein english:King's Rock
 		"Silberstaub", --Silberstaub english:SilverPowder
-		"M" .. Constants.getC("ü") .. "nzamulett", --Münzamulett english:Amulet Coin
+		"Münzamulett", --Münzamulett english:Amulet Coin
 		"Schutzband", --Schutzband english:Cleanse Tag
 		"Seelentau", --Seelentau english:Soul Dew
 		"Abysszahn", --Abysszahn english:DeepSeaTooth
@@ -631,10 +631,10 @@ GameResources{
 		"Rauchball", --Rauchball english:Smoke Ball
 		"Ewigstein", --Ewigstein english:Everstone
 		"Fokus-Band", --Fokus-Band english:Focus Band
-		"Gl" .. Constants.getC("ü") .. "cks-Ei", --Glücks-Ei english:Lucky Egg
+		"Glücks-Ei", --Glücks-Ei english:Lucky Egg
 		"Scope-Linse", --Scope-Linse english:Scope Lens
 		"Metallmantel", --Metallmantel english:Metal Coat
-		Constants.getC("Ü") .. "berreste", --Überreste english:Leftovers
+		"Überreste", --Überreste english:Leftovers
 		"Drachenhaut", --Drachenhaut english:Dragon Scale
 		"Kugelblitz", --Kugelblitz english:Light Ball
 		"Pudersand", --Pudersand english:Soft Sand
@@ -648,7 +648,7 @@ GameResources{
 		"Giftstich", --Giftstich english:Poison Barb
 		"Ewiges Eis", --Ewiges Eis english:NeverMeltIce
 		"Bannsticker", --Bannsticker english:Spell Tag
-		"Kr" .. Constants.getC("ü") .. "mml" .. Constants.getC("ö") .. "ffel", --Krümmlöffel english:TwistedSpoon
+		"Krümmlöffel", --Krümmlöffel english:TwistedSpoon
 		"Holzkohle", --Holzkohle english:Charcoal
 		"Drachenzahn", --Drachenzahn english:Dragon Fang
 		"Seidenschal", --Seidenschal english:Silk Scarf
@@ -691,10 +691,10 @@ GameResources{
 		"Roter Schal", --Roter Schal english:Red Scarf
 		"Blauer Schal", --Blauer Schal english:Blue Scarf
 		"Rosa Schal", --Rosa Schal english:Pink Scarf
-		"Gr" .. Constants.getC("ü") .. "ner Schal", --Grüner Schal english:Green Scarf
+		"Grüner Schal", --Grüner Schal english:Green Scarf
 		"Gelber Schal", --Gelber Schal english:Yellow Scarf
 		"Eilrad", --Eilrad english:Mach Bike
-		"M" .. Constants.getC("ü") .. "nzkorb", --Münzkorb english:Coin Case
+		"Münzkorb", --Münzkorb english:Coin Case
 		"Detektor", --Detektor english:Itemfinder
 		"Angel", --Angel english:Old Rod
 		"Profiangel", --Profiangel english:Good Rod
@@ -705,21 +705,21 @@ GameResources{
 		"Wailmerkanne", --Wailmerkanne english:Wailmer Pail
 		"Devon-Waren", --Devon-Waren english:Devon Goods
 		"Aschetasche", --Aschetasche english:Soot Sack
-		"Keller" .. Constants.getC("ö") .. "ffner", --Kelleröffner english:Basement Key
+		"Kelleröffner", --Kelleröffner english:Basement Key
 		"Kunstrad", --Kunstrad english:Acro Bike
 		"Pokeblockbox", --Pokeblockbox english:Pokéblock Case
 		"Brief", --Brief english:Letter
-		Constants.getC("Ä") .. "on-Ticket", --Äon-Ticket english:Eon Ticket
+		"Äon-Ticket", --Äon-Ticket english:Eon Ticket
 		"Rote Kugel", --Rote Kugel english:Red Orb
 		"Blaue Kugel", --Blaue Kugel english:Blue Orb
 		"Scanner", --Scanner english:Scanner
-		"W" .. Constants.getC("ü") .. "stenglas", --Wüstenglas english:Go-Goggles
+		"Wüstenglas", --Wüstenglas english:Go-Goggles
 		"Meteorit", --Meteorit english:Meteorite
-		"K1-Schl" .. Constants.getC("ü") .. "ssel", --K1-Schlüssel english:Rm. 1 Key
-		"K2-Schl" .. Constants.getC("ü") .. "ssel", --K2-Schlüssel english:Rm. 2 Key
-		"K4-Schl" .. Constants.getC("ü") .. "ssel", --K4-Schlüssel english:Rm. 4 Key
-		"K6-Schl" .. Constants.getC("ü") .. "ssel", --K6-Schlüssel english:Rm. 6 Key
-		"L.-Schl" .. Constants.getC("ü") .. "ssel", --L.-Schlüssel english:Storage Key
+		"K1-Schlüssel", --K1-Schlüssel english:Rm. 1 Key
+		"K2-Schlüssel", --K2-Schlüssel english:Rm. 2 Key
+		"K4-Schlüssel", --K4-Schlüssel english:Rm. 4 Key
+		"K6-Schlüssel", --K6-Schlüssel english:Rm. 6 Key
+		"L.-Schlüssel", --L.-Schlüssel english:Storage Key
 		"Wurzelfossil", --Wurzelfossil english:Root Fossil
 		"Klauenfossil", --Klauenfossil english:Claw Fossil
 		"Devon-Scope", --Devon-Scope english:Devon Scope
@@ -784,13 +784,13 @@ GameResources{
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
 		"Eichs Paket", --Eichs Paket english:Oak's Parcel
-		Constants.Words.POKE .. "fl" .. Constants.getC("ö") .. "te", --Pokéflöte english:Poké Flute
-		"?-" .. Constants.getC("Ö") .. "ffner", --?-Öffner english:Secret Key
+		"Pokéflöte", --Pokéflöte english:Poké Flute
+		"?-Öffner", --?-Öffner english:Secret Key
 		"Rad-Coupon", --Rad-Coupon english:Bike Voucher
-		"Goldz" .. Constants.getC("ä") .. "hne", --Goldzähne english:Gold Teeth
+		"Goldzähne", --Goldzähne english:Gold Teeth
 		"Altbernstein", --Altbernstein english:Old Amber
-		"T" .. Constants.getC("ü") .. "r" .. Constants.getC("ö") .. "ffner", --Türöffner english:Card Key
-		"Lift" .. Constants.getC("ö") .. "ffner", --Liftöffner english:Lift Key
+		"Türöffner", --Türöffner english:Card Key
+		"Liftöffner", --Liftöffner english:Lift Key
 		"Helixfossil", --Helixfossil english:Helix Fossil
 		"Domfossil", --Domfossil english:Dome Fossil
 		"Silph Scope", --Silph Scope english:Silph Scope
@@ -799,14 +799,14 @@ GameResources{
 		"Kampffahnder", --Kampffahnder english:Vs. Seeker
 		"Ruhmesdatei", --Ruhmesdatei english:Fame Checker
 		"Vm/tm-Box", --Vm/tm-Box english:TM Case
-		"Beerent" .. Constants.getC("ü") .. "te", --Beerentüte english:Berry Pouch
+		"Beerentüte", --Beerentüte english:Berry Pouch
 		"Lehrkanal", --Lehrkanal english:Teachy TV
 		"Tri-Pass", --Tri-Pass english:Tri-Pass
 		"Bunt-Pass", --Bunt-Pass english:Rainbow Pass
 		"Tee", --Tee english:Tea
 		"Geheimticket", --Geheimticket english:MysticTicket
 		"Auroraticket", --Auroraticket english:AuroraTicket
-		"Puderd" .. Constants.getC("ö") .. "schen", --Puderdöschen english:Powder Jar
+		"Puderdöschen", --Puderdöschen english:Powder Jar
 		"Rubin", --Rubin english:Ruby
 		"Saphir", --Saphir english:Sapphire
 

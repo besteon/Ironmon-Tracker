@@ -96,7 +96,7 @@ GameResources{
 		"Psichico", --Psichico english:Psychic
 		"Ipnosi", --Ipnosi english:Hypnosis
 		"Meditazione", --Meditazione english:Meditate
-		"Agilit" .. Constants.getC("à"), --Agilità english:Agility
+		"Agilità", --Agilità english:Agility
 		"Att. Rapido", --Att. Rapido english:Quick Attack
 		"Ira", --Ira english:Rage
 		"Teletraspor.", --Teletraspor. english:Teleport
@@ -133,7 +133,7 @@ GameResources{
 		"Sparalance", --Sparalance english:Spike Cannon
 		"Limitazione", --Limitazione english:Constrict
 		"Amnesia", --Amnesia english:Amnesia
-		"Cin" .. Constants.getC("è") .. "si", --Cinèsi english:Kinesis
+		"Cinèsi", --Cinèsi english:Kinesis
 		"Covauova", --Covauova english:Softboiled
 		"Calcinvolo", --Calcinvolo english:Hi Jump Kick
 		"Bagliore", --Bagliore english:Glare
@@ -243,7 +243,7 @@ GameResources{
 		"Giornodisole", --Giornodisole english:Sunny Day
 		"Sgranocchio", --Sgranocchio english:Crunch
 		"Specchiovelo", --Specchiovelo english:Mirror Coat
-		"Psicamis" .. Constants.getC("ù"), --Psicamisù english:Psych Up
+		"Psicamisù", --Psicamisù english:Psych Up
 		"Extrarapido", --Extrarapido english:ExtremeSpeed
 		"Forzantica", --Forzantica english:AncientPower
 		"Palla Ombra", --Palla Ombra english:Shadow Ball
@@ -361,7 +361,7 @@ GameResources{
 		"Acceleratore", --Acceleratore english:Speed Boost
 		"Lottascudo", --Lottascudo english:Battle Armor
 		"Vigore", --Vigore english:Sturdy
-		"Umidit" .. Constants.getC("à"), --Umidità english:Damp
+		"Umidità", --Umidità english:Damp
 		"Scioltezza", --Scioltezza english:Limber
 		"Sabbiavelo", --Sabbiavelo english:Sand Veil
 		"Statico", --Statico english:Static
@@ -372,7 +372,7 @@ GameResources{
 		"Insettocchi", --Insettocchi english:Compoundeyes
 		"Insonnia", --Insonnia english:Insomnia
 		"Cambiacolore", --Cambiacolore english:Color Change
-		"Immunit" .. Constants.getC("à"), --Immunità english:Immunity
+		"Immunità", --Immunità english:Immunity
 		"Fuocardore", --Fuocardore english:Flash Fire
 		"Polvoscudo", --Polvoscudo english:Shield Dust
 		"Mente Locale", --Mente Locale english:Own Tempo
@@ -412,7 +412,7 @@ GameResources{
 		"Pigrone", --Pigrone english:Truant
 		"Tuttafretta", --Tuttafretta english:Hustle
 		"Incantevole", --Incantevole english:Cute Charm
-		"Pi" .. Constants.getC("ù"), --Più english:Plus
+		"Più", --Più english:Plus
 		"Meno", --Meno english:Minus
 		"Previsioni", --Previsioni english:Forecast
 		"Antifurto", --Antifurto english:Sticky Hold
@@ -425,7 +425,7 @@ GameResources{
 		"Acquaiuto", --Acquaiuto english:Torrent
 		"Aiutinsetto", --Aiutinsetto english:Swarm
 		"Testadura", --Testadura english:Rock Head
-		"Siccit" .. Constants.getC("à"), --Siccità english:Drought
+		"Siccità", --Siccità english:Drought
 		"Trappoarena", --Trappoarena english:Arena Trap
 		"Spiritovivo", --Spiritovivo english:Vital Spirit
 		"Fumochiaro", --Fumochiaro english:White Smoke
@@ -438,7 +438,7 @@ GameResources{
 		"Master Ball", --Master Ball english:Master Ball
 		"Ultra Ball", --Ultra Ball english:Ultra Ball
 		"Mega Ball", --Mega Ball english:Great Ball
-		Constants.Words.POKE .. " Ball", --Poké Ball english:Poké Ball
+		"Poké Ball", --Poké Ball english:Poké Ball
 		"Safari Ball", --Safari Ball english:Safari Ball
 		"Rete Ball", --Rete Ball english:Net Ball
 		"Sub Ball", --Sub Ball english:Dive Ball
@@ -511,10 +511,10 @@ GameResources{
 		"Supercolpo", --Supercolpo english:Dire Hit
 		"Attacco X", --Attacco X english:X Attack
 		"Difesa X", --Difesa X english:X Defend
-		"Velocit" .. Constants.getC("à") .. " X", --Velocità X english:X Speed
+		"Velocità X", --Velocità X english:X Speed
 		"Precisione X", --Precisione X english:X Accuracy
 		"Special X", --Special X english:X Special
-		Constants.Words.POKE .. " Bambola", --Poké Bambola english:Poké Doll
+		"Poké Bambola", --Poké Bambola english:Poké Doll
 		"Coda Skitty", --Coda Skitty english:Fluffy Tail
 		"????????", --???????? english:unknown
 		"Superrepell.", --Superrepell. english:Super Repel
@@ -566,7 +566,7 @@ GameResources{
 		"Mess. Tropic", --Mess. Tropic english:Tropic Mail
 		"Mess. Sogno", --Mess. Sogno english:Dream Mail
 		"Mess. Lusso", --Mess. Lusso english:Fab Mail
-		"Mess. R" .. Constants.getC("é") .. "tro", --Mess. Rétro english:Retro Mail
+		"Mess. Rétro", --Mess. Rétro english:Retro Mail
 		"Baccaliegia", --Baccaliegia english:Cheri Berry
 		"Baccastagna", --Baccastagna english:Chesto Berry
 		"Baccapesca", --Baccapesca english:Pecha Berry
@@ -707,7 +707,7 @@ GameResources{
 		"Sacco Cenere", --Sacco Cenere english:Soot Sack
 		"Chiave Sott.", --Chiave Sott. english:Basement Key
 		"Bici Cross", --Bici Cross english:Acro Bike
-		"Portapok" .. Constants.getC("é") .. "melle", --Portapokémelle english:Pokéblock Case
+		"Portapokémelle", --Portapokémelle english:Pokéblock Case
 		"Lettera", --Lettera english:Letter
 		"Bigl. Eone", --Bigl. Eone english:Eon Ticket
 		"Sfera Rossa", --Sfera Rossa english:Red Orb
@@ -784,7 +784,7 @@ GameResources{
 		"????????", --???????? english:unknown
 		"????????", --???????? english:unknown
 		"Pacco Di Oak", --Pacco Di Oak english:Oak's Parcel
-		Constants.Words.POKE .. " Flauto", --Poké Flauto english:Poké Flute
+		"Poké Flauto", --Poké Flauto english:Poké Flute
 		"Chiave Segr.", --Chiave Segr. english:Secret Key
 		"Buono Bici", --Buono Bici english:Bike Voucher
 		"Denti D'oro", --Denti D'oro english:Gold Teeth
@@ -795,15 +795,15 @@ GameResources{
 		"Domofossile", --Domofossile english:Dome Fossil
 		"Spettrosonda", --Spettrosonda english:Silph Scope
 		"Bicicletta", --Bicicletta english:Bicycle
-		"Mappa Citt" .. Constants.getC("à"), --Mappa Città english:Town Map
+		"Mappa Città", --Mappa Città english:Town Map
 		"Cercasfide", --Cercasfide english:Vs. Seeker
-		Constants.Words.POKE .. "vip", --Pokévip english:Fame Checker
+		"Pokévip", --Pokévip english:Fame Checker
 		"Porta-Mt", --Porta-Mt english:TM Case
 		"Portabacche", --Portabacche english:Berry Pouch
-		Constants.Words.POKE .. "tiv" .. Constants.getC("ù"), --Pokétivù english:Teachy TV
+		"Pokétivù", --Pokétivù english:Teachy TV
 		"Tris Pass", --Tris Pass english:Tri-Pass
 		"Sette Pass", --Sette Pass english:Rainbow Pass
-		"T" .. Constants.getC("è"), --Tè english:Tea
+		"Tè", --Tè english:Tea
 		"Bigl. Magico", --Bigl. Magico english:MysticTicket
 		"Bigl. Aurora", --Bigl. Aurora english:AuroraTicket
 		"Portafarina", --Portafarina english:Powder Jar
