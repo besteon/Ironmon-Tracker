@@ -1,9 +1,9 @@
 Resources = {}
 -- TODO: Task list:
--- - Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
--- - Add Drawing function to draw pokemon type bar with text overlayed
--- - Find solution for text highlights that count pixels of a character/string (i.e. next move level)
--- Swapping to a non-default language, then swapping to another unfinished non-default language won't update missing pieces with default data.
+-- * Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
+-- * Add Drawing function to draw pokemon type bar with text overlayed
+-- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
+-- * Move/Ability Descriptions need resources keys so they can be translated
 
 Resources.Languages = {
 	ENGLISH = {
@@ -21,7 +21,7 @@ Resources.Languages = {
 	GERMAN = {
 		Ordinal = 3,
 		Key = "GERMAN",
-		DisplayName = "Deutsche",
+		DisplayName = "Deutsch",
 		FileName = "German.lua",
 	},
 	FRENCH = {
@@ -53,79 +53,30 @@ Resources.Languages = {
 	},
 }
 
+-- Holds all current resources data used by all Tracker assets; data is categorized
+Resources.Data = {}
+
+-- Define metatables
+local mt = {}
+setmetatable(Resources, mt)
+mt.__index = Resources.Data
+
 Resources.Default = {
 	Language = Resources.Languages.ENGLISH,
-	Data = nil, -- Used to fill in gaps in other language resource data
-}
-
--- Holds all current resources data used by all Tracker assets; data is categorized
--- For now, it simply holds functions that are used to replace existing data on the Tracker
--- In the future, it will hold the actual resources, and the Tracker will refer here for that data
--- Similar to how Themes.COLORS["key"] works.
-Resources.Data = {
-	Game = {
-		PokemonNames = {
-			updateAll = function(self, data)
-				for index, val in ipairs(PokemonData.Pokemon) do
-					val.name = data[index]
-				end
-			end,
-		},
-		MoveNames = {
-			updateAll = function(self, data)
-				for index, val in ipairs(MoveData.Moves) do
-					val.name = data[index]
-				end
-			end,
-		},
-		MoveDescriptions = {
-			updateAll = function(self, data)
-				for index, val in ipairs(MoveData.Moves) do
-					val.summary = data[index]
-				end
-			end,
-		},
-		AbilityNames = {
-			updateAll = function(self, data)
-				for index, val in ipairs(AbilityData.Abilities) do
-					val.name = data[index]
-				end
-			end,
-		},
-		AbilityDescriptions = {
-			updateAll = function(self, data)
-				for index, val in ipairs(AbilityData.Abilities) do
-					val.description = data[index].description
-					if data[index].descriptionEmerald ~= nil then
-						val.descriptionEmerald = data[index].descriptionEmerald
-					end
-				end
-			end,
-		},
-		ItemNames = {
-			updateAll = function(self, data) MiscData.Items = data end,
-		},
-		NatureNames = {
-			updateAll = function(self, data) MiscData.Natures = data end,
-		},
-	},
+	Data = {}, -- Used to fill in gaps in other language resource data
 }
 
 function Resources.initialize()
 	if Resources.hasInitialized then return end
-
-	-- Define metatable for easier resource lookup. (i.e. Resources.TrackerScreen.StatATK)
-	local mt = {}
-	setmetatable(Resources, mt)
-	mt.__index = Resources.Data
 
 	Resources.defineResourceCallbacks()
 	Resources.sanitizeTable(Resources.Languages)
 
 	-- Load in default language data first, to fill in gaps in other language data
 	Resources.loadAndApplyLanguage(Resources.Default.Language)
+	Resources.copyTable(Resources.Data, Resources.Default.Data)
 
-	-- Then load in the user's language
+	-- Then load in the language chosen by the user's settings
 	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
 	Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
 
@@ -144,19 +95,16 @@ function Resources.autoDetectForeignLanguage()
 end
 
 function Resources.changeLanguageSetting(language)
-	if language == nil or language == Resources.currentLanguage or not Resources.Languages[language.Key] then
-		return
+	local success = Resources.loadAndApplyLanguage(language)
+	if success then
+		Options["Language"] = language.Key
+		Main.SaveSettings(true)
 	end
-
-	Resources.currentLanguage = language
-	Options["Language"] = language.Key
-	Main.SaveSettings(true)
-	Resources.loadAndApplyLanguage(language)
 end
 
 -- Loads resources for the specified language into all of the Tracker's assets
 function Resources.loadAndApplyLanguage(language)
-	if language == nil or language.FileName == nil then
+	if language == nil or language == Resources.currentLanguage or not Resources.Languages[language.Key] then
 		return false
 	end
 
@@ -169,15 +117,16 @@ function Resources.loadAndApplyLanguage(language)
 	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	local langFilePath = langFolder .. language.FileName
 	if FileManager.fileExists(langFilePath) then
-		Resources.LoadedData = {}
-		Resources.currentLanguage = language
+		-- Prepopulate with default data. Newly loaded data (if it exists) replaces each key
+		Resources.copyTable(Resources.Default.Data, Resources.Data)
 
-		-- Load data into Resources.LoadedData
+		-- Load data into Resources.Data
 		dofile(langFilePath)
 
-		Resources.sanitizeTable(Resources.LoadedData)
-		Resources.updateTrackerResources(Resources.LoadedData)
-		Resources.LoadedData = nil
+		Resources.currentLanguage = language
+		Resources.sanitizeTable(Resources.Data)
+		FileManager.executeEachFile("updateResources")
+		collectgarbage()
 
 		return true
 	else
@@ -188,38 +137,25 @@ end
 -- Establishes global functions used for loading resource data from resource files
 function Resources.defineResourceCallbacks()
 	-- Sub function used by other resource load functions
-	local function dataLoadHelper(category, data)
-		if Resources.LoadedData[category] == nil then
-			Resources.LoadedData[category] = {}
+	local function dataLoadHelper(asset, data)
+		if Resources.Data[asset] == nil then
+			Resources.Data[asset] = {}
 		end
-		local loadedCategory = Resources.LoadedData[category]
-		local defaultTable = (Resources.Default.Data or {})[category]
-
-		for key, _ in pairs(Resources.Data[category]) do
-			if data[key] then
-				loadedCategory[key] = data[key]
-			elseif defaultTable ~= nil then
-				-- Fill in missing data with default data, if available
-				loadedCategory[key] = defaultTable[key]
-			end
+		local assetTable = Resources.Data[asset]
+		for key, val in pairs(data) do
+			assetTable[key] = val
 		end
 	end
 
 	-- Callback function(s) for loading data from resource files
 	function GameResources(data) dataLoadHelper("Game", data) end
 
-	-- Each screen is its own category of data
+	-- Each screen is its own asset category of data
 	function ScreenResources(data)
 		for screen, labels in pairs(data) do
-			if Resources.Data[screen] == nil then
-				Resources.Data[screen] = {}
-			end
-			for key, val in pairs(labels) do
-				Resources.Data[screen][key] = val
-			end
+			dataLoadHelper(screen, labels)
 		end
 	end
-	Resources.sanitizeTable(Resources.Data)
 end
 
 -- Replaces non-English characters with the their unicode equivalents
@@ -247,24 +183,13 @@ function Resources.sanitizeTable(data)
 	sanitize(data)
 end
 
--- Updates the Tracker's assets with the loaded resource files (required)
--- In the future, will likely have Tracker assets pull directly from loaded data
--- instead of replacing existing data with newly loaded stuff.
-function Resources.updateTrackerResources(loadedData)
-	if loadedData == nil or loadedData == {} then
-		return
-	end
-
-	-- Update each asset in each category
-	for category, assetList in pairs(Resources.Data) do
-		local loadedCategory = loadedData[category]
-		if loadedCategory then
-			for key, asset in pairs(assetList) do
-				local data = loadedCategory[key]
-				if data and type(asset.updateAll) == "function" then
-					asset:updateAll(data)
-				end
-			end
+function Resources.copyTable(source, dest)
+	for key, val in pairs(source) do
+		if type(val) == "table" then
+			dest[key] = {}
+			Resources.copyTable(val, dest[key])
+		else
+			dest[key] = val
 		end
 	end
 end

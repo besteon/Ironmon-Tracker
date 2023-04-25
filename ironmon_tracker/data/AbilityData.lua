@@ -1,5 +1,15 @@
 AbilityData = {}
 
+function AbilityData.updateResources()
+	for index, val in ipairs(AbilityData.Abilities) do
+		val.name = Resources.Game.AbilityNames[index]
+
+		local descData = Resources.Game.AbilityDescriptions[index]
+		val.description = descData.description
+		val.descriptionEmerald = descData.descriptionEmerald
+	end
+end
+
 function AbilityData.isValid(abilityId)
 	return abilityId ~= nil and abilityId >= 1 and abilityId <= #AbilityData.Abilities -- and abilityId ~= 76 -- Allow Cacophony to be looked up
 end

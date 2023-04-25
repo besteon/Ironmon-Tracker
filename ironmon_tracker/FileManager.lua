@@ -242,6 +242,23 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	return false
 end
 
+-- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
+function FileManager.executeEachFile(functionName)
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G -- Lua 5.1 only
+	else
+		globalRef = _ENV -- Lua 5.4
+	end
+
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""] or {}
+		if type(luaObject[functionName]) == "function" then
+			luaObject[functionName]()
+		end
+	end
+end
+
 -- Returns a properly formatted path that contains only the correct path-separators based on the OS
 function FileManager.formatPathForOS(path)
 	path = path or ""

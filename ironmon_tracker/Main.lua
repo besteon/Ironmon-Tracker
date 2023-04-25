@@ -136,7 +136,8 @@ function Main.Run()
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
 	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
-	Main.InitializeAllTrackerFiles()
+	FileManager.executeEachFile("initialize") -- initialize all tracker files
+	CustomCode.startup()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
 	-- Final garbage collection prior to game loops beginning
@@ -251,24 +252,6 @@ function Main.DisplayError(errMessage)
 		client.unpause()
 		forms.destroy(form)
 	end, 155, 80)
-end
-
-function Main.InitializeAllTrackerFiles()
-	local globalRef
-	if Main.emulator == Main.EMU.BIZHAWK28 then
-		globalRef = _G -- Lua 5.1 only
-	else
-		globalRef = _ENV -- Lua 5.4
-	end
-
-	for _, luafile in ipairs(FileManager.LuaCode) do
-		local luaObject = globalRef[luafile.name or ""]
-		if type(luaObject.initialize) == "function" then
-			luaObject.initialize()
-		end
-	end
-
-	CustomCode.startup()
 end
 
 function Main.SelfUpdateAfterRestart()

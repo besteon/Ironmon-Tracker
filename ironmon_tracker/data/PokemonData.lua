@@ -155,6 +155,12 @@ function PokemonData.initialize()
 	end
 end
 
+function PokemonData.updateResources()
+	for index, val in ipairs(PokemonData.Pokemon) do
+		val.name = Resources.Game.PokemonNames[index]
+	end
+end
+
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
 	local typesData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x06)
 	local typeOne = Utils.getbits(typesData, 0, 8)

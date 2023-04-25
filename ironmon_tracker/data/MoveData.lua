@@ -138,6 +138,13 @@ function MoveData.initialize()
 	end
 end
 
+function MoveData.updateResources()
+	for index, val in ipairs(MoveData.Moves) do
+		val.name = Resources.Game.MoveNames[index]
+		val.summary = Resources.Game.MoveDescriptions[index]
+	end
+end
+
 function MoveData.readMoveInfoFromMemory(moveId)
 	local moveData = Memory.readdword(GameSettings.gBattleMoves + (moveId * 0x0C) + 0x01)
 
