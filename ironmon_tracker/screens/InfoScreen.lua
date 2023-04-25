@@ -714,7 +714,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 		if effectiveness > 2 then
 			-- gui.drawRectangle(typeOffsetX - 1, botOffsetY - 1, 31, 13, Theme.COLORS["Negative text"])
-			local barColor = 0xFFFFFFFF
+			local barColor = Drawing.Colors.WHITE
 			gui.drawLine(typeOffsetX, botOffsetY, typeOffsetX + 29, botOffsetY, barColor)
 			gui.drawLine(typeOffsetX, botOffsetY + 1, typeOffsetX + 29, botOffsetY + 1, barColor)
 			gui.drawLine(typeOffsetX, botOffsetY + 10, typeOffsetX + 29, botOffsetY + 10, barColor)

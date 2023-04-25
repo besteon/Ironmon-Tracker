@@ -361,8 +361,8 @@ function StartupScreen.drawScreen()
 		-- Draw the GBA pixel image as a black icon against white background
 		local gbaX = botBox.x + 117
 		local gbaY = botBox.y + 2
-		gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, 0xFFFFFFFF)
-		Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, { 0xFF000000, 0xFFFFFFFF })
+		gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, Drawing.Colors.WHITE)
+		Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, { Drawing.Colors.BLACK, Drawing.Colors.WHITE })
 
 		local indentChars = "    "
 		local swapFormatted = indentChars .. Options.CONTROLS["Toggle view"]:upper()

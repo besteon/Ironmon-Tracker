@@ -36,7 +36,7 @@ Resources.Languages = {
 		FileName = "Japanese.lua",
 		RequiresUTF16 = true,
 	},
-	CHINESE = { -- Currently not included or supported
+	CHINESE = { -- Currently not included or supported yet
 		Key = "CHINESE",
 		DisplayName = "中文",
 		FileName = "Chinese.lua",
@@ -100,20 +100,15 @@ Resources.Data = {
 			updateAll = function(self, data) MiscData.Natures = data end,
 		},
 	},
-	Screen = {
-		TrackerScreen = {
-			Labels = {},
-			updateAll = function(self, data)
-				for key, val in pairs(data) do
-					self.Labels[key] = val
-				end
-			end,
-		},
-	},
 }
 
 function Resources.initialize()
 	if Resources.hasInitialized then return end
+
+	-- Define metatable for easier resource lookup. (i.e. Resources.TrackerScreen.StatATK)
+	local mt = {}
+	setmetatable(Resources, mt)
+	mt.__index = Resources.Data
 
 	Resources.defineResourceCallbacks()
 
@@ -202,7 +197,19 @@ function Resources.defineResourceCallbacks()
 
 	-- Callback function(s) for loading data from resource files
 	function GameResources(data) dataLoadHelper("Game", data) end
-	function ScreenResources(data) dataLoadHelper("Screen", data) end
+
+	-- Each screen is its own category of data
+	function ScreenResources(data)
+		for screen, labels in pairs(data) do
+			if Resources.Data[screen] == nil then
+				Resources.Data[screen] = {}
+			end
+			for key, val in pairs(labels) do
+				Resources.Data[screen][key] = val
+			end
+		end
+	end
+	Resources.sanitizeLoadedData(Resources.Data)
 end
 
 -- Replaces non-English characters with the their unicode equivalents

@@ -415,7 +415,7 @@ end
 -- Example: 4/12 (25)
 function Utils.getMovesLearnedHeader(pokemonID, level)
 	if not PokemonData.isValid(pokemonID) or level == nil then
-		return TrackerScreen.Labels.HeaderMoves, nil, nil
+		return Resources.TrackerScreen.HeaderMoves, nil, nil
 	end
 
 	local movesLearned = 0
@@ -432,7 +432,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local movesText = TrackerScreen.Labels.HeaderMoves
+	local movesText = Resources.TrackerScreen.HeaderMoves
 	local nextMoveSpacing = 13
 	-- Don't show the asterisk on your own Pokemon
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then

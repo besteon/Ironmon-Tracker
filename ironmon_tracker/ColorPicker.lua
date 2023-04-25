@@ -135,8 +135,8 @@ function ColorPicker:drawMainCanvas()
 	forms.drawRectangle(self.mainCanvas,sliderX,sliderY,14,4,nil,nil)
 
 	forms.drawRectangle(self.mainCanvas,15,173,30,30,nil,tonumber(self.color))
-	forms.drawText(self.mainCanvas,50,179,self.colorkey,0xFFFFFFFF,0x00000000,14,"Arial")
-	forms.drawText(self.mainCanvas,14,221,"Hex Color:",0xFFFFFFFF,0x00000000,14,"Arial")
+	forms.drawText(self.mainCanvas,50,179,self.colorkey,Drawing.Colors.WHITE,0x00000000,14,"Arial")
+	forms.drawText(self.mainCanvas,14,221,"Hex Color:",Drawing.Colors.WHITE,0x00000000,14,"Arial")
 
 	forms.refresh(self.mainCanvas)
 end
