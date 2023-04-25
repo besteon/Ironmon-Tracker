@@ -59,11 +59,11 @@ NavigationMenu.Buttons = {
 			Program.changeScreenView(Theme)
 		end
 	},
-	ManageTrackedData = {
-		text = "Data",
+	LanguageSettings = {
+		text = "Language",
 		image = Constants.PixelImages.GEAR,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(TrackedDataScreen) end
+		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
 	CheckForUpdates = {
 		text = "Update",
@@ -166,7 +166,7 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.GameplaySettings,
 	NavigationMenu.Buttons.QuickloadSettings,
 	NavigationMenu.Buttons.ThemeCustomization,
-	NavigationMenu.Buttons.ManageTrackedData,
+	NavigationMenu.Buttons.LanguageSettings,
 	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
 	NavigationMenu.Buttons.StreamerTools,

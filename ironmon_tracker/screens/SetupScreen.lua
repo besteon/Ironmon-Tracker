@@ -67,9 +67,15 @@ SetupScreen.Buttons = {
 	},
 	EditControls = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Edit Controls",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 53, 11 },
+		text = "Controls",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 38, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
+	},
+	ManageData = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		text = "Manage Data",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 58, 11 },
+		onClick = function() Program.changeScreenView(TrackedDataScreen) end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,

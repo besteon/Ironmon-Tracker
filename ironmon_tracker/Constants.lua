@@ -107,6 +107,8 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
+		"Language",
+		"Autodetect language from game",
 		"Disable mainscreen carousel",
 		"Auto swap to enemy",
 		"Show random ball picker",

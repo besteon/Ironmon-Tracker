@@ -3,43 +3,52 @@ Resources = {}
 -- - Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
 -- - Add Drawing function to draw pokemon type bar with text overlayed
 -- - Find solution for text highlights that count pixels of a character/string (i.e. next move level)
+-- Swapping to a non-default language, then swapping to another unfinished non-default language won't update missing pieces with default data.
 
 Resources.Languages = {
 	ENGLISH = {
+		Ordinal = 1,
 		Key = "ENGLISH",
 		DisplayName = "English",
 		FileName = "English.lua",
 	},
 	SPANISH = {
+		Ordinal = 2,
 		Key = "SPANISH",
 		DisplayName = "Español",
 		FileName = "Spanish.lua",
 	},
+	GERMAN = {
+		Ordinal = 3,
+		Key = "GERMAN",
+		DisplayName = "Deutsche",
+		FileName = "German.lua",
+	},
 	FRENCH = {
+		Ordinal = 4,
 		Key = "FRENCH",
 		DisplayName = "Français",
 		FileName = "French.lua",
 	},
 	ITALIAN = {
+		Ordinal = 5,
 		Key = "ITALIAN",
 		DisplayName = "Italiano",
 		FileName = "Italian.lua",
 	},
-	GERMAN = {
-		Key = "GERMAN",
-		DisplayName = "Deutsche",
-		FileName = "German.lua",
-	},
-	JAPANESE = {
-		Key = "JAPANESE",
-		DisplayName = "日本語",
-		FileName = "Japanese.lua",
-		RequiresUTF16 = true,
-	},
-	CHINESE = { -- Currently not included or supported yet
+	CHINESE = {
+		Ordinal = 6,
 		Key = "CHINESE",
 		DisplayName = "中文",
 		FileName = "Chinese.lua",
+		RequiresUTF16 = true,
+		ExcludeFromSettings = true,  -- Currently not included or supported yet
+	},
+	JAPANESE = {
+		Ordinal = 7,
+		Key = "JAPANESE",
+		DisplayName = "日本語",
+		FileName = "Japanese.lua",
 		RequiresUTF16 = true,
 	},
 }
@@ -111,36 +120,37 @@ function Resources.initialize()
 	mt.__index = Resources.Data
 
 	Resources.defineResourceCallbacks()
+	Resources.sanitizeTable(Resources.Languages)
 
 	-- Load in default language data first, to fill in gaps in other language data
 	Resources.loadAndApplyLanguage(Resources.Default.Language)
 
-	-- TODO: Instead of nil, load the language setting from Settings.ini
-	Resources.loadAndApplyLanguage(nil)
+	-- Then load in the user's language
+	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
+	Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
 
 	Resources.hasInitialized = true
 end
 
 -- Attempts to automatically change the language based on the game being played.
--- If a change is detected, this prompts the user to confirm.
 function Resources.autoDetectForeignLanguage()
 	local language = Resources.Languages[GameSettings.language:upper()]
 
-	-- TODO: Also add a setting to the Language screen to ask for "auto-detect game language" default:ON
-	if language == nil or language == Resources.Default.Language then
+	if not Options["Autodetect language from game"] or language == nil or language == Resources.Default.Language then
 		return
 	end
 
-	-- Prompt user if they want to use the language detected from the game loaded, or keep their current language settings
-	if language ~= Resources.currentLanguage then
-		-- Scratch that, prompting each time could get annoying if they intentional want diff languages.
-		-- Thus, also find a way to only prompt when their default language setting hasn't been changed
-		-- TODO: Prompt in both current and new languages
-		-- if not okayToChange then
-		-- 	return
-		-- end
+	Resources.loadAndApplyLanguage(language)
+end
+
+function Resources.changeLanguageSetting(language)
+	if language == nil or language == Resources.currentLanguage or not Resources.Languages[language.Key] then
+		return
 	end
 
+	Resources.currentLanguage = language
+	Options["Language"] = language.Key
+	Main.SaveSettings(true)
 	Resources.loadAndApplyLanguage(language)
 end
 
@@ -165,7 +175,7 @@ function Resources.loadAndApplyLanguage(language)
 		-- Load data into Resources.LoadedData
 		dofile(langFilePath)
 
-		Resources.sanitizeLoadedData(Resources.LoadedData)
+		Resources.sanitizeTable(Resources.LoadedData)
 		Resources.updateTrackerResources(Resources.LoadedData)
 		Resources.LoadedData = nil
 
@@ -209,11 +219,11 @@ function Resources.defineResourceCallbacks()
 			end
 		end
 	end
-	Resources.sanitizeLoadedData(Resources.Data)
+	Resources.sanitizeTable(Resources.Data)
 end
 
 -- Replaces non-English characters with the their unicode equivalents
-function Resources.sanitizeLoadedData(data)
+function Resources.sanitizeTable(data)
 	if Main.supportsSpecialChars then return end
 
 	-- Create a regex pattern of all of the available special characters

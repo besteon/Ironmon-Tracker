@@ -45,6 +45,25 @@ ScreenResources{
 		EncounterOldRod = "Old Rod",
 		EncounterSeenPokemon = "Seen Pokémon",
 	},
+	LanguageScreen = {
+		Header = "Language Settings",
+		AutodetectSetting = "Autodetect game language",
+		ChangeLanguageText = "Choose a language"
+	},
+	AllScreens = {
+		Back = "Back",
+		Yes = "Yes",
+		No = "No",
+		OK = "OK",
+		Cancel = "Cancel",
+		Preview = "Preview",
+		Save = "Save",
+		Close = "Close",
+		Clear = "Clear",
+		Import = "Import",
+		Export = "Export",
+		Lookup = "Lookup",
+	},
 }
 
 GameResources{

@@ -98,7 +98,7 @@ function Utils.centerTextOffset(text, charSize, width)
 end
 
 function Utils.calcWordPixelLength(text)
-	if text == nil or #text == 0 then return 0 end
+	if text == nil or #text == 0 or Utils.startsWithJapaneseChineseChar(text) then return 0 end
     local totalLength = 0
     for c in text:gmatch("(.)") do
 		totalLength = totalLength + (Constants.CharWidths[c] or 1) + 1

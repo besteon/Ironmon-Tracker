@@ -46,7 +46,7 @@ TrackedDataScreen.Buttons = {
 
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
 			Main.SaveSettings()
-			Program.changeScreenView(NavigationMenu)
+			Program.changeScreenView(SetupScreen)
 		end
 	},
 }
