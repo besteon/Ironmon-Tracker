@@ -30,9 +30,6 @@ Currently supported Pokémon games / languages:
 | French    | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | Italian   | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | German    | ❌ | ❌ | ❌ | ✔️ | ❌ |
-| Japanese* | ❌ | ❌ | ❌ | ✔️ | ❌ |
-> \***For Japanese games you need to use Bizhawk 2.9 or newer.**  
-> Bizhawk 2.8 does not let the tracker draw Japanese characters and on mGBA the varying character lengths shift the text-based tracker display out of alignment.
 
 We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
 
