@@ -162,7 +162,7 @@ InfoScreen.Buttons = {
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Lower box border", "Lower box background" },

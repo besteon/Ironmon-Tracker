@@ -156,8 +156,8 @@ function PokemonData.initialize()
 end
 
 function PokemonData.updateResources()
-	for index, val in ipairs(PokemonData.Pokemon) do
-		val.name = Resources.Game.PokemonNames[index]
+	for i, val in ipairs(PokemonData.Pokemon) do
+		val.name = Resources.Game.PokemonNames[i]
 	end
 end
 

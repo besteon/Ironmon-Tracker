@@ -1,6 +1,5 @@
 Resources = {}
 -- TODO: Task list:
--- * Fix 3D Animated Popout to not rely on Pokemon names from PokemonData
 -- * Add Drawing function to draw pokemon type bar with text overlayed
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 -- * Move/Ability Descriptions need resources keys so they can be translated
@@ -75,6 +74,11 @@ function Resources.initialize()
 	-- Load in default language data first, to fill in gaps in other language data
 	Resources.loadAndApplyLanguage(Resources.Default.Language)
 	Resources.copyTable(Resources.Data, Resources.Default.Data)
+
+	-- Define metatables
+	local default_mt = {}
+	setmetatable(Resources.Default, default_mt)
+	default_mt.__index = Resources.Default.Data
 
 	-- Then load in the language chosen by the user's settings
 	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key

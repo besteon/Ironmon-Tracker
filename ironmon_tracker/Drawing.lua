@@ -514,12 +514,11 @@ function Drawing.setAnimatedPokemon(pokemonID)
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
-		local pokemonData = PokemonData.Pokemon[pokemonID]
-		if pokemonData ~= nil then
+		local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
+		if lowerPokemonName ~= nil then
 			-- Track this ID so we don't have to preform as many checks later
 			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
-			local lowerPokemonName = pokemonData.name:lower()
 			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
 			local fileExists = FileManager.fileExists(imagepath)
 			if Main.IsOnBizhawk() then

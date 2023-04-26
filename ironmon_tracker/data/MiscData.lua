@@ -48,11 +48,14 @@ MiscData.StatusCodeMap = {
 function MiscData.updateResources()
 	MiscData.Natures = Resources.Game.NatureNames
 	MiscData.Items = Resources.Game.ItemNames
-	for index, item in pairs(MiscData.HealingItems) do
-		item.name = Resources.Game.ItemNames[index]
+	for i, item in pairs(MiscData.HealingItems) do
+		item.name = Resources.Game.ItemNames[i]
 	end
-	for index, item in pairs(MiscData.EvolutionStones) do
-		item.name = Resources.Game.ItemNames[index]
+	for i, item in pairs(MiscData.StatusItems) do
+		item.name = Resources.Game.ItemNames[i]
+	end
+	for i, item in pairs(MiscData.EvolutionStones) do
+		item.name = Resources.Game.ItemNames[i]
 	end
 end
 

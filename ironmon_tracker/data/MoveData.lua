@@ -139,9 +139,9 @@ function MoveData.initialize()
 end
 
 function MoveData.updateResources()
-	for index, val in ipairs(MoveData.Moves) do
-		val.name = Resources.Game.MoveNames[index]
-		val.summary = Resources.Game.MoveDescriptions[index]
+	for i, val in ipairs(MoveData.Moves) do
+		val.name = Resources.Game.MoveNames[i]
+		val.summary = Resources.Game.MoveDescriptions[i]
 	end
 end
 

@@ -65,7 +65,7 @@ ExtrasScreen.Buttons = {
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden

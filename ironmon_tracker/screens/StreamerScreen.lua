@@ -101,7 +101,7 @@ StreamerScreen.Buttons = {
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		-- boxColors = { "Lower box border", "Lower box background" }, -- leave for when adding in second box later
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
@@ -133,7 +133,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 
 	forms.label(form, "Edit the welcome message box on the Tracker, shown each time a new game begins.", 9, 10, 495, 20)
 	local welcomeTextBox = forms.textbox(form, welcomeMsg, 480, 120, nil, 10, 35, true, false, "Vertical")
-	forms.button(form, "Save", function()
+	forms.button(form, Resources.AllScreens.Save, function()
 		local newMessage = Utils.formatSpecialCharacters(forms.gettext(welcomeTextBox))
 		newMessage = Utils.encodeDecodeForSettingsIni(newMessage, true)
 		Options["Welcome message"] = newMessage
@@ -143,11 +143,11 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 		forms.destroy(form)
 	end, 120, 165)
 
-	forms.button(form, "Clear", function()
+	forms.button(form, Resources.AllScreens.Clear, function()
 		forms.settext(welcomeTextBox, "")
 	end, 205, 165)
 
-	forms.button(form, "Cancel", function()
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
 	end, 290, 165)
@@ -159,18 +159,18 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		initPokemonID = Utils.randomPokemonID()
 	end
 
-	local form = Utils.createBizhawkForm("Choose a Favorite", 330, 145)
+	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptChooseFavoriteTitle, 330, 145)
 
 	local allPokemon = PokemonData.namesToList()
 
-	forms.label(form, "Favorite Pokemon are shown as a new game begins.", 24, 10, 300, 20)
+	forms.label(form, Resources.StartupScreen.PromptChooseFavoriteDesc, 24, 10, 300, 20)
 	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, PokemonData.Pokemon[initPokemonID].name)
 
-	forms.button(form, "Save", function()
+	forms.button(form, Resources.AllScreens.Save, function()
 		local optionSelected = forms.gettext(pokedexDropdown)
 		iconButton.pokemonID = PokemonData.getIdFromName(optionSelected) or 0
 
@@ -181,7 +181,7 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		forms.destroy(form)
 	end, 200, 29)
 
-	forms.button(form,"Cancel", function()
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
 	end, 120, 69)

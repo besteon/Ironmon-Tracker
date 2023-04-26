@@ -1,10 +1,10 @@
 AbilityData = {}
 
 function AbilityData.updateResources()
-	for index, val in ipairs(AbilityData.Abilities) do
-		val.name = Resources.Game.AbilityNames[index]
+	for i, val in ipairs(AbilityData.Abilities) do
+		val.name = Resources.Game.AbilityNames[i]
 
-		local descData = Resources.Game.AbilityDescriptions[index]
+		local descData = Resources.Game.AbilityDescriptions[i]
 		val.description = descData.description
 		val.descriptionEmerald = descData.descriptionEmerald
 	end
