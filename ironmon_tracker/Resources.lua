@@ -41,7 +41,7 @@ Resources.Languages = {
 		DisplayName = "中文",
 		FileName = "Chinese.lua",
 		RequiresUTF16 = true,
-		ExcludeFromSettings = true,  -- Currently not included or supported yet
+		ExcludeFromSettings = true,  -- Currently not yet included or supported.
 	},
 	JAPANESE = {
 		Ordinal = 7,
@@ -49,6 +49,7 @@ Resources.Languages = {
 		DisplayName = "日本語",
 		FileName = "Japanese.lua",
 		RequiresUTF16 = true,
+		ExcludeFromSettings = false and true,  -- This should NOT be supported or reveal, due to risks. (TODO: remove 'false')
 	},
 }
 
