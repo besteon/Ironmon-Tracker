@@ -311,8 +311,7 @@ function UpdateScreen.drawScreen()
 	else
 		titleText = UpdateScreen.Labels.title:upper()
 	end
-	local offsetX = Utils.getCenteredTextX(titleText, topBox.width)
-	Drawing.drawText(topBox.x + offsetX, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	Drawing.drawText(topBox.x + 8, textLineY, titleText:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing + 5
 
 	if Main.isOnLatestVersion() then

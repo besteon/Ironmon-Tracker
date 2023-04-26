@@ -84,6 +84,9 @@ function Resources.initialize()
 	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
 	Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
 
+	-- TODO: Remove this before the PR
+	Resources.fakeOutputDataHelper()
+
 	Resources.hasInitialized = true
 end
 
@@ -201,17 +204,75 @@ end
 -- TODO: Internal function only to turn tracker assets into data files.
 -- Should not be used or included in the PR
 function Resources.fakeOutputDataHelper()
-	local filename = "OutputDataFile.txt"
-	local filepath = FileManager.prependDir(filename)
-	local file = io.open(filepath, "w")
 
-	if file == nil then
+	if true then return end -- Comment this line out to use
+	local screenToPrint = "ExtrasScreen"
+
+	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
+	local langFilePath = langFolder .. Resources.Languages.ENGLISH.FileName
+	local lines = FileManager.readLinesFromFile(langFilePath)
+
+	local indexFound
+	for i, line in ipairs(lines) do
+		if line:find(screenToPrint .. " = {") then
+			indexFound = i
+			break
+		end
+	end
+	if not indexFound then
 		return
 	end
 
-	file:write("---@diagnostic disable: undefined-global")
+	local filename = "OutputDataFile.txt"
+	local filepath = FileManager.prependDir(filename)
+	local file = io.open(filepath, "w")
+	if file == nil then return end
+
+	-- Locate {key, value} pairs
+	local pattern = '^%s*(%S*)%s*=%s*"(.-)",$'
+	local keys, values = {}, {}
+	for i = indexFound + 1, #lines, 1 do
+		local line = lines[i]
+		if line:find("^%s*},$") then
+			break
+		end
+
+		local key, value = string.match(line, pattern)
+		table.insert(keys, key)
+		table.insert(values, value)
+	end
+
+	-- Print collected data to file
+	local sectionLabel = string.format("- %s Values -", screenToPrint):upper()
+	file:write(string.rep("-", #sectionLabel))
 	file:write("\n")
+	file:write(sectionLabel)
 	file:write("\n")
+	file:write(string.rep("-", #sectionLabel))
+	file:write("\n")
+	for _, value in ipairs(values) do
+		file:write(value)
+		file:write("\n")
+	end
+	file:write("\n")
+	sectionLabel = string.format("- %s Keys -", screenToPrint):upper()
+	file:write(string.rep("-", #sectionLabel))
+	file:write("\n")
+	file:write(sectionLabel)
+	file:write("\n")
+	file:write(string.rep("-", #sectionLabel))
+	file:write("\n")
+	for _, key in ipairs(keys) do
+		file:write(key)
+		file:write("\n")
+	end
+
+
+	if true then
+		file:close()
+		return
+	end
+
 	file:write("GameResources{")
 	file:write("\n")
 

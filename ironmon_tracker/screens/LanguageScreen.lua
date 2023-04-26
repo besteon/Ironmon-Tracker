@@ -130,10 +130,9 @@ function LanguageScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header text
-	local headerText = Resources.LanguageScreen.Header:upper()
+	local headerText = Resources.LanguageScreen.Title:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local offsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + offsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 7
 
 	local chooseLanguageText = string.format("%s:", Resources.LanguageScreen.ChangeLanguageText)

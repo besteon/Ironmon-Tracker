@@ -247,8 +247,7 @@ function StreamerScreen.drawScreen()
 	-- Draw header text
 	local headerText = StreamerScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local offsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + offsetX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw Favorites Label

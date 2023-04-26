@@ -60,7 +60,7 @@ NavigationMenu.Buttons = {
 	},
 	LanguageSettings = {
 		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
-		image = Constants.PixelImages.GEAR,
+		image = Constants.PixelImages.LANGUAGE_LETTERS,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},

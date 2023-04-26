@@ -100,7 +100,7 @@ function StatsScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 41, Constants.SCREEN.MARGIN - 2, StatsScreen.Labels.header:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, StatsScreen.Labels.header:upper(), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[StatsScreen.Colors.border], Theme.COLORS[StatsScreen.Colors.boxFill])

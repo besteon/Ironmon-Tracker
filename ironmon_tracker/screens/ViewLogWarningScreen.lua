@@ -94,10 +94,7 @@ function ViewLogWarningScreen.drawScreen()
 	-- Draw header text
 	local headerText = ViewLogWarningScreen.Labels.header:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local centerOffsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + centerOffsetX, Constants.SCREEN.MARGIN - 2, headerText,
-		Theme.COLORS[ViewLogWarningScreen.Colors.text],
-		headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
