@@ -39,8 +39,8 @@ NavigationMenu.Buttons = {
 		getText = function(self) return Resources.NavigationMenu.ButtonQuickload end,
 		image = Constants.PixelImages.CLOCK,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		updateText = function (self)
-			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
+		updateSelf = function (self)
+			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
 				self.textColor = NavigationMenu.textColor
 			else
 				-- If neither quickload option is enabled, then highlight it to draw user's attention
@@ -74,7 +74,7 @@ NavigationMenu.Buttons = {
 		end,
 		image = Constants.PixelImages.INSTALL_BOX,
 		isVisible = function(self) return not NavigationMenu.showCredits end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if Main.isOnLatestVersion() then
 				self.textColor = NavigationMenu.textColor
 			else
@@ -213,14 +213,22 @@ function NavigationMenu.initialize()
 	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
 		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
 	end
-	NavigationMenu.Buttons.QuickloadSettings:updateText()
-	NavigationMenu.Buttons.CheckForUpdates:updateText()
 
 	-- Yet another fun Easter Egg that shows up only once in a while
 	if math.random(256) == 1 then
 		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
 		-- Disabling to allow room for more buttons
 		NavigationMenu.Buttons.MirageButton.canBeSeenToday = false
+	end
+
+	NavigationMenu.refreshButtons()
+end
+
+function NavigationMenu.refreshButtons()
+	for _, button in pairs(NavigationMenu.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
 	end
 end
 
