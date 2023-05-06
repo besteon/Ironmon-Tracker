@@ -94,7 +94,7 @@ ScreenResources{
 	GameOptionsScreen = {
 		Title = "Gameplay Options",
 		OptionAutoSwapEnemy = "Auto swap to enemy",
-		OptionHideStatsUntilSummary = "Hide status until summary shown",
+		OptionHideStatsUntilSummary = "Hide info until summary shown",
 		OptionShowExpBar = "Show experience points bar",
 		OptionShowPhysicalSpecial = "Show physical special icons",
 		OptionShowMoveEffectiveness = "Show move effectiveness",
