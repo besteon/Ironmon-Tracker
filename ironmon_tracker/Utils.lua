@@ -76,6 +76,17 @@ function Utils.firstToUpper(str)
 	return str:gsub("^%l", string.upper)
 end
 
+function Utils.split(s, delimiter, trimWhitespace)
+    local result = {}
+    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
+        if trimWhitespace then
+            match = match:gsub("^%s*(.-)%s*$", "%1")
+        end
+        table.insert(result, match)
+    end
+    return result
+end
+
 -- Format "START" as "Start", and "a" as "A"
 function Utils.formatControls(gbaButtons)
 	local controlCombination = ""
