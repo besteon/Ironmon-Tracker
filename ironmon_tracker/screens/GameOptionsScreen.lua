@@ -33,16 +33,16 @@ end
 
 function GameOptionsScreen.createButtons()
 	local optionKeyMap = {
-		{"Auto swap to enemy", "OptionAutoSwapEnemy", },
-		{"Hide stats until summary shown", "OptionHideStatsUntilSummary", },
-		{"Show experience points bar", "OptionShowExpBar", },
-		{"Show physical special icons", "OptionShowPhysicalSpecial", },
-		{"Show move effectiveness", "OptionShowMoveEffectiveness", },
-		{"Calculate variable damage", "OptionCalculateVariableDamage", },
-		{"Determine friendship readiness", "OptionDetermineFriendship", },
-		{"Count enemy PP usage", "OptionCountEnemyPP", },
-		{"Show last damage calcs", "OptionShowLastDamage", },
-		{"Reveal info if randomized", "OptionRevealRandomizedInfo", },
+		{ "Auto swap to enemy", "OptionAutoSwapEnemy", },
+		{ "Hide stats until summary shown", "OptionHideStatsUntilSummary", },
+		{ "Show experience points bar", "OptionShowExpBar", },
+		{ "Show physical special icons", "OptionShowPhysicalSpecial", },
+		{ "Show move effectiveness", "OptionShowMoveEffectiveness", },
+		{ "Calculate variable damage", "OptionCalculateVariableDamage", },
+		{ "Determine friendship readiness", "OptionDetermineFriendship", },
+		{ "Count enemy PP usage", "OptionCountEnemyPP", },
+		{ "Show last damage calcs", "OptionShowLastDamage", },
+		{ "Reveal info if randomized", "OptionRevealRandomizedInfo", },
 	}
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3

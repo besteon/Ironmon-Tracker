@@ -183,6 +183,19 @@ ScreenResources{
 		EncounterOldRod = "Old Rod",
 		EncounterSeenPokemon = "Seen Pokémon",
 	},
+	TrackedDataScreen = {
+		Title = "Manage Tracked Data",
+		DescAutoSave = "All of the data that is tracked while you play is auto saved after each battle, stored as a .TDAT file",
+		DescManualSave = "Old auto saved data will be lost if you start a new game on the same Pokémon version. If you want to keep it, use Save Data",
+		OptionAutoSaveData = "Auto save tracked game data",
+		ButtonSaveData = "Save Data",
+		ButtonLoadData = "Load Data",
+		ButtonClearData = "Clear Data", -- Usage: surrounded by asterisks, " * Clear Data * "
+		ButtonClearConfirm = "Are you sure?",
+		ButtonClearSuccess = "Data Cleared!",
+		PromptHeaderSave = "Save Tracker Data",
+		PromptEnterFilename = "Enter a filename to save Tracker data to",
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine",
 		OptionEnableRestorePoints = "Enable restore points",
