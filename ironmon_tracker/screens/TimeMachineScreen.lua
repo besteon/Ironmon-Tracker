@@ -1,13 +1,4 @@
 TimeMachineScreen = {
-	Labels = {
-		header = "Time Machine",
-		description = "Select a restore point below to go back to that point in time.",
-		noRestorePoints = "No restore points are available; one is created every 5 minutes.",
-		pageFormat = "Page %s/%s", -- e.g. Page 1/3
-		restoreTimeFormat = "created %s minute%s ago", -- e.g. Created 5 minutes ago
-		futureRP = ">>  Return back to the future",
-		confirmRestore = "Confirm restore?",
-	},
 	Colors = {
 		text = "Default text",
 		border = "Upper box border",
@@ -33,12 +24,13 @@ TimeMachineScreen.Pager = {
 		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
-		TimeMachineScreen.Buttons.CurrentPage:updateText()
 	end,
 	defaultSort = function(a, b) return a.timestamp > b.timestamp end, -- sorts newest to oldest
 	getPageText = function(self)
-		if self.totalPages <= 1 then return "Page" end
-		return string.format(TimeMachineScreen.Labels.pageFormat, self.currentPage, self.totalPages)
+		if self.totalPages > 1 then
+			return string.format("%s %s/%s", Resources.AllScreens.Page, self.currentPage, self.totalPages)
+		end
+		return Resources.AllScreens.Page
 	end,
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
@@ -53,26 +45,27 @@ TimeMachineScreen.Pager = {
 TimeMachineScreen.Buttons = {
 	EnableRestorePoints = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = " Enable restore points", -- offset with a space for appearance
+		getText = function() return " " .. Resources.TimeMachineScreen.OptionEnableRestorePoints end,
+		optionKey = "Enable restore points",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
 		toggleState = true, -- update later in initialize
 		toggleColor = "Positive text",
+		updateSelf = function(self)
+			self.toggleState = Options[self.optionKey]
+		end,
 		onClick = function(self)
 			-- Toggle the setting and store the change to be saved later in Settings.ini
 			self.toggleState = not self.toggleState
-			Options.updateSetting("Enable restore points", self.toggleState)
+			Options.updateSetting(self.optionKey, self.toggleState)
 			Options.forceSave()
 		end
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
+		getText = function() return TimeMachineScreen.Pager:getPageText() end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
-		updateText = function(self)
-			self.text = TimeMachineScreen.Pager:getPageText()
-		end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -81,7 +74,6 @@ TimeMachineScreen.Buttons = {
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:prevPage()
-			TimeMachineScreen.Buttons.CurrentPage:updateText()
 			Program.redraw(true)
 		end
 	},
@@ -92,13 +84,12 @@ TimeMachineScreen.Buttons = {
 		isVisible = function() return TimeMachineScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			TimeMachineScreen.Pager:nextPage()
-			TimeMachineScreen.Buttons.CurrentPage:updateText()
 			Program.redraw(true)
 		end
 	},
 	CreateNewRestorePoint = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Create",
+		getText = function(self) return Resources.TimeMachineScreen.ButtonCreate end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 30, 11 },
 		onClick = function(self)
 			TimeMachineScreen.createRestorePoint()
@@ -111,7 +102,7 @@ TimeMachineScreen.Buttons = {
 		getText = function(self) return Resources.AllScreens.Back end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			TimeMachineScreen.resetButtons()
+			TimeMachineScreen.refreshButtons()
 			Program.changeScreenView(ExtrasScreen)
 		end
 	},
@@ -126,11 +117,27 @@ function TimeMachineScreen.initialize()
 			button.boxColors = { TimeMachineScreen.Colors.border, TimeMachineScreen.Colors.boxFill }
 		end
 	end
-	TimeMachineScreen.Buttons.EnableRestorePoints.toggleState = Options["Enable restore points"]
 
 	-- First restore point to be made at the 8 second mark, for second chance at choosing a diff starter
 	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 8)
-	TimeMachineScreen.Buttons.CurrentPage:updateText()
+
+	TimeMachineScreen.refreshButtons()
+end
+
+function TimeMachineScreen.refreshButtons()
+	for _, button in pairs(TimeMachineScreen.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
+	for _, button in pairs(TimeMachineScreen.Pager.Buttons) do
+		if button.confirmedRestore then
+			button.confirmedRestore = false
+		end
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 function TimeMachineScreen.checkCreatingRestorePoint()
@@ -160,7 +167,7 @@ function TimeMachineScreen.createRestorePoint(label)
 		if RouteData.hasRoute(Program.GameData.mapId) then
 			mapLocationName = RouteData.Info[Program.GameData.mapId].name
 		else
-			mapLocationName = "Unknown Area"
+			mapLocationName = Resources.TimeMachineScreen.LocationUnknownArea
 		end
 		label = string.format("# %s - %s", TimeMachineScreen.rpCount, mapLocationName)
 	end
@@ -213,14 +220,15 @@ function TimeMachineScreen.backupCurrentPointInTime()
 	if #TimeMachineScreen.RestorePoints == 0 then
 		return
 	end
+	local returnBackLabel = string.format(">>  %s", Resources.TimeMachineScreen.UndoAndReturnBack)
 
 	-- Determine if the most recently created restore point was the original point in the future
 	table.sort(TimeMachineScreen.RestorePoints, TimeMachineScreen.Pager.defaultSort)
-	if TimeMachineScreen.RestorePoints[1].label ~= TimeMachineScreen.Labels.futureRP then
+	if TimeMachineScreen.RestorePoints[1].label ~= returnBackLabel then
 		-- First remove any "future" restore to avoid confusion
 		local oldFutureRP = nil
 		for index, rp in ipairs(TimeMachineScreen.RestorePoints) do
-			if rp.label == TimeMachineScreen.Labels.futureRP then
+			if rp.label == returnBackLabel then
 				oldFutureRP = index
 				break
 			end
@@ -230,7 +238,7 @@ function TimeMachineScreen.backupCurrentPointInTime()
 		end
 
 		-- Then create a backup restore point and label it as "from the future"
-		TimeMachineScreen.createRestorePoint(TimeMachineScreen.Labels.futureRP)
+		TimeMachineScreen.createRestorePoint(returnBackLabel)
 	end
 end
 
@@ -238,31 +246,33 @@ function TimeMachineScreen.buildOutPagedButtons()
 	TimeMachineScreen.Pager.Buttons = {}
 
 	for _, restorePoint in pairs(TimeMachineScreen.RestorePoints) do
-		local rpLabel = restorePoint.label
 		local button = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			text = rpLabel,
+			getText = function(self)
+				if self.confirmedRestore then
+					return Resources.TimeMachineScreen.ConfirmationRestore
+				else
+					return restorePoint.label
+				end
+			end,
 			textColor = TimeMachineScreen.Colors.text,
 			boxColors = { TimeMachineScreen.Colors.border, TimeMachineScreen.Colors.boxFill, },
 			restorePointId = restorePoint.id or 0,
-			restorePointLabel = restorePoint.label,
 			timestamp = restorePoint.timestamp or os.time(),
 			confirmedRestore = false,
 			dimensions = { width = 124, height = 11, },
 			isVisible = function(self) return TimeMachineScreen.Pager.currentPage == self.pageVisible end,
-			updateText = function(self)
+			updateSelf = function(self)
 				if self.confirmedRestore then
-					self.text = TimeMachineScreen.Labels.confirmRestore
 					self.textColor = "Negative text"
 				else
-					self.text = self.restorePointLabel
 					self.textColor = TimeMachineScreen.Colors.text
 				end
 			end,
 			draw = function(self, shadowcolor)
 				local minutesAgo = math.ceil((os.time() - restorePoint.timestamp) / 60)
-				local includeS = Utils.inlineIf(minutesAgo ~= 1, "s", "")
-				local timestampText = string.format(TimeMachineScreen.Labels.restoreTimeFormat, minutesAgo, includeS)
+				local includeS = Utils.inlineIf(minutesAgo ~= 1, Resources.TimeMachineScreen.RestorePointAgeS, "")
+				local timestampText = string.format(Resources.TimeMachineScreen.RestorePointAge, minutesAgo, includeS)
 				local rightAlignOffset = self.box[3] - Utils.calcWordPixelLength(timestampText) - 2
 				Drawing.drawText(self.box[1] + rightAlignOffset, self.box[2] + self.box[4] + 1, timestampText, Theme.COLORS[TimeMachineScreen.Colors.text], shadowcolor)
 			end,
@@ -275,7 +285,7 @@ function TimeMachineScreen.buildOutPagedButtons()
 				else
 					self.confirmedRestore = true
 				end
-				self:updateText()
+				self:updateSelf()
 				Program.redraw(true)
 			end,
 		}
@@ -289,22 +299,6 @@ function TimeMachineScreen.buildOutPagedButtons()
 	TimeMachineScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
 
 	return true
-end
-
-function TimeMachineScreen.resetButtons()
-	for _, button in pairs(TimeMachineScreen.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
-		end
-	end
-	for _, button in pairs(TimeMachineScreen.Pager.Buttons) do
-		if button.confirmedRestore then
-			button.confirmedRestore = false
-		end
-		if button.updateText ~= nil then
-			button:updateText()
-		end
-	end
 end
 
 -- USER INPUT FUNCTIONS
@@ -328,7 +322,7 @@ function TimeMachineScreen.drawScreen()
 		fill = Theme.COLORS[TimeMachineScreen.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[TimeMachineScreen.Colors.boxFill]),
 	}
-	local headerText = TimeMachineScreen.Labels.header:upper()
+	local headerText = Resources.TimeMachineScreen.Title:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
@@ -336,14 +330,14 @@ function TimeMachineScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 	local textLineY = topBox.y + Constants.SCREEN.LINESPACING + 3 -- make room for first checkbox
 
-	local wrappedDesc = Utils.getWordWrapLines(TimeMachineScreen.Labels.description, 32)
+	local wrappedDesc = Utils.getWordWrapLines(Resources.TimeMachineScreen.DescInstructions, 32)
 	for _, line in pairs(wrappedDesc) do
 		Drawing.drawText(topBox.x + 3, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 	end
 
 	if #TimeMachineScreen.Pager.Buttons == 0 then
-		wrappedDesc = Utils.getWordWrapLines(TimeMachineScreen.Labels.noRestorePoints, 32)
+		wrappedDesc = Utils.getWordWrapLines(Resources.TimeMachineScreen.DescNoRestorePoints, 32)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 		for _, line in pairs(wrappedDesc) do
 			Drawing.drawText(topBox.x + 3, textLineY, line, Theme.COLORS["Negative text"], topBox.shadow)
