@@ -409,9 +409,8 @@ function Program.readNewPokemon(startAddress, personality)
 	local nickname = ""
 	for i=0, 9, 1 do
 		local charByte = Memory.readbyte(startAddress + 8 + i)
-		if charByte ~= 0xFF then -- end of sequence
-			nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
-		end
+		if charByte == 0xFF then break end -- end of sequence
+		nickname = nickname .. (GameSettings.GameCharMap[charByte] or Constants.HIDDEN_INFO)
 	end
 	nickname = Utils.formatSpecialCharacters(nickname)
 
