@@ -495,8 +495,6 @@ function Battle.checkAbilitiesToTrack()
 	local battlerAbility = Battle.BattleParties[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleParties[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
 
-	local abilityMsg
-
 	-- BATTLER: 'battler' had their ability triggered
 	local abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
 	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
