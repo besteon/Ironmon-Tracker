@@ -103,6 +103,17 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	BattleDetails = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			BattleEffectsScreen.loadData()
+			Program.changeScreenView(BattleEffectsScreen)
+		end
+	},
 	RouteDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
@@ -110,7 +121,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return not Tracker.Data.isViewingOwn and Battle.isWildEncounter end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
@@ -834,6 +845,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			encounterText = "Seen on trainers: " .. data.x.encounters
 			routeText = string.format("Team:")
+			Drawing.drawButton(TrackerScreen.Buttons.BattleDetails)
 			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 

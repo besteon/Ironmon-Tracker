@@ -40,6 +40,22 @@ function Utils.getbits(value, startIndex, numBits)
 	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
 end
 
+--maps
+function Utils.generatebitwisemap(value, size)
+	local map = {}
+	for i=0,size-1, 1 do
+		if value % 2 == 1 then
+			map[i] = true
+		else
+			map[i] = false
+		end
+		if value > 0 then
+			value = Utils.bit_rshift(value, 1)
+		end
+	end
+	return map
+end
+
 function Utils.addhalves(value)
 	local b = Utils.getbits(value, 0, 16)
 	local c = Utils.getbits(value, 16, 16)
@@ -74,6 +90,17 @@ end
 function Utils.firstToUpper(str)
 	if str == nil or str == "" then return str end
 	return str:gsub("^%l", string.upper)
+end
+
+function Utils.split(s, delimiter, trimWhitespace)
+    local result = {}
+    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
+        if trimWhitespace then
+            match = match:gsub("^%s*(.-)%s*$", "%1")
+        end
+        table.insert(result, match)
+    end
+    return result
 end
 
 -- Format "START" as "Start", and "a" as "A"
@@ -152,6 +179,17 @@ function Utils.formatSpecialCharacters(text)
 	end
 
 	return text
+end
+
+-- Checks if the text starts with a Japanese or Chinese character. Only works on Lua 5.4+
+function Utils.startsWithJapaneseChineseChar(text)
+	if text == nil or not Main.supportsSpecialChars then
+		return false
+	end
+
+	---@diagnostic disable-next-line: err-esc
+	local pattern = "^[\u{3040}-\u{30ff}\u{3400}-\u{4dbf}\u{4e00}-\u{9fff}\u{f900}-\u{faff}\u{ff66}-\u{ff9f}]"
+	return string.match(text, pattern) ~= nil
 end
 
 -- Encodes texts so that it's safe for the Settings.ini file (new lines, etc). encode = true, or false for decode

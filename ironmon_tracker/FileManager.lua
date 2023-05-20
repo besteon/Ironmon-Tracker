@@ -32,6 +32,7 @@ FileManager.Files = {
 		ItalyData = "ItalyData.lua",
 		FranceData = "FranceData.lua",
 		GermanyData = "GermanyData.lua",
+		JapanData = "JapanData.lua",
 	},
 	Other = {
 		REPEL = "repelUsage.png",
@@ -117,6 +118,7 @@ FileManager.LuaCode = {
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
+	{ name = "BattleEffectsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleEffectsScreen.lua", },
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
