@@ -498,14 +498,14 @@ function Battle.checkAbilitiesToTrack()
 	local abilityMsg
 
 	-- BATTLER: 'battler' had their ability triggered
-	if GameSettings.ABILITIES.BATTLER then
-		abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
-		if abilityMsg ~= nil and abilityMsg[battlerAbility] then
-			-- Track a Traced pokemon's ability
-			if battlerAbility == 36 then
-				Battle.trackAbilityChanges(nil,36)
-				combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
-			end
+	local abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
+	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
+		-- Track a Traced pokemon's ability; need to grab the target from the buffers for doubles
+		if battlerAbility == 36 then
+			Battle.trackAbilityChanges(nil,36)
+			local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
+			combatantIndexesToTrack[target] = target
+		else
 			combatantIndexesToTrack[Battle.battler] = Battle.battler
 		end
 	end
