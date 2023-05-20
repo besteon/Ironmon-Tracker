@@ -25,6 +25,7 @@ FileManager.Files = {
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
+	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
 
 	LanguageCode = {
 		SpainData = "SpainData.lua",
@@ -285,6 +286,50 @@ function FileManager.getFilesFromDirectory(folderpath)
 	end
 
 	return files
+end
+
+-- Erases the contents of the ERROR_LOG and adds a header for diagnostics
+function FileManager.setupErrorLog()
+	FileManager.ErrorsLogged = {}
+
+	local file = io.open(FileManager.prependDir(FileManager.Files.ERROR_LOG), "w")
+	if file ~= nil then
+		-- Diagnostics information
+		local version = string.format("Tracker Version: %s", Main.TrackerVersion or "N/A")
+		local gamerom = string.format("Rom Name: %s", GameSettings.getRomName() or "N/A")
+		local gamename = string.format("Game: %s", GameSettings.gamename or "N/A")
+		local date = string.format("Date: %s", os.date())
+		local divider = string.rep("-", 30)
+		file:write(version .. "\n")
+		file:write(gamerom .. "\n")
+		file:write(gamename .. "\n")
+		file:write(date .. "\n")
+		file:write(divider .. "\n\n")
+
+		file:flush()
+		file:close()
+	end
+end
+
+-- Logs a message to the ERROR_LOG file
+function FileManager.logError(errorMessage)
+	errorMessage = errorMessage or "(No error message.)"
+	local fullErrorMsg = string.format("%s\n%s\n\n", errorMessage, debug.traceback() or "Stack Trace N/A")
+	if not FileManager.ErrorsLogged[fullErrorMsg] then
+		FileManager.ErrorsLogged[fullErrorMsg] = true
+
+		-- Only print to user the first part of the error, that describes what went wrong; less overall clutter
+		print(errorMessage)
+
+		-- And print the full error and its stack trace in the log file
+		local file = io.open(FileManager.prependDir(FileManager.Files.ERROR_LOG), "a")
+		if file ~= nil then
+			local currentTime = os.date("[%H:%M]")
+			file:write(string.format("%s %s", currentTime, fullErrorMsg))
+			file:flush()
+			file:close()
+		end
+	end
 end
 
 function FileManager.buildImagePath(imageFolder, imageName, imageExtension)

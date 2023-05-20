@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "4", patch = "2" }
+Main.Version = { major = "7", minor = "5", patch = "3" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "Aeiry", "AKD", "rcj001", "GB127", },
 }
 
 Main.EMU = {
@@ -132,6 +132,7 @@ function Main.Run()
 	end
 
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
+	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
 	Main.InitializeAllTrackerFiles()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
@@ -147,7 +148,7 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		while Main.loadNextSeed == false do
-			Program.mainLoop()
+			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
 
@@ -237,7 +238,8 @@ function Main.DisplayError(errMessage)
 	if not Main.IsOnBizhawk() then return end -- Only Bizhawk allows popup form windows
 
 	client.pause()
-	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Woops, there's been an issue!", function() client.unpause() end)
+	local formTitle = string.format("[v%s] Woops, there's been an issue!", Main.TrackerVersion)
+	local form = forms.newform(400, 150, formTitle, function() client.unpause() end)
 	local actualLocation = client.transformPoint(100, 50)
 	forms.setproperty(form, "Left", client.xpos() + actualLocation['x'] )
 	forms.setproperty(form, "Top", client.ypos() + actualLocation['y'] + 64) -- so we are below the ribbon menu
@@ -830,7 +832,7 @@ function Main.LoadSettings()
 			end
 		end
 	end
-	UpdateOrInstall.Dev.enabled = Options["Dev branch updates"] or false
+	UpdateOrInstall.Dev.enabled = (Options["Dev branch updates"] == true)
 
 	-- [CONTROLS]
 	if settings.controls ~= nil then
@@ -865,6 +867,7 @@ function Main.LoadSettings()
 	end
 
 	-- [EXTENSIONS]
+	CustomCode.ExtensionLibrary = {}
 	if settings.extensions ~= nil then
 		for extKey, extValue in pairs(settings.extensions) do
 			if extValue ~= nil then

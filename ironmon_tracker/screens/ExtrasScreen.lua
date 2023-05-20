@@ -9,7 +9,8 @@ ExtrasScreen = {
 		resultAboveAverage = "Above average!",
 		resultDecent = "Decent.",
 		resultUnavailable = "Estimate is unavailable.",
-		viewLogFile = "View the log",
+		viewLogFile = "View log",
+		viewPreviousLogFile = "Previous log",
 	},
 	Colors = {
 		text = "Lower box text",
@@ -24,23 +25,32 @@ ExtrasScreen.OptionKeys = {
 	"Display pedometer",
 	"Animated Pokemon popout", -- Text referenced in initialize()
 }
-
+-- Holds all the buttons for the screen
+-- Buttons are created in CreateButtons()
 ExtrasScreen.Buttons = {
 	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		text = ExtrasScreen.Labels.viewLogFile,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 69, 78, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 55, 16 },
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
 		end,
+	},
+	ViewPreviousLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		text = ExtrasScreen.Labels.viewPreviousLogFile,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
+		onClick = function(self)
+			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
+		end
 	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		text = ExtrasScreen.Labels.timeMachineBtn,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 89, 78, 16},
-		-- isVisible = function() return true end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 88, 78, 16 },
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
 			Program.changeScreenView(TimeMachineScreen)
@@ -66,9 +76,46 @@ ExtrasScreen.Buttons = {
 	},
 }
 
+-- Creates the log view buttons
+-- Buttons are stored in ExtrasScreen.Buttons
+function ExtrasScreen.alignViewLogButtons()
+	-- CURRENTLY UNUSED
+	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
+	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
+
+	local magnifyingGlassSize = #Constants.PixelImages.MAGNIFYING_GLASS[1]
+	local logViewButtonsWidth = Constants.SCREEN.MARGIN * 2 + magnifyingGlassSize +
+		math.max(math.floor((16 - magnifyingGlassSize) / 2), 0) + 1
+
+	-- Center the two buttons within the top box
+	local viewLogButtonBox = {
+		0,
+		0,
+		Utils.calcWordPixelLength(ExtrasScreen.Labels.viewLogFile) + logViewButtonsWidth,
+		Constants.SCREEN.LINESPACING + 5
+	}
+	local viewPrevLogButtonBox = {
+		0,
+		0,
+		Utils.calcWordPixelLength(ExtrasScreen.Labels.viewPreviousLogFile) + logViewButtonsWidth,
+		Constants.SCREEN.LINESPACING + 5
+	}
+
+	local totalViewLogButtonsWidth = viewLogButtonBox[3] + viewPrevLogButtonBox[3] + Constants.SCREEN.MARGIN
+	viewLogButtonBox[1] = topboxX + (topboxWidth - totalViewLogButtonsWidth) / 2
+	viewLogButtonBox[2] = topboxY + Constants.SCREEN.MARGIN + 1
+	viewPrevLogButtonBox[1] = viewLogButtonBox[1] + viewLogButtonBox[3] + Constants.SCREEN.MARGIN
+	viewPrevLogButtonBox[2] = viewLogButtonBox[2]
+
+	ExtrasScreen.Buttons.ViewLogFile.box = viewLogButtonBox
+	ExtrasScreen.Buttons.ViewPreviousLogFile.box = viewPrevLogButtonBox
+end
+
 function ExtrasScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 14
+	-- ExtrasScreen.alignViewLogButtons()
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
+	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + Constants.SCREEN.MARGIN + 2
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionKey in ipairs(ExtrasScreen.OptionKeys) do
@@ -171,5 +218,7 @@ function ExtrasScreen.drawScreen()
 	end
 
 	local ivBtn = ExtrasScreen.Buttons.EstimateIVs
-	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor], shadowcolor)
+	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor],
+		shadowcolor)
 end
+

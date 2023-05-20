@@ -16,6 +16,7 @@ Constants.SCREEN = {
 
 Constants.Font = {
 	SIZE = 9,
+	HEADERSIZE = 15,
 	FAMILY = "Franklin Gothic Medium",
 	STYLE = "regular", -- Style options are: regular, bold, italic, strikethrough, underline
 }
@@ -31,6 +32,7 @@ Constants.ButtonTypes = {
 	STAT_STAGE = 8,
 	CIRCLE = 9,
 	ICON_BORDER = 10,
+	CHEVRON = 11,
 }
 
 Constants.STAT_STATES = {
@@ -135,6 +137,7 @@ Constants.OrderedLists = {
 		"Enable restore points",
 		"Enable custom extensions",
 		"Show Team View",
+		"Show Pre Evolutions",
 	},
 	CONTROLS = {
 		"Load next seed",

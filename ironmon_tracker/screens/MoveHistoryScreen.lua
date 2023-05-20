@@ -151,10 +151,7 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
-	Program.destroyActiveForm()
-	local pokedexLookup = forms.newform(360, 105, "Pokedex Look up", function() client.unpause() end)
-	Program.activeFormId = pokedexLookup
-	Utils.setFormLocation(pokedexLookup, 100, 50)
+	local form = Utils.createBizhawkForm("Pokedex Look up", 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then
@@ -164,14 +161,14 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(pokedexLookup, "Choose a Pokemon to look up:", 49, 10, 250, 20)
-	local pokedexDropdown = forms.dropdown(pokedexLookup, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
+	forms.label(form, "Choose a Pokemon to look up:", 49, 10, 250, 20)
+	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(pokedexLookup, "Look up", function()
+	forms.button(form, "Look up", function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
@@ -181,7 +178,7 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 			end
 		end
 		client.unpause()
-		forms.destroy(pokedexLookup)
+		forms.destroy(form)
 	end, 212, 29)
 end
 
@@ -214,10 +211,7 @@ function MoveHistoryScreen.drawScreen()
 
 	-- Draw header text
 	local pokemonName = PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name:upper()
-	if Theme.DRAW_TEXT_SHADOWS then
-		Drawing.drawText(topboxX + 2, topboxY + 2, pokemonName, shadowcolor, nil, 12, Constants.Font.FAMILY, "bold")
-	end
-	Drawing.drawText(topboxX + 1, topboxY + 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawHeader(topboxX, topboxY - 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING + 4
 
 	MoveHistoryScreen.drawMovesLearnedBoxes(topboxX + 1, topboxY + 1)

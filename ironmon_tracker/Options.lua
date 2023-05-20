@@ -41,6 +41,7 @@ Options = {
 	["Enable restore points"] = true,
 	["Enable custom extensions"] = false,
 	["Show Team View"] = false,
+	["Show Pre Evolutions"] = false,
 
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",

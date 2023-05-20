@@ -71,8 +71,10 @@ NavigationMenu.Buttons = {
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		updateText = function(self)
 			if Main.isOnLatestVersion() then
+				self.text = "Update"
 				self.textColor = NavigationMenu.textColor
 			else
+				self.text = "Update *"
 				self.textColor = "Positive text"
 			end
 		end,
@@ -172,6 +174,8 @@ NavigationMenu.OrderedMenuList = {
 }
 
 function NavigationMenu.initialize()
+	NavigationMenu.showCredits = false
+
 	local btnWidth = 63
 	local btnHeight = 16
 	local spacer = 6

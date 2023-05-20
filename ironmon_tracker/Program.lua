@@ -90,7 +90,6 @@ function Program.initialize()
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
-	Program.updateBattleEncounterType()
 	Program.AutoSaver:updateSaveCount()
 
 	-- Update data asap
@@ -220,10 +219,6 @@ function Program.update()
 				if Memory.readbyte(GameSettings.sMonSummaryScreen) ~= 0 then
 					Tracker.Data.hasCheckedSummary = true
 				end
-			end
-
-			if not Battle.inBattle then
-				Program.updateBattleEncounterType()
 			end
 
 			-- Check if a Pokemon in the player's party is learning a move, if so track it
@@ -537,21 +532,6 @@ function Program.getNextLevelExp(pokemonID, level, experience)
 	local totalExp = expAtNextLv - expAtLv
 
 	return currentExp, totalExp
-end
-
--- Determine if the battle is a wild or trainer battle. Note, this isn't foolproof if tracker is loaded during an active battle
-function Program.updateBattleEncounterType()
-	local newWildBattles = Utils.getGameStat(Constants.GAME_STATS.WILD_BATTLES)
-	local newTrainerBattles = Utils.getGameStat(Constants.GAME_STATS.TRAINER_BATTLES)
-
-	if newWildBattles - Program.GameData.wildBattles == 1 then -- difference of +1
-		Battle.isWildEncounter = true
-	elseif newTrainerBattles - Program.GameData.trainerBattles == 1 then -- difference of +1
-		Battle.isWildEncounter = false
-	end
-
-	Program.GameData.wildBattles = newWildBattles
-	Program.GameData.trainerBattles = newTrainerBattles
 end
 
 function Program.updatePCHeals()

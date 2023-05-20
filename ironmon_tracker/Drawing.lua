@@ -75,6 +75,21 @@ function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
 	gui.drawText(x, y, text, color, nil, size or Constants.Font.SIZE, family or Constants.Font.FAMILY, style)
 end
 
+function Drawing.drawHeader(x, y, text, color, shadowcolor, size, family, style)
+	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
+	if Main.OS == "Linux" then
+		x = x + 1
+		y = y - 1
+	end
+
+	-- For now, don't draw shadows for smaller-than-normal text (old behavior)
+	if Theme.DRAW_TEXT_SHADOWS and shadowcolor ~= nil and size == nil then
+		gui.drawText(x + 1, y + 1, text, shadowcolor, nil, size or Constants.Font.HEADERSIZE, family or Constants.Font.FAMILY, style)
+	end
+	-- void gui.drawText(x, y, message, forecolor, backcolor, fontsize, fontfamily, fontstyle, horizalign, vertalign, surfacename)
+	gui.drawText(x, y, text, color, nil, size or Constants.Font.HEADERSIZE, family or Constants.Font.FAMILY, style)
+end
+
 function Drawing.drawNumber(x, y, number, spacing, color, shadowcolor, size, family, style)
 	if Options["Right justified numbers"] then
 		Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowcolor, size, family, style)
@@ -88,14 +103,25 @@ function Drawing.drawRightJustifiedNumber(x, y, number, spacing, color, shadowco
 	if number == Constants.BLANKLINE then new_spacing = 8 end
 	Drawing.drawText(x + new_spacing, y, number, color, shadowcolor, size, family, style)
 end
-
-function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor)
-	local color = Theme.COLORS["Default text"]
+--- Draws a chevron on the screen
+---@param x integer @The x coordinate of the top left corner of the chevron
+---@param y integer @The y coordinate of the top left corner of the chevron
+---@param width integer @The width of the chevron
+---@param height integer @The height of the chevron
+---@param thickness integer @The thickness of the chevron
+---@param direction string @The direction the chevron is facing (up, down, left, right)
+---@param color integer @The color of the chevron. Likely a hex value from Theme.COLORS
+---@return nil
+function Drawing.drawChevron(x, y, width, height, thickness, direction, color)
+	-- Set default values for width, height, and thickness
+	width = width or 4
+	height = height or 3
+	thickness = thickness or 1
+	-- Use the default text color if no color is specified
+	color = color or Theme.COLORS["Default text"]
+	-- Draw the chevron
 	local i = 0
 	if direction == "up" then
-		if hasColor then
-			color = Theme.COLORS["Positive text"]
-		end
 		y = y + height + thickness + 1
 		while i < thickness do
 			gui.drawLine(x, y - i, x + (width / 2), y - i - height, color)
@@ -103,46 +129,78 @@ function Drawing.drawChevron(x, y, width, height, thickness, direction, hasColor
 			i = i + 1
 		end
 	elseif direction == "down" then
-		if hasColor then
-			color = Theme.COLORS["Negative text"]
-		end
 		y = y + thickness + 2
 		while i < thickness do
 			gui.drawLine(x, y + i, x + (width / 2), y + i + height, color)
 			gui.drawLine(x + (width / 2), y + i + height, x + width, y + i, color)
 			i = i + 1
 		end
+	elseif direction == "left" then
+		x = x + width + thickness + 1
+		while i < thickness do
+			gui.drawLine(x - i, y, x - i - width, y + (height / 2), color)
+			gui.drawLine(x - i - width, y + (height / 2), x - i, y + height, color)
+			i = i + 1
+		end
+	elseif direction == "right" then
+		x = x + thickness + 2
+		while i < thickness do
+			gui.drawLine(x + i, y, x + i + width, y + (height / 2), color)
+			gui.drawLine(x + i + width, y + (height / 2), x + i, y + height, color)
+			i = i + 1
+		end
 	end
 end
-
--- draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
--- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
-function Drawing.drawChevrons(x, y, intensity, max)
+--- Draws chevrons bottom-up, coloring them if 'intensity' is a value beyond 'max'
+--- 'intensity' ranges from -N to +N, where N is twice 'max'; negative intensity are drawn downward
+--- After 'max' chevrons are drawn, additional chevrons are colored with Positive text color for up, Negative text color for down
+---@param x integer @The x coordinate of the top left corner of the chevron
+---@param y integer @The y coordinate of the top left corner of the chevron
+---@param intensity integer @The intensity of the chevrons
+---@param max integer @The maximum intensity of the chevrons (the number of chevrons drawn)
+---@param width integer @The width of each chevron
+---@param height integer @The height of each chevron
+---@param thickness integer @The thickness of each chevron
+---@param spacing integer @The spacing between chevrons
+function Drawing.drawChevronsVerticalIntensity(x, y, intensity, max, width, height, thickness, spacing)
 	if intensity == 0 then return end
 
+	local direction = "up"
+	if intensity < 0 then
+		direction = "down"
+	end
+	-- Absolute value of intensity
 	local weight = math.abs(intensity)
-	local spacing = 2
 
 	for index = 0, max - 1, 1 do
+		local color = Theme.COLORS["Default text"]
 		if weight > index then
 			local hasColor = weight > max + index
-			Drawing.drawChevron(x, y, 4, 2, 1, Utils.inlineIf(intensity > 0, "up", "down"), hasColor)
+			if hasColor then
+				color = Utils.inlineIf(intensity > 0, Theme.COLORS["Positive text"], Theme.COLORS["Negative text"])
+			end
+			Drawing.drawChevron(x, y, width, height, thickness, direction, color)
 			y = y - spacing
 		end
 	end
 end
 
 function Drawing.drawMoveEffectiveness(x, y, value)
+	local color = Theme.COLORS["Default text"]
 	if value == 2 then
-		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", true)
+		color = Theme.COLORS["Positive text"]
+		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", color)
 	elseif value == 4 then
-		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", true)
-		Drawing.drawChevron(x, y + 2, 4, 2, 1, "up", true)
+		color = Theme.COLORS["Positive text"]
+		Drawing.drawChevron(x, y + 4, 4, 2, 1, "up", color)
+		Drawing.drawChevron(x, y + 2, 4, 2, 1, "up", color)
 	elseif value == 0.5 then
-		Drawing.drawChevron(x, y, 4, 2, 1, "down", true)
+		color = Theme.COLORS["Negative text"]
+		Drawing.drawChevron(x, y, 4, 2, 1, "down", color)
 	elseif value == 0.25 then
-		Drawing.drawChevron(x, y, 4, 2, 1, "down", true)
-		Drawing.drawChevron(x, y + 2, 4, 2, 1, "down", true)
+		color = Theme.COLORS["Negative text"]
+		Drawing.drawChevron(x, y, 4, 2, 1, "down", color)
+		Drawing.drawChevron(x, y + 2, 4, 2, 1, "down", color)
 	end
 end
 
@@ -415,23 +473,29 @@ function Drawing.setupAnimatedPictureBox()
 
 	Drawing.AnimatedPokemon:destroy()
 
-	local formWindow = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
-	forms.setproperty(formWindow, "AllowTransparency", true)
-	forms.setproperty(formWindow, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
-	forms.setproperty(formWindow, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
+	forms.setproperty(form, "AllowTransparency", true)
+	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
+	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
+		local property = "BlocksInputWhenFocused"
+		if (forms.getproperty(form, property) or "") ~= "" then
+			forms.setproperty(form, property, true)
+		end
+	end
 
 	local bottomAreaPadding = Utils.inlineIf(TeamViewArea.isDisplayed(), Constants.SCREEN.BOTTOM_AREA, Constants.SCREEN.DOWN_GAP)
-	Utils.setFormLocation(formWindow, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
+	Utils.setFormLocation(form, 1, Constants.SCREEN.HEIGHT + bottomAreaPadding)
 
-	local pictureBox = forms.pictureBox(formWindow, 1, 1, 1, 1) -- This gets resized later
+	local pictureBox = forms.pictureBox(form, 1, 1, 1, 1) -- This gets resized later
 	forms.setproperty(pictureBox, "AutoSize", 2) -- The PictureBox is sized equal to the size of the image that it contains.
 	forms.setproperty(pictureBox, "Visible", false)
 
-	local addonMissing = forms.label(formWindow, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
+	local addonMissing = forms.label(form, "\nPOKEMON IMAGE IS MISSING... \n\nAdd-on requires separate installation. \n\nSee the Tracker Wiki for more info.", 25, 55, 185, 90)
 	forms.setproperty(addonMissing, "BackColor", "White")
 	forms.setproperty(addonMissing, "Visible", false)
 
-	Drawing.AnimatedPokemon.formWindow = formWindow
+	Drawing.AnimatedPokemon.formWindow = form
 	Drawing.AnimatedPokemon.pictureBox = pictureBox
 	Drawing.AnimatedPokemon.addonMissing = addonMissing
 	Drawing.AnimatedPokemon.pokemonID = 0
@@ -531,4 +595,68 @@ function Drawing.drawRepelUsage()
 	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, Theme.COLORS["Upper box background"] - 0xAA000000)
 	-- Draw colored bar for remaining usage
 	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
+end
+
+--- Draws an "L" shape at the given coordinates
+--- x and y correspond to the joint of the "L" shape
+--- @param x integer X coordinate of the "L" shape
+--- @param y integer Y coordinate of the "L" shape
+--- @param rotation integer Rotation of the "L" shape, 0 = 0 degrees, 1 = 90 degrees, 2 = 180 degrees, 3 = 270 degrees. At 0 degrees, the "L" shape points to the right and down
+--- @param color integer Color of the "L" shape, current theme colors can be accessed via Theme.COLORS
+--- @param thickness integer Thickness of the "L" shape
+--- @param length integer Length of the "L" shape
+--- @return nil
+function Drawing.drawLShape(x, y, rotation, color, thickness, length)
+	thickness = thickness - 1
+	length = length - 1
+	if rotation == 0 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x, y, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x, y, thickness, length, color, color)
+	elseif rotation == 1 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x - length, y, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x - thickness, y, thickness, length, color, color)
+	elseif rotation == 2 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x - length, y- thickness, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x - thickness, y - length, thickness, length, color, color)
+	elseif rotation == 3 then
+		-- Draw the horizontal line
+		gui.drawRectangle(x, y - thickness, length, thickness, color, color)
+		-- Draw the vertical line
+		gui.drawRectangle(x, y - length, thickness, length, color, color)
+	end
+end
+
+
+
+--- Draws "L" shaped selection indicators at the corners of the given rectangle
+--- @param x integer X coordinate of the top left corner of the rectangle
+--- @param y integer Y coordinate of the top left corner of the rectangle
+--- @param width integer Width of the rectangle
+--- @param height integer Height of the rectangle
+--- @param color integer Color of the selection indicators, current theme colors can be accessed via Theme.COLORS
+--- @param thickness integer Thickness of the selection indicators
+--- @param segmentLength integer Length of the selection indicators
+--- @param segmentPadding integer Offset of the selection indicators from the corners of the rectangle
+--- @return nil
+function Drawing.drawSelectionIndicators(x, y, width, height, color, thickness, segmentLength, segmentPadding)
+
+	segmentPadding = segmentPadding + thickness -1
+
+	-- Top left
+	Drawing.drawLShape(x - segmentPadding, y - segmentPadding, 0, color, thickness, segmentLength)
+
+	-- Top right
+	Drawing.drawLShape(x + width + segmentPadding, y - segmentPadding, 1, color, thickness, segmentLength)
+
+	-- Bottom right
+	Drawing.drawLShape(x + width + segmentPadding, y + height + segmentPadding, 2, color, thickness, segmentLength)
+
+	-- Bottom left
+	Drawing.drawLShape(x - segmentPadding, y + height + segmentPadding, 3, color, thickness, segmentLength)
 end

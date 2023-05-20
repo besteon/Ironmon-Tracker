@@ -51,7 +51,7 @@ UpdateScreen.Buttons = {
 				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
 			end
 
-			Options.updateSetting(self.text, self.toggleState)
+			Options.updateSetting("Dev branch updates", self.toggleState)
 			Options.forceSave()
 		end
 	},
@@ -186,7 +186,7 @@ function UpdateScreen.initialize()
 		end
 	end
 
-	UpdateScreen.Buttons.DevOptIn.toggleState = Options["Dev branch updates"] or false
+	UpdateScreen.Buttons.DevOptIn.toggleState = (Options["Dev branch updates"] == true)
 
 	-- These buttons share a location, but visiable at different times based on Update Status
 	UpdateScreen.Buttons.CheckForUpdates.box = UpdateScreen.Buttons.UpdateNow.box

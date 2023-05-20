@@ -257,28 +257,29 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 	-- Eventually fix this by more clearly separating a route's name from its encounters. eg. (encounters.wild)
 ---@diagnostic disable-next-line: param-type-mismatch
 	for _, encounter in pairs(RouteData.Info[mapId][encounterArea]) do
-		local pokemonID
-		if type(encounter.pokemonID) == "number" then
-			pokemonID = encounter.pokemonID
-		else -- pokemonID = {ID, ID, ID}
-			pokemonID = encounter.pokemonID[pIndex]
+		local info = {
+			pokemonID = 0,
+			rate = 0,
+			minLv = 0,
+			maxLv = 0,
+		}
+		for key, _ in pairs(info) do
+			local encVal = encounter[key] or 0
+			if type(encVal) == "number" then
+				info[key] = encVal
+			else -- encVal = {val, val, val}
+				info[key] = encVal[pIndex]
+			end
 		end
-		pokemonID = RouteData.verifyPID(pokemonID)
-
-		local rate
-		if type(encounter.rate) == "number" then
-			rate = encounter.rate
-		else -- rate = {val, val, val}
-			rate = encounter.rate[pIndex]
-		end
+		info.pokemonID = RouteData.verifyPID(info.pokemonID)
 
 		-- Some version have fewer Pokemon than others; if so, the ID will be -1
-		if PokemonData.isValid(pokemonID) then
+		if PokemonData.isValid(info.pokemonID) then
 			table.insert(areaInfo, {
-				pokemonID = pokemonID,
-				rate = rate,
-				minLv = encounter.minLv,
-				maxLv = encounter.maxLv,
+				pokemonID = info.pokemonID,
+				rate = info.rate,
+				minLv = info.minLv,
+				maxLv = info.maxLv,
 			})
 		end
 	end
@@ -2601,9 +2602,9 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[19] = { name = "Route 103",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,261}, rate = 0.60, },
-			{ pokemonID = {261,261,263}, rate = 0.30, },
-			{ pokemonID = 278, rate = 0.10, },
+			{ pokemonID = {263,263,261}, rate = 0.60, minLv = 2, maxLv = 4, },
+			{ pokemonID = {261,261,263}, rate = {0.30,0.30,0.20}, minLv = 2, maxLv = 4, },
+			{ pokemonID = 278, rate = {0.10,0.10,0.20}, minLv = 2, maxLv = 4, },
 		},
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
@@ -2865,12 +2866,12 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[32] = { name = "Route 116",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {293,293,261}, rate = {0.30,0.30,0.28}, },
-			{ pokemonID = {263,263,293}, rate = {0.28,0.28,0.20}, },
-			{ pokemonID = 276, rate = 0.20, },
-			{ pokemonID = 290, rate = 0.20, },
-			{ pokemonID = {-1,-1,63}, rate = 0.10, },
-			{ pokemonID = 300, rate = 0.02, },
+			{ pokemonID = {293,293,261}, rate = {0.30,0.30,0.28}, minLv = {6,6,6}, maxLv = {7,7,8}, },
+			{ pokemonID = {263,263,293}, rate = {0.28,0.28,0.20}, minLv = {6,6,6}, maxLv = {8,8,6}, },
+			{ pokemonID = 276, rate = 0.20, minLv = 6, maxLv = 8, },
+			{ pokemonID = 290, rate = 0.20, minLv = 6, maxLv = 7, },
+			{ pokemonID = {-1,-1,63}, rate = 0.10, minLv = {-1,-1,7}, maxLv = {-1,-1,7}, },
+			{ pokemonID = 300, rate = 0.02, minLv = 7, maxLv = 8, },
 		},
 	}
 	RouteData.Info[33] = { name = "Route 117",
@@ -3439,7 +3440,7 @@ function RouteData.setupRouteInfoAsRSE()
 	end
 	RouteData.Info[129 + offset] = { name = "Rusturf Tunnel",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = 293, rate = 1.00, },
+			{ pokemonID = 293, rate = 1.00, minLv = 5, maxLv = 8, },
 		},
 	}
 
@@ -3482,13 +3483,13 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[135 + offset] = { name = "Petalburg Woods",
 		[RouteData.EncounterArea.LAND] = {
-			{ pokemonID = {263,263,261}, rate = 0.30, },
-			{ pokemonID = 265, rate = 0.25, },
-			{ pokemonID = 285, rate = 0.15, },
-			{ pokemonID = 266, rate = 0.10, },
-			{ pokemonID = 268, rate = 0.10, },
-			{ pokemonID = 276, rate = 0.05, },
-			{ pokemonID = 287, rate = 0.05, },
+			{ pokemonID = {263,263,261}, rate = 0.30, minLv = 5, maxLv = 6, },
+			{ pokemonID = 265, rate = 0.25, minLv = 5, maxLv = 6, },
+			{ pokemonID = 285, rate = 0.15, minLv = 5, maxLv = 6, },
+			{ pokemonID = 266, rate = 0.10, minLv = 5, maxLv = 5, },
+			{ pokemonID = 268, rate = 0.10, minLv = 5, maxLv = 5, },
+			{ pokemonID = 276, rate = 0.05, minLv = 5, maxLv = 6, },
+			{ pokemonID = 287, rate = 0.05, minLv = 5, maxLv = 6, },
 		},
 	}
 	RouteData.Info[136 + offset] = { name = "Mt. Chimney", }
