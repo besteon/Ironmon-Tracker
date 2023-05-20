@@ -213,7 +213,7 @@ function RandomizerLog.parseEvolutions(logLines)
 
 		-- Replace any "and" to make parsing lowercase-named log files easier.
 		evos = evos:gsub(" and ", ", ")
-		for evo in string.gmatch(evos, RandomizerLog.Patterns.PokemonName) do
+		for _, evo in pairs(Utils.split(evos, ",", true)) do
 			local evoToAdd = RandomizerLog.formatInput(evo)
 			evoToAdd = RandomizerLog.alternateNidorans(evoToAdd)
 			local evoPokemonId = RandomizerLog.PokemonNameToIdMap[evoToAdd]

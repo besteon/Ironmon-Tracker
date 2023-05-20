@@ -32,6 +32,7 @@ FileManager.Files = {
 		ItalyData = "ItalyData.lua",
 		FranceData = "FranceData.lua",
 		GermanyData = "GermanyData.lua",
+		JapanData = "JapanData.lua",
 	},
 	Other = {
 		REPEL = "repelUsage.png",
