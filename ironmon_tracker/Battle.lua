@@ -495,28 +495,37 @@ function Battle.checkAbilitiesToTrack()
 	local battlerAbility = Battle.BattleParties[Battle.battler % 2][Battle.Combatants[Battle.IndexMap[Battle.battler]]].ability
 	local battleTargetAbility = Battle.BattleParties[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
 
+	local abilityMsg
 	-- BATTLER: 'battler' had their ability triggered
-	local abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
-		-- Track a Traced pokemon's ability
-		if battlerAbility == 36 then
-			Battle.trackAbilityChanges(nil,36)
-			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+	if GameSettings.ABILITIES.BATTLER then
+		abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
+		if abilityMsg ~= nil and abilityMsg[battlerAbility] then
+			-- Track a Traced pokemon's ability; need to grab the target from the buffers for doubles
+			if battlerAbility == 36 then
+				Battle.trackAbilityChanges(nil,36)
+				local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
+				combatantIndexesToTrack[target] = target
+			else
+				combatantIndexesToTrack[Battle.battler] = Battle.battler
+			end
 		end
-		combatantIndexesToTrack[Battle.battler] = Battle.battler
 	end
 
 	-- REVERSE_BATTLER: 'battlerTarget' had their ability triggered by the battler's ability
-	abilityMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
-		combatantIndexesToTrack[Battle.battler] = Battle.battler
+	if GameSettings.ABILITIES.REVERSE_BATTLER then
+		abilityMsg = GameSettings.ABILITIES.REVERSE_BATTLER[Battle.battleMsg]
+		if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
+			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+			combatantIndexesToTrack[Battle.battler] = Battle.battler
+		end
 	end
 
 	-- ATTACKER: 'battleTarget' had their ability triggered
-	abilityMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
-		combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+	if GameSettings.ABILITIES.ATTACKER then
+		abilityMsg = GameSettings.ABILITIES.ATTACKER[Battle.battleMsg]
+		if abilityMsg ~= nil and abilityMsg[battleTargetAbility] then
+			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+		end
 	end
 	--Synchronize
 	if abilityMsg ~= nil and abilityMsg[battlerAbility] and (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler and Battle.Synchronize.battlerTarget ~= -1) then
@@ -524,32 +533,38 @@ function Battle.checkAbilitiesToTrack()
 	end
 
 	-- REVERSE ATTACKER: 'attacker' had their ability triggered
-	abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[attackerAbility] then
-		combatantIndexesToTrack[Battle.attacker] = Battle.attacker
-	end
-
-	abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
-	if abilityMsg ~= nil then
-		-- Log allied pokemon contact status ability trigger for Synchronize
-		if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battlerTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
-			combatantIndexesToTrack[Battle.battler] = Battle.battler
-		end
-		if abilityMsg[battleTargetAbility] then
-			Battle.Synchronize.turnCount = Battle.turnCount
-			Battle.Synchronize.battler = Battle.battler
-			Battle.Synchronize.attacker = Battle.attacker
-			Battle.Synchronize.battlerTarget = Battle.battlerTarget
-		end
-	end
-
-	abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
-	if abilityMsg ~= nil then
-		if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
-			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
-		end
-		if abilityMsg.scope == "other" and abilityMsg[attackerAbility] then
+	if GameSettings.ABILITIES.REVERSE_ATTACKER then
+		abilityMsg = GameSettings.ABILITIES.REVERSE_ATTACKER[Battle.battleMsg]
+		if abilityMsg ~= nil and abilityMsg[attackerAbility] then
 			combatantIndexesToTrack[Battle.attacker] = Battle.attacker
+		end
+	end
+
+	if GameSettings.ABILITIES.STATUS_INFLICT then
+		abilityMsg = GameSettings.ABILITIES.STATUS_INFLICT[Battle.battleMsg]
+		if abilityMsg ~= nil then
+			-- Log allied pokemon contact status ability trigger for Synchronize
+			if abilityMsg[battlerAbility] and ((Battle.battler == Battle.battlerTarget) or (Battle.Synchronize.attacker == Battle.attacker and Battle.Synchronize.battlerTarget == Battle.battlerTarget and Battle.Synchronize.battler ~= Battle.battler)) then
+				combatantIndexesToTrack[Battle.battler] = Battle.battler
+			end
+			if abilityMsg[battleTargetAbility] then
+				Battle.Synchronize.turnCount = Battle.turnCount
+				Battle.Synchronize.battler = Battle.battler
+				Battle.Synchronize.attacker = Battle.attacker
+				Battle.Synchronize.battlerTarget = Battle.battlerTarget
+			end
+		end
+	end
+
+	if GameSettings.ABILITIES.BATTLE_TARGET then
+		abilityMsg = GameSettings.ABILITIES.BATTLE_TARGET[Battle.battleMsg]
+		if abilityMsg ~= nil then
+			if abilityMsg[battleTargetAbility] and abilityMsg.scope == "self" then
+				combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
+			end
+			if abilityMsg.scope == "other" and abilityMsg[attackerAbility] then
+				combatantIndexesToTrack[Battle.attacker] = Battle.attacker
+			end
 		end
 	end
 
