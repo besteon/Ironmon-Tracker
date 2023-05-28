@@ -1062,18 +1062,3 @@ function Utils.findInTable(tab, val)
 
 	return false
 end
-
-
---- Returns the index of a value in a table
---- @param tab table The table to search
---- @param val any The value to search for
---- @return number
-function Utils.indexOf(tab, val)
-	for index, value in ipairs(tab) do
-		if value == val then
-			return index
-		end
-	end
-
-	return -1
-end

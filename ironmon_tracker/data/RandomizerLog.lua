@@ -100,6 +100,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parsePickupItems(logLines)
 	RandomizerLog.parseRandomizerGame(logLines)
 	RandomizerLog.removeMappings()
+
 	Utils.tempEnableBizhawkSound()
 	return true
 end

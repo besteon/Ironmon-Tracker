@@ -233,6 +233,7 @@ function Drawing.drawButton(button, shadowcolor)
 		bordercolor = Theme.COLORS["Upper box border"]
 		fillcolor = Theme.COLORS["Upper box background"]
 	end
+	-- Support for easier defined shadow colors and multiple shadow colors
 	if button.shadowcolor == false then
 		shadowcolor = nil
 	end
@@ -246,6 +247,7 @@ function Drawing.drawButton(button, shadowcolor)
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER or button.type == Constants.ButtonTypes.PIXELIMAGE_BORDER then
 		gui.drawRectangle(x, y, width, height, bordercolor, fillcolor)
 		if shadowcolor ~= nil then
+			-- 'clicked' is used to draw the shadow for a few frames after the button is clicked to give visual feedback
 			if button.clicked ~= nil and button.clicked > 0 then
 				Drawing.drawShadow(button.box, shadowcolorInner, { "top", "left" }, true)
 				button.clicked = button.clicked - 1
@@ -257,6 +259,7 @@ function Drawing.drawButton(button, shadowcolor)
 
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
 		if button.text ~= nil and button.text ~= "" then
+			-- Support for custom text offsets defined in the button
 			local offSetX = button.textOffsetX or 0
             local offSetY = button.textOffsetY or 0
 			Drawing.drawText(x + 1+ offSetX, y+offSetY, button.text, Theme.COLORS[button.textColor], shadowcolorInner)
