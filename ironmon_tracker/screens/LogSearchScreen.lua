@@ -22,6 +22,7 @@ LogSearchScreen = {
 	--- @type table<string, table<string,integer|string>>
 	labels = {},
 	Buttons = {},
+	DropDownButtons = {},
 	--- @type table<string, string>
 	sortingKeysLabels = {
 		alphabetical = "Alphabetical",
@@ -239,12 +240,12 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 		+ 1,
 		Constants.SCREEN.LINESPACING + 1,
 	}
-	for i, sort in ipairs(LSS.sortingDropDown) do
-		local sortLabel = LSS.sortingKeysLabels[sort]
+	for i, sortKey in ipairs(LSS.sortingDropDown) do
+		local sortLabel = LSS.sortingKeysLabels[sortKey]
 
-		LSS.Buttons[sort] = {
+		LSS.DropDownButtons[sortKey] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			name = sort,
+			name = sortKey,
 			text = sortLabel,
 			box = {
 				initialBox[1],
@@ -259,7 +260,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 			textColor = LSS.Colors.lowerBoxText,
 			onClick = function(self)
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
-				if LSS.sortOrder ~= sort then
+				if LSS.sortOrder ~= sortKey then
 					LSS.sortOrder = self.name
 					table.remove(LSS.sortingDropDown, i)
 					table.insert(LSS.sortingDropDown, 1, LSS.sortOrder)
@@ -270,10 +271,10 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 				end
 			end,
 			isVisible = function(self)
-				return LSS.sortDropDownOpen or LSS.sortOrder == sort
+				return LSS.sortDropDownOpen or LSS.sortOrder == sortKey
 			end,
 			draw = function(self, shadowcolor)
-				if LSS.sortOrder == sort then
+				if LSS.sortOrder == sortKey then
 					local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
 					Drawing.drawImageAsPixels(
 						triangleImage,
@@ -454,7 +455,7 @@ function LogSearchScreen.buildKeyboardButtons(
 				clicked = 0,
 				keyPressedShadow = LogSearchScreen.Colors.keyPressedShadow,
 				onClick = function(self)
-					if not LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then -- Append the text of the button to the search text if the search text is not full
+					if not (LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen) then -- Append the text of the button to the search text if the search text is not full
 						self.clicked = 2
 						if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
 							LogSearchScreen.searchText = LogSearchScreen.searchText .. self.text
@@ -472,8 +473,9 @@ function LogSearchScreen.buildKeyboardButtons(
 end
 
 function LogSearchScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons.Keyboard)
+	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.DropDownButtons)
 end
 
 --- Draws the LogSearchScreen, automatically called by the main draw loop if this screen is active
@@ -530,11 +532,11 @@ function LogSearchScreen.drawScreen()
 			-- Different logic for each filter in LSS.filters
 		elseif Utils.findInTable(LSS.filters, name) then
 			Drawing.drawButton(button, { nil, LSS.Colors.upperShadowcolor })
-			-- Same deal for the sort buttons
-		elseif Utils.findInTable(LSS.sortingDropDown, name) then
-			Drawing.drawButton(button, { nil, LSS.Colors.upperShadowcolor })
 		else
 			Drawing.drawButton(button, shadowcolor)
 		end
+	end
+	for name, dropwdown in pairs(LSS.DropDownButtons) do
+		Drawing.drawButton(dropwdown, { nil, LSS.Colors.upperShadowcolor })
 	end
 end
