@@ -530,12 +530,15 @@ function LogSearchScreen.drawScreen()
 				Drawing.drawButton(key, shadowcolor)
 			end
 			-- Different logic for each filter in LSS.filters
-		elseif Utils.findInTable(LSS.filters, name) then
-			Drawing.drawButton(button, { nil, LSS.Colors.upperShadowcolor })
-		else
+		elseif not Utils.findInTable(LSS.filters, name) then
 			Drawing.drawButton(button, shadowcolor)
 		end
 	end
+	-- Ordering is important here, the dropdowns need to be drawn on top of the keyboard
+	for _,filter in pairs(LSS.filters) do
+		Drawing.drawButton(LSS.Buttons[filter], { nil, LSS.Colors.lowerShadowcolor })
+	end
+	-- Same here, but for the sort dropdown as it can be on top of the filter dropdown
 	for name, dropwdown in pairs(LSS.DropDownButtons) do
 		Drawing.drawButton(dropwdown, { nil, LSS.Colors.upperShadowcolor })
 	end
