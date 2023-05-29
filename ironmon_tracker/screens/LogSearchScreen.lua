@@ -74,13 +74,13 @@ LogSearchScreen = {
 	},
 	maxLetters = 10,
 	filters = {
-		"Pokemon Name",
+		Constants.Words.POKEMON .. " Name",
 		"Ability",
-		"Learnable Move",
+		"Levelup Move",
 	},
 	filterDropDownOpen = false,
 	sortDropDownOpen = false,
-	currentFilter = "Pokemon Name",
+	currentFilter = Constants.Words.POKEMON .. " Name",
 	--activeFilters = {},
 }
 --- Initializes the LogSearchScreen
@@ -264,11 +264,9 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 					LSS.sortOrder = self.name
 					table.remove(LSS.sortingDropDown, i)
 					table.insert(LSS.sortingDropDown, 1, LSS.sortOrder)
-					LSS.createUpdateSortOrderDropdown()
-					LSS.UpdateSearch()
-				else
-					LSS.createUpdateSortOrderDropdown()
 				end
+				LSS.createUpdateSortOrderDropdown()
+				LSS.UpdateSearch()
 			end,
 			isVisible = function(self)
 				return LSS.sortDropDownOpen or LSS.sortOrder == sortKey
@@ -397,8 +395,11 @@ function LogSearchScreen.buildKeyboardButtons(
 	keyPaddingY,
 	keyboardPadding
 ) -- Set default values for parameters
-	local keyboardX, keyboardY, keyPaddingX, keyPaddingY, keyboardPadding =
-		keyboardX or 0, keyboardY or 0, (keyPaddingX or 1) * 2, (keyPaddingY or 1) * 2, (keyboardPadding or 1) * 2
+	keyboardX = keyboardX or 0
+	keyboardY = keyboardY or 0
+	keyPaddingX = (keyPaddingX or 1) * 2
+	keyPaddingY = (keyPaddingY or 1) * 2
+	keyboardPadding = (keyboardPadding or 1) * 2
 	-- Define keyboard layout
 	local keyboardLayout = {}
 	-- Define keys per row
@@ -408,12 +409,6 @@ function LogSearchScreen.buildKeyboardButtons(
 		{ "Z", "X", "C", "V", "B", "N", "M" },
 	}
 
-	--[[ local keysPerRow = {
-    {"q" , "w" , "e" , "r" , "t" , "y" , "u" , "i" , "o" , "p" },
-    {"a" , "s" , "d" , "f" , "g" , "h" , "j" , "k" , "l" },
-    {"z" , "x" , "c" , "v" , "b" , "n" , "m" }
-
-    } ]]
 	-- Calculate key and keyboard dimensions
 	keyboardWidth = keyboardWidth or 150
 	-- Calculate key size to fit within the keyboard with padding between keys and the keyboard border
@@ -438,10 +433,12 @@ function LogSearchScreen.buildKeyboardButtons(
 		local keyX = keyRowX + rowOffset
 		for _, key in ipairs(keyRow) do
 			-- ===== KEYS =====
+			-- Center the character in the box
+			local textOffsetX = Utils.centerTextOffset(key, Constants.CharWidths[key], 10) - 2
 			local button = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				text = key,
-				textOffsetX = -1, -- Really gotta squish the text in there
+				textOffsetX = textOffsetX,
 				-- 1 pixel smaller to account for the border
 				clickableArea = {
 					keyX + 1,

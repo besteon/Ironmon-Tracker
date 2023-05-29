@@ -498,7 +498,7 @@ function LogOverlay.buildPagedButtons()
 					if LogOverlay.Windower.filterGrid == "#" then
 						include = true
 						-- Pokemon name
-					elseif LogSearchScreen.currentFilter == "Pokemon Name" then
+					elseif LogSearchScreen.currentFilter == Constants.Words.POKEMON .. " Name" then
 						include = LogOverlay.Windower.filterGrid:lower() ==
 							self.pokemonName:sub(1, #LogOverlay.Windower.filterGrid):lower() or
 
@@ -518,7 +518,7 @@ function LogOverlay.buildPagedButtons()
 							end
 						end
 						-- Learnable moves
-					elseif LogSearchScreen.currentFilter == "Learnable Move" then
+					elseif LogSearchScreen.currentFilter == "Levelup Move" then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 								local moveText = move.name
 								if LogOverlay.Windower.filterGrid:lower() ==
