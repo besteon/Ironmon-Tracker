@@ -147,12 +147,17 @@ function Main.Run()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
 
-		while Main.loadNextSeed == false do
+		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
+		while not Main.loadNextSeed and not Main.updateRequested do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
 
-		Main.LoadNextRom()
+		if Main.loadNextSeed then
+			Main.LoadNextRom()
+		elseif Main.updateRequested then
+			UpdateScreen.performAutoUpdate()
+		end
 	else
 		MGBA.printStartupInstructions()
 	end
