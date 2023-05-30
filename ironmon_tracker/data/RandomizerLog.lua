@@ -489,7 +489,6 @@ function RandomizerLog.printMoveIds()
 	end
 end
 
-
 function RandomizerLog.setupMappings()
 	RandomizerLog.PokemonNameToIdMap = {} -- setup later while parsing the first important log sector
 	RandomizerLog.MoveNameToIdMap = {
