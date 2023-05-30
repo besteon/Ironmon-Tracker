@@ -796,7 +796,7 @@ end
 function LogOverlay.realignPokemonGrid(gridFilter, sortFunc)
 	-- Default grid to Pokédex number
 	gridFilter = gridFilter or "#"
-	sortFunc = sortFunc or LogSearchScreen.sortingFunctions[LogSearchScreen.sortOrder] --pokedexNumber
+	sortFunc = sortFunc or LogSearchScreen.sortingFunctions[LogSearchScreen.currentSortOrder] --pokedexNumber
 
 	LogOverlay.Windower.filterGrid = gridFilter
 
@@ -1799,7 +1799,7 @@ function LogOverlay.drawScreen()
 	end
 	for _, button in pairs(LogOverlay.Buttons) do
 		-- The page display currently lives in the header
-		if button == LogOverlay.Buttons.CurrentPage then
+		if button == LogOverlay.Buttons.CurrentPage or LogOverlay.Buttons.NextPage or LogOverlay.Buttons.PreviousPage then
 			Drawing.drawButton(button, bgColor)
 		else
 			Drawing.drawButton(button, shadowcolor)
