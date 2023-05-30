@@ -279,7 +279,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 				self.image,
 				self.box[1] + self.box[3] - #self.image - LSS.paddingConst + 1,
 				self.box[2] + 1,
-				Theme.COLORS[LSS.Colors.lowerBoxText],
+				Theme.COLORS[LSS.Colors.defaultText],
 				LSS.Colors.upperShadowcolor
 			)
 			-- Vertical line
@@ -384,7 +384,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 				self.image,
 				self.box[1] + self.box[3] - #self.image - LSS.paddingConst + 1,
 				self.box[2] + 1,
-				Theme.COLORS[LSS.Colors.lowerBoxText],
+				Theme.COLORS[LSS.Colors.defaultText],
 				LSS.Colors.upperShadowcolor
 			)
 			-- Vertical line
