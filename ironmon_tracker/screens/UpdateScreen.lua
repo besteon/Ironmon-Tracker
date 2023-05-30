@@ -101,7 +101,8 @@ UpdateScreen.Buttons = {
 				UpdateScreen.remindMeLater()
 			else
 				if Main.Version.updateAfterRestart then
-					UpdateScreen.performAutoUpdate()
+					-- Instructs Main to perform the update after the current emulation frame loop finishes
+					Main.updateRequested = true
 				else
 					UpdateScreen.prepareForUpdateAfterRestart()
 					self:updateSelf()
@@ -212,6 +213,7 @@ function UpdateScreen.prepareForUpdateAfterRestart()
 end
 
 function UpdateScreen.performAutoUpdate()
+	Main.updateRequested = false
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
 
