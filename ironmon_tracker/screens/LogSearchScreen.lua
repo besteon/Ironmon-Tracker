@@ -4,6 +4,7 @@ LogSearchScreen = {
 	filterLabelText = "Filter:",
 	sortLabelText = "Sort by:",
 	Colors = {
+		defaultText = "Default text",
 		lowerBoxText = "Lower box text",
 		lowerBoxBorder = "Lower box border",
 		lowerBoxBG = "Lower box background",
@@ -128,7 +129,7 @@ function LogSearchScreen.createButtons()
 		width = keyboardSize.width,
 		height = keyboardSize.height,
 	}
-	LSS.Buttons.Keyboard = LSS.buildKeyboardButtons(
+	LSS.KeyboardButtons = LSS.buildKeyboardButtons(
 		LSS.keyboardBox.x,
 		LSS.keyboardBox.y,
 		LSS.keyboardBox.width,
@@ -142,7 +143,7 @@ function LogSearchScreen.createButtons()
 	local arrowImage = Constants.PixelImages.LEFT_ARROW
 	local arrow_size = #arrowImage
 	LSS.Buttons.Backspace = {
-		type = Constants.ButtonTypes.PIXELIMAGE_BORDER,
+		type = Constants.ButtonTypes.FULL_BORDER,
 		image = arrowImage,
 		padding = 2,
 		clicked = 0,
@@ -164,6 +165,16 @@ function LogSearchScreen.createButtons()
 				LSS.UpdateSearch()
 			end
 		end,
+		draw = function(self)
+			if self.clicked ~= nil and self.clicked > 0 then
+				LogSearchScreen.drawShadow(self.box, LSS.Colors.lowerShadowcolor, { "top", "left" }, true)
+				self.clicked = self.clicked - 1
+			else
+				LogSearchScreen.drawShadow(self.box, LSS.Colors.lowerShadowcolor, { "bottom", "right" }, false)
+			end
+			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding,
+				Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+		end
 	}
 
 	-- =====SEARCH TEXT DISPLAY BUTTON=====
@@ -257,7 +268,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 				LSS.Colors.upperBoxBorder,
 				LSS.Colors.upperBoxBG,
 			},
-			textColor = LSS.Colors.lowerBoxText,
+			textColor = LSS.Colors.defaultText,
 			onClick = function(self)
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
 				if LSS.sortOrder ~= sortKey then
@@ -342,7 +353,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 				return LSS.filterDropDownOpen or filter == LSS.currentFilter
 			end,
 			dropDownText = filter,
-			textColor = LSS.Colors.lowerBoxText,
+			textColor = LSS.Colors.defaultText,
 			draw = function(self, shadowcolor)
 				if filter == LSS.currentFilter then
 					local triangleImage = Constants.PixelImages.TRIANGLE_DOWN
@@ -470,7 +481,7 @@ function LogSearchScreen.buildKeyboardButtons(
 end
 
 function LogSearchScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons.Keyboard)
+	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.KeyboardButtons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.DropDownButtons)
 end
@@ -518,25 +529,73 @@ function LogSearchScreen.drawScreen()
 	) -- Draw buttons
 	for name, button in pairs(LSS.Buttons) do
 		-- don't draw the keyboard buttons, they are drawn below
-		local shadowcolor = button.shadowcolor or LSS.Colors.lowerShadowcolor
 
-		if name == "Keyboard" then
-			shadowcolor = { LSS.Colors.upperShadowcolor, shadowcolor }
 
-			for letter, key in pairs(button) do
-				Drawing.drawButton(key, shadowcolor)
-			end
-			-- Different logic for each filter in LSS.filters
-		elseif not Utils.findInTable(LSS.filters, name) then
-			Drawing.drawButton(button, shadowcolor)
-		end
+		Drawing.drawButton(button, button.shadowcolor)
+	end
+	-- Draw keyboard
+	for key, button in pairs(LSS.KeyboardButtons) do
+		Drawing.drawButton(button)
 	end
 	-- Ordering is important here, the dropdowns need to be drawn on top of the keyboard
-	for _,filter in pairs(LSS.filters) do
-		Drawing.drawButton(LSS.Buttons[filter], { nil, LSS.Colors.lowerShadowcolor })
+	for _, filter in pairs(LSS.filters) do
+		Drawing.drawButton(LSS.Buttons[filter])
 	end
 	-- Same here, but for the sort dropdown as it can be on top of the filter dropdown
 	for name, dropwdown in pairs(LSS.DropDownButtons) do
-		Drawing.drawButton(dropwdown, { nil, LSS.Colors.upperShadowcolor })
+		Drawing.drawButton(dropwdown)
+	end
+end
+
+--- Draws a shadow on the edges of the given rectangle, either inside or outside
+--- @param box table<integer,integer,integer,integer> Table containing the x, y, width, and height of the rectangle
+--- @param shadowcolor integer Color of the shadow, current theme colors can be accessed via Theme.COLORS
+--- @param edges table<string> Table containing the edges to draw the shadow on, can contain any of the following values: "top", "bottom", "left", "right"
+--- @param inside boolean Whether to draw the shadow inside the rectangle or outside, defaults to false
+--- @return nil
+function LogSearchScreen.drawShadow(box, shadowcolor, edges, inside)
+	inside = inside or false
+
+
+
+	-- Determine the coordinates of lines to draw
+	local cornerX, cornerY, lengthX, lengthY = box[1], box[2], box[3], box[4]
+
+	if inside then
+		cornerX = cornerX + 1
+		cornerY = cornerY + 1
+		lengthX = lengthX - 2
+		lengthY = lengthY - 2
+	end
+
+	-- Find the edges to draw the shadow on
+	local top, bottom, left, right = false, false, false, false
+	for _, edge in ipairs(edges) do
+		if edge == "top" then
+			top = true
+		elseif edge == "bottom" then
+			bottom = true
+		elseif edge == "left" then
+			left = true
+		elseif edge == "right" then
+			right = true
+		end
+	end
+
+	-- Draw the shadow
+	if top then
+		gui.drawLine(cornerX, cornerY, cornerX + lengthX, cornerY, shadowcolor)
+	end
+
+	if left then
+		gui.drawLine(cornerX, cornerY, cornerX, cornerY + lengthY, shadowcolor)
+	end
+
+	if bottom then
+		gui.drawLine(cornerX + 1, cornerY + 1 + lengthY, cornerX + 1 + lengthX, cornerY + 1 + lengthY, shadowcolor)
+	end
+
+	if right then
+		gui.drawLine(cornerX + 1 + lengthX, cornerY + 1, cornerX + 1 + lengthX, cornerY + 1 + lengthY, shadowcolor)
 	end
 end
