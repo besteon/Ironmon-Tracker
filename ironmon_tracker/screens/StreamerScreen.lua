@@ -1,11 +1,4 @@
 StreamerScreen = {
-	Labels = {
-		header = "Streamer Tools",
-		attemptsCount = "Attempts Count:",
-		welcomeMessage = "Welcome Message:",
-		editButton = " Edit",
-		favorites = "Favorite " .. Constants.Words.POKEMON .. ":",
-	},
 	Colors = {
 		upperText = "Default text",
 		upperBorder = "Upper box border",
@@ -19,33 +12,31 @@ StreamerScreen = {
 StreamerScreen.Buttons = {
 	AttemptsCountEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = StreamerScreen.Labels.editButton,
-		label = StreamerScreen.Labels.attemptsCount,
+		getText = function(self) return Resources.StreamerScreen.ButtonEdit end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 14, 23, 11 },
 		draw = function(self, shadowcolor)
 			-- Draw the Label text to its left
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
 			local y = self.box[2]
-			Drawing.drawText(x, y, self.label, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(x, y, Resources.StreamerScreen.LabelAttemptsCount .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
-		onClick = function(self) StartupScreen.openEditAttemptsWindow() end,
+		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end,
 	},
 	WelcomeMessageEdit = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = StreamerScreen.Labels.editButton,
-		label = StreamerScreen.Labels.welcomeMessage,
+		getText = function(self) return Resources.StreamerScreen.ButtonEdit end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 29, 23, 11 },
 		draw = function(self, shadowcolor)
 			-- Draw the Label text to its left
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
 			local y = self.box[2]
-			Drawing.drawText(x, y, self.label, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(x, y, Resources.StreamerScreen.LabelWelcomeMessage .. ":", Theme.COLORS[self.textColor], shadowcolor)
 		end,
 		onClick = function(self) StreamerScreen.openEditWelcomeMessageWindow() end,
 	},
 	ShowFavorites = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = " Show on new game screen", -- offset with a space for appearance
+		getText = function(self) return Resources.StreamerScreen.OptionDisplayFavorites end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 64, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 64, 8, 8 },
 		toggleState = false, -- update later in initialize
@@ -125,13 +116,38 @@ function StreamerScreen.initialize()
 	StreamerScreen.loadFavorites()
 end
 
+function StreamerScreen.openEditAttemptsWindow()
+	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptEditAttemptsTitle, 320, 130)
+
+	forms.label(form, Resources.StreamerScreen.PromptEditAttemptsDesc, 48, 10, 300, 20)
+	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
+	forms.button(form, Resources.AllScreens.Save, function()
+		local formInput = forms.gettext(textBox)
+		if formInput ~= nil and formInput ~= "" then
+			local newAttemptsCount = tonumber(formInput)
+			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
+				Main.currentSeed = newAttemptsCount
+				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
+				StartupScreen.refreshButtons()
+				Program.redraw(true)
+			end
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 72, 60)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		client.unpause()
+		forms.destroy(form)
+	end, 157, 60)
+end
+
 function StreamerScreen.openEditWelcomeMessageWindow()
-	local form = Utils.createBizhawkForm("Edit Welcome Message", 515, 235)
+	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptEditWelcomeTitle, 515, 235)
 
 	local welcomeMsg = Utils.formatSpecialCharacters(Options["Welcome message"])
 	welcomeMsg = Utils.encodeDecodeForSettingsIni(welcomeMsg, false)
 
-	forms.label(form, "Edit the welcome message box on the Tracker, shown each time a new game begins.", 9, 10, 495, 20)
+	forms.label(form, Resources.StreamerScreen.PromptEditWelcomeDesc, 9, 10, 495, 20)
 	local welcomeTextBox = forms.textbox(form, welcomeMsg, 480, 120, nil, 10, 35, true, false, "Vertical")
 	forms.button(form, Resources.AllScreens.Save, function()
 		local newMessage = Utils.formatSpecialCharacters(forms.gettext(welcomeTextBox))
@@ -159,11 +175,11 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		initPokemonID = Utils.randomPokemonID()
 	end
 
-	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptChooseFavoriteTitle, 330, 145)
+	local form = Utils.createBizhawkForm(Resources.StreamerScreen.PromptChooseFavoriteTitle, 330, 145)
 
 	local allPokemon = PokemonData.namesToList()
 
-	forms.label(form, Resources.StartupScreen.PromptChooseFavoriteDesc, 24, 10, 300, 20)
+	forms.label(form, Resources.StreamerScreen.PromptChooseFavoriteDesc, 24, 10, 300, 20)
 	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
@@ -245,13 +261,13 @@ function StreamerScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header text
-	local headerText = StreamerScreen.Labels.header:upper()
+	local headerText = Resources.StreamerScreen.Title:upper()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw Favorites Label
-	Drawing.drawText(topBox.x + 3, topBox.y + 40, StreamerScreen.Labels.favorites, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 3, topBox.y + 40, Resources.StreamerScreen.LabelFavorites .. ":", topBox.text, topBox.shadow)
 
 	-- Draw bottom border box
 	-- gui.defaultTextBackground(botBox.fill)

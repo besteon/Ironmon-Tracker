@@ -39,7 +39,7 @@ StartupScreen.Buttons = {
 		getText = function(self) return tostring(Main.currentSeed) or Constants.BLANKLINE end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
 		isVisible = function() return Main.currentSeed > 1 end,
-		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
+		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
 	},
 	AttemptsEdit = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -50,7 +50,7 @@ StartupScreen.Buttons = {
 			local txtLength = string.len(StartupScreen.Buttons.AttemptsCount:getText() or "") + 1
 			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + (txtLength * 5) -- 5 pixels per digit
 		end,
-		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
+		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
 	},
 	NotesAreaEdit = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -124,6 +124,14 @@ function StartupScreen.initialize()
 
 	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
 		print(string.format("> %s", Tracker.DataMessage))
+	end
+end
+
+function StartupScreen.refreshButtons()
+	for _, button in pairs(StartupScreen.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
 	end
 end
 
@@ -216,32 +224,6 @@ function StartupScreen.openChoosePokemonWindow()
 		client.unpause()
 		forms.destroy(form)
 	end, 120, 69)
-end
-
-function StartupScreen.openEditAttemptsWindow()
-	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptEditAttemptsTitle, 320, 130)
-
-	forms.label(form, Resources.StartupScreen.PromptEditAttemptsDesc, 48, 10, 300, 20)
-	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
-	forms.button(form, Resources.AllScreens.Save, function()
-		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
-			local newAttemptsCount = tonumber(formInput)
-			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
-				Main.currentSeed = newAttemptsCount
-				StartupScreen.Buttons.AttemptsEdit:updateSelf()
-
-				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
-				Program.redraw(true)
-			end
-		end
-		client.unpause()
-		forms.destroy(form)
-	end, 72, 60)
-	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
-	end, 157, 60)
 end
 
 -- USER INPUT FUNCTIONS

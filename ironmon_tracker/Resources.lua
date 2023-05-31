@@ -4,10 +4,9 @@ Resources = {}
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 -- * Move/Ability Descriptions need resources keys so they can be translated
 -- * Remove all instances of 'updateText' should be 'updateSelf' instead
--- TODO:
+
+-- Screens left to pull apart for translation:
 -- UpdateScreen
--- StreamerScreen
--- CustomExtensionsScreen
 -- SingleExtensionScreen
 -- InfoScreen
 -- MoveHistoryScreen
