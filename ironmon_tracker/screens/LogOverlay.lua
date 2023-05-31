@@ -495,6 +495,8 @@ function LogOverlay.buildPagedButtons()
 				pokemonID = id,
 				pokemonName = PokemonData.Pokemon[id].name,
 				tab = LogOverlay.Tabs.POKEMON,
+				textColor = "Default text",
+				boxColors = { "Upper box border", "Upper box background" },
 				isVisible = function(self)
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
@@ -546,6 +548,11 @@ function LogOverlay.buildPagedButtons()
 				onClick = function(self)
 					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+				end,
+				draw = function(self, shadowcolor)
+					-- Draw the text on top of it, with a background that cuts into the icon
+					gui.drawRectangle(self.box[1], self.box[2] + 1 - 1, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
+					Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self.pokemonName, Theme.COLORS[self.textColor], shadowcolor)
 				end,
 			}
 			table.insert(LogOverlay.PagedButtons.Pokemon, button)
@@ -808,11 +815,11 @@ function LogOverlay.realignPokemonGrid(gridFilter, sortFunc)
 
 	local buttonSet = LogOverlay.PagedButtons.Pokemon
 	local x = LogOverlay.margin + 19
-	local y = LogOverlay.tabHeight + 11
+	local y = LogOverlay.tabHeight + 1
 	local itemWidth = 32
 	local itemHeight = 32
 	local horizontalSpacer = 23
-	local verticalSpacer = 1
+	local verticalSpacer = 4
 
 	table.sort(buttonSet, sortFunc)
 	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(buttonSet, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
@@ -1824,14 +1831,7 @@ function LogOverlay.drawPokemonTab(x, y, width, height)
 
 	-- VISIBLE POKEMON ICONS
 	for _, button in pairs(LogOverlay.PagedButtons.Pokemon) do
-		-- First draw the Pokemon Icon
 		Drawing.drawButton(button, shadowcolor)
-		-- Then draw the text on top of it, with a background
-		if button:isVisible() then
-			local pokemonName = PokemonData.Pokemon[button.pokemonID].name
-			gui.drawRectangle(button.box[1], button.box[2] + 1, 32, 9, fillColor, fillColor) -- cut-off top of icon
-			Drawing.drawText(button.box[1] - 5, button.box[2], pokemonName, textColor, shadowcolor)
-		end
 	end
 
 	return borderColor, shadowcolor
