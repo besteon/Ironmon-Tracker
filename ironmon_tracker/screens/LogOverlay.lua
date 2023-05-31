@@ -65,13 +65,6 @@ LogOverlay.Windower = {
 		LogOverlay.currentTabInfoId = tabInfoId or LogOverlay.currentTabInfoId
 		self.currentPage = pageNum or self.currentPage or 1
 		self.totalPages = totalPages or self.totalPages or 1
-		if newTab ~= LogOverlay.Tabs.POKEMON and Program.currentScreen == LogSearchScreen then
-			LogOverlay.displayDefaultPokemonInfo()
-		end
-
-		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
-			Program.changeScreenView(LogSearchScreen)
-		end
 
 		if newTab == LogOverlay.Tabs.POKEMON or newTab == LogOverlay.Tabs.TRAINER or newTab == LogOverlay.Tabs.MISC then
 			LogOverlay.TabHistory = {}
@@ -104,6 +97,13 @@ LogOverlay.Windower = {
 		end
 		LogOverlay.refreshTabBar()
 		LogOverlay.refreshInnerButtons()
+		if newTab ~= LogOverlay.Tabs.POKEMON and Program.currentScreen == LogSearchScreen then
+			LogOverlay.displayDefaultPokemonInfo()
+		end
+
+		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
+			Program.changeScreenView(LogSearchScreen)
+		end
 	end,
 }
 

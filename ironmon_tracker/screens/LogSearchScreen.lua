@@ -190,9 +190,11 @@ function LogSearchScreen.createButtons()
 			LSS.Colors.lowerBoxBorder,
 			LSS.Colors.lowerBoxBG,
 		},
+
 		textColor = LSS.Colors.lowerBoxText,
 		blink = 0,
-		draw = function(self, shadowcolor)
+		draw = function(self)
+			self.shadowcolor = LSS.Colors.lowerShadowcolor
 			-- Split searchText into an array of characters
 			for i = 1, #LSS.searchText do
 				self.searchText[i] = LSS.searchText:sub(i, i)
@@ -209,7 +211,7 @@ function LogSearchScreen.createButtons()
 				local y = self.box[2] + self.box[4] - 2
 				if i <= #self.searchText then
 					y = y - self.letterSize - 3
-					Drawing.drawText(x, y, self.searchText[i], Theme.COLORS[self.textColor], shadowcolor)
+					Drawing.drawText(x, y, self.searchText[i], Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
 				else
 					local lineColor = 0
 					-- If the current line is the first empty line, blink it
