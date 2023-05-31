@@ -192,7 +192,8 @@ function LogSearchScreen.createButtons()
 		},
 
 		textColor = LSS.Colors.lowerBoxText,
-		blink = 0,
+		-- TODO: @Aeiry Make blinking work properly, adjusting for speed-ups
+		--blink = 0,
 		draw = function(self)
 			self.shadowcolor = LSS.Colors.lowerShadowcolor
 			-- Split searchText into an array of characters
@@ -213,20 +214,20 @@ function LogSearchScreen.createButtons()
 					y = y - self.letterSize - 3
 					Drawing.drawText(x, y, self.searchText[i], Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
 				else
-					local lineColor = 0
+					--[[local lineColor = 0
 					-- If the current line is the first empty line, blink it
 					if i == #self.searchText + 1 and self.blink > 0 then
 						lineColor = Theme.COLORS["Intermediate text"]
 					else
 						lineColor = Theme.COLORS[LSS.Colors.lowerBoxText]
-					end
-					gui.drawLine(x, y, x + self.letterSize, y, lineColor)
+					end]]
+					gui.drawLine(x, y, x + self.letterSize, y, Theme.COLORS[self.textColor])
 				end
 			end
-			self.blink = self.blink - 1
+			--[[self.blink = self.blink - 1
 			if self.blink < -2 then
 				self.blink = 3
-			end
+			end ]]
 		end,
 	}
 
