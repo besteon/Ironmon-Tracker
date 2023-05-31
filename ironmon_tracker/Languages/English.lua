@@ -188,6 +188,18 @@ ScreenResources{
 		LabelNoExtensions = "You currently don't have any custom extensions installed.",
 		OptionAllowCustomCode = "Allow custom code to run",
 	},
+	SingleExtensionScreen = {
+		LabelAuthorBy = "By",
+		LabelVersion = "Version",
+		LabelEnabled = "Enabled",
+		EnabledOn = "ON",
+		EnabledOff = "OFF",
+		ButtonViewOnline = "View Online",
+		ButtonOptions = "Options",
+		ButtonCheckForUpdates = "Check for Updates",
+		ButtonUpdateAvailable = "Update Available",
+		ButtonNoUpdateFound = "No Update Found",
+	},
 	TrackerScreen = {
 		HPAbbreviation = "HP",
 		LevelAbbreviation = "Lv",
@@ -258,6 +270,21 @@ ScreenResources{
 		ConfirmationRestore = "Confirm restore?",
 		LocationUnknownArea = "Unknown Area",
 		ButtonCreate = "Create",
+	},
+	MoveHistoryScreen = {
+		HeaderMoves = "Move seen at level",
+		HeaderMin = "Min",
+		HeaderMax = "Max",
+		NoTrackedMoves = "(No tracked move data yet)",
+		NoMovesLearned = "Does not learn any moves",
+		PromptPokemonTitle = "Pokédex Look up",
+		PromptPokemonDesc = "Choose a Pokémon to look up",
+		PromptButtonLookUp = "Look up",
+	},
+	TypeDefensesScreen = {
+		Immunities = "Immunities",
+		Resistances = "Resistances",
+		Weaknesses = "Weaknesses",
 	},
 }
 

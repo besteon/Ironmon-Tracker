@@ -7,10 +7,7 @@ Resources = {}
 
 -- Screens left to pull apart for translation:
 -- UpdateScreen
--- SingleExtensionScreen
 -- InfoScreen
--- MoveHistoryScreen
--- TypeDefensesScreen
 -- ViewLogWarningScreen
 -- GameOverScreen
 -- TeamViewArea
