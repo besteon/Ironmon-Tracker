@@ -275,7 +275,9 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 		},
 		textColor = LSS.Colors.defaultText,
 		onClick = function(self)
-			LSS.sortDropDownOpen = not LSS.sortDropDownOpen
+			if not LSS.filterDropDownOpen then
+				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
+			end
 		end,
 		draw = function(self)
 			Drawing.drawImageAsPixels(
@@ -380,7 +382,9 @@ function LogSearchScreen.createUpdateFilterDropdown()
 		},
 		textColor = LSS.Colors.defaultText,
 		onClick = function(self)
-			LSS.filterDropDownOpen = not LSS.filterDropDownOpen
+			if not LSS.sortDropDownOpen then
+				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
+			end
 		end,
 		draw = function(self)
 			Drawing.drawImageAsPixels(
