@@ -65,6 +65,13 @@ LogOverlay.Windower = {
 		LogOverlay.currentTabInfoId = tabInfoId or LogOverlay.currentTabInfoId
 		self.currentPage = pageNum or self.currentPage or 1
 		self.totalPages = totalPages or self.totalPages or 1
+		if newTab ~= LogOverlay.Tabs.POKEMON and Program.currentScreen == LogSearchScreen then
+			LogOverlay.displayDefaultPokemonInfo()
+		end
+
+		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
+			Program.changeScreenView(LogSearchScreen)
+		end
 
 		if newTab == LogOverlay.Tabs.POKEMON or newTab == LogOverlay.Tabs.TRAINER or newTab == LogOverlay.Tabs.MISC then
 			LogOverlay.TabHistory = {}
@@ -158,7 +165,6 @@ LogOverlay.TabBarButtons = {
 			if LogOverlay.currentTab ~= self.tab then
 				LogOverlay.realignPokemonGrid()
 				LogOverlay.Windower:changeTab(self.tab)
-				Program.changeScreenView(LogSearchScreen)
 				Program.redraw(true)
 			end
 		end,
@@ -1799,7 +1805,7 @@ function LogOverlay.drawScreen()
 	end
 	for _, button in pairs(LogOverlay.Buttons) do
 		-- The page display currently lives in the header
-		if button == LogOverlay.Buttons.CurrentPage or LogOverlay.Buttons.NextPage or LogOverlay.Buttons.PreviousPage then
+		if button == LogOverlay.Buttons.CurrentPage or button == LogOverlay.Buttons.NextPage or button ==  LogOverlay.Buttons.PrevPage then
 			Drawing.drawButton(button, bgColor)
 		else
 			Drawing.drawButton(button, shadowcolor)
@@ -2187,16 +2193,23 @@ function LogOverlay.parseAndDisplay(logpath)
 
 	if LogOverlay.isDisplayed then
 		LogOverlay.buildPagedButtons()
+		LogOverlay.displayDefaultPokemonInfo()
 		LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON)
-
-		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
-		if PokemonData.isValid(leadPokemon.pokemonID) then
-			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
-			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
-		else
-			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1) -- Show Bulbasaur by default; implied redraw
-		end
 	end
 
 	return LogOverlay.isDisplayed
+end
+
+--[[ Function to display fallback/default pokemon info screen on the right.
+ Currently used for tabs other than "Pokemon" and when first loading the log ]]
+function LogOverlay.displayDefaultPokemonInfo()
+	local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+	if PokemonData.isValid(leadPokemon.pokemonID) then
+		if LogOverlay.Windower.currentTab == LogOverlay.Tabs.POKEMON then
+			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
+		end
+		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
+	else
+		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1) -- Show Bulbasaur by default; implied redraw
+	end
 end
