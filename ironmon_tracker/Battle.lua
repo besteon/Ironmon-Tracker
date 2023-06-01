@@ -121,9 +121,6 @@ function Battle.updateBattleStatus()
 		Battle.endCurrentBattle()
 	end
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
-		if not Battle.isWildEncounter then
-			GameOverScreen.incrementLosses()
-		end
 		LogOverlay.isGameOver = true
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()

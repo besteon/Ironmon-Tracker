@@ -34,11 +34,11 @@ Theme.PresetsIndex = {
 }
 Theme.Presets = {
 	{
-		getText = function(self) return Resources.ThemeScreen.LabelActiveCustomTheme or self.name end,
+		getText = function(self) return Resources.ThemeScreen.LabelActiveCustomTheme or "Active Theme (Custom)" end,
 		code = "", -- updated later in refreshThemePreview()
 	},
 	{
-		getText = function(self) return Resources.ThemeScreen.LabelDefaultTheme or self.name end,
+		getText = function(self) return Resources.ThemeScreen.LabelDefaultTheme or "Default Theme" end,
 		code = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
 	},
 }

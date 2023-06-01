@@ -1,4 +1,27 @@
 ScreenResources{
+	GameOverScreenQuotes = {
+		"What's the matter trainer?",
+		"What will the trainer do now?",
+		"Oh! Another failure!",
+		"Boom!",
+		"Devastating!",
+		"Gone! It didn't stand a chance!",
+		"Can strategy overcome the level disadvantage?",
+		"It's in no condition to fight!",
+		"This is a battle between obviously mismatched Pokémon.",
+		"The Pokémon returns to its Poké Ball.",
+		"Down! That didn't take much!",
+		"That one hurt!",
+		"And there goes the battle!",
+		"What a wild turn of events!",
+		"Taken down on the word go!",
+		"Woah! That was overpowering!",
+		"It's finally taken down!",
+		"Harsh blow!",
+		"That was brutal!",
+		"Nailed the weak spot!",
+		"Hey! What's it doing? Down it goes!",
+	},
 	AllScreens = {
 		Back = "Back",
 		Yes = "Yes",
@@ -12,7 +35,7 @@ ScreenResources{
 		Import = "Import",
 		Export = "Export",
 		Lookup = "Lookup",
-		Page = "Page", -- Usage: "Page 2/5"
+		Page = "Page", -- Usage: "<- Page 2/5 ->"
 	},
 	StartupScreen = {
 		Title = "Ironmon Tracker",
@@ -259,6 +282,13 @@ ScreenResources{
 		PromptHeaderSave = "Save Tracker Data",
 		PromptEnterFilename = "Enter a filename to save Tracker data to",
 	},
+	ViewLogWarningScreen = {
+		Title = "Warning -- View the Log ?",
+		WarningAreYouSure = "Are you sure you want to view the log file?",
+		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.",
+		WarningIfUnsure = "If you are unsure, simply do not view the log file.",
+		ButtonYesImSure = "Yes, I'm sure",
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine",
 		OptionEnableRestorePoints = "Enable restore points",
@@ -270,6 +300,19 @@ ScreenResources{
 		ConfirmationRestore = "Confirm restore?",
 		LocationUnknownArea = "Unknown Area",
 		ButtonCreate = "Create",
+	},
+	GameOverScreen = {
+		Title = "G a m e O v e r",
+		LabelAttempt = "Attempt",
+		QuoteCongratulations = "CONGRATULATIONS!!",
+		ButtonContinuePlaying = "Continue playing",
+		ButtonRetryBattle = "Retry the battle",
+		ButtonRetryBattleConfirm = "Are you sure?",
+		ButtonSaveAttempt = "Save this attempt",
+		ButtonSaveSuccessful = "Saved in Tracker folder",
+		ButtonSaveFailed = "Unable to save",
+		ButtonInspectLogFile = "Inspect the log",
+		ButtonOpenLogFile = "Open a log file",
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level",

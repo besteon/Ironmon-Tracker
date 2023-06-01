@@ -8,8 +8,6 @@ Resources = {}
 -- Screens left to pull apart for translation:
 -- UpdateScreen
 -- InfoScreen
--- ViewLogWarningScreen
--- GameOverScreen
 -- TeamViewArea
 -- LogOverlay
 
