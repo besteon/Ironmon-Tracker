@@ -103,6 +103,7 @@ LogOverlay.Windower = {
 
 		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
 			Program.changeScreenView(LogSearchScreen)
+			LogSearchScreen.UpdateSearch()
 		end
 	end,
 }
