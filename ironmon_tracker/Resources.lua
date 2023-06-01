@@ -1,14 +1,15 @@
 Resources = {}
 -- TODO: Task list:
+-- * MGBA and MGBADisplay
 -- * Add Drawing function to draw pokemon type bar with text overlayed
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 -- * Move/Ability Descriptions need resources keys so they can be translated
+-- * PokemonData evolutions; reorganize the different displays
 -- * Remove all instances of 'updateText' should be 'updateSelf' instead
+-- * Double-check all "Labels" objects have been replaced
 
 -- Screens left to pull apart for translation:
 -- UpdateScreen
--- InfoScreen
--- TeamViewArea
 -- LogOverlay
 
 Resources.Languages = {

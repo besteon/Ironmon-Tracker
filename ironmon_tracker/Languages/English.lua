@@ -37,6 +37,26 @@ ScreenResources{
 		Lookup = "Lookup",
 		Page = "Page", -- Usage: "<- Page 2/5 ->"
 	},
+	PokemonTypeAbbreviations = {
+		Normal = "NORMAL",
+		Fighting = "FIGHT",
+		Flying = "FLYING",
+		Poison = "POISON",
+		Ground = "GROUND",
+		Rock = "ROCK",
+		Bug = "BUG",
+		Ghost = "GHOST",
+		Steel = "STEEL",
+		Fire = "FIRE",
+		Water = "WATER",
+		Grass = "GRASS",
+		Electric = "ELECTR",
+		Psychic = "PSYCHIC",
+		Ice = "ICE",
+		Dragon = "DRAGON",
+		Dark = "DARK",
+		Unknown = "???",
+	},
 	StartupScreen = {
 		Title = "Ironmon Tracker",
 		Version = "Version",
@@ -269,6 +289,35 @@ ScreenResources{
 		EncounterOldRod = "Old Rod",
 		EncounterSeenPokemon = "Seen Pokémon",
 	},
+	InfoScreen = {
+		-- Pokémon Info
+		ButtonHistory = "History",
+		ButtonResistances = "Show resistances",
+		KilogramAbbreviation = "kg",
+		LabelWeight = "Weight",
+		LabelEvolution = "Evolution",
+		LabelLearnMove = "Learns a move at level",
+		LabelNoMoves = "Does not learn any moves",
+		LabelWeakTo = "Weak to",
+		LabelNoWeaknesses = "Has no weaknesses",
+		-- Move Info
+		LabelCategory = "Category",
+		LabelContact = "Contact",
+		LabelPP = "PP",
+		LabelPower = "Power",
+		LabelAccuracy = "Accuracy",
+		LabelPriority = "Priority",
+		LabelMoveSummary = "Move Summary",
+		SetHiddenPowerType = "Set type",
+		-- Ability Info
+		LabelEmeraldAbility = "In Emerald",
+		-- Route Info
+		CheckboxPercentages = "Percentages",
+		CheckboxLevels = "Levels",
+		LabelSeenBy = "Pokémon seen by", -- Usage: "Pokémon seen by Walking"
+		LabelSeenEncounters = "Pokémon encounters", -- Usage: "Static Pokémon encounters"
+		LabelOrderAppearance = "In order of appearance",
+	},
 	TrackedDataScreen = {
 		Title = "Manage Tracked Data",
 		DescAutoSave = "All of the data that is tracked while you play is auto saved after each battle, stored as a .TDAT file",
@@ -328,6 +377,9 @@ ScreenResources{
 		Immunities = "Immunities",
 		Resistances = "Resistances",
 		Weaknesses = "Weaknesses",
+	},
+	TeamViewArea = {
+		EggNickname = "EGG",
 	},
 }
 

@@ -1,8 +1,5 @@
 -- Displays the player's full team of six Pokémon below the gameplay/Tracker screen, in an expanded drawing space
 TeamViewArea = {
-	Labels = {
-		eggNickname = "EGG",
-	},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
@@ -91,7 +88,7 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 			local yOffset = self.y
 
 			-- Pokemon's Nickname
-			local nicknameText = Utils.inlineIf(isEgg, TeamViewArea.Labels.eggNickname, pokemon.nickname)
+			local nicknameText = Utils.inlineIf(isEgg, Resources.TeamViewArea.EggNickname, pokemon.nickname)
 			Drawing.drawText(self.x + 1, yOffset, nicknameText, self.text, self.shadow)
 			yOffset = yOffset + Constants.SCREEN.LINESPACING - 1
 
@@ -135,7 +132,7 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 
 			-- Pokemon LevelPattern
 			local levelValue = Utils.inlineIf(isEgg, Constants.HIDDEN_INFO, pokemon.level or 0)
-			local levelText = string.format("Lv.%s", levelValue)
+			local levelText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, levelValue)
 			Drawing.drawText(self.x + 1, yOffset, levelText, self.text, self.shadow)
 			yOffset = yOffset + 2
 

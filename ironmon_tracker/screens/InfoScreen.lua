@@ -60,7 +60,7 @@ InfoScreen.Buttons = {
 	},
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "History",
+		getText = function(self) return Resources.InfoScreen.ButtonHistory end,
 		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, Constants.SCREEN.MARGIN + 70, 28, 10, },
 		boxColors = { "Lower box border", "Lower box background" },
@@ -78,7 +78,7 @@ InfoScreen.Buttons = {
 	},
 	TypeDefenses = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Show resistances",
+		getText = function(self) return Resources.InfoScreen.ButtonResistances end,
 		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 68, Constants.SCREEN.MARGIN + 97, 68, 10, },
 		boxColors = { "Lower box border", "Lower box background" },
@@ -104,7 +104,7 @@ InfoScreen.Buttons = {
 	},
 	ShowRoutePercentages = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = "Percentages",
+		getText = function(self) return Resources.InfoScreen.CheckboxPercentages end,
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 17, 61, 10 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 18, 8, 8 },
@@ -120,7 +120,7 @@ InfoScreen.Buttons = {
 	},
 	ShowRouteLevels = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = "Levels",
+		getText = function(self) return Resources.InfoScreen.CheckboxLevels end,
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 88, Constants.SCREEN.MARGIN + 17, 36, 10 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 88, Constants.SCREEN.MARGIN + 18, 8, 8 },
@@ -180,7 +180,7 @@ InfoScreen.Buttons = {
 	},
 	BackTop = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
 		boxColors = { "Upper box border", "Upper box background" },
@@ -256,7 +256,7 @@ InfoScreen.Buttons = {
 			if noteText ~= nil and noteText ~= "" then
 				return noteText
 			else
-				return "(Leave a note)"
+				return string.format("(%s)", Resources.TrackerScreen.LeaveANote)
 			end
 		end,
 		textColor = "Lower box text",
@@ -618,18 +618,18 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + 12 + linespacing
 
 	-- BST
-	Drawing.drawText(offsetX, offsetY, "BST:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.TrackerScreen.StatBST .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.p.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
-	local weightInfo = data.p.weight .. " kg"
-	Drawing.drawText(offsetX, offsetY, "Weight:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	local weightInfo = string.format("%s %s", data.p.weight, Resources.InfoScreen.KilogramAbbreviation)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelWeight .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, weightInfo, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- EVOLUTION
-	Drawing.drawText(offsetX, offsetY, "Evolution:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelEvolution .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.p.evo[1], Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 	if data.p.evo[2] ~= nil then
@@ -652,12 +652,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if InfoScreen.Buttons.MoveHistory.box[2] ~= botOffsetY then
 		InfoScreen.Buttons.MoveHistory.box[2] = botOffsetY
 	end
-	Drawing.drawText(offsetX, botOffsetY, "Learns a move at level:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, Resources.InfoScreen.LabelLearnMove .. ":", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 1
 	local boxWidth = 16
 	local boxHeight = 13
 	if #data.p.movelvls == 0 then -- If the Pokemon learns no moves at all
-		Drawing.drawText(offsetX + 6, botOffsetY, "Does not learn any moves", Theme.COLORS["Lower box text"], boxInfoBotShadow)
+		Drawing.drawText(offsetX + 6, botOffsetY, Resources.InfoScreen.LabelNoMoves, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 	for i, moveLvl in ipairs(data.p.movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns
@@ -690,7 +690,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if InfoScreen.Buttons.TypeDefenses.box[2] ~= botOffsetY then
 		InfoScreen.Buttons.TypeDefenses.box[2] = botOffsetY
 	end
-	Drawing.drawText(offsetX, botOffsetY, "Weak to:", Theme.COLORS["Lower box text"], boxInfoBotShadow)
+	Drawing.drawText(offsetX, botOffsetY, Resources.InfoScreen.LabelWeakTo .. ":", Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	botOffsetY = botOffsetY + linespacing + 3
 
 	-- Temporarily storing things as a single set of weaknesses, filtered out later, but ideally we display all type-effectiveness
@@ -703,7 +703,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 
 	if #data.e[2] == 0 and #data.e[4] == 0 then -- If the Pokemon has no weakness, like Sableye
-		Drawing.drawText(offsetX + 6, botOffsetY, "Has no weaknesses", Theme.COLORS["Lower box text"], boxInfoBotShadow)
+		Drawing.drawText(offsetX + 6, botOffsetY, Resources.InfoScreen.LabelNoWeaknesses, Theme.COLORS["Lower box text"], boxInfoBotShadow)
 	end
 
 	local typeOffsetX = offsetX + 6
@@ -783,7 +783,7 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	offsetY = offsetY - 2
 
 	if data.x.ownHasHiddenPower then
-		Drawing.drawText(offsetX + 103, offsetY + linespacing * 2 - 6, "Set type", Theme.COLORS["Positive text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX + 103, offsetY + linespacing * 2 - 6, Resources.InfoScreen.SetHiddenPowerType, Theme.COLORS["Positive text"], boxInfoTopShadow)
 	end
 
 	-- CATEGORY
@@ -792,23 +792,23 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	elseif data.m.category == MoveData.Categories.SPECIAL then
 		Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, offsetColumnX + 33, offsetY + 2, { Theme.COLORS["Default text"] }, boxInfoTopShadow)
 	end
-	Drawing.drawText(offsetX, offsetY, "Category:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelCategory .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.m.category, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- CONTACT
-	data.m.iscontact = Utils.inlineIf(data.m.iscontact, "Yes", "No")
-	Drawing.drawText(offsetX, offsetY, "Contact:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	data.m.iscontact = Utils.inlineIf(data.m.iscontact, Resources.AllScreens.Yes, Resources.AllScreens.No)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelContact .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.m.iscontact, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PP
-	Drawing.drawText(offsetX, offsetY, "PP:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelPP .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.m.pp, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- POWER
-	Drawing.drawText(offsetX, offsetY, "Power:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelPower .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.m.power, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
@@ -816,20 +816,20 @@ function InfoScreen.drawMoveInfoScreen(moveId)
 	if tonumber(data.m.accuracy) ~= nil then
 		data.m.accuracy = data.m.accuracy .. "%"
 	end
-	Drawing.drawText(offsetX, offsetY, "Accuracy:", Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelAccuracy .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 	Drawing.drawText(offsetColumnX, offsetY, data.m.accuracy, Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- PRIORITY: Only take up a line on the screen if priority information is helpful (exists and is non-zero)
 	if data.m.priority ~= "0" then
-		Drawing.drawText(offsetX, offsetY, "Priority:", Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelPriority .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 		Drawing.drawText(offsetColumnX, offsetY, data.m.priority, Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 
 	-- Draw bottom view box and header
 	offsetX = offsetX - 1
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	Drawing.drawText(offsetX - 3, botOffsetY - linespacing - 1, "Summary:", Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(offsetX - 1, botOffsetY - linespacing - 1, Resources.InfoScreen.LabelMoveSummary .. ":", Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, botOffsetY, rightEdge, bottomEdge - botOffsetY + 5, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 	botOffsetY = botOffsetY + 1
 	linespacing = linespacing + 1
@@ -901,7 +901,7 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 
 	-- EMERALD DESCRIPTION
 	if data.a.descriptionEmerald ~= nil and data.a.descriptionEmerald ~= Constants.BLANKLINE then
-		Drawing.drawText(offsetX, offsetY, "Emerald:", Theme.COLORS["Default text"], boxInfoTopShadow)
+		Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelEmeraldAbility .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
 		offsetY = offsetY + linespacing + 1
 		local wrappedSummary = Utils.getWordWrapLines(data.a.descriptionEmerald, 31)
 
@@ -941,15 +941,17 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 
 	-- BOT BOX VIEW
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	local encounterHeaderText = Constants.Words.POKEMON .. " seen by " .. encounterArea
+	local encounterHeaderText
 	if encounterArea == RouteData.EncounterArea.STATIC then
-		encounterHeaderText = encounterArea .. " " .. Constants.Words.POKEMON .. " encounters"
+		encounterHeaderText = string.format("%s %s", encounterArea, Resources.InfoScreen.LabelSeenEncounters)
+	else
+		encounterHeaderText = string.format("%s %s", Resources.InfoScreen.LabelSeenBy, encounterArea)
 	end
 	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if not (InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState) then
-		Drawing.drawText(boxX + 2, botBoxY, "In order of appearance:", Theme.COLORS["Lower box text"], boxBotShadow)
+		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", Theme.COLORS["Lower box text"], boxBotShadow)
 	end
 
 	-- POKEMON SEEN
