@@ -540,6 +540,54 @@ function LogSearchScreen.buildKeyboardButtons(
 		end
 		keyRowY = keyRowY + keyHeight + keyPaddingY
 	end
+	-- Special case for the space key
+	-- Triple width key located at the end of the last row
+	-- create a copy of the box table
+	-- create a copy of the space key box
+	local spaceKeyBox = {}
+	for i, v in ipairs(keyboardLayout["M"].box) do
+		spaceKeyBox[i] = v
+	end
+
+	-- modify the copy
+	spaceKeyBox[3] = (spaceKeyBox[3] * 2) + (keyPaddingX)
+	spaceKeyBox[1] = spaceKeyBox[1] + keyWidth + keyPaddingX
+	local spaceKeyTextOffset = Utils.getCenteredTextX("_", spaceKeyBox[3]) - 2
+	keyboardLayout["_"] = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		keyText = "_",
+		textOffsetX = spaceKeyTextOffset,
+		-- 1 pixel smaller to account for the border
+		clickableArea = {
+			spaceKeyBox[1] + 1,
+			spaceKeyBox[2] + 1,
+			spaceKeyBox[3] - 2,
+			spaceKeyBox[4] - 2,
+		},
+		box = spaceKeyBox,
+		boxColors = { "Lower box border", "Lower box background" },
+		keyTextColor = "Lower box text",
+		clicked = 0,
+		onClick = function(self)
+			-- Don't accept keyboard button input while another dropdown is open
+			if LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then
+				return
+			end
+
+			self.clicked = 2
+			-- Append the text of the button to the search text if the search text is not full
+			if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
+				LogSearchScreen.searchText = LogSearchScreen.searchText .. " "
+			end
+			LogSearchScreen.UpdateSearch()
+		end,
+		draw = function(self)
+			Drawing.drawText(self.box[1] + self.textOffsetX + 1, self.box[2], self.keyText,
+				Theme.COLORS[self.keyTextColor], LogSearchScreen.Colors.lowerShadowcolor)
+			self.clicked = LogSearchScreen.reactOnClick(self.clicked, self.box,
+				{ LogSearchScreen.Colors.lowerShadowcolor, LogSearchScreen.Colors.upperShadowcolor })
+		end,
+	}
 	return keyboardLayout
 end
 
