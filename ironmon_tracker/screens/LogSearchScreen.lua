@@ -97,6 +97,10 @@ LogSearchScreen = {
 --- @return nil
 function LogSearchScreen.initialize()
 	local LSS = LogSearchScreen
+	-- Reset globals
+	LSS.searchText = ""
+	LSS.currentSortOrder = "alphabetical"
+	LSS.currentFilter = Constants.Words.POKEMON .. " Name"
 	-- Create the buttons
 	LSS.createButtons()
 
