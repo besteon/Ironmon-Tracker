@@ -6,7 +6,7 @@ InfoScreen = {
 }
 
 InfoScreen.Screens = {
-    POKEMON_INFO = 1,
+	POKEMON_INFO = 1,
 	MOVE_INFO = 2,
 	ABILITY_INFO = 3, -- TODO: Implement this, helpful for newer players
 	ROUTE_INFO = 4,
