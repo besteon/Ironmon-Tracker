@@ -103,6 +103,7 @@ LogOverlay.Windower = {
 
 		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
 			Program.changeScreenView(LogSearchScreen)
+			LogSearchScreen.UpdateSearch()
 		end
 	end,
 }
@@ -2193,19 +2194,22 @@ function LogOverlay.parseAndDisplay(logpath)
 
 	if LogOverlay.isDisplayed then
 		LogOverlay.buildPagedButtons()
-		LogOverlay.displayDefaultPokemonInfo()
 		LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON)
+		LogOverlay.displayDefaultPokemonInfo(true)
 	end
 
 	return LogOverlay.isDisplayed
 end
 
---[[ Function to display fallback/default pokemon info screen on the right.
- Currently used for tabs other than "Pokemon" and when first loading the log ]]
-function LogOverlay.displayDefaultPokemonInfo()
+--- Function to display fallback/default pokemon info screen on the right.
+--- @param showZoomed boolean|nil Whether to show the zoomed in view of the pokemon
+--- @return nil
+function LogOverlay.displayDefaultPokemonInfo(showZoomed)
+	showZoomed = showZoomed or false
 	local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 	if PokemonData.isValid(leadPokemon.pokemonID) then
-		if LogOverlay.Windower.currentTab == LogOverlay.Tabs.POKEMON then
+		if showZoomed then
+			-- Zoomed in view of the first pokemon
 			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
 		end
 		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)

@@ -52,27 +52,33 @@ LogSearchScreen = {
 				(PokemonData.Pokemon[a.pokemonID].bst == PokemonData.Pokemon[b.pokemonID].bst and a.pokemonID < b.pokemonID)
 		end,
 		hp = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["hp"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["hp"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["hp"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["hp"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 		atk = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["atk"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["atk"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["atk"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["atk"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 		def = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["def"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["def"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["def"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["def"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 		spa = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spa"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spa"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spa"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spa"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 		spd = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spd"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spd"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spd"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spd"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 		spe = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spe"], RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spe"]
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spe"],
+				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spe"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 	},
@@ -91,6 +97,10 @@ LogSearchScreen = {
 --- @return nil
 function LogSearchScreen.initialize()
 	local LSS = LogSearchScreen
+	-- Reset globals
+	LSS.searchText = ""
+	LSS.currentSortOrder = "alphabetical"
+	LSS.currentFilter = Constants.Words.POKEMON .. " Name"
 	-- Create the buttons
 	LSS.createButtons()
 
@@ -104,14 +114,14 @@ function LogSearchScreen.initialize()
 
 	LSS.labels.filterLabel = {
 		x = LSS.Buttons.searchText.box[1],
-		y = LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2 - 1,
+		y = LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2 ,
 		text = LSS.filterLabelText,
 		color = LSS.Colors.lowerBoxText,
 	}
 
 	LSS.labels.sortLabel = {
 		x = LSS.Buttons.searchText.box[1],
-		y = LSS.topBox.y + LSS.paddingConst + 1,
+		y = LSS.topBox.y + LSS.paddingConst + LSS.paddingConst,
 		text = LSS.sortLabelText,
 		color = LSS.Colors.lowerBoxText,
 	}
@@ -142,19 +152,53 @@ function LogSearchScreen.createButtons()
 		2
 	)
 
-	-- =====BACKSPACE BUTTON=====
-	local arrowImage = Constants.PixelImages.LEFT_ARROW
-	local arrow_size = #arrowImage
-	LSS.Buttons.Backspace = {
+	-- =====CLEAR SEARCH BUTTON=====
+	local small_button_size = #Constants.PixelImages.CLOSE
+	-- To the right of the backspace button
+	LSS.Buttons.clearSearch = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		image = arrowImage,
+		image = Constants.PixelImages.CLOSE,
 		padding = 2,
 		clicked = 0,
 		box = {
-			LSS.keyboardBox.x + LSS.keyboardBox.width - arrow_size - LSS.paddingConst * 3,
-			LSS.keyboardBox.y - arrow_size - LSS.paddingConst * 3,
-			arrow_size + LSS.paddingConst + 1,
-			arrow_size + LSS.paddingConst + 1,
+			LSS.keyboardBox.x + LSS.keyboardBox.width - small_button_size - LSS.paddingConst * 3,
+			LSS.keyboardBox.y - small_button_size - LSS.paddingConst * 3,
+			small_button_size + LSS.paddingConst + 1,
+			small_button_size + LSS.paddingConst + 1,
+		},
+		boxColors = {
+			LSS.Colors.lowerBoxBorder,
+			LSS.Colors.lowerBoxBG,
+		},
+		textColor = LSS.Colors.lowerBoxText,
+		onClick = function(self)
+			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
+				self.clicked = 2
+				LSS.searchText = ""
+				LSS.UpdateSearch()
+			end
+		end,
+		draw = function(self)
+			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding,
+				Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+			self.clicked = LSS.reactOnClick(self.clicked, self.box,
+				{ LSS.Colors.lowerShadowcolor, LSS.Colors.lowerShadowcolor, })
+		end
+
+	}
+
+	-- =====BACKSPACE BUTTON=====
+	LSS.Buttons.Backspace = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		image = Constants.PixelImages.LEFT_ARROW,
+		padding = 2,
+		clicked = 0,
+		-- To the left of the clear search button
+		box = {
+			LSS.Buttons.clearSearch.box[1] - LSS.Buttons.clearSearch.box[3] - LSS.paddingConst - 1,
+			LSS.Buttons.clearSearch.box[2],
+			LSS.Buttons.clearSearch.box[3],
+			LSS.Buttons.clearSearch.box[4],
 		},
 		boxColors = {
 			LSS.Colors.lowerBoxBorder,
@@ -169,12 +213,13 @@ function LogSearchScreen.createButtons()
 			end
 		end,
 		draw = function(self)
-			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding,
+			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding - 1,
 				Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
 			self.clicked = LSS.reactOnClick(self.clicked, self.box,
 				{ LSS.Colors.lowerShadowcolor, LSS.Colors.lowerShadowcolor, })
 		end
 	}
+
 
 	-- =====SEARCH TEXT DISPLAY BUTTON=====
 	LSS.Buttons.searchText = {
@@ -214,9 +259,11 @@ function LogSearchScreen.createButtons()
 				local y = self.box[2] + self.box[4] - 2
 				if i <= #self.searchText then
 					-- Center the character
-					local textOffsetX = Utils.centerTextOffset(self.searchText[i], Constants.CharWidths[self.searchText[i]], 10) - 3
+					local textOffsetX = Utils.centerTextOffset(self.searchText[i],
+						Constants.CharWidths[self.searchText[i]], 10) - 3
 					y = y - self.letterSize - 3
-					Drawing.drawText(x + textOffsetX, y, self.searchText[i], Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
+					Drawing.drawText(x + textOffsetX, y, self.searchText[i], Theme.COLORS[self.textColor],
+						LSS.Colors.lowerTextShadow)
 				else
 					--[[local lineColor = 0
 					-- If the current line is the first empty line, blink it
@@ -250,10 +297,8 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 		topBox.x + Utils.calcWordPixelLength(LSS.sortLabelText .. " ") + LSS.paddingConst * 3,
 		topBox.y + LSS.paddingConst + 1,
 		-- End at end of search text
-		LSS.Buttons.searchText.box[3]
-		- Utils.calcWordPixelLength(LSS.sortLabelText .. " ")
-		- LSS.paddingConst * 2
-		+ 1,
+		LSS.Buttons.searchText.box[3] + LSS.Buttons.Backspace.box[3]
+		- Utils.calcWordPixelLength(LSS.sortLabelText .. " "),
 		Constants.SCREEN.LINESPACING + 2,
 	}
 
@@ -293,7 +338,8 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 			)
 
 			-- Individual draw function to draw text shadows but not a shadow for the whole box
-			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, LSS.sortingKeysLabels[LSS.currentSortOrder], Theme.COLORS[self.textColor],
+			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, LSS.sortingKeysLabels[LSS.currentSortOrder],
+				Theme.COLORS[self.textColor],
 				LSS.Colors.upperTextShadow)
 		end
 	}
@@ -347,10 +393,8 @@ function LogSearchScreen.createUpdateFilterDropdown()
 		topBox.x + Utils.calcWordPixelLength(LSS.filterLabelText .. " ") + LSS.paddingConst * 3,
 		LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2 - 1,
 		-- End at end of search text
-		LSS.Buttons.searchText.box[3]
-		- Utils.calcWordPixelLength(LSS.filterLabelText .. " ")
-		- LSS.paddingConst * 2
-		+ 1,
+		LSS.Buttons.searchText.box[3] + LSS.Buttons.Backspace.box[3]
+		- Utils.calcWordPixelLength(LSS.filterLabelText .. " "),
 		Constants.SCREEN.LINESPACING + 2,
 	}
 
@@ -413,8 +457,6 @@ function LogSearchScreen.createUpdateFilterDropdown()
 			onClick = function(self)
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
-				LSS.Buttons.searchText.searchText = {}
-				LSS.searchText = ""
 				LSS.createUpdateFilterDropdown()
 				LSS.UpdateSearch()
 			end,
@@ -540,6 +582,54 @@ function LogSearchScreen.buildKeyboardButtons(
 		end
 		keyRowY = keyRowY + keyHeight + keyPaddingY
 	end
+
+	-- Special case for the space key
+	-- create a copy of the box table for the last key in the last row
+	local spaceKeyBox = {}
+	for i, v in ipairs(keyboardLayout["M"].box) do
+		spaceKeyBox[i] = v
+	end
+	-- modify the copy
+	spaceKeyBox[3] = (spaceKeyBox[3] * 2) + (keyPaddingX)
+	spaceKeyBox[1] = spaceKeyBox[1] + keyWidth + keyPaddingX
+
+	local spaceKeyTextOffset = Utils.getCenteredTextX("_", spaceKeyBox[3]) - 2
+
+	keyboardLayout["_"] = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		keyText = "_",
+		textOffsetX = spaceKeyTextOffset,
+		-- 1 pixel smaller to account for the border
+		clickableArea = {
+			spaceKeyBox[1] + 1,
+			spaceKeyBox[2] + 1,
+			spaceKeyBox[3] - 2,
+			spaceKeyBox[4] - 2,
+		},
+		box = spaceKeyBox,
+		boxColors = { "Lower box border", "Lower box background" },
+		keyTextColor = "Lower box text",
+		clicked = 0,
+		onClick = function(self)
+			-- Don't accept keyboard button input while another dropdown is open
+			if LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then
+				return
+			end
+
+			self.clicked = 2
+			-- Append the text of the button to the search text if the search text is not full
+			if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
+				LogSearchScreen.searchText = LogSearchScreen.searchText .. " "
+			end
+			LogSearchScreen.UpdateSearch()
+		end,
+		draw = function(self)
+			Drawing.drawText(self.box[1] + self.textOffsetX + 1, self.box[2], self.keyText,
+				Theme.COLORS[self.keyTextColor], LogSearchScreen.Colors.lowerShadowcolor)
+			self.clicked = LogSearchScreen.reactOnClick(self.clicked, self.box,
+				{ LogSearchScreen.Colors.lowerShadowcolor, LogSearchScreen.Colors.upperShadowcolor })
+		end,
+	}
 	return keyboardLayout
 end
 
