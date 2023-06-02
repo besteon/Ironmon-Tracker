@@ -752,11 +752,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		extraInfoColor = Theme.COLORS["Intermediate text"]
 	end
 
-	local levelEvoText, evoSpacing
-	if data.p.evo == Constants.BLANKLINE then
-		levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
-	else
-		levelEvoText = string.format("%s.%s (", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
+	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
+	local evoSpacing
+	if data.p.evo ~= PokemonData.Evolutions.NONE then
+		levelEvoText = levelEvoText .. " ("
 		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
 		levelEvoText = levelEvoText .. data.p.evo .. ")"
 	end
@@ -778,18 +777,20 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
-		if data.p.evo ~= Constants.BLANKLINE and evoSpacing ~= nil then
+		if data.p.evo ~= PokemonData.Evolutions.NONE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
-			local evoTextColor = Theme.COLORS["Default text"]
-			if Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
-				local evoReadyFriendship = (data.p.evo == PokemonData.Evolutions.FRIEND_READY)
+			local evoTextColor
+			if Tracker.Data.isViewingOwn then
+				local evoReadyFriendship = (Options["Determine friendship readiness"] and data.p.evo == PokemonData.Evolutions.FRIEND_READY)
 				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
 				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
 				if evoReadyFriendship or evoReadyLevel or evoReadyStone then
 					evoTextColor = Theme.COLORS["Positive text"]
-				elseif data.p.evo ~= Constants.BLANKLINE then
+				else
 					evoTextColor = Theme.COLORS["Intermediate text"]
 				end
+			else
+				evoTextColor = Theme.COLORS["Default text"]
 			end
 			Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, data.p.evo, evoTextColor, shadowcolor)
 		end

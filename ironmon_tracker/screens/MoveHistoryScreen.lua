@@ -158,7 +158,7 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(form, Resources.MoveHistoryScreen.PromptButtonLookUp, function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 

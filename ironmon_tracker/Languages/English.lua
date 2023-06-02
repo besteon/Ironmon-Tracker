@@ -34,10 +34,11 @@ ScreenResources{
 		Clear = "Clear",
 		Import = "Import",
 		Export = "Export",
-		Lookup = "Lookup",
+		Lookup = "Look up",
 		Page = "Page", -- Usage: "<- Page 2/5 ->"
 	},
 	PokemonTypeAbbreviations = {
+		-- Usage: Type Bars under the Pokémon icon with a colored background
 		Normal = "NORMAL",
 		Fighting = "FIGHT",
 		Flying = "FLYING",
@@ -56,6 +57,66 @@ ScreenResources{
 		Dragon = "DRAGON",
 		Dark = "DARK",
 		Unknown = "???",
+	},
+	PokemonEvolutionDetails = {
+		-- abbreviation: appears on the main Tracker Screen
+		-- short: used for the log viewer
+		-- detailed: used for Pokémon Info Look up
+		LEVEL = {
+			short = "Lv.",
+			detailed = "Level",
+		},
+		FRIEND = {
+			abbreviation = "FRIEND",
+			short = "Friend",
+			detailed = "Friendship",
+		},
+		FRIEND_READY = {
+			abbreviation = "READY",
+		},
+		THUNDER = {
+			abbreviation = "THUNDER",
+			short = "Thunder",
+			detailed = "Thunder Stone",
+		},
+		FIRE = {
+			abbreviation = "FIRE",
+			short = "Fire",
+			detailed = "Fire Stone",
+		},
+		WATER = {
+			abbreviation = "WATER",
+			short = "Water",
+			detailed = "Water Stone",
+		},
+		MOON = {
+			abbreviation = "MOON",
+			short = "Moon",
+			detailed = "Moon Stone",
+		},
+		LEAF = {
+			abbreviation = "LEAF",
+			short = "Leaf",
+			detailed = "Leaf Stone",
+		},
+		SUN = {
+			abbreviation = "SUN",
+			short = "Sun",
+			detailed = "Sun Stone",
+		},
+		LEAF_SUN = {
+			abbreviation = "LF/SN",
+		},
+		WATER30 = {
+			abbreviation = "30/WTR",
+		},
+		WATER37 = {
+			abbreviation = "37/WTR",
+		},
+		EEVEE_STONES = {
+			abbreviation = "STONE",
+			detailed = "5 Diff. Stones",
+		},
 	},
 	StartupScreen = {
 		Title = "Ironmon Tracker",
@@ -300,6 +361,7 @@ ScreenResources{
 		LabelNoMoves = "Does not learn any moves",
 		LabelWeakTo = "Weak to",
 		LabelNoWeaknesses = "Has no weaknesses",
+		PromptLookupPokemon = "Choose a Pokémon to look up",
 		-- Move Info
 		LabelCategory = "Category",
 		LabelContact = "Contact",
@@ -309,14 +371,17 @@ ScreenResources{
 		LabelPriority = "Priority",
 		LabelMoveSummary = "Move Summary",
 		SetHiddenPowerType = "Set type",
+		PromptLookupMove = "Choose a Move to look up",
 		-- Ability Info
 		LabelEmeraldAbility = "In Emerald",
+		PromptLookupAbility = "Choose an Ability to look up",
 		-- Route Info
 		CheckboxPercentages = "Percentages",
 		CheckboxLevels = "Levels",
 		LabelSeenBy = "Pokémon seen by", -- Usage: "Pokémon seen by Walking"
 		LabelSeenEncounters = "Pokémon encounters", -- Usage: "Static Pokémon encounters"
 		LabelOrderAppearance = "In order of appearance",
+		PromptLookupRoute = "Choose a Route to look up",
 	},
 	TrackedDataScreen = {
 		Title = "Manage Tracked Data",
@@ -371,7 +436,6 @@ ScreenResources{
 		NoMovesLearned = "Does not learn any moves",
 		PromptPokemonTitle = "Pokédex Look up",
 		PromptPokemonDesc = "Choose a Pokémon to look up",
-		PromptButtonLookUp = "Look up",
 	},
 	TypeDefensesScreen = {
 		Immunities = "Immunities",

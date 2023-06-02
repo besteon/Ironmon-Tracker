@@ -49,9 +49,10 @@ MGBADisplay.DataFormatter = {
 		else
 			data.p.weight = Constants.BLANKLINE
 		end
-		data.p.evodetails = table.concat(data.p.evo, listSeparator)
-		if data.p.evodetails == Constants.BLANKLINE then
+		if data.p.evo == PokemonData.Evolutions.NONE then
 			data.p.evodetails = "None"
+		else
+			data.p.evodetails = table.concat(data.p.evo.detailed, listSeparator)
 		end
 
 		if data.p.movelvls == {} or #data.p.movelvls == 0 then
@@ -148,10 +149,6 @@ MGBADisplay.DataFormatter = {
 	end,
 	formatTrackerScreen = function(data)
 		data.p.name = data.p.name:upper()
-
-		if data.p.evo == PokemonData.Evolutions.NONE then
-			data.p.evo = Constants.BLANKLINE
-		end
 
 		if data.p.status ~= "" then
 			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
@@ -600,9 +597,11 @@ MGBADisplay.LineBuilder = {
 
 		-- Top six lines of the box: Pokemon related stuff
 		local topFormattedLine = "%-23s%-10s"
-		local levelLine = Utils.formatUTF8("Lv.%s", data.p.level)
-		if data.p.evo ~= Constants.BLANKLINE then
-			levelLine = Utils.formatUTF8("%s (%s)", levelLine, data.p.evo)
+		local levelLine
+		if data.p.evo == PokemonData.Evolutions.NONE then
+			levelLine = Utils.formatUTF8("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
+		else
+			levelLine = Utils.formatUTF8("%s.%s (%s)", Resources.TrackerScreen.LevelAbbreviation, data.p.level, data.p.evo.abbreviation)
 		end
 		if data.x.viewingOwn then
 			local hpLine = Utils.formatUTF8("HP: %s/%s", data.p.curHP, data.p.hp)

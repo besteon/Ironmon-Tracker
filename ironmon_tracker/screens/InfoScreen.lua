@@ -304,7 +304,7 @@ function InfoScreen.showNextPokemon(delta)
 end
 
 function InfoScreen.openMoveInfoWindow()
-	local form = Utils.createBizhawkForm("Move Look up", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local moveName = MoveData.Moves[InfoScreen.infoLookup].name -- infoLookup = moveId
 	local allmovesData = {}
@@ -314,14 +314,14 @@ function InfoScreen.openMoveInfoWindow()
 		end
 	end
 
-	forms.label(form, "Choose a Pokemon Move to look up:", 49, 10, 250, 20)
+	forms.label(form, Resources.InfoScreen.PromptLookupMove .. ":", 49, 10, 250, 20)
 	local moveDropdown = forms.dropdown(form, {["Init"]="Loading Move Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(moveDropdown, allmovesData, true) -- true = alphabetize the list
 	forms.setproperty(moveDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(moveDropdown, "AutoCompleteMode", "Append")
 	forms.settext(moveDropdown, moveName)
 
-	forms.button(form, "Look up", function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local moveNameFromForm = forms.gettext(moveDropdown)
 		local moveId
 
@@ -342,7 +342,7 @@ function InfoScreen.openMoveInfoWindow()
 end
 
 function InfoScreen.openAbilityInfoWindow()
-	local form = Utils.createBizhawkForm("Ability Look up", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local abilityName
 	if not AbilityData.isValid(InfoScreen.infoLookup) then -- infoLookup = abilityId
@@ -353,14 +353,14 @@ function InfoScreen.openAbilityInfoWindow()
 	local allAbilitiesData = {}
 	allAbilitiesData = AbilityData.populateAbilityDropdown(allAbilitiesData)
 
-	forms.label(form, "Choose a Pokemon Ability to look up:", 49, 10, 250, 20)
+	forms.label(form, Resources.InfoScreen.PromptLookupAbility .. ":", 49, 10, 250, 20)
 	local abilityDropdown = forms.dropdown(form, {["Init"]="Loading Ability Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(abilityDropdown, allAbilitiesData, true) -- true = alphabetize the list
 	forms.setproperty(abilityDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityDropdown, "AutoCompleteMode", "Append")
 	forms.settext(abilityDropdown, abilityName)
 
-	forms.button(form, "Look up", function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local abilityNameFromForm = forms.gettext(abilityDropdown)
 		local abilityId
 
@@ -381,7 +381,7 @@ function InfoScreen.openAbilityInfoWindow()
 end
 
 function InfoScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm("Pokedex Look up", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(InfoScreen.infoLookup) then -- infoLookup = pokemonID
@@ -391,14 +391,14 @@ function InfoScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, "Choose a Pokemon to look up:", 49, 10, 250, 20)
+	forms.label(form, Resources.InfoScreen.PromptLookupPokemon .. ":", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(form, "Look up", function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
@@ -412,18 +412,18 @@ function InfoScreen.openPokemonInfoWindow()
 end
 
 function InfoScreen.openRouteInfoWindow()
-	local form = Utils.createBizhawkForm("Route Look up", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
 
-	forms.label(form, "Choose a Route to look up:", 49, 10, 250, 20)
+	forms.label(form, Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10, 250, 20)
 	local routeDropdown = forms.dropdown(form, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
 	forms.setdropdownitems(routeDropdown, RouteData.AvailableRoutes, false) -- true = alphabetize the list
 	forms.setproperty(routeDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(routeDropdown, "AutoCompleteMode", "Append")
 	forms.settext(routeDropdown, routeName)
 
-	forms.button(form, "Look up", function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local routeNameFromForm = forms.gettext(routeDropdown)
 		local mapId
 
@@ -629,11 +629,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + linespacing
 
 	-- EVOLUTION
+	local evoDetails = Utils.getDetailedEvolutionsInfo(data.p.evo)
 	Drawing.drawText(offsetX, offsetY, Resources.InfoScreen.LabelEvolution .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.p.evo[1], Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, evoDetails[1], Theme.COLORS["Default text"], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
-	if data.p.evo[2] ~= nil then
-		Drawing.drawText(offsetColumnX, offsetY, data.p.evo[2], Theme.COLORS["Default text"], boxInfoTopShadow)
+	if evoDetails[2] ~= nil then
+		Drawing.drawText(offsetColumnX, offsetY, evoDetails[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
 	if data.p.id == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
 		-- Pokémon Mystery Dungeon Drowzee easter egg

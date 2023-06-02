@@ -463,20 +463,16 @@ end
 
 -- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil then
-		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].detailed
-	end
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	local evoInfo = PokemonData.EvoMethods[evoMethod]
-
-	 -- Evolves only by leveling up
-	if evoInfo == nil then
-		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].detailed[1]
+	-- Evolves only by leveling up
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		local levelFormat = PokemonData.Evolutions.LEVEL.detailed[1]
 		return { string.format(levelFormat, evoMethod) }
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
-		local friendFormat = evoInfo.detailed[1]
+		local friendFormat = evoMethod.detailed[1]
 		local amt
 		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
 			amt = Program.GameData.friendshipRequired
@@ -486,22 +482,20 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 		return { string.format(friendFormat, amt) }
 	end
 
-	return evoInfo.detailed
+	return evoMethod.detailed
 end
 
 -- Returns a list of evolution details (shortened text) for a given Pokemon's evolution
 function Utils.getShortenedEvolutionsInfo(evoMethod)
-	if evoMethod == nil then
-		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].short
-	end
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	 -- Evolves only by leveling up
-	if PokemonData.EvoMethods[evoMethod] == nil then
-		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].short[1]
+	-- Evolves only by leveling up
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		local levelFormat = PokemonData.Evolutions.LEVEL.short[1]
 		return { string.format(levelFormat, evoMethod) }
 	end
 
-	return PokemonData.EvoMethods[evoMethod].short
+	return evoMethod.short
 end
 
 -- moveType required for Hidden Power tracked type
@@ -727,13 +721,13 @@ end
 
 -- Checks if the pokemon is ready to evolve based on level only
 function Utils.isReadyToEvolveByLevel(evoMethod, level)
-	evoMethod = evoMethod or PokemonData.Evolutions.NONE
-
-	if evoMethod == PokemonData.Evolutions.NONE then
+	if type(evoMethod) ~= "string" and type(evoMethod) ~= "number" then
 		return false
 	end
 
-	evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
+	if type(evoMethod) ~= "number" then
+		evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
+	end
 
 	return evoMethod ~= nil and (level + 1) >= evoMethod
 end
@@ -742,22 +736,14 @@ end
 function Utils.isReadyToEvolveByStone(evoMethod)
 	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	if evoMethod == PokemonData.Evolutions.NONE then
+	if evoMethod.evoItemIds == nil then
 		return false
 	end
 
+	-- Check through the possible evolutions with the stones available
 	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
-		-- Check through the possible evolutions with the stones available
-		if quantity > 0 then
-			-- Special check for the level/water stone evos
-			if itemID == 97 and evoMethod:match("(WTR)") ~= nil then
-				return true
-			end
-			for _, possibleEvolution in pairs(MiscData.EvolutionStones[itemID].evolutions) do
-				if possibleEvolution == evoMethod then
-					return true
-				end
-			end
+		if quantity > 0 and evoMethod.evoItemIds[itemID] then
+			return true
 		end
 	end
 

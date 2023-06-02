@@ -364,7 +364,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.name = pokemon.name or Constants.BLANKLINE
 	data.p.bst = pokemon.bst or Constants.BLANKLINE
 	data.p.weight = pokemon.weight or Constants.BLANKLINE
-	data.p.evo = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
+	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
 	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
