@@ -289,7 +289,7 @@ LogOverlay.TabBarButtons = {
 				else
 					Program.changeScreenView(TrackerScreen)
 				end
-            else -- Constants.PixelImages.PREVIOUS_BUTTON
+			else -- Constants.PixelImages.PREVIOUS_BUTTON
 				if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM then
 					Program.changeScreenView(LogSearchScreen)
 				end
@@ -967,8 +967,8 @@ function LogOverlay.gridAlign(buttonList, startX, startY, width, height, colSpac
 end
 
 function LogOverlay.buildPokemonZoomButtons(data)
-    LogOverlay.TemporaryButtons = {}
-    LogOverlay.currentPreEvoSet = 1
+	LogOverlay.TemporaryButtons = {}
+	LogOverlay.currentPreEvoSet = 1
 	LogOverlay.currentEvoSet = 1
 
 	local offsetX, offsetY
@@ -1029,17 +1029,17 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local hasEvo = #data.p.evos > 0 or hasPrevEvo
 
 	if hasEvo then
-        -- Add evos to list
-        for i, evoInfo in ipairs(data.p.evos) do
-            table.insert(evoList,
-                {
-                    name = PokemonData.Pokemon[evoInfo.id].name,
-                    id = evoInfo.id,
-                    method = evoMethods[i]
-                })
-        end
-        -- At evo methods to list
-    end
+		-- Add evos to list
+		for i, evoInfo in ipairs(data.p.evos) do
+			table.insert(evoList,
+				{
+					name = PokemonData.Pokemon[evoInfo.id].name,
+					id = evoInfo.id,
+					method = evoMethods[i]
+				})
+		end
+		-- At evo methods to list
+	end
 	-- Pre-evos
 	local pokemonIconSize = 32
 	local pokemonIconSpacing = 4
