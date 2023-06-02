@@ -453,8 +453,6 @@ function LogSearchScreen.createUpdateFilterDropdown()
 			onClick = function(self)
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
-				LSS.Buttons.searchText.searchText = {}
-				LSS.searchText = ""
 				LSS.createUpdateFilterDropdown()
 				LSS.UpdateSearch()
 			end,
