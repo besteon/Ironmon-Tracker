@@ -1,8 +1,8 @@
 LanguageScreen = {
 	Colors = {
-		upperText = "Default text",
-		upperBorder = "Upper box border",
-		upperBoxFill = "Upper box background",
+		text = "Lower box text",
+		border = "Lower box border",
+		boxFill = "Lower box background",
 		highlight = "Intermediate text",
 	},
 }
@@ -38,10 +38,10 @@ function LanguageScreen.initialize()
 
 	for _, button in pairs(LanguageScreen.Buttons) do
 		if button.textColor == nil then
-			button.textColor = LanguageScreen.Colors.upperText
+			button.textColor = LanguageScreen.Colors.text
 		end
 		if button.boxColors == nil then
-			button.boxColors = { LanguageScreen.Colors.upperBorder, LanguageScreen.Colors.upperBoxFill }
+			button.boxColors = { LanguageScreen.Colors.border, LanguageScreen.Colors.boxFill }
 		end
 	end
 
@@ -83,7 +83,7 @@ function LanguageScreen.createLanguageButtons()
 					self.boxColors[1] = LanguageScreen.Colors.highlight
 				else
 					self.image = nil
-					self.boxColors[1] = LanguageScreen.Colors.upperBorder
+					self.boxColors[1] = LanguageScreen.Colors.border
 				end
 			end,
 			onClick = function()
@@ -118,10 +118,10 @@ function LanguageScreen.drawScreen()
 		y = Constants.SCREEN.MARGIN + 10,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
-		text = Theme.COLORS[LanguageScreen.Colors.upperText],
-		border = Theme.COLORS[LanguageScreen.Colors.upperBorder],
-		fill = Theme.COLORS[LanguageScreen.Colors.upperBoxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[LanguageScreen.Colors.upperBoxFill]),
+		text = Theme.COLORS[LanguageScreen.Colors.text],
+		border = Theme.COLORS[LanguageScreen.Colors.border],
+		fill = Theme.COLORS[LanguageScreen.Colors.boxFill],
+		shadow = Utils.calcShadowColor(Theme.COLORS[LanguageScreen.Colors.boxFill]),
 	}
 	local textLineY = topBox.y + 2
 

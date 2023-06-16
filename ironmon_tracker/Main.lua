@@ -21,6 +21,7 @@ function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
 	Main.Version.remindMe = true
 	Main.Version.latestAvailable = Main.TrackerVersion
+	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
@@ -296,8 +297,10 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		if success then
 			local response = table.concat(fileLines, "\n")
 
+			Main.parseReleaseNotes(response)
+
 			-- Get version number formatted as [major].[minor].[patch]
-			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			local major, minor, patch = string.match(response or "", '"tag_name":%s+"%w+(%d+)%.(%d+)%.(%d+)"')
 			major = major or Main.Version.major
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
@@ -323,6 +326,35 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	end
 
 	Main.SaveSettings(true)
+end
+
+-- Searches a response body for the "# Release Notes" area, and gets a list of changes
+function Main.parseReleaseNotes(response)
+	Main.Version.releaseNotes = {}
+
+	-- The body of the release post is contained between 'body' and 'mentions_count'
+	local body = string.match(response or "", '"body":%s+"(.+)".-"mentions_count"')
+	if body == nil then
+		return
+	end
+
+	local notesFound = false
+	for line in string.gmatch(body .. '\\r\\n', '(.-)\\r\\n') do
+		if notesFound then
+			-- Include all release notes up until the mention of version changelog
+			if line:lower():find("version.changelog") then -- . being a wild card match
+				break
+			end
+
+			-- Remove hyperlinks, format: [text](url)
+			line = line:gsub("%[(.-)%]%(.-%)", "%1")
+			-- Remove bold, format: **text**
+			line = line:gsub("%*%*(.-)%*%*", "%1")
+			table.insert(Main.Version.releaseNotes, line)
+		elseif line:lower():find("# release notes") then
+			notesFound = true
+		end
+	end
 end
 
 -- Checks the current version of the Tracker against the version of the latest release, true if greater/equal; false otherwise.
