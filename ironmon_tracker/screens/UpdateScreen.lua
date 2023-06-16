@@ -1,12 +1,4 @@
 UpdateScreen = {
-	Labels = {
-		-- TODO: replace this with the ones from Resources
-		inProgressMsg = "Check external Window for status.",
-		afterRestartMsg = "Please close and reopen Bizhawk",
-		safeReloadMsg = "You can safely reload the Tracker:",
-		errorOccurredMsg = string.format("Then load:  %s", FileManager.Files.UPDATE_OR_INSTALL),
-		releaseNotesErrMsg = "Check the Lua Console for a link to the Tracker's Release Notes."
-	},
 	States = {
 		NEEDS_CHECK = 1, -- "Already on the latest version.", -- Not displayed anywhere visually
 		NOT_UPDATED = 2, -- "Update not yet started.", -- Not displayed anywhere visually
@@ -22,25 +14,26 @@ UpdateScreen = {
 	},
 }
 
+local columnOffsetX = 73
 UpdateScreen.Buttons = {
 	CurrentVersion = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.UpdateScreen.VersionCurrent .. ":" end,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 13, 50, 11 },
 		draw = function(self, shadowcolor)
-			local offsetX = self.box[1] + 72
+			local offsetX = self.box[1] + columnOffsetX
 			Drawing.drawText(offsetX, self.box[2], Main.TrackerVersion, Theme.COLORS[self.textColor], shadowcolor)
 		end,
 	},
 	LatestVersion = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.UpdateScreen.VersionLatest .. ":" end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 26, 50, 11 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, Constants.SCREEN.MARGIN + 25, 50, 11 },
 		draw = function(self, shadowcolor)
-			local offsetX = self.box[1] + 72
+			local offsetX = self.box[1] + columnOffsetX
 			Drawing.drawText(offsetX, self.box[2], Main.Version.latestAvailable, Theme.COLORS[self.textColor], shadowcolor)
 
-			if not Main.isOnLatestVersion() then -- TODO: remove true
+			if not Main.isOnLatestVersion() then
 				local newText = string.format("(%s)", Resources.UpdateScreen.VersionNew)
 				Drawing.drawText(offsetX + 30, self.box[2], newText, Theme.COLORS["Positive text"], shadowcolor)
 			end
@@ -61,7 +54,10 @@ UpdateScreen.Buttons = {
 			end
 		end,
 		showNotes = false,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 75, Constants.SCREEN.MARGIN + 40, 28, 11 },
+		reset = function(self)
+			self.showNotes = false
+		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + columnOffsetX + 2, Constants.SCREEN.MARGIN + 39, 28, 11 },
 		onClick = function(self)
 			self.showNotes = not self.showNotes
 			-- TODO: if notes are shown, overlay them on top of the main game screen (use some light transperency)
@@ -85,7 +81,7 @@ UpdateScreen.Buttons = {
 			self.textColor = UpdateScreen.Colors.text
 			self.image = Constants.PixelImages.TRIANGLE_DOWN
 		end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 20, Constants.SCREEN.MARGIN + 83, 100, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 60, 110, 16 },
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
 		onClick = function(self)
 			-- Don't check for updates if they've already been checked while on this screen (resets after clicking Back)
@@ -113,7 +109,7 @@ UpdateScreen.Buttons = {
 			elseif Main.Version.updateAfterRestart then
 				return Resources.UpdateScreen.ButtonInstallNow
 			elseif UpdateOrInstall.Dev.enabled then
-				return Resources.UpdateScreen.ButtonBeginInstall
+				return Resources.UpdateScreen.ButtonInstallFromDev
 			else
 				return Resources.UpdateScreen.ButtonBeginInstall
 			end
@@ -152,6 +148,7 @@ UpdateScreen.Buttons = {
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 8, 8 },
 		toggleState = (Options["Dev branch updates"] == true), -- update later in initialize
 		toggleColor = "Positive text",
+		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
 		updateSelf = function(self)
 			self.toggleState = (Options["Dev branch updates"] == true)
 		end,
@@ -211,6 +208,7 @@ function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
 	Main.Version.updateAfterRestart = false
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
+	UpdateScreen.Buttons.ShowHideReleaseNotes:reset()
 	Program.changeScreenView(NavigationMenu)
 end
 
@@ -258,7 +256,7 @@ function UpdateScreen.performAutoUpdate()
 end
 
 function UpdateScreen.openReleaseNotesWindow()
-	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, UpdateScreen.Labels.releaseNotesErrMsg)
+	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 end
 
 -- USER INPUT FUNCTIONS
@@ -282,7 +280,6 @@ function UpdateScreen.drawScreen()
 		shadow = Utils.calcShadowColor(Theme.COLORS[UpdateScreen.Colors.boxFill]),
 	}
 	local textLineY = topBox.y + 2
-	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
@@ -292,40 +289,31 @@ function UpdateScreen.drawScreen()
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
-	-- HEADER DIVIDER
-	-- local headerText
-	-- if UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED then
-	-- 	headerText = UpdateScreen.Labels.questionHeader
-	-- elseif UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK then
-	-- 	headerText = "Manually check for updates below:"
-	-- else
-	-- 	headerText = "Update Status:"
-	-- end
-	-- Drawing.drawText(topBox.x + 1, topBox.y - 11, headerText, Theme.COLORS["Header text"], bgShadow)
-
-	-- TODO, find a way to display this information, and clean up the UpdateScreen.States list
-	local updateStatusColor
 	local updateStatusMsg
 	if UpdateScreen.currentState == UpdateScreen.States.IN_PROGRESS then
-		updateStatusColor = Theme.COLORS["Intermediate text"]
-		updateStatusMsg = UpdateScreen.Labels.inProgressMsg
+		updateStatusMsg = Resources.UpdateScreen.MessageInProgress
 	elseif UpdateScreen.currentState == UpdateScreen.States.AFTER_RESTART then
-		updateStatusColor = Theme.COLORS["Intermediate text"]
-		updateStatusMsg = UpdateScreen.Labels.afterRestartMsg
+		updateStatusMsg = Resources.UpdateScreen.MessageRequireRestart
 	elseif UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
-		updateStatusColor = Theme.COLORS["Positive text"]
-		updateStatusMsg = UpdateScreen.Labels.safeReloadMsg
+		updateStatusMsg = ""
 	elseif UpdateScreen.currentState == UpdateScreen.States.ERROR then
-		updateStatusColor = Theme.COLORS["Negative text"]
-		updateStatusMsg = UpdateScreen.Labels.errorOccurredMsg
+		updateStatusMsg = (Resources.UpdateScreen.MessageError or "") .. ":"
 	end
 
-	-- if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED and UpdateScreen.currentState ~= UpdateScreen.States.NEEDS_CHECK then
-	-- 	Drawing.drawText(topBox.x + 3, textLineY, UpdateScreen.currentState or "", updateStatusColor, topBox.shadow)
-	-- 	textLineY = textLineY + linespacing
-	-- 	Drawing.drawText(topBox.x + 3, textLineY, updateStatusMsg or "", topBox.text, topBox.shadow)
-	-- 	textLineY = textLineY + linespacing
-	-- end
+	-- If an update was attempted, show status messages about it
+	textLineY = textLineY + 52
+	if UpdateScreen.currentState ~= UpdateScreen.States.NOT_UPDATED and UpdateScreen.currentState ~= UpdateScreen.States.NEEDS_CHECK then
+		local wrappedDesc = Utils.getWordWrapLines(updateStatusMsg or "", 31)
+		for _, line in pairs(wrappedDesc) do
+			Drawing.drawText(topBox.x + 4, textLineY, line, Theme.COLORS["Intermediate text"], topBox.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING
+		end
+		if UpdateScreen.currentState == UpdateScreen.States.ERROR then
+			textLineY = textLineY + 2
+			Drawing.drawText(topBox.x + 24, textLineY, FileManager.Files.UPDATE_OR_INSTALL or "", topBox.text, topBox.shadow)
+			textLineY = textLineY + Constants.SCREEN.LINESPACING
+		end
+	end
 
 	-- Draw all buttons
 	for _, button in pairs(UpdateScreen.Buttons) do

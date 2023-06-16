@@ -274,12 +274,11 @@ ScreenResources{
 		Title = "Tracker Updater",
 		VersionCurrent = "Current version",
 		VersionLatest = "Latest version",
-		VersionNew = "New!",
 		LabelRelease = "Release notes",
+		VersionNew = "New!",
 		ButtonShow = "Show",
 		ButtonHide = "Hide",
 		CheckboxDevBranch = "Dev branch updates",
-
 		HeaderQuestion = "What would you like to do?",
 		ButtonCheckForUpdates = "Check for updates",
 		ButtonNoUpdates = "No update available",
@@ -288,14 +287,9 @@ ScreenResources{
 		ButtonInstallFromDev = "Install from dev",
 		ButtonOpenDownload = "Open download",
 		ButtonIgnoreUpdate = "Ignore update",
-
-		StatusInProgress = "Update in progress, please wait",
-		StatusSuccess = "Update successful",
-		StatusFailed = "Update failed",
-		MessageExternalWindow = "Check command prompt for status",
-		MessageRequireRestart = "Please close and reopen Bizhawk",
-		MessageReload = "You can safely reload the Tracker",
-		MessageLoadFile = "Then load",
+		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.",
+		MessageRequireRestart = "In order to install the update, please close and reopen your emulator.",
+		MessageError = "Error during the update. To fix this, first restart your emulator then load the script",
 		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Release Notes"
 	},
 	StreamerScreen = {
