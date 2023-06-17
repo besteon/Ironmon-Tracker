@@ -253,6 +253,11 @@ function UpdateScreen.initialize()
 	end
 
 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+
+	if Main.Version.updateAfterRestart then
+		UpdateScreen.showNotes = true
+		UpdateScreen.buildOutPagedButtons()
+	end
 	UpdateScreen.refreshButtons()
 end
 
