@@ -297,7 +297,9 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		if success then
 			local response = table.concat(fileLines, "\n")
 
-			Main.parseReleaseNotes(response)
+			if response then
+				Main.updateReleaseNotes(response)
+			end
 
 			-- Get version number formatted as [major].[minor].[patch]
 			local major, minor, patch = string.match(response or "", '"tag_name":%s+"%w+(%d+)%.(%d+)%.(%d+)"')
@@ -328,8 +330,20 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	Main.SaveSettings(true)
 end
 
+-- If not release notes have been retrieved yet (update check was skipped), then get those and parse them
 -- Searches a response body for the "# Release Notes" area, and gets a list of changes
-function Main.parseReleaseNotes(response)
+function Main.updateReleaseNotes(response)
+	if not response then
+		Utils.tempDisableBizhawkSound()
+		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
+		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
+		if success then
+			response = table.concat(fileLines, "\n")
+		end
+		Utils.tempEnableBizhawkSound()
+	end
+
+	-- Parse the release notes
 	Main.Version.releaseNotes = {}
 
 	-- The body of the release post is contained between 'body' and 'mentions_count'
@@ -338,19 +352,24 @@ function Main.parseReleaseNotes(response)
 		return
 	end
 
+	local formatInput = function(str)
+		-- Remove hyperlinks, format: [text](url) -> [text]
+		str = str:gsub("%[([^%]]-)%]%(.-%)", "%1")
+		-- Remove bold, format: **text** -> text
+		str = str:gsub("%*%*(.-)%*%*", "%1")
+		-- Fix double-quotes, format: \"text\" -> "text"
+		str = str:gsub('\\"(.-)\\"', '"%1"')
+		return str
+	end
+
 	local notesFound = false
 	for line in string.gmatch(body .. '\\r\\n', '(.-)\\r\\n') do
 		if notesFound then
-			-- Include all release notes up until the mention of version changelog
+			-- Include all release notes up until the mention of "version changelog"
 			if line:lower():find("version.changelog") then -- . being a wild card match
 				break
 			end
-
-			-- Remove hyperlinks, format: [text](url)
-			line = line:gsub("%[(.-)%]%(.-%)", "%1")
-			-- Remove bold, format: **text**
-			line = line:gsub("%*%*(.-)%*%*", "%1")
-			table.insert(Main.Version.releaseNotes, line)
+			table.insert(Main.Version.releaseNotes, formatInput(line))
 		elseif line:lower():find("# release notes") then
 			notesFound = true
 		end

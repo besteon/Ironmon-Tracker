@@ -256,7 +256,7 @@ ScreenResources{
 	LanguageScreen = {
 		Title = "Language Settings",
 		AutodetectSetting = "Autodetect game language",
-		ChangeLanguageText = "Choose a language"
+		ChangeLanguageText = "Choose a language",
 	},
 	StatsScreen = {
 		Title = "Game Stats",
@@ -278,6 +278,7 @@ ScreenResources{
 		VersionNew = "New!",
 		ButtonShow = "Show",
 		ButtonHide = "Hide",
+		ButtonViewOnline = "View Online",
 		CheckboxDevBranch = "Dev branch updates",
 		HeaderQuestion = "What would you like to do?",
 		ButtonCheckForUpdates = "Check for updates",
@@ -290,7 +291,7 @@ ScreenResources{
 		MessageInProgress = "Update in progress, please wait. Check command prompt window for status.",
 		MessageRequireRestart = "In order to install the update, please close and reopen your emulator.",
 		MessageError = "Error during the update. To fix this, first restart your emulator then load the script",
-		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Release Notes"
+		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Release Notes",
 	},
 	StreamerScreen = {
 		Title = "Streamer Tools",

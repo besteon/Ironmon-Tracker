@@ -858,9 +858,11 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 	cutoffY = cutoffY or Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN
 
 	local offsetX, offsetY = 0, 0
-	local maxItemSize = 0
-	local itemCount = 0
-	local itemsPerPage = nil
+	local maxItemSize = 0 -- Used to determine how much space is needed for the next new column or row added
+
+	local currentPage = 1
+	local currentPageItems = 0
+
 	for _, button in ipairs(buttonList) do
 		if button.includeInGrid == nil or button:includeInGrid() then
 			button.dimensions = button.dimensions or {}
@@ -871,6 +873,7 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 			extraX = button.dimensions.extraX or 0
 			extraY = button.dimensions.extraY or 0
 
+			-- Before adding an item to a page, verify it can fit somewhere; otherwise start a new page
 			if listVerticallyFirst then
 				-- Check if new height requires starting a new column
 				if (startY + offsetY + h) > cutoffY then
@@ -881,11 +884,10 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 				-- Check if new width requires starting a new page
 				if (startX + offsetX + w) > cutoffX then
 					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-						if itemsPerPage == 0 then
-							return 0
-						end
+					-- Start a new page but only if the current page has items on it
+					if currentPageItems ~= 0 then
+						currentPage = currentPage + 1
+						currentPageItems = 0
 					end
 				end
 			else
@@ -898,50 +900,50 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 				-- Check if new height requires starting a new page
 				if (startY + offsetY + h) > cutoffY then
 					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-						if itemsPerPage == 0 then
-							return 0
-						end
+					-- Start a new page but only if the current page has items on it
+					if currentPageItems ~= 0 then
+						currentPage = currentPage + 1
+						currentPageItems = 0
 					end
 				end
 			end
 
-			itemCount = itemCount + 1
-			local x = startX + offsetX + extraX
-			local y = startY + offsetY + extraY
-			if button.type == Constants.ButtonTypes.POKEMON_ICON then
-				button.clickableArea = { x, y + 4, w, h - 4 }
-			end
-			button.box = { x, y, w, h }
-			if itemsPerPage == nil then
-				button.pageVisible = 1
-			else
-				button.pageVisible = math.ceil(itemCount / itemsPerPage)
-			end
+			-- Only add item to the page if it can fit somewhere; if it can't fit anywhere, exclude it entirely
+			if (startY + offsetY + h) <= cutoffY and (startX + offsetX + w) <= cutoffX then
+				currentPageItems = currentPageItems + 1
 
-			if listVerticallyFirst then
-				if w > maxItemSize then
-					maxItemSize = w
+				local x = startX + offsetX + extraX
+				local y = startY + offsetY + extraY
+				if button.type == Constants.ButtonTypes.POKEMON_ICON then
+					button.clickableArea = { x, y + 4, w, h - 4 }
 				end
-				offsetY = offsetY + h + rowSpacer
-			else
-				if h > maxItemSize then
-					maxItemSize = h
-				end
-				offsetX = offsetX + w + colSpacer
-			end
+				button.box = { x, y, w, h }
+				button.pageVisible = currentPage
 
+				if listVerticallyFirst then
+					if w > maxItemSize then
+						maxItemSize = w
+					end
+					offsetY = offsetY + h + rowSpacer
+				else
+					if h > maxItemSize then
+						maxItemSize = h
+					end
+					offsetX = offsetX + w + colSpacer
+				end
+			else
+				button.pageVisible = -1
+			end
 		else
 			button.pageVisible = -1
 		end
 	end
 
-	-- Return number of items per page, total pages
-	if itemsPerPage == nil then
-		return 1
+	-- Return total pages, but don't include the final page if its empty
+	if currentPageItems == 0 and currentPage > 1 then
+		return currentPage - 1
 	else
-		return math.ceil(itemCount / itemsPerPage)
+		return currentPage
 	end
 end
 

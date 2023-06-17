@@ -47,21 +47,18 @@ UpdateScreen.Buttons = {
 	ShowHideReleaseNotes = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self)
-			if self.showNotes then
+			if UpdateScreen.showNotes then
 				return Resources.UpdateScreen.ButtonHide
 			else
 				return Resources.UpdateScreen.ButtonShow
 			end
 		end,
-		showNotes = false,
-		reset = function(self)
-			self.showNotes = false
-		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + columnOffsetX + 2, Constants.SCREEN.MARGIN + 39, 28, 11 },
 		onClick = function(self)
-			self.showNotes = not self.showNotes
-			-- TODO: if notes are shown, overlay them on top of the main game screen (use some light transperency)
-			-- Also, if no notes exist then pull them in; #Main.Version.releaseNotes == 0
+			UpdateScreen.showNotes = not UpdateScreen.showNotes
+			if UpdateScreen.showNotes and #UpdateScreen.Pager.Notes == 0 then
+				UpdateScreen.buildOutPagedButtons()
+			end
 			Program.redraw(true)
 		end
 	},
@@ -94,7 +91,7 @@ UpdateScreen.Buttons = {
 			else
 				self.updateStatus = "Unavailable"
 				self.textColor = "Intermediate text"
-				self.image = Constants.PixelImages.CROSS
+				self.image = Constants.PixelImages.CLOSE
 			end
 			Program.redraw(true)
 		end
@@ -135,7 +132,7 @@ UpdateScreen.Buttons = {
 	},
 	IgnoreUpdate = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.CROSS,
+		image = Constants.PixelImages.CLOSE,
 		getText = function(self) return Resources.UpdateScreen.ButtonIgnoreUpdate end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 95, 90, 16 },
 		isVisible = function() return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED end,
@@ -175,6 +172,76 @@ UpdateScreen.Buttons = {
 	},
 }
 
+UpdateScreen.Pager = {
+	Notes = {},
+	currentPage = 0,
+	totalPages = 0,
+	defaultSort = function(a, b) return a.ordinal < b.ordinal end,
+	realignButtonsToGrid = function(self, x, y, colSpacer, rowSpacer)
+		table.sort(self.Notes, self.defaultSort)
+		local cutoffX = Constants.SCREEN.WIDTH - Constants.SCREEN.MARGIN
+		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10 -- 20px for buttons
+		local totalPages = Utils.gridAlign(self.Notes, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
+		self.currentPage = 1
+		self.totalPages = totalPages or 1
+	end,
+	getPageText = function(self)
+		if self.totalPages <= 1 then return Resources.AllScreens.Page end
+		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
+		return buffer .. string.format("%s %s/%s", Resources.AllScreens.Page, self.currentPage, self.totalPages)
+	end,
+	prevPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
+	end,
+	nextPage = function(self)
+		if self.totalPages <= 1 then return end
+		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
+	end,
+}
+UpdateScreen.Pager.Buttons = {
+	OverlayViewOnline = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.UpdateScreen.ButtonViewOnline end,
+		box = { 3, Constants.SCREEN.HEIGHT - 15, 55, 11, },
+		isVisible = function() return UpdateScreen.showNotes end,
+		onClick = function(self) UpdateScreen.openReleaseNotesWindow() end
+	},
+	OverlayCurrentPage = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return UpdateScreen.Pager:getPageText() end,
+		box = { 98, Constants.SCREEN.HEIGHT - 14, 50, 10, },
+		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
+	},
+	OverlayPrevPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.LEFT_ARROW,
+		box = { 88, Constants.SCREEN.HEIGHT - 13, 10, 10, },
+		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
+		onClick = function(self) UpdateScreen.Pager:prevPage() end
+	},
+	OverlayNextPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.RIGHT_ARROW,
+		box = { 148, Constants.SCREEN.HEIGHT - 13, 10, 10, },
+		isVisible = function() return UpdateScreen.showNotes and UpdateScreen.Pager.totalPages > 1 end,
+		onClick = function(self) UpdateScreen.Pager:nextPage() end
+	},
+	OverlayClose = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.AllScreens.Close end,
+		box = { 206, Constants.SCREEN.HEIGHT - 15, 30, 11, },
+		isVisible = function() return UpdateScreen.showNotes end,
+		onClick = function(self)
+			UpdateScreen.Pager.currentPage = 1
+			UpdateScreen.showNotes = false
+			Program.redraw(true)
+		end
+	},
+}
+
 function UpdateScreen.initialize()
 	for _, button in pairs(UpdateScreen.Buttons) do
 		if button.textColor == nil then
@@ -208,8 +275,45 @@ function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
 	Main.Version.updateAfterRestart = false
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
-	UpdateScreen.Buttons.ShowHideReleaseNotes:reset()
+	UpdateScreen.showNotes = false
+	UpdateScreen.Pager.currentPage = 1
 	Program.changeScreenView(NavigationMenu)
+end
+
+function UpdateScreen.buildOutPagedButtons()
+	if #Main.Version.releaseNotes == 0 then
+		Main.updateReleaseNotes()
+	end
+
+	UpdateScreen.Pager.Notes = {}
+	for i, note in ipairs(Main.Version.releaseNotes) do
+		local wrappedNote = Utils.getWordWrapLines(note, 56)
+		local noteHeight = #wrappedNote * Constants.SCREEN.LINESPACING
+
+		local noteBox = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			textColor = "Default text",
+			notelines = wrappedNote,
+			ordinal = i,
+			dimensions = { width = Constants.SCREEN.WIDTH - 20, height = noteHeight, },
+			isVisible = function(self) return UpdateScreen.Pager.currentPage == self.pageVisible end,
+			draw = function(self, shadowcolor)
+				local yOffset = 0
+				for _, line in pairs(wrappedNote) do
+					Drawing.drawText(self.box[1], self.box[2] + yOffset, line, Theme.COLORS[self.textColor], shadowcolor)
+					yOffset = yOffset + Constants.SCREEN.LINESPACING
+				end
+			end,
+		}
+		table.insert(UpdateScreen.Pager.Notes, noteBox)
+	end
+
+	local x = 4
+	local y = 19
+	local colSpacer = 1
+	local rowSpacer = 4
+	UpdateScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
+	return true
 end
 
 function UpdateScreen.prepareForUpdateAfterRestart()
@@ -262,12 +366,17 @@ end
 -- USER INPUT FUNCTIONS
 function UpdateScreen.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
+	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function UpdateScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
 	gui.defaultTextBackground(Theme.COLORS[UpdateScreen.Colors.boxFill])
+
+	if UpdateScreen.showNotes then
+		UpdateScreen.drawReleaseNotesOverlay()
+	end
 
 	local topBox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
@@ -318,5 +427,34 @@ function UpdateScreen.drawScreen()
 	-- Draw all buttons
 	for _, button in pairs(UpdateScreen.Buttons) do
 		Drawing.drawButton(button, topBox.shadow)
+	end
+end
+
+function UpdateScreen.drawReleaseNotesOverlay()
+	local overlay = {
+		x = 0,
+		y = 0,
+		width = Constants.SCREEN.WIDTH - 1,
+		height = Constants.SCREEN.HEIGHT - 1,
+		textColor = Theme.COLORS["Default text"],
+		border = Theme.COLORS["Upper box border"],
+		fill = Theme.COLORS["Upper box background"],
+		shadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"]),
+	}
+
+	-- Draw the main border and background
+	gui.drawRectangle(overlay.x, overlay.y, overlay.width, overlay.height, overlay.border, overlay.fill)
+
+	-- Draw header text
+	local headerText = string.format("%s  v%s", Resources.UpdateScreen.LabelRelease:upper(), Main.Version.latestAvailable)
+	Drawing.drawHeader(overlay.x + 1, overlay.y, headerText, Theme.COLORS["Intermediate text"], overlay.shadow)
+
+	-- Draw all release notes
+	for _, note in pairs(UpdateScreen.Pager.Notes) do
+		Drawing.drawButton(note, overlay.shadow)
+	end
+	-- Draw all buttons
+	for _, button in pairs(UpdateScreen.Pager.Buttons) do
+		Drawing.drawButton(button, overlay.shadow)
 	end
 end
