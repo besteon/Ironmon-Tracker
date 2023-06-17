@@ -151,6 +151,7 @@ ScreenResources{
 		ButtonHelp = "Help",
 		CreditsCreatedBy = "Created by",
 		CreditsContributors = "Contributors",
+		MessageCheckConsole = "Check the Lua Console for a link to the Tracker's Help Wiki.",
 	},
 	SetupScreen = {
 		Title = "Tracker Setup",

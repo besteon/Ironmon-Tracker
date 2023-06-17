@@ -145,7 +145,7 @@ LogOverlay.TabBarButtons = {
 		textColor = "Header text",
 		tab = LogOverlay.Tabs.POKEMON,
 		box = { LogOverlay.margin + 1, 0, 41, 11, },
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = Theme.headerHighlightKey
@@ -176,7 +176,7 @@ LogOverlay.TabBarButtons = {
 		textColor = "Header text",
 		tab = LogOverlay.Tabs.TRAINER,
 		box = { LogOverlay.margin + 45, 0, 34, 11, },
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = Theme.headerHighlightKey
@@ -207,7 +207,7 @@ LogOverlay.TabBarButtons = {
 		textColor = "Header text",
 		tab = LogOverlay.Tabs.TMS,
 		box = { LogOverlay.margin + 45 + 38, 0, 18, 11, },
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = Theme.headerHighlightKey
@@ -238,7 +238,7 @@ LogOverlay.TabBarButtons = {
 		textColor = "Header text",
 		tab = LogOverlay.Tabs.MISC,
 		box = { LogOverlay.margin + 45 + 38 + 22, 0, 22, 11, },
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = Theme.headerHighlightKey
@@ -267,7 +267,7 @@ LogOverlay.TabBarButtons = {
 		image = Constants.PixelImages.CLOSE,
 		textColor = Theme.headerHighlightKey,
 		box = { LogOverlay.margin + 228, 2, 10, 10 },
-		updateText = function(self)
+		updateSelf = function(self)
 			self.textColor = Theme.headerHighlightKey
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.image = Constants.PixelImages.LEFT_ARROW
@@ -303,11 +303,11 @@ LogOverlay.TabBarButtons = {
 LogOverlay.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
+		text = "", -- Set later via updateSelf()
 		textColor = Theme.headerHighlightKey,
 		box = { LogOverlay.margin + 151, 0, 50, 10, },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end, -- Likely won't use, unsure where to place it
-		updateText = function(self)
+		updateSelf = function(self)
 			self.text = LogOverlay.Windower:getPageText() or ""
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.textColor = Theme.headerHighlightKey --"Lower box text"
@@ -324,7 +324,7 @@ LogOverlay.Buttons = {
 		-- Left of CurrentPage
 		box = { LogOverlay.margin + 151 - 13, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.textColor = "Lower box text"
 			else
@@ -333,7 +333,7 @@ LogOverlay.Buttons = {
 		end,
 		onClick = function(self)
 			LogOverlay.Windower:prevPage()
-			LogOverlay.Buttons.CurrentPage:updateText()
+			LogOverlay.Buttons.CurrentPage:updateSelf()
 			Program.redraw(true)
 		end,
 	},
@@ -345,7 +345,7 @@ LogOverlay.Buttons = {
 		-- Right of CurrentPage, account for current page text
 		box = { LogOverlay.margin + 151 + 50 + 3, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM or LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
 				self.textColor = "Lower box text"
 			else
@@ -354,7 +354,7 @@ LogOverlay.Buttons = {
 		end,
 		onClick = function(self)
 			LogOverlay.Windower:nextPage()
-			LogOverlay.Buttons.CurrentPage:updateText()
+			LogOverlay.Buttons.CurrentPage:updateSelf()
 			Program.redraw(true)
 		end,
 	},
@@ -477,7 +477,7 @@ function LogOverlay.initialize()
 		end
 	end
 
-	LogOverlay.Buttons.CurrentPage:updateText()
+	LogOverlay.Buttons.CurrentPage:updateSelf()
 	LogOverlay.Buttons.PreEvoSettingButton.toggleState = Options["Show Pre Evolutions"]
 end
 
@@ -572,7 +572,7 @@ local navOffsetX = navStartX
 			tab = LogOverlay.Tabs.POKEMON,
 			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
-			updateText = function(self)
+			updateSelf = function(self)
 				if LogOverlay.Windower.filterGrid == self.text then
 					self.textColor = "Intermediate text"
 				else
@@ -686,7 +686,7 @@ local navOffsetX = navStartX
 			tab = LogOverlay.Tabs.TRAINER,
 			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
-			updateText = function(self)
+			updateSelf = function(self)
 				if LogOverlay.Windower.filterGrid == self.text then
 					self.textColor = "Intermediate text"
 				else
@@ -774,7 +774,7 @@ local navOffsetX = navStartX
 			tab = LogOverlay.Tabs.TMS,
 			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
-			updateText = function(self)
+			updateSelf = function(self)
 				if LogOverlay.Windower.filterGrid == self.text then
 					self.textColor = "Intermediate text"
 				else
@@ -825,7 +825,7 @@ function LogOverlay.realignPokemonGrid(gridFilter, sortFunc)
 	table.sort(buttonSet, sortFunc)
 	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(buttonSet, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
 	LogOverlay.Windower.currentPage = 1
-	LogOverlay.Buttons.CurrentPage:updateText()
+	LogOverlay.Buttons.CurrentPage:updateSelf()
 end
 
 -- Also sets LogOverlay.Windower: { currentPage, totalPages, filterGrid }
@@ -847,7 +847,7 @@ function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 	table.sort(buttonSet, sortFunc)
 	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(buttonSet, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
 	LogOverlay.Windower.currentPage = 1
-	LogOverlay.Buttons.CurrentPage:updateText()
+	LogOverlay.Buttons.CurrentPage:updateSelf()
 end
 
 -- Also sets LogOverlay.Windower: { currentPage, totalPages, filterGrid }
@@ -874,7 +874,7 @@ function LogOverlay.realignTMGrid(gridFilter, sortFunc)
 	table.sort(buttonSet, sortFunc)
 	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(buttonSet, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer, true)
 	LogOverlay.Windower.currentPage = 1
-	LogOverlay.Buttons.CurrentPage:updateText()
+	LogOverlay.Buttons.CurrentPage:updateSelf()
 end
 
 -- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
@@ -1390,7 +1390,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		tab = LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
 		box = { movesColX, movesRowY, 60, 11 },
 		isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.PokemonMovesPagination.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = "Intermediate text"
@@ -1421,7 +1421,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		tab = LogOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
 		box = { movesColX + 70, movesRowY, 41, 11 },
 		isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if LogOverlay.PokemonMovesPagination.currentTab == self.tab then
 				self.text = string.format(LogOverlay.Labels.tabFormat, self.tab)
 				self.textColor = "Intermediate text"
@@ -1702,21 +1702,21 @@ end
 -- For showing what's highlighted and updating the page #
 function LogOverlay.refreshTabBar()
 	for _, button in pairs(LogOverlay.TabBarButtons) do
-		if button.updateText ~= nil then
-			button:updateText()
+		if button.updateSelf ~= nil then
+			button:updateSelf()
 		end
 	end
 end
 
 function LogOverlay.refreshInnerButtons()
 	for _, button in pairs(LogOverlay.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
+		if button.updateSelf ~= nil then
+			button:updateSelf()
 		end
 	end
 	for _, button in pairs(LogOverlay.TemporaryButtons) do
-		if button.updateText ~= nil then
-			button:updateText()
+		if button.updateSelf ~= nil then
+			button:updateSelf()
 		end
 	end
 end
