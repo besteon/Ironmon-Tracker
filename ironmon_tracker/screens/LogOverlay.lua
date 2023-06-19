@@ -2195,25 +2195,24 @@ function LogOverlay.parseAndDisplay(logpath)
 	if LogOverlay.isDisplayed then
 		LogOverlay.buildPagedButtons()
 		LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON)
-		LogOverlay.displayDefaultPokemonInfo(true)
+		LogOverlay.displayDefaultPokemonInfo()
 	end
 
 	return LogOverlay.isDisplayed
 end
 
 --- Function to display fallback/default pokemon info screen on the right.
---- @param showZoomed boolean|nil Whether to show the zoomed in view of the pokemon
 --- @return nil
-function LogOverlay.displayDefaultPokemonInfo(showZoomed)
-	showZoomed = showZoomed or false
-	local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
-	if PokemonData.isValid(leadPokemon.pokemonID) then
-		if showZoomed then
-			-- Zoomed in view of the first pokemon
+function LogOverlay.displayDefaultPokemonInfo()
+	if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON then
+		-- Only zoom in on the first Pokemon on the team if it exist, otherwise show search box
+		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
 		end
-		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
 	else
-		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1) -- Show Bulbasaur by default; implied redraw
+		-- For any other tab, show Bulbasaur by default (prevents search box from appearing)
+		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1)
 	end
 end
