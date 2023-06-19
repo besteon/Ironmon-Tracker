@@ -90,12 +90,6 @@ NavigationMenu.Buttons = {
 			Program.changeScreenView(UpdateScreen)
 		end
 	},
-	ViewStats = {
-		getText = function(self) return Resources.NavigationMenu.ButtonStats end,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(StatsScreen) end
-	},
 	StreamerTools = {
 		getText = function(self) return Resources.NavigationMenu.ButtonStreaming end,
 		image = Constants.PixelImages.SPECIAL,
@@ -175,7 +169,6 @@ NavigationMenu.OrderedMenuList = {
 	NavigationMenu.Buttons.QuickloadSettings,
 	NavigationMenu.Buttons.ThemeCustomization,
 	NavigationMenu.Buttons.LanguageSettings,
-	NavigationMenu.Buttons.ViewStats,
 	NavigationMenu.Buttons.CheckForUpdates,
 	NavigationMenu.Buttons.StreamerTools,
 	NavigationMenu.Buttons.Extensions,

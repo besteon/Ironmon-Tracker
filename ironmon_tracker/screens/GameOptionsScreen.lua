@@ -7,6 +7,13 @@ GameOptionsScreen = {
 }
 
 GameOptionsScreen.Buttons = {
+	GameStats = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.GameOptionsScreen.ButtonGameStats end,
+		image = Constants.PixelImages.NOTEPAD,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 52, 11 },
+		onClick = function() Program.changeScreenView(StatsScreen) end
+	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.AllScreens.Back end,
@@ -45,7 +52,7 @@ function GameOptionsScreen.createButtons()
 		{ "Reveal info if randomized", "OptionRevealRandomizedInfo", },
 	}
 
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = Constants.SCREEN.MARGIN + 14
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 

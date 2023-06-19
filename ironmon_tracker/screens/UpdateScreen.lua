@@ -103,10 +103,10 @@ UpdateScreen.Buttons = {
 			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 			if not UpdateScreen.isUpdateSupported() then
 				return Resources.UpdateScreen.ButtonOpenDownload
-			elseif Main.Version.updateAfterRestart then
-				return Resources.UpdateScreen.ButtonInstallNow
 			elseif UpdateOrInstall.Dev.enabled then
 				return Resources.UpdateScreen.ButtonInstallFromDev
+			elseif Main.Version.updateAfterRestart then
+				return Resources.UpdateScreen.ButtonInstallNow
 			else
 				return Resources.UpdateScreen.ButtonBeginInstall
 			end
