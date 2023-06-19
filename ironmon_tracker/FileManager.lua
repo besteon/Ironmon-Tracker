@@ -118,7 +118,7 @@ FileManager.LuaCode = {
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
-	{ name = "BattleEffectsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleEffectsScreen.lua", },
+	{ name = "BattleStatusScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleStatusScreen.lua", },
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }

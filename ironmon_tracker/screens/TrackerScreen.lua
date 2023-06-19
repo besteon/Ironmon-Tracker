@@ -110,8 +110,8 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
 		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
-			BattleEffectsScreen.loadData()
-			Program.changeScreenView(BattleEffectsScreen)
+			BattleStatusScreen.loadData()
+			Program.changeScreenView(BattleStatusScreen)
 		end
 	},
 	RouteDetails = {
