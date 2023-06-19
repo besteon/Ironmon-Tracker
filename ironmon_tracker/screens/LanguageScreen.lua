@@ -25,6 +25,12 @@ LanguageScreen.Buttons = {
 			Options.forceSave()
 		end
 	},
+	HelpContribute = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.LanguageScreen.ButtonHelpContribute end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 67, 11 },
+		onClick = function() Utils.openBrowserWindow("https://github.com/besteon/Ironmon-Tracker/issues") end
+	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.AllScreens.Back end,

@@ -304,6 +304,7 @@ ScreenResources{
 		Title = "Language Settings",
 		AutodetectSetting = "Autodetect game language",
 		ChangeLanguageText = "Choose a language",
+		ButtonHelpContribute = "Help Contribute",
 	},
 	StatsScreen = {
 		Title = "Game Stats",
