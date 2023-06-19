@@ -292,11 +292,11 @@ TrackerScreen.Buttons = {
 }
 
 TrackerScreen.CarouselTypes = {
-    BADGES = 1, -- Outside of battle
+	BADGES = 1, -- Outside of battle
 	LAST_ATTACK = 2, -- During battle, only between turns
 	ROUTE_INFO = 3, -- During battle, only if encounter is a wild pokemon
 	NOTES = 4, -- During new game intro or inside of battle
-    PEDOMETER = 5, -- Outside of battle
+	PEDOMETER = 5, -- Outside of battle
 }
 
 TrackerScreen.carouselIndex = 1

@@ -93,14 +93,14 @@ function Utils.firstToUpper(str)
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
-    local result = {}
-    for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
-        if trimWhitespace then
-            match = match:gsub("^%s*(.-)%s*$", "%1")
-        end
-        table.insert(result, match)
-    end
-    return result
+	local result = {}
+	for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
+		if trimWhitespace then
+			match = match:gsub("^%s*(.-)%s*$", "%1")
+		end
+		table.insert(result, match)
+	end
+	return result
 end
 
 -- Format "START" as "Start", and "a" as "A"
@@ -126,11 +126,11 @@ end
 
 function Utils.calcWordPixelLength(text)
 	if text == nil or #text == 0 then return 0 end
-    local totalLength = 0
-    for c in text:gmatch("(.)") do
+	local totalLength = 0
+	for c in text:gmatch("(.)") do
 		totalLength = totalLength + (Constants.CharWidths[c] or 1) + 1
-    end
-    return totalLength - 1 -- remove trailing space-pixel
+	end
+	return totalLength - 1 -- remove trailing space-pixel
 end
 
 -- Accepts a number, positive or negative and with/without fractions, and returns a string formatted as "12,345.6789"

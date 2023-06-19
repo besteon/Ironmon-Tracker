@@ -496,17 +496,18 @@ function Battle.checkAbilitiesToTrack()
 	local battleTargetAbility = Battle.BattleParties[Battle.battlerTarget % 2][Battle.Combatants[Battle.IndexMap[Battle.battlerTarget]]].ability
 
 	local abilityMsg
-
 	-- BATTLER: 'battler' had their ability triggered
-	local abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
-	if abilityMsg ~= nil and abilityMsg[battlerAbility] then
-		-- Track a Traced pokemon's ability; need to grab the target from the buffers for doubles
-		if battlerAbility == 36 then
-			Battle.trackAbilityChanges(nil,36)
-			local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
-			combatantIndexesToTrack[target] = target
-		else
-			combatantIndexesToTrack[Battle.battler] = Battle.battler
+	if GameSettings.ABILITIES.BATTLER then
+		abilityMsg = GameSettings.ABILITIES.BATTLER[Battle.battleMsg]
+		if abilityMsg ~= nil and abilityMsg[battlerAbility] then
+			-- Track a Traced pokemon's ability; need to grab the target from the buffers for doubles
+			if battlerAbility == 36 then
+				Battle.trackAbilityChanges(nil,36)
+				local target = Memory.readbyte(GameSettings.gBattleTextBuff1 + 2)
+				combatantIndexesToTrack[target] = target
+			else
+				combatantIndexesToTrack[Battle.battler] = Battle.battler
+			end
 		end
 	end
 
@@ -569,7 +570,7 @@ function Battle.checkAbilitiesToTrack()
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers - 1, 1 do
-		if levitateCheck == 4 and Battle.attacker ~= i then
+		if levitateCheck == 4 and Battle.attacker ~= i and Battle.attacker ~= Battle.battlerTarget then
 			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then

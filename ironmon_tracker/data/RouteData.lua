@@ -156,50 +156,50 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	end
 
 	-- Terrain Data, saving here to use later for RSE games and maybe boss trainers
-	-- BATTLE_TERRAIN_GRASS        0 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_LONG_GRASS   1 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_SAND         2 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_UNDERWATER   3 -- RouteData.EncounterArea.UNDERWATER
-	-- BATTLE_TERRAIN_WATER        4 -- RouteData.EncounterArea.SURFING
-	-- BATTLE_TERRAIN_POND         5 -- RouteData.EncounterArea.SURFING
-	-- BATTLE_TERRAIN_MOUNTAIN     6 -- RouteData.EncounterArea.LAND ???
-	-- BATTLE_TERRAIN_CAVE         7 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_BUILDING     8 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_PLAIN        9 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_LINK        10
-	-- BATTLE_TERRAIN_GYM         11 -- returns 8 in Koga's gym
-	-- BATTLE_TERRAIN_LEADER      12
-	-- BATTLE_TERRAIN_INDOOR_2    13
-	-- BATTLE_TERRAIN_INDOOR_1    14
-	-- BATTLE_TERRAIN_LORELEI     15
-	-- BATTLE_TERRAIN_BRUNO       16
-	-- BATTLE_TERRAIN_AGATHA      17
-	-- BATTLE_TERRAIN_LANCE       18
-	-- BATTLE_TERRAIN_CHAMPION    19
+	-- BATTLE_TERRAIN_GRASS			0 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_LONG_GRASS	1 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_SAND			2 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_UNDERWATER	3 -- RouteData.EncounterArea.UNDERWATER
+	-- BATTLE_TERRAIN_WATER			4 -- RouteData.EncounterArea.SURFING
+	-- BATTLE_TERRAIN_POND			5 -- RouteData.EncounterArea.SURFING
+	-- BATTLE_TERRAIN_MOUNTAIN		6 -- RouteData.EncounterArea.LAND ???
+	-- BATTLE_TERRAIN_CAVE			7 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_BUILDING		8 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_PLAIN			9 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_LINK			10
+	-- BATTLE_TERRAIN_GYM			11 -- returns 8 in Koga's gym
+	-- BATTLE_TERRAIN_LEADER		12
+	-- BATTLE_TERRAIN_INDOOR_2		13
+	-- BATTLE_TERRAIN_INDOOR_1		14
+	-- BATTLE_TERRAIN_LORELEI		15
+	-- BATTLE_TERRAIN_BRUNO			16
+	-- BATTLE_TERRAIN_AGATHA		17
+	-- BATTLE_TERRAIN_LANCE			18
+	-- BATTLE_TERRAIN_CHAMPION		19
 
 	-- Battle Flags
 	-- https://github.com/pret/pokefirered/blob/49ea462d7f421e75a76b25d7e85c92494c0a9798/include/constants/battle.h
-	-- BATTLE_TYPE_DOUBLE             (1 << 0)
-	-- BATTLE_TYPE_LINK               (1 << 1)
-	-- BATTLE_TYPE_IS_MASTER          (1 << 2) // In not-link battles, it's always set.
-	-- BATTLE_TYPE_TRAINER            (1 << 3)
-	-- BATTLE_TYPE_FIRST_BATTLE       (1 << 4)
-	-- BATTLE_TYPE_LINK_IN_BATTLE     (1 << 5) // Set on battle entry, cleared on exit. Checked rarely
-	-- BATTLE_TYPE_MULTI              (1 << 6)
-	-- BATTLE_TYPE_SAFARI             (1 << 7)
-	-- BATTLE_TYPE_BATTLE_TOWER       (1 << 8)
-	-- BATTLE_TYPE_OLD_MAN_TUTORIAL   (1 << 9) // Used in pokeemerald as BATTLE_TYPE_WALLY_TUTORIAL.
-	-- BATTLE_TYPE_ROAMER             (1 << 10)
-	-- BATTLE_TYPE_EREADER_TRAINER    (1 << 11)
-	-- BATTLE_TYPE_KYOGRE_GROUDON     (1 << 12)
-	-- BATTLE_TYPE_LEGENDARY          (1 << 13)
-	-- BATTLE_TYPE_GHOST_UNVEILED     (1 << 13) // Re-use of BATTLE_TYPE_LEGENDARY, when combined with BATTLE_TYPE_GHOST
-	-- BATTLE_TYPE_REGI               (1 << 14)
-	-- BATTLE_TYPE_GHOST              (1 << 15) // Used in pokeemerald as BATTLE_TYPE_TWO_OPPONENTS.
-	-- BATTLE_TYPE_POKEDUDE           (1 << 16) // Used in pokeemerald as BATTLE_TYPE_DOME.
-	-- BATTLE_TYPE_WILD_SCRIPTED      (1 << 17) // Used in pokeemerald as BATTLE_TYPE_PALACE.
-	-- BATTLE_TYPE_LEGENDARY_FRLG     (1 << 18) // Used in pokeemerald as BATTLE_TYPE_ARENA.
-	-- BATTLE_TYPE_TRAINER_TOWER      (1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
+	-- BATTLE_TYPE_DOUBLE				(1 << 0)
+	-- BATTLE_TYPE_LINK					(1 << 1)
+	-- BATTLE_TYPE_IS_MASTER			(1 << 2) // In not-link battles, it's always set.
+	-- BATTLE_TYPE_TRAINER				(1 << 3)
+	-- BATTLE_TYPE_FIRST_BATTLE			(1 << 4)
+	-- BATTLE_TYPE_LINK_IN_BATTLE		(1 << 5) // Set on battle entry, cleared on exit. Checked rarely
+	-- BATTLE_TYPE_MULTI				(1 << 6)
+	-- BATTLE_TYPE_SAFARI				(1 << 7)
+	-- BATTLE_TYPE_BATTLE_TOWER			(1 << 8)
+	-- BATTLE_TYPE_OLD_MAN_TUTORIAL		(1 << 9) // Used in pokeemerald as BATTLE_TYPE_WALLY_TUTORIAL.
+	-- BATTLE_TYPE_ROAMER				(1 << 10)
+	-- BATTLE_TYPE_EREADER_TRAINER		(1 << 11)
+	-- BATTLE_TYPE_KYOGRE_GROUDON		(1 << 12)
+	-- BATTLE_TYPE_LEGENDARY			(1 << 13)
+	-- BATTLE_TYPE_GHOST_UNVEILED		(1 << 13) // Re-use of BATTLE_TYPE_LEGENDARY, when combined with BATTLE_TYPE_GHOST
+	-- BATTLE_TYPE_REGI					(1 << 14)
+	-- BATTLE_TYPE_GHOST				(1 << 15) // Used in pokeemerald as BATTLE_TYPE_TWO_OPPONENTS.
+	-- BATTLE_TYPE_POKEDUDE				(1 << 16) // Used in pokeemerald as BATTLE_TYPE_DOME.
+	-- BATTLE_TYPE_WILD_SCRIPTED		(1 << 17) // Used in pokeemerald as BATTLE_TYPE_PALACE.
+	-- BATTLE_TYPE_LEGENDARY_FRLG		(1 << 18) // Used in pokeemerald as BATTLE_TYPE_ARENA.
+	-- BATTLE_TYPE_TRAINER_TOWER		(1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
 end
 
 function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)

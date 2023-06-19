@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "7", minor = "5", patch = "3" }
+Main.Version = { major = "7", minor = "5", patch = "4" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -147,12 +147,17 @@ function Main.Run()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
 
-		while Main.loadNextSeed == false do
+		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
+		while not Main.loadNextSeed and not Main.updateRequested do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
 
-		Main.LoadNextRom()
+		if Main.loadNextSeed then
+			Main.LoadNextRom()
+		elseif Main.updateRequested then
+			UpdateScreen.performAutoUpdate()
+		end
 	else
 		MGBA.printStartupInstructions()
 	end
