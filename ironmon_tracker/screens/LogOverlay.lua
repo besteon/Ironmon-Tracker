@@ -91,7 +91,7 @@ LogOverlay.Windower = {
 
 		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
 			Program.changeScreenView(LogSearchScreen)
-			LogSearchScreen.UpdateSearch()
+			LogSearchScreen.updateSearch()
 		end
 	end,
 }
@@ -487,14 +487,14 @@ function LogOverlay.buildPagedButtons()
 					local currentFilter = LogOverlay.Windower.filterGrid:lower()
 					if currentFilter == "#" then
 						return true
-					elseif LogSearchScreen.currentFilter == Constants.Words.POKEMON .. " Name" then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Name then
 						-- Check whole word for matches, not just the start
 						local startsWith = self.pokemonName:sub(1, #currentFilter):lower() == currentFilter
 						local contains = self.pokemonName:lower():find(currentFilter)
 						if startsWith or contains then
 							return true
 						end
-					elseif LogSearchScreen.currentFilter == "Ability" then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Ability then
 						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[ability].name
 							-- Check whole word for matches, not just the start
@@ -504,7 +504,7 @@ function LogOverlay.buildPagedButtons()
 								return true
 							end
 						end
-					elseif LogSearchScreen.currentFilter == "Levelup Move" then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 							local moveText = move.name
 							-- Check whole word for matches, not just the start
@@ -785,7 +785,7 @@ end
 function LogOverlay.realignPokemonGrid(gridFilter, sortFunc)
 	-- Default grid to Pokédex number
 	gridFilter = gridFilter or "#"
-	sortFunc = sortFunc or LogSearchScreen.sortingFunctions[LogSearchScreen.currentSortOrder] --pokedexNumber
+	sortFunc = sortFunc or LogSearchScreen.currentSortOrder.sortFunc --pokedexNumber
 
 	LogOverlay.Windower.filterGrid = gridFilter
 

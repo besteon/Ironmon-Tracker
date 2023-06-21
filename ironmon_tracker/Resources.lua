@@ -1,13 +1,13 @@
 Resources = {}
 -- TODO: Task list:
 -- * MGBA and MGBADisplay
+-- * Log Viewer reading/parsing/searching log files
 -- * Add Drawing function to draw pokemon type bar with text overlayed
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 -- * Move/Ability Descriptions need resources keys so they can be translated
--- * Double-check all "Labels" objects have been replaced
 
--- Screens left to pull apart for translation:
--- LogOverlay
+-- Things to test:
+-- * Check on Bizhawk 2.8 that words like "Pokémon" appear correctly
 
 Resources.Languages = {
 	ENGLISH = {

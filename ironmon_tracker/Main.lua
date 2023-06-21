@@ -351,7 +351,7 @@ function Main.updateReleaseNotes(response)
 	if body == nil then
 		return
 	end
-	body = Resources.sanitizeTable(body)
+	body = Utils.formatSpecialCharacters(body)
 
 	local formatInput = function(str)
 		-- Remove hyperlinks, format: [text](url) -> [text]

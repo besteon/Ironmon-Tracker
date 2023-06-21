@@ -1,10 +1,4 @@
 CustomCode = {
-	Labels = {
-		filesLoadSuccess = "Extensions Loaded",
-		filesLoadFailure = "Extensions Missing",
-		unknownAuthor = "Unknown",
-	},
-
 	-- When an extension's code errors, that is logged here and then printed.
 	-- Future errors of the same message are not printed, to avoid cluttering the Lua Console.
 	KnownErrors = {},
@@ -56,11 +50,11 @@ function CustomCode.initialize()
 	end
 
 	if #filesLoaded.successful > 0 then
-		print(string.format("%s: %s", CustomCode.Labels.filesLoadSuccess, table.concat(filesLoaded.successful, ", ")))
+		print(string.format("Extensions Loaded: %s", table.concat(filesLoaded.successful, ", ")))
 	end
 	-- For now, don't display old extension files that failed to load
 	-- if #filesLoaded.failed > 0 then
-	-- 	print(string.format("%s: %s", CustomCode.Labels.filesLoadFailure, table.concat(filesLoaded.failed, ", ")))
+	-- 	print(string.format("Extensions Missing: %s", table.concat(filesLoaded.failed, ", ")))
 	-- end
 end
 
@@ -92,7 +86,7 @@ function CustomCode.loadExtension(extensionKey)
 
 	-- Check for required attributes from the extension
 	selfObject.name = selfObject.name or extensionKey
-	selfObject.author = selfObject.author or CustomCode.Labels.unknownAuthor
+	selfObject.author = selfObject.author or "Unknown"
 	selfObject.description = selfObject.description or ""
 	selfObject.version = selfObject.version or "0.0"
 
