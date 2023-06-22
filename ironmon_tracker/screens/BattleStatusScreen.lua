@@ -260,135 +260,67 @@ function loadStatus2(index)
 	local status2Data = Memory.readdword(GameSettings.gBattleMons + (index * 0x58) +0x50)
 	local status2Map = Utils.generatebitwisemap(status2Data, 32)
 	if status2Map[0] or status2Map[1] or status2Map[2] then
-		if BattleStatusScreen.PerMonDetails[index]["Confused"] then
-			BattleStatusScreen.PerMonDetails[index]["Confused"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Confused"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Confused"] = {active=true, totalTurns ="1- 4 Turns"}
 	end
-	if status2Map[4] or status2Map[5] or status2Map[6] then
-		if BattleStatusScreen.PerMonDetails[index]["Uproar"] then
-			BattleStatusScreen.PerMonDetails[index]["Uproar"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Uproar"] = {active=true}
-		end
+	--[[if status2Map[4] or status2Map[5] or status2Map[6] then
+		BattleStatusScreen.PerMonDetails[index]["Uproar"] = {active=true}
 	end
+	]]
 	if status2Map[8] or status2Map[9] then
 		local remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
-		if BattleStatusScreen.PerMonDetails[index]["Bide"] then
-			BattleStatusScreen.PerMonDetails[index]["Bide"].active=true
-			BattleStatusScreen.PerMonDetails[index]["Bide"].remainingTurns=remainingTurnsBide
-		else
-			BattleStatusScreen.PerMonDetails[index]["Bide"] = {active=true, remainingTurns=remainingTurnsBide}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Bide"] = {active=true, remainingTurns=remainingTurnsBide}
 	end
 	if status2Map[12] then
-		if BattleStatusScreen.PerMonDetails[index]["Locked Into Attack"] then
-			BattleStatusScreen.PerMonDetails[index]["Locked Into Attack"].active=true
-			BattleStatusScreen.PerMonDetails[index]["Locked Into Attack"].remainingTurns=1
-		else
-			BattleStatusScreen.PerMonDetails[index]["Locked Into Attack"] = {active=true, remainingTurns=1}
+		local duration = "1 Turn"
+		if status2Map[4] or status2Map[5] or status2Map[6]then
+			duration = "2- 3 Turns"
+		elseif  status2Map[10] or status2Map[11] then
+			duration = "2- 5 Turns"
 		end
+		BattleStatusScreen.PerMonDetails[index]["Must Attack"] = {active=true, totalTurns=duration}
 	end
 	if status2Map[13] or status2Map[14] or status2Map[15] then
-		if BattleStatusScreen.PerMonDetails[index]["Trapping Move"] then
-			BattleStatusScreen.PerMonDetails[index]["Trapping Move"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Trapping Move"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Trapping Move"] = {active=true}
 	end
 	if status2Map[16] or status2Map[17] or status2Map[18] or status2Map[19] then
 		local infatuationTarget = Utils.inlineIf(status2Map[16],0,nil) or Utils.inlineIf(status2Map[17],1,nil) or Utils.inlineIf(status2Map[18],2,nil) or Utils.inlineIf(status2Map[19],3,0)
-		if BattleStatusScreen.PerMonDetails[index]["Attract"] then
-			BattleStatusScreen.PerMonDetails[index]["Attract"].active=true
-			BattleStatusScreen.PerMonDetails[index]["Attract"].source=infatuationTarget
-		else
-			BattleStatusScreen.PerMonDetails[index]["Attract"] = {active=true, source=infatuationTarget}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Attract"] = {active=true, source=infatuationTarget}
 	end
 	if status2Map[20] then
-		if BattleStatusScreen.PerMonDetails[index]["Focus Energy"] then
-			BattleStatusScreen.PerMonDetails[index]["Focus Energy"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Focus Energy"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Focus Energy"] = {active=true}
 	end
 	if status2Map[21] then
-		if BattleStatusScreen.PerMonDetails[index]["Transform"] then
-			BattleStatusScreen.PerMonDetails[index]["Transform"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Transform"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Transform"] = {active=true}
 	end
 	if status2Map[22] then
-		if BattleStatusScreen.PerMonDetails[index]["Charge Move Cooldown"] then
-			BattleStatusScreen.PerMonDetails[index]["Charge Move Cooldown"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Charge Move Cooldown"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Cannot Act"] = {active=true}
 	end
 	if status2Map[23] then
-		if BattleStatusScreen.PerMonDetails[index]["Rage"] then
-			BattleStatusScreen.PerMonDetails[index]["Rage"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Rage"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Rage"] = {active=true}
 	end
 	if status2Map[24] then
-		if BattleStatusScreen.PerMonDetails[index]["Substitute"] then
-			BattleStatusScreen.PerMonDetails[index]["Substitute"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Substitute"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Substitute"] = {active=true}
 	end
 	if status2Map[25] then
-		if BattleStatusScreen.PerMonDetails[index]["Destiny Bond"] then
-			BattleStatusScreen.PerMonDetails[index]["Destiny Bond"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Destiny Bond"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Destiny Bond"] = {active=true}
 	end
 	if status2Map[26] then
-		if BattleStatusScreen.PerMonDetails[index]["Cannot Escape"] then
-			BattleStatusScreen.PerMonDetails[index]["Cannot Escape"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Cannot Escape"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Cannot Escape"] = {active=true}
 	end
 	if status2Map[27] then
-		if BattleStatusScreen.PerMonDetails[index]["Nightmare"] then
-			BattleStatusScreen.PerMonDetails[index]["Nightmare"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Nightmare"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Nightmare"] = {active=true}
 	end
 	if status2Map[28] then
-		if BattleStatusScreen.PerMonDetails[index]["Curse"] then
-			BattleStatusScreen.PerMonDetails[index]["Curse"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Curse"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Curse"] = {active=true}
 	end
 	if status2Map[29] then
-		if BattleStatusScreen.PerMonDetails[index]["Foresight"] then
-			BattleStatusScreen.PerMonDetails[index]["Foresight"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Foresight"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Foresight"] = {active=true}
 	end
 	if status2Map[30] then
-		if BattleStatusScreen.PerMonDetails[index]["Defense Curl"] then
-			BattleStatusScreen.PerMonDetails[index]["Defense Curl"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Defense Curl"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Defense Curl"] = {active=true}
 	end
 	if status2Map[31] then
-		if BattleStatusScreen.PerMonDetails[index]["Torment"] then
-			BattleStatusScreen.PerMonDetails[index]["Torment"].active=true
-		else
-			BattleStatusScreen.PerMonDetails[index]["Torment"] = {active=true}
-		end
+		BattleStatusScreen.PerMonDetails[index]["Torment"] = {active=true}
 	end
 end
 
@@ -559,11 +491,11 @@ function loadSideStatuses(index)
 	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 8)
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
-		BattleStatusScreen.PerSideDetails[0]["Reflect"] = {active = true,turnsLeft = turnsLeftReflect}
+		BattleStatusScreen.PerSideDetails[0]["Reflect"] = {active = true,remainingTurns = turnsLeftReflect}
 	end
 	if sideStatusMap[1] then
 		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
-		BattleStatusScreen.PerSideDetails[0]["Light Screen"] = {active = true,turnsLeft = turnsLeftLightScreen}
+		BattleStatusScreen.PerSideDetails[0]["Light Screen"] = {active = true,remainingTurns = turnsLeftLightScreen}
 	end
 	if sideStatusMap[4] then
 		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
@@ -571,11 +503,11 @@ function loadSideStatuses(index)
 	end
 	if sideStatusMap[5] then
 		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
-		BattleStatusScreen.PerSideDetails[0]["Safeguard"] = {active = true,turnsLeft = turnsLeftSafeguard}
+		BattleStatusScreen.PerSideDetails[0]["Safeguard"] = {active = true,remainingTurns = turnsLeftSafeguard}
 	end
 	if sideStatusMap[8] then
 		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
-		BattleStatusScreen.PerSideDetails[0]["Mist"] = {active = true,turnsLeft = turnsLeftMist}
+		BattleStatusScreen.PerSideDetails[0]["Mist"] = {active = true,remainingTurns = turnsLeftMist}
 	end
 end
 
@@ -749,8 +681,16 @@ function loadWishStruct(index)
 	end
 end
 
+function loadOther(index)
+	local lastMoveID = Battle.LastMoves[index]
+	if MoveData.isValid(lastMoveID) then
+		BattleStatusScreen.PerMonDetails[index]["Last Move"] = MoveData.Moves[lastMoveID].name
+	else
+		BattleStatusScreen.PerMonDetails[index]["Last Move"] = "N/A"
+	end
+end
+
 function BattleStatusScreen.loadData()
-	print("loading battle effects")
 	BattleStatusScreen.resetBattleDetails()
 	loadTerrain()
 	loadWeather()
@@ -760,6 +700,7 @@ function BattleStatusScreen.loadData()
 		loadSideStatuses(i)
 		loadDisableStruct(i)
 		loadWishStruct(i)
+		loadOther(i)
 	end
 end
 
@@ -901,29 +842,40 @@ function drawPerMonUI()
 
 	local Xdelta = 2
 	local allMonStatuses = BattleStatusScreen.PerMonDetails[BattleStatusScreen.viewedMonIndex]
+	if allMonStatuses["Last Move"] then
+		local firstLine = "- Last Move: " .. allMonStatuses["Last Move"]
+		Drawing.drawText(offsetX,offsetY, firstLine, textColor, nil, linespacing, Constants.Font.FAMILY)
+		offsetY = offsetY + linespacing + 1
+		linesOnPage = linesOnPage + 1
+	end
 	for key, value in pairs(allMonStatuses) do
-		local text = "- " .. key
-		if value.active then
-			if value.type then
-				text = text .. " (" .. value.type .. ")"
-			elseif value.move and MoveData.isValid(value.move) then
-				text = text .. " (" .. MoveData.Moves[value.move] .. ")"
-			elseif value.count then
-				text = text .. ": " .. value.count
-			elseif value.remainingTurns then
-				text = text .. ": Turn " .. value.remainingTurns
+		if key ~= "Last Move" then
+			local text = "- " .. key
+			if value.active then
+				if value.type then
+					text = text .. " (" .. value.type .. ")"
+				elseif value.move and MoveData.isValid(value.move) then
+					text = text .. " (" .. MoveData.Moves[value.move] .. ")"
+				elseif value.count then
+					text = text .. ": " .. value.count
+				elseif value.remainingTurns then
+					text = text .. ": Turn " .. value.remainingTurns
+				elseif value.totalTurns then
+					text = text .. " (" .. value.totalTurns .. ")"
+				end
+				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+				offsetY = offsetY + linespacing + 1
+				linesOnPage = linesOnPage + 1
 			end
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-			offsetY = offsetY + linespacing + 1
-			linesOnPage = linesOnPage + 1
+			if linesOnPage == BattleStatusScreen.pageSize then break end
 		end
-		if linesOnPage == BattleStatusScreen.pageSize then break end
 	end
 end
 
 function drawBattleDiagram()
 	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }
+	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
 	local defaultArrowColorList = {Theme.COLORS["Default text"]}
 	local selectedArrowColorList = {Theme.COLORS["Positive text"]}
 
@@ -971,8 +923,13 @@ function drawBattleDiagram()
 	end
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[1].box[1], BattleStatusScreen.Buttons[1].box[2], ballColorList, null)
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[2].box[1], BattleStatusScreen.Buttons[2].box[2], ballColorList, null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[3].box[1], BattleStatusScreen.Buttons[3].box[2], ballColorList, null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[4].box[1], BattleStatusScreen.Buttons[4].box[2], ballColorList, null)
+	if Battle.numBattlers == 4 then
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[3].box[1], BattleStatusScreen.Buttons[3].box[2], ballColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[4].box[1], BattleStatusScreen.Buttons[4].box[2], ballColorList, null)
+	else
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[3].box[1], BattleStatusScreen.Buttons[3].box[2], inactiveBallColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleStatusScreen.Buttons[4].box[1], BattleStatusScreen.Buttons[4].box[2], inactiveBallColorList, null)
+	end
 
 	if not BattleStatusScreen.viewingSideStauses and not BattleStatusScreen.viewingIndividualStatuses then
 		BattleStatusScreen.Buttons[7].boxColors = {"Positive text", 0x00000000}

@@ -108,7 +108,7 @@ TrackerScreen.Buttons = {
 		text = "",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return not Tracker.Data.isViewingOwn --[[and not Battle.isWildEncounter]] end,
 		onClick = function(self)
 			BattleStatusScreen.loadData()
 			Program.changeScreenView(BattleStatusScreen)
@@ -121,7 +121,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
-		isVisible = function() return not Tracker.Data.isViewingOwn and Battle.isWildEncounter end,
+		isVisible = function() return not Tracker.Data.isViewingOwn and not Battle.isWildEncounter end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
