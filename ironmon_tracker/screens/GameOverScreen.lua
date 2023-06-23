@@ -180,7 +180,8 @@ end
 
 -- Returns true if the conditions are correct to display the screen
 function GameOverScreen.shouldDisplay(battleOutcome)
-	if battleOutcome ~= 2 and battleOutcome ~= 3 then -- Didn't lose or tie the Battle
+	-- Skip game over screen if most recent battle was the tutorial or if the player didn't lose or tie the battle
+	if Battle.recentBattleWasTutorial or (battleOutcome ~= 2 and battleOutcome ~= 3) then
 		if GameOverScreen.isDisplayed then
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end

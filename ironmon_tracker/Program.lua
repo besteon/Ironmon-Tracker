@@ -196,7 +196,7 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-		Program.inCatchingTutorial = Program.isInCatchingTutorial()
+		Program.updateCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updatePokemonTeams()
@@ -673,19 +673,21 @@ function Program.getPokemonTypes(isOwn, isLeft)
 	}
 end
 
--- Returns true only if the player hasn't completed the catching tutorial
-function Program.isInCatchingTutorial()
-	if Program.hasCompletedTutorial then return false end
+-- Updates 'inCatchingTutorial' and 'hasCompletedTutorial' based on if the player has/hasn't completed the catching tutorial
+function Program.updateCatchingTutorial()
+	if Program.hasCompletedTutorial then return end
 
 	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
-	if tutorialFlag == 3 then
-		Program.inCatchingTutorial = true
-	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
-		Program.inCatchingTutorial = false
+
+	-- At some point after the tutorial has begun, it will end (Flag=0)
+	if Program.inCatchingTutorial and tutorialFlag == 0 then
 		Program.hasCompletedTutorial = true
 	end
 
-	return Program.inCatchingTutorial
+	Program.inCatchingTutorial = (tutorialFlag == 3)
+	if Program.inCatchingTutorial then
+		Battle.recentBattleWasTutorial = true
+	end
 end
 
 function Program.isInEvolutionScene()
