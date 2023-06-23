@@ -10,6 +10,7 @@ Battle = {
 	numBattlers = 0,
 	partySize = 6,
 	isNewTurn = true,
+	recentBattleWasTutorial = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -622,6 +623,8 @@ function Battle.beginNewBattle()
 		Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
 	end
 	Battle.isGhost = false
+	-- While in the tutorial, a battle won't normally start, thus if we're here then this battle isn't turtorial
+	Battle.recentBattleWasTutorial = false
 
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
