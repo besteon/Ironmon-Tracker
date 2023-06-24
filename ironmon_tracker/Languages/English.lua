@@ -280,7 +280,7 @@ ScreenResources{
 		ButtonExport = "Export theme",
 		PromptEnterThemeCode = "Enter a theme code string to import (Ctrl+V to paste)",
 		PromptThemeFor = "Theme for",
-		PromptCopyThemeCode = "Copy the theme code below (Ctrl + A --> Ctrl+C)",
+		PromptCopyThemeCode = "Copy the theme code below (Ctrl+C)",
 		PromptSelectPreset = "Select a Theme preset to preview",
 		PromptSaveAsTitle = "Save Theme As",
 		PromptEnterNameForTheme = "Enter a name for this Theme",

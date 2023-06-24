@@ -149,6 +149,9 @@ end
 
 function Program.changeScreenView(screen)
 	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
+	if type(screen.refreshButtons) == "function" then
+		screen:refreshButtons()
+	end
 	Program.currentScreen = screen
 	Program.redraw(true)
 end
