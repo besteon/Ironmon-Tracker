@@ -209,7 +209,7 @@ MGBADisplay.LineBuilder = {
 
 		local optionBar = "%-2s %-26s [%s]"
 		local controlBar = "%-2s %-21s %8s"
-		table.insert(lines, MGBA.Screens.TrackerSetup.headerText:upper())
+		table.insert(lines, MGBA.Screens.TrackerSetup:getTitle():upper())
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
@@ -217,7 +217,7 @@ MGBADisplay.LineBuilder = {
 		for i = 1, 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 
@@ -227,12 +227,12 @@ MGBADisplay.LineBuilder = {
 		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(controlBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(controlBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 		local qid = 13 -- "Quickload"
 		if MGBA.OptionMap[qid] ~= nil then
-			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid].displayName, MGBA.OptionMap[qid]:getValue()))
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid]:getText(), MGBA.OptionMap[qid]:getValue()))
 		end
 
 		table.insert(lines, "---------------------------------")
@@ -243,7 +243,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.GameplayOptions.headerText:upper())
+		table.insert(lines, MGBA.Screens.GameplayOptions:getTitle():upper())
 		table.insert(lines, "---------------------------------")
 		table.insert(lines, 'Toggle option with: OPTION "#"')
 
@@ -251,7 +251,7 @@ MGBADisplay.LineBuilder = {
 		for i = 20, 28, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 		table.insert(lines, "---------------------------------")
@@ -267,7 +267,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.QuickloadSetup.headerText:upper())
+		table.insert(lines, MGBA.Screens.QuickloadSetup:getTitle():upper())
 		table.insert(lines, "---------------------------------")
 		MGBADisplay.Utils.addLinesWrapped(lines, "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.")
 		table.insert(lines, "---------------------------------")
@@ -278,7 +278,7 @@ MGBADisplay.LineBuilder = {
 		for i = 30, 31, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 		table.insert(lines, "")
@@ -292,7 +292,7 @@ MGBADisplay.LineBuilder = {
 			-- 	if foldername == "" then
 			-- 		foldername = "(NOT SET)"
 			-- 	end
-			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt.displayName .. " *"))
+			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt:getText() .. " *"))
 			-- 	table.insert(lines, Utils.formatUTF8(" %-32s", foldername))
 			-- end
 			-- table.insert(lines, "")
@@ -312,7 +312,7 @@ MGBADisplay.LineBuilder = {
 			-- 		elseif filename == "" then
 			-- 			filename = "(NOT SET)"
 			-- 		end
-			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt.displayName .. ": *"))
+			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt:getText() .. ": *"))
 			-- 		table.insert(lines, Utils.formatUTF8(" %-32s", filename))
 			-- 		table.insert(lines, "")
 			-- 	end
@@ -339,7 +339,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local columnBar = "%-26s%-7s"
-		table.insert(lines, MGBA.Screens.UpdateCheck.headerText:upper())
+		table.insert(lines, MGBA.Screens.UpdateCheck:getTitle():upper())
 		table.insert(lines, "---------------------------------")
 
 		local versionStatus
@@ -370,7 +370,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-10s%-s"
-		table.insert(lines, MGBA.Screens.CommandsBasic.headerText:upper())
+		table.insert(lines, MGBA.Screens.CommandsBasic:getTitle():upper())
 
 		local usageInstructions = 'To use, type into below textbox. Example command: POKEMON "Espeon"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
@@ -407,7 +407,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-13s%-s"
-		table.insert(lines, MGBA.Screens.CommandsOther.headerText:upper())
+		table.insert(lines, MGBA.Screens.CommandsOther:getTitle():upper())
 
 		local usageInstructions = 'To use, type into below textbox. Example command: PCHEALS "10"'
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
@@ -563,13 +563,13 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local statBar = "%-21s%s"
-		table.insert(lines, MGBA.Screens.Stats.headerText:upper())
+		table.insert(lines, MGBA.Screens.Stats:getTitle():upper())
 		table.insert(lines, "")
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do
-			statPair.name = statPair.name:gsub("é", "e") -- The 'é' character doesn't work with format padding like %-20s
+			local formattedName = statPair.getText():gsub("é", "e") -- The 'é' character doesn't work with format padding like %-20s
 			local formattedValue = Utils.formatNumberWithCommas(statPair.getValue() or 0)
-			table.insert(lines, Utils.formatUTF8(statBar, statPair.name .. ":", formattedValue))
+			table.insert(lines, Utils.formatUTF8(statBar, formattedName .. ":", formattedValue))
 		end
 
 		return lines

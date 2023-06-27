@@ -50,11 +50,13 @@ function CustomCode.initialize()
 	end
 
 	if #filesLoaded.successful > 0 then
-		print(string.format("Extensions Loaded: %s", table.concat(filesLoaded.successful, ", ")))
+		local listAsString = table.concat(filesLoaded.successful, ", ")
+		print(string.format("%s: %s", Resources.CustomCode.ExtensionsLoaded, listAsString))
 	end
 	-- For now, don't display old extension files that failed to load
 	-- if #filesLoaded.failed > 0 then
-	-- 	print(string.format("Extensions Missing: %s", table.concat(filesLoaded.failed, ", ")))
+	-- 	local listAsString = table.concat(filesLoaded.failed, ", ")
+	-- 	print(string.format("%s: %s", Resources.CustomCode.ExtensionsMissing, listAsString))
 	-- end
 end
 
