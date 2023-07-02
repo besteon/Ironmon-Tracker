@@ -806,7 +806,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'name' is a valid Pokémon name.")
+				printf(" - %s", Resources.MGBACommands.PokemonError1)
 				return
 			end
 
@@ -814,11 +814,11 @@ MGBA.CommandMap = {
 			local pokemonID = DataHelper.findPokemonId(pokemonName)
 			if pokemonID ~= 0 then
 				pokemonName = PokemonData.Pokemon[pokemonID].name or pokemonName
-				printf(" Pokémon info found for: %s  (check the sidebar menu to view it)", pokemonName)
+				printf(" %s %s", pokemonName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupPokemon:setData(pokemonID, true)
 				Program.redraw(true)
 			else
-				printf(" Unable to find Pokémon: %s", pokemonName)
+				printf(" %s: %s", Resources.MGBACommands.PokemonError2, pokemonName)
 			end
 		end,
 	},
@@ -829,7 +829,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'name' is a valid Pokémon move name.")
+				printf(" - %s", Resources.MGBACommands.MoveError1)
 				return
 			end
 
@@ -837,11 +837,11 @@ MGBA.CommandMap = {
 			local moveId = DataHelper.findMoveId(moveName)
 			if moveId ~= 0 then
 				moveName = MoveData.Moves[moveId].name or moveName
-				printf(" Move info found for: %s  (check the sidebar menu to view it)", moveName)
+				printf(" %s %s", moveName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupMove:setData(moveId, true)
 				Program.redraw(true)
 			else
-				printf(" Unable to find move: %s", moveName)
+				printf(" %s: %s", Resources.MGBACommands.MoveError2, moveName)
 			end
 		end,
 	},
@@ -852,7 +852,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'name' is a valid Pokémon's ability name.")
+				printf(" - %s", Resources.MGBACommands.AbilityError1)
 				return
 			end
 
@@ -860,11 +860,11 @@ MGBA.CommandMap = {
 			local abilityId = DataHelper.findAbilityId(abilityName)
 			if abilityId ~= 0 then
 				abilityName = AbilityData.Abilities[abilityId].name or abilityName
-				printf(" Ability info found for: %s  (check the sidebar menu to view it)", abilityName)
+				printf(" %s %s", abilityName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupAbility:setData(abilityId, true)
 				Program.redraw(true)
 			else
-				printf(" Unable to find ability: %s", abilityName)
+				printf(" %s: %s", Resources.MGBACommands.AbilityError2, abilityName)
 			end
 		end,
 	},
@@ -875,7 +875,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'name' is a valid route number or route name.")
+				printf(" - %s", Resources.MGBACommands.RouteError1)
 				return
 			end
 
@@ -883,11 +883,11 @@ MGBA.CommandMap = {
 			local routeId = DataHelper.findRouteId(routeName)
 			if routeId ~= 0 then
 				routeName = RouteData.Info[routeId].name or routeName
-				printf(" Route info found for: %s  (check the sidebar menu to view it)", routeName)
+				printf(" %s %s", routeName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupRoute:setData(routeId, true)
 				Program.redraw(true)
 			else
-				printf(" Unable to find route: %s", routeName)
+				printf(" %s: %s", Resources.MGBACommands.RouteError2, routeName)
 			end
 		end,
 	},
@@ -896,40 +896,32 @@ MGBA.CommandMap = {
 		usageSyntax = 'OPTION "#"',
 		usageExample = 'OPTION "13"',
 		execute = function(self, params)
-			if params == nil or params == "" then
-				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where # is a valid option number, followed by any optional text.")
-				return
-			end
-
-			local optionNumber = params:match("^%d+")
+			params = params or ""
+			local optionNumber = tonumber(params:match("^%d+") or "")
 			if optionNumber == nil then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where # is a valid option number, followed by any optional text.")
+				printf(" - %s", Resources.MGBACommands.OptionError1)
 				return
 			end
 
-			optionNumber = tonumber(optionNumber)
 			local _, _, actualParams = params:match("(%d+)(%s+)(.+)") -- Everything but the first number
 
 			local opt = MGBA.OptionMap[optionNumber]
 			if opt == nil then
-				printf(" Option #%s doesn't exist. Please try another option number.", optionNumber)
+				printf(" #%s %s", optionNumber, Resources.MGBACommands.OptionError2)
 				return
 			end
 
 			local success, msg = opt:updateSelf(actualParams)
 			if success then
 				Program.redraw(true)
-				local newValue = opt:getValue()
+				local newValue = opt:getValue() or ""
 				if newValue == MGBADisplay.Symbols.Options.Enabled then
-					newValue = "to ON."
+					newValue = Resources.MGBACommands.OptionOn
 				elseif newValue == MGBADisplay.Symbols.Options.Disabled then
-					newValue = "to OFF."
-				else
-					newValue = string.format("to %s", newValue)
+					newValue = Resources.MGBACommands.OptionOff
 				end
-				printf(" Updating option #%s: '%s' %s", optionNumber, opt:getText(), newValue)
+				printf(" %s #%s: '%s' -> %s.", Resources.MGBACommands.OptionSuccess, optionNumber, opt:getText(), newValue)
 			else
 				printf(" [Error] %s", msg or "An unknown error has occured.")
 			end
@@ -942,17 +934,20 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'type' is a valid Pokémon type.")
+				printf(" - %s.", Resources.MGBACommands.HiddenPowerError1)
 				return
 			end
+
+			local hiddenpowerMoveId = 237
+			local hiddenpowerName = MoveData.Moves[hiddenpowerMoveId].name or "Hidden Power"
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
-				printf(" [Command Error] You don't have a Pokémon yet.")
+				printf(" %s", Resources.MGBACommands.HiddenPowerError2)
 				return
-			elseif not Utils.pokemonHasMove(pokemonViewed, 237) then -- 237 = Hidden Power
-				printf(" [Command Error] Your Pokémon doesn't have the move Hidden Power.")
+			elseif not Utils.pokemonHasMove(pokemonViewed, hiddenpowerMoveId) then
+				printf(" %s %s.", Resources.MGBACommands.HiddenPowerError3, hiddenpowerName)
 				return
 			end
 
@@ -962,15 +957,16 @@ MGBA.CommandMap = {
 				Tracker.TrackHiddenPowerType(pokemonViewed.personality, hpType)
 				Program.redraw(true)
 				local pokemonData = PokemonData.Pokemon[pokemonViewed.pokemonID]
-				printf(" %s's (Lv.%s) Hidden Power's type set to: %s", pokemonData.name, pokemonViewed.level, typeName)
+				local pokemonInfo = string.format("%s (%s.%s)", pokemonData.name, Resources.TrackerScreen.LevelAbbreviation, pokemonViewed.level)
+				printf(" %s %s %s: %s", pokemonInfo, hiddenpowerName, Resources.MGBACommands.HiddenPowerSuccess1, typeName)
 
 				if Options["Show move effectiveness"] then
-					printf(" Hidden Power's move effectiveness is visible on the Tracker while in battle.")
+					printf(" %s %s", hiddenpowerName, Resources.MGBACommands.HiddenPowerSuccess2)
 				else
-					printf(" Enable the 'Show move effectiveness' option to see this type while in battle.")
+					printf(" %s", Resources.MGBACommands.HiddenPowerSuccess3)
 				end
 			else
-				printf(" Unable to find type: %s", typeName)
+				printf(" %s: %s", Resources.MGBACommands.HiddenPowerError4, typeName)
 			end
 		end,
 	},
@@ -983,7 +979,7 @@ MGBA.CommandMap = {
 			local number = params:match("^%d+")
 			if number == nil or tonumber(number) == nil then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where # is a positive number between 0 and 99.")
+				printf(" - %s", Resources.MGBACommands.PCHealsError1)
 				return
 			end
 
@@ -991,7 +987,7 @@ MGBA.CommandMap = {
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
 			Program.redraw(true)
-			printf(" Updating PC Heal count to: %s", Tracker.Data.centerHeals)
+			printf(" %s: %s", Resources.MGBACommands.PCHealsSuccess, Tracker.Data.centerHeals)
 		end,
 	},
 	["CREDITS"] = {
@@ -999,9 +995,9 @@ MGBA.CommandMap = {
 		usageSyntax = 'CREDITS()',
 		usageExample = 'CREDITS()',
 		execute = function(self, params)
-			printf("%-15s %s", "Created by:", Main.CreditsList.CreatedBy)
+			printf("%-15s %s", Resources.MGBACommands.CreditsCreatedBy .. ":", Main.CreditsList.CreatedBy)
 			printf("")
-			printf("Contributors:")
+			printf("%s:", Resources.MGBACommands.CreditsContributors)
 			for i=1, #Main.CreditsList.Contributors, 2 do
 				local contributorPair = string.format("* %-13s", Main.CreditsList.Contributors[i] or "")
 				if Main.CreditsList.Contributors[i + 1] ~= nil then
@@ -1018,7 +1014,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'filename' is a valid name for a file.")
+				printf(" - %s", Resources.MGBACommands.SaveDataError1)
 				return
 			end
 
@@ -1027,7 +1023,7 @@ MGBA.CommandMap = {
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(filename)
-			printf(" Tracked data saved for this game in the Tracker folder as: %s", filename)
+			printf(" %s: %s", Resources.MGBACommands.SaveDataSuccess, filename)
 		end,
 	},
 	["LOADDATA"] = {
@@ -1037,7 +1033,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where 'filename' is the name of a file that exists in your Tracker folder.")
+				printf(" - %s", Resources.MGBACommands.LoadDataError1)
 				return
 			end
 
@@ -1048,17 +1044,15 @@ MGBA.CommandMap = {
 			local success, msg = Tracker.loadData(FileManager.prependDir(filename))
 			if success then
 				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
-					printf(" " .. msg)
+					printf(" %s", msg)
 				else
-					printf(" Tracked data from this file does not match this game. Resetting tracked data instead.")
+					printf(" %s", Resources.MGBACommands.LoadDataError2)
 				end
 			else
 				if msg ~= nil and msg ~= "" then
-					printf(" " .. msg)
-					printf(" The specified Tracked data file (.tdat) cannot be found in your Tracker folder.")
-				else
-					printf(" Unable to load Tracked data from the specific file. Double-check it's in your Tracker folder.")
+					printf(" %s", msg)
 				end
+				printf(" %s", Resources.MGBACommands.LoadDataError3)
 			end
 		end,
 	},
@@ -1068,7 +1062,7 @@ MGBA.CommandMap = {
 		usageExample = 'CLEARDATA()',
 		execute = function(self, params)
 			Tracker.resetData()
-			printf(" All tracked data for this game has been cleared.")
+			printf(" %s", Resources.MGBACommands.ClearDataSuccess)
 		end,
 	},
 	["CHECKUPDATE"] = {
@@ -1078,13 +1072,13 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			Main.CheckForVersionUpdate(true)
 			if not Main.isOnLatestVersion() then
-				local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
+				local newUpdateName = string.format(" %s ** %s **", MGBA.Symbols.Menu.ListItem, Resources.MGBA.MenuNewUpdateVailable)
 				MGBA.Screens.UpdateCheck.textBuffer:setName(newUpdateName)
 				MGBA.Screens.UpdateCheck.labelTimer = 60 * 5 * 2 -- approx 5 minutes
 				Program.redraw(true)
-				printf("New update found! Version: %s  (check the sidebar menu to view it)", Main.Version.latestAvailable)
+				printf("[v%s] %s", Main.Version.latestAvailable, Resources.MGBACommands.CheckUpdateFound)
 			else
-				printf("No new updates available. Latest version available: %s", Main.Version.latestAvailable)
+				printf("%s: %s", Resources.MGBACommands.CheckUpdateNotFound, Main.Version.latestAvailable)
 			end
 		end,
 	},
@@ -1101,15 +1095,15 @@ MGBA.CommandMap = {
 		usageSyntax = 'UPDATENOW()',
 		usageExample = 'UPDATENOW()',
 		execute = function(self, params)
-			printf("> Update in progress, please wait...")
+			printf("> %s", Resources.MGBACommands.UpdateNowSuccess)
 			printf("")
 
 			if UpdateOrInstall.performParallelUpdate() then
 				printf("")
-				printf("> Follow these steps to restart the Tracker to apply the update:")
-				printf(" 1) Complete any ongoing battles first")
-				printf(" 2) On the mGBA scripting window: Click File -> Reset")
-				printf(" 3) Click File -> Load script (or Load recent script)")
+				printf("> %s:", Resources.MGBACommands.UpdateNowSteps0)
+				printf(" 1) %s", Resources.MGBACommands.UpdateNowSteps1)
+				printf(" 2) %s", Resources.MGBACommands.UpdateNowSteps2)
+				printf(" 3) %s", Resources.MGBACommands.UpdateNowSteps3)
 			end
 		end,
 	},
@@ -1138,7 +1132,7 @@ MGBA.CommandMap = {
 			local number = tonumber(params:match("^%d+") or "")
 			if number == nil or number <= 0 then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
-				printf(" - Where # is a positive number.")
+				printf(" - %s", Resources.MGBACommands.AttemptsError1)
 				return
 			end
 
@@ -1147,10 +1141,8 @@ MGBA.CommandMap = {
 			if prevAttemptsCount ~= Main.currentSeed then
 				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), Main.currentSeed)
 				Program.redraw(true)
-				printf(" Updating Attempts counter from '%s' to '%s'", prevAttemptsCount, Main.currentSeed)
-			else
-				printf(" Attempts counter already set to '%s'", Main.currentSeed)
 			end
+			printf(" %s: '%s' -> '%s'", Resources.MGBACommands.AttemptsSuccess, prevAttemptsCount, Main.currentSeed)
 		end,
 	},
 	["RANDOMBALL"] = {
@@ -1160,7 +1152,7 @@ MGBA.CommandMap = {
 		execute = function(self, params)
 			local ballChoice = TrackerScreen.randomlyChooseBall() -- 1, 2, or 3
 			local chosenBallText = TrackerScreen.PokeBalls.getLabel(ballChoice)
-			printf(" Randomly chosen starter Poké ball: %s", chosenBallText)
+			printf(" %s: %s", Resources.MGBACommands.RandomBallSuccess, chosenBallText)
 		end,
 	},
 }
