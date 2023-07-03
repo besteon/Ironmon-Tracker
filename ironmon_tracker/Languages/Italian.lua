@@ -1,4 +1,24 @@
 GameResources{
+	PokemonTypes = {
+		normal = "Normale",
+		fighting = "Lotta",
+		flying = "Volante",
+		poison = "Veleno",
+		ground = "Terra",
+		rock = "Roccia",
+		bug = "Coleottero",
+		ghost = "Spettro",
+		steel = "Acciaio",
+		fire = "Fuoco",
+		water = "Acqua",
+		grass = "Erba",
+		electric = "Elettro",
+		psychic = "Psico",
+		ice = "Ghiaccio",
+		dragon = "Drago",
+		dark = "Buio",
+		unknown = "???", -- For the move "Curse"
+	},
 	MoveNames = {
 		"Botta", --Botta english:Pound
 		"Colpokarate", --Colpokarate english:Karate Chop

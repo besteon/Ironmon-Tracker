@@ -100,6 +100,26 @@ ScreenResources{
 }
 
 GameResources{
+	PokemonTypes = {
+		normal = "ノーマル",
+		fighting = "かくとう",
+		flying = "ひこう",
+		poison = "どく",
+		ground = "じめん",
+		rock = "いわ",
+		bug = "むし",
+		ghost = "ゴースト",
+		steel = "はがね",
+		fire = "ほのお",
+		water = "みず",
+		grass = "くさ",
+		electric = "でんき",
+		psychic = "エスパー",
+		ice = "こおり",
+		dragon = "ドラゴン",
+		dark = "あく",
+		unknown = "???", -- For the move "Curse"
+	},
 	PokemonNames = {
 		"フシギダネ", -- English: BULBASAUR
 		"フシギソウ", -- English: IVYSAUR
