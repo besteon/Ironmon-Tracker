@@ -2,11 +2,17 @@ AbilityData = {}
 
 function AbilityData.updateResources()
 	for i, val in ipairs(AbilityData.Abilities) do
-		val.name = Resources.Game.AbilityNames[i]
+		if Resources.Game.AbilityNames[i] then
+			val.name = Resources.Game.AbilityNames[i]
+		end
 
-		local descData = Resources.Game.AbilityDescriptions[i]
-		val.description = descData.description
-		val.descriptionEmerald = descData.descriptionEmerald
+		local descData = Resources.Game.AbilityDescriptions[i] or {}
+		if descData.description then
+			val.description = descData.description
+		end
+		if descData.descriptionEmerald then
+			val.descriptionEmerald = descData.descriptionEmerald
+		end
 	end
 end
 

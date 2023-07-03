@@ -143,6 +143,17 @@ MGBA.Screens = {
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildUpdateCheck, self.displayLines, nil)
 		end,
 	},
+	Language = {
+		getTitle = function(self)
+			return Resources.MGBA.MenuLanguage
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildLanguage, self.displayLines, nil)
+		end,
+	},
 
 	CommandMenu = {
 		getTitle = function(self)
@@ -210,6 +221,7 @@ MGBA.Screens = {
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildPokemonInfo, self.displayLines, self.data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupMove = {
 		getTitle = function(self)
@@ -252,6 +264,7 @@ MGBA.Screens = {
 				self:setData(Battle.actualEnemyMoveId, false)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupAbility = {
 		getTitle = function(self)
@@ -284,6 +297,7 @@ MGBA.Screens = {
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildAbilityInfo, self.displayLines, self.data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupRoute = {
 		getTitle = function(self)
@@ -303,6 +317,7 @@ MGBA.Screens = {
 			self.data = DataHelper.buildRouteInfoDisplay(self.routeId)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildRouteInfo, self.displayLines, self.data)
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupOriginalRoute = {
 		getTitle = function(self)
@@ -317,6 +332,7 @@ MGBA.Screens = {
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildOriginalRouteInfo, self.displayLines, data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	Stats = {
 		getTitle = function(self)
@@ -355,7 +371,7 @@ MGBA.Screens = {
 -- Controls the display order of the TextBuffers in the mGBA Scripting window
 MGBA.OrderedScreens = {
 	MGBA.Screens.SettingsMenu,
-	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck,
+	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck, MGBA.Screens.Language,
 
 	MGBA.Screens.CommandMenu,
 	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsOther,
@@ -558,6 +574,10 @@ MGBA.OptionMap = {
 	[28] = {
 		optionKey = "Reveal info if randomized",
 		getText = function() return Resources.MGBA.OptionRevealRandomizedInfo end,
+	},
+	[29] = {
+		optionKey = "Autodetect language from game",
+		getText = function() return Resources.MGBA.OptionAutodetectGameLanguage end,
 	},
 	-- QUICKLOAD SETUP (#30-#35)
 	[30] = {
@@ -1155,6 +1175,43 @@ MGBA.CommandMap = {
 			printf(" %s: %s", Resources.MGBACommands.RandomBallSuccess, chosenBallText)
 		end,
 	},
+	["LANGUAGE"] = {
+		getDesc = function(self) return Resources.MGBACommands.LanguageDesc end,
+		usageSyntax = 'LANGUAGE "language"',
+		usageExample = 'LANGUAGE "French"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.LanguageError1)
+				return
+			end
+
+			local languageFound
+			local inputLower = params:lower()
+			local inputAsNumber = tonumber(inputLower) or -1
+			for _, lang in pairs(Resources.Languages) do
+				if lang.Ordinal == inputAsNumber or lang.Key:lower() == inputLower or lang.DisplayName:lower() == inputLower then
+					languageFound = lang
+					break
+				end
+			end
+
+			if not languageFound then
+				printf(" %s: %s", Resources.MGBACommands.LanguageError2, inputLower)
+				return
+			end
+
+			Resources.changeLanguageSetting(languageFound)
+			-- Clear out any old data that was using the previous language; repopulated on redraw
+			for _, screen in pairs(MGBA.Screens) do
+				if type(screen.resetData) == "function" then
+					screen:resetData()
+				end
+			end
+			Program.redraw(true)
+			printf(" %s (%s)", Resources.MGBACommands.LanguageSuccess, languageFound.DisplayName)
+		end,
+	},
 }
 
 -- Global functions required by mGBA input prompts
@@ -1243,3 +1300,7 @@ function attempts(...) ATTEMPTS(...) end
 function RANDOMBALL(...) MGBA.CommandMap["RANDOMBALL"]:execute(...) end
 function RandomBall(...) RANDOMBALL(...) end
 function randomball(...) RANDOMBALL(...) end
+
+function LANGUAGE(...) MGBA.CommandMap["LANGUAGE"]:execute(...) end
+function Language(...) LANGUAGE(...) end
+function language(...) LANGUAGE(...) end

@@ -1,10 +1,14 @@
 Resources = {}
+
+-- Debug: For quickly checking that all resources have been translated.
+local DEBUG_REPLACE_ALL_RESOURCES = false
+local DEBUG_REPLACEMENT_STRING = "$"
+
 -- TODO: Task list:
 -- * Log Viewer reading/parsing/searching log files
 -- * Add Drawing function to draw pokemon type bar with text overlayed
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
 -- * Move/Ability Descriptions need resources keys so they can be translated
--- * Add an MGBA settings screen for changing the language
 
 -- Things to test:
 -- * Check on Bizhawk 2.8 that words like "Pokémon" appear correctly
@@ -149,6 +153,17 @@ end
 
 -- Establishes global functions used for loading resource data from resource files
 function Resources.defineResourceCallbacks()
+	local debugReplaceAll
+	debugReplaceAll = function(table)
+		for key, val in pairs(table or {}) do
+			if type(val) == "string" then
+				table[key] = DEBUG_REPLACEMENT_STRING or Constants.BLANKLINE
+			elseif type(val) == "table" then
+				debugReplaceAll(val)
+			end
+		end
+	end
+
 	-- Sub function used by other resource load functions
 	local function dataLoadHelper(asset, data)
 		if Resources.Data[asset] == nil then
@@ -157,6 +172,10 @@ function Resources.defineResourceCallbacks()
 		local assetTable = Resources.Data[asset]
 		for key, val in pairs(data) do
 			assetTable[key] = val
+		end
+		-- TODO: Remove this and its related function before PR merge
+		if DEBUG_REPLACE_ALL_RESOURCES then
+			debugReplaceAll(assetTable)
 		end
 	end
 

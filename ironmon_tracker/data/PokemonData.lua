@@ -180,7 +180,9 @@ end
 
 function PokemonData.updateResources()
 	for i, val in ipairs(PokemonData.Pokemon) do
-		val.name = Resources.Game.PokemonNames[i]
+		if Resources.Game.PokemonNames[i] then
+			val.name = Resources.Game.PokemonNames[i]
+		end
 	end
 
 	-- Manually add in each evolution translation, as each has different formatting
@@ -223,6 +225,11 @@ function PokemonData.updateResources()
 	PE.WATER37.abbreviation = RPED.WATER37.abbreviation
 	PE.WATER37.short = { RPED.LEVEL.short .. "37", RPED.WATER.short, }
 	PE.WATER37.detailed = { RPED.LEVEL.detailed .. " 37", RPED.WATER.detailed, }
+end
+
+function PokemonData.getTypeResource(typename)
+	typename = typename or "unknown"
+	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.Unknown
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)

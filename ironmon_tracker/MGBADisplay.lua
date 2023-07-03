@@ -11,13 +11,24 @@ MGBADisplay.Symbols = {
 
 MGBADisplay.Categories = {
 	[MoveData.Categories.STATUS] = {
+		getText = function(self) return Resources.MGBAScreens.LabelStatus end,
 		getSymbol = function(self) return Resources.MGBAScreens.SymbolStatus end,
+		getShorthand = function(self) return Utils.formatUTF8("%s", self:getText()) end,
 	},
 	[MoveData.Categories.PHYSICAL] = {
+		getText = function(self) return Resources.MGBAScreens.LabelPhysical end,
 		getSymbol = function(self) return Resources.MGBAScreens.SymbolPhysical end,
+		getShorthand = function(self) return Utils.formatUTF8("%s (%s)", self:getText(), self:getSymbol()) end,
 	},
 	[MoveData.Categories.SPECIAL] = {
+		getText = function(self) return Resources.MGBAScreens.LabelSpecial end,
 		getSymbol = function(self) return Resources.MGBAScreens.SymbolSpecial end,
+		getShorthand = function(self) return Utils.formatUTF8("%s (%s)", self:getText(), self:getSymbol()) end,
+	},
+	[MoveData.Categories.NONE] = {
+		getText = function(self) return "" end,
+		getSymbol = function(self) return "" end,
+		getShorthand = function(self) return "" end,
 	},
 }
 
@@ -61,9 +72,9 @@ MGBADisplay.DataFormatter = {
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(data.p.types[1]), PokemonData.getTypeResource(data.p.types[2]))
 		else
-			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+			data.p.typeline = PokemonData.getTypeResource(data.p.types[1])
 		end
 
 		if tonumber(data.p.weight) ~= nil then
@@ -74,7 +85,7 @@ MGBADisplay.DataFormatter = {
 		if data.p.evo == PokemonData.Evolutions.NONE then
 			data.p.evodetails = Resources.MGBAScreens.PokemonInfoNone
 		else
-			data.p.evodetails = table.concat(data.p.evo.detailed, listSeparator)
+			data.p.evodetails = table.concat(Utils.getDetailedEvolutionsInfo(data.p.evo), listSeparator)
 		end
 
 		if data.p.movelvls == {} or #data.p.movelvls == 0 then
@@ -94,7 +105,7 @@ MGBADisplay.DataFormatter = {
 			local effectTypes = data.e[typeMultiplier]
 			if effectTypes ~= nil and #effectTypes ~= 0 then
 				for i = 1, #effectTypes, 1 do
-					effectTypes[i] = Utils.firstToUpper(effectTypes[i])
+					effectTypes[i] = PokemonData.getTypeResource(effectTypes[i])
 				end
 				local label = MGBADisplay.Effectiveness[typeMultiplier]:getText()
 				data.e.list[label] = table.concat(data.e[typeMultiplier], listSeparator)
@@ -107,18 +118,14 @@ MGBADisplay.DataFormatter = {
 	end,
 	formatMoveInfo = function(data)
 		data.m.name = data.m.name:upper()
-		data.m.type = Utils.firstToUpper(data.m.type)
+		data.m.type = PokemonData.getTypeResource(data.m.type)
 
 		if tonumber(data.m.accuracy) ~= nil then
 			data.m.accuracy = data.m.accuracy .. "%"
 		end
 
-		if data.m.category == MoveData.Categories.PHYSICAL or data.m.category == MoveData.Categories.SPECIAL then
-			local catSymbol = " "
-			if MGBADisplay.Categories[data.m.category] then
-				catSymbol = MGBADisplay.Categories[data.m.category]:getSymbol()
-			end
-			data.m.category = Utils.formatUTF8("%s (%s)", data.m.category, catSymbol)
+		if MGBADisplay.Categories[data.m.category] then
+			data.m.category = MGBADisplay.Categories[data.m.category]:getShorthand()
 		end
 
 		if data.m.iscontact then
@@ -180,16 +187,24 @@ MGBADisplay.DataFormatter = {
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(data.p.types[1]), PokemonData.getTypeResource(data.p.types[2]))
 		else
-			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+			data.p.typeline = PokemonData.getTypeResource(data.p.types[1])
 		end
 
 		TrackerScreen.updateButtonStates() -- required prior to using TrackerScreen.Buttons[statKey]
 
+		local statLabels = {
+			["HP"] = Resources.MGBAScreens.TrackerHP,
+			["ATK"] = Resources.MGBAScreens.TrackerAttack,
+			["DEF"] = Resources.MGBAScreens.TrackerDefense,
+			["SPA"] = Resources.MGBAScreens.TrackerSpAttack,
+			["SPD"] = Resources.MGBAScreens.TrackerSpDefense,
+			["SPE"] = Resources.MGBAScreens.TrackerSpeed,
+		}
 		data.p.labels = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			data.p.labels[statKey] = statKey:upper()
+			data.p.labels[statKey] = statLabels[statKey:upper()] or "???"
 			if data.x.viewingOwn then
 				if statKey == data.p.positivestat then
 					data.p.labels[statKey] = data.p.labels[statKey] .. "+"
@@ -221,7 +236,7 @@ MGBADisplay.DataFormatter = {
 			if move.type == nil or move.type == MoveData.BlankMove.type then
 				move.type = Constants.BLANKLINE
 			else
-				move.type = Utils.firstToUpper(move.type)
+				move.type = PokemonData.getTypeResource(move.type)
 			end
 		end
 	end,
@@ -386,6 +401,46 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateDownloadInstall))
 		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["UPDATENOW"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+
+		return lines
+	end,
+	buildLanguage = function()
+		local lines = {}
+
+		local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
+		local userLanguage = Resources.Languages[userLanguageKey]
+
+		table.insert(lines, Utils.formatUTF8("%s (%s)", MGBA.Screens.Language:getTitle():upper(), userLanguage.DisplayName))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.LanguageChangeWith))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["LANGUAGE"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Resources.MGBAScreens.LanguageHeaderLang, Resources.MGBAScreens.LanguageHeaderLang))
+
+		local orderedLanguages = {}
+		for _, lang in pairs(Resources.Languages) do
+			if not lang.ExcludeFromSettings then
+				table.insert(orderedLanguages, lang)
+			end
+		end
+		table.sort(orderedLanguages, function(a,b) return a.Ordinal < b.Ordinal end)
+		for _, lang in ipairs(orderedLanguages) do
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", lang.Ordinal, Utils.firstToUpper(lang.Key:lower()), lang.DisplayName))
+		end
+
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+
+		local optionBar = "%-2s %-26s [%s]"
+		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption, Resources.MGBAScreens.LabelEnabled))
+
+		local optionAutodetectId = 29
+		local opt = MGBA.OptionMap[optionAutodetectId]
+		if opt ~= nil then
+			table.insert(lines, Utils.formatUTF8(optionBar, optionAutodetectId, opt:getText(), opt:getValue()))
+		end
+
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		return lines
@@ -593,7 +648,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do
-			local formattedName = statPair.getText():gsub("é", "e") -- The 'é' character doesn't work with format padding like %-20s
+			local formattedName = statPair.getText()
 			local formattedValue = Utils.formatNumberWithCommas(statPair.getValue() or 0)
 			table.insert(lines, Utils.formatUTF8(statBar, formattedName .. ":", formattedValue))
 		end
@@ -612,8 +667,8 @@ MGBADisplay.LineBuilder = {
 
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			local statText = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
-			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statText, data.p.stages[statKey])
+			local statValue = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
+			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statValue, data.p.stages[statKey])
 		end
 
 		-- Header and top dividing line (with types)
@@ -627,7 +682,8 @@ MGBADisplay.LineBuilder = {
 		if data.p.evo == PokemonData.Evolutions.NONE then
 			levelLine = Utils.formatUTF8("%s.%s", Resources.MGBAScreens.TrackerLevel, data.p.level)
 		else
-			levelLine = Utils.formatUTF8("%s.%s (%s)", Resources.MGBAScreens.TrackerLevel, data.p.level, data.p.evo.abbreviation)
+			local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
+			levelLine = Utils.formatUTF8("%s.%s (%s)", Resources.MGBAScreens.TrackerLevel, data.p.level, abbreviationText)
 		end
 		if data.x.viewingOwn then
 			local hpLine = Utils.formatUTF8("%s: %s/%s", Resources.MGBAScreens.TrackerHP, data.p.curHP, data.p.hp)

@@ -46,16 +46,26 @@ MiscData.StatusCodeMap = {
 }
 
 function MiscData.updateResources()
-	MiscData.Natures = Resources.Game.NatureNames
-	MiscData.Items = Resources.Game.ItemNames
-	for i, item in pairs(MiscData.HealingItems) do
-		item.name = Resources.Game.ItemNames[i]
+	if Resources.Game.NatureNames and #Resources.Game.NatureNames > 0 then
+		MiscData.Natures = Resources.Game.NatureNames
 	end
-	for i, item in pairs(MiscData.StatusItems) do
-		item.name = Resources.Game.ItemNames[i]
+	if Resources.Game.ItemNames and #Resources.Game.ItemNames > 0 then
+		MiscData.Items = Resources.Game.ItemNames
 	end
-	for i, item in pairs(MiscData.EvolutionStones) do
-		item.name = Resources.Game.ItemNames[i]
+	for itemId, item in pairs(MiscData.HealingItems) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
+	for itemId, item in pairs(MiscData.StatusItems) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
+	for itemId, item in pairs(MiscData.EvolutionStones) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
 	end
 end
 

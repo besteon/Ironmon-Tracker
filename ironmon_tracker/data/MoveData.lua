@@ -140,8 +140,12 @@ end
 
 function MoveData.updateResources()
 	for i, val in ipairs(MoveData.Moves) do
-		val.name = Resources.Game.MoveNames[i]
-		val.summary = Resources.Game.MoveDescriptions[i]
+		if Resources.Game.MoveNames[i] then
+			val.name = Resources.Game.MoveNames[i]
+		end
+		if Resources.Game.MoveDescriptions[i] then
+			val.summary = Resources.Game.MoveDescriptions[i]
+		end
 	end
 end
 

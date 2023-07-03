@@ -753,11 +753,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
+	local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
 	local evoSpacing
 	if data.p.evo ~= PokemonData.Evolutions.NONE then
 		levelEvoText = levelEvoText .. " ("
 		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
-		levelEvoText = levelEvoText .. data.p.evo .. ")"
+		levelEvoText = levelEvoText .. abbreviationText .. ")"
 	end
 
 	-- Squeeze text together a bit to show the exp bar
@@ -792,7 +793,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			else
 				evoTextColor = Theme.COLORS["Default text"]
 			end
-			Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, data.p.evo, evoTextColor, shadowcolor)
+			Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 		end
 		offsetY = offsetY + linespacing
 	else

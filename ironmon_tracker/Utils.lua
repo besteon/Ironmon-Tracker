@@ -498,6 +498,18 @@ function Utils.getShortenedEvolutionsInfo(evoMethod)
 	return evoMethod.short
 end
 
+-- Returns the abbreviation (string) for a given Pokemon's evolution
+function Utils.getEvoAbbreviation(evoMethod)
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
+
+	-- Evolves only by leveling up, no abbreviation needed
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		return tostring(evoMethod)
+	end
+
+	return evoMethod.abbreviation
+end
+
 -- moveType required for Hidden Power tracked type
 function Utils.netEffectiveness(move, moveType, comparedTypes)
 	if moveType == nil or comparedTypes == nil or comparedTypes == {} then
