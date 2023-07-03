@@ -1,6 +1,5 @@
 Resources = {}
 -- TODO: Task list:
--- * MGBA and MGBADisplay
 -- * Log Viewer reading/parsing/searching log files
 -- * Add Drawing function to draw pokemon type bar with text overlayed
 -- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)

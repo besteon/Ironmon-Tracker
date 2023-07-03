@@ -518,9 +518,9 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionShowMoveTypes end,
 		getValue = function(self)
 			if Theme[self.themeKey] == true then
-				return MGBADisplay.Symbols.Options.Enabled
+				return MGBADisplay.Symbols.OptionEnabled
 			else
-				return MGBADisplay.Symbols.Options.Disabled
+				return MGBADisplay.Symbols.OptionDisabled
 			end
 		end,
 		updateSelf = function(self)
@@ -674,9 +674,9 @@ function MGBA.buildOptionMapDefaults()
 		if opt.getValue == nil then
 			opt.getValue = function(self)
 				if Options[self.optionKey] == true then
-					return MGBADisplay.Symbols.Options.Enabled
+					return MGBADisplay.Symbols.OptionEnabled
 				elseif Options[self.optionKey] == false then
-					return MGBADisplay.Symbols.Options.Disabled
+					return MGBADisplay.Symbols.OptionDisabled
 				else
 					return Options.CONTROLS[self.optionKey] or ""
 				end
@@ -802,7 +802,7 @@ MGBA.CommandMap = {
 	["POKEMON"] = {
 		getDesc = function(self) return Resources.MGBACommands.PokemonDesc end,
 		usageSyntax = 'POKEMON "name"',
-		usageExample = 'POKEMON "Shuckle"',
+		usageExample = 'POKEMON "Espeon"',
 		execute = function(self, params)
 			if params == nil or params == "" then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
@@ -916,9 +916,9 @@ MGBA.CommandMap = {
 			if success then
 				Program.redraw(true)
 				local newValue = opt:getValue() or ""
-				if newValue == MGBADisplay.Symbols.Options.Enabled then
+				if newValue == MGBADisplay.Symbols.OptionEnabled then
 					newValue = Resources.MGBACommands.OptionOn
-				elseif newValue == MGBADisplay.Symbols.Options.Disabled then
+				elseif newValue == MGBADisplay.Symbols.OptionDisabled then
 					newValue = Resources.MGBACommands.OptionOff
 				end
 				printf(" %s #%s: '%s' -> %s.", Resources.MGBACommands.OptionSuccess, optionNumber, opt:getText(), newValue)
