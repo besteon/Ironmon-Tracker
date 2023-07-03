@@ -778,6 +778,7 @@ GameResources{
 		dark = "Dark",
 		unknown = "???", -- For the move "Curse"
 	},
+	-- The list of Pokémon names below must remain in the same order
 	PokemonNames = {
 		"Bulbasaur",
 		"Ivysaur",
@@ -1191,6 +1192,7 @@ GameResources{
 		"Deoxys",
 		"Chimecho",
 	},
+	-- The list of Pokémon moves below must remain in the same order
 	MoveNames = {
 		"Pound",
 		"Karate Chop",
@@ -1547,362 +1549,1427 @@ GameResources{
 		"Doom Desire",
 		"Psycho Boost",
 	},
+	-- The list below must remain in the same order.
+	-- These are custom hand-written move summaries, only edit the "Desctipion" value
 	MoveDescriptions = {
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals damage and has no secondary effect.",
-		"Scatters coins equal to five times the user's level each time.",
-		"Deals damage and has a 10% chance of burning the opponent.",
-		"Deals damage and has a 10% chance of freezing the opponent.",
-		"Deals damage and has a 10% chance of paralyzing the opponent.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has no secondary effect.",
-		"A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
-		"Does nothing on the turn it is selected. Deals damage on the following turn.",
-		"Increases the user's Attack stat by two stages.",
-		"Deals damage and has no secondary effect.",
-		"Deals double damage if opponent is using Fly or Bounce.",
-		"Deals damage and has no secondary effect.",
-		"Forces target to switch out with another random Pokemon. Fails against Suction Cups or Ingrain.",
-		"Attacks on 2nd turn. Can still be hit by Gust, Sky Uppercut, Thunder, Twister, and Whirlwind.",
-		"Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage with 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
-		"Deals damage twice, each hit able to be critical.",
-		"Deals damage and has no secondary effect.",
-		"If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
-		"Deals damage and has a 30% chance of causing the target to flinch.",
-		"Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
-		"Deals damage and has a 30% chance of causing the target to flinch.",
-		"Deals damage and has no secondary effect.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has a 30% chance of paralyzing the target.",
-		"Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"The user receives recoil damage equal to 1/4 of the damage dealt.",
-		"Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
-		"The user receives recoil damage equal to 1/3 of the damage dealt.",
-		"Decreases the Defense stat of all adjacent opponents by one stage.",
-		"Deals damage and has a 30% chance of poisoning the target.",
-		"Deals damage twice, each hit able to be critical. Final hit has a 20% chance of poisoning the target.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Decreases the Defense stat of all adjacent opponents by one stage.",
-		"Deals damage and has a 30% chance of causing the target to flinch.",
-		"Decreases the Attack stat of all adjacent opponents by one stage.",
-		"Forces target to switch out with another random Pokemon. Fails against Soundproof, Suction Cups or Ingrain.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit or Soundproof.",
-		"Causes the target to become confused. Fails against Soundproof or Own Tempo.",
-		"Always inflicts exactly 20 HP damage if it hits.",
-		"Disables the last move used by the target for 2-5 turns.",
-		"Deals damage and has a 10% chance of lowering the target's Defense stat by one stage.",
-		"Deals damage and has a 10% chance of burning the target.",
-		"Deals damage and has a 10% chance of burning the target.",
-		"For five turns, enemy Pokémon cannot lower stats of Pokémon on your team.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has no secondary effect.",
-		"Deals double damage if opponent is using Dive.",
-		"Deals damage and has a 10% chance of freezing the target.",
-		"Deals damage and has a 10% chance of freezing the target.",
-		"Deals damage and has a 10% chance of confusing the target.",
-		"Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
-		"Deals damage and has a 10% chance of lowering the target's Attack stat by one stage.",
-		"Deals damage and then forces the user to recharge during the next turn.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage, and the user receives recoil damage equal to 25% of the damage done.",
-		"Deals between 20-120 damage dependent on the weight of the target.",
-		"If hit by a Physical category move, deals twice the damage received back to the user.",
-		"Deals exact damage equal to the user's level.",
-		"Deals damage and has no secondary effect.",
-		"50% of the damage dealt is restored to the user as HP.",
-		"50% of the damage dealt is restored to the user as HP.",
-		"Drains 1/8 of the target's HP at the end of each turn.",
-		"Increases the user's Special Attack stat by one stage.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain or sandstorm.",
-		"Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
-		"Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
-		"Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
-		"Decreases the targets' Speed stat by one stage.",
-		"Always inflicts exactly 40 HP damage if it hits.",
-		"Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"Deals damage and has a 10% chance of paralyzing the target.",
-		"Deals damage and has a 10% chance of paralyzing the target.",
-		"Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
-		"30% chance to paralyze. Can hit Fly and Bounce. Always hits during the rain. Accuracy is 50 when sunny.",
-		"Deals damage and has no secondary effect.",
-		"Deals double damage if opponent is using Dig.",
-		"A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokémon using Dig.",
-		"Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude. Can be used outside of battle.",
-		"Poisons the target, losing increasing amounts of the their max HP at the end of each turn.",
-		"Deals damage and has a 10% chance of confusing the target.",
-		"Deals damage and has a 10% chance of lowering the target's Special Defense by one stage.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
-		"Increases the user's Attack by one stage.",
-		"Increases the user's Speed by two stages.",
-		"This is an increased priority move, causing the user to attack before most other moves.",
-		"When used consecutively, Attack stat increases by one stage when damaged by an attack.",
-		"Flees from wild Pokémon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.",
-		"Deals exact damage equal to the user's level.",
-		"Copies the target's last used move. Fails against Sketch, Transform, Metronome, or a move already learned.",
-		"Decreases the target's Defense stat by two stat stages. Fails against Soundproof ability.",
-		"Increases the user's evasion by one stage.",
-		"Restores up to 50% of the user's max HP.",
-		"Increases the user's Defense stat by one stage.",
-		"Increases evasion by one stage. User will now receive double damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
-		"Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
-		"Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
-		"Increases the user's Defense by one stage.",
-		"Increases the user's Defense by one stage. Also doubles the power of user's Rollout and Ice Ball.",
-		"Increases the user's Defense by two stages.",
-		"For 5 turns, halves the damage done to user's team by Special moves.",
-		"Resets the stat stages of all active Pokémon on the field to 0.",
-		"For 5 turns, halves the damage done to user's team by Physical moves.",
-		"Increases the user's critical hit ratio by two stages. (+2 stages = 1/4 or 25%)",
-		"Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.",
-		"Randomly selects a move to use, and a random target if necessary.",
-		"Uses the last move targeted at the user by a Pokémon still on the field.",
-		"The target's Defense is halved, effectively doubling the power of this move.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has a 30% chance of paralyzing the target.",
-		"Deals damage and has a 40% chance of poisoning the target.",
-		"Deals damage and has a 30% chance of poisoning the target.",
-		"Deals damage and has a 10% chance of causing the target to flinch.",
-		"Deals damage and has a 10% chance of burning the target.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Raises the user's Defense by one stage. On the following turn, it deals damage.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals damage and has a 10% chance of lowering the target's Speed by one stage.",
-		"Increases the user's Special Defense by two stages.",
-		"Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
-		"Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
-		"If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
-		"Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
-		"Fails if target is not asleep. 50% of the damage dealt is restored to the user as HP.",
-		"Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"50% of the damage dealt is restored to the user as HP.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
-		"Attacks on 2nd turn, 30% chance to flinch target. Has increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
-		"Turns into the target by copying everything about it (even stat changes), except the current and max HP. Each move's PP will become 5.",
-		"Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
-		"Deals damage and has a 20% chance of confusing the target.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
-		"Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
-		"Deals a random amount of damage, varying between 50% and 150% of the user's level. Minimum of 1 damage.",
-		"Deals no damage and has no effect whatsoever.",
-		"Increases the user's Defense by two stages.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"The target's Defense is halved, effectively doubling the power of this move.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals damage twice, each hit able to be critical.",
-		"Restores HP to full while going to sleep for 2 turns. Fails if user has Insomnia or Vital Spirit.",
-		"Deals damage and has a 30% chance of causing each target to flinch.",
-		"Deals damage and has a 10% chance of causing the target to flinch.",
-		"Increases the user's Attack stat by one stage.",
-		"Changes the user's type to match the type of one of the user's moves (including Conversion itself).",
-		"Deals damage and has a 20% chance of either paralyzing, freezing, or burning the target.",
-		"Deals exact damage equal to 50% of the target's current HP, minimum of 1.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
-		"User loses 25% of max HP to hide behind a substitute, which prevents the effects of most attacks.",
-		"Hits as neutral damage, even through Wonder Guard. User receives recoil damage equal to 1/4 of damage dealt.",
-		"User learns the target's last move permanently, replacing Sketch in the process. Fails against some moves, or if user already knows the move.",
-		"Deals damage three times, each additional hit gains 10 power. Each hit has a separate accuracy check and is able to be critical.",
-		"Steals the target's held item, if it has one. An item cannot be stolen if the user already has an item, or the target has Sticky Hold.",
-		"Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
-		"Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.",
-		"Causes a sleeping target to lose 1/4 of the their max HP at the end of each turn that they remain asleep.",
-		"Deals damage and has a 10% chance of burning the target. This move will first thaw out its user if frozen.",
-		"If the user is asleep, deals damage and has a 30% chance of causing the target to flinch. No effect against Soundproof.",
-		"Lowers Speed but raises Attack and Defense. If user is Ghost, instead loses half max HP to curse target, causing them to lose 1/4 of the their max HP at end of each turn.",
-		"Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.",
-		"Randomly changes the user's type to a new type that resists or is immune to the type of the last damaging move it was hit by.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Lowers the target's Speed stat by two stages.",
-		"Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.",
-		"Decreases the PP of the target's last used move by 2-5 PP, chosen at random. Spite fails if that move has exactly 1 PP remaining.",
-		"Deals damage and has a 10% chance of freezing the target.",
-		"Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
-		"This is an increased priority move, causing the user to attack before most other moves.",
-		"Lowers the target's Speed stat by two stages.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
-		"The user loses half of their max HP, and in return raises their Attack stat all the way to +6 stages.",
-		"Deals damage and has a 30% chance of poisoning the target.",
-		"Deals damage and lowers the target's accuracy by one stage.",
-		"Deals damage and has a 50% chance to lower the target's accuracy by one stage.",
-		"Creates a hazard for the enemy team (can stack 3 times). Switching out deals 1/8, 1/6, or 1/4 max HP in damage to an enemy without Flying or Levitate.",
-		"Deals damage and paralyzes the target every time it hits.",
-		"Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.",
-		"If the user faints as the result of a direct attack by an enemy, that Pokémon also faints. Effect ends when user uses another move.",
-		"All Pokémon faint after 3 turns. Switching out or having Soundproof removes this effect.",
-		"Deals damage to all adjacent opponents and lowers the Speed of each by one stage.",
-		"Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.",
-		"Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
-		"Changes weather to Sandstorm for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Steel, Ground, and Rock types.",
-		"50% of the damage dealt is restored to the user as HP.",
-		"Allows the user to survive any single attack that would cause it to faint, leaving the user with 1 HP instead.",
-		"Lowers the Attack stat of the target by two stages.",
-		"Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
-		"Deals damage, but will always leave the target with 1 HP if it would otherwise cause it to faint.",
-		"Raises the target's Attack stat by two stages and confuses it.",
-		"Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
-		"Deals damage and has a 30% chance of paralyzing the target.",
-		"Each time this move hits successively, its power will double, up to a maximum of 160. Otherwise, it resets to base power.",
-		"Deals damage and has a 10% chance of raising the user's Defense by one stage.",
-		"Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
-		"If the user and the target are opposite genders, the target will become infatuated, unable to use moves 50% of the time.",
-		"If the user is asleep, randomly chooses another one of the user's moves to use.",
-		"Cures all Pokémon in the user's party of all major status conditions. Fails against Pokémon with Soundproof.",
-		"Power ranges between 1 and 102, strongest at friendship of 255. If the user's friendship is 127 or less, Frustration is stronger.",
-		"40% chance power is 40, 30% chance it's 80, 10% chance it's 120, and 20% chance to heal target by 1/4 their max HP.",
-		"Power ranges between 1 and 102, strongest at friendship of 0. If the user's friendship is 128 or greater, Return is stronger.",
-		"For 5 turns, protects the user's party from most status effects and confusion.",
-		"Equalizes HP of user and target by adding both Pokemon's current HP together, then dividing by two, split among them evenly.",
-		"Deals damage and has a 50% chance of burning the target. This move will first thaw out its user if frozen.",
-		"Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit Pokémon using Dig.",
-		"Deals damage and always confuses the target, lasting 2-5 turns.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and has a 30% chance of paralyzing the target.",
-		"Switches out the user, passing all temporary stat stage changes as well as many other effects and conditions, on to the Pokémon that replaces it in battle.",
-		"Prevents the target from using any move except its last used move, lasts for 2-6 turns.",
-		"If the target Pokémon attempts to switch out, Pursuit's power will double and hit it first.",
-		"Deals damage and removes the effects of any binding moves, Leech Seed, and any entry hazards such as Spikes from the user's field.",
-		"Lowers the evasion of all adjacent opponents by one stage. Can be used outside of battle to attract a wild Pokemon.",
-		"Deals damage and has a 30% chance of lowering the target's Defense stat by one stage.",
-		"Deals damage and has a 10% chance of raising the user's Attack stat by one stage.",
-		"This is a decreased priority move, causing the user to attack after most other moves.",
-		"Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
-		"Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
-		"Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
-		"Power and type vary with IVs, power ranges from 30 to 70. Counter will always work against this move, but never Mirror Coat.",
-		"Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Deals damage and has a 20% chance of causing each target to flinch. Hits Pokémon using Bounce or Fly for double damage.",
-		"Changes weather to Rain for 5 turns. Water moves are boosted by 50% and Fire moves are weakened by 50%. Thunder ignores accuracy and evasion.",
-		"Changes weather to Sunny for 5 turns. Fire moves are boosted by 50% and Water moves are weakened by 50%. Thunder accuracy becomes 50%.",
-		"Deals damage and has a 20% chance of lowering the target's Special Defense stat by one stage.",
-		"If hit by a Special category move, deals twice the damage received back to the user.",
-		"Resets the user's stat changes and copies all of the target's stat stages onto the user: ATK DEF SPA SPD SPE ACC EVA.",
-		"This is an increased priority move, causing the user to attack before most other moves.",
-		"Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.",
-		"Deals damage and has a 20% chance of lowering the target's Special Defense by one stage.",
-		"Locks in damage when used based on SpAtk of user and SpDef of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.",
-		"Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.",
-		"Deals damage (doubled if opponent using Dive) and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"Each conscious, non-statused Pokémon in the user's party does an independent attack, each one is typeless with power of 10.",
-		"This is an increased priority move. It always makes the target flinch, but attack will fail if it's not the first move used.",
-		"Deals damage for 2-5 consecutive turns. Wakes up sleeping Pokémon and prevents them from falling asleep, except those with Soundproof.",
-		"Stores up energy, stacks three times. Unleash energy using Spit Up to deal damage or Swallow to heal HP.",
-		"Consumes energy stored up by Stockpile, 100 power for each stack (0 if none). This move cannot cause a critical hit.",
-		"Consumes energy stored up by Stockpile, healing user for 25%, 50%, or 100% HP based on number of stacks consumed (0% if none).",
-		"Deals damage and has a 10% chance of burning the target.",
-		"Changes weather to Hail for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Ice types.",
-		"Prevents the target from choosing to use the same move twice in a row. Effect ends when the Pokémon switches out.",
-		"Raises the target's Special Attack stat by one stage and confuses it.",
-		"Inflicts a burn on the target, ineffective against Fire type Pokemon. Burned Pokémon deal half damage with Physical moves and lose 1/8 max HP each turn.",
-		"User faints to lower the Attack and Special Attack stat of the target by two stages each.",
-		"Power doubles if the user is poisoned, paralyzed, or burned. The burn's effect of halving the damage done is still applied.",
-		"This is a decreased priority move. This move will fail if the user is dealt direct damage first.",
-		"Power doubles against a paralyzed target, but it will also cure the target of paralysis.",
-		"This is an increased priority move. The user redirects all targeted moves from enemy Pokémon to itself.",
-		"Sand: Earthquake, Building: Swift, Cave: Shadow Ball, Rock: Rock Slide, Tall grass: Stun Spore, Long grass: Razor Leaf, Pond: Bubblebeam, Sea: Surf, Underwater: Hydro Pump.",
-		"User charges up, empowering the next move it uses. If that next move is Electric, damage dealt will be doubled.",
-		"Prevents the target Pokémon from using Status category moves; moves that aren't Physical or Special. Bypasses Substitute. This effect lasts 2 turns.",
-		"This is an increased priority move. The user boost its ally's damage done by 50% for this turn only.",
-		"Switches held items with the target. Fails if used by a wild Pokémon, or if both Pokémon don't have items, or against a Substitute.",
-		"Replaces the user's ability with the target's. Fails if target ability is Trace or Wonder Guard. Some abilities like Intimidate don't trigger.",
-		"No effect on the turn used. At the end of the next turn, the Pokémon in the user's current position will be healed by half its own max HP.",
-		"Randomly selects an eligible move from all other moves known by Pokémon in the user's party, including fainted Pokemon.",
-		"Restore 1/16th of its max HP at the end of every turn. Prevents the user from switching out, even from moves like Roar and Whirlwind.",
-		"Deals damage, then lowers the user's Attack and Defense stats by one stage each.",
-		"Reflects most Status category moves back at the enemy, most offensive moves that aren't Physical or Special.",
-		"Regains a held item, such as a Berry. Fails if item was lost through Thief or Knock Off.",
-		"This is a decreased priority move. Power is doubled if user is damaged by the target in the same turn.",
-		"Removes Light Screen and Reflect from the opponent's side of the field, then inflicts damage. Removes those effects even against Ghost Pokemon.",
-		"Makes the target drowsy. At the end of the next turn, the drowsy Pokémon will fall asleep.",
-		"Renders the target's held item unusable for the rest of the battle, even if switches out.",
-		"Causes the target's HP to become equal the user's current HP.",
-		"Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP",
-		"Exchanges the abilities of the user and the target. This information is not shown to the player. Fails against Wonder Guard.",
-		"As long as the user remains in battle, opponents cannot use any move which is also known by the user.",
-		"Cures the user of burns, poison, or paralysis. It cannot cure sleep if it is used by Sleep Talk.",
-		"If the user faints as the result of a direct attack by an enemy, the last used move loses all PP. Effect ends when user uses another move.",
-		"This is an increased priority move. If another Pokémon tries to use a beneficial Status category move, the user will use that move instead.",
-		"30% chance to Sand: --ACC, Building: paralysis, Cave: flinch, Rock: confusion, Tall grass: poison, Long grass: sleep, Pond: --SPD, Sea: --ATK, Underwater: --DEF",
-		"Attacks on 2nd turn. Can still be hit by Surf and Whirlpool and will take double damage.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Change user's type based on terrain. Building: Normal, Sand: Ground, Cave/rock: Rock, Tall/long grass: Grass, Water: Water",
-		"Increases the user's Special Attack by two stages.",
-		"Deals damage and has a 50% chance of lowering the target's Special Defense.",
-		"Deals damage and has a 50% chance of lowering the target's Special Attack.",
-		"Lowers the target's Attack stat by two stages.",
-		"Causes all other Pokémon to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
-		"Deals damage and has a 10% chance of burning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Reduces the power of Electric moves by 50% for all Pokémon in the battle. This effect last until the user switches out.",
-		"Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
-		"Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
-		"Restores up to 50% of the user's max HP.",
-		"Deals damage to all adjacent opponents. Pokémon with Soundproof are not affected by this move.",
-		"Deals damage and has a 30% chance of badly poisoning the target.",
-		"Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.",
-		"Deals damage and then forces the user to recharge during the next turn.",
-		"Deals damage and then forces the user to recharge during the next turn.",
-		"Deals damage and has a 20% chance of raising the user's Attack stat by one stage.",
-		"Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
-		"Power doubles in weather and changes type: Fire if sunny, Water if raining, Ice if hailing, Rock if sandstorm.",
-		"Cures all Pokémon in the user's party of all major status conditions.",
-		"Lowers the target's Special Defense stat by two stages.",
-		"Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Deals damage and lowers the user's Special Attack by two stages.",
-		"Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.",
-		"Deals damage and lowers the opponent's Speed by one stage.",
-		"Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.",
-		"Lowers the target's Special Defense stat by two stages. Fails against Pokémon with Soundproof.",
-		"Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit, or Soundproof.",
-		"Reduces the target's Attack and Defense stats by one stage each. Works even if enemy has a Substitute.",
-		"Raises the Defense and Special Defense of the user by one stage each.",
-		"Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP",
-		"Deals damage and has a 10% chance of confusing the target.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Deals damage and has a 10% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
-		"Deals damage and can hit Pokémon during the semi-invulnerable turns of Fly and Bounce.",
-		"Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
-		"A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
-		"Deals damage and has a 30% chance of lowering each target's accuracy by one stage.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals raises the user's Defense stat by two stages.",
-		"Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
-		"Deals raises the user's Attack stat by one stage.",
-		"Deals damage and has no secondary effect.",
-		"Deals damage and then forces the user to recharge during the next turn.",
-		"Raises the user's Attack stat and Defense stat by one stage each.",
-		"Attacks on 2nd turn with a 30% chance of paralyzing target. Can still be hit by Gust, Sky Uppercut, Thunder, and Twister.",
-		"Deals damage and then lowers the target's Speed stat by one stage.",
-		"Deals damage and has a 10% chance of poisoning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Steals the target's held item, if it has one. An item cannot be stolen if the target has Sticky Hold.",
-		"The user receives recoil damage equal to 1/3 of the damage dealt.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Reduces the power of Fire moves by 50% for all Pokémon in the battle. This effect last until the user switches out.",
-		"Raises the user's Special Attack and Special Defense stats by one stage each.",
-		"Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
-		"Raises the user's Attack stat and Speed stat by one stage each.",
-		"Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
-		"Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
-		"Deals damage and has a 20% chance of confusing the target.",
-		"Locks in damage when used based on Atk of user and Def of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.",
-		"Deals damage and lowers the user's Special Attack stat by two stages.",
+		{
+			NameKey = "Pound",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Karate Chop",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "DoubleSlap",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Comet Punch",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Mega Punch",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Pay Day",
+			Description = "Scatters coins equal to five times the user's level each time.",
+		},
+		{
+			NameKey = "Fire Punch",
+			Description = "Deals damage and has a 10% chance of burning the opponent.",
+		},
+		{
+			NameKey = "Ice Punch",
+			Description = "Deals damage and has a 10% chance of freezing the opponent.",
+		},
+		{
+			NameKey = "ThunderPunch",
+			Description = "Deals damage and has a 10% chance of paralyzing the opponent.",
+		},
+		{
+			NameKey = "Scratch",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "ViceGrip",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Guillotine",
+			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		},
+		{
+			NameKey = "Razor Wind",
+			Description = "Does nothing on the turn it is selected. Deals damage on the following turn.",
+		},
+		{
+			NameKey = "Swords Dance",
+			Description = "Increases the user's Attack stat by two stages.",
+		},
+		{
+			NameKey = "Cut",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Gust",
+			Description = "Deals double damage if opponent is using Fly or Bounce.",
+		},
+		{
+			NameKey = "Wing Attack",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Whirlwind",
+			Description = "Forces target to switch out with another random Pokemon. Fails against Suction Cups or Ingrain.",
+		},
+		{
+			NameKey = "Fly",
+			Description = "Attacks on 2nd turn. Can still be hit by Gust, Sky Uppercut, Thunder, Twister, and Whirlwind.",
+		},
+		{
+			NameKey = "Bind",
+			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "Slam",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Vine Whip",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Stomp",
+			Description = "Deals damage with 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
+		},
+		{
+			NameKey = "Double Kick",
+			Description = "Deals damage twice, each hit able to be critical.",
+		},
+		{
+			NameKey = "Mega Kick",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Jump Kick",
+			Description = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
+		},
+		{
+			NameKey = "Rolling Kick",
+			Description = "Deals damage and has a 30% chance of causing the target to flinch.",
+		},
+		{
+			NameKey = "Sand-Attack",
+			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
+		},
+		{
+			NameKey = "Headbutt",
+			Description = "Deals damage and has a 30% chance of causing the target to flinch.",
+		},
+		{
+			NameKey = "Horn Attack",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Fury Attack",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Horn Drill",
+			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		},
+		{
+			NameKey = "Tackle",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Body Slam",
+			Description = "Deals damage and has a 30% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Wrap",
+			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "Take Down",
+			Description = "The user receives recoil damage equal to 1/4 of the damage dealt.",
+		},
+		{
+			NameKey = "Thrash",
+			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
+		},
+		{
+			NameKey = "Double-Edge",
+			Description = "The user receives recoil damage equal to 1/3 of the damage dealt.",
+		},
+		{
+			NameKey = "Tail Whip",
+			Description = "Decreases the Defense stat of all adjacent opponents by one stage.",
+		},
+		{
+			NameKey = "Poison Sting",
+			Description = "Deals damage and has a 30% chance of poisoning the target.",
+		},
+		{
+			NameKey = "Twineedle",
+			Description = "Deals damage twice, each hit able to be critical. Final hit has a 20% chance of poisoning the target.",
+		},
+		{
+			NameKey = "Pin Missile",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Leer",
+			Description = "Decreases the Defense stat of all adjacent opponents by one stage.",
+		},
+		{
+			NameKey = "Bite",
+			Description = "Deals damage and has a 30% chance of causing the target to flinch.",
+		},
+		{
+			NameKey = "Growl",
+			Description = "Decreases the Attack stat of all adjacent opponents by one stage.",
+		},
+		{
+			NameKey = "Roar",
+			Description = "Forces target to switch out with another random Pokemon. Fails against Soundproof, Suction Cups or Ingrain.",
+		},
+		{
+			NameKey = "Sing",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit or Soundproof.",
+		},
+		{
+			NameKey = "Supersonic",
+			Description = "Causes the target to become confused. Fails against Soundproof or Own Tempo.",
+		},
+		{
+			NameKey = "SonicBoom",
+			Description = "Always inflicts exactly 20 HP damage if it hits.",
+		},
+		{
+			NameKey = "Disable",
+			Description = "Disables the last move used by the target for 2-5 turns.",
+		},
+		{
+			NameKey = "Acid",
+			Description = "Deals damage and has a 10% chance of lowering the target's Defense stat by one stage.",
+		},
+		{
+			NameKey = "Ember",
+			Description = "Deals damage and has a 10% chance of burning the target.",
+		},
+		{
+			NameKey = "Flamethrower",
+			Description = "Deals damage and has a 10% chance of burning the target.",
+		},
+		{
+			NameKey = "Mist",
+			Description = "For five turns, enemy Pokémon cannot lower stats of Pokémon on your team.",
+		},
+		{
+			NameKey = "Water Gun",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Hydro Pump",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Surf",
+			Description = "Deals double damage if opponent is using Dive.",
+		},
+		{
+			NameKey = "Ice Beam",
+			Description = "Deals damage and has a 10% chance of freezing the target.",
+		},
+		{
+			NameKey = "Blizzard",
+			Description = "Deals damage and has a 10% chance of freezing the target.",
+		},
+		{
+			NameKey = "Psybeam",
+			Description = "Deals damage and has a 10% chance of confusing the target.",
+		},
+		{
+			NameKey = "BubbleBeam",
+			Description = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
+		},
+		{
+			NameKey = "Aurora Beam",
+			Description = "Deals damage and has a 10% chance of lowering the target's Attack stat by one stage.",
+		},
+		{
+			NameKey = "Hyper Beam",
+			Description = "Deals damage and then forces the user to recharge during the next turn.",
+		},
+		{
+			NameKey = "Peck",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Drill Peck",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Submission",
+			Description = "Deals damage, and the user receives recoil damage equal to 25% of the damage done.",
+		},
+		{
+			NameKey = "Low Kick",
+			Description = "Deals between 20-120 damage dependent on the weight of the target.",
+		},
+		{
+			NameKey = "Counter",
+			Description = "If hit by a Physical category move, deals twice the damage received back to the user.",
+		},
+		{
+			NameKey = "Seismic Toss",
+			Description = "Deals exact damage equal to the user's level.",
+		},
+		{
+			NameKey = "Strength",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Absorb",
+			Description = "50% of the damage dealt is restored to the user as HP.",
+		},
+		{
+			NameKey = "Mega Drain",
+			Description = "50% of the damage dealt is restored to the user as HP.",
+		},
+		{
+			NameKey = "Leech Seed",
+			Description = "Drains 1/8 of the target's HP at the end of each turn.",
+		},
+		{
+			NameKey = "Growth",
+			Description = "Increases the user's Special Attack stat by one stage.",
+		},
+		{
+			NameKey = "Razor Leaf",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "SolarBeam",
+			Description = "Attacks on the 2nd turn after use, or immediately in sunny weather. Half damage in rain or sandstorm.",
+		},
+		{
+			NameKey = "PoisonPowder",
+			Description = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
+		},
+		{
+			NameKey = "Stun Spore",
+			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
+		},
+		{
+			NameKey = "Sleep Powder",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
+		},
+		{
+			NameKey = "Petal Dance",
+			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
+		},
+		{
+			NameKey = "String Shot",
+			Description = "Decreases the targets' Speed stat by one stage.",
+		},
+		{
+			NameKey = "Dragon Rage",
+			Description = "Always inflicts exactly 40 HP damage if it hits.",
+		},
+		{
+			NameKey = "Fire Spin",
+			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "ThunderShock",
+			Description = "Deals damage and has a 10% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Thunderbolt",
+			Description = "Deals damage and has a 10% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Thunder Wave",
+			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
+		},
+		{
+			NameKey = "Thunder",
+			Description = "30% chance to paralyze. Can hit Fly and Bounce. Always hits during the rain. Accuracy is 50 when sunny.",
+		},
+		{
+			NameKey = "Rock Throw",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Earthquake",
+			Description = "Deals double damage if opponent is using Dig.",
+		},
+		{
+			NameKey = "Fissure",
+			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level. Can hit Pokémon using Dig.",
+		},
+		{
+			NameKey = "Dig",
+			Description = "Attacks on 2nd turn. Can still be hit by Earthquake, Fissure, and Magnitude. Can be used outside of battle.",
+		},
+		{
+			NameKey = "Toxic",
+			Description = "Poisons the target, losing increasing amounts of the their max HP at the end of each turn.",
+		},
+		{
+			NameKey = "Confusion",
+			Description = "Deals damage and has a 10% chance of confusing the target.",
+		},
+		{
+			NameKey = "Psychic",
+			Description = "Deals damage and has a 10% chance of lowering the target's Special Defense by one stage.",
+		},
+		{
+			NameKey = "Hypnosis",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
+		},
+		{
+			NameKey = "Meditate",
+			Description = "Increases the user's Attack by one stage.",
+		},
+		{
+			NameKey = "Agility",
+			Description = "Increases the user's Speed by two stages.",
+		},
+		{
+			NameKey = "Quick Attack",
+			Description = "This is an increased priority move, causing the user to attack before most other moves.",
+		},
+		{
+			NameKey = "Rage",
+			Description = "When used consecutively, Attack stat increases by one stage when damaged by an attack.",
+		},
+		{
+			NameKey = "Teleport",
+			Description = "Flees from wild Pokémon battles only. Fails if trapped by Block, Mean Look, Spider Web, or Ingrain. Can be used outside of battle.",
+		},
+		{
+			NameKey = "Night Shade",
+			Description = "Deals exact damage equal to the user's level.",
+		},
+		{
+			NameKey = "Mimic",
+			Description = "Copies the target's last used move. Fails against Sketch, Transform, Metronome, or a move already learned.",
+		},
+		{
+			NameKey = "Screech",
+			Description = "Decreases the target's Defense stat by two stat stages. Fails against Soundproof ability.",
+		},
+		{
+			NameKey = "Double Team",
+			Description = "Increases the user's evasion by one stage.",
+		},
+		{
+			NameKey = "Recover",
+			Description = "Restores up to 50% of the user's max HP.",
+		},
+		{
+			NameKey = "Harden",
+			Description = "Increases the user's Defense stat by one stage.",
+		},
+		{
+			NameKey = "Minimize",
+			Description = "Increases evasion by one stage. User will now receive double damage from Stomp, Astonish, Extrasensory, and Needle Arm.",
+		},
+		{
+			NameKey = "SmokeScreen",
+			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
+		},
+		{
+			NameKey = "Confuse Ray",
+			Description = "Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
+		},
+		{
+			NameKey = "Withdraw",
+			Description = "Increases the user's Defense by one stage.",
+		},
+		{
+			NameKey = "Defense Curl",
+			Description = "Increases the user's Defense by one stage. Also doubles the power of user's Rollout and Ice Ball.",
+		},
+		{
+			NameKey = "Barrier",
+			Description = "Increases the user's Defense by two stages.",
+		},
+		{
+			NameKey = "Light Screen",
+			Description = "For 5 turns, halves the damage done to user's team by Special moves.",
+		},
+		{
+			NameKey = "Haze",
+			Description = "Resets the stat stages of all active Pokémon on the field to 0.",
+		},
+		{
+			NameKey = "Reflect",
+			Description = "For 5 turns, halves the damage done to user's team by Physical moves.",
+		},
+		{
+			NameKey = "Focus Energy",
+			Description = "Increases the user's critical hit ratio by two stages. (+2 stages = 1/4 or 25%)",
+		},
+		{
+			NameKey = "Bide",
+			Description = "Endures attacks for two consectuive turns. Deals damage equal to twice the damage received.",
+		},
+		{
+			NameKey = "Metronome",
+			Description = "Randomly selects a move to use, and a random target if necessary.",
+		},
+		{
+			NameKey = "Mirror Move",
+			Description = "Uses the last move targeted at the user by a Pokémon still on the field.",
+		},
+		{
+			NameKey = "Selfdestruct",
+			Description = "The target's Defense is halved, effectively doubling the power of this move.",
+		},
+		{
+			NameKey = "Egg Bomb",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Lick",
+			Description = "Deals damage and has a 30% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Smog",
+			Description = "Deals damage and has a 40% chance of poisoning the target.",
+		},
+		{
+			NameKey = "Sludge",
+			Description = "Deals damage and has a 30% chance of poisoning the target.",
+		},
+		{
+			NameKey = "Bone Club",
+			Description = "Deals damage and has a 10% chance of causing the target to flinch.",
+		},
+		{
+			NameKey = "Fire Blast",
+			Description = "Deals damage and has a 10% chance of burning the target.",
+		},
+		{
+			NameKey = "Waterfall",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Clamp",
+			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "Swift",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Skull Bash",
+			Description = "Raises the user's Defense by one stage. On the following turn, it deals damage.",
+		},
+		{
+			NameKey = "Spike Cannon",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Constrict",
+			Description = "Deals damage and has a 10% chance of lowering the target's Speed by one stage.",
+		},
+		{
+			NameKey = "Amnesia",
+			Description = "Increases the user's Special Defense by two stages.",
+		},
+		{
+			NameKey = "Kinesis",
+			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
+		},
+		{
+			NameKey = "Softboiled",
+			Description = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
+		},
+		{
+			NameKey = "Hi Jump Kick",
+			Description = "If the move misses, the user is hurt for 1/2 of the damage it would have dealt.",
+		},
+		{
+			NameKey = "Glare",
+			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
+		},
+		{
+			NameKey = "Dream Eater",
+			Description = "Fails if target is not asleep. 50% of the damage dealt is restored to the user as HP.",
+		},
+		{
+			NameKey = "Poison Gas",
+			Description = "Poisons the target, losing 1/8 of the their max HP at the end of each turn.",
+		},
+		{
+			NameKey = "Barrage",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Leech Life",
+			Description = "50% of the damage dealt is restored to the user as HP.",
+		},
+		{
+			NameKey = "Lovely Kiss",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
+		},
+		{
+			NameKey = "Sky Attack",
+			Description = "Attacks on 2nd turn, 30% chance to flinch target. Has increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
+		},
+		{
+			NameKey = "Transform",
+			Description = "Turns into the target by copying everything about it (even stat changes), except the current and max HP. Each move's PP will become 5.",
+		},
+		{
+			NameKey = "Bubble",
+			Description = "Deals damage and has a 10% chance of lowering the target's Speed stat by one stage.",
+		},
+		{
+			NameKey = "Dizzy Punch",
+			Description = "Deals damage and has a 20% chance of confusing the target.",
+		},
+		{
+			NameKey = "Spore",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia or Vital Spirit.",
+		},
+		{
+			NameKey = "Flash",
+			Description = "Lowers the target's accuracy stat by one stage. (100% -> 75% -> 60% -> 50% ...)",
+		},
+		{
+			NameKey = "Psywave",
+			Description = "Deals a random amount of damage, varying between 50% and 150% of the user's level. Minimum of 1 damage.",
+		},
+		{
+			NameKey = "Splash",
+			Description = "Deals no damage and has no effect whatsoever.",
+		},
+		{
+			NameKey = "Acid Armor",
+			Description = "Increases the user's Defense by two stages.",
+		},
+		{
+			NameKey = "Crabhammer",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Explosion",
+			Description = "The target's Defense is halved, effectively doubling the power of this move.",
+		},
+		{
+			NameKey = "Fury Swipes",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Bonemerang",
+			Description = "Deals damage twice, each hit able to be critical.",
+		},
+		{
+			NameKey = "Rest",
+			Description = "Restores HP to full while going to sleep for 2 turns. Fails if user has Insomnia or Vital Spirit.",
+		},
+		{
+			NameKey = "Rock Slide",
+			Description = "Deals damage and has a 30% chance of causing each target to flinch.",
+		},
+		{
+			NameKey = "Hyper Fang",
+			Description = "Deals damage and has a 10% chance of causing the target to flinch.",
+		},
+		{
+			NameKey = "Sharpen",
+			Description = "Increases the user's Attack stat by one stage.",
+		},
+		{
+			NameKey = "Conversion",
+			Description = "Changes the user's type to match the type of one of the user's moves (including Conversion itself).",
+		},
+		{
+			NameKey = "Tri Attack",
+			Description = "Deals damage and has a 20% chance of either paralyzing, freezing, or burning the target.",
+		},
+		{
+			NameKey = "Super Fang",
+			Description = "Deals exact damage equal to 50% of the target's current HP, minimum of 1.",
+		},
+		{
+			NameKey = "Slash",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%).",
+		},
+		{
+			NameKey = "Substitute",
+			Description = "User loses 25% of max HP to hide behind a substitute, which prevents the effects of most attacks.",
+		},
+		{
+			NameKey = "Struggle",
+			Description = "Hits as neutral damage, even through Wonder Guard. User receives recoil damage equal to 1/4 of damage dealt.",
+		},
+		{
+			NameKey = "Sketch",
+			Description = "User learns the target's last move permanently, replacing Sketch in the process. Fails against some moves, or if user already knows the move.",
+		},
+		{
+			NameKey = "Triple Kick",
+			Description = "Deals damage three times, each additional hit gains 10 power. Each hit has a separate accuracy check and is able to be critical.",
+		},
+		{
+			NameKey = "Thief",
+			Description = "Steals the target's held item, if it has one. An item cannot be stolen if the user already has an item, or the target has Sticky Hold.",
+		},
+		{
+			NameKey = "Spider Web",
+			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
+		},
+		{
+			NameKey = "Mind Reader",
+			Description = "Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.",
+		},
+		{
+			NameKey = "Nightmare",
+			Description = "Causes a sleeping target to lose 1/4 of the their max HP at the end of each turn that they remain asleep.",
+		},
+		{
+			NameKey = "Flame Wheel",
+			Description = "Deals damage and has a 10% chance of burning the target. This move will first thaw out its user if frozen.",
+		},
+		{
+			NameKey = "Snore",
+			Description = "If the user is asleep, deals damage and has a 30% chance of causing the target to flinch. No effect against Soundproof.",
+		},
+		{
+			NameKey = "Curse",
+			Description = "Lowers Speed but raises Attack and Defense. If user is Ghost, instead loses half max HP to curse target, causing them to lose 1/4 of the their max HP at end of each turn.",
+		},
+		{
+			NameKey = "Flail",
+			Description = "Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.",
+		},
+		{
+			NameKey = "Conversion 2",
+			Description = "Randomly changes the user's type to a new type that resists or is immune to the type of the last damaging move it was hit by.",
+		},
+		{
+			NameKey = "Aeroblast",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Cotton Spore",
+			Description = "Lowers the target's Speed stat by two stages.",
+		},
+		{
+			NameKey = "Reversal",
+			Description = "Deals more damage the less HP the user has. Important breakpoints: 80 power at 35% hp or lower, and 150 power at 10% hp or lower.",
+		},
+		{
+			NameKey = "Spite",
+			Description = "Decreases the PP of the target's last used move by 2-5 PP, chosen at random. Spite fails if that move has exactly 1 PP remaining.",
+		},
+		{
+			NameKey = "Powder Snow",
+			Description = "Deals damage and has a 10% chance of freezing the target.",
+		},
+		{
+			NameKey = "Protect",
+			Description = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
+		},
+		{
+			NameKey = "Mach Punch",
+			Description = "This is an increased priority move, causing the user to attack before most other moves.",
+		},
+		{
+			NameKey = "Scary Face",
+			Description = "Lowers the target's Speed stat by two stages.",
+		},
+		{
+			NameKey = "Faint Attack",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Sweet Kiss",
+			Description = "Causes the target to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
+		},
+		{
+			NameKey = "Belly Drum",
+			Description = "The user loses half of their max HP, and in return raises their Attack stat all the way to +6 stages.",
+		},
+		{
+			NameKey = "Sludge Bomb",
+			Description = "Deals damage and has a 30% chance of poisoning the target.",
+		},
+		{
+			NameKey = "Mud-Slap",
+			Description = "Deals damage and lowers the target's accuracy by one stage.",
+		},
+		{
+			NameKey = "Octazooka",
+			Description = "Deals damage and has a 50% chance to lower the target's accuracy by one stage.",
+		},
+		{
+			NameKey = "Spikes",
+			Description = "Creates a hazard for the enemy team (can stack 3 times). Switching out deals 1/8, 1/6, or 1/4 max HP in damage to an enemy without Flying or Levitate.",
+		},
+		{
+			NameKey = "Zap Cannon",
+			Description = "Deals damage and paralyzes the target every time it hits.",
+		},
+		{
+			NameKey = "Foresight",
+			Description = "Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.",
+		},
+		{
+			NameKey = "Destiny Bond",
+			Description = "If the user faints as the result of a direct attack by an enemy, that Pokémon also faints. Effect ends when user uses another move.",
+		},
+		{
+			NameKey = "Perish Song",
+			Description = "All Pokémon faint after 3 turns. Switching out or having Soundproof removes this effect.",
+		},
+		{
+			NameKey = "Icy Wind",
+			Description = "Deals damage to all adjacent opponents and lowers the Speed of each by one stage.",
+		},
+		{
+			NameKey = "Detect",
+			Description = "Protects user from all effects of moves for the turn, including damage. Using this move consecutively halves its success rate each time.",
+		},
+		{
+			NameKey = "Bone Rush",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Lock-On",
+			Description = "Allows the next move used by the user to never miss, even against Bounce, Dig, Dive, and Fly.",
+		},
+		{
+			NameKey = "Outrage",
+			Description = "Deals damage for 2-3 consecutive turns. User becomes confused afterwards.",
+		},
+		{
+			NameKey = "Sandstorm",
+			Description = "Changes weather to Sandstorm for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Steel, Ground, and Rock types.",
+		},
+		{
+			NameKey = "Giga Drain",
+			Description = "50% of the damage dealt is restored to the user as HP.",
+		},
+		{
+			NameKey = "Endure",
+			Description = "Allows the user to survive any single attack that would cause it to faint, leaving the user with 1 HP instead.",
+		},
+		{
+			NameKey = "Charm",
+			Description = "Lowers the Attack stat of the target by two stages.",
+		},
+		{
+			NameKey = "Rollout",
+			Description = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
+		},
+		{
+			NameKey = "False Swipe",
+			Description = "Deals damage, but will always leave the target with 1 HP if it would otherwise cause it to faint.",
+		},
+		{
+			NameKey = "Swagger",
+			Description = "Raises the target's Attack stat by two stages and confuses it.",
+		},
+		{
+			NameKey = "Milk Drink",
+			Description = "Restores up to 50% of the user's max HP. Can be used outside of battle to transfer 20% of max HP to another Pokemon.",
+		},
+		{
+			NameKey = "Spark",
+			Description = "Deals damage and has a 30% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Fury Cutter",
+			Description = "Each time this move hits successively, its power will double, up to a maximum of 160. Otherwise, it resets to base power.",
+		},
+		{
+			NameKey = "Steel Wing",
+			Description = "Deals damage and has a 10% chance of raising the user's Defense by one stage.",
+		},
+		{
+			NameKey = "Mean Look",
+			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
+		},
+		{
+			NameKey = "Attract",
+			Description = "If the user and the target are opposite genders, the target will become infatuated, unable to use moves 50% of the time.",
+		},
+		{
+			NameKey = "Sleep Talk",
+			Description = "If the user is asleep, randomly chooses another one of the user's moves to use.",
+		},
+		{
+			NameKey = "Heal Bell",
+			Description = "Cures all Pokémon in the user's party of all major status conditions. Fails against Pokémon with Soundproof.",
+		},
+		{
+			NameKey = "Return",
+			Description = "Power ranges between 1 and 102, strongest at friendship of 255. If the user's friendship is 127 or less, Frustration is stronger.",
+		},
+		{
+			NameKey = "Present",
+			Description = "40% chance power is 40, 30% chance it's 80, 10% chance it's 120, and 20% chance to heal target by 1/4 their max HP.",
+		},
+		{
+			NameKey = "Frustration",
+			Description = "Power ranges between 1 and 102, strongest at friendship of 0. If the user's friendship is 128 or greater, Return is stronger.",
+		},
+		{
+			NameKey = "Safeguard",
+			Description = "For 5 turns, protects the user's party from most status effects and confusion.",
+		},
+		{
+			NameKey = "Pain Split",
+			Description = "Equalizes HP of user and target by adding both Pokemon's current HP together, then dividing by two, split among them evenly.",
+		},
+		{
+			NameKey = "Sacred Fire",
+			Description = "Deals damage and has a 50% chance of burning the target. This move will first thaw out its user if frozen.",
+		},
+		{
+			NameKey = "Magnitude",
+			Description = "Power varies based on a random value and probability. Starting at value 4 and power 10, each additional value adds 20 power; 150 power at value 10. Can hit Pokémon using Dig.",
+		},
+		{
+			NameKey = "DynamicPunch",
+			Description = "Deals damage and always confuses the target, lasting 2-5 turns.",
+		},
+		{
+			NameKey = "Megahorn",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "DragonBreath",
+			Description = "Deals damage and has a 30% chance of paralyzing the target.",
+		},
+		{
+			NameKey = "Baton Pass",
+			Description = "Switches out the user, passing all temporary stat stage changes as well as many other effects and conditions, on to the Pokémon that replaces it in battle.",
+		},
+		{
+			NameKey = "Encore",
+			Description = "Prevents the target from using any move except its last used move, lasts for 2-6 turns.",
+		},
+		{
+			NameKey = "Pursuit",
+			Description = "If the target Pokémon attempts to switch out, Pursuit's power will double and hit it first.",
+		},
+		{
+			NameKey = "Rapid Spin",
+			Description = "Deals damage and removes the effects of any binding moves, Leech Seed, and any entry hazards such as Spikes from the user's field.",
+		},
+		{
+			NameKey = "Sweet Scent",
+			Description = "Lowers the evasion of all adjacent opponents by one stage. Can be used outside of battle to attract a wild Pokemon.",
+		},
+		{
+			NameKey = "Iron Tail",
+			Description = "Deals damage and has a 30% chance of lowering the target's Defense stat by one stage.",
+		},
+		{
+			NameKey = "Metal Claw",
+			Description = "Deals damage and has a 10% chance of raising the user's Attack stat by one stage.",
+		},
+		{
+			NameKey = "Vital Throw",
+			Description = "This is a decreased priority move, causing the user to attack after most other moves.",
+		},
+		{
+			NameKey = "Morning Sun",
+			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
+		},
+		{
+			NameKey = "Synthesis",
+			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
+		},
+		{
+			NameKey = "Moonlight",
+			Description = "Restores the user's HP by a percentage based weather: 1/2 in no weather, 2/3 if sunny, and 1/4 during any other weather condition.",
+		},
+		{
+			NameKey = "Hidden Power",
+			Description = "Power and type vary with IVs, power ranges from 30 to 70. Counter will always work against this move, but never Mirror Coat.",
+		},
+		{
+			NameKey = "Cross Chop",
+			Description = "Deals damage and has an increased critical-hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Twister",
+			Description = "Deals damage and has a 20% chance of causing each target to flinch. Hits Pokémon using Bounce or Fly for double damage.",
+		},
+		{
+			NameKey = "Rain Dance",
+			Description = "Changes weather to Rain for 5 turns. Water moves are boosted by 50% and Fire moves are weakened by 50%. Thunder ignores accuracy and evasion.",
+		},
+		{
+			NameKey = "Sunny Day",
+			Description = "Changes weather to Sunny for 5 turns. Fire moves are boosted by 50% and Water moves are weakened by 50%. Thunder accuracy becomes 50%.",
+		},
+		{
+			NameKey = "Crunch",
+			Description = "Deals damage and has a 20% chance of lowering the target's Special Defense stat by one stage.",
+		},
+		{
+			NameKey = "Mirror Coat",
+			Description = "If hit by a Special category move, deals twice the damage received back to the user.",
+		},
+		{
+			NameKey = "Psych Up",
+			Description = "Resets the user's stat changes and copies all of the target's stat stages onto the user: ATK DEF SPA SPD SPE ACC EVA.",
+		},
+		{
+			NameKey = "ExtremeSpeed",
+			Description = "This is an increased priority move, causing the user to attack before most other moves.",
+		},
+		{
+			NameKey = "AncientPower",
+			Description = "Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.",
+		},
+		{
+			NameKey = "Shadow Ball",
+			Description = "Deals damage and has a 20% chance of lowering the target's Special Defense by one stage.",
+		},
+		{
+			NameKey = "Future Sight",
+			Description = "Locks in damage when used based on SpAtk of user and SpDef of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.",
+		},
+		{
+			NameKey = "Rock Smash",
+			Description = "Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.",
+		},
+		{
+			NameKey = "Whirlpool",
+			Description = "Deals damage (doubled if opponent using Dive) and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "Beat Up",
+			Description = "Each conscious, non-statused Pokémon in the user's party does an independent attack, each one is typeless with power of 10.",
+		},
+		{
+			NameKey = "Fake Out",
+			Description = "This is an increased priority move. It always makes the target flinch, but attack will fail if it's not the first move used.",
+		},
+		{
+			NameKey = "Uproar",
+			Description = "Deals damage for 2-5 consecutive turns. Wakes up sleeping Pokémon and prevents them from falling asleep, except those with Soundproof.",
+		},
+		{
+			NameKey = "Stockpile",
+			Description = "Stores up energy, stacks three times. Unleash energy using Spit Up to deal damage or Swallow to heal HP.",
+		},
+		{
+			NameKey = "Spit Up",
+			Description = "Consumes energy stored up by Stockpile, 100 power for each stack (0 if none). This move cannot cause a critical hit.",
+		},
+		{
+			NameKey = "Swallow",
+			Description = "Consumes energy stored up by Stockpile, healing user for 25%, 50%, or 100% HP based on number of stacks consumed (0% if none).",
+		},
+		{
+			NameKey = "Heat Wave",
+			Description = "Deals damage and has a 10% chance of burning the target.",
+		},
+		{
+			NameKey = "Hail",
+			Description = "Changes weather to Hail for 5 turns. Pokémon take 1/16 of their max HP in damage, except for Ice types.",
+		},
+		{
+			NameKey = "Torment",
+			Description = "Prevents the target from choosing to use the same move twice in a row. Effect ends when the Pokémon switches out.",
+		},
+		{
+			NameKey = "Flatter",
+			Description = "Raises the target's Special Attack stat by one stage and confuses it.",
+		},
+		{
+			NameKey = "Will-O-Wisp",
+			Description = "Inflicts a burn on the target, ineffective against Fire type Pokemon. Burned Pokémon deal half damage with Physical moves and lose 1/8 max HP each turn.",
+		},
+		{
+			NameKey = "Memento",
+			Description = "User faints to lower the Attack and Special Attack stat of the target by two stages each.",
+		},
+		{
+			NameKey = "Facade",
+			Description = "Power doubles if the user is poisoned, paralyzed, or burned. The burn's effect of halving the damage done is still applied.",
+		},
+		{
+			NameKey = "Focus Punch",
+			Description = "This is a decreased priority move. This move will fail if the user is dealt direct damage first.",
+		},
+		{
+			NameKey = "SmellingSalt",
+			Description = "Power doubles against a paralyzed target, but it will also cure the target of paralysis.",
+		},
+		{
+			NameKey = "Follow Me",
+			Description = "This is an increased priority move. The user redirects all targeted moves from enemy Pokémon to itself.",
+		},
+		{
+			NameKey = "Nature Power",
+			Description = "Sand: Earthquake, Building: Swift, Cave: Shadow Ball, Rock: Rock Slide, Tall grass: Stun Spore, Long grass: Razor Leaf, Pond: Bubblebeam, Sea: Surf, Underwater: Hydro Pump.",
+		},
+		{
+			NameKey = "Charge",
+			Description = "User charges up, empowering the next move it uses. If that next move is Electric, damage dealt will be doubled.",
+		},
+		{
+			NameKey = "Taunt",
+			Description = "Prevents the target Pokémon from using Status category moves; moves that aren't Physical or Special. Bypasses Substitute. This effect lasts 2 turns.",
+		},
+		{
+			NameKey = "Helping Hand",
+			Description = "This is an increased priority move. The user boost its ally's damage done by 50% for this turn only.",
+		},
+		{
+			NameKey = "Trick",
+			Description = "Switches held items with the target. Fails if used by a wild Pokémon, or if both Pokémon don't have items, or against a Substitute.",
+		},
+		{
+			NameKey = "Role Play",
+			Description = "Replaces the user's ability with the target's. Fails if target ability is Trace or Wonder Guard. Some abilities like Intimidate don't trigger.",
+		},
+		{
+			NameKey = "Wish",
+			Description = "No effect on the turn used. At the end of the next turn, the Pokémon in the user's current position will be healed by half its own max HP.",
+		},
+		{
+			NameKey = "Assist",
+			Description = "Randomly selects an eligible move from all other moves known by Pokémon in the user's party, including fainted Pokemon.",
+		},
+		{
+			NameKey = "Ingrain",
+			Description = "Restore 1/16th of its max HP at the end of every turn. Prevents the user from switching out, even from moves like Roar and Whirlwind.",
+		},
+		{
+			NameKey = "Superpower",
+			Description = "Deals damage, then lowers the user's Attack and Defense stats by one stage each.",
+		},
+		{
+			NameKey = "Magic Coat",
+			Description = "Reflects most Status category moves back at the enemy, most offensive moves that aren't Physical or Special.",
+		},
+		{
+			NameKey = "Recycle",
+			Description = "Regains a held item, such as a Berry. Fails if item was lost through Thief or Knock Off.",
+		},
+		{
+			NameKey = "Revenge",
+			Description = "This is a decreased priority move. Power is doubled if user is damaged by the target in the same turn.",
+		},
+		{
+			NameKey = "Brick Break",
+			Description = "Removes Light Screen and Reflect from the opponent's side of the field, then inflicts damage. Removes those effects even against Ghost Pokemon.",
+		},
+		{
+			NameKey = "Yawn",
+			Description = "Makes the target drowsy. At the end of the next turn, the drowsy Pokémon will fall asleep.",
+		},
+		{
+			NameKey = "Knock Off",
+			Description = "Renders the target's held item unusable for the rest of the battle, even if switches out.",
+		},
+		{
+			NameKey = "Endeavor",
+			Description = "Causes the target's HP to become equal the user's current HP.",
+		},
+		{
+			NameKey = "Eruption",
+			Description = "Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP",
+		},
+		{
+			NameKey = "Skill Swap",
+			Description = "Exchanges the abilities of the user and the target. This information is not shown to the player. Fails against Wonder Guard.",
+		},
+		{
+			NameKey = "Imprison",
+			Description = "As long as the user remains in battle, opponents cannot use any move which is also known by the user.",
+		},
+		{
+			NameKey = "Refresh",
+			Description = "Cures the user of burns, poison, or paralysis. It cannot cure sleep if it is used by Sleep Talk.",
+		},
+		{
+			NameKey = "Grudge",
+			Description = "If the user faints as the result of a direct attack by an enemy, the last used move loses all PP. Effect ends when user uses another move.",
+		},
+		{
+			NameKey = "Snatch",
+			Description = "This is an increased priority move. If another Pokémon tries to use a beneficial Status category move, the user will use that move instead.",
+		},
+		{
+			NameKey = "Secret Power",
+			Description = "30% chance to Sand: --ACC, Building: paralysis, Cave: flinch, Rock: confusion, Tall grass: poison, Long grass: sleep, Pond: --SPD, Sea: --ATK, Underwater: --DEF",
+		},
+		{
+			NameKey = "Dive",
+			Description = "Attacks on 2nd turn. Can still be hit by Surf and Whirlpool and will take double damage.",
+		},
+		{
+			NameKey = "Arm Thrust",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Camouflage",
+			Description = "Change user's type based on terrain. Building: Normal, Sand: Ground, Cave/rock: Rock, Tall/long grass: Grass, Water: Water",
+		},
+		{
+			NameKey = "Tail Glow",
+			Description = "Increases the user's Special Attack by two stages.",
+		},
+		{
+			NameKey = "Luster Purge",
+			Description = "Deals damage and has a 50% chance of lowering the target's Special Defense.",
+		},
+		{
+			NameKey = "Mist Ball",
+			Description = "Deals damage and has a 50% chance of lowering the target's Special Attack.",
+		},
+		{
+			NameKey = "FeatherDance",
+			Description = "Lowers the target's Attack stat by two stages.",
+		},
+		{
+			NameKey = "Teeter Dance",
+			Description = "Causes all other Pokémon to become confused for 2-5 turns. 50% chance to damage self as a 40 power Physical move.",
+		},
+		{
+			NameKey = "Blaze Kick",
+			Description = "Deals damage and has a 10% chance of burning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Mud Sport",
+			Description = "Reduces the power of Electric moves by 50% for all Pokémon in the battle. This effect last until the user switches out.",
+		},
+		{
+			NameKey = "Ice Ball",
+			Description = "Deals damage over 5 turns, doubling in power each consecutive hit. Base power is doubled if the user had previously used Defense Curl.",
+		},
+		{
+			NameKey = "Needle Arm",
+			Description = "Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
+		},
+		{
+			NameKey = "Slack Off",
+			Description = "Restores up to 50% of the user's max HP.",
+		},
+		{
+			NameKey = "Hyper Voice",
+			Description = "Deals damage to all adjacent opponents. Pokémon with Soundproof are not affected by this move.",
+		},
+		{
+			NameKey = "Poison Fang",
+			Description = "Deals damage and has a 30% chance of badly poisoning the target.",
+		},
+		{
+			NameKey = "Crush Claw",
+			Description = "Deals damage and has a 50% chance of lowering the target's Defense stat by one stage.",
+		},
+		{
+			NameKey = "Blast Burn",
+			Description = "Deals damage and then forces the user to recharge during the next turn.",
+		},
+		{
+			NameKey = "Hydro Cannon",
+			Description = "Deals damage and then forces the user to recharge during the next turn.",
+		},
+		{
+			NameKey = "Meteor Mash",
+			Description = "Deals damage and has a 20% chance of raising the user's Attack stat by one stage.",
+		},
+		{
+			NameKey = "Astonish",
+			Description = "Deals damage and has a 30% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
+		},
+		{
+			NameKey = "Weather Ball",
+			Description = "Power doubles in weather and changes type: Fire if sunny, Water if raining, Ice if hailing, Rock if sandstorm.",
+		},
+		{
+			NameKey = "Aromatherapy",
+			Description = "Cures all Pokémon in the user's party of all major status conditions.",
+		},
+		{
+			NameKey = "Fake Tears",
+			Description = "Lowers the target's Special Defense stat by two stages.",
+		},
+		{
+			NameKey = "Air Cutter",
+			Description = "Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Overheat",
+			Description = "Deals damage and lowers the user's Special Attack by two stages.",
+		},
+		{
+			NameKey = "Odor Sleuth",
+			Description = "Neutralizes accuracy checks against the target, and allows Fighting and Normal moves to hit them if they are Ghost.",
+		},
+		{
+			NameKey = "Rock Tomb",
+			Description = "Deals damage and lowers the opponent's Speed by one stage.",
+		},
+		{
+			NameKey = "Silver Wind",
+			Description = "Deals damage and has a 10% chance of raising the user's Attack, Defense, Special Attack, Special Defense, and Speed by one stage each.",
+		},
+		{
+			NameKey = "Metal Sound",
+			Description = "Lowers the target's Special Defense stat by two stages. Fails against Pokémon with Soundproof.",
+		},
+		{
+			NameKey = "GrassWhistle",
+			Description = "Puts the target to sleep, lasts 2-5 turns. Fails against Insomnia, Vital Spirit, or Soundproof.",
+		},
+		{
+			NameKey = "Tickle",
+			Description = "Reduces the target's Attack and Defense stats by one stage each. Works even if enemy has a Substitute.",
+		},
+		{
+			NameKey = "Cosmic Power",
+			Description = "Raises the Defense and Special Defense of the user by one stage each.",
+		},
+		{
+			NameKey = "Water Spout",
+			Description = "Has 150 power at max HP, but its power decreases proportionally to the user's remaining HP. Formula: 150 x currHP / maxHP",
+		},
+		{
+			NameKey = "Signal Beam",
+			Description = "Deals damage and has a 10% chance of confusing the target.",
+		},
+		{
+			NameKey = "Shadow Punch",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Extrasensory",
+			Description = "Deals damage and has a 10% chance of causing the target to flinch. Damage is doubled against a target that used Minimize.",
+		},
+		{
+			NameKey = "Sky Uppercut",
+			Description = "Deals damage and can hit Pokémon during the semi-invulnerable turns of Fly and Bounce.",
+		},
+		{
+			NameKey = "Sand Tomb",
+			Description = "Deals damage and inflicts 1/16 of the target's max HP as damage for 2-5 turns. Prevents the target from switching out or fleeing.",
+		},
+		{
+			NameKey = "Sheer Cold",
+			Description = "A one-hit KO move. This move is 1% more accurate for each level above the target. Fails if target is higher level.",
+		},
+		{
+			NameKey = "Muddy Water",
+			Description = "Deals damage and has a 30% chance of lowering each target's accuracy by one stage.",
+		},
+		{
+			NameKey = "Bullet Seed",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Aerial Ace",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Icicle Spear",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Iron Defense",
+			Description = "Deals raises the user's Defense stat by two stages.",
+		},
+		{
+			NameKey = "Block",
+			Description = "Prevents the target from switching out or fleeing. A Pokémon can still flee if it has Run Away or holding a Smoke Ball.",
+		},
+		{
+			NameKey = "Howl",
+			Description = "Deals raises the user's Attack stat by one stage.",
+		},
+		{
+			NameKey = "Dragon Claw",
+			Description = "Deals damage and has no secondary effect.",
+		},
+		{
+			NameKey = "Frenzy Plant",
+			Description = "Deals damage and then forces the user to recharge during the next turn.",
+		},
+		{
+			NameKey = "Bulk Up",
+			Description = "Raises the user's Attack stat and Defense stat by one stage each.",
+		},
+		{
+			NameKey = "Bounce",
+			Description = "Attacks on 2nd turn with a 30% chance of paralyzing target. Can still be hit by Gust, Sky Uppercut, Thunder, and Twister.",
+		},
+		{
+			NameKey = "Mud Shot",
+			Description = "Deals damage and then lowers the target's Speed stat by one stage.",
+		},
+		{
+			NameKey = "Poison Tail",
+			Description = "Deals damage and has a 10% chance of poisoning the target. It also has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Covet",
+			Description = "Steals the target's held item, if it has one. An item cannot be stolen if the target has Sticky Hold.",
+		},
+		{
+			NameKey = "Volt Tackle",
+			Description = "The user receives recoil damage equal to 1/3 of the damage dealt.",
+		},
+		{
+			NameKey = "Magical Leaf",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Water Sport",
+			Description = "Reduces the power of Fire moves by 50% for all Pokémon in the battle. This effect last until the user switches out.",
+		},
+		{
+			NameKey = "Calm Mind",
+			Description = "Raises the user's Special Attack and Special Defense stats by one stage each.",
+		},
+		{
+			NameKey = "Leaf Blade",
+			Description = "Deals damage and has an increased critical hit ratio. (+1 stage = 1/8 or 12.5%)",
+		},
+		{
+			NameKey = "Dragon Dance",
+			Description = "Raises the user's Attack stat and Speed stat by one stage each.",
+		},
+		{
+			NameKey = "Rock Blast",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+		},
+		{
+			NameKey = "Shock Wave",
+			Description = "Deals damage and bypasses accuracy checks to always hit, unless the target is in the semi-invulnerable turn of a move such as Dig or Fly.",
+		},
+		{
+			NameKey = "Water Pulse",
+			Description = "Deals damage and has a 20% chance of confusing the target.",
+		},
+		{
+			NameKey = "Doom Desire",
+			Description = "Locks in damage when used based on Atk of user and Def of target. After 2 turns, deals damage to the current enemy. Attack is typeless: cannot STAB, hits Wonder Guard.",
+		},
+		{
+			NameKey = "Psycho Boost",
+			Description = "Deals damage and lowers the user's Special Attack stat by two stages.",
+		},
 	},
+	-- The list of Pokémon abilities below must remain in the same order
 	AbilityNames = {
 		"Stench",
 		"Drizzle",
@@ -1982,261 +3049,341 @@ GameResources{
 		"Cacophony",
 		"Air Lock",
 	},
+	-- The list below must remain in the same order.
+	-- These are custom hand-written ability descriptions, only edit the "Desctipion" value
 	AbilityDescriptions = {
 		{
-			description = "While at the head of the party, decreases the wild encounter rate by 50%.",
-			descriptionEmerald = "In the Battle Pyramid, the wild encounter rate is only decreased by 25%.",
+			NameKey = "Stench",
+			Description = "While at the head of the party, decreases the wild encounter rate by 50%.",
+			DescriptionEmerald = "In the Battle Pyramid, the wild encounter rate is only decreased by 25%.",
 		},
 		{
-			description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP",
+			NameKey = "Drizzle",
+			Description = "Changes weather to rain when switched in. In rain, Water moves have 50% increased power and Fire moves have 50% decreased power. Thunder will always hit, Solarbeam deals 50% reduced damage, and Moonlight, Synthesis, and Morning Sun heal for 1/4 max HP",
 		},
 		{
-			description = "At the end of each turn, raises Speed stat by one stage.",
+			NameKey = "Speed Boost",
+			Description = "At the end of each turn, raises Speed stat by one stage.",
 		},
 		{
-			description = "Prevents this Pokémon from receiving critical hits.",
+			NameKey = "Battle Armor",
+			Description = "Prevents this Pokémon from receiving critical hits.",
 		},
 		{
-			description = "Cannot be hit by one-hit KO moves (Fissure, Horn Drill, Guillotine, Sheer Cold).",
+			NameKey = "Sturdy",
+			Description = "Cannot be hit by one-hit KO moves (Fissure, Horn Drill, Guillotine, Sheer Cold).",
 		},
 		{
-			description = "Prevents allied and opposing Pokémon from using self-destructing moves (Self-Destruct, Explosion).",
+			NameKey = "Damp",
+			Description = "Prevents allied and opposing Pokémon from using self-destructing moves (Self-Destruct, Explosion).",
 		},
 		{
-			description = "Cannot be paralyzed. Gaining this Ability, like through Skill Swap, will cure Paralysis.",
+			NameKey = "Limber",
+			Description = "Cannot be paralyzed. Gaining this Ability, like through Skill Swap, will cure Paralysis.",
 		},
 		{
-			description = "Increases Evasion by 20% in a sandstorm, and this Pokémon takes no end of turn damage in a sandstorm.",
-			descriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50% in a sandstorm.",
+			NameKey = "Sand Veil",
+			Description = "Increases Evasion by 20% in a sandstorm, and this Pokémon takes no end of turn damage in a sandstorm.",
+			DescriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50% in a sandstorm.",
 		},
 		{
-			description = "When hit by a contact move, 1/3 chance to paralyze the attacker.",
-			descriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against an Electric Pokémon, if possible.",
+			NameKey = "Static",
+			Description = "When hit by a contact move, 1/3 chance to paralyze the attacker.",
+			DescriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against an Electric Pokémon, if possible.",
 		},
 		{
-			description = "Restores 25% max HP instead of taking damage if hit by a damaging Electric move.",
+			NameKey = "Volt Absorb",
+			Description = "Restores 25% max HP instead of taking damage if hit by a damaging Electric move.",
 		},
 		{
-			description = "Restores 25% max HP instead of taking damage if hit by a damaging Water move.",
+			NameKey = "Water Absorb",
+			Description = "Restores 25% max HP instead of taking damage if hit by a damaging Water move.",
 		},
 		{
-			description = "Cannot be infatuated. Gaining this Ability, like through Skill Swap, will cure infatuation.",
+			NameKey = "Oblivious",
+			Description = "Cannot be infatuated. Gaining this Ability, like through Skill Swap, will cure infatuation.",
 		},
 		{
-			description = "Negates all effects of weather, but does not end the weather.",
+			NameKey = "Cloud Nine",
+			Description = "Negates all effects of weather, but does not end the weather.",
 		},
 		{
-			description = "Increases the Accuracy of moves by 30% (i.e. Thunder has an Accuracy of 70%. With this ability, it would instead have 70% x 1.3 = 91% Accuracy).",
-			descriptionEmerald = "Increases the chance of finding a wild Pokémon holding an item.",
+			NameKey = "Compoundeyes",
+			Description = "Increases the Accuracy of moves by 30% (i.e. Thunder has an Accuracy of 70%. With this ability, it would instead have 70% x 1.3 = 91% Accuracy).",
+			DescriptionEmerald = "Increases the chance of finding a wild Pokémon holding an item.",
 		},
 		{
-			description = "Cannot be put to sleep. If this Pokémon uses Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
+			NameKey = "Insomnia",
+			Description = "Cannot be put to sleep. If this Pokémon uses Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
 		},
 		{
-			description = "When hit by a damaging move, changes this Pokémon's type to match the move's type.",
+			NameKey = "Color Change",
+			Description = "When hit by a damaging move, changes this Pokémon's type to match the move's type.",
 		},
 		{
-			description = "Cannot be inflicted with Poison. Gaining this Ability, like through Skill Swap, will cure Poison.",
+			NameKey = "Immunity",
+			Description = "Cannot be inflicted with Poison. Gaining this Ability, like through Skill Swap, will cure Poison.",
 		},
 		{
-			description = "Immune to Fire moves. The first time this Pokémon is hit by a Fire move, its own Fire moves gain 50% power.",
+			NameKey = "Flash Fire",
+			Description = "Immune to Fire moves. The first time this Pokémon is hit by a Fire move, its own Fire moves gain 50% power.",
 		},
 		{
-			description = "Unaffected by secondary effects of damaging moves.",
+			NameKey = "Shield Dust",
+			Description = "Unaffected by secondary effects of damaging moves.",
 		},
 		{
-			description = "Cannot be confused. Gaining this Ability, like through Skill Swap, will cure confusion.",
+			NameKey = "Own Tempo",
+			Description = "Cannot be confused. Gaining this Ability, like through Skill Swap, will cure confusion.",
 		},
 		{
-			description = "Prevents this Pokémon from being forced to switch out.",
-			descriptionEmerald = "Increases the chance of getting bites while fishing.",
+			NameKey = "Suction Cups",
+			Description = "Prevents this Pokémon from being forced to switch out.",
+			DescriptionEmerald = "Increases the chance of getting bites while fishing.",
 		},
 		{
-			description = "Lowers all opposing Pokémons' Attack stats by one stage when this Pokémon enters battle.",
-			descriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.",
+			NameKey = "Intimidate",
+			Description = "Lowers all opposing Pokémons' Attack stats by one stage when this Pokémon enters battle.",
+			DescriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.",
 		},
 		{
-			description = "Prevents opposing Pokémon from switching out or fleeing.",
+			NameKey = "Shadow Tag",
+			Description = "Prevents opposing Pokémon from switching out or fleeing.",
 		},
 		{
-			description = "When hit by a contact move, the attacker takes 1/16 of their max HP as damage.",
+			NameKey = "Rough Skin",
+			Description = "When hit by a contact move, the attacker takes 1/16 of their max HP as damage.",
 		},
 		{
-			description = "Immune to all damaging moves that are not super effective, except for Struggle, Beat Up, Future Sight, and Doom Desire. Cannot be copied by Role Play or swapped by Skill Swap.",
+			NameKey = "Wonder Guard",
+			Description = "Immune to all damaging moves that are not super effective, except for Struggle, Beat Up, Future Sight, and Doom Desire. Cannot be copied by Role Play or swapped by Skill Swap.",
 		},
 		{
-			description = "Immune to Ground moves. This immunity is lost if this Pokémon uses Ingrain.",
+			NameKey = "Levitate",
+			Description = "Immune to Ground moves. This immunity is lost if this Pokémon uses Ingrain.",
 		},
 		{
-			description = "When hit by a contact move, 10% chance for the attacker to become afflicted with Poison, Paralysis, or Sleep; with an equal chance of each. It's possible the random status won't affect the attacker, in the case that it is immune to that status.",
+			NameKey = "Effect Spore",
+			Description = "When hit by a contact move, 10% chance for the attacker to become afflicted with Poison, Paralysis, or Sleep; with an equal chance of each. It's possible the random status won't affect the attacker, in the case that it is immune to that status.",
 		},
 		{
-			description = "When a Pokémon inflicts Poison, Paralysis, or Burn on this Pokémon, that Pokémon will be inflicted with the same status condition, if possible.",
-			descriptionEmerald = "While at the head of the party, there is a 50% chance that a wild encounter Pokémon will have the same nature as this Pokémon.",
+			NameKey = "Synchronize",
+			Description = "When a Pokémon inflicts Poison, Paralysis, or Burn on this Pokémon, that Pokémon will be inflicted with the same status condition, if possible.",
+			DescriptionEmerald = "While at the head of the party, there is a 50% chance that a wild encounter Pokémon will have the same nature as this Pokémon.",
 		},
 		{
-			description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.",
+			NameKey = "Clear Body",
+			Description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.",
 		},
 		{
-			description = "Heals any status conditions on switching out.",
+			NameKey = "Natural Cure",
+			Description = "Heals any status conditions on switching out.",
 		},
 		{
-			description = "All single-target Electric moves used by opposing Pokémon are redirected to this Pokémon.",
-			descriptionEmerald = "While at the head of the party, Trainers registered with the PokéNav's Match Call feature will call twice as often.",
+			NameKey = "Lightningrod",
+			Description = "All single-target Electric moves used by opposing Pokémon are redirected to this Pokémon.",
+			DescriptionEmerald = "While at the head of the party, Trainers registered with the PokéNav's Match Call feature will call twice as often.",
 		},
 		{
-			description = "Doubles the chance of secondary effects from this Pokémon's moves.",
+			NameKey = "Serene Grace",
+			Description = "Doubles the chance of secondary effects from this Pokémon's moves.",
 		},
 		{
-			description = "Doubles Speed stat during rain.",
+			NameKey = "Swift Swim",
+			Description = "Doubles Speed stat during rain.",
 		},
 		{
-			description = "Doubles Speed stat when the weather is sunny.",
+			NameKey = "Chlorophyll",
+			Description = "Doubles Speed stat when the weather is sunny.",
 		},
 		{
-			description = "Increases the wild encounter rate by 100%.",
+			NameKey = "Illuminate",
+			Description = "Increases the wild encounter rate by 100%.",
 		},
 		{
-			description = "Copies a random opposing Pokémon's Ability when this Pokémon enters battle.",
+			NameKey = "Trace",
+			Description = "Copies a random opposing Pokémon's Ability when this Pokémon enters battle.",
 		},
 		{
-			description = "Doubles this Pokémon's Attack stat.",
+			NameKey = "Huge Power",
+			Description = "Doubles this Pokémon's Attack stat.",
 		},
 		{
-			description = "When hit by a contact move, 1/3 chance to inflict Poison on the attacker.",
+			NameKey = "Poison Point",
+			Description = "When hit by a contact move, 1/3 chance to inflict Poison on the attacker.",
 		},
 		{
-			description = "Prevents flinching.",
+			NameKey = "Inner Focus",
+			Description = "Prevents flinching.",
 		},
 		{
-			description = "Cannot be frozen. Gaining this Ability, like through Skill Swap, will cure Freeze.",
-			descriptionEmerald = "Decreases the time needed to hatch an Egg by half.",
+			NameKey = "Magma Armor",
+			Description = "Cannot be frozen. Gaining this Ability, like through Skill Swap, will cure Freeze.",
+			DescriptionEmerald = "Decreases the time needed to hatch an Egg by half.",
 		},
 		{
-			description = "Cannot be burned. Gaining this Ability, like through Skill Swap, will cure a Burn.",
+			NameKey = "Water Veil",
+			Description = "Cannot be burned. Gaining this Ability, like through Skill Swap, will cure a Burn.",
 		},
 		{
-			description = "Prevents allied and opposing Steel Pokémon from switching out.",
-			descriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against a Steel Pokémon, if possible.",
+			NameKey = "Magnet Pull",
+			Description = "Prevents allied and opposing Steel Pokémon from switching out.",
+			DescriptionEmerald = "While at the head of the party, wild encounters have a 50% chance of being against a Steel Pokémon, if possible.",
 		},
 		{
-			description = "Immune to sound-based moves. These moves are:\nGrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar",
+			NameKey = "Soundproof",
+			Description = "Immune to sound-based moves. These moves are: GrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar",
 		},
 		{
-			description = "Heals this Pokémon for 1/16 max HP after each turn during rain.",
+			NameKey = "Rain Dish",
+			Description = "Heals this Pokémon for 1/16 max HP after each turn during rain.",
 		},
 		{
-			description = "Changes weather to a sandstorm when switched in. After each turn during a sandstorm, each Pokémon takes 1/16 max HP damage, unless they are Rock, Ground, or Steel.",
+			NameKey = "Sand Stream",
+			Description = "Changes weather to a sandstorm when switched in. After each turn during a sandstorm, each Pokémon takes 1/16 max HP damage, unless they are Rock, Ground, or Steel.",
 		},
 		{
-			description = "When a moves targets this Pokémon, one additional PP is deducted. A Pokémon can still target this Pokémon with a move if it only has 1 PP remaining for it.",
-			descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.",
+			NameKey = "Pressure",
+			Description = "When a moves targets this Pokémon, one additional PP is deducted. A Pokémon can still target this Pokémon with a move if it only has 1 PP remaining for it.",
+			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.",
 		},
 		{
-			description = "Damage received from Ice or Fire moves is halved.",
+			NameKey = "Thick Fat",
+			Description = "Damage received from Ice or Fire moves is halved.",
 		},
 		{
-			description = "Spends half as many turns asleep, rounded down.",
+			NameKey = "Early Bird",
+			Description = "Spends half as many turns asleep, rounded down.",
 		},
 		{
-			description = "When hit by a contact move, 1/3 chance to burn the attacker.",
-			descriptionEmerald = "Decreases the time needed to hatch an Egg by half.",
+			NameKey = "Flame Body",
+			Description = "When hit by a contact move, 1/3 chance to burn the attacker.",
+			DescriptionEmerald = "Decreases the time needed to hatch an Egg by half.",
 		},
 		{
-			description = "Running away from wild encounters always succeeds.",
+			NameKey = "Run Away",
+			Description = "Running away from wild encounters always succeeds.",
 		},
 		{
-			description = "This Pokémon's Accuracy cannot be lowered.",
-			descriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.",
+			NameKey = "Keen Eye",
+			Description = "This Pokémon's Accuracy cannot be lowered.",
+			DescriptionEmerald = "While at the head of the party, 50% chance to prevent a wild encounter that would have been with a Pokémon 5 or more levels lower than this Pokémon.",
 		},
 		{
-			description = "This Pokémon's Attack stat cannot be lowered by other Pokémon.",
-			descriptionEmerald = "If this Pokémon uses Cut in the overworld, the radius of the Cut tall grass is increased by one.",
+			NameKey = "Hyper Cutter",
+			Description = "This Pokémon's Attack stat cannot be lowered by other Pokémon.",
+			DescriptionEmerald = "If this Pokémon uses Cut in the overworld, the radius of the Cut tall grass is increased by one.",
 		},
 		{
-			description = "After winning a battle, there is a 10% chance that this Pokémon will be holding an item, if it was not already holding one.",
-			descriptionEmerald = "The types of items obtained vary according to this Pokémon's level, or the current level of the Battle Pyramid.",
+			NameKey = "Pickup",
+			Description = "After winning a battle, there is a 10% chance that this Pokémon will be holding an item, if it was not already holding one.",
+			DescriptionEmerald = "The types of items obtained vary according to this Pokémon's level, or the current level of the Battle Pyramid.",
 		},
 		{
-			description = "Every other turn using a move in battle, this Pokémon instead loafs around and does nothing.",
+			NameKey = "Truant",
+			Description = "Every other turn using a move in battle, this Pokémon instead loafs around and does nothing.",
 		},
 		{
-			description = "Increases Attack stat by 50%, but decreases the Accuracy of physical moves by 20%.",
-			descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.",
+			NameKey = "Hustle",
+			Description = "Increases Attack stat by 50%, but decreases the Accuracy of physical moves by 20%.",
+			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter Pokémon will be the highest level it could appear.",
 		},
 		{
-			description = "When hit by a contact move, 1/3 chance to inflict infatuation on the attacker. Has no effect if this Pokémon is genderless, or the same gender as the attacker.",
-			descriptionEmerald = "While at the head of the party, 2/3 chance that a wild encounter will be forced to the opposite gender of this Pokémon, if possible.",
+			NameKey = "Cute Charm",
+			Description = "When hit by a contact move, 1/3 chance to inflict infatuation on the attacker. Has no effect if this Pokémon is genderless, or the same gender as the attacker.",
+			DescriptionEmerald = "While at the head of the party, 2/3 chance that a wild encounter will be forced to the opposite gender of this Pokémon, if possible.",
 		},
 		{
-			description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
+			NameKey = "Plus",
+			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
-			description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
+			NameKey = "Minus",
+			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
-			description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Castform obtains this ability.",
+			NameKey = "Forecast",
+			Description = "Castform's type changes with the weather. Fire while sunny, Water while raining, or Ice while hailing. Cloud Nine and Air Lock disable this effect. This ability has no effect if a Pokémon other than Castform obtains this ability.",
 		},
 		{
-			description = "This Pokémon's held item cannot be taken or removed.",
-			descriptionEmerald = "Increases the chance of getting bites while fishing.",
+			NameKey = "Sticky Hold",
+			Description = "This Pokémon's held item cannot be taken or removed.",
+			DescriptionEmerald = "Increases the chance of getting bites while fishing.",
 		},
 		{
-			description = "1/3 chance at the end of every turn to cure major status conditions (Burn, Poison, Paralysis, Freeze, Sleep).",
+			NameKey = "Shed Skin",
+			Description = "1/3 chance at the end of every turn to cure major status conditions (Burn, Poison, Paralysis, Freeze, Sleep).",
 		},
 		{
-			description = "Increases this Pokémon's Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep), and ignores the Attack reduction of Burn.",
+			NameKey = "Guts",
+			Description = "Increases this Pokémon's Attack stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep), and ignores the Attack reduction of Burn.",
 		},
 		{
-			description = "Increases this Pokémon's Defense stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep).",
+			NameKey = "Marvel Scale",
+			Description = "Increases this Pokémon's Defense stat by 50% when affected by a major status condition (Burn, Poison, Paralysis, Freeze, Sleep).",
 		},
 		{
-			description = "HP draining moves used against this Pokémon cause the attacker to instead lose the HP they would have healed.",
+			NameKey = "Liquid Ooze",
+			Description = "HP draining moves used against this Pokémon cause the attacker to instead lose the HP they would have healed.",
 		},
 		{
-			description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Grass moves is increased by 50%.",
+			NameKey = "Overgrow",
+			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Grass moves is increased by 50%.",
 		},
 		{
-			description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Fire moves is increased by 50%.",
+			NameKey = "Blaze",
+			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Fire moves is increased by 50%.",
 		},
 		{
-			description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Water moves is increased by 50%.",
+			NameKey = "Torrent",
+			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Water moves is increased by 50%.",
 		},
 		{
-			description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Bug moves is increased by 50%.",
-			descriptionEmerald = "Increases the frequency at which wild Pokémons' cries are heard in the overworld.",
+			NameKey = "Swarm",
+			Description = "If this Pokémon is at or below 1/3 of its max HP, the power of their Bug moves is increased by 50%.",
+			DescriptionEmerald = "Increases the frequency at which wild Pokémons' cries are heard in the overworld.",
 		},
 		{
-			description = "Prevents recoil damage from moves, except for Struggle.",
+			NameKey = "Rock Head",
+			Description = "Prevents recoil damage from moves, except for Struggle.",
 		},
 		{
-			description = "Changes weather to sunny when switched in. In sun, Fire moves have 50% increased power and Water moves have 50% decreased power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
+			NameKey = "Drought",
+			Description = "Changes weather to sunny when switched in. In sun, Fire moves have 50% increased power and Water moves have 50% decreased power. Removes the charging turn for Solarbeam, lowers the Accuracy of Thunder to 50%, and causes Moonlight, Synthesis, and Morning Sun to heal 2/3 max HP.",
 		},
 		{
-			description = "Prevents opposing Pokémon from switching out or fleeing, except Flying-types and Pokémon with Levitate.",
-			descriptionEmerald = "Increases the wild encounter rate by 100%.",
+			NameKey = "Arena Trap",
+			Description = "Prevents opposing Pokémon from switching out or fleeing, except Flying-types and Pokémon with Levitate.",
+			DescriptionEmerald = "Increases the wild encounter rate by 100%.",
 		},
 		{
-			description = "Cannot be put to sleep. If this Pokémon tries to use Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
-			descriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that Pokémon could appear.",
+			NameKey = "Vital Spirit",
+			Description = "Cannot be put to sleep. If this Pokémon tries to use Rest, it will fail. Gaining this Ability, like through Skill Swap, will cure Sleep.",
+			DescriptionEmerald = "While at the head of the party, 50% chance that a wild encounter will be at the highest possible level that Pokémon could appear.",
 		},
 		{
-			description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.",
-			descriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50%.",
+			NameKey = "White Smoke",
+			Description = "Prevents stat reductions caused by opposing Pokémons' moves and abilities.",
+			DescriptionEmerald = "While at the head of the party, decreases the wild encounter rate by 50%.",
 		},
 		{
-			description = "Doubles this Pokémon's Attack stat.",
+			NameKey = "Pure Power",
+			Description = "Doubles this Pokémon's Attack stat.",
 		},
 		{
-			description = "Prevents this Pokémon from receiving critical hits.",
+			NameKey = "Shell Armor",
+			Description = "Prevents this Pokémon from receiving critical hits.",
 		},
 		{
-			description = "Immune to sound-based moves. These moves are:\nGrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar.",
+			NameKey = "Cacophony",
+			Description = "Immune to sound-based moves. These moves are: GrassWhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Roar, Screech, Sing, Snore, Supersonic, Uproar.",
 		},
 		{
-			description = "Negates all effects of weather, but does not end the weather.",
+			NameKey = "Air Lock",
+			Description = "Negates all effects of weather, but does not end the weather.",
 		},
 	},
+	-- The list of item names below must remain in the same order
 	ItemNames = {
 		"Master Ball",
 		"Ultra Ball",
@@ -2615,6 +3762,7 @@ GameResources{
 		"Magma Emblem",
 		"Old Sea Map",
 	},
+	-- The list of Pokémon natures below must remain in the same order
 	NatureNames = {
 		"Hardy",
 		"Lonely",

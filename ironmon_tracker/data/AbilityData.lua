@@ -6,12 +6,12 @@ function AbilityData.updateResources()
 			val.name = Resources.Game.AbilityNames[i]
 		end
 
-		local descData = Resources.Game.AbilityDescriptions[i] or {}
-		if descData.description then
-			val.description = descData.description
+		local descTable = Resources.Game.AbilityDescriptions[i] or {}
+		if descTable.Description then
+			val.description = descTable.Description
 		end
-		if descData.descriptionEmerald then
-			val.descriptionEmerald = descData.descriptionEmerald
+		if descTable.DescriptionEmerald then
+			val.descriptionEmerald = descTable.DescriptionEmerald
 		end
 	end
 end

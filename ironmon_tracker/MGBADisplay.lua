@@ -252,7 +252,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption, Resources.MGBAScreens.LabelEnabled))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
 		for i = 1, 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -262,7 +262,7 @@ MGBADisplay.LineBuilder = {
 
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: OPTION \"# %s\"", Resources.MGBAScreens.GeneralSetupChange, Resources.MGBAScreens.GeneralSetupButtons))
-		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Resources.MGBAScreens.GeneralSetupControls, Resources.MGBAScreens.GeneralSetupGBAButtons))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Resources.MGBAScreens.GeneralSetupControls:upper(), Resources.MGBAScreens.GeneralSetupGBAButtons:upper()))
 		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -286,7 +286,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption, Resources.MGBAScreens.LabelEnabled))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
 		for i = 20, 28, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -312,7 +312,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		table.insert(lines, Utils.formatUTF8('%s: %s', Resources.MGBAScreens.QuickloadChooseMode, MGBA.CommandMap["OPTION"].usageSyntax))
-		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Resources.MGBAScreens.QuickloadMode, Resources.MGBAScreens.QuickloadSelected))
+		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Resources.MGBAScreens.QuickloadMode:upper(), Resources.MGBAScreens.QuickloadSelected:upper()))
 
 		for i = 30, 31, 1 do
 			local opt = MGBA.OptionMap[i]
@@ -416,7 +416,7 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.LanguageChangeWith))
 		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["LANGUAGE"].usageSyntax))
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
-		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Resources.MGBAScreens.LanguageHeaderLang, Resources.MGBAScreens.LanguageHeaderLang))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Resources.MGBAScreens.LanguageHeaderLang:upper(), Resources.MGBAScreens.LanguageHeaderLang:upper()))
 
 		local orderedLanguages = {}
 		for _, lang in pairs(Resources.Languages) do
@@ -433,7 +433,7 @@ MGBADisplay.LineBuilder = {
 
 		local optionBar = "%-2s %-26s [%s]"
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption, Resources.MGBAScreens.LabelEnabled))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
 
 		local optionAutodetectId = 29
 		local opt = MGBA.OptionMap[optionAutodetectId]

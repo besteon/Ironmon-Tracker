@@ -143,8 +143,9 @@ function MoveData.updateResources()
 		if Resources.Game.MoveNames[i] then
 			val.name = Resources.Game.MoveNames[i]
 		end
-		if Resources.Game.MoveDescriptions[i] then
-			val.summary = Resources.Game.MoveDescriptions[i]
+		local descTable = Resources.Game.MoveDescriptions[i] or {}
+		if descTable and descTable.Description then
+			val.summary = descTable.Description
 		end
 	end
 end
