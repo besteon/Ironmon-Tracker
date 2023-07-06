@@ -1061,18 +1061,17 @@ MGBA.CommandMap = {
 			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
-			local success, msg = Tracker.loadData(FileManager.prependDir(filename))
-			if success then
-				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
-					printf(" %s", msg)
-				else
-					printf(" %s", Resources.MGBACommands.LoadDataError2)
-				end
-			else
-				if msg ~= nil and msg ~= "" then
-					printf(" %s", msg)
-				end
+
+			local loadStatus = Tracker.loadData(FileManager.prependDir(filename))
+			if loadStatus == Tracker.LoadStatusKeys.NEW_GAME then
+				printf(" %s", Resources.MGBACommands.LoadDataError2)
+			elseif loadStatus == Tracker.LoadStatusKeys.ERROR then
 				printf(" %s", Resources.MGBACommands.LoadDataError3)
+			end
+
+			local loadStatusMessage = Resources.StartupScreen[loadStatus or false]
+			if loadStatusMessage then
+				printf("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage)
 			end
 		end,
 	},

@@ -6,8 +6,7 @@ local DEBUG_REPLACEMENT_STRING = "$"
 
 -- TODO: Task list:
 -- * Log Viewer reading/parsing/searching log files
--- * Add Drawing function to draw pokemon type bar with text overlayed
--- * Find solution for text highlights that count pixels of a character/string (i.e. next move level)
+-- * Find solution for text highlights that count pixels of a character/string, mostly for kanji (i.e. next move level)
 
 -- Things to test:
 -- * Check on Bizhawk 2.8 that words like "Pokémon" appear correctly

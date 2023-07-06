@@ -14,12 +14,14 @@ Tracker.ForceUpdateData = {
 	},
 }
 
-Tracker.LoadStatusMessages = {
-	newGame = "" or "New game successfully loaded and new Tracker data is being set up", -- leaving this blank for now to not alarm anyone
-	fromFile = "Previously saved Tracker data for this game has been loaded",
-	autoDisabled = "Tracker's auto-save is disabled, new Tracker data is being set up",
-	unableLoadFile = "Unable to load Tracker data from selected file",
+-- Dual-purpose enum to determine the status of the tracked data loaded on startup and refernece the relevant Resource key
+Tracker.LoadStatusKeys = {
+	NEW_GAME = "TrackedDataMsgNewGame",
+	LOAD_SUCCESS = "TrackedDataMsgLoadSuccess",
+	AUTO_DISABLED = "TrackedDataMsgAutoDisabled",
+	ERROR = "TrackedDataMsgError",
 }
+Tracker.LoadStatus = nil
 
 function Tracker.initialize()
 	-- First create a default, non-nil Tracker Data
@@ -28,13 +30,13 @@ function Tracker.initialize()
 	-- Then attempt to load in data from autosave TDAT file
 	if Options["Auto save tracked game data"] then
 		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
-		local success, err = Tracker.loadData(filepath)
-		if not success and err ~= nil and string.find(err, Tracker.LoadStatusMessages.unableLoadFile, 1, true) == nil then
-			-- Print any error that isn't "missing autosave tdat file"
-			print("> " .. err)
+		local loadStatus = Tracker.loadData(filepath)
+
+		if loadStatus == Tracker.LoadStatusKeys.ERROR and filepath ~= nil then
+			print("> " .. filepath)
 		end
 	else
-		Tracker.DataMessage = Tracker.LoadStatusMessages.autoDisabled
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
 	end
 end
 
@@ -526,19 +528,21 @@ function Tracker.saveData(filename)
 	FileManager.writeTableToFile(Tracker.Data, filename)
 end
 
--- Attempts to load Tracked data from the file 'filepath', returns true if successful or no matching data found (resets tracked data)
+-- Attempts to load Tracked data from the file 'filepath', sets and returns 'Tracker.LoadStatus' to a status from 'Tracker.LoadStatusKeys'
 -- If forced=true, it forcibly applies the Tracked data even if the game it was saved for doesn't match the game being played (rarely, if ever, use this)
 function Tracker.loadData(filepath, forced)
 	-- Loose safety check to ensure a valid data file is loaded
 	filepath = filepath or GameSettings.getTrackerAutoSaveName()
 	if filepath:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
 		Main.DisplayError("Invalid file selected.\n\nPlease select a TDAT file to load tracker data.")
-		return false, string.format("ERROR: TDAT file, %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+		return Tracker.LoadStatus
 	end
 
 	local fileData = FileManager.readTableFromFile(filepath)
 	if fileData == nil then
-		return false, string.format("ERROR: %s: %s", Tracker.LoadStatusMessages.unableLoadFile, filepath)
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.ERROR
+		return Tracker.LoadStatus
 	end
 
 	-- Initialize empty Tracker data, to potentially populate with data from .TDAT save file
@@ -546,8 +550,8 @@ function Tracker.loadData(filepath, forced)
 
 	-- If the loaded data's romHash doesn't match this current game exactly, use the empty data; otherwise use the loaded data
 	if not forced and (fileData.romHash == nil or fileData.romHash ~= Tracker.Data.romHash) then
-		Tracker.DataMessage = Tracker.LoadStatusMessages.newGame
-		return true, Tracker.DataMessage
+		Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
+		return Tracker.LoadStatus
 	end
 
 	for k, v in pairs(fileData) do
@@ -557,9 +561,6 @@ function Tracker.loadData(filepath, forced)
 		end
 	end
 
-	-- Removing for now as the name wasn't really helpful and I wanted a more clear message
-	-- local fileNameIndex = string.match(filepath, "^.*()" .. FileManager.slash)
-	-- local newFilename = string.sub(filepath, (fileNameIndex or 0) + 1) or ""
-	Tracker.DataMessage = Tracker.LoadStatusMessages.fromFile --.. Utils.inlineIf(newFilename ~= "", ": " .. newFilename, "")
-	return true, Tracker.DataMessage
+	Tracker.LoadStatus = Tracker.LoadStatusKeys.LOAD_SUCCESS
+	return Tracker.LoadStatus
 end

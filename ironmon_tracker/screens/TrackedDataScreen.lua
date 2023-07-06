@@ -163,9 +163,14 @@ function TrackedDataScreen.openLoadDataPrompt()
 
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
-		local success, msg = Tracker.loadData(filepath)
-		if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
-			print(msg) -- output info on the load, regardless if successfully
+		local loadStatus = Tracker.loadData(filepath)
+
+		local loadStatusMessage = Resources.StartupScreen[loadStatus or -1]
+		if loadStatusMessage then
+			print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
+		end
+		if loadStatus == Tracker.LoadStatusKeys.ERROR and filepath ~= nil then
+			print("> " .. filepath)
 		end
 	end
 

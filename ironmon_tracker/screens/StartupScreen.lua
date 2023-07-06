@@ -122,8 +122,12 @@ function StartupScreen.initialize()
 		end
 	end
 
-	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
-		print(string.format("> %s", Tracker.DataMessage))
+	-- Output to console the Tracker data load status to help with troubleshooting
+	if Tracker.LoadStatus ~= nil then
+		local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus]
+		if loadStatusMessage then
+			print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
+		end
 	end
 end
 
@@ -282,15 +286,21 @@ function StartupScreen.drawScreen()
 	end
 	textLineY = textLineY + linespacing
 
-	local successfulData = Tracker.DataMessage:find(Tracker.LoadStatusMessages.fromFile) ~= nil
-	local dataColor = Utils.inlineIf(successfulData, Theme.COLORS["Positive text"], topBox.text)
-	local wrappedText = Utils.getWordWrapLines(Tracker.DataMessage, 32)
-	if #wrappedText == 1 then
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[1], dataColor, topBox.shadow)
-	elseif #wrappedText >= 2 then
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[1], dataColor, topBox.shadow)
+	-- Display info about the tracked data notes, except when starting a new game (keep it clean)
+	if Tracker.LoadStatus and Tracker.LoadStatus ~= Tracker.LoadStatusKeys.NEW_GAME then
+		local messageColor
+		if Tracker.LoadStatus == Tracker.LoadStatusKeys.LOAD_SUCCESS then
+			messageColor = Theme.COLORS["Positive text"]
+		elseif Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR then
+			messageColor = Theme.COLORS["Negative text"]
+		else
+			messageColor = topBox.text
+		end
+
+		local trackerNotesLabel = string.format("%s:", Resources.StartupScreen.TrackedDataMsgLabel or "")
+		Drawing.drawText(topBox.x + 2, textLineY, trackerNotesLabel, topBox.text, topBox.shadow)
 		textLineY = textLineY + linespacing - 2
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[2], dataColor, topBox.shadow)
+		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen[Tracker.LoadStatus] or "", messageColor, topBox.shadow)
 	end
 
 	-- If Favorites are selected to be shown and no custom welcome message has been written, show game controls by default
