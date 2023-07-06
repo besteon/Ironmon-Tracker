@@ -32,8 +32,9 @@ function Tracker.initialize()
 		local filepath = FileManager.prependDir(GameSettings.getTrackerAutoSaveName())
 		local loadStatus = Tracker.loadData(filepath)
 
-		if loadStatus == Tracker.LoadStatusKeys.ERROR and filepath ~= nil then
-			print("> " .. filepath)
+		-- If the autosave file doesn't exist, then this is a new game
+		if loadStatus == Tracker.LoadStatusKeys.ERROR then
+			Tracker.LoadStatus = Tracker.LoadStatusKeys.NEW_GAME
 		end
 	else
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
