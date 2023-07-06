@@ -73,7 +73,7 @@ end
 -- Alters the string by changing the first character to uppercase
 function Utils.firstToUpper(str)
 	if str == nil or str == "" then return str end
-	return str:gsub("^%l", string.upper)
+	return str:gsub("^%l", Utils.toUpperUTF8)
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
@@ -163,6 +163,114 @@ function Utils.formatSpecialCharacters(text)
 	end
 
 	return text
+end
+
+Utils.AccentedCharToUpper = {
+	["î"] = "Î",
+	["ï"] = "Ï",
+	["ð"] = "Ð",
+	["ñ"] = "Ñ",
+	["õ"] = "Õ",
+	["ô"] = "Ô",
+	["ó"] = "Ó",
+	["ò"] = "Ò",
+	["ö"] = "Ö",
+	["ø"] = "Ø",
+	["ÿ"] = "Ÿ",
+	["ù"] = "Ù",
+	["û"] = "Û",
+	["ú"] = "Ú",
+	["ý"] = "Ý",
+	["ü"] = "Ü",
+	["è"] = "È",
+	["é"] = "É",
+	["æ"] = "Æ",
+	["ç"] = "Ç",
+	["þ"] = "Þ",
+	["í"] = "Í",
+	["ì"] = "Ì",
+	["å"] = "Å",
+	["ä"] = "Ä",
+	["ã"] = "Ã",
+	["â"] = "Â",
+	["ê"] = "Ê",
+	["ë"] = "Ë",
+	["à"] = "À",
+	["á"] = "Á",
+}
+Utils.AccentedCharToLower = {
+	["Î"] = "î",
+	["Ï"] = "ï",
+	["Ð"] = "ð",
+	["Ñ"] = "ñ",
+	["Õ"] = "õ",
+	["Ô"] = "ô",
+	["Ó"] = "ó",
+	["Ò"] = "ò",
+	["Ö"] = "ö",
+	["Ø"] = "ø",
+	["Ÿ"] = "ÿ",
+	["Ù"] = "ù",
+	["Û"] = "û",
+	["Ú"] = "ú",
+	["Ý"] = "ý",
+	["Ü"] = "ü",
+	["È"] = "è",
+	["É"] = "é",
+	["Æ"] = "æ",
+	["Ç"] = "ç",
+	["Þ"] = "þ",
+	["Í"] = "í",
+	["Ì"] = "ì",
+	["Å"] = "å",
+	["Ä"] = "ä",
+	["Ã"] = "ã",
+	["Â"] = "â",
+	["Ê"] = "ê",
+	["Ë"] = "ë",
+	["À"] = "à",
+	["Á"] = "á",
+}
+local toUpperPattern = ""
+for k, _ in pairs(Utils.AccentedCharToUpper) do
+	toUpperPattern = toUpperPattern .. k
+end
+toUpperPattern = "[" .. toUpperPattern .. "]*"
+local toLowerPattern = ""
+for k, _ in pairs(Utils.AccentedCharToLower) do
+	toLowerPattern = toLowerPattern .. k
+end
+toLowerPattern = "[" .. toLowerPattern .. "]*"
+
+function Utils.toUpperUTF8(str)
+	str = str or ""
+	str = str:upper():gsub(toUpperPattern, Utils.AccentedCharToUpper)
+	return str
+end
+
+function Utils.toLowerUTF8(str)
+	str = str or ""
+	str = str:lower():gsub(toLowerPattern, Utils.AccentedCharToLower)
+	return str
+end
+
+function Utils.startsOrContains(text, searchString, ignoreAccentedChars)
+	if text == nil or text == "" or searchString == nil then
+		return false
+	end
+	text = Utils.toLowerUTF8(text)
+	searchString = Utils.toLowerUTF8(searchString)
+
+	-- TODO: Implemented a way to handle this
+	if ignoreAccentedChars then
+		text = text
+		searchString = searchString
+	end
+
+	-- Check whole word for matches, not just the start
+	local startsWith = text:sub(1, #searchString) == searchString
+	local contains = text:find(searchString)
+	return startsWith or contains
 end
 
 -- Checks if the text starts with a Japanese or Chinese character. Only works on Lua 5.4+

@@ -243,7 +243,7 @@ function CustomExtensionsScreen.drawScreen()
 		fill = Theme.COLORS[CustomExtensionsScreen.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[CustomExtensionsScreen.Colors.boxFill]),
 	}
-	local headerText = Resources.CustomExtensionsScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.CustomExtensionsScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 

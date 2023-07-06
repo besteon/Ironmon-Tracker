@@ -267,7 +267,7 @@ function StartupScreen.drawScreen()
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
-	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, Utils.toUpperUTF8(Resources.StartupScreen.Title), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Version .. ":", topBox.text, topBox.shadow)

@@ -261,7 +261,7 @@ function StreamerScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header text
-	local headerText = Resources.StreamerScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.StreamerScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING

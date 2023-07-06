@@ -184,7 +184,7 @@ function TypeDefensesScreen.drawScreen()
 	end
 
 	-- Draw header text
-	local pokemonName = PokemonData.Pokemon[TypeDefensesScreen.pokemonID].name:upper()
+	local pokemonName = Utils.toUpperUTF8(PokemonData.Pokemon[TypeDefensesScreen.pokemonID].name)
 	Drawing.drawHeader(topBox.x, lineY - 2, pokemonName, Theme.COLORS[TypeDefensesScreen.Colors.text], topBox.shadow)
 	lineY = lineY + Constants.SCREEN.LINESPACING + 3
 

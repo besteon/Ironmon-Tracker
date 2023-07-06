@@ -68,7 +68,7 @@ MGBADisplay.DataFormatter = {
 	formatPokemonInfo = function(data)
 		local listSeparator = ", "
 
-		data.p.name = data.p.name:upper()
+		data.p.name = Utils.toUpperUTF8(data.p.name)
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
@@ -117,7 +117,7 @@ MGBADisplay.DataFormatter = {
 		end
 	end,
 	formatMoveInfo = function(data)
-		data.m.name = data.m.name:upper()
+		data.m.name = Utils.toUpperUTF8(data.m.name)
 		data.m.type = PokemonData.getTypeResource(data.m.type)
 
 		if tonumber(data.m.accuracy) ~= nil then
@@ -146,7 +146,7 @@ MGBADisplay.DataFormatter = {
 		if not RouteData.hasRoute(data.r.id) then
 			data.r.name = Utils.formatUTF8("%s (%s)", Resources.MGBAScreens.RouteInfoUnknownArea, math.floor(data.r.id))
 		else
-			data.r.name = data.r.name:upper()
+			data.r.name = Utils.toUpperUTF8(data.r.name)
 		end
 
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
@@ -179,7 +179,7 @@ MGBADisplay.DataFormatter = {
 		end
 	end,
 	formatTrackerScreen = function(data)
-		data.p.name = data.p.name:upper()
+		data.p.name = Utils.toUpperUTF8(data.p.name)
 
 		if data.p.status ~= "" then
 			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
@@ -248,11 +248,11 @@ MGBADisplay.LineBuilder = {
 
 		local optionBar = "%-2s %-26s [%s]"
 		local controlBar = "%-2s %-21s %8s"
-		table.insert(lines, MGBA.Screens.TrackerSetup:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.TrackerSetup:getTitle()))
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 		for i = 1, 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -262,7 +262,7 @@ MGBADisplay.LineBuilder = {
 
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: OPTION \"# %s\"", Resources.MGBAScreens.GeneralSetupChange, Resources.MGBAScreens.GeneralSetupButtons))
-		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Resources.MGBAScreens.GeneralSetupControls:upper(), Resources.MGBAScreens.GeneralSetupGBAButtons:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupControls), Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupGBAButtons)))
 		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -282,11 +282,11 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.GameplayOptions:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.GameplayOptions:getTitle()))
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 		for i = 20, 28, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
@@ -306,13 +306,13 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.QuickloadSetup:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.QuickloadSetup:getTitle()))
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		MGBADisplay.Utils.addLinesWrapped(lines, Resources.MGBAScreens.QuickloadDesc)
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		table.insert(lines, Utils.formatUTF8('%s: %s', Resources.MGBAScreens.QuickloadChooseMode, MGBA.CommandMap["OPTION"].usageSyntax))
-		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Resources.MGBAScreens.QuickloadMode:upper(), Resources.MGBAScreens.QuickloadSelected:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadMode), Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadSelected)))
 
 		for i = 30, 31, 1 do
 			local opt = MGBA.OptionMap[i]
@@ -378,7 +378,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local columnBar = "%-26s%-7s"
-		table.insert(lines, MGBA.Screens.UpdateCheck:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.UpdateCheck:getTitle()))
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		local versionStatus
@@ -411,12 +411,12 @@ MGBADisplay.LineBuilder = {
 		local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
 		local userLanguage = Resources.Languages[userLanguageKey]
 
-		table.insert(lines, Utils.formatUTF8("%s (%s)", MGBA.Screens.Language:getTitle():upper(), userLanguage.DisplayName))
+		table.insert(lines, Utils.formatUTF8("%s (%s)", Utils.toUpperUTF8(MGBA.Screens.Language:getTitle()), userLanguage.DisplayName))
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.LanguageChangeWith))
 		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["LANGUAGE"].usageSyntax))
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
-		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Resources.MGBAScreens.LanguageHeaderLang:upper(), Resources.MGBAScreens.LanguageHeaderLang:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LanguageHeaderLang), Utils.toUpperUTF8(Resources.MGBAScreens.LanguageHeaderLang)))
 
 		local orderedLanguages = {}
 		for _, lang in pairs(Resources.Languages) do
@@ -426,14 +426,14 @@ MGBADisplay.LineBuilder = {
 		end
 		table.sort(orderedLanguages, function(a,b) return a.Ordinal < b.Ordinal end)
 		for _, lang in ipairs(orderedLanguages) do
-			table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", lang.Ordinal, Utils.firstToUpper(lang.Key:lower()), lang.DisplayName))
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", lang.Ordinal, Utils.firstToUpper(Utils.toLowerUTF8(lang.Key)), lang.DisplayName))
 		end
 
 		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		local optionBar = "%-2s %-26s [%s]"
 		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Resources.MGBAScreens.LabelOption:upper(), Resources.MGBAScreens.LabelEnabled:upper()))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 
 		local optionAutodetectId = 29
 		local opt = MGBA.OptionMap[optionAutodetectId]
@@ -449,7 +449,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-10s%-s"
-		table.insert(lines, MGBA.Screens.CommandsBasic:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsBasic:getTitle()))
 
 		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["POKEMON"].usageExample)
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
@@ -486,7 +486,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-13s%-s"
-		table.insert(lines, MGBA.Screens.CommandsOther:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsOther:getTitle()))
 
 		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["PCHEALS"].usageExample)
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
@@ -578,7 +578,7 @@ MGBADisplay.LineBuilder = {
 	buildAbilityInfo = function(data)
 		local lines = {}
 
-		table.insert(lines, data.a.name:upper())
+		table.insert(lines, Utils.toUpperUTF8(data.a.name))
 
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 		MGBADisplay.Utils.addLinesWrapped(lines, data.a.description)
@@ -644,7 +644,7 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local statBar = "%-21s%s"
-		table.insert(lines, MGBA.Screens.Stats:getTitle():upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.Stats:getTitle()))
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do

@@ -59,7 +59,7 @@ function ViewLogWarningScreen.drawScreen()
 	}
 
 	-- Draw header text
-	local headerText = Resources.ViewLogWarningScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.ViewLogWarningScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 

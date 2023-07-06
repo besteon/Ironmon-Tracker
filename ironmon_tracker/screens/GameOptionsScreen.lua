@@ -102,7 +102,7 @@ function GameOptionsScreen.drawScreen()
 	}
 
 	-- Draw header text
-	local headerText = Resources.GameOptionsScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.GameOptionsScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 

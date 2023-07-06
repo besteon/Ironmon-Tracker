@@ -584,7 +584,7 @@ function LogSearchScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header
-	local headerText = Resources.LogSearchScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.LogSearchScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 

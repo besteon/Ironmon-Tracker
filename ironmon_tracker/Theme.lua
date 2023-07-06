@@ -705,7 +705,7 @@ function Theme.drawThemeLibrary()
 	}
 
 	-- Draw header text
-	local headerText = Resources.ThemeScreen.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.ThemeScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topbox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
@@ -736,7 +736,7 @@ function Theme.drawEditThemeColors()
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 
 	-- Draw header text
-	local headerText = Resources.ThemeScreen.TitleEditingActiveTheme:upper()
+	local headerText = Utils.toUpperUTF8(Resources.ThemeScreen.TitleEditingActiveTheme)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 

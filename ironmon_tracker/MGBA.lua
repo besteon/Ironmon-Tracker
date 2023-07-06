@@ -971,7 +971,7 @@ MGBA.CommandMap = {
 				return
 			end
 
-			local typeName = Utils.firstToUpper(params:lower())
+			local typeName = Utils.firstToUpper(Utils.toLowerUTF8(params))
 			local hpType = DataHelper.findPokemonType(typeName)
 			if hpType ~= nil then
 				Tracker.TrackHiddenPowerType(pokemonViewed.personality, hpType)
@@ -1186,10 +1186,10 @@ MGBA.CommandMap = {
 			end
 
 			local languageFound
-			local inputLower = params:lower()
+			local inputLower = Utils.toLowerUTF8(params)
 			local inputAsNumber = tonumber(inputLower) or -1
 			for _, lang in pairs(Resources.Languages) do
-				if lang.Ordinal == inputAsNumber or lang.Key:lower() == inputLower or lang.DisplayName:lower() == inputLower then
+				if lang.Ordinal == inputAsNumber or Utils.toLowerUTF8(lang.Key) == inputLower or Utils.toLowerUTF8(lang.DisplayName) == inputLower then
 					languageFound = lang
 					break
 				end

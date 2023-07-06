@@ -397,7 +397,7 @@ function UpdateScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, Resources.UpdateScreen.Title:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.UpdateScreen.Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- TOP BORDER BOX
 	gui.defaultTextBackground(topBox.fill)
@@ -451,7 +451,7 @@ function UpdateScreen.drawReleaseNotesOverlay()
 	gui.drawRectangle(overlay.x, overlay.y, overlay.width, overlay.height, overlay.border, overlay.fill)
 
 	-- Draw header text
-	local headerText = string.format("%s  v%s", Resources.UpdateScreen.LabelRelease:upper(), Main.Version.latestAvailable)
+	local headerText = string.format("%s  v%s", Utils.toUpperUTF8(Resources.UpdateScreen.LabelRelease), Main.Version.latestAvailable)
 	Drawing.drawHeader(overlay.x + 1, overlay.y, headerText, Theme.COLORS["Intermediate text"], overlay.shadow)
 
 	-- Draw all release notes

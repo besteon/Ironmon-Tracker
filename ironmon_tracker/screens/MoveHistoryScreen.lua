@@ -200,7 +200,7 @@ function MoveHistoryScreen.drawScreen()
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[MoveHistoryScreen.Colors.border], Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
 
 	-- Draw header text
-	local pokemonName = PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name:upper()
+	local pokemonName = Utils.toUpperUTF8(PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name)
 	Drawing.drawHeader(topboxX, topboxY - 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING + 4
 

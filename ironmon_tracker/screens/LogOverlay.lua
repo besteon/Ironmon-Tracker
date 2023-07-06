@@ -484,33 +484,24 @@ function LogOverlay.buildPagedButtons()
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
 				includeInGrid = function(self)
-					local currentFilter = LogOverlay.Windower.filterGrid:lower()
+					local currentFilter = LogOverlay.Windower.filterGrid
 					if currentFilter == "#" then
 						return true
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Name then
-						-- Check whole word for matches, not just the start
-						local startsWith = self.pokemonName:sub(1, #currentFilter):lower() == currentFilter
-						local contains = self.pokemonName:lower():find(currentFilter)
-						if startsWith or contains then
+						if Utils.startsOrContains(self.pokemonName, currentFilter, true) then
 							return true
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Ability then
 						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[ability].name
-							-- Check whole word for matches, not just the start
-							local startsWith = abilityText:sub(1, #currentFilter):lower() == currentFilter
-							local contains = abilityText:lower():find(currentFilter)
-							if startsWith or contains then
+							if Utils.startsOrContains(abilityText, currentFilter, true) then
 								return true
 							end
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 							local moveText = move.name
-							-- Check whole word for matches, not just the start
-							local startsWith = moveText:sub(1, #currentFilter):lower() == currentFilter
-							local contains = moveText:lower():find(currentFilter)
-							if startsWith or contains then
+							if Utils.startsOrContains(moveText, currentFilter, true) then
 								return true
 							end
 						end
@@ -1937,7 +1928,7 @@ function LogOverlay.drawPokemonZoomed(x, y, width, height)
 	end
 
 	-- POKEMON NAME
-	Drawing.drawText(x + 3, y + 2, data.p.name:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
+	Drawing.drawText(x + 3, y + 2, Utils.toUpperUTF8(data.p.name), Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- POKEMON TYPES
 	-- Drawing.drawTypeIcon(data.p.types[1], x + 5, y + 13)
@@ -2030,9 +2021,10 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 	end
 
 	-- TRAINER NAME
-	local nameWidth = Utils.calcWordPixelLength(data.t.name:upper())
+	local nameAsUppercase = Utils.toUpperUTF8(data.t.name)
+	local nameWidth = Utils.calcWordPixelLength(nameAsUppercase)
 	local nameOffsetX = (TrainerData.FileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
-	Drawing.drawText(x + nameOffsetX + badgeOffsetX + 3, y + 2, data.t.name:upper(), Theme.COLORS["Intermediate text"], shadowcolor)
+	Drawing.drawText(x + nameOffsetX + badgeOffsetX + 3, y + 2, nameAsUppercase, Theme.COLORS["Intermediate text"], shadowcolor)
 
 	-- TRAINER ICON
 	local trainerIcon = FileManager.buildImagePath(FileManager.Folders.Trainers, data.t.filename, FileManager.Extensions.TRAINER)

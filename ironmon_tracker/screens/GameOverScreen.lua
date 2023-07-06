@@ -330,7 +330,7 @@ function GameOverScreen.drawScreen()
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
 	-- Draw header text
-	Drawing.drawText(topBox.x + 2, textLineY, Resources.GameOverScreen.Title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, Utils.toUpperUTF8(Resources.GameOverScreen.Title), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw some game stats

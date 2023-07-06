@@ -250,7 +250,7 @@ function NavigationMenu.drawScreen()
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 
 	-- Draw header text
-	local headerText = Resources.NavigationMenu.Title:upper()
+	local headerText = Utils.toUpperUTF8(Resources.NavigationMenu.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
@@ -277,9 +277,9 @@ function NavigationMenu.drawCredits()
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	-- Draw header text
-	local creditsHeader = Resources.StartupScreen.Title
+	local creditsHeader = Utils.toUpperUTF8(Resources.StartupScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
