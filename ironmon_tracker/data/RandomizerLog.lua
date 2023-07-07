@@ -6,7 +6,7 @@ RandomizerLog.Patterns = {
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
-	PokemonName = "([%a%d%.]* ?[%a%d%.!'%-♀♂%?]+).-", -- Temporarily removed, using more loose match criteria
+	-- PokemonName = "([%a%d%.]* ?[%a%d%.!'%-♀♂%?]+).-", -- Temporarily removed, using more loose match criteria
 	-- MoveName = "([%u%d%.'%-%?]+)", -- might figure out later
 	-- ItemName = "([%u%d%.'%-%?]+)", -- might figure out later
 	getSectorHeaderPattern = function(sectorName)
@@ -56,8 +56,6 @@ RandomizerLog.Sectors = {
 		PartyPattern = "([^,]+)",
 		-- Matches: pokemon and helditem[optional], level
 		PartyPokemonPattern = "%s*(.-)%sLv(%d+)",
-		-- Matches: pokemon, helditem[optional]
-		PartyHeldItemPattern = "^%s*(.-)@?(.-)%s*$",
 	},
 	-- Currently unused
 	PickupItems = {
@@ -424,17 +422,15 @@ function RandomizerLog.parseTrainers(logLines)
 
 		for partypokemon in string.gmatch(party, RandomizerLog.Sectors.Trainers.PartyPattern) do
 			local pokemonAndItem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
-			local pokemon, helditem = string.match(pokemonAndItem, RandomizerLog.Sectors.Trainers.PartyHeldItemPattern)
-			pokemon = RandomizerLog.formatInput(pokemon)
-			helditem = RandomizerLog.formatInput(helditem)
+			local splitTable = Utils.split(pokemonAndItem, "@", true)
+			local pokemon = RandomizerLog.formatInput(splitTable[1] or "")
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
+			local helditem = RandomizerLog.formatInput(splitTable[2] or "")
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
 
-			-- No held item means the match is just the Pokemon name
-			if pokemon == "" or helditem == "" then
-				pokemon = helditem
+			if helditem == "" then
 				helditem = nil -- don't waste storage if empty
 			end
-			pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 			if pokemon ~= nil and RandomizerLog.PokemonNameToIdMap[pokemon] ~= nil then
 				local partyPokemon = {
