@@ -6,7 +6,7 @@ RandomizerLog.Patterns = {
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
-	PokemonName = "([%a%d%.]* ?[%a%d%.!'%-♀♂%?]+).-",
+	PokemonName = "([%a%d%.]* ?[%a%d%.!'%-♀♂%?]+).-", -- Temporarily removed, using more loose match criteria
 	-- MoveName = "([%u%d%.'%-%?]+)", -- might figure out later
 	-- ItemName = "([%u%d%.'%-%?]+)", -- might figure out later
 	getSectorHeaderPattern = function(sectorName)
@@ -21,17 +21,17 @@ RandomizerLog.Sectors = {
 	Evolutions = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Randomized Evolutions"),
 		-- Matches: pokemon, evos
-		PokemonEvosPattern = "^" .. RandomizerLog.Patterns.PokemonName .. "%s*%->%s*(.*)",
+		PokemonEvosPattern = "^(.-)%s*%->%s*(.*)",
 	},
 	BaseStatsItems = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Base Stats & Types"),
 		-- Matches: id, pokemon, types, hp, atk, def, spatk, spdef, spd, ability1, ability2, helditems
-		PokemonBSTPattern = "^%s*(%d*)|" .. RandomizerLog.Patterns.PokemonName .. "%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|(.-)%s*|(.-)%s*|(.*)",
+		PokemonBSTPattern = "^%s*(%d*)|(.-)%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|(.-)%s*|(.-)%s*|(.*)",
 	},
 	MoveSets = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Movesets"),
 		-- Matches: pokemon
-		NextMonPattern = "^%d+%s" .. RandomizerLog.Patterns.PokemonName .. "%s*%->",
+		NextMonPattern = "^%d+%s(.-)%s*%->",
 		-- Matches: level, movename
 		MovePattern = "^Level%s(%d+)%s?%s?:%s(.*)",
 	},
@@ -44,7 +44,7 @@ RandomizerLog.Sectors = {
 	TMCompatibility = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("TM Compatibility"),
 		-- Matches: pokemon
-		NextMonPattern = "^%s*%d+%s*" .. RandomizerLog.Patterns.PokemonName .. "%s*|(.*)",
+		NextMonPattern = "^%s*%d+%s*(.-)%s*|(.*)",
 		-- Matches: tmNumber
 		TMPattern = "TM(%d+)",
 	},
@@ -54,8 +54,10 @@ RandomizerLog.Sectors = {
 		NextTrainerPattern = "^#(%d+)%s%((.+)%s*=>.*%s%-%s(.*)",
 		-- Matches: partypokemon (pokemon name with held item and level info)
 		PartyPattern = "([^,]+)",
-		-- Matches: pokemon, helditem[optional], level
-		PartyPokemonPattern = "%s*" .. RandomizerLog.Patterns.PokemonName .. "@?(.-)%sLv(%d+)",
+		-- Matches: pokemon and helditem[optional], level
+		PartyPokemonPattern = "%s*(.-)%sLv(%d+)",
+		-- Matches: pokemon, helditem[optional]
+		PartyHeldItemPattern = "^%s*(.-)@?(.-)%s*$",
 	},
 	-- Currently unused
 	PickupItems = {
@@ -329,10 +331,6 @@ function RandomizerLog.parseMoveSets(logLines)
 					moveId = RandomizerLog.MoveNameToIdMap[RandomizerLog.formatInput(movename)] or 0,
 					name = movename, -- For custom move names
 				}
-				if not RandomizerLog.hasPrinted and RandomizerLog.MoveNameToIdMap[RandomizerLog.formatInput(movename)] == nil then
-					Utils.printDebug("%s as %s", movename, RandomizerLog.formatInput(movename))
-					RandomizerLog.hasPrinted = true
-				end
 				table.insert(RandomizerLog.Data.Pokemon[pokemonId].MoveSet, nextMove)
 
 				index = index + 1
@@ -425,14 +423,18 @@ function RandomizerLog.parseTrainers(logLines)
 		}
 
 		for partypokemon in string.gmatch(party, RandomizerLog.Sectors.Trainers.PartyPattern) do
-			local pokemon, helditem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
+			local pokemonAndItem, level = string.match(partypokemon, RandomizerLog.Sectors.Trainers.PartyPokemonPattern)
+			local pokemon, helditem = string.match(pokemonAndItem, RandomizerLog.Sectors.Trainers.PartyHeldItemPattern)
 			pokemon = RandomizerLog.formatInput(pokemon)
-			pokemon = RandomizerLog.alternateNidorans(pokemon)
 			helditem = RandomizerLog.formatInput(helditem)
 			level = tonumber(RandomizerLog.formatInput(level) or "") or 0 -- nil if not a number
-			if helditem == "" then
+
+			-- No held item means the match is just the Pokemon name
+			if pokemon == "" or helditem == "" then
+				pokemon = helditem
 				helditem = nil -- don't waste storage if empty
 			end
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
 
 			if pokemon ~= nil and RandomizerLog.PokemonNameToIdMap[pokemon] ~= nil then
 				local partyPokemon = {
@@ -451,8 +453,6 @@ end
 function RandomizerLog.parsePickupItems(logLines)
 	-- Utils.printDebug("#%s: %s >%s< %s", trainer_num, pokemon or "N/A", helditem or "N/A", level or 0)
 end
-
-
 
 function RandomizerLog.setupMappings()
 	-- Pokémon names -> IDs
