@@ -243,9 +243,9 @@ function Drawing.drawButton(button, shadowcolor)
 
 	local text
 	if type(button.getText) == "function" then
-		text = button:getText()
-	else -- TODO: eventually phase this out after Resources rework
-		text = button.text
+		text = button:getText() or ""
+	else
+		text = button.text or ""
 	end
 	local textColor = button.textColor or "Default text"
 

@@ -9,7 +9,6 @@ SingleExtensionScreen = {
 	extensionKey = nil,
 }
 
--- TODO: Might add a "Reload Extension" and a "Remove" option later, uncertain yet
 SingleExtensionScreen.Buttons = {
 	EnableOnOff = {
 		type = Constants.ButtonTypes.CHECKBOX,
