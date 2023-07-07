@@ -29,7 +29,7 @@ LanguageScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.LanguageScreen.ButtonHelpContribute end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 67, 11 },
-		onClick = function() Utils.openBrowserWindow("https://github.com/besteon/Ironmon-Tracker/issues") end
+		onClick = function() Utils.openBrowserWindow(FileManager.Urls.DISCUSSIONS) end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,

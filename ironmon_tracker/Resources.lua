@@ -6,53 +6,54 @@ local DEBUG_REPLACEMENT_STRING = "$"
 
 -- TODO: Task list:
 -- * Find solution for text highlights that count pixels of a character/string, mostly for kanji (i.e. next move level)
+-- * Remove references to the above DEBUG stuff
 
 Resources.Languages = {
 	ENGLISH = {
-		Ordinal = 1,
 		Key = "ENGLISH",
 		DisplayName = "English",
 		FileName = "English.lua",
+		Ordinal = 1,
 	},
 	SPANISH = {
-		Ordinal = 2,
 		Key = "SPANISH",
 		DisplayName = "Español",
 		FileName = "Spanish.lua",
+		Ordinal = 2,
 	},
 	GERMAN = {
-		Ordinal = 3,
 		Key = "GERMAN",
 		DisplayName = "Deutsch",
 		FileName = "German.lua",
+		Ordinal = 3,
 	},
 	FRENCH = {
-		Ordinal = 4,
 		Key = "FRENCH",
 		DisplayName = "Français",
 		FileName = "French.lua",
+		Ordinal = 4,
 	},
 	ITALIAN = {
-		Ordinal = 5,
 		Key = "ITALIAN",
 		DisplayName = "Italiano",
 		FileName = "Italian.lua",
+		Ordinal = 5,
 	},
 	CHINESE = {
-		Ordinal = 6,
 		Key = "CHINESE",
 		DisplayName = "中文",
 		FileName = "Chinese.lua",
+		Ordinal = 6,
 		RequiresUTF16 = true,
 		ExcludeFromSettings = true,  -- Currently not yet included or supported.
 	},
 	JAPANESE = {
-		Ordinal = 7,
 		Key = "JAPANESE",
 		DisplayName = "日本語",
 		FileName = "Japanese.lua",
+		Ordinal = 7,
 		RequiresUTF16 = true,
-		ExcludeFromSettings = false and true,  -- This should NOT be supported or reveal, due to risks. (TODO: remove 'false')
+		ExcludeFromSettings = true,  -- Currently not supported.
 	},
 }
 
@@ -87,9 +88,6 @@ function Resources.initialize()
 	-- Then load in the language chosen by the user's settings
 	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
 	Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
-
-	-- TODO: Remove this before the PR
-	Resources.fakeOutputDataHelper()
 
 	Resources.hasInitialized = true
 end
@@ -218,164 +216,4 @@ function Resources.copyTable(source, dest)
 			dest[key] = val
 		end
 	end
-end
-
--- TODO: Internal function only to turn tracker assets into data files.
--- Should not be used or included in the PR
-function Resources.fakeOutputDataHelper()
-
-	if true then return end -- Comment this line out to use
-
-	local filename = "OutputDataFile.txt"
-	local filepath = FileManager.prependDir(filename)
-	local file = io.open(filepath, "w")
-	if file == nil then return end
-
-	local screenToPrint = "ExtrasScreen"
-
-	-- local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
-	-- local langFilePath = langFolder .. Resources.Languages.ENGLISH.FileName
-	-- local lines = FileManager.readLinesFromFile(langFilePath)
-
-	-- local indexFound
-	-- for i, line in ipairs(lines) do
-	-- 	if line:find(screenToPrint .. " = {") then
-	-- 		indexFound = i
-	-- 		break
-	-- 	end
-	-- end
-	-- if not indexFound then
-	-- 	return
-	-- end
-
-	-- -- Locate {key, value} pairs
-	-- local pattern = '^%s*(%S*)%s*=%s*"(.-)",$'
-	-- local keys, values = {}, {}
-	-- for i = indexFound + 1, #lines, 1 do
-	-- 	local line = lines[i]
-	-- 	if line:find("^%s*},$") then
-	-- 		break
-	-- 	end
-
-	-- 	local key, value = string.match(line, pattern)
-	-- 	table.insert(keys, key)
-	-- 	table.insert(values, value)
-	-- end
-
-	-- -- Print collected data to file
-	-- local sectionLabel = string.format("- %s Values -", screenToPrint):upper()
-	-- file:write(string.rep("-", #sectionLabel))
-	-- file:write("\n")
-	-- file:write(sectionLabel)
-	-- file:write("\n")
-	-- file:write(string.rep("-", #sectionLabel))
-	-- file:write("\n")
-	-- for _, value in ipairs(values) do
-	-- 	file:write(value)
-	-- 	file:write("\n")
-	-- end
-	-- file:write("\n")
-	-- sectionLabel = string.format("- %s Keys -", screenToPrint):upper()
-	-- file:write(string.rep("-", #sectionLabel))
-	-- file:write("\n")
-	-- file:write(sectionLabel)
-	-- file:write("\n")
-	-- file:write(string.rep("-", #sectionLabel))
-	-- file:write("\n")
-	-- for _, key in ipairs(keys) do
-	-- 	file:write(key)
-	-- 	file:write("\n")
-	-- end
-
-	-- if true then
-	-- 	file:close()
-	-- 	return
-	-- end
-
-	file:write("GameResources{")
-	file:write("\n")
-
-	-- file:write("	PokemonNames = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(PokemonData.Pokemon) do
-	-- 	file:write(string.format('		"%s",', val.name))
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	MoveNames = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(MoveData.Moves) do
-	-- 	file:write(string.format('		"%s",', val.name))
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	MoveDescriptions = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(MoveData.Moves) do
-	-- 	file:write('		{')
-	-- 	file:write("\n")
-	-- 	file:write(string.format('			NameKey = "%s",', val.name or ""))
-	-- 	file:write("\n")
-	-- 	file:write(string.format('			Description = "%s",', val.summary or ""))
-	-- 	file:write("\n")
-	-- 	file:write('		},')
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	AbilityNames = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(AbilityData.Abilities) do
-	-- 	file:write(string.format('		"%s",', val.name))
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	AbilityDescriptions = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(AbilityData.Abilities) do
-	-- 	file:write('		{')
-	-- 	file:write("\n")
-	-- 	file:write(string.format('			NameKey = "%s",', val.name or ""))
-	-- 	file:write("\n")
-	-- 	file:write(string.format('			Description = "%s",', val.description or ""))
-	-- 	file:write("\n")
-	-- 	if val.descriptionEmerald then
-	-- 		file:write(string.format('			DescriptionEmerald = "%s",', val.descriptionEmerald))
-	-- 		file:write("\n")
-	-- 	end
-	-- 	file:write('		},')
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	ItemNames = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(MiscData.Items) do
-	-- 	file:write(string.format('		"%s",', val))
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	-- file:write("	NatureNames = {")
-	-- file:write("\n")
-	-- for _, val in ipairs(MiscData.Natures) do
-	-- 	file:write(string.format('		"%s",', val))
-	-- 	file:write("\n")
-	-- end
-	-- file:write("	},")
-	-- file:write("\n")
-
-	file:write("}")
-	file:write("\n")
-	file:close()
-
 end

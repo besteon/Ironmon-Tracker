@@ -37,27 +37,6 @@ ScreenResources{
 		Lookup = "Look up",
 		Page = "Page", -- Usage: "<- Page 2/5 ->"
 	},
-	PokemonTypeAbbreviations = {
-		-- Usage: Type Bars under the Pokémon icon with a colored background
-		Normal = "NORMAL",
-		Fighting = "FIGHT",
-		Flying = "FLYING",
-		Poison = "POISON",
-		Ground = "GROUND",
-		Rock = "ROCK",
-		Bug = "BUG",
-		Ghost = "GHOST",
-		Steel = "STEEL",
-		Fire = "FIRE",
-		Water = "WATER",
-		Grass = "GRASS",
-		Electric = "ELECTR",
-		Psychic = "PSYCHIC",
-		Ice = "ICE",
-		Dragon = "DRAGON",
-		Dark = "DARK",
-		Unknown = "???",
-	},
 	PokemonEvolutionDetails = {
 		-- abbreviation: appears on the main Tracker Screen
 		-- short: used for the log viewer
