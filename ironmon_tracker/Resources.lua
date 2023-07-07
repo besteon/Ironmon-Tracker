@@ -96,7 +96,7 @@ end
 function Resources.autoDetectForeignLanguage()
 	local language = Resources.Languages[GameSettings.language:upper()]
 
-	if not Options["Autodetect language from game"] or language == nil or language == Resources.Default.Language then
+	if not Options["Autodetect language from game"] or language == nil or language == Resources.Default.Language or language.ExcludeFromSettings then
 		return
 	end
 
