@@ -1859,21 +1859,21 @@ function LogOverlay.drawMiscTab(x, y, width, height)
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(x, y, width, height, borderColor, fillColor)
 
-	local rInfo = {
+	local randomizerInfo = {
 		Game = {
-			label = Constants.Words.POKEMON .. " Game:",
+			label = Resources.LogOverlay.LabelPokemonGame .. ":",
 			value = RandomizerLog.Data.Settings.Game or Constants.BLANKLINE,
 		},
 		Version = {
-			label = "Randomizer Version:",
+			label = Resources.LogOverlay.LabelRandomizerVersion .. ":",
 			value = RandomizerLog.Data.Settings.Version or Constants.BLANKLINE,
 		},
 		Seed = {
-			label = "Random Seed:",
+			label = Resources.LogOverlay.LabelRandomSeed .. ":",
 			value = RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE,
 		},
 		Settings = {
-			label = "Settings String:",
+			label = Resources.LogOverlay.LabelSettingsString .. ":",
 			value = RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE,
 		},
 	}
@@ -1881,22 +1881,22 @@ function LogOverlay.drawMiscTab(x, y, width, height)
 	local offsetY = y + 3
 	local rowSpacer = 3
 	local colOffsetX = 100
-	Drawing.drawText(offsetX, offsetY, rInfo.Game.label, textColor, shadowcolor)
-	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Game.value, textColor, shadowcolor)
+	Drawing.drawText(offsetX, offsetY, randomizerInfo.Game.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, randomizerInfo.Game.value, textColor, shadowcolor)
 	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
 
-	Drawing.drawText(offsetX, offsetY, rInfo.Version.label, textColor, shadowcolor)
-	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Version.value, textColor, shadowcolor)
+	Drawing.drawText(offsetX, offsetY, randomizerInfo.Version.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, randomizerInfo.Version.value, textColor, shadowcolor)
 	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
 
-	Drawing.drawText(offsetX, offsetY, rInfo.Seed.label, textColor, shadowcolor)
-	Drawing.drawText(offsetX + colOffsetX, offsetY, rInfo.Seed.value, textColor, shadowcolor)
+	Drawing.drawText(offsetX, offsetY, randomizerInfo.Seed.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX + colOffsetX, offsetY, randomizerInfo.Seed.value, textColor, shadowcolor)
 	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
 
-	Drawing.drawText(offsetX, offsetY, rInfo.Settings.label, textColor, shadowcolor)
+	Drawing.drawText(offsetX, offsetY, randomizerInfo.Settings.label, textColor, shadowcolor)
 	offsetY = offsetY + Constants.SCREEN.LINESPACING + rowSpacer
 
-	local settingsString = rInfo.Settings.value
+	local settingsString = randomizerInfo.Settings.value
 	offsetX = offsetX + 8
 	for i = 1, 999, 38 do
 		if settingsString:sub(i, i + 37) == "" then
