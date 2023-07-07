@@ -142,6 +142,13 @@ ScreenResources{
 		EncounterGoodRod = "Good Rod",
 		EncounterOldRod = "Old Rod",
 		EncounterSeenPokemon = "Seen Pokémon",
+		PromptNoteDesc = "Enter a short note for",
+		PromptNoteAbilityDesc = "Set one or both abilities for",
+		PromptNoteClearAbilities = "Clear Abilities",
+		PromptStepsTitle = "Choose a Step Goal",
+		PromptStepsDesc1 = "Pedometer will change color when your goal is reached.",
+		PromptStepsDesc2 = "Set to 0 to turn off",
+		PromptStepsEnterGoal = "How many steps to reach your goal?",
 	},
 	StartupScreen = {
 		Title = "Ironmon Tracker",
@@ -282,6 +289,8 @@ ScreenResources{
 		ColorLowerBoxBorder = "Lower box border",
 		ColorLowerBoxBackground = "Lower box background",
 		ColorMainBackground = "Main background",
+		PromptColorPickerTitle = "Color Picker",
+		PromptColorPickerHexColor = "Hex Color",
 	},
 	LanguageScreen = {
 		Title = "Language Settings",

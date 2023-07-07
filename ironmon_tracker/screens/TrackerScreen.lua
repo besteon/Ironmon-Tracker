@@ -399,7 +399,10 @@ function TrackerScreen.buildCarousel()
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
-		isVisible = function() return Tracker.Data.isViewingOwn and not (Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()) end,
+		isVisible = function()
+			local pedometerIsShowing = Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()
+			return Tracker.Data.isViewingOwn and not pedometerIsShowing
+		end,
 		framesToShow = 210,
 		getContentList = function()
 			local badgeButtons = {}
@@ -434,7 +437,11 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Options["Show last damage calcs"] and Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0 end,
+		isVisible = function()
+			local properBattleTiming = Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
+			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
+			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
+		end,
 		framesToShow = 180,
 		getContentList = function()
 			local lastAttackMsg
@@ -472,7 +479,10 @@ function TrackerScreen.buildCarousel()
 	-- ROUTE INFO
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Battle.inBattle and Battle.CurrentRoute.hasInfo end,
+		isVisible = function()
+			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
+			return Battle.inBattle and Battle.CurrentRoute.hasInfo and not carouselDisabled
+		end,
 		framesToShow = 180,
 		getContentList = function()
 			-- local routeInfo = RouteData.Info[Program.GameData.mapId]
@@ -575,18 +585,17 @@ end
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if not PokemonData.isValid(pokemonId) then return end
 
-	local form = Utils.createBizhawkForm("Leave a Note", 465, 220)
+	local pokemonName = PokemonData.Pokemon[pokemonId].name
+	local form = Utils.createBizhawkForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
 
-	forms.label(form, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
+	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(form, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
 	local abilityList = {}
 	table.insert(abilityList, Constants.BLANKLINE)
 	abilityList = AbilityData.populateAbilityDropdown(abilityList)
 
-	local trackedAbilities = Tracker.getAbilities(pokemonId)
-
-	forms.label(form, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
+	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteAbilityDesc, pokemonName), 9, 60, 220, 20)
 	local abilityOneDropdown = forms.dropdown(form, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
@@ -596,47 +605,49 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
 
-	if trackedAbilities[1].id ~= 0 then
-		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbilities[1].id].name)
+	local trackedAbilities = Tracker.getAbilities(pokemonId)
+	local trackedAbility1 = trackedAbilities[1].id
+	local trackedAbility2 = trackedAbilities[2].id
+
+	if AbilityData.isValid(trackedAbility1) then
+		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbility1].name)
 	end
-	if trackedAbilities[2].id ~= 0 then
-		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id].name)
+	if AbilityData.isValid(trackedAbility2) then
+		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbility2].name)
 	end
 
-	forms.button(form, "Save && Close", function()
-
+	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
+	forms.button(form, saveAndClose, function()
 		local formInput = forms.gettext(noteTextBox)
-		local abilityOneText = forms.gettext(abilityOneDropdown)
-		local abilityTwoText = forms.gettext(abilityTwoDropdown)
-		--local pokemonViewed = Tracker.getViewedPokemon()
 		if formInput ~= nil then
+			local abilityOneText = forms.gettext(abilityOneDropdown)
+			local abilityTwoText = forms.gettext(abilityTwoDropdown)
 			Tracker.TrackNote(pokemonId, formInput)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		forms.destroy(form)
 		client.unpause()
-		Program.redraw(true)
 		forms.destroy(form)
-	end, 85, 145, 85, 25)
-	forms.button(form, "Clear Abilities", function()
+	end, 80, 145, 105, 25)
+	forms.button(form, Resources.TrackerScreen.PromptNoteClearAbilities, function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 180, 145, 105, 25)
-	forms.button(form, "Cancel", function()
+	end, 195, 145, 105, 25)
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
-	end, 295, 145, 55, 25)
+	end, 310, 145, 55, 25)
 end
 
 function TrackerScreen.openEditStepGoalWindow()
-	local form = Utils.createBizhawkForm("Choose a Step Goal", 320, 170)
+	local form = Utils.createBizhawkForm(Resources.TrackerScreen.PromptStepsTitle, 350, 170)
 
-	forms.label(form, "Pedometer will change color when goal is reached.", 26, 10, 300, 20)
-	forms.label(form, "(Set to 0 to turn-off)", 100, 28, 300, 20)
-	forms.label(form, "Enter a step goal:", 48, 50, 300, 20)
-	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 50, 70)
-	forms.button(form, "Save", function()
+	forms.label(form, Resources.TrackerScreen.PromptStepsDesc1, 36, 10, 300, 20)
+	forms.label(form, string.format("[%s]", Resources.TrackerScreen.PromptStepsDesc2), 110, 28, 300, 20)
+	forms.label(form, Resources.TrackerScreen.PromptStepsEnterGoal, 58, 50, 300, 20)
+	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 60, 70)
+
+	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
 		if formInput ~= nil and formInput ~= "" then
 			local newStepGoal = tonumber(formInput)
@@ -647,11 +658,11 @@ function TrackerScreen.openEditStepGoalWindow()
 		end
 		client.unpause()
 		forms.destroy(form)
-	end, 72, 100)
-	forms.button(form, "Cancel", function()
+	end, 82, 100)
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
-	end, 157, 100)
+	end, 167, 100)
 end
 
 function TrackerScreen.randomlyChooseBall()
