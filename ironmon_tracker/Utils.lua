@@ -96,6 +96,17 @@ function Utils.formatControls(gbaButtons)
 	return controlCombination:sub(1, -3) or ""
 end
 
+function Utils.formatTime(numSeconds)
+	local sec = numSeconds % 60
+	local min = math.floor(numSeconds / 60) % 60
+	local hour = math.floor(numSeconds / 3600) % 100
+	if hour > 0 then
+		return string.format("%d:%02d:%02d", hour, min, sec)
+	else
+		return string.format("%02d:%02d", min, sec)
+	end
+end
+
 -- Returns an offset that will center-align the given text based on a specified area's width
 function Utils.getCenteredTextX(text, areaWidth)
 	local textSize = Utils.calcWordPixelLength(text or "")

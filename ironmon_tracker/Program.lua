@@ -97,6 +97,9 @@ function Program.initialize()
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
+
+	Program.startTime = os.time()
+	Program.currentTimer = 0
 end
 
 function Program.mainLoop()
@@ -126,6 +129,12 @@ function Program.redraw(forced)
 		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
 		if Program.ActiveRepel:shouldDisplay() then
 			Drawing.drawRepelUsage()
+		end
+
+		-- TODO: Option to draw timer on screen
+		if not false then
+			local timerText = Utils.formatTime(Program.currentTimer + 3600 - 8)
+			Drawing.drawTimer(timerText)
 		end
 
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
@@ -178,6 +187,7 @@ function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Program.updateMapLocation() -- trying this here to solve many future problems
+		Program.updateTimer()
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
@@ -304,6 +314,10 @@ function Program.updateRepelSteps()
 		Program.ActiveRepel.stepCount = 0
 		Program.ActiveRepel.duration = 100
 	end
+end
+
+function Program.updateTimer()
+	Program.currentTimer = os.difftime(os.time(), Program.startTime or 0)
 end
 
 function Program.updatePokemonTeams()
