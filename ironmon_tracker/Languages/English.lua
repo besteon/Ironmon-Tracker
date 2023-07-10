@@ -219,6 +219,7 @@ ScreenResources{
 		OptionShowRandomBallPicker = "Show random ball picker",
 		OptionDisplayRepelUsage = "Display repel usage",
 		OptionDisplayPedometer = "Display pedometer",
+		OptionDisplayPlayTime = "Display play time",
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout",
 		ButtonTimeMachine = "Time Machine",
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential",

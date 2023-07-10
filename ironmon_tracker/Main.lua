@@ -409,6 +409,7 @@ end
 
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
+	Program.GameTimer:reset()
 
 	Utils.tempDisableBizhawkSound()
 

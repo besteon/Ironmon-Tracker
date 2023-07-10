@@ -600,9 +600,9 @@ end
 function Drawing.drawTimer(timerText)
 	local corner = "botright"
 	local textColor = 0xFFFFFFFF
-	local shadowColor = 0xF0040404
-	local boxColor = 0x44000000
-	local margin = 2
+	local shadowColor = 0x88000000
+	local boxColor = 0x78000000
+	local margin = 0
 	local padding = 2
 
 	local width = Utils.calcWordPixelLength(timerText) - 1 + (2 * padding)
@@ -623,7 +623,8 @@ function Drawing.drawTimer(timerText)
 	-- Draw text with a manually added shadow 1px to the right
 	x = x - 2 + padding
 	y = y - 3 + padding
-	Drawing.drawText(x + 1, y, timerText, shadowColor)
+	-- Drawing.drawText(x + 1, y, timerText, shadowColor)
+	-- Drawing.drawText(x, y + 1, timerText, shadowColor)
 	Drawing.drawText(x, y, timerText, textColor)
 end
 

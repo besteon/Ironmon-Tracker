@@ -31,6 +31,46 @@ Program.GameData = {
 	},
 }
 
+Program.GameTimer = {
+	location = { x = 2, y = 2, }, -- Where to draw the timer on the game screen
+	timeLastChecked = 0,
+	hasStarted = false, -- Used to determine if the game has started (not in Title menus)
+	isPaused = false, -- Used to manually pause the timer
+	readyToDraw = false, -- Anytime the timer changes, it needs to be redrawn
+	getFormattedTime = function(self)
+		return Utils.formatTime(Tracker.Data.playtime or 0)
+	end,
+	start = function(self)
+		self.hasStarted = true
+		self.isPaused = false
+		self.timeLastChecked = os.time()
+	end,
+	pause = function(self)
+		self.isPaused = true
+	end,
+	update = function(self)
+		local currTime = os.time()
+		local prevTime = self.timeLastChecked
+		self.timeLastChecked = currTime
+		if self.hasStarted and not self.isPaused then
+			local timeDelta = math.floor(os.difftime(currTime, prevTime))
+			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
+			self.readyToDraw = (timeDelta ~= 0)
+		end
+	end,
+	reset = function(self)
+		Tracker.Data.playtime = 0
+		self.hasStarted = false
+		self.readyToDraw = false
+	end,
+	draw = function(self)
+		if Options["Display play time"] then
+			Drawing.drawTimer(self:getFormattedTime())
+		end
+		self.readyToDraw = false
+	end,
+}
+
 Program.ActiveRepel = {
 	inUse = false,
 	stepCount = 0,
@@ -40,6 +80,11 @@ Program.ActiveRepel = {
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
+	end,
+	draw = function(self)
+		if self:shouldDisplay() then
+			Drawing.drawRepelUsage()
+		end
 	end,
 }
 
@@ -69,9 +114,14 @@ Program.AutoSaver = {
 		return false
 	end,
 	checkForNextSave = function(self)
-		if not Main.IsOnBizhawk() then return end -- flush saveRAM only for Bizhawk
 		if self:updateSaveCount() then
-			client.saveram()
+			-- Force Tracker Data to also save
+			Program.Frames.saveData = 0
+
+			-- Flush saveRAM only for Bizhawk
+			if Main.IsOnBizhawk() then
+				client.saveram()
+			end
 		end
 	end
 }
@@ -91,15 +141,13 @@ function Program.initialize()
 	end
 
 	Program.AutoSaver:updateSaveCount()
+	Program.GameTimer.hasStarted = false
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
-
-	Program.startTime = os.time()
-	Program.currentTimer = 0
 end
 
 function Program.mainLoop()
@@ -117,25 +165,21 @@ end
 
 -- 'forced' = true will force a draw, skipping the normal frame wait time
 function Program.redraw(forced)
-	-- Only redraw the screen every half second (60 frames/sec)
-	if not forced and Program.Frames.waitToDraw > 0 then
-		Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+	local shouldDraw = (forced == true) or (Program.Frames.waitToDraw <= 0) or Program.GameTimer.readyToDraw
+
+	if not shouldDraw then
+		if Program.Frames.waitToDraw > 0 then
+			Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+		end
 		return
 	end
 
+	-- Only redraw the screen every half second (60 frames/sec)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Program.ActiveRepel:shouldDisplay() then
-			Drawing.drawRepelUsage()
-		end
-
-		-- TODO: Option to draw timer on screen
-		if not false then
-			local timerText = Utils.formatTime(Program.currentTimer + 3600 - 8)
-			Drawing.drawTimer(timerText)
-		end
+		Program.ActiveRepel:draw()
+		Program.GameTimer:draw()
 
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 		if LogOverlay.isDisplayed then
@@ -187,7 +231,11 @@ function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Program.updateMapLocation() -- trying this here to solve many future problems
-		Program.updateTimer()
+
+		if not Program.GameTimer.hasStarted and Program.isValidMapLocation() then
+			Program.GameTimer:start()
+		end
+		Program.GameTimer:update()
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
@@ -314,10 +362,6 @@ function Program.updateRepelSteps()
 		Program.ActiveRepel.stepCount = 0
 		Program.ActiveRepel.duration = 100
 	end
-end
-
-function Program.updateTimer()
-	Program.currentTimer = os.difftime(os.time(), Program.startTime or 0)
 end
 
 function Program.updatePokemonTeams()

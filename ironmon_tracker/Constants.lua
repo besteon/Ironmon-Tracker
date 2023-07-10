@@ -132,6 +132,7 @@ Constants.OrderedLists = {
 		"Display repel usage",
 		"Startup Pokemon displayed",
 		"Display pedometer",
+		"Display play time",
 		"Dev branch updates",
 		"Welcome message",
 		"Startup favorites",

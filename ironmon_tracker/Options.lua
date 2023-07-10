@@ -36,6 +36,7 @@ Options = {
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,
 	["Display pedometer"] = false,
+	["Display play time"] = false,
 	["Dev branch updates"] = false,
 	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
 	["Startup favorites"] = "1,4,7",
