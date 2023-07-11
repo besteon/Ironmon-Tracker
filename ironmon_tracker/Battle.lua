@@ -123,6 +123,7 @@ function Battle.updateBattleStatus()
 	end
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
 		LogOverlay.isGameOver = true
+		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
 		Program.changeScreenView(GameOverScreen)

@@ -32,6 +32,7 @@ GameOverScreen.Buttons = {
 			end
 			LogOverlay.isGameOver = false
 			LogOverlay.isDisplayed = false
+			Program.GameTimer:unpause()
 			GameOverScreen.refreshButtons()
 			GameOverScreen.Buttons.SaveGameFiles:reset()
 			Program.changeScreenView(TrackerScreen)
@@ -61,6 +62,7 @@ GameOverScreen.Buttons = {
 				Program.redraw(true)
 			else
 				LogOverlay.isDisplayed = false
+				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()
 				GameOverScreen.Buttons.SaveGameFiles:reset()
 				Program.changeScreenView(TrackerScreen)

@@ -48,6 +48,12 @@ Program.GameTimer = {
 	pause = function(self)
 		self.isPaused = true
 	end,
+	unpause = function(self)
+		if self.isPaused then
+			self.timeLastChecked = os.time()
+		end
+		self.isPaused = false
+	end,
 	update = function(self)
 		local currTime = os.time()
 		local prevTime = self.timeLastChecked
