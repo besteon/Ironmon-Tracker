@@ -597,37 +597,6 @@ function Drawing.drawRepelUsage()
 	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
 
-function Drawing.drawTimer(timerText)
-	local corner = "botright"
-	local textColor = 0xFFFFFFFF
-	local shadowColor = 0x88000000
-	local boxColor = 0x78000000
-	local margin = 0
-	local padding = 2
-
-	local width = Utils.calcWordPixelLength(timerText) - 1 + (2 * padding)
-	local height = Constants.Font.SIZE - 4 + (2 * padding)
-
-	local cornerDimensions = {
-		topleft = { x = margin, y = margin },
-		topright = { x = Constants.SCREEN.WIDTH - width - margin - 1, y = margin },
-		botleft = { x = margin, y = Constants.SCREEN.HEIGHT - height - margin - 1 },
-		botright = { x = Constants.SCREEN.WIDTH - width - margin - 1, y = Constants.SCREEN.HEIGHT - height - margin - 1 },
-	}
-
-	local x = cornerDimensions[corner].x
-	local y = cornerDimensions[corner].y
-
-	-- Draw translucent background box
-	gui.drawRectangle(x, y, width, height, boxColor, boxColor)
-	-- Draw text with a manually added shadow 1px to the right
-	x = x - 2 + padding
-	y = y - 3 + padding
-	-- Drawing.drawText(x + 1, y, timerText, shadowColor)
-	-- Drawing.drawText(x, y + 1, timerText, shadowColor)
-	Drawing.drawText(x, y, timerText, textColor)
-end
-
 --- Draws an "L" shape at the given coordinates
 --- x and y correspond to the joint of the "L" shape
 --- @param x integer X coordinate of the "L" shape

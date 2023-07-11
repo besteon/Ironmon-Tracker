@@ -137,8 +137,8 @@ function ExtrasScreen.createButtons()
 			toggleColor = "Positive text",
 			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.optionKey, self.toggleState)
+				Options[self.optionKey] = not Options[self.optionKey]
+				self.toggleState = Options[self.optionKey]
 
 				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
 				if self.optionKey == "Animated Pokemon popout" then
@@ -147,7 +147,13 @@ function ExtrasScreen.createButtons()
 					else
 						Drawing.AnimatedPokemon:destroy()
 					end
+				elseif self.optionKey == "Display play time" and self.toggleState then
+					-- Show help tip for pausing (4 seconds)
+					Program.GameTimer.showPauseTipUntil = os.time() + 4
 				end
+
+				Main.SaveSettings(true)
+				Program.redraw(true)
 			end
 		}
 		startY = startY + linespacing

@@ -32,20 +32,39 @@ Program.GameData = {
 }
 
 Program.GameTimer = {
-	location = { x = 2, y = 2, }, -- Where to draw the timer on the game screen
-	timeLastChecked = 0,
+	timeLastChecked = 0, -- Number of seconds
+	showPauseTipUntil = 0, -- Displays "how to pause timer" tip until this time occurs; number of seconds
 	hasStarted = false, -- Used to determine if the game has started (not in Title menus)
 	isPaused = false, -- Used to manually pause the timer
 	readyToDraw = false, -- Anytime the timer changes, it needs to be redrawn
-	getFormattedTime = function(self)
+	textColor = 0xFFFFFFFF,
+	pauseColor = 0xFFFFFF00,
+	boxColor = 0x78000000,
+	margin = 0,
+	padding = 2,
+	box = {
+		x = Constants.SCREEN.WIDTH,
+		y = Constants.SCREEN.HEIGHT,
+		width = 20,
+		height = Constants.Font.SIZE,
+	},
+	getText = function(self)
 		return Utils.formatTime(Tracker.Data.playtime or 0)
+	end,
+	initialize = function(self)
+		self.hasStarted = false
+		self.box.height = Constants.Font.SIZE - 4 + (2 * self.padding)
+		self.box.y = math.max(Constants.SCREEN.HEIGHT - self.box.height - self.margin - 1, 0)
+		self:update()
 	end,
 	start = function(self)
 		self.hasStarted = true
 		self.isPaused = false
 		self.timeLastChecked = os.time()
+		self.showPauseTipUntil = self.timeLastChecked
 	end,
 	pause = function(self)
+		if not self.hasStarted then return end
 		self.isPaused = true
 	end,
 	unpause = function(self)
@@ -63,17 +82,43 @@ Program.GameTimer = {
 			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
 			self.readyToDraw = (timeDelta ~= 0)
 		end
+		-- Update box, align bottom-right
+		self.box.width = Utils.calcWordPixelLength(self:getText() or "") - 1 + (2 * self.padding)
+		self.box.x = math.max(Constants.SCREEN.WIDTH - self.box.width - self.margin - 1, 0)
 	end,
 	reset = function(self)
 		Tracker.Data.playtime = 0
 		self.hasStarted = false
 		self.readyToDraw = false
 	end,
-	draw = function(self)
-		if Options["Display play time"] then
-			Drawing.drawTimer(self:getFormattedTime())
+	checkInput = function(self, xmouse, ymouse)
+		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
+		if clicked then
+			if self.isPaused then
+				self:unpause()
+			else
+				self:pause()
+			end
+			self.readyToDraw = true
 		end
+	end,
+	draw = function(self)
 		self.readyToDraw = false
+		if Options["Display play time"] then
+			local x, y, width, height = self.box.x, self.box.y, self.box.width, self.box.height
+			local formattedTime = self:getText()
+			local color = Utils.inlineIf(self.isPaused, self.pauseColor, self.textColor)
+			gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+			Drawing.drawText(x, y - 1, formattedTime, color)
+
+			if self.showPauseTipUntil > self.timeLastChecked then
+				width = Utils.calcWordPixelLength(Resources.ExtrasScreen.TimerPauseTip) - 1 + (2 * self.padding)
+				x = math.max(Constants.SCREEN.WIDTH - width - self.margin - 1, 0)
+				y = math.max(self.box.y - self.box.height - 2, 0)
+				gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+				Drawing.drawText(x, y - 1, Resources.ExtrasScreen.TimerPauseTip, self.textColor)
+			end
+		end
 	end,
 }
 
@@ -147,7 +192,7 @@ function Program.initialize()
 	end
 
 	Program.AutoSaver:updateSaveCount()
-	Program.GameTimer.hasStarted = false
+	Program.GameTimer:initialize()
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0

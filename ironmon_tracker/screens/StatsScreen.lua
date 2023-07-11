@@ -8,6 +8,10 @@ StatsScreen = {
 
 StatsScreen.StatTables = {
 	{
+		getText = function() return Resources.StatsScreen.StatPlayTime end,
+		getValue = function() return Program.GameTimer:getText() end,
+	},
+	{
 		getText = function() return Resources.StatsScreen.StatTotalAttempts end,
 		getValue = function() return Main.currentSeed or 1 end,
 	},
@@ -103,7 +107,10 @@ function StatsScreen.drawScreen()
 	-- Draw all stat tables
 	local colXOffset = 90
 	for _, statTable in ipairs(StatsScreen.StatTables) do
-		local statValue = Utils.formatNumberWithCommas(statTable.getValue() or 0)
+		local statValue = statTable.getValue() or 0
+		if type(statValue) == "number" then
+			statValue = Utils.formatNumberWithCommas(statValue)
+		end
 		Drawing.drawText(statTable.x, statTable.y, statTable:getText(), Theme.COLORS[statTable.textColor], shadowcolor)
 		Drawing.drawText(statTable.x + colXOffset, statTable.y, statValue, Theme.COLORS[statTable.textColor], shadowcolor)
 	end
