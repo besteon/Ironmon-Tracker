@@ -1594,7 +1594,7 @@ GameResources{
 		},
 		{
 			NameKey = "Razor Wind",
-			Description = "Does nothing on the turn it is selected. Deals damage on the following turn.",
+			Description = "Attacks on the 2nd turn after use. Despite the game description, it does NOT have a high-crit chance.",
 		},
 		{
 			NameKey = "Swords Dance",
