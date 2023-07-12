@@ -186,12 +186,8 @@ end
 function Resources.sanitizeTable(data)
 	if Main.supportsSpecialChars then return end
 
-	-- Create a regex pattern of all of the available special characters
-	local specialChars = {}
-	for char, _ in pairs(Constants.CharMap) do
-		table.insert(specialChars, char)
-	end
-	local pattern = string.format("[%s]", table.concat(specialChars))
+	-- Create a regex pattern of all of the available special characters (those which require encoding)
+	local pattern = string.format("[%s]", table.concat(Constants.CharCategories.Special))
 
 	-- A function to recursively replace all strings in a table that match that pattern
 	local sanitize -- Yes, this requires two separate lines for "local recursion" in Lua

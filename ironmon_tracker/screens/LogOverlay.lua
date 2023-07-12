@@ -488,20 +488,20 @@ function LogOverlay.buildPagedButtons()
 					if currentFilter == "#" then
 						return true
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Name then
-						if Utils.startsOrContains(self.pokemonName, currentFilter, true) then
+						if Utils.containsText(self.pokemonName, currentFilter, true) then
 							return true
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Ability then
 						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[ability].name
-							if Utils.startsOrContains(abilityText, currentFilter, true) then
+							if Utils.containsText(abilityText, currentFilter, true) then
 								return true
 							end
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 							local moveText = move.name
-							if Utils.startsOrContains(moveText, currentFilter, true) then
+							if Utils.containsText(moveText, currentFilter, true) then
 								return true
 							end
 						end

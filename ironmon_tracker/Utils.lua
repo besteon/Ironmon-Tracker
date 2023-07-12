@@ -73,7 +73,8 @@ end
 -- Alters the string by changing the first character to uppercase
 function Utils.firstToUpper(str)
 	if str == nil or str == "" then return str end
-	return str:gsub("^%l", Utils.toUpperUTF8)
+	str = str:gsub("^%l", Utils.toUpperUTF8)
+	return str
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
@@ -112,7 +113,7 @@ function Utils.calcWordPixelLength(text)
 	if text == nil or #text == 0 or Utils.startsWithJapaneseChineseChar(text) then return 0 end
 	local totalLength = 0
 	for c in text:gmatch("(.)") do
-		totalLength = totalLength + (Constants.CharWidths[c] or 1) + 1
+		totalLength = totalLength + Constants.charWidth(c) + 1
 	end
 	return totalLength - 1 -- remove trailing space-pixel
 end
@@ -156,121 +157,44 @@ function Utils.formatSpecialCharacters(text)
 	if text == nil or text == "" then return "" end
 
 	-- For each known special character, attempt to replace it
-	for char, _ in pairs(Constants.CharMap) do
-		if string.find(text, char, 1, true) ~= nil then
-			text = text:gsub(char, Constants.getC(char))
+	for _, c in pairs(Constants.CharCategories.Special) do
+		if string.find(text, c, 1, true) ~= nil then
+			text = text:gsub(c, Constants.getC(c))
 		end
 	end
 
 	return text
 end
 
-Utils.AccentedCharToUpper = {
-	["î"] = "Î",
-	["ï"] = "Ï",
-	["ð"] = "Ð",
-	["ñ"] = "Ñ",
-	["õ"] = "Õ",
-	["ô"] = "Ô",
-	["ó"] = "Ó",
-	["ò"] = "Ò",
-	["ö"] = "Ö",
-	["ø"] = "Ø",
-	["ÿ"] = "Ÿ",
-	["ù"] = "Ù",
-	["û"] = "Û",
-	["ú"] = "Ú",
-	["ý"] = "Ý",
-	["ü"] = "Ü",
-	["è"] = "È",
-	["é"] = "É",
-	["æ"] = "Æ",
-	["ç"] = "Ç",
-	["þ"] = "Þ",
-	["í"] = "Í",
-	["ì"] = "Ì",
-	["å"] = "Å",
-	["ä"] = "Ä",
-	["ã"] = "Ã",
-	["â"] = "Â",
-	["ê"] = "Ê",
-	["ë"] = "Ë",
-	["à"] = "À",
-	["á"] = "Á",
-}
-Utils.AccentedCharToLower = {
-	["Î"] = "î",
-	["Ï"] = "ï",
-	["Ð"] = "ð",
-	["Ñ"] = "ñ",
-	["Õ"] = "õ",
-	["Ô"] = "ô",
-	["Ó"] = "ó",
-	["Ò"] = "ò",
-	["Ö"] = "ö",
-	["Ø"] = "ø",
-	["Ÿ"] = "ÿ",
-	["Ù"] = "ù",
-	["Û"] = "û",
-	["Ú"] = "ú",
-	["Ý"] = "ý",
-	["Ü"] = "ü",
-	["È"] = "è",
-	["É"] = "é",
-	["Æ"] = "æ",
-	["Ç"] = "ç",
-	["Þ"] = "þ",
-	["Í"] = "í",
-	["Ì"] = "ì",
-	["Å"] = "å",
-	["Ä"] = "ä",
-	["Ã"] = "ã",
-	["Â"] = "â",
-	["Ê"] = "ê",
-	["Ë"] = "ë",
-	["À"] = "à",
-	["Á"] = "á",
-}
-local toUpperPattern = ""
-for k, _ in pairs(Utils.AccentedCharToUpper) do
-	toUpperPattern = toUpperPattern .. k
-end
-toUpperPattern = "[" .. toUpperPattern .. "]*"
-local toLowerPattern = ""
-for k, _ in pairs(Utils.AccentedCharToLower) do
-	toLowerPattern = toLowerPattern .. k
-end
-toLowerPattern = "[" .. toLowerPattern .. "]*"
-
 function Utils.toUpperUTF8(str)
+	local toUpperPattern = string.format("[%s]*", table.concat(Constants.CharCategories.ToUpper))
 	str = str or ""
-	str = str:upper():gsub(toUpperPattern, Utils.AccentedCharToUpper)
+	str = str:upper():gsub(toUpperPattern, function(c) return Constants.charToCategory(c, "upper") end)
 	return str
 end
 
 function Utils.toLowerUTF8(str)
+	local toLowerPattern = string.format("[%s]*", table.concat(Constants.CharCategories.ToLower))
 	str = str or ""
-	str = str:lower():gsub(toLowerPattern, Utils.AccentedCharToLower)
+	str = str:lower():gsub(toLowerPattern, function(c) return Constants.charToCategory(c, "lower") end)
 	return str
 end
 
-function Utils.startsOrContains(text, searchString, ignoreAccentedChars)
+function Utils.containsText(text, searchString, ignoreAccentedChars)
 	if text == nil or text == "" or searchString == nil then
 		return false
 	end
 	text = Utils.toLowerUTF8(text)
 	searchString = Utils.toLowerUTF8(searchString)
 
-	-- TODO: Implemented a way to handle this
 	if ignoreAccentedChars then
-		text = text
-		searchString = searchString
+		local plainPattern = string.format("[%s]*", table.concat(Constants.CharCategories.Plain))
+		text = text:gsub(plainPattern, function(c) return Constants.charToCategory(c, "plain") end)
+		searchString = searchString:gsub(plainPattern, function(c) return Constants.charToCategory(c, "plain") end)
 	end
 
 	-- Check whole word for matches, not just the start
-	local startsWith = text:sub(1, #searchString) == searchString
-	local contains = text:find(searchString)
-	return startsWith or contains
+	return text:find(searchString, 1, true) ~= nil
 end
 
 -- Checks if the text starts with a Japanese or Chinese character. Only works on Lua 5.4+
