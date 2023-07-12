@@ -451,12 +451,35 @@ function RandomizerLog.parsePickupItems(logLines)
 end
 
 function RandomizerLog.setupMappings()
+	local allMovesSource = MoveData.Moves
+	local allAbilitiesSource = AbilityData.Abilities
+
+	-- If the game's language and tracker's display language don't match, load relevant Resources using the game language
+	if GameSettings.language:upper() ~= Resources.currentLanguage.Key:upper() then
+		local languageToLoad = Resources.Languages[GameSettings.language:upper()] or Resources.Default.Language
+		local languageGameData = RandomizerLog.loadLanguageMappings(languageToLoad)
+
+		if languageGameData.Game.MoveNames then
+			allMovesSource = {}
+			for id, name in ipairs(languageGameData.Game.MoveNames) do
+				table.insert(allMovesSource, { id = id, name = name, })
+			end
+		end
+
+		if languageGameData.Game.AbilityNames then
+			allAbilitiesSource = {}
+			for id, name in ipairs(languageGameData.Game.AbilityNames) do
+				table.insert(allAbilitiesSource, { id = id, name = name, })
+			end
+		end
+	end
+
 	-- Pokémon names -> IDs
 	RandomizerLog.PokemonNameToIdMap = {} -- setup later while parsing the first important log sector
 
 	-- Move names -> IDs
 	RandomizerLog.MoveNameToIdMap = {}
-	for _, moveInfo in ipairs(MoveData.Moves) do
+	for _, moveInfo in ipairs(allMovesSource) do
 		if moveInfo.id ~= nil and moveInfo.name ~= nil and moveInfo.name ~= "" then
 			local formattedName = RandomizerLog.formatInput(moveInfo.name) or ""
 			RandomizerLog.MoveNameToIdMap[formattedName] = tonumber(moveInfo.id) or -1
@@ -465,7 +488,7 @@ function RandomizerLog.setupMappings()
 
 	-- Ability names -> IDs
 	RandomizerLog.AbilityNameToIdMap = {}
-	for _, abilityInfo in ipairs(AbilityData.Abilities) do
+	for _, abilityInfo in ipairs(allAbilitiesSource) do
 		if abilityInfo.id ~= nil and abilityInfo.name ~= nil and abilityInfo.name ~= "" then
 			local formattedName = RandomizerLog.formatInput(abilityInfo.name) or ""
 			RandomizerLog.AbilityNameToIdMap[formattedName] = abilityInfo.id
@@ -478,4 +501,32 @@ function RandomizerLog.removeMappings()
 	RandomizerLog.MoveNameToIdMap = nil
 	RandomizerLog.AbilityNameToIdMap = nil
 	collectgarbage()
+end
+
+function RandomizerLog.loadLanguageMappings(language)
+	local gamedata = {}
+
+	-- Sub function used by other resource load functions
+	local function dataLoadHelper(asset, data)
+		if gamedata[asset] == nil then
+			gamedata[asset] = {}
+		end
+		local assetTable = gamedata[asset]
+		for key, val in pairs(data) do
+			assetTable[key] = val
+		end
+	end
+
+	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
+	local langFilePath = langFolder .. language.FileName
+	if FileManager.fileExists(langFilePath) then
+		local originalCallback = GameResources -- Temp store the old callback function while reading in some Game Resources
+		GameResources = function(data) dataLoadHelper("Game", data) end
+		-- Load language resources into gamedata
+		dofile(langFilePath)
+		Resources.sanitizeTable(gamedata)
+		GameResources = originalCallback
+	end
+
+	return gamedata
 end

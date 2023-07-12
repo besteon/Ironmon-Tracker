@@ -263,6 +263,7 @@ LogOverlay.TabBarButtons = {
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
+				LogSearchScreen.clearSearch()
 				if LogOverlay.isGameOver then
 					Program.changeScreenView(GameOverScreen)
 				elseif not Program.isValidMapLocation() then
