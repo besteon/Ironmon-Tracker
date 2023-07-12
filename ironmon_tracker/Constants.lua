@@ -930,7 +930,7 @@ Constants.Char = {
 		width = 4,
 	},
 	["Ÿ"] = {
-		encoded = "Y", -- \376 not available
+		-- encoded = nil, -- \376 not available
 		lower = "ÿ",
 		plain = "y",
 		width = 5,
@@ -1127,6 +1127,26 @@ Constants.Char = {
 		width = 3,
 	},
 }
+
+if not Main.supportsSpecialChars then
+	-- Create a redundant character entry for each escape/encoded character
+	for _, characterInfo in pairs(Constants.Char) do
+		if characterInfo.encoded and (characterInfo.lower or characterInfo.upper) then
+			Constants.Char[characterInfo.encoded] = {}
+			local duplicateInfo = Constants.Char[characterInfo.encoded]
+
+			-- Copy over the character information, and update it accordingly
+			if characterInfo.upper then
+				duplicateInfo.upper = Constants.Char[characterInfo.upper].encoded
+			end
+			if characterInfo.lower then
+				duplicateInfo.lower = Constants.Char[characterInfo.lower].encoded
+			end
+			duplicateInfo.plain = characterInfo.plain
+			duplicateInfo.width = characterInfo.width
+		end
+	end
+end
 
 Constants.CharCategories = {
 	ToLower = {},

@@ -458,7 +458,7 @@ function RandomizerLog.setupMappings()
 	RandomizerLog.MoveNameToIdMap = {}
 	for _, moveInfo in ipairs(MoveData.Moves) do
 		if moveInfo.id ~= nil and moveInfo.name ~= nil and moveInfo.name ~= "" then
-			local formattedName = Utils.toLowerUTF8(moveInfo.name)
+			local formattedName = RandomizerLog.formatInput(moveInfo.name) or ""
 			RandomizerLog.MoveNameToIdMap[formattedName] = tonumber(moveInfo.id) or -1
 		end
 	end
@@ -467,7 +467,7 @@ function RandomizerLog.setupMappings()
 	RandomizerLog.AbilityNameToIdMap = {}
 	for _, abilityInfo in ipairs(AbilityData.Abilities) do
 		if abilityInfo.id ~= nil and abilityInfo.name ~= nil and abilityInfo.name ~= "" then
-			local formattedName = Utils.toLowerUTF8(abilityInfo.name)
+			local formattedName = RandomizerLog.formatInput(abilityInfo.name) or ""
 			RandomizerLog.AbilityNameToIdMap[formattedName] = abilityInfo.id
 		end
 	end
