@@ -2090,7 +2090,7 @@ GameResources{
 		},
 		{
 			NameKey = "Glare",
-			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
+			Description = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act. Fails against Ghosts.",
 		},
 		{
 			NameKey = "Dream Eater",

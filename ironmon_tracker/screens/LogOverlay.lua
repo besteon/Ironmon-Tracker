@@ -1,6 +1,6 @@
 LogOverlay = {
 	Tabs = {
-		POKEMON = Constants.Words.POKEMON,
+		POKEMON = "Pokémon",
 		POKEMON_ZOOM = "Pokémon Zoom",
 		POKEMON_ZOOM_LEVELMOVES = "Levelup Moves", -- non-primary tab
 		POKEMON_ZOOM_TMMOVES = "TM Moves", -- non-primary tab

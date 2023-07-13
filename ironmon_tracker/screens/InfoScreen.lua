@@ -415,6 +415,7 @@ function InfoScreen.openRouteInfoWindow()
 	local form = Utils.createBizhawkForm(Resources.AllScreens.Lookup, 360, 105)
 
 	local routeName = RouteData.Info[InfoScreen.infoLookup.mapId].name -- infoLookup = {mapId, encounterArea}
+	routeName = Utils.formatSpecialCharacters(routeName)
 
 	forms.label(form, Resources.InfoScreen.PromptLookupRoute .. ":", 49, 10, 250, 20)
 	local routeDropdown = forms.dropdown(form, {["Init"]="Loading Route Data"}, 50, 30, 145, 30)
@@ -424,11 +425,12 @@ function InfoScreen.openRouteInfoWindow()
 	forms.settext(routeDropdown, routeName)
 
 	forms.button(form, Resources.AllScreens.Lookup, function()
-		local routeNameFromForm = forms.gettext(routeDropdown)
+		local dropdownSelection = forms.gettext(routeDropdown)
 		local mapId
 
 		for id, data in pairs(RouteData.Info) do
-			if data.name == routeNameFromForm then
+			local nameToMatch = Utils.formatSpecialCharacters(data.name)
+			if nameToMatch == dropdownSelection then
 				mapId = id
 				break
 			end
@@ -934,6 +936,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 
 	-- ROUTE NAME
 	local routeName = RouteData.Info[mapId].name or Constants.BLANKLINE
+	routeName = Utils.formatSpecialCharacters(routeName)
 	Drawing.drawImageAsPixels(Constants.PixelImages.MAP_PINDROP, boxX + 3, boxTopY + 3, { Theme.COLORS["Default text"] }, boxTopShadow)
 	Drawing.drawText(boxX + 13, boxTopY + 2, routeName, Theme.COLORS["Default text"], boxTopShadow)
 

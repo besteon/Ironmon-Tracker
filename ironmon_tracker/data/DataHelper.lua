@@ -330,6 +330,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.route = Constants.BLANKLINE
 	if RouteData.hasRoute(Program.GameData.mapId) then
 		data.x.route = RouteData.Info[Program.GameData.mapId].name or Constants.BLANKLINE
+		data.x.route = Utils.formatSpecialCharacters(data.x.route)
 	end
 
 	if Battle.inBattle then
@@ -497,6 +498,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 	data.r.id = routeId or 0
 	data.r.name = route.name or Constants.BLANKLINE
+	data.r.name = Utils.formatSpecialCharacters(data.r.name)
 	data.r.totalTrainerEncounters = 0
 	data.r.totalWildEncounters = 0
 

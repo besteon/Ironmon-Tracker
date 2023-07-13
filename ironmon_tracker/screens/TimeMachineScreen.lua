@@ -166,6 +166,7 @@ function TimeMachineScreen.createRestorePoint(label)
 		local mapLocationName
 		if RouteData.hasRoute(Program.GameData.mapId) then
 			mapLocationName = RouteData.Info[Program.GameData.mapId].name
+			mapLocationName = Utils.formatSpecialCharacters(mapLocationName)
 		else
 			mapLocationName = Resources.TimeMachineScreen.LocationUnknownArea
 		end

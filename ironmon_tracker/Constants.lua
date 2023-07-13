@@ -1194,6 +1194,7 @@ function Constants.getC(character)
 	return Constants.charToCategory(character, "encoded")
 end
 
+-- Deprecated. No longer in use, but leaving in for old extensions
 Constants.Words = {
 	POKEMON = "Pok" .. Constants.getC("é") .. "mon",
 	POKE = "Pok" .. Constants.getC("é"),
