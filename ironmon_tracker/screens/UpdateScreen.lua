@@ -358,6 +358,10 @@ function UpdateScreen.performAutoUpdate()
 
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts
 	if UpdateScreen.currentState == UpdateScreen.States.SUCCESS then
+		-- Close any open pop-up forms
+		Program.destroyActiveForm()
+		Drawing.AnimatedPokemon:destroy()
+		-- Restart the Tracker code
 		IronmonTracker.startTracker()
 	else
 		Program.redraw(true)
