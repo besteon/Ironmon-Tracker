@@ -35,7 +35,7 @@ ScreenResources{
 		Import = "Import",
 		Export = "Export",
 		Lookup = "Look up",
-		Page = "Page", -- Usage: "<- Page 2/5 ->"
+		Page = "Page",
 	},
 	PokemonEvolutionDetails = {
 		-- abbreviation: appears on the main Tracker Screen
@@ -192,12 +192,6 @@ ScreenResources{
 		Title = "Tracker Setup",
 		PokemonIconSetLabel = "Pokémon icon set",
 		PokemonIconSetAuthor = "Added by",
-		-- The names of these don't really need to be translated
-		-- IconSetOriginal = "Original",
-		-- IconSetStadium = "Stadium",
-		-- IconSetGen7 = "Gen 7+",
-		-- IconSetExplorers = "Explorers",
-		-- IconSetVirtualPet = "Virtual Pet",
 		OptionShowTeamView = "Show Team View",
 		OptionRightJustifiedNumbers = "Right justified numbers",
 		OptionDisableCarousel = "Disable mainscreen carousel",
@@ -375,8 +369,8 @@ ScreenResources{
 		-- Route Info
 		CheckboxPercentages = "Percentages",
 		CheckboxLevels = "Levels",
-		LabelSeenBy = "Pokémon seen by", -- Usage: "Pokémon seen by Walking"
-		LabelSeenEncounters = "Pokémon encounters", -- Usage: "Static Pokémon encounters"
+		LabelSeenBy = "Pokémon seen by",
+		LabelSeenEncounters = "Pokémon encounters",
 		LabelOrderAppearance = "In order of appearance",
 		PromptLookupRoute = "Choose a Route to look up",
 	},
@@ -407,7 +401,7 @@ ScreenResources{
 		OptionAutoSaveData = "Auto save tracked game data",
 		ButtonSaveData = "Save Data",
 		ButtonLoadData = "Load Data",
-		ButtonClearData = "Clear Data", -- Usage: surrounded by asterisks, " * Clear Data * "
+		ButtonClearData = "Clear Data",
 		ButtonClearConfirm = "Are you sure?",
 		ButtonClearSuccess = "Data Cleared!",
 		PromptHeaderSave = "Save Tracker Data",
@@ -3042,7 +3036,7 @@ GameResources{
 		"Air Lock",
 	},
 	-- The list below must remain in the same order.
-	-- These are custom hand-written ability descriptions, only edit the "Desctipion" value
+	-- These are custom hand-written ability descriptions, only edit the "Desctipion" and "DescriptionEmerald" values
 	AbilityDescriptions = {
 		{
 			NameKey = "Stench",
