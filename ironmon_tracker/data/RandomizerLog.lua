@@ -524,12 +524,16 @@ function RandomizerLog.loadLanguageMappings(language)
 	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	local langFilePath = langFolder .. language.FileName
 	if FileManager.fileExists(langFilePath) then
-		local originalCallback = GameResources -- Temp store the old callback function while reading in some Game Resources
+		 -- Temp store the old callback function while reading in some Game Resources
+		local originalScreenCallback = ScreenResources
+		local originalGameCallback = GameResources
+		ScreenResources = function(data) end -- Do nothing, only need Game data
 		GameResources = function(data) dataLoadHelper("Game", data) end
 		-- Load language resources into gamedata
 		dofile(langFilePath)
 		Resources.sanitizeTable(gamedata)
-		GameResources = originalCallback
+		ScreenResources = originalScreenCallback
+		GameResources = originalGameCallback
 	end
 
 	return gamedata
