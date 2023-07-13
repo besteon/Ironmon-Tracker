@@ -1538,7 +1538,7 @@ GameResources{
 		"サイコブースト", -- English: PSYCHO BOOST
 	},
 	-- The list below must remain in the same order.
-	-- These are custom hand-written move summaries, only edit the "Desctipion" value
+	-- These are custom hand-written move summaries, only edit the "Description" value
 	MoveDescriptions = {
 		{
 			NameKey = "Pound",
@@ -3038,7 +3038,7 @@ GameResources{
 		"エアロック", -- English: AIR LOCK
 	},
 	-- The list below must remain in the same order.
-	-- These are custom hand-written ability descriptions, only edit the "Desctipion" and "DescriptionEmerald" values
+	-- These are custom hand-written ability descriptions, only edit the "Description" and "DescriptionEmerald" values
 	AbilityDescriptions = {
 		{
 			NameKey = "Stench",

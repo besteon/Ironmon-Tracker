@@ -1702,7 +1702,7 @@ function LogOverlay.refreshInnerButtons()
 	end
 end
 
--- Rebuilds the buttons for the currently display screen. Useful when the Tracker's display language changes
+-- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
 function LogOverlay.rebuildScreen()
 	if not LogOverlay.isDisplayed then return end
 
