@@ -90,8 +90,10 @@ Program.GameTimer = {
 		Tracker.Data.playtime = 0
 		self.hasStarted = false
 		self.readyToDraw = false
+		self:unpause()
 	end,
 	checkInput = function(self, xmouse, ymouse)
+		if not Options["Display play time"] then return end
 		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
 		if clicked then
 			if self.isPaused then
