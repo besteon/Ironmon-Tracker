@@ -24,7 +24,8 @@ LogSearchScreen.SortBy = {
 	Alphabetical = {
 		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
 		sortFunc = function(a, b)
-			return a.pokemonName < b.pokemonName or (a.pokemonName == b.pokemonName and a.pokemonID < b.pokemonID)
+			local name1, name2 = a:getPokemonName(), b:getPokemonName()
+			return name1 < name2 or (name1 == name2 and a.pokemonID < b.pokemonID)
 		end,
 	},
 	PokedexNum = {
@@ -224,7 +225,7 @@ function LogSearchScreen.createButtons()
 				if i <= #self.searchText then
 					-- Center the character
 					local textOffsetX = Utils.centerTextOffset(self.searchText[i],
-						Constants.CharWidths[self.searchText[i]], 10) - 3
+						Constants.charWidth(self.searchText[i]), 10) - 3
 					y = y - self.letterSize - 3
 					Drawing.drawText(x + textOffsetX, y, self.searchText[i], Theme.COLORS[self.textColor],
 						LSS.Colors.upperTextShadow)
@@ -466,7 +467,7 @@ function LogSearchScreen.createKeyboardButtons()
 		for _, key in ipairs(keyRow) do
 			-- ===== KEYS =====
 			-- Center the character in the box
-			local textOffsetX = Utils.centerTextOffset(key, Constants.CharWidths[key], 10) - 2
+			local textOffsetX = Utils.centerTextOffset(key, Constants.charWidth(key), 10) - 2
 			local button = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				keyText = key,

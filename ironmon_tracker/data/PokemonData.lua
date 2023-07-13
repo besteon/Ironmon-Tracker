@@ -143,7 +143,6 @@ function PokemonData.initialize()
 	-- Reads the types and abilities for each Pokemon in the Pokedex
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
-		-- print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
 		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
@@ -160,14 +159,6 @@ function PokemonData.initialize()
 				end
 			end
 		end
-		local datalog = Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded: "
-		if PokemonData.IsRand.pokemonTypes then
-			datalog = datalog .. "Types, "
-		end
-		if PokemonData.IsRand.pokemonAbilities then
-			datalog = datalog .. "Abilities, "
-		end
-		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 
 	-- Add in pokemon IDs since they were never manually included in the past

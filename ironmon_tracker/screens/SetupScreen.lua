@@ -43,8 +43,6 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[nextSet].author
 			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", nextSet)
 		end
@@ -56,8 +54,6 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[prevSet].author
 			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", prevSet)
 		end

@@ -619,19 +619,27 @@ function Theme.openSaveCurrentThemeWindow()
 		Theme.Manager.SaveNewWarning = nil
 		Theme.Manager.SaveNewConfirm = nil
 
+		local themeCode = Theme.exportThemeToText()
+
 		-- If a theme with that name already exists, replace it; otherwise add a reference for it
 		if existingPreset ~= nil then
+			-- Remove the old theme from the presets file
 			FileManager.removeCustomThemeFromFile(themeName, existingPreset.code)
+			-- Update the old theme with the new code
+			existingPreset.code = themeCode
 		else
+			-- Create the new theme and add it to the library list
 			existingPreset = {
 				getText = function(self) return themeName end,
-				code = Theme.exportThemeToText()
+				code = themeCode
 			}
 			table.insert(Theme.Presets, existingPreset)
 		end
 
-		FileManager.addCustomThemeToFile(themeName, existingPreset.code)
+		-- Add the saved theme to the presets file and refresh
+		FileManager.addCustomThemeToFile(themeName, themeCode)
 		Theme.refreshThemePreview()
+
 		client.unpause()
 		forms.destroy(form)
 	end, 91, 75)

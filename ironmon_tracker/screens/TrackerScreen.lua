@@ -485,7 +485,6 @@ function TrackerScreen.buildCarousel()
 		end,
 		framesToShow = 180,
 		getContentList = function()
-			-- local routeInfo = RouteData.Info[Program.GameData.mapId]
 			local totalPossible = RouteData.countPokemonInArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters

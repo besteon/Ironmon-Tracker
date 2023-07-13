@@ -1,6 +1,6 @@
 LogOverlay = {
 	Tabs = {
-		POKEMON = Constants.Words.POKEMON,
+		POKEMON = "Pokémon",
 		POKEMON_ZOOM = "Pokémon Zoom",
 		POKEMON_ZOOM_LEVELMOVES = "Levelup Moves", -- non-primary tab
 		POKEMON_ZOOM_TMMOVES = "TM Moves", -- non-primary tab
@@ -263,6 +263,7 @@ LogOverlay.TabBarButtons = {
 			if self.image == Constants.PixelImages.CLOSE then
 				LogOverlay.TabHistory = {}
 				LogOverlay.isDisplayed = false
+				LogSearchScreen.clearSearch()
 				if LogOverlay.isGameOver then
 					Program.changeScreenView(GameOverScreen)
 				elseif not Program.isValidMapLocation() then
@@ -362,6 +363,8 @@ LogOverlay.Buttons = {
 		end,
 	},
 }
+
+LogOverlay.NavFilterButtons = {}
 
 -- Holds temporary buttons that only exist while drilling down on specific log info, e.g. pokemon evo icons
 LogOverlay.TemporaryButtons = {}
@@ -466,6 +469,7 @@ end
 -- Builds out paged-buttons that are shown on the log viewer overlay based on the parse data
 function LogOverlay.buildPagedButtons()
 	LogOverlay.PagedButtons = {}
+	LogOverlay.NavFilterButtons = {}
 
 	local navStartX, navStartY = 4, LogOverlay.tabHeight + 1 -- Alternative, at the bottom: Constants.SCREEN.HEIGHT - LogOverlay.margin - 13
 
@@ -476,7 +480,14 @@ function LogOverlay.buildPagedButtons()
 			local button = {
 				type = Constants.ButtonTypes.POKEMON_ICON,
 				pokemonID = id,
-				pokemonName = PokemonData.Pokemon[id].name,
+				getPokemonName = function(self)
+					-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+					if RandomizerLog.areLanguagesMismatched() then
+						return PokemonData.Pokemon[id].name or Constants.BLANKLINE
+					else
+						return RandomizerLog.Data.Pokemon[id].Name or PokemonData.Pokemon[id].name or Constants.BLANKLINE
+					end
+				end,
 				tab = LogOverlay.Tabs.POKEMON,
 				textColor = "Default text",
 				boxColors = { "Upper box border", "Upper box background" },
@@ -488,20 +499,23 @@ function LogOverlay.buildPagedButtons()
 					if currentFilter == "#" then
 						return true
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Name then
-						if Utils.startsOrContains(self.pokemonName, currentFilter, true) then
+						if Utils.containsText(self:getPokemonName(), currentFilter, true) then
 							return true
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Ability then
-						for _, ability in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
-							local abilityText = AbilityData.Abilities[ability].name
-							if Utils.startsOrContains(abilityText, currentFilter, true) then
+						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
+							local abilityText = AbilityData.Abilities[abilityId].name
+							if Utils.containsText(abilityText, currentFilter, true) then
 								return true
 							end
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
-							local moveText = move.name
-							if Utils.startsOrContains(moveText, currentFilter, true) then
+							local moveText = move.name -- potentially a custom move name
+							if MoveData.isValid(move.moveId) then
+								moveText = MoveData.Moves[move.moveId].name
+							end
+							if Utils.containsText(moveText, currentFilter, true) then
 								return true
 							end
 						end
@@ -519,14 +533,15 @@ function LogOverlay.buildPagedButtons()
 				draw = function(self, shadowcolor)
 					-- Draw the name  on top of it, with a background that cuts into the icon
 					gui.drawRectangle(self.box[1], self.box[2] + 1 - 1, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-					Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self.pokemonName, Theme.COLORS[self.textColor], shadowcolor)
+					Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getPokemonName(), Theme.COLORS[self.textColor], shadowcolor)
 				end,
 			}
 			table.insert(LogOverlay.PagedButtons.Pokemon, button)
 		end
 	end
-local navOffsetX = navStartX
---[[ 	-- Build Pokemon navigation
+
+	local navOffsetX = navStartX
+	--[[ 	-- Build Pokemon navigation
 
 	local navFilters = { "#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "(?)", }
 	for _, navFilter in ipairs(navFilters) do
@@ -572,7 +587,7 @@ local navOffsetX = navStartX
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.Buttons, jumpBtn)
+		table.insert(LogOverlay.NavFilterButtons, jumpBtn)
 		navOffsetX = navOffsetX + labelWidth + 1
 		if navFilter == "#" then
 			navOffsetX = navOffsetX + 8
@@ -680,7 +695,7 @@ local navOffsetX = navStartX
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.Buttons, jumpBtn)
+		table.insert(LogOverlay.NavFilterButtons, jumpBtn)
 		navOffsetX = navOffsetX + labelWidth + 6
 	end
 
@@ -698,7 +713,7 @@ local navOffsetX = navStartX
 			-- if not a gym TM, then it doesn't have a trainerId or filterGroup
 		end
 		local moveName
-		if MoveData.Moves[tm.moveId] ~= nil then
+		if MoveData.isValid(tm.moveId) then
 			moveName = MoveData.Moves[tm.moveId].name
 		else
 			moveName = tm.name
@@ -761,7 +776,7 @@ local navOffsetX = navStartX
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.Buttons, filterBtn)
+		table.insert(LogOverlay.NavFilterButtons, filterBtn)
 		navOffsetX = navOffsetX + labelWidth + 9
 	end
 
@@ -972,7 +987,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		table.insert(LogOverlay.TemporaryButtons, abilityBtn)
 		offsetY = offsetY + Constants.SCREEN.LINESPACING
 	end
-
 
 	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}
 
@@ -1224,7 +1238,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 	local chevronSpacing = 0
 	local chevronThickness = 2
 
-
 	if #evoList > LogOverlay.evosPerSet then
 		local evosets = math.ceil(#evoList / LogOverlay.evosPerSet)
 		local chevronsTotalWidth = (chevronSizeX + chevronThickness + chevronSpacing + 1) * evosets - chevronSpacing
@@ -1338,7 +1351,6 @@ function LogOverlay.buildPokemonZoomButtons(data)
 		}
 		table.insert(LogOverlay.TemporaryButtons, chevronButton)
 	end
-
 
 	local movesColX = LogOverlay.margin + 118
 	local movesRowY = LogOverlay.tabHeight + Utils.inlineIf(hasEvo, 42, 0)
@@ -1570,6 +1582,7 @@ function LogOverlay.buildTrainerZoomButtons(data)
 			getText = function(self) return string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, partyPokemon.level) end,
 			pokemonID = partyPokemon.id,
 			tab = LogOverlay.Tabs.TRAINER_ZOOM,
+			textColor = "Lower box text",
 			clickableArea = { startX + offsetX, startY + offsetY, 32, 29, },
 			box = { startX + offsetX, startY + offsetY - 4, 32, 32, },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
@@ -1582,6 +1595,12 @@ function LogOverlay.buildTrainerZoomButtons(data)
 					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
 				end
+			end,
+			draw = function(self, shadowcolor)
+				-- Draw the Pokemon's level below the icon
+				local levelOffsetX = self.box[1] + 5
+				local levelOffsetY = self.box[2] + self.box[4] + 2
+				Drawing.drawText(levelOffsetX, levelOffsetY, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
 		}
 		table.insert(LogOverlay.TemporaryButtons, pokemonNameButton)
@@ -1651,7 +1670,7 @@ function LogOverlay.buildTMGymButtons()
 					-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
 				end,
 			}
-			table.insert(LogOverlay.Buttons, gymButton)
+			table.insert(LogOverlay.NavFilterButtons, gymButton)
 		end
 	end
 end
@@ -1659,7 +1678,7 @@ end
 -- For showing what's highlighted and updating the page #
 function LogOverlay.refreshTabBar()
 	for _, button in pairs(LogOverlay.TabBarButtons) do
-		if button.updateSelf ~= nil then
+		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
 	end
@@ -1667,15 +1686,51 @@ end
 
 function LogOverlay.refreshInnerButtons()
 	for _, button in pairs(LogOverlay.Buttons) do
-		if button.updateSelf ~= nil then
+		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
 	end
 	for _, button in pairs(LogOverlay.TemporaryButtons) do
-		if button.updateSelf ~= nil then
+		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
 	end
+	for _, button in pairs(LogOverlay.NavFilterButtons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
+end
+
+-- Rebuilds the buttons for the currently display screen. Useful when the Tracker's display language changes
+function LogOverlay.rebuildScreen()
+	if not LogOverlay.isDisplayed then return end
+
+	local gridFilter = LogOverlay.Windower.filterGrid
+
+	-- Rebuild majority of the data, and clear out navigation history
+	LogOverlay.TabHistory = {}
+	LogOverlay.buildPagedButtons()
+
+	-- Depending on what tab screen is visible, need to rebuild it
+	if LogOverlay.currentTab == LogOverlay.Tabs.TRAINER then
+		LogOverlay.realignTrainerGrid(gridFilter)
+	elseif LogOverlay.currentTab == LogOverlay.Tabs.TMS then
+		LogOverlay.realignTMGrid(gridFilter)
+	elseif LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM then
+		LogOverlay.Windower.currentPage = 1
+		LogOverlay.Windower.totalPages = 1
+		LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(LogOverlay.currentTabInfoId)
+		LogOverlay.buildPokemonZoomButtons(LogOverlay.currentTabData)
+	elseif LogOverlay.currentTab == LogOverlay.Tabs.TRAINER_ZOOM then
+		LogOverlay.Windower.currentPage = 1
+		LogOverlay.Windower.totalPages = 1
+		LogOverlay.currentTabData = DataHelper.buildTrainerLogDisplay(LogOverlay.currentTabInfoId)
+		LogOverlay.buildTrainerZoomButtons(LogOverlay.currentTabData)
+	end
+
+	LogOverlay.refreshTabBar()
+	LogOverlay.refreshInnerButtons()
 end
 
 function LogOverlay.openRandomizerShareWindow()
@@ -1718,6 +1773,7 @@ function LogOverlay.checkInput(xmouse, ymouse)
 
 	-- Order here matters
 	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TemporaryButtons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.NavFilterButtons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.Buttons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogOverlay.TabBarButtons)
 	for _, buttonSet in pairs(LogOverlay.PagedButtons) do
@@ -1775,6 +1831,9 @@ function LogOverlay.drawScreen()
 		else
 			Drawing.drawButton(button, shadowcolor)
 		end
+	end
+	for _, button in pairs(LogOverlay.NavFilterButtons) do
+		Drawing.drawButton(button, shadowcolor)
 	end
 end
 
@@ -1910,6 +1969,7 @@ function LogOverlay.drawMiscTab(x, y, width, height)
 
 	return borderColor, shadowcolor
 end
+
 function LogOverlay.drawPokemonZoomed(x, y, width, height)
 	local textColor = Theme.COLORS["Lower box text"]
 	local borderColor = Theme.COLORS["Lower box border"]
@@ -2034,12 +2094,6 @@ function LogOverlay.drawTrainerZoomed(x, y, width, height)
 
 	for _, button in pairs(LogOverlay.TemporaryButtons) do
 		Drawing.drawButton(button, shadowcolor)
-		-- Draw the Pokemon's level label below the icon
-		if button:isVisible() and button.type == Constants.ButtonTypes.POKEMON_ICON then
-			local levelOffsetX = button.box[1] + 5
-			local levelOffsetY = button.box[2] + button.box[4] + 2
-			Drawing.drawText(levelOffsetX, levelOffsetY, button:getText(), textColor, shadowcolor)
-		end
 	end
 
 	return borderColor, shadowcolor

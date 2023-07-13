@@ -1,7 +1,7 @@
 Debug = {}
 
 function Debug.createEditPokeForm()
-	local form = forms.newform(200,250, "Edit " .. Constants.Words.POKEMON)
+	local form = forms.newform(200,250, "Edit Pokémon")
 	forms.setproperty(form, "MinimizeBox", false)
 	forms.setproperty(form, "MaximizeBox", false)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then

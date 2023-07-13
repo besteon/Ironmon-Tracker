@@ -309,6 +309,7 @@ MGBA.Screens = {
 		setData = function(self, routeId, setByUser)
 			if self.routeId ~= routeId and RouteData.hasRoute(routeId) then
 				local labelToAppend = RouteData.Info[routeId].name or Constants.BLANKLINE
+				labelToAppend = Utils.formatSpecialCharacters(labelToAppend)
 				MGBA.ScreenUtils.setLabel(MGBA.Screens.LookupRoute, labelToAppend)
 			end
 			self.routeId = routeId or 0
@@ -903,6 +904,7 @@ MGBA.CommandMap = {
 			local routeId = DataHelper.findRouteId(routeName)
 			if routeId ~= 0 then
 				routeName = RouteData.Info[routeId].name or routeName
+				routeName = Utils.formatSpecialCharacters(routeName)
 				printf(" %s %s", routeName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupRoute:setData(routeId, true)
 				Program.redraw(true)
