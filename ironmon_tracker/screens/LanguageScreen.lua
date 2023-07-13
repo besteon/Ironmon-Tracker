@@ -8,11 +8,22 @@ LanguageScreen = {
 }
 
 LanguageScreen.Buttons = {
+	DisplayLanguage = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return Resources.LanguageScreen.DisplayLanguage .. ":" end,
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 70, 11 },
+		draw = function(self, shadowcolor)
+			local offsetX = Utils.calcWordPixelLength(self:getText()) + 5
+			local languageName = Resources.currentLanguage.DisplayName
+			Drawing.drawText(self.box[1] + offsetX, self.box[2], languageName, Theme.COLORS[self.textColor], shadowcolor)
+		end,
+	},
 	AutodetectLanguageOption = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		getText = function(self) return Resources.LanguageScreen.AutodetectSetting end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
+		-- The y-position for this button is calculated later in createLanguageButtons()
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, 8, 8 },
 		toggleState = true,
 		toggleColor = "Positive text",
 		updateSelf = function(self)
@@ -76,7 +87,7 @@ function LanguageScreen.createLanguageButtons()
 	local btnHeight = 16
 	local spacer = 6
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 38 + spacer
+	local startY = Constants.SCREEN.MARGIN + 22 + spacer
 	for i, language in ipairs(availableLanguages) do
 		local button = {
 			type = Constants.ButtonTypes.ICON_BORDER,
@@ -109,6 +120,12 @@ function LanguageScreen.createLanguageButtons()
 			startX = startX - btnWidth - spacer
 		end
 	end
+
+	-- Shift the autodetect option below the last created box
+	local lastButton = LanguageScreen.Buttons[#LanguageScreen.Buttons]
+	startY = lastButton.box[2] + lastButton.box[4] + 7
+	LanguageScreen.Buttons.AutodetectLanguageOption.box[2] = startY
+	LanguageScreen.Buttons.AutodetectLanguageOption.clickableArea[2] = startY
 end
 
 -- USER INPUT FUNCTIONS
@@ -141,9 +158,6 @@ function LanguageScreen.drawScreen()
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING + 7
-
-	local chooseLanguageText = string.format("%s:", Resources.LanguageScreen.ChangeLanguageText)
-	Drawing.drawText(topBox.x + 2, textLineY, chooseLanguageText, topBox.text, topBox.shadow)
 
 	-- Draw all buttons
 	for _, button in pairs(LanguageScreen.Buttons) do

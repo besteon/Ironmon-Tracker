@@ -290,8 +290,8 @@ ScreenResources{
 	},
 	LanguageScreen = {
 		Title = "Language Settings", -- NEEDS TRANSLATION
+		DisplayLanguage = "Display Language", -- NEEDS TRANSLATION
 		AutodetectSetting = "Autodetect game language", -- NEEDS TRANSLATION
-		ChangeLanguageText = "Choose a language", -- NEEDS TRANSLATION
 		ButtonHelpContribute = "Help Contribute", -- NEEDS TRANSLATION
 	},
 	StatsScreen = {

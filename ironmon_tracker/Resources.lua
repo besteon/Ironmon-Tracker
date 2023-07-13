@@ -78,21 +78,26 @@ function Resources.initialize()
 	default_mt.__index = Resources.Default.Data
 
 	-- Then load in the language chosen by the user's settings
-	local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
-	Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
+	if Options["Autodetect language from game"] then
+		Resources.autoDetectForeignLanguage()
+	else
+		local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
+		Resources.loadAndApplyLanguage(Resources.Languages[userLanguageKey])
+	end
 
 	Resources.hasInitialized = true
 end
 
 -- Attempts to automatically change the language based on the game being played.
 function Resources.autoDetectForeignLanguage()
-	local language = Resources.Languages[GameSettings.language:upper()]
+	local languageKey = (GameSettings.language or ""):upper()
+	local language = Resources.Languages[languageKey]
 
 	if not Options["Autodetect language from game"] or language == nil or language == Resources.Default.Language or language.ExcludeFromSettings then
 		return
 	end
 
-	Resources.loadAndApplyLanguage(language)
+	Resources.changeLanguageSetting(language)
 end
 
 function Resources.changeLanguageSetting(language)
