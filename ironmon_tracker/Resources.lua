@@ -90,19 +90,24 @@ end
 
 -- Attempts to automatically change the language based on the game being played.
 function Resources.autoDetectForeignLanguage()
-	local languageKey = (GameSettings.language or ""):upper()
-	local language = Resources.Languages[languageKey]
-
-	if not Options["Autodetect language from game"] or language == nil or language == Resources.Default.Language or language.ExcludeFromSettings then
+	if not Options["Autodetect language from game"] then
 		return
 	end
 
-	Resources.changeLanguageSetting(language)
+	local languageKey = (GameSettings.language or ""):upper()
+	local language = Resources.Languages[languageKey]
+
+	if language == nil or language.ExcludeFromSettings then
+		return
+	end
+
+	Resources.changeLanguageSetting(language, true)
 end
 
-function Resources.changeLanguageSetting(language)
+function Resources.changeLanguageSetting(language, forced)
 	local success = Resources.loadAndApplyLanguage(language)
-	if success then
+	if success or forced then
+		Resources.currentLanguage = language
 		Options["Language"] = language.Key
 		Main.SaveSettings(true)
 	end
@@ -122,22 +127,22 @@ function Resources.loadAndApplyLanguage(language)
 
 	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
 	local langFilePath = langFolder .. language.FileName
-	if FileManager.fileExists(langFilePath) then
-		-- Prepopulate with default data. Newly loaded data (if it exists) replaces each key
-		Resources.copyTable(Resources.Default.Data, Resources.Data)
-
-		-- Load data into Resources.Data
-		dofile(langFilePath)
-
-		Resources.currentLanguage = language
-		Resources.sanitizeTable(Resources.Data)
-		FileManager.executeEachFile("updateResources")
-		collectgarbage()
-
-		return true
-	else
+	if not FileManager.fileExists(langFilePath) then
 		return false
 	end
+
+	-- Prepopulate with default data. Newly loaded data (if it exists) replaces each key
+	Resources.copyTable(Resources.Default.Data, Resources.Data)
+
+	-- Load data into Resources.Data
+	dofile(langFilePath)
+
+	Resources.currentLanguage = language
+	Resources.sanitizeTable(Resources.Data)
+	FileManager.executeEachFile("updateResources")
+	collectgarbage()
+
+	return true
 end
 
 -- Establishes global functions used for loading resource data from resource files
