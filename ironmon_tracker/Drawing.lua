@@ -12,7 +12,11 @@ Drawing.AnimatedPokemon = {
 	show = function(self) forms.setproperty(self.pictureBox, "Visible", true) end,
 	hide = function(self) forms.setproperty(self.pictureBox, "Visible", false) end,
 	create = function(self) Drawing.setupAnimatedPictureBox() end,
-	destroy = function(self) forms.destroy(self.formWindow) end,
+	destroy = function(self)
+		if self.formWindow and self.formWindow ~= 0 then
+			forms.destroy(self.formWindow)
+		end
+	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
 	formWindow = 0,

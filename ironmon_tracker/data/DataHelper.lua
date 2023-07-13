@@ -707,7 +707,9 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	end
 
 	-- Gym number (if applicable), otherwise nil
-	data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
+	if trainerInfo.group == TrainerData.TrainerGroups.Gym then
+		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
+	end
 
 	return data
 end

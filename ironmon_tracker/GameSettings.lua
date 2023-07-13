@@ -193,8 +193,13 @@ GameSettings.GameCharMap = {
 }
 
 function GameSettings.initialize()
-	if GameSettings.hasInitialized then return end
 	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+
+	-- Don't load game address again if it's the same game
+	if GameSettings.hasInitialized and GameSettings.gamecode == gamecode then
+		return
+	end
+
 	GameSettings.setGameInfo(gamecode)
 
 	-- Skip rest of setup if game not supported
@@ -332,6 +337,7 @@ function GameSettings.setGameInfo(gamecode)
 
 	local game = games[gamecode]
 	if game ~= nil then
+		GameSettings.gamecode = gamecode
 		GameSettings.game = game.GAME_NUMBER
 		GameSettings.gamename = game.GAME_NAME
 		GameSettings.versiongroup = game.VERSION_GROUP

@@ -288,8 +288,8 @@ ScreenResources{
 	},
 	LanguageScreen = {
 		Title = "Language Settings", -- NEEDS TRANSLATION
+		DisplayLanguage = "Display Language", -- NEEDS TRANSLATION
 		AutodetectSetting = "Autodetect game language", -- NEEDS TRANSLATION
-		ChangeLanguageText = "Choose a language", -- NEEDS TRANSLATION
 		ButtonHelpContribute = "Help Contribute", -- NEEDS TRANSLATION
 	},
 	StatsScreen = {
@@ -1122,7 +1122,7 @@ GameResources{
 		"Psicoataque", --Psicoataque english:Psycho Boost
 	},
 	-- The list below must remain in the same order.
-	-- These are custom hand-written move summaries, only edit the "Desctipion" value
+	-- These are custom hand-written move summaries, only edit the "Description" value
 	MoveDescriptions = {
 		{
 			NameKey = "Pound",
@@ -2622,7 +2622,7 @@ GameResources{
 		"Bucle Aire", --Bucle Aire english:Air Lock
 	},
 	-- The list below must remain in the same order.
-	-- These are custom hand-written ability descriptions, only edit the "Desctipion" and "DescriptionEmerald" values
+	-- These are custom hand-written ability descriptions, only edit the "Description" and "DescriptionEmerald" values
 	AbilityDescriptions = {
 		{
 			NameKey = "Stench",
