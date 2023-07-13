@@ -1661,7 +1661,7 @@ MoveData.Moves = {
 		pp = "30",
 		accuracy = "75",
 		category = MoveData.Categories.STATUS,
-		summary = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act.",
+		summary = "Paralyzes the target, reducing their Speed by 75%, and a 25% chance they will fail to act. Fails against Ghosts.",
 	},
 	{
 		id = "138",

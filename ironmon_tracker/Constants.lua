@@ -1130,22 +1130,28 @@ Constants.Char = {
 
 if not Main.supportsSpecialChars then
 	-- Create a redundant character entry for each escape/encoded character
+	local encodedCharsToAdd = {}
 	for _, characterInfo in pairs(Constants.Char) do
 		if characterInfo.encoded and (characterInfo.lower or characterInfo.upper) then
-			Constants.Char[characterInfo.encoded] = {}
-			local duplicateInfo = Constants.Char[characterInfo.encoded]
-
 			-- Copy over the character information, and update it accordingly
+			local encodedChar = {}
+			encodedChar.encoded = characterInfo.encoded
 			if characterInfo.upper then
-				duplicateInfo.upper = Constants.Char[characterInfo.upper].encoded
+				encodedChar.upper = Constants.Char[characterInfo.upper].encoded
 			end
 			if characterInfo.lower then
-				duplicateInfo.lower = Constants.Char[characterInfo.lower].encoded
+				encodedChar.lower = Constants.Char[characterInfo.lower].encoded
 			end
-			duplicateInfo.plain = characterInfo.plain
-			duplicateInfo.width = characterInfo.width
+			encodedChar.plain = characterInfo.plain
+			encodedChar.width = characterInfo.width
+			table.insert(encodedCharsToAdd, encodedChar)
 		end
 	end
+	for _, encodedChar in pairs(encodedCharsToAdd) do
+		Constants.Char[encodedChar.encoded] = encodedChar
+		encodedChar.encoded = nil
+	end
+	encodedCharsToAdd = nil
 end
 
 Constants.CharCategories = {

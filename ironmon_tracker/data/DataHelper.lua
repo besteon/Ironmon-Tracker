@@ -547,7 +547,12 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
 	data.p.id = pokemonDex.pokemonID or 0
-	data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
+	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+	if RandomizerLog.areLanguagesMismatched() then
+		data.p.name = pokemonDex.name or Constants.BLANKLINE
+	else
+		data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
+	end
 	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
@@ -663,11 +668,17 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	for _, partyMon in ipairs(trainer.party or {}) do
 		local pokemonInfo = {
 			id = partyMon.pokemonID or 0,
-			name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or Constants.BLANKLINE,
 			level = partyMon.level or 0,
 			moves = {},
 			helditem = partyMon.helditem,
 		}
+
+		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+		if RandomizerLog.areLanguagesMismatched() then
+			pokemonInfo.name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+		else
+			pokemonInfo.name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+		end
 
 		local movesLeftToAdd = 4
 		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}

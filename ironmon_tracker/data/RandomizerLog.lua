@@ -450,12 +450,16 @@ function RandomizerLog.parsePickupItems(logLines)
 	-- Utils.printDebug("#%s: %s >%s< %s", trainer_num, pokemon or "N/A", helditem or "N/A", level or 0)
 end
 
+function RandomizerLog.areLanguagesMismatched()
+	return GameSettings.language:upper() ~= Resources.currentLanguage.Key:upper()
+end
+
 function RandomizerLog.setupMappings()
 	local allMovesSource = MoveData.Moves
 	local allAbilitiesSource = AbilityData.Abilities
 
 	-- If the game's language and tracker's display language don't match, load relevant Resources using the game language
-	if GameSettings.language:upper() ~= Resources.currentLanguage.Key:upper() then
+	if RandomizerLog.areLanguagesMismatched() then
 		local languageToLoad = Resources.Languages[GameSettings.language:upper()] or Resources.Default.Language
 		local languageGameData = RandomizerLog.loadLanguageMappings(languageToLoad)
 

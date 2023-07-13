@@ -24,7 +24,8 @@ LogSearchScreen.SortBy = {
 	Alphabetical = {
 		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
 		sortFunc = function(a, b)
-			return a.pokemonName < b.pokemonName or (a.pokemonName == b.pokemonName and a.pokemonID < b.pokemonID)
+			local name1, name2 = a:getPokemonName(), b:getPokemonName()
+			return name1 < name2 or (name1 == name2 and a.pokemonID < b.pokemonID)
 		end,
 	},
 	PokedexNum = {
