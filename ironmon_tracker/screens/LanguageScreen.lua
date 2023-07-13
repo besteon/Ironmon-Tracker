@@ -10,13 +10,11 @@ LanguageScreen = {
 LanguageScreen.Buttons = {
 	DisplayLanguage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.LanguageScreen.DisplayLanguage .. ":" end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 70, 11 },
-		draw = function(self, shadowcolor)
-			local offsetX = Utils.calcWordPixelLength(self:getText()) + 5
-			local languageName = Resources.currentLanguage.DisplayName
-			Drawing.drawText(self.box[1] + offsetX, self.box[2], languageName, Theme.COLORS[self.textColor], shadowcolor)
+		getText = function(self)
+			local displayLang = (Resources.currentLanguage or {}).DisplayName or Constants.BLANKLINE
+			return string.format("%s:  %s", Resources.LanguageScreen.DisplayLanguage, displayLang)
 		end,
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 70, 11 },
 	},
 	AutodetectLanguageOption = {
 		type = Constants.ButtonTypes.CHECKBOX,
@@ -30,10 +28,15 @@ LanguageScreen.Buttons = {
 			self.toggleState = Options["Autodetect language from game"] == true
 		end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-			Options.updateSetting("Autodetect language from game", self.toggleState)
-			Options.forceSave()
+			Options["Autodetect language from game"] = not Options["Autodetect language from game"]
+			self:updateSelf()
+
+			if Options["Autodetect language from game"] then
+				Resources.autoDetectForeignLanguage()
+				LanguageScreen.refreshButtons()
+			end
+			Main.SaveSettings(true)
+			Program.redraw(true)
 		end
 	},
 	HelpContribute = {
