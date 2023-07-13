@@ -31,7 +31,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 88, 78, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 130, 78, 16 },
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
 			Program.changeScreenView(TimeMachineScreen)
@@ -41,7 +41,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEstimatePokemonIVs end,
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 109, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 100, 130, 11 },
 		onClick = function() ExtrasScreen.displayJudgeMessage() end
 	},
 	Back = {
@@ -118,11 +118,12 @@ function ExtrasScreen.createButtons()
 		{"Show random ball picker", "OptionShowRandomBallPicker", },
 		{"Display repel usage", "OptionDisplayRepelUsage", },
 		{"Display pedometer", "OptionDisplayPedometer", },
+		{"Display play time", "OptionDisplayPlayTime", },
 		{"Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
 	}
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
-	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + Constants.SCREEN.MARGIN + 2
+	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + 5
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	for _, optionTuple in ipairs(optionKeyMap) do
@@ -136,8 +137,8 @@ function ExtrasScreen.createButtons()
 			toggleColor = "Positive text",
 			onClick = function(self)
 				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.optionKey, self.toggleState)
+				Options[self.optionKey] = not Options[self.optionKey]
+				self.toggleState = Options[self.optionKey]
 
 				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
 				if self.optionKey == "Animated Pokemon popout" then
@@ -146,7 +147,13 @@ function ExtrasScreen.createButtons()
 					else
 						Drawing.AnimatedPokemon:destroy()
 					end
+				elseif self.optionKey == "Display play time" and self.toggleState then
+					-- Show help tip for pausing (4 seconds)
+					Program.GameTimer.showPauseTipUntil = os.time() + 4
 				end
+
+				Main.SaveSettings(true)
+				Program.redraw(true)
 			end
 		}
 		startY = startY + linespacing

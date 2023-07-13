@@ -173,6 +173,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
 
+	Program.GameTimer:checkInput(xmouse, ymouse)
+
 	-- The extra screens don't occupy the same screen space and need their own check
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)

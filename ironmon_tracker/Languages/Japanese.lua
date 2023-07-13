@@ -215,6 +215,7 @@ ScreenResources{
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display pedometer", -- NEEDS TRANSLATION
+		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential", -- NEEDS TRANSLATION
@@ -223,6 +224,7 @@ ScreenResources{
 		EstimateResultAboveAverage = "Above average!", -- NEEDS TRANSLATION
 		EstimateResultDecent = "Decent.", -- NEEDS TRANSLATION
 		EstimateResultUnavailable = "Estimate is unavailable.", -- NEEDS TRANSLATION
+		TimerPauseTip = "(Click on the timer to pause)", -- NEEDS TRANSLATION
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options", -- NEEDS TRANSLATION
@@ -296,6 +298,7 @@ ScreenResources{
 	},
 	StatsScreen = {
 		Title = "Game Stats", -- NEEDS TRANSLATION
+		StatPlayTime = "Play time", -- NEEDS TRANSLATION
 		StatTotalAttempts = "Total attempts", -- NEEDS TRANSLATION
 		StatPCsUsed = "Pokécenters used", -- NEEDS TRANSLATION
 		StatTrainerBattles = "Trainer battles", -- NEEDS TRANSLATION
@@ -431,6 +434,7 @@ ScreenResources{
 	GameOverScreen = {
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION
 		LabelAttempt = "Attempt", -- NEEDS TRANSLATION
+		LabelPlayTime = "Play Time", -- NEEDS TRANSLATION
 		QuoteCongratulations = "CONGRATULATIONS!!", -- NEEDS TRANSLATION
 		ButtonContinuePlaying = "Continue playing", -- NEEDS TRANSLATION
 		ButtonRetryBattle = "Retry the battle", -- NEEDS TRANSLATION

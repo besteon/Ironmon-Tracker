@@ -32,6 +32,7 @@ GameOverScreen.Buttons = {
 			end
 			LogOverlay.isGameOver = false
 			LogOverlay.isDisplayed = false
+			Program.GameTimer:unpause()
 			GameOverScreen.refreshButtons()
 			GameOverScreen.Buttons.SaveGameFiles:reset()
 			Program.changeScreenView(TrackerScreen)
@@ -61,6 +62,7 @@ GameOverScreen.Buttons = {
 				Program.redraw(true)
 			else
 				LogOverlay.isDisplayed = false
+				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()
 				GameOverScreen.Buttons.SaveGameFiles:reset()
 				Program.changeScreenView(TrackerScreen)
@@ -334,14 +336,18 @@ function GameOverScreen.drawScreen()
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
 	-- Draw some game stats
-	local attemptNumber = Main.currentSeed or 1
-	if attemptNumber ~= 1 then
-		local attemptsText = string.format("%s:  %s", Resources.GameOverScreen.LabelAttempt, Utils.formatNumberWithCommas(attemptNumber))
-		-- local centerOffsetX = math.floor(topBox.width / 2 - Utils.calcWordPixelLength(attemptsText) / 2) - 1
-		Drawing.drawText(topBox.x + 2, textLineY, attemptsText, topBox.text, topBox.shadow)
+	local columnOffsetX = 54
+	if Main.currentSeed and Main.currentSeed ~= 1 then
+		Drawing.drawText(topBox.x + 2, textLineY, Resources.GameOverScreen.LabelAttempt .. ":", topBox.text, topBox.shadow)
+		Drawing.drawText(topBox.x + columnOffsetX, textLineY, Utils.formatNumberWithCommas(Main.currentSeed), topBox.text, topBox.shadow)
+	end
+	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
+
+	if Tracker.Data.playtime and Tracker.Data.playtime > 0 then
+		Drawing.drawText(topBox.x + 2, textLineY, Resources.GameOverScreen.LabelPlayTime .. ":", topBox.text, topBox.shadow)
+		Drawing.drawText(topBox.x + columnOffsetX, textLineY, Program.GameTimer:getText(), topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
-	textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 
 	local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 

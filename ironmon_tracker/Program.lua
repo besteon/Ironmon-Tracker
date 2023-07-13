@@ -31,6 +31,99 @@ Program.GameData = {
 	},
 }
 
+Program.GameTimer = {
+	timeLastChecked = 0, -- Number of seconds
+	showPauseTipUntil = 0, -- Displays "how to pause timer" tip until this time occurs; number of seconds
+	hasStarted = false, -- Used to determine if the game has started (not in Title menus)
+	isPaused = false, -- Used to manually pause the timer
+	readyToDraw = false, -- Anytime the timer changes, it needs to be redrawn
+	textColor = 0xFFFFFFFF,
+	pauseColor = 0xFFFFFF00,
+	boxColor = 0x78000000,
+	margin = 0,
+	padding = 2,
+	box = {
+		x = Constants.SCREEN.WIDTH,
+		y = Constants.SCREEN.HEIGHT,
+		width = 20,
+		height = Constants.Font.SIZE,
+	},
+	getText = function(self)
+		return Utils.formatTime(Tracker.Data.playtime or 0)
+	end,
+	initialize = function(self)
+		self.hasStarted = false
+		self.box.height = Constants.Font.SIZE - 4 + (2 * self.padding)
+		self.box.y = math.max(Constants.SCREEN.HEIGHT - self.box.height - self.margin - 1, 0)
+		self:update()
+	end,
+	start = function(self)
+		self.hasStarted = true
+		self.isPaused = false
+		self.timeLastChecked = os.time()
+		self.showPauseTipUntil = self.timeLastChecked
+	end,
+	pause = function(self)
+		if not self.hasStarted then return end
+		self.isPaused = true
+	end,
+	unpause = function(self)
+		if self.isPaused then
+			self.timeLastChecked = os.time()
+		end
+		self.isPaused = false
+	end,
+	update = function(self)
+		local currTime = os.time()
+		local prevTime = self.timeLastChecked
+		self.timeLastChecked = currTime
+		if self.hasStarted and not self.isPaused then
+			local timeDelta = math.floor(os.difftime(currTime, prevTime))
+			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
+			self.readyToDraw = (timeDelta ~= 0)
+		end
+		-- Update box, align bottom-right
+		self.box.width = Utils.calcWordPixelLength(self:getText() or "") - 1 + (2 * self.padding)
+		self.box.x = math.max(Constants.SCREEN.WIDTH - self.box.width - self.margin - 1, 0)
+	end,
+	reset = function(self)
+		Tracker.Data.playtime = 0
+		self.hasStarted = false
+		self.readyToDraw = false
+		self:unpause()
+	end,
+	checkInput = function(self, xmouse, ymouse)
+		if not Options["Display play time"] then return end
+		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
+		if clicked then
+			if self.isPaused then
+				self:unpause()
+			else
+				self:pause()
+			end
+			self.readyToDraw = true
+		end
+	end,
+	draw = function(self)
+		self.readyToDraw = false
+		if Options["Display play time"] then
+			local x, y, width, height = self.box.x, self.box.y, self.box.width, self.box.height
+			local formattedTime = self:getText()
+			local color = Utils.inlineIf(self.isPaused, self.pauseColor, self.textColor)
+			gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+			Drawing.drawText(x, y - 1, formattedTime, color)
+
+			if self.showPauseTipUntil > self.timeLastChecked then
+				width = Utils.calcWordPixelLength(Resources.ExtrasScreen.TimerPauseTip) - 1 + (2 * self.padding)
+				x = math.max(Constants.SCREEN.WIDTH - width - self.margin - 1, 0)
+				y = math.max(self.box.y - self.box.height - 2, 0)
+				gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+				Drawing.drawText(x, y - 1, Resources.ExtrasScreen.TimerPauseTip, self.textColor)
+			end
+		end
+	end,
+}
+
 Program.ActiveRepel = {
 	inUse = false,
 	stepCount = 0,
@@ -40,6 +133,11 @@ Program.ActiveRepel = {
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
+	end,
+	draw = function(self)
+		if self:shouldDisplay() then
+			Drawing.drawRepelUsage()
+		end
 	end,
 }
 
@@ -69,9 +167,14 @@ Program.AutoSaver = {
 		return false
 	end,
 	checkForNextSave = function(self)
-		if not Main.IsOnBizhawk() then return end -- flush saveRAM only for Bizhawk
 		if self:updateSaveCount() then
-			client.saveram()
+			-- Force Tracker Data to also save
+			Program.Frames.saveData = 0
+
+			-- Flush saveRAM only for Bizhawk
+			if Main.IsOnBizhawk() then
+				client.saveram()
+			end
 		end
 	end
 }
@@ -91,6 +194,7 @@ function Program.initialize()
 	end
 
 	Program.AutoSaver:updateSaveCount()
+	Program.GameTimer:initialize()
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
@@ -114,19 +218,21 @@ end
 
 -- 'forced' = true will force a draw, skipping the normal frame wait time
 function Program.redraw(forced)
-	-- Only redraw the screen every half second (60 frames/sec)
-	if not forced and Program.Frames.waitToDraw > 0 then
-		Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+	local shouldDraw = (forced == true) or (Program.Frames.waitToDraw <= 0) or Program.GameTimer.readyToDraw
+
+	if not shouldDraw then
+		if Program.Frames.waitToDraw > 0 then
+			Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+		end
 		return
 	end
 
+	-- Only redraw the screen every half second (60 frames/sec)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Program.ActiveRepel:shouldDisplay() then
-			Drawing.drawRepelUsage()
-		end
+		Program.ActiveRepel:draw()
+		Program.GameTimer:draw()
 
 		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
 		if LogOverlay.isDisplayed then
@@ -178,6 +284,11 @@ function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
 		Program.updateMapLocation() -- trying this here to solve many future problems
+
+		if not Program.GameTimer.hasStarted and Program.isValidMapLocation() then
+			Program.GameTimer:start()
+		end
+		Program.GameTimer:update()
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then

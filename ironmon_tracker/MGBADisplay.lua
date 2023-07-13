@@ -648,9 +648,12 @@ MGBADisplay.LineBuilder = {
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do
-			local formattedName = statPair.getText()
-			local formattedValue = Utils.formatNumberWithCommas(statPair.getValue() or 0)
-			table.insert(lines, Utils.formatUTF8(statBar, formattedName .. ":", formattedValue))
+			local statName = statPair.getText()
+			local statValue = statPair.getValue() or 0
+			if type(statValue) == "number" then
+				statValue = Utils.formatNumberWithCommas(statValue)
+			end
+			table.insert(lines, Utils.formatUTF8(statBar, statName .. ":", statValue))
 		end
 
 		return lines

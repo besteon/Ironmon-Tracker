@@ -521,6 +521,7 @@ function Tracker.resetData()
 		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH), -- Tally of rock smash uses, to track encounters
 		isNewGame = true, -- Flag for new game, to check if stored trainerID is correct
 		whichRival = nil, -- To determine which rival the player will fight through the entire game, based on starter ball selection
+		playtime = 0, -- Number of seconds
 	}
 end
 

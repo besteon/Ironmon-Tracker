@@ -213,6 +213,7 @@ ScreenResources{
 		OptionShowRandomBallPicker = "Show random ball picker",
 		OptionDisplayRepelUsage = "Display repel usage",
 		OptionDisplayPedometer = "Display pedometer",
+		OptionDisplayPlayTime = "Display play time",
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout",
 		ButtonTimeMachine = "Time Machine",
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential",
@@ -221,6 +222,7 @@ ScreenResources{
 		EstimateResultAboveAverage = "Above average!",
 		EstimateResultDecent = "Decent.",
 		EstimateResultUnavailable = "Estimate is unavailable.",
+		TimerPauseTip = "(Click on the timer to pause)",
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options",
@@ -294,6 +296,7 @@ ScreenResources{
 	},
 	StatsScreen = {
 		Title = "Game Stats",
+		StatPlayTime = "Play time",
 		StatTotalAttempts = "Total attempts",
 		StatPCsUsed = "Pokécenters used",
 		StatTrainerBattles = "Trainer battles",
@@ -429,6 +432,7 @@ ScreenResources{
 	GameOverScreen = {
 		Title = "G a m e O v e r",
 		LabelAttempt = "Attempt",
+		LabelPlayTime = "Play Time",
 		QuoteCongratulations = "CONGRATULATIONS!!",
 		ButtonContinuePlaying = "Continue playing",
 		ButtonRetryBattle = "Retry the battle",
