@@ -63,6 +63,7 @@ FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
+	DISCUSSIONS = "https://github.com/besteon/Ironmon-Tracker/discussions/389", -- Discussion: "Help us translate the Ironmon Tracker"
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 }
 
@@ -70,6 +71,7 @@ FileManager.Urls = {
 FileManager.LuaCode = {
 	-- First set of core files
 	{ name = "Inifile", filepath = "Inifile.lua", },
+	{ name = "Resources", filepath = "Resources.lua", },
 	{ name = "Constants", filepath = "Constants.lua", },
 	{ name = "TrackerAPI", filepath = "TrackerAPI.lua", },
 	{ name = "Utils", filepath = "Utils.lua", },
@@ -107,6 +109,7 @@ FileManager.LuaCode = {
 	{ name = "QuickloadScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "QuickloadScreen.lua", },
 	{ name = "GameOptionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOptionsScreen.lua", },
 	{ name = "TrackedDataScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua", },
+	{ name = "LanguageScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LanguageScreen.lua", },
 	{ name = "StatsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
@@ -239,6 +242,23 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	end
 
 	return false
+end
+
+-- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
+function FileManager.executeEachFile(functionName)
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G -- Lua 5.1 only
+	else
+		globalRef = _ENV -- Lua 5.4
+	end
+
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""] or {}
+		if type(luaObject[functionName]) == "function" then
+			luaObject[functionName]()
+		end
+	end
 end
 
 -- Returns a properly formatted path that contains only the correct path-separators based on the OS

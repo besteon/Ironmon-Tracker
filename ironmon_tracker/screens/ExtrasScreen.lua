@@ -1,17 +1,4 @@
 ExtrasScreen = {
-	Labels = {
-		header = "Tracker Extras",
-		timeMachineBtn = "Time Machine",
-		estimateIvBtn = " Estimate " .. Constants.Words.POKEMON .. " IV Potential",
-		resultIs = "is",
-		resultOutstanding = "Outstanding!!!",
-		resultQuiteImpressive = "Quite impressive!!",
-		resultAboveAverage = "Above average!",
-		resultDecent = "Decent.",
-		resultUnavailable = "Estimate is unavailable.",
-		viewLogFile = "View log",
-		viewPreviousLogFile = "Previous log",
-	},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
@@ -19,19 +6,13 @@ ExtrasScreen = {
 	},
 }
 
-ExtrasScreen.OptionKeys = {
-	"Show random ball picker",
-	"Display repel usage",
-	"Display pedometer",
-	"Animated Pokemon popout", -- Text referenced in initialize()
-}
 -- Holds all the buttons for the screen
 -- Buttons are created in CreateButtons()
 ExtrasScreen.Buttons = {
 	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		text = ExtrasScreen.Labels.viewLogFile,
+		getText = function(self) return Resources.ExtrasScreen.ButtonViewCurrentLog end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 55, 16 },
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
@@ -40,7 +21,7 @@ ExtrasScreen.Buttons = {
 	ViewPreviousLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		text = ExtrasScreen.Labels.viewPreviousLogFile,
+		getText = function(self) return Resources.ExtrasScreen.ButtonViewPreviousLog end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
@@ -48,7 +29,7 @@ ExtrasScreen.Buttons = {
 	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		text = ExtrasScreen.Labels.timeMachineBtn,
+		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30, Constants.SCREEN.MARGIN + 88, 78, 16 },
 		onClick = function()
@@ -58,14 +39,14 @@ ExtrasScreen.Buttons = {
 	},
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = ExtrasScreen.Labels.estimateIvBtn,
+		getText = function(self) return Resources.ExtrasScreen.ButtonEstimatePokemonIVs end,
 		ivText = "",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 109, 130, 11 },
 		onClick = function() ExtrasScreen.displayJudgeMessage() end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
@@ -92,13 +73,13 @@ function ExtrasScreen.alignViewLogButtons()
 	local viewLogButtonBox = {
 		0,
 		0,
-		Utils.calcWordPixelLength(ExtrasScreen.Labels.viewLogFile) + logViewButtonsWidth,
+		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewCurrentLog) + logViewButtonsWidth,
 		Constants.SCREEN.LINESPACING + 5
 	}
 	local viewPrevLogButtonBox = {
 		0,
 		0,
-		Utils.calcWordPixelLength(ExtrasScreen.Labels.viewPreviousLogFile) + logViewButtonsWidth,
+		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewPreviousLog) + logViewButtonsWidth,
 		Constants.SCREEN.LINESPACING + 5
 	}
 
@@ -114,35 +95,7 @@ end
 
 function ExtrasScreen.initialize()
 	-- ExtrasScreen.alignViewLogButtons()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
-	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + Constants.SCREEN.MARGIN + 2
-	local linespacing = Constants.SCREEN.LINESPACING + 1
-
-	for _, optionKey in ipairs(ExtrasScreen.OptionKeys) do
-		ExtrasScreen.Buttons[optionKey] = {
-			type = Constants.ButtonTypes.CHECKBOX,
-			text = optionKey,
-			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-			box = {	startX, startY, 8, 8 },
-			toggleState = Options[optionKey],
-			toggleColor = "Positive text",
-			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.text, self.toggleState)
-
-				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
-				if self.text == "Animated Pokemon popout" then
-					if self.toggleState then
-						Drawing.AnimatedPokemon:create()
-					else
-						Drawing.AnimatedPokemon:destroy()
-					end
-				end
-			end
-		}
-		startY = startY + linespacing
-	end
+	ExtrasScreen.createButtons()
 
 	for _, button in pairs(ExtrasScreen.Buttons) do
 		if button.textColor == nil then
@@ -160,6 +113,46 @@ function ExtrasScreen.initialize()
 	end
 end
 
+function ExtrasScreen.createButtons()
+	local optionKeyMap = {
+		{"Show random ball picker", "OptionShowRandomBallPicker", },
+		{"Display repel usage", "OptionDisplayRepelUsage", },
+		{"Display pedometer", "OptionDisplayPedometer", },
+		{"Animated Pokemon popout", "OptionAnimatedPokemonPopout", },
+	}
+
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5
+	local startY = ExtrasScreen.Buttons.ViewLogFile.box[2] + ExtrasScreen.Buttons.ViewLogFile.box[4] + Constants.SCREEN.MARGIN + 2
+	local linespacing = Constants.SCREEN.LINESPACING + 1
+
+	for _, optionTuple in ipairs(optionKeyMap) do
+		ExtrasScreen.Buttons[optionTuple[1]] = {
+			type = Constants.ButtonTypes.CHECKBOX,
+			getText = function(self) return Resources.ExtrasScreen[optionTuple[2]] end,
+			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+			box = {	startX, startY, 8, 8 },
+			optionKey = optionTuple[1],
+			toggleState = Options[optionTuple[1]],
+			toggleColor = "Positive text",
+			onClick = function(self)
+				-- Toggle the setting and store the change to be saved later in Settings.ini
+				self.toggleState = not self.toggleState
+				Options.updateSetting(self.optionKey, self.toggleState)
+
+				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
+				if self.optionKey == "Animated Pokemon popout" then
+					if self.toggleState then
+						Drawing.AnimatedPokemon:create()
+					else
+						Drawing.AnimatedPokemon:destroy()
+					end
+				end
+			end
+		}
+		startY = startY + linespacing
+	end
+end
+
 function ExtrasScreen.displayJudgeMessage()
 	local leadPokemon = Battle.getViewedPokemon(true)
 	if leadPokemon ~= nil and PokemonData.isValid(leadPokemon.pokemonID) then
@@ -167,24 +160,24 @@ function ExtrasScreen.displayJudgeMessage()
 		local result
 		local ivEstimate = Utils.estimateIVs(leadPokemon) * 186
 		if ivEstimate >= 151 then
-			result = ExtrasScreen.Labels.resultOutstanding
+			result = Resources.ExtrasScreen.EstimateResultOutstanding
 		elseif ivEstimate >= 121 and ivEstimate <= 150 then
-			result = ExtrasScreen.Labels.resultQuiteImpressive
+			result = Resources.ExtrasScreen.EstimateResultQuiteImpressive
 		elseif ivEstimate >= 91 and ivEstimate <= 120 then
-			result = ExtrasScreen.Labels.resultAboveAverage
+			result = Resources.ExtrasScreen.EstimateResultAboveAverage
 		else
-			result = ExtrasScreen.Labels.resultDecent
+			result = Resources.ExtrasScreen.EstimateResultDecent
 		end
 
 		local pokemonName = PokemonData.Pokemon[leadPokemon.pokemonID].name
-		ExtrasScreen.Buttons.EstimateIVs.ivText = string.format("%s %s: %s", pokemonName, ExtrasScreen.Labels.resultIs, result)
+		ExtrasScreen.Buttons.EstimateIVs.ivText = string.format("%s: %s", pokemonName, result)
 
 		-- Joey's Rattata meme (saving for later)
 		-- local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
 		-- local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
 		-- message = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
 	else
-		ExtrasScreen.Buttons.EstimateIVs.ivText = ExtrasScreen.Labels.resultUnavailable
+		ExtrasScreen.Buttons.EstimateIVs.ivText = Resources.ExtrasScreen.EstimateResultUnavailable
 	end
 	Program.redraw(true)
 end
@@ -207,7 +200,7 @@ function ExtrasScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 33, Constants.SCREEN.MARGIN - 2, ExtrasScreen.Labels.header:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.ExtrasScreen.Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[ExtrasScreen.Colors.border], Theme.COLORS[ExtrasScreen.Colors.boxFill])
@@ -218,7 +211,6 @@ function ExtrasScreen.drawScreen()
 	end
 
 	local ivBtn = ExtrasScreen.Buttons.EstimateIVs
-	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor],
-		shadowcolor)
+	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor], shadowcolor)
 end
 

@@ -21,6 +21,7 @@ function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
 	Main.Version.remindMe = true
 	Main.Version.latestAvailable = Main.TrackerVersion
+	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
@@ -70,6 +71,7 @@ function Main.Initialize()
 	end
 
 	Main.LoadSettings()
+	Resources.initialize()
 
 	print(string.format("Ironmon Tracker v%s successfully loaded", Main.TrackerVersion))
 
@@ -120,6 +122,7 @@ function Main.Run()
 
 	Memory.initialize()
 	GameSettings.initialize()
+	Resources.autoDetectForeignLanguage()
 
 	-- If the loaded game is unsupported, remove the Tracker padding but continue to let the game play.
 	if GameSettings.gamename == nil or GameSettings.gamename == "Unsupported Game" then
@@ -134,7 +137,8 @@ function Main.Run()
 	-- After a game is successfully loaded, then initialize the remaining Tracker files
 	FileManager.setupErrorLog()
 	Main.ReadAttemptsCount() -- re-check attempts count if different game is loaded
-	Main.InitializeAllTrackerFiles()
+	FileManager.executeEachFile("initialize") -- initialize all tracker files
+	CustomCode.startup()
 	Main.tempQuickloadFiles = nil -- From now on, quickload files should be re-checked
 
 	-- Final garbage collection prior to game loops beginning
@@ -256,24 +260,6 @@ function Main.DisplayError(errMessage)
 	end, 155, 80)
 end
 
-function Main.InitializeAllTrackerFiles()
-	local globalRef
-	if Main.emulator == Main.EMU.BIZHAWK28 then
-		globalRef = _G -- Lua 5.1 only
-	else
-		globalRef = _ENV -- Lua 5.4
-	end
-
-	for _, luafile in ipairs(FileManager.LuaCode) do
-		local luaObject = globalRef[luafile.name or ""]
-		if type(luaObject.initialize) == "function" then
-			luaObject.initialize()
-		end
-	end
-
-	CustomCode.startup()
-end
-
 function Main.SelfUpdateAfterRestart()
 	-- Don't perform the update is the Tracker was previously loaded and files are locked by Bizhawk
 	if not Main.IsOnBizhawk() or Main.hasRunOnce then
@@ -311,8 +297,12 @@ function Main.CheckForVersionUpdate(forcedCheck)
 		if success then
 			local response = table.concat(fileLines, "\n")
 
+			if response then
+				Main.updateReleaseNotes(response)
+			end
+
 			-- Get version number formatted as [major].[minor].[patch]
-			local _, _, major, minor, patch = string.match(response or "", '"tag_name":(%s+)"(%w+)(%d+)%.(%d+)%.(%d+)"')
+			local major, minor, patch = string.match(response or "", '"tag_name":%s+"%w+(%d+)%.(%d+)%.(%d+)"')
 			major = major or Main.Version.major
 			minor = minor or Main.Version.minor
 			patch = patch or Main.Version.patch
@@ -338,6 +328,53 @@ function Main.CheckForVersionUpdate(forcedCheck)
 	end
 
 	Main.SaveSettings(true)
+end
+
+-- If not release notes have been retrieved yet (update check was skipped), then get those and parse them
+-- Searches a response body for the "# Release Notes" area, and gets a list of changes
+function Main.updateReleaseNotes(response)
+	if not response then
+		Utils.tempDisableBizhawkSound()
+		local updatecheckCommand = string.format('curl "%s" --ssl-no-revoke', FileManager.Urls.VERSION)
+		local success, fileLines = FileManager.tryOsExecute(updatecheckCommand)
+		if success then
+			response = table.concat(fileLines, "\n")
+		end
+		Utils.tempEnableBizhawkSound()
+	end
+
+	-- Parse the release notes
+	Main.Version.releaseNotes = {}
+
+	-- The body of the release post is contained between 'body' and 'mentions_count'
+	local body = string.match(response or "", '"body":%s+"(.+)".-"mentions_count"')
+	if body == nil then
+		return
+	end
+	body = Utils.formatSpecialCharacters(body)
+
+	local formatInput = function(str)
+		-- Remove hyperlinks, format: [text](url) -> [text]
+		str = str:gsub("%[([^%]]-)%]%(.-%)", "%1")
+		-- Remove bold, format: **text** -> text
+		str = str:gsub("%*%*(.-)%*%*", "%1")
+		-- Fix double-quotes, format: \"text\" -> "text"
+		str = str:gsub('\\"(.-)\\"', '"%1"')
+		return str
+	end
+
+	local notesFound = false
+	for line in string.gmatch(body .. '\\r\\n', '(.-)\\r\\n') do
+		if notesFound then
+			-- Include all release notes up until the mention of "version changelog"
+			if line:lower():find("version.changelog") then -- . being a wild card match
+				break
+			end
+			table.insert(Main.Version.releaseNotes, formatInput(line))
+		elseif line:lower():find("# release notes") then
+			notesFound = true
+		end
+	end
 end
 
 -- Checks the current version of the Tracker against the version of the latest release, true if greater/equal; false otherwise.

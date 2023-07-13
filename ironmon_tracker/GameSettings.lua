@@ -194,6 +194,12 @@ GameSettings.GameCharMap = {
 
 function GameSettings.initialize()
 	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+
+	-- Don't load game address again if it's the same game
+	if GameSettings.hasInitialized and GameSettings.gamecode == gamecode then
+		return
+	end
+
 	GameSettings.setGameInfo(gamecode)
 
 	-- Skip rest of setup if game not supported
@@ -212,6 +218,7 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
+	GameSettings.hasInitialized = true
 end
 
 function GameSettings.getRomName()
@@ -330,6 +337,7 @@ function GameSettings.setGameInfo(gamecode)
 
 	local game = games[gamecode]
 	if game ~= nil then
+		GameSettings.gamecode = gamecode
 		GameSettings.game = game.GAME_NUMBER
 		GameSettings.gamename = game.GAME_NAME
 		GameSettings.versiongroup = game.VERSION_GROUP
@@ -428,28 +436,6 @@ function GameSettings.setGameVersion(gameversion)
 			},
 		},
 	}
-
-	-- print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
-
-	-- Load non-English language data
-	local gameLanguage = GameSettings.language
-	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
-	if gameLanguage == "Spanish" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
-		SpainData.updateToSpainData()
-	elseif gameLanguage == "Italian" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.ItalyData)
-		ItalyData.updateToItalyData()
-	elseif gameLanguage == "French" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.FranceData)
-		FranceData.updateToFranceData()
-	elseif gameLanguage == "German" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
-		GermanyData.updateToGermanyData()
-	elseif gameLanguage == "Japanese" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.JapanData)
-		JapanData.updateToJapanData()
-	end
 
 	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
 end

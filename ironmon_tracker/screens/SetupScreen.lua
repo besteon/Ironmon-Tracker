@@ -1,28 +1,25 @@
 SetupScreen = {
-	headerText = "Tracker Setup",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 	iconChangeInterval = 10,
 }
 
-SetupScreen.OptionKeys = {
-	"Show Team View", -- Text referenced in initialize()
-	"Right justified numbers",
-	"Disable mainscreen carousel",
-	"Track PC Heals",
-	"PC heals count downward", -- Text referenced in initialize()
-}
-
 SetupScreen.Buttons = {
 	ChoosePortrait = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name,
+		getText = function(self)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			return string.format("%s:  %s", Resources.SetupScreen.PokemonIconSetLabel, iconset.name)
+		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 12, 65, 11 },
 	},
 	PortraitAuthor = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Added by:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author,
+		getText = function(self)
+			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			return string.format("%s:  %s", Resources.SetupScreen.PokemonIconSetAuthor, iconset.author)
+		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 22, 65, 11 },
 	},
 	PokemonIcon = {
@@ -46,8 +43,6 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[nextSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[nextSet].author
 			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", nextSet)
 		end
@@ -59,21 +54,25 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
-			SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[prevSet].name
-			SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[prevSet].author
 			SetupScreen.iconChangeInterval = 10
 			Options.updateSetting("Pokemon icon set", prevSet)
 		end
 	},
 	EditControls = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Edit Controls",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 53, 11 },
+		getText = function(self) return Resources.SetupScreen.ButtonEditControls end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 38, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
+	},
+	ManageData = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.SetupScreen.ButtonManageData end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 47, Constants.SCREEN.MARGIN + 135, 60, 11 },
+		onClick = function() Program.changeScreenView(TrackedDataScreen) end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
@@ -84,43 +83,13 @@ SetupScreen.Buttons = {
 }
 
 function SetupScreen.initialize()
-	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
-	local startY = Constants.SCREEN.MARGIN + 66
-	local linespacing = Constants.SCREEN.LINESPACING + 1
-
-	for _, optionKey in ipairs(SetupScreen.OptionKeys) do
-		SetupScreen.Buttons[optionKey] = {
-			type = Constants.ButtonTypes.CHECKBOX,
-			text = optionKey,
-			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-			box = {	startX, startY, 8, 8 },
-			toggleState = Options[optionKey],
-			toggleColor = "Positive text",
-			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.text, self.toggleState)
-
-				-- If PC Heal tracking switched, invert the count
-				if self.text == "PC heals count downward" then
-					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				elseif self.text == "Show Team View" then
-					TeamViewArea.refreshDisplayPadding()
-					TeamViewArea.buildOutPartyScreen()
-					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
-				end
-			end
-		}
-		startY = startY + linespacing
-	end
+	SetupScreen.createButtons()
 
 	for _, button in pairs(SetupScreen.Buttons) do
 		button.textColor = SetupScreen.textColor
 		button.boxColors = { SetupScreen.borderColor, SetupScreen.boxFillColor }
 	end
 
-	SetupScreen.Buttons.ChoosePortrait.text = Constants.Words.POKEMON .. " icon set:  " .. Options.IconSetMap[Options["Pokemon icon set"]].name
-	SetupScreen.Buttons.PortraitAuthor.text = "Added by:  " .. Options.IconSetMap[Options["Pokemon icon set"]].author
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
 
@@ -131,43 +100,91 @@ function SetupScreen.initialize()
 	end
 end
 
-function SetupScreen.openEditControlsWindow()
-	local form = Utils.createBizhawkForm("Controller Inputs", 445, 215)
+function SetupScreen.createButtons()
+	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
+	local startY = Constants.SCREEN.MARGIN + 66
+	local linespacing = Constants.SCREEN.LINESPACING + 1
 
-	forms.label(form, "Edit GBA buttons for the Tracker, available buttons: A, B, L, R, Start, Select", 39, 10, 410, 20)
+	local optionKeyMap = {
+		{"Show Team View", "OptionShowTeamView", },
+		{"Right justified numbers", "OptionRightJustifiedNumbers", },
+		{"Disable mainscreen carousel", "OptionDisableCarousel", },
+		{"Track PC Heals", "OptionTrackPCHeals", },
+		{"PC heals count downward", "OptionPCHealsCountDown", },
+	}
+
+	for _, optionTuple in ipairs(optionKeyMap) do
+		SetupScreen.Buttons[optionTuple[1]] = {
+			type = Constants.ButtonTypes.CHECKBOX,
+			getText = function(self) return Resources.SetupScreen[optionTuple[2]] end,
+			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+			box = {	startX, startY, 8, 8 },
+			optionKey = optionTuple[1],
+			toggleState = Options[optionTuple[1]],
+			toggleColor = "Positive text",
+			onClick = function(self)
+				-- Toggle the setting and store the change to be saved later in Settings.ini
+				self.toggleState = not self.toggleState
+				Options.updateSetting(self.optionKey, self.toggleState)
+
+				-- If PC Heal tracking switched, invert the count
+				if self.optionKey == "PC heals count downward" then
+					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
+				elseif self.optionKey == "Show Team View" then
+					TeamViewArea.refreshDisplayPadding()
+					TeamViewArea.buildOutPartyScreen()
+					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
+				end
+			end
+		}
+		startY = startY + linespacing
+	end
+end
+
+function SetupScreen.openEditControlsWindow()
+	local form = Utils.createBizhawkForm(Resources.SetupScreen.PromptEditControllerTitle, 445, 215)
+
+	forms.label(form, Resources.SetupScreen.PromptEditControllerDesc, 39, 10, 410, 20)
+
+	local controlKeyMap = {
+		{"Load next seed", "PromptEditControllerLoadNext", },
+		{"Toggle view", "PromptEditControllerToggleView", },
+		{"Cycle through stats", "PromptEditControllerCycleStats", },
+		{"Mark stat", "PromptEditControllerMarkStat", },
+	}
 
 	local inputTextboxes = {}
 	local offsetX = 90
 	local offsetY = 35
 
 	local index = 1
-	for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
-		forms.label(form, controlKey .. ":", offsetX, offsetY, 105, 20)
-		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlKey], 140, 21, nil, offsetX + 110, offsetY - 2)
+	for _, controlTuple in ipairs(controlKeyMap) do
+		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
+		forms.label(form, controlLabel, offsetX, offsetY, 105, 20)
+		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, offsetX + 110, offsetY - 2)
 
 		index = index + 1
 		offsetY = offsetY + 24
 	end
 
 	-- 'Save & Close' and 'Cancel' buttons
-	forms.button(form,"Save && Close", function()
+	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
+	forms.button(form, saveCloseLabel, function()
 		index = 1
-		for _, controlKey in ipairs(Constants.OrderedLists.CONTROLS) do
+		for _, controlTuple in ipairs(controlKeyMap) do
 			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[index] or ""))
 			if controlCombination ~= "" then
-				Options.CONTROLS[controlKey] = controlCombination
+				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
 			index = index + 1
 		end
-
-		QuickloadScreen.Buttons.ButtonCombo:updateText()
 		Options.forceSave()
 
 		client.unpause()
 		forms.destroy(form)
 	end, 120, offsetY + 5, 95, 30)
 
-	forms.button(form,"Cancel", function()
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
 	end, 230, offsetY + 5, 65, 30)
@@ -191,7 +208,7 @@ function SetupScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 37, Constants.SCREEN.MARGIN - 2, SetupScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.SetupScreen.Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[SetupScreen.borderColor], Theme.COLORS[SetupScreen.boxFillColor])

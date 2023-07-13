@@ -34,74 +34,97 @@ PokemonData.Types = {
 -- Enumerated constants that defines various evolution possibilities
 -- This enum does NOT include levels for evolution, only stones, friendship, no evolution, etc.
 PokemonData.Evolutions = {
-	NONE = Constants.BLANKLINE, -- This Pokémon does not evolve.
-	LEVEL = "LEVEL", -- Unused directly, necessary as an info index
-	FRIEND = "FRIEND", -- High friendship
-	FRIEND_READY = "READY", -- High friendship, Pokémon has enough friendship to evolve
-	STONES = "STONE", -- Various evolution stone items
-	THUNDER = "THUNDER", -- Thunder stone item
-	FIRE = "FIRE", -- Fire stone item
-	WATER = "WATER", -- Water stone item
-	MOON = "MOON", -- Moon stone item
-	LEAF = "LEAF", -- Leaf stone item
-	SUN = "SUN", -- Sun stone item
-	LEAF_SUN = "LF/SN", -- Leaf or Sun stone items
-	WATER30 = "30/WTR", -- Water stone item or at level 30
-	WATER37 = "37/WTR", -- Water stone item or at level 37
-}
--- Table of Evolution methods as a short or detailed list, each containing the evo method(s)
-PokemonData.EvoMethods = {
-	[PokemonData.Evolutions.NONE] = {
+	-- This Pokémon does not evolve.
+	NONE = {
+		abbreviation = Constants.BLANKLINE,
 		short = { Constants.BLANKLINE, },
 		detailed = { Constants.BLANKLINE, },
 	},
-	[PokemonData.Evolutions.LEVEL] = {
+	-- Unused directly, necessary as an info index
+	LEVEL = {
+		abbreviation = "LEVEL",
 		short = { "Lv.%s", }, -- requires level parameter
 		detailed = { "Level %s", }, -- requires level value
 	},
-	[PokemonData.Evolutions.FRIEND] = {
+	-- High friendship
+	FRIEND = {
+		abbreviation = "FRIEND",
 		short = { "Friend", },
 		detailed = { "%s Friendship", }, -- requires friendship value
 	},
-	[PokemonData.Evolutions.STONES] = {
+	-- High friendship, Pokémon has enough friendship to evolve
+	FRIEND_READY = {
+		abbreviation = "READY",
+	},
+	-- Various evolution stone items
+	EEVEE_STONES = {
+		abbreviation = "STONE",
 		short = { "Thunder", "Water", "Fire", "Sun", "Moon", },
 		detailed = { "5 Diff. Stones", },
+		evoItemIds = { [93] = true, [94] = true, [95] = true, [96] = true, [97] = true, },
 	},
-	[PokemonData.Evolutions.THUNDER] = {
+	-- Thunder stone item
+	THUNDER = {
+		abbreviation = "THUNDER",
 		short = { "Thunder", },
 		detailed = { "Thunder Stone", },
+		evoItemIds = { [96] = true, },
 	},
-	[PokemonData.Evolutions.WATER] = {
-		short = { "Water", },
-		detailed = { "Water Stone", },
-	},
-	[PokemonData.Evolutions.FIRE] = {
+	-- Fire stone item
+	FIRE = {
+		abbreviation = "FIRE",
 		short = { "Fire", },
 		detailed = { "Fire Stone", },
+		evoItemIds = { [95] = true, },
 	},
-	[PokemonData.Evolutions.LEAF] = {
-		short = { "Leaf", },
-		detailed = { "Leaf Stone", },
+	-- Water stone item
+	WATER = {
+		abbreviation = "WATER",
+		short = { "Water", },
+		detailed = { "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
-	[PokemonData.Evolutions.SUN] = {
-		short = { "Sun", },
-		detailed = { "Sun Stone", },
-	},
-	[PokemonData.Evolutions.MOON] = {
+	-- Moon stone item
+	MOON = {
+		abbreviation = "MOON",
 		short = { "Moon", },
 		detailed = { "Moon Stone", },
+		evoItemIds = { [94] = true, },
 	},
-	[PokemonData.Evolutions.LEAF_SUN] = {
+	-- Leaf stone item
+	LEAF = {
+		abbreviation = "LEAF",
+		short = { "Leaf", },
+		detailed = { "Leaf Stone", },
+		evoItemIds = { [98] = true, },
+	},
+	-- Sun stone item
+	SUN = {
+		abbreviation = "SUN",
+		short = { "Sun", },
+		detailed = { "Sun Stone", },
+		evoItemIds = { [93] = true, },
+	},
+	-- Leaf or Sun stone items
+	LEAF_SUN = {
+		abbreviation = "LF/SN",
 		short = { "Leaf", "Sun", },
 		detailed = { "Leaf Stone", "Sun Stone", },
+		evoItemIds = { [93] = true, [98] = true, },
 	},
-	[PokemonData.Evolutions.WATER30] = {
+	-- Water stone item or at level 30
+	WATER30 = {
+		abbreviation = "30/WTR",
 		short = { "Lv.30", "Water", },
 		detailed = { "Level 30", "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
-	[PokemonData.Evolutions.WATER37] = {
+	-- Water stone item or at level 37
+	WATER37 = {
+		abbreviation = "37/WTR",
 		short = { "Lv.37", "Water", },
 		detailed = { "Level 37", "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
 }
 
@@ -120,7 +143,6 @@ function PokemonData.initialize()
 	-- Reads the types and abilities for each Pokemon in the Pokedex
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
-		-- print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
 		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
@@ -137,14 +159,6 @@ function PokemonData.initialize()
 				end
 			end
 		end
-		local datalog = Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded: "
-		if PokemonData.IsRand.pokemonTypes then
-			datalog = datalog .. "Types, "
-		end
-		if PokemonData.IsRand.pokemonAbilities then
-			datalog = datalog .. "Abilities, "
-		end
-		-- print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
 
 	-- Add in pokemon IDs since they were never manually included in the past
@@ -153,6 +167,60 @@ function PokemonData.initialize()
 			pokemon.pokemonID = id
 		end
 	end
+end
+
+function PokemonData.updateResources()
+	for i, val in ipairs(PokemonData.Pokemon) do
+		if Resources.Game.PokemonNames[i] then
+			val.name = Resources.Game.PokemonNames[i]
+		end
+	end
+
+	-- Manually add in each evolution translation, as each has different formatting
+	local PE = PokemonData.Evolutions
+	local RPED = Resources.PokemonEvolutionDetails
+	-- PE.LEVEL.abbreviation = RPED.LEVEL.abbreviation -- Doesn't need translation; not displayed
+	PE.LEVEL.short = { RPED.LEVEL.short .. "%s" }
+	PE.LEVEL.detailed = { RPED.LEVEL.detailed .. " %s" }
+	PE.FRIEND.abbreviation = RPED.FRIEND.abbreviation
+	PE.FRIEND.short = { RPED.FRIEND.short }
+	PE.FRIEND.detailed = { "%s " .. RPED.FRIEND.detailed }
+	PE.FRIEND_READY.abbreviation = RPED.FRIEND_READY.abbreviation
+	PE.EEVEE_STONES.abbreviation = RPED.EEVEE_STONES.abbreviation
+	PE.EEVEE_STONES.short = { RPED.THUNDER.short, RPED.WATER.short, RPED.FIRE.short, RPED.SUN.short, RPED.MOON.short, }
+	PE.EEVEE_STONES.detailed = { RPED.EEVEE_STONES.detailed, }
+	PE.THUNDER.abbreviation = RPED.THUNDER.abbreviation
+	PE.THUNDER.short = { RPED.THUNDER.short }
+	PE.THUNDER.detailed = { RPED.THUNDER.detailed }
+	PE.FIRE.abbreviation = RPED.FIRE.abbreviation
+	PE.FIRE.short = { RPED.FIRE.short }
+	PE.FIRE.detailed = { RPED.FIRE.detailed }
+	PE.WATER.abbreviation = RPED.WATER.abbreviation
+	PE.WATER.short = { RPED.WATER.short }
+	PE.WATER.detailed = { RPED.WATER.detailed }
+	PE.MOON.abbreviation = RPED.MOON.abbreviation
+	PE.MOON.short = { RPED.MOON.short }
+	PE.MOON.detailed = { RPED.MOON.detailed }
+	PE.LEAF.abbreviation = RPED.LEAF.abbreviation
+	PE.LEAF.short = { RPED.LEAF.short }
+	PE.LEAF.detailed = { RPED.LEAF.detailed }
+	PE.SUN.abbreviation = RPED.SUN.abbreviation
+	PE.SUN.short = { RPED.SUN.short }
+	PE.SUN.detailed = { RPED.SUN.detailed }
+	PE.LEAF_SUN.abbreviation = RPED.LEAF_SUN.abbreviation
+	PE.LEAF_SUN.short = { RPED.LEAF.short, RPED.SUN.short, }
+	PE.LEAF_SUN.detailed = { RPED.LEAF.detailed, RPED.SUN.detailed, }
+	PE.WATER30.abbreviation = RPED.WATER30.abbreviation
+	PE.WATER30.short = { RPED.LEVEL.short .. "30", RPED.WATER.short, }
+	PE.WATER30.detailed = { RPED.LEVEL.detailed .. " 30", RPED.WATER.detailed, }
+	PE.WATER37.abbreviation = RPED.WATER37.abbreviation
+	PE.WATER37.short = { RPED.LEVEL.short .. "37", RPED.WATER.short, }
+	PE.WATER37.detailed = { RPED.LEVEL.detailed .. " 37", RPED.WATER.detailed, }
+end
+
+function PokemonData.getTypeResource(typename)
+	typename = typename or "unknown"
+	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.Unknown
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
@@ -1376,7 +1444,7 @@ PokemonData.Pokemon = {
 	{
 		name = "Eevee",
 		types = { PokemonData.Types.NORMAL, PokemonData.Types.EMPTY },
-		evolution = PokemonData.Evolutions.STONES,
+		evolution = PokemonData.Evolutions.EEVEE_STONES,
 		bst = "325",
 		movelvls = { { 8, 16, 23, 30, 36, 42 }, { 8, 16, 23, 30, 36, 42 } },
 		weight = 6.5

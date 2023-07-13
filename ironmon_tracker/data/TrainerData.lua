@@ -81,7 +81,7 @@ function TrainerData.getTrainerInfo(trainerId)
 		local randomIcon = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
 		return {
 			name = "Unknown",
-			group = "Other",
+			group = TrainerData.TrainerGroups.Other,
 			filename = "unknown-" .. randomIcon,
 		}
 	end

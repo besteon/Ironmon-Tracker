@@ -73,7 +73,8 @@ end
 -- Alters the string by changing the first character to uppercase
 function Utils.firstToUpper(str)
 	if str == nil or str == "" then return str end
-	return str:gsub("^%l", string.upper)
+	str = str:gsub("^%l", Utils.toUpperUTF8)
+	return str
 end
 
 function Utils.split(s, delimiter, trimWhitespace)
@@ -109,10 +110,10 @@ function Utils.centerTextOffset(text, charSize, width)
 end
 
 function Utils.calcWordPixelLength(text)
-	if text == nil or #text == 0 then return 0 end
+	if text == nil or #text == 0 or Utils.startsWithJapaneseChineseChar(text) then return 0 end
 	local totalLength = 0
 	for c in text:gmatch("(.)") do
-		totalLength = totalLength + (Constants.CharWidths[c] or 1) + 1
+		totalLength = totalLength + Constants.charWidth(c) + 1
 	end
 	return totalLength - 1 -- remove trailing space-pixel
 end
@@ -156,13 +157,44 @@ function Utils.formatSpecialCharacters(text)
 	if text == nil or text == "" then return "" end
 
 	-- For each known special character, attempt to replace it
-	for char, _ in pairs(Constants.CharMap) do
-		if string.find(text, char, 1, true) ~= nil then
-			text = text:gsub(char, Constants.getC(char))
+	for _, c in pairs(Constants.CharCategories.Special) do
+		if string.find(text, c, 1, true) ~= nil then
+			text = text:gsub(c, Constants.getC(c))
 		end
 	end
 
 	return text
+end
+
+function Utils.toUpperUTF8(str)
+	local toUpperPattern = string.format("[%s]*", table.concat(Constants.CharCategories.ToUpper))
+	str = str or ""
+	str = str:upper():gsub(toUpperPattern, function(c) return Constants.charToCategory(c, "upper") end)
+	return str
+end
+
+function Utils.toLowerUTF8(str)
+	local toLowerPattern = string.format("[%s]*", table.concat(Constants.CharCategories.ToLower))
+	str = str or ""
+	str = str:lower():gsub(toLowerPattern, function(c) return Constants.charToCategory(c, "lower") end)
+	return str
+end
+
+function Utils.containsText(text, searchString, ignoreAccentedChars)
+	if text == nil or text == "" or searchString == nil then
+		return false
+	end
+	text = Utils.toLowerUTF8(text)
+	searchString = Utils.toLowerUTF8(searchString)
+
+	if ignoreAccentedChars then
+		local plainPattern = string.format("[%s]*", table.concat(Constants.CharCategories.Plain))
+		text = text:gsub(plainPattern, function(c) return Constants.charToCategory(c, "plain") end)
+		searchString = searchString:gsub(plainPattern, function(c) return Constants.charToCategory(c, "plain") end)
+	end
+
+	-- Check whole word for matches, not just the start
+	return text:find(searchString, 1, true) ~= nil
 end
 
 -- Checks if the text starts with a Japanese or Chinese character. Only works on Lua 5.4+
@@ -426,7 +458,7 @@ end
 -- Example: 4/12 (25)
 function Utils.getMovesLearnedHeader(pokemonID, level)
 	if not PokemonData.isValid(pokemonID) or level == nil then
-		return "Moves", nil, nil
+		return Resources.TrackerScreen.HeaderMoves, nil, nil
 	end
 
 	local movesLearned = 0
@@ -443,7 +475,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 		end
 	end
 
-	local movesText = "Moves"
+	local movesText = Resources.TrackerScreen.HeaderMoves
 	local nextMoveSpacing = 13
 	-- Don't show the asterisk on your own Pokemon
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
@@ -463,20 +495,16 @@ end
 
 -- Returns a list of evolution details for each possible evo
 function Utils.getDetailedEvolutionsInfo(evoMethod)
-	if evoMethod == nil then
-		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].detailed
-	end
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	local evoInfo = PokemonData.EvoMethods[evoMethod]
-
-	 -- Evolves only by leveling up
-	if evoInfo == nil then
-		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].detailed[1]
+	-- Evolves only by leveling up
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		local levelFormat = PokemonData.Evolutions.LEVEL.detailed[1]
 		return { string.format(levelFormat, evoMethod) }
 	end
 
 	if evoMethod == PokemonData.Evolutions.FRIEND then
-		local friendFormat = evoInfo.detailed[1]
+		local friendFormat = evoMethod.detailed[1]
 		local amt
 		if Program.GameData.friendshipRequired ~= nil and Program.GameData.friendshipRequired > 1 then
 			amt = Program.GameData.friendshipRequired
@@ -486,22 +514,32 @@ function Utils.getDetailedEvolutionsInfo(evoMethod)
 		return { string.format(friendFormat, amt) }
 	end
 
-	return evoInfo.detailed
+	return evoMethod.detailed
 end
 
 -- Returns a list of evolution details (shortened text) for a given Pokemon's evolution
 function Utils.getShortenedEvolutionsInfo(evoMethod)
-	if evoMethod == nil then
-		return PokemonData.EvoMethods[PokemonData.Evolutions.NONE].short
-	end
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	 -- Evolves only by leveling up
-	if PokemonData.EvoMethods[evoMethod] == nil then
-		local levelFormat = PokemonData.EvoMethods[PokemonData.Evolutions.LEVEL].short[1]
+	-- Evolves only by leveling up
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		local levelFormat = PokemonData.Evolutions.LEVEL.short[1]
 		return { string.format(levelFormat, evoMethod) }
 	end
 
-	return PokemonData.EvoMethods[evoMethod].short
+	return evoMethod.short
+end
+
+-- Returns the abbreviation (string) for a given Pokemon's evolution
+function Utils.getEvoAbbreviation(evoMethod)
+	evoMethod = evoMethod or PokemonData.Evolutions.NONE
+
+	-- Evolves only by leveling up, no abbreviation needed
+	if type(evoMethod) == "string" or type(evoMethod) == "number" then
+		return tostring(evoMethod)
+	end
+
+	return evoMethod.abbreviation
 end
 
 -- moveType required for Hidden Power tracked type
@@ -727,13 +765,13 @@ end
 
 -- Checks if the pokemon is ready to evolve based on level only
 function Utils.isReadyToEvolveByLevel(evoMethod, level)
-	evoMethod = evoMethod or PokemonData.Evolutions.NONE
-
-	if evoMethod == PokemonData.Evolutions.NONE then
+	if type(evoMethod) ~= "string" and type(evoMethod) ~= "number" then
 		return false
 	end
 
-	evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
+	if type(evoMethod) ~= "number" then
+		evoMethod = tonumber(evoMethod:match("%d+")) -- Becomes nil if there's no numbers found
+	end
 
 	return evoMethod ~= nil and (level + 1) >= evoMethod
 end
@@ -742,22 +780,14 @@ end
 function Utils.isReadyToEvolveByStone(evoMethod)
 	evoMethod = evoMethod or PokemonData.Evolutions.NONE
 
-	if evoMethod == PokemonData.Evolutions.NONE then
+	if evoMethod.evoItemIds == nil then
 		return false
 	end
 
+	-- Check through the possible evolutions with the stones available
 	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
-		-- Check through the possible evolutions with the stones available
-		if quantity > 0 then
-			-- Special check for the level/water stone evos
-			if itemID == 97 and evoMethod:match("(WTR)") ~= nil then
-				return true
-			end
-			for _, possibleEvolution in pairs(MiscData.EvolutionStones[itemID].evolutions) do
-				if possibleEvolution == evoMethod then
-					return true
-				end
-			end
+		if quantity > 0 and evoMethod.evoItemIds[itemID] then
+			return true
 		end
 	end
 
@@ -872,9 +902,11 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 	cutoffY = cutoffY or Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN
 
 	local offsetX, offsetY = 0, 0
-	local maxItemSize = 0
-	local itemCount = 0
-	local itemsPerPage = nil
+	local maxItemSize = 0 -- Used to determine how much space is needed for the next new column or row added
+
+	local currentPage = 1
+	local currentPageItems = 0
+
 	for _, button in ipairs(buttonList) do
 		if button.includeInGrid == nil or button:includeInGrid() then
 			button.dimensions = button.dimensions or {}
@@ -885,6 +917,7 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 			extraX = button.dimensions.extraX or 0
 			extraY = button.dimensions.extraY or 0
 
+			-- Before adding an item to a page, verify it can fit somewhere; otherwise start a new page
 			if listVerticallyFirst then
 				-- Check if new height requires starting a new column
 				if (startY + offsetY + h) > cutoffY then
@@ -895,11 +928,10 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 				-- Check if new width requires starting a new page
 				if (startX + offsetX + w) > cutoffX then
 					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-						if itemsPerPage == 0 then
-							return 0
-						end
+					-- Start a new page but only if the current page has items on it
+					if currentPageItems ~= 0 then
+						currentPage = currentPage + 1
+						currentPageItems = 0
 					end
 				end
 			else
@@ -912,50 +944,50 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 				-- Check if new height requires starting a new page
 				if (startY + offsetY + h) > cutoffY then
 					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-						if itemsPerPage == 0 then
-							return 0
-						end
+					-- Start a new page but only if the current page has items on it
+					if currentPageItems ~= 0 then
+						currentPage = currentPage + 1
+						currentPageItems = 0
 					end
 				end
 			end
 
-			itemCount = itemCount + 1
-			local x = startX + offsetX + extraX
-			local y = startY + offsetY + extraY
-			if button.type == Constants.ButtonTypes.POKEMON_ICON then
-				button.clickableArea = { x, y + 4, w, h - 4 }
-			end
-			button.box = { x, y, w, h }
-			if itemsPerPage == nil then
-				button.pageVisible = 1
-			else
-				button.pageVisible = math.ceil(itemCount / itemsPerPage)
-			end
+			-- Only add item to the page if it can fit somewhere; if it can't fit anywhere, exclude it entirely
+			if (startY + offsetY + h) <= cutoffY and (startX + offsetX + w) <= cutoffX then
+				currentPageItems = currentPageItems + 1
 
-			if listVerticallyFirst then
-				if w > maxItemSize then
-					maxItemSize = w
+				local x = startX + offsetX + extraX
+				local y = startY + offsetY + extraY
+				if button.type == Constants.ButtonTypes.POKEMON_ICON then
+					button.clickableArea = { x, y + 4, w, h - 4 }
 				end
-				offsetY = offsetY + h + rowSpacer
-			else
-				if h > maxItemSize then
-					maxItemSize = h
-				end
-				offsetX = offsetX + w + colSpacer
-			end
+				button.box = { x, y, w, h }
+				button.pageVisible = currentPage
 
+				if listVerticallyFirst then
+					if w > maxItemSize then
+						maxItemSize = w
+					end
+					offsetY = offsetY + h + rowSpacer
+				else
+					if h > maxItemSize then
+						maxItemSize = h
+					end
+					offsetX = offsetX + w + colSpacer
+				end
+			else
+				button.pageVisible = -1
+			end
 		else
 			button.pageVisible = -1
 		end
 	end
 
-	-- Return number of items per page, total pages
-	if itemsPerPage == nil then
-		return 1
+	-- Return total pages, but don't include the final page if its empty
+	if currentPageItems == 0 and currentPage > 1 then
+		return currentPage - 1
 	else
-		return math.ceil(itemCount / itemsPerPage)
+		return currentPage
 	end
 end
 

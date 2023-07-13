@@ -12,6 +12,8 @@ Options = {
 	},
 
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
+	["Language"] = Resources.Default.Language.Key,
+	["Autodetect language from game"] = true,
 	["Disable mainscreen carousel"] = false,
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,

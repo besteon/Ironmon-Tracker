@@ -1,9 +1,4 @@
 CustomExtensionsScreen = {
-	Labels = {
-		header = "Custom Extensions",
-		pageFormat = "Pg. %s/%s", -- e.g. Pg. 1/3
-		noExtensions = "You currently don't have any custom extensions installed.",
-	},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
@@ -23,27 +18,28 @@ CustomExtensionsScreen.Pager = {
 		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, true, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
-		CustomExtensionsScreen.Buttons.CurrentPage:updateText()
 	end,
 	getPageText = function(self)
-		if self.totalPages <= 1 then return "Page" end
+		if self.totalPages <= 1 then return Resources.AllScreens.Page end
 		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
-		return buffer .. string.format(CustomExtensionsScreen.Labels.pageFormat, self.currentPage, self.totalPages)
+		return buffer .. string.format("%s/%s", self.currentPage, self.totalPages)
 	end,
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 	nextPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 }
 
 CustomExtensionsScreen.Buttons = {
 	GetExtensionsSmall = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "(Get more)",
+		getText = function(self) return Resources.CustomExtensionsScreen.ButtonGetMore end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 93, Constants.SCREEN.MARGIN - 2, 47, 12 },
 		isVisible = function() return #CustomExtensionsScreen.Pager.Buttons > 0 end,
 		onClick = function(self)
@@ -52,11 +48,12 @@ CustomExtensionsScreen.Buttons = {
 	},
 	EnableCustomExtensions = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = " Allow custom code to run", -- offset with a space for appearance
+		getText = function(self) return Resources.CustomExtensionsScreen.OptionAllowCustomCode end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
-		toggleState = true, -- update later in initialize
+		toggleState = true, -- updated later in initialize
 		toggleColor = "Positive text",
+		updateSelf = function(self) self.toggleState = Options["Enable custom extensions"] end,
 		onClick = function(self)
 			-- Toggle the setting and store the change to be saved later in Settings.ini
 			self.toggleState = not self.toggleState
@@ -76,7 +73,7 @@ CustomExtensionsScreen.Buttons = {
 	GetExtensions = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.INSTALL_BOX,
-		text = "Get Extensions",
+		getText = function(self) return Resources.CustomExtensionsScreen.ButtonGetExtensions end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 28, Constants.SCREEN.MARGIN + 70, 80, 16 },
 		isVisible = function() return #CustomExtensionsScreen.Pager.Buttons == 0 end,
 		onClick = function(self)
@@ -85,39 +82,32 @@ CustomExtensionsScreen.Buttons = {
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 135, 50, 10, },
+		getText = function(self) return CustomExtensionsScreen.Pager:getPageText() end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 66, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return CustomExtensionsScreen.Pager.totalPages > 1 end,
-		updateText = function(self)
-			self.text = CustomExtensionsScreen.Pager:getPageText()
-		end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 56, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return CustomExtensionsScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			CustomExtensionsScreen.Pager:prevPage()
-			CustomExtensionsScreen.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
 		end
 	},
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, Constants.SCREEN.MARGIN + 136, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 96, Constants.SCREEN.MARGIN + 136, 10, 10, },
 		isVisible = function() return CustomExtensionsScreen.Pager.totalPages > 1 end,
 		onClick = function(self)
 			CustomExtensionsScreen.Pager:nextPage()
-			CustomExtensionsScreen.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
 		end
 	},
-	RefreshExtensionList = {
+	InstallNewExtensions = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Refresh",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 35, 11 },
+		getText = function(self) return Resources.CustomExtensionsScreen.ButtonInstallNew end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 47, 11 },
 		onClick = function(self)
 			CustomCode.refreshExtensionList()
 			CustomExtensionsScreen.buildOutPagedButtons()
@@ -126,7 +116,7 @@ CustomExtensionsScreen.Buttons = {
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
+		getText = function(self) return Resources.AllScreens.Back end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
 			CustomExtensionsScreen.refreshButtons()
@@ -144,8 +134,8 @@ function CustomExtensionsScreen.initialize()
 			button.boxColors = { CustomExtensionsScreen.Colors.border, CustomExtensionsScreen.Colors.boxFill }
 		end
 	end
-	CustomExtensionsScreen.Buttons.EnableCustomExtensions.toggleState = Options["Enable custom extensions"]
-	CustomExtensionsScreen.Buttons.CurrentPage:updateText()
+
+	CustomExtensionsScreen.refreshButtons()
 end
 
 function CustomExtensionsScreen.buildOutPagedButtons()
@@ -162,7 +152,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 		local button = {
 			type = Constants.ButtonTypes.ICON_BORDER,
 			image = image,
-			text = extension.selfObject.name or Constants.BLANKLINE,
+			getText = function(self) return extension.selfObject.name or Constants.BLANKLINE end,
 			textColor = textColor,
 			iconColors = iconColors,
 			boxColors = { CustomExtensionsScreen.Colors.border, CustomExtensionsScreen.Colors.boxFill, },
@@ -171,7 +161,7 @@ function CustomExtensionsScreen.buildOutPagedButtons()
 			dimensions = { width = 132, height = 16, },
 			disabled = isBtnDisabled,
 			isVisible = function(self) return CustomExtensionsScreen.Pager.currentPage == self.pageVisible end,
-			updateText = function(self)
+			updateSelf = function(self)
 				-- Check if the extension itself is enabled, and update the icon accordingly
 				if self.extension.isEnabled then
 					self.image = Constants.PixelImages.CHECKMARK
@@ -207,13 +197,13 @@ end
 
 function CustomExtensionsScreen.refreshButtons()
 	for _, button in pairs(CustomExtensionsScreen.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
+		if button.updateSelf ~= nil then
+			button:updateSelf()
 		end
 	end
 	for _, button in pairs(CustomExtensionsScreen.Pager.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
+		if button.updateSelf ~= nil then
+			button:updateSelf()
 		end
 	end
 end
@@ -223,13 +213,13 @@ end
 function CustomExtensionsScreen.togglePagedButtons(makeActive)
 	for _, button in ipairs(CustomExtensionsScreen.Pager.Buttons) do
 		button.disabled = not makeActive
-		button:updateText()
 	end
 	if makeActive then
 		CustomCode.startup()
 	else
 		CustomCode.unload()
 	end
+	CustomExtensionsScreen.refreshButtons()
 end
 
 -- USER INPUT FUNCTIONS
@@ -253,16 +243,16 @@ function CustomExtensionsScreen.drawScreen()
 		fill = Theme.COLORS[CustomExtensionsScreen.Colors.boxFill],
 		shadow = Utils.calcShadowColor(Theme.COLORS[CustomExtensionsScreen.Colors.boxFill]),
 	}
-	local headerText = CustomExtensionsScreen.Labels.header:upper()
+	local headerText = Utils.toUpperUTF8(Resources.CustomExtensionsScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topBox.x - 1, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 	local textLineY = topBox.y + Constants.SCREEN.LINESPACING + 3 -- make room for first checkbox
 
 	if #CustomExtensionsScreen.Pager.Buttons == 0 then
-		local wrappedDesc = Utils.getWordWrapLines(CustomExtensionsScreen.Labels.noExtensions, 32)
+		local wrappedDesc = Utils.getWordWrapLines(Resources.CustomExtensionsScreen.LabelNoExtensions, 32)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING
 		for _, line in pairs(wrappedDesc) do
 			local centeredOffset = Utils.getCenteredTextX(line, topBox.width)

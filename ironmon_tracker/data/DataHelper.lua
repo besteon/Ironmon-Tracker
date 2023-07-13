@@ -9,10 +9,10 @@ function DataHelper.findPokemonId(name)
 	-- Format list of Pokemon as id, name pairs
 	local pokemonNames = {}
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
-		pokemonNames[id] = pokemon.name:lower()
+		pokemonNames[id] = Utils.toLowerUTF8(pokemon.name)
 	end
 
-	local id, _ = Utils.getClosestWord(name:lower(), pokemonNames, 3)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), pokemonNames, 3)
 	return id or PokemonData.BlankPokemon.pokemonID
 end
 
@@ -25,10 +25,10 @@ function DataHelper.findMoveId(name)
 	-- Format list of Moves as id, name pairs
 	local moveNames = {}
 	for id, move in ipairs(MoveData.Moves) do
-		moveNames[id] = move.name:lower()
+		moveNames[id] = Utils.toLowerUTF8(move.name)
 	end
 
-	local id, _ = Utils.getClosestWord(name:lower(), moveNames, 3)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), moveNames, 3)
 	return id or tonumber(MoveData.BlankMove.id)
 end
 
@@ -41,10 +41,10 @@ function DataHelper.findAbilityId(name)
 	-- Format list of Abilities as id, name pairs
 	local abilityNames = {}
 	for id, ability in ipairs(AbilityData.Abilities) do
-		abilityNames[id] = ability.name:lower()
+		abilityNames[id] = Utils.toLowerUTF8(ability.name)
 	end
 
-	local id, _ = Utils.getClosestWord(name:lower(), abilityNames, 3)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), abilityNames, 3)
 	return id or AbilityData.DefaultAbility.id
 end
 
@@ -63,13 +63,13 @@ function DataHelper.findRouteId(name)
 	local routeNames = {}
 	for id, route in pairs(RouteData.Info) do
 		if route.name ~= nil then
-			routeNames[id] = route.name:lower()
+			routeNames[id] = Utils.toLowerUTF8(route.name)
 		else
 			routeNames[id] = "Unnamed Route"
 		end
 	end
 
-	local id, _ = Utils.getClosestWord(name:lower(), routeNames, 5)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), routeNames, 5)
 	return id or RouteData.BlankRoute.id
 end
 
@@ -79,7 +79,7 @@ function DataHelper.findPokemonType(typeName)
 		return nil
 	end
 
-	local type, _ = Utils.getClosestWord(typeName:lower(), PokemonData.Types, 3)
+	local type, _ = Utils.getClosestWord(Utils.toLowerUTF8(typeName), PokemonData.Types, 3)
 	return type
 end
 
@@ -330,6 +330,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.x.route = Constants.BLANKLINE
 	if RouteData.hasRoute(Program.GameData.mapId) then
 		data.x.route = RouteData.Info[Program.GameData.mapId].name or Constants.BLANKLINE
+		data.x.route = Utils.formatSpecialCharacters(data.x.route)
 	end
 
 	if Battle.inBattle then
@@ -364,7 +365,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.name = pokemon.name or Constants.BLANKLINE
 	data.p.bst = pokemon.bst or Constants.BLANKLINE
 	data.p.weight = pokemon.weight or Constants.BLANKLINE
-	data.p.evo = Utils.getDetailedEvolutionsInfo(pokemon.evolution)
+	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
 	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
@@ -497,6 +498,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 
 	data.r.id = routeId or 0
 	data.r.name = route.name or Constants.BLANKLINE
+	data.r.name = Utils.formatSpecialCharacters(data.r.name)
 	data.r.totalTrainerEncounters = 0
 	data.r.totalWildEncounters = 0
 
@@ -547,7 +549,12 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
 	data.p.id = pokemonDex.pokemonID or 0
-	data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
+	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+	if RandomizerLog.areLanguagesMismatched() then
+		data.p.name = pokemonDex.name or Constants.BLANKLINE
+	else
+		data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
+	end
 	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
@@ -663,11 +670,17 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	for _, partyMon in ipairs(trainer.party or {}) do
 		local pokemonInfo = {
 			id = partyMon.pokemonID or 0,
-			name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or Constants.BLANKLINE,
 			level = partyMon.level or 0,
 			moves = {},
 			helditem = partyMon.helditem,
 		}
+
+		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+		if RandomizerLog.areLanguagesMismatched() then
+			pokemonInfo.name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+		else
+			pokemonInfo.name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+		end
 
 		local movesLeftToAdd = 4
 		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}

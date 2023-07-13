@@ -1,188 +1,161 @@
 LogSearchScreen = {
-	searchText = "",
-	currentSortOrder = "alphabetical",
-	filterLabelText = "Filter:",
-	sortLabelText = "Sort by:",
 	Colors = {
-		defaultText = "Default text",
-		lowerBoxText = "Lower box text",
-		lowerBoxBorder = "Lower box border",
-		lowerBoxBG = "Lower box background",
-		upperBoxBorder = "Upper box border",
-		upperBoxBG = "Upper box background",
-		headerText = "Header text",
+		upperText = "Default text",
+		upperBorder = "Upper box border",
+		upperBoxFill = "Upper box background",
+		lowerText = "Lower box text",
+		lowerBorder = "Lower box border",
+		lowerBoxFill = "Lower box background",
 	},
-	topBox = {
-		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = Constants.SCREEN.MARGIN + 10,
-		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+	KeyboardCharacters = {
+		{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" },
+		{ "A", "S", "D", "F", "G", "H", "J", "K", "L" },
+		{ "Z", "X", "C", "V", "B", "N", "M" },
 	},
-	paddingConst = 2,
-	name = "LogSearchScreen",
-	--- @type table<string, table<string,integer|string>>
-	labels = {},
-	Buttons = {},
-	sortDropDownButtons = {},
-	filterDropDownButtons = {},
-	--- @type table<string, string>
-	sortingKeysLabels = {
-		alphabetical = "Alphabetical",
-		pokedexNumber = Constants.Words.POKE .. "dex Number",
-		bst = "BST",
-		hp = "HP",
-		atk = "Attack",
-		def = "Defense",
-		spa = "Sp. Atk",
-		spd = "Sp. Def",
-		spe = "Speed",
-	},
-	sortingKeys = { "alphabetical", "pokedexNumber", "bst", "hp", "atk", "def", "spa", "spd", "spe" },
-	--- @type table<string, function>
-	sortingFunctions = {
-		-- When sorted values are the same, default to sorting by pokedexNumber (avoids unintentional reorderings)
-		alphabetical = function(a, b)
-			return a.pokemonName < b.pokemonName or (a.pokemonName == b.pokemonName and a.pokemonID < b.pokemonID)
+	padding = 2,
+	searchText = "",
+	currentSortOrder = nil, -- Set later in initialize()
+	currentFilter = nil, -- Set later in initialize()
+	sortDropDownOpen = false,
+	filterDropDownOpen = false,
+}
+
+LogSearchScreen.SortBy = {
+	Alphabetical = {
+		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
+		sortFunc = function(a, b)
+			local name1, name2 = a:getPokemonName(), b:getPokemonName()
+			return name1 < name2 or (name1 == name2 and a.pokemonID < b.pokemonID)
 		end,
-		pokedexNumber = function(a, b)
+	},
+	PokedexNum = {
+		getText = function() return Resources.LogSearchScreen.SortPokedexNum end,
+		sortFunc = function(a, b)
 			return a.pokemonID < b.pokemonID
 		end,
-		bst = function(a, b)
+	},
+	BST = {
+		getText = function() return Resources.LogSearchScreen.SortBST end,
+		sortFunc = function(a, b)
 			return PokemonData.Pokemon[a.pokemonID].bst > PokemonData.Pokemon[b.pokemonID].bst or
 				(PokemonData.Pokemon[a.pokemonID].bst == PokemonData.Pokemon[b.pokemonID].bst and a.pokemonID < b.pokemonID)
 		end,
-		hp = function(a, b)
+	},
+	HP = {
+		getText = function() return Resources.LogSearchScreen.SortHP end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["hp"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["hp"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
-		atk = function(a, b)
+	},
+	ATK = {
+		getText = function() return Resources.LogSearchScreen.SortATK end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["atk"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["atk"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
-		def = function(a, b)
+	},
+	DEF = {
+		getText = function() return Resources.LogSearchScreen.SortDEF end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["def"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["def"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
-		spa = function(a, b)
+	},
+	SPA = {
+		getText = function() return Resources.LogSearchScreen.SortSPA end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spa"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spa"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
-		spd = function(a, b)
+	},
+	SPD = {
+		getText = function() return Resources.LogSearchScreen.SortSPD end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spd"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spd"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
-		spe = function(a, b)
+	},
+	SPE = {
+		getText = function() return Resources.LogSearchScreen.SortSPE end,
+		sortFunc = function(a, b)
 			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spe"],
 				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spe"]
 			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
 		end,
 	},
-	maxLetters = 10,
-	filterKeys = {
-		Constants.Words.POKEMON .. " Name",
-		"Ability",
-		"Levelup Move",
-	},
-	filterDropDownOpen = false,
-	sortDropDownOpen = false,
-	currentFilter = Constants.Words.POKEMON .. " Name",
-	--activeFilters = {},
 }
+
+LogSearchScreen.FilterBy = {
+	Name = {
+		getText = function() return Resources.LogSearchScreen.FilterName end,
+	},
+	Ability = {
+		getText = function() return Resources.LogSearchScreen.FilterAbility end,
+	},
+	Move = {
+		getText = function() return Resources.LogSearchScreen.FilterMove end,
+	},
+}
+
+LogSearchScreen.Buttons = {}
+LogSearchScreen.DropdownButtonsSortBy = {}
+LogSearchScreen.DropdownButtonsFilterBy = {}
+
 --- Initializes the LogSearchScreen
 --- @return nil
 function LogSearchScreen.initialize()
-	local LSS = LogSearchScreen
-	-- Reset globals
-	LSS.searchText = ""
-	LSS.currentSortOrder = "alphabetical"
-	LSS.currentFilter = Constants.Words.POKEMON .. " Name"
-	-- Create the buttons
-	LSS.createButtons()
-
-	-- =====LABELS=====
-	LSS.labels.header = {
-		x = LSS.topBox.x + 15,
-		y = -3,
-		text = "Search the Log",
-		color = LSS.Colors.headerText,
-	}
-
-	LSS.labels.filterLabel = {
-		x = LSS.Buttons.searchText.box[1],
-		y = LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2 ,
-		text = LSS.filterLabelText,
-		color = LSS.Colors.lowerBoxText,
-	}
-
-	LSS.labels.sortLabel = {
-		x = LSS.Buttons.searchText.box[1],
-		y = LSS.topBox.y + LSS.paddingConst + LSS.paddingConst,
-		text = LSS.sortLabelText,
-		color = LSS.Colors.lowerBoxText,
-	}
+	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
+	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.Name
+	LogSearchScreen.clearSearch()
+	LogSearchScreen.createButtons()
 end
 
 function LogSearchScreen.createButtons()
 	local LSS = LogSearchScreen
-	local topBox = LSS.topBox
+	local topBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+	}
 
 	-- =====KEYBOARD BUTTONS=====
-	local keyboardSize = {
-		width = topBox.width,
-		height = 50, -- Nil to have the keyboard auto size and have square keys
-	}
-	LSS.keyboardBox = {
-		x = topBox.x + (topBox.width / 2) - (keyboardSize.width / 2),
-		y = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - keyboardSize.height,
-		width = keyboardSize.width,
-		height = keyboardSize.height,
-	}
-	LSS.KeyboardButtons = LSS.buildKeyboardButtons(
-		LSS.keyboardBox.x,
-		LSS.keyboardBox.y,
-		LSS.keyboardBox.width,
-		LSS.keyboardBox.height,
-		1,
-		1,
-		2
-	)
+	LSS.createKeyboardButtons()
 
 	-- =====CLEAR SEARCH BUTTON=====
-	local small_button_size = #Constants.PixelImages.CLOSE
+	local imageSize = #Constants.PixelImages.CLOSE
 	-- To the right of the backspace button
-	LSS.Buttons.clearSearch = {
+	LSS.Buttons.ClearSearch = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		image = Constants.PixelImages.CLOSE,
 		padding = 2,
 		clicked = 0,
 		box = {
-			LSS.keyboardBox.x + LSS.keyboardBox.width - small_button_size - LSS.paddingConst * 3,
-			LSS.keyboardBox.y - small_button_size - LSS.paddingConst * 3,
-			small_button_size + LSS.paddingConst + 1,
-			small_button_size + LSS.paddingConst + 1,
+			topBox.x + topBox.width - imageSize - LSS.padding * 3,
+			LSS.KeyboardBox.y - imageSize - LSS.padding * 3,
+			imageSize + LSS.padding + 1,
+			imageSize + LSS.padding + 1,
 		},
-		boxColors = {
-			LSS.Colors.lowerBoxBorder,
-			LSS.Colors.lowerBoxBG,
-		},
-		textColor = LSS.Colors.lowerBoxText,
+		boxColors = { LSS.Colors.upperBorder, LSS.Colors.upperBoxFill, },
+		textColor = LSS.Colors.upperText,
 		onClick = function(self)
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
-				LSS.searchText = ""
-				LSS.UpdateSearch()
+				LSS.clearSearch()
+				LSS.updateSearch()
 			end
 		end,
 		draw = function(self)
 			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding,
-				Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+				Theme.COLORS[self.textColor], LSS.Colors.upperShadowcolor)
 			self.clicked = LSS.reactOnClick(self.clicked, self.box,
-				{ LSS.Colors.lowerShadowcolor, LSS.Colors.lowerShadowcolor, })
+				{ LSS.Colors.upperShadowcolor, LSS.Colors.upperShadowcolor, })
 		end
 
 	}
@@ -195,54 +168,46 @@ function LogSearchScreen.createButtons()
 		clicked = 0,
 		-- To the left of the clear search button
 		box = {
-			LSS.Buttons.clearSearch.box[1] - LSS.Buttons.clearSearch.box[3] - LSS.paddingConst - 1,
-			LSS.Buttons.clearSearch.box[2],
-			LSS.Buttons.clearSearch.box[3],
-			LSS.Buttons.clearSearch.box[4],
+			LSS.Buttons.ClearSearch.box[1] - LSS.Buttons.ClearSearch.box[3] - LSS.padding - 1,
+			LSS.Buttons.ClearSearch.box[2],
+			LSS.Buttons.ClearSearch.box[3],
+			LSS.Buttons.ClearSearch.box[4],
 		},
-		boxColors = {
-			LSS.Colors.lowerBoxBorder,
-			LSS.Colors.lowerBoxBG,
-		},
-		textColor = LSS.Colors.lowerBoxText,
+		boxColors = { LSS.Colors.upperBorder, LSS.Colors.upperBoxFill, },
+		textColor = LSS.Colors.upperText,
 		onClick = function(self)
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
 				LSS.searchText = LSS.searchText:sub(1, #LSS.searchText - 1)
-				LSS.UpdateSearch()
+				LSS.updateSearch()
 			end
 		end,
 		draw = function(self)
 			Drawing.drawImageAsPixels(self.image, self.box[1] + self.padding, self.box[2] + self.padding - 1,
-				Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+				Theme.COLORS[self.textColor], LSS.Colors.upperShadowcolor)
 			self.clicked = LSS.reactOnClick(self.clicked, self.box,
-				{ LSS.Colors.lowerShadowcolor, LSS.Colors.lowerShadowcolor, })
+				{ LSS.Colors.upperShadowcolor, LSS.Colors.upperShadowcolor, })
 		end
 	}
 
-
 	-- =====SEARCH TEXT DISPLAY BUTTON=====
-	LSS.Buttons.searchText = {
+	LSS.Buttons.SearchTextField = {
 		maxLetters = 10,
 		letterSize = 7,
 		type = Constants.ButtonTypes.FULL_BORDER,
 		searchText = {},
 		box = {
-			topBox.x + LSS.paddingConst + 1,
+			topBox.x + LSS.padding + 1,
 			LSS.Buttons.Backspace.box[2],
-			LSS.Buttons.Backspace.box[1] - LSS.paddingConst * 3 - topBox.x,
+			LSS.Buttons.Backspace.box[1] - LSS.padding * 3 - topBox.x,
 			LSS.Buttons.Backspace.box[4],
 		},
-		boxColors = {
-			LSS.Colors.lowerBoxBorder,
-			LSS.Colors.lowerBoxBG,
-		},
-
-		textColor = LSS.Colors.lowerBoxText,
+		boxColors = { LSS.Colors.upperBorder, LSS.Colors.upperBoxFill, },
+		textColor = LSS.Colors.upperText,
 		-- TODO: @Aeiry Make blinking work properly, adjusting for speed-ups
 		--blink = 0,
 		draw = function(self)
-			self.shadowcolor = LSS.Colors.lowerShadowcolor
+			self.shadowcolor = LSS.Colors.upperShadowcolor
 			-- Split searchText into an array of characters
 			for i = 1, #LSS.searchText do
 				self.searchText[i] = LSS.searchText:sub(i, i)
@@ -260,17 +225,17 @@ function LogSearchScreen.createButtons()
 				if i <= #self.searchText then
 					-- Center the character
 					local textOffsetX = Utils.centerTextOffset(self.searchText[i],
-						Constants.CharWidths[self.searchText[i]], 10) - 3
+						Constants.charWidth(self.searchText[i]), 10) - 3
 					y = y - self.letterSize - 3
 					Drawing.drawText(x + textOffsetX, y, self.searchText[i], Theme.COLORS[self.textColor],
-						LSS.Colors.lowerTextShadow)
+						LSS.Colors.upperTextShadow)
 				else
 					--[[local lineColor = 0
 					-- If the current line is the first empty line, blink it
 					if i == #self.searchText + 1 and self.blink > 0 then
 						lineColor = Theme.COLORS["Intermediate text"]
 					else
-						lineColor = Theme.COLORS[LSS.Colors.lowerBoxText]
+						lineColor = Theme.COLORS[LSS.Colors.upperText]
 					end]]
 					gui.drawLine(x, y, x + self.letterSize, y, Theme.COLORS[self.textColor])
 				end
@@ -282,37 +247,29 @@ function LogSearchScreen.createButtons()
 		end,
 	}
 
-	-- =====FILTER DROPDOWN BUTTONS=====
 	LSS.createUpdateFilterDropdown()
-	-- ===== SORT ORDER DROPDOWN BUTTONS=====
 	LSS.createUpdateSortOrderDropdown()
 end
 
 function LogSearchScreen.createUpdateSortOrderDropdown()
-	local buttonNum = 0
 	local LSS = LogSearchScreen
-	local topBox = LSS.topBox
 
-	local initialBox = {
-		topBox.x + Utils.calcWordPixelLength(LSS.sortLabelText .. " ") + LSS.paddingConst * 3,
-		topBox.y + LSS.paddingConst + 1,
-		-- End at end of search text
-		LSS.Buttons.searchText.box[3] + LSS.Buttons.Backspace.box[3]
-		- Utils.calcWordPixelLength(LSS.sortLabelText .. " "),
-		Constants.SCREEN.LINESPACING + 2,
+	local topBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
 	}
 
+	local iBox = { topBox.x + 35, topBox.y + LSS.padding + 1, 90, 13, }
+
 	-- Create the dropdown buttons, first is the label/top level button. This will be the only one visible when the dropdown is closed
-	LSS.Buttons.sortOrderTop = {
+	LSS.Buttons.SortBySelected = {
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		type = Constants.ButtonTypes.FULL_BORDER,
-		name = LSS.currentSortOrder,
-		box = initialBox,
-		boxColors = {
-			LSS.Colors.upperBoxBorder,
-			LSS.Colors.upperBoxBG,
-		},
-		textColor = LSS.Colors.defaultText,
+		box = { iBox[1], iBox[2], iBox[3], iBox[4], },
+		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
+		textColor = LSS.Colors.lowerText,
 		onClick = function(self)
 			-- Don't expand this dropdown menu if another one is open
 			if not LSS.filterDropDownOpen then
@@ -321,93 +278,80 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 			end
 		end,
 		draw = function(self)
-			Drawing.drawImageAsPixels(
-				self.image,
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst + 1,
-				self.box[2] + 1,
-				Theme.COLORS[LSS.Colors.defaultText],
-				LSS.Colors.upperShadowcolor
-			)
-			-- Vertical line
-			gui.drawLine(
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst - 1,
-				self.box[2] + 1,
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst - 1,
-				self.box[2] + self.box[4] - 1,
-				Theme.COLORS[self.boxColors[1]]
-			)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local size = #self.image + LSS.padding
 
-			-- Individual draw function to draw text shadows but not a shadow for the whole box
-			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, LSS.sortingKeysLabels[LSS.currentSortOrder],
-				Theme.COLORS[self.textColor],
-				LSS.Colors.upperTextShadow)
+			-- Draw Image
+			Drawing.drawImageAsPixels(self.image, x + w - size + 1, y + 1, Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+			-- Vertical line
+			gui.drawLine(x + w - size - 1, y + 1, x + w - size - 1, y + h - 1, Theme.COLORS[self.boxColors[1]])
+			-- Text w/ shadow
+			local text = LSS.currentSortOrder:getText()
+			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
 		end
 	}
-	local sortDropDownButtons = {}
-	-- Rest of the buttons are hidden until the dropdown is opened
-	for _, sortKey in ipairs(LSS.sortingKeys) do
-		local sortLabel = LSS.sortingKeysLabels[sortKey]
 
-		sortDropDownButtons[sortKey] = {
+	-- Rest of the buttons are hidden until the dropdown is opened
+	LSS.DropdownButtonsSortBy = {}
+	local orderedSortBys = {
+		LSS.SortBy.Alphabetical,
+		LSS.SortBy.PokedexNum,
+		LSS.SortBy.BST,
+		LSS.SortBy.HP,
+		LSS.SortBy.ATK,
+		LSS.SortBy.DEF,
+		LSS.SortBy.SPA,
+		LSS.SortBy.SPD,
+		LSS.SortBy.SPE,
+	}
+	for i, sortby in ipairs(orderedSortBys) do
+		local boxY = iBox[2] + (iBox[4] * i)
+
+		LSS.DropdownButtonsSortBy[sortby] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			name = sortKey,
-			box = {
-				initialBox[1],
-				initialBox[2] + (initialBox[4] * (buttonNum + 1)),
-				initialBox[3],
-				initialBox[4],
-			},
-			boxColors = {
-				LSS.Colors.lowerBoxBorder,
-				LSS.Colors.lowerBoxBG,
-			},
-			textColor = LSS.Colors.lowerBoxText,
+			textColor = LSS.Colors.lowerText,
+			box = { iBox[1], boxY, iBox[3], iBox[4], },
+			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 			onClick = function(self)
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
-
-				LSS.currentSortOrder = self.name
-
+				LSS.currentSortOrder = sortby
 				LSS.createUpdateSortOrderDropdown()
-				LSS.UpdateSearch()
+				LSS.updateSearch()
 			end,
-			isVisible = function(self)
-				return LSS.sortDropDownOpen
-			end,
+			isVisible = function(self) return LSS.sortDropDownOpen end,
 			draw = function(self)
 				-- Individual draw function to draw text shadows but not a shadow for the whole box
-				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, sortLabel, Theme.COLORS[self.textColor],
+				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, sortby:getText(), Theme.COLORS[self.textColor],
 					LSS.Colors.lowerTextShadow)
+				if LSS.currentSortOrder == sortby then
+					Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_ARROW, self.box[1] + self.box[3] - 11, self.box[2] + 2,
+					Theme.COLORS["Intermediate text"], LSS.Colors.lowerTextShadow)
+				end
 			end
 		}
-		buttonNum = buttonNum + 1
 	end
-	LSS.sortDropDownButtons = sortDropDownButtons
 end
 
 --- Updates the filter dropdown buttons
 function LogSearchScreen.createUpdateFilterDropdown()
-	local buttonNum = 0
 	local LSS = LogSearchScreen
-	local topBox = LSS.topBox
-	local initialBox = {
-		topBox.x + Utils.calcWordPixelLength(LSS.filterLabelText .. " ") + LSS.paddingConst * 3,
-		LSS.Buttons.searchText.box[2] - Constants.SCREEN.LINESPACING - LSS.paddingConst * 2 - 1,
-		-- End at end of search text
-		LSS.Buttons.searchText.box[3] + LSS.Buttons.Backspace.box[3]
-		- Utils.calcWordPixelLength(LSS.filterLabelText .. " "),
-		Constants.SCREEN.LINESPACING + 2,
+
+	local topBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
 	}
 
+	local iBox = { topBox.x + 35, LSS.Buttons.SearchTextField.box[2] - Constants.SCREEN.LINESPACING - LSS.padding * 2 - 1, 90, 13, }
+
 	-- Create the dropdown buttons, first is the label/top level button.
-	LSS.Buttons.filterTop = {
+	LSS.Buttons.FilterBySelected = {
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		type = Constants.ButtonTypes.FULL_BORDER,
-		box = initialBox,
-		boxColors = {
-			LSS.Colors.upperBoxBorder,
-			LSS.Colors.upperBoxBG,
-		},
-		textColor = LSS.Colors.defaultText,
+		textColor = LSS.Colors.lowerText,
+		box = { iBox[1], iBox[2], iBox[3], iBox[4], },
+		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 		onClick = function(self)
 			-- Don't expand this dropdown menu if another one is open
 			if not LSS.sortDropDownOpen then
@@ -416,239 +360,193 @@ function LogSearchScreen.createUpdateFilterDropdown()
 			end
 		end,
 		draw = function(self)
-			Drawing.drawImageAsPixels(
-				self.image,
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst + 1,
-				self.box[2] + 1,
-				Theme.COLORS[LSS.Colors.defaultText],
-				LSS.Colors.upperShadowcolor
-			)
-			-- Vertical line
-			gui.drawLine(
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst - 1,
-				self.box[2] + 1,
-				self.box[1] + self.box[3] - #self.image - LSS.paddingConst - 1,
-				self.box[2] + self.box[4] - 1,
-				Theme.COLORS[self.boxColors[1]]
-			)
+			local x, y, w, h = self.box[1], self.box[2], self.box[3], self.box[4]
+			local size = #self.image + LSS.padding
 
-			-- Individual draw function to draw text shadows but not a shadow for the whole box
-			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, LSS.currentFilter, Theme.COLORS[self.textColor],
-				LSS.Colors.upperTextShadow)
+			-- Draw Image
+			Drawing.drawImageAsPixels(self.image, x + w - size + 1, y + 1, Theme.COLORS[self.textColor], LSS.Colors.lowerShadowcolor)
+			-- Vertical line
+			gui.drawLine(x + w - size - 1, y + 1, x + w - size - 1, y + h - 1, Theme.COLORS[self.boxColors[1]])
+			-- Text w/ shadow
+			local text = LSS.currentFilter:getText()
+			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
 		end
 	}
 
-	local filterDropDownButtons = {}
 	-- Rest of the buttons are hidden until the dropdown is opened
+	LSS.DropdownButtonsFilterBy = {}
+	local orderedFilters = {
+		LSS.FilterBy.Name,
+		LSS.FilterBy.Ability,
+		LSS.FilterBy.Move,
+	}
+	for i, filter in ipairs(orderedFilters) do
+		local boxY = iBox[2] + (iBox[4] * i)
 
-	for i, filter in ipairs(LSS.filterKeys) do
-		filterDropDownButtons[filter] = {
+		LSS.DropdownButtonsFilterBy[filter] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			box = {
-				initialBox[1],
-				initialBox[2] + (initialBox[4] * (buttonNum + 1)),
-				initialBox[3],
-				initialBox[4],
-			},
-			boxColors = {
-				LSS.Colors.lowerBoxBorder,
-				LSS.Colors.lowerBoxBG,
-			},
+			textColor = LSS.Colors.lowerText,
+			box = { iBox[1], boxY, iBox[3], iBox[4], },
+			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 			onClick = function(self)
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
 				LSS.createUpdateFilterDropdown()
-				LSS.UpdateSearch()
+				LSS.updateSearch()
 			end,
-			isVisible = function(self)
-				return LSS.filterDropDownOpen
-			end,
-			textColor = LSS.Colors.lowerBoxText,
+			isVisible = function(self) return LSS.filterDropDownOpen end,
 			draw = function(self)
 				-- Individual draw function to draw text shadows but not a shadow for the whole box
-				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, filter, Theme.COLORS[self.textColor],
+				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, filter:getText(), Theme.COLORS[self.textColor],
 					LSS.Colors.lowerTextShadow)
+				if LSS.currentFilter == filter then
+					Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_ARROW, self.box[1] + self.box[3] - 11, self.box[2] + 2,
+					Theme.COLORS["Intermediate text"], LSS.Colors.lowerTextShadow)
+				end
 			end
 		}
-		buttonNum = buttonNum + 1
 	end
-	LSS.filterDropDownButtons = filterDropDownButtons
 end
 
-function LogSearchScreen.UpdateSearch()
-	LogOverlay.realignPokemonGrid(
-		LogSearchScreen.searchText,
-		LogSearchScreen.sortingFunctions[LogSearchScreen.sortOrder]
-	)
+function LogSearchScreen.clearSearch()
+	LogSearchScreen.searchText = ""
+end
+
+function LogSearchScreen.updateSearch()
+	LogOverlay.realignPokemonGrid( LogSearchScreen.searchText, LogSearchScreen.currentSortOrder.sortFunc)
 	LogOverlay.refreshInnerButtons()
 	Program.redraw(true)
 end
 
---- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.Buttons
---- @param keyboardX integer|nil The x position of the keyboard. Defaults to 0
---- @param keyboardY integer|nil The y position of the keyboard. Defaults to 0
---- @param keyboardWidth integer|nil The width of the keyboard.
---- @param keyboardHeight integer|nil The height of the keyboard. If nil will be calculated to fit all keys with uniform height
---- @param keyPaddingX integer|nil The padding between keys on the x axis (defaults to 1)
---- @param keyPaddingY integer|nil The padding between keys on the y axis (defaults to 1)
---- @param keyboardPadding integer|nil The padding between the keyboard keys and box drawn around it (defaults to 1)
---- @return table <string,table <string,any>>  keyboard buttons
-function LogSearchScreen.buildKeyboardButtons(
-	keyboardX,
-	keyboardY,
-	keyboardWidth,
-	keyboardHeight,
-	keyPaddingX,
-	keyPaddingY,
-	keyboardPadding
-) -- Set default values for parameters
-	keyboardX = keyboardX or 0
-	keyboardY = keyboardY or 0
-	keyPaddingX = (keyPaddingX or 1) * 2
-	keyPaddingY = (keyPaddingY or 1) * 2
-	keyboardPadding = (keyboardPadding or 1) * 2
-	-- Define keyboard layout
-	local keyboardLayout = {}
-	-- Define keys per row
-	local keysPerRow = {
-		{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" },
-		{ "A", "S", "D", "F", "G", "H", "J", "K", "L" },
-		{ "Z", "X", "C", "V", "B", "N", "M" },
+--- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.KeyboardButtons
+function LogSearchScreen.createKeyboardButtons()
+	local LSS = LogSearchScreen
+
+	local botBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 50,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+		paddingX = 2, -- The padding between keys on the x axis
+		paddingY = 2, -- The padding between keys on the y axis
+		paddingBoard = 4, -- The padding between the keyboard keys and box drawn around it
 	}
 
 	-- Calculate key and keyboard dimensions
-	keyboardWidth = keyboardWidth or 150
-	-- Calculate key size to fit within the keyboard with padding between keys and the keyboard border
-	local keyWidth =
-		math.floor((keyboardWidth - (keyPaddingX * (#keysPerRow[1] - 1) + keyboardPadding * 2)) / #keysPerRow[1])
-	-- Calculate keyboard height to fit all keys with uniform height
-	keyboardHeight = keyboardHeight or (keyPaddingY * (#keysPerRow - 1) + keyboardPadding * 2 + keyWidth * #keysPerRow)
+	local width = botBox.width
+	local height = 50
+	local autosizeHeight = false
 
+	local keysByRow = LSS.KeyboardCharacters
+
+	-- Calculate key size to fit within the keyboard with padding between keys and the keyboard border
+	local keyWidth = math.floor((width - (botBox.paddingX * (#keysByRow[1] - 1) + botBox.paddingBoard * 2)) / #keysByRow[1])
+	-- Calculate keyboard height to fit all keys with uniform height
+	if autosizeHeight then
+		height = botBox.paddingY * (#keysByRow - 1) + botBox.paddingBoard * 2 + keyWidth * #keysByRow
+	end
 	-- Calculate key height to fit within the keyboard with padding between keys and the keyboard border
-	local keyHeight =
-		math.floor((keyboardHeight - (keyPaddingY * (#keysPerRow - 1) + keyboardPadding * 2)) / #keysPerRow)
+	local keyHeight = math.floor((height - (botBox.paddingY * (#keysByRow - 1) + botBox.paddingBoard * 2)) / #keysByRow)
+
 	-- Update the keyboard box in global scope to the actual size of the keyboard
-	LogSearchScreen.keyboardBox.width, LogSearchScreen.keyboardBox.height = keyboardWidth, keyboardHeight
-	local keyRowX = keyboardX
-		+ math.floor((keyboardWidth - (keyWidth * #keysPerRow[1] + keyPaddingX * (#keysPerRow[1] - 1))) / 2)
-	local keyRowY = keyboardY
-		+ math.floor((keyboardHeight - (keyHeight * #keysPerRow + keyPaddingY * (#keysPerRow - 1))) / 2)
+	LSS.KeyboardBox = {}
+	LSS.KeyboardBox.x = botBox.x
+	LSS.KeyboardBox.y = botBox.y
+	LSS.KeyboardBox.width = width
+	LSS.KeyboardBox.height = height
+
+	-- Define keyboard layout
+	LSS.KeyboardButtons = {}
+	local keyRowX = LSS.KeyboardBox.x + math.floor((width - (keyWidth * #keysByRow[1] + botBox.paddingX * (#keysByRow[1] - 1))) / 2)
+	local keyRowY = LSS.KeyboardBox.y + math.floor((height - (keyHeight * #keysByRow + botBox.paddingY * (#keysByRow - 1))) / 2)
 
 	-- ==================== Build keyboard buttons ====================
-	for index, keyRow in ipairs(keysPerRow) do
+	for index, keyRow in ipairs(keysByRow) do
 		local rowOffset = math.floor((index - 1) * (0.5 * keyWidth) + 0.5)
 		local keyX = keyRowX + rowOffset
 		for _, key in ipairs(keyRow) do
 			-- ===== KEYS =====
 			-- Center the character in the box
-			local textOffsetX = Utils.centerTextOffset(key, Constants.CharWidths[key], 10) - 2
+			local textOffsetX = Utils.centerTextOffset(key, Constants.charWidth(key), 10) - 2
 			local button = {
 				type = Constants.ButtonTypes.FULL_BORDER,
 				keyText = key,
+				textToAdd = key,
 				textOffsetX = textOffsetX,
 				-- 1 pixel smaller to account for the border
-				clickableArea = {
-					keyX + 1,
-					keyRowY + 1,
-					keyWidth - 2,
-					keyHeight - 2,
-				},
+				clickableArea = { keyX + 1, keyRowY + 1, keyWidth - 2, keyHeight - 2, },
 				box = { keyX, keyRowY, keyWidth, keyHeight },
-				boxColors = { "Lower box border", "Lower box background" },
-				keyTextColor = "Lower box text",
+				boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
+				keyTextColor = LSS.Colors.lowerText,
 				clicked = 0,
 				onClick = function(self)
 					-- Don't accept keyboard button input while another dropdown is open
-					if LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then
+					if LSS.filterDropDownOpen or LSS.sortDropDownOpen then
 						return
 					end
-
 					self.clicked = 2
 					-- Append the text of the button to the search text if the search text is not full
-					if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
-						LogSearchScreen.searchText = LogSearchScreen.searchText .. self.keyText
+					if LSS.searchText and #LSS.searchText < LSS.Buttons.SearchTextField.maxLetters then
+						LSS.searchText = LSS.searchText .. self.textToAdd
 					end
-					LogSearchScreen.UpdateSearch()
+					LSS.updateSearch()
 				end,
 				draw = function(self)
 					Drawing.drawText(self.box[1] + self.textOffsetX + 1, self.box[2], self.keyText,
-						Theme.COLORS[self.keyTextColor], LogSearchScreen.Colors.lowerShadowcolor)
-					self.clicked = LogSearchScreen.reactOnClick(self.clicked, self.box,
-						{ LogSearchScreen.Colors.lowerShadowcolor, LogSearchScreen.Colors.upperShadowcolor })
+						Theme.COLORS[self.keyTextColor], LSS.Colors.lowerShadowcolor)
+					self.clicked = LSS.reactOnClick(self.clicked, self.box,
+						{ LSS.Colors.lowerShadowcolor, LSS.Colors.upperShadowcolor })
 				end,
 			}
-			keyboardLayout[key] = button
-			keyX = keyX + keyWidth + keyPaddingX
+			LSS.KeyboardButtons[key] = button
+			keyX = keyX + keyWidth + botBox.paddingX
 		end
-		keyRowY = keyRowY + keyHeight + keyPaddingY
+		keyRowY = keyRowY + keyHeight + botBox.paddingY
 	end
 
-	-- Special case for the space key
-	-- create a copy of the box table for the last key in the last row
+	-- Reuse the 'M' key to help clone the spacebar button
+	local lastKeyBtn = LSS.KeyboardButtons["M"]
 	local spaceKeyBox = {}
-	for i, v in ipairs(keyboardLayout["M"].box) do
+	for i, v in ipairs(lastKeyBtn.box) do
 		spaceKeyBox[i] = v
 	end
 	-- modify the copy
-	spaceKeyBox[3] = (spaceKeyBox[3] * 2) + (keyPaddingX)
-	spaceKeyBox[1] = spaceKeyBox[1] + keyWidth + keyPaddingX
+	spaceKeyBox[3] = (spaceKeyBox[3] * 2) + botBox.paddingX
+	spaceKeyBox[1] = spaceKeyBox[1] + keyWidth + botBox.paddingX
 
 	local spaceKeyTextOffset = Utils.getCenteredTextX("_", spaceKeyBox[3]) - 2
 
-	keyboardLayout["_"] = {
-		type = Constants.ButtonTypes.FULL_BORDER,
+	LSS.KeyboardButtons["_"] = {
+		type = lastKeyBtn.type,
 		keyText = "_",
+		textToAdd = " ",
 		textOffsetX = spaceKeyTextOffset,
 		-- 1 pixel smaller to account for the border
-		clickableArea = {
-			spaceKeyBox[1] + 1,
-			spaceKeyBox[2] + 1,
-			spaceKeyBox[3] - 2,
-			spaceKeyBox[4] - 2,
-		},
+		clickableArea = { spaceKeyBox[1] + 1, spaceKeyBox[2] + 1, spaceKeyBox[3] - 2, spaceKeyBox[4] - 2, },
 		box = spaceKeyBox,
-		boxColors = { "Lower box border", "Lower box background" },
-		keyTextColor = "Lower box text",
+		boxColors = lastKeyBtn.boxColors,
+		keyTextColor = lastKeyBtn.keyTextColor,
 		clicked = 0,
-		onClick = function(self)
-			-- Don't accept keyboard button input while another dropdown is open
-			if LogSearchScreen.filterDropDownOpen or LogSearchScreen.sortDropDownOpen then
-				return
-			end
-
-			self.clicked = 2
-			-- Append the text of the button to the search text if the search text is not full
-			if LogSearchScreen.searchText and #LogSearchScreen.searchText < LogSearchScreen.maxLetters then
-				LogSearchScreen.searchText = LogSearchScreen.searchText .. " "
-			end
-			LogSearchScreen.UpdateSearch()
-		end,
-		draw = function(self)
-			Drawing.drawText(self.box[1] + self.textOffsetX + 1, self.box[2], self.keyText,
-				Theme.COLORS[self.keyTextColor], LogSearchScreen.Colors.lowerShadowcolor)
-			self.clicked = LogSearchScreen.reactOnClick(self.clicked, self.box,
-				{ LogSearchScreen.Colors.lowerShadowcolor, LogSearchScreen.Colors.upperShadowcolor })
-		end,
+		onClick = lastKeyBtn.onClick,
+		draw = lastKeyBtn.draw,
 	}
-	return keyboardLayout
 end
 
 function LogSearchScreen.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.KeyboardButtons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.Buttons)
-	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.filterDropDownButtons)
-	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.sortDropDownButtons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.DropdownButtonsFilterBy)
+	Input.checkButtonsClicked(xmouse, ymouse, LogSearchScreen.DropdownButtonsSortBy)
 end
 
 --- Draws the LogSearchScreen, automatically called by the main draw loop if this screen is active
 --- @return nil
 function LogSearchScreen.drawScreen()
 	local LSS = LogSearchScreen
-	local topBox = LSS.topBox
-	LSS.Colors.lowerShadowcolor = Utils.calcShadowColor(Theme.COLORS[LSS.Colors.lowerBoxBG])
-	LSS.Colors.upperShadowcolor = Utils.calcShadowColor(Theme.COLORS[LSS.Colors.upperBoxBG])
-	LSS.Colors.headerShadowColor = Utils.calcShadowColor(Theme.COLORS["Main background"])
 
+	-- Define colors which are used for several individual drawing functions
+	LSS.Colors.upperShadowcolor = Utils.calcShadowColor(Theme.COLORS[LSS.Colors.upperBoxFill])
+	LSS.Colors.lowerShadowcolor = Utils.calcShadowColor(Theme.COLORS[LSS.Colors.lowerBoxFill])
 	if Theme.DRAW_TEXT_SHADOWS then
 		LSS.Colors.lowerTextShadow = LSS.Colors.lowerShadowcolor
 		LSS.Colors.upperTextShadow = LSS.Colors.upperShadowcolor
@@ -657,55 +555,64 @@ function LogSearchScreen.drawScreen()
 		LSS.Colors.upperTextShadow = nil
 	end
 
+	local topBox = {
+		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
+		y = Constants.SCREEN.MARGIN + 10,
+		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+		text = Theme.COLORS[LSS.Colors.upperText],
+		border = Theme.COLORS[LSS.Colors.upperBorder],
+		fill = Theme.COLORS[LSS.Colors.upperBoxFill],
+		shadow = LSS.Colors.upperShadowcolor,
+	}
+	local botBox = {
+		x = LSS.KeyboardBox.x,
+		y = LSS.KeyboardBox.y,
+		width = LSS.KeyboardBox.width,
+		height = LSS.KeyboardBox.height,
+		-- For now, the bottom box uses the top box colors, so the buttons pop within the entire screen
+		text = topBox.text or Theme.COLORS[LSS.Colors.lowerTextText],
+		border = topBox.border or Theme.COLORS[LSS.Colors.lowerBorder],
+		fill = topBox.fill or Theme.COLORS[LSS.Colors.lowerBoxFill],
+		shadow = topBox.shadow or LSS.Colors.lowerShadowcolor,
+	}
+
 	-- Draw the screen background
 	Drawing.drawBackgroundAndMargins() -- Draw the search box
-	gui.defaultTextBackground(Theme.COLORS[LSS.Colors.lowerBoxBG])
+	gui.defaultTextBackground(Theme.COLORS[LSS.Colors.lowerBoxFill])
+
 	-- Draw top border box
-	gui.drawRectangle(
-		topBox.x,
-		topBox.y,
-		topBox.width,
-		topBox.height,
-		Theme.COLORS[LSS.Colors.lowerBoxBorder],
-		Theme.COLORS[LSS.Colors.lowerBoxBG]
-	)
+	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
+
 	-- Draw header
-	local header = LSS.labels.header
-	Drawing.drawHeader(header.x, header.y, header.text, Theme.COLORS[header.color])
+	local headerText = Utils.toUpperUTF8(Resources.LogSearchScreen.Title)
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
-	local labels = LSS.labels
-	-- Draw non-header labels
-	for name, label in pairs(labels) do
-		if name ~= "header" then
-			Drawing.drawText(label.x, label.y, label.text, Theme.COLORS[label.color], LSS.Colors.lowerShadowcolor)
-		end
-	end
+	-- Draw sort and filter labels
+	local sortByText = Resources.LogSearchScreen.LabelSortBy .. ":"
+	Drawing.drawText(topBox.x + 3, LSS.Buttons.SortBySelected.box[2] + 1, sortByText, topBox.text, topBox.shadow)
+	local filterByText = Resources.LogSearchScreen.LabelFilter .. ":"
+	Drawing.drawText(topBox.x + 3, LSS.Buttons.FilterBySelected.box[2] + 1, filterByText, topBox.text, topBox.shadow)
 
-	-- Draw box underneath keyboard
-	gui.drawRectangle(
-		LSS.keyboardBox.x,
-		LSS.keyboardBox.y,
-		LSS.keyboardBox.width,
-		LSS.keyboardBox.height,
-		Theme.COLORS["Upper box border"],
-		Theme.COLORS["Upper box background"]
-	)
-	-- Draw buttons. These include text labels, backspace, and top level dropdown buttons
+	-- Draw bottom border box for keyboard
+	gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
+
+	-- Draw top box buttons. These include text labels, backspace, and top level dropdown buttons
 	for _, button in pairs(LSS.Buttons) do
 		-- Each of these buttons appear in the areas that use lower box background
-		Drawing.drawButton(button, LSS.Colors.lowerShadowcolor)
+		Drawing.drawButton(button, topBox.shadow)
 	end
 	-- Draw keyboard
-	for key, button in pairs(LSS.KeyboardButtons) do
+	for _, button in pairs(LSS.KeyboardButtons) do
 		Drawing.drawButton(button)
 	end
 	-- Draw dropdowns last so they are on top of everything else
-	for _, dropwdown in pairs(LSS.sortDropDownButtons) do
-		Drawing.drawButton(dropwdown)
+	for _, button in pairs(LSS.DropdownButtonsSortBy) do
+		Drawing.drawButton(button)
 	end
-
-	for _, dropwdown in pairs(LSS.filterDropDownButtons) do
-		Drawing.drawButton(dropwdown)
+	for _, button in pairs(LSS.DropdownButtonsFilterBy) do
+		Drawing.drawButton(button)
 	end
 end
 

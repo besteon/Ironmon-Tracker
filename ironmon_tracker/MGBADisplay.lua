@@ -1,29 +1,62 @@
 MGBADisplay = {}
 
 MGBADisplay.Symbols = {
+	EmptyLine = "",
+	DividerLine = string.rep("-", 33), -- "---------------------------------"
 	StabL = "[",
 	StabR = "]",
-	Effectiveness = { -- 2 char width, right-aligned
-		[0] = " X",
-		[0.25] = "--",
-		[0.5] = " -",
-		[1] = "  ",
-		[2] = " +",
-		[4] = "++",
-	},
-	Category = {
-		[MoveData.Categories.STATUS] = " ",
-		[MoveData.Categories.PHYSICAL] = "P",
-		[MoveData.Categories.SPECIAL] = "S",
-	},
-	Options = {
-		Enabled = "X",
-		Disabled = " ",
-	}
+	OptionEnabled = "X",
+	OptionDisabled = " ",
 }
--- Ordered list of things
-MGBADisplay.OrderedLists = {
-	Effectiveness = { "0x Immunities", "1/4x Resistances", "1/2x Resistances", "2x Weaknesses", "4x Weaknesses", },
+
+MGBADisplay.Categories = {
+	[MoveData.Categories.STATUS] = {
+		getText = function(self) return Resources.MGBAScreens.LabelStatus end,
+		getSymbol = function(self) return Resources.MGBAScreens.SymbolStatus end,
+		getShorthand = function(self) return Utils.formatUTF8("%s", self:getText()) end,
+	},
+	[MoveData.Categories.PHYSICAL] = {
+		getText = function(self) return Resources.MGBAScreens.LabelPhysical end,
+		getSymbol = function(self) return Resources.MGBAScreens.SymbolPhysical end,
+		getShorthand = function(self) return Utils.formatUTF8("%s (%s)", self:getText(), self:getSymbol()) end,
+	},
+	[MoveData.Categories.SPECIAL] = {
+		getText = function(self) return Resources.MGBAScreens.LabelSpecial end,
+		getSymbol = function(self) return Resources.MGBAScreens.SymbolSpecial end,
+		getShorthand = function(self) return Utils.formatUTF8("%s (%s)", self:getText(), self:getSymbol()) end,
+	},
+	[MoveData.Categories.NONE] = {
+		getText = function(self) return "" end,
+		getSymbol = function(self) return "" end,
+		getShorthand = function(self) return "" end,
+	},
+}
+
+MGBADisplay.Effectiveness = {
+	[0] = {
+		getText = function(self) return "0x " .. Resources.MGBAScreens.LabelImmunities end,
+		getSymbol = function(self) return " " .. Resources.MGBAScreens.SymbolEffectivenessImmune end,
+	},
+	[0.25] = {
+		getText = function(self) return "1/4x " .. Resources.MGBAScreens.LabelResistances end,
+		getSymbol = function(self) return Resources.MGBAScreens.SymbolEffectivenessResistDouble end,
+	},
+	[0.5] = {
+		getText = function(self) return "1/2x " .. Resources.MGBAScreens.LabelResistances end,
+		getSymbol = function(self) return " " .. Resources.MGBAScreens.SymbolEffectivenessResist end,
+	},
+	[1] = {
+		getText = function(self) return "1x " end, -- Unused
+		getSymbol = function(self) return "  " end,
+	},
+	[2] = {
+		getText = function(self) return "2x " .. Resources.MGBAScreens.LabelWeaknesses end,
+		getSymbol = function(self) return " " .. Resources.MGBAScreens.SymbolEffectivenessWeak end,
+	},
+	[4] = {
+		getText = function(self) return "4x " .. Resources.MGBAScreens.LabelWeaknesses end,
+		getSymbol = function(self) return Resources.MGBAScreens.SymbolEffectivenessWeakDouble end,
+	},
 }
 
 function MGBADisplay.initialize()
@@ -35,27 +68,28 @@ MGBADisplay.DataFormatter = {
 	formatPokemonInfo = function(data)
 		local listSeparator = ", "
 
-		data.p.name = data.p.name:upper()
+		data.p.name = Utils.toUpperUTF8(data.p.name)
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(data.p.types[1]), PokemonData.getTypeResource(data.p.types[2]))
 		else
-			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+			data.p.typeline = PokemonData.getTypeResource(data.p.types[1])
 		end
 
 		if tonumber(data.p.weight) ~= nil then
-			data.p.weight = Utils.formatUTF8("%s kg", data.p.weight)
+			data.p.weight = Utils.formatUTF8("%s %s", data.p.weight, Resources.MGBAScreens.PokemonInfoKg)
 		else
 			data.p.weight = Constants.BLANKLINE
 		end
-		data.p.evodetails = table.concat(data.p.evo, listSeparator)
-		if data.p.evodetails == Constants.BLANKLINE then
-			data.p.evodetails = "None"
+		if data.p.evo == PokemonData.Evolutions.NONE then
+			data.p.evodetails = Resources.MGBAScreens.PokemonInfoNone
+		else
+			data.p.evodetails = table.concat(Utils.getDetailedEvolutionsInfo(data.p.evo), listSeparator)
 		end
 
 		if data.p.movelvls == {} or #data.p.movelvls == 0 then
-			data.p.moveslearned = "None"
+			data.p.moveslearned = Resources.MGBAScreens.PokemonInfoNone
 		else
 			for i = 1, #data.p.movelvls, 1 do
 				if type(data.p.movelvls[i]) == "number" and data.p.movelvls[i] <= data.x.viewedPokemonLevel then
@@ -66,43 +100,42 @@ MGBADisplay.DataFormatter = {
 		end
 
 		data.e.list = {}
-		local effectLabelMappings = {
-			[0] = MGBADisplay.OrderedLists.Effectiveness[1],
-			[0.25] = MGBADisplay.OrderedLists.Effectiveness[2],
-			[0.5] = MGBADisplay.OrderedLists.Effectiveness[3],
-			[2] = MGBADisplay.OrderedLists.Effectiveness[4],
-			[4] = MGBADisplay.OrderedLists.Effectiveness[5],
-		}
-		for typeMultiplier, label in pairs(effectLabelMappings) do
+		local effectivenessOrdered = { 0, 0.25, 0.5, 2, 4, }
+		for _, typeMultiplier in ipairs(effectivenessOrdered) do
 			local effectTypes = data.e[typeMultiplier]
 			if effectTypes ~= nil and #effectTypes ~= 0 then
 				for i = 1, #effectTypes, 1 do
-					effectTypes[i] = Utils.firstToUpper(effectTypes[i])
+					effectTypes[i] = PokemonData.getTypeResource(effectTypes[i])
 				end
+				local label = MGBADisplay.Effectiveness[typeMultiplier]:getText()
 				data.e.list[label] = table.concat(data.e[typeMultiplier], listSeparator)
 			end
 		end
 
 		if data.x.note == nil or data.x.note == "" then
-			data.x.note = "(Leave a note)" -- TODO: Change this to explain the mGBA command
+			data.x.note = Resources.MGBAScreens.PokemonInfoLeaveNote
 		end
 	end,
 	formatMoveInfo = function(data)
-		data.m.name = data.m.name:upper()
-		data.m.type = Utils.firstToUpper(data.m.type)
+		data.m.name = Utils.toUpperUTF8(data.m.name)
+		data.m.type = PokemonData.getTypeResource(data.m.type)
 
 		if tonumber(data.m.accuracy) ~= nil then
 			data.m.accuracy = data.m.accuracy .. "%"
 		end
 
-		if data.m.category == MoveData.Categories.PHYSICAL or data.m.category == MoveData.Categories.SPECIAL then
-			data.m.category = Utils.formatUTF8("%s (%s)", data.m.category, MGBADisplay.Symbols.Category[data.m.category])
+		if MGBADisplay.Categories[data.m.category] then
+			data.m.category = MGBADisplay.Categories[data.m.category]:getShorthand()
 		end
 
-		data.m.iscontact = Utils.inlineIf(data.m.iscontact, "Yes", "No")
+		if data.m.iscontact then
+			data.m.iscontact = Resources.AllScreens.Yes
+		else
+			data.m.iscontact = Resources.AllScreens.No
+		end
 
 		if data.m.priority == "0" then
-			data.m.priority = "Normal"
+			data.m.priority = Resources.MGBAScreens.MoveInfoNormalPriority
 		end
 	end,
 	formatRouteInfo = function(data)
@@ -111,9 +144,9 @@ MGBADisplay.DataFormatter = {
 		local originalPokemonBar = " %-12s  " .. justify4 .. "    %s"
 
 		if not RouteData.hasRoute(data.r.id) then
-			data.r.name = Utils.formatUTF8("UNKNOWN AREA (%s)", math.floor(data.r.id))
+			data.r.name = Utils.formatUTF8("%s (%s)", Resources.MGBAScreens.RouteInfoUnknownArea, math.floor(data.r.id))
 		else
-			data.r.name = data.r.name:upper()
+			data.r.name = Utils.toUpperUTF8(data.r.name)
 		end
 
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
@@ -123,12 +156,11 @@ MGBADisplay.DataFormatter = {
 			for _, enc in ipairs(area.originalPokemon) do
 				local name = PokemonData.Pokemon[enc.pokemonID].name
 				local rate = math.floor(enc.rate * 100) .. "%"
-				local level = "Lv."
+				local level
 				if enc.minLv ~= 0 then
+					level = Utils.formatUTF8("%s.%s", Resources.TrackerScreen.LevelAbbreviation, math.floor(enc.minLv))
 					if enc.maxLv ~= 0 and enc.minLv ~= enc.maxLv then
-						level = Utils.formatUTF8("Lv.%s-%s", math.floor(enc.minLv), math.floor(enc.maxLv))
-					else
-						level = Utils.formatUTF8("Lv.%s", math.floor(enc.minLv))
+						level = Utils.formatUTF8("%s-%s", level, math.floor(enc.maxLv))
 					end
 				else
 					level = ""
@@ -147,11 +179,7 @@ MGBADisplay.DataFormatter = {
 		end
 	end,
 	formatTrackerScreen = function(data)
-		data.p.name = data.p.name:upper()
-
-		if data.p.evo == PokemonData.Evolutions.NONE then
-			data.p.evo = Constants.BLANKLINE
-		end
+		data.p.name = Utils.toUpperUTF8(data.p.name)
 
 		if data.p.status ~= "" then
 			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
@@ -159,16 +187,24 @@ MGBADisplay.DataFormatter = {
 
 		-- Format type as "Normal" or "Flying/Normal"
 		if data.p.types[2] ~= PokemonData.Types.EMPTY and data.p.types[2] ~= data.p.types[1] then
-			data.p.typeline = Utils.formatUTF8("%s/%s", Utils.firstToUpper(data.p.types[1]), Utils.firstToUpper(data.p.types[2]))
+			data.p.typeline = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(data.p.types[1]), PokemonData.getTypeResource(data.p.types[2]))
 		else
-			data.p.typeline = Utils.firstToUpper(data.p.types[1] or Constants.BLANKLINE)
+			data.p.typeline = PokemonData.getTypeResource(data.p.types[1])
 		end
 
 		TrackerScreen.updateButtonStates() -- required prior to using TrackerScreen.Buttons[statKey]
 
+		local statLabels = {
+			["HP"] = Resources.MGBAScreens.TrackerHP,
+			["ATK"] = Resources.MGBAScreens.TrackerAttack,
+			["DEF"] = Resources.MGBAScreens.TrackerDefense,
+			["SPA"] = Resources.MGBAScreens.TrackerSpAttack,
+			["SPD"] = Resources.MGBAScreens.TrackerSpDefense,
+			["SPE"] = Resources.MGBAScreens.TrackerSpeed,
+		}
 		data.p.labels = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			data.p.labels[statKey] = statKey:upper()
+			data.p.labels[statKey] = statLabels[statKey:upper()] or "???"
 			if data.x.viewingOwn then
 				if statKey == data.p.positivestat then
 					data.p.labels[statKey] = data.p.labels[statKey] .. "+"
@@ -200,7 +236,7 @@ MGBADisplay.DataFormatter = {
 			if move.type == nil or move.type == MoveData.BlankMove.type then
 				move.type = Constants.BLANKLINE
 			else
-				move.type = Utils.firstToUpper(move.type)
+				move.type = PokemonData.getTypeResource(move.type)
 			end
 		end
 	end,
@@ -212,33 +248,33 @@ MGBADisplay.LineBuilder = {
 
 		local optionBar = "%-2s %-26s [%s]"
 		local controlBar = "%-2s %-21s %8s"
-		table.insert(lines, MGBA.Screens.TrackerSetup.headerText:upper())
-		table.insert(lines, "---------------------------------")
-		table.insert(lines, 'Toggle option with: OPTION "#"')
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.TrackerSetup:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 		for i = 1, 8, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 
-		table.insert(lines, "---------------------------------")
-		table.insert(lines, 'Change with: OPTION "# button(s)"')
-		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", "Controls", "GBA Buttons"))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s: OPTION \"# %s\"", Resources.MGBAScreens.GeneralSetupChange, Resources.MGBAScreens.GeneralSetupButtons))
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupControls), Utils.toUpperUTF8(Resources.MGBAScreens.GeneralSetupGBAButtons)))
 		for i = 10, 12, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(controlBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(controlBar, i, opt:getText(), opt:getValue()))
 			end
 		end
 		local qid = 13 -- "Quickload"
 		if MGBA.OptionMap[qid] ~= nil then
-			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid].displayName, MGBA.OptionMap[qid]:getValue()))
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %16s", qid, MGBA.OptionMap[qid]:getText(), MGBA.OptionMap[qid]:getValue()))
 		end
 
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		return lines
 	end,
@@ -246,23 +282,23 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.GameplayOptions.headerText:upper())
-		table.insert(lines, "---------------------------------")
-		table.insert(lines, 'Toggle option with: OPTION "#"')
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.GameplayOptions:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
 
-		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", "Option", "Enabled"))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
 		for i = 20, 28, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
-		table.insert(lines, "---------------------------------")
-		table.insert(lines, "Manually save/load tracked data:")
-		table.insert(lines, ' SAVEDATA "filename"')
-		table.insert(lines, ' LOADDATA "filename"')
-		table.insert(lines, ' CLEARDATA()')
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.GameplayOptionsManualSave))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["SAVEDATA"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["LOADDATA"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["CLEARDATA"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		return lines
 	end,
@@ -270,24 +306,24 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local optionBar = "%-2s %-26s [%s]"
-		table.insert(lines, MGBA.Screens.QuickloadSetup.headerText:upper())
-		table.insert(lines, "---------------------------------")
-		MGBADisplay.Utils.addLinesWrapped(lines, "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.")
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.QuickloadSetup:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		MGBADisplay.Utils.addLinesWrapped(lines, Resources.MGBAScreens.QuickloadDesc)
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
-		table.insert(lines, 'Choose a mode with: OPTION "#"')
-		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", "Mode", "Selected"))
+		table.insert(lines, Utils.formatUTF8('%s: %s', Resources.MGBAScreens.QuickloadChooseMode, MGBA.CommandMap["OPTION"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8("%-2s %-19s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadMode), Utils.toUpperUTF8(Resources.MGBAScreens.QuickloadSelected)))
 
 		for i = 30, 31, 1 do
 			local opt = MGBA.OptionMap[i]
 			if opt ~= nil then
-				table.insert(lines, Utils.formatUTF8(optionBar, i, opt.displayName, opt:getValue()))
+				table.insert(lines, Utils.formatUTF8(optionBar, i, opt:getText(), opt:getValue()))
 			end
 		end
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		-- local fileBar = "%-2s %-30s"
-		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.Options.Enabled then
+		if MGBA.OptionMap[30] ~= nil and MGBA.OptionMap[30]:getValue() == MGBADisplay.Symbols.OptionEnabled then
 			-- local romFolderId = 32
 			-- local opt = MGBA.OptionMap[romFolderId]
 			-- if opt ~= nil then
@@ -295,17 +331,17 @@ MGBADisplay.LineBuilder = {
 			-- 	if foldername == "" then
 			-- 		foldername = "(NOT SET)"
 			-- 	end
-			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt.displayName .. " *"))
+			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt:getText() .. " *"))
 			-- 	table.insert(lines, Utils.formatUTF8(" %-32s", foldername))
 			-- end
-			-- table.insert(lines, "")
+			-- table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 			-- table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set folder using: OPTION "# path"') -- temp hide this option from user
-			table.insert(lines, "Required Files:")
-			table.insert(lines, "- Multiple GBA ROM files with #'s")
-			table.insert(lines, "")
-			table.insert(lines, "")
-		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.Options.Enabled then
+			table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.QuickloadRequiredFiles))
+			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadMultipleRoms))
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionDisabled then
 			-- for i = 33, 35, 1 do
 			-- 	local opt = MGBA.OptionMap[i]
 			-- 	if opt ~= nil then
@@ -315,26 +351,26 @@ MGBADisplay.LineBuilder = {
 			-- 		elseif filename == "" then
 			-- 			filename = "(NOT SET)"
 			-- 		end
-			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt.displayName .. ": *"))
+			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt:getText() .. ": *"))
 			-- 		table.insert(lines, Utils.formatUTF8(" %-32s", filename))
-			-- 		table.insert(lines, "")
+			-- 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 			-- 	end
 			-- end
 			-- table.insert(lines, '* Set above files in Settings.ini')
 			-- table.insert(lines, 'Set file: OPTION "# filepath"') -- temp hide this option from user
-			table.insert(lines, "Required Files (only 1 of each):")
-			table.insert(lines, "- JAR file from your Randomizer")
-			table.insert(lines, "- RNQS Randomizer settings file")
-			table.insert(lines, "- GBA ROM file to randomize")
+			table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.QuickloadRequiredFilesOneEach))
+			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadJarFile))
+			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadRnqsFile))
+			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadGbaFile))
 		end
 
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		local instructionBar = "%-14s %-18s"
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-		table.insert(lines, Utils.formatUTF8(instructionBar, "Button Combo:", quickloadCombo))
-		table.insert(lines, Utils.formatUTF8(instructionBar, "Text Command:", MGBA.CommandMap["QUICKLOAD"].usageExample))
-		table.insert(lines, "")
+		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadButtonCombo .. ":", quickloadCombo))
+		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadTextCommand .. ":", MGBA.CommandMap["QUICKLOAD"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		return lines
 	end,
@@ -342,30 +378,70 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local columnBar = "%-26s%-7s"
-		table.insert(lines, MGBA.Screens.UpdateCheck.headerText:upper())
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.UpdateCheck:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		local versionStatus
 		if Main.isOnLatestVersion() then
-			versionStatus = "Last checked version:"
+			versionStatus = Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateLastCheckedVersion)
 		else
-			versionStatus = "New version available:"
-			table.insert(lines, "  New version update available!")
-			table.insert(lines, "")
+			versionStatus = Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateNewVersionAvailable)
+			table.insert(lines, Utils.formatUTF8("  %s", Resources.MGBAScreens.UpdateAvailable))
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 		end
-		table.insert(lines, Utils.formatUTF8(columnBar, "Current version:", Main.TrackerVersion or Constants.BLANKLINE))
+		table.insert(lines, Utils.formatUTF8(columnBar, Resources.MGBAScreens.UpdateCurrentVersion .. ":", Main.TrackerVersion or Constants.BLANKLINE))
 		table.insert(lines, Utils.formatUTF8(columnBar, versionStatus, Main.Version.latestAvailable or Constants.BLANKLINE))
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
-		table.insert(lines, "Manually check for new updates:")
-		table.insert(lines, " CHECKUPDATE()")
-		table.insert(lines, "")
-		table.insert(lines, "View release notes:")
-		table.insert(lines, " RELEASENOTES()")
-		table.insert(lines, "")
-		table.insert(lines, "Download & install automatically:")
-		table.insert(lines, " UPDATENOW()")
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateManualCheck))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["CHECKUPDATE"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateViewReleaseNotes))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["RELEASENOTES"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.UpdateDownloadInstall))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["UPDATENOW"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+
+		return lines
+	end,
+	buildLanguage = function()
+		local lines = {}
+
+		local userLanguageKey = Options["Language"] or Resources.Default.Language.Key
+		local userLanguage = Resources.Languages[userLanguageKey]
+
+		table.insert(lines, Utils.formatUTF8("%s (%s)", Utils.toUpperUTF8(MGBA.Screens.Language:getTitle()), userLanguage.DisplayName))
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.LanguageChangeWith))
+		table.insert(lines, Utils.formatUTF8(" %s", MGBA.CommandMap["LANGUAGE"].usageSyntax))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LanguageHeaderLang), Utils.toUpperUTF8(Resources.MGBAScreens.LanguageHeaderLang)))
+
+		local orderedLanguages = {}
+		for _, lang in pairs(Resources.Languages) do
+			if not lang.ExcludeFromSettings then
+				table.insert(orderedLanguages, lang)
+			end
+		end
+		table.sort(orderedLanguages, function(a,b) return a.Ordinal < b.Ordinal end)
+		for _, lang in ipairs(orderedLanguages) do
+			table.insert(lines, Utils.formatUTF8("%-2s %-13s %-16s", lang.Ordinal, Utils.firstToUpper(Utils.toLowerUTF8(lang.Key)), lang.DisplayName))
+		end
+
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
+
+		local optionBar = "%-2s %-26s [%s]"
+		table.insert(lines, Utils.formatUTF8("%s: %s", Resources.MGBAScreens.LabelToggleOption, MGBA.CommandMap["OPTION"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8("%-2s %-20s [%s]", "#", Utils.toUpperUTF8(Resources.MGBAScreens.LabelOption), Utils.toUpperUTF8(Resources.MGBAScreens.LabelEnabled)))
+
+		local optionAutodetectId = 29
+		local opt = MGBA.OptionMap[optionAutodetectId]
+		if opt ~= nil then
+			table.insert(lines, Utils.formatUTF8(optionBar, optionAutodetectId, opt:getText(), opt:getValue()))
+		end
+
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		return lines
 	end,
@@ -373,11 +449,11 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-10s%-s"
-		table.insert(lines, MGBA.Screens.CommandsBasic.headerText:upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsBasic:getTitle()))
 
-		local usageInstructions = 'To use, type into below textbox. Example command: POKEMON "Espeon"'
+		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["POKEMON"].usageExample)
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		local commandList = {
 			MGBA.CommandMap["POKEMON"],
@@ -387,16 +463,16 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["NOTE"],
 		}
 
-		table.insert(lines, "Usage Syntax:")
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsUsageSyntax))
 		for _, command in ipairs(commandList) do
 			if command.usageSyntax ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
 				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
-		table.insert(lines, "Example Usage:")
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsExampleUsage))
 		for _, command in ipairs(commandList) do
 			if command.usageExample ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
@@ -410,11 +486,11 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local commandBar = " %-13s%-s"
-		table.insert(lines, MGBA.Screens.CommandsOther.headerText:upper())
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.CommandsOther:getTitle()))
 
-		local usageInstructions = 'To use, type into below textbox. Example command: PCHEALS "10"'
+		local usageInstructions = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.CommandsDesc, MGBA.CommandMap["PCHEALS"].usageExample)
 		MGBADisplay.Utils.addLinesWrapped(lines, usageInstructions)
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		local commandList = {
 			MGBA.CommandMap["HELP"],
@@ -427,16 +503,16 @@ MGBADisplay.LineBuilder = {
 			MGBA.CommandMap["ALLCOMMANDS"],
 		}
 
-		table.insert(lines, "Usage Syntax:")
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsUsageSyntax))
 		for _, command in ipairs(commandList) do
 			if command.usageSyntax ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageSyntax)
 				table.insert(lines, Utils.formatUTF8(commandBar, commandName, commandParams))
 			end
 		end
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
-		table.insert(lines, "Example Usage:")
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.CommandsExampleUsage))
 		for _, command in ipairs(commandList) do
 			if command.usageExample ~= nil then
 				local commandName, commandParams = MGBADisplay.Utils.splitCommandUsage(command.usageExample)
@@ -453,24 +529,26 @@ MGBADisplay.LineBuilder = {
 
 		local labelBar = "%-12s %s"
 		table.insert(lines, Utils.formatUTF8("%-13s%s", data.p.name, Utils.formatUTF8("[%s]", data.p.typeline)))
-		table.insert(lines, Utils.formatUTF8(labelBar, "BST:", data.p.bst))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Weight:", data.p.weight))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Evolution:", data.p.evodetails))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoBST .. ":", data.p.bst))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoWeight .. ":", data.p.weight))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.PokemonInfoEvolution .. ":", data.p.evodetails))
 
-		table.insert(lines, "")
-		table.insert(lines, "Level-up moves:")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.PokemonInfoLevelupMoves))
 		MGBADisplay.Utils.addLinesWrapped(lines, data.p.moveslearned)
 
-		table.insert(lines, "")
-		for _, label in ipairs(MGBADisplay.OrderedLists.Effectiveness) do
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		local effectivenessOrdered = { 0, 0.25, 0.5, 2, 4, }
+		for _, typeMultiplier in ipairs(effectivenessOrdered) do
+			local label = MGBADisplay.Effectiveness[typeMultiplier]:getText()
 			if data.e.list[label] ~= nil then
 				table.insert(lines, Utils.formatUTF8("%s:", label))
 				MGBADisplay.Utils.addLinesWrapped(lines, Utils.formatUTF8(" %s", data.e.list[label]))
 			end
 		end
 
-		table.insert(lines, "")
-		table.insert(lines, "Note:")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+		table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.PokemonInfoNote))
 		MGBADisplay.Utils.addLinesWrapped(lines, data.x.note)
 
 		return lines
@@ -482,16 +560,16 @@ MGBADisplay.LineBuilder = {
 
 		local labelBar = "%-12s %s"
 		table.insert(lines, Utils.formatUTF8(labelBar, data.m.name, Utils.formatUTF8("[%s]", data.m.type)))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Category:", data.m.category))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Contact:", data.m.iscontact))
-		table.insert(lines, Utils.formatUTF8(labelBar, "PP:", data.m.pp))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Power:", data.m.power))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Accuracy:", data.m.accuracy))
-		table.insert(lines, Utils.formatUTF8(labelBar, "Priority:", data.m.priority))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoCategory .. ":", data.m.category))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoContact .. ":", data.m.iscontact))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoPP .. ":", data.m.pp))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoPower .. ":", data.m.power))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoAccuracy .. ":", data.m.accuracy))
+		table.insert(lines, Utils.formatUTF8(labelBar, Resources.MGBAScreens.MoveInfoPriority .. ":", data.m.priority))
 
 		if data.m.summary ~= Constants.BLANKLINE then
-			table.insert(lines, "")
-			table.insert(lines, "Move Summary:")
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+			table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.MoveInfoSummary))
 			MGBADisplay.Utils.addLinesWrapped(lines, data.m.summary)
 		end
 
@@ -500,15 +578,15 @@ MGBADisplay.LineBuilder = {
 	buildAbilityInfo = function(data)
 		local lines = {}
 
-		table.insert(lines, data.a.name:upper())
+		table.insert(lines, Utils.toUpperUTF8(data.a.name))
 
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 		MGBADisplay.Utils.addLinesWrapped(lines, data.a.description)
 
 
 		if data.a.descriptionEmerald ~= Constants.BLANKLINE then
-			table.insert(lines, "")
-			table.insert(lines, "Emerald Bonus:")
+			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
+			table.insert(lines, Utils.formatUTF8("%s:", Resources.MGBAScreens.MoveInfoEmeraldBonus))
 			MGBADisplay.Utils.addLinesWrapped(lines, data.a.descriptionEmerald)
 		end
 
@@ -519,8 +597,8 @@ MGBADisplay.LineBuilder = {
 
 		MGBADisplay.DataFormatter.formatRouteInfo(data)
 
-		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[Tracked]"))
-		table.insert(lines, "")
+		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[" .. Resources.MGBAScreens.RouteInfoTracked .. "]"))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		-- No wild encounters, such as a building, don't show anything else
 		if data.r.totalWildEncounters == 0 and data.r.totalTrainerEncounters == 0 then
@@ -530,7 +608,7 @@ MGBADisplay.LineBuilder = {
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
 			local area = data.e[encounterArea]
 			if area.totalPossible > 0 then -- Only display areas that have encounters
-				table.insert(lines, Utils.formatUTF8("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
+				table.insert(lines, Utils.formatUTF8("%s (%s/%s %s)", encounterArea, area.totalSeen, area.totalPossible, Resources.MGBAScreens.RouteInfoSeen))
 				for _, line in ipairs(area.trackedLines) do
 					table.insert(lines, line)
 				end
@@ -542,8 +620,8 @@ MGBADisplay.LineBuilder = {
 	buildOriginalRouteInfo = function(data)
 		local lines = {}
 
-		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[Original]"))
-		table.insert(lines, "")
+		table.insert(lines, Utils.formatUTF8("%-22s%11s", data.r.name, "[" .. Resources.MGBAScreens.RouteInfoOriginal .. "]"))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		-- No wild encounters, such as a building, don't show anything else
 		if data.r.totalWildEncounters == 0 and data.r.totalTrainerEncounters == 0 then
@@ -553,7 +631,7 @@ MGBADisplay.LineBuilder = {
 		for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
 			local area = data.e[encounterArea]
 			if area.totalPossible > 0 then -- Only display areas that have encounters
-				table.insert(lines, Utils.formatUTF8("%s (%s/%s seen)", encounterArea, area.totalSeen, area.totalPossible))
+				table.insert(lines, Utils.formatUTF8("%s (%s/%s %s)", encounterArea, area.totalSeen, area.totalPossible, Resources.MGBAScreens.RouteInfoSeen))
 				for _, line in ipairs(area.originalLines) do
 					table.insert(lines, line)
 				end
@@ -566,13 +644,13 @@ MGBADisplay.LineBuilder = {
 		local lines = {}
 
 		local statBar = "%-21s%s"
-		table.insert(lines, MGBA.Screens.Stats.headerText:upper())
-		table.insert(lines, "")
+		table.insert(lines, Utils.toUpperUTF8(MGBA.Screens.Stats:getTitle()))
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		for _, statPair in ipairs(StatsScreen.StatTables) do
-			statPair.name = statPair.name:gsub("é", "e") -- The 'é' character doesn't work with format padding like %-20s
+			local formattedName = statPair.getText()
 			local formattedValue = Utils.formatNumberWithCommas(statPair.getValue() or 0)
-			table.insert(lines, Utils.formatUTF8(statBar, statPair.name .. ":", formattedValue))
+			table.insert(lines, Utils.formatUTF8(statBar, formattedName .. ":", formattedValue))
 		end
 
 		return lines
@@ -589,54 +667,57 @@ MGBADisplay.LineBuilder = {
 
 		local formattedStats = {}
 		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-			local statText = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
-			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statText, data.p.stages[statKey])
+			local statValue = Utils.inlineIf(data.p[statKey] ~= 0, data.p[statKey], Constants.BLANKLINE)
+			formattedStats[statKey] = Utils.formatUTF8("%-5s" .. justify3 .. "%-2s", data.p.labels[statKey], statValue, data.p.stages[statKey])
 		end
 
 		-- Header and top dividing line (with types)
 		local bstAligned = Utils.formatUTF8(justify3, data.p.bst)
-		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), "BST", bstAligned)
+		lines[1] = Utils.formatUTF8("%-23s%-5s%-5s", Utils.formatUTF8("%-13s %-3s", data.p.name, data.p.status), Resources.MGBAScreens.TrackerBST, bstAligned)
 		lines[2] = Utils.formatUTF8("%-23s%-10s", data.p.typeline, "----------")
 
 		-- Top six lines of the box: Pokemon related stuff
 		local topFormattedLine = "%-23s%-10s"
-		local levelLine = Utils.formatUTF8("Lv.%s", data.p.level)
-		if data.p.evo ~= Constants.BLANKLINE then
-			levelLine = Utils.formatUTF8("%s (%s)", levelLine, data.p.evo)
+		local levelLine
+		if data.p.evo == PokemonData.Evolutions.NONE then
+			levelLine = Utils.formatUTF8("%s.%s", Resources.MGBAScreens.TrackerLevel, data.p.level)
+		else
+			local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
+			levelLine = Utils.formatUTF8("%s.%s (%s)", Resources.MGBAScreens.TrackerLevel, data.p.level, abbreviationText)
 		end
 		if data.x.viewingOwn then
-			local hpLine = Utils.formatUTF8("HP: %s/%s", data.p.curHP, data.p.hp)
+			local hpLine = Utils.formatUTF8("%s: %s/%s", Resources.MGBAScreens.TrackerHP, data.p.curHP, data.p.hp)
 			lines[3] = Utils.formatUTF8(topFormattedLine, hpLine, formattedStats.hp)
 			lines[4] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.atk)
 
 			if Options["Track PC Heals"] then
-				local survivalHeals = Utils.formatUTF8("Survival PCs: %s", data.x.pcheals)
+				local survivalHeals = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.TrackerSurvivalPCs, data.x.pcheals)
 				lines[7] = Utils.formatUTF8(topFormattedLine, survivalHeals, formattedStats.spd)
 			else
 				lines[7] = Utils.formatUTF8(topFormattedLine, "", formattedStats.spd)
 			end
 
-			local availableHeals = Utils.formatUTF8("Heals: %.0f%% (%s)", data.x.healperc, data.x.healnum)
+			local availableHeals = Utils.formatUTF8("%s: %.0f%% (%s)", Resources.MGBAScreens.TrackerHeals, data.x.healperc, data.x.healnum)
 			lines[8] = Utils.formatUTF8(topFormattedLine, availableHeals, formattedStats.spe)
 		else
 			lines[3] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.hp)
 
 			local lastLevelSeen
 			if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
-				lastLevelSeen = Utils.formatUTF8("Last seen Lv.%s", data.p.lastlevel)
+				lastLevelSeen = Utils.formatUTF8("%s %s.%s", Resources.MGBAScreens.TrackerLastSeen, Resources.MGBAScreens.TrackerLevel, data.p.lastlevel)
 			else
-				lastLevelSeen = "New encounter!"
+				lastLevelSeen = Resources.MGBAScreens.TrackerNewEncounter
 			end
 			lines[4] = Utils.formatUTF8(topFormattedLine, lastLevelSeen, formattedStats.atk)
 
 			local encountersText, routeText
 			if Battle.isWildEncounter then
-				encountersText = Utils.formatUTF8("Seen in the wild: %s", data.x.encounters)
+				encountersText = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.TrackerSeenWild, data.x.encounters)
 				routeText = data.x.route
 			else
 				local numAlive, totalMons = Program.getTeamCounts()
-				encountersText = Utils.formatUTF8("Seen on trainers: %s", data.x.encounters)
-				routeText = Utils.formatUTF8("Trainer team: %s/%s", numAlive, totalMons)
+				encountersText = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.TrackerSeenTrainers, data.x.encounters)
+				routeText = Utils.formatUTF8("%s: %s/%s", Resources.MGBAScreens.TrackerTrainerTeam, numAlive, totalMons)
 			end
 
 			lines[7] = Utils.formatUTF8(topFormattedLine, encountersText, formattedStats.spd)
@@ -645,14 +726,17 @@ MGBADisplay.LineBuilder = {
 
 		lines[5] = Utils.formatUTF8(topFormattedLine, data.p.line1, formattedStats.def)
 		lines[6] = Utils.formatUTF8(topFormattedLine, data.p.line2, formattedStats.spa)
-		table.insert(lines, "")
+		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		-- Bottom five lines of the box: Move related stuff
 		local botFormattedLine = "%-18s%-3s%-7s  %-3s"
-		local moveHeader = Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader, "PP", "   Pow", "Acc")
-		local moveDivider = "---------------------------------"
+		local moveHeader = Utils.formatUTF8(botFormattedLine, data.m.nextmoveheader,
+			Resources.MGBAScreens.TrackerHeaderPP,
+			"   " .. Resources.MGBAScreens.TrackerHeaderPow,
+			Resources.MGBAScreens.TrackerHeaderAcc)
+		local moveDivider = MGBADisplay.Symbols.DividerLine
 		if Theme.MOVE_TYPES_ENABLED then
-			moveHeader = string.format("%s   %s", moveHeader, "Type")
+			moveHeader = string.format("%s   %s", moveHeader, Resources.MGBAScreens.TrackerHeaderType)
 			moveDivider = string.format("%s   %s", moveDivider, "------")
 		end
 		table.insert(lines, moveHeader)
@@ -660,7 +744,11 @@ MGBADisplay.LineBuilder = {
 		for i, move in ipairs(data.m.moves) do
 			local nameText = move.name
 			if Options["Show physical special icons"] and (data.x.viewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
-				nameText = (MGBADisplay.Symbols.Category[move.category] or " ") .. " " .. nameText
+				local catSymbol = " "
+				if MGBADisplay.Categories[data.m.category] then
+					catSymbol = MGBADisplay.Categories[data.m.category]:getSymbol()
+				end
+				nameText = catSymbol .. " " .. nameText
 			end
 
 			local ppAligned = Utils.formatUTF8(justify2, move.pp)
@@ -674,11 +762,13 @@ MGBADisplay.LineBuilder = {
 			end
 			powerText = Utils.formatUTF8(justify5, powerText)
 
-			if move.showeffective then
-				powerText = (MGBADisplay.Symbols.Effectiveness[move.effectiveness] or "  ") .. powerText
+			local effectivenessLabel
+			if move.showeffective and MGBADisplay.Effectiveness[move.effectiveness] then
+				effectivenessLabel = MGBADisplay.Effectiveness[move.effectiveness]:getSymbol() or "  "
 			else
-				powerText = (MGBADisplay.Symbols.Effectiveness[1] or "  ") .. powerText
+				effectivenessLabel = "  "
 			end
+			powerText = effectivenessLabel .. powerText
 
 			local moveLine = Utils.formatUTF8(botFormattedLine, nameText, ppAligned, powerText, accuracyAligned)
 
@@ -690,7 +780,7 @@ MGBADisplay.LineBuilder = {
 
 			table.insert(lines, moveLine)
 		end
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		-- Footer, carousel related stuff
 		-- local botFormattedLine = "%-33s"
@@ -703,13 +793,13 @@ MGBADisplay.LineBuilder = {
 		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) then
 			local repelBarSize = 20
 			local remainingFraction = math.floor(Program.ActiveRepel.stepCount * repelBarSize / Program.ActiveRepel.duration)
-			local repelFillBar = string.rep("=", remainingFraction)
+			local repelBarFill = string.rep("=", remainingFraction)
 			if Program.ActiveRepel.stepCount > 0 then
-				repelFillBar = Utils.formatUTF8("%-".. repelBarSize .. "s", repelFillBar)
-				table.insert(lines, Utils.formatUTF8("Repel: %26s", Utils.formatUTF8("[%s]", repelFillBar))) -- right-align
+				repelBarFill = Utils.formatUTF8("[%-".. repelBarSize .. "s]", repelBarFill)
+				table.insert(lines, Utils.formatUTF8("%s: %26s", Resources.MGBAScreens.TrackerRepel, repelBarFill)) -- right-align
 			end
 		end
-		table.insert(lines, "---------------------------------")
+		table.insert(lines, MGBADisplay.Symbols.DividerLine)
 
 		return lines
 	end,
@@ -748,7 +838,7 @@ MGBADisplay.Utils = {
 
 		local carouselContent = carousel.getContentList(pokemonID)
 		if carousel.type == TrackerScreen.CarouselTypes.BADGES then
-			carouselText = "Badges: "
+			carouselText = Resources.MGBAScreens.TrackerBadges ..  ": "
 			for badgeNumber, badgeButton in ipairs(carouselContent) do
 				local badgeText = string.format("[%s]", Utils.inlineIf(badgeButton.badgeState ~= 0, badgeNumber, " "))
 				carouselText = carouselText .. badgeText
@@ -758,7 +848,7 @@ MGBADisplay.Utils = {
 		elseif carousel.type == TrackerScreen.CarouselTypes.ROUTE_INFO then
 			carouselText = carouselContent
 		elseif carousel.type == TrackerScreen.CarouselTypes.NOTES then
-			carouselText = "Note: " .. carouselContent
+			carouselText = Resources.MGBAScreens.PokemonInfoNote .. ": " .. carouselContent
 		elseif carousel.type == TrackerScreen.CarouselTypes.PEDOMETER then
 			carouselText = carouselContent
 		end

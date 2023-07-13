@@ -9,6 +9,10 @@ MGBA.Symbols = {
 	},
 }
 
+local function printf(str, ...)
+	print(string.format(str, ...))
+end
+
 function MGBA.initialize()
 	if Main.IsOnBizhawk() then return end
 
@@ -17,7 +21,7 @@ function MGBA.initialize()
 	MGBA.buildOptionMapDefaults()
 
 	if not Main.isOnLatestVersion() then
-		local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
+		local newUpdateName = string.format(" %s ** %s **", MGBA.Symbols.Menu.ListItem, Resources.MGBA.MenuNewUpdateVailable)
 		MGBA.Screens.UpdateCheck.textBuffer:setName(newUpdateName)
 		MGBA.Screens.UpdateCheck.labelTimer = 60 * 5 * 2 -- approx 5 minutes
 	end
@@ -25,7 +29,7 @@ end
 
 function MGBA.clearConsole()
 	-- This "clears" the Console for mGBA
-	print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+	printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 end
 
 function MGBA.printStartupInstructions()
@@ -34,14 +38,10 @@ function MGBA.printStartupInstructions()
 		return
 	end
 
-	print("")
-	print("- Click on the menus on the left sidebar to see different information screens.")
-	print("- To use commands, type the command into the box below.")
-	print('  Surround the command options with "quotation marks". For example:')
-	print('    POKEMON "Pikachu"')
-	print("")
-	print('- If you\'re unsure of what a command does, you can use: HELP "command"')
-	print("- More information can be found on the Tracker's wiki by typing: HELPWIKI()")
+	printf("")
+	for _, line in ipairs(Resources.MGBA.StartupInstructions or {}) do
+		printf(line)
+	end
 	MGBA.hasPrintedInstructions = true
 end
 
@@ -92,60 +92,115 @@ end
 MGBA.Screens = {
 	-- The default names (keys) of each screens on the mGBA Scripting window
 	SettingsMenu = {
-		name = string.format("%s Tracker Settings (v%s)", MGBA.Symbols.Menu.Hamburger, Main.TrackerVersion),
+		getTitle = function(self)
+			return string.format("%s (v%s)", Resources.MGBA.MenuTrackerSettings, Main.TrackerVersion)
+		end,
+		getMenuLabel = function(self)
+			return string.format("%s %s", MGBA.Symbols.Menu.Hamburger, self:getTitle())
+		end,
 	},
 	TrackerSetup = {
-		name = string.format(" %s General Setup", MGBA.Symbols.Menu.ListItem),
-		headerText = "General Setup",
+		getTitle = function(self)
+			return Resources.MGBA.MenuGeneralSetup
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildTrackerSetup, self.displayLines, nil)
 		end,
 	},
 	GameplayOptions = {
-		name = string.format(" %s Gameplay Options", MGBA.Symbols.Menu.ListItem),
-		headerText = "Gameplay Options",
+		getTitle = function(self)
+			return Resources.MGBA.MenuGameplayOptions
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildGameplayOptions, self.displayLines, nil)
 		end,
 	},
 	QuickloadSetup = {
-		name = string.format(" %s Quickload Setup", MGBA.Symbols.Menu.ListItem),
-		headerText = "Quickload Setup",
+		getTitle = function(self)
+			return Resources.MGBA.MenuQuickloadSetup
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildQuickloadSetup, self.displayLines, nil)
 		end,
 	},
 	UpdateCheck = {
-		name = string.format(" %s Check for Updates", MGBA.Symbols.Menu.ListItem),
-		headerText = "Check for Updates",
+		getTitle = function(self)
+			return Resources.MGBA.MenuCheckForUpdates
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildUpdateCheck, self.displayLines, nil)
 		end,
 	},
+	Language = {
+		getTitle = function(self)
+			return Resources.MGBA.MenuLanguage
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
+		updateData = function(self)
+			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildLanguage, self.displayLines, nil)
+		end,
+	},
 
 	CommandMenu = {
-		name = string.format("%s Commands", MGBA.Symbols.Menu.Hamburger),
+		getTitle = function(self)
+			return Resources.MGBA.MenuCommands
+		end,
+		getMenuLabel = function(self)
+			return string.format("%s %s", MGBA.Symbols.Menu.Hamburger, self:getTitle())
+		end,
 	},
 	CommandsBasic = {
-		name = string.format(" %s Basic Commands", MGBA.Symbols.Menu.ListItem),
-		headerText = "Basic Commands",
+		getTitle = function(self)
+			return Resources.MGBA.MenuBasicCommands
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsBasic, self.displayLines, nil)
 		end,
 	},
 	CommandsOther = {
-		name = string.format(" %s Other Commands", MGBA.Symbols.Menu.ListItem),
-		headerText = "Other Commands",
+		getTitle = function(self)
+			return Resources.MGBA.MenuOtherCommands
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildCommandsOther, self.displayLines, nil)
 		end,
 	},
 
 	LookupMenu = {
-		name = string.format("%s Info Lookup", MGBA.Symbols.Menu.Hamburger),
+		getTitle = function(self)
+			return Resources.MGBA.MenuInfoLookup
+		end,
+		getMenuLabel = function(self)
+			return string.format("%s %s", MGBA.Symbols.Menu.Hamburger, self:getTitle())
+		end,
 	},
 	LookupPokemon = {
-		name = string.format(" %s Pokémon", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuPokemon
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		setData = function(self, pokemonID, setByUser)
 			if self.pokemonID ~= pokemonID and PokemonData.isValid(pokemonID) then
 				local labelToAppend = PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
@@ -166,9 +221,15 @@ MGBA.Screens = {
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildPokemonInfo, self.displayLines, self.data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupMove = {
-		name = string.format(" %s Move", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuMove
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		lastTurnLookup = -1,
 		setData = function(self, moveId, setByUser)
 			if self.moveId ~= moveId and MoveData.isValid(moveId) then
@@ -203,9 +264,15 @@ MGBA.Screens = {
 				self:setData(Battle.actualEnemyMoveId, false)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupAbility = {
-		name = string.format(" %s Ability", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuAbility
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		setData = function(self, abilityId, setByUser)
 			if self.abilityId ~= abilityId and AbilityData.isValid(abilityId) then
 				local labelToAppend = AbilityData.Abilities[abilityId].name or Constants.BLANKLINE
@@ -230,12 +297,19 @@ MGBA.Screens = {
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildAbilityInfo, self.displayLines, self.data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupRoute = {
-		name = string.format(" %s Route", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuRoute
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		setData = function(self, routeId, setByUser)
 			if self.routeId ~= routeId and RouteData.hasRoute(routeId) then
 				local labelToAppend = RouteData.Info[routeId].name or Constants.BLANKLINE
+				labelToAppend = Utils.formatSpecialCharacters(labelToAppend)
 				MGBA.ScreenUtils.setLabel(MGBA.Screens.LookupRoute, labelToAppend)
 			end
 			self.routeId = routeId or 0
@@ -244,29 +318,50 @@ MGBA.Screens = {
 			self.data = DataHelper.buildRouteInfoDisplay(self.routeId)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildRouteInfo, self.displayLines, self.data)
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	LookupOriginalRoute = {
-		name = string.format("    %s Original Route Info", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuOriginalRoute
+		end,
+		getMenuLabel = function(self)
+			return string.format("    %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			local data = MGBA.Screens.LookupRoute.data -- Uses data that has already been built
 			if data ~= nil then
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildOriginalRouteInfo, self.displayLines, data)
 			end
 		end,
+		resetData = function(self) self.data = nil end,
 	},
 	Stats = {
-		name = string.format(" %s Stats", MGBA.Symbols.Menu.ListItem),
-		headerText = "Game Stats",
+		getTitle = function(self)
+			return Resources.MGBA.MenuGameStats
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildStats, self.displayLines, nil)
 		end,
 	},
 
 	TrackerMenu = {
-		name = string.format("%s Tracker", MGBA.Symbols.Menu.Hamburger),
+		getTitle = function(self)
+			return Resources.MGBA.MenuTracker
+		end,
+		getMenuLabel = function(self)
+			return string.format("%s %s", MGBA.Symbols.Menu.Hamburger, self:getTitle())
+		end,
 	},
 	BattleTracker = {
-		name = string.format(" %s Battle Tracker", MGBA.Symbols.Menu.ListItem),
+		getTitle = function(self)
+			return Resources.MGBA.MenuBattleTracker
+		end,
+		getMenuLabel = function(self)
+			return string.format(" %s %s", MGBA.Symbols.Menu.ListItem, self:getTitle())
+		end,
 		updateData = function(self)
 			self.data = DataHelper.buildTrackerScreenDisplay()
 			self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildTrackerScreen, self.displayLines, self.data)
@@ -277,7 +372,7 @@ MGBA.Screens = {
 -- Controls the display order of the TextBuffers in the mGBA Scripting window
 MGBA.OrderedScreens = {
 	MGBA.Screens.SettingsMenu,
-	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck,
+	MGBA.Screens.TrackerSetup, MGBA.Screens.GameplayOptions, MGBA.Screens.QuickloadSetup, MGBA.Screens.UpdateCheck, MGBA.Screens.Language,
 
 	MGBA.Screens.CommandMenu,
 	MGBA.Screens.CommandsBasic, MGBA.Screens.CommandsOther,
@@ -297,20 +392,20 @@ MGBA.ScreenUtils = {
 	setLabel = function(screen, label)
 		if screen ~= nil and screen.textBuffer ~= nil and label ~= nil and label ~= "" then
 			MGBA.ScreenUtils.removeLabels(screen)
-			screen.textBuffer:setName(string.format("%s - %s", screen.name or "", label))
+			screen.textBuffer:setName(string.format("%s - %s", screen:getMenuLabel() or "", label))
 			screen.labelTimer = MGBA.ScreenUtils.defaultLabelTimer
 		end
 	end,
 	removeLabels = function(screen)
 		if screen ~= nil and screen.textBuffer ~= nil then
-			screen.textBuffer:setName(screen.name or "")
+			screen.textBuffer:setName(screen:getMenuLabel() or "")
 			screen.labelTimer = 0
 		end
 	end,
 	createTextBuffers = function()
 		for id, screen in ipairs(MGBA.OrderedScreens) do
 			if screen.textBuffer == nil then -- workaround for reloading script for Quickload
-				screen.textBuffer = console:createBuffer(screen.name or ("(Unamed Screen #" .. id .. ")"))
+				screen.textBuffer = console:createBuffer(screen:getMenuLabel() or ("(Unamed Screen #" .. id .. ")"))
 				screen.textBuffer:setSize(80, 50) -- (cols, rows) default is (80, 24)
 			end
 		end
@@ -345,19 +440,32 @@ MGBA.ScreenUtils = {
 	end,
 }
 
+local function errorOptionNotExist(optionKey)
+	return string.format("%s: %s", Resources.MGBA.OptionKeyError, tostring(optionKey))
+end
+
 -- Ordered list of options that can be changed via the OPTION "#" function.
 -- Each has 'optionKey'/'themeKey', 'displayName', 'updateSelf', and 'getValue'; many defined in MGBA.buildOptionMapDefaults()
 MGBA.OptionMap = {
 	-- TRACKER SETUP (#1-#7, #10-#13)
-	[1] = { optionKey = "Right justified numbers", displayName = "Right justified numbers", },
-	[2] = { optionKey = "Auto save tracked game data", displayName = "Autosave tracked game data", },
-	[3] = { optionKey = "Track PC Heals", displayName = "Track PC Heals", },
+	[1] = {
+		optionKey = "Right justified numbers",
+		getText = function() return Resources.MGBA.OptionRightJustifiedNumbers end,
+	},
+	[2] = {
+		optionKey = "Auto save tracked game data",
+		getText = function() return Resources.MGBA.OptionAutosaveTrackedData end,
+	},
+	[3] = {
+		optionKey = "Track PC Heals",
+		getText = function() return Resources.MGBA.OptionTrackPCHeals end,
+	},
 	[4] = {
 		optionKey = "PC heals count downward",
-		displayName = "PC heals count downward",
+		getText = function() return Resources.MGBA.OptionPCHealsCountDownward end,
 		updateSelf = function(self)
 			if Options[self.optionKey] == nil then
-				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+				return false, errorOptionNotExist(self.optionKey)
 			end
 			-- If PC Heal tracking switched, invert the count
 			Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
@@ -366,20 +474,26 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[5] = { optionKey = "Display pedometer", displayName = "Display step pedometer", },
-	[6] = { optionKey = "Display repel usage", displayName = "Display repel usage", },
+	[5] = {
+		optionKey = "Display pedometer",
+		getText = function() return Resources.MGBA.OptionDisplayPedometer end,
+	},
+	[6] = {
+		optionKey = "Display repel usage",
+		getText = function() return Resources.MGBA.OptionDisplayRepel end,
+	},
 	[7] = {
 		optionKey = "Animated Pokemon popout",
-		displayName = "Animated Pokemon GIF",
+		getText = function() return Resources.MGBA.OptionAnimatedPokemonGIF end,
 		updateSelf = function(self, params)
 			if Options[self.optionKey] == nil then
-				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+				return false, errorOptionNotExist(self.optionKey)
 			end
 			-- First test if this add-on is installed properly
 			local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
 			local isAvailable = FileManager.fileExists(abraGif)
 			if not Options[self.optionKey] and not isAvailable then -- attempt to turn it on, but can't
-				return false, "The Animated Pokemon popout add-on must be installed separately.\n Refer to the Tracker Wiki for more details on setting this up."
+				return false, Resources.MGBA.AnimatedPopoutRequired
 			end
 
 			Options[self.optionKey] = not Options[self.optionKey]
@@ -387,27 +501,48 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[8] = { optionKey = "Dev branch updates", displayName = "Dev branch updates", },
-	[10] = { optionKey = "Toggle view", displayName = "Swap viewed Pokemon", },
-	[11] = { optionKey = "Cycle through stats", displayName = "Cycle through stats", },
-	[12] = { optionKey = "Mark stat", displayName = "Mark a stat [+/-]", },
-	[13] = { optionKey = "Load next seed", displayName = "Quickload", },
+	[8] = {
+		optionKey = "Dev branch updates",
+		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
+	},
+	[10] = {
+		optionKey = "Toggle view",
+		getText = function() return Resources.MGBA.OptionSwapViewedPokemon end,
+	},
+	[11] = {
+		optionKey = "Cycle through stats",
+		getText = function() return Resources.MGBA.OptionCycleThroughStats end,
+	},
+	[12] = {
+		optionKey = "Mark stat",
+		getText = function() return Resources.MGBA.OptionMarkStat end,
+	},
+	[13] = {
+		optionKey = "Load next seed",
+		getText = function() return Resources.MGBA.OptionQuickload end,
+	},
 	-- GAMEPLAY OPTIONS (#20-28)
-	[20] = { optionKey = "Auto swap to enemy", displayName = "Auto swap to enemy", },
-	[21] = { optionKey = "Hide stats until summary shown", displayName = "View summary to see stats", },
+	[20] = {
+		optionKey = "Auto swap to enemy",
+		getText = function() return Resources.MGBA.OptionAutoswapEnemy end,
+	},
+	[21] = {
+		optionKey = "Hide stats until summary shown",
+		getText = function() return Resources.MGBA.OptionViewSummaryForStats end,
+	},
 	[22] = {
 		themeKey = "MOVE_TYPES_ENABLED",
-		displayName = "Show move types",
+		getText = function() return Resources.MGBA.OptionShowMoveTypes end,
 		getValue = function(self)
 			if Theme[self.themeKey] == true then
-				return MGBADisplay.Symbols.Options.Enabled
+				return MGBADisplay.Symbols.OptionEnabled
 			else
-				return MGBADisplay.Symbols.Options.Disabled
+				return MGBADisplay.Symbols.OptionDisabled
 			end
 		end,
 		updateSelf = function(self)
 			if Theme[self.themeKey] == nil then
-				return false, string.format("Theme key \"%s\" doesn't exist.", tostring(self.themeKey))
+				return false, errorOptionNotExist(self.themeKey)
 			end
 
 			Theme[self.themeKey] = not Theme[self.themeKey]
@@ -417,19 +552,41 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[23] = { optionKey = "Show physical special icons", displayName = "Physical/Special icons", },
-	[24] = { optionKey = "Show move effectiveness", displayName = "Show move effectiveness", },
-	[25] = { optionKey = "Calculate variable damage", displayName = "Calculate variable damage", },
-	[26] = { optionKey = "Count enemy PP usage", displayName = "Count enemy PP usage", },
-	[27] = { optionKey = "Show last damage calcs", displayName = "Show last damage calcs", },
-	[28] = { optionKey = "Reveal info if randomized", displayName = "Reveal info if randomized", },
+	[23] = {
+		optionKey = "Show physical special icons",
+		getText = function() return Resources.MGBA.OptionPhysicalSpecialIcons end,
+	},
+	[24] = {
+		optionKey = "Show move effectiveness",
+		getText = function() return Resources.MGBA.OptionShowMoveEffectiveness end,
+	},
+	[25] = {
+		optionKey = "Calculate variable damage",
+		getText = function() return Resources.MGBA.OptionCalculateVariableDamage end,
+	},
+	[26] = {
+		optionKey = "Count enemy PP usage",
+		getText = function() return Resources.MGBA.OptionCountEnemyPP end,
+	},
+	[27] = {
+		optionKey = "Show last damage calcs",
+		getText = function() return Resources.MGBA.OptionShowLastDamage end,
+	},
+	[28] = {
+		optionKey = "Reveal info if randomized",
+		getText = function() return Resources.MGBA.OptionRevealRandomizedInfo end,
+	},
+	[29] = {
+		optionKey = "Autodetect language from game",
+		getText = function() return Resources.MGBA.OptionAutodetectGameLanguage end,
+	},
 	-- QUICKLOAD SETUP (#30-#35)
 	[30] = {
 		optionKey = "Use premade ROMs",
-		displayName = "Use premade ROMs",
+		getText = function() return Resources.MGBA.OptionPremadeRoms end,
 		updateSelf = function(self, params)
 			if Options[self.optionKey] == nil then
-				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+				return false, errorOptionNotExist(self.optionKey)
 			end
 			Options[self.optionKey] = not Options[self.optionKey]
 			-- Only one can be enabled at a time
@@ -440,10 +597,10 @@ MGBA.OptionMap = {
 		},
 	[31] = {
 		optionKey = "Generate ROM each time",
-		displayName = "Generate a ROM each time",
+		getText = function() return Resources.MGBA.OptionGenerateRom end,
 		updateSelf = function(self, params)
 			if Options[self.optionKey] == nil then
-				return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+				return false, errorOptionNotExist(self.optionKey)
 			end
 			Options[self.optionKey] = not Options[self.optionKey]
 			-- Only one can be enabled at a time
@@ -454,7 +611,7 @@ MGBA.OptionMap = {
 	},
 	[32] = {
 		optionKey = "ROMs Folder",
-		displayName = "ROMs Folder",
+		getText = function() return Resources.MGBA.OptionRomsFolder end,
 		getValue = function(self)
 			return FileManager.extractFolderNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
@@ -469,7 +626,7 @@ MGBA.OptionMap = {
 	},
 	[33] = {
 		optionKey = "Randomizer JAR",
-		displayName = "Randomizer JAR",
+		getText = function() return Resources.MGBA.OptionRandomizerJar end,
 		getValue = function(self)
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
@@ -477,11 +634,11 @@ MGBA.OptionMap = {
 			local path = FileManager.formatPathForOS(params)
 			local extension = FileManager.extractFileExtensionFromPath(path)
 			if extension ~= "jar" then
-				return false, "A '.jar' file is required; please enter the full file path to your Randomizer JAR file."
+				return false, Resources.MGBA.JarFileRequired
 			end
 			local absolutePath = FileManager.getPathIfExists(path)
 			if absolutePath == nil then
-				return false, string.format("File not found: %s", path)
+				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
 			Options.forceSave()
@@ -490,7 +647,7 @@ MGBA.OptionMap = {
 	},
 	[34] = {
 		optionKey = "Source ROM",
-		displayName = "Source ROM",
+		getText = function() return Resources.MGBA.OptionSourceRom end,
 		getValue = function(self)
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
@@ -498,11 +655,11 @@ MGBA.OptionMap = {
 			local path = FileManager.formatPathForOS(params)
 			local extension = FileManager.extractFileExtensionFromPath(path)
 			if extension ~= "gba" then
-				return false, "A '.gba' file is required; please enter the full file path to your GBA ROM file."
+				return false, Resources.MGBA.GbaFileRequired
 			end
 			local absolutePath = FileManager.getPathIfExists(path)
 			if absolutePath == nil then
-				return false, string.format("File not found: %s", path)
+				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
 			Options.forceSave()
@@ -511,7 +668,7 @@ MGBA.OptionMap = {
 	},
 	[35] = {
 		optionKey = "Settings File",
-		displayName = "Settings File",
+		getText = function() return Resources.MGBA.OptionSettingsFile end,
 		getValue = function(self)
 			return FileManager.extractFileNameFromPath(Options.FILES[self.optionKey]) or ""
 		end,
@@ -519,11 +676,11 @@ MGBA.OptionMap = {
 			local path = FileManager.formatPathForOS(params)
 			local extension = FileManager.extractFileExtensionFromPath(path)
 			if extension ~= "rnqs" then
-				return false, "An '.rnqs' file is required; please enter the full file path to your Randomizer Settings file."
+				return false, Resources.MGBA.RnqsFileRequired
 			end
 			local absolutePath = FileManager.getPathIfExists(path)
 			if absolutePath == nil then
-				return false, string.format("File not found: %s", path)
+				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
 			Options.forceSave()
@@ -538,9 +695,9 @@ function MGBA.buildOptionMapDefaults()
 		if opt.getValue == nil then
 			opt.getValue = function(self)
 				if Options[self.optionKey] == true then
-					return MGBADisplay.Symbols.Options.Enabled
+					return MGBADisplay.Symbols.OptionEnabled
 				elseif Options[self.optionKey] == false then
-					return MGBADisplay.Symbols.Options.Disabled
+					return MGBADisplay.Symbols.OptionDisabled
 				else
 					return Options.CONTROLS[self.optionKey] or ""
 				end
@@ -553,7 +710,7 @@ function MGBA.buildOptionMapDefaults()
 				updateFunction = function(self, params)
 					local comboFormatted = Utils.formatControls(params) or ""
 					if comboFormatted == "" then
-						return false, "Button input required; available buttons: A, B, L, R, Start, Select"
+						return false, Resources.MGBA.ButtonInputRequired
 					end
 					Options.CONTROLS[self.optionKey] = comboFormatted
 					Options.forceSave()
@@ -563,7 +720,7 @@ function MGBA.buildOptionMapDefaults()
 				-- Otherwise, toggle the option's boolean value
 				updateFunction = function(self)
 					if Options[self.optionKey] == nil then
-						return false, string.format("Option key \"%s\" doesn't exist.", tostring(self.optionKey))
+						return false, errorOptionNotExist(self.optionKey)
 					end
 					Options[self.optionKey] = not Options[self.optionKey]
 					Options.forceSave()
@@ -578,17 +735,17 @@ end
 -- Unordered list of commands, where the command's name is the table's key
 MGBA.CommandMap = {
 	-- ["EXAMPLECOMMAND"] = {
-	--	description = "A short explanation of what this command does", -- This gets printed to the console directly
+	--	getDesc = "A short explanation of what this command does", -- This gets printed to the console directly
 	-- 	usageSyntax = 'SYNTAX',
 	-- 	usageExample = 'EXAMPLE "params"', -- Ideally should be shorter than screenWidth-1 (32)
 	-- 	execute = function(self, params) end,
 	-- },
 	["ALLCOMMANDS"] = {
-		description = 'Lists every available command. Use HELP "command" to learn more about any command.',
+		getDesc = function(self) return Resources.MGBACommands.AllCommandsDesc end,
 		usageSyntax = 'ALLCOMMANDS()',
 		usageExample = 'ALLCOMMANDS()',
 		execute = function(self, params)
-			print('List of all available commands. Learn how to use them with: HELP "command"')
+			printf(self:getDesc())
 
 			local commandsOrdered = {}
 			for commandName, _ in pairs(MGBA.CommandMap) do
@@ -603,75 +760,74 @@ MGBA.CommandMap = {
 				if commandsOrdered[i + 1] ~= nil then
 					commandPair = commandPair .. " * " .. commandsOrdered[i + 1]
 				end
-				print(commandPair)
+				printf(commandPair)
 			end
 		end,
 	},
 	["HELP"] = {
-		description = "Used to explain the function of other commands and how to use them.",
+		getDesc = function(self) return Resources.MGBACommands.HelpDesc end,
 		usageSyntax = 'HELP "command"',
 		usageExample = 'HELP "POKEMON"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "command" is the name of a command.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.HelpError1)
 				return
 			end
 
 			local command = MGBA.CommandMap[params:upper()]
 			if command == nil then
-				print(string.format(' Command "%s" not found. Check list of commands on the left sidebar.', params:upper()))
+				printf(" '%s' %s", params:upper(), Resources.MGBACommands.HelpError2)
 				return
 			end
 
 			if command.description ~= nil then
-				print(string.format(" %s", command.description))
-				print("")
+				printf(" %s", command.description)
+				printf("")
 			end
 			if command.usageSyntax ~= nil then
-				print(string.format(" Usage: %s", command.usageSyntax))
+				printf(" %s: %s", Resources.MGBACommands.HelpUsage, command.usageSyntax)
 			end
 			if command.usageExample ~= nil and command.usageExample ~= command.usageSyntax then
-				print(string.format(" Example: %s", command.usageExample))
+				printf(" %s: %s", Resources.MGBACommands.HelpExample, command.usageExample)
 			end
 		end,
 	},
 	["NOTE"] = {
-		description = "Sets the tracked note for the opposing " .. Constants.Words.POKEMON .. " currently being viewed.",
+		getDesc = function(self) return Resources.MGBACommands.NoteDesc end,
 		usageSyntax = 'NOTE "text"',
 		usageExample = 'NOTE "Very fast, no HP"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "text" is the note to leave for the enemy ' .. Constants.Words.POKEMON .. ' being viewed.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.NoteError1)
 				return
 			end
 
 			local noteText = params
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon == nil or not PokemonData.isValid(pokemon.pokemonID) then
-				print(" Unable to leave a note; no " .. Constants.Words.POKEMON .. " is currently being viewed.")
+				printf(" %s", Resources.MGBACommands.NoteError2)
 				return
 			end
 
 			if Tracker.Data.isViewingOwn then
-				print(string.format(" Unable to leave a note for your own " .. Constants.Words.POKEMON .. ": %s.", pokemon.name))
-				print(string.format(" You can only leave notes for ENEMY " .. Constants.Words.POKEMON .. " you are currently viewing."))
+				printf(" %s", Resources.MGBACommands.NoteError3)
 			else
 				Tracker.TrackNote(pokemon.pokemonID, noteText)
-				print(string.format(" Note added for %s.", pokemon.name))
+				printf(" %s %s.", Resources.MGBACommands.NoteSuccess, pokemon.name)
 				Program.redraw(true)
 			end
 		end,
 	},
 	["POKEMON"] = {
-		description = "Looks up useful " .. Constants.Words.POKE .. "dex info about a " .. Constants.Words.POKEMON .. ", shown on the left sidebar.",
+		getDesc = function(self) return Resources.MGBACommands.PokemonDesc end,
 		usageSyntax = 'POKEMON "name"',
-		usageExample = 'POKEMON "Shuckle"',
+		usageExample = 'POKEMON "Espeon"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. ' name.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.PokemonError1)
 				return
 			end
 
@@ -679,22 +835,22 @@ MGBA.CommandMap = {
 			local pokemonID = DataHelper.findPokemonId(pokemonName)
 			if pokemonID ~= 0 then
 				pokemonName = PokemonData.Pokemon[pokemonID].name or pokemonName
-				print(string.format(" " .. Constants.Words.POKEMON .. " info found for: %s  (check the sidebar menu to view it)", pokemonName))
+				printf(" %s %s", pokemonName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupPokemon:setData(pokemonID, true)
 				Program.redraw(true)
 			else
-				print(string.format(" Unable to find " .. Constants.Words.POKEMON .. ": %s", pokemonName))
+				printf(" %s: %s", Resources.MGBACommands.PokemonError2, pokemonName)
 			end
 		end,
 	},
 	["MOVE"] = {
-		description = "Looks up useful information about a " .. Constants.Words.POKEMON .. " move, shown on the left sidebar.",
+		getDesc = function(self) return Resources.MGBACommands.MoveDesc end,
 		usageSyntax = 'MOVE "name"',
 		usageExample = 'MOVE "Wrap"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. ' move name.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.MoveError1)
 				return
 			end
 
@@ -702,22 +858,22 @@ MGBA.CommandMap = {
 			local moveId = DataHelper.findMoveId(moveName)
 			if moveId ~= 0 then
 				moveName = MoveData.Moves[moveId].name or moveName
-				print(string.format(" Move info found for: %s  (check the sidebar menu to view it)", moveName))
+				printf(" %s %s", moveName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupMove:setData(moveId, true)
 				Program.redraw(true)
 			else
-				print(string.format(" Unable to find move: %s", moveName))
+				printf(" %s: %s", Resources.MGBACommands.MoveError2, moveName)
 			end
 		end,
 	},
 	["ABILITY"] = {
-		description = "Looks up useful information about a " .. Constants.Words.POKEMON .. " ability, shown on the left sidebar.",
+		getDesc = function(self) return Resources.MGBACommands.AbilityDesc end,
 		usageSyntax = 'ABILITY "name"',
 		usageExample = 'ABILITY "Flash Fire"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "name" is a valid ' .. Constants.Words.POKEMON .. '\'s ability name.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.AbilityError1)
 				return
 			end
 
@@ -725,22 +881,22 @@ MGBA.CommandMap = {
 			local abilityId = DataHelper.findAbilityId(abilityName)
 			if abilityId ~= 0 then
 				abilityName = AbilityData.Abilities[abilityId].name or abilityName
-				print(string.format(" Ability info found for: %s  (check the sidebar menu to view it)", abilityName))
+				printf(" %s %s", abilityName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupAbility:setData(abilityId, true)
 				Program.redraw(true)
 			else
-				print(string.format(" Unable to find ability: %s", abilityName))
+				printf(" %s: %s", Resources.MGBACommands.AbilityError2, abilityName)
 			end
 		end,
 	},
 	["ROUTE"] = {
-		description = "Looks up useful information about a route, shown on the left sidebar.\n Tip: Try adding a floor number after a route name, e.g. Mt. Moon 1F",
+		getDesc = function(self) return Resources.MGBACommands.RouteDesc end,
 		usageSyntax = 'ROUTE "name"',
 		usageExample = 'ROUTE "Route 2"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "name" is a valid route number or route name.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.RouteError1)
 				return
 			end
 
@@ -748,112 +904,104 @@ MGBA.CommandMap = {
 			local routeId = DataHelper.findRouteId(routeName)
 			if routeId ~= 0 then
 				routeName = RouteData.Info[routeId].name or routeName
-				print(string.format(" Route info found for: %s  (check the sidebar menu to view it)", routeName))
+				routeName = Utils.formatSpecialCharacters(routeName)
+				printf(" %s %s", routeName, Resources.MGBACommands.InfoLookupSuccess)
 				MGBA.Screens.LookupRoute:setData(routeId, true)
 				Program.redraw(true)
 			else
-				print(string.format(" Unable to find route: %s", routeName))
+				printf(" %s: %s", Resources.MGBACommands.RouteError2, routeName)
 			end
 		end,
 	},
 	["OPTION"] = {
-		description = "Toggles an option ON or OFF.\n For some options, you'll need to provide additional text to change it.",
+		getDesc = function(self) return Resources.MGBACommands.OptionDesc end,
 		usageSyntax = 'OPTION "#"',
 		usageExample = 'OPTION "13"',
 		execute = function(self, params)
-			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a valid option number, followed by any optional text.')
-				return
-			end
-
-			local optionNumber = params:match("^%d+")
+			params = params or ""
+			local optionNumber = tonumber(params:match("^%d+") or "")
 			if optionNumber == nil then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a valid option number, followed by any optional text.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.OptionError1)
 				return
 			end
 
-			optionNumber = tonumber(optionNumber)
 			local _, _, actualParams = params:match("(%d+)(%s+)(.+)") -- Everything but the first number
 
 			local opt = MGBA.OptionMap[optionNumber]
 			if opt == nil then
-				print(string.format(" Option #%s doesn't exist. Please try another option number.", optionNumber))
+				printf(" #%s %s", optionNumber, Resources.MGBACommands.OptionError2)
 				return
 			end
 
 			local success, msg = opt:updateSelf(actualParams)
 			if success then
 				Program.redraw(true)
-				local newValue = opt:getValue()
-				if newValue == MGBADisplay.Symbols.Options.Enabled then
-					newValue = "to ON."
-				elseif newValue == MGBADisplay.Symbols.Options.Disabled then
-					newValue = "to OFF."
-				else
-					newValue = string.format("to %s", newValue)
+				local newValue = opt:getValue() or ""
+				if newValue == MGBADisplay.Symbols.OptionEnabled then
+					newValue = Resources.MGBACommands.OptionOn
+				elseif newValue == MGBADisplay.Symbols.OptionDisabled then
+					newValue = Resources.MGBACommands.OptionOff
 				end
-				print(string.format(' Updating option #%s: "%s" %s', optionNumber, opt.displayName, newValue))
+				printf(" %s #%s: '%s' -> %s.", Resources.MGBACommands.OptionSuccess, optionNumber, opt:getText(), newValue)
 			else
-				print(string.format(' [Error] %s', msg or "An unknown error has occured."))
+				printf(" [Error] %s", msg or "An unknown error has occured.")
 			end
 		end,
 	},
 	["HIDDENPOWER"] = {
-		description = "Sets the type of Hidden Power for your active " .. Constants.Words.POKEMON .. ".\n This helps show move effectiveness calculations while in battle.",
+		getDesc = function(self) return Resources.MGBACommands.HiddenPowerDesc end,
 		usageSyntax = 'HIDDENPOWER "type"',
 		usageExample = 'HIDDENPOWER "Water"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "type" is a valid ' .. Constants.Words.POKEMON .. ' type.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s.", Resources.MGBACommands.HiddenPowerError1)
 				return
 			end
+
+			local hiddenpowerMoveId = 237
+			local hiddenpowerName = MoveData.Moves[hiddenpowerMoveId].name or "Hidden Power"
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
 			local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
-				print(string.format(" [Command Error] You don't have a %s yet.", Constants.Words.POKEMON))
+				printf(" %s", Resources.MGBACommands.HiddenPowerError2)
 				return
-			elseif not Utils.pokemonHasMove(pokemonViewed, 237) then -- 237 = Hidden Power
-				print(string.format(" [Command Error] Your %s doesn't have the move Hidden Power.", Constants.Words.POKEMON))
+			elseif not Utils.pokemonHasMove(pokemonViewed, hiddenpowerMoveId) then
+				printf(" %s %s.", Resources.MGBACommands.HiddenPowerError3, hiddenpowerName)
 				return
 			end
 
-			local typeName = Utils.firstToUpper(params:lower())
+			local typeName = Utils.firstToUpper(Utils.toLowerUTF8(params))
 			local hpType = DataHelper.findPokemonType(typeName)
 			if hpType ~= nil then
 				Tracker.TrackHiddenPowerType(pokemonViewed.personality, hpType)
 				Program.redraw(true)
 				local pokemonData = PokemonData.Pokemon[pokemonViewed.pokemonID]
-				print(string.format(" %s's (Lv.%s) Hidden Power's type set to: %s", pokemonData.name, pokemonViewed.level, typeName))
+				local pokemonInfo = string.format("%s (%s.%s)", pokemonData.name, Resources.TrackerScreen.LevelAbbreviation, pokemonViewed.level)
+				printf(" %s %s %s: %s", pokemonInfo, hiddenpowerName, Resources.MGBACommands.HiddenPowerSuccess1, typeName)
 
 				if Options["Show move effectiveness"] then
-					print(" Hidden Power's move effectiveness is visible on the Tracker while in battle.")
+					printf(" %s %s", hiddenpowerName, Resources.MGBACommands.HiddenPowerSuccess2)
 				else
-					print(' Enable the "Show move effectiveness" option to see this type while in battle.')
+					printf(" %s", Resources.MGBACommands.HiddenPowerSuccess3)
 				end
 			else
-				print(string.format(" Unable to find type: %s", typeName))
+				printf(" %s: %s", Resources.MGBACommands.HiddenPowerError4, typeName)
 			end
 		end,
 	},
 	["PCHEALS"] = {
-		description = "Allows you to manually change the tracked " .. Constants.Words.POKE .. "center usage counter to a different number.",
+		getDesc = function(self) return Resources.MGBACommands.PCHealsDesc end,
 		usageSyntax = 'PCHEALS "#"',
 		usageExample = 'PCHEALS "5"',
 		execute = function(self, params)
-			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a positive number between 0 and 99.')
-				return
-			end
-
+			params = params or ""
 			local number = params:match("^%d+")
 			if number == nil or tonumber(number) == nil then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a positive number between 0 and 99.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.PCHealsError1)
 				return
 			end
 
@@ -861,34 +1009,34 @@ MGBA.CommandMap = {
 			if Tracker.Data.centerHeals < 0 then Tracker.Data.centerHeals = 0 end
 			if Tracker.Data.centerHeals > 99 then Tracker.Data.centerHeals = 99 end
 			Program.redraw(true)
-			print(string.format(' Updating PC Heal count to: %s', Tracker.Data.centerHeals))
+			printf(" %s: %s", Resources.MGBACommands.PCHealsSuccess, Tracker.Data.centerHeals)
 		end,
 	},
 	["CREDITS"] = {
-		description = "Displays a list of team members who helped contribute to creating the Ironmon Tracker.",
+		getDesc = function(self) return Resources.MGBACommands.CreditsDesc end,
 		usageSyntax = 'CREDITS()',
 		usageExample = 'CREDITS()',
 		execute = function(self, params)
-			print(string.format("%-15s %s", "Created by:", Main.CreditsList.CreatedBy))
-			print("")
-			print("Contributors:")
+			printf("%-15s %s", Resources.MGBACommands.CreditsCreatedBy .. ":", Main.CreditsList.CreatedBy)
+			printf("")
+			printf("%s:", Resources.MGBACommands.CreditsContributors)
 			for i=1, #Main.CreditsList.Contributors, 2 do
 				local contributorPair = string.format("* %-13s", Main.CreditsList.Contributors[i] or "")
 				if Main.CreditsList.Contributors[i + 1] ~= nil then
 					contributorPair = contributorPair .. " * " .. Main.CreditsList.Contributors[i + 1]
 				end
-				print(contributorPair)
+				printf(contributorPair)
 			end
 		end,
 	},
 	["SAVEDATA"] = {
-		description = "Saves all tracked data for your current game.\n The TDAT save file can be found in your main Tracker folder.",
+		getDesc = function(self) return Resources.MGBACommands.SaveDataDesc end,
 		usageSyntax = 'SAVEDATA "filename"',
 		usageExample = 'SAVEDATA "FireRed Seed 12"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "filename" is a valid name for a file.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.SaveDataError1)
 				return
 			end
 
@@ -897,17 +1045,17 @@ MGBA.CommandMap = {
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
 			Tracker.saveData(filename)
-			print(string.format(' Tracked data saved for this game in the Tracker folder as: %s', filename))
+			printf(" %s: %s", Resources.MGBACommands.SaveDataSuccess, filename)
 		end,
 	},
 	["LOADDATA"] = {
-		description = "Loads tracked data from a past game playthrough.\n Loads from a TDAT file found in your main Tracker folder.",
+		getDesc = function(self) return Resources.MGBACommands.LoadDataDesc end,
 		usageSyntax = 'LOADDATA "filename"',
 		usageExample = 'LOADDATA "FireRed Seed 12"',
 		execute = function(self, params)
 			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where "filename" is the name of a file that exists in your Tracker folder.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.LoadDataError1)
 				return
 			end
 
@@ -915,51 +1063,48 @@ MGBA.CommandMap = {
 			if filename:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
-			local success, msg = Tracker.loadData(FileManager.prependDir(filename))
-			if success then
-				if msg ~= nil and msg ~= Tracker.LoadStatusMessages.newGame then
-					print(" " .. msg)
-				else
-					print(" Tracked data from this file does not match this game. Resetting tracked data instead.")
-				end
-			else
-				if msg ~= nil and msg ~= "" then
-					print(" " .. msg)
-					print(" The specified Tracked data file (.tdat) cannot be found in your Tracker folder.")
-				else
-					print(" Unable to load Tracked data from the specific file. Double-check it's in your Tracker folder.")
-				end
+
+			local loadStatus = Tracker.loadData(FileManager.prependDir(filename))
+			if loadStatus == Tracker.LoadStatusKeys.NEW_GAME then
+				printf(" %s", Resources.MGBACommands.LoadDataError2)
+			elseif loadStatus == Tracker.LoadStatusKeys.ERROR then
+				printf(" %s", Resources.MGBACommands.LoadDataError3)
+			end
+
+			local loadStatusMessage = Resources.StartupScreen[loadStatus or false]
+			if loadStatusMessage then
+				printf("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage)
 			end
 		end,
 	},
 	["CLEARDATA"] = {
-		description = "Clears out all current tracked data for the current game.\n Can help fix situations where wrong data keeps showing up.",
+		getDesc = function(self) return Resources.MGBACommands.ClearDataDesc end,
 		usageSyntax = 'CLEARDATA()',
 		usageExample = 'CLEARDATA()',
 		execute = function(self, params)
 			Tracker.resetData()
-			print(" All tracked data for this game has been cleared.")
+			printf(" %s", Resources.MGBACommands.ClearDataSuccess)
 		end,
 	},
 	["CHECKUPDATE"] = {
-		description = "Checks online to see if a new version of the Tracker is available, shown on the left sidebar.",
+		getDesc = function(self) return Resources.MGBACommands.CheckUpdateDesc end,
 		usageSyntax = 'CHECKUPDATE()',
 		usageExample = 'CHECKUPDATE()',
 		execute = function(self, params)
 			Main.CheckForVersionUpdate(true)
 			if not Main.isOnLatestVersion() then
-				local newUpdateName = string.format(" %s ** New Update Available **", MGBA.Symbols.Menu.ListItem)
+				local newUpdateName = string.format(" %s ** %s **", MGBA.Symbols.Menu.ListItem, Resources.MGBA.MenuNewUpdateVailable)
 				MGBA.Screens.UpdateCheck.textBuffer:setName(newUpdateName)
 				MGBA.Screens.UpdateCheck.labelTimer = 60 * 5 * 2 -- approx 5 minutes
 				Program.redraw(true)
-				print(string.format("New update found! Version: %s  (check the sidebar menu to view it)", Main.Version.latestAvailable))
+				printf("[v%s] %s", Main.Version.latestAvailable, Resources.MGBACommands.CheckUpdateFound)
 			else
-				print(string.format("No new updates available. Latest version available: %s", Main.Version.latestAvailable))
+				printf("%s: %s", Resources.MGBACommands.CheckUpdateNotFound, Main.Version.latestAvailable)
 			end
 		end,
 	},
 	["RELEASENOTES"] = {
-		description = "Opens a browser window with details about the current version's release notes.",
+		getDesc = function(self) return Resources.MGBACommands.ReleaseNotesDesc end,
 		usageSyntax = 'RELEASENOTES()',
 		usageExample = 'RELEASENOTES()',
 		execute = function(self, params)
@@ -967,24 +1112,24 @@ MGBA.CommandMap = {
 		end,
 	},
 	["UPDATENOW"] = {
-		description = "Automatically updates the Tracker by downloading and installing the latest release.",
+		getDesc = function(self) return Resources.MGBACommands.UpdateNowDesc end,
 		usageSyntax = 'UPDATENOW()',
 		usageExample = 'UPDATENOW()',
 		execute = function(self, params)
-			print("> Update in progress, please wait...")
-			print("")
+			printf("> %s", Resources.MGBACommands.UpdateNowSuccess)
+			printf("")
 
 			if UpdateOrInstall.performParallelUpdate() then
-				print("")
-				print("> Follow these steps to restart the Tracker to apply the update:")
-				print(" 1) Complete any ongoing battles first")
-				print(" 2) On the mGBA scripting window: Click File -> Reset")
-				print(" 3) Click File -> Load script (or Load recent script)")
+				printf("")
+				printf("> %s:", Resources.MGBACommands.UpdateNowSteps0)
+				printf(" 1) %s", Resources.MGBACommands.UpdateNowSteps1)
+				printf(" 2) %s", Resources.MGBACommands.UpdateNowSteps2)
+				printf(" 3) %s", Resources.MGBACommands.UpdateNowSteps3)
 			end
 		end,
 	},
 	["QUICKLOAD"] = {
-		description = "Forces the Tracker to Quickload a new game ROM.",
+		getDesc = function(self) return Resources.MGBACommands.QuickloadDesc end,
 		usageSyntax = 'QUICKLOAD()',
 		usageExample = 'QUICKLOAD()',
 		execute = function(self, params)
@@ -992,7 +1137,7 @@ MGBA.CommandMap = {
 		end,
 	},
 	["HELPWIKI"] = {
-		description = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.",
+		getDesc = function(self) return Resources.MGBACommands.HelpWikiDesc end,
 		usageSyntax = 'HELPWIKI()',
 		usageExample = 'HELPWIKI()',
 		execute = function(self, params)
@@ -1000,20 +1145,15 @@ MGBA.CommandMap = {
 		end,
 	},
 	["ATTEMPTS"] = {
-		description = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar",
+		getDesc = function(self) return Resources.MGBACommands.AttemptsDesc end,
 		usageSyntax = 'ATTEMPTS "#"',
 		usageExample = 'ATTEMPTS "123"',
 		execute = function(self, params)
-			if params == nil or params == "" then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a positive number.')
-				return
-			end
-
+			params = params or ""
 			local number = tonumber(params:match("^%d+") or "")
 			if number == nil or number <= 0 then
-				print(string.format(' [Command Error] Usage syntax: %s', self.usageSyntax))
-				print(' - Where # is a positive number.')
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.AttemptsError1)
 				return
 			end
 
@@ -1022,20 +1162,55 @@ MGBA.CommandMap = {
 			if prevAttemptsCount ~= Main.currentSeed then
 				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), Main.currentSeed)
 				Program.redraw(true)
-				print(string.format(' Updating Attempts counter from "%s" to "%s"', prevAttemptsCount, Main.currentSeed))
-			else
-				print(string.format(' Attempts counter already set to "%s"', Main.currentSeed))
 			end
+			printf(" %s: '%s' -> '%s'", Resources.MGBACommands.AttemptsSuccess, prevAttemptsCount, Main.currentSeed)
 		end,
 	},
 	["RANDOMBALL"] = {
-		description = "Chooses a random " .. Constants.Words.POKEMON .. " starter " .. Constants.Words.POKE .. "ball from among: Left, Middle, Right",
+		getDesc = function(self) return Resources.MGBACommands.RandomBallDesc end,
 		usageSyntax = 'RANDOMBALL()',
 		usageExample = 'RANDOMBALL()',
 		execute = function(self, params)
 			local ballChoice = TrackerScreen.randomlyChooseBall() -- 1, 2, or 3
-			local chosenBallText = TrackerScreen.PokeBalls.Labels[ballChoice] or Constants.BLANKLINE
-			print(string.format(" Randomly chosen starter %sball: %s", Constants.Words.POKE, chosenBallText))
+			local chosenBallText = TrackerScreen.PokeBalls.getLabel(ballChoice)
+			printf(" %s: %s", Resources.MGBACommands.RandomBallSuccess, chosenBallText)
+		end,
+	},
+	["LANGUAGE"] = {
+		getDesc = function(self) return Resources.MGBACommands.LanguageDesc end,
+		usageSyntax = 'LANGUAGE "language"',
+		usageExample = 'LANGUAGE "French"',
+		execute = function(self, params)
+			if params == nil or params == "" then
+				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
+				printf(" - %s", Resources.MGBACommands.LanguageError1)
+				return
+			end
+
+			local languageFound
+			local inputLower = Utils.toLowerUTF8(params)
+			local inputAsNumber = tonumber(inputLower) or -1
+			for _, lang in pairs(Resources.Languages) do
+				if lang.Ordinal == inputAsNumber or Utils.toLowerUTF8(lang.Key) == inputLower or Utils.toLowerUTF8(lang.DisplayName) == inputLower then
+					languageFound = lang
+					break
+				end
+			end
+
+			if not languageFound then
+				printf(" %s: %s", Resources.MGBACommands.LanguageError2, inputLower)
+				return
+			end
+
+			Resources.changeLanguageSetting(languageFound)
+			-- Clear out any old data that was using the previous language; repopulated on redraw
+			for _, screen in pairs(MGBA.Screens) do
+				if type(screen.resetData) == "function" then
+					screen:resetData()
+				end
+			end
+			Program.redraw(true)
+			printf(" %s (%s)", Resources.MGBACommands.LanguageSuccess, languageFound.DisplayName)
 		end,
 	},
 }
@@ -1126,3 +1301,7 @@ function attempts(...) ATTEMPTS(...) end
 function RANDOMBALL(...) MGBA.CommandMap["RANDOMBALL"]:execute(...) end
 function RandomBall(...) RANDOMBALL(...) end
 function randomball(...) RANDOMBALL(...) end
+
+function LANGUAGE(...) MGBA.CommandMap["LANGUAGE"]:execute(...) end
+function Language(...) LANGUAGE(...) end
+function language(...) LANGUAGE(...) end

@@ -107,6 +107,8 @@ Constants.OrderedLists = {
 		"spe",
 	},
 	OPTIONS = {
+		"Language",
+		"Autodetect language from game",
 		"Disable mainscreen carousel",
 		"Auto swap to enemy",
 		"Show random ball picker",
@@ -278,6 +280,19 @@ Constants.PixelImages = {
 		{1,0,0,0,0,0,0,0,1},
 		{1,0,0,0,0,0,0,0,1},
 		{1,1,1,1,1,1,1,1,1},
+	},
+	LANGUAGE_LETTERS = { -- 12x11
+		{0,0,1,0,0,0,0,0,0,0,0,0},
+		{0,1,0,1,0,0,0,0,0,0,0,0},
+		{0,1,0,1,0,0,0,0,0,0,0,0},
+		{0,1,0,1,0,0,0,0,0,0,0,0},
+		{1,1,1,1,1,0,0,1,0,0,0,0},
+		{1,0,0,0,1,1,1,1,1,1,1,0},
+		{0,0,0,0,0,0,0,1,0,0,0,0},
+		{0,0,0,0,0,0,1,1,1,1,1,0},
+		{0,0,0,0,0,1,0,1,0,1,0,1},
+		{0,0,0,0,0,1,0,1,1,0,0,1},
+		{0,0,0,0,0,1,1,1,0,0,1,0},
 	},
 	LEFT_ARROW = { -- 10x10
 		{0,0,0,0,0,0,0,0,0,0},
@@ -479,166 +494,707 @@ Constants.PixelImages = {
 	},
 }
 
-Constants.CharWidths = {
-	[" "] = 1,
-	["%"] = 7,
-	["0"] = 4,
-	["1"] = 4,
-	["2"] = 4,
-	["3"] = 4,
-	["4"] = 4,
-	["5"] = 4,
-	["6"] = 4,
-	["7"] = 4,
-	["8"] = 4,
-	["9"] = 4,
-	["="] = 4,
-	[","] = 2,
-	["-"] = 2,
-	["_"] = 5,
-	["."] = 1,
-	["("] = 2,
-	[")"] = 2,
-	["#"] = 5,
-	["&"] = 5,
-	["?"] = 4,
-	["<"] = 4,
-	[">"] = 4,
-	["/"] = 4,
-	a = 4,
-	A = 5,
-	b = 4,
-	B = 4,
-	c = 3,
-	C = 4,
-	d = 4,
-	D = 5,
-	e = 4,
-	E = 4,
-	f = 2,
-	F = 4,
-	g = 4,
-	G = 5,
-	h = 4,
-	H = 5,
-	i = 1,
-	I = 1,
-	j = 2,
-	J = 2,
-	k = 4,
-	K = 5,
-	l = 1,
-	L = 3,
-	m = 7,
-	M = 6,
-	n = 4,
-	N = 5,
-	o = 4,
-	O = 5,
-	p = 4,
-	P = 4,
-	q = 3,
-	Q = 5,
-	r = 2,
-	R = 5,
-	s = 3,
-	S = 4,
-	t = 2,
-	T = 3,
-	u = 4,
-	U = 4,
-	v = 3,
-	V = 5,
-	w = 5,
-	W = 7,
-	x = 3,
-	X = 4,
-	y = 3,
-	Y = 5,
-	z = 3,
-	Z = 4,
+-- Table of special characters to return based on whether emulator supports those special characters [true/false]
+Constants.Char = {
+	[" "] = {
+		width = 1,
+	},
+	["%"] = {
+		width = 7,
+	},
+	["0"] = {
+		width = 4,
+	},
+	["1"] = {
+		width = 4,
+	},
+	["2"] = {
+		width = 4,
+	},
+	["3"] = {
+		width = 4,
+	},
+	["4"] = {
+		width = 4,
+	},
+	["5"] = {
+		width = 4,
+	},
+	["6"] = {
+		width = 4,
+	},
+	["7"] = {
+		width = 4,
+	},
+	["8"] = {
+		width = 4,
+	},
+	["9"] = {
+		width = 4,
+	},
+	["="] = {
+		width = 4,
+	},
+	[","] = {
+		width = 2,
+	},
+	["-"] = {
+		width = 2,
+	},
+	["_"] = {
+		width = 5,
+	},
+	["."] = {
+		width = 1,
+	},
+	["("] = {
+		width = 2,
+	},
+	[")"] = {
+		width = 2,
+	},
+	["#"] = {
+		width = 5,
+	},
+	["&"] = {
+		width = 5,
+	},
+	["?"] = {
+		width = 4,
+	},
+	["<"] = {
+		width = 4,
+	},
+	[">"] = {
+		width = 4,
+	},
+	["/"] = {
+		width = 4,
+	},
+	["a"] = {
+		width = 4,
+	},
+	["A"] = {
+		width = 5,
+	},
+	["b"] = {
+		width = 4,
+	},
+	["B"] = {
+		width = 4,
+	},
+	["c"] = {
+		width = 3,
+	},
+	["C"] = {
+		width = 4,
+	},
+	["d"] = {
+		width = 4,
+	},
+	["D"] = {
+		width = 5,
+	},
+	["e"] = {
+		width = 4,
+	},
+	["E"] = {
+		width = 4,
+	},
+	["f"] = {
+		width = 2,
+	},
+	["F"] = {
+		width = 4,
+	},
+	["g"] = {
+		width = 4,
+	},
+	["G"] = {
+		width = 5,
+	},
+	["h"] = {
+		width = 4,
+	},
+	["H"] = {
+		width = 5,
+	},
+	["i"] = {
+		width = 1,
+	},
+	["I"] = {
+		width = 1,
+	},
+	["j"] = {
+		width = 2,
+	},
+	["J"] = {
+		width = 2,
+	},
+	["k"] = {
+		width = 4,
+	},
+	["K"] = {
+		width = 5,
+	},
+	["l"] = {
+		width = 1,
+	},
+	["L"] = {
+		width = 3,
+	},
+	["m"] = {
+		width = 7,
+	},
+	["M"] = {
+		width = 6,
+	},
+	["n"] = {
+		width = 4,
+	},
+	["N"] = {
+		width = 5,
+	},
+	["o"] = {
+		width = 4,
+	},
+	["O"] = {
+		width = 5,
+	},
+	["p"] = {
+		width = 4,
+	},
+	["P"] = {
+		width = 4,
+	},
+	["q"] = {
+		width = 3,
+	},
+	["Q"] = {
+		width = 5,
+	},
+	["r"] = {
+		width = 2,
+	},
+	["R"] = {
+		width = 5,
+	},
+	["s"] = {
+		width = 3,
+	},
+	["S"] = {
+		width = 4,
+	},
+	["t"] = {
+		width = 2,
+	},
+	["T"] = {
+		width = 3,
+	},
+	["u"] = {
+		width = 4,
+	},
+	["U"] = {
+		width = 4,
+	},
+	["v"] = {
+		width = 3,
+	},
+	["V"] = {
+		width = 5,
+	},
+	["w"] = {
+		width = 5,
+	},
+	["W"] = {
+		width = 7,
+	},
+	["x"] = {
+		width = 3,
+	},
+	["X"] = {
+		width = 4,
+	},
+	["y"] = {
+		width = 3,
+	},
+	["Y"] = {
+		width = 5,
+	},
+	["z"] = {
+		width = 3,
+	},
+	["Z"] = {
+		width = 4,
+	},
+	["♂"] = {
+		encoded = "?",
+	},
+	["♀"] = {
+		encoded = "?",
+	},
+	["…"] = {
+		encoded = '..',
+		plain = "...",
+	},
+	["“"] = {
+		encoded = '"',
+		plain = "\"",
+	},
+	["”"] = {
+		encoded = '"',
+		plain = "\"",
+	},
+	["‘"] = {
+		encoded = "'",
+		plain = "'",
+	},
+	["À"] = {
+		encoded = "\192",
+		lower = "à",
+		plain = "A",
+		width = 5,
+	},
+	["Á"] = {
+		encoded = "\193",
+		lower = "á",
+		plain = "A",
+		width = 5,
+	},
+	["Â"] = {
+		encoded = "\194",
+		lower = "â",
+		plain = "A",
+		width = 5,
+	},
+	["Ã"] = {
+		encoded = "\195",
+		lower = "ã",
+		plain = "A",
+		width = 5,
+	},
+	["Ä"] = {
+		encoded = "\196",
+		lower = "ä",
+		plain = "A",
+		width = 5,
+	},
+	["Å"] = {
+		encoded = "\197",
+		lower = "å",
+		plain = "A",
+		width = 5,
+	},
+	["Æ"] = {
+		encoded = "\198",
+		lower = "æ",
+		plain = "AE",
+		width = 6, -- Untested
+	},
+	["Ç"] = {
+		encoded = "\199",
+		lower = "ç",
+		plain = "C",
+		width = 4,
+	},
+	["È"] = {
+		encoded = "\200",
+		lower = "è",
+		plain = "E",
+		width = 4,
+	},
+	["É"] = {
+		encoded = "\201",
+		lower = "é",
+		plain = "E",
+		width = 4,
+	},
+	["Ê"] = {
+		encoded = "\202",
+		lower = "ê",
+		plain = "E",
+		width = 4,
+	},
+	["Ë"] = {
+		encoded = "\203",
+		lower = "ë",
+		plain = "E",
+		width = 4,
+	},
+	["Ì"] = {
+		encoded = "\204",
+		lower = "ì",
+		plain = "I",
+		width = 1,
+	},
+	["Í"] = {
+		encoded = "\205",
+		lower = "í",
+		plain = "I",
+		width = 1,
+	},
+	["Î"] = {
+		encoded = "\206",
+		lower = "î",
+		plain = "I",
+		width = 1,
+	},
+	["Ï"] = {
+		encoded = "\207",
+		lower = "ï",
+		plain = "I",
+		width = 1,
+	},
+	["Ð"] = {
+		encoded = "\208",
+		lower = "ð",
+		plain = "D",
+		width = 5,
+	},
+	["Ñ"] = {
+		encoded = "\209",
+		lower = "ñ",
+		plain = "N",
+		width = 5,
+	},
+	["Ò"] = {
+		encoded = "\210",
+		lower = "ò",
+		plain = "O",
+		width = 5,
+	},
+	["Ó"] = {
+		encoded = "\211",
+		lower = "ó",
+		plain = "O",
+		width = 5,
+	},
+	["Ô"] = {
+		encoded = "\212",
+		lower = "ô",
+		plain = "O",
+		width = 5,
+	},
+	["Õ"] = {
+		encoded = "\213",
+		lower = "õ",
+		plain = "O",
+		width = 5,
+	},
+	["Ö"] = {
+		encoded = "\214",
+		lower = "ö",
+		plain = "O",
+		width = 5,
+	},
+	["Ø"] = {
+		encoded = "\216",
+		lower = "ø",
+		plain = "O",
+		width = 5,
+	},
+	["Ù"] = {
+		encoded = "\217",
+		lower = "ù",
+		plain = "U",
+		width = 4,
+	},
+	["Ú"] = {
+		encoded = "\218",
+		lower = "ú",
+		plain = "U",
+		width = 4,
+	},
+	["Û"] = {
+		encoded = "\219",
+		lower = "û",
+		plain = "U",
+		width = 4,
+	},
+	["Ü"] = {
+		encoded = "\220",
+		lower = "ü",
+		plain = "U",
+		width = 4,
+	},
+	["Ý"] = {
+		encoded = "\221",
+		lower = "ý",
+		plain = "Y",
+		width = 5,
+	},
+	["Þ"] = {
+		encoded = "\222",
+		lower = "þ",
+		plain = "P",
+		width = 4,
+	},
+	["Ÿ"] = {
+		-- encoded = nil, -- \376 not available
+		lower = "ÿ",
+		plain = "y",
+		width = 5,
+	},
+	["ß"] = {
+		encoded = "\223",
+		plain = "B",
+		width = 5,
+	},
+	["à"] = {
+		encoded = "\224",
+		upper = "À",
+		plain = "a",
+		width = 4,
+	},
+	["á"] = {
+		encoded = "\225",
+		upper = "Á",
+		plain = "a",
+		width = 4,
+	},
+	["â"] = {
+		encoded = "\226",
+		upper = "Â",
+		plain = "a",
+		width = 4,
+	},
+	["ã"] = {
+		encoded = "\227",
+		upper = "Ã",
+		plain = "a",
+		width = 4,
+	},
+	["ä"] = {
+		encoded = "\228",
+		upper = "Ä",
+		plain = "a",
+		width = 4,
+	},
+	["å"] = {
+		encoded = "\229",
+		upper = "Å",
+		plain = "a",
+		width = 4,
+	},
+	["æ"] = {
+		encoded = "\230",
+		upper = "Æ",
+		plain = "ae",
+		width = 6, -- Untested
+	},
+	["ç"] = {
+		encoded = "\231",
+		upper = "Ç",
+		plain = "c",
+		width = 3,
+	},
+	["è"] = {
+		encoded = "\232",
+		upper = "È",
+		plain = "e",
+		width = 4,
+	},
+	["é"] = {
+		encoded = "\233",
+		upper = "É",
+		plain = "e",
+		width = 4,
+	},
+	["ê"] = {
+		encoded = "\234",
+		upper = "Ê",
+		plain = "e",
+		width = 4,
+	},
+	["ë"] = {
+		encoded = "\235",
+		upper = "Ë",
+		plain = "e",
+		width = 4,
+	},
+	["ì"] = {
+		encoded = "\236",
+		upper = "Ì",
+		plain = "i",
+		width = 1,
+	},
+	["í"] = {
+		encoded = "\237",
+		upper = "Í",
+		plain = "i",
+		width = 1,
+	},
+	["î"] = {
+		encoded = "\238",
+		upper = "Î",
+		plain = "i",
+		width = 1,
+	},
+	["ï"] = {
+		encoded = "\239",
+		upper = "Ï",
+		plain = "i",
+		width = 1,
+	},
+	["ð"] = {
+		encoded = "\240",
+		upper = "Ð",
+		plain = "o",
+		width = 4,
+	},
+	["ñ"] = {
+		encoded = "\241",
+		upper = "Ñ",
+		plain = "n",
+		width = 4,
+	},
+	["ò"] = {
+		encoded = "\242",
+		upper = "Ò",
+		plain = "o",
+		width = 4,
+	},
+	["ó"] = {
+		encoded = "\243",
+		upper = "Ó",
+		plain = "o",
+		width = 4,
+	},
+	["ô"] = {
+		encoded = "\244",
+		upper = "Ô",
+		plain = "o",
+		width = 4,
+	},
+	["õ"] = {
+		encoded = "\245",
+		upper = "Õ",
+		plain = "o",
+		width = 4,
+	},
+	["ö"] = {
+		encoded = "\246",
+		upper = "Ö",
+		plain = "o",
+		width = 4,
+	},
+	["ø"] = {
+		encoded = "\248",
+		upper = "Ø",
+		plain = "o",
+		width = 4,
+	},
+	["ù"] = {
+		encoded = "\249",
+		upper = "Ù",
+		plain = "u",
+		width = 4,
+	},
+	["ú"] = {
+		encoded = "\250",
+		upper = "Ú",
+		plain = "u",
+		width = 4,
+	},
+	["û"] = {
+		encoded = "\251",
+		upper = "Û",
+		plain = "u",
+		width = 4,
+	},
+	["ü"] = {
+		encoded = "\252",
+		upper = "Ü",
+		plain = "u",
+		width = 4,
+	},
+	["ý"] = {
+		encoded = "\253",
+		upper = "Ý",
+		plain = "y",
+		width = 3,
+	},
+	["þ"] = {
+		encoded = "\254",
+		upper = "Þ",
+		plain ="p",
+		width = 4,
+	},
+	["ÿ"] = {
+		encoded = "\255",
+		upper = "Ÿ",
+		plain = "y",
+		width = 3,
+	},
 }
 
--- Table of special characters to return based on whether emulator supports those special characters [true/false]
-Constants.CharMap = {
-	["♂"] = { [false] = Constants.HIDDEN_INFO, [true] = "♂", },
-	["♀"] = { [false] = Constants.HIDDEN_INFO, [true] = "♀", },
-	["…"] = { [false] = '..', [true] = "…", },
-	["“"] = { [false] = '"', [true] = "“", },
-	["”"] = { [false] = '"', [true] = "”", },
-	["‘"] = { [false] = "'", [true] = "‘", },
-	["À"] = { [false] = "\192", [true] = "À", },
-	["Á"] = { [false] = "\193", [true] = "Á", },
-	["Â"] = { [false] = "\194", [true] = "Â", },
-	["Ã"] = { [false] = "\195", [true] = "Ã", },
-	["Ä"] = { [false] = "\196", [true] = "Ä", },
-	["Å"] = { [false] = "\197", [true] = "Å", },
-	["Æ"] = { [false] = "\198", [true] = "Æ", },
-	["Ç"] = { [false] = "\199", [true] = "Ç", },
-	["È"] = { [false] = "\200", [true] = "È", },
-	["É"] = { [false] = "\201", [true] = "É", },
-	["Ê"] = { [false] = "\202", [true] = "Ê", },
-	["Ë"] = { [false] = "\203", [true] = "Ë", },
-	["Ì"] = { [false] = "\204", [true] = "Ì", },
-	["Í"] = { [false] = "\205", [true] = "Í", },
-	["Î"] = { [false] = "\206", [true] = "Î", },
-	["Ï"] = { [false] = "\207", [true] = "Ï", },
-	["Ð"] = { [false] = "\208", [true] = "Ð", },
-	["Ñ"] = { [false] = "\209", [true] = "Ñ", },
-	["Ò"] = { [false] = "\210", [true] = "Ò", },
-	["Ó"] = { [false] = "\211", [true] = "Ó", },
-	["Ô"] = { [false] = "\212", [true] = "Ô", },
-	["Õ"] = { [false] = "\213", [true] = "Õ", },
-	["Ö"] = { [false] = "\214", [true] = "Ö", },
-	["Ø"] = { [false] = "\216", [true] = "Ø", },
-	["Ù"] = { [false] = "\217", [true] = "Ù", },
-	["Ú"] = { [false] = "\218", [true] = "Ú", },
-	["Û"] = { [false] = "\219", [true] = "Û", },
-	["Ü"] = { [false] = "\220", [true] = "Ü", },
-	["Ý"] = { [false] = "\221", [true] = "Ý", },
-	["Þ"] = { [false] = "\222", [true] = "Þ", },
-	["ß"] = { [false] = "\223", [true] = "ß", },
-	["à"] = { [false] = "\224", [true] = "à", },
-	["á"] = { [false] = "\225", [true] = "á", },
-	["â"] = { [false] = "\226", [true] = "â", },
-	["ã"] = { [false] = "\227", [true] = "ã", },
-	["ä"] = { [false] = "\228", [true] = "ä", },
-	["å"] = { [false] = "\229", [true] = "å", },
-	["æ"] = { [false] = "\230", [true] = "æ", },
-	["ç"] = { [false] = "\231", [true] = "ç", },
-	["è"] = { [false] = "\232", [true] = "è", },
-	["é"] = { [false] = "\233", [true] = "é", },
-	["ê"] = { [false] = "\234", [true] = "ê", },
-	["ë"] = { [false] = "\235", [true] = "ë", },
-	["ì"] = { [false] = "\236", [true] = "ì", },
-	["í"] = { [false] = "\237", [true] = "í", },
-	["î"] = { [false] = "\238", [true] = "î", },
-	["ï"] = { [false] = "\239", [true] = "ï", },
-	["ð"] = { [false] = "\240", [true] = "ð", },
-	["ñ"] = { [false] = "\241", [true] = "ñ", },
-	["ò"] = { [false] = "\242", [true] = "ò", },
-	["ó"] = { [false] = "\243", [true] = "ó", },
-	["ô"] = { [false] = "\244", [true] = "ô", },
-	["õ"] = { [false] = "\245", [true] = "õ", },
-	["ö"] = { [false] = "\246", [true] = "ö", },
-	["ø"] = { [false] = "\248", [true] = "ø", },
-	["ù"] = { [false] = "\249", [true] = "ù", },
-	["ú"] = { [false] = "\250", [true] = "ú", },
-	["û"] = { [false] = "\251", [true] = "û", },
-	["ü"] = { [false] = "\252", [true] = "ü", },
-	["ý"] = { [false] = "\253", [true] = "ý", },
-	["þ"] = { [false] = "\254", [true] = "þ", },
-	["ÿ"] = { [false] = "\255", [true] = "ÿ", },
+if not Main.supportsSpecialChars then
+	-- Create a redundant character entry for each escape/encoded character
+	local encodedCharsToAdd = {}
+	for _, characterInfo in pairs(Constants.Char) do
+		if characterInfo.encoded and (characterInfo.lower or characterInfo.upper) then
+			-- Copy over the character information, and update it accordingly
+			local encodedChar = {}
+			encodedChar.encoded = characterInfo.encoded
+			if characterInfo.upper then
+				encodedChar.upper = Constants.Char[characterInfo.upper].encoded
+			end
+			if characterInfo.lower then
+				encodedChar.lower = Constants.Char[characterInfo.lower].encoded
+			end
+			encodedChar.plain = characterInfo.plain
+			encodedChar.width = characterInfo.width
+			table.insert(encodedCharsToAdd, encodedChar)
+		end
+	end
+	for _, encodedChar in pairs(encodedCharsToAdd) do
+		Constants.Char[encodedChar.encoded] = encodedChar
+		encodedChar.encoded = nil
+	end
+	encodedCharsToAdd = nil
+end
+
+Constants.CharCategories = {
+	ToLower = {},
+	ToUpper = {},
+	Special = {},
+	Plain = {},
 }
+
+for c, characterInfo in pairs(Constants.Char) do
+	if characterInfo.encoded then
+		table.insert(Constants.CharCategories.Special, c)
+	end
+	if characterInfo.lower then
+		table.insert(Constants.CharCategories.ToLower, c)
+	end
+	if characterInfo.upper then
+		table.insert(Constants.CharCategories.ToUpper, c)
+	end
+	if characterInfo.plain then
+		table.insert(Constants.CharCategories.Plain, c)
+	end
+end
+
+function Constants.charToCategory(c, category)
+	local characterInfo = Constants.Char[c or ""] or {}
+	return characterInfo[category or ""] or c
+end
+
+function Constants.charWidth(c)
+	local characterInfo = Constants.Char[c or ""] or {}
+	return characterInfo.width or 1
+end
 
 -- Returns a renderable character for the appropriate emulator
 function Constants.getC(character)
-	if Constants.CharMap[character] ~= nil then
-		return Constants.CharMap[character][Main.supportsSpecialChars] or Constants.HIDDEN_INFO
+	if Main.supportsSpecialChars then
+		return character
 	end
-	return Constants.HIDDEN_INFO
+	return Constants.charToCategory(character, "encoded")
 end
 
+-- Deprecated. No longer in use, but leaving in for old extensions
 Constants.Words = {
 	POKEMON = "Pok" .. Constants.getC("é") .. "mon",
 	POKE = "Pok" .. Constants.getC("é"),

@@ -149,6 +149,9 @@ end
 
 function Program.changeScreenView(screen)
 	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
+	if type(screen.refreshButtons) == "function" then
+		screen:refreshButtons()
+	end
 	Program.currentScreen = screen
 	Program.redraw(true)
 end
@@ -348,14 +351,6 @@ function Program.updatePokemonTeams()
 				newPokemonData.totalExp = totalExp
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
-
-				-- TODO: Removing for now until some better option is available, not sure there is one
-				-- If this is a newly caught Pokémon, track all of its moves. Can't do this later cause TMs/HMs
-				-- if previousPersonality == 0 then
-				-- 	for _, move in ipairs(newPokemonData.moves) do
-				-- 		Tracker.TrackMove(newPokemonData.pokemonID, move.id, newPokemonData.level)
-				-- 	end
-				-- end
 			end
 		end
 
