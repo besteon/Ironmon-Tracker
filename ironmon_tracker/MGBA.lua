@@ -1067,7 +1067,9 @@ MGBA.CommandMap = {
 				filename = filename .. FileManager.Extensions.TRACKED_DATA
 			end
 
+			local playtime = Tracker.Data.playtime
 			local loadStatus = Tracker.loadData(FileManager.prependDir(filename))
+			Tracker.Data.playtime = playtime
 			if loadStatus == Tracker.LoadStatusKeys.NEW_GAME then
 				printf(" %s", Resources.MGBACommands.LoadDataError2)
 			elseif loadStatus == Tracker.LoadStatusKeys.ERROR then
@@ -1085,7 +1087,9 @@ MGBA.CommandMap = {
 		usageSyntax = 'CLEARDATA()',
 		usageExample = 'CLEARDATA()',
 		execute = function(self, params)
+			local playtime = Tracker.Data.playtime
 			Tracker.resetData()
+			Tracker.Data.playtime = playtime
 			printf(" %s", Resources.MGBACommands.ClearDataSuccess)
 		end,
 	},

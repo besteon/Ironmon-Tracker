@@ -444,8 +444,10 @@ function Program.updatePokemonTeams()
 					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
 						-- Reset the tracker data as old data was loaded and we have a different trainerID now
 						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
+						local playtime = Tracker.Data.playtime
 						Tracker.resetData()
 						Tracker.Data.trainerID = newPokemonData.trainerID
+						Tracker.Data.playtime = playtime
 					end
 
 					-- Unset the new game flag
