@@ -172,6 +172,7 @@ function TimeMachineScreen.createRestorePoint(label)
 		id = restorePointId,
 		label = label,
 		timestamp = os.time(),
+		playtime = Tracker.Data.playtime
 	}
 	table.insert(TimeMachineScreen.RestorePoints, restorePoint)
 
@@ -275,6 +276,7 @@ function TimeMachineScreen.buildOutPagedButtons()
 			onClick = function(self)
 				if self.confirmedRestore then
 					TimeMachineScreen.backupCurrentPointInTime()
+					Tracker.Data.playtime = restorePoint.playtime or 0
 					TimeMachineScreen.loadRestorePoint(self.restorePointId)
 					self.confirmedRestore = false
 					TimeMachineScreen.buildOutPagedButtons()
