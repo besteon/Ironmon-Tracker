@@ -97,20 +97,16 @@ function TrackedDataScreen.createButtons()
 	for _, optionTuple in ipairs(optionKeyMap) do
 		TrackedDataScreen.Buttons[optionTuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
-			getText = function() return Resources.TrackedDataScreen[optionTuple[2]] end,
 			optionKey = optionTuple[1],
+			getText = function() return Resources.TrackedDataScreen[optionTuple[2]] end,
 			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 			box = {	startX, startY, 8, 8 },
 			toggleState = Options[optionTuple[1]],
-			toggleColor = "Positive text",
-			updateSelf = function(self)
-				self.toggleState = Options[optionTuple[1]]
-			end,
+			updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.optionKey, self.toggleState)
-			end
+				self.toggleState = Options.toggleSetting(self.optionKey)
+				Program.redraw(true)
+			end,
 		}
 		startY = startY + 10
 	end

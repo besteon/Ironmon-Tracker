@@ -140,27 +140,21 @@ UpdateScreen.Buttons = {
 	},
 	DevOptIn = {
 		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Dev branch updates",
 		getText = function(self) return " " .. Resources.UpdateScreen.CheckboxDevBranch end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 98, 10 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 137, 8, 8 },
-		toggleState = (Options["Dev branch updates"] == true), -- update later in initialize
-		toggleColor = "Positive text",
+		toggleState = false, -- update later in initialize
 		isVisible = function(self) return UpdateScreen.currentState == UpdateScreen.States.NOT_UPDATED or UpdateScreen.currentState == UpdateScreen.States.NEEDS_CHECK end,
-		updateSelf = function(self)
-			self.toggleState = (Options["Dev branch updates"] == true)
-		end,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			Options["Dev branch updates"] = not (Options["Dev branch updates"] == true)
-			UpdateOrInstall.Dev.enabled = Options["Dev branch updates"]
-
-			-- If an update is available or if dev branch enabled (always allow for updates)
-			if UpdateOrInstall.Dev.enabled or not Main.isOnLatestVersion() then
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			-- If option changes from OFF to ON (always allow updates for dev) or an update is available
+			if self.toggleState or not Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 			else
 				UpdateScreen.currentState = UpdateScreen.States.NEEDS_CHECK
 			end
-			self:updateSelf()
-			Main.SaveSettings(true)
 			Program.redraw(true)
 		end
 	},

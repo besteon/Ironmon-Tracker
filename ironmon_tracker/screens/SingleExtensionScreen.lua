@@ -20,7 +20,6 @@ SingleExtensionScreen.Buttons = {
 			end
 		end,
 		toggleState = false,
-		toggleColor = "Positive text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + SingleExtensionScreen.column2offsetX, Constants.SCREEN.MARGIN + 39, 34, 10 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + SingleExtensionScreen.column2offsetX, Constants.SCREEN.MARGIN + 39, 8, 8 },
 		updateSelf = function(self)

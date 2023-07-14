@@ -67,7 +67,6 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		toggleState = false,
-		toggleColor = "Positive text",
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState

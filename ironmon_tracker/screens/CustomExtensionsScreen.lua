@@ -48,26 +48,24 @@ CustomExtensionsScreen.Buttons = {
 	},
 	EnableCustomExtensions = {
 		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Enable custom extensions",
 		getText = function(self) return Resources.CustomExtensionsScreen.OptionAllowCustomCode end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
-		toggleState = true, -- updated later in initialize
-		toggleColor = "Positive text",
-		updateSelf = function(self) self.toggleState = Options["Enable custom extensions"] end,
+		toggleState = true,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-
-			if self.toggleState then
-				-- First allow for custom code to be run, then activate paged buttons and run startup()
-				Options.updateSetting("Enable custom extensions", self.toggleState)
-				CustomExtensionsScreen.togglePagedButtons(self.toggleState)
+			-- If the option was ON and will become OFF...
+			if Options[self.optionKey] then
+				-- Then first deactivate paged buttons and run unload(), then stop custom code from running
+				CustomExtensionsScreen.togglePagedButtons(false)
+				self.toggleState = Options.toggleSetting(self.optionKey)
 			else
-				-- First deactivate paged buttons and run unload(), then stop custom code from running
-				CustomExtensionsScreen.togglePagedButtons(self.toggleState)
-				Options.updateSetting("Enable custom extensions", self.toggleState)
+				-- Otherwise, first allow for custom code to be run, then activate paged buttons and run startup()
+				self.toggleState = Options.toggleSetting(self.optionKey)
+				CustomExtensionsScreen.togglePagedButtons(true)
 			end
-			Options.forceSave()
+			Program.redraw(true)
 		end
 	},
 	GetExtensions = {

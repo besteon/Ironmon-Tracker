@@ -44,7 +44,7 @@ SetupScreen.Buttons = {
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
 			SetupScreen.iconChangeInterval = 10
-			Options.updateSetting("Pokemon icon set", nextSet)
+			Options.addUpdateSetting("Pokemon icon set", nextSet)
 		end
 	},
 	CycleIconBackward = {
@@ -55,7 +55,7 @@ SetupScreen.Buttons = {
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
 			SetupScreen.iconChangeInterval = 10
-			Options.updateSetting("Pokemon icon set", prevSet)
+			Options.addUpdateSetting("Pokemon icon set", prevSet)
 		end
 	},
 	EditControls = {
@@ -116,21 +116,20 @@ function SetupScreen.createButtons()
 	for _, optionTuple in ipairs(optionKeyMap) do
 		SetupScreen.Buttons[optionTuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
+			optionKey = optionTuple[1],
 			getText = function(self) return Resources.SetupScreen[optionTuple[2]] end,
 			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 			box = {	startX, startY, 8, 8 },
-			optionKey = optionTuple[1],
 			toggleState = Options[optionTuple[1]],
-			toggleColor = "Positive text",
+			updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-				Options.updateSetting(self.optionKey, self.toggleState)
-
+				self.toggleState = Options.toggleSetting(self.optionKey)
 				-- If PC Heal tracking switched, invert the count
 				if self.optionKey == "PC heals count downward" then
 					Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-				elseif self.optionKey == "Show Team View" then
+				end
+				Program.redraw(true)
+				if self.optionKey == "Show Team View" then
 					TeamViewArea.refreshDisplayPadding()
 					TeamViewArea.buildOutPartyScreen()
 					Program.Frames.waitToDraw = 1 -- required to redraw after the redraw
@@ -157,28 +156,24 @@ function SetupScreen.openEditControlsWindow()
 	local offsetX = 90
 	local offsetY = 35
 
-	local index = 1
-	for _, controlTuple in ipairs(controlKeyMap) do
+	for i, controlTuple in ipairs(controlKeyMap) do
 		local controlLabel = string.format("%s:", Resources.SetupScreen[controlTuple[2]])
 		forms.label(form, controlLabel, offsetX, offsetY, 105, 20)
-		inputTextboxes[index] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, offsetX + 110, offsetY - 2)
-
-		index = index + 1
+		inputTextboxes[i] = forms.textbox(form, Options.CONTROLS[controlTuple[1]], 140, 21, nil, offsetX + 110, offsetY - 2)
 		offsetY = offsetY + 24
 	end
 
 	-- 'Save & Close' and 'Cancel' buttons
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
 	forms.button(form, saveCloseLabel, function()
-		index = 1
-		for _, controlTuple in ipairs(controlKeyMap) do
-			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[index] or ""))
+		for i, controlTuple in ipairs(controlKeyMap) do
+			local controlCombination = Utils.formatControls(forms.gettext(inputTextboxes[i] or ""))
 			if controlCombination ~= "" then
 				Options.CONTROLS[controlTuple[1]] = controlCombination
 			end
-			index = index + 1
 		end
-		Options.forceSave()
+		Main.SaveSettings(true)
+		Program.redraw(true)
 
 		client.unpause()
 		forms.destroy(form)

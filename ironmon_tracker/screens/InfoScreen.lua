@@ -110,7 +110,6 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 18, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		toggleState = false, -- When true, the original game percentage rates for the route are revealed
-		toggleColor = "Positive text",
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
@@ -126,7 +125,6 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 88, Constants.SCREEN.MARGIN + 18, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		toggleState = false, -- When true, the original game Pokemon levels for the route are revealed
-		toggleColor = "Positive text",
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState

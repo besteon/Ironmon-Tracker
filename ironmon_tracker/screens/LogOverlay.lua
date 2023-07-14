@@ -344,6 +344,7 @@ LogOverlay.Buttons = {
 	},
 	PreEvoSettingButton = {
 		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Show Pre Evolutions",
 		getText = function(self) return Resources.LogOverlay.CheckboxShowPreEvolutions end,
 		textColor = "Default text",
 		boxColors = { "Upper box border", "Upper box background" },
@@ -352,14 +353,10 @@ LogOverlay.Buttons = {
 		box = { LogOverlay.margin + 4, 120, Constants.Font.SIZE - 1, Constants.Font.SIZE - 1, },
 		isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 		toggleState = Options["Show Pre Evolutions"],
-		toggleColor = "Positive text",
-		updateSelf = function(self)
-			self.toggleState = Options["Show Pre Evolutions"]
-		end,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			self.toggleState = not self.toggleState
-			Options.updateSetting("Show Pre Evolutions", self.toggleState)
-			Main.SaveSettings()
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
 		end,
 	},
 }

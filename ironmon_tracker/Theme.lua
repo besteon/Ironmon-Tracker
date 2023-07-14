@@ -80,7 +80,6 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, 8, 8 },
 		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
-		toggleColor = "Positive text",
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self)
 			 -- If "move types" enabled, then "show color bars" are disabled
@@ -99,7 +98,6 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, 8, 8 },
 		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = Theme.DRAW_TEXT_SHADOWS,
-		toggleColor = "Positive text",
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		updateSelf = function(self) self.toggleState = Theme.DRAW_TEXT_SHADOWS end,
 		onClick = function(self)

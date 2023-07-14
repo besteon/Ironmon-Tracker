@@ -36,17 +36,16 @@ StreamerScreen.Buttons = {
 	},
 	ShowFavorites = {
 		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Show on new game screen",
 		getText = function(self) return Resources.StreamerScreen.OptionDisplayFavorites end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 64, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 64, 8, 8 },
 		toggleState = false, -- update later in initialize
-		toggleColor = "Positive text",
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-			Options.updateSetting("Show on new game screen", self.toggleState)
-			Options.forceSave()
-		end
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
 	},
 	PokemonFavorite1 = {
 		type = Constants.ButtonTypes.POKEMON_ICON,

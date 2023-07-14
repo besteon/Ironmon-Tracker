@@ -58,22 +58,24 @@ function GameOptionsScreen.createButtons()
 	for _, optionTuple in ipairs(optionKeyMap) do
 		GameOptionsScreen.Buttons[optionTuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
+			optionKey = optionTuple[1],
 			getText = function(self) return Resources.GameOptionsScreen[optionTuple[2]] end,
 			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 			box = {	startX, startY, 8, 8 },
-			optionKey = optionTuple[1],
 			toggleState = Options[optionTuple[1]],
-			toggleColor = "Positive text",
+			updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				self.toggleState = not self.toggleState
-
+				self.toggleState = Options.toggleSetting(self.optionKey)
 				-- If check summary gets toggled, force update on tracker data (case for just starting the game and turning option on)
 				if self.optionKey == "Hide stats until summary shown" then
-					Tracker.Data.hasCheckedSummary = Options[self.optionKey]
+					-- If enabled, then default to hiding the summary. Otherwise reveal the information
+					if self.toggleState then
+						Tracker.Data.hasCheckedSummary = false
+					else
+						Tracker.Data.hasCheckedSummary = true
+					end
 				end
-
-				Options.updateSetting(self.optionKey, self.toggleState)
+				Program.redraw(true)
 			end
 		}
 		startY = startY + linespacing

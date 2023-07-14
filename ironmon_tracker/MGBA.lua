@@ -469,8 +469,8 @@ MGBA.OptionMap = {
 			end
 			-- If PC Heal tracking switched, invert the count
 			Tracker.Data.centerHeals = math.max(10 - Tracker.Data.centerHeals, 0)
-			Options[self.optionKey] = not Options[self.optionKey]
-			Options.forceSave()
+			Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -496,8 +496,8 @@ MGBA.OptionMap = {
 				return false, Resources.MGBA.AnimatedPopoutRequired
 			end
 
-			Options[self.optionKey] = not Options[self.optionKey]
-			Options.forceSave()
+			Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -546,8 +546,7 @@ MGBA.OptionMap = {
 			end
 
 			Theme[self.themeKey] = not Theme[self.themeKey]
-			Theme.settingsUpdated = true
-			Main.SaveSettings()
+			Main.SaveSettings(true)
 			Program.redraw(true)
 			return true
 		end,
@@ -588,10 +587,10 @@ MGBA.OptionMap = {
 			if Options[self.optionKey] == nil then
 				return false, errorOptionNotExist(self.optionKey)
 			end
-			Options[self.optionKey] = not Options[self.optionKey]
 			-- Only one can be enabled at a time
 			Options["Generate ROM each time"] = false
-			Options.forceSave()
+			Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
 			return true
 		end,
 		},
@@ -602,10 +601,10 @@ MGBA.OptionMap = {
 			if Options[self.optionKey] == nil then
 				return false, errorOptionNotExist(self.optionKey)
 			end
-			Options[self.optionKey] = not Options[self.optionKey]
 			-- Only one can be enabled at a time
 			Options["Use premade ROMs"] = false
-			Options.forceSave()
+			Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -618,7 +617,8 @@ MGBA.OptionMap = {
 		updateSelf = function(self, params)
 			local path = FileManager.formatPathForOS(params)
 			Options.FILES[self.optionKey] = path
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 			return true
 			-- Unsure how to verify if this is a valid folder path
 			-- return false, "Invalid ROMs folder; please enter the full folder path to your ROMs folder."
@@ -641,7 +641,8 @@ MGBA.OptionMap = {
 				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -662,7 +663,8 @@ MGBA.OptionMap = {
 				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -683,7 +685,8 @@ MGBA.OptionMap = {
 				return false, string.format("%s: %s", Resources.MGBA.OptionFileError, path)
 			end
 			Options.FILES[self.optionKey] = absolutePath
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 			return true
 		end,
 	},
@@ -713,7 +716,8 @@ function MGBA.buildOptionMapDefaults()
 						return false, Resources.MGBA.ButtonInputRequired
 					end
 					Options.CONTROLS[self.optionKey] = comboFormatted
-					Options.forceSave()
+					Main.SaveSettings(true)
+					Program.redraw(true)
 					return true
 				end
 			else
@@ -722,8 +726,7 @@ function MGBA.buildOptionMapDefaults()
 					if Options[self.optionKey] == nil then
 						return false, errorOptionNotExist(self.optionKey)
 					end
-					Options[self.optionKey] = not Options[self.optionKey]
-					Options.forceSave()
+					Options.toggleSetting(self.optionKey)
 					return true
 				end
 			end

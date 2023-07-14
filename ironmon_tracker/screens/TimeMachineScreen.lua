@@ -45,21 +45,16 @@ TimeMachineScreen.Pager = {
 TimeMachineScreen.Buttons = {
 	EnableRestorePoints = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function() return " " .. Resources.TimeMachineScreen.OptionEnableRestorePoints end,
 		optionKey = "Enable restore points",
+		getText = function() return " " .. Resources.TimeMachineScreen.OptionEnableRestorePoints end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 8, 8 },
 		toggleState = true, -- update later in initialize
-		toggleColor = "Positive text",
-		updateSelf = function(self)
-			self.toggleState = Options[self.optionKey]
-		end,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-			Options.updateSetting(self.optionKey, self.toggleState)
-			Options.forceSave()
-		end
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,

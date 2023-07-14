@@ -129,20 +129,18 @@ function ExtrasScreen.createButtons()
 	for _, optionTuple in ipairs(optionKeyMap) do
 		ExtrasScreen.Buttons[optionTuple[1]] = {
 			type = Constants.ButtonTypes.CHECKBOX,
+			optionKey = optionTuple[1],
 			getText = function(self) return Resources.ExtrasScreen[optionTuple[2]] end,
 			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 			box = {	startX, startY, 8, 8 },
-			optionKey = optionTuple[1],
 			toggleState = Options[optionTuple[1]],
-			toggleColor = "Positive text",
+			updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 			onClick = function(self)
-				-- Toggle the setting and store the change to be saved later in Settings.ini
-				Options[self.optionKey] = not Options[self.optionKey]
-				self.toggleState = Options[self.optionKey]
+				self.toggleState = Options.toggleSetting(self.optionKey)
 
 				-- If Animated Pokemon popout is turned on, create the popup form, or destroy it.
 				if self.optionKey == "Animated Pokemon popout" then
-					if self.toggleState then
+					if self.toggleState == true then
 						Drawing.AnimatedPokemon:create()
 					else
 						Drawing.AnimatedPokemon:destroy()
@@ -151,8 +149,6 @@ function ExtrasScreen.createButtons()
 					-- Show help tip for pausing (4 seconds)
 					Program.GameTimer.showPauseTipUntil = os.time() + 4
 				end
-
-				Main.SaveSettings(true)
 				Program.redraw(true)
 			end
 		}

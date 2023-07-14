@@ -941,7 +941,7 @@ end
 -- Saves the user settings on to disk
 function Main.SaveSettings(forced)
 	-- Don't bother saving to a file if nothing has changed
-	if not forced and not Options.settingsUpdated and not Theme.settingsUpdated then
+	if not forced and not Theme.settingsUpdated then
 		return
 	end
 
@@ -995,7 +995,6 @@ function Main.SaveSettings(forced)
 	-- Implied to save all things in settings.extconfig
 
 	Inifile.save(FileManager.prependDir(FileManager.Files.SETTINGS), settings)
-	Options.settingsUpdated = false
 	Theme.settingsUpdated = false
 end
 

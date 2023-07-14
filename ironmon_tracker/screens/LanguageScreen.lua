@@ -18,24 +18,21 @@ LanguageScreen.Buttons = {
 	},
 	AutodetectLanguageOption = {
 		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Autodetect language from game",
 		getText = function(self) return Resources.LanguageScreen.AutodetectSetting end,
 		-- The y-position for this button is calculated later in createLanguageButtons()
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 120, 8, 8 },
 		toggleState = true,
-		toggleColor = "Positive text",
-		updateSelf = function(self)
-			self.toggleState = Options["Autodetect language from game"] == true
-		end,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			Options["Autodetect language from game"] = not Options["Autodetect language from game"]
-			self:updateSelf()
+			self.toggleState = Options.toggleSetting(self.optionKey)
 
-			if Options["Autodetect language from game"] then
+			-- If this setting changes from OFF to ON, check game language
+			if Options[self.optionKey] then
 				Resources.autoDetectForeignLanguage()
 				LanguageScreen.refreshButtons()
 			end
-			Main.SaveSettings(true)
 			Program.redraw(true)
 		end
 	},
