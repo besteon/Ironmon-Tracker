@@ -188,8 +188,9 @@ TrackerScreen.Buttons = {
 	LastAttackSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.SWORD_ATTACK,
-		getText = function(self) return self.updatedText end,
+		getText = function(self) return self.updatedText or "" end,
 		textColor = "Lower box text",
+		iconColors = { "Lower box text" },
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.LAST_ATTACK end,
@@ -200,7 +201,7 @@ TrackerScreen.Buttons = {
 	RouteSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
-		getText = function(self) return self.updatedText end,
+		getText = function(self) return self.updatedText or "" end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 8, 12 },
@@ -452,10 +453,10 @@ function TrackerScreen.buildCarousel()
 					lastAttackMsg = string.format("%s: %d %s", damageLabel, math.floor(Battle.damageReceived), Resources.TrackerScreen.DamageTaken)
 					local ownPokemon = Battle.getViewedPokemon(true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
-						-- Warn user that the damage taken is potentially lethal
-						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
+						-- Change the icon color to warn user that the damage taken is potentially lethal
+						TrackerScreen.Buttons.LastAttackSummary.iconColors = { "Negative text" }
 					else
-						TrackerScreen.Buttons.LastAttackSummary.textColor = "Lower box text"
+						TrackerScreen.Buttons.LastAttackSummary.iconColors = { "Lower box text" }
 					end
 				else
 					-- Unused

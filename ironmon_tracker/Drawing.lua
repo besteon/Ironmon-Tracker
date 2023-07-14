@@ -253,6 +253,14 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 	local textColor = button.textColor or "Default text"
 
+	local iconColors = {}
+	for _, colorKey in ipairs(button.iconColors or {}) do
+		table.insert(iconColors, Theme.COLORS[colorKey])
+	end
+	if #iconColors == 0 then -- default to using the same text color
+		table.insert(iconColors, Theme.COLORS[textColor])
+	end
+
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
@@ -290,7 +298,7 @@ function Drawing.drawButton(button, shadowcolor)
 			gui.drawImage(button.image, x, y)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
-		Drawing.drawImageAsPixels(button.image, x, y, { Theme.COLORS[textColor] }, shadowcolor)
+		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
 		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
@@ -323,13 +331,6 @@ function Drawing.drawButton(button, shadowcolor)
 			local imageHeight = #button.image
 			offsetX = math.max(math.floor((16 - imageWidth) / 2), 0) + 1
 			offsetY = math.max(math.floor((16 - imageHeight) / 2), 0) + 1
-			local iconColors = {}
-			for _, pixelColor in ipairs(button.iconColors or {}) do
-				table.insert(iconColors, Theme.COLORS[pixelColor])
-			end
-			if #iconColors == 0 then -- default to using the same text color
-				table.insert(iconColors, Theme.COLORS[textColor])
-			end
 			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end
 	end
