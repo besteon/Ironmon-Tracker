@@ -882,12 +882,15 @@ function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 		return totals
 	end
 
+	-- Define some max values to prevent erroneous game data reads
+	local maxPossibleQuantity = 999
 	-- Formatted as: healingItemsInBag[itemID] = quantity
 	for itemID, quantity in pairs(healingItemsInBag) do
 		local healItemData = MiscData.HealingItems[itemID]
 		if healItemData ~= nil and quantity > 0 then
 			local healingPercentage = 0
 			if healItemData.type == MiscData.HealingType.Constant then
+				-- Healing is in a percentage compared to the mon's max HP
 				local percentage = healItemData.amount / pokemonMaxHP * 100
 				if percentage > 100 then
 					percentage = 100
@@ -896,9 +899,11 @@ function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 			elseif healItemData.type == MiscData.HealingType.Percentage then
 				healingPercentage = healItemData.amount * quantity
 			end
-			-- Healing is in a percentage compared to the mon's max HP
-			totals.healing = totals.healing + healingPercentage
-			totals.numHeals = totals.numHeals + quantity
+
+			if quantity > 0 and quantity <= maxPossibleQuantity then
+				totals.healing = totals.healing + healingPercentage
+				totals.numHeals = totals.numHeals + quantity
+			end
 		end
 	end
 
