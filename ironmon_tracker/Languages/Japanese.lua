@@ -214,7 +214,7 @@ ScreenResources{
 		ButtonViewPreviousLog = "Previous log", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
-		OptionDisplayPedometer = "Display pedometer", -- NEEDS TRANSLATION
+		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
