@@ -220,7 +220,7 @@ end
 
 function PokemonData.getTypeResource(typename)
 	typename = typename or "unknown"
-	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.Unknown
+	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.unknown
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
