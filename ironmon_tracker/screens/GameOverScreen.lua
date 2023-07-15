@@ -285,7 +285,7 @@ function GameOverScreen.saveCurrentGameFiles()
 		end
 	end
 
-	local savestatePath = savePathDir .. romnameToSave .. FileManager.Extensions.SAVESTATE
+	local savestatePath = savePathDir .. romnameToSave .. FileManager.Extensions.BIZHAWK_SAVESTATE
 	---@diagnostic disable-next-line: undefined-global
 	savestate.save(savestatePath)
 

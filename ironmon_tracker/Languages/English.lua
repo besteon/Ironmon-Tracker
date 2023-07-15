@@ -435,9 +435,12 @@ ScreenResources{
 		StatusMessageCrash = "Crash Detected",
 		StatusMessageNoCrash = "No Crash Detected",
 		ButtonRecoverSave = "Recover Save",
+		ButtonUndoRecovery = "Undo Recovery",
 		ButtonDismiss = "Dismiss",
 		LastPlayedGame = "Last played game",
-		GameNotAvailable = "(Not available)",
+		SameGameAsLast = "Same game version as last",
+		SameRomAsLast = "Same exact ROM as last",
+		NotAvailable = "(Not available)",
 		OptionEnableCrashRecovery = "Enable crash recovery",
 	},
 	GameOverScreen = {

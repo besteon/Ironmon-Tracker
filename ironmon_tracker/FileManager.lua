@@ -58,7 +58,8 @@ FileManager.Extensions = {
 	ANIMATED_POKEMON = ".gif",
 	TRAINER = ".png",
 	BADGE = ".png",
-	SAVESTATE = ".State", -- Bizhawk save-state
+	BIZHAWK_SAVESTATE = ".State",
+	MGBA_SAVESTATE = ".ss0",
 	LUA_CODE = ".lua",
 }
 

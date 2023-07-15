@@ -106,13 +106,29 @@ function Main.Run()
 			Main.startCallbackId = callbacks:add("start", Main.Run)
 		end
 		if Main.resetCallbackId == nil then
-			Main.resetCallbackId = callbacks:add("reset", Main.Run) -- start doesn't get trigged on-reset
+			 -- start doesn't get trigged on-reset
+			Main.resetCallbackId = callbacks:add("reset", function()
+				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				Main.Run()
+			end)
 		end
 		if Main.stopCallbackId == nil then
-			Main.stopCallbackId = callbacks:add("stop", MGBA.removeActiveRunCallbacks)
+			Main.stopCallbackId = callbacks:add("stop", function()
+				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				MGBA.removeActiveRunCallbacks()
+			end)
 		end
 		if Main.shutdownCallbackId == nil then
-			Main.shutdownCallbackId = callbacks:add("shutdown", MGBA.removeActiveRunCallbacks)
+			Main.shutdownCallbackId = callbacks:add("shutdown", function()
+				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				MGBA.removeActiveRunCallbacks()
+			end)
+		end
+		if Main.crashedCallbackId == nil then
+			Main.crashedCallbackId = callbacks:add("crashed", function()
+				CrashRecoveryScreen.logCrashReport(true)
+				MGBA.removeActiveRunCallbacks()
+			end)
 		end
 
 		if emu == nil then
@@ -147,17 +163,17 @@ function Main.Run()
 	-- Final garbage collection prior to game loops beginning
 	collectgarbage()
 
+	Main.CrashReport = CrashRecoveryScreen.readCrashReport()
+	-- Consider it "crashed" unless emulator safely exits and updates this otherwise
+	CrashRecoveryScreen.logCrashReport(true)
+
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
 		event.onconsoleclose(CrashRecoveryScreen.safelyCloseWithoutCrash, "safelyCloseWithoutCrash")
 
-		Main.CrashReport = CrashRecoveryScreen.readCrashReport()
-		Main.AfterStartup()
+		Main.AfterStartupScreenCheck()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
-
-		-- Consider it "crashed" unless emulator safely exits and updates this otherwise
-		CrashRecoveryScreen.logCrashReport(true)
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
 		while not Main.loadNextSeed and not Main.updateRequested do
@@ -268,7 +284,7 @@ function Main.DisplayError(errMessage)
 	end, 155, 80)
 end
 
-function Main.AfterStartup()
+function Main.AfterStartupScreenCheck()
 	if not Main.IsOnBizhawk() or Main.hasRunOnce then
 		return
 	end
@@ -442,12 +458,16 @@ function Main.LoadNextRom()
 	end
 
 	if nextRomInfo ~= nil then
-		-- After successfully generating the next ROM to load, increment attempts and reset data
+		CrashRecoveryScreen.safelyCloseWithoutCrash()
+		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
+		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
+		local backupfilepath = FileManager.prependDir(FileManager.Folders.BackupSaves) .. FileManager.slash .. backUpName
 		Main.currentSeed = Main.currentSeed + 1
 		Main.WriteAttemptsCountToFile(nextRomInfo.attemptsFilePath)
 		Tracker.resetData()
 
 		if Main.IsOnBizhawk() then
+			savestate.save(backupfilepath .. FileManager.Extensions.BIZHAWK_SAVESTATE, true) -- true: suppresses the on-screen display message
 			GameOverScreen.clearTempSaveStates()
 			TimeMachineScreen.cleanupOldRestorePoints(true)
 			if Main.emulator == Main.EMU.BIZHAWK28 then
@@ -458,6 +478,8 @@ function Main.LoadNextRom()
 			end
 			client.openrom(nextRomInfo.filePath)
 		else
+			---@diagnostic disable-next-line: undefined-global
+			emu:saveStateFile(backupfilepath .. FileManager.Extensions.MGBA_SAVESTATE, C.SAVESTATE.ALL)
 			local success = emu:loadFile(nextRomInfo.filePath)
 			if success then
 				if Options["Use premade ROMs"] then
