@@ -12,26 +12,17 @@ ExtrasScreen.Buttons = {
 	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		getText = function(self) return Resources.ExtrasScreen.ButtonViewCurrentLog end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 55, 16 },
+		getText = function(self) return Resources.ExtrasScreen.ButtonViewLogs end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 52, 16 },
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
 		end,
-	},
-	ViewPreviousLogFile = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		getText = function(self) return Resources.ExtrasScreen.ButtonViewPreviousLog end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
-		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
-		end
 	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 130, 78, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 14, 76, 16 },
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
 			Program.changeScreenView(TimeMachineScreen)
@@ -41,8 +32,17 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEstimatePokemonIVs end,
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 100, 130, 11 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 100, 132, 11 },
 		onClick = function() ExtrasScreen.displayJudgeMessage() end
+	},
+	CrashRecovery = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.WARNING,
+		getText = function(self) return Resources.ExtrasScreen.ButtonCrashRecovery end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 130, 85, 16 },
+		onClick = function(self)
+			Program.changeScreenView(CrashRecoveryScreen)
+		end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -57,44 +57,7 @@ ExtrasScreen.Buttons = {
 	},
 }
 
--- Creates the log view buttons
--- Buttons are stored in ExtrasScreen.Buttons
-function ExtrasScreen.alignViewLogButtons()
-	-- CURRENTLY UNUSED
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-
-	local magnifyingGlassSize = #Constants.PixelImages.MAGNIFYING_GLASS[1]
-	local logViewButtonsWidth = Constants.SCREEN.MARGIN * 2 + magnifyingGlassSize +
-		math.max(math.floor((16 - magnifyingGlassSize) / 2), 0) + 1
-
-	-- Center the two buttons within the top box
-	local viewLogButtonBox = {
-		0,
-		0,
-		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewCurrentLog) + logViewButtonsWidth,
-		Constants.SCREEN.LINESPACING + 5
-	}
-	local viewPrevLogButtonBox = {
-		0,
-		0,
-		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewPreviousLog) + logViewButtonsWidth,
-		Constants.SCREEN.LINESPACING + 5
-	}
-
-	local totalViewLogButtonsWidth = viewLogButtonBox[3] + viewPrevLogButtonBox[3] + Constants.SCREEN.MARGIN
-	viewLogButtonBox[1] = topboxX + (topboxWidth - totalViewLogButtonsWidth) / 2
-	viewLogButtonBox[2] = topboxY + Constants.SCREEN.MARGIN + 1
-	viewPrevLogButtonBox[1] = viewLogButtonBox[1] + viewLogButtonBox[3] + Constants.SCREEN.MARGIN
-	viewPrevLogButtonBox[2] = viewLogButtonBox[2]
-
-	ExtrasScreen.Buttons.ViewLogFile.box = viewLogButtonBox
-	ExtrasScreen.Buttons.ViewPreviousLogFile.box = viewPrevLogButtonBox
-end
-
 function ExtrasScreen.initialize()
-	-- ExtrasScreen.alignViewLogButtons()
 	ExtrasScreen.createButtons()
 
 	for _, button in pairs(ExtrasScreen.Buttons) do

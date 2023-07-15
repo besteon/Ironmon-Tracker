@@ -138,6 +138,7 @@ Constants.OrderedLists = {
 		"Startup favorites",
 		"Show on new game screen",
 		"Enable restore points",
+		"Enable crash recovery",
 		"Enable custom extensions",
 		"Show Team View",
 		"Show Pre Evolutions",

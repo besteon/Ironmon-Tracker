@@ -28,6 +28,9 @@ function Main.Initialize()
 	Main.Version.updateAfterRestart = false
 
 	Main.MetaSettings = {}
+	Main.CrashReport = {
+		crashedOccurred = false,
+	}
 	Main.currentSeed = 1
 	Main.loadNextSeed = false
 	Main.hasRunOnce = false
@@ -146,10 +149,15 @@ function Main.Run()
 
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
+		event.onconsoleclose(CrashRecoveryScreen.safelyCloseWithoutCrash, "safelyCloseWithoutCrash")
 
-		Main.SelfUpdateAfterRestart()
+		Main.CrashReport = CrashRecoveryScreen.readCrashReport()
+		Main.AfterStartup()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
+
+		-- Consider it "crashed" unless emulator safely exits and updates this otherwise
+		CrashRecoveryScreen.logCrashReport(true)
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
 		while not Main.loadNextSeed and not Main.updateRequested do
@@ -260,10 +268,14 @@ function Main.DisplayError(errMessage)
 	end, 155, 80)
 end
 
-function Main.SelfUpdateAfterRestart()
-	-- Don't perform the update is the Tracker was previously loaded and files are locked by Bizhawk
+function Main.AfterStartup()
 	if not Main.IsOnBizhawk() or Main.hasRunOnce then
 		return
+	end
+
+	if Main.CrashReport.crashedOccurred then
+		CrashRecoveryScreen.previousScreen = Program.currentScreen
+		Program.changeScreenView(CrashRecoveryScreen)
 	end
 
 	if Main.Version.updateAfterRestart then

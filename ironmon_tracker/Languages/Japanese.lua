@@ -210,14 +210,14 @@ ScreenResources{
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION
-		ButtonViewCurrentLog = "View log", -- NEEDS TRANSLATION
-		ButtonViewPreviousLog = "Previous log", -- NEEDS TRANSLATION
+		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
+		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
+		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION
 		OptionDisplayPlayTime = "Display play time", -- NEEDS TRANSLATION
 		OptionAnimatedPokemonPopout = "Animated Pokémon popout", -- NEEDS TRANSLATION
-		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonEstimatePokemonIVs = "Estimate Pokémon IV Potential", -- NEEDS TRANSLATION
 		EstimateResultOutstanding = "Outstanding!!!", -- NEEDS TRANSLATION
 		EstimateResultQuiteImpressive = "Quite impressive!!", -- NEEDS TRANSLATION
@@ -414,10 +414,11 @@ ScreenResources{
 	},
 	ViewLogWarningScreen = {
 		Title = "Warning -- View the Log ?", -- NEEDS TRANSLATION
+		ButtonViewCurrentLog = "View Log", -- NEEDS TRANSLATION
+		ButtonViewPreviousLog = "Previous Log", -- NEEDS TRANSLATION
 		WarningAreYouSure = "Are you sure you want to view the log file?", -- NEEDS TRANSLATION
 		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.", -- NEEDS TRANSLATION
 		WarningIfUnsure = "If you are unsure, simply do not view the log file.", -- NEEDS TRANSLATION
-		ButtonYesImSure = "Yes, I'm sure", -- NEEDS TRANSLATION
 	},
 	TimeMachineScreen = {
 		Title = "Time Machine", -- NEEDS TRANSLATION
@@ -430,6 +431,16 @@ ScreenResources{
 		ConfirmationRestore = "Confirm restore?", -- NEEDS TRANSLATION
 		LocationUnknownArea = "Unknown Area", -- NEEDS TRANSLATION
 		ButtonCreate = "Create", -- NEEDS TRANSLATION
+	},
+	CrashRecoveryScreen = {
+		Title = "Crash Recovery", -- NEEDS TRANSLATION
+		StatusMessageCrash = "Crash Detected", -- NEEDS TRANSLATION
+		StatusMessageNoCrash = "No Crash Detected", -- NEEDS TRANSLATION
+		ButtonRecoverSave = "Recover Save", -- NEEDS TRANSLATION
+		ButtonDismiss = "Dismiss", -- NEEDS TRANSLATION
+		LastPlayedGame = "Last played game", -- NEEDS TRANSLATION
+		GameNotAvailable = "(Not available)", -- NEEDS TRANSLATION
+		OptionEnableCrashRecovery = "Enable crash recovery", -- NEEDS TRANSLATION
 	},
 	GameOverScreen = {
 		Title = "G a m e O v e r", -- NEEDS TRANSLATION

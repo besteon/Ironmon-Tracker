@@ -289,6 +289,9 @@ function Program.update()
 			Program.GameTimer:start()
 		end
 		Program.GameTimer:update()
+		if not CrashRecoveryScreen.started and Program.isValidMapLocation() then
+			CrashRecoveryScreen.startSavingBackups()
+		end
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
@@ -365,6 +368,7 @@ function Program.update()
 		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
+		CrashRecoveryScreen.trySaveBackup()
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
@@ -723,12 +727,15 @@ function Program.isValidMapLocation()
 end
 
 function Program.HandleExit()
-	if Main.IsOnBizhawk() then
-		gui.clearImageCache()
-		Drawing.clearGUI()
-		client.SetGameExtraPadding(0, 0, 0, 0)
-		forms.destroyall()
+	if not Main.IsOnBizhawk() then
+		return
 	end
+
+	gui.clearImageCache()
+	Drawing.clearGUI()
+	client.SetGameExtraPadding(0, 0, 0, 0)
+	forms.destroyall()
+	CrashRecoveryScreen.safelyCloseWithoutCrash()
 end
 
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
