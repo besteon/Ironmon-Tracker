@@ -108,19 +108,22 @@ function Main.Run()
 		if Main.resetCallbackId == nil then
 			 -- start doesn't get trigged on-reset
 			Main.resetCallbackId = callbacks:add("reset", function()
-				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				-- Emulator is closing as expected; no crash
+				CrashRecoveryScreen.logCrashReport(false)
 				Main.Run()
 			end)
 		end
 		if Main.stopCallbackId == nil then
 			Main.stopCallbackId = callbacks:add("stop", function()
-				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				-- Emulator is closing as expected; no crash
+				CrashRecoveryScreen.logCrashReport(false)
 				MGBA.removeActiveRunCallbacks()
 			end)
 		end
 		if Main.shutdownCallbackId == nil then
 			Main.shutdownCallbackId = callbacks:add("shutdown", function()
-				CrashRecoveryScreen.safelyCloseWithoutCrash()
+				-- Emulator is closing as expected; no crash
+				CrashRecoveryScreen.logCrashReport(false)
 				MGBA.removeActiveRunCallbacks()
 			end)
 		end
@@ -164,14 +167,17 @@ function Main.Run()
 	collectgarbage()
 
 	Main.CrashReport = CrashRecoveryScreen.readCrashReport()
-	-- Consider it "crashed" unless emulator safely exits and updates this otherwise
+	-- After crash report is read in, establish a new crash report; treat as "crashed" until emulator safely exits
 	CrashRecoveryScreen.logCrashReport(true)
 
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
-		event.onconsoleclose(CrashRecoveryScreen.safelyCloseWithoutCrash, "safelyCloseWithoutCrash")
+		event.onconsoleclose(function()
+			-- Emulator is closing as expected; no crash
+			CrashRecoveryScreen.logCrashReport(false)
+		end, "SafelyCloseWithoutCrash")
 
-		Main.AfterStartupScreenCheck()
+		Main.AfterStartupScreenRedirect()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
 
@@ -284,7 +290,7 @@ function Main.DisplayError(errMessage)
 	end, 155, 80)
 end
 
-function Main.AfterStartupScreenCheck()
+function Main.AfterStartupScreenRedirect()
 	if not Main.IsOnBizhawk() or Main.hasRunOnce then
 		return
 	end
@@ -458,7 +464,9 @@ function Main.LoadNextRom()
 	end
 
 	if nextRomInfo ~= nil then
-		CrashRecoveryScreen.safelyCloseWithoutCrash()
+		-- Emulator is closing as expected; no crash
+		CrashRecoveryScreen.logCrashReport(false)
+
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
 		local backupfilepath = FileManager.prependDir(FileManager.Folders.BackupSaves) .. FileManager.slash .. backUpName

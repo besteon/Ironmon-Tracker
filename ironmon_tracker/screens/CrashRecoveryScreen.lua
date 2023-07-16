@@ -158,13 +158,6 @@ function CrashRecoveryScreen.logCrashReport(crashedOccurred)
 	FileManager.writeTableToFile(crashReport, FileManager.Files.CRASH_REPORT)
 end
 
-function CrashRecoveryScreen.safelyCloseWithoutCrash()
-	if not CrashRecoveryScreen.isEnabled() then return end
-
-	-- Safely closed; no crash
-	CrashRecoveryScreen.logCrashReport(false)
-end
-
 function CrashRecoveryScreen.startSavingBackups()
 	CrashRecoveryScreen.started = true
 	CrashRecoveryScreen.lastSaveBackupTime = os.time()

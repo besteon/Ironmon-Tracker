@@ -59,7 +59,7 @@ FileManager.Extensions = {
 	TRAINER = ".png",
 	BADGE = ".png",
 	BIZHAWK_SAVESTATE = ".State",
-	MGBA_SAVESTATE = ".ss0",
+	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
 }
 
@@ -142,16 +142,17 @@ function FileManager.folderExists(folderpath)
 		folderpath = folderpath .. FileManager.slash
 	end
 
-	-- "code" only exists in Lua 5.2+
+	-- Hacky but simply way to check if a folder exists: try to rename it
+	-- The "code" return value only exists in Lua 5.2+, but not required to use here
 	local exists, err, code = os.rename(folderpath, folderpath)
 	-- Code 13 = Permission denied, but it exists
 	if exists or (not exists and code == 13) then
 		return true
 	end
 
+	-- Otherwise check the absolute path of the file
 	folderpath = FileManager.prependDir(folderpath)
 	exists, err, code = os.rename(folderpath, folderpath)
-	-- Code 13 = Permission denied, but it exists
 	if exists or (not exists and code == 13) then
 		return true
 	end
