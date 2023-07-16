@@ -42,6 +42,7 @@ Program.GameTimer = {
 	boxColor = 0x78000000,
 	margin = 0,
 	padding = 2,
+	location = "LowerRight",
 	box = {
 		x = Constants.SCREEN.WIDTH,
 		y = Constants.SCREEN.HEIGHT,
@@ -53,8 +54,8 @@ Program.GameTimer = {
 	end,
 	initialize = function(self)
 		self.hasStarted = false
+		self.location = Options["Game timer location"] or "LowerRight"
 		self.box.height = Constants.Font.SIZE - 4 + (2 * self.padding)
-		self.box.y = math.max(Constants.SCREEN.HEIGHT - self.box.height - self.margin - 1, 0)
 		self:update()
 	end,
 	start = function(self)
@@ -82,9 +83,23 @@ Program.GameTimer = {
 			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
 			self.readyToDraw = (timeDelta ~= 0)
 		end
-		-- Update box, align bottom-right
+
 		self.box.width = Utils.calcWordPixelLength(self:getText() or "") - 1 + (2 * self.padding)
-		self.box.x = math.max(Constants.SCREEN.WIDTH - self.box.width - self.margin - 1, 0)
+		self:updateLocationCoords()
+	end,
+	updateLocationCoords = function(self)
+		if self.location == "UpperLeft" or self.location == "LowerLeft" then
+			self.box.x = math.max(self.margin, 0)
+		elseif self.location == "UpperCenter" or self.location == "LowerCenter" then
+			self.box.x = math.floor(math.max((Constants.SCREEN.WIDTH - self.box.width) / 2 - 1, 0))
+		else -- Lower-X
+			self.box.x = math.max(Constants.SCREEN.WIDTH - self.box.width - self.margin - 1, 0)
+		end
+		if self.location == "UpperLeft" or self.location == "UpperCenter" or self.location == "UpperRight" then
+			self.box.y = math.max(self.margin, 0)
+		else -- Lower-Y
+			self.box.y = math.max(Constants.SCREEN.HEIGHT - self.box.height - self.margin - 1, 0)
+		end
 	end,
 	reset = function(self)
 		Tracker.Data.playtime = 0
@@ -115,8 +130,8 @@ Program.GameTimer = {
 
 			if self.showPauseTipUntil > self.timeLastChecked then
 				width = Utils.calcWordPixelLength(Resources.ExtrasScreen.TimerPauseTip) - 1 + (2 * self.padding)
-				x = math.max(Constants.SCREEN.WIDTH - width - self.margin - 1, 0)
-				y = math.max(self.box.y - self.box.height - 2, 0)
+				x = math.max(self.box.x + self.box.width - width - self.margin, 0)
+				y = math.max(self.box.y - self.box.height - self.margin - 2, self.box.height + self.margin + 2)
 				gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
 				Drawing.drawText(x, y - 1, Resources.ExtrasScreen.TimerPauseTip, self.textColor)
 			end

@@ -211,6 +211,9 @@ ScreenResources{
 		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
+		LabelTimer = "Timer options", -- NEEDS TRANSLATION
+		ButtonEditTime = "Edit", -- NEEDS TRANSLATION
+		ButtonRelocateTime = "Relocate", -- NEEDS TRANSLATION
 		OptionShowRandomBallPicker = "Show random ball picker", -- NEEDS TRANSLATION
 		OptionDisplayRepelUsage = "Display repel usage", -- NEEDS TRANSLATION
 		OptionDisplayPedometer = "Display step pedometer", -- NEEDS TRANSLATION

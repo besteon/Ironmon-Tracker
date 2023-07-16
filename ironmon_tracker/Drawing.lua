@@ -580,9 +580,13 @@ function Drawing.drawRepelUsage()
 	if not Main.IsOnBizhawk() then return end
 
 	local xOffset = Constants.SCREEN.WIDTH - 24
+	local yOffset = 0
+	if Options["Display play time"] and Program.GameTimer.location == "UpperRight" then
+		yOffset = Program.GameTimer.box.height + 1
+	end
 	-- Draw repel item icon
 	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	gui.drawImage(repelImage, xOffset, 0)
+	gui.drawImage(repelImage, xOffset, yOffset)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
@@ -598,9 +602,9 @@ function Drawing.drawRepelUsage()
 	end
 
 	-- Draw outer bar (black outline with semi-transparent background)
-	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, Drawing.Colors.BLACK, Theme.COLORS["Upper box background"] - 0xAA000000)
+	gui.drawRectangle(xOffset, yOffset + 1, 4, repelBarHeight, Drawing.Colors.BLACK, Theme.COLORS["Upper box background"] - 0xAA000000)
 	-- Draw colored bar for remaining usage
-	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
+	gui.drawRectangle(xOffset, yOffset + 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
 
 --- Draws an "L" shape at the given coordinates
