@@ -39,6 +39,7 @@ Program.GameTimer = {
 	readyToDraw = false, -- Anytime the timer changes, it needs to be redrawn
 	textColor = 0xFFFFFFFF,
 	pauseColor = 0xFFFFFF00,
+	notStartedColor = 0xFFAAAAAA,
 	boxColor = 0x78000000,
 	margin = 0,
 	padding = 2,
@@ -124,7 +125,12 @@ Program.GameTimer = {
 		if Options["Display play time"] then
 			local x, y, width, height = self.box.x, self.box.y, self.box.width, self.box.height
 			local formattedTime = self:getText()
-			local color = Utils.inlineIf(self.isPaused, self.pauseColor, self.textColor)
+			local color = self.textColor
+			if not self.hasStarted then
+				color = self.notStartedColor
+			elseif self.isPaused then
+				color = self.pauseColor
+			end
 			gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
 			Drawing.drawText(x, y - 1, formattedTime, color)
 

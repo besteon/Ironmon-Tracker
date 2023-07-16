@@ -32,6 +32,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonEditTime end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 64, Constants.SCREEN.MARGIN + 95, 24, 11 },
+		isVisible = function(self) return Options["Display play time"] end,
 		draw = function(self, shadowcolor)
 			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
 			Drawing.drawText(x, self.box[2], Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
@@ -42,6 +43,7 @@ ExtrasScreen.Buttons = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonRelocateTime end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 92, Constants.SCREEN.MARGIN + 95, 44, 11 },
+		isVisible = function(self) return Options["Display play time"] end,
 		onClick = function(self)
 			ExtrasScreen.relocateTimer()
 			Program.redraw(true)
