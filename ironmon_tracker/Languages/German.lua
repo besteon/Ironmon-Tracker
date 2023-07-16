@@ -56,32 +56,32 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER", -- NEEDS TRANSLATION
 			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Thunder Stone", -- NEEDS TRANSLATION
+			detailed = "Donnerstein",
 		},
 		FIRE = {
 			abbreviation = "FIRE", -- NEEDS TRANSLATION
 			short = "Fire", -- NEEDS TRANSLATION
-			detailed = "Fire Stone", -- NEEDS TRANSLATION
+			detailed = "Feuerstein",
 		},
 		WATER = {
 			abbreviation = "WATER", -- NEEDS TRANSLATION
 			short = "Water", -- NEEDS TRANSLATION
-			detailed = "Water Stone", -- NEEDS TRANSLATION
+			detailed = "Wasserstein",
 		},
 		MOON = {
 			abbreviation = "MOON", -- NEEDS TRANSLATION
 			short = "Moon", -- NEEDS TRANSLATION
-			detailed = "Moon Stone", -- NEEDS TRANSLATION
+			detailed = "Mondstein",
 		},
 		LEAF = {
 			abbreviation = "LEAF", -- NEEDS TRANSLATION
 			short = "Leaf", -- NEEDS TRANSLATION
-			detailed = "Leaf Stone", -- NEEDS TRANSLATION
+			detailed = "Blattstein",
 		},
 		SUN = {
 			abbreviation = "SUN", -- NEEDS TRANSLATION
 			short = "Sun", -- NEEDS TRANSLATION
-			detailed = "Sun Stone", -- NEEDS TRANSLATION
+			detailed = "Sonnenstein",
 		},
 		LEAF_SUN = {
 			abbreviation = "LF/SN", -- NEEDS TRANSLATION

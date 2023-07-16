@@ -56,32 +56,32 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER", -- NEEDS TRANSLATION
 			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Thunder Stone", -- NEEDS TRANSLATION
+			detailed = "Pietratuono",
 		},
 		FIRE = {
 			abbreviation = "FIRE", -- NEEDS TRANSLATION
 			short = "Fire", -- NEEDS TRANSLATION
-			detailed = "Fire Stone", -- NEEDS TRANSLATION
+			detailed = "Pietrafocaia",
 		},
 		WATER = {
 			abbreviation = "WATER", -- NEEDS TRANSLATION
 			short = "Water", -- NEEDS TRANSLATION
-			detailed = "Water Stone", -- NEEDS TRANSLATION
+			detailed = "Pietraidrica",
 		},
 		MOON = {
 			abbreviation = "MOON", -- NEEDS TRANSLATION
 			short = "Moon", -- NEEDS TRANSLATION
-			detailed = "Moon Stone", -- NEEDS TRANSLATION
+			detailed = "Pietralunare",
 		},
 		LEAF = {
 			abbreviation = "LEAF", -- NEEDS TRANSLATION
 			short = "Leaf", -- NEEDS TRANSLATION
-			detailed = "Leaf Stone", -- NEEDS TRANSLATION
+			detailed = "Pietrafoglia",
 		},
 		SUN = {
 			abbreviation = "SUN", -- NEEDS TRANSLATION
 			short = "Sun", -- NEEDS TRANSLATION
-			detailed = "Sun Stone", -- NEEDS TRANSLATION
+			detailed = "Pietrasolare",
 		},
 		LEAF_SUN = {
 			abbreviation = "LF/SN", -- NEEDS TRANSLATION
