@@ -1115,7 +1115,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'RELEASENOTES()',
 		usageExample = 'RELEASENOTES()',
 		execute = function(self, params)
-			UpdateScreen.openReleaseNotesWindow()
+			Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 		end,
 	},
 	["UPDATENOW"] = {
@@ -1148,7 +1148,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'HELPWIKI()',
 		usageExample = 'HELPWIKI()',
 		execute = function(self, params)
-			NavigationMenu.openWikiBrowserWindow()
+			Utils.openBrowserWindow(FileManager.Urls.WIKI, Resources.NavigationMenu.MessageCheckConsole)
 		end,
 	},
 	["ATTEMPTS"] = {

@@ -13,7 +13,6 @@ NavigationMenu.Buttons = {
 		getText = function(self) return "v" .. tostring(Main.TrackerVersion) end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN - 2, 22, 10 },
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function(self) UpdateScreen.openReleaseNotesWindow() end
 	},
 	SetupAndOptions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
@@ -141,7 +140,9 @@ NavigationMenu.Buttons = {
 		getText = function(self) return Resources.NavigationMenu.ButtonHelp end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 41, Constants.SCREEN.MARGIN + 135, 23, 11 },
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function(self) NavigationMenu.openWikiBrowserWindow() end
+		onClick = function(self)
+			Utils.openBrowserWindow(FileManager.Urls.WIKI, Resources.NavigationMenu.MessageCheckConsole)
+		end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -222,10 +223,6 @@ function NavigationMenu.refreshButtons()
 			button:updateSelf()
 		end
 	end
-end
-
-function NavigationMenu.openWikiBrowserWindow()
-	Utils.openBrowserWindow(FileManager.Urls.WIKI, Resources.NavigationMenu.MessageCheckConsole)
 end
 
 -- USER INPUT FUNCTIONS

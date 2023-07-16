@@ -116,7 +116,7 @@ UpdateScreen.Buttons = {
 		onClick = function(self)
 			if not UpdateScreen.isUpdateSupported() then
 				-- In such a case, open a browser window with a link for manual download...
-				UpdateScreen.openReleaseNotesWindow()
+				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 				-- ... and swap back to main Tracker screen. Default to remind later if they forget to manually update.
 				Main.Version.remindMe = true
 				UpdateScreen.exitScreen()
@@ -201,7 +201,9 @@ UpdateScreen.Pager.Buttons = {
 		getText = function(self) return Resources.UpdateScreen.ButtonViewOnline end,
 		box = { 3, Constants.SCREEN.HEIGHT - 15, 55, 11, },
 		isVisible = function() return UpdateScreen.showNotes end,
-		onClick = function(self) UpdateScreen.openReleaseNotesWindow() end
+		onClick = function(self)
+			Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
+		end
 	},
 	OverlayCurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -360,10 +362,6 @@ function UpdateScreen.performAutoUpdate()
 	else
 		Program.redraw(true)
 	end
-end
-
-function UpdateScreen.openReleaseNotesWindow()
-	Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 end
 
 -- USER INPUT FUNCTIONS
