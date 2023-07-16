@@ -1007,11 +1007,7 @@ function Utils.openBrowserWindow(url, notifyMessage)
 
 	notifyMessage = notifyMessage or "Unable to open browser window. Check Lua Console for link."
 
-	local wasSoundOn
-	if Main.IsOnBizhawk() then
-		wasSoundOn = client.GetSoundOn()
-		client.SetSoundOn(false)
-	end
+	Utils.tempDisableBizhawkSound()
 
 	if Main.OS == "Windows" then
 		-- The first parameter is the title of the window, the second is the url
@@ -1028,9 +1024,7 @@ function Utils.openBrowserWindow(url, notifyMessage)
 		end
 	end
 
-	if Main.IsOnBizhawk() and client.GetSoundOn() ~= wasSoundOn then
-		client.SetSoundOn(wasSoundOn)
-	end
+	Utils.tempEnableBizhawkSound()
 end
 
 -- Remembers the setting if Bizhawk sound was enabled/disabled, then turns off Bizhawk sound.
