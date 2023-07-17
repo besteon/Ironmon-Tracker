@@ -317,7 +317,6 @@ ScreenResources{
 		ButtonHide = "Hide", -- NEEDS TRANSLATION
 		ButtonViewOnline = "View Online", -- NEEDS TRANSLATION
 		CheckboxDevBranch = "Dev branch updates", -- NEEDS TRANSLATION
-		HeaderQuestion = "What would you like to do?", -- NEEDS TRANSLATION
 		ButtonCheckForUpdates = "Check for updates", -- NEEDS TRANSLATION
 		ButtonNoUpdates = "No update available", -- NEEDS TRANSLATION
 		ButtonBeginInstall = "Begin install", -- NEEDS TRANSLATION

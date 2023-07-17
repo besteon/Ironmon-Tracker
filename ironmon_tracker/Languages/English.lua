@@ -315,7 +315,6 @@ ScreenResources{
 		ButtonHide = "Hide",
 		ButtonViewOnline = "View Online",
 		CheckboxDevBranch = "Dev branch updates",
-		HeaderQuestion = "What would you like to do?",
 		ButtonCheckForUpdates = "Check for updates",
 		ButtonNoUpdates = "No update available",
 		ButtonBeginInstall = "Begin install",
