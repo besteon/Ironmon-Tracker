@@ -7,15 +7,41 @@ ViewLogWarningScreen = {
 }
 
 ViewLogWarningScreen.Buttons = {
-	Yes = {
+	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.WARNING,
-		getText = function(self) return Resources.ViewLogWarningScreen.ButtonYesImSure end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 32, Constants.SCREEN.MARGIN + 40, 75, 16 },
-		textColor = "Intermediate text",
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewCurrentLog end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 39, 56, 16 },
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
+		end,
+	},
+	ViewPreviousLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewPreviousLog end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 64, Constants.SCREEN.MARGIN + 39, 72, 16 },
+		onClick = function(self)
+			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
 		end
+	},
+	WarningIcon1 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 41, Constants.SCREEN.MARGIN + 60, 10, 10 },
+	},
+	WarningIcon2 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 60, 10, 10 },
+	},
+	WarningIcon3 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 89, Constants.SCREEN.MARGIN + 60, 10, 10 },
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -73,14 +99,14 @@ function ViewLogWarningScreen.drawScreen()
 		Drawing.drawText(topBox.x + 4, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING
 	end
-	textLineY = textLineY + Constants.SCREEN.LINESPACING * 2 + 5 -- Skip over the Yes button
+	textLineY = textLineY + Constants.SCREEN.LINESPACING * 2 + 14 -- Skip over the view log buttons
 
 	wrappedDesc = Utils.getWordWrapLines(Resources.ViewLogWarningScreen.WarningSpiritOfIronmon, 35)
 	for _, line in pairs(wrappedDesc) do
 		Drawing.drawText(topBox.x + 4, textLineY, line, topBox.text, topBox.shadow)
 		textLineY = textLineY + Constants.SCREEN.LINESPACING
 	end
-	textLineY = textLineY + 7
+	textLineY = textLineY + 6
 
 	wrappedDesc = Utils.getWordWrapLines(Resources.ViewLogWarningScreen.WarningIfUnsure, 35)
 	for _, line in pairs(wrappedDesc) do

@@ -8,6 +8,7 @@ FileManager.Folders = {
 	Custom = "extensions",
 	Quickload = "quickload",
 	SavedGames = "saved_games", -- needs to be created first to be used
+	BackupSaves = "backup_saves", -- needs to be created first to be used
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
@@ -26,6 +27,7 @@ FileManager.Files = {
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
+	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
 
 	LanguageCode = {
 		SpainData = "SpainData.lua",
@@ -45,6 +47,7 @@ FileManager.PostFixes = {
 	AUTORANDOMIZED = "AutoRandomized",
 	PREVIOUSATTEMPT = "PreviousAttempt",
 	AUTOSAVE = "AutoSave",
+	BACKUPSAVE = "BackupSave",
 }
 
 FileManager.Extensions = {
@@ -55,7 +58,8 @@ FileManager.Extensions = {
 	ANIMATED_POKEMON = ".gif",
 	TRAINER = ".png",
 	BADGE = ".png",
-	SAVESTATE = ".State", -- Bizhawk save-state
+	BIZHAWK_SAVESTATE = ".State",
+	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
 }
 
@@ -119,6 +123,7 @@ FileManager.LuaCode = {
 	{ name = "CustomExtensionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua", },
 	{ name = "SingleExtensionScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "SingleExtensionScreen.lua", },
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
+	{ name = "CrashRecoveryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CrashRecoveryScreen.lua "},
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua "},
@@ -129,6 +134,30 @@ FileManager.LuaCode = {
 -- Returns true if a file exists at its absolute file path; false otherwise
 function FileManager.fileExists(filepath)
 	return FileManager.getPathIfExists(filepath) ~= nil
+end
+
+function FileManager.folderExists(folderpath)
+	if folderpath == nil then return false end
+	if folderpath:sub(-1) ~= "/" and folderpath:sub(-1) ~= "\\" then
+		folderpath = folderpath .. FileManager.slash
+	end
+
+	-- Hacky but simply way to check if a folder exists: try to rename it
+	-- The "code" return value only exists in Lua 5.2+, but not required to use here
+	local exists, err, code = os.rename(folderpath, folderpath)
+	-- Code 13 = Permission denied, but it exists
+	if exists or (not exists and code == 13) then
+		return true
+	end
+
+	-- Otherwise check the absolute path of the file
+	folderpath = FileManager.prependDir(folderpath)
+	exists, err, code = os.rename(folderpath, folderpath)
+	if exists or (not exists and code == 13) then
+		return true
+	end
+
+	return false
 end
 
 -- Returns the path that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil

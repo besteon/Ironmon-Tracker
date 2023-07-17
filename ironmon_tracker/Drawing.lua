@@ -255,7 +255,7 @@ function Drawing.drawButton(button, shadowcolor)
 
 	local iconColors = {}
 	for _, colorKey in ipairs(button.iconColors or {}) do
-		table.insert(iconColors, Theme.COLORS[colorKey])
+		table.insert(iconColors, Theme.COLORS[colorKey] or Theme.COLORS[textColor])
 	end
 	if #iconColors == 0 then -- default to using the same text color
 		table.insert(iconColors, Theme.COLORS[textColor])
@@ -298,8 +298,9 @@ function Drawing.drawButton(button, shadowcolor)
 			gui.drawImage(button.image, x, y)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
+		local offsetY = -1 * math.floor((height - Constants.Font.SIZE) / 2)
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
-		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + width + 1, y + offsetY, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
@@ -579,9 +580,13 @@ function Drawing.drawRepelUsage()
 	if not Main.IsOnBizhawk() then return end
 
 	local xOffset = Constants.SCREEN.WIDTH - 24
+	local yOffset = 0
+	if Options["Display play time"] and Program.GameTimer.location == "UpperRight" then
+		yOffset = Program.GameTimer.box.height + Program.GameTimer.box.margin + 1
+	end
 	-- Draw repel item icon
 	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	gui.drawImage(repelImage, xOffset, 0)
+	gui.drawImage(repelImage, xOffset, yOffset)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
@@ -597,9 +602,9 @@ function Drawing.drawRepelUsage()
 	end
 
 	-- Draw outer bar (black outline with semi-transparent background)
-	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, Drawing.Colors.BLACK, Theme.COLORS["Upper box background"] - 0xAA000000)
+	gui.drawRectangle(xOffset, yOffset + 1, 4, repelBarHeight, Drawing.Colors.BLACK, Theme.COLORS["Upper box background"] - 0xAA000000)
 	-- Draw colored bar for remaining usage
-	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
+	gui.drawRectangle(xOffset, yOffset + 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
 
 --- Draws an "L" shape at the given coordinates

@@ -149,7 +149,7 @@ function TimeMachineScreen.checkCreatingRestorePoint()
 	end
 end
 
--- Creates a temporary save state in memory with an associated label(optional)
+-- Creates a temporary save state in memory with an associated label(optional); returns ID of created save state
 function TimeMachineScreen.createRestorePoint(label)
 	if not Main.IsOnBizhawk() then return end
 
@@ -177,6 +177,8 @@ function TimeMachineScreen.createRestorePoint(label)
 	table.insert(TimeMachineScreen.RestorePoints, restorePoint)
 
 	TimeMachineScreen.cleanupOldRestorePoints()
+
+	return restorePointId
 end
 
 function TimeMachineScreen.loadRestorePoint(restorePointId)

@@ -12,37 +12,67 @@ ExtrasScreen.Buttons = {
 	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		getText = function(self) return Resources.ExtrasScreen.ButtonViewCurrentLog end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 15, 55, 16 },
+		getText = function(self) return Resources.ExtrasScreen.ButtonViewLogs end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 14, 52, 16 },
 		onClick = function(self)
 			Program.changeScreenView(ViewLogWarningScreen)
 		end,
-	},
-	ViewPreviousLogFile = {
-		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		getText = function(self) return Resources.ExtrasScreen.ButtonViewPreviousLog end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 15, 70, 16 },
-		onClick = function(self)
-			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
-		end
 	},
 	TimeMachine = {
 		type = Constants.ButtonTypes.ICON_BORDER,
 		getText = function(self) return Resources.ExtrasScreen.ButtonTimeMachine end,
 		image = Constants.PixelImages.CLOCK,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 130, 78, 16 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 60, Constants.SCREEN.MARGIN + 14, 76, 16 },
 		onClick = function()
 			TimeMachineScreen.buildOutPagedButtons()
 			Program.changeScreenView(TimeMachineScreen)
 		end
 	},
+	TimerEdit = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.ExtrasScreen.ButtonEditTime end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 64, Constants.SCREEN.MARGIN + 95, 24, 11 },
+		isVisible = function(self) return Options["Display play time"] end,
+		draw = function(self, shadowcolor)
+			local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
+			Drawing.drawText(x, self.box[2], Resources.ExtrasScreen.LabelTimer .. ":", Theme.COLORS[self.textColor], shadowcolor)
+		end,
+		onClick = function(self) ExtrasScreen.openEditTimerPrompt() end,
+	},
+	TimerRelocate = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.ExtrasScreen.ButtonRelocateTime end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 92, Constants.SCREEN.MARGIN + 95, 44, 11 },
+		isVisible = function(self) return Options["Display play time"] end,
+		onClick = function(self)
+			ExtrasScreen.relocateTimer()
+			Program.redraw(true)
+		end,
+	},
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.ExtrasScreen.ButtonEstimatePokemonIVs end,
+		getText = function(self)
+			if self.ivText ~= nil and self.ivText ~= "" then
+				return self.ivText
+			else
+				return Resources.ExtrasScreen.ButtonEstimatePokemonIVs
+			end
+		end,
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 100, 130, 11 },
-		onClick = function() ExtrasScreen.displayJudgeMessage() end
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 112, 132, 12 },
+		onClick = function(self)
+			self.ivText = ExtrasScreen.getJudgeMessage()
+			Program.redraw(true)
+		end,
+	},
+	CrashRecovery = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.WARNING,
+		getText = function(self) return Resources.ExtrasScreen.ButtonCrashRecovery end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 130, 85, 16 },
+		onClick = function(self)
+			Program.changeScreenView(CrashRecoveryScreen)
+		end
 	},
 	Back = {
 		type = Constants.ButtonTypes.FULL_BORDER,
@@ -57,44 +87,7 @@ ExtrasScreen.Buttons = {
 	},
 }
 
--- Creates the log view buttons
--- Buttons are stored in ExtrasScreen.Buttons
-function ExtrasScreen.alignViewLogButtons()
-	-- CURRENTLY UNUSED
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-
-	local magnifyingGlassSize = #Constants.PixelImages.MAGNIFYING_GLASS[1]
-	local logViewButtonsWidth = Constants.SCREEN.MARGIN * 2 + magnifyingGlassSize +
-		math.max(math.floor((16 - magnifyingGlassSize) / 2), 0) + 1
-
-	-- Center the two buttons within the top box
-	local viewLogButtonBox = {
-		0,
-		0,
-		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewCurrentLog) + logViewButtonsWidth,
-		Constants.SCREEN.LINESPACING + 5
-	}
-	local viewPrevLogButtonBox = {
-		0,
-		0,
-		Utils.calcWordPixelLength(Resources.ExtrasScreen.ButtonViewPreviousLog) + logViewButtonsWidth,
-		Constants.SCREEN.LINESPACING + 5
-	}
-
-	local totalViewLogButtonsWidth = viewLogButtonBox[3] + viewPrevLogButtonBox[3] + Constants.SCREEN.MARGIN
-	viewLogButtonBox[1] = topboxX + (topboxWidth - totalViewLogButtonsWidth) / 2
-	viewLogButtonBox[2] = topboxY + Constants.SCREEN.MARGIN + 1
-	viewPrevLogButtonBox[1] = viewLogButtonBox[1] + viewLogButtonBox[3] + Constants.SCREEN.MARGIN
-	viewPrevLogButtonBox[2] = viewLogButtonBox[2]
-
-	ExtrasScreen.Buttons.ViewLogFile.box = viewLogButtonBox
-	ExtrasScreen.Buttons.ViewPreviousLogFile.box = viewPrevLogButtonBox
-end
-
 function ExtrasScreen.initialize()
-	-- ExtrasScreen.alignViewLogButtons()
 	ExtrasScreen.createButtons()
 
 	for _, button in pairs(ExtrasScreen.Buttons) do
@@ -156,33 +149,87 @@ function ExtrasScreen.createButtons()
 	end
 end
 
-function ExtrasScreen.displayJudgeMessage()
-	local leadPokemon = Battle.getViewedPokemon(true)
-	if leadPokemon ~= nil and PokemonData.isValid(leadPokemon.pokemonID) then
-		-- Source: https://bulbapedia.bulbagarden.net/wiki/Stats_judge
-		local result
-		local ivEstimate = Utils.estimateIVs(leadPokemon) * 186
-		if ivEstimate >= 151 then
-			result = Resources.ExtrasScreen.EstimateResultOutstanding
-		elseif ivEstimate >= 121 and ivEstimate <= 150 then
-			result = Resources.ExtrasScreen.EstimateResultQuiteImpressive
-		elseif ivEstimate >= 91 and ivEstimate <= 120 then
-			result = Resources.ExtrasScreen.EstimateResultAboveAverage
-		else
-			result = Resources.ExtrasScreen.EstimateResultDecent
-		end
-
-		local pokemonName = PokemonData.Pokemon[leadPokemon.pokemonID].name
-		ExtrasScreen.Buttons.EstimateIVs.ivText = string.format("%s: %s", pokemonName, result)
-
-		-- Joey's Rattata meme (saving for later)
-		-- local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
-		-- local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
-		-- message = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
-	else
-		ExtrasScreen.Buttons.EstimateIVs.ivText = Resources.ExtrasScreen.EstimateResultUnavailable
+function ExtrasScreen.getJudgeMessage()
+	local leadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	if not PokemonData.isValid(leadPokemon.pokemonID) then
+		return Resources.ExtrasScreen.EstimateResultUnavailable or ""
 	end
-	Program.redraw(true)
+	-- Source: https://bulbapedia.bulbagarden.net/wiki/Stats_judge
+	local resultKey
+	local ivEstimate = Utils.estimateIVs(leadPokemon) * 186
+	if ivEstimate >= 151 then
+		resultKey = Resources.ExtrasScreen.EstimateResultOutstanding
+	elseif ivEstimate >= 121 and ivEstimate <= 150 then
+		resultKey = Resources.ExtrasScreen.EstimateResultQuiteImpressive
+	elseif ivEstimate >= 91 and ivEstimate <= 120 then
+		resultKey = Resources.ExtrasScreen.EstimateResultAboveAverage
+	else
+		resultKey = Resources.ExtrasScreen.EstimateResultDecent
+	end
+
+	local pokemonName = PokemonData.Pokemon[leadPokemon.pokemonID].name
+	return string.format("%s: %s", pokemonName, resultKey)
+
+	-- Joey's Rattata meme (saving for later)
+	-- local topPercentile = math.max(100 - 100 * Utils.estimateIVs(leadPokemon), 1)
+	-- local percentText = string.format("%g", string.format("%d", topPercentile)) .. "%" -- %g removes insignificant 0's
+	-- message = "In the top " .. percentText .. " of  " .. PokemonData.Pokemon[leadPokemon.pokemonID].name
+end
+
+function ExtrasScreen.openEditTimerPrompt()
+	-- Pause the timer while editing if it wasn't already paused
+	local wasPaused = Program.GameTimer.isPaused
+	if not wasPaused then
+		Program.GameTimer:pause()
+	end
+	local unpauseTimerFunc = function()
+		if not wasPaused then
+			Program.GameTimer:unpause()
+		end
+		client.unpause()
+	end
+
+	local form = Utils.createBizhawkForm(Resources.StreamerScreen.LabelTimer, 320, 130, nil, nil, unpauseTimerFunc)
+
+	local hour = math.floor(Tracker.Data.playtime / 3600) % 10000
+	local min = math.floor(Tracker.Data.playtime / 60) % 60
+	local sec = Tracker.Data.playtime % 60
+	forms.label(form, "H", 60, 10, 15, 18)
+	forms.label(form, "M", 130, 10, 15, 18)
+	forms.label(form, "S", 200, 10, 15, 18)
+	local hourBox = forms.textbox(form, hour, 40, 30, "SIGNED", 50, 30)
+	local minBox = forms.textbox(form, min, 40, 30, "SIGNED", 120, 30)
+	local secBox = forms.textbox(form, sec, 40, 30, "SIGNED", 190, 30)
+	forms.button(form, Resources.AllScreens.Save, function()
+		hour = tonumber(forms.gettext(hourBox) or "") or 0
+		min = tonumber(forms.gettext(minBox) or "") or 0
+		sec = tonumber(forms.gettext(secBox) or "") or 0
+		-- Update total play time
+		Tracker.Data.playtime = hour * 3600 + min * 60 + sec
+		Program.GameTimer:update()
+		unpauseTimerFunc()
+		Program.redraw(true)
+		forms.destroy(form)
+	end, 72, 60)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		unpauseTimerFunc()
+		forms.destroy(form)
+	end, 157, 60)
+end
+
+function ExtrasScreen.relocateTimer()
+	local nextLocationMap = {
+		["UpperLeft"] = "UpperCenter",
+		["UpperCenter"] = "UpperRight",
+		["UpperRight"] = "LowerRight",
+		["LowerRight"] = "LowerCenter",
+		["LowerCenter"] = "LowerLeft",
+		["LowerLeft"] = "UpperLeft",
+	}
+	Program.GameTimer.location = nextLocationMap[Program.GameTimer.location or ""] or "LowerRight"
+	Program.GameTimer:updateLocationCoords()
+	Options["Game timer location"] = Program.GameTimer.location
+	Main.SaveSettings(true)
 end
 
 -- USER INPUT FUNCTIONS
@@ -212,8 +259,5 @@ function ExtrasScreen.drawScreen()
 	for _, button in pairs(ExtrasScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
-
-	local ivBtn = ExtrasScreen.Buttons.EstimateIVs
-	Drawing.drawText(topboxX + 4, ivBtn.box[2] + ivBtn.box[4] + 1, ivBtn.ivText, Theme.COLORS[ivBtn.textColor], shadowcolor)
 end
 

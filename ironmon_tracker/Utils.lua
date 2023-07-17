@@ -110,8 +110,9 @@ end
 
 -- Returns an offset that will center-align the given text based on a specified area's width
 function Utils.getCenteredTextX(text, areaWidth)
+	areaWidth = areaWidth or Constants.SCREEN.RIGHT_GAP
 	local textSize = Utils.calcWordPixelLength(text or "")
-	return math.max((areaWidth or 0) / 2 - textSize / 2, 0)
+	return math.floor(math.max((areaWidth - textSize) / 2, 0))
 end
 
 function Utils.centerTextOffset(text, charSize, width)

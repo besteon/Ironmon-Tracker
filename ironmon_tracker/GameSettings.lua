@@ -359,85 +359,88 @@ function GameSettings.setGameVersion(gameversion)
 		["Ruby"] = {
 			gameIndex = 1,
 			[0x00410000] = { -- English 1.0
-				versionName = "Pokemon Ruby v1.0",
+				versionName = "Pokémon Ruby v1.0",
 				versionIndex = 1,
 			},
 			[0x01400000] = { -- English 1.1
-				versionName = "Pokemon Ruby v1.1",
+				versionName = "Pokémon Ruby v1.1",
 				versionIndex = 2
 			},
 			[0x023F0000] = { -- English 1.2
-				versionName = "Pokemon Ruby v1.2",
+				versionName = "Pokémon Ruby v1.2",
 				versionIndex = 3
 			},
 		},
 		["Sapphire"] = {
 			gameIndex = 2,
 			[0x00550000] = { -- English 1.0
-				versionName = "Pokemon Sapphire v1.0",
+				versionName = "Pokémon Sapphire v1.0",
 				versionIndex = 1,
 			},
 			[0x01540000] = { -- English 1.1
-				versionName = "Pokemon Sapphire v1.1",
+				versionName = "Pokémon Sapphire v1.1",
 				versionIndex = 2
 			},
 			[0x02530000] = { -- English 1.2
-				versionName = "Pokemon Sapphire v1.2",
+				versionName = "Pokémon Sapphire v1.2",
 				versionIndex = 3
 			},
 		},
 		["Emerald"] = {
 			gameIndex = 3,
 			[0x00720000] = { -- English
-				versionName = "Pokemon Emerald",
+				versionName = "Pokémon Emerald",
 				versionIndex = 1,
 			},
 		},
 		["FireRed"] = {
 			gameIndex = 4,
 			[0x00680000] = { -- English 1.0
-				versionName = "Pokemon FireRed v1.0",
+				versionName = "Pokémon FireRed v1.0",
 				versionIndex = 1,
 			},
 			[0x01670000] = { -- English 1.1
-				versionName = "Pokemon FireRed v1.1",
+				versionName = "Pokémon FireRed v1.1",
 				versionIndex = 2
 			},
 			[0x005A0000] = { -- Spanish
-				versionName = "Pokemon Rojo Fuego",
+				versionName = "Pokémon Rojo Fuego",
 				versionIndex = 3,
 			},
 			[0x00640000] = { -- Italian
-				versionName = "Pokemon Rosso Fuoco",
+				versionName = "Pokémon Rosso Fuoco",
 				versionIndex = 4,
 			},
 			[0x00670000] = { -- French
-				versionName = "Pokemon Rouge Feu",
+				versionName = "Pokémon Rouge Feu",
 				versionIndex = 5,
 			},
 			[0x00690000] = { -- German
-				versionName = "Pokemon Feuerrote",
+				versionName = "Pokémon Feuerrote",
 				versionIndex = 6,
 			},
 			[0x00630000] = { -- Japanese
-				versionName = "Pokemon FireRed J",
+				versionName = "Pokémon FireRed J",
 				versionIndex = 7,
 			},
 		},
 		["LeafGreen"] = {
 			gameIndex = 5,
 			[0x00810000] = { -- English 1.0
-				versionName = "Pokemon LeafGreen v1.0",
+				versionName = "Pokémon LeafGreen v1.0",
 				versionIndex = 1,
 			},
 			[0x01800000] = { -- English 1.1
-				versionName = "Pokemon LeafGreen v1.1",
+				versionName = "Pokémon LeafGreen v1.1",
 				versionIndex = 2
 			},
 		},
 	}
 
-	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
+	local gameInfo = games[GameSettings.versioncolor]
+	GameSettings.fullVersionName = gameInfo[gameversion].versionName
+
+	return gameInfo.gameIndex, gameInfo[gameversion].versionIndex
 end
 
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
