@@ -124,8 +124,6 @@ ScreenResources{
 		HeaderPP = "PP",
 		HeaderPow = "Pow",
 		HeaderAcc = "Acc",
-		PhysicalCategoryLetter = "P",
-		SpecielCategoryLetter = "S",
 		LeaveANote = "Leave a note",
 		DamageTaken = "damage",
 		DamageTakenInTeams = "Total received",

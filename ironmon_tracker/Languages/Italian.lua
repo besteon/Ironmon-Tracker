@@ -124,8 +124,6 @@ ScreenResources{
 		HeaderPP = "PP", -- NEEDS TRANSLATION
 		HeaderPow = "Pow", -- NEEDS TRANSLATION
 		HeaderAcc = "Acc", -- NEEDS TRANSLATION
-		PhysicalCategoryLetter = "P", -- NEEDS TRANSLATION
-		SpecielCategoryLetter = "S", -- NEEDS TRANSLATION
 		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
 		DamageTaken = "damage", -- NEEDS TRANSLATION
 		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION

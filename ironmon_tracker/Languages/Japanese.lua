@@ -124,8 +124,6 @@ ScreenResources{
 		HeaderPP = "ＰＰ",
 		HeaderPow = "威力",
 		HeaderAcc = "命中",
-		PhysicalCategoryLetter = "物",
-		SpecielCategoryLetter = "特",
 		LeaveANote = "メモを残す",
 		DamageTaken = "ダメージ",
 		DamageTakenInTeams = "ダメージ合計",
@@ -580,8 +578,8 @@ ScreenResources{
 	},
 	MGBAScreens = {
 		SymbolStatus = " ", -- NEEDS TRANSLATION
-		SymbolPhysical = "P", -- NEEDS TRANSLATION
-		SymbolSpecial = "S", -- NEEDS TRANSLATION
+		SymbolPhysical = "物",
+		SymbolSpecial = "特",
 		SymbolEffectivenessImmune = "X", -- NEEDS TRANSLATION
 		SymbolEffectivenessResist = "-", -- NEEDS TRANSLATION
 		SymbolEffectivenessResistDouble = "--", -- NEEDS TRANSLATION
