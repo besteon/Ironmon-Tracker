@@ -45,6 +45,7 @@ SetupScreen.Buttons = {
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
 			SetupScreen.iconChangeInterval = 10
 			Options.addUpdateSetting("Pokemon icon set", nextSet)
+			Program.redraw(true)
 		end
 	},
 	CycleIconBackward = {
@@ -56,6 +57,7 @@ SetupScreen.Buttons = {
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
 			SetupScreen.iconChangeInterval = 10
 			Options.addUpdateSetting("Pokemon icon set", prevSet)
+			Program.redraw(true)
 		end
 	},
 	EditControls = {
