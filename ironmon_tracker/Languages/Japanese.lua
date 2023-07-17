@@ -463,7 +463,7 @@ ScreenResources{
 		HeaderTabRoutes = "Routes", -- NEEDS TRANSLATION
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
-		LabelBSTTotal = "Total", -- Usage: "Total: 505"
+		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
 		ButtonLevelupMoves = "Levelup Moves", -- NEEDS TRANSLATION
 		ButtonTMMoves = "TM Moves", -- NEEDS TRANSLATION
 		LabelGymTMs = "Gym TMs", -- NEEDS TRANSLATION
