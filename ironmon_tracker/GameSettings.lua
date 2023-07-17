@@ -194,6 +194,12 @@ GameSettings.GameCharMap = {
 
 function GameSettings.initialize()
 	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+
+	-- Don't load game address again if it's the same game
+	if GameSettings.hasInitialized and GameSettings.gamecode == gamecode then
+		return
+	end
+
 	GameSettings.setGameInfo(gamecode)
 
 	-- Skip rest of setup if game not supported
@@ -212,6 +218,7 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
+	GameSettings.hasInitialized = true
 end
 
 function GameSettings.getRomName()
@@ -330,6 +337,7 @@ function GameSettings.setGameInfo(gamecode)
 
 	local game = games[gamecode]
 	if game ~= nil then
+		GameSettings.gamecode = gamecode
 		GameSettings.game = game.GAME_NUMBER
 		GameSettings.gamename = game.GAME_NAME
 		GameSettings.versiongroup = game.VERSION_GROUP
@@ -351,107 +359,88 @@ function GameSettings.setGameVersion(gameversion)
 		["Ruby"] = {
 			gameIndex = 1,
 			[0x00410000] = { -- English 1.0
-				versionName = "Pokemon Ruby v1.0",
+				versionName = "Pokémon Ruby v1.0",
 				versionIndex = 1,
 			},
 			[0x01400000] = { -- English 1.1
-				versionName = "Pokemon Ruby v1.1",
+				versionName = "Pokémon Ruby v1.1",
 				versionIndex = 2
 			},
 			[0x023F0000] = { -- English 1.2
-				versionName = "Pokemon Ruby v1.2",
+				versionName = "Pokémon Ruby v1.2",
 				versionIndex = 3
 			},
 		},
 		["Sapphire"] = {
 			gameIndex = 2,
 			[0x00550000] = { -- English 1.0
-				versionName = "Pokemon Sapphire v1.0",
+				versionName = "Pokémon Sapphire v1.0",
 				versionIndex = 1,
 			},
 			[0x01540000] = { -- English 1.1
-				versionName = "Pokemon Sapphire v1.1",
+				versionName = "Pokémon Sapphire v1.1",
 				versionIndex = 2
 			},
 			[0x02530000] = { -- English 1.2
-				versionName = "Pokemon Sapphire v1.2",
+				versionName = "Pokémon Sapphire v1.2",
 				versionIndex = 3
 			},
 		},
 		["Emerald"] = {
 			gameIndex = 3,
 			[0x00720000] = { -- English
-				versionName = "Pokemon Emerald",
+				versionName = "Pokémon Emerald",
 				versionIndex = 1,
 			},
 		},
 		["FireRed"] = {
 			gameIndex = 4,
 			[0x00680000] = { -- English 1.0
-				versionName = "Pokemon FireRed v1.0",
+				versionName = "Pokémon FireRed v1.0",
 				versionIndex = 1,
 			},
 			[0x01670000] = { -- English 1.1
-				versionName = "Pokemon FireRed v1.1",
+				versionName = "Pokémon FireRed v1.1",
 				versionIndex = 2
 			},
 			[0x005A0000] = { -- Spanish
-				versionName = "Pokemon Rojo Fuego",
+				versionName = "Pokémon Rojo Fuego",
 				versionIndex = 3,
 			},
 			[0x00640000] = { -- Italian
-				versionName = "Pokemon Rosso Fuoco",
+				versionName = "Pokémon Rosso Fuoco",
 				versionIndex = 4,
 			},
 			[0x00670000] = { -- French
-				versionName = "Pokemon Rouge Feu",
+				versionName = "Pokémon Rouge Feu",
 				versionIndex = 5,
 			},
 			[0x00690000] = { -- German
-				versionName = "Pokemon Feuerrote",
+				versionName = "Pokémon Feuerrote",
 				versionIndex = 6,
 			},
 			[0x00630000] = { -- Japanese
-				versionName = "Pokemon FireRed J",
+				versionName = "Pokémon FireRed J",
 				versionIndex = 7,
 			},
 		},
 		["LeafGreen"] = {
 			gameIndex = 5,
 			[0x00810000] = { -- English 1.0
-				versionName = "Pokemon LeafGreen v1.0",
+				versionName = "Pokémon LeafGreen v1.0",
 				versionIndex = 1,
 			},
 			[0x01800000] = { -- English 1.1
-				versionName = "Pokemon LeafGreen v1.1",
+				versionName = "Pokémon LeafGreen v1.1",
 				versionIndex = 2
 			},
 		},
 	}
 
-	-- print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
+	local gameInfo = games[GameSettings.versioncolor]
+	GameSettings.fullVersionName = gameInfo[gameversion].versionName
 
-	-- Load non-English language data
-	local gameLanguage = GameSettings.language
-	local langFolder = FileManager.prependDir(FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Languages .. FileManager.slash)
-	if gameLanguage == "Spanish" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.SpainData)
-		SpainData.updateToSpainData()
-	elseif gameLanguage == "Italian" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.ItalyData)
-		ItalyData.updateToItalyData()
-	elseif gameLanguage == "French" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.FranceData)
-		FranceData.updateToFranceData()
-	elseif gameLanguage == "German" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.GermanyData)
-		GermanyData.updateToGermanyData()
-	elseif gameLanguage == "Japanese" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.JapanData)
-		JapanData.updateToJapanData()
-	end
-
-	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
+	return gameInfo.gameIndex, gameInfo[gameversion].versionIndex
 end
 
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
@@ -559,7 +548,7 @@ function GameSettings.setIwramAddresses()
 		-- Addresses only in IWRAM for RS, but in EWRAM for Em/FRLG (so were already set by this point, omit to avoid overwrite)
 		pstats = { { 0x03004360 }, { nil, nil }, { nil, nil, nil } },
 		estats = { { 0x030045C0 }, { nil, nil }, { nil, nil, nil } },
-                gPlayerPartyCount = { { 0x03004350 }, { nil, nil }, { nil, nil, nil } },
+		gPlayerPartyCount = { { 0x03004350 }, { nil, nil }, { nil, nil, nil } },
 		sBattleBuffersTransferData = { { 0x03004040 }, { nil, nil }, { nil, nil, nil } },
 		gBattleTextBuff1 = { { 0x030041c0 }, { nil, nil }, { nil, nil, nil } },
 		gBattleTerrain = { { 0x0300428c }, { nil, nil }, { nil, nil, nil } },

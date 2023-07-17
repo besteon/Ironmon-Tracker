@@ -23,15 +23,26 @@ Theme = {
 	DRAW_TEXT_SHADOWS = true,
 }
 
-Theme.PresetStrings = {
-	-- [Default] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background]
-	-- ... [0/1: color moves by their type] [0/1: text shadows]
-	["Default Theme"] = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
+-- Example Theme Code String
+-- FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1
+-- [Default/Upper Box Text] [L.Box Text] [Positive] [Negative] [Intermediate] [Header] [U.Border] [U.Fill] [L.Border] [L.Fill] [Main Background]
+-- ... [0/1: color moves by their type] [0/1: text shadows]
+
+Theme.PresetsIndex = {
+	ACTIVE = 1,
+	DEFAULT = 2,
 }
-Theme.PresetsOrdered = {
-	"Active Theme (Custom)", -- to be added to 'PresetStrings' later, and updated often
-	"Default Theme",
+Theme.Presets = {
+	{
+		getText = function(self) return Resources.ThemeScreen.LabelActiveCustomTheme or "Active Theme (Custom)" end,
+		code = "", -- updated later in refreshThemePreview()
+	},
+	{
+		getText = function(self) return Resources.ThemeScreen.LabelDefaultTheme or "Default Theme" end,
+		code = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
+	},
 }
+
 Theme.PresetPreviewColors = {
 	["Default text"] = 0xFFFFFFFF,
 	["Lower box text"] = 0xFFFFFFFF,
@@ -49,13 +60,11 @@ Theme.PresetPreviewColors = {
 }
 
 Theme.Screen = {
-	headerText = "Theme Library",
-	editColorsText = "Editing Active Theme",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 	displayingThemeManager = true,
-	currentPreview = 1, -- current custom theme
+	currentPreviewIndex = 1, -- current custom theme
 }
 
 -- Used to hold onto form handles while a pop-up form window is active
@@ -67,12 +76,15 @@ Theme.Manager = {
 Theme.Buttons = {
 	MoveTypeEnabled = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = "Show color bar for move types",
+		getText = function(self) return Resources.ThemeScreen.OptionColorBar end,
 		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, 8, 8 },
 		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 109, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = not Theme.MOVE_TYPES_ENABLED, -- Show the opposite of the Setting, can't change existing theme strings
-		toggleColor = "Positive text",
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
+		updateSelf = function(self)
+			 -- If "move types" enabled, then "show color bars" are disabled
+			self.toggleState = not Theme.MOVE_TYPES_ENABLED
+		end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
 			Theme.MOVE_TYPES_ENABLED = not Theme.MOVE_TYPES_ENABLED
@@ -82,14 +94,13 @@ Theme.Buttons = {
 	},
 	DrawTextShadows = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = "Text shadows",
+		getText = function(self) return Resources.ThemeScreen.OptionTextShadows end,
 		box = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, 8, 8 },
 		clickableArea = { Constants.SCREEN.WIDTH + 9, Constants.SCREEN.MARGIN + 120, Constants.SCREEN.RIGHT_GAP - 12, 10 },
 		toggleState = Theme.DRAW_TEXT_SHADOWS,
-		toggleColor = "Positive text",
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
+		updateSelf = function(self) self.toggleState = Theme.DRAW_TEXT_SHADOWS end,
 		onClick = function(self)
-			self.toggleState = not self.toggleState
 			Theme.DRAW_TEXT_SHADOWS = not Theme.DRAW_TEXT_SHADOWS
 			Theme.settingsUpdated = true
 			Theme.refreshThemePreview()
@@ -101,11 +112,11 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
-			Theme.Screen.currentPreview = (Theme.Screen.currentPreview - 2) % #Theme.PresetsOrdered + 1
-			local themeCode = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreview or 1]]
-			Theme.Buttons.ApplyOrLoadTheme:updateState()
+			Theme.Screen.currentPreviewIndex = (Theme.Screen.currentPreviewIndex - 2) % #Theme.Presets + 1
+			local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
+			Theme.refreshButtons()
 			Theme.Buttons.RemoveTheme:resetButtonToDefault()
-			Theme.importThemeFromText(themeCode, false)
+			Theme.importThemeFromText(themePreset.code, false)
 		end
 	},
 	CyclePresetForward = {
@@ -114,11 +125,11 @@ Theme.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 55, Constants.SCREEN.MARGIN + 81, 10, 10, },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
-			Theme.Screen.currentPreview = (Theme.Screen.currentPreview % #Theme.PresetsOrdered) + 1
-			local themeCode = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreview or 1]]
-			Theme.Buttons.ApplyOrLoadTheme:updateState()
+			Theme.Screen.currentPreviewIndex = (Theme.Screen.currentPreviewIndex % #Theme.Presets) + 1
+			local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
+			Theme.refreshButtons()
 			Theme.Buttons.RemoveTheme:resetButtonToDefault()
-			Theme.importThemeFromText(themeCode, false)
+			Theme.importThemeFromText(themePreset.code, false)
 		end
 	},
 	LookupPreset = {
@@ -130,20 +141,17 @@ Theme.Buttons = {
 	},
 	ApplyOrLoadTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Save New",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, Constants.SCREEN.MARGIN + 24, 57, 11 },
-		isVisible = function() return Theme.Screen.displayingThemeManager end,
-		updateState = function(self)
-			local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview]
-			if themeName == Theme.PresetsOrdered[1] then
-				self.text = " Save as new"
+		getText = function(self)
+			if Theme.Screen.currentPreviewIndex == Theme.PresetsIndex.ACTIVE then
+				return Resources.ThemeScreen.ButtonSaveAsNew
 			else
-				self.text = " Apply theme"
+				return Resources.ThemeScreen.ButtonApplyTheme
 			end
 		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 76, Constants.SCREEN.MARGIN + 24, 59, 11 },
+		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function()
-			local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview]
-			if themeName == Theme.PresetsOrdered[1] then -- Save New
+			if Theme.Screen.currentPreviewIndex == Theme.PresetsIndex.ACTIVE then -- Save New
 				Theme.openSaveCurrentThemeWindow()
 			else -- Apply theme
 				for colorKey, colorValue in pairs(Theme.PresetPreviewColors) do
@@ -153,9 +161,7 @@ Theme.Buttons = {
 					end
 				end
 				Theme.MOVE_TYPES_ENABLED = Theme.PresetPreviewColors.MOVE_TYPES_ENABLED
-				Theme.Buttons.MoveTypeEnabled.toggleState = not Theme.MOVE_TYPES_ENABLED -- Show the opposite of the Setting, can't change existing theme strings
 				Theme.DRAW_TEXT_SHADOWS = Theme.PresetPreviewColors.DRAW_TEXT_SHADOWS
-				Theme.Buttons.DrawTextShadows.toggleState = Theme.DRAW_TEXT_SHADOWS
 
 				Theme.setNextMoveLevelHighlight(true)
 				Main.SaveSettings(true)
@@ -165,34 +171,51 @@ Theme.Buttons = {
 	},
 	RemoveTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "    Remove",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, Constants.SCREEN.MARGIN + 41, 57, 11 },
+		getText = function(self)
+			if self.confirmRemove then
+				return Resources.ThemeScreen.ButtonRemoveConfirm
+			else
+				return Resources.ThemeScreen.ButtonRemove
+			end
+		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 76, Constants.SCREEN.MARGIN + 41, 59, 11 },
 		confirmRemove = false,
 		resetButtonToDefault = function(self)
-			self.text = "    Remove"
 			self.textColor = Theme.Screen.textColor
 			self.confirmRemove = false
 		end,
-		isVisible = function() return Theme.Screen.displayingThemeManager and Theme.Screen.currentPreview ~= 1 and Theme.Screen.currentPreview ~= 2 end, -- Hide for Custom & Default
-		onClick = function() Theme.tryRemoveThemePreset() end
+		isVisible = function()
+			local isReservedTheme = Theme.Screen.currentPreviewIndex == Theme.PresetsIndex.ACTIVE or Theme.Screen.currentPreviewIndex == Theme.PresetsIndex.DEFAULT
+			return Theme.Screen.displayingThemeManager and not isReservedTheme
+		end, -- Hide for Custom & Default
+		onClick = function(self)
+			if self.confirmRemove then
+				self:resetButtonToDefault()
+				Theme.removeThemePreset()
+			else
+				self.textColor = "Negative text"
+				self.confirmRemove = true
+			end
+			Program.redraw(true)
+		end
 	},
 	ImportTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "      Import",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, Constants.SCREEN.MARGIN + 58, 57, 11 },
+		getText = function(self) return Resources.ThemeScreen.ButtonImport end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 76, Constants.SCREEN.MARGIN + 58, 59, 11 },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function() Theme.openImportWindow() end
 	},
 	ExportTheme = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "      Export",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 77, Constants.SCREEN.MARGIN + 75, 57, 11 },
+		getText = function(self) return Resources.ThemeScreen.ButtonExport end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 76, Constants.SCREEN.MARGIN + 75, 59, 11 },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function() Theme.openExportWindow() end
 	},
 	EditColors = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Edit Theme Colors",
+		getText = function(self) return Resources.ThemeScreen.ButtonEditColors end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 74, 11 },
 		isVisible = function() return Theme.Screen.displayingThemeManager end,
 		onClick = function(self)
@@ -201,41 +224,22 @@ Theme.Buttons = {
 			Theme.refreshThemePreview() -- also performs a screen redraw
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
-			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
+	Back = Drawing.createUIElementBackButton(function()
+		Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
+		Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
-			if Theme.Screen.displayingThemeManager then
-				Program.changeScreenView(NavigationMenu)
-			else
-				Theme.Screen.displayingThemeManager = true
-				Drawing.AnimatedPokemon:create() -- restore the animated gif
-				Theme.refreshThemePreview() -- also performs a screen redraw
-			end
+		if Theme.Screen.displayingThemeManager then
+			Program.changeScreenView(NavigationMenu)
+		else
+			Theme.Screen.displayingThemeManager = true
+			Drawing.AnimatedPokemon:create() -- restore the animated gif
+			Theme.refreshThemePreview() -- also performs a screen redraw
 		end
-	},
+	end),
 }
 
 function Theme.initialize()
-	local startY = Constants.SCREEN.MARGIN + 13
-
-	for _, colorkey in ipairs(Constants.OrderedLists.THEMECOLORS) do
-		Theme.Buttons[colorkey] = {
-			type = Constants.ButtonTypes.COLORPICKER,
-			text = colorkey,
-			clickableArea = { Constants.SCREEN.WIDTH + 9, startY, Constants.SCREEN.RIGHT_GAP - 12, 10 },
-			box = { Constants.SCREEN.WIDTH + 9, startY, 8, 8 },
-			themeColor = colorkey,
-			isVisible = function() return not Theme.Screen.displayingThemeManager end,
-			onClick = function() Theme.openColorPickerWindow(colorkey) end
-		}
-
-		startY = startY + Constants.SCREEN.LINESPACING
-	end
+	Theme.createButtons()
 
 	for _, button in pairs(Theme.Buttons) do
 		button.textColor = Theme.Screen.textColor
@@ -245,6 +249,46 @@ function Theme.initialize()
 	Theme.populateThemePresets()
 	Theme.loadPresets()
 	Theme.refreshThemePreview()
+end
+
+function Theme.createButtons()
+	local optionKeyMap = {
+		{ "Default text", "ColorDefaultText", },
+		{ "Lower box text", "ColorLowerBoxText", },
+		{ "Positive text", "ColorPositiveText", },
+		{ "Negative text", "ColorNegativeText", },
+		{ "Intermediate text", "ColorIntermediateText", },
+		{ "Header text", "ColorHeaderText", },
+		{ "Upper box border", "ColorUpperBoxBorder", },
+		{ "Upper box background", "ColorUpperBoxBackground", },
+		{ "Lower box border", "ColorLowerBoxBorder", },
+		{ "Lower box background", "ColorLowerBoxBackground", },
+		{ "Main background", "ColorMainBackground", },
+	}
+
+	local startX = Constants.SCREEN.WIDTH + 9
+	local startY = Constants.SCREEN.MARGIN + 13
+
+	for _, optionTuple in ipairs(optionKeyMap) do
+		Theme.Buttons[optionTuple[1]] = {
+			type = Constants.ButtonTypes.COLORPICKER,
+			getText = function(self) return Resources.ThemeScreen[optionTuple[2]] end,
+			clickableArea = { startX, startY, Constants.SCREEN.RIGHT_GAP - 12, 10 },
+			box = { startX, startY, 8, 8 },
+			themeColor = optionTuple[1],
+			isVisible = function() return not Theme.Screen.displayingThemeManager end,
+			onClick = function() Theme.openColorPickerWindow(optionTuple[1]) end
+		}
+		startY = startY + Constants.SCREEN.LINESPACING
+	end
+end
+
+function Theme.refreshButtons()
+	for _, button in pairs(Theme.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 function Theme.loadPresets()
@@ -262,10 +306,12 @@ function Theme.loadPresets()
 			end
 
 			-- Don't allow importing "Active Theme (Custom)" as that is reserved
-			if themeName ~= Theme.PresetsOrdered[1] then
-				themeCode = Theme.formatAsProperThemeCode(themeCode)
-				Theme.PresetStrings[themeName] = themeCode
-				table.insert(Theme.PresetsOrdered, themeName)
+			if themeName ~= Theme.Presets[Theme.PresetsIndex.ACTIVE]:getText() then
+				local themePreset = {
+					getText = function(self) return themeName end,
+					code = Theme.formatAsProperThemeCode(themeCode)
+				}
+				table.insert(Theme.Presets, themePreset)
 			end
 		end
 	end
@@ -313,22 +359,21 @@ end
 -- Refreshes the Theme preview thumbnail to show a matching Theme code, or custom, then redraws the screen
 function Theme.refreshThemePreview()
 	-- If changes were made to the current Tracker Theme, store those changes as "Active Theme (Custom)"
-	local currentTheme = Theme.exportThemeToText()
-	Theme.PresetStrings[Theme.PresetsOrdered[1]] = currentTheme
+	local currentThemeCode = Theme.exportThemeToText()
+	Theme.Presets[Theme.PresetsIndex.ACTIVE].code = currentThemeCode
 
 	-- Check if the current Theme is one of the saved ones, otherwise display the custom theme
-	Theme.Screen.currentPreview = 1
-	for index, themeName in ipairs(Theme.PresetsOrdered) do
-		local themeCode = Theme.PresetStrings[themeName]
-		if index ~= 1 and themeCode == currentTheme then
-			Theme.Screen.currentPreview = index
+	Theme.Screen.currentPreviewIndex = 1
+	for index, themePreset in ipairs(Theme.Presets) do
+		if index ~= Theme.PresetsIndex.ACTIVE and themePreset.code == currentThemeCode then
+			Theme.Screen.currentPreviewIndex = index
 			break
 		end
 	end
 
-	Theme.Buttons.ApplyOrLoadTheme:updateState()
 	Theme.Buttons.RemoveTheme:resetButtonToDefault()
-	Theme.importThemeFromText(currentTheme, false)
+	Theme.refreshButtons()
+	Theme.importThemeFromText(currentThemeCode, false)
 end
 
 -- Imports a theme config string into the Tracker, reloads all Tracker visuals, and flags to update Settings.ini
@@ -449,11 +494,11 @@ function Theme.openColorPickerWindow(colorkey)
 end
 
 function Theme.openImportWindow()
-	local form = Utils.createBizhawkForm("Theme Import", 515, 125)
+	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonImport, 515, 125)
 
-	forms.label(form, "Enter a theme code string to import (Ctrl+V to paste):", 9, 10, 300, 20)
+	forms.label(form, Resources.ThemeScreen.PromptEnterThemeCode .. ":", 9, 10, 300, 20)
 	local importTextBox = forms.textbox(form, "", 480, 20, nil, 10, 30)
-	forms.button(form, "Import", function()
+	forms.button(form, Resources.AllScreens.Import, function()
 		local formInput = forms.gettext(importTextBox)
 		if formInput ~= nil then
 			-- Check if the import was successful
@@ -471,42 +516,47 @@ function Theme.openImportWindow()
 end
 
 function Theme.openExportWindow()
-	local form = Utils.createBizhawkForm("Theme Export", 515, 150)
+	local form = Utils.createBizhawkForm(Resources.ThemeScreen.ButtonExport, 515, 150)
 
-	local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview]
-	local themeCode = Theme.PresetStrings[themeName]
+	local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex]
 
-	forms.label(form, "Theme for: " .. themeName, 9, 10, 300, 20)
-	forms.label(form, "Copy the theme code below (Ctrl + A --> Ctrl+C):", 9, 30, 300, 20)
-	forms.textbox(form, themeCode, 480, 20, nil, 10, 55)
-	forms.button(form, "Close", function()
+	local themeLabel = string.format("%s: %s", Resources.ThemeScreen.PromptThemeFor, themePreset:getText())
+	forms.label(form, themeLabel, 9, 10, 300, 20)
+	forms.label(form, Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30, 300, 20)
+	forms.textbox(form, themePreset.code or "", 480, 20, nil, 10, 55)
+	forms.button(form, Resources.AllScreens.Close, function()
 		forms.destroy(form)
 	end, 212, 80)
 end
 
 function Theme.openPresetsWindow()
-	local form = Utils.createBizhawkForm("Lookup a Theme Preset", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.ThemeScreen.Title, 360, 105)
 
-	forms.label(form, "Select a Theme preset to preview:", 49, 10, 250, 20)
+	local themeNameList = {}
+	for _, themePreset in ipairs(Theme.Presets) do
+		table.insert(themeNameList, themePreset:getText())
+	end
+
+	forms.label(form, Resources.ThemeScreen.PromptSelectPreset .. ":", 49, 10, 250, 20)
 	local presetDropdown = forms.dropdown(form, {["Init"]="Loading Presets"}, 50, 30, 145, 30)
-	forms.setdropdownitems(presetDropdown, Theme.PresetsOrdered, false) -- Required to prevent alphabetizing the list
+	forms.setdropdownitems(presetDropdown, themeNameList, false) -- Required to prevent alphabetizing the list
 	forms.setproperty(presetDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(presetDropdown, "AutoCompleteMode", "Append")
 
-	forms.button(form, "Preview", function()
+	forms.button(form, Resources.AllScreens.Preview, function()
 		local themeName = forms.gettext(presetDropdown)
 
-		for index, name in ipairs(Theme.PresetsOrdered) do
-			if name == themeName then
-				Theme.Screen.currentPreview = index
+		for index, themePreset in ipairs(Theme.Presets) do
+			if themePreset:getText() == themeName then
+				Theme.Screen.currentPreviewIndex = index
 				break
 			end
 		end
 
-		local themeCode = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreview or 1]]
-		Theme.Buttons.ApplyOrLoadTheme:updateState()
+		local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
+		Theme.refreshButtons()
 		Theme.Buttons.RemoveTheme:resetButtonToDefault()
-		Theme.importThemeFromText(themeCode, false)
+		Theme.importThemeFromText(themePreset.code, false)
 
 		client.unpause()
 		forms.destroy(form)
@@ -514,62 +564,79 @@ function Theme.openPresetsWindow()
 end
 
 function Theme.openSaveCurrentThemeWindow()
-	local form = Utils.createBizhawkForm("Save Theme As...", 350, 145)
+	local form = Utils.createBizhawkForm(Resources.ThemeScreen.PromptSaveAsTitle, 350, 145)
 
-	forms.label(form, "Enter a name for this Theme:", 18, 10, 330, 20)
+	forms.label(form, Resources.ThemeScreen.PromptEnterNameForTheme .. ":", 18, 10, 330, 20)
 	local saveTextBox = forms.textbox(form, "", 290, 30, nil, 20, 30)
 	forms.setproperty(saveTextBox, "MaxLength", 80)
 
 	Theme.Manager.SaveNewWarning = forms.label(form, "", 18, 55, 330, 20)
 	forms.setproperty(Theme.Manager.SaveNewWarning, "ForeColor", "Red")
 
-	Theme.Manager.SaveNewConfirm = forms.button(form, "Save", function()
+	Theme.Manager.SaveNewConfirm = forms.button(form, Resources.AllScreens.Save, function()
 		-- Clear out warning texts
 		forms.settext(Theme.Manager.SaveNewWarning, "")
 
-		local formInput = forms.gettext(saveTextBox)
-
-		if formInput ~= nil and formInput ~= "" then
-			local themeName = formInput
-
-			-- Check a few conditions that would prevent the user from using a particular Theme name
-			if themeName == Theme.PresetsOrdered[1] or themeName == Theme.PresetsOrdered[2] then
-				-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
-				forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
-				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
-				return
-			elseif themeName:find("%x%x%x%x%x%x") then
-				-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
-				forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
-				forms.settext(Theme.Manager.SaveNewConfirm, "Save")
-				return
-			elseif Theme.PresetStrings[themeName] ~= nil and forms.gettext(Theme.Manager.SaveNewConfirm) ~= "Confirm" then
-				-- If the Theme name is already in use, warn the user first
-				forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
-				forms.settext(Theme.Manager.SaveNewConfirm, "Confirm")
-				return
-			end
-
-			local themeCode = Theme.exportThemeToText()
-
-			-- If a theme with that name already exists, replace it; otherwise add a reference for it
-			if Theme.PresetStrings[themeName] ~= nil then
-				FileManager.removeCustomThemeFromFile(themeName, Theme.PresetStrings[themeName])
-			else
-				table.insert(Theme.PresetsOrdered, themeName)
-			end
-
-			FileManager.addCustomThemeToFile(themeName, themeCode)
-			Theme.PresetStrings[themeName] = themeCode
-			Theme.refreshThemePreview()
-
-			Theme.Manager.SaveNewWarning = nil
-			Theme.Manager.SaveNewConfirm = nil
-			client.unpause()
-			forms.destroy(form)
+		local themeName = forms.gettext(saveTextBox)
+		if themeName == nil or themeName == "" then
+			return
 		end
+
+		local existingPreset = nil
+		local existingPresetIndex = nil
+		for index, themePreset in ipairs(Theme.Presets) do
+			if themePreset:getText() == themeName then
+				existingPreset = themePreset
+				existingPresetIndex = index
+				break
+			end
+		end
+
+		-- Check a few conditions that would prevent the user from using a particular Theme name
+		if existingPresetIndex == Theme.PresetsIndex.ACTIVE or existingPresetIndex == Theme.PresetsIndex.DEFAULT then
+			-- Don't allow importing "Active Theme (Custom)" or "Default Theme" as that is reserved
+			forms.settext(Theme.Manager.SaveNewWarning, "Cannot use a reserved Theme name")
+			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			return
+		elseif themeName:find("%x%x%x%x%x%x") then
+			-- Don't allow six consectuive hexcode characters, as this screws with parsing it later
+			forms.settext(Theme.Manager.SaveNewWarning, "Name cannot have 6 consectuive hexcode characters (0-9A-F)")
+			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Save)
+			return
+		elseif existingPreset ~= nil and forms.gettext(Theme.Manager.SaveNewConfirm) ~= Resources.AllScreens.Yes then
+			-- If the Theme name is already in use, warn the user first
+			forms.settext(Theme.Manager.SaveNewWarning, "A Theme with that name already exists. Overwrite?")
+			forms.settext(Theme.Manager.SaveNewConfirm, Resources.AllScreens.Yes)
+			return
+		end
+		Theme.Manager.SaveNewWarning = nil
+		Theme.Manager.SaveNewConfirm = nil
+
+		local themeCode = Theme.exportThemeToText()
+
+		-- If a theme with that name already exists, replace it; otherwise add a reference for it
+		if existingPreset ~= nil then
+			-- Remove the old theme from the presets file
+			FileManager.removeCustomThemeFromFile(themeName, existingPreset.code)
+			-- Update the old theme with the new code
+			existingPreset.code = themeCode
+		else
+			-- Create the new theme and add it to the library list
+			existingPreset = {
+				getText = function(self) return themeName end,
+				code = themeCode
+			}
+			table.insert(Theme.Presets, existingPreset)
+		end
+
+		-- Add the saved theme to the presets file and refresh
+		FileManager.addCustomThemeToFile(themeName, themeCode)
+		Theme.refreshThemePreview()
+
+		client.unpause()
+		forms.destroy(form)
 	end, 91, 75)
-	forms.button(form, "Cancel", function()
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
 	end, 176, 75)
@@ -588,32 +655,22 @@ function Theme.populateThemePresets()
 	end
 end
 
-function Theme.tryRemoveThemePreset()
-	local removeBtn = Theme.Buttons.RemoveTheme
-	if removeBtn.confirmRemove then
-		removeBtn:resetButtonToDefault()
-
-		-- Cannot remove "Custom" or Default themes
-		if Theme.Screen.currentPreview ~= 1 and Theme.Screen.currentPreview ~= 2 then
-			-- Remove the Theme from the ThemePresets.txt file, and each Preset table
-			local themeNameToRemove = Theme.PresetsOrdered[Theme.Screen.currentPreview]
-			local themeCodeToRemove = Theme.PresetStrings[themeNameToRemove]
-			FileManager.removeCustomThemeFromFile(themeNameToRemove, themeCodeToRemove)
-			table.remove(Theme.PresetsOrdered, Theme.Screen.currentPreview)
-			Theme.PresetStrings[themeNameToRemove] = nil
-
-			-- Show the Theme preview next in line
-			Theme.Screen.currentPreview = (Theme.Screen.currentPreview - 1) % #Theme.PresetsOrdered + 1
-			local themeCode = Theme.PresetStrings[Theme.PresetsOrdered[Theme.Screen.currentPreview or 1]]
-			Theme.Buttons.ApplyOrLoadTheme:updateState()
-			Theme.importThemeFromText(themeCode, false)
-		end
-	else
-		removeBtn.text = "Are you sure?"
-		removeBtn.textColor = "Negative text"
-		removeBtn.confirmRemove = true
+function Theme.removeThemePreset()
+	-- Cannot remove "Custom" or Default themes
+	if Theme.Screen.currentPreviewIndex == 1 and Theme.Screen.currentPreviewIndex == 2 then
+		return
 	end
-	Program.redraw(true)
+
+	-- Remove the Theme from the ThemePresets.txt file, and each Preset table
+	local themePresetToRemove = Theme.Presets[Theme.Screen.currentPreviewIndex]
+	FileManager.removeCustomThemeFromFile(themePresetToRemove:getText(), themePresetToRemove.code)
+	table.remove(Theme.Presets, Theme.Screen.currentPreviewIndex)
+
+	-- Show the Theme preview next in line
+	Theme.Screen.currentPreviewIndex = (Theme.Screen.currentPreviewIndex - 1) % #Theme.Presets + 1
+	local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex or Theme.PresetsIndex.ACTIVE]
+	Theme.importThemeFromText(themePreset.code, false)
+	Theme.refreshButtons()
 end
 
 -- USER INPUT FUNCTIONS
@@ -627,30 +684,13 @@ function Theme.drawScreen()
 	gui.defaultTextBackground(Theme.COLORS[Theme.Screen.boxFillColor])
 
 	if Theme.Screen.displayingThemeManager then
-		Theme.drawMoreOptions()
-		return
-	end
-
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[Theme.Screen.boxFillColor])
-	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxY = Constants.SCREEN.MARGIN + 10
-	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
-	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
-
-	-- Draw header text
-	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 24, Constants.SCREEN.MARGIN - 2, Theme.Screen.editColorsText:upper(), Theme.COLORS["Header text"], headerShadow)
-
-	-- Draw Theme screen view box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-
-	-- Draw all buttons
-	for _, button in pairs(Theme.Buttons) do
-		Drawing.drawButton(button, shadowcolor)
+		Theme.drawThemeLibrary()
+	else
+		Theme.drawEditThemeColors()
 	end
 end
 
-function Theme.drawMoreOptions()
+function Theme.drawThemeLibrary()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[Theme.Screen.boxFillColor])
 	local topbox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
@@ -666,21 +706,43 @@ function Theme.drawMoreOptions()
 	}
 
 	-- Draw header text
+	local headerText = Utils.toUpperUTF8(Resources.ThemeScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topbox.x + 37, Constants.SCREEN.MARGIN - 2, Theme.Screen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topbox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top Theme screen view box
 	gui.drawRectangle(topbox.x, topbox.y, topbox.width, topbox.height, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
 
-	local themeName = Theme.PresetsOrdered[Theme.Screen.currentPreview] or "Unknown Theme*"
-	Drawing.drawText(topbox.x + 3, Constants.SCREEN.MARGIN + 12, themeName, Theme.COLORS[Theme.Screen.textColor], shadowcolor)
+	local themePreset = Theme.Presets[Theme.Screen.currentPreviewIndex]
+	Drawing.drawText(topbox.x + 3, Constants.SCREEN.MARGIN + 12, themePreset:getText(), Theme.COLORS[Theme.Screen.textColor], shadowcolor)
 
 	local showColorBars = not Theme.PresetPreviewColors.MOVE_TYPES_ENABLED
 	Drawing.drawTrackerThemePreview(topbox.x + 13, topbox.y + 16, Theme.PresetPreviewColors, showColorBars)
 
 	-- Draw bottom Theme screen view box and its header
 	gui.drawRectangle(botbox.x, botbox.y, botbox.width, botbox.height, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
-	Drawing.drawText(botbox.x + 0, botbox.y - 11, "Active Theme Options:", Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(botbox.x + 0, botbox.y - 11, Resources.ThemeScreen.HeaderActiveThemeOptions .. ":", Theme.COLORS["Header text"], headerShadow)
+
+	-- Draw all buttons
+	for _, button in pairs(Theme.Buttons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
+end
+
+function Theme.drawEditThemeColors()
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[Theme.Screen.boxFillColor])
+	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local topboxY = Constants.SCREEN.MARGIN + 10
+	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
+	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
+
+	-- Draw header text
+	local headerText = Utils.toUpperUTF8(Resources.ThemeScreen.TitleEditingActiveTheme)
+	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
+
+	-- Draw Theme screen view box
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[Theme.Screen.borderColor], Theme.COLORS[Theme.Screen.boxFillColor])
 
 	-- Draw all buttons
 	for _, button in pairs(Theme.Buttons) do

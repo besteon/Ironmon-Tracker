@@ -10,6 +10,7 @@ Battle = {
 	numBattlers = 0,
 	partySize = 6,
 	isNewTurn = true,
+	recentBattleWasTutorial = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -121,10 +122,8 @@ function Battle.updateBattleStatus()
 		Battle.endCurrentBattle()
 	end
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
-		if not Battle.isWildEncounter then
-			GameOverScreen.incrementLosses()
-		end
 		LogOverlay.isGameOver = true
+		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
 		Program.changeScreenView(GameOverScreen)
@@ -570,7 +569,7 @@ function Battle.checkAbilitiesToTrack()
 
 	local levitateCheck = Memory.readbyte(GameSettings.gBattleCommunication + 0x6)
 	for i = 0, Battle.numBattlers - 1, 1 do
-		if levitateCheck == 4 and Battle.attacker ~= i then
+		if levitateCheck == 4 and Battle.attacker ~= i and Battle.attacker ~= Battle.battlerTarget then
 			combatantIndexesToTrack[Battle.battlerTarget] = Battle.battlerTarget
 		--check for first Damp mon
 		elseif abilityMsg ~= nil and abilityMsg.scope == "both" then
@@ -625,6 +624,8 @@ function Battle.beginNewBattle()
 		Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
 	end
 	Battle.isGhost = false
+	-- While in the tutorial, a battle won't normally start, thus if we're here then this battle isn't turtorial
+	Battle.recentBattleWasTutorial = false
 
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 

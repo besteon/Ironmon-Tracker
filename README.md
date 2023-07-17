@@ -7,7 +7,7 @@
 ## General Information
 
 Ironmon-Tracker is a collection of lua scripts for the [Bizhawk emulator](https://tasvideos.org/BizHawk/ReleaseHistory) (v2.8 or higher) or [mGBA emulator](https://mgba.io/downloads.html)\* (v0.10.0 or higher) used to track IronMon attempts.
-> \*mGBA's lua scripting is currently limited and doesn't provide any drawing functionality, this means the tracker on mGBA is purely text-based in the scripting window as we can't draw images/screens like on Bizhawk.
+> \* mGBA's lua scripting is currently limited and doesn't provide any drawing functionality, this means the tracker on mGBA is purely text-based in the scripting window as we can't draw images/screens like on Bizhawk.
 
 For more information on IronMon, see <http://ironmon.gg>
 
@@ -31,6 +31,8 @@ Currently supported Pokémon games / languages:
 | Italian   | ❌ | ❌ | ❌ | ✔️ | ❌ |
 | German    | ❌ | ❌ | ❌ | ✔️ | ❌ |
 
+Want to help us translate the Tracker into supported languages? Check out our [discussion thread](https://github.com/besteon/Ironmon-Tracker/discussions/389) to help contribute!
+
 We'd ideally like to support all non-English versions if we can, progress updates can be found [here](https://github.com/besteon/Ironmon-Tracker/issues/62).
 
 ## Installation
@@ -52,9 +54,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Log Viewer shows Pre-evolutions
+### Multi-Language support, Crash recovery, Log Viewer search
 
-![image](https://user-images.githubusercontent.com/4258818/226833469-c24fea04-e0fd-4d40-b3d2-8588c8ceeb6c.png)
+![image](https://user-images.githubusercontent.com/4258818/254057395-e2b48598-e285-470d-b721-3649dc32fc6c.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

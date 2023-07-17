@@ -1,5 +1,10 @@
 Drawing = {}
 
+Drawing.Colors = {
+	BLACK = 0xFF000000,
+	WHITE = 0xFFFFFFFF,
+}
+
 Drawing.AnimatedPokemon = {
 	TRANSPARENCY_COLOR = "Magenta",
 	POPUP_WIDTH = 250,
@@ -7,7 +12,11 @@ Drawing.AnimatedPokemon = {
 	show = function(self) forms.setproperty(self.pictureBox, "Visible", true) end,
 	hide = function(self) forms.setproperty(self.pictureBox, "Visible", false) end,
 	create = function(self) Drawing.setupAnimatedPictureBox() end,
-	destroy = function(self) forms.destroy(self.formWindow) end,
+	destroy = function(self)
+		if self.formWindow and self.formWindow ~= 0 then
+			forms.destroy(self.formWindow)
+		end
+	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
 	formWindow = 0,
@@ -25,7 +34,7 @@ function Drawing.initialize()
 end
 
 function Drawing.clearGUI()
-	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, 0xFF000000, 0xFF000000)
+	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 end
 
 function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
@@ -61,6 +70,8 @@ function Drawing.drawStatusIcon(status, x, y)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
+	if text == nil or text == "" then return end
+
 	-- For some reason on Linux the text is offset by 1 pixel (tested on Bizhawk 2.9)
 	if Main.OS == "Linux" then
 		x = x + 1
@@ -234,6 +245,22 @@ function Drawing.drawButton(button, shadowcolor)
 		fillcolor = Theme.COLORS["Upper box background"]
 	end
 
+	local text
+	if type(button.getText) == "function" then
+		text = button:getText() or ""
+	else
+		text = button.text or ""
+	end
+	local textColor = button.textColor or "Default text"
+
+	local iconColors = {}
+	for _, colorKey in ipairs(button.iconColors or {}) do
+		table.insert(iconColors, Theme.COLORS[colorKey] or Theme.COLORS[textColor])
+	end
+	if #iconColors == 0 then -- default to using the same text color
+		table.insert(iconColors, Theme.COLORS[textColor])
+	end
+
 	-- First draw a box if
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.CHECKBOX or button.type == Constants.ButtonTypes.STAT_STAGE or button.type == Constants.ButtonTypes.ICON_BORDER then
 		-- Draw the box's shadow and the box border
@@ -244,18 +271,16 @@ function Drawing.drawButton(button, shadowcolor)
 	end
 
 	if button.type == Constants.ButtonTypes.FULL_BORDER or button.type == Constants.ButtonTypes.NO_BORDER then
-		if button.text ~= nil and button.text ~= "" then
-			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
+		Drawing.drawText(x + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CHECKBOX then
-		if button.text ~= nil and button.text ~= "" then
-			local textColor = Utils.inlineIf(button.disabled, "Negative text", button.textColor)
-			Drawing.drawText(x + width + 1, y - 2, button.text, Theme.COLORS[textColor], shadowcolor)
+		if button.disabled then
+			textColor = "Negative text"
 		end
+		Drawing.drawText(x + width + 1, y - 2, text, Theme.COLORS[textColor], shadowcolor)
 
 		-- Draw a mark if the checkbox button is toggled on
-		if button.toggleState ~= nil and button.toggleState then
-			local toggleColor = Utils.inlineIf(button.disabled, "Negative text", button.toggleColor)
+		if button.toggleState then
+			local toggleColor = Utils.inlineIf(button.disabled, "Negative text", button.toggleColor or "Positive text")
 			gui.drawLine(x + 1, y + 1, x + width - 1, y + height - 1, Theme.COLORS[toggleColor])
 			gui.drawLine(x + 1, y + height - 1, x + width - 1, y + 1, Theme.COLORS[toggleColor])
 		end
@@ -263,22 +288,19 @@ function Drawing.drawButton(button, shadowcolor)
 		if button.themeColor ~= nil then
 			local hexCodeText = string.upper(string.sub(string.format("%#x", Theme.COLORS[button.themeColor]), 5))
 			-- Draw a colored circle with a black border
-			gui.drawEllipse(x - 1, y, width, height, 0xFF000000, Theme.COLORS[button.themeColor])
+			gui.drawEllipse(x - 1, y, width, height, Drawing.Colors.BLACK, Theme.COLORS[button.themeColor])
 			-- Draw the hex code to the side, and the text label for it
-			Drawing.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[button.textColor], shadowcolor)
-			Drawing.drawText(x + width + 37, y - 2, button.text, Theme.COLORS[button.textColor], shadowcolor)
+			Drawing.drawText(x + width + 1, y - 2, hexCodeText, Theme.COLORS[textColor], shadowcolor)
+			Drawing.drawText(x + width + 37, y - 2, text, Theme.COLORS[textColor], shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.IMAGE then
 		if button.image ~= nil then
 			gui.drawImage(button.image, x, y)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
-		if button.image ~= nil then
-			Drawing.drawImageAsPixels(button.image, x, y, { Theme.COLORS[button.textColor] }, shadowcolor)
-		end
-		if button.text ~= nil and button.text ~= "" then
-			Drawing.drawText(x + width + 1, y, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
+		local offsetY = -1 * math.floor((height - Constants.Font.SIZE) / 2)
+		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
+		Drawing.drawText(x + width + 1, y + offsetY, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then
@@ -286,43 +308,30 @@ function Drawing.drawButton(button, shadowcolor)
 			gui.drawImage(imagePath, x, y + (iconset.yOffset or 0), width, height)
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
-		if button.text ~= nil and button.text ~= "" then
-			if button.text == Constants.STAT_STATES[2].text or button.text == Constants.STAT_STATES[3].text then
-				y = y - 1 -- Move up the negative/neutral stat mark 1px
-			end
-			Drawing.drawText(x, y - 1, button.text, Theme.COLORS[button.textColor], shadowcolor)
+		if text == Constants.STAT_STATES[2].text or text == Constants.STAT_STATES[3].text then
+			y = y - 1 -- Move up the negative/neutral stat mark 1px
 		end
+		Drawing.drawText(x, y - 1, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.CIRCLE then
 		-- Draw the circle's shadow and the circle border
 		if shadowcolor ~= nil then
 			gui.drawEllipse(x + 1, y + 1, width, height, shadowcolor, fillcolor)
 		end
 		gui.drawEllipse(x, y, width, height, bordercolor, fillcolor)
-		if button.text ~= nil and button.text ~= "" then
-			if width < 10 or y < 10 then
-				x = x - 1
-				y = y - 1
-			end
-			Drawing.drawText(x + 1, y, button.text, Theme.COLORS[button.textColor or "Upper box border"], shadowcolor)
+		if width < 10 or y < 10 then
+			x = x - 1
+			y = y - 1
 		end
+		Drawing.drawText(x + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.ICON_BORDER then
 		local offsetX = 17
 		local offsetY = math.max(math.floor((height - Constants.SCREEN.LINESPACING) / 2), 0)
-		if button.text ~= nil and button.text ~= "" then
-			Drawing.drawText(x + offsetX, y + offsetY, button.text, Theme.COLORS[button.textColor], shadowcolor)
-		end
+		Drawing.drawText(x + offsetX, y + offsetY, text, Theme.COLORS[textColor], shadowcolor)
 		if button.image ~= nil then
 			local imageWidth = #button.image[1]
 			local imageHeight = #button.image
 			offsetX = math.max(math.floor((16 - imageWidth) / 2), 0) + 1
 			offsetY = math.max(math.floor((16 - imageHeight) / 2), 0) + 1
-			local iconColors = {}
-			for _, pixelColor in ipairs(button.iconColors or {}) do
-				table.insert(iconColors, Theme.COLORS[pixelColor])
-			end
-			if #iconColors == 0 then -- default to using the same text color
-				table.insert(iconColors, Theme.COLORS[button.textColor])
-			end
 			Drawing.drawImageAsPixels(button.image, x + offsetX, y + offsetY, iconColors, shadowcolor)
 		end
 	end
@@ -511,12 +520,11 @@ function Drawing.setAnimatedPokemon(pokemonID)
 	local pictureBox = Drawing.AnimatedPokemon.pictureBox
 
 	if pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
-		local pokemonData = PokemonData.Pokemon[pokemonID]
-		if pokemonData ~= nil then
+		local lowerPokemonName = Resources.Default.Game.PokemonNames[pokemonID]
+		if lowerPokemonName ~= nil then
 			-- Track this ID so we don't have to preform as many checks later
 			Drawing.AnimatedPokemon.pokemonID = pokemonID
 
-			local lowerPokemonName = pokemonData.name:lower()
 			local imagepath = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, lowerPokemonName, FileManager.Extensions.ANIMATED_POKEMON)
 			local fileExists = FileManager.fileExists(imagepath)
 			if Main.IsOnBizhawk() then
@@ -572,9 +580,13 @@ function Drawing.drawRepelUsage()
 	if not Main.IsOnBizhawk() then return end
 
 	local xOffset = Constants.SCREEN.WIDTH - 24
+	local yOffset = 0
+	if Options["Display play time"] and Program.GameTimer.location == "UpperRight" then
+		yOffset = Program.GameTimer.box.height + Program.GameTimer.box.margin + 1
+	end
 	-- Draw repel item icon
 	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	gui.drawImage(repelImage, xOffset, 0)
+	gui.drawImage(repelImage, xOffset, yOffset)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21
@@ -590,9 +602,9 @@ function Drawing.drawRepelUsage()
 	end
 
 	-- Draw outer bar (black outline with semi-transparent background)
-	gui.drawRectangle(xOffset, 1, 4, repelBarHeight, 0xFF000000, Theme.COLORS["Upper box background"] - 0xAA000000)
+	gui.drawRectangle(xOffset, yOffset + 1, 4, repelBarHeight, Drawing.Colors.BLACK, Theme.COLORS["Upper box background"] - 0xAA000000)
 	-- Draw colored bar for remaining usage
-	gui.drawRectangle(xOffset, 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
+	gui.drawRectangle(xOffset, yOffset + 1 + (repelBarHeight - remainingHeight), 4, remainingHeight, 0x00000000, barColor)
 end
 
 --- Draws an "L" shape at the given coordinates
@@ -630,8 +642,6 @@ function Drawing.drawLShape(x, y, rotation, color, thickness, length)
 	end
 end
 
-
-
 --- Draws "L" shaped selection indicators at the corners of the given rectangle
 --- @param x integer X coordinate of the top left corner of the rectangle
 --- @param y integer Y coordinate of the top left corner of the rectangle
@@ -657,4 +667,20 @@ function Drawing.drawSelectionIndicators(x, y, width, height, color, thickness, 
 
 	-- Bottom left
 	Drawing.drawLShape(x - segmentPadding, y + height + segmentPadding, 3, color, thickness, segmentLength)
+end
+
+-- WIP: Beginning of some UI element creation util functions. Likely want to use this system for creating most UI elements in the future
+function Drawing.createUIElementBackButton(clickFunc, colorKey)
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 124
+	local y = Constants.SCREEN.MARGIN + 137
+	local width = 12
+	local height = 12
+	return {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.BACK_ARROW,
+		textColor = colorKey,
+		clickableArea = {x - 2 , y , width + 4, height }, -- slightly wider
+		box = { x, y, width, height },
+		onClick = clickFunc,
+	}
 end

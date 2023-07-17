@@ -173,6 +173,8 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
 
+	Program.GameTimer:checkInput(xmouse, ymouse)
+
 	-- The extra screens don't occupy the same screen space and need their own check
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)
@@ -187,6 +189,7 @@ function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
 end
 
 function Input.checkButtonsClicked(xmouse, ymouse, buttons)
+	local buttonQueue = {}
 	for _, button in pairs(buttons) do
 		-- Only check for clicks on the button if it's visible (no function implies visibility)
 		if button.isVisible == nil or button:isVisible() then
@@ -201,11 +204,16 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 				isAreaClicked = false
 			end
 
+			-- Queue up all of the buttons to click before clicking any of them
 			if isAreaClicked and button.onClick ~= nil then
-				CustomCode.onButtonClicked(button)
-				button:onClick()
+				table.insert(buttonQueue, button)
 			end
 		end
+	end
+	-- Finally, click all buttons at once
+	for _, button in pairs(buttonQueue) do
+		CustomCode.onButtonClicked(button)
+		button:onClick()
 	end
 end
 

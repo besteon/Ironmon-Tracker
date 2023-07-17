@@ -2,6 +2,7 @@
 Memory = {}
 
 function Memory.initialize()
+	if Memory.hasInitialized then return end
 	-- Define how to read/write memory from the game depending on which emulator is in use
 	if Main.IsOnBizhawk() then
 		Memory.read8 = function(addr)
@@ -42,6 +43,7 @@ function Memory.initialize()
 		Memory.write16 = function(addr, value) return emu:write16(addr, value) end
 		Memory.write32 = function(addr, value) return emu:write32(addr, value) end
 	end
+	Memory.hasInitialized = true
 end
 
 function Memory.readbyte(addr)

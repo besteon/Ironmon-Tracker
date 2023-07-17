@@ -91,7 +91,7 @@ function RouteData.populateAvailableRoutes(maxMapId)
 		if route ~= nil and route.name ~= nil then
 			for _, encounterArea in ipairs(RouteData.OrderedEncounters) do
 				if RouteData.hasRouteEncounterArea(mapId, encounterArea) then
-					table.insert(RouteData.AvailableRoutes, route.name)
+					table.insert(RouteData.AvailableRoutes, Utils.formatSpecialCharacters(route.name))
 					break
 				end
 			end
@@ -156,50 +156,50 @@ function RouteData.getEncounterAreaByTerrain(terrainId, battleFlags)
 	end
 
 	-- Terrain Data, saving here to use later for RSE games and maybe boss trainers
-	-- BATTLE_TERRAIN_GRASS        0 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_LONG_GRASS   1 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_SAND         2 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_UNDERWATER   3 -- RouteData.EncounterArea.UNDERWATER
-	-- BATTLE_TERRAIN_WATER        4 -- RouteData.EncounterArea.SURFING
-	-- BATTLE_TERRAIN_POND         5 -- RouteData.EncounterArea.SURFING
-	-- BATTLE_TERRAIN_MOUNTAIN     6 -- RouteData.EncounterArea.LAND ???
-	-- BATTLE_TERRAIN_CAVE         7 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_BUILDING     8 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_PLAIN        9 -- RouteData.EncounterArea.LAND
-	-- BATTLE_TERRAIN_LINK        10
-	-- BATTLE_TERRAIN_GYM         11 -- returns 8 in Koga's gym
-	-- BATTLE_TERRAIN_LEADER      12
-	-- BATTLE_TERRAIN_INDOOR_2    13
-	-- BATTLE_TERRAIN_INDOOR_1    14
-	-- BATTLE_TERRAIN_LORELEI     15
-	-- BATTLE_TERRAIN_BRUNO       16
-	-- BATTLE_TERRAIN_AGATHA      17
-	-- BATTLE_TERRAIN_LANCE       18
-	-- BATTLE_TERRAIN_CHAMPION    19
+	-- BATTLE_TERRAIN_GRASS			0 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_LONG_GRASS	1 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_SAND			2 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_UNDERWATER	3 -- RouteData.EncounterArea.UNDERWATER
+	-- BATTLE_TERRAIN_WATER			4 -- RouteData.EncounterArea.SURFING
+	-- BATTLE_TERRAIN_POND			5 -- RouteData.EncounterArea.SURFING
+	-- BATTLE_TERRAIN_MOUNTAIN		6 -- RouteData.EncounterArea.LAND ???
+	-- BATTLE_TERRAIN_CAVE			7 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_BUILDING		8 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_PLAIN			9 -- RouteData.EncounterArea.LAND
+	-- BATTLE_TERRAIN_LINK			10
+	-- BATTLE_TERRAIN_GYM			11 -- returns 8 in Koga's gym
+	-- BATTLE_TERRAIN_LEADER		12
+	-- BATTLE_TERRAIN_INDOOR_2		13
+	-- BATTLE_TERRAIN_INDOOR_1		14
+	-- BATTLE_TERRAIN_LORELEI		15
+	-- BATTLE_TERRAIN_BRUNO			16
+	-- BATTLE_TERRAIN_AGATHA		17
+	-- BATTLE_TERRAIN_LANCE			18
+	-- BATTLE_TERRAIN_CHAMPION		19
 
 	-- Battle Flags
 	-- https://github.com/pret/pokefirered/blob/49ea462d7f421e75a76b25d7e85c92494c0a9798/include/constants/battle.h
-	-- BATTLE_TYPE_DOUBLE             (1 << 0)
-	-- BATTLE_TYPE_LINK               (1 << 1)
-	-- BATTLE_TYPE_IS_MASTER          (1 << 2) // In not-link battles, it's always set.
-	-- BATTLE_TYPE_TRAINER            (1 << 3)
-	-- BATTLE_TYPE_FIRST_BATTLE       (1 << 4)
-	-- BATTLE_TYPE_LINK_IN_BATTLE     (1 << 5) // Set on battle entry, cleared on exit. Checked rarely
-	-- BATTLE_TYPE_MULTI              (1 << 6)
-	-- BATTLE_TYPE_SAFARI             (1 << 7)
-	-- BATTLE_TYPE_BATTLE_TOWER       (1 << 8)
-	-- BATTLE_TYPE_OLD_MAN_TUTORIAL   (1 << 9) // Used in pokeemerald as BATTLE_TYPE_WALLY_TUTORIAL.
-	-- BATTLE_TYPE_ROAMER             (1 << 10)
-	-- BATTLE_TYPE_EREADER_TRAINER    (1 << 11)
-	-- BATTLE_TYPE_KYOGRE_GROUDON     (1 << 12)
-	-- BATTLE_TYPE_LEGENDARY          (1 << 13)
-	-- BATTLE_TYPE_GHOST_UNVEILED     (1 << 13) // Re-use of BATTLE_TYPE_LEGENDARY, when combined with BATTLE_TYPE_GHOST
-	-- BATTLE_TYPE_REGI               (1 << 14)
-	-- BATTLE_TYPE_GHOST              (1 << 15) // Used in pokeemerald as BATTLE_TYPE_TWO_OPPONENTS.
-	-- BATTLE_TYPE_POKEDUDE           (1 << 16) // Used in pokeemerald as BATTLE_TYPE_DOME.
-	-- BATTLE_TYPE_WILD_SCRIPTED      (1 << 17) // Used in pokeemerald as BATTLE_TYPE_PALACE.
-	-- BATTLE_TYPE_LEGENDARY_FRLG     (1 << 18) // Used in pokeemerald as BATTLE_TYPE_ARENA.
-	-- BATTLE_TYPE_TRAINER_TOWER      (1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
+	-- BATTLE_TYPE_DOUBLE				(1 << 0)
+	-- BATTLE_TYPE_LINK					(1 << 1)
+	-- BATTLE_TYPE_IS_MASTER			(1 << 2) // In not-link battles, it's always set.
+	-- BATTLE_TYPE_TRAINER				(1 << 3)
+	-- BATTLE_TYPE_FIRST_BATTLE			(1 << 4)
+	-- BATTLE_TYPE_LINK_IN_BATTLE		(1 << 5) // Set on battle entry, cleared on exit. Checked rarely
+	-- BATTLE_TYPE_MULTI				(1 << 6)
+	-- BATTLE_TYPE_SAFARI				(1 << 7)
+	-- BATTLE_TYPE_BATTLE_TOWER			(1 << 8)
+	-- BATTLE_TYPE_OLD_MAN_TUTORIAL		(1 << 9) // Used in pokeemerald as BATTLE_TYPE_WALLY_TUTORIAL.
+	-- BATTLE_TYPE_ROAMER				(1 << 10)
+	-- BATTLE_TYPE_EREADER_TRAINER		(1 << 11)
+	-- BATTLE_TYPE_KYOGRE_GROUDON		(1 << 12)
+	-- BATTLE_TYPE_LEGENDARY			(1 << 13)
+	-- BATTLE_TYPE_GHOST_UNVEILED		(1 << 13) // Re-use of BATTLE_TYPE_LEGENDARY, when combined with BATTLE_TYPE_GHOST
+	-- BATTLE_TYPE_REGI					(1 << 14)
+	-- BATTLE_TYPE_GHOST				(1 << 15) // Used in pokeemerald as BATTLE_TYPE_TWO_OPPONENTS.
+	-- BATTLE_TYPE_POKEDUDE				(1 << 16) // Used in pokeemerald as BATTLE_TYPE_DOME.
+	-- BATTLE_TYPE_WILD_SCRIPTED		(1 << 17) // Used in pokeemerald as BATTLE_TYPE_PALACE.
+	-- BATTLE_TYPE_LEGENDARY_FRLG		(1 << 18) // Used in pokeemerald as BATTLE_TYPE_ARENA.
+	-- BATTLE_TYPE_TRAINER_TOWER		(1 << 19) // Used in pokeemerald as BATTLE_TYPE_FACTORY.
 end
 
 function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
@@ -415,9 +415,9 @@ function RouteData.setupRouteInfoAsFRLG()
 		[3] = { name = "Rival's House", },
 		[4] = { name = "Rival's Room", },
 		[5] = { name = "Oak's Lab", },
-		[8] = { name = Constants.Words.POKEMON .. " Center", },
-		[9] = { name = Constants.Words.POKEMON .. " Center 2F", },
-		[10] = { name = Constants.Words.POKE .. "Mart", },
+		[8] = { name = "Pokémon Center", },
+		[9] = { name = "Pokémon Center 2F", },
+		[10] = { name = "PokéMart", },
 		[12] = { name = "Cerulean Gym", },
 		[15] = { name = "Celadon Gym", },
 		[20] = { name = "Fuchsia Gym", },
@@ -1067,7 +1067,7 @@ function RouteData.setupRouteInfoAsFRLG()
 		[140] = { name = "Silph Co. 9F", },
 		[141] = { name = "Silph Co. 10F", },
 		[142] = { name = "Silph Co. 11F", },
-		[143] = { name = Constants.Words.POKE .. "-- Mansion 1F",
+		[143] = { name = "Poké Mansion 1F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 				{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -1077,7 +1077,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 			},
 		},
-		[144] = { name = Constants.Words.POKE .. "-- Mansion 2F",
+		[144] = { name = "Poké Mansion 2F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 				{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -1087,7 +1087,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 			},
 		},
-		[145] = { name = Constants.Words.POKE .. "-- Mansion 3F",
+		[145] = { name = "Poké Mansion 3F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 32, maxLv = 36, },
 				{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -1097,7 +1097,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = {110,89}, rate = 0.05, minLv = 32, maxLv = 32, },
 			},
 		},
-		[146] = { name = Constants.Words.POKE .. "-- Mansion B1F",
+		[146] = { name = "Poké Mansion B1F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 20, rate = 0.30, minLv = 34, maxLv = 38, },
 				{ pokemonID = {109,88}, rate = 0.30, minLv = 28, maxLv = 30, },
@@ -1428,30 +1428,30 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 144, rate = 1.00, minLv = 50, maxLv = 50, },
 			},
 		},
-		[161] = { name = Constants.Words.POKEMON .. " Tower 1F", },
-		[162] = { name = Constants.Words.POKEMON .. " Tower 2F", },
-		[163] = { name = Constants.Words.POKEMON .. " Tower 3F",
+		[161] = { name = "Pokémon Tower 1F", },
+		[162] = { name = "Pokémon Tower 2F", },
+		[163] = { name = "Pokémon Tower 3F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.90, minLv = 13, maxLv = 19, },
 				{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 				{ pokemonID = 93, rate = 0.01, minLv = 20, maxLv = 20, },
 			},
 		},
-		[164] = { name = Constants.Words.POKEMON .. " Tower 4F",
+		[164] = { name = "Pokémon Tower 4F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
 				{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 				{ pokemonID = 93, rate = 0.05, minLv = 20, maxLv = 20, },
 			},
 		},
-		[165] = { name = Constants.Words.POKEMON .. " Tower 5F",
+		[165] = { name = "Pokémon Tower 5F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.86, minLv = 13, maxLv = 19, },
 				{ pokemonID = 104, rate = 0.09, minLv = 15, maxLv = 17, },
 				{ pokemonID = 93, rate = 0.05, minLv = 20, maxLv = 20, },
 			},
 		},
-		[166] = { name = Constants.Words.POKEMON .. " Tower 6F",
+		[166] = { name = "Pokémon Tower 6F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.85, minLv = 17, maxLv = 19, },
 				{ pokemonID = 104, rate = 0.09, minLv = 17, maxLv = 19, },
@@ -1461,7 +1461,7 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 105, rate = 1.00, minLv = 30, maxLv = 30, },
 			},
 		},
-		[167] = { name = Constants.Words.POKEMON .. " Tower 7F",
+		[167] = { name = "Pokémon Tower 7F",
 			[RouteData.EncounterArea.LAND] = {
 				{ pokemonID = 92, rate = 0.75, minLv = 15, maxLv = 19, },
 				{ pokemonID = 93, rate = 0.15, minLv = 23, maxLv = 25, },
@@ -3338,9 +3338,9 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[56] = { name = "May's House 1F", }
 	RouteData.Info[57] = { name = "May's House 2F", }
 	RouteData.Info[58] = { name = "Prof. Birch's Lab", }
-	RouteData.Info[61] = { name = Constants.Words.POKEMON .. " Center", }
-	RouteData.Info[62] = { name = Constants.Words.POKEMON .. " Center 2F", }
-	RouteData.Info[63] = { name = Constants.Words.POKE .. "Mart", }
+	RouteData.Info[61] = { name = "Pokémon Center", }
+	RouteData.Info[62] = { name = "Pokémon Center 2F", }
+	RouteData.Info[63] = { name = "PokéMart", }
 	RouteData.Info[65] = { name = "Dewford Gym", }
 	RouteData.Info[69] = { name = "Lavaridge Gym 1F", }
 	RouteData.Info[70] = { name = "Lavaridge Gym B1F", }
@@ -3863,7 +3863,7 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[252 + offset] = { name = "Trick House 6", }
 	RouteData.Info[253 + offset] = { name = "Trick House 7", }
 	RouteData.Info[254 + offset] = { name = "Trick House 8", }
-	RouteData.Info[270 + offset] = { name = Constants.Words.POKEMON .. " League PC", }
+	RouteData.Info[270 + offset] = { name = "Pokémon League PC", }
 	RouteData.Info[271 + offset] = { name = "Weather Institute 1F", }
 	RouteData.Info[272 + offset] = { name = "Weather Institute 2F", }
 	RouteData.Info[275 + offset] = { name = "City Space Center 1F", }

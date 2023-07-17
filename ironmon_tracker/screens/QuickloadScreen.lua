@@ -1,26 +1,24 @@
 QuickloadScreen = {
-	headerText = "Quickload Setup",
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
 }
 
-QuickloadScreen.OptionKeys = {
-	"Use premade ROMs", -- Keep as first item in this list [1]
-	"Generate ROM each time", -- Keep as second item in this list [2]
-}
-
 QuickloadScreen.SetButtonSetup = {
 	["ROMs Folder"] = {
+		resourceKey = "OptionRomsFolder",
 		offsetY = Constants.SCREEN.MARGIN + 54,
 	},
 	["Randomizer JAR"] = {
+		resourceKey = "OptionRandomizerJar",
 		offsetY = Constants.SCREEN.MARGIN + 88,
 	},
 	["Source ROM"] = {
+		resourceKey = "OptionSourceRom",
 		offsetY = Constants.SCREEN.MARGIN + 102,
 	},
 	["Settings File"] = {
+		resourceKey = "OptionSettingsFile",
 		offsetY = Constants.SCREEN.MARGIN + 116,
 	},
 }
@@ -28,95 +26,56 @@ QuickloadScreen.SetButtonSetup = {
 QuickloadScreen.Buttons = {
 	ButtonCombo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "Buttons:",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 130, 11 },
-		updateText = function(self)
+		getText = function()
 			local comboFormatted = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-			self.text = "Buttons:  " .. comboFormatted
+			return string.format("%s: %s", Resources.QuickloadScreen.ButtonCombo, comboFormatted)
 		end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 130, 11 },
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
 	PremadeRoms = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = QuickloadScreen.OptionKeys[1],
+		optionKey = "Use premade ROMs",
+		getText = function(self) return Resources.QuickloadScreen.OptionPremadeRoms end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 44, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 44, 8, 8 },
 		toggleState = false,
-		toggleColor = "Positive text",
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-			Options.updateSetting(self.text, self.toggleState)
-			NavigationMenu.Buttons.QuickloadSettings:updateText()
+			-- Only one can be enabled at a time
+			Options["Generate ROM each time"] = false
+			self.toggleState = Options.toggleSetting(self.optionKey)
 
-			-- Only one of these options can be active at any given moment
-			if self.toggleState then
-				QuickloadScreen.Buttons.GenerateRom.toggleState = false
-				Options.updateSetting(QuickloadScreen.Buttons.GenerateRom.text, false)
-			end
 			QuickloadScreen.verifyOptions()
-			Options.forceSave()
+			QuickloadScreen.refreshButtons()
+			NavigationMenu.refreshButtons()
+			Program.redraw(true)
 		end
 	},
 	GenerateRom = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = QuickloadScreen.OptionKeys[2],
+		optionKey = "Generate ROM each time",
+		getText = function(self) return Resources.QuickloadScreen.OptionGenerateRom end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 77, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 77, 8, 8 },
 		toggleState = false,
-		toggleColor = "Positive text",
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
-			-- Toggle the setting and store the change to be saved later in Settings.ini
-			self.toggleState = not self.toggleState
-			Options.updateSetting(self.text, self.toggleState)
-			NavigationMenu.Buttons.QuickloadSettings:updateText()
+			-- Only one can be enabled at a time
+			Options["Use premade ROMs"] = false
+			self.toggleState = Options.toggleSetting(self.optionKey)
 
-			-- Only one of these options can be active at any given moment
-			if self.toggleState then
-				QuickloadScreen.Buttons.PremadeRoms.toggleState = false
-				Options.updateSetting(QuickloadScreen.Buttons.PremadeRoms.text, false)
-			end
 			QuickloadScreen.verifyOptions()
-			Options.forceSave()
+			QuickloadScreen.refreshButtons()
+			NavigationMenu.refreshButtons()
+			Program.redraw(true)
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			-- Save all of the Options to the Settings.ini file, and navigate back to the Tracker Setup screen
-			Main.SaveSettings()
-			Program.changeScreenView(NavigationMenu)
-		end
-	},
+	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
 }
 
 function QuickloadScreen.initialize()
-	for setKey, setValue in pairs(QuickloadScreen.SetButtonSetup) do
-		QuickloadScreen.Buttons[setKey] = {
-			type = Constants.ButtonTypes.FULL_BORDER,
-			text = " SET",
-			labelText = setKey,
-			isSet = false,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, setValue.offsetY, 24, 11 },
-			updateText = function(self)
-				if self.isSet then
-					self.text = "Clear"
-				else
-					self.text = " SET"
-				end
-			end,
-			onClick = function(self)
-				if self.isSet then
-					QuickloadScreen.clearButton(self)
-				else
-					self:clickFunction()
-				end
-			end,
-			clickFunction = nil,
-		}
-	end
+	QuickloadScreen.createButtons()
 
 	local romfolderBtn = QuickloadScreen.Buttons["ROMs Folder"]
 	local jarBtn = QuickloadScreen.Buttons["Randomizer JAR"]
@@ -129,31 +88,95 @@ function QuickloadScreen.initialize()
 	rnqsBtn.clickFunction = QuickloadScreen.handleSetCustomSettings
 
 	for _, button in pairs(QuickloadScreen.Buttons) do
-		button.textColor = QuickloadScreen.textColor
-		button.boxColors = { QuickloadScreen.borderColor, QuickloadScreen.boxFillColor }
+		if button.textColor == nil then
+			button.textColor = QuickloadScreen.textColor
+		end
+		if button.boxColors == nil then
+			button.boxColors = { QuickloadScreen.borderColor, QuickloadScreen.boxFillColor }
+		end
 	end
 
 	QuickloadScreen.verifyOptions()
 
-	-- If neither premade seeds nor generate ROM each time are enabled, try turning one on if files are setup already
-	if not Options[QuickloadScreen.OptionKeys[1]] and not Options[QuickloadScreen.OptionKeys[2]] then
-		if jarBtn.isSet and gbaBtn.isSet and rnqsBtn.isSet then
-			Options[QuickloadScreen.OptionKeys[2]] = true
-			Options.settingsUpdated = true
-		elseif romfolderBtn.isSet then
-			Options[QuickloadScreen.OptionKeys[1]] = true
-			Options.settingsUpdated = true
-		end
-	elseif Options[QuickloadScreen.OptionKeys[1]] and Options[QuickloadScreen.OptionKeys[2]] then
-		-- If both premade seeds and generate ROM each time are enabled, turn one off
-		Options[QuickloadScreen.OptionKeys[2]] = false
-		Options.settingsUpdated = true
-	end
-	Main.SaveSettings() -- save settings if any of them changed
+	local optionPremade = QuickloadScreen.Buttons.PremadeRoms.optionKey
+	local optionGenerate = QuickloadScreen.Buttons.GenerateRom.optionKey
 
-	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[QuickloadScreen.OptionKeys[1]]
-	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[QuickloadScreen.OptionKeys[2]]
-	NavigationMenu.Buttons.QuickloadSettings:updateText()
+	-- If neither premade seeds nor generate ROM each time are enabled, try turning one on if files are setup already
+	local settingsChanged = false
+	if not Options[optionPremade] and not Options[optionGenerate] then
+		if jarBtn.isSet and gbaBtn.isSet and rnqsBtn.isSet then
+			Options[optionGenerate] = true
+			settingsChanged = true
+		elseif romfolderBtn.isSet then
+			Options[optionPremade] = true
+			settingsChanged = true
+		end
+	elseif Options[optionPremade] and Options[optionGenerate] then
+		-- If both premade seeds and generate ROM each time are enabled, turn one off
+		Options[optionGenerate] = false
+		settingsChanged = true
+	end
+	if settingsChanged then
+		Main.SaveSettings(true)
+	end
+
+	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[optionPremade]
+	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[optionGenerate]
+	NavigationMenu.refreshButtons()
+end
+
+function QuickloadScreen.createButtons()
+	for optionKey, optionObj in pairs(QuickloadScreen.SetButtonSetup) do
+		QuickloadScreen.Buttons[optionKey] = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			getText = function(self)
+				if self.isSet then
+					return Resources.QuickloadScreen.ButtonClear
+				else
+					return " " .. Resources.QuickloadScreen.ButtonSet
+				end
+			end,
+			optionKey = optionKey,
+			isSet = false,
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, optionObj.offsetY, 24, 11 },
+			draw = function(self, shadowcolor)
+				local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+				local labelText = Resources.QuickloadScreen[optionObj.resourceKey]
+				Drawing.drawText(topboxX + 6, self.box[2], labelText, Theme.COLORS[self.textColor], shadowcolor)
+
+				local image, imageColor
+				if self.isSet then
+					image = Constants.PixelImages.CHECKMARK
+					imageColor = Theme.COLORS["Positive text"]
+				else
+					image = Constants.PixelImages.CROSS
+					imageColor = Theme.COLORS["Negative text"]
+				end
+				Drawing.drawImageAsPixels(image, self.box[1] - 20, self.box[2], { imageColor }, shadowcolor)
+			end,
+			onClick = function(self)
+				if self.isSet then
+					Options.FILES[self.optionKey] = ""
+					self.isSet = false
+					Main.SaveSettings(true)
+					Program.redraw(true)
+				else
+					if type(self.clickFunction) == "function" then
+						self:clickFunction()
+					end
+				end
+			end,
+			clickFunction = nil,
+		}
+	end
+end
+
+function QuickloadScreen.refreshButtons()
+	for _, button in pairs(QuickloadScreen.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 function QuickloadScreen.verifyOptions()
@@ -168,16 +191,10 @@ function QuickloadScreen.verifyOptions()
 	jarBtn.isSet = (#quickloadFiles.jarList == 1) -- JAR correct if exactly one file
 	gbaBtn.isSet = (#quickloadFiles.romList == 1) -- GBA correct if exactly one file
 	rnqsBtn.isSet = (#quickloadFiles.settingsList == 1) -- RNQS correct if exactly one file
-
-	for _, button in pairs(QuickloadScreen.Buttons) do
-		if button.updateText ~= nil then
-			button:updateText()
-		end
-	end
 end
 
 function QuickloadScreen.handleSetRomFolder(button)
-	local path = Options.FILES[button.labelText]
+	local path = Options.FILES[button.optionKey]
 	local filterOptions = "ROM File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	Utils.tempDisableBizhawkSound()
@@ -189,23 +206,22 @@ function QuickloadScreen.handleSetRomFolder(button)
 		file = file:sub(0, (file:match(pattern) or 1) - 1)
 
 		if file == nil or file == "" then
-			Options.FILES[button.labelText] = ""
+			Options.FILES[button.optionKey] = ""
 			button.isSet = false
-			button.text = " SET"
 		else
-			Options.FILES[button.labelText] = file
+			Options.FILES[button.optionKey] = file
 			button.isSet = true
-			button.text = "Clear"
 		end
 
-		Options.forceSave()
+		Main.SaveSettings(true)
+		Program.redraw(true)
 	end
 
 	Utils.tempEnableBizhawkSound()
 end
 
 function QuickloadScreen.handleSetRandomizerJar(button)
-	local path = Options.FILES[button.labelText]
+	local path = Options.FILES[button.optionKey]
 	local filterOptions = "JAR File (*.JAR)|*.jar|All files (*.*)|*.*"
 
 	Utils.tempDisableBizhawkSound()
@@ -214,10 +230,10 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 	if file ~= "" then
 		local extension = FileManager.extractFileExtensionFromPath(file)
 		if extension == "jar" then
-			Options.FILES[button.labelText] = file
+			Options.FILES[button.optionKey] = file
 			button.isSet = true
-			button.text = "Clear"
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
@@ -227,7 +243,7 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 end
 
 function QuickloadScreen.handleSetSourceRom(button)
-	local path = Options.FILES[button.labelText]
+	local path = Options.FILES[button.optionKey]
 	local filterOptions = "GBA File (*.GBA)|*.gba|All files (*.*)|*.*"
 
 	Utils.tempDisableBizhawkSound()
@@ -236,10 +252,10 @@ function QuickloadScreen.handleSetSourceRom(button)
 	if file ~= "" then
 		local extension = FileManager.extractFileExtensionFromPath(file)
 		if extension == "gba" then
-			Options.FILES[button.labelText] = file
+			Options.FILES[button.optionKey] = file
 			button.isSet = true
-			button.text = "Clear"
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
@@ -249,7 +265,7 @@ function QuickloadScreen.handleSetSourceRom(button)
 end
 
 function QuickloadScreen.handleSetCustomSettings(button)
-	local path = Options.FILES[button.labelText]
+	local path = Options.FILES[button.optionKey]
 	local filterOptions = "RNQS File (*.RNQS)|*.rnqs|All files (*.*)|*.*"
 
 	-- If the custom settings file hasn't ever been set, show the folder containing preloaded setting files
@@ -265,23 +281,16 @@ function QuickloadScreen.handleSetCustomSettings(button)
 	if file ~= "" then
 		local extension = FileManager.extractFileExtensionFromPath(file)
 		if extension == "rnqs" then
-			Options.FILES[button.labelText] = file
+			Options.FILES[button.optionKey] = file
 			button.isSet = true
-			button.text = "Clear"
-			Options.forceSave()
+			Main.SaveSettings(true)
+			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
 
 	Utils.tempEnableBizhawkSound()
-end
-
-function QuickloadScreen.clearButton(button)
-	button.isSet = false
-	button.text = " SET"
-	Options.FILES[button.labelText] = ""
-	Options.forceSave()
 end
 
 -- USER INPUT FUNCTIONS
@@ -302,59 +311,50 @@ function QuickloadScreen.drawScreen()
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 33, Constants.SCREEN.MARGIN - 2, QuickloadScreen.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.QuickloadScreen.Title), Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 
 	-- Draw text to explain a choice should be made
-	Drawing.drawText(topboxX + 2, topboxY + 17, "Choose a quickload option:", Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	local chooseText = string.format("%s:", Resources.QuickloadScreen.ChoiceHeader)
+	Drawing.drawText(topboxX + 2, topboxY + 17, chooseText, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	gui.drawRectangle(topboxX + 4 + 1, topboxY + 30 + 1, topboxWidth - 8, 29, shadowcolor)
 	gui.drawRectangle(topboxX + 4, topboxY + 30, topboxWidth - 8, 29, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 	gui.drawRectangle(topboxX + 4 + 1, topboxY + 63 + 1, topboxWidth - 8, 58, shadowcolor)
 	gui.drawRectangle(topboxX + 4, topboxY + 63, topboxWidth - 8, 58, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 
-	-- Draw what settings are currently loaded
+	-- Draw near the bottom of the screen showing what settings are currently loaded
+	local labelInfo
 	if QuickloadScreen.Buttons.PremadeRoms.toggleState then
-		local foldername = ""
 		if QuickloadScreen.Buttons["ROMs Folder"].isSet then
-			foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
-		end
-		if foldername ~= "" then
-			Drawing.drawText(topboxX + 2, topboxY + 125, "Folder: " .. foldername, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+			local foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
+			if foldername ~= "" then
+				if foldername:len() < 18 then
+					labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelFolder, foldername)
+				else
+					labelInfo = foldername
+				end
+			end
 		end
 	elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
-		local filename = ""
 		if QuickloadScreen.Buttons["Settings File"].isSet then
-			filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
-		end
-		if filename ~= "" then
-			if filename:len() < 18 then
-				filename = "Settings: " .. filename
+			local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
+			if filename ~= "" then
+				if filename:len() < 18 then
+					labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelSettings, filename)
+				else
+					labelInfo = filename
+				end
 			end
-			Drawing.drawText(topboxX + 2, topboxY + 125, filename, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 		end
+	end
+	if labelInfo ~= nil then
+		Drawing.drawText(topboxX + 2, topboxY + 125, labelInfo, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
 	end
 
 	-- Draw all buttons
 	for _, button in pairs(QuickloadScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
-	end
-
-	local imageOffset = -20
-	for setKey, _ in pairs(QuickloadScreen.SetButtonSetup) do
-		local button = QuickloadScreen.Buttons[setKey]
-		Drawing.drawText(topboxX + 6, button.box[2], button.labelText, Theme.COLORS[button.textColor], shadowcolor)
-
-		local image
-		local imageColor
-		if button.isSet then
-			image = Constants.PixelImages.CHECKMARK
-			imageColor = Theme.COLORS["Positive text"]
-		else
-			image = Constants.PixelImages.CROSS
-			imageColor = Theme.COLORS["Negative text"]
-		end
-		Drawing.drawImageAsPixels(image, button.box[1] + imageOffset, button.box[2], { imageColor }, shadowcolor)
 	end
 end

@@ -3,6 +3,7 @@ Settings.ini
 *.gba
 *.sav
 *.State
+*.ss[0-9]
 *.log
 *Attempts.txt
 quickload/*.jar
