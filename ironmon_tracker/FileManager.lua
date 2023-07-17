@@ -92,10 +92,10 @@ FileManager.LuaCode = {
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
+	{ name = "Drawing", filepath = "Drawing.lua", },
 	{ name = "Theme", filepath = "Theme.lua", },
 	{ name = "ColorPicker", filepath = "ColorPicker.lua", },
 	{ name = "Input", filepath = "Input.lua", },
-	{ name = "Drawing", filepath = "Drawing.lua", },
 	{ name = "Program", filepath = "Program.lua", },
 	{ name = "Battle", filepath = "Battle.lua", },
 	{ name = "Pickle", filepath = "Pickle.lua", },
