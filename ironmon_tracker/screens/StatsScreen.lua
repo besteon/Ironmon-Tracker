@@ -55,12 +55,7 @@ StatsScreen.StatTables = {
 }
 
 StatsScreen.Buttons = {
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self) Program.changeScreenView(GameOptionsScreen) end
-	},
+	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(GameOptionsScreen) end),
 }
 
 function StatsScreen.initialize()

@@ -144,23 +144,18 @@ NavigationMenu.Buttons = {
 			Utils.openBrowserWindow(FileManager.Urls.WIKI, Resources.NavigationMenu.MessageCheckConsole)
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			if NavigationMenu.showCredits then
-				NavigationMenu.showCredits = false
-				Program.redraw(true)
+	Back = Drawing.createUIElementBackButton(function()
+		if NavigationMenu.showCredits then
+			NavigationMenu.showCredits = false
+			Program.redraw(true)
+		else
+			if Program.isValidMapLocation() then
+				Program.changeScreenView(TrackerScreen)
 			else
-				if Program.isValidMapLocation() then
-					Program.changeScreenView(TrackerScreen)
-				else
-					Program.changeScreenView(StartupScreen)
-				end
+				Program.changeScreenView(StartupScreen)
 			end
 		end
-	},
+	end),
 }
 
 NavigationMenu.OrderedMenuList = {

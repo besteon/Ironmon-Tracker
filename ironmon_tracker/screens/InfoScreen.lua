@@ -158,33 +158,19 @@ InfoScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		textColor = "Lower box text",
-		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
-		boxColors = { "Lower box border", "Lower box background" },
-		isVisible = function() return true end,
-		onClick = function(self)
-			InfoScreen.viewScreen = 0
-			InfoScreen.infoLookup = 0
-			if InfoScreen.prevScreen > 0 then
-				InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
-			else
-				InfoScreen.clearScreenData()
-				Program.changeScreenView(TrackerScreen)
-			end
+	Back = Drawing.createUIElementBackButton(function()
+		InfoScreen.viewScreen = 0
+		InfoScreen.infoLookup = 0
+		if InfoScreen.prevScreen > 0 then
+			InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
+		else
+			InfoScreen.clearScreenData()
+			Program.changeScreenView(TrackerScreen)
 		end
-	},
-	BackTop = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 117, 141, 24, 11 },
-		boxColors = { "Upper box border", "Upper box background" },
-		isVisible = function() return true end,
-		onClick = function(self) InfoScreen.Buttons.Back:onClick() end,
-	},
+	end, "Lower box text"),
+	BackTop = Drawing.createUIElementBackButton(function()
+		InfoScreen.Buttons.Back:onClick()
+	end, "Default text"),
 	HiddenPowerPrev = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,

@@ -42,12 +42,7 @@ LanguageScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 67, 11 },
 		onClick = function() Utils.openBrowserWindow(FileManager.Urls.DISCUSSIONS) end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self) Program.changeScreenView(NavigationMenu) end
-	},
+	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
 }
 
 function LanguageScreen.initialize()

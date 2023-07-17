@@ -224,23 +224,18 @@ Theme.Buttons = {
 			Theme.refreshThemePreview() -- also performs a screen redraw
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
-			Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
+	Back = Drawing.createUIElementBackButton(function()
+		Theme.setNextMoveLevelHighlight(false) -- Update the next move level highlight color
+		Main.SaveSettings() -- Always save all of the Options to the Settings.ini file
 
-			if Theme.Screen.displayingThemeManager then
-				Program.changeScreenView(NavigationMenu)
-			else
-				Theme.Screen.displayingThemeManager = true
-				Drawing.AnimatedPokemon:create() -- restore the animated gif
-				Theme.refreshThemePreview() -- also performs a screen redraw
-			end
+		if Theme.Screen.displayingThemeManager then
+			Program.changeScreenView(NavigationMenu)
+		else
+			Theme.Screen.displayingThemeManager = true
+			Drawing.AnimatedPokemon:create() -- restore the animated gif
+			Theme.refreshThemePreview() -- also performs a screen redraw
 		end
-	},
+	end),
 }
 
 function Theme.initialize()

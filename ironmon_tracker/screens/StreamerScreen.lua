@@ -89,15 +89,7 @@ StreamerScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		-- boxColors = { "Lower box border", "Lower box background" }, -- leave for when adding in second box later
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			Program.changeScreenView(NavigationMenu)
-		end
-	},
+	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
 }
 
 function StreamerScreen.initialize()

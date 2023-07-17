@@ -642,8 +642,6 @@ function Drawing.drawLShape(x, y, rotation, color, thickness, length)
 	end
 end
 
-
-
 --- Draws "L" shaped selection indicators at the corners of the given rectangle
 --- @param x integer X coordinate of the top left corner of the rectangle
 --- @param y integer Y coordinate of the top left corner of the rectangle
@@ -669,4 +667,20 @@ function Drawing.drawSelectionIndicators(x, y, width, height, color, thickness, 
 
 	-- Bottom left
 	Drawing.drawLShape(x - segmentPadding, y + height + segmentPadding, 3, color, thickness, segmentLength)
+end
+
+-- WIP: Beginning of some UI element creation util functions. Likely want to use this system for creating most UI elements in the future
+function Drawing.createUIElementBackButton(clickFunc, colorKey)
+	local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 124
+	local y = Constants.SCREEN.MARGIN + 137
+	local width = 12
+	local height = 12
+	return {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.BACK_ARROW,
+		textColor = colorKey,
+		clickableArea = {x - 2 , y , width + 4, height }, -- slightly wider
+		box = { x, y, width, height },
+		onClick = clickFunc,
+	}
 end

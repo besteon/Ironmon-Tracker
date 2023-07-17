@@ -61,18 +61,13 @@ MoveHistoryScreen.Buttons = {
 			MoveHistoryScreen.Pagination:nextPage()
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 136, 24, 11 },
-		onClick = function(self)
-			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-				Program.changeScreenView(TrackerScreen)
-			else
-				Program.changeScreenView(InfoScreen)
-			end
+	Back = Drawing.createUIElementBackButton(function()
+		if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
+			Program.changeScreenView(TrackerScreen)
+		else
+			Program.changeScreenView(InfoScreen)
 		end
-	},
+	end),
 }
 
 MoveHistoryScreen.TemporaryButtons = {}

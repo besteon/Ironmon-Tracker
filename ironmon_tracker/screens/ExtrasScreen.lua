@@ -74,17 +74,10 @@ ExtrasScreen.Buttons = {
 			Program.changeScreenView(CrashRecoveryScreen)
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.AllScreens.Back end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-		onClick = function(self)
-			ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
-			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			Main.SaveSettings()
-			Program.changeScreenView(NavigationMenu)
-		end
-	},
+	Back = Drawing.createUIElementBackButton(function()
+		ExtrasScreen.Buttons.EstimateIVs.ivText = "" -- keep hidden
+		Program.changeScreenView(NavigationMenu)
+	end),
 }
 
 function ExtrasScreen.initialize()
