@@ -26,8 +26,8 @@ function Main.Initialize()
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
 	Main.Version.updateAfterRestart = false
-	-- Used to display the release notes once, after each new version update
-	Main.Version.showReleaseNotes = false
+	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
+	Main.Version.showReleaseNotes = true
 
 	Main.MetaSettings = {}
 	Main.CrashReport = {
