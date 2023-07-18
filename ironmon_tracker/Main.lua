@@ -293,13 +293,14 @@ function Main.DisplayError(errMessage)
 end
 
 function Main.AfterStartupScreenRedirect()
-	if not Main.IsOnBizhawk() or Main.hasRunOnce then
+	if not Main.IsOnBizhawk() then
 		return
 	end
 
 	if Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
+		return
 	end
 
 	if Main.Version.showReleaseNotes then
@@ -310,7 +311,7 @@ function Main.AfterStartupScreenRedirect()
 		Main.SaveSettings(true)
 	end
 
-	if Main.Version.updateAfterRestart then
+	if Main.Version.updateAfterRestart and not Main.hasRunOnce then
 		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 		Program.changeScreenView(UpdateScreen)
 	end
