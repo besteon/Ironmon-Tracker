@@ -175,11 +175,13 @@ function Input.checkMouseInput(xmouse, ymouse)
 
 	Program.GameTimer:checkInput(xmouse, ymouse)
 
-	-- The extra screens don't occupy the same screen space and need their own check
+	-- The extra screens don't occupy the same screen space and need their own check; order matters
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)
 	end
-	if LogOverlay.isDisplayed then
+	if UpdateScreen.showNotes then
+		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
+	elseif LogOverlay.isDisplayed then
 		LogOverlay.checkInput(xmouse, ymouse)
 	end
 end

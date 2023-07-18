@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "0", patch = "0" }
+Main.Version = { major = "8", minor = "0", patch = "1" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -26,6 +26,8 @@ function Main.Initialize()
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
 	Main.Version.updateAfterRestart = false
+	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
+	Main.Version.showReleaseNotes = true
 
 	Main.MetaSettings = {}
 	Main.CrashReport = {
@@ -291,16 +293,25 @@ function Main.DisplayError(errMessage)
 end
 
 function Main.AfterStartupScreenRedirect()
-	if not Main.IsOnBizhawk() or Main.hasRunOnce then
+	if not Main.IsOnBizhawk() then
 		return
 	end
 
 	if Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
+		return
 	end
 
-	if Main.Version.updateAfterRestart then
+	if Main.Version.showReleaseNotes then
+		UpdateScreen.showNotes = true
+		Main.Version.showReleaseNotes = false
+		UpdateScreen.buildOutPagedButtons()
+		UpdateScreen.refreshButtons()
+		Main.SaveSettings(true)
+	end
+
+	if Main.Version.updateAfterRestart and not Main.hasRunOnce then
 		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 		Program.changeScreenView(UpdateScreen)
 	end
@@ -899,6 +910,9 @@ function Main.LoadSettings()
 		if settings.config.UpdateAfterRestart ~= nil then
 			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
 		end
+		if settings.config.ShowReleaseNotes ~= nil then
+			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
+		end
 
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
@@ -1002,6 +1016,7 @@ function Main.SaveSettings(forced)
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
 	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
+	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")

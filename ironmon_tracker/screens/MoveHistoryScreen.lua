@@ -100,6 +100,13 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 				textColor = MoveHistoryScreen.Colors.text,
 				trackedMove = tMove,
 				isVisible = function(self) return self.pageVisible == MoveHistoryScreen.Pagination.currentPage end,
+				draw = function(self, shadowcolor)
+					-- Implied move text is drawn, then the levels off to the right-side
+					local minLvTxt = self.trackedMove.minLv or self.trackedMove.level
+					local maxLvTxt = self.trackedMove.maxLv or self.trackedMove.level
+					Drawing.drawNumber(self.box[1] + 74 + 3, self.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 74 from drawScreen()
+					Drawing.drawNumber(self.box[1] + 99 + 3, self.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 99 from drawScreen()
+				end,
 				onClick = function(self)
 					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, tMove.id)
 				end
@@ -210,18 +217,12 @@ function MoveHistoryScreen.drawScreen()
 	Drawing.drawText(offsetX + maxColX, topboxY, Resources.MoveHistoryScreen.HeaderMax, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING
 
-	for _, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
-		if button:isVisible() then
-			local minLvTxt = button.trackedMove.minLv or button.trackedMove.level
-			local maxLvTxt = button.trackedMove.maxLv or button.trackedMove.level
-			Drawing.drawText(button.box[1], button.box[2], button.text, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + minColX + 3, button.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + maxColX + 3, button.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-		end
-	end
-
 	if #MoveHistoryScreen.TemporaryButtons == 0 then
 		Drawing.drawText(offsetX, topboxY + 5, Resources.MoveHistoryScreen.NoTrackedMoves, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+	else
+		for _, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
+			Drawing.drawButton(button, shadowcolor)
+		end
 	end
 
 	-- Draw all buttons

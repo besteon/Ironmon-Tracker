@@ -245,10 +245,6 @@ function UpdateScreen.initialize()
 
 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
 
-	if Main.Version.updateAfterRestart then
-		UpdateScreen.showNotes = true
-		UpdateScreen.buildOutPagedButtons()
-	end
 	UpdateScreen.refreshButtons()
 end
 
@@ -276,6 +272,7 @@ function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
 	Program.changeScreenView(NavigationMenu)
 end
 
+-- These buttons are only displayed when 'showNotes' is enabled, and input checks are performed separately
 function UpdateScreen.buildOutPagedButtons()
 	if #Main.Version.releaseNotes == 0 then
 		Main.updateReleaseNotes()
@@ -305,7 +302,7 @@ function UpdateScreen.buildOutPagedButtons()
 	end
 
 	local x = 4
-	local y = 19
+	local y = 18
 	local colSpacer = 1
 	local rowSpacer = 4
 	UpdateScreen.Pager:realignButtonsToGrid(x, y, colSpacer, rowSpacer)
@@ -340,6 +337,7 @@ function UpdateScreen.performAutoUpdate()
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
 		Main.Version.updateAfterRestart = false
+		Main.Version.showReleaseNotes = true
 		Main.SaveSettings(true)
 	else
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
@@ -362,17 +360,12 @@ end
 -- USER INPUT FUNCTIONS
 function UpdateScreen.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Buttons)
-	Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
 end
 
 -- DRAWING FUNCTIONS
 function UpdateScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
 	gui.defaultTextBackground(Theme.COLORS[UpdateScreen.Colors.boxFill])
-
-	if UpdateScreen.showNotes then
-		UpdateScreen.drawReleaseNotesOverlay()
-	end
 
 	local topBox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,

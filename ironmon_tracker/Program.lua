@@ -255,8 +255,10 @@ function Program.redraw(forced)
 		Program.ActiveRepel:draw()
 		Program.GameTimer:draw()
 
-		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
-		if LogOverlay.isDisplayed then
+		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
+		if UpdateScreen.showNotes then
+			UpdateScreen.drawReleaseNotesOverlay()
+		elseif LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
 		end
 

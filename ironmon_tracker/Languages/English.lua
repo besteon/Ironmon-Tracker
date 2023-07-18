@@ -3134,7 +3134,7 @@ GameResources{
 		},
 		{
 			NameKey = "Shield Dust",
-			Description = "Unaffected by secondary effects of damaging moves.",
+			Description = "Unaffected by the additional effects of other Pokémon's damaging moves. For example, a Pokémon with this ability cannot be frozen by Blizzard or made to flinch by Fake Out.",
 		},
 		{
 			NameKey = "Own Tempo",
