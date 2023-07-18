@@ -582,7 +582,7 @@ function Drawing.drawRepelUsage()
 	local xOffset = Constants.SCREEN.WIDTH - 24
 	local yOffset = 0
 	if Options["Display play time"] and Program.GameTimer.location == "UpperRight" then
-		yOffset = Program.GameTimer.box.height + Program.GameTimer.box.margin + 1
+		yOffset = (Program.GameTimer.box.height or 9) + (Program.GameTimer.margin or 0) + 1
 	end
 	-- Draw repel item icon
 	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
