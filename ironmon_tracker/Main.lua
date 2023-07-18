@@ -26,6 +26,8 @@ function Main.Initialize()
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
 	Main.Version.updateAfterRestart = false
+	-- Used to display the release notes once, after each new version update
+	Main.Version.showReleaseNotes = false
 
 	Main.MetaSettings = {}
 	Main.CrashReport = {
@@ -298,6 +300,14 @@ function Main.AfterStartupScreenRedirect()
 	if Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
+	end
+
+	if Main.Version.showReleaseNotes then
+		UpdateScreen.showNotes = true
+		Main.Version.showReleaseNotes = false
+		UpdateScreen.buildOutPagedButtons()
+		UpdateScreen.refreshButtons()
+		Main.SaveSettings(true)
 	end
 
 	if Main.Version.updateAfterRestart then
@@ -899,6 +909,9 @@ function Main.LoadSettings()
 		if settings.config.UpdateAfterRestart ~= nil then
 			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
 		end
+		if settings.config.ShowReleaseNotes ~= nil then
+			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
+		end
 
 		for configKey, _ in pairs(Options.FILES) do
 			local configValue = settings.config[string.gsub(configKey, " ", "_")]
@@ -1002,6 +1015,7 @@ function Main.SaveSettings(forced)
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
 	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
+	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do
 		local encodedKey = string.gsub(configKey, " ", "_")
