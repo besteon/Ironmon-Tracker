@@ -103,7 +103,7 @@ UpdateScreen.Buttons = {
 			-- Auto-update not supported on Linux Bizhawk 2.8, Lua 5.1
 			if not UpdateScreen.isUpdateSupported() then
 				return Resources.UpdateScreen.ButtonOpenDownload
-			elseif UpdateOrInstall.Dev.enabled then
+			elseif Options["Dev branch updates"] then
 				return Resources.UpdateScreen.ButtonInstallFromDev
 			elseif Main.Version.updateAfterRestart then
 				return Resources.UpdateScreen.ButtonInstallNow
@@ -149,6 +149,7 @@ UpdateScreen.Buttons = {
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
 			self.toggleState = Options.toggleSetting(self.optionKey)
+			UpdateOrInstall.Dev.enabled = Options[self.optionKey]
 			-- If option changes from OFF to ON (always allow updates for dev) or an update is available
 			if self.toggleState or not Main.isOnLatestVersion() then
 				UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
