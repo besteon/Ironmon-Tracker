@@ -109,7 +109,8 @@ Program.GameTimer = {
 		self:unpause()
 	end,
 	checkInput = function(self, xmouse, ymouse)
-		if not Options["Display play time"] then return end
+		-- Don't pause if either game screen overlay is covering the screen
+		if not Options["Display play time"] or LogOverlay.isDisplayed or UpdateScreen.showNotes then return end
 		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
 		if clicked then
 			if self.isPaused then
