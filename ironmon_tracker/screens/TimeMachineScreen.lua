@@ -265,8 +265,12 @@ function TimeMachineScreen.buildOutPagedButtons()
 			end,
 			draw = function(self, shadowcolor)
 				local minutesAgo = math.ceil((os.time() - restorePoint.timestamp) / 60)
-				local includeS = Utils.inlineIf(minutesAgo ~= 1, Resources.TimeMachineScreen.RestorePointAgeS, "")
-				local timestampText = string.format(Resources.TimeMachineScreen.RestorePointAge, minutesAgo, includeS)
+				local timestampText
+				if minutesAgo == 1 then
+					timestampText = Resources.TimeMachineScreen.RestorePointAgeSingular
+				else
+					timestampText = string.format(Resources.TimeMachineScreen.RestorePointAgePlural, minutesAgo)
+				end
 				local rightAlignOffset = self.box[3] - Utils.calcWordPixelLength(timestampText) - 2
 				Drawing.drawText(self.box[1] + rightAlignOffset, self.box[2] + self.box[4] + 1, timestampText, Theme.COLORS[TimeMachineScreen.Colors.text], shadowcolor)
 			end,

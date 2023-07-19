@@ -423,8 +423,8 @@ ScreenResources{
 		OptionEnableRestorePoints = "Enable restore points",
 		DescInstructions = "Select a restore point below to go back to that point in time.",
 		DescNoRestorePoints = "No restore points are available; one is created every 5 minutes.",
-		RestorePointAge = "created %s minute%s ago", -- Usage: "created 5 minutes ago"
-		RestorePointAgeS = "s", -- Appended to "minute" above, or leave empty ""
+		RestorePointAgeSingular = "created 1 minute ago",
+		RestorePointAgePlural = "created %s minutes ago",
 		UndoAndReturnBack = "Return back to the future",
 		ConfirmationRestore = "Confirm restore?",
 		LocationUnknownArea = "Unknown Area",
