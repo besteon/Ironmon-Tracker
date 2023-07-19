@@ -84,6 +84,7 @@ UpdateScreen.Buttons = {
 			-- Don't check for updates if they've already been checked while on this screen (resets after clicking Back)
 			if self.updateStatus == "Unchecked" then
 				Main.CheckForVersionUpdate(true)
+				StartupScreen.refreshButtons()
 			end
 
 			if not Main.isOnLatestVersion() then
