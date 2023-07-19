@@ -11,8 +11,13 @@ NavigationMenu.Buttons = {
 	VersionInfo = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "v" .. tostring(Main.TrackerVersion) end,
+		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN - 2, 22, 10 },
 		isVisible = function() return not NavigationMenu.showCredits end,
+		updateSelf = function(self)
+			local width = Utils.calcWordPixelLength(self:getText())
+			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - width - 3
+		end,
 	},
 	SetupAndOptions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
@@ -193,13 +198,12 @@ function NavigationMenu.initialize()
 	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
 
 	for _, button in pairs(NavigationMenu.Buttons) do
-		button.textColor = NavigationMenu.Colors.textColor
-		button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
-	end
-
-	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
-	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
-		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
+		if button.textColor == nil then
+			button.textColor = NavigationMenu.Colors.textColor
+		end
+		if button.boxColors == nil then
+			button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
+		end
 	end
 
 	-- Yet another fun Easter Egg that shows up only once in a while
