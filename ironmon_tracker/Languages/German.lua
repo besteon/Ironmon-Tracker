@@ -348,7 +348,7 @@ ScreenResources{
 		-- Pokémon Info
 		ButtonHistory = "History", -- NEEDS TRANSLATION
 		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
-		KilogramAbbreviation = "kg", -- NEEDS TRANSLATION
+		KilogramAbbreviation = "kg",
 		LabelWeight = "Weight", -- NEEDS TRANSLATION
 		LabelEvolution = "Evolution", -- NEEDS TRANSLATION
 		LabelLearnMove = "Learns a move at level", -- NEEDS TRANSLATION
@@ -423,8 +423,8 @@ ScreenResources{
 		OptionEnableRestorePoints = "Enable restore points", -- NEEDS TRANSLATION
 		DescInstructions = "Select a restore point below to go back to that point in time.", -- NEEDS TRANSLATION
 		DescNoRestorePoints = "No restore points are available; one is created every 5 minutes.", -- NEEDS TRANSLATION
-		RestorePointAge = "created %s minute%s ago", -- Usage: "created 5 minutes ago" -- NEEDS TRANSLATION
-		RestorePointAgeS = "s", -- Appended to "minute" above, or leave empty "" -- NEEDS TRANSLATION
+		RestorePointAgeSingular = "created 1 minute ago", -- NEEDS TRANSLATION
+		RestorePointAgePlural = "created %s minutes ago", -- NEEDS TRANSLATION
 		UndoAndReturnBack = "Return back to the future", -- NEEDS TRANSLATION
 		ConfirmationRestore = "Confirm restore?", -- NEEDS TRANSLATION
 		LocationUnknownArea = "Unknown Area", -- NEEDS TRANSLATION
