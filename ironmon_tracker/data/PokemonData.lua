@@ -137,6 +137,7 @@ PokemonData.BlankPokemon = {
 	bst = Constants.BLANKLINE,
 	movelvls = { {}, {} },
 	weight = 0.0,
+	friendship = 0, -- setting default friendship for blank pokemon in case something goes wrong -Tainted_Wolf
 }
 
 function PokemonData.initialize()
@@ -719,7 +720,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "455",
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
-		weight = 55.0
+		weight = 55.0,
+		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Oddish",
@@ -1287,7 +1289,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "450",
 		movelvls = { { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
-		weight = 34.6
+		weight = 34.6,
+		friendshipbase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Tangela",
@@ -1759,7 +1762,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "205",
 		movelvls = { { 6, 8, 11 }, { 6, 8, 11 } },
-		weight = 2.0
+		weight = 2.0,
+		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Cleffa",
@@ -1767,7 +1771,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "218",
 		movelvls = { { 4, 8, 13 }, { 4, 8, 13, 17 } },
-		weight = 3.0
+		weight = 3.0,
+		friendshipbase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Igglybuff",
@@ -1775,7 +1780,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "210",
 		movelvls = { { 4, 9, 14 }, { 4, 9, 14 } },
-		weight = 1.0
+		weight = 1.0,
+		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Togepi",
@@ -1783,7 +1789,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "245",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41 }, { 4, 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = 1.5
+		weight = 1.5,
+		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Togetic",
@@ -1855,7 +1862,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "410",
 		movelvls = { { 3, 6, 10, 15, 24, 34, 45, 57 }, { 3, 6, 10, 15, 24, 34, 45, 57 } },
-		weight = 28.5
+		weight = 28.5,
+		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Sudowoodo",
