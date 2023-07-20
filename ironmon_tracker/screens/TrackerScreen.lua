@@ -807,14 +807,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then 
 				local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1 --Read in Friendship requirement level
 				local evoFriendshipRatio = ((data.p.friendship-data.p.friendshipbase)/friendshipRequired) -- Read in friendship level from the pokemon and get ratio
-				local friendshiptext = Utils.getEvoAbbreviation(data.p.evo)
-				local evotypestringlength = string.len(friendshiptext) --setting up so we know how many letters to color
-				local lettersoffriendtocolor =  math.floor((evotypestringlength*evoFriendshipRatio)+.5)
-				local firststring = string.sub(friendshiptext,1,lettersoffriendtocolor)
-				local secondstring = string.sub(friendshiptext,lettersoffriendtocolor+1,evotypestringlength)
-				-- local firststringspacing = 
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, firststring, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
-			--	Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing + firststringspacing , offsetY, secondstring, Theme.COLORS["Default text"], shadowcolor) --default text for rest of it 
+				--print(evoFriendshipRatio)
+				local friendshipText = Utils.getEvoAbbreviation(data.p.evo)
+				local evoTypeStringLength = string.len(friendshipText) --setting up so we know how many letters to color
+				local lettersOfFriendToColor =  math.floor((evoTypeStringLength * evoFriendshipRatio))
+				local firstString = string.sub(friendshipText, 1, lettersOfFriendToColor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, firstString, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
 			else 
 				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 			end
