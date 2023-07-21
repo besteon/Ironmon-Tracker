@@ -162,6 +162,8 @@ end
 
 -- Returns true if the conditions are correct to display the screen
 function GameOverScreen.shouldDisplay(battleOutcome)
+	if not Main.IsOnBizhawk() then return false end
+
 	-- Skip game over screen if most recent battle was the tutorial or if the player didn't lose or tie the battle
 	if Battle.recentBattleWasTutorial or (battleOutcome ~= 2 and battleOutcome ~= 3) then
 		if GameOverScreen.isDisplayed then
