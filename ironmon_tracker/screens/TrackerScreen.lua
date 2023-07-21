@@ -803,16 +803,13 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			else
 				evoTextColor = Theme.COLORS["Default text"]
 			end			
-			-- Adding in a frienship loop lookup to try and print out multicolor letters :) -Tainted_wolf
+			-- Adding in a frienship loop lookup to try and print out multicolor letters based on freindship :) -Tainted_wolf
 			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then 
-				local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1 --Read in Friendship requirement level
-				local evoFriendshipRatio = ((data.p.friendship-data.p.friendshipbase)/friendshipRequired) -- Read in friendship level from the pokemon and get ratio
-				--print(evoFriendshipRatio)
-				local friendshipText = Utils.getEvoAbbreviation(data.p.evo)
-				local evoTypeStringLength = string.len(friendshipText) --setting up so we know how many letters to color
-				local lettersOfFriendToColor =  math.floor((evoTypeStringLength * evoFriendshipRatio))
-				local firstString = string.sub(friendshipText, 1, lettersOfFriendToColor)
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, firstString, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
+				local evoFriendshipRatio = ((data.p.friendship-data.p.friendshipBase)/(Program.GameData.friendshipRequired-data.p.friendshipBase)) -- Read in friendship level from the pokemon and get ratio
+				local evoTypeStringLength = string.len(abbreviationText ) --setting up so we know how many letters to color
+				local lettersToHighlight =  math.floor((evoTypeStringLength * evoFriendshipRatio))
+				local highlightedString = string.sub(abbreviationText , 1, lettersToHighlight)
+				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedString, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
 			else 
 				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 			end

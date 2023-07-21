@@ -129,7 +129,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
 	data.p.friendship = viewedPokemon.friendship or 70 -- Add friendship as a discoverable stat -Tainted_wolf
-	data.p.friendshipbase = viewedPokemon.friendshipbase -- Add friendship as a discoverable stat -Tainted_wolf
+	data.p.friendshipBase = viewedPokemon.friendshipBase or 70 -- Add friendship as a discoverable stat -Tainted_wolf
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature

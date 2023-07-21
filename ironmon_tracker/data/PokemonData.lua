@@ -138,6 +138,7 @@ PokemonData.BlankPokemon = {
 	movelvls = { {}, {} },
 	weight = 0.0,
 	friendship = 0, -- setting default friendship for blank pokemon in case something goes wrong -Tainted_Wolf
+	friendshipBase = 0, -- setting default base friendship
 }
 
 function PokemonData.initialize()
@@ -158,6 +159,11 @@ function PokemonData.initialize()
 				if abilities ~= nil then
 					pokemonData.abilities = abilities
 				end
+			end
+			-- read in base friendship from Rom file for all mons - Tainted_wolf
+			local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+			if friendshipBase ~= nil then
+				pokemonData.friendshipBase = friendshipBase
 			end
 		end
 	end
@@ -246,13 +252,23 @@ function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 	}
 end
 
+--Tainted_Wolf Attempting to read base friendship from rom :/
+function PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+	local baseFriendshipData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x12)
+	local friendshipBase = Utils.getbits(baseFriendshipData, 0, 8)
+
+	return friendshipBase
+end
+
 function PokemonData.checkIfDataIsRandomized()
 	local areTypesRandomized = false
 	local areAbilitiesRandomized = false
+	local areBaseFriendshipsModified = false
 
 	-- Check once if any data was randomized
 	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
 	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
+	local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(1) -- Bulbasaur
 
 	if types ~= nil then
 		areTypesRandomized = types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON
@@ -260,11 +276,15 @@ function PokemonData.checkIfDataIsRandomized()
 	if abilities ~= nil then
 		areAbilitiesRandomized = abilities[1] ~= 65 or abilities[2] ~= 65 -- 65 = Overgrow
 	end
+	if friendshipBase ~= nil then
+		areBaseFriendshipsModified = friendshipBase ~= 70  -- Bulbasaur's base friendship is 70
+	end
 
 	-- Check twice if any data was randomized (Randomizer does *not* force a change)
-	if not areTypesRandomized or not areAbilitiesRandomized then
+	if not areTypesRandomized or not areAbilitiesRandomized or not areBaseFriendshipsModified then
 		types = PokemonData.readPokemonTypesFromMemory(131) -- Lapras
 		abilities = PokemonData.readPokemonAbilitiesFromMemory(131) -- Lapras
+		friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(131) --Lapras
 
 		if types ~= nil and (types[1] ~= PokemonData.Types.WATER or types[2] ~= PokemonData.Types.ICE) then
 			areTypesRandomized = true
@@ -272,14 +292,19 @@ function PokemonData.checkIfDataIsRandomized()
 		if abilities ~= nil and (abilities[1] ~= 11 or abilities[2] ~= 75) then -- 11 = Water Absorb, 75 = Shell Armor
 			areAbilitiesRandomized = true
 		end
+		if friendshipBase ~= nil then
+			areBaseFriendshipsModified = friendshipBase ~= 70  -- Lapras' base friendship is 70
+		end
 	end
+	
+	
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
 	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
 	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
 
-	return areTypesRandomized or areAbilitiesRandomized
+	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)
@@ -721,7 +746,7 @@ PokemonData.Pokemon = {
 		bst = "455",
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
 		weight = 55.0,
-		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Oddish",
@@ -1290,7 +1315,7 @@ PokemonData.Pokemon = {
 		bst = "450",
 		movelvls = { { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
 		weight = 34.6,
-		friendshipbase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Tangela",
@@ -1763,7 +1788,7 @@ PokemonData.Pokemon = {
 		bst = "205",
 		movelvls = { { 6, 8, 11 }, { 6, 8, 11 } },
 		weight = 2.0,
-		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Cleffa",
@@ -1772,7 +1797,7 @@ PokemonData.Pokemon = {
 		bst = "218",
 		movelvls = { { 4, 8, 13 }, { 4, 8, 13, 17 } },
 		weight = 3.0,
-		friendshipbase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Igglybuff",
@@ -1781,7 +1806,7 @@ PokemonData.Pokemon = {
 		bst = "210",
 		movelvls = { { 4, 9, 14 }, { 4, 9, 14 } },
 		weight = 1.0,
-		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Togepi",
@@ -1790,7 +1815,7 @@ PokemonData.Pokemon = {
 		bst = "245",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41 }, { 4, 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
 		weight = 1.5,
-		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Togetic",
@@ -3191,7 +3216,7 @@ PokemonData.Pokemon = {
 		bst = "190",
 		movelvls = { { 3, 6, 10, 15, 21 }, { 3, 6, 10, 15, 21 } },
 		weight = 2.0,
-		friendshipbase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
 	},
 	{
 		name = "Spoink",
