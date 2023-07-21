@@ -81,7 +81,10 @@ Program.GameTimer = {
 		self.timeLastChecked = currTime
 		if self.hasStarted and not self.isPaused then
 			local timeDelta = math.floor(os.difftime(currTime, prevTime))
-			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
+			-- If emulator itself is paused-unpaused, don't add all that "paused time"
+			if timeDelta > 0 then
+				Tracker.Data.playtime = Tracker.Data.playtime + 1
+			end
 			self.readyToDraw = (timeDelta ~= 0)
 		end
 
