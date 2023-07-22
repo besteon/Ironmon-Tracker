@@ -803,12 +803,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			else
 				evoTextColor = Theme.COLORS["Default text"]
 			end			
-			-- Adding in a frienship loop lookup to try and print out multicolor letters based on freindship :) -Tainted_wolf
+			-- Highlight letters for friendship evo to show % of progress
 			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then 
-				local evoFriendshipRatio = ((data.p.friendship-data.p.friendshipBase)/(Program.GameData.friendshipRequired-data.p.friendshipBase)) -- Read in friendship level from the pokemon and get ratio
-				local evoTypeStringLength = string.len(abbreviationText) --setting up so we know how many letters to color
-				local numberLettersToHighlight =  math.floor((evoTypeStringLength * evoFriendshipRatio))
-				local highlightedString = string.sub(abbreviationText , 1, numberLettersToHighlight)
+				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase) -- Read in friendship level from the pokemon and get ratio
+				local evoTypeStringLength = string.len(abbreviationText)
+				local numberLettersToHighlight =  math.floor(string.len(abbreviationText) * percentFill)
+				local highlightedString = abbreviationText:sub(1, numberLettersToHighlight)
 				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedString, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
 			else 
 				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)

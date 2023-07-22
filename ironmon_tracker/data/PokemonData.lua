@@ -5,6 +5,7 @@ PokemonData = {
 PokemonData.IsRand = {
 	pokemonTypes = false,
 	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
+	pokemonFriendship = false,
 }
 
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
@@ -137,8 +138,8 @@ PokemonData.BlankPokemon = {
 	bst = Constants.BLANKLINE,
 	movelvls = { {}, {} },
 	weight = 0.0,
-	friendship = 0, -- setting default friendship for blank pokemon in case something goes wrong -Tainted_Wolf
-	friendshipBase = 0, -- setting default base friendship
+	friendship = 0,
+	friendshipBase = 0,
 }
 
 function PokemonData.initialize()
@@ -160,10 +161,11 @@ function PokemonData.initialize()
 					pokemonData.abilities = abilities
 				end
 			end
-			-- read in base friendship from Rom file for all mons - Tainted_wolf
-			local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
-			if friendshipBase ~= nil then
-				pokemonData.friendshipBase = friendshipBase
+			if Pokemondata.IsRand.pokemonFriendship then
+				local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+				if friendshipBase ~= 0 then
+					pokemonData.friendshipBase = friendshipBase
+				end
 			end
 		end
 	end
@@ -252,7 +254,6 @@ function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 	}
 end
 
---Tainted_Wolf Attempting to read base friendship from rom :/
 function PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
 	local baseFriendshipData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x12)
 	local friendshipBase = Utils.getbits(baseFriendshipData, 0, 8)
@@ -303,6 +304,7 @@ function PokemonData.checkIfDataIsRandomized()
 	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
 	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
+	PokemonData.IsRand.pokemonFriendship = areBaseFriendshipsModified
 
 	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
@@ -745,8 +747,7 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "455",
 		movelvls = { { 6, 11, 16, 21, 28, 35, 42, 49, 56 }, { 6, 11, 16, 21, 28, 35, 42, 49, 56 } },
-		weight = 55.0,
-		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		weight = 55.0
 	},
 	{
 		name = "Oddish",
@@ -1315,7 +1316,7 @@ PokemonData.Pokemon = {
 		bst = "450",
 		movelvls = { { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
 		weight = 34.6,
-		friendshipBase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 140
 	},
 	{
 		name = "Tangela",
@@ -1787,8 +1788,7 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "205",
 		movelvls = { { 6, 8, 11 }, { 6, 8, 11 } },
-		weight = 2.0,
-		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		weight = 2.0
 	},
 	{
 		name = "Cleffa",
@@ -1797,7 +1797,7 @@ PokemonData.Pokemon = {
 		bst = "218",
 		movelvls = { { 4, 8, 13 }, { 4, 8, 13, 17 } },
 		weight = 3.0,
-		friendshipBase = 140 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		friendshipBase = 140
 	},
 	{
 		name = "Igglybuff",
@@ -1805,8 +1805,7 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "210",
 		movelvls = { { 4, 9, 14 }, { 4, 9, 14 } },
-		weight = 1.0,
-		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		weight = 1.0
 	},
 	{
 		name = "Togepi",
@@ -1814,8 +1813,7 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "245",
 		movelvls = { { 6, 11, 16, 21, 26, 31, 36, 41 }, { 4, 9, 13, 17, 21, 25, 29, 33, 37, 41 } },
-		weight = 1.5,
-		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		weight = 1.5
 	},
 	{
 		name = "Togetic",
@@ -3215,8 +3213,7 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "190",
 		movelvls = { { 3, 6, 10, 15, 21 }, { 3, 6, 10, 15, 21 } },
-		weight = 2.0,
-		friendshipBase = 70 -- setting important default base friendships for Friend tracking -Tainted_Wolf
+		weight = 2.0
 	},
 	{
 		name = "Spoink",
