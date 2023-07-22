@@ -161,7 +161,7 @@ function PokemonData.initialize()
 					pokemonData.abilities = abilities
 				end
 			end
-			if Pokemondata.IsRand.pokemonFriendship then
+			if PokemonData.IsRand.pokemonFriendship then
 				local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
 				if friendshipBase ~= 0 then
 					pokemonData.friendshipBase = friendshipBase
@@ -277,7 +277,7 @@ function PokemonData.checkIfDataIsRandomized()
 	if abilities ~= nil then
 		areAbilitiesRandomized = abilities[1] ~= 65 or abilities[2] ~= 65 -- 65 = Overgrow
 	end
-	if friendshipBase ~= nil then
+	if friendshipBase ~= 0 then
 		areBaseFriendshipsModified = friendshipBase ~= 70  -- Bulbasaur's base friendship is 70
 	end
 
@@ -293,8 +293,8 @@ function PokemonData.checkIfDataIsRandomized()
 		if abilities ~= nil and (abilities[1] ~= 11 or abilities[2] ~= 75) then -- 11 = Water Absorb, 75 = Shell Armor
 			areAbilitiesRandomized = true
 		end
-		if friendshipBase ~= nil then
-			areBaseFriendshipsModified = friendshipBase ~= 70  -- Lapras' base friendship is 70
+		if friendshipBase ~= 0 and (friendshipBase ~= 70) then -- Lapras' base friendship is 70
+			areBaseFriendshipsModified = true  
 		end
 	end
 	
