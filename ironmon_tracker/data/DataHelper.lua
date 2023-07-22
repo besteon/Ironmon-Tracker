@@ -675,15 +675,21 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 			helditem = partyMon.helditem,
 		}
 
+		local pokemonLog = RandomizerLog.Data.Pokemon[partyMon.pokemonID]
+		local pokemonTypes = {
+			pokemonLog.Types[1],
+			pokemonLog.Types[2],
+		}
+
 		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
 		if RandomizerLog.areLanguagesMismatched() then
 			pokemonInfo.name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
 		else
-			pokemonInfo.name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+			pokemonInfo.name = pokemonLog.Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
 		end
 
 		local movesLeftToAdd = 4
-		local pokemonMoves = RandomizerLog.Data.Pokemon[partyMon.pokemonID].MoveSet or {}
+		local pokemonMoves = pokemonLog.MoveSet or {}
 		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
 		for j = #pokemonMoves, 1, -1 do
 			if pokemonMoves[j].level <= partyMon.level then
@@ -693,8 +699,10 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 				local moveDex = MoveData.Moves[pokemonMoves[j].moveId]
 				if moveDex ~= nil then
 					moveToAdd.name = moveDex.name
+					moveToAdd.isstab = Utils.isSTAB(moveDex, moveDex.type, pokemonTypes)
 				else
 					moveToAdd.name = pokemonMoves[j].name or Constants.BLANKLINE
+					moveToAdd.isstab = false
 				end
 				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
 				movesLeftToAdd = movesLeftToAdd - 1

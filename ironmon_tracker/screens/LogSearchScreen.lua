@@ -413,7 +413,7 @@ function LogSearchScreen.clearSearch()
 end
 
 function LogSearchScreen.updateSearch()
-	LogOverlay.realignPokemonGrid( LogSearchScreen.searchText, LogSearchScreen.currentSortOrder.sortFunc)
+	LogOverlay.realignPokemonGrid(LogSearchScreen.searchText, LogSearchScreen.currentSortOrder.sortFunc)
 	LogOverlay.refreshInnerButtons()
 	Program.redraw(true)
 end

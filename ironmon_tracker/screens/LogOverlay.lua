@@ -1429,6 +1429,16 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			pageVisible = math.ceil(i / LogOverlay.PokemonMovesPagination.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.currentTab == self.tab and LogOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
+			updateSelf = function(self)
+				-- Highlight moves that are found by the search
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move and LogSearchScreen.searchText ~= "" then
+					if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
+						self.textColor = "Intermediate text"
+					else
+						self.textColor = moveColor
+					end
+				end
+			end,
 			draw = function (self, shadowcolor)
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
@@ -1609,14 +1619,25 @@ function LogOverlay.buildTrainerZoomButtons(data)
 		local moveOffsetX = startX + offsetX + 30
 		local moveOffsetY = startY + offsetY
 		for _, moveInfo in ipairs(partyPokemon.moves or {}) do
+			local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", "Lower box text")
 			local moveBtn = {
 				type = Constants.ButtonTypes.NO_BORDER,
 				getText = function(self) return moveInfo.name end,
-				textColor = "Lower box text",
+				textColor = moveColor,
 				moveId = moveInfo.moveId,
 				tab = LogOverlay.Tabs.TRAINER_ZOOM,
 				box = { moveOffsetX, moveOffsetY, 60, 11 },
 				isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+				updateSelf = function(self)
+					-- Highlight moves that are found by the search
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move and LogSearchScreen.searchText ~= "" then
+						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
+							self.textColor = "Intermediate text"
+						else
+							self.textColor = moveColor
+						end
+					end
+				end,
 				onClick = function(self)
 					if MoveData.isValid(self.moveId) then
 						InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
