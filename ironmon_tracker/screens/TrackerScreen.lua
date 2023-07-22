@@ -489,6 +489,14 @@ function TrackerScreen.buildCarousel()
 			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
+			local ratioText
+			-- For randomizer settings that have more Pokemon in a route than normal
+			if totalSeen > totalPossible then
+				ratioText = tostring(totalSeen)
+			else
+				ratioText = string.format("%s/%s", totalSeen, totalPossible)
+			end
+
 			local encounterAreaLabels = {
 				[RouteData.EncounterArea.LAND] = Resources.TrackerScreen.EncounterWalking,
 				[RouteData.EncounterArea.SURFING] = Resources.TrackerScreen.EncounterSurfing,
@@ -501,7 +509,7 @@ function TrackerScreen.buildCarousel()
 			}
 
 			local encounterAreaText = encounterAreaLabels[Battle.CurrentRoute.encounterArea]
-			local routeSummaryText = string.format("%s: %s/%s %s", encounterAreaText, totalSeen, totalPossible, Resources.TrackerScreen.EncounterSeenPokemon)
+			local routeSummaryText = string.format("%s: %s %s", encounterAreaText, ratioText, Resources.TrackerScreen.EncounterSeenPokemon)
 			TrackerScreen.Buttons.RouteSummary.updatedText = routeSummaryText
 
 			if Main.IsOnBizhawk() then
@@ -697,13 +705,20 @@ function TrackerScreen.drawScreen()
 
 	local displayData = DataHelper.buildTrackerScreenDisplay()
 
+	-- Upper boxes
 	if TrackerScreen.canShowBallPicker() then
 		TrackerScreen.drawBallPicker()
 	else
 		TrackerScreen.drawPokemonInfoArea(displayData)
 	end
 	TrackerScreen.drawStatsArea(displayData)
-	TrackerScreen.drawMovesArea(displayData)
+
+	-- Lower boxes
+	if Tracker.getPokemon(1, true) == nil and Options["Show on new game screen"] then -- show favorites
+		TrackerScreen.drawFavorites()
+	else
+		TrackerScreen.drawMovesArea(displayData)
+	end
 	TrackerScreen.drawCarouselArea(displayData)
 end
 
@@ -1135,4 +1150,35 @@ function TrackerScreen.drawBallPicker()
 	local chosenBallText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 8, 57, randomBallText, Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 4 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
+end
+
+function TrackerScreen.drawFavorites()
+	-- Draw header
+	gui.defaultTextBackground(Theme.COLORS["Main background"])
+	local headerX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local headerY = Constants.SCREEN.MARGIN + 76
+	local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(headerX, headerY, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+
+	-- Draw lower box & favorites
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local boxY = 92
+	local width = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local height = 46
+	gui.drawRectangle(boxX, boxY, width, height, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+
+	local favoritesButtons = {
+		StartupScreen.Buttons.PokemonFavorite1,
+		StartupScreen.Buttons.PokemonFavorite2,
+		StartupScreen.Buttons.PokemonFavorite3,
+	}
+	-- Temporarily adjust the button's vertical location
+	local shiftY = 8
+	for _, button in ipairs(favoritesButtons) do
+		local prevY = button.box[2]
+		button.box[2] = button.box[2] + shiftY
+		Drawing.drawButton(button)
+		button.box[2] = prevY
+	end
 end

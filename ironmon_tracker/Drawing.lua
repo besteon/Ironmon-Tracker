@@ -298,9 +298,8 @@ function Drawing.drawButton(button, shadowcolor)
 			gui.drawImage(button.image, x, y)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
-		local offsetY = -1 * math.floor((height - Constants.Font.SIZE) / 2)
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
-		Drawing.drawText(x + width + 1, y + offsetY, text, Theme.COLORS[textColor], shadowcolor)
+		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local imagePath = button:getIconPath()
 		if imagePath ~= nil then

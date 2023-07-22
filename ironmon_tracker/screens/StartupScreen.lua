@@ -20,16 +20,17 @@ StartupScreen.Buttons = {
 	},
 	UpdateAvailable = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Utils.inlineIf(Main.isOnLatestVersion(), "", "*") end,
+		getText = function(self) return Utils.inlineIf(self.newVersionAvailable, "*", "") end,
 		textColor = "Positive text",
+		newVersionAvailable = false,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 12, 30, 10 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 74, Constants.SCREEN.MARGIN + 12, 10, 10 },
-		isVisible = function(self) return self.text == "*" end, -- check on text instead of Main.isOnLatestVersion() again
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 12, 10, 10 },
+		isVisible = function(self) return self.newVersionAvailable end,
 		updateSelf = function(self)
-			if not Main.isOnLatestVersion() then
-				if string.len(Main.TrackerVersion or "") > 5 then
-					self.box[1] = self.box[1] + 4
-				end
+			self.newVersionAvailable = not Main.isOnLatestVersion()
+			if self.newVersionAvailable then
+				local offsetX = Utils.calcWordPixelLength(Main.TrackerVersion .. " ")
+				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + offsetX
 			end
 		end,
 		onClick = function(self) Program.changeScreenView(UpdateScreen) end
@@ -39,17 +40,6 @@ StartupScreen.Buttons = {
 		getText = function(self) return tostring(Main.currentSeed) or Constants.BLANKLINE end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
 		isVisible = function() return Main.currentSeed > 1 end,
-		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
-	},
-	AttemptsEdit = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NOTEPAD,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 10, 10 },
-		isVisible = function() return false and Main.currentSeed > 1 end, -- Removing this for now, Streamer Tools exists
-		updateSelf = function(self)
-			local txtLength = string.len(StartupScreen.Buttons.AttemptsCount:getText() or "") + 1
-			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + (txtLength * 5) -- 5 pixels per digit
-		end,
 		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
 	},
 	NotesAreaEdit = {
@@ -117,10 +107,9 @@ function StartupScreen.initialize()
 		if button.boxColors == nil then
 			button.boxColors = { "Upper box border", "Upper box background" }
 		end
-		if button.updateSelf ~= nil then
-			button:updateSelf()
-		end
 	end
+
+	StartupScreen.refreshButtons()
 
 	-- Output to console the Tracker data load status to help with troubleshooting
 	if Tracker.LoadStatus ~= nil then
@@ -272,7 +261,6 @@ function StartupScreen.drawScreen()
 
 	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Version .. ":", topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
-	-- Drawing.drawButton(StartupScreen.Buttons.UpdateAvailable, topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Game .. ":", topBox.text, topBox.shadow)
@@ -281,8 +269,6 @@ function StartupScreen.drawScreen()
 
 	if StartupScreen.Buttons.AttemptsCount.isVisible() then
 		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Attempts .. ":", topBox.text, topBox.shadow)
-		-- Drawing.drawButton(StartupScreen.Buttons.AttemptsEdit, topBox.shadow)
-		-- Drawing.drawButton(StartupScreen.Buttons.AttemptsCount, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing
 
