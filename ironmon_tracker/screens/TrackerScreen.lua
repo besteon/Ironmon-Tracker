@@ -489,6 +489,14 @@ function TrackerScreen.buildCarousel()
 			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
+			local ratioText
+			-- For randomizer settings that have more Pokemon in a route than normal
+			if totalSeen > totalPossible then
+				ratioText = tostring(totalSeen)
+			else
+				ratioText = string.format("%s/%s", totalSeen, totalPossible)
+			end
+
 			local encounterAreaLabels = {
 				[RouteData.EncounterArea.LAND] = Resources.TrackerScreen.EncounterWalking,
 				[RouteData.EncounterArea.SURFING] = Resources.TrackerScreen.EncounterSurfing,
@@ -501,7 +509,7 @@ function TrackerScreen.buildCarousel()
 			}
 
 			local encounterAreaText = encounterAreaLabels[Battle.CurrentRoute.encounterArea]
-			local routeSummaryText = string.format("%s: %s/%s %s", encounterAreaText, totalSeen, totalPossible, Resources.TrackerScreen.EncounterSeenPokemon)
+			local routeSummaryText = string.format("%s: %s %s", encounterAreaText, ratioText, Resources.TrackerScreen.EncounterSeenPokemon)
 			TrackerScreen.Buttons.RouteSummary.updatedText = routeSummaryText
 
 			if Main.IsOnBizhawk() then
