@@ -802,15 +802,14 @@ function TrackerScreen.drawPokemonInfoArea(data)
 				end
 			else
 				evoTextColor = Theme.COLORS["Default text"]
-			end			
-			-- Highlight letters for friendship evo to show % of progress
-			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then 
-				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase) -- Read in friendship level from the pokemon and get ratio
-				local evoTypeStringLength = string.len(abbreviationText)
-				local numberLettersToHighlight =  math.floor(string.len(abbreviationText) * percentFill)
-				local highlightedString = abbreviationText:sub(1, numberLettersToHighlight)
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedString, Theme.COLORS["Positive text"], shadowcolor) --show percent of friendship
-			else 
+			end
+			-- Highlight some % of the evo text based on progress towards friendship requirement
+			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
+				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase)
+				local numHighlightedChars = math.floor(abbreviationText:len() * percentFill)
+				local highlightedEvo = abbreviationText:sub(1, numHighlightedChars)
+				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
+			else
 				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 			end
 		end
