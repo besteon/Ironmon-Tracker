@@ -5,6 +5,7 @@ PokemonData = {
 PokemonData.IsRand = {
 	pokemonTypes = false,
 	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
+	pokemonFriendship = false,
 }
 
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
@@ -137,6 +138,8 @@ PokemonData.BlankPokemon = {
 	bst = Constants.BLANKLINE,
 	movelvls = { {}, {} },
 	weight = 0.0,
+	friendship = 0,
+	friendshipBase = 0,
 }
 
 function PokemonData.initialize()
@@ -156,6 +159,12 @@ function PokemonData.initialize()
 				local abilities = PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 				if abilities ~= nil then
 					pokemonData.abilities = abilities
+				end
+			end
+			if PokemonData.IsRand.pokemonFriendship then
+				local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+				if friendshipBase ~= 0 then
+					pokemonData.friendshipBase = friendshipBase
 				end
 			end
 		end
@@ -245,13 +254,22 @@ function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 	}
 end
 
+function PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+	local baseFriendshipData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x12)
+	local friendshipBase = Utils.getbits(baseFriendshipData, 0, 8)
+
+	return friendshipBase
+end
+
 function PokemonData.checkIfDataIsRandomized()
 	local areTypesRandomized = false
 	local areAbilitiesRandomized = false
+	local areBaseFriendshipsModified = false
 
 	-- Check once if any data was randomized
 	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
 	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
+	local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(1) -- Bulbasaur
 
 	if types ~= nil then
 		areTypesRandomized = types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON
@@ -259,11 +277,15 @@ function PokemonData.checkIfDataIsRandomized()
 	if abilities ~= nil then
 		areAbilitiesRandomized = abilities[1] ~= 65 or abilities[2] ~= 65 -- 65 = Overgrow
 	end
+	if friendshipBase ~= 0 then
+		areBaseFriendshipsModified = friendshipBase ~= 70  -- Bulbasaur's base friendship is 70
+	end
 
 	-- Check twice if any data was randomized (Randomizer does *not* force a change)
-	if not areTypesRandomized or not areAbilitiesRandomized then
+	if not areTypesRandomized or not areAbilitiesRandomized or not areBaseFriendshipsModified then
 		types = PokemonData.readPokemonTypesFromMemory(131) -- Lapras
 		abilities = PokemonData.readPokemonAbilitiesFromMemory(131) -- Lapras
+		friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(131) --Lapras
 
 		if types ~= nil and (types[1] ~= PokemonData.Types.WATER or types[2] ~= PokemonData.Types.ICE) then
 			areTypesRandomized = true
@@ -271,14 +293,20 @@ function PokemonData.checkIfDataIsRandomized()
 		if abilities ~= nil and (abilities[1] ~= 11 or abilities[2] ~= 75) then -- 11 = Water Absorb, 75 = Shell Armor
 			areAbilitiesRandomized = true
 		end
+		if friendshipBase ~= 0 and (friendshipBase ~= 70) then -- Lapras' base friendship is 70
+			areBaseFriendshipsModified = true  
+		end
 	end
+	
+	
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
 	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
 	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
+	PokemonData.IsRand.pokemonFriendship = areBaseFriendshipsModified
 
-	return areTypesRandomized or areAbilitiesRandomized
+	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)
@@ -1287,7 +1315,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "450",
 		movelvls = { { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
-		weight = 34.6
+		weight = 34.6,
+		friendshipBase = 140
 	},
 	{
 		name = "Tangela",
@@ -1767,7 +1796,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "218",
 		movelvls = { { 4, 8, 13 }, { 4, 8, 13, 17 } },
-		weight = 3.0
+		weight = 3.0,
+		friendshipBase = 140
 	},
 	{
 		name = "Igglybuff",

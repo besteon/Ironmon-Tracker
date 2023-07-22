@@ -128,6 +128,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
+	data.p.friendship = viewedPokemon.friendship or 70 -- Current friendship value; 70 is default for most Pokémon
+	data.p.friendshipBase = viewedPokemon.friendshipBase or 70 -- The starting friendship value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature
