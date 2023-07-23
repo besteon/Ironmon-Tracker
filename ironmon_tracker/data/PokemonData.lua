@@ -294,11 +294,9 @@ function PokemonData.checkIfDataIsRandomized()
 			areAbilitiesRandomized = true
 		end
 		if friendshipBase ~= 0 and (friendshipBase ~= 70) then -- Lapras' base friendship is 70
-			areBaseFriendshipsModified = true  
+			areBaseFriendshipsModified = true
 		end
 	end
-	
-	
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
 	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
@@ -691,7 +689,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.MOON,
 		bst = "323",
 		movelvls = { { 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = 7.5
+		weight = 7.5,
+		friendshipBase = 140
 	},
 	{
 		name = "Clefable",
@@ -699,7 +698,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "473",
 		movelvls = { {}, {} },
-		weight = 40.0
+		weight = 40.0,
+		friendshipBase = 140
 	},
 	{
 		name = "Vulpix",
@@ -2349,7 +2349,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "540",
 		movelvls = { { 4, 7, 10, 13, 18, 23, 28, 33, 40, 47 }, { 4, 7, 10, 13, 18, 23, 28, 33, 40, 47 } },
-		weight = 46.8
+		weight = 46.8,
+		friendshipBase = 140
 	},
 	{
 		name = "Raikou",
