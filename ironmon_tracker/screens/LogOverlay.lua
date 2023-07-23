@@ -83,16 +83,12 @@ LogOverlay.Windower = {
 		else -- Currently unused
 			table.insert(LogOverlay.TabHistory, prevTab)
 		end
+
 		LogOverlay.refreshTabBar()
 		LogOverlay.refreshInnerButtons()
-		if newTab ~= LogOverlay.Tabs.POKEMON and Program.currentScreen == LogSearchScreen then
-			LogOverlay.displayDefaultPokemonInfo()
-		end
 
-		if newTab == LogOverlay.Tabs.POKEMON and Program.currentScreen ~= LogSearchScreen then
-			Program.changeScreenView(LogSearchScreen)
-			LogSearchScreen.updateSearch()
-		end
+		LogSearchScreen.tryDisplayOrHide()
+		Program.redraw(true)
 	end,
 }
 
@@ -476,8 +472,8 @@ function LogOverlay.buildPagedButtons()
 		if RandomizerLog.Data.Pokemon[id] ~= nil then
 			local button = {
 				type = Constants.ButtonTypes.POKEMON_ICON,
-				pokemonID = id,
-				getPokemonName = function(self)
+				id = id,
+				getText = function(self)
 					-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
 					if RandomizerLog.areLanguagesMismatched() then
 						return PokemonData.Pokemon[id].name or Constants.BLANKLINE
@@ -495,18 +491,18 @@ function LogOverlay.buildPagedButtons()
 					local currentFilter = LogOverlay.Windower.filterGrid
 					if currentFilter == "#" then
 						return true
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Name then
-						if Utils.containsText(self:getPokemonName(), currentFilter, true) then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+						if Utils.containsText(self:getText(), currentFilter, true) then
 							return true
 						end
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Ability then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
 						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[abilityId].name
 							if Utils.containsText(abilityText, currentFilter, true) then
 								return true
 							end
 						end
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move then
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
 						for _, move in pairs(RandomizerLog.Data.Pokemon[id].MoveSet) do
 							local moveText = move.name -- potentially a custom move name
 							if MoveData.isValid(move.moveId) then
@@ -521,16 +517,16 @@ function LogOverlay.buildPagedButtons()
 				end,
 				getIconPath = function(self)
 					local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-					return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+					return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
 				end,
 				onClick = function(self)
-					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
-					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
+					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.id)
+					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 				end,
 				draw = function(self, shadowcolor)
 					-- Draw the name  on top of it, with a background that cuts into the icon
 					gui.drawRectangle(self.box[1], self.box[2] + 1 - 1, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-					Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getPokemonName(), Theme.COLORS[self.textColor], shadowcolor)
+					Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 				end,
 			}
 			table.insert(LogOverlay.PagedButtons.Pokemon, button)
@@ -607,33 +603,48 @@ function LogOverlay.buildPagedButtons()
 	LogOverlay.PagedButtons.Trainers = {}
 	for id, trainerData in pairs(RandomizerLog.Data.Trainers) do
 		local trainerInfo = TrainerData.getTrainerInfo(id)
-		-- TODO: Implement actual name laters when full trainer list is ready
-		-- local customName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
-		local customName = trainerInfo.name
+		local trainerName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
 		local fileInfo = TrainerData.FileInfo[trainerInfo.filename] or { width = 40, height = 40 }
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
 			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInfo.filename, FileManager.Extensions.TRAINER),
-			getText = function(self) return customName end,
-			trainerId = id,
+			getText = function(self) return trainerName end,
+			id = id,
+			customname = trainerData.customname,
 			filename = trainerInfo.filename, -- helpful for sorting later
 			dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
 			group = trainerInfo.group,
 			tab = LogOverlay.Tabs.TRAINER,
 			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				local shouldInclude = LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All or LogOverlay.Windower.filterGrid == self.group
-				local shouldExclude = trainerInfo.name == "Unknown"
 				-- Exclude extra rivals
 				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
-					shouldExclude = true
+					return false
 				end
-				return shouldInclude and not shouldExclude
+
+				if LogSearchScreen.searchText ~= "" then
+					local currentFilter = LogOverlay.Windower.filterGrid
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
+						if Utils.containsText(self:getText(), currentFilter, true) then
+							return true
+						end
+					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerCustomName then
+						if Utils.containsText(self.customname, currentFilter, true) then
+							return true
+						end
+					end
+				elseif LogOverlay.Windower.filterGrid == self.group then
+					return true
+				elseif LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All then
+					return true
+				end
+
+				return false
 			end,
 			onClick = function(self)
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.trainerId)
+				LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.id)
 				Program.redraw(true)
-				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
+				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 			end,
 		}
 
@@ -1431,7 +1442,7 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.currentTab == self.tab and LogOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
 			updateSelf = function(self)
 				-- Highlight moves that are found by the search
-				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move and LogSearchScreen.searchText ~= "" then
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
 					if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 						self.textColor = "Intermediate text"
 					else
@@ -1630,7 +1641,7 @@ function LogOverlay.buildTrainerZoomButtons(data)
 				isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 				updateSelf = function(self)
 					-- Highlight moves that are found by the search
-					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.Move and LogSearchScreen.searchText ~= "" then
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
 						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 							self.textColor = "Intermediate text"
 						else
@@ -2227,7 +2238,12 @@ function LogOverlay.parseAndDisplay(logpath)
 	if LogOverlay.isDisplayed then
 		LogOverlay.buildPagedButtons()
 		LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON)
-		LogOverlay.displayDefaultPokemonInfo()
+		-- If the player has a Pokemon, show it on the side-screen
+		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+		if PokemonData.isValid(leadPokemon.pokemonID) then
+			LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, leadPokemon.pokemonID)
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
+		end
 	end
 
 	return LogOverlay.isDisplayed

@@ -668,6 +668,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	else
 		data.t.name = Utils.firstToUpper(trainer.name) or Constants.BLANKLINE
 	end
+	data.t.customname = trainer.customname or Constants.BLANKLINE
 
 	for _, partyMon in ipairs(trainer.party or {}) do
 		local pokemonInfo = {

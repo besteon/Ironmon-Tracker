@@ -906,9 +906,9 @@ function Utils.getGameStat(statIndex)
 	return math.floor(gameStatValue)
 end
 
--- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
+-- Organizes a list of ordered objects in a row-by-column fashion based on (x,y,w,h) and what page they should display on.
 -- Returns total pages
-function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
+function Utils.gridAlign(orderedList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
 	listVerticallyFirst = (listVerticallyFirst == true)
 	cutoffX = cutoffX or Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 	cutoffY = cutoffY or Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN
@@ -919,7 +919,7 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 	local currentPage = 1
 	local currentPageItems = 0
 
-	for _, button in ipairs(buttonList) do
+	for _, button in ipairs(orderedList) do
 		if button.includeInGrid == nil or button:includeInGrid() then
 			button.dimensions = button.dimensions or {}
 

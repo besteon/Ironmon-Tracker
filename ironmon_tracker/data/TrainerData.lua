@@ -78,7 +78,7 @@ end
 -- Returns a table with trainer info { name, filterGroup, filename, }
 function TrainerData.getTrainerInfo(trainerId)
 	if trainerId == nil or TrainerData.Trainers[trainerId] == nil then
-		local randomIcon = Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
+		local randomIcon = "b" or Utils.inlineIf(math.random(2) == 1, "a", "b") -- For now, random between female and male trainer
 		return {
 			name = "Unknown",
 			group = TrainerData.TrainerGroups.Other,

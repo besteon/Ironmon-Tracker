@@ -51,7 +51,7 @@ RandomizerLog.Sectors = {
 	Trainers = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Trainers Pokemon"),
 		-- Matches: trainer_num, trainername, party
-		NextTrainerPattern = "^#(%d+)%s%((.+)%s*=>.*%s%-%s(.*)",
+		NextTrainerPattern = "^#(%d+)%s%((.+)%s*=>%s*(.+)%)[^%s]*%s%-%s(.*)",
 		-- Matches: partypokemon (pokemon name with held item and level info)
 		PartyPattern = "([^,]+)",
 		-- Matches: pokemon and helditem[optional], level
@@ -406,9 +406,10 @@ function RandomizerLog.parseTrainers(logLines)
 	-- Parse the sector
 	local index = RandomizerLog.Sectors.Trainers.LineNumber
 	while index <= #logLines do
-		local trainer_num, trainername, party = string.match(logLines[index] or "", RandomizerLog.Sectors.Trainers.NextTrainerPattern)
+		local trainer_num, trainername, customname, party = string.match(logLines[index] or "", RandomizerLog.Sectors.Trainers.NextTrainerPattern)
 		trainer_num = tonumber(RandomizerLog.formatInput(trainer_num) or "") -- nil if not a number
 		trainername = RandomizerLog.formatInput(trainername)
+		customname = RandomizerLog.formatInput(customname)
 
 		-- If nothing matches, end of sector
 		if trainer_num == nil or trainername == nil or party == nil then
@@ -417,6 +418,7 @@ function RandomizerLog.parseTrainers(logLines)
 
 		RandomizerLog.Data.Trainers[trainer_num] = {
 			name = trainername, -- likely in the form of TRAINER CLASS + TRAINER NAME
+			customname = customname,
 			party = {},
 		}
 

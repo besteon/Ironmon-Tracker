@@ -517,6 +517,8 @@ ScreenResources{
 		FilterName = "Pokémon Name", -- NEEDS TRANSLATION
 		FilterAbility = "Ability", -- NEEDS TRANSLATION
 		FilterMove = "Levelup Move", -- NEEDS TRANSLATION
+		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
+		FilterTrainerCustomName = "Custom Name", -- NEEDS TRANSLATION
 	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION
