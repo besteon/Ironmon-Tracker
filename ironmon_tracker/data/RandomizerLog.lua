@@ -443,6 +443,9 @@ function RandomizerLog.parseTrainers(logLines)
 				table.insert(RandomizerLog.Data.Trainers[trainer_num].party, partyPokemon)
 			end
 		end
+		if GameSettings.game == 3 and trainer_num <= 88 then -- Exclude dummy trainers from FRLG (exist only in Emerald)
+			RandomizerLog.Data.Trainers[trainer_num] = nil
+		end
 		index = index + 1
 	end
 end

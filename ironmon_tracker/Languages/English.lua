@@ -504,7 +504,7 @@ ScreenResources{
 	LogSearchScreen = {
 		Title = "Search the Log",
 		LabelSortBy = "Sort by",
-		LabelFilter = "Filter",
+		LabelSearch = "Search",
 		SortAlphabetical = "Alphabetical",
 		SortPokedexNum = "Pokédex Number",
 		SortBST = "BST",
@@ -518,7 +518,6 @@ ScreenResources{
 		FilterAbility = "Ability",
 		FilterMove = "Levelup Move",
 		FilterTrainerName = "Trainer Name",
-		FilterTrainerCustomName = "Custom Name",
 	},
 	TeamViewArea = {
 		EggNickname = "EGG",

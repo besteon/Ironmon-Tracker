@@ -41,24 +41,22 @@ LogOverlay.Windower = {
 		self.currentPage = (self.currentPage % self.totalPages) + 1
 		Program.redraw(true)
 	end,
-	changeTab = function(self, newTab, pageNum, totalPages, tabInfoId)
+	changeTab = function(self, newTab, pageNum, totalPages, tabInfoId, filterGrid)
 		local prevTab = {
 			tab = LogOverlay.currentTab,
 			infoId = LogOverlay.currentTabInfoId,
 			page = self.currentPage,
 			totalPages = self.totalPages,
+			filterGrid = self.filterGrid,
 		}
 
 		LogOverlay.currentTab = newTab
 		LogOverlay.currentTabInfoId = tabInfoId or LogOverlay.currentTabInfoId
 		self.currentPage = pageNum or self.currentPage or 1
 		self.totalPages = totalPages or self.totalPages or 1
+		self.filterGrid = filterGrid or self.filterGrid or "#"
 
-		if newTab == LogOverlay.Tabs.POKEMON or newTab == LogOverlay.Tabs.TRAINER or newTab == LogOverlay.Tabs.MISC then
-			LogOverlay.TabHistory = {}
-		elseif newTab == LogOverlay.Tabs.TMS then
-			LogOverlay.TabHistory = {}
-		elseif newTab == LogOverlay.Tabs.POKEMON_ZOOM then
+		if newTab == LogOverlay.Tabs.POKEMON_ZOOM then
 			LogOverlay.currentEvoSet = 1
 			LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(tabInfoId)
 			LogOverlay.buildPokemonZoomButtons(LogOverlay.currentTabData)
@@ -74,20 +72,23 @@ LogOverlay.Windower = {
 		elseif newTab == LogOverlay.Tabs.GO_BACK then
 			prevTab = table.remove(LogOverlay.TabHistory)
 			if prevTab ~= nil then
-				self:changeTab(prevTab.tab, prevTab.page, prevTab.totalPages, prevTab.infoId)
+				self:changeTab(prevTab.tab, prevTab.page, prevTab.totalPages, prevTab.infoId, prevTab.filterGrid)
 			else
 				LogOverlay.realignPokemonGrid()
 				self:changeTab(LogOverlay.Tabs.POKEMON)
 			end
 			return
-		else -- Currently unused
-			table.insert(LogOverlay.TabHistory, prevTab)
 		end
 
 		LogOverlay.refreshTabBar()
 		LogOverlay.refreshInnerButtons()
 
-		LogSearchScreen.tryDisplayOrHide()
+		-- After reloading the search results content, update to show the last viewed page and grid
+		if LogSearchScreen.tryDisplayOrHide() then
+			self.currentPage = pageNum or self.currentPage or 1
+			self.totalPages = totalPages or self.totalPages or 1
+			self.filterGrid = filterGrid or self.filterGrid or "#"
+		end
 		Program.redraw(true)
 	end,
 }
@@ -149,7 +150,9 @@ LogOverlay.TabBarButtons = {
 		onClick = function(self)
 			if LogOverlay.currentTab ~= self.tab then
 				LogOverlay.realignPokemonGrid()
+				LogOverlay.TabHistory = {}
 				LogOverlay.Windower:changeTab(self.tab)
+				LogSearchScreen.resetSortFilterSearch(self.tab)
 				Program.redraw(true)
 			end
 		end,
@@ -178,7 +181,9 @@ LogOverlay.TabBarButtons = {
 		onClick = function(self)
 			if LogOverlay.currentTab ~= self.tab then
 				LogOverlay.realignTrainerGrid()
+				LogOverlay.TabHistory = {}
 				LogOverlay.Windower:changeTab(self.tab)
+				LogSearchScreen.resetSortFilterSearch(self.tab)
 				Program.redraw(true)
 			end
 		end,
@@ -207,7 +212,9 @@ LogOverlay.TabBarButtons = {
 		onClick = function(self)
 			if LogOverlay.currentTab ~= self.tab then
 				LogOverlay.realignTMGrid()
+				LogOverlay.TabHistory = {}
 				LogOverlay.Windower:changeTab(self.tab)
+				LogSearchScreen.resetSortFilterSearch(self.tab)
 				Program.redraw(true)
 			end
 		end,
@@ -235,7 +242,9 @@ LogOverlay.TabBarButtons = {
 		end,
 		onClick = function(self)
 			if LogOverlay.currentTab ~= self.tab then
+				LogOverlay.TabHistory = {}
 				LogOverlay.Windower:changeTab(self.tab, 1, 1)
+				LogSearchScreen.resetSortFilterSearch(self.tab)
 				Program.redraw(true)
 			end
 		end,
@@ -269,9 +278,6 @@ LogOverlay.TabBarButtons = {
 					Program.changeScreenView(TrackerScreen)
 				end
 			else -- Constants.PixelImages.PREVIOUS_BUTTON
-				if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM then
-					Program.changeScreenView(LogSearchScreen)
-				end
 				LogOverlay.Windower:changeTab(LogOverlay.Tabs.GO_BACK)
 				Program.redraw(true)
 			end
@@ -488,17 +494,19 @@ function LogOverlay.buildPagedButtons()
 					return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible
 				end,
 				includeInGrid = function(self)
-					local currentFilter = LogOverlay.Windower.filterGrid
-					if currentFilter == "#" then
+					-- If no search text entered, show all
+					if LogSearchScreen.searchText == "" then
 						return true
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
-						if Utils.containsText(self:getText(), currentFilter, true) then
+					end
+
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+						if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
 							return true
 						end
 					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
 						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[id].Abilities) do
 							local abilityText = AbilityData.Abilities[abilityId].name
-							if Utils.containsText(abilityText, currentFilter, true) then
+							if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
 								return true
 							end
 						end
@@ -508,11 +516,12 @@ function LogOverlay.buildPagedButtons()
 							if MoveData.isValid(move.moveId) then
 								moveText = MoveData.Moves[move.moveId].name
 							end
-							if Utils.containsText(moveText, currentFilter, true) then
+							if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
 								return true
 							end
 						end
 					end
+
 					return false
 				end,
 				getIconPath = function(self)
@@ -534,60 +543,6 @@ function LogOverlay.buildPagedButtons()
 	end
 
 	local navOffsetX = navStartX
-	--[[ 	-- Build Pokemon navigation
-
-	local navFilters = { "#", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "(?)", }
-	for _, navFilter in ipairs(navFilters) do
-		local labelWidth = Utils.calcWordPixelLength(navFilter) + 2 -- +2 to make it a bit wider
-		local jumpBtn = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return navFilter end,
-			textColor = "Default text",
-			tab = LogOverlay.Tabs.POKEMON,
-			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
-			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
-			updateSelf = function(self)
-				if LogOverlay.Windower.filterGrid == navFilter then
-					self.textColor = "Intermediate text"
-				else
-					self.textColor = "Default text"
-				end
-			end,
-			draw = function(self)
-				-- Draw an underline if selected
-				if self.textColor == "Intermediate text" then
-					local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
-					local y1, y2 = self.box[2] + self.box[4] - 1, self.box[2] + self.box[4] - 1
-					gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
-				end
-			end,
-			onClick = function(self)
-				if navFilter == "(?)" then
-					local pokemonId = Utils.randomPokemonID()
-					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, pokemonId)
-					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonId) -- implied redraw
-					return
-				end
-
-				local sortFunc
-				if navFilter == "#" then
-					sortFunc = function(a, b) return a.pokemonID < b.pokemonID end
-				else
-					sortFunc = function(a, b) return a.pokemonName < b.pokemonName end
-				end
-				LogOverlay.realignPokemonGrid(navFilter, sortFunc)
-				LogOverlay.refreshInnerButtons()
-				Program.redraw(true)
-			end,
-		}
-		table.insert(LogOverlay.NavFilterButtons, jumpBtn)
-		navOffsetX = navOffsetX + labelWidth + 1
-		if navFilter == "#" then
-			navOffsetX = navOffsetX + 8
-		elseif navFilter == "Z" then
-			navOffsetX = navOffsetX + 8
-		end
-	end]]
 
 	-- Determine gym TMs for the game, they'll be highlighted
 	local gymTMs = {}
@@ -617,26 +572,47 @@ function LogOverlay.buildPagedButtons()
 			tab = LogOverlay.Tabs.TRAINER,
 			isVisible = function(self) return LogOverlay.currentTab == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				-- Exclude extra rivals
+				-- Always exclude extra rivals
 				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
 					return false
 				end
 
-				if LogSearchScreen.searchText ~= "" then
-					local currentFilter = LogOverlay.Windower.filterGrid
-					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
-						if Utils.containsText(self:getText(), currentFilter, true) then
-							return true
+				-- If no search text entered, check any filter groups
+				if LogSearchScreen.searchText == "" then
+					if LogOverlay.Windower.filterGrid == self.group then
+						return true
+					elseif LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All then
+						return true
+					end
+					return false
+				end
+
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
+					if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
+						return true
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+					for _, partyMon in ipairs(trainerData.party or {}) do
+						local name
+						-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
+						if RandomizerLog.areLanguagesMismatched() then
+							name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
+						else
+							name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
 						end
-					elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerCustomName then
-						if Utils.containsText(self.customname, currentFilter, true) then
+						if Utils.containsText(name, LogSearchScreen.searchText, true) then
 							return true
 						end
 					end
-				elseif LogOverlay.Windower.filterGrid == self.group then
-					return true
-				elseif LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All then
-					return true
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
+					for _, partyMon in ipairs(trainerData.party or {}) do
+						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
+							local abilityText = AbilityData.Abilities[abilityId].name
+							if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
+								return true
+							end
+						end
+					end
 				end
 
 				return false
@@ -676,7 +652,9 @@ function LogOverlay.buildPagedButtons()
 			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 			updateSelf = function(self)
-				if LogOverlay.Windower.filterGrid == navFilter.group then
+				if navFilter.group == TrainerData.TrainerGroups.All and LogSearchScreen.searchText ~= "" then
+					self.textColor = "Intermediate text"
+				elseif navFilter.group == LogOverlay.Windower.filterGrid and LogSearchScreen.searchText == "" then
 					self.textColor = "Intermediate text"
 				else
 					self.textColor = "Default text"
@@ -698,6 +676,7 @@ function LogOverlay.buildPagedButtons()
 					-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
 					return
 				end
+				LogSearchScreen.clearSearch()
 				LogOverlay.realignTrainerGrid(navFilter.group, navFilter.sortFunc)
 				LogOverlay.refreshInnerButtons()
 				Program.redraw(true)
@@ -764,7 +743,7 @@ function LogOverlay.buildPagedButtons()
 			box = { LogOverlay.margin + navOffsetX, navStartY, labelWidth, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 			updateSelf = function(self)
-				if LogOverlay.Windower.filterGrid == navFilter.group then
+				if LogOverlay.Windower.filterGrid == navFilter.group and LogSearchScreen.searchText == "" then
 					self.textColor = "Intermediate text"
 				else
 					self.textColor = "Default text"
@@ -820,7 +799,7 @@ end
 function LogOverlay.realignTrainerGrid(gridFilter, sortFunc)
 	-- Default grid to Gym Leaders
 	gridFilter = gridFilter or TrainerData.TrainerGroups.Gym
-	sortFunc = sortFunc or (function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end)
+	sortFunc = sortFunc or LogOverlay.NavFilters.Trainers[1].sortFunc --(function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end)
 
 	LogOverlay.Windower.filterGrid = gridFilter
 
@@ -1441,12 +1420,11 @@ function LogOverlay.buildPokemonZoomButtons(data)
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == LogOverlay.Tabs.POKEMON_ZOOM and LogOverlay.PokemonMovesPagination.currentTab == self.tab and LogOverlay.PokemonMovesPagination.currentPage == self.pageVisible end,
 			updateSelf = function(self)
+				self.textColor = moveColor
 				-- Highlight moves that are found by the search
 				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
 					if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 						self.textColor = "Intermediate text"
-					else
-						self.textColor = moveColor
 					end
 				end
 			end,
@@ -1587,6 +1565,15 @@ function LogOverlay.buildTrainerZoomButtons(data)
 			tab = LogOverlay.Tabs.TRAINER_ZOOM,
 			box = { partyListX, partyListY, 60, 11 },
 			isVisible = function(self) return LogOverlay.currentTab == self.tab end,
+			updateSelf = function(self)
+				self.textColor = "Lower box text"
+				-- Highlight moves that are found by the search
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName and LogSearchScreen.searchText ~= "" then
+					if Utils.containsText(partyPokemon.name, LogSearchScreen.searchText, true) then
+						self.textColor = "Intermediate text"
+					end
+				end
+			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
 					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
@@ -1640,12 +1627,11 @@ function LogOverlay.buildTrainerZoomButtons(data)
 				box = { moveOffsetX, moveOffsetY, 60, 11 },
 				isVisible = function(self) return LogOverlay.currentTab == self.tab end,
 				updateSelf = function(self)
+					self.textColor = moveColor
 					-- Highlight moves that are found by the search
 					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
 						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 							self.textColor = "Intermediate text"
-						else
-							self.textColor = moveColor
 						end
 					end
 				end,
@@ -2237,6 +2223,7 @@ function LogOverlay.parseAndDisplay(logpath)
 
 	if LogOverlay.isDisplayed then
 		LogOverlay.buildPagedButtons()
+		LogOverlay.TabHistory = {}
 		LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON)
 		-- If the player has a Pokemon, show it on the side-screen
 		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()

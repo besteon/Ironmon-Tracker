@@ -112,30 +112,25 @@ LogSearchScreen.SortBy = {
 }
 
 LogSearchScreen.FilterBy = {
-	PokemonName = {
-		getText = function() return Resources.LogSearchScreen.FilterName end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 1,
-	},
-	PokemonAbility = {
-		getText = function() return Resources.LogSearchScreen.FilterAbility end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 2,
-	},
-	PokemonMove = {
-		getText = function() return Resources.LogSearchScreen.FilterMove end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 3,
-	},
 	TrainerName = {
 		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
 		contexts = { [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 10,
+		orderedIndex = 1,
 	},
-	TrainerCustomName = {
-		getText = function() return Resources.LogSearchScreen.FilterTrainerCustomName end,
-		contexts = { [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 11,
+	PokemonName = {
+		getText = function() return Resources.LogSearchScreen.FilterName end,
+		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
+		orderedIndex = 2,
+	},
+	PokemonAbility = {
+		getText = function() return Resources.LogSearchScreen.FilterAbility end,
+		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
+		orderedIndex = 3,
+	},
+	PokemonMove = {
+		getText = function() return Resources.LogSearchScreen.FilterMove end,
+		contexts = { [LogOverlay.Tabs.POKEMON] = true, }, -- [LogOverlay.Tabs.TRAINER] = true, requires rework to store all built out data
+		orderedIndex = 4,
 	},
 }
 
@@ -304,7 +299,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 	}
 
 	local dropdownBox = {
-		x = topBox.x + 35,
+		x = topBox.x + 40,
 		y = topBox.y + LSS.padding + 1,
 		width = 90,
 		height = 13,
@@ -398,7 +393,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 	}
 
 	local dropdownBox = {
-		x = topBox.x + 35,
+		x = topBox.x + 40,
 		y = LSS.Buttons.SearchTextField.box[2] - Constants.SCREEN.LINESPACING - LSS.padding * 2 - 1,
 		width = 90,
 		height = 13,
@@ -484,18 +479,15 @@ function LogSearchScreen.clearSearch()
 end
 
 function LogSearchScreen.updateSearchResults()
-	local filter, sort
+	local sort -- Leave nil to use default sort if no search text provided
 	if LogSearchScreen.searchText ~= "" then
-		filter = LogSearchScreen.searchText
 		sort = LogSearchScreen.currentSortOrder.sortFunc
 	end
-	-- local filter = LogSearchScreen.searchText
-	-- local sort = LogSearchScreen.currentSortOrder.sortFunc
 
 	if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON then
-		LogOverlay.realignPokemonGrid(filter, sort)
+		LogOverlay.realignPokemonGrid(LogOverlay.Windower.filterGrid, sort)
 	elseif LogOverlay.currentTab == LogOverlay.Tabs.TRAINER then
-		LogOverlay.realignTrainerGrid(filter, sort)
+		LogOverlay.realignTrainerGrid(LogOverlay.Windower.filterGrid, sort)
 	elseif LogOverlay.currentTab == LogOverlay.Tabs.TMS then
 		-- LogOverlay.realignTMGrid(filter, sort)
 	end
@@ -506,7 +498,6 @@ function LogSearchScreen.tryDisplayOrHide()
 	local allowedTabViews = {
 		[LogOverlay.Tabs.POKEMON] = true,
 		[LogOverlay.Tabs.TRAINER] = true,
-		[LogOverlay.Tabs.TMS] = true,
 	}
 
 	-- Check if it's contextually correct to show the search screen; otherwise, hide the search screen
@@ -516,10 +507,29 @@ function LogSearchScreen.tryDisplayOrHide()
 		if Program.currentScreen ~= LogSearchScreen then
 			Program.changeScreenView(LogSearchScreen)
 		end
-	elseif Program.currentScreen == LogSearchScreen then
+		return true
+	end
+
+	if Program.currentScreen == LogSearchScreen then
 		-- For any other tab, show Bulbasaur by default (prevents search box from appearing)
 		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1)
 	end
+	return false
+end
+
+-- Resets the sort by and filters based on the tab being viewed, also clears the search text
+function LogSearchScreen.resetSortFilterSearch(tab)
+	if tab == LogOverlay.Tabs.POKEMON then
+		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
+		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.PokemonName
+	elseif tab == LogOverlay.Tabs.TRAINER then
+		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
+		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.TrainerName
+	end
+	LogSearchScreen.sortDropDownOpen = false
+	LogSearchScreen.filterDropDownOpen = false
+	LogSearchScreen.clearSearch()
+	LogSearchScreen.updateSearchResults()
 end
 
 --- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.KeyboardButtons
@@ -700,7 +710,7 @@ function LogSearchScreen.drawScreen()
 	-- Draw sort and filter labels
 	local sortByText = Resources.LogSearchScreen.LabelSortBy .. ":"
 	Drawing.drawText(topBox.x + 3, LSS.Buttons.SortBySelected.box[2] + 1, sortByText, topBox.text, topBox.shadow)
-	local filterByText = Resources.LogSearchScreen.LabelFilter .. ":"
+	local filterByText = Resources.LogSearchScreen.LabelSearch .. ":"
 	Drawing.drawText(topBox.x + 3, LSS.Buttons.FilterBySelected.box[2] + 1, filterByText, topBox.text, topBox.shadow)
 
 	-- Draw bottom border box for keyboard
