@@ -29,7 +29,7 @@ LogSearchScreen.SortBy = {
 			return name1 < name2 or (name1 == name2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 1,
+		index = 1,
 	},
 	PokedexNum = {
 		getText = function() return Resources.LogSearchScreen.SortPokedexNum end,
@@ -37,7 +37,7 @@ LogSearchScreen.SortBy = {
 			return a.id < b.id
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 2,
+		index = 2,
 	},
 	BST = {
 		getText = function() return Resources.LogSearchScreen.SortBST end,
@@ -46,7 +46,7 @@ LogSearchScreen.SortBy = {
 				(PokemonData.Pokemon[a.id].bst == PokemonData.Pokemon[b.id].bst and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 3,
+		index = 3,
 	},
 	HP = {
 		getText = function() return Resources.LogSearchScreen.SortHP end,
@@ -56,7 +56,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 4,
+		index = 4,
 	},
 	ATK = {
 		getText = function() return Resources.LogSearchScreen.SortATK end,
@@ -66,7 +66,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 5,
+		index = 5,
 	},
 	DEF = {
 		getText = function() return Resources.LogSearchScreen.SortDEF end,
@@ -76,7 +76,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 6,
+		index = 6,
 	},
 	SPA = {
 		getText = function() return Resources.LogSearchScreen.SortSPA end,
@@ -86,7 +86,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 7,
+		index = 7,
 	},
 	SPD = {
 		getText = function() return Resources.LogSearchScreen.SortSPD end,
@@ -96,7 +96,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 8,
+		index = 8,
 
 	},
 	SPE = {
@@ -107,7 +107,7 @@ LogSearchScreen.SortBy = {
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
-		orderedIndex = 9,
+		index = 9,
 	},
 }
 
@@ -115,22 +115,22 @@ LogSearchScreen.FilterBy = {
 	TrainerName = {
 		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
 		contexts = { [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 1,
+		index = 1,
 	},
 	PokemonName = {
 		getText = function() return Resources.LogSearchScreen.FilterName end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 2,
+		index = 2,
 	},
 	PokemonAbility = {
 		getText = function() return Resources.LogSearchScreen.FilterAbility end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
-		orderedIndex = 3,
+		index = 3,
 	},
 	PokemonMove = {
 		getText = function() return Resources.LogSearchScreen.FilterMove end,
 		contexts = { [LogOverlay.Tabs.POKEMON] = true, }, -- [LogOverlay.Tabs.TRAINER] = true, requires rework to store all built out data
-		orderedIndex = 4,
+		index = 4,
 	},
 }
 
@@ -336,15 +336,8 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 	}
 
 	-- Rest of the buttons are hidden until the dropdown is opened
-	local orderedSortBys = {}
-	for _, sortby in pairs(LSS.SortBy) do
-		if sortby.contexts[LogOverlay.currentTab] then
-			table.insert(orderedSortBys, sortby)
-		end
-	end
-	table.sort(orderedSortBys, function(a, b) return a.orderedIndex < b.orderedIndex end)
-
 	LSS.DropdownButtonsSortBy = {}
+	local orderedSortBys = Utils.getSortedList(LSS.SortBy)
 	for _, sortby in ipairs(orderedSortBys) do
 		local sortbyButton = {
 			type = Constants.ButtonTypes.FULL_BORDER,
@@ -430,15 +423,8 @@ function LogSearchScreen.createUpdateFilterDropdown()
 	}
 
 	-- Rest of the buttons are hidden until the dropdown is opened
-	local orderedFilters = {}
-	for _, filter in pairs(LSS.FilterBy) do
-		if filter.contexts[LogOverlay.currentTab] then
-			table.insert(orderedFilters, filter)
-		end
-	end
-	table.sort(orderedFilters, function(a, b) return a.orderedIndex < b.orderedIndex end)
-
 	LSS.DropdownButtonsFilterBy = {}
+	local orderedFilters = Utils.getSortedList(LSS.FilterBy)
 	for _, filter in ipairs(orderedFilters) do
 		local filterButton = {
 			type = Constants.ButtonTypes.FULL_BORDER,
@@ -485,15 +471,15 @@ function LogSearchScreen.updateSearchResults()
 	end
 
 	if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON then
-		LogOverlay.realignPokemonGrid(LogOverlay.Windower.filterGrid, sort)
+		LogTabPokemon.realignGrid(LogOverlay.Windower.filterGrid, sort)
 	elseif LogOverlay.currentTab == LogOverlay.Tabs.TRAINER then
-		LogOverlay.realignTrainerGrid(LogOverlay.Windower.filterGrid, sort)
+		LogTabTrainers.realignGrid(LogOverlay.Windower.filterGrid, sort)
 	elseif LogOverlay.currentTab == LogOverlay.Tabs.TMS then
-		-- LogOverlay.realignTMGrid(filter, sort)
+		-- LogTabTMs.realignGrid(LogOverlay.Windower.filterGrid, sort)
 	end
-	LogOverlay.refreshInnerButtons()
 end
 
+-- Checks if it's contextually correct to show search screen; returns true if so, false otherwise
 function LogSearchScreen.tryDisplayOrHide()
 	local allowedTabViews = {
 		[LogOverlay.Tabs.POKEMON] = true,

@@ -125,6 +125,10 @@ FileManager.LuaCode = {
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
 	{ name = "CrashRecoveryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CrashRecoveryScreen.lua"},
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
+	{ name = "LogTabPokemon", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemon.lua", },
+	{ name = "LogTabTrainers", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainers.lua", },
+	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
+	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
 	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
 	-- Miscellaneous files

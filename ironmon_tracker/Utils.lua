@@ -906,6 +906,19 @@ function Utils.getGameStat(statIndex)
 	return math.floor(gameStatValue)
 end
 
+-- Returns a new list, sorted by their indexKey number (default: 'index' attribute)
+function Utils.getSortedList(unorderedList, indexKey)
+	indexKey = indexKey or "index"
+	local list = {}
+	for _, v in pairs(unorderedList) do
+		if type(v[indexKey]) == "number" then
+			table.insert(list, v)
+		end
+	end
+	table.sort(list, function(a, b) return a[indexKey] < b[indexKey] end)
+	return list
+end
+
 -- Organizes a list of ordered objects in a row-by-column fashion based on (x,y,w,h) and what page they should display on.
 -- Returns total pages
 function Utils.gridAlign(orderedList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
