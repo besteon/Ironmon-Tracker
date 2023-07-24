@@ -126,6 +126,7 @@ FileManager.LuaCode = {
 	{ name = "CrashRecoveryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CrashRecoveryScreen.lua"},
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
 	{ name = "LogTabPokemon", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemon.lua", },
+	{ name = "LogTabPokemonDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemonDetails.lua", },
 	{ name = "LogTabTrainers", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainers.lua", },
 	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
