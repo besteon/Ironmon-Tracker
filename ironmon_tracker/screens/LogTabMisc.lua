@@ -1,5 +1,5 @@
 LogTabMisc = {
-	TitleResourceKey = "HeaderTabTrainers", -- Usage: Resources.LogOverlay[TitleResourceKey]
+	TitleResourceKey = "HeaderTabMisc", -- Usage: Resources.LogOverlay[TitleResourceKey]
 	Colors = {
 		text = "Default text",
 		border = "Upper box border",
@@ -10,12 +10,31 @@ LogTabMisc = {
 
 local columnOffsetX = 100
 LogTabMisc.Buttons = {
+	PreEvoSettingButton = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Show Pre Evolutions",
+		getText = function(self) return Resources.LogOverlay.CheckboxShowPreEvolutions end,
+		clickableArea = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 4, 90, 10, },
+		box = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 4, 8, 8, },
+		toggleState = Options["Show Pre Evolutions"],
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
+	},
+	ShareRandomizer = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.LogOverlay.ButtonShareSeed end,
+		box = { Constants.SCREEN.WIDTH - LogOverlay.TabBox.x - 56, LogOverlay.TabBox.y + 4, 52, 11 },
+		onClick = function(self) LogTabMisc.openRandomizerShareWindow() end,
+	},
 	PokemonGame = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.LogOverlay.LabelPokemonGame .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Game or Constants.BLANKLINE end,
 		index = 1,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 3, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 17, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -25,7 +44,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomizerVersion .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Version or Constants.BLANKLINE end,
 		index = 2,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 17, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 30, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -35,7 +54,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomSeed .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE end,
 		index = 3,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 31, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 43, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -45,7 +64,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelSettingsString .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE end,
 		index = 4,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 45, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 56, 100, 11 },
 		draw = function(self, shadowcolor)
 			local settingsString = self:getValue()
 			local offsetY = self.box[2] + Constants.SCREEN.LINESPACING
@@ -57,25 +76,6 @@ LogTabMisc.Buttons = {
 				Drawing.drawText(self.box[1] + 8, offsetY, settingsSegment, Theme.COLORS[self.textColor], shadowcolor)
 				offsetY = offsetY + Constants.SCREEN.LINESPACING
 			end
-		end,
-	},
-	ShareRandomizer = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return Resources.LogOverlay.ButtonShareSeed end,
-		box = { Constants.SCREEN.WIDTH - LogOverlay.TabBox.x - 55, LogOverlay.TabBox.y + 16, 50, 11 },
-		onClick = function(self) LogTabMisc.openRandomizerShareWindow() end,
-	},
-	PreEvoSettingButton = {
-		type = Constants.ButtonTypes.CHECKBOX,
-		optionKey = "Show Pre Evolutions",
-		getText = function(self) return Resources.LogOverlay.CheckboxShowPreEvolutions end,
-		clickableArea = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 108, 100, Constants.Font.SIZE, },
-		box = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 108, Constants.Font.SIZE - 1, Constants.Font.SIZE - 1, },
-		toggleState = Options["Show Pre Evolutions"],
-		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
-		onClick = function(self)
-			self.toggleState = Options.toggleSetting(self.optionKey)
-			Program.redraw(true)
 		end,
 	},
 }

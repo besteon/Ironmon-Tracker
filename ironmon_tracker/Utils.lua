@@ -122,9 +122,14 @@ function Utils.centerTextOffset(text, charSize, width)
 end
 
 function Utils.calcWordPixelLength(text)
-	if text == nil or #text == 0 or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	local pattern = "."
+	if Main.supportsSpecialChars then
+		---@diagnostic disable-next-line: undefined-global
+		pattern = utf8.charpattern
+	end
 	local totalLength = 0
-	for c in text:gmatch("(.)") do
+	for c in text:gmatch(pattern) do
 		totalLength = totalLength + Constants.charWidth(c) + 1
 	end
 	return totalLength - 1 -- remove trailing space-pixel

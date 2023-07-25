@@ -107,96 +107,33 @@ LogOverlay.Windower = {
 
 local pagerOffsetX = 151
 LogOverlay.HeaderButtons = {
-	PokemonTab = {
+	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.LogOverlay.HeaderTabPokemon end,
-		isSelected = false,
-		box = { LogOverlay.margin + 1, 0, 41, 11, },
-		updateSelf = function(self)
-			self.isSelected = (LogOverlay.Windower.currentTab == LogTabPokemon)
-			self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
-		end,
-		draw = function(self)
-			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-			end
-		end,
-		onClick = function(self)
-			if self.isSelected then return end -- Don't change if already on this tab
-			LogTabPokemon.realignGrid()
-			LogOverlay.TabHistory = {}
-			LogOverlay.Windower:changeTab(LogTabPokemon)
-			LogSearchScreen.resetSortFilterSearch(LogTabPokemon)
-			Program.redraw(true)
-		end,
+		getText = function(self) return LogOverlay.Windower:getPageText() end,
+		textColor = Theme.headerHighlightKey,
+		box = { LogOverlay.margin + pagerOffsetX, 0, 50, 10, },
+		isVisible = function() return LogOverlay.Windower.totalPages > 1 end, -- Likely won't use, unsure where to place it
+		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
 	},
-	TrainersTab = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.LogOverlay.HeaderTabTrainers end,
-		isSelected = false,
-		box = { LogOverlay.margin + 45, 0, 34, 11, },
-		updateSelf = function(self)
-			self.isSelected = (LogOverlay.Windower.currentTab == LogTabTrainers)
-			self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
-		end,
-		draw = function(self)
-			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-			end
-		end,
-		onClick = function(self)
-			if self.isSelected then return end -- Don't change if already on this tab
-			LogTabTrainers.realignGrid()
-			LogOverlay.TabHistory = {}
-			LogOverlay.Windower:changeTab(LogTabTrainers)
-			LogSearchScreen.resetSortFilterSearch(LogTabTrainers)
-			Program.redraw(true)
-		end,
+	PrevPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.LEFT_ARROW,
+		textColor = Theme.headerHighlightKey,
+		shadowcolor = false,
+		box = { LogOverlay.margin + pagerOffsetX - 13, 1, 10, 10 },
+		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
+		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
+		onClick = function(self) LogOverlay.Windower:prevPage() end,
 	},
-	TMsTab = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.LogOverlay.HeaderTabTMs end,
-		isSelected = false,
-		box = { LogOverlay.margin + 45 + 38, 0, 18, 11, },
-		updateSelf = function(self)
-			self.isSelected = (LogOverlay.Windower.currentTab == LogTabTMs)
-			self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
-		end,
-		draw = function(self)
-			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-			end
-		end,
-		onClick = function(self)
-			if self.isSelected then return end -- Don't change if already on this tab
-			LogTabTMs.realignGrid()
-			LogOverlay.TabHistory = {}
-			LogOverlay.Windower:changeTab(LogTabTMs)
-			LogSearchScreen.resetSortFilterSearch(LogTabTMs)
-			Program.redraw(true)
-		end,
-	},
-	MiscTab = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return Resources.LogOverlay.HeaderTabMisc end,
-		isSelected = false,
-		box = { LogOverlay.margin + 45 + 38 + 22, 0, 22, 11, },
-		updateSelf = function(self)
-			self.isSelected = (LogOverlay.Windower.currentTab == LogTabMisc)
-			self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
-		end,
-		draw = function(self)
-			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-			end
-		end,
-		onClick = function(self)
-			if self.isSelected then return end -- Don't change if already on this tab
-			LogOverlay.TabHistory = {}
-			LogOverlay.Windower:changeTab(LogTabMisc, 1, 1)
-			LogSearchScreen.resetSortFilterSearch(LogTabMisc)
-			Program.redraw(true)
-		end,
+	NextPage = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.RIGHT_ARROW,
+		textColor = Theme.headerHighlightKey,
+		shadowcolor = false,
+		box = { LogOverlay.margin + pagerOffsetX + 50 + 3, 1, 10, 10 },
+		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
+		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
+		onClick = function(self) LogOverlay.Windower:nextPage() end,
 	},
 	XIcon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -231,34 +168,6 @@ LogOverlay.HeaderButtons = {
 				Program.redraw(true)
 			end
 		end,
-	},
-	CurrentPage = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return LogOverlay.Windower:getPageText() end,
-		textColor = Theme.headerHighlightKey,
-		box = { LogOverlay.margin + pagerOffsetX, 0, 50, 10, },
-		isVisible = function() return LogOverlay.Windower.totalPages > 1 end, -- Likely won't use, unsure where to place it
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
-	},
-	PrevPage = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.LEFT_ARROW,
-		textColor = Theme.headerHighlightKey,
-		shadowcolor = false,
-		box = { LogOverlay.margin + pagerOffsetX - 13, 1, 10, 10 },
-		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
-		onClick = function(self) LogOverlay.Windower:prevPage() end,
-	},
-	NextPage = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.RIGHT_ARROW,
-		textColor = Theme.headerHighlightKey,
-		shadowcolor = false,
-		box = { LogOverlay.margin + pagerOffsetX + 50 + 3, 1, 10, 10 },
-		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
-		onClick = function(self) LogOverlay.Windower:nextPage() end,
 	},
 }
 
@@ -339,6 +248,8 @@ function LogOverlay.initialize()
 	LogOverlay.TabHistory = {}
 	LogOverlay.Windower.currentTab = nil
 
+	LogOverlay.addHeaderTabButtons()
+
 	for _, button in pairs(LogOverlay.HeaderButtons) do
 		if button.textColor == nil then
 			button.textColor = LogOverlay.Colors.headerText
@@ -354,6 +265,49 @@ function LogOverlay.refreshButtons()
 		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
+	end
+end
+
+function LogOverlay.addHeaderTabButtons()
+	local availableTabs = {
+		LogTabPokemon,
+		LogTabTrainers,
+		LogTabTMs,
+		LogTabMisc,
+	}
+	local offsetX = LogOverlay.margin + 1
+	local spacer = 2
+
+	for i, tabScreen in ipairs(availableTabs) do
+		local width = Utils.calcWordPixelLength(Resources.LogOverlay[tabScreen.TitleResourceKey or ""]) + 2 + spacer
+		local tabButton = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return Resources.LogOverlay[tabScreen.TitleResourceKey or ""] end,
+			index = i,
+			isSelected = false,
+			box = { offsetX, 0, width, 11, },
+			updateSelf = function(self)
+				self.isSelected = (LogOverlay.Windower.currentTab == tabScreen)
+				self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
+			end,
+			draw = function(self)
+				if self.isSelected then
+					Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+				end
+			end,
+			onClick = function(self)
+				if self.isSelected then return end -- Don't change if already on this tab
+				if type(tabScreen.realignGrid) == "function" then
+					tabScreen.realignGrid()
+				end
+				LogOverlay.TabHistory = {}
+				LogOverlay.Windower:changeTab(tabScreen)
+				LogSearchScreen.resetSortFilterSearch(tabScreen)
+				Program.redraw(true)
+			end,
+		}
+		table.insert(LogOverlay.HeaderButtons, tabButton)
+		offsetX = offsetX + width + spacer
 	end
 end
 
@@ -500,11 +454,12 @@ function LogOverlay.drawScreen()
 		borderColor = Theme.COLORS[currentTab.Colors.border]
 	end
 
-	-- Draw tab dividers, TODO: fix this later
-	gui.drawLine(LogOverlay.TabBox.x, 1, LogOverlay.TabBox.x, LogOverlay.TabBox.y - 1, borderColor)
-	gui.drawLine(LogOverlay.TabBox.x + 44, 1, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y - 1, borderColor)
-	gui.drawLine(LogOverlay.TabBox.x + 82, 1, LogOverlay.TabBox.x + 82, LogOverlay.TabBox.y - 1, borderColor or headerTextColor)
-	gui.drawLine(LogOverlay.TabBox.x + 104, 1, LogOverlay.TabBox.x + 104, LogOverlay.TabBox.y - 1, borderColor or headerTextColor)
+	-- Draw tab dividers
+	gui.drawLine(LogOverlay.margin, 1, LogOverlay.margin, LogOverlay.TabBox.y - 1, borderColor)
+	for _, headerTab in ipairs(Utils.getSortedList(LogOverlay.HeaderButtons)) do
+		local rightEdge = headerTab.box[1] + headerTab.box[3] + 2
+		gui.drawLine(rightEdge, 1, rightEdge, LogOverlay.TabBox.y - 1, borderColor)
+	end
 
 	-- Draw all buttons
 	for _, button in pairs(LogOverlay.HeaderButtons) do
@@ -628,11 +583,14 @@ function LogOverlay.parseAndDisplay(logpath)
 		LogOverlay.TabHistory = {}
 		LogOverlay.buildAllTabs()
 		LogOverlay.Windower:changeTab(LogTabPokemon)
+		LogSearchScreen.resetSortFilterSearch(LogTabPokemon)
 		-- If the player has a Pokemon, show it on the side-screen
 		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, leadPokemon.pokemonID)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
+		else
+			Program.redraw(true)
 		end
 	end
 
