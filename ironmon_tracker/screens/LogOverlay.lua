@@ -269,7 +269,7 @@ function LogOverlay.refreshButtons()
 end
 
 function LogOverlay.addHeaderTabButtons()
-	local availableTabs = {
+	local orderedTabs = {
 		LogTabPokemon,
 		LogTabTrainers,
 		LogTabTMs,
@@ -278,7 +278,7 @@ function LogOverlay.addHeaderTabButtons()
 	local offsetX = LogOverlay.margin + 1
 	local spacer = 2
 
-	for i, tabScreen in ipairs(availableTabs) do
+	for i, tabScreen in ipairs(orderedTabs) do
 		local width = Utils.calcWordPixelLength(Resources.LogOverlay[tabScreen.TitleResourceKey or ""]) + 2 + spacer
 		local tabButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
@@ -322,95 +322,6 @@ function LogOverlay.buildAllTabs()
 	LogTabTMs.buildGymTMButtons()
 end
 
--- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
--- Returns total pages
-function LogOverlay.gridAlign(buttonList, startX, startY, width, height, colSpacer, rowSpacer, listVerticallyFirst)
-	listVerticallyFirst = listVerticallyFirst == true
-	local offsetX, offsetY = 0, 0
-	local maxWidth = Constants.SCREEN.WIDTH - LogOverlay.margin
-	local maxHeight = Constants.SCREEN.HEIGHT - LogOverlay.margin -- - 10 -- 10 padding near bottom for filter options
-	local maxItemSize = 0
-
-	local itemCount = 0
-	local itemsPerPage = nil
-	for _, button in ipairs(buttonList) do
-		if button:includeInGrid() then
-			local w, h, extraX, extraY = width, height, 0, 0
-			if button.dimensions ~= nil then
-				w = button.dimensions.width or width or 40
-				h = button.dimensions.height or height or 40
-				extraX = button.dimensions.extraX or 0
-				extraY = button.dimensions.extraY or 0
-			end
-
-			if listVerticallyFirst then
-				-- Check if new height requires starting a new column
-				if (startY + offsetY + h) > maxHeight then
-					offsetX = offsetX + maxItemSize + colSpacer
-					offsetY = 0
-					maxItemSize = 0
-				end
-				-- Check if new width requires starting a new page
-				if (startX + offsetX + w) > maxWidth then
-					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-					end
-				end
-			else
-				-- Check if new width requires starting a new row
-				if (startX + offsetX + w) > maxWidth then
-					offsetX = 0
-					offsetY = offsetY + maxItemSize + rowSpacer
-					maxItemSize = 0
-				end
-				-- Check if new height requires starting a new page
-				if (startY + offsetY + h) > maxHeight then
-					offsetX, offsetY, maxItemSize = 0, 0, 0
-					if itemsPerPage == nil then
-						itemsPerPage = itemCount
-					end
-				end
-			end
-
-			itemCount = itemCount + 1
-			local x = startX + offsetX + extraX
-			local y = startY + offsetY + extraY
-			if button.type == Constants.ButtonTypes.POKEMON_ICON then
-				button.clickableArea = { x, y + 4, w, h - 4 }
-			end
-			button.box = { x, y, w, h }
-			if itemsPerPage == nil then
-				button.pageVisible = 1
-			else
-				button.pageVisible = math.ceil(itemCount / itemsPerPage)
-			end
-
-			if listVerticallyFirst then
-				if w > maxItemSize then
-					maxItemSize = w
-				end
-				offsetY = offsetY + h + rowSpacer
-			else
-				if h > maxItemSize then
-					maxItemSize = h
-				end
-				offsetX = offsetX + w + colSpacer
-			end
-
-		else
-			button.pageVisible = -1
-		end
-	end
-
-	-- Return number of items per page, total pages
-	if itemsPerPage == nil then
-		return 1
-	else
-		return math.ceil(itemCount / itemsPerPage)
-	end
-end
-
 -- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
 function LogOverlay.rebuildScreen()
 	if not LogOverlay.isDisplayed then return end
@@ -447,14 +358,13 @@ function LogOverlay.drawScreen()
 
 	local currentTab = LogOverlay.Windower.currentTab or {}
 
-	local headerTextColor = Theme.COLORS["Header text"]
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local borderColor = Theme.COLORS["Upper box border"]
 	if currentTab.Colors and currentTab.Colors.border then
 		borderColor = Theme.COLORS[currentTab.Colors.border]
 	end
 
-	-- Draw tab dividers
+	-- Draw tab dividers; color depends on currently viewed tab
 	gui.drawLine(LogOverlay.margin, 1, LogOverlay.margin, LogOverlay.TabBox.y - 1, borderColor)
 	for _, headerTab in ipairs(Utils.getSortedList(LogOverlay.HeaderButtons)) do
 		local rightEdge = headerTab.box[1] + headerTab.box[3] + 2

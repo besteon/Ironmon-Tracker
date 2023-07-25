@@ -99,6 +99,7 @@ function LogTabTMs.buildPagedButtons(gymTMs)
 			gymNumber = gymNumber,
 			trainerId = trainerId,
 			group = filterGroup,
+			dimensions = { width = 80, height = 11, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				local shouldInclude = LogOverlay.Windower.filterGrid == LogOverlay.NavFilters.TMs.TMNumber.group or LogOverlay.Windower.filterGrid == self.group
@@ -162,18 +163,21 @@ function LogTabTMs.realignGrid(gridFilter, sortFunc, startingPage)
 
 	local x = LogOverlay.TabBox.x + 25
 	local y = LogOverlay.TabBox.y + 14
-	local itemWidth = 95
-	local itemHeight = 11
-	local horizontalSpacer = 17
-	local verticalSpacer = 2
+	local colSpacer = 17
+	local rowSpacer = 2
+	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
+	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
+
+	-- Single column for fancy Gym TM display
 	if gridFilter == "Gym TMs" then
 		x = x + 12
 		y = y + 2
-		verticalSpacer = 5
+		colSpacer = 200
+		rowSpacer = 5
 	end
 
 	LogOverlay.Windower.filterGrid = gridFilter
-	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(LogTabTMs.PagedButtons, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
+	LogOverlay.Windower.totalPages = Utils.gridAlign(LogTabTMs.PagedButtons, x, y, colSpacer, rowSpacer, true, maxWidth, maxHeight)
 	LogOverlay.Windower.currentPage = math.min(startingPage, LogOverlay.Windower.totalPages)
 
 	LogTabTMs.refreshButtons()

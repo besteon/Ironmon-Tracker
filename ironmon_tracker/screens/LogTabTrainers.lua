@@ -196,13 +196,13 @@ function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)
 
 	local x = LogOverlay.TabBox.x + 17
 	local y = LogOverlay.TabBox.y + 11
-	local itemWidth = nil -- each image has its own width
-	local itemHeight = nil -- each image has its own height
-	local horizontalSpacer = 10
-	local verticalSpacer = 5
+	local colSpacer = 10
+	local rowSpacer = 5
+	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
+	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
 	LogOverlay.Windower.filterGrid = gridFilter
-	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(LogTabTrainers.PagedButtons, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
+	LogOverlay.Windower.totalPages = Utils.gridAlign(LogTabTrainers.PagedButtons, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
 	LogOverlay.Windower.currentPage = math.min(startingPage, LogOverlay.Windower.totalPages)
 
 	LogTabTrainers.refreshButtons()

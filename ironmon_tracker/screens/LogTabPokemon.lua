@@ -42,6 +42,7 @@ function LogTabPokemon.buildPagedButtons()
 			end,
 			textColor = LogTabPokemon.Colors.text,
 			boxColors = { LogTabPokemon.Colors.border, LogTabPokemon.Colors.boxFill },
+			dimensions = { width = 32, height = 32, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- If no search text entered, show all
@@ -105,13 +106,13 @@ function LogTabPokemon.realignGrid(gridFilter, sortFunc, startingPage)
 
 	local x = LogOverlay.TabBox.x + 19
 	local y = LogOverlay.TabBox.y + 1
-	local itemWidth = 32
-	local itemHeight = 32
-	local horizontalSpacer = 23
-	local verticalSpacer = 4
+	local colSpacer = 23
+	local rowSpacer = 4
+	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
+	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
 	LogOverlay.Windower.filterGrid = gridFilter
-	LogOverlay.Windower.totalPages = LogOverlay.gridAlign(LogTabPokemon.PagedButtons, x, y, itemWidth, itemHeight, horizontalSpacer, verticalSpacer)
+	LogOverlay.Windower.totalPages = Utils.gridAlign(LogTabPokemon.PagedButtons, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
 	LogOverlay.Windower.currentPage = math.min(startingPage, LogOverlay.Windower.totalPages)
 
 	LogTabPokemon.refreshButtons()
