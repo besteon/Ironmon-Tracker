@@ -9,10 +9,12 @@ LogTabPokemonDetails = {
 		LevelMoves = 1,
 		TmMoves = 2,
 	},
+	infoId = -1,
+	dataSet = nil,
 	currentPreEvoSet = 1,
-	currentEvoSet = 1, -- Ideally move this somewhere else
+	currentEvoSet = 1,
 	prevEvosPerSet = 1,
-	evosPerSet = 3, -- Ideally move this somewhere else
+	evosPerSet = 3,
 }
 
 LogTabPokemonDetails.TemporaryButtons = {}
@@ -39,23 +41,24 @@ LogTabPokemonDetails.Pager = {
 		self.currentTab = newTab
 		self.currentPage = 1
 
-		if newTab == LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES then
+		if newTab == LogTabPokemonDetails.Tabs.LevelMoves then
 			self.totalPages = math.ceil(self.totalLearnedMoves / self.movesPerPage)
-		elseif newTab == LogOverlay.Tabs.POKEMON_ZOOM_TMMOVES then
+		elseif newTab == LogTabPokemonDetails.Tabs.TmMoves then
 			self.totalPages = math.ceil(self.totalTMMoves / self.movesPerPage)
 		else -- Currently unused
 			self.totalPages = 1
 		end
-		LogOverlay.refreshInnerButtons()
+		LogTabPokemonDetails.refreshButtons()
 	end,
 }
 
 function LogTabPokemonDetails.initialize()
+	LogTabPokemonDetails.infoId = -1
+	LogTabPokemonDetails.dataSet = nil
 	LogTabPokemonDetails.currentPreEvoSet = 1
-	LogTabPokemonDetails.currentEvoSet = 1 -- Ideally move this somewhere else
+	LogTabPokemonDetails.currentEvoSet = 1
 	LogTabPokemonDetails.prevEvosPerSet = 1
-	LogTabPokemonDetails.evosPerSet = 3 -- Ideally move this somewhere else
-
+	LogTabPokemonDetails.evosPerSet = 3
 end
 
 function LogTabPokemonDetails.refreshButtons()
@@ -71,117 +74,16 @@ function LogTabPokemonDetails.refreshButtons()
 	end
 end
 
-function LogTabPokemonDetails.buildPagedButtons()
-	LogTabPokemonDetails.PagedButtons = {}
-
-	-- Determine gym TMs for the game, they'll be highlighted
-	local gymTMs = {}
-	for i, gymTM in ipairs(TrainerData.GymTMs) do
-		gymTMs[gymTM.number] = {
-			leader = gymTM.leader,
-			gymNumber = i,
-			trainerId = nil, -- this gets added in later
-		}
-	end
-
-	-- Build Trainer buttons
-	for id, trainerData in pairs(RandomizerLog.Data.Trainers) do
-		local trainerInfo = TrainerData.getTrainerInfo(id)
-		local trainerName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
-		local fileInfo = TrainerData.FileInfo[trainerInfo.filename] or { width = 40, height = 40 }
-		local button = {
-			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInfo.filename, FileManager.Extensions.TRAINER),
-			getText = function(self) return trainerName end,
-			id = id,
-			customname = trainerData.customname,
-			filename = trainerInfo.filename, -- helpful for sorting later
-			dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
-			group = trainerInfo.group,
-			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
-			includeInGrid = function(self)
-				-- Always exclude extra rivals
-				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
-					return false
-				end
-
-				-- If no search text entered, check any filter groups
-				if LogSearchScreen.searchText == "" then
-					if LogOverlay.Windower.filterGrid == self.group then
-						return true
-					elseif LogOverlay.Windower.filterGrid == TrainerData.TrainerGroups.All then
-						return true
-					end
-					return false
-				end
-
-				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
-					if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-						return true
-					end
-				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
-					for _, partyMon in ipairs(trainerData.party or {}) do
-						local name
-						-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-						if RandomizerLog.areLanguagesMismatched() then
-							name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-						else
-							name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-						end
-						if Utils.containsText(name, LogSearchScreen.searchText, true) then
-							return true
-						end
-					end
-				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
-					for _, partyMon in ipairs(trainerData.party or {}) do
-						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
-							local abilityText = AbilityData.Abilities[abilityId].name
-							if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-								return true
-							end
-						end
-					end
-				end
-
-				return false
-			end,
-			onClick = function(self)
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.id)
-				Program.redraw(true)
-				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
-			end,
-			draw = function(self, shadowcolor)
-				-- Draw a centered box for the Trainer's name
-				local nameWidth = Utils.calcWordPixelLength(self:getText())
-				local bottomPadding = 9
-				local offsetX = self.box[1] + self.box[3] / 2 - nameWidth / 2
-				local offsetY = self.box[2] + TrainerData.FileInfo.maxHeight - bottomPadding - (self.dimensions.extraY or 0)
-				gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabPokemonDetails.Colors.border], Theme.COLORS[LogTabPokemonDetails.Colors.boxFill])
-				Drawing.drawText(offsetX, offsetY, self:getText(), Theme.COLORS[LogTabPokemonDetails.Colors.text], shadowcolor)
-				gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabPokemonDetails.Colors.border]) -- to cutoff the shadows
-			end,
-		}
-
-		if trainerInfo ~= nil and trainerInfo.group == TrainerData.TrainerGroups.Gym then
-			local gymNumber = tonumber(trainerInfo.filename:sub(-1)) -- e.g. "frlg-gymleader-1"
-			if gymNumber ~= nil then
-				-- Find the gym leader's TM and add it's trainer id to that tm info
-				for _, gymTMInfo in pairs(gymTMs) do
-					if gymTMInfo.gymNumber == gymNumber then
-						gymTMInfo.trainerId = id
-						break
-					end
-				end
-			end
-		end
-
-		table.insert(LogTabPokemonDetails.PagedButtons, button)
-	end
-
-	return gymTMs
+function LogTabPokemonDetails.rebuild()
+	LogTabPokemonDetails.buildZoomButtons()
 end
 
-function LogTabPokemonDetails.buildZoomButtons(data)
+function LogTabPokemonDetails.buildZoomButtons(pokemonID)
+	pokemonID = pokemonID or LogTabPokemonDetails.infoId or -1
+	local data = DataHelper.buildPokemonLogDisplay(pokemonID)
+	LogTabPokemonDetails.infoId = pokemonID
+	LogTabPokemonDetails.dataSet = data
+
 	LogTabPokemonDetails.TemporaryButtons = {}
 	LogTabPokemonDetails.Pager.Buttons = {}
 
@@ -193,8 +95,8 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 	end
 
 	local abilityButtonArea ={
-		x = LogOverlay.margin + 1,
-		y = LogOverlay.tabHeight + 13,
+		x = LogOverlay.TabBox.x + 1,
+		y = LogOverlay.TabBox.y + 13,
 		w = 60,
 		h = Constants.SCREEN.LINESPACING*2
 	}
@@ -258,9 +160,9 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 	local evoArrowSize = 10
 
 	local pokemonIconRange = {
-		x = LogOverlay.margin + 75,
-		y = LogOverlay.tabHeight - 2,
-		w = function(self) return Constants.SCREEN.WIDTH - self.x - LogOverlay.margin - 1 end,
+		x = LogOverlay.TabBox.x + 75,
+		y = LogOverlay.TabBox.y - 2,
+		w = function(self) return Constants.SCREEN.WIDTH - self.x - LogOverlay.TabBox.x - 1 end,
 		h = pokemonIconSize + evoLabelTextHeight,
 	}
 
@@ -297,7 +199,7 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
-					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+					LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.pokemonID)
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 				end
 			end,
@@ -386,7 +288,7 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
-					LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.pokemonID)
+					LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.pokemonID)
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 				end
 			end,
@@ -569,64 +471,52 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 		table.insert(LogTabPokemonDetails.TemporaryButtons, chevronButton)
 	end
 
-	local movesColX = LogOverlay.margin + 118
-	local movesRowY = LogOverlay.tabHeight + Utils.inlineIf(hasEvo, 42, 0)
+	local movesColX = LogOverlay.TabBox.x + 118
+	local movesRowY = LogOverlay.TabBox.y + Utils.inlineIf(hasEvo, 42, 0)
 	LogTabPokemonDetails.Pager.movesPerPage = Utils.inlineIf(hasEvo, 8, 12)
 
 	local levelupMovesTab = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.LogOverlay.ButtonLevelupMoves end,
 		textColor = LogTabPokemonDetails.Colors.text,
-		tab = LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
+		tab = LogTabPokemonDetails.Tabs.LevelMoves,
+		isSelected = false,
 		box = { movesColX, movesRowY, 60, 11 },
 		updateSelf = function(self)
-			if LogTabPokemonDetails.Pager.currentTab == self.tab then
-				self.textColor = LogTabPokemonDetails.Colors.hightlight
-			else
-				self.textColor = LogTabPokemonDetails.Colors.text
-			end
+			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
+			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
 		end,
 		draw = function(self)
-			-- Draw an underline if selected
-			if self.textColor == LogTabPokemonDetails.Colors.hightlight then
-				local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] - 1
-				local y1, y2 = self.box[2] + self.box[4] - 1, self.box[2] + self.box[4] - 1
-				gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+			if self.isSelected then
+				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 			end
 		end,
 		onClick = function(self)
-			if LogTabPokemonDetails.Pager.currentTab ~= self.tab then
-				LogTabPokemonDetails.Pager:changeTab(self.tab)
-				Program.redraw(true)
-			end
+			if self.isSelected then return end -- Don't change if already on this tab
+			LogTabPokemonDetails.Pager:changeTab(self.tab)
+			Program.redraw(true)
 		end,
 	}
 	local tmMovesTab = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.LogOverlay.ButtonTMMoves end,
 		textColor = LogTabPokemonDetails.Colors.text,
-		tab = LogOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
+		tab = LogTabPokemonDetails.Tabs.TmMoves,
+		isSelected = false,
 		box = { movesColX + 70, movesRowY, 41, 11 },
 		updateSelf = function(self)
-			if LogTabPokemonDetails.Pager.currentTab == self.tab then
-				self.textColor = LogTabPokemonDetails.Colors.hightlight
-			else
-				self.textColor = LogTabPokemonDetails.Colors.text
-			end
+			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
+			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
 		end,
 		draw = function(self)
-			-- Draw an underline if selected
-			if self.textColor == LogTabPokemonDetails.Colors.hightlight then
-				local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] - 1
-				local y1, y2 = self.box[2] + self.box[4] - 1, self.box[2] + self.box[4] - 1
-				gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+			if self.isSelected then
+				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 			end
 		end,
 		onClick = function(self)
-			if LogTabPokemonDetails.Pager.currentTab ~= self.tab then
-				LogTabPokemonDetails.Pager:changeTab(self.tab)
-				Program.redraw(true)
-			end
+			if self.isSelected then return end -- Don't change if already on this tab
+			LogTabPokemonDetails.Pager:changeTab(self.tab)
+			Program.redraw(true)
 		end,
 	}
 	table.insert(LogTabPokemonDetails.TemporaryButtons, levelupMovesTab)
@@ -643,7 +533,7 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 			getText = function(self) return string.format("%02d  %s", moveInfo.level, moveInfo.name) end,
 			textColor = moveColor,
 			moveId = moveInfo.id,
-			tab = LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES,
+			tab = LogTabPokemonDetails.Tabs.LevelMoves,
 			pageVisible = math.ceil(i / LogTabPokemonDetails.Pager.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
@@ -659,14 +549,14 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 			draw = function (self, shadowcolor)
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
-					local categoryImage
+					local image
 					if move.category == MoveData.Categories.PHYSICAL then
-						categoryImage = Constants.PixelImages.PHYSICAL
+						image = Constants.PixelImages.PHYSICAL
 					elseif move.category == MoveData.Categories.SPECIAL then
-						categoryImage = Constants.PixelImages.SPECIAL
+						image = Constants.PixelImages.SPECIAL
 					end
-					if categoryImage then
-						Drawing.drawImageAsPixels(categoryImage, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+					if image then
+						Drawing.drawImageAsPixels(image, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
 					end
 				end
 			end,
@@ -721,17 +611,21 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 			getText = function(self) return moveText end,
 			textColor = moveColor,
 			moveId = tmInfo.moveId,
-			tab = LogOverlay.Tabs.POKEMON_ZOOM_TMMOVES,
+			tab = LogTabPokemonDetails.Tabs.TmMoves,
 			pageVisible = math.ceil(i / LogTabPokemonDetails.Pager.movesPerPage),
 			box = { movesColX, movesRowY + 13 + offsetY + Utils.inlineIf(hasEvo, 0, -2), 80, 11 },
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
 			draw = function (self, shadowcolor)
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
+					local image
 					if move.category == MoveData.Categories.PHYSICAL then
-						Drawing.drawImageAsPixels(Constants.PixelImages.PHYSICAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+						image = Constants.PixelImages.PHYSICAL
 					elseif move.category == MoveData.Categories.SPECIAL then
-						Drawing.drawImageAsPixels(Constants.PixelImages.SPECIAL, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+						image = Constants.PixelImages.SPECIAL
+					end
+					if image then
+						Drawing.drawImageAsPixels(image, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
 					end
 				end
 			end,
@@ -777,7 +671,7 @@ function LogTabPokemonDetails.buildZoomButtons(data)
 
 	LogTabPokemonDetails.Pager.totalLearnedMoves = #data.p.moves
 	LogTabPokemonDetails.Pager.totalTMMoves = #data.p.tmmoves
-	LogTabPokemonDetails.Pager:changeTab(LogOverlay.Tabs.POKEMON_ZOOM_LEVELMOVES)
+	LogTabPokemonDetails.Pager:changeTab(LogTabPokemonDetails.Tabs.LevelMoves)
 end
 
 -- USER INPUT FUNCTIONS
@@ -798,16 +692,16 @@ function LogTabPokemonDetails.drawTab()
 	gui.defaultTextBackground(fillColor)
 	gui.drawRectangle(LogOverlay.TabBox.x, LogOverlay.TabBox.y, LogOverlay.TabBox.width, LogOverlay.TabBox.height, borderColor, fillColor)
 
-	local pokemonID = LogOverlay.currentTabInfoId
-	if not PokemonData.isValid(pokemonID) then
+	if not PokemonData.isValid(LogTabPokemonDetails.infoId or -1) then
 		return
 	end
 
 	-- Ideally this is done only once on tab change
-	if LogOverlay.currentTabData == nil then
-		LogOverlay.currentTabData = DataHelper.buildPokemonLogDisplay(pokemonID)
+	local data = LogTabPokemonDetails.dataSet
+	if data == nil then
+		data = DataHelper.buildPokemonLogDisplay(LogTabPokemonDetails.infoId)
+		LogTabPokemonDetails.dataSet = data
 	end
-	local data = LogOverlay.currentTabData
 
 	-- Draw Pokemon name
 	local nameText = Utils.toUpperUTF8(data.p.name)

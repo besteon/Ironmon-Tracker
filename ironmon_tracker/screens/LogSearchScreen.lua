@@ -13,6 +13,10 @@ LogSearchScreen = {
 		{ "A", "S", "D", "F", "G", "H", "J", "K", "L" },
 		{ "Z", "X", "C", "V", "B", "N", "M" },
 	},
+	AllowedTabViews = {
+		[LogTabPokemon] = true,
+		[LogTabTrainers] = true,
+	},
 	padding = 2,
 	searchText = "",
 	currentSortOrder = nil, -- Set later in initialize()
@@ -22,21 +26,21 @@ LogSearchScreen = {
 }
 
 LogSearchScreen.SortBy = {
+	PokedexNum = {
+		getText = function() return Resources.LogSearchScreen.SortPokedexNum end,
+		sortFunc = function(a, b)
+			return a.id < b.id
+		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 1,
+	},
 	Alphabetical = {
 		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
 		sortFunc = function(a, b)
 			local name1, name2 = a:getText(), b:getText()
 			return name1 < name2 or (name1 == name2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
-		index = 1,
-	},
-	PokedexNum = {
-		getText = function() return Resources.LogSearchScreen.SortPokedexNum end,
-		sortFunc = function(a, b)
-			return a.id < b.id
-		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
 		index = 2,
 	},
 	BST = {
@@ -45,7 +49,7 @@ LogSearchScreen.SortBy = {
 			return PokemonData.Pokemon[a.id].bst > PokemonData.Pokemon[b.id].bst or
 				(PokemonData.Pokemon[a.id].bst == PokemonData.Pokemon[b.id].bst and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 3,
 	},
 	HP = {
@@ -55,7 +59,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["hp"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 4,
 	},
 	ATK = {
@@ -65,7 +69,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["atk"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 5,
 	},
 	DEF = {
@@ -75,7 +79,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["def"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 6,
 	},
 	SPA = {
@@ -85,7 +89,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["spa"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 7,
 	},
 	SPD = {
@@ -95,7 +99,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["spd"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 8,
 
 	},
@@ -106,7 +110,7 @@ LogSearchScreen.SortBy = {
 				RandomizerLog.Data.Pokemon[b.id].BaseStats["spe"]
 			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, },
+		contexts = { [LogTabPokemon] = true, },
 		index = 9,
 	},
 }
@@ -114,22 +118,22 @@ LogSearchScreen.SortBy = {
 LogSearchScreen.FilterBy = {
 	TrainerName = {
 		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
-		contexts = { [LogOverlay.Tabs.TRAINER] = true, },
+		contexts = { [LogTabTrainers] = true, },
 		index = 1,
 	},
 	PokemonName = {
 		getText = function() return Resources.LogSearchScreen.FilterName end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
 		index = 2,
 	},
 	PokemonAbility = {
 		getText = function() return Resources.LogSearchScreen.FilterAbility end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, [LogOverlay.Tabs.TRAINER] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
 		index = 3,
 	},
 	PokemonMove = {
 		getText = function() return Resources.LogSearchScreen.FilterMove end,
-		contexts = { [LogOverlay.Tabs.POKEMON] = true, }, -- [LogOverlay.Tabs.TRAINER] = true, requires rework to store all built out data
+		contexts = { [LogTabPokemon] = true, }, -- [LogTabTrainers] = true, requires rework to store all built out data
 		index = 4,
 	},
 }
@@ -141,7 +145,7 @@ LogSearchScreen.DropdownButtonsFilterBy = {}
 --- Initializes the LogSearchScreen
 --- @return nil
 function LogSearchScreen.initialize()
-	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
+	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.PokedexNum
 	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.PokemonName
 	LogSearchScreen.clearSearch()
 	LogSearchScreen.createButtons()
@@ -345,7 +349,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 			dimensions = { width = dropdownBox.width, height = dropdownBox.height, },
 			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 			isVisible = function(self) return LSS.sortDropDownOpen and self.pageVisible ~= -1 end,
-			includeInGrid = function(self) return sortby.contexts[LogOverlay.currentTab] end,
+			includeInGrid = function(self) return sortby.contexts[LogOverlay.Windower.currentTab or {}] end,
 			onClick = function(self)
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
 				LSS.currentSortOrder = sortby
@@ -369,7 +373,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 	Utils.gridAlign(LSS.DropdownButtonsSortBy, dropdownBox.x, dropdownBox.y + dropdownBox.height, 0, 0, true)
 
 	-- If the current sortby doesn't exist within the current context, replace it
-	if not LSS.currentSortOrder.contexts[LogOverlay.currentTab] then
+	if not LSS.currentSortOrder.contexts[LogOverlay.Windower.currentTab or {}] then
 		LSS.currentSortOrder = orderedSortBys[1] or LSS.currentSortOrder
 	end
 end
@@ -432,7 +436,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 			dimensions = { width = dropdownBox.width, height = dropdownBox.height, },
 			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 			isVisible = function(self) return LSS.filterDropDownOpen and self.pageVisible ~= -1 end,
-			includeInGrid = function(self) return filter.contexts[LogOverlay.currentTab] end,
+			includeInGrid = function(self) return filter.contexts[LogOverlay.Windower.currentTab or {}] end,
 			onClick = function(self)
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
@@ -455,7 +459,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 	Utils.gridAlign(LSS.DropdownButtonsFilterBy, dropdownBox.x, dropdownBox.y + dropdownBox.height, 0, 0, true)
 
 	-- If the current filter doesn't exist within the current context, replace it
-	if not LSS.currentFilter.contexts[LogOverlay.currentTab] then
+	if not LSS.currentFilter.contexts[LogOverlay.Windower.currentTab or {}] then
 		LSS.currentFilter = orderedFilters[1] or LSS.currentFilter
 	end
 end
@@ -465,29 +469,20 @@ function LogSearchScreen.clearSearch()
 end
 
 function LogSearchScreen.updateSearchResults()
-	local sort -- Leave nil to use default sort if no search text provided
-	if LogSearchScreen.searchText ~= "" then
-		sort = LogSearchScreen.currentSortOrder.sortFunc
-	end
-
-	if LogOverlay.currentTab == LogOverlay.Tabs.POKEMON then
-		LogTabPokemon.realignGrid(LogOverlay.Windower.filterGrid, sort)
-	elseif LogOverlay.currentTab == LogOverlay.Tabs.TRAINER then
-		LogTabTrainers.realignGrid(LogOverlay.Windower.filterGrid, sort)
-	elseif LogOverlay.currentTab == LogOverlay.Tabs.TMS then
-		-- LogTabTMs.realignGrid(LogOverlay.Windower.filterGrid, sort)
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	if LogSearchScreen.AllowedTabViews[currentTab] and type(currentTab.realignGrid) == "function" then
+		local sortFunc -- Leave nil to use default sort if no search text provided
+		if LogSearchScreen.searchText ~= "" then
+			sortFunc = LogSearchScreen.currentSortOrder.sortFunc
+		end
+		currentTab.realignGrid(LogOverlay.Windower.filterGrid, sortFunc)
 	end
 end
 
 -- Checks if it's contextually correct to show search screen; returns true if so, false otherwise
 function LogSearchScreen.tryDisplayOrHide()
-	local allowedTabViews = {
-		[LogOverlay.Tabs.POKEMON] = true,
-		[LogOverlay.Tabs.TRAINER] = true,
-	}
-
-	-- Check if it's contextually correct to show the search screen; otherwise, hide the search screen
-	if allowedTabViews[LogOverlay.currentTab] then
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	if LogSearchScreen.AllowedTabViews[currentTab] then
 		LogSearchScreen.refreshDropDowns()
 		LogSearchScreen.updateSearchResults()
 		if Program.currentScreen ~= LogSearchScreen then
@@ -496,8 +491,8 @@ function LogSearchScreen.tryDisplayOrHide()
 		return true
 	end
 
+	-- For any other tab, show Bulbasaur by default (prevents search box from appearing)
 	if Program.currentScreen == LogSearchScreen then
-		-- For any other tab, show Bulbasaur by default (prevents search box from appearing)
 		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1)
 	end
 	return false
@@ -505,10 +500,10 @@ end
 
 -- Resets the sort by and filters based on the tab being viewed, also clears the search text
 function LogSearchScreen.resetSortFilterSearch(tab)
-	if tab == LogOverlay.Tabs.POKEMON then
-		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
+	if tab == LogTabPokemon then
+		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.PokedexNum
 		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.PokemonName
-	elseif tab == LogOverlay.Tabs.TRAINER then
+	elseif tab == LogTabTrainers then
 		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
 		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.TrainerName
 	end

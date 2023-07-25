@@ -28,34 +28,33 @@ function LogTabTMs.refreshButtons()
 	end
 end
 
+function LogTabTMs.rebuild()
+	LogTabTMs.realignGrid(LogOverlay.Windower.filterGrid)
+end
+
 function LogTabTMs.buildNavigation()
-	local navHeaderX = 4
-	local navHeaderY = LogOverlay.tabHeight + 1
-	local navItemSpacer = 8
+	local navHeaderX = LogOverlay.TabBox.x + 2
+	local navHeaderY = LogOverlay.TabBox.y + 1
+	local navItemSpacer = 6
 	local filterLabelSize = Utils.calcWordPixelLength(Resources.LogOverlay.LabelFilterBy)
 	local nextNavX = navHeaderX + filterLabelSize + navItemSpacer
 
 	LogTabTMs.NavFilterButtons = {}
 	for _, navFilter in ipairs(Utils.getSortedList(LogOverlay.NavFilters.TMs)) do
-		local navLabelWidth = Utils.calcWordPixelLength(navFilter:getText()) + 2
+		local navLabelWidth = Utils.calcWordPixelLength(navFilter:getText()) + 4
 		local navButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return navFilter:getText() end,
 			textColor = LogTabTMs.Colors.text,
-			box = { LogOverlay.margin + nextNavX, navHeaderY, navLabelWidth, 11 },
+			isSelected = false,
+			box = { LogOverlay.TabBox.x + nextNavX, navHeaderY, navLabelWidth, 11 },
 			updateSelf = function(self)
-				if LogOverlay.Windower.filterGrid == navFilter.group and LogSearchScreen.searchText == "" then
-					self.textColor = LogTabTMs.Colors.hightlight
-				else
-					self.textColor = LogTabTMs.Colors.text
-				end
+				self.isSelected = (LogOverlay.Windower.filterGrid == navFilter.group and LogSearchScreen.searchText == "")
+				self.textColor = Utils.inlineIf(self.isSelected, LogTabTMs.Colors.hightlight, LogTabTMs.Colors.text)
 			end,
 			draw = function(self)
-				-- Draw an underline if selected
-				if self.textColor == LogTabTMs.Colors.hightlight then
-					local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] + 1
-					local y1, y2 = self.box[2] + self.box[4] - 1, self.box[2] + self.box[4] - 1
-					gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+				if self.isSelected then
+					Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 				end
 			end,
 			onClick = function(self)
@@ -144,7 +143,7 @@ function LogTabTMs.buildGymTMButtons()
 					Drawing.drawText(self.box[1] + 55, self.box[2], gymLabel, Theme.COLORS[self.textColor], shadowcolor)
 				end,
 				onClick = function(self)
-					LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.trainerId)
+					LogOverlay.Windower:changeTab(LogTabTrainerDetails, 1, 1, self.trainerId)
 					Program.redraw(true)
 					-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
 				end,
@@ -161,9 +160,9 @@ function LogTabTMs.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabTMs.PagedButtons, sortFunc)
 
-	local x = LogOverlay.margin + 25
-	local y = LogOverlay.tabHeight + 14
-	local itemWidth = 80
+	local x = LogOverlay.TabBox.x + 25
+	local y = LogOverlay.TabBox.y + 14
+	local itemWidth = 95
 	local itemHeight = 11
 	local horizontalSpacer = 17
 	local verticalSpacer = 2
@@ -199,7 +198,7 @@ function LogTabTMs.drawTab()
 
 	-- Draw group filters Label
 	local filterByText = Resources.LogOverlay.LabelFilterBy .. ":"
-	Drawing.drawText(LogOverlay.margin + 2, LogOverlay.tabHeight + 1, filterByText, textColor, shadowcolor)
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, filterByText, textColor, shadowcolor)
 
 	-- Draw the navigation
 	for _, button in pairs(LogTabTMs.NavFilterButtons) do

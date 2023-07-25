@@ -28,36 +28,41 @@ function LogTabTrainers.refreshButtons()
 	end
 end
 
+function LogTabTrainers.rebuild()
+	LogTabTrainers.realignGrid(LogOverlay.Windower.filterGrid)
+end
+
 function LogTabTrainers.buildNavigation()
-	local navHeaderX = 4
-	local navHeaderY = LogOverlay.tabHeight + 1
-	local navItemSpacer = 8
+	local navHeaderX = LogOverlay.TabBox.x + 2
+	local navHeaderY = LogOverlay.TabBox.y + 1
+	local navItemSpacer = 6
 	local filterLabelSize = Utils.calcWordPixelLength(Resources.LogOverlay.LabelFilterBy)
 	local nextNavX = navHeaderX + filterLabelSize + navItemSpacer
 
 	LogTabTrainers.NavFilterButtons = {}
 	for _, navFilter in ipairs(Utils.getSortedList(LogOverlay.NavFilters.Trainers)) do
-		local navLabelWidth = Utils.calcWordPixelLength(navFilter:getText()) + 2
+		local navLabelWidth = Utils.calcWordPixelLength(navFilter:getText()) + 4
 		local navButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return navFilter:getText() end,
 			textColor = LogTabTrainers.Colors.text,
-			box = { LogOverlay.margin + nextNavX, navHeaderY, navLabelWidth, 11 },
+			isSelected = false,
+			box = { LogOverlay.TabBox.x + nextNavX, navHeaderY, navLabelWidth, 11 },
 			updateSelf = function(self)
 				if navFilter.group == TrainerData.TrainerGroups.All and LogSearchScreen.searchText ~= "" then
+					self.isSelected = true
 					self.textColor = LogTabTrainers.Colors.hightlight
 				elseif navFilter.group == LogOverlay.Windower.filterGrid and LogSearchScreen.searchText == "" then
+					self.isSelected = true
 					self.textColor = LogTabTrainers.Colors.hightlight
 				else
+					self.isSelected = false
 					self.textColor = LogTabTrainers.Colors.text
 				end
 			end,
 			draw = function(self)
-				-- Draw an underline if selected
-				if self.textColor == LogTabTrainers.Colors.hightlight then
-					local x1, x2 = self.box[1] + 2, self.box[1] + self.box[3] - 1
-					local y1, y2 = self.box[2] + self.box[4] - 1, self.box[2] + self.box[4] - 1
-					gui.drawLine(x1, y1, x2, y2, Theme.COLORS[self.textColor])
+				if self.isSelected then
+					Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 				end
 			end,
 			onClick = function(self)
@@ -147,7 +152,7 @@ function LogTabTrainers.buildPagedButtons()
 				return false
 			end,
 			onClick = function(self)
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.TRAINER_ZOOM, 1, 1, self.id)
+				LogOverlay.Windower:changeTab(LogTabTrainerDetails, 1, 1, self.id)
 				Program.redraw(true)
 				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 			end,
@@ -189,8 +194,8 @@ function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabTrainers.PagedButtons, sortFunc)
 
-	local x = LogOverlay.margin + 17
-	local y = LogOverlay.tabHeight + 11
+	local x = LogOverlay.TabBox.x + 17
+	local y = LogOverlay.TabBox.y + 11
 	local itemWidth = nil -- each image has its own width
 	local itemHeight = nil -- each image has its own height
 	local horizontalSpacer = 10
@@ -222,7 +227,7 @@ function LogTabTrainers.drawTab()
 
 	-- Draw group filters Label
 	local filterByText = Resources.LogOverlay.LabelFilterBy .. ":"
-	Drawing.drawText(LogOverlay.margin + 2, LogOverlay.tabHeight + 1, filterByText, textColor, shadowcolor)
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, filterByText, textColor, shadowcolor)
 
 	-- Draw the navigation
 	for _, button in pairs(LogTabTrainers.NavFilterButtons) do

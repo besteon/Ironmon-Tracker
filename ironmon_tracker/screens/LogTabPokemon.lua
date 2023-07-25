@@ -21,6 +21,10 @@ function LogTabPokemon.refreshButtons()
 	end
 end
 
+function LogTabPokemon.rebuild()
+	LogTabPokemon.realignGrid()
+end
+
 function LogTabPokemon.buildPagedButtons()
 	LogTabPokemon.PagedButtons = {}
 
@@ -75,7 +79,7 @@ function LogTabPokemon.buildPagedButtons()
 				return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
 			end,
 			onClick = function(self)
-				LogOverlay.Windower:changeTab(LogOverlay.Tabs.POKEMON_ZOOM, 1, 1, self.id)
+				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.id)
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 			end,
 			draw = function(self, shadowcolor)
@@ -99,8 +103,8 @@ function LogTabPokemon.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabPokemon.PagedButtons, sortFunc)
 
-	local x = LogOverlay.margin + 19
-	local y = LogOverlay.tabHeight + 1
+	local x = LogOverlay.TabBox.x + 19
+	local y = LogOverlay.TabBox.y + 1
 	local itemWidth = 32
 	local itemHeight = 32
 	local horizontalSpacer = 23
