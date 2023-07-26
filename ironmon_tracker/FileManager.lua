@@ -129,6 +129,7 @@ FileManager.LuaCode = {
 	{ name = "LogTabPokemonDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemonDetails.lua", },
 	{ name = "LogTabTrainers", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainers.lua", },
 	{ name = "LogTabTrainerDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainerDetails.lua", },
+	{ name = "LogTabRoutes", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabRoutes.lua", },
 	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
 	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },

@@ -3,20 +3,6 @@ LogOverlay = {
 		headerText = "Header text",
 		headerBorder = "Upper box background",
 		headerFill = "Main background",
-		text = "Default text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
-	},
-	Tabs = {
-		POKEMON = "Pokémon",
-		POKEMON_ZOOM = "Pokémon Zoom",
-		POKEMON_ZOOM_LEVELMOVES = "Levelup Moves", -- non-primary tab
-		POKEMON_ZOOM_TMMOVES = "TM Moves", -- non-primary tab
-		TRAINER = "Trainers",
-		TRAINER_ZOOM = "Trainer Zoom",
-		TMS = "TMs",
-		MISC = "Misc.",
-		GO_BACK = "Back",
 	},
 	margin = 2,
 	tabHeight = 12,
@@ -272,6 +258,7 @@ function LogOverlay.addHeaderTabButtons()
 	local orderedTabs = {
 		LogTabPokemon,
 		LogTabTrainers,
+		LogTabRoutes,
 		LogTabTMs,
 		LogTabMisc,
 	}
@@ -306,8 +293,10 @@ function LogOverlay.addHeaderTabButtons()
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.HeaderButtons, tabButton)
-		offsetX = offsetX + width + spacer
+		if tabScreen ~= LogTabRoutes or GameSettings.game == 3 then -- LogTabRoutes FRLG only atm
+			table.insert(LogOverlay.HeaderButtons, tabButton)
+			offsetX = offsetX + width + spacer
+		end
 	end
 end
 
@@ -317,6 +306,8 @@ function LogOverlay.buildAllTabs()
 	LogTabPokemon.buildPagedButtons()
 	-- Trainers
 	local gymTMs = LogTabTrainers.buildPagedButtons()
+	-- Routes
+	LogTabRoutes.buildPagedButtons()
 	-- TMs
 	LogTabTMs.buildPagedButtons(gymTMs)
 	LogTabTMs.buildGymTMButtons()

@@ -724,3 +724,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 
 	return data
 end
+
+function DataHelper.buildRouteLogDisplay(mapId)
+	-- TODO: Implement to build out details for viewing a given route/mapId
+end

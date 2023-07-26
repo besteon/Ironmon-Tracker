@@ -476,8 +476,8 @@ ScreenResources{
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon", -- NEEDS TRANSLATION
 		HeaderTabTrainers = "Trainers", -- NEEDS TRANSLATION
-		HeaderTabTMs = "TMs", -- NEEDS TRANSLATION
 		HeaderTabRoutes = "Routes", -- NEEDS TRANSLATION
+		HeaderTabTMs = "TMs", -- NEEDS TRANSLATION
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
 		LabelBSTTotal = "Total", -- NEEDS TRANSLATION

@@ -57,6 +57,13 @@ RandomizerLog.Sectors = {
 		-- Matches: pokemon and helditem[optional], level
 		PartyPokemonPattern = "%s*(.-)%sLv(%d+)",
 	},
+	Routes = {
+		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Wild Pokemon"),
+		-- Matches: route_set_num, name_encounter
+		NextRoutePattern = "^Set %#(%d+)%s*%-%s*(.-)%s*%(.*%)",
+		-- Matches: pokemon, level_min, level_max, bst_spread (max 12 total lines; the order determines encounter percentage)
+		RoutePokemonPattern = "^(.-)%s*Lvs?%s?(%d+)%-?(%d*)%s*(.*)",
+	},
 	-- Currently unused
 	PickupItems = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pickup Items"),
@@ -97,6 +104,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parseTMMoves(logLines)
 	RandomizerLog.parseTMCompatibility(logLines)
 	RandomizerLog.parseTrainers(logLines)
+	RandomizerLog.parseRoutes(logLines)
 	RandomizerLog.parsePickupItems(logLines)
 	RandomizerLog.parseRandomizerGame(logLines)
 	RandomizerLog.removeMappings()
@@ -144,6 +152,7 @@ function RandomizerLog.initBlankData()
 		Pokemon = {},
 		TMs = {},
 		Trainers = {},
+		Routes = {},
 		PickupItems = {}, -- Currently unused
 	}
 
@@ -319,7 +328,7 @@ function RandomizerLog.parseMoveSets(logLines)
 		if pokemonData ~= nil then
 			pokemonData.MoveSet = {}
 			 -- First six lines are redundant Base Sets (also don't trust these will exist), and skip current line
-			 index = index + 7
+			index = index + 7
 
 			-- Search for each listed level-up move
 			local level, movename = string.match(logLines[index] or "", RandomizerLog.Sectors.MoveSets.MovePattern)
@@ -450,6 +459,108 @@ function RandomizerLog.parseTrainers(logLines)
 	end
 end
 
+function RandomizerLog.parseRoutes(logLines)
+	if RandomizerLog.Sectors.Routes.LineNumber == nil then
+		return
+	end
+
+	-- https://github.com/pret/pokefirered/blob/master/src/data/wild_encounters.json
+	local encounterTypes = {
+		["grass/cave"] = {
+			rates = { 0.20, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05, 0.05, 0.04, 0.04, 0.01, 0.01, }
+		},
+		["surfing"] = {
+			rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
+		},
+		["rock smash"] = {
+			rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
+		},
+		["fishing"] = { -- Includes all three: Old Rod, Good Rod, and Super Rod (in that order)
+			rates = {
+				0.70, 0.30, -- Old Rod
+				0.60, 0.20, 0.20, -- Good Rod
+				0.40, 0.40, 0.15, 0.04, 0.01, -- Super Rod
+			}
+		},
+	}
+
+	-- Parse the sector
+	local index = RandomizerLog.Sectors.Routes.LineNumber
+	while index <= #logLines do
+		local route_set_num, name_encounter = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.NextRoutePattern)
+		route_set_num = tonumber(RandomizerLog.formatInput(route_set_num) or "") -- nil if not a number
+		name_encounter = RandomizerLog.formatInput(name_encounter)
+
+		-- Search for the next Route, or the end of sector
+		while route_set_num == nil or name_encounter == nil do
+			if string.find(logLines[index] or "", "^%-%-") ~= nil or index + 1 > #logLines then
+				return
+			end
+			index = index + 1
+			route_set_num, name_encounter = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.NextRoutePattern)
+			route_set_num = tonumber(RandomizerLog.formatInput(route_set_num) or "") -- nil if not a number
+			name_encounter = RandomizerLog.formatInput(name_encounter)
+		end
+
+		local routeName, encounterType
+		for enc, _ in pairs(encounterTypes) do
+			local encIndex = string.find(name_encounter, enc, 1, true)
+			if encIndex ~= nil then
+				routeName = name_encounter:sub(1, encIndex - 2) -- Remove trailing space
+				encounterType = enc
+				break
+			end
+		end
+
+		local mapId = RandomizerLog.RouteSetNumToIdMap[route_set_num or 0] or 0
+		if mapId ~= 0 then
+			RandomizerLog.Data.Routes[mapId] = {
+				name = routeName or "Unknown",
+				setNumber = route_set_num,
+				encounterType = encounterType or "Unknown",
+				Encounters = {}
+			}
+		end
+
+		local routeData = RandomizerLog.Data.Routes[mapId]
+		if routeData ~= nil then
+			index = index + 1
+
+			-- Max 12 total wild encounters, the order determines encounter percentage
+			local encounterIndex = 1
+			local encounterRates = (encounterTypes[routeData.encounterType] or {}).rates or {}
+
+			-- Search for each listed wild encounter
+			local pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
+			pokemon = RandomizerLog.formatInput(pokemon)
+			pokemon = RandomizerLog.alternateNidorans(pokemon)
+			while pokemon ~= nil and level_min ~= nil do
+				local pokemonID = RandomizerLog.PokemonNameToIdMap[pokemon]
+				if pokemonID ~= nil then
+					-- Condense encounter data for multiple listings of the same Pokemon (combine levels & rates)
+					if routeData.Encounters[pokemonID] == nil then
+						routeData.Encounters[pokemonID] = {}
+					end
+					local enc = routeData.Encounters[pokemonID]
+					enc.index = enc.index or encounterIndex
+					enc.levelMin = math.min(enc.levelMin or 100, tonumber(RandomizerLog.formatInput(level_min)) or 0)
+					enc.levelMax = math.max(enc.levelMax or 0, tonumber(RandomizerLog.formatInput(level_max)) or enc.levelMin)
+					enc.rate = (enc.rate or 0) + (encounterRates[encounterIndex] or 0)
+				end
+
+				index = index + 1
+				encounterIndex = encounterIndex + 1
+				if index > #logLines then
+					return
+				end
+				pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
+			end
+		else
+			index = index + 1
+		end
+	end
+end
+
 -- Currently unused
 function RandomizerLog.parsePickupItems(logLines)
 	-- Utils.printDebug("#%s: %s >%s< %s", trainer_num, pokemon or "N/A", helditem or "N/A", level or 0)
@@ -503,12 +614,244 @@ function RandomizerLog.setupMappings()
 			RandomizerLog.AbilityNameToIdMap[formattedName] = abilityInfo.id
 		end
 	end
+
+	-- TODO: Verify this isn't FRLG dependent. Make sure it works on Emerald and Ruby/Sapphire (check each)
+	-- Route Set # -> IDs (can't use names, not unique matches)
+	RandomizerLog.RouteSetNumToIdMap = {}
+	RandomizerLog.RouteSetNumToIdMap[1] = 335 -- monean chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[2] = 336 -- liptoo chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[3] = 337 -- weepth chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[4] = 338 -- dilford chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[5] = 339 -- scufib chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[6] = 362 -- rixy chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[7] = 363 -- viapois chamber (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[8] = 117 -- viridian forest (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[9] = 114 -- mt. moon (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[10] = 115 -- mt. moon (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[11] = 116 -- mt. moon (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[12] = 000 -- s.s. anne (surfing)
+	RandomizerLog.RouteSetNumToIdMap[13] = 000 -- s.s. anne (fishing)
+	RandomizerLog.RouteSetNumToIdMap[14] = 124 -- diglett's cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[15] = 125 -- victory road (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[16] = 126 -- victory road (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[17] = 127 -- victory road (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[18] = 143 -- pokémon mansion (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[19] = 144 -- pokémon mansion (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[20] = 145 -- pokémon mansion (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[21] = 146 -- pokémon mansion (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[22] = 147 -- safari zone (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[23] = 147 -- safari zone (surfing)
+	RandomizerLog.RouteSetNumToIdMap[24] = 147 -- safari zone (fishing)
+	RandomizerLog.RouteSetNumToIdMap[25] = 148 -- safari zone (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[26] = 148 -- safari zone (surfing)
+	RandomizerLog.RouteSetNumToIdMap[27] = 148 -- safari zone (fishing)
+	RandomizerLog.RouteSetNumToIdMap[28] = 149 -- safari zone (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[29] = 149 -- safari zone (surfing)
+	RandomizerLog.RouteSetNumToIdMap[30] = 149 -- safari zone (fishing)
+	RandomizerLog.RouteSetNumToIdMap[31] = 150 -- safari zone (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[32] = 150 -- safari zone (surfing)
+	RandomizerLog.RouteSetNumToIdMap[33] = 150 -- safari zone (fishing)
+	RandomizerLog.RouteSetNumToIdMap[34] = 151 -- cerulean cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[35] = 151 -- cerulean cave (surfing)
+	RandomizerLog.RouteSetNumToIdMap[36] = 151 -- cerulean cave (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[37] = 151 -- cerulean cave (fishing)
+	RandomizerLog.RouteSetNumToIdMap[38] = 152 -- cerulean cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[39] = 152 -- cerulean cave (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[40] = 153 -- cerulean cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[41] = 153 -- cerulean cave (surfing)
+	RandomizerLog.RouteSetNumToIdMap[42] = 153 -- cerulean cave (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[43] = 153 -- cerulean cave (fishing)
+	RandomizerLog.RouteSetNumToIdMap[44] = 154 -- rock tunnel (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[45] = 155 -- rock tunnel (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[46] = 155 -- rock tunnel (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[47] = 156 -- seafoam islands (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[48] = 157 -- seafoam islands (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[49] = 158 -- seafoam islands (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[50] = 159 -- seafoam islands (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[51] = 159 -- seafoam islands (surfing)
+	RandomizerLog.RouteSetNumToIdMap[52] = 159 -- seafoam islands (fishing)
+	RandomizerLog.RouteSetNumToIdMap[53] = 160 -- seafoam islands (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[54] = 160 -- seafoam islands (surfing)
+	RandomizerLog.RouteSetNumToIdMap[55] = 160 -- seafoam islands (fishing)
+	RandomizerLog.RouteSetNumToIdMap[56] = 163 -- pokémon tower (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[57] = 164 -- pokémon tower (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[58] = 165 -- pokémon tower (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[59] = 166 -- pokémon tower (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[60] = 167 -- pokémon tower (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[61] = 168 -- power plant (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[62] = 280 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[63] = 280 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[64] = 282 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[65] = 283 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[66] = 283 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[67] = 284 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[68] = 285 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[69] = 285 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[70] = 286 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[71] = 286 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[72] = 287 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[73] = 287 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[74] = 288 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[75] = 288 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[76] = 289 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[77] = 289 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[78] = 290 -- mt. ember (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[79] = 290 -- mt. ember (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[80] = 270 -- berry forest (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[81] = 270 -- berry forest (surfing)
+	RandomizerLog.RouteSetNumToIdMap[82] = 270 -- berry forest (fishing)
+	RandomizerLog.RouteSetNumToIdMap[83] = 293 -- icefall cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[84] = 293 -- icefall cave (surfing)
+	RandomizerLog.RouteSetNumToIdMap[85] = 293 -- icefall cave (fishing)
+	RandomizerLog.RouteSetNumToIdMap[86] = 294 -- icefall cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[87] = 295 -- icefall cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[88] = 296 -- icefall cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[89] = 296 -- icefall cave (surfing)
+	RandomizerLog.RouteSetNumToIdMap[90] = 296 -- icefall cave (fishing)
+	RandomizerLog.RouteSetNumToIdMap[91] = 317 -- pattern bush (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[92] = 321 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[93] = 322 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[94] = 323 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[95] = 324 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[96] = 325 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[97] = 326 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[98] = 327 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[99] = 328 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[100] = 329 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[101] = 330 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[102] = 331 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[103] = 332 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[104] = 333 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[105] = 334 -- lost cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[106] = 237 -- kindle road (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[107] = 237 -- kindle road (surfing)
+	RandomizerLog.RouteSetNumToIdMap[108] = 237 -- kindle road (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[109] = 237 -- kindle road (fishing)
+	RandomizerLog.RouteSetNumToIdMap[110] = 238 -- treasure beach (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[111] = 238 -- treasure beach (surfing)
+	RandomizerLog.RouteSetNumToIdMap[112] = 238 -- treasure beach (fishing)
+	RandomizerLog.RouteSetNumToIdMap[113] = 239 -- cape brink (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[114] = 239 -- cape brink (surfing)
+	RandomizerLog.RouteSetNumToIdMap[115] = 239 -- cape brink (fishing)
+	RandomizerLog.RouteSetNumToIdMap[116] = 240 -- bond bridge (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[117] = 240 -- bond bridge (surfing)
+	RandomizerLog.RouteSetNumToIdMap[118] = 240 -- bond bridge (fishing)
+	RandomizerLog.RouteSetNumToIdMap[119] = 241 -- three isle port (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[120] = 246 -- resort gorgeous (surfing)
+	RandomizerLog.RouteSetNumToIdMap[121] = 246 -- resort gorgeous (fishing)
+	RandomizerLog.RouteSetNumToIdMap[122] = 247 -- water labyrinth (surfing)
+	RandomizerLog.RouteSetNumToIdMap[123] = 247 -- water labyrinth (fishing)
+	RandomizerLog.RouteSetNumToIdMap[124] = 248 -- five isle meadow (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[125] = 248 -- five isle meadow (surfing)
+	RandomizerLog.RouteSetNumToIdMap[126] = 248 -- five isle meadow (fishing)
+	RandomizerLog.RouteSetNumToIdMap[127] = 249 -- memorial pillar (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[128] = 249 -- memorial pillar (surfing)
+	RandomizerLog.RouteSetNumToIdMap[129] = 249 -- memorial pillar (fishing)
+	RandomizerLog.RouteSetNumToIdMap[130] = 250 -- outcast island (surfing)
+	RandomizerLog.RouteSetNumToIdMap[131] = 250 -- outcast island (fishing)
+	RandomizerLog.RouteSetNumToIdMap[132] = 251 -- green path (surfing)
+	RandomizerLog.RouteSetNumToIdMap[133] = 251 -- green path (fishing)
+	RandomizerLog.RouteSetNumToIdMap[134] = 252 -- water path (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[135] = 252 -- water path (surfing)
+	RandomizerLog.RouteSetNumToIdMap[136] = 252 -- water path (fishing)
+	RandomizerLog.RouteSetNumToIdMap[137] = 253 -- ruin valley (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[138] = 253 -- ruin valley (surfing)
+	RandomizerLog.RouteSetNumToIdMap[139] = 253 -- ruin valley (fishing)
+	RandomizerLog.RouteSetNumToIdMap[140] = 254 -- trainer tower (surfing)
+	RandomizerLog.RouteSetNumToIdMap[141] = 254 -- trainer tower (fishing)
+	RandomizerLog.RouteSetNumToIdMap[142] = 255 -- canyon entrance (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[143] = 256 -- sevault canyon (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[144] = 256 -- sevault canyon (rock smash)
+	RandomizerLog.RouteSetNumToIdMap[145] = 257 -- tanoby ruins (surfing)
+	RandomizerLog.RouteSetNumToIdMap[146] = 257 -- tanoby ruins (fishing)
+	RandomizerLog.RouteSetNumToIdMap[147] = 89 -- route 1 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[148] = 90 -- route 2 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[149] = 91 -- route 3 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[150] = 92 -- route 4 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[151] = 92 -- route 4 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[152] = 92 -- route 4 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[153] = 93 -- route 5 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[154] = 94 -- route 6 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[155] = 94 -- route 6 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[156] = 94 -- route 6 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[157] = 95 -- route 7 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[158] = 96 -- route 8 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[159] = 97 -- route 9 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[160] = 98 -- route 10 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[161] = 98 -- route 10 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[162] = 98 -- route 10 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[163] = 99 -- route 11 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[164] = 99 -- route 11 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[165] = 99 -- route 11 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[166] = 100 -- route 12 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[167] = 100 -- route 12 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[168] = 100 -- route 12 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[169] = 101 -- route 13 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[170] = 101 -- route 13 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[171] = 101 -- route 13 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[172] = 102 -- route 14 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[173] = 103 -- route 15 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[174] = 104 -- route 16 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[175] = 105 -- route 17 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[176] = 106 -- route 18 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[177] = 107 -- route 19 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[178] = 107 -- route 19 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[179] = 108 -- route 20 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[180] = 108 -- route 20 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[181] = 109 -- route 21 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[182] = 109 -- route 21 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[183] = 109 -- route 21 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[184] = 219 -- route 21 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[185] = 219 -- route 21 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[186] = 219 -- route 21 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[187] = 110 -- route 22 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[188] = 110 -- route 22 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[189] = 110 -- route 22 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[190] = 111 -- route 23 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[191] = 111 -- route 23 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[192] = 111 -- route 23 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[193] = 112 -- route 24 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[194] = 112 -- route 24 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[195] = 112 -- route 24 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[196] = 113 -- route 25 (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[197] = 113 -- route 25 (surfing)
+	RandomizerLog.RouteSetNumToIdMap[198] = 113 -- route 25 (fishing)
+	RandomizerLog.RouteSetNumToIdMap[199] = 78 -- pallet town (surfing)
+	RandomizerLog.RouteSetNumToIdMap[200] = 78 -- pallet town (fishing)
+	RandomizerLog.RouteSetNumToIdMap[201] = 79 -- viridian city (surfing)
+	RandomizerLog.RouteSetNumToIdMap[202] = 79 -- viridian city (fishing)
+	RandomizerLog.RouteSetNumToIdMap[203] = 81 -- cerulean city (surfing)
+	RandomizerLog.RouteSetNumToIdMap[204] = 81 -- cerulean city (fishing)
+	RandomizerLog.RouteSetNumToIdMap[205] = 83 -- vermilion city (surfing)
+	RandomizerLog.RouteSetNumToIdMap[206] = 83 -- vermilion city (fishing)
+	RandomizerLog.RouteSetNumToIdMap[207] = 84 -- celadon city (surfing)
+	RandomizerLog.RouteSetNumToIdMap[208] = 84 -- celadon city (fishing)
+	RandomizerLog.RouteSetNumToIdMap[209] = 85 -- fuchsia city (surfing)
+	RandomizerLog.RouteSetNumToIdMap[210] = 85 -- fuchsia city (fishing)
+	RandomizerLog.RouteSetNumToIdMap[211] = 86 -- cinnabar island (surfing)
+	RandomizerLog.RouteSetNumToIdMap[212] = 86 -- cinnabar island (fishing)
+	RandomizerLog.RouteSetNumToIdMap[213] = 230 -- one island (surfing)
+	RandomizerLog.RouteSetNumToIdMap[214] = 230 -- one island (fishing)
+	RandomizerLog.RouteSetNumToIdMap[215] = 233 -- four island (surfing)
+	RandomizerLog.RouteSetNumToIdMap[216] = 233 -- four island (fishing)
+	RandomizerLog.RouteSetNumToIdMap[217] = 234 -- five island (surfing)
+	RandomizerLog.RouteSetNumToIdMap[218] = 234 -- five island (fishing)
+	RandomizerLog.RouteSetNumToIdMap[219] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[220] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[221] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[222] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[223] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[224] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[225] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[226] = 340 -- altering cave (grass/cave)
+	RandomizerLog.RouteSetNumToIdMap[227] = 340 -- altering cave (grass/cave)
 end
 
 function RandomizerLog.removeMappings()
 	RandomizerLog.PokemonNameToIdMap = nil
 	RandomizerLog.MoveNameToIdMap = nil
 	RandomizerLog.AbilityNameToIdMap = nil
+	RandomizerLog.RouteSetNumToIdMap = nil
 	collectgarbage()
 end
 
