@@ -4,7 +4,9 @@ LogTabPokemon = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-	}
+	},
+	defaultSortKey = "PokedexNum",
+	defaultFilterKey = "PokemonName",
 }
 
 LogTabPokemon.PagedButtons = {}
@@ -32,14 +34,7 @@ function LogTabPokemon.buildPagedButtons()
 		local button = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			id = id,
-			getText = function(self)
-				-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-				if RandomizerLog.areLanguagesMismatched() then
-					return PokemonData.Pokemon[id].name or Constants.BLANKLINE
-				else
-					return pokemon.Name or PokemonData.Pokemon[id].name or Constants.BLANKLINE
-				end
-			end,
+			getText = function(self) return RandomizerLog.getPokemonName(id) end,
 			textColor = LogTabPokemon.Colors.text,
 			boxColors = { LogTabPokemon.Colors.border, LogTabPokemon.Colors.boxFill },
 			dimensions = { width = 32, height = 32, },

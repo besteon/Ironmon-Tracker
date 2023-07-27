@@ -284,12 +284,10 @@ function LogOverlay.addHeaderTabButtons()
 			end,
 			onClick = function(self)
 				if self.isSelected then return end -- Don't change if already on this tab
-				if type(tabScreen.realignGrid) == "function" then
-					tabScreen.realignGrid()
-				end
 				LogOverlay.TabHistory = {}
 				LogOverlay.Windower:changeTab(tabScreen)
-				LogSearchScreen.resetSortFilterSearch(tabScreen)
+				LogSearchScreen.resetSearchSortFilter()
+				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end,
 		}
@@ -311,6 +309,19 @@ function LogOverlay.buildAllTabs()
 	-- TMs
 	LogTabTMs.buildPagedButtons(gymTMs)
 	LogTabTMs.buildGymTMButtons()
+end
+
+function LogOverlay.refreshActiveTabGrid()
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	if type(currentTab.realignGrid) == "function" then
+		if LogSearchScreen.searchText ~= "" and LogSearchScreen.AllowedTabViews[currentTab] then
+			currentTab.realignGrid(LogOverlay.Windower.filterGrid, LogSearchScreen.currentSortOrder.sortFunc)
+		else
+			currentTab.realignGrid()
+		end
+	elseif type(currentTab.refreshButtons) == "function" then
+		currentTab.refreshButtons()
+	end
 end
 
 -- Rebuilds the buttons for the currently displayed screen. Useful when the Tracker's display language changes
@@ -484,7 +495,8 @@ function LogOverlay.parseAndDisplay(logpath)
 		LogOverlay.TabHistory = {}
 		LogOverlay.buildAllTabs()
 		LogOverlay.Windower:changeTab(LogTabPokemon)
-		LogSearchScreen.resetSortFilterSearch(LogTabPokemon)
+		LogSearchScreen.resetSearchSortFilter()
+		LogOverlay.refreshActiveTabGrid()
 		-- If the player has a Pokemon, show it on the side-screen
 		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
 		if PokemonData.isValid(leadPokemon.pokemonID) then

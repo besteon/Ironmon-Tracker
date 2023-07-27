@@ -16,6 +16,8 @@ LogSearchScreen = {
 	AllowedTabViews = {
 		[LogTabPokemon] = true,
 		[LogTabTrainers] = true,
+		[LogTabRoutes] = true,
+		-- [LogTabRouteDetails] = true, -- TODO: uncomment later after creating this screen file
 	},
 	padding = 2,
 	searchText = "",
@@ -40,7 +42,7 @@ LogSearchScreen.SortBy = {
 			local name1, name2 = a:getText(), b:getText()
 			return name1 < name2 or (name1 == name2 and a.id < b.id)
 		end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
 		index = 2,
 	},
 	BST = {
@@ -113,28 +115,52 @@ LogSearchScreen.SortBy = {
 		contexts = { [LogTabPokemon] = true, },
 		index = 9,
 	},
+	TrainerLevel = {
+		-- TODO: update resources
+		getText = function() return "Trainer Level" or Resources.LogSearchScreen.TrainerLevel end,
+		sortFunc = function(a, b)
+			return a.avgTrainerLv < b.avgTrainerLv or (a.avgTrainerLv == b.avgTrainerLv and a.id < b.id)
+		end,
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 10,
+	},
+	WildPokemonLevel = {
+		-- TODO: update resources
+		getText = function() return "Wild Pokémon Lv." or Resources.LogSearchScreen.WildPokemonLevel end,
+		sortFunc = function(a, b)
+			return a.avgWildLv < b.avgWildLv or (a.avgWildLv == b.avgWildLv and a.id < b.id)
+		end,
+		contexts = { [LogTabRoutes] = true, },
+		index = 11,
+	},
 }
 
 LogSearchScreen.FilterBy = {
+	RouteName = {
+		-- TODO: update resources
+		getText = function() return "Route Name" or Resources.LogSearchScreen.FilterRouteName end,
+		contexts = { [LogTabRoutes] = true, },
+		index = 1,
+	},
 	TrainerName = {
 		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
-		contexts = { [LogTabTrainers] = true, },
-		index = 1,
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 2,
 	},
 	PokemonName = {
 		getText = function() return Resources.LogSearchScreen.FilterName end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
-		index = 2,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 3,
 	},
 	PokemonAbility = {
 		getText = function() return Resources.LogSearchScreen.FilterAbility end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, },
-		index = 3,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 4,
 	},
 	PokemonMove = {
 		getText = function() return Resources.LogSearchScreen.FilterMove end,
-		contexts = { [LogTabPokemon] = true, }, -- [LogTabTrainers] = true, requires rework to store all built out data
-		index = 4,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 5,
 	},
 }
 
@@ -183,7 +209,7 @@ function LogSearchScreen.createButtons()
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
 				LSS.clearSearch()
-				LSS.updateSearchResults()
+				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end
 		end,
@@ -215,7 +241,7 @@ function LogSearchScreen.createButtons()
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
 				LSS.searchText = LSS.searchText:sub(1, #LSS.searchText - 1)
-				LSS.updateSearchResults()
+				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end
 		end,
@@ -354,7 +380,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
 				LSS.currentSortOrder = sortby
 				LSS.createUpdateSortOrderDropdown()
-				LSS.updateSearchResults()
+				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end,
 			draw = function(self)
@@ -441,7 +467,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
 				LSS.createUpdateFilterDropdown()
-				LSS.updateSearchResults()
+				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end,
 			draw = function(self)
@@ -468,23 +494,11 @@ function LogSearchScreen.clearSearch()
 	LogSearchScreen.searchText = ""
 end
 
-function LogSearchScreen.updateSearchResults()
-	local currentTab = LogOverlay.Windower.currentTab or {}
-	if LogSearchScreen.AllowedTabViews[currentTab] and type(currentTab.realignGrid) == "function" then
-		local sortFunc -- Leave nil to use default sort if no search text provided
-		if LogSearchScreen.searchText ~= "" then
-			sortFunc = LogSearchScreen.currentSortOrder.sortFunc
-		end
-		currentTab.realignGrid(LogOverlay.Windower.filterGrid, sortFunc)
-	end
-end
-
 -- Checks if it's contextually correct to show search screen; returns true if so, false otherwise
 function LogSearchScreen.tryDisplayOrHide()
 	local currentTab = LogOverlay.Windower.currentTab or {}
 	if LogSearchScreen.AllowedTabViews[currentTab] then
 		LogSearchScreen.refreshDropDowns()
-		LogSearchScreen.updateSearchResults()
 		if Program.currentScreen ~= LogSearchScreen then
 			Program.changeScreenView(LogSearchScreen)
 		end
@@ -498,19 +512,14 @@ function LogSearchScreen.tryDisplayOrHide()
 	return false
 end
 
--- Resets the sort by and filters based on the tab being viewed, also clears the search text
-function LogSearchScreen.resetSortFilterSearch(tab)
-	if tab == LogTabPokemon then
-		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.PokedexNum
-		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.PokemonName
-	elseif tab == LogTabTrainers then
-		LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
-		LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.TrainerName
-	end
+-- Resets the sort by and filters based on the active tab, also clears the search text
+function LogSearchScreen.resetSearchSortFilter()
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy[currentTab.defaultSortKey or "Alphabetical"]
+	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy[currentTab.defaultFilterKey or "PokemonName"]
 	LogSearchScreen.sortDropDownOpen = false
 	LogSearchScreen.filterDropDownOpen = false
 	LogSearchScreen.clearSearch()
-	LogSearchScreen.updateSearchResults()
 end
 
 --- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.KeyboardButtons
@@ -587,7 +596,7 @@ function LogSearchScreen.createKeyboardButtons()
 					if LSS.searchText and #LSS.searchText < LSS.Buttons.SearchTextField.maxLetters then
 						LSS.searchText = LSS.searchText .. self.textToAdd
 					end
-					LSS.updateSearchResults()
+					LogOverlay.refreshActiveTabGrid()
 					Program.redraw(true)
 				end,
 				draw = function(self)

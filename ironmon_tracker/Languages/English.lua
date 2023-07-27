@@ -474,7 +474,7 @@ ScreenResources{
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon",
 		HeaderTabTrainers = "Trainers",
-		HeaderTabRoutes = "Routes",
+		HeaderTabRoutes = "R" or "Routes", -- TODO: Fix before PR
 		HeaderTabTMs = "TMs",
 		HeaderTabMisc = "Misc.",
 		LabelBaseStats = "Base Stats",

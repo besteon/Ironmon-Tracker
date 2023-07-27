@@ -551,12 +551,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
 	data.p.id = pokemonDex.pokemonID or 0
-	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-	if RandomizerLog.areLanguagesMismatched() then
-		data.p.name = pokemonDex.name or Constants.BLANKLINE
-	else
-		data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
-	end
+	data.p.name = RandomizerLog.getPokemonName(pokemonID)
 	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
@@ -673,6 +668,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	for _, partyMon in ipairs(trainer.party or {}) do
 		local pokemonInfo = {
 			id = partyMon.pokemonID or 0,
+			name = RandomizerLog.getPokemonName(partyMon.pokemonID),
 			level = partyMon.level or 0,
 			moves = {},
 			helditem = partyMon.helditem,
@@ -684,35 +680,27 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 			pokemonLog.Types[2],
 		}
 
-		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-		if RandomizerLog.areLanguagesMismatched() then
-			pokemonInfo.name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-		else
-			pokemonInfo.name = pokemonLog.Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-		end
+		for _, moveId in ipairs(partyMon.moveIds) do
+			local moveToAdd = {
+				moveId = moveId,
+				name = Constants.BLANKLINE,
+				isstab = false,
+			}
 
-		local movesLeftToAdd = 4
-		local pokemonMoves = pokemonLog.MoveSet or {}
-		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
-		for j = #pokemonMoves, 1, -1 do
-			if pokemonMoves[j].level <= partyMon.level then
-				local moveToAdd = {
-					moveId = pokemonMoves[j].moveId,
-				}
-				local moveDex = MoveData.Moves[pokemonMoves[j].moveId]
-				if moveDex ~= nil then
-					moveToAdd.name = moveDex.name
-					moveToAdd.isstab = Utils.isSTAB(moveDex, moveDex.type, pokemonTypes)
-				else
-					moveToAdd.name = pokemonMoves[j].name or Constants.BLANKLINE
-					moveToAdd.isstab = false
-				end
-				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
-				movesLeftToAdd = movesLeftToAdd - 1
-				if movesLeftToAdd <= 0 then
-					break
+			local moveDex = MoveData.Moves[moveId]
+			if moveDex ~= nil then
+				moveToAdd.name = moveDex.name
+				moveToAdd.isstab = Utils.isSTAB(moveDex, moveDex.type, pokemonTypes)
+			else
+				-- Otherwise likely a custom name, look it up from its move list, cannot confirm if STAB
+				for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
+					if moveLog.moveId == moveId then
+						moveToAdd.name = moveLog.name or Constants.BLANKLINE
+						break
+					end
 				end
 			end
+			table.insert(pokemonInfo.moves, moveToAdd)
 		end
 		table.insert(data.p, pokemonInfo)
 	end

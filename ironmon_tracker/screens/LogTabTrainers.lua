@@ -5,7 +5,9 @@ LogTabTrainers = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 		hightlight = "Intermediate text",
-	}
+	},
+	defaultSortKey = "Alphabetical",
+	defaultFilterKey = "TrainerName",
 }
 
 LogTabTrainers.PagedButtons = {}
@@ -127,14 +129,8 @@ function LogTabTrainers.buildPagedButtons()
 					end
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 					for _, partyMon in ipairs(trainerData.party or {}) do
-						local name
-						-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-						if RandomizerLog.areLanguagesMismatched() then
-							name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-						else
-							name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-						end
-						if Utils.containsText(name, LogSearchScreen.searchText, true) then
+						local pokemonName = RandomizerLog.getPokemonName(partyMon.pokemonID)
+						if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
 							return true
 						end
 					end
@@ -143,6 +139,15 @@ function LogTabTrainers.buildPagedButtons()
 						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
 							local abilityText = AbilityData.Abilities[abilityId].name
 							if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
+								return true
+							end
+						end
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
+					for _, partyMon in ipairs(trainerData.party or {}) do
+						for _, moveId in ipairs(partyMon.moveIds or {}) do
+							local moveText = MoveData.Moves[moveId].name
+							if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
 								return true
 							end
 						end

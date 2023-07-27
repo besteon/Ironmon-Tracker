@@ -5,7 +5,9 @@ LogTabRoutes = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 		hightlight = "Intermediate text",
-	}
+	},
+	defaultSortKey = "TrainerLevel",
+	defaultFilterKey = "RouteName",
 }
 
 LogTabRoutes.PagedButtons = {}
@@ -29,62 +31,97 @@ end
 function LogTabRoutes.buildPagedButtons()
 	LogTabRoutes.PagedButtons = {}
 
-	for mapId, routeData in pairs(RandomizerLog.Data.Routes) do
+	for mapId, route in pairs(RandomizerLog.Data.Routes) do
 		local routeInfo = RouteData.Info[mapId] or {}
-		local routeName = routeInfo.name or Utils.firstToUpper(routeData.name)
+		local routeName = routeInfo.name or Utils.firstToUpper(route.name)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return routeName end,
 			id = mapId,
+			avgTrainerLv = route.avgTrainerLv,
+			avgWildLv = route.avgWildLv,
 			filename = routeInfo.filename,
 			dimensions = { width = 90, height = 20, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				-- If no search text entered, check any filter groups
-				if LogSearchScreen.searchText == "" then
-					-- TODO: Optional nav filters; currently none available
+				-- Exclude routes without trainers/wilds if a sort using those is selected
+				if LogSearchScreen.currentSortOrder == LogSearchScreen.SortBy.TrainerLevel and self.avgTrainerLv == 0 then
+					return false
+				elseif LogSearchScreen.currentSortOrder == LogSearchScreen.SortBy.WildPokemonLevel and self.avgWildLv == 0 then
+					return false
 				end
 
-				-- if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
-				-- 	if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-				-- 		return true
-				-- 	end
-				-- elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
-				-- 	for _, partyMon in ipairs(trainerData.party or {}) do
-				-- 		local name
-				-- 		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-				-- 		if RandomizerLog.areLanguagesMismatched() then
-				-- 			name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-				-- 		else
-				-- 			name = RandomizerLog.Data.Pokemon[partyMon.pokemonID].Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-				-- 		end
-				-- 		if Utils.containsText(name, LogSearchScreen.searchText, true) then
-				-- 			return true
-				-- 		end
-				-- 	end
-				-- elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
-				-- 	for _, partyMon in ipairs(trainerData.party or {}) do
-				-- 		for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
-				-- 			local abilityText = AbilityData.Abilities[abilityId].name
-				-- 			if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-				-- 				return true
-				-- 			end
-				-- 		end
-				-- 	end
-				-- end
+				-- If no search text entered, check any filter groups
+				if LogSearchScreen.searchText == "" then
+					-- TODO: Optional nav filters; currently none available, therefore show all
+					return true
+				end
 
-				return true
+				local trainersInArea = (route.EncountersAreas["Trainers"] or {}).trainers or {}
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.RouteName then
+					if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
+						return true
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
+					for _, trainerId in ipairs(trainersInArea) do
+						local trainer = RandomizerLog.Data.Trainers[trainerId] or {}
+						if Utils.containsText(trainer.name, LogSearchScreen.searchText, true) then
+							return true
+						end
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+					-- First check if any trainers have a Pokemon with this name
+					for _, trainerId in ipairs(trainersInArea) do
+						local trainer = RandomizerLog.Data.Trainers[trainerId] or {}
+						for _, partyMon in ipairs(trainer.party or {}) do
+							local pokemonName = RandomizerLog.getPokemonName(partyMon.pokemonID)
+							if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
+								return true
+							end
+						end
+					end
+					-- Then check any wild encounters
+					for _, encArea in pairs(route.EncountersAreas or {}) do
+						for pokemonID, _ in pairs(encArea.pokemon or {}) do
+							local pokemonName = RandomizerLog.getPokemonName(pokemonID)
+							if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
+								return true
+							end
+						end
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
+					-- Only check trainers in this area for a searched ability
+					for _, trainerId in ipairs(trainersInArea) do
+						local trainer = RandomizerLog.Data.Trainers[trainerId] or {}
+						for _, partyMon in ipairs(trainer.party or {}) do
+							for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
+								local abilityText = AbilityData.Abilities[abilityId].name
+								if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
+									return true
+								end
+							end
+						end
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
+					-- Only check trainers in this area for a searched move
+					for _, trainerId in ipairs(trainersInArea) do
+						local trainer = RandomizerLog.Data.Trainers[trainerId] or {}
+						for _, partyMon in ipairs(trainer.party or {}) do
+							for _, moveId in ipairs(partyMon.moveIds or {}) do
+								local moveText = MoveData.Moves[moveId].name
+								if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
+									return true
+								end
+							end
+						end
+					end
+				end
 
-				-- TODO: Uncomment after adding in search filters above
-				-- return false
+				return false
 			end,
 			onClick = function(self)
-				-- TODO: Uncomment after creating this log viewer screen file
-				-- LogOverlay.Windower:changeTab(LogTabRouteDetails, 1, 1, self.id)
-				InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, {
-					mapId = self.id,
-					encounterArea = RouteData.getNextAvailableEncounterArea(self.id),
-				})
+				LogOverlay.Windower:changeTab(LogTabRouteDetails, 1, 1, self.id)
+				Program.redraw(true)
 			end,
 			draw = function(self, shadowcolor)
 				-- -- Draw a centered box for the Trainer's name
