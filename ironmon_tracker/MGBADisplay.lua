@@ -748,8 +748,8 @@ MGBADisplay.LineBuilder = {
 			local nameText = move.name
 			if Options["Show physical special icons"] and (data.x.viewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType) then
 				local catSymbol = " "
-				if MGBADisplay.Categories[data.m.category] then
-					catSymbol = MGBADisplay.Categories[data.m.category]:getSymbol()
+				if MGBADisplay.Categories[move.category] then
+					catSymbol = MGBADisplay.Categories[move.category]:getSymbol()
 				end
 				nameText = catSymbol .. " " .. nameText
 			end
