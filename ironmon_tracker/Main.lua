@@ -297,7 +297,7 @@ function Main.AfterStartupScreenRedirect()
 		return
 	end
 
-	if Main.CrashReport.crashedOccurred then
+	if Main.CrashReport and Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
 		return
@@ -474,9 +474,9 @@ function Main.LoadNextRom()
 		Main.DisplayError("No Quickload method has been chosen yet.\n\nEnable this at: Tracker Settings (gear icon) -> Quickload")
 	end
 
+	-- Tracker restart is expected from quickload, so avoid a falsely-flagged "crash"
+	CrashRecoveryScreen.logCrashReport(false)
 	if nextRomInfo ~= nil then
-		-- Emulator is closing as expected; no crash
-		CrashRecoveryScreen.logCrashReport(false)
 
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
