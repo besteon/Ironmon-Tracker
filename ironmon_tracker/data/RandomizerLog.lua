@@ -525,7 +525,7 @@ function RandomizerLog.parseRoutes(logLines)
 	end
 
 	-- First add in routes that have trainers from Tracker data. The Log only has route info for wild encounters
-	for mapId, routeData in pairs(TrainerData.Routes or {}) do
+	for mapId, routeInternal in pairs(RouteData.Info or {}) do
 		local routeName = (RouteData.Info[mapId] or {}).name
 		RandomizerLog.Data.Routes[mapId] = {
 			name = routeName or "Unknown Area",
@@ -534,19 +534,20 @@ function RandomizerLog.parseRoutes(logLines)
 			EncountersAreas = {},
 		}
 		local route = RandomizerLog.Data.Routes[mapId]
-		local trainerIds = routeData.trainers or {}
-		route.EncountersAreas.Trainers = {
-			logKey = RandomizerLog.EncounterTypes.Trainers.logKey,
-			trainers = trainerIds,
-		}
-		-- Determine average level of the trainers in this area
-		if #trainerIds > 0 then
-			local avgLevel = 0
-			for _, trainerId in ipairs(trainerIds) do
-				local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
-				avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
+		if routeInternal.trainers ~= nil then
+			route.EncountersAreas.Trainers = {
+				logKey = RandomizerLog.EncounterTypes.Trainers.logKey,
+				trainers = routeInternal.trainers,
+			}
+			-- Determine average level of the trainers in this area
+			if #routeInternal.trainers > 0 then
+				local avgLevel = 0
+				for _, trainerId in ipairs(routeInternal.trainers) do
+					local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
+					avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
+				end
+				route.avgTrainerLv = math.floor(avgLevel / #routeInternal.trainers + 0.5)
 			end
-			route.avgTrainerLv = math.floor(avgLevel / #trainerIds + 0.5)
 		end
 	end
 
