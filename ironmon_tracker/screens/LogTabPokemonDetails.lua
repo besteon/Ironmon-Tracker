@@ -647,24 +647,18 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	local upArrow = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.UP_ARROW,
-		textColor = "Lower box text",
+		textColor = LogTabPokemonDetails.Colors.text,
 		box = { movesColX + 107, movesRowY + 24 + Utils.inlineIf(hasEvo, 0, 10), 10, 10 },
 		isVisible = function() return LogTabPokemonDetails.Pager.totalPages > 1 end,
-		onClick = function(self)
-			LogTabPokemonDetails.Pager:prevPage()
-			Program.redraw(true)
-		end,
+		onClick = function(self) LogTabPokemonDetails.Pager:prevPage() end,
 	}
 	local downArrow = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.DOWN_ARROW,
-		textColor = "Lower box text",
+		textColor = LogTabPokemonDetails.Colors.text,
 		box = { movesColX + 107, movesRowY + 81 + Utils.inlineIf(hasEvo, 0, 30), 10, 10 },
 		isVisible = function() return LogTabPokemonDetails.Pager.totalPages > 1 end,
-		onClick = function(self)
-			LogTabPokemonDetails.Pager:nextPage()
-			Program.redraw(true)
-		end,
+		onClick = function(self) LogTabPokemonDetails.Pager:nextPage() end,
 	}
 	table.insert(LogTabPokemonDetails.TemporaryButtons, upArrow)
 	table.insert(LogTabPokemonDetails.TemporaryButtons, downArrow)

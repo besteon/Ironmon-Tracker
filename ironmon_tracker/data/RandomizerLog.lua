@@ -77,25 +77,27 @@ RandomizerLog.Sectors = {
 }
 
 -- https://github.com/pret/pokefirered/blob/master/src/data/wild_encounters.json
-local trainerEncAreaKey = "Trainers"
 RandomizerLog.EncounterTypes = {
-	[trainerEncAreaKey] = {
+	-- These keys (not logkeys) should be identical to LogTabRouteDetails.Tabs keys
+	Trainers = {
 		-- Not used for wild encounters
+		logKey = "Trainers",
 	},
 	GrassCave = {
-		key = "Grass/Cave",
+		logKey = "Grass/Cave",
 		rates = { 0.20, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05, 0.05, 0.04, 0.04, 0.01, 0.01, }
 	},
 	Surfing = {
-		key = "Surfing",
+		logKey = "Surfing",
 		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
 	},
 	RockSmash = {
-		key = "Rock Smash",
+		logKey = "Rock Smash",
 		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
 	},
-	Fishing = { -- Includes all three: Old Rod, Good Rod, and Super Rod (in that order)
-		key = "Fishing",
+	Fishing = {
+		-- Includes all three: Old Rod, Good Rod, and Super Rod (in that order)
+		logKey = "Fishing",
 		rates = {
 			0.70, 0.30, -- Old Rod
 			0.60, 0.20, 0.20, -- Good Rod
@@ -527,8 +529,8 @@ function RandomizerLog.parseRoutes(logLines)
 		}
 		local route = RandomizerLog.Data.Routes[mapId]
 		local trainerIds = routeData.trainers or {}
-		route.EncountersAreas[trainerEncAreaKey] = {
-			key = trainerEncAreaKey,
+		route.EncountersAreas.Trainers = {
+			logKey = RandomizerLog.EncounterTypes.Trainers.logKey,
 			trainers = trainerIds,
 		}
 		-- Determine average level of the trainers in this area
@@ -562,12 +564,15 @@ function RandomizerLog.parseRoutes(logLines)
 
 		local routeName, encounterTypeKey
 		for key, encTable in pairs(RandomizerLog.EncounterTypes) do
-			local logKey = encTable.key or "NO LOG KEY USED"
-			local encIndex = string.find(name_encounter, logKey:lower(), 1, true)
-			if encIndex ~= nil then
-				routeName = name_encounter:sub(1, encIndex - 2) -- Remove trailing space
-				encounterTypeKey = key
-				break
+			-- Only wild encounter data in this section of the log
+			if encTable ~= RandomizerLog.EncounterTypes.Trainers then
+				local logKey = encTable.logKey or "NO LOG KEY USED"
+				local encIndex = string.find(name_encounter, logKey:lower(), 1, true)
+				if encIndex ~= nil then
+					routeName = name_encounter:sub(1, encIndex - 2) -- Remove trailing space
+					encounterTypeKey = key
+					break
+				end
 			end
 		end
 
@@ -601,9 +606,8 @@ function RandomizerLog.parseRoutes(logLines)
 
 			-- Search for each listed wild encounter
 			local pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
-			pokemon = RandomizerLog.formatInput(pokemon)
-			pokemon = RandomizerLog.alternateNidorans(pokemon)
 			while pokemon ~= nil and level_min ~= nil do
+				pokemon = RandomizerLog.formatInput(pokemon)
 				local pokemonID = RandomizerLog.PokemonNameToIdMap[pokemon]
 				if pokemonID ~= nil then
 					-- Condense encounter data for multiple listings of the same Pokemon (combine levels & rates)
@@ -611,11 +615,18 @@ function RandomizerLog.parseRoutes(logLines)
 						encounterArea.pokemon[pokemonID] = {}
 					end
 
+					-- TODO: Separate the fishing encounters
 					local enc = encounterArea.pokemon[pokemonID]
+					local minLv = tonumber(RandomizerLog.formatInput(level_min)) or 0
+					local maxLv = tonumber(RandomizerLog.formatInput(level_max)) or minLv
 					enc.index = enc.index or encounterIndex
-					enc.levelMin = math.min(enc.levelMin or 100, tonumber(RandomizerLog.formatInput(level_min)) or 0)
-					enc.levelMax = math.max(enc.levelMax or 0, tonumber(RandomizerLog.formatInput(level_max)) or enc.levelMin)
+					enc.levelMin = math.min(enc.levelMin or 100, minLv)
+					enc.levelMax = math.max(enc.levelMax or 0, maxLv)
 					enc.rate = (enc.rate or 0) + (encouterRates[encounterIndex] or 0)
+
+					if route_set_num == 11 then
+						Utils.printDebug("%s. [%s] %s (%s - %s)", encounterIndex, pokemonID, pokemon, tonumber(RandomizerLog.formatInput(level_min)) or 0, tonumber(RandomizerLog.formatInput(level_max)) or 0)
+					end
 
 					local avgEncLv = math.floor((enc.levelMin + enc.levelMax) / 2 + 0.5)
 					avgLevel = avgLevel + avgEncLv
@@ -718,7 +729,21 @@ function RandomizerLog.setupMappings()
 		end
 	end
 
-	-- TODO: Verify this isn't FRLG dependent. Make sure it works on Emerald and Ruby/Sapphire (check each)
+	-- TODO: Verify this works on Emerald and Ruby/Sapphire (check each)
+	if GameSettings.game == 1 or GameSettings.game == 2 then
+		RandomizerLog.setupMappingsRSE()
+	elseif GameSettings.game == 3 then
+		RandomizerLog.setupMappingsFRLG()
+	end
+end
+
+function RandomizerLog.setupMappingsRSE()
+	-- Route Set # -> IDs (can't use names, not unique matches)
+	RandomizerLog.RouteSetNumToIdMap = {}
+	-- TODO...
+end
+
+function RandomizerLog.setupMappingsFRLG()
 	-- Route Set # -> IDs (can't use names, not unique matches)
 	RandomizerLog.RouteSetNumToIdMap = {}
 	RandomizerLog.RouteSetNumToIdMap[1] = 335 -- monean chamber (grass/cave)
@@ -732,8 +757,8 @@ function RandomizerLog.setupMappings()
 	RandomizerLog.RouteSetNumToIdMap[9] = 114 -- mt. moon (grass/cave)
 	RandomizerLog.RouteSetNumToIdMap[10] = 115 -- mt. moon (grass/cave)
 	RandomizerLog.RouteSetNumToIdMap[11] = 116 -- mt. moon (grass/cave)
-	RandomizerLog.RouteSetNumToIdMap[12] = 000 -- s.s. anne (surfing)
-	RandomizerLog.RouteSetNumToIdMap[13] = 000 -- s.s. anne (fishing)
+	RandomizerLog.RouteSetNumToIdMap[12] = 118 -- s.s. anne (surfing)
+	RandomizerLog.RouteSetNumToIdMap[13] = 118 -- s.s. anne (fishing)
 	RandomizerLog.RouteSetNumToIdMap[14] = 124 -- diglett's cave (grass/cave)
 	RandomizerLog.RouteSetNumToIdMap[15] = 125 -- victory road (grass/cave)
 	RandomizerLog.RouteSetNumToIdMap[16] = 126 -- victory road (grass/cave)

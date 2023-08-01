@@ -33,7 +33,7 @@ function LogTabRoutes.buildPagedButtons()
 
 	for mapId, route in pairs(RandomizerLog.Data.Routes) do
 		local routeInfo = RouteData.Info[mapId] or {}
-		local routeName = routeInfo.name or Utils.firstToUpper(route.name)
+		local routeName =  Utils.firstToUpper(route.name or routeInfo.name)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return routeName end,

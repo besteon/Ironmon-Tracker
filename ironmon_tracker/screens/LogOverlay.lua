@@ -68,6 +68,11 @@ LogOverlay.Windower = {
 			if prevTab.tab ~= LogTabPokemonDetails and prevTab.tab ~= LogTabTrainerDetails then
 				table.insert(LogOverlay.TabHistory, prevTab)
 			end
+		elseif newTab == LogTabRouteDetails then
+			LogTabRouteDetails.buildZoomButtons(self.infoId)
+			if prevTab.tab ~= LogTabPokemonDetails and prevTab.tab ~= LogTabTrainerDetails then
+				table.insert(LogOverlay.TabHistory, prevTab)
+			end
 		end
 
 		LogOverlay.refreshButtons()
@@ -128,7 +133,12 @@ LogOverlay.HeaderButtons = {
 		box = { LogOverlay.margin + 228, 2, 10, 10 },
 		updateSelf = function(self)
 			self.textColor = Theme.headerHighlightKey
-			if LogOverlay.Windower.currentTab == LogTabPokemonDetails or LogOverlay.Windower.currentTab == LogTabTrainerDetails then
+			local canGoBackTabs = {
+				[LogTabPokemonDetails] = true,
+				[LogTabTrainerDetails] = true,
+				[LogTabRouteDetails] = true,
+			}
+			if canGoBackTabs[LogOverlay.Windower.currentTab] then
 				self.image = Constants.PixelImages.LEFT_ARROW
 				self.box[2] = 1
 			else

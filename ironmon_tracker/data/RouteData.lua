@@ -1007,7 +1007,11 @@ function RouteData.setupRouteInfoAsFRLG()
 				{ pokemonID = 25, rate = 0.05, minLv = 3, maxLv = 5, },
 			},
 		},
+		[118] = { name = "S.S. Anne Ext.", }, -- Exterior
+		[119] = { name = "S.S. Anne 1F", },
 		[120] = { name = "S.S. Anne 2F", }, -- 2F corridor (Rival Fight)
+		[121] = { name = "S.S. Anne 3F", },
+		[122] = { name = "S.S. Anne B1F", },
 		[123] = { name = "S.S. Anne Deck", },
 		[124] = { name = "Diglett's Cave B1F",
 			[RouteData.EncounterArea.LAND] = {

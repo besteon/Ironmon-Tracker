@@ -714,5 +714,76 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 end
 
 function DataHelper.buildRouteLogDisplay(mapId)
-	-- TODO: Implement to build out details for viewing a given route/mapId
+	local data = {}
+	data.r = {} -- data about the Route itself
+	data.e = {} -- data about each trainer or wild encounter area in the Route (list of trainers/areas, each is a list of pokemon)
+	data.x = {} -- misc data to display, such as notes
+
+	if mapId == nil or RandomizerLog.Data.Routes[mapId] == nil then
+		return data
+	end
+
+	local routeLog = RandomizerLog.Data.Routes[mapId]
+	local routeInternal = RouteData.Info[mapId] or {}
+
+	data.r.id = mapId or 0
+	data.r.name =  Utils.firstToUpper(routeLog.name or routeInternal.name or Constants.BLANKLINE)
+	data.r.filename = routeInternal.filename or Constants.BLANKLINE
+
+	for key, _ in pairs(RandomizerLog.EncounterTypes) do
+		data.e[key] = {}
+	end
+
+	for key, encounterArea in pairs(routeLog.EncountersAreas) do
+		if key == "Trainers" then
+			for _, trainerId in ipairs(encounterArea.trainers or {}) do
+				local trainerInternal = TrainerData.getTrainerInfo(trainerId)
+				local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
+				local fullName = Utils.inlineIf(trainerInternal.name ~= "Unknown", trainerInternal.name, trainerLog.name)
+				local class, name = fullName:match("(.-)%s*([^%s]+)$")
+				if name == nil then
+					name = class
+					class = nil
+				end
+				local trainer = {
+					id = trainerId,
+					class = Utils.firstToUpper(class) or "",
+					name = Utils.firstToUpper(name) or "Unknown",
+					filename = trainerInternal.filename or Constants.BLANKLINE,
+					pokemon = {},
+				}
+				-- 'name' is mostly used for searching
+				if class ~= nil then
+					trainer.fullname = string.format("%s %s", trainer.class, trainer.name)
+				else
+					trainer.fullname = trainer.name
+				end
+
+				for _, pokemonLog in ipairs(trainer.party or {}) do
+					local pokemon = {
+						pokemonID = pokemonLog.pokemonID or 0,
+						level = pokemonLog.level or 0
+					}
+					table.insert(trainer.pokemon, pokemon)
+				end
+
+				table.insert(data.e[key], trainer)
+			end
+		else
+			for pokemonID, enc in pairs(encounterArea.pokemon or {}) do
+				local pokemonEnc = {
+					pokemonID = pokemonID,
+					levelMin = enc.levelMin or 0,
+					levelMax = enc.levelMax or 0,
+					rate = enc.rate or 0,
+				}
+				table.insert(data.e[key], pokemonEnc)
+			end
+		end
+	end
+
+	data.x.avgTrainerLv = routeLog.avgTrainerLv or 0
+	data.x.avgWildLv = routeLog.avgWildLv or 0
+
+	return data
 end
