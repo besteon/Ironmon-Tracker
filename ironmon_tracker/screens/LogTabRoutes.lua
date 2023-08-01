@@ -33,7 +33,7 @@ function LogTabRoutes.buildPagedButtons()
 
 	for mapId, route in pairs(RandomizerLog.Data.Routes) do
 		local routeInfo = RouteData.Info[mapId] or {}
-		local routeName =  Utils.firstToUpper(route.name or routeInfo.name)
+		local routeName =  Utils.firstToUpperEachWord(route.name or routeInfo.name)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return routeName end,
@@ -65,7 +65,7 @@ function LogTabRoutes.buildPagedButtons()
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
 					for _, trainerId in ipairs(trainersInArea) do
 						local trainer = RandomizerLog.Data.Trainers[trainerId] or {}
-						if Utils.containsText(trainer.name, LogSearchScreen.searchText, true) then
+						if Utils.containsText(trainer.fullname, LogSearchScreen.searchText, true) then
 							return true
 						end
 					end

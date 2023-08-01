@@ -10,8 +10,10 @@ LogTabRouteDetails = {
 		Trainers = 1,
 		GrassCave = 2,
 		Surfing = 3,
-		Fishing = 4,
-		RockSmash = 5,
+		OldRod = 4,
+		GoodRod = 5,
+		SuperRod = 6,
+		RockSmash = 7,
 	},
 	defaultSortKey = "TrainerLevel",
 	defaultFilterKey = "TrainerName",
@@ -33,7 +35,9 @@ LogTabRouteDetails.Pager = {
 		[LogTabRouteDetails.Tabs.Trainers] = 0,
 		[LogTabRouteDetails.Tabs.GrassCave] = 0,
 		[LogTabRouteDetails.Tabs.Surfing] = 0,
-		[LogTabRouteDetails.Tabs.Fishing] = 0,
+		[LogTabRouteDetails.Tabs.OldRod] = 0,
+		[LogTabRouteDetails.Tabs.GoodRod] = 0,
+		[LogTabRouteDetails.Tabs.SuperRod] = 0,
 		[LogTabRouteDetails.Tabs.RockSmash] = 0,
 	},
 	prevPage = function(self)
@@ -111,57 +115,63 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 
 	-- ROUTE TAB NAVIGATION
-	-- TODO: do this in reverse actually
-	local tabNavigation = { "Trainers", "GrassCave", "Surfing", "Fishing", "RockSmash", }
-	local navItemSpacer = 5
-	local navX, navY = LogOverlay.TabBox.x + 160, LogOverlay.TabBox.y + 2
+	local navX = LogOverlay.TabBox.x + 3
+	local navY = 32
+	local headerTextWidth = Utils.calcWordPixelLength("Encounters" or Resources.LogTabRouteDetails.Encounters) + 4
+	local navHeaderButton = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		-- TODO: Update resources
+		getText = function(self) return "Encounters" or Resources.LogTabRouteDetails.Encounters end,
+		textColor = LogTabRouteDetails.Colors.text,
+		box = { navX, navY, headerTextWidth, 11 },
+		draw = function(self)
+			Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+		end,
+	}
+	navY = navY + navHeaderButton.box[4] + 1
+	table.insert(LogTabRouteDetails.TemporaryButtons, navHeaderButton)
+
+	local tabNavigation = { "Trainers", "GrassCave", "Surfing", "OldRod", "GoodRod", "SuperRod", "RockSmash", }
 	for _, enc in ipairs(tabNavigation) do
-		local resourceKey = "Tab" .. enc
-		local navButton = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			-- TODO: Update resources
-			getText = function(self) return string.format("%s (%s)", enc or Resources.LogTabRouteDetails[resourceKey], #data.e[enc]) end,
-			textColor = LogTabRouteDetails.Colors.text,
-			tab = LogTabRouteDetails.Tabs[enc],
-			isSelected = false,
-			box = { navX, navY, 60, 11 },
-			isVisible = function(self) return #data.e[enc] > 0 end,
-			updateSelf = function(self)
-				self.isSelected = (LogTabRouteDetails.Pager.currentTab == self.tab)
-				self.textColor = Utils.inlineIf(self.isSelected, LogTabRouteDetails.Colors.hightlight, LogTabRouteDetails.Colors.text)
-				self.box[3] = Utils.calcWordPixelLength(self:getText()) + 4
-			end,
-			draw = function(self)
-				if self.isSelected then
-					Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-				end
-			end,
-			onClick = function(self)
-				if self.isSelected then return end -- Don't change if already on this tab
-				LogTabRouteDetails.Pager:changeTab(self.tab)
-				Program.redraw(true)
-			end,
-		}
-		navButton:updateSelf()
-
-		table.insert(LogTabRouteDetails.TemporaryButtons, navButton)
-
-		-- Trainers nav button is on a row  by itself
-		if enc == "Trainers" then
-			navX = LogOverlay.TabBox.x + 10
-			navY = navY + 12
-		else
-			navX = navX + navButton.box[3] + navItemSpacer
+		if #data.e[enc] > 0 then
+			local resourceKey = "Tab" .. enc
+			local navButton = {
+				type = Constants.ButtonTypes.NO_BORDER,
+				-- TODO: Update resources
+				getText = function(self) return string.format("%s: %s", enc or Resources.LogTabRouteDetails[resourceKey], #data.e[enc]) end,
+				textColor = LogTabRouteDetails.Colors.text,
+				tab = LogTabRouteDetails.Tabs[enc],
+				isSelected = false,
+				box = { navX, navY, 60, 11 }, -- [3] width updated later on next line
+				isVisible = function(self) return #data.e[enc] > 0 end,
+				updateSelf = function(self)
+					self.isSelected = (LogTabRouteDetails.Pager.currentTab == self.tab)
+					self.textColor = Utils.inlineIf(self.isSelected, LogTabRouteDetails.Colors.hightlight, LogTabRouteDetails.Colors.text)
+					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 4
+				end,
+				draw = function(self)
+					if self.isSelected then
+						Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+					end
+				end,
+				onClick = function(self)
+					if self.isSelected then return end -- Don't change if already on this tab
+					LogTabRouteDetails.Pager:changeTab(self.tab)
+					Program.redraw(true)
+				end,
+			}
+			navButton:updateSelf()
+			navY = navY + navButton.box[4]
+			table.insert(LogTabRouteDetails.TemporaryButtons, navButton)
 		end
 	end
 
 	-- LEFT/RIGHT PAGING BUTTONS (easy access)
-	local centerY = LogOverlay.TabBox.height / 2
 	local leftArrow = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
 		textColor = LogTabRouteDetails.Colors.text,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + centerY, 10, 10 },
+		box = { LogOverlay.TabBox.x + 165, LogOverlay.TabBox.y + 3, 10, 10 },
 		isVisible = function() return LogTabRouteDetails.Pager.totalPages > 1 end,
 		onClick = function(self) LogTabRouteDetails.Pager:prevPage() end,
 	}
@@ -169,7 +179,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = LogTabRouteDetails.Colors.text,
-		box = { LogOverlay.TabBox.x + LogOverlay.TabBox.width - 12, LogOverlay.TabBox.y + centerY, 10, 10 },
+		box = { LogOverlay.TabBox.x + 190, LogOverlay.TabBox.y + 3, 10, 10 },
 		isVisible = function() return LogTabRouteDetails.Pager.totalPages > 1 end,
 		onClick = function(self) LogTabRouteDetails.Pager:nextPage() end,
 	}
@@ -203,27 +213,27 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	LogTabRouteDetails.Pager:changeTab(firstTabToShow)
 end
 
-function LogTabRouteDetails.createTrainerButton(encounter)
-	local whichRival = TrainerData.getTrainerInfo(encounter.id).whichRival
+function LogTabRouteDetails.createTrainerButton(trainer)
+	local whichRival = TrainerData.getTrainerInfo(trainer.id).whichRival
 	-- Always exclude extra rivals
 	if whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= whichRival then
 		return nil
 	end
 
-	local trainerLog = RandomizerLog.Data.Trainers[encounter.id] or {}
-	local fileInfo = TrainerData.FileInfo[encounter.filename or false] or { width = 64, height = 64 }
+	local trainerLog = RandomizerLog.Data.Trainers[trainer.id] or {}
+	local fileInfo = TrainerData.FileInfo[trainer.filename or false] or { width = 64, height = 64 }
 	local trainerImage
-	if encounter.filename then
-		trainerImage = FileManager.buildImagePath(FileManager.Folders.Trainers, encounter.filename, FileManager.Extensions.TRAINER)
+	if trainer.filename then
+		trainerImage = FileManager.buildImagePath(FileManager.Folders.Trainers, trainer.filename, FileManager.Extensions.TRAINER)
 	end
 
 	local button = {
 		type = Constants.ButtonTypes.IMAGE,
 		image = trainerImage,
-		getText = function(self) return encounter.fullname end,
-		trainerClass = encounter.class,
-		trainerName = encounter.name,
-		id = encounter.id,
+		getText = function(self) return trainer.fullname end,
+		class = trainer.class,
+		name = trainer.name,
+		id = trainer.id,
 		dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
 		tab = LogTabRouteDetails.Tabs.Trainers,
 		isVisible = function(self) return LogTabRouteDetails.Pager.currentTab == self.tab and LogTabRouteDetails.Pager.currentPage == self.pageVisible end,
@@ -280,20 +290,20 @@ function LogTabRouteDetails.createTrainerButton(encounter)
 			local borderColor = Theme.COLORS[LogTabRouteDetails.Colors.border]
 			local fillColor = Theme.COLORS[LogTabRouteDetails.Colors.boxFill]
 			local bottomPadding = 9
-			if self.trainerClass ~= "" then
-				local classCenterOffset = Utils.getCenteredTextX(self.trainerClass, self.box[3])
+			if self.class ~= "" then
+				local classCenterOffset = Utils.getCenteredTextX(self.class, self.box[3])
 				local classX = self.box[1] + classCenterOffset
 				local classY = self.box[2] + 64 - (bottomPadding * 2) - (self.dimensions.extraY or 0)
 				gui.drawRectangle(classX - 1, classY, self.box[3], (bottomPadding * 2) + 2, borderColor, fillColor)
-				Drawing.drawText(classX, classY, self.trainerClass, textColor, shadowcolor)
+				Drawing.drawText(classX, classY, self.class, textColor, shadowcolor)
 			end
-			local nameCenterOffset = Utils.getCenteredTextX(self.trainerName, self.box[3])
+			local nameCenterOffset = Utils.getCenteredTextX(self.name, self.box[3])
 			local nameX = self.box[1] + nameCenterOffset
 			local nameY = self.box[2] + 64 - bottomPadding - (self.dimensions.extraY or 0)
-			if self.trainerClass == "" then
+			if self.class == "" then
 				gui.drawRectangle(nameX - 1, nameY, self.box[3], bottomPadding + 2, borderColor, fillColor)
 			end
-			Drawing.drawText(nameX, nameY, self.trainerName, textColor, shadowcolor)
+			Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
 
 			-- local nameWidth = Utils.calcWordPixelLength(self:getText())
 			-- local offsetX = self.box[1] + self.box[3] / 2 - nameWidth / 2
@@ -310,11 +320,12 @@ end
 function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 	local pokemonLog = RandomizerLog.Data.Pokemon[encounterInfo.pokemonID]
 
-	local levelRangeText = string.format("%s %s", Resources.TrackerScreen.LevelAbbreviation, encounterInfo.levelMin)
+	local levelRangeText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, encounterInfo.levelMin)
 	if encounterInfo.levelMax ~= encounterInfo.levelMin then
-		levelRangeText = string.format("%s %s %s", levelRangeText, LogTabRouteDetails.levelRangeSpacer, encounterInfo.levelMax)
+		levelRangeText = string.format("%s%s%s", levelRangeText, LogTabRouteDetails.levelRangeSpacer, encounterInfo.levelMax)
 	end
-	local rateText = math.floor(encounterInfo.rate * 100) .. " %"
+	local rateText = math.floor(encounterInfo.rate * 100) .. "%"
+	local rateCenterX = Utils.getCenteredTextX(rateText, 32)
 
 	local button = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
@@ -376,7 +387,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 			-- Draw the level range and encounter rate below the icon
 			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, Theme.COLORS[self.textColor], shadowcolor)
-			Drawing.drawText(self.box[1] - 2, self.box[2] + 43, rateText, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, Theme.COLORS[self.textColor], shadowcolor)
 		end,
 	}
 	return button
@@ -400,10 +411,10 @@ function LogTabRouteDetails.realignTrainerGrid(sortFunc, startingPage)
 
 	table.sort(gridItems, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 30
-	local y = LogOverlay.TabBox.y + 30
-	local colSpacer = 25
-	local rowSpacer = 10
+	local x = LogOverlay.TabBox.x + 75
+	local y = LogOverlay.TabBox.y + 12
+	local colSpacer = 23
+	local rowSpacer = 8
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
@@ -420,10 +431,10 @@ function LogTabRouteDetails.realignPokemonGrid(sortFunc, startingPage)
 
 	table.sort(gridItems, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 20
-	local y = LogOverlay.TabBox.y + 30
-	local colSpacer = 23
-	local rowSpacer = 26
+	local x = LogOverlay.TabBox.x + 75
+	local y = LogOverlay.TabBox.y + 21
+	local colSpacer = 22
+	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 

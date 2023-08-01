@@ -95,14 +95,17 @@ RandomizerLog.EncounterTypes = {
 		logKey = "Rock Smash",
 		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
 	},
-	Fishing = {
-		-- Includes all three: Old Rod, Good Rod, and Super Rod (in that order)
+	OldRod = {
 		logKey = "Fishing",
-		rates = {
-			0.70, 0.30, -- Old Rod
-			0.60, 0.20, 0.20, -- Good Rod
-			0.40, 0.40, 0.15, 0.04, 0.01, -- Super Rod
-		}
+		rates = { 0.70, 0.30, }
+	},
+	GoodRod = {
+		logKey = "Fishing",
+		rates = { 0.60, 0.20, 0.20, }
+	},
+	SuperRod = {
+		logKey = "Fishing",
+		rates = { 0.40, 0.40, 0.15, 0.04, 0.01, }
 	},
 }
 
@@ -445,18 +448,21 @@ function RandomizerLog.parseTrainers(logLines)
 	-- Parse the sector
 	local index = RandomizerLog.Sectors.Trainers.LineNumber
 	while index <= #logLines do
-		local trainer_num, trainername, customname, party = string.match(logLines[index] or "", RandomizerLog.Sectors.Trainers.NextTrainerPattern)
+		local trainer_num, trainer_fullname, customname, party = string.match(logLines[index] or "", RandomizerLog.Sectors.Trainers.NextTrainerPattern)
 		trainer_num = tonumber(RandomizerLog.formatInput(trainer_num) or "") -- nil if not a number
-		trainername = RandomizerLog.formatInput(trainername)
+		trainer_fullname = RandomizerLog.formatInput(trainer_fullname)
 		customname = RandomizerLog.formatInput(customname)
 
 		-- If nothing matches, end of sector
-		if trainer_num == nil or trainername == nil or party == nil then
+		if trainer_num == nil or trainer_fullname == nil or party == nil then
 			return
 		end
 
+		local trainerClass, trainerName = RandomizerLog.splitTrainerClassAndName(trainer_fullname)
 		RandomizerLog.Data.Trainers[trainer_num] = {
-			name = trainername, -- likely in the form of TRAINER CLASS + TRAINER NAME
+			name = trainerName,
+			class = trainerClass,
+			fullname = trainer_fullname,
 			customname = customname,
 			avgTrainerLv = 0, -- Averages the levels of trainer party pokemon, used for searching
 			party = {},
@@ -544,6 +550,21 @@ function RandomizerLog.parseRoutes(logLines)
 		end
 	end
 
+	-- The log combines the 3 different fishing rod encounters into a single encounter table
+	local fishingEncs = {
+		logKey = RandomizerLog.EncounterTypes.OldRod.logKey,
+		rates = {},
+	}
+	for _, rate in ipairs(RandomizerLog.EncounterTypes.OldRod.rates) do
+		table.insert(fishingEncs.rates, rate)
+	end
+	for _, rate in ipairs(RandomizerLog.EncounterTypes.GoodRod.rates) do
+		table.insert(fishingEncs.rates, rate)
+	end
+	for _, rate in ipairs(RandomizerLog.EncounterTypes.SuperRod.rates) do
+		table.insert(fishingEncs.rates, rate)
+	end
+
 	-- Parse the sector
 	local index = RandomizerLog.Sectors.Routes.LineNumber
 	while index <= #logLines do
@@ -562,7 +583,7 @@ function RandomizerLog.parseRoutes(logLines)
 			name_encounter = RandomizerLog.formatInput(name_encounter)
 		end
 
-		local routeName, encounterTypeKey
+		local routeName, encounterTypeKey, isFishingRoute
 		for key, encTable in pairs(RandomizerLog.EncounterTypes) do
 			-- Only wild encounter data in this section of the log
 			if encTable ~= RandomizerLog.EncounterTypes.Trainers then
@@ -571,6 +592,7 @@ function RandomizerLog.parseRoutes(logLines)
 				if encIndex ~= nil then
 					routeName = name_encounter:sub(1, encIndex - 2) -- Remove trailing space
 					encounterTypeKey = key
+					isFishingRoute = (logKey == "Fishing")
 					break
 				end
 			end
@@ -592,17 +614,40 @@ function RandomizerLog.parseRoutes(logLines)
 			local route = RandomizerLog.Data.Routes[mapId]
 
 			-- Condense route data for multiple encounter areas and trainer sets
-			route.EncountersAreas[encounterTypeKey] = {
-				setNumber = route_set_num,
-				key = encounterTypeKey,
-				pokemon = {},
-			}
+			if isFishingRoute then
+				route.EncountersAreas.OldRod = {
+					setNumber = route_set_num,
+					key = "OldRod",
+					pokemon = {},
+				}
+				route.EncountersAreas.GoodRod = {
+					setNumber = route_set_num,
+					key = "GoodRod",
+					pokemon = {},
+				}
+				route.EncountersAreas.SuperRod = {
+					setNumber = route_set_num,
+					key = "SuperRod",
+					pokemon = {},
+				}
+			else
+				route.EncountersAreas[encounterTypeKey] = {
+					setNumber = route_set_num,
+					key = encounterTypeKey,
+					pokemon = {},
+				}
+			end
 
 			-- Max 12 total wild encounters, the order determines encounter percentage
 			local encounterIndex = 1
 			local encounterArea = route.EncountersAreas[encounterTypeKey]
-			local encouterRates = RandomizerLog.EncounterTypes[encounterTypeKey].rates or {}
+			local encounterRates = RandomizerLog.EncounterTypes[encounterTypeKey].rates or {}
 			local avgLevel = 0
+
+			if isFishingRoute then
+				encounterArea = route.EncountersAreas.OldRod
+				encounterRates = fishingEncs.rates
+			end
 
 			-- Search for each listed wild encounter
 			local pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
@@ -610,23 +655,28 @@ function RandomizerLog.parseRoutes(logLines)
 				pokemon = RandomizerLog.formatInput(pokemon)
 				local pokemonID = RandomizerLog.PokemonNameToIdMap[pokemon]
 				if pokemonID ~= nil then
+					if isFishingRoute then
+						if encounterIndex <= 2 then
+							encounterArea = route.EncountersAreas.OldRod
+						elseif encounterIndex >= 3 and encounterIndex <= 5 then
+							encounterArea = route.EncountersAreas.GoodRod
+						else
+							encounterArea = route.EncountersAreas.SuperRod
+						end
+					end
+
 					-- Condense encounter data for multiple listings of the same Pokemon (combine levels & rates)
 					if encounterArea.pokemon[pokemonID] == nil then
 						encounterArea.pokemon[pokemonID] = {}
 					end
 
-					-- TODO: Separate the fishing encounters
 					local enc = encounterArea.pokemon[pokemonID]
 					local minLv = tonumber(RandomizerLog.formatInput(level_min)) or 0
 					local maxLv = tonumber(RandomizerLog.formatInput(level_max)) or minLv
 					enc.index = enc.index or encounterIndex
 					enc.levelMin = math.min(enc.levelMin or 100, minLv)
 					enc.levelMax = math.max(enc.levelMax or 0, maxLv)
-					enc.rate = (enc.rate or 0) + (encouterRates[encounterIndex] or 0)
-
-					if route_set_num == 11 then
-						Utils.printDebug("%s. [%s] %s (%s - %s)", encounterIndex, pokemonID, pokemon, tonumber(RandomizerLog.formatInput(level_min)) or 0, tonumber(RandomizerLog.formatInput(level_max)) or 0)
-					end
+					enc.rate = (enc.rate or 0) + (encounterRates[encounterIndex] or 0)
 
 					local avgEncLv = math.floor((enc.levelMin + enc.levelMax) / 2 + 0.5)
 					avgLevel = avgLevel + avgEncLv
@@ -682,6 +732,18 @@ function RandomizerLog.getPokemonName(pokemonID)
 	else
 		return RandomizerLog.Data.Pokemon[pokemonID].Name or PokemonData.Pokemon[pokemonID].name or Constants.BLANKLINE
 	end
+end
+
+-- Returns class, name of the trainer; split from 'fullname'
+function RandomizerLog.splitTrainerClassAndName(fullname)
+	fullname = fullname or ""
+	-- TODO: This doesn't work yet for names of doubles trainers
+	local class, name = fullname:match("(.-)%s*([^%s]+)$")
+	if name == nil then
+		name = class
+		class = nil
+	end
+	return class or "", name or ""
 end
 
 function RandomizerLog.setupMappings()

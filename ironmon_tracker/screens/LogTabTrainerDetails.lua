@@ -174,7 +174,7 @@ function LogTabTrainerDetails.drawTab()
 	end
 
 	-- TRAINER NAME
-	local nameAsUppercase = Utils.toUpperUTF8(data.t.name)
+	local nameAsUppercase = Utils.toUpperUTF8(data.t.fullname)
 	local nameWidth = Utils.calcWordPixelLength(nameAsUppercase)
 	local nameOffsetX = (TrainerData.FileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
 	Drawing.drawText(LogOverlay.TabBox.x + nameOffsetX + badgeOffsetX + 3, LogOverlay.TabBox.y + 2, nameAsUppercase, highlightColor, shadowcolor)

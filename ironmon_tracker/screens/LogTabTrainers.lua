@@ -93,23 +93,24 @@ function LogTabTrainers.buildPagedButtons()
 	end
 
 	-- Build Trainer buttons
-	for id, trainerData in pairs(RandomizerLog.Data.Trainers) do
-		local trainerInfo = TrainerData.getTrainerInfo(id)
-		local trainerName = Utils.inlineIf(trainerInfo.name ~= "Unknown", trainerInfo.name, trainerData.name)
-		local fileInfo = TrainerData.FileInfo[trainerInfo.filename] or { width = 40, height = 40 }
+	for id, trainerLog in pairs(RandomizerLog.Data.Trainers) do
+		local trainerInternal = TrainerData.getTrainerInfo(id)
+		local fileInfo = TrainerData.FileInfo[trainerInternal.filename] or { width = 40, height = 40 }
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInfo.filename, FileManager.Extensions.TRAINER),
-			getText = function(self) return trainerName end,
+			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInternal.filename, FileManager.Extensions.TRAINER),
+			getText = function(self) return trainerLog.fullname end,
 			id = id,
-			customname = trainerData.customname,
-			filename = trainerInfo.filename, -- helpful for sorting later
+			class = trainerLog.class,
+			name = trainerLog.name,
+			customname = trainerLog.customname,
+			filename = trainerInternal.filename, -- helpful for sorting later
 			dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
-			group = trainerInfo.group,
+			group = trainerInternal.group,
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- Always exclude extra rivals
-				if trainerInfo.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInfo.whichRival then
+				if trainerInternal.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInternal.whichRival then
 					return false
 				end
 
@@ -128,14 +129,14 @@ function LogTabTrainers.buildPagedButtons()
 						return true
 					end
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
-					for _, partyMon in ipairs(trainerData.party or {}) do
+					for _, partyMon in ipairs(trainerLog.party or {}) do
 						local pokemonName = RandomizerLog.getPokemonName(partyMon.pokemonID)
 						if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
 							return true
 						end
 					end
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
-					for _, partyMon in ipairs(trainerData.party or {}) do
+					for _, partyMon in ipairs(trainerLog.party or {}) do
 						for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
 							local abilityText = AbilityData.Abilities[abilityId].name
 							if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
@@ -144,7 +145,7 @@ function LogTabTrainers.buildPagedButtons()
 						end
 					end
 				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
-					for _, partyMon in ipairs(trainerData.party or {}) do
+					for _, partyMon in ipairs(trainerLog.party or {}) do
 						for _, moveId in ipairs(partyMon.moveIds or {}) do
 							local moveText = MoveData.Moves[moveId].name
 							if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
@@ -173,8 +174,8 @@ function LogTabTrainers.buildPagedButtons()
 			end,
 		}
 
-		if trainerInfo ~= nil and trainerInfo.group == TrainerData.TrainerGroups.Gym then
-			local gymNumber = tonumber(trainerInfo.filename:sub(-1)) -- e.g. "frlg-gymleader-1"
+		if trainerInternal ~= nil and trainerInternal.group == TrainerData.TrainerGroups.Gym then
+			local gymNumber = tonumber(trainerInternal.filename:sub(-1)) -- e.g. "frlg-gymleader-1"
 			if gymNumber ~= nil then
 				-- Find the gym leader's TM and add it's trainer id to that tm info
 				for _, gymTMInfo in pairs(gymTMs) do

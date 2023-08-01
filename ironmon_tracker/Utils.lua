@@ -77,6 +77,13 @@ function Utils.firstToUpper(str)
 	return str
 end
 
+-- Alters the string by changing the first character of each word to uppercase
+function Utils.firstToUpperEachWord(str)
+	if str == nil or str == "" then return str end
+	str = string.gsub(" " .. str, "%W%l", Utils.toUpperUTF8):sub(2)
+	return str
+end
+
 function Utils.split(s, delimiter, trimWhitespace)
 	local result = {}
 	for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do

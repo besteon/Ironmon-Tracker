@@ -541,18 +541,18 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.p = {} -- data about the Pokemon itself
 	data.x = {} -- misc data to display, such as notes
 
-	local pokemonDex
+	local pokemonInternal
 	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
-		pokemonDex = PokemonData.BlankPokemon
+		pokemonInternal = PokemonData.BlankPokemon
 		return data -- likely want a safer way
 	else
-		pokemonDex = PokemonData.Pokemon[pokemonID]
+		pokemonInternal = PokemonData.Pokemon[pokemonID]
 	end
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
-	data.p.id = pokemonDex.pokemonID or 0
+	data.p.id = pokemonInternal.pokemonID or 0
 	data.p.name = RandomizerLog.getPokemonName(pokemonID)
-	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
+	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
 		pokemonLog.Types[2],
@@ -652,20 +652,17 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 		return data
 	end
 
-	local trainer = RandomizerLog.Data.Trainers[trainerId]
-	local trainerInfo = TrainerData.getTrainerInfo(trainerId)
+	local trainerLog = RandomizerLog.Data.Trainers[trainerId]
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId)
 
 	data.t.id = trainerId or 0
-	data.t.filename = trainerInfo.filename or Constants.BLANKLINE
+	data.t.filename = trainerInternal.filename or Constants.BLANKLINE
+	data.t.name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE
+	data.t.class = Utils.firstToUpperEachWord(trainerLog.class) or ""
+	data.t.fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE
+	data.t.customname = trainerLog.customname or Constants.BLANKLINE
 
-	if trainerInfo.name ~= "Unknown" then
-		data.t.name = trainerInfo.name or Constants.BLANKLINE
-	else
-		data.t.name = Utils.firstToUpper(trainer.name) or Constants.BLANKLINE
-	end
-	data.t.customname = trainer.customname or Constants.BLANKLINE
-
-	for _, partyMon in ipairs(trainer.party or {}) do
+	for _, partyMon in ipairs(trainerLog.party or {}) do
 		local pokemonInfo = {
 			id = partyMon.pokemonID or 0,
 			name = RandomizerLog.getPokemonName(partyMon.pokemonID),
@@ -706,7 +703,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	end
 
 	-- Gym number (if applicable), otherwise nil
-	if trainerInfo.group == TrainerData.TrainerGroups.Gym then
+	if trainerInternal.group == TrainerData.TrainerGroups.Gym then
 		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
 	end
 
@@ -739,25 +736,14 @@ function DataHelper.buildRouteLogDisplay(mapId)
 			for _, trainerId in ipairs(encounterArea.trainers or {}) do
 				local trainerInternal = TrainerData.getTrainerInfo(trainerId)
 				local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
-				local fullName = Utils.inlineIf(trainerInternal.name ~= "Unknown", trainerInternal.name, trainerLog.name)
-				local class, name = fullName:match("(.-)%s*([^%s]+)$")
-				if name == nil then
-					name = class
-					class = nil
-				end
 				local trainer = {
 					id = trainerId,
-					class = Utils.firstToUpper(class) or "",
-					name = Utils.firstToUpper(name) or "Unknown",
+					name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE,
+					class = Utils.firstToUpperEachWord(trainerLog.class) or "",
+					fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
 					filename = trainerInternal.filename or Constants.BLANKLINE,
 					pokemon = {},
 				}
-				-- 'name' is mostly used for searching
-				if class ~= nil then
-					trainer.fullname = string.format("%s %s", trainer.class, trainer.name)
-				else
-					trainer.fullname = trainer.name
-				end
 
 				for _, pokemonLog in ipairs(trainer.party or {}) do
 					local pokemon = {
