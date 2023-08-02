@@ -17,7 +17,6 @@ LogSearchScreen = {
 		[LogTabPokemon] = true,
 		[LogTabTrainers] = true,
 		[LogTabRoutes] = true,
-		[LogTabRouteDetails] = true,
 	},
 	padding = 2,
 	searchText = "",
@@ -119,28 +118,19 @@ LogSearchScreen.SortBy = {
 		-- TODO: update resources
 		getText = function() return "Trainer Level" or Resources.LogSearchScreen.TrainerLevel end,
 		sortFunc = function(a, b)
-			return a.avgTrainerLv < b.avgTrainerLv or (a.avgTrainerLv == b.avgTrainerLv and a.id < b.id)
+			return (a.avgTrainerLv or 999) < (b.avgTrainerLv or 999) or (a.avgTrainerLv == b.avgTrainerLv and a.id < b.id)
 		end,
-		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true,},
 		index = 10,
 	},
 	WildPokemonLevel = {
 		-- TODO: update resources
 		getText = function() return "Wild Pokémon Lv." or Resources.LogSearchScreen.WildPokemonLevel end,
 		sortFunc = function(a, b)
-			return a.avgWildLv < b.avgWildLv or (a.avgWildLv == b.avgWildLv and a.id < b.id)
+			return (a.avgWildLv or 999) < (b.avgWildLv or 999) or (a.avgWildLv == b.avgWildLv and a.id < b.id)
 		end,
-		contexts = { [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabRoutes] = true, },
 		index = 11,
-	},
-	EncounterRate = {
-		-- TODO: update resources
-		getText = function() return "Encounter Rate" or Resources.LogSearchScreen.EncounterRate end,
-		sortFunc = function(a, b)
-			return a.rate > b.rate or (a.rate == b.rate and a.id < b.id)
-		end,
-		contexts = { [LogTabRouteDetails] = true, },
-		index = 12,
 	},
 }
 
@@ -153,22 +143,22 @@ LogSearchScreen.FilterBy = {
 	},
 	TrainerName = {
 		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
-		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, },
 		index = 2,
 	},
 	PokemonName = {
 		getText = function() return Resources.LogSearchScreen.FilterName end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
 		index = 3,
 	},
 	PokemonAbility = {
 		getText = function() return Resources.LogSearchScreen.FilterAbility end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
 		index = 4,
 	},
 	PokemonMove = {
 		getText = function() return Resources.LogSearchScreen.FilterMove end,
-		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, [LogTabRouteDetails] = true, },
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
 		index = 5,
 	},
 }

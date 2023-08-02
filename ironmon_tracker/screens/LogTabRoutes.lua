@@ -41,13 +41,11 @@ function LogTabRoutes.buildPagedButtons()
 			avgTrainerLv = route.avgTrainerLv,
 			avgWildLv = route.avgWildLv,
 			filename = routeInfo.filename,
-			dimensions = { width = 90, height = 20, },
+			dimensions = { width = 90, height = 16, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				-- Exclude routes without trainers/wilds if a sort using those is selected
-				if LogSearchScreen.currentSortOrder == LogSearchScreen.SortBy.TrainerLevel and self.avgTrainerLv == 0 then
-					return false
-				elseif LogSearchScreen.currentSortOrder == LogSearchScreen.SortBy.WildPokemonLevel and self.avgWildLv == 0 then
+				-- Don't show routes that have no encounters
+				if self.avgTrainerLv == 0 and self.avgWildLv == 0 then
 					return false
 				end
 
@@ -128,7 +126,7 @@ function LogTabRoutes.buildPagedButtons()
 				-- local nameWidth = Utils.calcWordPixelLength(self:getText())
 				-- local bottomPadding = 9
 				-- local offsetX = self.box[1] + self.box[3] / 2 - nameWidth / 2
-				-- local offsetY = self.box[2] + TrainerData.FileInfo.maxHeight - bottomPadding - (self.dimensions.extraY or 0)
+				-- local offsetY = self.box[2] + 64 - bottomPadding - (self.dimensions.extraY or 0)
 				-- gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabRoutes.Colors.border], Theme.COLORS[LogTabRoutes.Colors.boxFill])
 				-- Drawing.drawText(offsetX, offsetY, self:getText(), Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
 				-- gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabRoutes.Colors.border]) -- to cutoff the shadows
@@ -141,7 +139,7 @@ end
 
 function LogTabRoutes.realignGrid(gridFilter, sortFunc, startingPage)
 	gridFilter = gridFilter or ""
-	sortFunc = sortFunc or LogSearchScreen.SortBy.Alphabetical.sortFunc
+	sortFunc = sortFunc or LogSearchScreen.SortBy.TrainerLevel.sortFunc
 	startingPage = startingPage or 1
 
 	table.sort(LogTabRoutes.PagedButtons, sortFunc)

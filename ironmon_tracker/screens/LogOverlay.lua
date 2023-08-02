@@ -96,7 +96,7 @@ LogOverlay.Windower = {
 	end,
 }
 
-local pagerOffsetX = 151
+local pagerOffsetX = 155
 LogOverlay.HeaderButtons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -121,7 +121,7 @@ LogOverlay.HeaderButtons = {
 		image = Constants.PixelImages.RIGHT_ARROW,
 		textColor = Theme.headerHighlightKey,
 		shadowcolor = false,
-		box = { LogOverlay.margin + pagerOffsetX + 50 + 3, 1, 10, 10 },
+		box = { LogOverlay.margin + pagerOffsetX + 50, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
 		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
 		onClick = function(self) LogOverlay.Windower:nextPage() end,
@@ -180,8 +180,10 @@ LogOverlay.NavFilters = {
 				elseif a.group == b.group then
 					if a.group == TrainerData.TrainerGroups.Rival or a.group == TrainerData.TrainerGroups.Boss then -- special sort for rival/wally #s
 						return a:getText() < b:getText()
-					elseif a.filename < b.filename then
-						return a.filename < b.filename
+					elseif a.group == TrainerData.TrainerGroups.Gym or a.group == TrainerData.TrainerGroups.Elite4 then
+						return a.image < b.image
+					elseif a.id < b.id then
+						return true
 					end
 				end
 				return false
@@ -197,13 +199,13 @@ LogOverlay.NavFilters = {
 			getText = function() return Resources.LogOverlay.FilterGym end,
 			group = TrainerData.TrainerGroups.Gym,
 			index = 3,
-			sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end,
+			sortFunc = function(a, b) return a.image:sub(-5) < b.image:sub(-5) end,
 		},
 		Elite4 = {
 			getText = function() return Resources.LogOverlay.FilterElite4 end,
 			group = TrainerData.TrainerGroups.Elite4,
 			index = 4,
-			sortFunc = function(a, b) return a.filename:sub(-1) < b.filename:sub(-1) end,
+			sortFunc = function(a, b) return a.image:sub(-5) < b.image:sub(-5) end,
 		},
 		Boss = {
 			getText = function() return Resources.LogOverlay.FilterBoss end,

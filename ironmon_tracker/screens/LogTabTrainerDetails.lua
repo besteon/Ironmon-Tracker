@@ -35,7 +35,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 
 	LogTabTrainerDetails.TemporaryButtons = {}
 
-	local partyListX, partyListY = LogOverlay.TabBox.x + 1, LogOverlay.TabBox.y + 76
+	local partyListX, partyListY = LogOverlay.TabBox.x + 1, LogOverlay.TabBox.y + 82
 	local startX, startY = LogOverlay.TabBox.x + 60, LogOverlay.TabBox.y + 2
 	local offsetX, offsetY = 0, 0
 	local colOffset, rowOffset = 86, 49 -- 2nd column, and 2nd/3rd rows
@@ -64,7 +64,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				end
 			end,
 		}
-		partyListY = partyListY + Constants.SCREEN.LINESPACING
+		partyListY = partyListY + Constants.SCREEN.LINESPACING - 1
 
 		local pokemonIconButton = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
@@ -165,25 +165,16 @@ function LogTabTrainerDetails.drawTab()
 	end
 
 	-- GYM LEADER BADGE
-	local badgeOffsetX = 0
 	if data.x.gymNumber ~= nil then
-		badgeOffsetX = 3
 		local badgeName = GameSettings.badgePrefix .. "_badge" .. data.x.gymNumber
 		local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
-		gui.drawImage(badgeImage, LogOverlay.TabBox.x + 1, LogOverlay.TabBox.y + 1)
+		gui.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
 	end
 
-	-- TRAINER NAME
-	local nameAsUppercase = Utils.toUpperUTF8(data.t.fullname)
-	local nameWidth = Utils.calcWordPixelLength(nameAsUppercase)
-	local nameOffsetX = (TrainerData.FileInfo.maxWidth - nameWidth) / 2 -- center the trainer name a bit
-	Drawing.drawText(LogOverlay.TabBox.x + nameOffsetX + badgeOffsetX + 3, LogOverlay.TabBox.y + 2, nameAsUppercase, highlightColor, shadowcolor)
-
-	-- TRAINER ICON
-	local trainerIcon = FileManager.buildImagePath(FileManager.Folders.Trainers, data.t.filename, FileManager.Extensions.TRAINER)
-	local iconWidth = TrainerData.FileInfo[data.t.filename].width
-	local iconOffsetX = (TrainerData.FileInfo.maxWidth - iconWidth) / 2 -- center the trainer icon a bit
-	gui.drawImage(trainerIcon, LogOverlay.TabBox.x + iconOffsetX + 3, LogOverlay.TabBox.y + 16)
+	-- TRAINER NAME & ICON
+	gui.drawImage(data.t.filename, LogOverlay.TabBox.x + 1, LogOverlay.TabBox.y + 20)
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(data.t.class), highlightColor, shadowcolor)
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(data.t.name), highlightColor, shadowcolor)
 
 	-- Draw all buttons
 	for _, button in pairs(LogTabTrainerDetails.TemporaryButtons) do

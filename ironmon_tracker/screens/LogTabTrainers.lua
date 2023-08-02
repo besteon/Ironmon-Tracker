@@ -95,18 +95,17 @@ function LogTabTrainers.buildPagedButtons()
 	-- Build Trainer buttons
 	for id, trainerLog in pairs(RandomizerLog.Data.Trainers) do
 		local trainerInternal = TrainerData.getTrainerInfo(id)
-		local fileInfo = TrainerData.FileInfo[trainerInternal.filename] or { width = 40, height = 40 }
+		local fullname = Utils.firstToUpperEachWord(trainerLog.fullname)
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath(FileManager.Folders.Trainers, trainerInternal.filename, FileManager.Extensions.TRAINER),
-			getText = function(self) return trainerLog.fullname end,
+			image = TrainerData.getPortraitIcon(trainerInternal.class),
+			getText = function(self) return fullname end,
 			id = id,
-			class = trainerLog.class,
-			name = trainerLog.name,
+			class = Utils.firstToUpperEachWord(trainerLog.class),
+			name = Utils.firstToUpperEachWord(trainerLog.name),
 			customname = trainerLog.customname,
-			filename = trainerInternal.filename, -- helpful for sorting later
-			dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
-			group = trainerInternal.group,
+			dimensions = { width = 32, height = 32, },
+			group = trainerInternal.group or TrainerData.TrainerGroups.Other,
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- Always exclude extra rivals
@@ -163,19 +162,18 @@ function LogTabTrainers.buildPagedButtons()
 				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 			end,
 			draw = function(self, shadowcolor)
-				-- Draw a centered box for the Trainer's name
-				local nameWidth = Utils.calcWordPixelLength(self:getText())
-				local bottomPadding = 9
-				local offsetX = self.box[1] + self.box[3] / 2 - nameWidth / 2
-				local offsetY = self.box[2] + TrainerData.FileInfo.maxHeight - bottomPadding - (self.dimensions.extraY or 0)
-				gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabTrainers.Colors.border], Theme.COLORS[LogTabTrainers.Colors.boxFill])
-				Drawing.drawText(offsetX, offsetY, self:getText(), Theme.COLORS[LogTabTrainers.Colors.text], shadowcolor)
-				gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabTrainers.Colors.border]) -- to cutoff the shadows
+				local boxExtraW = 4
+				local textColor = Theme.COLORS[self.textColor]
+				local fillColor = Theme.COLORS[LogTabTrainers.Colors.boxFill]
+				local nameX = self.box[1] + Utils.getCenteredTextX(self:getText(), self.box[3] + boxExtraW * 2)
+				local nameY = self.box[2] + self.box[4] + 1
+				gui.drawRectangle(self.box[1] - boxExtraW, nameY, self.box[3] + boxExtraW * 2, Constants.Font.SIZE + 2, fillColor, fillColor)
+				Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
 			end,
 		}
 
 		if trainerInternal ~= nil and trainerInternal.group == TrainerData.TrainerGroups.Gym then
-			local gymNumber = tonumber(trainerInternal.filename:sub(-1)) -- e.g. "frlg-gymleader-1"
+			local gymNumber = tonumber(string.match(trainerInternal.class.filename, "gymleader%-(%d+)"))
 			if gymNumber ~= nil then
 				-- Find the gym leader's TM and add it's trainer id to that tm info
 				for _, gymTMInfo in pairs(gymTMs) do
@@ -201,9 +199,9 @@ function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)
 	table.sort(LogTabTrainers.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 17
-	local y = LogOverlay.TabBox.y + 11
-	local colSpacer = 10
-	local rowSpacer = 5
+	local y = LogOverlay.TabBox.y + 22
+	local colSpacer = 24
+	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 

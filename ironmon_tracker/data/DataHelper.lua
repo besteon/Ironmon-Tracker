@@ -653,10 +653,10 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	end
 
 	local trainerLog = RandomizerLog.Data.Trainers[trainerId]
-	local trainerInternal = TrainerData.getTrainerInfo(trainerId)
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
 
 	data.t.id = trainerId or 0
-	data.t.filename = trainerInternal.filename or Constants.BLANKLINE
+	data.t.filename = TrainerData.getFullImage(trainerInternal.class) or Constants.BLANKLINE
 	data.t.name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE
 	data.t.class = Utils.firstToUpperEachWord(trainerLog.class) or ""
 	data.t.fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE
@@ -704,7 +704,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 
 	-- Gym number (if applicable), otherwise nil
 	if trainerInternal.group == TrainerData.TrainerGroups.Gym then
-		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
+		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d+)"))
 	end
 
 	return data
@@ -734,18 +734,18 @@ function DataHelper.buildRouteLogDisplay(mapId)
 	for key, encounterArea in pairs(routeLog.EncountersAreas) do
 		if key == "Trainers" then
 			for _, trainerId in ipairs(encounterArea.trainers or {}) do
-				local trainerInternal = TrainerData.getTrainerInfo(trainerId)
+				local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
 				local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
 				local trainer = {
 					id = trainerId,
 					name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE,
 					class = Utils.firstToUpperEachWord(trainerLog.class) or "",
 					fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
-					filename = trainerInternal.filename or Constants.BLANKLINE,
+					filename = TrainerData.getPortraitIcon(trainerInternal.class) or Constants.BLANKLINE,
 					pokemon = {},
 				}
 
-				for _, pokemonLog in ipairs(trainer.party or {}) do
+				for _, pokemonLog in ipairs(trainerLog.party or {}) do
 					local pokemon = {
 						pokemonID = pokemonLog.pokemonID or 0,
 						level = pokemonLog.level or 0

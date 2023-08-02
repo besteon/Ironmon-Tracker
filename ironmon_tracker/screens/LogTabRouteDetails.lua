@@ -15,58 +15,13 @@ LogTabRouteDetails = {
 		SuperRod = 6,
 		RockSmash = 7,
 	},
-	defaultSortKey = "TrainerLevel",
-	defaultFilterKey = "TrainerName",
 	levelRangeSpacer = "--",
 	infoId = -1,
 	dataSet = nil,
 }
 
 LogTabRouteDetails.TemporaryButtons = {}
-
-LogTabRouteDetails.Pager = {
-	Trainers = {},
-	WildEncounters = {},
-	itemsPerPage = 8,
-	currentPage = 0,
-	currentTab = 0,
-	totalPages = 0,
-	tabTotals = {
-		[LogTabRouteDetails.Tabs.Trainers] = 0,
-		[LogTabRouteDetails.Tabs.GrassCave] = 0,
-		[LogTabRouteDetails.Tabs.Surfing] = 0,
-		[LogTabRouteDetails.Tabs.OldRod] = 0,
-		[LogTabRouteDetails.Tabs.GoodRod] = 0,
-		[LogTabRouteDetails.Tabs.SuperRod] = 0,
-		[LogTabRouteDetails.Tabs.RockSmash] = 0,
-	},
-	prevPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
-		Program.redraw(true)
-	end,
-	nextPage = function(self)
-		if self.totalPages <= 1 then return end
-		self.currentPage = (self.currentPage % self.totalPages) + 1
-		Program.redraw(true)
-	end,
-	changeTab = function(self, newTab)
-		if newTab == LogTabRouteDetails.Tabs.Trainers and self.currentTab ~= LogTabRouteDetails.Tabs.Trainers then
-			LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy["TrainerLevel"]
-			LogSearchScreen.currentFilter = LogSearchScreen.FilterBy["TrainerName"]
-			LogSearchScreen.refreshDropDowns()
-		elseif newTab ~= LogTabRouteDetails.Tabs.Trainers and self.currentTab == LogTabRouteDetails.Tabs.Trainers then
-			LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy["EncounterRate"]
-			LogSearchScreen.currentFilter = LogSearchScreen.FilterBy["PokemonName"]
-			LogSearchScreen.refreshDropDowns()
-		end
-		LogOverlay.Windower.filterGrid = newTab
-		self.currentTab = newTab
-		LogTabRouteDetails.realignGrid()
-		self.currentPage = 1
-		self.totalPages = self.tabTotals[newTab] or 1
-	end,
-}
+LogTabRouteDetails.PagedButtons = {}
 
 function LogTabRouteDetails.initialize()
 
@@ -78,12 +33,7 @@ function LogTabRouteDetails.refreshButtons()
 			button:updateSelf()
 		end
 	end
-	for _, button in pairs(LogTabRouteDetails.Pager.Trainers) do
-		if type(button.updateSelf) == "function" then
-			button:updateSelf()
-		end
-	end
-	for _, button in pairs(LogTabRouteDetails.Pager.WildEncounters) do
+	for _, button in pairs(LogTabRouteDetails.PagedButtons) do
 		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
@@ -101,8 +51,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	LogTabRouteDetails.dataSet = data
 
 	LogTabRouteDetails.TemporaryButtons = {}
-	LogTabRouteDetails.Pager.Trainers = {}
-	LogTabRouteDetails.Pager.WildEncounters = {}
+	LogTabRouteDetails.PagedButtons = {}
 
 	-- ROUTE NAME
 	local routeName = Utils.toUpperUTF8(data.r.name)
@@ -128,7 +77,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 			Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 		end,
 	}
-	navY = navY + navHeaderButton.box[4] + 1
+	navY = navY + navHeaderButton.box[4] + 4
 	table.insert(LogTabRouteDetails.TemporaryButtons, navHeaderButton)
 
 	local tabNavigation = { "Trainers", "GrassCave", "Surfing", "OldRod", "GoodRod", "SuperRod", "RockSmash", }
@@ -145,46 +94,27 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 				box = { navX, navY, 60, 11 }, -- [3] width updated later on next line
 				isVisible = function(self) return #data.e[enc] > 0 end,
 				updateSelf = function(self)
-					self.isSelected = (LogTabRouteDetails.Pager.currentTab == self.tab)
-					self.textColor = Utils.inlineIf(self.isSelected, LogTabRouteDetails.Colors.hightlight, LogTabRouteDetails.Colors.text)
+					self.isSelected = (LogOverlay.Windower.filterGrid == self.tab)
 					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 4
 				end,
 				draw = function(self)
 					if self.isSelected then
-						Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+						-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+						local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+						Drawing.drawSelectionIndicators(self.box[1] + 1, self.box[2] + 1, self.box[3] - 1, self.box[4] - 2, color, 1, 4, 1)
 					end
 				end,
 				onClick = function(self)
 					if self.isSelected then return end -- Don't change if already on this tab
-					LogTabRouteDetails.Pager:changeTab(self.tab)
+					LogTabRouteDetails.realignGrid(self.tab)
 					Program.redraw(true)
 				end,
 			}
 			navButton:updateSelf()
-			navY = navY + navButton.box[4]
+			navY = navY + navButton.box[4] + 1
 			table.insert(LogTabRouteDetails.TemporaryButtons, navButton)
 		end
 	end
-
-	-- LEFT/RIGHT PAGING BUTTONS (easy access)
-	local leftArrow = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.LEFT_ARROW,
-		textColor = LogTabRouteDetails.Colors.text,
-		box = { LogOverlay.TabBox.x + 165, LogOverlay.TabBox.y + 3, 10, 10 },
-		isVisible = function() return LogTabRouteDetails.Pager.totalPages > 1 end,
-		onClick = function(self) LogTabRouteDetails.Pager:prevPage() end,
-	}
-	local rightArrow = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.RIGHT_ARROW,
-		textColor = LogTabRouteDetails.Colors.text,
-		box = { LogOverlay.TabBox.x + 190, LogOverlay.TabBox.y + 3, 10, 10 },
-		isVisible = function() return LogTabRouteDetails.Pager.totalPages > 1 end,
-		onClick = function(self) LogTabRouteDetails.Pager:nextPage() end,
-	}
-	table.insert(LogTabRouteDetails.TemporaryButtons, leftArrow)
-	table.insert(LogTabRouteDetails.TemporaryButtons, rightArrow)
 
 	-- GRID: TRAINER & WILD ENCOUNTERS
 	for key, encounterList in pairs(data.e) do
@@ -192,12 +122,12 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		if key == "Trainers" then
 			for _, trainer in ipairs(encounterList or {}) do
 				button = LogTabRouteDetails.createTrainerButton(trainer)
-				table.insert(LogTabRouteDetails.Pager.Trainers, button)
+				table.insert(LogTabRouteDetails.PagedButtons, button)
 			end
 		else
 			for _, pokemonEnc in ipairs(encounterList or {}) do
 				button = LogTabRouteDetails.createPokemonButton(key, pokemonEnc)
-				table.insert(LogTabRouteDetails.Pager.WildEncounters, button)
+				table.insert(LogTabRouteDetails.PagedButtons, button)
 			end
 		end
 	end
@@ -210,51 +140,45 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	else
 		firstTabToShow = LogTabRouteDetails.Tabs.Surfing
 	end
-	LogTabRouteDetails.Pager:changeTab(firstTabToShow)
+	LogTabRouteDetails.realignGrid(firstTabToShow)
 end
 
 function LogTabRouteDetails.createTrainerButton(trainer)
-	local whichRival = TrainerData.getTrainerInfo(trainer.id).whichRival
+	local trainerInternal = TrainerData.getTrainerInfo(trainer.id) or {}
+	local whichRival = trainerInternal.whichRival
 	-- Always exclude extra rivals
 	if whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= whichRival then
 		return nil
 	end
 
 	local trainerLog = RandomizerLog.Data.Trainers[trainer.id] or {}
-	local fileInfo = TrainerData.FileInfo[trainer.filename or false] or { width = 64, height = 64 }
-	local trainerImage
-	if trainer.filename then
-		trainerImage = FileManager.buildImagePath(FileManager.Folders.Trainers, trainer.filename, FileManager.Extensions.TRAINER)
-	end
+	local trainerImage = TrainerData.getPortraitIcon(trainerInternal.class)
 
 	local button = {
 		type = Constants.ButtonTypes.IMAGE,
 		image = trainerImage,
 		getText = function(self) return trainer.fullname end,
+		textColor = LogTabRouteDetails.Colors.text,
 		class = trainer.class,
 		name = trainer.name,
 		id = trainer.id,
-		dimensions = { width = fileInfo.width, height = fileInfo.height, extraX = fileInfo.offsetX, extraY = fileInfo.offsetY, },
+		dimensions = { width = 32, height = 32, },
 		tab = LogTabRouteDetails.Tabs.Trainers,
-		isVisible = function(self) return LogTabRouteDetails.Pager.currentTab == self.tab and LogTabRouteDetails.Pager.currentPage == self.pageVisible end,
-		includeInGrid = function(self)
-			-- If no search text entered, check any filter groups
-			if LogSearchScreen.searchText == "" then
-				if LogTabRouteDetails.Pager.currentTab == self.tab then
-					return true
-				end
-				return false
-			end
-
-			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
+		isVisible = function(self) return LogOverlay.Windower.filterGrid == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
+		updateSelf = function(self)
+			self.textColor = LogTabRouteDetails.Colors.text
+			-- Highlight anything that is found by the search
+			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName and LogSearchScreen.searchText ~= "" then
 				if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-					return true
+					self.textColor = LogTabTrainerDetails.Colors.hightlight
+					return
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 				for _, partyMon in ipairs(trainerLog.party or {}) do
 					local pokemonName = RandomizerLog.getPokemonName(partyMon.pokemonID)
 					if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
-						return true
+						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						return
 					end
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
@@ -262,7 +186,8 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 					for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
 						local abilityText = AbilityData.Abilities[abilityId].name
 						if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-							return true
+							self.textColor = LogTabTrainerDetails.Colors.hightlight
+							return
 						end
 					end
 				end
@@ -271,46 +196,29 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 					for _, moveId in ipairs(partyMon.moveIds or {}) do
 						local moveText = MoveData.Moves[moveId].name
 						if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
-							return true
+							self.textColor = LogTabTrainerDetails.Colors.hightlight
+							return
 						end
 					end
 				end
 			end
-
-			return false
 		end,
+		includeInGrid = function(self) return LogOverlay.Windower.filterGrid == self.tab end,
 		onClick = function(self)
 			LogOverlay.Windower:changeTab(LogTabTrainerDetails, 1, 1, self.id)
 			Program.redraw(true)
 			-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 		end,
 		draw = function(self, shadowcolor)
-			-- Draw a centered box for the Trainer's name
-			local textColor = Theme.COLORS[LogTabRouteDetails.Colors.text]
-			local borderColor = Theme.COLORS[LogTabRouteDetails.Colors.border]
-			local fillColor = Theme.COLORS[LogTabRouteDetails.Colors.boxFill]
-			local bottomPadding = 9
-			if self.class ~= "" then
-				local classCenterOffset = Utils.getCenteredTextX(self.class, self.box[3])
-				local classX = self.box[1] + classCenterOffset
-				local classY = self.box[2] + 64 - (bottomPadding * 2) - (self.dimensions.extraY or 0)
-				gui.drawRectangle(classX - 1, classY, self.box[3], (bottomPadding * 2) + 2, borderColor, fillColor)
-				Drawing.drawText(classX, classY, self.class, textColor, shadowcolor)
-			end
-			local nameCenterOffset = Utils.getCenteredTextX(self.name, self.box[3])
-			local nameX = self.box[1] + nameCenterOffset
-			local nameY = self.box[2] + 64 - bottomPadding - (self.dimensions.extraY or 0)
-			if self.class == "" then
-				gui.drawRectangle(nameX - 1, nameY, self.box[3], bottomPadding + 2, borderColor, fillColor)
-			end
+			local boxExtraW = 4
+			local textColor = Theme.COLORS[self.textColor]
+			local fillColor = Theme.COLORS[LogTabTrainers.Colors.boxFill]
+			local nameX = self.box[1] + Utils.getCenteredTextX(self:getText(), self.box[3] + boxExtraW * 2)
+			local nameY = self.box[2] + self.box[4] + 1
+			-- gui.drawRectangle(self.box[1] - boxExtraW, nameY, self.box[3] + boxExtraW * 2, Constants.Font.SIZE + 2, fillColor, fillColor)
 			Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
-
-			-- local nameWidth = Utils.calcWordPixelLength(self:getText())
-			-- local offsetX = self.box[1] + self.box[3] / 2 - nameWidth / 2
-			-- local offsetY = self.box[2] + TrainerData.FileInfo.maxHeight - bottomPadding - (self.dimensions.extraY or 0)
-			-- gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, borderColor, fillColor)
-			-- Drawing.drawText(offsetX, offsetY, self:getText(), textColor, shadowcolor)
-			-- gui.drawRectangle(offsetX - 1, offsetY, nameWidth + 5, bottomPadding + 2, Theme.COLORS[LogTabTrainers.Colors.border]) -- to cutoff the shadows
+			local teamText = string.format("%s: %s", Resources.TrackerScreen.BattleTeam, #trainer.pokemon)
+			Drawing.drawText(nameX, nameY + 10, teamText, textColor, shadowcolor)
 		end,
 	}
 
@@ -338,25 +246,20 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 		levelMax = encounterInfo.levelMax,
 		rate = encounterInfo.rate,
 		dimensions = { width = 32, height = 32, },
-		isVisible = function(self) return LogTabRouteDetails.Pager.currentTab == self.tab and LogTabRouteDetails.Pager.currentPage == self.pageVisible end,
-		includeInGrid = function(self)
-			-- If no search text entered, check any filter groups
-			if LogSearchScreen.searchText == "" then
-				if LogTabRouteDetails.Pager.currentTab == self.tab then
-					return true
-				end
-				return false
-			end
-
-			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+		isVisible = function(self) return LogOverlay.Windower.filterGrid == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
+		updateSelf = function(self)
+			self.textColor = LogTabRouteDetails.Colors.text
+			-- Highlight anything that is found by the search
+			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName and LogSearchScreen.searchText ~= "" then
 				if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-					return true
+					self.textColor = LogTabTrainerDetails.Colors.hightlight
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
 				for _, abilityId in pairs(pokemonLog.Abilities) do
 					local abilityText = AbilityData.Abilities[abilityId].name
 					if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-						return true
+						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						return
 					end
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
@@ -366,13 +269,13 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 						moveText = MoveData.Moves[move.moveId].name
 					end
 					if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
-						return true
+						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						return
 					end
 				end
 			end
-
-			return false
 		end,
+		includeInGrid = function(self) return LogOverlay.Windower.filterGrid == self.tab end,
 		getIconPath = function(self)
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
@@ -386,50 +289,51 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			gui.drawRectangle(self.box[1], self.box[2], 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
 			Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 			-- Draw the level range and encounter rate below the icon
-			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, Theme.COLORS[self.textColor], shadowcolor)
-			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, Theme.COLORS[LogTabPokemonDetails.Colors.text], shadowcolor)
+			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, Theme.COLORS[LogTabPokemonDetails.Colors.text], shadowcolor)
 		end,
 	}
 	return button
 end
 
 function LogTabRouteDetails.realignGrid(gridFilter, sortFunc, startingPage)
-	if LogTabRouteDetails.Pager.currentTab == LogTabRouteDetails.Tabs.Trainers then
-		LogTabRouteDetails.realignTrainerGrid(sortFunc, startingPage)
+	if gridFilter ~= nil then
+		LogOverlay.Windower.filterGrid = gridFilter
+	end
+
+	if LogOverlay.Windower.filterGrid == LogTabRouteDetails.Tabs.Trainers then
+		LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPage)
 	else
-		LogTabRouteDetails.realignPokemonGrid(sortFunc, startingPage)
+		LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPage)
 	end
 
 	LogTabRouteDetails.refreshButtons()
 end
 
-function LogTabRouteDetails.realignTrainerGrid(sortFunc, startingPage)
-	local currentTab = LogTabRouteDetails.Pager.currentTab
-	local gridItems = LogTabRouteDetails.Pager.Trainers
+function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPage)
 	sortFunc = sortFunc or LogSearchScreen.SortBy.PokedexNum.sortFunc -- synonymous with id (trainerid)
 	startingPage = startingPage or 1
 
-	table.sort(gridItems, sortFunc)
+	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 75
 	local y = LogOverlay.TabBox.y + 12
-	local colSpacer = 23
-	local rowSpacer = 8
+	local colSpacer = 24
+	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
-	local totalPages = Utils.gridAlign(gridItems, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
-	LogTabRouteDetails.Pager.tabTotals[currentTab] = totalPages
-	LogTabRouteDetails.Pager.currentPage = math.min(startingPage, totalPages)
+	LogOverlay.Windower.filterGrid = gridFilter or LogTabRouteDetails.Tabs.Trainers
+	local totalPages = Utils.gridAlign(LogTabRouteDetails.PagedButtons, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
+	LogOverlay.Windower.totalPages = totalPages
+	LogOverlay.Windower.currentPage = math.min(startingPage, totalPages)
 end
 
-function LogTabRouteDetails.realignPokemonGrid(sortFunc, startingPage)
-	local currentTab = LogTabRouteDetails.Pager.currentTab
-	local gridItems = LogTabRouteDetails.Pager.WildEncounters
-	sortFunc = sortFunc or LogSearchScreen.SortBy.EncounterRate.sortFunc
+function LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPage)
+	sortFunc = sortFunc or function(a, b) return (a.rate or 0) > (b.rate or 0) or (a.rate == b.rate and a.id < b.id) end
 	startingPage = startingPage or 1
 
-	table.sort(gridItems, sortFunc)
+	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 75
 	local y = LogOverlay.TabBox.y + 21
@@ -438,16 +342,16 @@ function LogTabRouteDetails.realignPokemonGrid(sortFunc, startingPage)
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
-	local totalPages = Utils.gridAlign(gridItems, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
-	LogTabRouteDetails.Pager.tabTotals[currentTab] = totalPages
-	LogTabRouteDetails.Pager.currentPage = math.min(startingPage, totalPages)
+	LogOverlay.Windower.filterGrid = gridFilter or LogOverlay.Windower.filterGrid
+	local totalPages = Utils.gridAlign(LogTabRouteDetails.PagedButtons, x, y, colSpacer, rowSpacer, false, maxWidth, maxHeight)
+	LogOverlay.Windower.totalPages = totalPages
+	LogOverlay.Windower.currentPage = math.min(startingPage, totalPages)
 end
 
 -- USER INPUT FUNCTIONS
 function LogTabRouteDetails.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, LogTabRouteDetails.TemporaryButtons)
-	Input.checkButtonsClicked(xmouse, ymouse, LogTabRouteDetails.Pager.Trainers)
-	Input.checkButtonsClicked(xmouse, ymouse, LogTabRouteDetails.Pager.WildEncounters)
+	Input.checkButtonsClicked(xmouse, ymouse, LogTabRouteDetails.PagedButtons)
 end
 
 -- Unsure if this will actually be needed, likely some of them
@@ -477,10 +381,7 @@ function LogTabRouteDetails.drawTab()
 	for _, button in pairs(LogTabRouteDetails.TemporaryButtons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
-	for _, button in pairs(LogTabRouteDetails.Pager.Trainers) do
-		Drawing.drawButton(button, shadowcolor)
-	end
-	for _, button in pairs(LogTabRouteDetails.Pager.WildEncounters) do
+	for _, button in pairs(LogTabRouteDetails.PagedButtons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
 end

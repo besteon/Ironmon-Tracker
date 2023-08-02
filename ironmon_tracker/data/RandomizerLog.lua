@@ -738,8 +738,12 @@ end
 -- Returns class, name of the trainer; split from 'fullname'
 function RandomizerLog.splitTrainerClassAndName(fullname)
 	fullname = fullname or ""
-	-- TODO: This doesn't work yet for names of doubles trainers
-	local class, name = fullname:match("(.-)%s*([^%s]+)$")
+	local pattern = "(.-)%s*([^%s]+)$"
+	if fullname:find("&", 1, true) then
+		pattern = "(.-)%s*([^%s]+%s&%s[^%s]+)$"
+	end
+	-- TODO: This doesn't work yet for names of doubles trainers, or "leader lt. surge"
+	local class, name = fullname:match(pattern)
 	if name == nil then
 		name = class
 		class = nil

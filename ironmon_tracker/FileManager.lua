@@ -15,6 +15,7 @@ FileManager.Folders = {
 	RandomizerSettings = "RandomizerSettings",
 	Images = "images",
 	Trainers = "trainers",
+	TrainersPortraits = "trainerPortraits",
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
