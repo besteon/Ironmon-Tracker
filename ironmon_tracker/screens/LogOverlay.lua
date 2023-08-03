@@ -179,10 +179,10 @@ LogOverlay.NavFilters = {
 				if a.group < b.group then
 					return true
 				elseif a.group == b.group then
-					if a.group == TrainerData.TrainerGroups.Rival or a.group == TrainerData.TrainerGroups.Boss then -- special sort for rival/wally #s
-						return a:getText() < b:getText()
+					if a.group == TrainerData.TrainerGroups.Rival or a.group == TrainerData.TrainerGroups.Boss then
+						return (a.maxlevel or 999) < (b.maxlevel or 999)
 					elseif a.group == TrainerData.TrainerGroups.Gym or a.group == TrainerData.TrainerGroups.Elite4 then
-						return a.image < b.image
+						return (a.maxlevel or 999) < (b.maxlevel or 999)
 					elseif a.id < b.id then
 						return true
 					end
@@ -194,7 +194,7 @@ LogOverlay.NavFilters = {
 			getText = function() return Resources.LogOverlay.FilterRival end,
 			group = TrainerData.TrainerGroups.Rival,
 			index = 2,
-			sortFunc = function(a, b) return a:getText() < b:getText() end,
+			sortFunc = function(a, b) return a.maxlevel < b.maxlevel end,
 		},
 		Gym = {
 			getText = function() return Resources.LogOverlay.FilterGym end,
@@ -212,7 +212,7 @@ LogOverlay.NavFilters = {
 			getText = function() return Resources.LogOverlay.FilterBoss end,
 			group = TrainerData.TrainerGroups.Boss,
 			index = 5,
-			sortFunc = function(a, b) return a:getText() < b:getText() end,
+			sortFunc = function(a, b) return a.maxlevel < b.maxlevel end,
 		},
 		-- { -- Temp Removing both of these until better data gets sorted out
 		-- 	getText = function() return Resources.LogOverlay.FilterOther end,

@@ -464,7 +464,8 @@ function RandomizerLog.parseTrainers(logLines)
 			class = trainerClass,
 			fullname = trainer_fullname,
 			customname = customname,
-			avgTrainerLv = 0, -- Averages the levels of trainer party pokemon, used for searching
+			avgTrainerLv = nil, -- average of all party pokemon levels
+			maxlevel = nil,
 			party = {},
 		}
 		local trainer = RandomizerLog.Data.Trainers[trainer_num]
@@ -488,7 +489,10 @@ function RandomizerLog.parseTrainers(logLines)
 					level = level,
 					moveIds = {}, -- Holds the 4 moves this Pokemon has at this current level, needed for searching
 				}
-				trainer.avgTrainerLv = trainer.avgTrainerLv + level -- (sum for now, average out later)
+				trainer.avgTrainerLv = (trainer.avgTrainerLv or 0) + level
+				if trainer.maxlevel == nil or level > trainer.maxlevel then
+					trainer.maxlevel = level
+				end
 
 				local pokemonLog = RandomizerLog.Data.Pokemon[partyPokemon.pokemonID] or {}
 				local pokemonMoves = pokemonLog.MoveSet or {}
@@ -509,7 +513,7 @@ function RandomizerLog.parseTrainers(logLines)
 			end
 		end
 		if #trainer.party > 0 then
-			trainer.avgTrainerLv = math.floor(trainer.avgTrainerLv / #trainer.party + 0.5)
+			trainer.avgTrainerLv = trainer.avgTrainerLv / #trainer.party
 		end
 
 		if GameSettings.game == 3 and trainer_num <= 88 then -- Exclude dummy trainers from FRLG (exist only in Emerald)
@@ -529,8 +533,8 @@ function RandomizerLog.parseRoutes(logLines)
 		local routeName = (RouteData.Info[mapId] or {}).name
 		RandomizerLog.Data.Routes[mapId] = {
 			name = routeName or "Unknown Area",
-			avgTrainerLv = 0, -- Averages the levels of trainer party pokemon, used for searching
-			avgWildLv = 0, -- Averages the levels of wild pokemon, used for searching
+			avgTrainerLv = nil,
+			maxWildLv = nil,
 			EncountersAreas = {},
 		}
 		local route = RandomizerLog.Data.Routes[mapId]
@@ -546,7 +550,7 @@ function RandomizerLog.parseRoutes(logLines)
 					local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
 					avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
 				end
-				route.avgTrainerLv = math.floor(avgLevel / #routeInternal.trainers + 0.5)
+				route.avgTrainerLv = avgLevel / #routeInternal.trainers
 			end
 		end
 	end
@@ -607,8 +611,8 @@ function RandomizerLog.parseRoutes(logLines)
 				-- Create the route information table
 				RandomizerLog.Data.Routes[mapId] = {
 					name = routeName or "Unknown Area",
-					avgTrainerLv = 0, -- Averages the levels of trainer party pokemon, used for searching
-					avgWildLv = 0, -- Averages the levels of wild pokemon, used for searching
+					avgTrainerLv = nil,
+					maxWildLv = nil,
 					EncountersAreas = {},
 				}
 			end
@@ -643,7 +647,6 @@ function RandomizerLog.parseRoutes(logLines)
 			local encounterIndex = 1
 			local encounterArea = route.EncountersAreas[encounterTypeKey]
 			local encounterRates = RandomizerLog.EncounterTypes[encounterTypeKey].rates or {}
-			local avgLevel = 0
 
 			if isFishingRoute then
 				encounterArea = route.EncountersAreas.OldRod
@@ -678,9 +681,6 @@ function RandomizerLog.parseRoutes(logLines)
 					enc.levelMin = math.min(enc.levelMin or 100, minLv)
 					enc.levelMax = math.max(enc.levelMax or 0, maxLv)
 					enc.rate = (enc.rate or 0) + (encounterRates[encounterIndex] or 0)
-
-					local avgEncLv = math.floor((enc.levelMin + enc.levelMax) / 2 + 0.5)
-					avgLevel = avgLevel + avgEncLv
 				end
 
 				index = index + 1
@@ -692,14 +692,12 @@ function RandomizerLog.parseRoutes(logLines)
 			end
 
 			-- If the average level for the route's wild encounters hasn't be calculated yet, do that
-			-- Ideally grass/cave encounters are parsed first
-			if route.avgWildLv == 0 then
-				local totalEnc = 0
-				for _, _ in pairs(encounterArea.pokemon or {}) do
-					totalEnc = totalEnc + 1
-				end
-				if totalEnc > 0 then
-					route.avgWildLv = math.floor(avgLevel / totalEnc + 0.5)
+			-- Typically grass/cave encounters are parsed first from the log
+			if route.maxWildLv == nil then
+				for _, p in pairs(encounterArea.pokemon or {}) do
+					if p.levelMax > (route.maxWildLv or 0) then
+						route.maxWildLv = p.levelMax
+					end
 				end
 			end
 

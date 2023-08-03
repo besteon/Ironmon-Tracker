@@ -104,6 +104,7 @@ function LogTabTrainers.buildPagedButtons()
 			class = Utils.firstToUpperEachWord(trainerLog.class),
 			name = Utils.firstToUpperEachWord(trainerLog.name),
 			customname = trainerLog.customname,
+			maxlevel = trainerLog.maxlevel or 0,
 			dimensions = { width = 32, height = 32, },
 			group = trainerInternal.group or TrainerData.TrainerGroups.Other,
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
@@ -162,14 +163,7 @@ function LogTabTrainers.buildPagedButtons()
 				-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 			end,
 			draw = function(self, shadowcolor)
-				local boxExtraW = 4
-				local textColor = Theme.COLORS[self.textColor]
-				local fillColor = Theme.COLORS[LogTabTrainers.Colors.boxFill]
-				local nameX = self.box[1] + Utils.getCenteredTextX(self:getText(), self.box[3] + boxExtraW * 2)
-				local nameY = self.box[2] + self.box[4] + 1
-				gui.drawRectangle(self.box[1] - boxExtraW, nameY, self.box[3] + boxExtraW * 2, Constants.Font.SIZE + 2, fillColor, fillColor)
-				Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
-				LogTabTrainers.drawPokeballs(nameX, nameY + 11, self.id, shadowcolor)
+				LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
 			end,
 		}
 
@@ -193,19 +187,31 @@ function LogTabTrainers.buildPagedButtons()
 end
 
 -- Draw pokeballs for each pokemon on their team
-function LogTabTrainers.drawPokeballs(x, y, trainerId, shadowcolor)
-	trainerId = trainerId or 0
-	local image, colorList
+function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
+	-- Draw the name above the trainer icon
+	local x = button.box[1] - 3
+	local y = button.box[2] - Constants.SCREEN.LINESPACING
+	local textColor = Theme.COLORS[button.textColor]
+	local nameText = button.name
+	if TrainerData.shouldUseClassName(button.id) then
+		nameText = button.class
+	end
+	Drawing.drawText(x, y, nameText, textColor, shadowcolor)
+
+	-- Draw pokeballs for each Pokemon on the trainer's team below the trainer icon
+	y = button.box[2] + button.box[4] + 2
+	local image = Constants.PixelImages.POKEBALL_SMALL
+	local colorList = TrackerScreen.PokeBalls.ColorList
+	local trainerLog = RandomizerLog.Data.Trainers[button.id] or {}
 	-- Easter egg for Giovanni, use masterballs
-	if 348 <= trainerId and trainerId <= 350 then
+	if 348 <= button.id and button.id <= 350 then
 		image = Constants.PixelImages.MASTERBALL_SMALL
 		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
-	else
-		image = Constants.PixelImages.POKEBALL_SMALL
-		colorList = TrackerScreen.PokeBalls.ColorList
 	end
-	local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
-	for _, _ in pairs(trainerLog.party or {}) do
+	if #trainerLog.party <= 3 then
+		x = x + 8
+	end
+	for _ = 1, #trainerLog.party, 1 do
 		Drawing.drawImageAsPixels(image, x, y, colorList, shadowcolor)
 		x = x + 8
 	end
@@ -218,8 +224,8 @@ function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabTrainers.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 17
-	local y = LogOverlay.TabBox.y + 22
+	local x = LogOverlay.TabBox.x + 15
+	local y = LogOverlay.TabBox.y + 30
 	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

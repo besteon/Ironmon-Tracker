@@ -39,13 +39,13 @@ function LogTabRoutes.buildPagedButtons()
 			getText = function(self) return routeName end,
 			id = mapId,
 			avgTrainerLv = route.avgTrainerLv,
-			avgWildLv = route.avgWildLv,
+			maxWildLv = route.maxWildLv,
 			filename = routeInfo.filename,
 			dimensions = { width = 90, height = 16, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- Don't show routes that have no encounters
-				if self.avgTrainerLv == 0 and self.avgWildLv == 0 then
+				if self.avgTrainerLv == nil and self.maxWildLv == nil then
 					return false
 				end
 
@@ -139,7 +139,7 @@ end
 
 function LogTabRoutes.realignGrid(gridFilter, sortFunc, startingPage)
 	gridFilter = gridFilter or ""
-	sortFunc = sortFunc or LogSearchScreen.SortBy.TrainerLevel.sortFunc
+	sortFunc = sortFunc or LogSearchScreen.currentSortOrder.sortFunc or LogSearchScreen.SortBy.TrainerLevel.sortFunc
 	startingPage = startingPage or 1
 
 	table.sort(LogTabRoutes.PagedButtons, sortFunc)

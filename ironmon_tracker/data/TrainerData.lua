@@ -15,322 +15,102 @@ TrainerData.TrainerGroups = {
 }
 
 -- A table of information for each different trainer class
--- TODO: normalize images to use FRLG or RSE only
+-- 'filename' is used with prefixes and postfixes to determine which image to show, depending on the game being played
 TrainerData.Classes = {
 	-- Specific trainers
-	GymLeader1 = {
-		filename = "gymleader-1",
-	},
-	GymLeader2 = {
-		filename = "gymleader-2",
-	},
-	GymLeader3 = {
-		filename = "gymleader-3",
-	},
-	GymLeader4 = {
-		filename = "gymleader-4",
-	},
-	GymLeader5 = {
-		filename = "gymleader-5",
-	},
-	GymLeader6 = {
-		filename = "gymleader-6",
-	},
-	GymLeader7 = {
-		filename = "gymleader-7",
-	},
-	GymLeader8 = {
-		filename = "gymleader-8",
-		hasPostfix = true,
-	},
-	EliteFour1 = {
-		filename = "elitefour-1",
-	},
-	EliteFour2 = {
-		filename = "elitefour-2",
-	},
-	EliteFour3 = {
-		filename = "elitefour-3",
-	},
-	EliteFour4 = {
-		filename = "elitefour-4",
-	},
-	EliteChampion = {
-		filename = "elitefour-champ",
-		hasPostfix = true,
-	},
-	RivalFRLGA = {
-		filename = "rival-a",
-	},
-	RivalFRLGB = {
-		filename = "rival-b",
-	},
-	RivalFRLGC = {
-		filename = "rival-c",
-	},
-	RivalBrendan = {
-		filename = "rival-brendan",
-		hasPostfix = true,
-	},
-	RivalMay = {
-		filename = "rival-may",
-		hasPostfix = true,
-	},
-	Wally = {
-		filename = "wally",
-	},
-	Archie = {
-		filename = "archie",
-	},
-	Tabitha = {
-		filename = "tabitha",
-	},
-	Maxie = {
-		filename = "maxie",
-	},
-	Courtney = {
-		filename = "courtney",
-	},
-	Shelly = {
-		filename = "shelly",
-	},
-	Matt = {
-		filename = "matt",
-	},
-	Steven = {
-		filename = "steven",
-	},
+	GymLeader1 = { filename = "gymleader-1", },
+	GymLeader2 = { filename = "gymleader-2", },
+	GymLeader3 = { filename = "gymleader-3", },
+	GymLeader4 = { filename = "gymleader-4", },
+	GymLeader5 = { filename = "gymleader-5", },
+	GymLeader6 = { filename = "gymleader-6", },
+	GymLeader7 = { filename = "gymleader-7", },
+	GymLeader8 = { filename = "gymleader-8", hasPostfix = true, },
+	EliteFour1 = { filename = "elitefour-1", },
+	EliteFour2 = { filename = "elitefour-2", },
+	EliteFour3 = { filename = "elitefour-3", },
+	EliteFour4 = { filename = "elitefour-4", },
+	EliteChampion = { filename = "elitefour-champ", hasPostfix = true, },
+	RivalFRLGA = { filename = "rival-a", },
+	RivalFRLGB = { filename = "rival-b", },
+	RivalFRLGC = { filename = "rival-c", },
+	RivalBrendan = { filename = "rival-brendan", hasPostfix = true, },
+	RivalMay = { filename = "rival-may", hasPostfix = true, },
+	Wally = { filename = "wally", },
+	Archie = { filename = "archie", },
+	Tabitha = { filename = "tabitha", },
+	Maxie = { filename = "maxie", },
+	Courtney = { filename = "courtney", },
+	Shelly = { filename = "shelly", },
+	Matt = { filename = "matt", },
+	Steven = { filename = "steven", },
+
 	-- Generic trainer classes
-	AromaLady = {
-		filename = "aroma-lady",
-	},
-	BattleGirl = {
-		filename = "battle-girl",
-	},
-	Beauty = {
-		filename = "beauty",
-	},
-	Biker = {
-		filename = "biker",
-	},
-	BirdKeeper = {
-		filename = "bird-keeper",
-	},
-	BlackBelt = {
-		filename = "blackbelt",
-	},
-	BugCatcher = {
-		filename = "bug-catcher",
-	},
-	BugManiac = {
-		filename = "bug-maniac",
-	},
-	Burglar = {
-		filename = "burglar",
-	},
-	Camper = {
-		filename = "camper",
-	},
-	Collector = {
-		filename = "collector",
-	},
-	Channeler = {
-		filename = "channeler",
-	},
-	CoolCouple = {
-		filename = "cool-couple",
-	},
-	CoolTrainer = {
-		filename = "cooltrainer",
-	},
-	CrushGirl = {
-		filename = "crush-girl",
-	},
-	CrushKin = {
-		filename = "crush-kin",
-	},
-	CueBall = {
-		filename = "cue-ball",
-	},
-	DragonTamer = {
-		filename = "dragon-tamer",
-	},
-	Engineer = {
-		filename = "engineer",
-	},
-	Fisherman = {
-		filename = "fisherman",
-	},
-	Gamer = {
-		filename = "gamer",
-	},
-	Gentleman = {
-		filename = "gentleman",
-	},
-	HexManiac = {
-		filename = "hex-maniac",
-	},
-	Hiker = {
-		filename = "hiker",
-	},
-	Interviewer = {
-		filename = "interviewer",
-	},
-	Juggler = {
-		filename = "juggler",
-	},
-	Kindler = {
-		filename = "kindler",
-	},
-	Lady = {
-		filename = "lady",
-	},
-	Lass = {
-		filename = "lass",
-	},
-	NinjaBoy = {
-		filename = "ninja-boy",
-	},
-	OldCouple = {
-		filename = "old-couple",
-	},
-	Painter = {
-		filename = "painter",
-	},
-	ParasolLady = {
-		filename = "parasol-lady",
-	},
-	Picnicker = {
-		filename = "picnicker",
-	},
-	PkmnBreeder = {
-		filename = "pkmn-breeder",
-	},
-	PkmnRanger = {
-		filename = "pkmn-ranger",
-	},
-	PokeFan = {
-		filename = "pokefan",
-	},
-	PokeManiac = {
-		filename = "pokemaniac",
-	},
-	Psychic = {
-		filename = "psychic",
-	},
-	RichBoy = {
-		filename = "rich-boy",
-	},
-	Rocker = {
-		filename = "rocker",
-	},
-	RuinManiac = {
-		filename = "ruin-maniac",
-	},
-	Sailor = {
-		filename = "sailor",
-	},
-	Scientist = {
-		filename = "scientist",
-	},
-	SrAndJr = {
-		filename = "sr-and-jr",
-	},
-	SisAndBro = {
-		filename = "sis-and-bro",
-	},
-	SuperNerd = {
-		filename = "super-nerd",
-	},
-	SwimmerF = {
-		filename = "swimmer-f",
-	},
-	SwimmerM = {
-		filename = "swimmer-m",
-	},
-	Tamer = {
-		filename = "tamer",
-	},
-	TeamAquaGrunt = {
-		filename = "team-aqua-grunt",
-	},
-	TeamMagmaGrunt = {
-		filename = "team-magma-grunt",
-	},
-	TeamRocketGrunt = {
-		filename = "team-rocket-grunt",
-	},
-	Triathlete = {
-		filename = "triathlete",
-	},
-	Tuber = {
-		filename = "tuber",
-	},
-	Twins = {
-		filename = "twins",
-	},
-	YoungCouple = {
-		filename = "young-couple",
-	},
-	Youngster = {
-		filename = "youngster",
-	},
+	AromaLady = { filename = "aroma-lady", },
+	BattleGirl = { filename = "battle-girl", },
+	Beauty = { filename = "beauty", },
+	Biker = { filename = "biker", },
+	BirdKeeper = { filename = "bird-keeper", },
+	BlackBelt = { filename = "blackbelt", },
+	BugCatcher = { filename = "bug-catcher", },
+	BugManiac = { filename = "bug-maniac", },
+	Burglar = { filename = "burglar", },
+	Camper = { filename = "camper", },
+	Collector = { filename = "collector", },
+	Channeler = { filename = "channeler", },
+	CoolCouple = { filename = "cool-couple", },
+	CoolTrainer = { filename = "cooltrainer", },
+	CrushGirl = { filename = "crush-girl", },
+	CrushKin = { filename = "crush-kin", },
+	CueBall = { filename = "cue-ball", },
+	DragonTamer = { filename = "dragon-tamer", },
+	Engineer = { filename = "engineer", },
+	Fisherman = { filename = "fisherman", },
+	Gamer = { filename = "gamer", },
+	Gentleman = { filename = "gentleman", },
+	HexManiac = { filename = "hex-maniac", },
+	Hiker = { filename = "hiker", },
+	Interviewer = { filename = "interviewer", },
+	Juggler = { filename = "juggler", },
+	Kindler = { filename = "kindler", },
+	Lady = { filename = "lady", },
+	Lass = { filename = "lass", },
+	NinjaBoy = { filename = "ninja-boy", },
+	OldCouple = { filename = "old-couple", },
+	Painter = { filename = "painter", },
+	ParasolLady = { filename = "parasol-lady", },
+	Picnicker = { filename = "picnicker", },
+	PkmnBreeder = { filename = "pkmn-breeder", },
+	PkmnRanger = { filename = "pkmn-ranger", },
+	PokeFan = { filename = "pokefan", },
+	PokeManiac = { filename = "pokemaniac", },
+	Psychic = { filename = "psychic", },
+	RichBoy = { filename = "rich-boy", },
+	Rocker = { filename = "rocker", },
+	RuinManiac = { filename = "ruin-maniac", },
+	Sailor = { filename = "sailor", },
+	Scientist = { filename = "scientist", },
+	SrAndJr = { filename = "sr-and-jr", },
+	SisAndBro = { filename = "sis-and-bro", },
+	SuperNerd = { filename = "super-nerd", },
+	SwimmerF = { filename = "swimmer-f", },
+	SwimmerM = { filename = "swimmer-m", },
+	Tamer = { filename = "tamer", },
+	TeamAquaGrunt = { filename = "team-aqua-grunt", },
+	TeamMagmaGrunt = { filename = "team-magma-grunt", },
+	TeamRocketGrunt = { filename = "team-rocket-grunt", },
+	Triathlete = { filename = "triathlete", },
+	Tuber = { filename = "tuber", },
+	Twins = { filename = "twins", },
+	YoungCouple = { filename = "young-couple", },
+	Youngster = { filename = "youngster", },
+
 	-- Default, if none found
-	Unknown = {
-		filename = "unknown",
-	}
+	Unknown = { filename = "unknown", }
 }
 
--- Mapped by [GameNumber][TrainerId] = data table with filename
--- TODO: currently, unused
-TrainerData.FileInfo = {
-	-- Aim to have width at 42+ and height 63
-	maxWidth = 58,
-	maxHeight = 63,
-
-	["e-rival-brendan"] =		{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["e-rival-may"] =			{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rs-rival-brendan"] =		{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rs-rival-may"] =			{ width = 40, height = 55, offsetX = 0, offsetY = 6, },
-	["rse-wally"] =				{ width = 38, height = 57, offsetX = 10, offsetY = 4, },
-	["rse-archie"] =			{ width = 38, height = 63, offsetX = 8, offsetY = 0, },
-	["rse-maxie"] =				{ width = 38, height = 63, offsetX = 9, offsetY = 0, },
-	["rse-tabitha"] =			{ width = 50, height = 62, offsetX = 0, offsetY = 0, },
-	["rse-gymleader-1"] =		{ width = 35, height = 54, offsetX = 4, offsetY = 6, },
-	["rse-gymleader-2"] =		{ width = 51, height = 61, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-3"] =		{ width = 35, height = 60, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-4"] =		{ width = 45, height = 61, offsetX = 3, offsetY = 2, },
-	["rse-gymleader-5"] =		{ width = 35, height = 63, offsetX = 0, offsetY = 0, },
-	["rse-gymleader-6"] =		{ width = 45, height = 60, offsetX = 0, offsetY = 2, },
-	["rse-gymleader-7"] =		{ width = 57, height = 54, offsetX = 0, offsetY = 4, },
-	["rse-elitefour-1"] =		{ width = 40, height = 54, offsetX = 0, offsetY = 6, },
-	["rse-elitefour-2"] =		{ width = 38, height = 57, offsetX = 5, offsetY = 4, },
-	["rse-elitefour-3"] =		{ width = 40, height = 61, offsetX = 0, offsetY = 2, },
-	["rse-elitefour-4"] =		{ width = 47, height = 63, offsetX = 3, offsetY = 1, },
-	["e-gymleader-8"] =			{ width = 40, height = 63, offsetX = 0, offsetY = 3, },
-	["rs-gymleader-8"] =		{ width = 48, height = 55, offsetX = 0, offsetY = 6, },
-	["e-elitefour-champ"] =		{ width = 56, height = 59, offsetX = 0, offsetY = 2, },
-	["rs-elitefour-champ"] =	{ width = 34, height = 63, offsetX = 0, offsetY = 0, },
-	["e-final-steven"] =		{ width = 34, height = 63, offsetX = 0, offsetY = 2, },
-
-	["frlg-rival-a"] =			{ width = 42, height = 57, offsetX = 1, offsetY = 3, },
-	["frlg-rival-b"] =			{ width = 42, height = 60, offsetX = 0, offsetY = 2, },
-	["frlg-rival-c"] =			{ width = 42, height = 60, offsetX = 0, offsetY = 3, },
-	["frlg-blackbelt"] =		{ width = 52, height = 61, offsetX = 0, offsetY = 1, },
-	["frlg-gymleader-1"] =		{ width = 43, height = 63, offsetX = 3, offsetY = 2, },
-	["frlg-gymleader-2"] =		{ width = 43, height = 61, offsetX = 2, offsetY = 2, },
-	["frlg-gymleader-3"] =		{ width = 43, height = 61, offsetX = 0, offsetY = 2, },
-	["frlg-gymleader-4"] =		{ width = 43, height = 57, offsetX = 2, offsetY = 3, },
-	["frlg-gymleader-5"] =		{ width = 46, height = 54, offsetX = 0, offsetY = 4, },
-	["frlg-gymleader-6"] =		{ width = 43, height = 56, offsetX = 0, offsetY = 4, },
-	["frlg-gymleader-7"] =		{ width = 44, height = 61, offsetX = 0, offsetY = 2, },
-	["frlg-gymleader-8"] =		{ width = 42, height = 63, offsetX = 2, offsetY = 1, },
-	["frlg-elitefour-1"] =		{ width = 38, height = 62, offsetX = 0, offsetY = 2, },
-	["frlg-elitefour-2"] =		{ width = 53, height = 52, offsetX = 0, offsetY = 5, },
-	["frlg-elitefour-3"] =		{ width = 30, height = 57, offsetX = 1, offsetY = 3, },
-	["frlg-elitefour-4"] =		{ width = 58, height = 60, offsetX = 0, offsetY = 3, },
-	["unknown-a"] =				{ width = 42, height = 55, offsetX = 0, offsetY = 8, },
-	["unknown-b"] =				{ width = 42, height = 55, offsetX = 0, offsetY = 8, },
+TrainerData.BlankTrainer = {
+	class = TrainerData.Classes.Unknown,
 }
 
 function TrainerData.initialize()
@@ -345,6 +125,20 @@ end
 
 function TrainerData.getTrainerInfo(trainerId)
 	return TrainerData.Trainers[trainerId or false] or TrainerData.BlankTrainer
+end
+
+function TrainerData.shouldUseClassName(trainerId)
+	if trainerId == nil then return false end
+	if GameSettings.game == 3 then
+		if 326 <= trainerId and trainerId <= 334 then
+			return true
+		elseif 426 <= trainerId and trainerId <= 440 then
+			return true
+		elseif 739 <= trainerId and trainerId <= 741 then
+			return true
+		end
+	end
+	return false
 end
 
 -- Helper functions for the image retrieval functions
@@ -984,9 +778,6 @@ function TrainerData.setupTrainersAsFRLG()
 		{ leader = "Giovanni", number = 26, },
 	}
 
-	TrainerData.BlankTrainer = {
-		class = TrainerData.Classes.Unknown,
-	}
 	TrainerData.Trainers = {
 		[89] = { class = TrainerData.Classes.Youngster, },
 		[90] = { class = TrainerData.Classes.Youngster, },

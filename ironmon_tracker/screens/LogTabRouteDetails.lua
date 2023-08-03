@@ -59,12 +59,12 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return routeName end,
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, 120, 12 },
+		box = { LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 2, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 
 	-- ROUTE TAB NAVIGATION
-	local navX = LogOverlay.TabBox.x + 3
+	local navX = LogOverlay.TabBox.x + 2
 	local navY = 32
 	local headerTextWidth = Utils.calcWordPixelLength("Encounters" or Resources.LogTabRouteDetails.Encounters) + 4
 	local navHeaderButton = {
@@ -170,6 +170,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 		class = trainer.class,
 		name = trainer.name,
 		id = trainer.id,
+		maxlevel = trainer.maxlevel,
 		dimensions = { width = 32, height = 32, },
 		tab = LogTabRouteDetails.Tabs.Trainers,
 		isVisible = function(self) return LogOverlay.Windower.filterGrid == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
@@ -225,13 +226,8 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 				local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
 				Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3], self.box[4], color, 1, 5, 1)
 			end
-			local boxExtraW = 4
-			local textColor = Theme.COLORS[self.textColor]
-			local nameX = self.box[1] + Utils.getCenteredTextX(self:getText(), self.box[3] + boxExtraW * 2)
-			local nameY = self.box[2] + self.box[4] + 1
-			Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
 
-			LogTabTrainers.drawPokeballs(nameX, nameY + 11, self.id, shadowcolor)
+			LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
 		end,
 	}
 
@@ -243,9 +239,9 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 
 	local levelRangeText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, encounterInfo.levelMin)
 	if encounterInfo.levelMax ~= encounterInfo.levelMin then
-		levelRangeText = string.format("%s%s%s", levelRangeText, LogTabRouteDetails.levelRangeSpacer, encounterInfo.levelMax)
+		levelRangeText = string.format("%s %s %s", levelRangeText, LogTabRouteDetails.levelRangeSpacer, encounterInfo.levelMax)
 	end
-	local rateText = math.floor(encounterInfo.rate * 100) .. "%"
+	local rateText = string.format("(%s%%)", math.floor(encounterInfo.rate * 100))
 	local rateCenterX = Utils.getCenteredTextX(rateText, 32)
 
 	local button = {
@@ -310,10 +306,10 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			end
 			-- Draw the Pokemon's name above the icon
 			gui.drawRectangle(self.box[1], self.box[2], 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-			Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), nameColor, shadowcolor)
+			Drawing.drawText(self.box[1] - 3, self.box[2] - 1, self:getText(), nameColor, shadowcolor)
 			-- Draw the level range and encounter rate below the icon
-			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, textColor, shadowcolor)
-			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, textColor, shadowcolor)
+			Drawing.drawText(self.box[1] - 3, self.box[2] + 33, levelRangeText, textColor, shadowcolor)
+			Drawing.drawText(self.box[1] + rateCenterX + 1, self.box[2] + 42, rateText, textColor, shadowcolor)
 		end,
 	}
 	return button
@@ -334,13 +330,13 @@ function LogTabRouteDetails.realignGrid(gridFilter, sortFunc, startingPage)
 end
 
 function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPage)
-	sortFunc = sortFunc or LogSearchScreen.SortBy.PokedexNum.sortFunc -- synonymous with id (trainerid)
+	sortFunc = sortFunc or LogSearchScreen.SortBy.TrainerLevel.sortFunc
 	startingPage = startingPage or 1
 
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 73
-	local y = LogOverlay.TabBox.y + 15
+	local y = LogOverlay.TabBox.y + 30
 	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
@@ -353,14 +349,16 @@ function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPag
 end
 
 function LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPage)
-	sortFunc = sortFunc or function(a, b) return (a.rate or 0) > (b.rate or 0) or (a.rate == b.rate and a.id < b.id) end
+	sortFunc = sortFunc or function(a, b)
+		return (a.rate or 0) > (b.rate or 0) or (a.rate == b.rate and a.id < b.id)
+	end
 	startingPage = startingPage or 1
 
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 75
-	local y = LogOverlay.TabBox.y + 21
-	local colSpacer = 22
+	local x = LogOverlay.TabBox.x + 73
+	local y = LogOverlay.TabBox.y + 20
+	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y

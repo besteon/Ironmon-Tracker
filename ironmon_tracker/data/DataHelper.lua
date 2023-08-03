@@ -742,6 +742,7 @@ function DataHelper.buildRouteLogDisplay(mapId)
 					class = Utils.firstToUpperEachWord(trainerLog.class) or "",
 					fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
 					filename = TrainerData.getPortraitIcon(trainerInternal.class) or Constants.BLANKLINE,
+					maxlevel = trainerLog.maxlevel or 0,
 					pokemon = {},
 				}
 
@@ -768,8 +769,9 @@ function DataHelper.buildRouteLogDisplay(mapId)
 		end
 	end
 
-	data.x.avgTrainerLv = routeLog.avgTrainerLv or 0
-	data.x.avgWildLv = routeLog.avgWildLv or 0
+	-- Currently unused
+	data.x.avgTrainerLv = routeLog.avgTrainerLv
+	data.x.maxWildLv = routeLog.maxWildLv
 
 	return data
 end
