@@ -2596,8 +2596,12 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 320, rate = 1.00, minLv = 20, maxLv = 45, },
 		},
 	}
-	RouteData.Info[3] = { name = "Mauville City", }
-	RouteData.Info[4] = { name = "Rustboro City", }
+	RouteData.Info[3] = { name = "Mauville City",
+		trainers = { 656 },
+	}
+	RouteData.Info[4] = { name = "Rustboro City",
+		trainers = { 592, 593, 599, 600, 768, 769, },
+	}
 	RouteData.Info[5] = { name = "Fortree City", }
 	RouteData.Info[6] = { name = "Lilycove City",
 		[RouteData.EncounterArea.SURFING] = {
@@ -2726,6 +2730,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[18] = { name = "Route 102",
+		trainers = { 318, 615, 333, 603, },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,265}, rate = 0.30, minLv = 3, maxLv = 4, },
 			{ pokemonID = {265,265,261}, rate = 0.30, minLv = 3, maxLv = 4, },
@@ -2752,6 +2757,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[19] = { name = "Route 103",
+		trainers = { 520, 523, 526, 529, 532, 535, 36, 481, 293, 336, 703, 702 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,261}, rate = 0.60, minLv = 2, maxLv = 4, },
 			{ pokemonID = {261,261,263}, rate = {0.30,0.30,0.20}, minLv = 2, maxLv = 4, },
@@ -2777,6 +2783,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[20] = { name = "Route 104",
+		trainers = { 319, 696, 114, 136, 604, 483, 337 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,261}, rate = {0.50,0.50,0.40}, minLv = 4, maxLv = 5, },
 			{ pokemonID = {-1,-1,183}, rate = 0.20, minLv = 4, maxLv = 5, },
@@ -2821,6 +2828,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[22] = { name = "Route 106",
+		trainers = { 340, 339 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -2878,6 +2886,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[25] = { name = "Route 109",
+		trainers = { 490, 491, 697, 64, 57, 698 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -2897,6 +2906,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[26] = { name = "Route 110",
+		trainers = { 302, 699, 334, 512, 700, 232, 701, 521, 524, 527, 530, 533, 536, 243, 358, 352, 353, 359, 351 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 309, rate = 0.30, },
 			{ pokemonID = {263,263,261}, rate = 0.20, },
@@ -2925,6 +2935,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[27] = { name = "Route 111",
+		trainers = { 704, 705, 706, 707, 51, 476, 218, 292, 299, 606, 312, 78, 94, 189 },
 		[RouteData.EncounterArea.ROCKSMASH] = {
 			{ pokemonID = 74, rate = 1.00, },
 		},
@@ -2949,12 +2960,14 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[28] = { name = "Route 112",
+		trainers = { 213, 471, 627, 626, 746, 747 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 322, rate = 0.75, },
 			{ pokemonID = {66,66,183}, rate = 0.25, },
 		},
 	}
 	RouteData.Info[29] = { name = "Route 113",
+		trainers = { 326, 710, 420, 711, 434, 677, 419, 327, 708, 709 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 327, rate = 0.70, },
 			{ pokemonID = {27,27,218}, rate = 0.25, },
@@ -2962,6 +2975,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[30] = { name = "Route 114",
+		trainers = { 342, 714, 713, 338, 472, 679, 214, 143, 206, 629, 712, 628 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 333, rate = 0.40, },
 			{ pokemonID = {273,270,270}, rate = 0.30, },
@@ -3016,6 +3030,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[32] = { name = "Route 116",
+		trainers = { 617, 322, 280, 631, 754, 753, 695, 694, 273, 605, },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {293,293,261}, rate = {0.30,0.30,0.28}, minLv = {6,6,6}, maxLv = {7,7,8}, },
 			{ pokemonID = {263,263,293}, rate = {0.28,0.28,0.20}, minLv = {6,6,6}, maxLv = {8,8,6}, },
@@ -3026,6 +3041,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[33] = { name = "Route 117",
+		trainers = { 364, 287, 538, 369, 227, 756, 755, 757, 545 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,43}, rate = {0.30,0.30,0.40}, },
 			{ pokemonID = {315,315,261}, rate = 0.30, },
@@ -3053,6 +3069,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[34] = { name = "Route 118",
+		trainers = { 37, 715, 344, 196 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 263, rate = 0.30, },
 			{ pokemonID = 309, rate = 0.30, },
@@ -3478,22 +3495,74 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[61] = { name = "Pokémon Center", }
 	RouteData.Info[62] = { name = "Pokémon Center 2F", }
 	RouteData.Info[63] = { name = "PokéMart", }
-	RouteData.Info[65] = { name = "Dewford Gym", }
-	RouteData.Info[69] = { name = "Lavaridge Gym 1F", }
-	RouteData.Info[70] = { name = "Lavaridge Gym B1F", }
+	RouteData.Info[65] = {
+		name = "Dewford Gym",
+		trainers = { 426, 573, 572, 179, 574, 425, 266 },
+	}
+	RouteData.Info[69] = {
+		name = "Lavaridge Gym 1F",
+		trainers = { },
+	}
+	RouteData.Info[70] = {
+		name = "Lavaridge Gym B1F",
+		trainers = { },
+	}
 	RouteData.Info[71] = { name = "Lavaridge Town PC", }
-	RouteData.Info[79] = { name = "Petalburg Gym", }
-	RouteData.Info[89] = { name = "Mauville Gym", }
-	RouteData.Info[94] = { name = "Rustboro Gym", }
-	RouteData.Info[100] = { name = "Fortree Gym", }
-	RouteData.Info[108] = { name = "Mossdeep Gym", }
-	RouteData.Info[109] = { name = "Sootopolis Gym 1F", }
-	RouteData.Info[110] = { name = "Sootopolis Gym B1F", }
-	RouteData.Info[111] = { name = "Sidney's Room", }
-	RouteData.Info[112] = { name = "Phoebe's Room", }
-	RouteData.Info[113] = { name = "Glacia's Room", }
-	RouteData.Info[114] = { name = "Drake's Room", }
-	RouteData.Info[115] = { name = "Champion's Room", }
+	RouteData.Info[79] = {
+		name = "Petalburg Gym",
+		trainers = { },
+	}
+	RouteData.Info[86] = {
+		name = "Oceanic Museum 1F",
+	}
+	RouteData.Info[87] = {
+		name = "Oceanic Museum 2F",
+		trainers = { 20, 21 },
+	}
+	RouteData.Info[89] = {
+		name = "Mauville Gym",
+		trainers = { 649, 191, 323, 802, 194, 267 },
+	}
+	RouteData.Info[94] = {
+		name = "Rustboro Gym",
+		trainers = { 320, 321, 571, 265 },
+	}
+	RouteData.Info[100] = {
+		name = "Fortree Gym",
+		trainers = { },
+	}
+	RouteData.Info[108] = {
+		name = "Mossdeep Gym",
+		trainers = { },
+	}
+	RouteData.Info[109] = {
+		name = "Sootopolis Gym 1F",
+		trainers = { },
+	}
+	RouteData.Info[110] = {
+		name = "Sootopolis Gym B1F",
+		trainers = { },
+	}
+	RouteData.Info[111] = {
+		name = "Sidney's Room",
+		trainers = { },
+	}
+	RouteData.Info[112] = {
+		name = "Phoebe's Room",
+		trainers = { },
+	}
+	RouteData.Info[113] = {
+		name = "Glacia's Room",
+		trainers = { },
+	}
+	RouteData.Info[114] = {
+		name = "Drake's Room",
+		trainers = { },
+	}
+	RouteData.Info[115] = {
+		name = "Champion's Room",
+		trainers = { },
+	}
 	RouteData.Info[125 + offset] = { name = "Meteor Falls 1Fa",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.80, },
@@ -3596,6 +3665,7 @@ function RouteData.setupRouteInfoAsRSE()
 		}
 	end
 	RouteData.Info[129 + offset] = { name = "Rusturf Tunnel",
+		trainers = { 16, 635 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 293, rate = 1.00, minLv = 5, maxLv = 8, },
 		},
@@ -3639,6 +3709,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[135 + offset] = { name = "Petalburg Woods",
+		trainers = { 616, 10, 621 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,261}, rate = 0.30, minLv = 5, maxLv = 6, },
 			{ pokemonID = 265, rate = 0.25, minLv = 5, maxLv = 6, },
@@ -3991,7 +4062,10 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 
-	RouteData.Info[243 + offset] = { name = "Seashore House", }
+	RouteData.Info[243 + offset] = {
+		name = "Seashore House",
+		trainers = { 65, 647, 493 },
+	}
 	RouteData.Info[247 + offset] = { name = "Trick House 1", }
 	RouteData.Info[248 + offset] = { name = "Trick House 2", }
 	RouteData.Info[249 + offset] = { name = "Trick House 3", }

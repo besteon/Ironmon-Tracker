@@ -127,18 +127,41 @@ function TrainerData.getTrainerInfo(trainerId)
 	return TrainerData.Trainers[trainerId or false] or TrainerData.BlankTrainer
 end
 
+-- Determines if the trainer's display name should use its in-game name (i.e. Terry) or class name (i.e. Rival)
 function TrainerData.shouldUseClassName(trainerId)
 	if trainerId == nil then return false end
 	if GameSettings.game == 3 then
-		if 326 <= trainerId and trainerId <= 334 then
+		if 326 <= trainerId and trainerId <= 334 then -- Rivals
 			return true
-		elseif 426 <= trainerId and trainerId <= 440 then
+		elseif 426 <= trainerId and trainerId <= 440 then -- Rivals
 			return true
-		elseif 739 <= trainerId and trainerId <= 741 then
+		elseif 739 <= trainerId and trainerId <= 741 then -- Rivals
 			return true
 		end
 	end
 	return false
+end
+
+-- Returns a list of trainers to exclude from a parsed log, usually they are dummy trainers
+function TrainerData.getExcludedTrainers()
+	if GameSettings.game == 3 then
+		local trainerIds = {}
+		for i=1, 88, 1 do
+			trainerIds[i] = true
+		end
+		for i=492, 497, 1 do
+			trainerIds[i] = true
+		end
+		for i=511, 515, 1 do
+			trainerIds[i] = true
+		end
+		trainerIds[147] = true
+		trainerIds[200] = true
+		trainerIds[263] = true
+		trainerIds[530] = true
+		return trainerIds
+	end
+	return {}
 end
 
 -- Helper functions for the image retrieval functions

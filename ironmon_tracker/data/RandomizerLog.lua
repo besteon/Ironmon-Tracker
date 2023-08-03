@@ -445,6 +445,8 @@ function RandomizerLog.parseTrainers(logLines)
 		return
 	end
 
+	local trainersToExclude = TrainerData.getExcludedTrainers()
+
 	-- Parse the sector
 	local index = RandomizerLog.Sectors.Trainers.LineNumber
 	while index <= #logLines do
@@ -515,8 +517,7 @@ function RandomizerLog.parseTrainers(logLines)
 		if #trainer.party > 0 then
 			trainer.avgTrainerLv = trainer.avgTrainerLv / #trainer.party
 		end
-
-		if GameSettings.game == 3 and trainer_num <= 88 then -- Exclude dummy trainers from FRLG (exist only in Emerald)
+		if trainersToExclude[trainer_num] then
 			RandomizerLog.Data.Trainers[trainer_num] = nil
 		end
 		index = index + 1
