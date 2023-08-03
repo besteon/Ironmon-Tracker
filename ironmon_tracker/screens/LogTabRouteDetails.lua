@@ -237,7 +237,7 @@ end
 function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 	local pokemonLog = RandomizerLog.Data.Pokemon[encounterInfo.pokemonID]
 
-	local levelRangeText = string.format("%s. %s", Resources.TrackerScreen.LevelAbbreviation, encounterInfo.levelMin)
+	local levelRangeText = string.format("%s %s", Resources.TrackerScreen.LevelAbbreviation, encounterInfo.levelMin)
 	if encounterInfo.levelMax ~= encounterInfo.levelMin then
 		levelRangeText = string.format("%s %s %s", levelRangeText, LogTabRouteDetails.levelRangeSpacer, encounterInfo.levelMax)
 	end
