@@ -116,6 +116,13 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			textColor = LogTabPokemonDetails.Colors.text,
 			abilityId = abilityId,
 			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, 11 },
+			updateSelf = function(self)
+				if LogSearchScreen.searchText ~= "" and Utils.containsText(self:getText():sub(2), LogSearchScreen.searchText, true) then
+					self.textColor = LogTabPokemonDetails.Colors.hightlight
+				else
+					self.textColor = LogTabPokemonDetails.Colors.text
+				end
+			end,
 			onClick = function(self)
 				if AbilityData.isValid(abilityId) then
 					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, self.abilityId) -- implied redraw
@@ -244,16 +251,9 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		end,
 		draw = function(self)
 			if Options["Show Pre Evolutions"] and hasEvo then
-				Drawing.drawSelectionIndicators(
-					self.box[1],
-					self.box[2] - 1 + evoLabelTextHeight,
-					pokemonIconSize - 1,
-					pokemonIconSize - 4,
-					Theme.COLORS[LogTabPokemonDetails.Colors.hightlight],
-					1,
-					5,
-					1
-				)
+				local color = Theme.COLORS[LogTabPokemonDetails.Colors.hightlight]
+				local w, h = pokemonIconSize - 1, pokemonIconSize - 4
+				Drawing.drawSelectionIndicators(self.box[1], self.box[2] + evoLabelTextHeight - 1, w, h, color, 1, 5, 1)
 			end
 		end
 	}

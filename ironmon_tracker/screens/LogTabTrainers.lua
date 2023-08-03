@@ -169,6 +169,7 @@ function LogTabTrainers.buildPagedButtons()
 				local nameY = self.box[2] + self.box[4] + 1
 				gui.drawRectangle(self.box[1] - boxExtraW, nameY, self.box[3] + boxExtraW * 2, Constants.Font.SIZE + 2, fillColor, fillColor)
 				Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
+				LogTabTrainers.drawPokeballs(nameX, nameY + 11, self.id, shadowcolor)
 			end,
 		}
 
@@ -189,6 +190,25 @@ function LogTabTrainers.buildPagedButtons()
 	end
 
 	return gymTMs
+end
+
+-- Draw pokeballs for each pokemon on their team
+function LogTabTrainers.drawPokeballs(x, y, trainerId, shadowcolor)
+	trainerId = trainerId or 0
+	local image, colorList
+	-- Easter egg for Giovanni, use masterballs
+	if 348 <= trainerId and trainerId <= 350 then
+		image = Constants.PixelImages.MASTERBALL_SMALL
+		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
+	else
+		image = Constants.PixelImages.POKEBALL_SMALL
+		colorList = TrackerScreen.PokeBalls.ColorList
+	end
+	local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
+	for _, _ in pairs(trainerLog.party or {}) do
+		Drawing.drawImageAsPixels(image, x, y, colorList, shadowcolor)
+		x = x + 8
+	end
 end
 
 function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)

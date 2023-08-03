@@ -132,15 +132,22 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		end
 	end
 
-	local firstTabToShow
-	if #data.e.Trainers > 0 then
-		firstTabToShow = LogTabRouteDetails.Tabs.Trainers
-	elseif #data.e.GrassCave > 0 then
-		firstTabToShow = LogTabRouteDetails.Tabs.GrassCave
-	else
-		firstTabToShow = LogTabRouteDetails.Tabs.Surfing
+	local alreadyViewingTab = false
+	for _, tab in pairs(LogTabRouteDetails.Tabs) do
+		if LogOverlay.Windower.filterGrid == tab then
+			alreadyViewingTab = true
+			break
+		end
 	end
-	LogTabRouteDetails.realignGrid(firstTabToShow)
+	if not alreadyViewingTab then
+		if #data.e.Trainers > 0 then
+			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.Trainers
+		elseif #data.e.GrassCave > 0 then
+			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.GrassCave
+		else
+			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.Surfing
+		end
+	end
 end
 
 function LogTabRouteDetails.createTrainerButton(trainer)
@@ -159,6 +166,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 		image = trainerImage,
 		getText = function(self) return trainer.fullname end,
 		textColor = LogTabRouteDetails.Colors.text,
+		isSelected = false,
 		class = trainer.class,
 		name = trainer.name,
 		id = trainer.id,
@@ -166,18 +174,21 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 		tab = LogTabRouteDetails.Tabs.Trainers,
 		isVisible = function(self) return LogOverlay.Windower.filterGrid == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 		updateSelf = function(self)
-			self.textColor = LogTabRouteDetails.Colors.text
+			self.isSelected = false
 			-- Highlight anything that is found by the search
-			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName and LogSearchScreen.searchText ~= "" then
+			if LogSearchScreen.searchText == "" then
+				return
+			end
+			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
 				if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-					self.textColor = LogTabTrainerDetails.Colors.hightlight
+					self.isSelected = true
 					return
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 				for _, partyMon in ipairs(trainerLog.party or {}) do
 					local pokemonName = RandomizerLog.getPokemonName(partyMon.pokemonID)
 					if Utils.containsText(pokemonName, LogSearchScreen.searchText, true) then
-						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						self.isSelected = true
 						return
 					end
 				end
@@ -186,7 +197,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 					for _, abilityId in pairs(RandomizerLog.Data.Pokemon[partyMon.pokemonID].Abilities or {}) do
 						local abilityText = AbilityData.Abilities[abilityId].name
 						if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-							self.textColor = LogTabTrainerDetails.Colors.hightlight
+							self.isSelected = true
 							return
 						end
 					end
@@ -196,7 +207,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 					for _, moveId in ipairs(partyMon.moveIds or {}) do
 						local moveText = MoveData.Moves[moveId].name
 						if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
-							self.textColor = LogTabTrainerDetails.Colors.hightlight
+							self.isSelected = true
 							return
 						end
 					end
@@ -210,15 +221,17 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 			-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 		end,
 		draw = function(self, shadowcolor)
+			if self.isSelected then -- If this trainer was found through search
+				local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+				Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3], self.box[4], color, 1, 5, 1)
+			end
 			local boxExtraW = 4
 			local textColor = Theme.COLORS[self.textColor]
-			local fillColor = Theme.COLORS[LogTabTrainers.Colors.boxFill]
 			local nameX = self.box[1] + Utils.getCenteredTextX(self:getText(), self.box[3] + boxExtraW * 2)
 			local nameY = self.box[2] + self.box[4] + 1
-			-- gui.drawRectangle(self.box[1] - boxExtraW, nameY, self.box[3] + boxExtraW * 2, Constants.Font.SIZE + 2, fillColor, fillColor)
 			Drawing.drawText(nameX, nameY, self.name, textColor, shadowcolor)
-			local teamText = string.format("%s: %s", Resources.TrackerScreen.BattleTeam, #trainer.pokemon)
-			Drawing.drawText(nameX, nameY + 10, teamText, textColor, shadowcolor)
+
+			LogTabTrainers.drawPokeballs(nameX, nameY + 11, self.id, shadowcolor)
 		end,
 	}
 
@@ -240,6 +253,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 		id = encounterInfo.pokemonID,
 		getText = function(self) return RandomizerLog.getPokemonName(encounterInfo.pokemonID) end,
 		textColor = LogTabRouteDetails.Colors.text,
+		isSelected = false,
 		boxColors = { LogTabRouteDetails.Colors.border, LogTabRouteDetails.Colors.boxFill },
 		tab = LogTabRouteDetails.Tabs[encounterKey],
 		levelMin = encounterInfo.levelMin,
@@ -248,17 +262,21 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 		dimensions = { width = 32, height = 32, },
 		isVisible = function(self) return LogOverlay.Windower.filterGrid == self.tab and LogOverlay.Windower.currentPage == self.pageVisible end,
 		updateSelf = function(self)
-			self.textColor = LogTabRouteDetails.Colors.text
+			self.isSelected = false
 			-- Highlight anything that is found by the search
-			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName and LogSearchScreen.searchText ~= "" then
+			if LogSearchScreen.searchText == "" then
+				return
+			end
+			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 				if Utils.containsText(self:getText(), LogSearchScreen.searchText, true) then
-					self.textColor = LogTabTrainerDetails.Colors.hightlight
+					self.isSelected = true
+					return
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
 				for _, abilityId in pairs(pokemonLog.Abilities) do
 					local abilityText = AbilityData.Abilities[abilityId].name
 					if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
-						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						self.isSelected = true
 						return
 					end
 				end
@@ -269,7 +287,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 						moveText = MoveData.Moves[move.moveId].name
 					end
 					if Utils.containsText(moveText, LogSearchScreen.searchText, true) then
-						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						self.isSelected = true
 						return
 					end
 				end
@@ -285,12 +303,17 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 		end,
 		draw = function(self, shadowcolor)
+			local textColor = Theme.COLORS[self.textColor]
+			local nameColor = textColor
+			if self.isSelected then
+				nameColor = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+			end
 			-- Draw the Pokemon's name above the icon
 			gui.drawRectangle(self.box[1], self.box[2], 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-			Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), nameColor, shadowcolor)
 			-- Draw the level range and encounter rate below the icon
-			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, Theme.COLORS[LogTabPokemonDetails.Colors.text], shadowcolor)
-			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, Theme.COLORS[LogTabPokemonDetails.Colors.text], shadowcolor)
+			Drawing.drawText(self.box[1] - 2, self.box[2] + 33, levelRangeText, textColor, shadowcolor)
+			Drawing.drawText(self.box[1] - 2 + rateCenterX, self.box[2] + 43, rateText, textColor, shadowcolor)
 		end,
 	}
 	return button
@@ -316,8 +339,8 @@ function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPag
 
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 75
-	local y = LogOverlay.TabBox.y + 12
+	local x = LogOverlay.TabBox.x + 73
+	local y = LogOverlay.TabBox.y + 15
 	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

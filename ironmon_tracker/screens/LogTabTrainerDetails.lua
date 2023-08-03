@@ -172,7 +172,7 @@ function LogTabTrainerDetails.drawTab()
 	end
 
 	-- TRAINER NAME & ICON
-	gui.drawImage(data.t.filename, LogOverlay.TabBox.x + 1, LogOverlay.TabBox.y + 20)
+	gui.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
 	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(data.t.class), highlightColor, shadowcolor)
 	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(data.t.name), highlightColor, shadowcolor)
 

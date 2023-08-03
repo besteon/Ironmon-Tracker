@@ -70,6 +70,7 @@ LogOverlay.Windower = {
 			end
 		elseif newTab == LogTabRouteDetails then
 			LogTabRouteDetails.buildZoomButtons(self.infoId)
+			LogTabRouteDetails.realignGrid(filterGrid, nil, pageNum)
 			if prevTab.tab ~= LogTabPokemonDetails and prevTab.tab ~= LogTabTrainerDetails then
 				table.insert(LogOverlay.TabHistory, prevTab)
 			end
