@@ -3792,7 +3792,7 @@ function RouteData.setupRouteInfoAsRSE()
 		trainers = { 24, 27, 28, 30 },
 	}
 	RouteData.Info[146 + offset] = { name = "Seafloor Cavern U.", } -- Underwater
-	RouteData.Info[147 + offset] = { name = "Seafloor Cavern",
+	RouteData.Info[147 + offset] = { name = "Seafloor Cavern", -- Entrance
 		trainers = { 6, 7, 8, 9, 567, 33, 34 }, -- All combined here
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },
@@ -4020,12 +4020,12 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 101, rate = 0.01, },
 		},
 	}
-	RouteData.Info[186 + offset] = { name = "Ab. Ship Deck", }
-	RouteData.Info[187 + offset] = { name = "Ab. Ship 1F", } -- Corridors
-	RouteData.Info[188 + offset] = { name = "Ab. Ship 1F", -- Rooms
+	RouteData.Info[186 + offset] = { name = "Abandoned Ship Deck", }
+	RouteData.Info[187 + offset] = { name = "Abandoned Ship 1F", } -- Corridors
+	RouteData.Info[188 + offset] = { name = "Abandoned Ship 1F", -- Rooms
 		trainers = { 144, 375, 66, 547, 418, 642 },
 	}
-	RouteData.Info[189 + offset] = { name = "Ab. Ship B1F", -- Corridors
+	RouteData.Info[189 + offset] = { name = "Abandoned Ship B1F", -- Corridors
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.99, },
 			{ pokemonID = 73, rate = 0.01, },
@@ -4035,15 +4035,15 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 72, rate = 0.30, },
 		},
 	}
-	RouteData.Info[190 + offset] = { name = "Ab. Ship B1F", -- Rooms
-		trainers = { 496, },
+	RouteData.Info[190 + offset] = { name = "Abandoned Ship B1F", -- Rooms
+		trainers = { 496 },
 	}
-	RouteData.Info[191 + offset] = { name = "Ab. Ship B1F", } -- Rooms
-	RouteData.Info[192 + offset] = { name = "Ab. Ship Uw1", } -- Underwater 1
-	RouteData.Info[193 + offset] = { name = "Ab. Ship B1F", } -- Rooms
-	RouteData.Info[194 + offset] = { name = "Ab. Ship 1F", } -- Rooms
-	RouteData.Info[195 + offset] = { name = "Ab. Ship Cpt", } -- Captain's Office
-	RouteData.Info[196 + offset] = { name = "Ab. Ship Uw2", } -- Underwater 2
+	RouteData.Info[191 + offset] = { name = "Abandoned Ship B1F", } -- Rooms
+	RouteData.Info[192 + offset] = { name = "Abandoned Ship Uw1", } -- Underwater 1
+	RouteData.Info[193 + offset] = { name = "Abandoned Ship B1F", } -- Rooms
+	RouteData.Info[194 + offset] = { name = "Abandoned Ship 1F", } -- Rooms
+	RouteData.Info[195 + offset] = { name = "Abandoned Ship Cpt", } -- Captain's Office
+	RouteData.Info[196 + offset] = { name = "Abandoned Ship Uw2", } -- Underwater 2
 	RouteData.Info[238 + offset] = { name = "Safari Zone NW.",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.30, },

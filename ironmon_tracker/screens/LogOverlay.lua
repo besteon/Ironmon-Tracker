@@ -304,10 +304,8 @@ function LogOverlay.addHeaderTabButtons()
 				Program.redraw(true)
 			end,
 		}
-		if tabScreen ~= LogTabRoutes or GameSettings.game == 3 then -- LogTabRoutes FRLG only atm
-			table.insert(LogOverlay.HeaderButtons, tabButton)
-			offsetX = offsetX + width + spacer
-		end
+		table.insert(LogOverlay.HeaderButtons, tabButton)
+		offsetX = offsetX + width + spacer
 	end
 end
 

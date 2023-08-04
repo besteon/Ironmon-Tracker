@@ -63,6 +63,29 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 
+	-- GRID: TRAINER & WILD ENCOUNTERS
+	local encTotals = {}
+	for key, encounterList in pairs(data.e) do
+		local button
+		if key == "Trainers" then
+			for _, trainer in ipairs(encounterList or {}) do
+				button = LogTabRouteDetails.createTrainerButton(trainer)
+				if button ~= nil then
+					encTotals[button.tab] = (encTotals[button.tab] or 0) + 1
+					table.insert(LogTabRouteDetails.PagedButtons, button)
+				end
+			end
+		else
+			for _, pokemonEnc in ipairs(encounterList or {}) do
+				button = LogTabRouteDetails.createPokemonButton(key, pokemonEnc)
+				if button ~= nil then
+					encTotals[button.tab] = (encTotals[button.tab] or 0) + 1
+					table.insert(LogTabRouteDetails.PagedButtons, button)
+				end
+			end
+		end
+	end
+
 	-- ROUTE TAB NAVIGATION
 	local navX = LogOverlay.TabBox.x + 2
 	local navY = 32
@@ -82,17 +105,18 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 
 	local tabNavigation = { "Trainers", "GrassCave", "Surfing", "OldRod", "GoodRod", "SuperRod", "RockSmash", }
 	for _, enc in ipairs(tabNavigation) do
-		if #data.e[enc] > 0 then
+		local total = encTotals[LogTabRouteDetails.Tabs[enc] or 0] or 0
+		if total > 0 then
 			local resourceKey = "Tab" .. enc
 			local navButton = {
 				type = Constants.ButtonTypes.NO_BORDER,
 				-- TODO: Update resources
-				getText = function(self) return string.format("%s: %s", enc or Resources.LogTabRouteDetails[resourceKey], #data.e[enc]) end,
+				getText = function(self) return string.format("%s: %s", enc or Resources.LogTabRouteDetails[resourceKey], total) end,
 				textColor = LogTabRouteDetails.Colors.text,
 				tab = LogTabRouteDetails.Tabs[enc],
 				isSelected = false,
 				box = { navX, navY, 60, 11 }, -- [3] width updated later on next line
-				isVisible = function(self) return #data.e[enc] > 0 end,
+				isVisible = function(self) return total > 0 end,
 				updateSelf = function(self)
 					self.isSelected = (LogOverlay.Windower.filterGrid == self.tab)
 					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 4
@@ -116,22 +140,6 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		end
 	end
 
-	-- GRID: TRAINER & WILD ENCOUNTERS
-	for key, encounterList in pairs(data.e) do
-		local button
-		if key == "Trainers" then
-			for _, trainer in ipairs(encounterList or {}) do
-				button = LogTabRouteDetails.createTrainerButton(trainer)
-				table.insert(LogTabRouteDetails.PagedButtons, button)
-			end
-		else
-			for _, pokemonEnc in ipairs(encounterList or {}) do
-				button = LogTabRouteDetails.createPokemonButton(key, pokemonEnc)
-				table.insert(LogTabRouteDetails.PagedButtons, button)
-			end
-		end
-	end
-
 	local alreadyViewingTab = false
 	for _, tab in pairs(LogTabRouteDetails.Tabs) do
 		if LogOverlay.Windower.filterGrid == tab then
@@ -151,13 +159,10 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 end
 
 function LogTabRouteDetails.createTrainerButton(trainer)
-	local trainerInternal = TrainerData.getTrainerInfo(trainer.id) or {}
-	local whichRival = trainerInternal.whichRival
-	-- Always exclude extra rivals
-	if whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= whichRival then
+	if not TrainerData.shouldUseTrainer(trainer.id) then
 		return nil
 	end
-
+	local trainerInternal = TrainerData.getTrainerInfo(trainer.id) or {}
 	local trainerLog = RandomizerLog.Data.Trainers[trainer.id] or {}
 	local trainerImage = TrainerData.getPortraitIcon(trainerInternal.class)
 

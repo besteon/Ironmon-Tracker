@@ -109,11 +109,6 @@ function LogTabTrainers.buildPagedButtons()
 			group = trainerInternal.group or TrainerData.TrainerGroups.Other,
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				-- Always exclude extra rivals
-				if trainerInternal.whichRival ~= nil and Tracker.Data.whichRival ~= nil and Tracker.Data.whichRival ~= trainerInternal.whichRival then
-					return false
-				end
-
 				-- If no search text entered, check any filter groups
 				if LogSearchScreen.searchText == "" then
 					if LogOverlay.Windower.filterGrid == self.group then
@@ -204,7 +199,7 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	local colorList = TrackerScreen.PokeBalls.ColorList
 	local trainerLog = RandomizerLog.Data.Trainers[button.id] or {}
 	-- Easter egg for Giovanni, use masterballs
-	if 348 <= button.id and button.id <= 350 then
+	if GameSettings.game == 3 and 348 <= button.id and button.id <= 350 then
 		image = Constants.PixelImages.MASTERBALL_SMALL
 		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
 	end

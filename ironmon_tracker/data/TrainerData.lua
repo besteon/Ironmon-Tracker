@@ -65,9 +65,11 @@ TrainerData.Classes = {
 	CueBall = { filename = "cue-ball", },
 	DragonTamer = { filename = "dragon-tamer", },
 	Engineer = { filename = "engineer", },
+	Expert = { filename = "expert", },
 	Fisherman = { filename = "fisherman", },
 	Gamer = { filename = "gamer", },
 	Gentleman = { filename = "gentleman", },
+	Guitarist = { filename = "guitarist", },
 	HexManiac = { filename = "hex-maniac", },
 	Hiker = { filename = "hiker", },
 	Interviewer = { filename = "interviewer", },
@@ -89,6 +91,7 @@ TrainerData.Classes = {
 	Rocker = { filename = "rocker", },
 	RuinManiac = { filename = "ruin-maniac", },
 	Sailor = { filename = "sailor", },
+	SchoolKid = { filename = "school-kid", },
 	Scientist = { filename = "scientist", },
 	SrAndJr = { filename = "sr-and-jr", },
 	SisAndBro = { filename = "sis-and-bro", },
@@ -142,9 +145,275 @@ function TrainerData.shouldUseClassName(trainerId)
 	return false
 end
 
+-- Determines if this trainer should be used; if it's a rival then it has to be the correct rival for the player
+function TrainerData.shouldUseTrainer(trainerId)
+	-- Always okay to use trainer if it's not a rival
+	if Tracker.Data.whichRival == nil then return true end
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
+	if trainerInternal.whichRival == nil then
+		return true
+	end
+	-- Otherwise, make sure it's the correct rival
+	return Tracker.Data.whichRival == trainerInternal.whichRival
+end
+
 -- Returns a list of trainers to exclude from a parsed log, usually they are dummy trainers
 function TrainerData.getExcludedTrainers()
-	if GameSettings.game == 3 then
+	if GameSettings.game == 1 or GameSettings.game == 2 then
+		local trainerIds = {}
+		-- Most of these are vs seeker rematches
+		-- trainerIds[14] = true
+		-- trainerIds[25] = true
+		trainerIds[40] = true
+		trainerIds[41] = true
+		trainerIds[42] = true
+		trainerIds[43] = true
+		trainerIds[47] = true
+		trainerIds[48] = true
+		trainerIds[49] = true
+		trainerIds[50] = true
+		trainerIds[54] = true
+		trainerIds[55] = true
+		trainerIds[56] = true
+		trainerIds[60] = true
+		trainerIds[61] = true
+		trainerIds[62] = true
+		trainerIds[63] = true
+		trainerIds[67] = true
+		trainerIds[68] = true
+		trainerIds[69] = true
+		trainerIds[70] = true
+		trainerIds[84] = true
+		trainerIds[85] = true
+		trainerIds[86] = true
+		trainerIds[87] = true
+		trainerIds[101] = true
+		trainerIds[102] = true
+		trainerIds[103] = true
+		trainerIds[104] = true
+		trainerIds[110] = true
+		trainerIds[111] = true
+		trainerIds[112] = true
+		trainerIds[113] = true
+		trainerIds[117] = true
+		trainerIds[120] = true
+		trainerIds[121] = true
+		trainerIds[122] = true
+		trainerIds[123] = true
+		trainerIds[132] = true
+		trainerIds[133] = true
+		trainerIds[134] = true
+		trainerIds[135] = true
+		trainerIds[139] = true
+		trainerIds[140] = true
+		trainerIds[141] = true
+		trainerIds[142] = true
+		trainerIds[147] = true
+		trainerIds[148] = true
+		trainerIds[149] = true
+		trainerIds[150] = true
+		trainerIds[173] = true
+		trainerIds[175] = true
+		trainerIds[176] = true
+		trainerIds[177] = true
+		trainerIds[178] = true
+		trainerIds[184] = true
+		trainerIds[185] = true
+		trainerIds[186] = true
+		trainerIds[187] = true
+		trainerIds[197] = true
+		trainerIds[198] = true
+		trainerIds[199] = true
+		trainerIds[200] = true
+		trainerIds[207] = true
+		trainerIds[208] = true
+		trainerIds[209] = true
+		trainerIds[210] = true
+		trainerIds[219] = true
+		trainerIds[220] = true
+		trainerIds[221] = true
+		trainerIds[222] = true
+		trainerIds[228] = true
+		trainerIds[229] = true
+		trainerIds[230] = true
+		trainerIds[231] = true
+		trainerIds[239] = true
+		trainerIds[240] = true
+		trainerIds[241] = true
+		trainerIds[242] = true
+		trainerIds[250] = true
+		trainerIds[251] = true
+		trainerIds[252] = true
+		trainerIds[253] = true
+		trainerIds[257] = true
+		trainerIds[258] = true
+		trainerIds[259] = true
+		trainerIds[260] = true
+		trainerIds[276] = true
+		trainerIds[277] = true
+		trainerIds[278] = true
+		trainerIds[279] = true
+		trainerIds[282] = true
+		trainerIds[283] = true
+		trainerIds[284] = true
+		trainerIds[285] = true
+		trainerIds[288] = true
+		trainerIds[289] = true
+		trainerIds[290] = true
+		trainerIds[291] = true
+		trainerIds[295] = true
+		trainerIds[296] = true
+		trainerIds[297] = true
+		trainerIds[298] = true
+		trainerIds[303] = true
+		trainerIds[304] = true
+		trainerIds[305] = true
+		trainerIds[306] = true
+		trainerIds[308] = true
+		trainerIds[309] = true
+		trainerIds[310] = true
+		trainerIds[311] = true
+		trainerIds[314] = true
+		trainerIds[315] = true
+		trainerIds[316] = true
+		trainerIds[317] = true
+		trainerIds[328] = true
+		trainerIds[329] = true
+		trainerIds[330] = true
+		trainerIds[331] = true
+		trainerIds[341] = true
+		trainerIds[346] = true
+		trainerIds[347] = true
+		trainerIds[348] = true
+		trainerIds[349] = true
+		trainerIds[354] = true
+		trainerIds[355] = true
+		trainerIds[356] = true
+		trainerIds[357] = true
+		trainerIds[360] = true
+		trainerIds[361] = true
+		trainerIds[362] = true
+		trainerIds[363] = true
+		trainerIds[365] = true
+		trainerIds[366] = true
+		trainerIds[367] = true
+		trainerIds[368] = true
+		trainerIds[370] = true
+		trainerIds[371] = true
+		trainerIds[372] = true
+		trainerIds[373] = true
+		trainerIds[379] = true
+		trainerIds[380] = true
+		trainerIds[381] = true
+		trainerIds[382] = true
+		trainerIds[388] = true
+		trainerIds[389] = true
+		trainerIds[390] = true
+		trainerIds[391] = true
+		trainerIds[393] = true
+		trainerIds[394] = true
+		trainerIds[395] = true
+		trainerIds[396] = true
+		trainerIds[409] = true
+		trainerIds[410] = true
+		trainerIds[411] = true
+		trainerIds[412] = true
+		trainerIds[421] = true
+		trainerIds[422] = true
+		trainerIds[423] = true
+		trainerIds[424] = true
+		trainerIds[430] = true
+		trainerIds[431] = true
+		trainerIds[432] = true
+		trainerIds[433] = true
+		trainerIds[437] = true
+		trainerIds[438] = true
+		trainerIds[439] = true
+		trainerIds[440] = true
+		trainerIds[456] = true
+		trainerIds[462] = true
+		trainerIds[466] = true
+		trainerIds[467] = true
+		trainerIds[468] = true
+		trainerIds[477] = true
+		trainerIds[478] = true
+		trainerIds[479] = true
+		trainerIds[480] = true
+		trainerIds[482] = true
+		trainerIds[485] = true
+		trainerIds[486] = true
+		trainerIds[487] = true
+		trainerIds[488] = true
+		trainerIds[489] = true
+		trainerIds[497] = true
+		trainerIds[498] = true
+		trainerIds[499] = true
+		trainerIds[500] = true
+		trainerIds[515] = true
+		trainerIds[516] = true
+		trainerIds[517] = true
+		trainerIds[518] = true
+		trainerIds[541] = true
+		trainerIds[542] = true
+		trainerIds[543] = true
+		trainerIds[544] = true
+		trainerIds[548] = true
+		trainerIds[549] = true
+		trainerIds[550] = true
+		trainerIds[551] = true
+		trainerIds[555] = true
+		trainerIds[556] = true
+		trainerIds[557] = true
+		trainerIds[558] = true
+		trainerIds[562] = true
+		trainerIds[563] = true
+		trainerIds[564] = true
+		trainerIds[565] = true
+		trainerIds[568] = true
+		trainerIds[581] = true
+		trainerIds[607] = true
+		trainerIds[608] = true
+		trainerIds[609] = true
+		trainerIds[610] = true
+		trainerIds[622] = true
+		trainerIds[623] = true
+		trainerIds[624] = true
+		trainerIds[625] = true
+		trainerIds[633] = true
+		trainerIds[634] = true
+		trainerIds[636] = true
+		trainerIds[637] = true
+		trainerIds[638] = true
+		trainerIds[639] = true
+		trainerIds[643] = true
+		trainerIds[644] = true
+		trainerIds[645] = true
+		trainerIds[646] = true
+		trainerIds[657] = true
+		trainerIds[658] = true
+		trainerIds[659] = true
+		trainerIds[660] = true
+		trainerIds[682] = true
+		trainerIds[683] = true
+		trainerIds[684] = true
+		trainerIds[685] = true
+		trainerIds[688] = true
+		trainerIds[689] = true
+		trainerIds[690] = true
+		trainerIds[691] = true
+		for i=770, 801, 1 do
+			trainerIds[i] = true
+		end
+		for i=805, 847, 1 do
+			trainerIds[i] = true
+		end
+		trainerIds[851] = true
+		trainerIds[852] = true
+		trainerIds[853] = true
+		trainerIds[854] = true
+		trainerIds[855] = true
+		return trainerIds
+	elseif GameSettings.game == 3 then
 		local trainerIds = {}
 		for i=1, 88, 1 do
 			trainerIds[i] = true
@@ -481,311 +750,1071 @@ function TrainerData.setupTrainersAsEmerald()
 	}
 
 	TrainerData.Trainers = {
+		[1] = { class = TrainerData.Classes.Hiker, },
+		[2] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[3] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[4] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[5] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[6] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[7] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[8] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[9] = { class = TrainerData.Classes.PkmnBreeder, },
+		[10] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[11] = { class = TrainerData.Classes.CoolTrainer, },
+		[12] = { class = TrainerData.Classes.BirdKeeper, },
+		[13] = { class = TrainerData.Classes.Collector, },
+		[14] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[15] = { class = TrainerData.Classes.SwimmerM, },
+		[16] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[17] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[18] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[19] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[20] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[21] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[22] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[23] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[24] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[25] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[26] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[27] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[28] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[29] = { class = TrainerData.Classes.Expert, },
+		[30] = {
+			class = TrainerData.Classes.Matt,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[31] = { class = TrainerData.Classes.BlackBelt, },
+		[32] = {
+			class = TrainerData.Classes.Shelly,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[33] = {
+			class = TrainerData.Classes.Shelly,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[34] = {
+			class = TrainerData.Classes.Archie,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[35] = { class = TrainerData.Classes.HexManiac, },
+		[36] = { class = TrainerData.Classes.AromaLady, },
+		[37] = { class = TrainerData.Classes.AromaLady, },
+		[38] = { class = TrainerData.Classes.CoolTrainer, },
+		[39] = { class = TrainerData.Classes.AromaLady, },
+		[40] = { class = TrainerData.Classes.AromaLady, },
+		[41] = { class = TrainerData.Classes.AromaLady, },
+		[42] = { class = TrainerData.Classes.AromaLady, },
+		[43] = { class = TrainerData.Classes.AromaLady, },
+		[44] = { class = TrainerData.Classes.RuinManiac, },
+		[45] = { class = TrainerData.Classes.RuinManiac, },
+		[46] = { class = TrainerData.Classes.RuinManiac, },
+		[47] = { class = TrainerData.Classes.RuinManiac, },
+		[48] = { class = TrainerData.Classes.RuinManiac, },
+		[49] = { class = TrainerData.Classes.RuinManiac, },
+		[50] = { class = TrainerData.Classes.RuinManiac, },
+		[51] = { class = TrainerData.Classes.Interviewer, },
+		[52] = { class = TrainerData.Classes.Interviewer, },
+		[53] = { class = TrainerData.Classes.Interviewer, },
+		[54] = { class = TrainerData.Classes.Interviewer, },
+		[55] = { class = TrainerData.Classes.Interviewer, },
+		[56] = { class = TrainerData.Classes.Interviewer, },
+		[57] = { class = TrainerData.Classes.Tuber, },
+		[58] = { class = TrainerData.Classes.Tuber, },
+		[59] = { class = TrainerData.Classes.Tuber, },
+		[60] = { class = TrainerData.Classes.Tuber, },
+		[61] = { class = TrainerData.Classes.Tuber, },
+		[62] = { class = TrainerData.Classes.Tuber, },
+		[63] = { class = TrainerData.Classes.Tuber, },
+		[64] = { class = TrainerData.Classes.Tuber, },
+		[65] = { class = TrainerData.Classes.Tuber, },
+		[66] = { class = TrainerData.Classes.Tuber, },
+		[67] = { class = TrainerData.Classes.Tuber, },
+		[68] = { class = TrainerData.Classes.Tuber, },
+		[69] = { class = TrainerData.Classes.Tuber, },
+		[70] = { class = TrainerData.Classes.Tuber, },
+		[71] = { class = TrainerData.Classes.CoolTrainer, },
+		[72] = { class = TrainerData.Classes.CoolTrainer, },
+		[73] = { class = TrainerData.Classes.CoolTrainer, },
+		[74] = { class = TrainerData.Classes.CoolTrainer, },
+		[75] = { class = TrainerData.Classes.CoolTrainer, },
+		[76] = { class = TrainerData.Classes.CoolTrainer, },
+		[77] = { class = TrainerData.Classes.CoolTrainer, },
+		[78] = { class = TrainerData.Classes.CoolTrainer, },
+		[79] = { class = TrainerData.Classes.CoolTrainer, },
+		[80] = { class = TrainerData.Classes.CoolTrainer, },
+		[81] = { class = TrainerData.Classes.CoolTrainer, },
+		[82] = { class = TrainerData.Classes.CoolTrainer, },
+		[83] = { class = TrainerData.Classes.CoolTrainer, },
+		[84] = { class = TrainerData.Classes.CoolTrainer, },
+		[85] = { class = TrainerData.Classes.CoolTrainer, },
+		[86] = { class = TrainerData.Classes.CoolTrainer, },
+		[87] = { class = TrainerData.Classes.CoolTrainer, },
+		[88] = { class = TrainerData.Classes.CoolTrainer, },
+		[89] = { class = TrainerData.Classes.CoolTrainer, },
+		[90] = { class = TrainerData.Classes.CoolTrainer, },
+		[91] = { class = TrainerData.Classes.CoolTrainer, },
+		[92] = { class = TrainerData.Classes.CoolTrainer, },
+		[93] = { class = TrainerData.Classes.CoolTrainer, },
+		[94] = { class = TrainerData.Classes.CoolTrainer, },
+		[95] = { class = TrainerData.Classes.CoolTrainer, },
+		[96] = { class = TrainerData.Classes.CoolTrainer, },
+		[97] = { class = TrainerData.Classes.CoolTrainer, },
+		[98] = { class = TrainerData.Classes.CoolTrainer, },
+		[99] = { class = TrainerData.Classes.CoolTrainer, },
+		[100] = { class = TrainerData.Classes.CoolTrainer, },
+		[101] = { class = TrainerData.Classes.CoolTrainer, },
+		[102] = { class = TrainerData.Classes.CoolTrainer, },
+		[103] = { class = TrainerData.Classes.CoolTrainer, },
+		[104] = { class = TrainerData.Classes.CoolTrainer, },
+		[105] = { class = TrainerData.Classes.HexManiac, },
+		[106] = { class = TrainerData.Classes.HexManiac, },
+		[107] = { class = TrainerData.Classes.HexManiac, },
+		[108] = { class = TrainerData.Classes.HexManiac, },
+		[109] = { class = TrainerData.Classes.HexManiac, },
+		[110] = { class = TrainerData.Classes.HexManiac, },
+		[111] = { class = TrainerData.Classes.HexManiac, },
+		[112] = { class = TrainerData.Classes.HexManiac, },
+		[113] = { class = TrainerData.Classes.HexManiac, },
+		[114] = { class = TrainerData.Classes.Lady, },
+		[115] = { class = TrainerData.Classes.Lady, },
+		[116] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[117] = { class = TrainerData.Classes.Lady, },
+		[118] = { class = TrainerData.Classes.Lady, },
+		[119] = { class = TrainerData.Classes.Lady, },
+		[120] = { class = TrainerData.Classes.Lady, },
+		[121] = { class = TrainerData.Classes.Lady, },
+		[122] = { class = TrainerData.Classes.Lady, },
+		[123] = { class = TrainerData.Classes.Lady, },
+		[124] = { class = TrainerData.Classes.Beauty, },
+		[125] = { class = TrainerData.Classes.Beauty, },
+		[126] = { class = TrainerData.Classes.Beauty, },
+		[127] = { class = TrainerData.Classes.Beauty, },
+		[128] = { class = TrainerData.Classes.Beauty, },
+		[129] = { class = TrainerData.Classes.Beauty, },
+		[130] = { class = TrainerData.Classes.Beauty, },
+		[131] = { class = TrainerData.Classes.Beauty, },
+		[132] = { class = TrainerData.Classes.Beauty, },
+		[133] = { class = TrainerData.Classes.Beauty, },
+		[134] = { class = TrainerData.Classes.Beauty, },
+		[135] = { class = TrainerData.Classes.Beauty, },
+		[136] = { class = TrainerData.Classes.RichBoy, },
+		[137] = { class = TrainerData.Classes.Expert, },
+		[138] = { class = TrainerData.Classes.RichBoy, },
+		[139] = { class = TrainerData.Classes.RichBoy, },
+		[140] = { class = TrainerData.Classes.RichBoy, },
+		[141] = { class = TrainerData.Classes.RichBoy, },
+		[142] = { class = TrainerData.Classes.RichBoy, },
+		[143] = { class = TrainerData.Classes.PokeManiac, },
+		[144] = { class = TrainerData.Classes.Beauty, },
+		[145] = { class = TrainerData.Classes.PokeManiac, },
+		[146] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[147] = { class = TrainerData.Classes.PokeManiac, },
+		[148] = { class = TrainerData.Classes.PokeManiac, },
+		[149] = { class = TrainerData.Classes.PokeManiac, },
+		[150] = { class = TrainerData.Classes.PokeManiac, },
+		[151] = { class = TrainerData.Classes.SwimmerM, },
+		[152] = { class = TrainerData.Classes.SwimmerM, },
+		[153] = { class = TrainerData.Classes.SwimmerM, },
+		[154] = { class = TrainerData.Classes.SwimmerM, },
+		[155] = { class = TrainerData.Classes.SwimmerM, },
+		[156] = { class = TrainerData.Classes.SwimmerM, },
+		[157] = { class = TrainerData.Classes.SwimmerM, },
+		[158] = { class = TrainerData.Classes.SwimmerM, },
+		[159] = { class = TrainerData.Classes.SwimmerM, },
+		[160] = { class = TrainerData.Classes.SwimmerM, },
+		[161] = { class = TrainerData.Classes.SwimmerM, },
+		[162] = { class = TrainerData.Classes.SwimmerM, },
+		[163] = { class = TrainerData.Classes.SwimmerM, },
+		[164] = { class = TrainerData.Classes.SwimmerM, },
+		[165] = { class = TrainerData.Classes.SwimmerM, },
+		[166] = { class = TrainerData.Classes.SwimmerM, },
+		[167] = { class = TrainerData.Classes.SwimmerM, },
+		[168] = { class = TrainerData.Classes.SwimmerM, },
+		[169] = { class = TrainerData.Classes.SwimmerM, },
+		[170] = { class = TrainerData.Classes.SwimmerM, },
+		[171] = { class = TrainerData.Classes.SwimmerM, },
+		[172] = { class = TrainerData.Classes.SwimmerM, },
+		[173] = { class = TrainerData.Classes.SwimmerM, },
+		[174] = { class = TrainerData.Classes.SwimmerM, },
+		[175] = { class = TrainerData.Classes.SwimmerM, },
+		[176] = { class = TrainerData.Classes.SwimmerM, },
+		[177] = { class = TrainerData.Classes.SwimmerM, },
+		[178] = { class = TrainerData.Classes.SwimmerM, },
+		[179] = { class = TrainerData.Classes.BlackBelt, },
+		[180] = { class = TrainerData.Classes.BlackBelt, },
+		[181] = { class = TrainerData.Classes.BlackBelt, },
+		[182] = { class = TrainerData.Classes.BlackBelt, },
+		[183] = { class = TrainerData.Classes.BlackBelt, },
+		[184] = { class = TrainerData.Classes.BlackBelt, },
+		[185] = { class = TrainerData.Classes.BlackBelt, },
+		[186] = { class = TrainerData.Classes.BlackBelt, },
+		[187] = { class = TrainerData.Classes.BlackBelt, },
+		[188] = { class = TrainerData.Classes.BlackBelt, },
+		[189] = { class = TrainerData.Classes.BlackBelt, },
+		[190] = { class = TrainerData.Classes.BlackBelt, },
+		[191] = { class = TrainerData.Classes.Guitarist, },
+		[192] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[193] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[194] = { class = TrainerData.Classes.Guitarist, },
+		[195] = { class = TrainerData.Classes.Guitarist, },
+		[196] = { class = TrainerData.Classes.Guitarist, },
+		[197] = { class = TrainerData.Classes.Guitarist, },
+		[198] = { class = TrainerData.Classes.Guitarist, },
+		[199] = { class = TrainerData.Classes.Guitarist, },
+		[200] = { class = TrainerData.Classes.Guitarist, },
+		[201] = { class = TrainerData.Classes.Kindler, },
+		[202] = { class = TrainerData.Classes.Kindler, },
+		[203] = { class = TrainerData.Classes.Kindler, },
+		[204] = { class = TrainerData.Classes.Kindler, },
+		[205] = { class = TrainerData.Classes.Kindler, },
+		[206] = { class = TrainerData.Classes.Kindler, },
+		[207] = { class = TrainerData.Classes.Kindler, },
+		[208] = { class = TrainerData.Classes.Kindler, },
+		[209] = { class = TrainerData.Classes.Kindler, },
+		[210] = { class = TrainerData.Classes.Kindler, },
+		[211] = { class = TrainerData.Classes.Camper, },
+		[212] = { class = TrainerData.Classes.Camper, },
+		[213] = { class = TrainerData.Classes.Camper, },
+		[214] = { class = TrainerData.Classes.Camper, },
+		[215] = { class = TrainerData.Classes.Camper, },
+		[216] = { class = TrainerData.Classes.Camper, },
+		[217] = { class = TrainerData.Classes.Picnicker, },
+		[218] = { class = TrainerData.Classes.Camper, },
+		[219] = { class = TrainerData.Classes.Camper, },
+		[220] = { class = TrainerData.Classes.Camper, },
+		[221] = { class = TrainerData.Classes.Camper, },
+		[222] = { class = TrainerData.Classes.Camper, },
+		[223] = { class = TrainerData.Classes.BugManiac, },
+		[224] = { class = TrainerData.Classes.BugManiac, },
+		[225] = { class = TrainerData.Classes.BugManiac, },
+		[226] = { class = TrainerData.Classes.BugManiac, },
+		[227] = { class = TrainerData.Classes.BugManiac, },
+		[228] = { class = TrainerData.Classes.BugManiac, },
+		[229] = { class = TrainerData.Classes.BugManiac, },
+		[230] = { class = TrainerData.Classes.BugManiac, },
+		[231] = { class = TrainerData.Classes.BugManiac, },
+		[232] = { class = TrainerData.Classes.Psychic, },
+		[233] = { class = TrainerData.Classes.Psychic, },
+		[234] = { class = TrainerData.Classes.Psychic, },
+		[235] = { class = TrainerData.Classes.Psychic, },
+		[236] = { class = TrainerData.Classes.Psychic, },
+		[237] = { class = TrainerData.Classes.Psychic, },
+		[238] = { class = TrainerData.Classes.Psychic, },
+		[239] = { class = TrainerData.Classes.Psychic, },
+		[240] = { class = TrainerData.Classes.Psychic, },
+		[241] = { class = TrainerData.Classes.Psychic, },
+		[242] = { class = TrainerData.Classes.Psychic, },
+		[243] = { class = TrainerData.Classes.Psychic, },
+		[244] = { class = TrainerData.Classes.Psychic, },
+		[245] = { class = TrainerData.Classes.Psychic, },
+		[246] = { class = TrainerData.Classes.Psychic, },
+		[247] = { class = TrainerData.Classes.Psychic, },
+		[248] = { class = TrainerData.Classes.Psychic, },
+		[249] = { class = TrainerData.Classes.Psychic, },
+		[250] = { class = TrainerData.Classes.Psychic, },
+		[251] = { class = TrainerData.Classes.Psychic, },
+		[252] = { class = TrainerData.Classes.Psychic, },
+		[253] = { class = TrainerData.Classes.Psychic, },
+		[254] = { class = TrainerData.Classes.Gentleman, },
+		[255] = { class = TrainerData.Classes.Gentleman, },
+		[256] = { class = TrainerData.Classes.Gentleman, },
+		[257] = { class = TrainerData.Classes.Gentleman, },
+		[258] = { class = TrainerData.Classes.Gentleman, },
+		[259] = { class = TrainerData.Classes.Gentleman, },
+		[260] = { class = TrainerData.Classes.Gentleman, },
 		[261] = {
-			name = "Sidney",
+			class = TrainerData.Classes.EliteFour1,
 			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-1",
 		},
 		[262] = {
-			name = "Phoebe",
+			class = TrainerData.Classes.EliteFour2,
 			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-2",
 		},
 		[263] = {
-			name = "Glacia",
+			class = TrainerData.Classes.EliteFour3,
 			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-3",
 		},
 		[264] = {
-			name = "Drake",
+			class = TrainerData.Classes.EliteFour4,
 			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-4",
 		},
 		[265] = {
-			name = "Roxanne",
+			class = TrainerData.Classes.GymLeader1,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-1",
 		},
 		[266] = {
-			name = "Brawly",
+			class = TrainerData.Classes.GymLeader2,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-2",
 		},
 		[267] = {
-			name = "Wattson",
+			class = TrainerData.Classes.GymLeader3,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-3",
 		},
 		[268] = {
-			name = "Flannery",
+			class = TrainerData.Classes.GymLeader4,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-4",
 		},
 		[269] = {
-			name = "Norman",
+			class = TrainerData.Classes.GymLeader5,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-5",
 		},
 		[270] = {
-			name = "Winona",
+			class = TrainerData.Classes.GymLeader6,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-6",
 		},
 		[271] = {
-			name = "Tate & Liza",
+			class = TrainerData.Classes.GymLeader7,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-7",
 		},
 		[272] = {
-			name = "Juan",
+			class = TrainerData.Classes.GymLeader8,
 			group = TrainerData.TrainerGroups.Gym,
-			filename = "e-gymleader-8",
 		},
+		[273] = { class = TrainerData.Classes.SchoolKid, },
+		[274] = { class = TrainerData.Classes.SchoolKid, },
+		[275] = { class = TrainerData.Classes.SchoolKid, },
+		[276] = { class = TrainerData.Classes.SchoolKid, },
+		[277] = { class = TrainerData.Classes.SchoolKid, },
+		[278] = { class = TrainerData.Classes.SchoolKid, },
+		[279] = { class = TrainerData.Classes.SchoolKid, },
+		[280] = { class = TrainerData.Classes.SchoolKid, },
+		[281] = { class = TrainerData.Classes.SchoolKid, },
+		[282] = { class = TrainerData.Classes.SchoolKid, },
+		[283] = { class = TrainerData.Classes.SchoolKid, },
+		[284] = { class = TrainerData.Classes.SchoolKid, },
+		[285] = { class = TrainerData.Classes.SchoolKid, },
+		[286] = { class = TrainerData.Classes.SrAndJr, },
+		[287] = { class = TrainerData.Classes.SrAndJr, },
+		[288] = { class = TrainerData.Classes.SrAndJr, },
+		[289] = { class = TrainerData.Classes.SrAndJr, },
+		[290] = { class = TrainerData.Classes.SrAndJr, },
+		[291] = { class = TrainerData.Classes.SrAndJr, },
+		[292] = { class = TrainerData.Classes.PokeFan, },
+		[293] = { class = TrainerData.Classes.PokeFan, },
+		[294] = { class = TrainerData.Classes.PokeFan, },
+		[295] = { class = TrainerData.Classes.PokeFan, },
+		[296] = { class = TrainerData.Classes.PokeFan, },
+		[297] = { class = TrainerData.Classes.PokeFan, },
+		[298] = { class = TrainerData.Classes.PokeFan, },
+		[299] = { class = TrainerData.Classes.PokeFan, },
+		[300] = { class = TrainerData.Classes.PokeFan, },
+		[301] = { class = TrainerData.Classes.PokeFan, },
+		[302] = { class = TrainerData.Classes.PokeFan, },
+		[303] = { class = TrainerData.Classes.PokeFan, },
+		[304] = { class = TrainerData.Classes.PokeFan, },
+		[305] = { class = TrainerData.Classes.PokeFan, },
+		[306] = { class = TrainerData.Classes.PokeFan, },
+		[307] = { class = TrainerData.Classes.Expert, },
+		[308] = { class = TrainerData.Classes.Expert, },
+		[309] = { class = TrainerData.Classes.Expert, },
+		[310] = { class = TrainerData.Classes.Expert, },
+		[311] = { class = TrainerData.Classes.Expert, },
+		[312] = { class = TrainerData.Classes.Expert, },
+		[313] = { class = TrainerData.Classes.Expert, },
+		[314] = { class = TrainerData.Classes.Expert, },
+		[315] = { class = TrainerData.Classes.Expert, },
+		[316] = { class = TrainerData.Classes.Expert, },
+		[317] = { class = TrainerData.Classes.Expert, },
+		[318] = { class = TrainerData.Classes.Youngster, },
+		[319] = { class = TrainerData.Classes.Youngster, },
+		[320] = { class = TrainerData.Classes.Youngster, },
+		[321] = { class = TrainerData.Classes.Youngster, },
+		[322] = { class = TrainerData.Classes.Youngster, },
+		[323] = { class = TrainerData.Classes.Youngster, },
+		[324] = { class = TrainerData.Classes.CoolTrainer, },
+		[325] = { class = TrainerData.Classes.CoolTrainer, },
+		[326] = { class = TrainerData.Classes.Youngster, },
+		[327] = { class = TrainerData.Classes.Youngster, },
+		[328] = { class = TrainerData.Classes.Youngster, },
+		[329] = { class = TrainerData.Classes.Youngster, },
+		[330] = { class = TrainerData.Classes.Youngster, },
+		[331] = { class = TrainerData.Classes.Youngster, },
+		[332] = { class = TrainerData.Classes.Youngster, },
+		[333] = { class = TrainerData.Classes.Youngster, },
+		[334] = { class = TrainerData.Classes.Youngster, },
 		[335] = {
-			name = "Wallace",
+			class = TrainerData.Classes.EliteChampion,
 			group = TrainerData.TrainerGroups.Elite4,
-			filename = "e-elitefour-champ",
+		},
+		[336] = { class = TrainerData.Classes.Fisherman, },
+		[337] = { class = TrainerData.Classes.Fisherman, },
+		[338] = { class = TrainerData.Classes.Fisherman, },
+		[339] = { class = TrainerData.Classes.Fisherman, },
+		[340] = { class = TrainerData.Classes.Fisherman, },
+		[341] = { class = TrainerData.Classes.Fisherman, },
+		[342] = { class = TrainerData.Classes.Fisherman, },
+		[343] = { class = TrainerData.Classes.Fisherman, },
+		[344] = { class = TrainerData.Classes.Fisherman, },
+		[345] = { class = TrainerData.Classes.Fisherman, },
+		[346] = { class = TrainerData.Classes.Fisherman, },
+		[347] = { class = TrainerData.Classes.Fisherman, },
+		[348] = { class = TrainerData.Classes.Fisherman, },
+		[349] = { class = TrainerData.Classes.Fisherman, },
+		[350] = { class = TrainerData.Classes.Fisherman, },
+		[351] = { class = TrainerData.Classes.Triathlete, },
+		[352] = { class = TrainerData.Classes.Triathlete, },
+		[353] = { class = TrainerData.Classes.Triathlete, },
+		[354] = { class = TrainerData.Classes.Triathlete, },
+		[355] = { class = TrainerData.Classes.Triathlete, },
+		[356] = { class = TrainerData.Classes.Triathlete, },
+		[357] = { class = TrainerData.Classes.Triathlete, },
+		[358] = { class = TrainerData.Classes.Triathlete, },
+		[359] = { class = TrainerData.Classes.Triathlete, },
+		[360] = { class = TrainerData.Classes.Triathlete, },
+		[361] = { class = TrainerData.Classes.Triathlete, },
+		[362] = { class = TrainerData.Classes.Triathlete, },
+		[363] = { class = TrainerData.Classes.Triathlete, },
+		[364] = { class = TrainerData.Classes.Triathlete, },
+		[365] = { class = TrainerData.Classes.Triathlete, },
+		[366] = { class = TrainerData.Classes.Triathlete, },
+		[367] = { class = TrainerData.Classes.Triathlete, },
+		[368] = { class = TrainerData.Classes.Triathlete, },
+		[369] = { class = TrainerData.Classes.Triathlete, },
+		[370] = { class = TrainerData.Classes.Triathlete, },
+		[371] = { class = TrainerData.Classes.Triathlete, },
+		[372] = { class = TrainerData.Classes.Triathlete, },
+		[373] = { class = TrainerData.Classes.Triathlete, },
+		[374] = { class = TrainerData.Classes.Triathlete, },
+		[375] = { class = TrainerData.Classes.Youngster, },
+		[376] = { class = TrainerData.Classes.Triathlete, },
+		[377] = { class = TrainerData.Classes.Triathlete, },
+		[378] = { class = TrainerData.Classes.Triathlete, },
+		[379] = { class = TrainerData.Classes.Triathlete, },
+		[380] = { class = TrainerData.Classes.Triathlete, },
+		[381] = { class = TrainerData.Classes.Triathlete, },
+		[382] = { class = TrainerData.Classes.Triathlete, },
+		[383] = { class = TrainerData.Classes.Triathlete, },
+		[384] = { class = TrainerData.Classes.Triathlete, },
+		[385] = { class = TrainerData.Classes.Triathlete, },
+		[386] = { class = TrainerData.Classes.Triathlete, },
+		[387] = { class = TrainerData.Classes.Triathlete, },
+		[388] = { class = TrainerData.Classes.Triathlete, },
+		[389] = { class = TrainerData.Classes.Triathlete, },
+		[390] = { class = TrainerData.Classes.Triathlete, },
+		[391] = { class = TrainerData.Classes.Triathlete, },
+		[392] = { class = TrainerData.Classes.DragonTamer, },
+		[393] = { class = TrainerData.Classes.DragonTamer, },
+		[394] = { class = TrainerData.Classes.DragonTamer, },
+		[395] = { class = TrainerData.Classes.DragonTamer, },
+		[396] = { class = TrainerData.Classes.DragonTamer, },
+		[397] = { class = TrainerData.Classes.DragonTamer, },
+		[398] = { class = TrainerData.Classes.BirdKeeper, },
+		[399] = { class = TrainerData.Classes.BirdKeeper, },
+		[400] = { class = TrainerData.Classes.BirdKeeper, },
+		[401] = { class = TrainerData.Classes.BirdKeeper, },
+		[402] = { class = TrainerData.Classes.BirdKeeper, },
+		[403] = { class = TrainerData.Classes.BirdKeeper, },
+		[404] = { class = TrainerData.Classes.BirdKeeper, },
+		[405] = { class = TrainerData.Classes.BirdKeeper, },
+		[406] = { class = TrainerData.Classes.BirdKeeper, },
+		[407] = { class = TrainerData.Classes.BirdKeeper, },
+		[408] = { class = TrainerData.Classes.BirdKeeper, },
+		[409] = { class = TrainerData.Classes.BirdKeeper, },
+		[410] = { class = TrainerData.Classes.BirdKeeper, },
+		[411] = { class = TrainerData.Classes.BirdKeeper, },
+		[412] = { class = TrainerData.Classes.BirdKeeper, },
+		[413] = { class = TrainerData.Classes.BirdKeeper, },
+		[414] = { class = TrainerData.Classes.BirdKeeper, },
+		[415] = { class = TrainerData.Classes.NinjaBoy, },
+		[416] = { class = TrainerData.Classes.NinjaBoy, },
+		[417] = { class = TrainerData.Classes.CoolTrainer, },
+		[418] = { class = TrainerData.Classes.Tuber, },
+		[419] = { class = TrainerData.Classes.NinjaBoy, },
+		[420] = { class = TrainerData.Classes.NinjaBoy, },
+		[421] = { class = TrainerData.Classes.NinjaBoy, },
+		[422] = { class = TrainerData.Classes.NinjaBoy, },
+		[423] = { class = TrainerData.Classes.NinjaBoy, },
+		[424] = { class = TrainerData.Classes.NinjaBoy, },
+		[425] = { class = TrainerData.Classes.BattleGirl, },
+		[426] = { class = TrainerData.Classes.BattleGirl, },
+		[427] = { class = TrainerData.Classes.BattleGirl, },
+		[428] = { class = TrainerData.Classes.BattleGirl, },
+		[429] = { class = TrainerData.Classes.BattleGirl, },
+		[430] = { class = TrainerData.Classes.BattleGirl, },
+		[431] = { class = TrainerData.Classes.BattleGirl, },
+		[432] = { class = TrainerData.Classes.BattleGirl, },
+		[433] = { class = TrainerData.Classes.BattleGirl, },
+		[434] = { class = TrainerData.Classes.ParasolLady, },
+		[435] = { class = TrainerData.Classes.ParasolLady, },
+		[436] = { class = TrainerData.Classes.ParasolLady, },
+		[437] = { class = TrainerData.Classes.ParasolLady, },
+		[438] = { class = TrainerData.Classes.ParasolLady, },
+		[439] = { class = TrainerData.Classes.ParasolLady, },
+		[440] = { class = TrainerData.Classes.ParasolLady, },
+		[441] = { class = TrainerData.Classes.SwimmerF, },
+		[442] = { class = TrainerData.Classes.SwimmerF, },
+		[443] = { class = TrainerData.Classes.SwimmerF, },
+		[444] = { class = TrainerData.Classes.SwimmerF, },
+		[445] = { class = TrainerData.Classes.SwimmerF, },
+		[446] = { class = TrainerData.Classes.SwimmerF, },
+		[447] = { class = TrainerData.Classes.SwimmerF, },
+		[448] = { class = TrainerData.Classes.SwimmerF, },
+		[449] = { class = TrainerData.Classes.SwimmerF, },
+		[450] = { class = TrainerData.Classes.SwimmerF, },
+		[451] = { class = TrainerData.Classes.SwimmerF, },
+		[452] = { class = TrainerData.Classes.SwimmerF, },
+		[453] = { class = TrainerData.Classes.SwimmerF, },
+		[454] = { class = TrainerData.Classes.SwimmerF, },
+		[455] = { class = TrainerData.Classes.SwimmerF, },
+		[456] = { class = TrainerData.Classes.SwimmerF, },
+		[457] = { class = TrainerData.Classes.SwimmerF, },
+		[458] = { class = TrainerData.Classes.SwimmerF, },
+		[459] = { class = TrainerData.Classes.SwimmerF, },
+		[460] = { class = TrainerData.Classes.SwimmerF, },
+		[461] = { class = TrainerData.Classes.SwimmerF, },
+		[462] = { class = TrainerData.Classes.SwimmerF, },
+		[463] = { class = TrainerData.Classes.SwimmerF, },
+		[464] = { class = TrainerData.Classes.SwimmerF, },
+		[465] = { class = TrainerData.Classes.SwimmerF, },
+		[466] = { class = TrainerData.Classes.SwimmerF, },
+		[467] = { class = TrainerData.Classes.SwimmerF, },
+		[468] = { class = TrainerData.Classes.SwimmerF, },
+		[469] = { class = TrainerData.Classes.Picnicker, },
+		[470] = { class = TrainerData.Classes.Picnicker, },
+		[471] = { class = TrainerData.Classes.Picnicker, },
+		[472] = { class = TrainerData.Classes.Picnicker, },
+		[473] = { class = TrainerData.Classes.Picnicker, },
+		[474] = { class = TrainerData.Classes.Picnicker, },
+		[475] = { class = TrainerData.Classes.Psychic, },
+		[476] = { class = TrainerData.Classes.Picnicker, },
+		[477] = { class = TrainerData.Classes.Picnicker, },
+		[478] = { class = TrainerData.Classes.Picnicker, },
+		[479] = { class = TrainerData.Classes.Picnicker, },
+		[480] = { class = TrainerData.Classes.Picnicker, },
+		[481] = { class = TrainerData.Classes.Twins, },
+		[482] = { class = TrainerData.Classes.Twins, },
+		[483] = { class = TrainerData.Classes.Twins, },
+		[484] = { class = TrainerData.Classes.Twins, },
+		[485] = { class = TrainerData.Classes.Twins, },
+		[486] = { class = TrainerData.Classes.Twins, },
+		[487] = { class = TrainerData.Classes.Twins, },
+		[488] = { class = TrainerData.Classes.Twins, },
+		[489] = { class = TrainerData.Classes.Twins, },
+		[490] = { class = TrainerData.Classes.Sailor, },
+		[491] = { class = TrainerData.Classes.Sailor, },
+		[492] = { class = TrainerData.Classes.Sailor, },
+		[493] = { class = TrainerData.Classes.Sailor, },
+		[494] = { class = TrainerData.Classes.Sailor, },
+		[495] = { class = TrainerData.Classes.Sailor, },
+		[496] = { class = TrainerData.Classes.Sailor, },
+		[497] = { class = TrainerData.Classes.Sailor, },
+		[498] = { class = TrainerData.Classes.Sailor, },
+		[499] = { class = TrainerData.Classes.Sailor, },
+		[500] = { class = TrainerData.Classes.Sailor, },
+		[501] = { class = TrainerData.Classes.Hiker, },
+		[502] = { class = TrainerData.Classes.PokeFan, },
+		[503] = { class = TrainerData.Classes.CoolTrainer, },
+		[504] = { class = TrainerData.Classes.NinjaBoy, },
+		[505] = { class = TrainerData.Classes.ParasolLady, },
+		[506] = { class = TrainerData.Classes.Expert, },
+		[507] = { class = TrainerData.Classes.Sailor, },
+		[508] = { class = TrainerData.Classes.CoolTrainer, },
+		[509] = { class = TrainerData.Classes.BattleGirl, },
+		[510] = { class = TrainerData.Classes.Sailor, },
+		[511] = { class = TrainerData.Classes.Expert, },
+		[512] = { class = TrainerData.Classes.Collector, },
+		[513] = { class = TrainerData.Classes.Collector, },
+		[514] = {
+			class = TrainerData.Classes.Tabitha,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[515] = { class = TrainerData.Classes.Collector, },
+		[516] = { class = TrainerData.Classes.Collector, },
+		[517] = { class = TrainerData.Classes.Collector, },
+		[518] = { class = TrainerData.Classes.Collector, },
+		[519] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
 		},
 		[520] = {
-			name = "Brendan 1",
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
+			whichRival = "Brendan Left",
+		},
+		[521] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Left",
+		},
+		[522] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
 			whichRival = "Brendan Left",
 		},
 		[523] = {
-			name = "Brendan 1",
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
+			whichRival = "Brendan Middle",
+		},
+		[524] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Middle",
+		},
+		[525] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
 			whichRival = "Brendan Middle",
 		},
 		[526] = {
-			name = "Brendan 1",
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
 			whichRival = "Brendan Right",
-		},
-		[593] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[592] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[599] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[521] = {
-			name = "Brendan 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[524] = {
-			name = "Brendan 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
 		},
 		[527] = {
-			name = "Brendan 3",
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
 			whichRival = "Brendan Right",
-		},
-		[522] = {
-			name = "Brendan 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[525] = {
-			name = "Brendan 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
 		},
 		[528] = {
-			name = "Brendan 4",
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[661] = {
-			name = "Brendan 5",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[662] = {
-			name = "Brendan 5",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[663] = {
-			name = "Brendan 5",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-brendan",
 			whichRival = "Brendan Right",
 		},
 		[529] = {
-			name = "May 1",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
+			whichRival = "May Left",
+		},
+		[530] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "May Left",
+		},
+		[531] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
 			whichRival = "May Left",
 		},
 		[532] = {
-			name = "May 1",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
+			whichRival = "May Middle",
+		},
+		[533] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "May Middle",
+		},
+		[534] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
 			whichRival = "May Middle",
 		},
 		[535] = {
-			name = "May 1",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
 			whichRival = "May Right",
-		},
-		[600] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[768] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
-		},
-		[769] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Right",
-		},
-		[530] = {
-			name = "May 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[533] = {
-			name = "May 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
 		},
 		[536] = {
-			name = "May 3",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
 			whichRival = "May Right",
-		},
-		[531] = {
-			name = "May 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Left",
-		},
-		[534] = {
-			name = "May 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
-			whichRival = "May Middle",
 		},
 		[537] = {
-			name = "May 4",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
 			whichRival = "May Right",
 		},
-		[664] = {
-			name = "May 5",
+		[538] = { class = TrainerData.Classes.PkmnBreeder, },
+		[539] = { class = TrainerData.Classes.BugCatcher, },
+		[540] = { class = TrainerData.Classes.CoolTrainer, },
+		[541] = { class = TrainerData.Classes.PkmnBreeder, },
+		[542] = { class = TrainerData.Classes.PkmnBreeder, },
+		[543] = { class = TrainerData.Classes.PkmnBreeder, },
+		[544] = { class = TrainerData.Classes.PkmnBreeder, },
+		[545] = { class = TrainerData.Classes.PkmnBreeder, },
+		[546] = { class = TrainerData.Classes.CoolTrainer, },
+		[547] = { class = TrainerData.Classes.RuinManiac, },
+		[548] = { class = TrainerData.Classes.PkmnBreeder, },
+		[549] = { class = TrainerData.Classes.PkmnBreeder, },
+		[550] = { class = TrainerData.Classes.PkmnBreeder, },
+		[551] = { class = TrainerData.Classes.PkmnBreeder, },
+		[552] = { class = TrainerData.Classes.PkmnRanger, },
+		[553] = { class = TrainerData.Classes.PkmnRanger, },
+		[554] = { class = TrainerData.Classes.PkmnRanger, },
+		[555] = { class = TrainerData.Classes.PkmnRanger, },
+		[556] = { class = TrainerData.Classes.PkmnRanger, },
+		[557] = { class = TrainerData.Classes.PkmnRanger, },
+		[558] = { class = TrainerData.Classes.PkmnRanger, },
+		[559] = { class = TrainerData.Classes.PkmnRanger, },
+		[560] = { class = TrainerData.Classes.PkmnRanger, },
+		[561] = { class = TrainerData.Classes.PkmnRanger, },
+		[562] = { class = TrainerData.Classes.PkmnRanger, },
+		[563] = { class = TrainerData.Classes.PkmnRanger, },
+		[564] = { class = TrainerData.Classes.PkmnRanger, },
+		[565] = { class = TrainerData.Classes.PkmnRanger, },
+		[566] = { class = TrainerData.Classes.Triathlete, },
+		[567] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[568] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[569] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[570] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[571] = { class = TrainerData.Classes.Hiker, },
+		[572] = { class = TrainerData.Classes.Sailor, },
+		[573] = { class = TrainerData.Classes.BattleGirl, },
+		[574] = { class = TrainerData.Classes.BlackBelt, },
+		[575] = { class = TrainerData.Classes.HexManiac, },
+		[576] = { class = TrainerData.Classes.SwimmerM, },
+		[577] = { class = TrainerData.Classes.CoolTrainer, },
+		[578] = { class = TrainerData.Classes.SwimmerM, },
+		[579] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[580] = { class = TrainerData.Classes.SwimmerM, },
+		[581] = { class = TrainerData.Classes.Psychic, },
+		[582] = { class = TrainerData.Classes.Gentleman, },
+		[583] = { class = TrainerData.Classes.HexManiac, },
+		[584] = { class = TrainerData.Classes.Gentleman, },
+		[585] = { class = TrainerData.Classes.Psychic, },
+		[586] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[587] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[588] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[589] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[590] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[591] = { class = TrainerData.Classes.Psychic, },
+		[592] = {
+			class = TrainerData.Classes.RivalBrendan,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
+			whichRival = "Brendan Middle",
+		},
+		[593] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Left",
+		},
+		[594] = { class = TrainerData.Classes.Expert, },
+		[595] = { class = TrainerData.Classes.Triathlete, },
+		[596] = { class = TrainerData.Classes.TeamAquaGrunt, },
+		[597] = {
+			class = TrainerData.Classes.Tabitha,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[598] = { class = TrainerData.Classes.CoolTrainer, },
+		[599] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Right",
+		},
+		[600] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "May Left",
+		},
+		[601] = {
+			class = TrainerData.Classes.Maxie,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[602] = {
+			class = TrainerData.Classes.Maxie,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[603] = { class = TrainerData.Classes.Lass, },
+		[604] = { class = TrainerData.Classes.Lass, },
+		[605] = { class = TrainerData.Classes.Lass, },
+		[606] = { class = TrainerData.Classes.Lass, },
+		[607] = { class = TrainerData.Classes.Lass, },
+		[608] = { class = TrainerData.Classes.Lass, },
+		[609] = { class = TrainerData.Classes.Lass, },
+		[610] = { class = TrainerData.Classes.Lass, },
+		[611] = { class = TrainerData.Classes.Lass, },
+		[612] = { class = TrainerData.Classes.Lass, },
+		[613] = { class = TrainerData.Classes.Lass, },
+		[614] = { class = TrainerData.Classes.Lass, },
+		[615] = { class = TrainerData.Classes.BugCatcher, },
+		[616] = { class = TrainerData.Classes.BugCatcher, },
+		[617] = { class = TrainerData.Classes.BugCatcher, },
+		[618] = { class = TrainerData.Classes.BugCatcher, },
+		[619] = { class = TrainerData.Classes.BugCatcher, },
+		[620] = { class = TrainerData.Classes.BugCatcher, },
+		[621] = { class = TrainerData.Classes.BugCatcher, },
+		[622] = { class = TrainerData.Classes.BugCatcher, },
+		[623] = { class = TrainerData.Classes.BugCatcher, },
+		[624] = { class = TrainerData.Classes.BugCatcher, },
+		[625] = { class = TrainerData.Classes.BugCatcher, },
+		[626] = { class = TrainerData.Classes.Hiker, },
+		[627] = { class = TrainerData.Classes.Hiker, },
+		[628] = { class = TrainerData.Classes.Hiker, },
+		[629] = { class = TrainerData.Classes.Hiker, },
+		[630] = { class = TrainerData.Classes.Hiker, },
+		[631] = { class = TrainerData.Classes.Hiker, },
+		[632] = { class = TrainerData.Classes.Hiker, },
+		[633] = { class = TrainerData.Classes.Hiker, },
+		[634] = { class = TrainerData.Classes.Hiker, },
+		[635] = { class = TrainerData.Classes.Hiker, },
+		[636] = { class = TrainerData.Classes.Hiker, },
+		[637] = { class = TrainerData.Classes.Hiker, },
+		[638] = { class = TrainerData.Classes.Hiker, },
+		[639] = { class = TrainerData.Classes.Hiker, },
+		[640] = { class = TrainerData.Classes.YoungCouple, },
+		[641] = { class = TrainerData.Classes.YoungCouple, },
+		[642] = { class = TrainerData.Classes.YoungCouple, },
+		[643] = { class = TrainerData.Classes.YoungCouple, },
+		[644] = { class = TrainerData.Classes.YoungCouple, },
+		[645] = { class = TrainerData.Classes.YoungCouple, },
+		[646] = { class = TrainerData.Classes.YoungCouple, },
+		[647] = { class = TrainerData.Classes.Beauty, },
+		[648] = { class = TrainerData.Classes.CoolTrainer, },
+		[649] = { class = TrainerData.Classes.BattleGirl, },
+		[650] = { class = TrainerData.Classes.BattleGirl, },
+		[651] = { class = TrainerData.Classes.NinjaBoy, },
+		[652] = { class = TrainerData.Classes.NinjaBoy, },
+		[653] = { class = TrainerData.Classes.NinjaBoy, },
+		[654] = { class = TrainerData.Classes.Camper, },
+		[655] = { class = TrainerData.Classes.Picnicker, },
+		[656] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[657] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[658] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[659] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[660] = {
+			class = TrainerData.Classes.Wally,
+			group = TrainerData.TrainerGroups.Boss,
+		},
+		[661] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Left",
+		},
+		[662] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Middle",
+		},
+		[663] = {
+			class = TrainerData.Classes.RivalBrendan,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "Brendan Right",
+		},
+		[664] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
 			whichRival = "May Left",
 		},
 		[665] = {
-			name = "May 5",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
 			whichRival = "May Middle",
 		},
 		[666] = {
-			name = "May 5",
+			class = TrainerData.Classes.RivalMay,
 			group = TrainerData.TrainerGroups.Rival,
-			filename = "e-rival-may",
 			whichRival = "May Right",
 		},
-		[34] = {
-			name = "Archie",
+		[667] = { class = TrainerData.Classes.Fisherman, },
+		[668] = { class = TrainerData.Classes.Fisherman, },
+		[669] = { class = TrainerData.Classes.Fisherman, },
+		[670] = { class = TrainerData.Classes.CoolTrainer, },
+		[671] = { class = TrainerData.Classes.CoolTrainer, },
+		[672] = { class = TrainerData.Classes.BlackBelt, },
+		[673] = { class = TrainerData.Classes.Fisherman, },
+		[674] = { class = TrainerData.Classes.BirdKeeper, },
+		[675] = { class = TrainerData.Classes.SwimmerM, },
+		[676] = { class = TrainerData.Classes.SwimmerF, },
+		[677] = { class = TrainerData.Classes.Twins, },
+		[678] = { class = TrainerData.Classes.SrAndJr, },
+		[679] = { class = TrainerData.Classes.SrAndJr, },
+		[680] = { class = TrainerData.Classes.YoungCouple, },
+		[681] = { class = TrainerData.Classes.OldCouple, },
+		[682] = { class = TrainerData.Classes.OldCouple, },
+		[683] = { class = TrainerData.Classes.OldCouple, },
+		[684] = { class = TrainerData.Classes.OldCouple, },
+		[685] = { class = TrainerData.Classes.OldCouple, },
+		[686] = { class = TrainerData.Classes.SisAndBro, },
+		[687] = { class = TrainerData.Classes.SisAndBro, },
+		[688] = { class = TrainerData.Classes.SisAndBro, },
+		[689] = { class = TrainerData.Classes.SisAndBro, },
+		[690] = { class = TrainerData.Classes.SisAndBro, },
+		[691] = { class = TrainerData.Classes.SisAndBro, },
+		[692] = { class = TrainerData.Classes.SisAndBro, },
+		[693] = { class = TrainerData.Classes.Fisherman, },
+		[694] = { class = TrainerData.Classes.RichBoy, },
+		[695] = { class = TrainerData.Classes.Lady, },
+		[696] = { class = TrainerData.Classes.Fisherman, },
+		[697] = { class = TrainerData.Classes.Tuber, },
+		[698] = { class = TrainerData.Classes.Tuber, },
+		[699] = { class = TrainerData.Classes.PokeFan, },
+		[700] = { class = TrainerData.Classes.Guitarist, },
+		[701] = { class = TrainerData.Classes.Triathlete, },
+		[702] = { class = TrainerData.Classes.Guitarist, },
+		[703] = { class = TrainerData.Classes.BlackBelt, },
+		[704] = { class = TrainerData.Classes.Camper, },
+		[705] = { class = TrainerData.Classes.AromaLady, },
+		[706] = { class = TrainerData.Classes.Picnicker, },
+		[707] = { class = TrainerData.Classes.Kindler, },
+		[708] = { class = TrainerData.Classes.Picnicker, },
+		[709] = { class = TrainerData.Classes.BirdKeeper, },
+		[710] = { class = TrainerData.Classes.Camper, },
+		[711] = { class = TrainerData.Classes.PokeManiac, },
+		[712] = { class = TrainerData.Classes.Picnicker, },
+		[713] = { class = TrainerData.Classes.Fisherman, },
+		[714] = { class = TrainerData.Classes.Picnicker, },
+		[715] = { class = TrainerData.Classes.Youngster, },
+		[716] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[717] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[718] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[719] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[720] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[721] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[722] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[723] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[724] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[725] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[726] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[727] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[728] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[729] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[730] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[731] = { class = TrainerData.Classes.TeamMagmaGrunt, },
+		[732] = {
+			class = TrainerData.Classes.Tabitha,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-archie",
 		},
-		[514] = {
-			name = "Tabitha (duo)",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-tabitha",
-		},
-		[602] = {
-			name = "Maxie 1",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
-		},
-		[601] = {
-			name = "Maxie 2",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
-		},
+		[733] = { class = TrainerData.Classes.CoolTrainer, },
 		[734] = {
-			name = "Maxie (duo)",
+			class = TrainerData.Classes.Maxie,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
 		},
-		[656] = {
-			name = "Wally 1",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
+		[735] = { class = TrainerData.Classes.SwimmerM, },
+		[736] = { class = TrainerData.Classes.SwimmerF, },
+		[737] = { class = TrainerData.Classes.RuinManiac, },
+		[738] = { class = TrainerData.Classes.BirdKeeper, },
+		[739] = { class = TrainerData.Classes.Triathlete, },
+		[740] = { class = TrainerData.Classes.Sailor, },
+		[741] = { class = TrainerData.Classes.CoolTrainer, },
+		[742] = { class = TrainerData.Classes.BirdKeeper, },
+		[743] = { class = TrainerData.Classes.Picnicker, },
+		[744] = { class = TrainerData.Classes.RuinManiac, },
+		[745] = { class = TrainerData.Classes.Camper, },
+		[746] = { class = TrainerData.Classes.Kindler, },
+		[747] = { class = TrainerData.Classes.AromaLady, },
+		[748] = { class = TrainerData.Classes.Triathlete, },
+		[749] = { class = TrainerData.Classes.NinjaBoy, },
+		[750] = { class = TrainerData.Classes.Psychic, },
+		[751] = { class = TrainerData.Classes.BattleGirl, },
+		[752] = { class = TrainerData.Classes.Psychic, },
+		[753] = { class = TrainerData.Classes.Hiker, },
+		[754] = { class = TrainerData.Classes.Youngster, },
+		[755] = { class = TrainerData.Classes.Triathlete, },
+		[756] = { class = TrainerData.Classes.Psychic, },
+		[757] = { class = TrainerData.Classes.BattleGirl, },
+		[758] = { class = TrainerData.Classes.Expert, },
+		[759] = { class = TrainerData.Classes.Guitarist, },
+		[760] = { class = TrainerData.Classes.Kindler, },
+		[761] = { class = TrainerData.Classes.ParasolLady, },
+		[762] = { class = TrainerData.Classes.CoolTrainer, },
+		[763] = { class = TrainerData.Classes.BattleGirl, },
+		[764] = { class = TrainerData.Classes.BugManiac, },
+		[765] = { class = TrainerData.Classes.PkmnBreeder, },
+		[766] = { class = TrainerData.Classes.PkmnBreeder, },
+		[767] = { class = TrainerData.Classes.CoolTrainer, },
+		[768] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "May Middle",
 		},
-		[519] = {
-			name = "Wally 2",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
+		[769] = {
+			class = TrainerData.Classes.RivalMay,
+			group = TrainerData.TrainerGroups.Rival,
+			whichRival = "May Right",
 		},
-		[657] = {
-			name = "Wally 3",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[658] = {
-			name = "Wally 4",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[659] = {
-			name = "Wally 5",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[660] = {
-			name = "Wally 6",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
+		[770] = { class = TrainerData.Classes.GymLeader1, }, -- Rematch
+		[771] = { class = TrainerData.Classes.GymLeader1, }, -- Rematch
+		[772] = { class = TrainerData.Classes.GymLeader1, }, -- Rematch
+		[773] = { class = TrainerData.Classes.GymLeader1, }, -- Rematch
+		[774] = { class = TrainerData.Classes.GymLeader2, }, -- Rematch
+		[775] = { class = TrainerData.Classes.GymLeader2, }, -- Rematch
+		[776] = { class = TrainerData.Classes.GymLeader2, }, -- Rematch
+		[777] = { class = TrainerData.Classes.GymLeader2, }, -- Rematch
+		[778] = { class = TrainerData.Classes.GymLeader3, }, -- Rematch
+		[779] = { class = TrainerData.Classes.GymLeader3, }, -- Rematch
+		[780] = { class = TrainerData.Classes.GymLeader3, }, -- Rematch
+		[781] = { class = TrainerData.Classes.GymLeader3, }, -- Rematch
+		[782] = { class = TrainerData.Classes.GymLeader4, }, -- Rematch
+		[783] = { class = TrainerData.Classes.GymLeader4, }, -- Rematch
+		[784] = { class = TrainerData.Classes.GymLeader4, }, -- Rematch
+		[785] = { class = TrainerData.Classes.GymLeader4, }, -- Rematch
+		[786] = { class = TrainerData.Classes.GymLeader5, }, -- Rematch
+		[787] = { class = TrainerData.Classes.GymLeader5, }, -- Rematch
+		[788] = { class = TrainerData.Classes.GymLeader5, }, -- Rematch
+		[789] = { class = TrainerData.Classes.GymLeader5, }, -- Rematch
+		[790] = { class = TrainerData.Classes.GymLeader6, }, -- Rematch
+		[791] = { class = TrainerData.Classes.GymLeader6, }, -- Rematch
+		[792] = { class = TrainerData.Classes.GymLeader6, }, -- Rematch
+		[793] = { class = TrainerData.Classes.GymLeader6, }, -- Rematch
+		[794] = { class = TrainerData.Classes.GymLeader7, }, -- Rematch
+		[795] = { class = TrainerData.Classes.GymLeader7, }, -- Rematch
+		[796] = { class = TrainerData.Classes.GymLeader7, }, -- Rematch
+		[797] = { class = TrainerData.Classes.GymLeader7, }, -- Rematch
+		[798] = { class = TrainerData.Classes.GymLeader8, }, -- Rematch
+		[799] = { class = TrainerData.Classes.GymLeader8, }, -- Rematch
+		[800] = { class = TrainerData.Classes.GymLeader8, }, -- Rematch
+		[801] = { class = TrainerData.Classes.GymLeader8, }, -- Rematch
+		[802] = { class = TrainerData.Classes.BugManiac, },
+		[803] = { class = TrainerData.Classes.BirdKeeper, },
 		[804] = {
-			name = "Steven",
+			class = TrainerData.Classes.Steven,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "e-final-steven",
 		},
+		[805] = { class = TrainerData.Classes.Unknown, },
+		[806] = { class = TrainerData.Classes.Unknown, },
+		[807] = { class = TrainerData.Classes.Unknown, },
+		[808] = { class = TrainerData.Classes.Unknown, },
+		[809] = { class = TrainerData.Classes.Unknown, },
+		[810] = { class = TrainerData.Classes.Unknown, },
+		[811] = { class = TrainerData.Classes.Unknown, },
+		[812] = { class = TrainerData.Classes.RuinManiac, },
+		[813] = { class = TrainerData.Classes.RuinManiac, },
+		[814] = { class = TrainerData.Classes.RuinManiac, },
+		[815] = { class = TrainerData.Classes.RuinManiac, },
+		[816] = { class = TrainerData.Classes.Sailor, },
+		[817] = { class = TrainerData.Classes.Sailor, },
+		[818] = { class = TrainerData.Classes.Sailor, },
+		[819] = { class = TrainerData.Classes.Sailor, },
+		[820] = { class = TrainerData.Classes.Triathlete, },
+		[821] = { class = TrainerData.Classes.Triathlete, },
+		[822] = { class = TrainerData.Classes.Triathlete, },
+		[823] = { class = TrainerData.Classes.Triathlete, },
+		[824] = { class = TrainerData.Classes.BlackBelt, },
+		[825] = { class = TrainerData.Classes.BlackBelt, },
+		[826] = { class = TrainerData.Classes.BlackBelt, },
+		[827] = { class = TrainerData.Classes.BlackBelt, },
+		[828] = { class = TrainerData.Classes.CoolTrainer, },
+		[829] = { class = TrainerData.Classes.CoolTrainer, },
+		[830] = { class = TrainerData.Classes.CoolTrainer, },
+		[831] = { class = TrainerData.Classes.CoolTrainer, },
+		[832] = { class = TrainerData.Classes.Guitarist, },
+		[833] = { class = TrainerData.Classes.Guitarist, },
+		[834] = { class = TrainerData.Classes.Guitarist, },
+		[835] = { class = TrainerData.Classes.Guitarist, },
+		[836] = { class = TrainerData.Classes.Hiker, },
+		[837] = { class = TrainerData.Classes.Hiker, },
+		[838] = { class = TrainerData.Classes.Hiker, },
+		[839] = { class = TrainerData.Classes.Hiker, },
+		[840] = { class = TrainerData.Classes.PkmnBreeder, },
+		[841] = { class = TrainerData.Classes.PkmnBreeder, },
+		[842] = { class = TrainerData.Classes.PkmnBreeder, },
+		[843] = { class = TrainerData.Classes.PkmnBreeder, },
+		[844] = { class = TrainerData.Classes.Beauty, },
+		[845] = { class = TrainerData.Classes.Beauty, },
+		[846] = { class = TrainerData.Classes.Beauty, },
+		[847] = { class = TrainerData.Classes.Beauty, },
+		[848] = { class = TrainerData.Classes.Psychic, },
+		[849] = { class = TrainerData.Classes.Psychic, },
+		[850] = { class = TrainerData.Classes.Gentleman, },
+		[851] = { class = TrainerData.Classes.Unknown, },
+		[852] = { class = TrainerData.Classes.Unknown, },
+		[853] = { class = TrainerData.Classes.Unknown, },
+		[854] = { class = TrainerData.Classes.Unknown, },
+		[855] = { class = TrainerData.Classes.Steven, }, -- Teammate during Mossdeep doubles
 	}
 end
 
