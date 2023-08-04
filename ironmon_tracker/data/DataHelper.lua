@@ -577,40 +577,40 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's randomized evolutions
 	data.p.evos = {}
 	for _, evoId in ipairs(pokemonLog.Evolutions or {}) do
-		local evoInfo = {
+		local evo = {
 			id = evoId,
 			name = PokemonData.Pokemon[evoId].name,
 		}
-		table.insert(data.p.evos, evoInfo)
+		table.insert(data.p.evos, evo)
 	end
 
 	-- Pre-evolutions
 	data.p.prevos = {}
 	for _, prevoId in ipairs(pokemonLog.PreEvolutions or {}) do
-		local prevoInfo = {
+		local prevo = {
 			id = prevoId,
 			name = PokemonData.Pokemon[prevoId].name,
 		}
-		table.insert(data.p.prevos, prevoInfo)
+		table.insert(data.p.prevos, prevo)
 	end
 
 
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
-	for _, move in ipairs(pokemonLog.MoveSet or {}) do
-		local moveInfo = {
-			id = move.moveId,
-			level = move.level,
+	for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
+		local move = {
+			id = moveLog.moveId,
+			level = moveLog.level,
 		}
-		local moveDex = MoveData.Moves[move.moveId]
-		if moveDex ~= nil then
-			moveInfo.name = moveDex.name
-			moveInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		local moveInternal = MoveData.Moves[moveLog.moveId]
+		if moveInternal ~= nil then
+			move.name = moveInternal.name
+			move.isstab = Utils.isSTAB(moveInternal, moveInternal.type, data.p.types)
 		else
-			moveInfo.name = move.name or Constants.BLANKLINE
-			moveInfo.isstab = false
+			move.name = moveLog.name or Constants.BLANKLINE
+			move.isstab = false
 		end
-		table.insert(data.p.moves, moveInfo)
+		table.insert(data.p.moves, move)
 	end
 
 	-- Determine gym TMs for the game
@@ -622,21 +622,21 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
 	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
-		local tm = RandomizerLog.Data.TMs[tmNumber]
-		local tmInfo = {
+		local tmLog = RandomizerLog.Data.TMs[tmNumber]
+		local tm = {
 			tm = tmNumber,
-			moveId = tm.moveId,
+			moveId = tmLog.moveId,
 			gymNum = gymTMs[tmNumber] or 9,
 		}
-		local moveDex = MoveData.Moves[tm.moveId]
-		if moveDex ~= nil then
-			tmInfo.moveName = moveDex.name
-			tmInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		local moveInternal = MoveData.Moves[tmLog.moveId]
+		if moveInternal ~= nil then
+			tm.moveName = moveInternal.name
+			tm.isstab = Utils.isSTAB(moveInternal, moveInternal.type, data.p.types)
 		else
-			tmInfo.moveName = tm.name or Constants.BLANKLINE
-			tmInfo.isstab = false
+			tm.moveName = tmLog.name or Constants.BLANKLINE
+			tm.isstab = false
 		end
-		table.insert(data.p.tmmoves, tmInfo)
+		table.insert(data.p.tmmoves, tm)
 	end
 
 	return data
@@ -663,7 +663,7 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	data.t.customname = trainerLog.customname or Constants.BLANKLINE
 
 	for _, partyMon in ipairs(trainerLog.party or {}) do
-		local pokemonInfo = {
+		local pokemon = {
 			id = partyMon.pokemonID or 0,
 			name = RandomizerLog.getPokemonName(partyMon.pokemonID),
 			level = partyMon.level or 0,
@@ -678,28 +678,28 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 		}
 
 		for _, moveId in ipairs(partyMon.moveIds) do
-			local moveToAdd = {
+			local move = {
 				moveId = moveId,
 				name = Constants.BLANKLINE,
 				isstab = false,
 			}
 
-			local moveDex = MoveData.Moves[moveId]
-			if moveDex ~= nil then
-				moveToAdd.name = moveDex.name
-				moveToAdd.isstab = Utils.isSTAB(moveDex, moveDex.type, pokemonTypes)
+			local moveInternal = MoveData.Moves[moveId]
+			if moveInternal ~= nil then
+				move.name = moveInternal.name
+				move.isstab = Utils.isSTAB(moveInternal, moveInternal.type, pokemonTypes)
 			else
 				-- Otherwise likely a custom name, look it up from its move list, cannot confirm if STAB
 				for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
 					if moveLog.moveId == moveId then
-						moveToAdd.name = moveLog.name or Constants.BLANKLINE
+						move.name = moveLog.name or Constants.BLANKLINE
 						break
 					end
 				end
 			end
-			table.insert(pokemonInfo.moves, moveToAdd)
+			table.insert(pokemon.moves, move)
 		end
-		table.insert(data.p, pokemonInfo)
+		table.insert(data.p, pokemon)
 	end
 
 	-- Gym number (if applicable), otherwise nil

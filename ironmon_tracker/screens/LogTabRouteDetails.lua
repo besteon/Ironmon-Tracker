@@ -227,12 +227,12 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 			-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.id) -- TODO: (future feature) implied redraw
 		end,
 		draw = function(self, shadowcolor)
-			if self.isSelected then -- If this trainer was found through search
-				local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+			LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
+			-- If this was found through search
+			if self.isSelected then
+				local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
 				Drawing.drawSelectionIndicators(self.box[1], self.box[2], self.box[3], self.box[4], color, 1, 5, 1)
 			end
-
-			LogTabTrainers.drawTrainerPortraitInfo(self, shadowcolor)
 		end,
 	}
 
@@ -274,7 +274,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 					return
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
-				for _, abilityId in pairs(pokemonLog.Abilities) do
+				for _, abilityId in pairs(pokemonLog.Abilities or {}) do
 					local abilityText = AbilityData.Abilities[abilityId].name
 					if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
 						self.isSelected = true
@@ -282,7 +282,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 					end
 				end
 			elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
-				for _, move in pairs(pokemonLog.MoveSet) do
+				for _, move in pairs(pokemonLog.MoveSet or {}) do
 					local moveText = move.name -- potentially a custom move name
 					if MoveData.isValid(move.moveId) then
 						moveText = MoveData.Moves[move.moveId].name
@@ -304,17 +304,18 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 		end,
 		draw = function(self, shadowcolor)
-			local textColor = Theme.COLORS[self.textColor]
-			local nameColor = textColor
-			if self.isSelected then
-				nameColor = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
-			end
 			-- Draw the Pokemon's name above the icon
 			gui.drawRectangle(self.box[1], self.box[2], 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-			Drawing.drawText(self.box[1] - 3, self.box[2] - 1, self:getText(), nameColor, shadowcolor)
+			Drawing.drawText(self.box[1] - 3, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 			-- Draw the level range and encounter rate below the icon
-			Drawing.drawText(self.box[1] - 3, self.box[2] + 33, levelRangeText, textColor, shadowcolor)
-			Drawing.drawText(self.box[1] + rateCenterX + 1, self.box[2] + 42, rateText, textColor, shadowcolor)
+			local belowY = 34
+			Drawing.drawText(self.box[1] - 3, self.box[2] + belowY, levelRangeText, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(self.box[1] + rateCenterX + 1, self.box[2] + belowY + 9, rateText, Theme.COLORS[self.textColor], shadowcolor)
+			-- If this was found through search
+			if self.isSelected then
+				local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+				Drawing.drawSelectionIndicators(self.box[1], self.box[2] + 10, self.box[3] - 2, self.box[4] - 9, color, 1, 5, 1)
+			end
 		end,
 	}
 	return button

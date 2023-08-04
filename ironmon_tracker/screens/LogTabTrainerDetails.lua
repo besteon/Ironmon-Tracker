@@ -47,13 +47,20 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			getText = function(self) return string.format("%s. %s", i, partyPokemon.name) end, -- e.g. "1. Shuckle"
 			textColor = LogTabTrainerDetails.Colors.text,
 			pokemonID = partyPokemon.id,
+			isSelected = false,
 			box = { partyListX, partyListY, 60, 11 },
 			updateSelf = function(self)
+				self.isSelected = false
 				self.textColor = LogTabTrainerDetails.Colors.text
+				if LogSearchScreen.searchText == "" then
+					return
+				end
 				-- Highlight moves that are found by the search
-				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName and LogSearchScreen.searchText ~= "" then
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
 					if Utils.containsText(partyPokemon.name, LogSearchScreen.searchText, true) then
+						self.isSelected = true
 						self.textColor = LogTabTrainerDetails.Colors.hightlight
+						return
 					end
 				end
 			end,
@@ -71,8 +78,31 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			getText = function(self) return string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, partyPokemon.level) end,
 			pokemonID = partyPokemon.id,
 			textColor = LogTabTrainerDetails.Colors.text,
+			isSelected = false,
 			clickableArea = { startX + offsetX, startY + offsetY, 32, 29, },
 			box = { startX + offsetX, startY + offsetY - 4, 32, 32, },
+			updateSelf = function(self)
+				self.isSelected = false
+				if LogSearchScreen.searchText == "" then
+					return
+				end
+				-- If found through search
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then
+					if Utils.containsText(partyPokemon.name, LogSearchScreen.searchText, true) then
+						self.isSelected = true
+						return
+					end
+				elseif LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
+					local pokemonLog = RandomizerLog.Data.Pokemon[partyPokemon.id] or {}
+					for _, abilityId in pairs(pokemonLog.Abilities or {}) do
+						local abilityText = AbilityData.Abilities[abilityId].name
+						if Utils.containsText(abilityText, LogSearchScreen.searchText, true) then
+							self.isSelected = true
+							return
+						end
+					end
+				end
+			end,
 			getIconPath = function(self)
 				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
@@ -88,6 +118,11 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				local levelOffsetX = self.box[1] + 5
 				local levelOffsetY = self.box[2] + self.box[4] + 2
 				Drawing.drawText(levelOffsetX, levelOffsetY, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				-- If this was found through search
+				if self.isSelected then
+					local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
+					Drawing.drawSelectionIndicators(self.box[1] + 1, self.box[2] + 7, self.box[3] - 3, self.box[4] - 6, color, 1, 5, 1)
+				end
 			end,
 		}
 		table.insert(LogTabTrainerDetails.TemporaryButtons, pokemonNameButton)

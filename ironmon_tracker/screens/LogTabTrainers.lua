@@ -100,6 +100,7 @@ function LogTabTrainers.buildPagedButtons()
 			type = Constants.ButtonTypes.IMAGE,
 			image = TrainerData.getPortraitIcon(trainerInternal.class),
 			getText = function(self) return fullname end,
+			textColor = LogTabTrainers.Colors.text,
 			id = id,
 			class = Utils.firstToUpperEachWord(trainerLog.class),
 			name = Utils.firstToUpperEachWord(trainerLog.name),
