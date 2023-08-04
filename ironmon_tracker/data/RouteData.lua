@@ -2604,6 +2604,7 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[5] = { name = "Fortree City", }
 	RouteData.Info[6] = { name = "Lilycove City",
+		trainers = { 661, 662, 663, 664, 665, 666 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -2757,7 +2758,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[19] = { name = "Route 103",
-		trainers = { 520, 523, 526, 529, 532, 535, 36, 481, 293, 336, 703, 702 },
+		trainers = { 520, 523, 526, 529, 532, 535, 36, 481, 293, 336, 703, 702, 736, 735 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {263,263,261}, rate = 0.60, minLv = 2, maxLv = 4, },
 			{ pokemonID = {261,261,263}, rate = {0.30,0.30,0.20}, minLv = 2, maxLv = 4, },
@@ -2806,6 +2807,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[21] = { name = "Route 105",
+		trainers = { 442, 152, 46, 441, 737, 738, 151 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -2828,7 +2830,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[22] = { name = "Route 106",
-		trainers = { 340, 339 },
+		trainers = { 340, 339, 153, 443 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -2848,6 +2850,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[23] = { name = "Route 107",
+		trainers = { 444, 155, 692, 154, 445, 739 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, minLv = 5, maxLv = 35, },
 			{ pokemonID = 278, rate = 0.35, minLv = 10, maxLv = 30, },
@@ -2867,6 +2870,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[24] = { name = "Route 108",
+		trainers = { 447, 157, 446, 741, 740, 156 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -2886,7 +2890,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[25] = { name = "Route 109",
-		trainers = { 490, 491, 697, 64, 57, 698 },
+		trainers = { 490, 491, 697, 64, 57, 698, 58, 59, 158, 448, 345, 742, 680 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -2935,7 +2939,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[27] = { name = "Route 111",
-		trainers = { 704, 705, 706, 707, 51, 476, 218, 292, 299, 606, 312, 78, 94, 189 },
+		trainers = { 704, 705, 706, 707, 51, 476, 218, 292, 299, 606, 312, 78, 94, 189, 469, 212, 211, 470, 44, 743, 744, 745 },
 		[RouteData.EncounterArea.ROCKSMASH] = {
 			{ pokemonID = 74, rate = 1.00, },
 		},
@@ -3004,6 +3008,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[31] = { name = "Route 115",
+		trainers = { 183, 513, 752, 427, 749, 307, 748, 182, 751, 750 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 276, rate = 0.40, },
 			{ pokemonID = 333, rate = 0.30, },
@@ -3069,7 +3074,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[34] = { name = "Route 118",
-		trainers = { 37, 715, 344, 196 },
+		trainers = { 37, 715, 344, 196, 52, 343, 408, 398 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 263, rate = 0.30, },
 			{ pokemonID = 309, rate = 0.30, },
@@ -3098,6 +3103,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[35] = { name = "Route 119",
+		trainers = { 620, 224, 619, 225, 618, 223, 693, 559, 552, 761, 400, 416, 760, 399, 759, 415, 651, 522, 525, 528, 531, 534, 537 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.30, },
 			{ pokemonID = 263, rate = 0.30, },
@@ -3125,6 +3131,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[36] = { name = "Route 120",
+		trainers = { 435, 53, 406, 405, 762, 436, 653, 763, 95, 560, 553, 226, 652, 45 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {264,264,262}, rate = 0.30, },
 			{ pokemonID = 43, rate = 0.25, },
@@ -3155,6 +3162,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[37] = { name = "Route 121",
+		trainers = { 764, 107, 127, 286, 766, 765, 254, 300, 11, 767 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.30, },
 			{ pokemonID = {263,263,261}, rate = 0.20, },
@@ -3203,6 +3211,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[39] = { name = "Route 123",
+		trainers = { 539, 503, 39, 484, 106, 13, 92, 75, 195, 12, 249, 29, 238, 504, 505 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.30, },
 			{ pokemonID = {263,263,261}, rate = 0.20, },
@@ -3231,6 +3240,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[40] = { name = "Route 124",
+		trainers = { 450, 15, 687, 159, 449, 174, 595, 160 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3258,6 +3268,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[41] = { name = "Route 125",
+		trainers = { 492, 161, 452, 451, 403, 506, 162, 678 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3278,6 +3289,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[42] = { name = "Route 126",
+		trainers = { 576, 383, 164, 453, 163, 459, 377, 454 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3305,6 +3317,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[43] = { name = "Route 127",
+		trainers = { 674, 577, 667, 669, 668, 374, 672, 384 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3332,6 +3345,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[44] = { name = "Route 128",
+		trainers = { 671, 670, 673, 376, 386, 464, 578 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3360,6 +3374,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[45] = { name = "Route 129",
+		trainers = { 675, 378, 387, 580, 676 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3381,6 +3396,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[46] = { name = "Route 130", -- Mirage Island?
+		trainers = { 165, 455, 168 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 360, rate = 1.00, },
 		},
@@ -3404,6 +3420,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[47] = { name = "Route 131",
+		trainers = { 171, 385, 166, 457, 167, 465, 686 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3424,6 +3441,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[48] = { name = "Route 132",
+		trainers = { 169, 458, 350, 181, 594, 733, 758, 598 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3445,6 +3463,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[49] = { name = "Route 133",
+		trainers = { 461, 414, 511, 137, 88, 460, 170 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3466,6 +3485,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[50] = { name = "Route 134",
+		trainers = { 463, 172, 180, 509, 510, 397, 508, 413, 507 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3501,16 +3521,16 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[69] = {
 		name = "Lavaridge Gym 1F",
-		trainers = { },
+		trainers = { 202, 204, 501, 201, 648, 203, 205, 650, 268 },
 	}
 	RouteData.Info[70] = {
 		name = "Lavaridge Gym B1F",
-		trainers = { },
+		-- trainers = { }, -- Combine with id=69
 	}
 	RouteData.Info[71] = { name = "Lavaridge Town PC", }
 	RouteData.Info[79] = {
 		name = "Petalburg Gym",
-		trainers = { },
+		trainers = { 71, 89, 72, 90, 73, 91, 74, 269 },
 	}
 	RouteData.Info[86] = {
 		name = "Oceanic Museum 1F",
@@ -3529,41 +3549,42 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[100] = {
 		name = "Fortree Gym",
-		trainers = { },
+		trainers = { 402, 401, 655, 654, 404, 803, 270 },
 	}
 	RouteData.Info[108] = {
 		name = "Mossdeep Gym",
-		trainers = { },
+		trainers = { 233, 246, 245, 235, 591, 584, 583, 585, 582, 234, 575, 244, 271 },
 	}
 	RouteData.Info[109] = {
 		name = "Sootopolis Gym 1F",
-		trainers = { },
+		trainers = { 128, 613, 115, 502, 131, 614, 301, 130, 118, 129, 272 },
 	}
 	RouteData.Info[110] = {
 		name = "Sootopolis Gym B1F",
-		trainers = { },
+		-- trainers = { }, -- Combine with id=109
 	}
 	RouteData.Info[111] = {
 		name = "Sidney's Room",
-		trainers = { },
+		trainers = { 261 },
 	}
 	RouteData.Info[112] = {
 		name = "Phoebe's Room",
-		trainers = { },
+		trainers = { 262 },
 	}
 	RouteData.Info[113] = {
 		name = "Glacia's Room",
-		trainers = { },
+		trainers = { 263 },
 	}
 	RouteData.Info[114] = {
 		name = "Drake's Room",
-		trainers = { },
+		trainers = { 264 },
 	}
 	RouteData.Info[115] = {
 		name = "Champion's Room",
-		trainers = { },
+		trainers = { 335 },
 	}
 	RouteData.Info[125 + offset] = { name = "Meteor Falls 1Fa",
+		trainers = { 681, 392, 804 }, -- Combined
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.80, },
 			{ pokemonID = {338,337,338}, rate = 0.20, },
@@ -3720,45 +3741,59 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 287, rate = 0.05, minLv = 5, maxLv = 6, },
 		},
 	}
-	RouteData.Info[136 + offset] = { name = "Mt. Chimney", }
+	RouteData.Info[136 + offset] = { name = "Mt. Chimney",
+		trainers = { 146, 579, 597, 602, 126, 125, 313, 1, 124 },
+	}
 	RouteData.Info[137 + offset] = { name = "Mt. Pyre 1F",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
 	}
 	RouteData.Info[138 + offset] = { name = "Mt. Pyre 2F",
+		trainers = { 145, 35, 31, 640 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
 	}
 	RouteData.Info[139 + offset] = { name = "Mt. Pyre 3F",
+		trainers = { 247, 9, 236 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
 	}
 	RouteData.Info[140 + offset] = { name = "Mt. Pyre 4F",
+		trainers = { 109 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
 			{ pokemonID = {353,355,355}, rate = 0.10, },
 		},
 	}
 	RouteData.Info[141 + offset] = { name = "Mt. Pyre 5F",
+		trainers = { 190 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
 			{ pokemonID = {353,355,355}, rate = 0.10, },
 		},
 	}
 	RouteData.Info[142 + offset] = { name = "Mt. Pyre 6F",
+		trainers = { 108, 475 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
 			{ pokemonID = {353,355,355}, rate = 0.10, },
 		},
 	}
-	RouteData.Info[143 + offset] = { name = "Aqua Hideout 1F", }
-	RouteData.Info[144 + offset] = { name = "Aqua Hideout B1F", }
-	RouteData.Info[145 + offset] = { name = "Aqua Hideout B2F", }
-
+	RouteData.Info[143 + offset] = { name = "Aqua Hideout 1F",
+		trainers = { 2, },
+	}
+	RouteData.Info[144 + offset] = { name = "Aqua Hideout B1F",
+		trainers = { 23, 3, 192, 193 },
+	}
+	RouteData.Info[145 + offset] = { name = "Aqua Hideout B2F",
+		trainers = { 24, 27, 28, 30 },
+	}
+	RouteData.Info[146 + offset] = { name = "Seafloor Cavern U.", } -- Underwater
 	RouteData.Info[147 + offset] = { name = "Seafloor Cavern",
+		trainers = { 6, 7, 8, 9, 567, 33, 34 }, -- All combined here
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },
 			{ pokemonID = 42, rate = 0.10, },
@@ -3826,7 +3861,6 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 	RouteData.Info[155 + offset] = { name = "Seafloor Cavern 8", }
 	RouteData.Info[156 + offset] = { name = "Seafloor Cavern 9", }
-
 	RouteData.Info[157 + offset] = { name = "Cave of Origin",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },
@@ -3883,6 +3917,7 @@ function RouteData.setupRouteInfoAsRSE()
 		}
 	end
 	RouteData.Info[163 + offset] = { name = "Victory Road 1F",
+		trainers = { 80, 96, 97, 81, 100, 83, 417, 38, 99, 82, 98, 540, 546, 79, 325, 324, 519 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.25, },
 			{ pokemonID = 297, rate = 0.25, },
@@ -3985,6 +4020,30 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 101, rate = 0.01, },
 		},
 	}
+	RouteData.Info[186 + offset] = { name = "Ab. Ship Deck", }
+	RouteData.Info[187 + offset] = { name = "Ab. Ship 1F", } -- Corridors
+	RouteData.Info[188 + offset] = { name = "Ab. Ship 1F", -- Rooms
+		trainers = { 144, 375, 66, 547, 418, 642 },
+	}
+	RouteData.Info[189 + offset] = { name = "Ab. Ship B1F", -- Corridors
+		[RouteData.EncounterArea.SURFING] = {
+			{ pokemonID = 72, rate = 0.99, },
+			{ pokemonID = 73, rate = 0.01, },
+		},
+		[RouteData.EncounterArea.OLDROD] = {
+			{ pokemonID = 129, rate = 0.70, },
+			{ pokemonID = 72, rate = 0.30, },
+		},
+	}
+	RouteData.Info[190 + offset] = { name = "Ab. Ship B1F", -- Rooms
+		trainers = { 496, },
+	}
+	RouteData.Info[191 + offset] = { name = "Ab. Ship B1F", } -- Rooms
+	RouteData.Info[192 + offset] = { name = "Ab. Ship Uw1", } -- Underwater 1
+	RouteData.Info[193 + offset] = { name = "Ab. Ship B1F", } -- Rooms
+	RouteData.Info[194 + offset] = { name = "Ab. Ship 1F", } -- Rooms
+	RouteData.Info[195 + offset] = { name = "Ab. Ship Cpt", } -- Captain's Office
+	RouteData.Info[196 + offset] = { name = "Ab. Ship Uw2", } -- Underwater 2
 	RouteData.Info[238 + offset] = { name = "Safari Zone NW.",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 43, rate = 0.30, },
@@ -4066,19 +4125,48 @@ function RouteData.setupRouteInfoAsRSE()
 		name = "Seashore House",
 		trainers = { 65, 647, 493 },
 	}
-	RouteData.Info[247 + offset] = { name = "Trick House 1", }
-	RouteData.Info[248 + offset] = { name = "Trick House 2", }
-	RouteData.Info[249 + offset] = { name = "Trick House 3", }
-	RouteData.Info[250 + offset] = { name = "Trick House 4", }
+	RouteData.Info[247 + offset] = { name = "Trick House 1",
+		trainers = { 611, 612, 332 },
+	}
+	RouteData.Info[248 + offset] = { name = "Trick House 2",
+		trainers = { 274, 275, 281 },
+	}
+	RouteData.Info[249 + offset] = { name = "Trick House 3",
+		trainers = { 215, 473, 630 },
+	}
+	RouteData.Info[250 + offset] = { name = "Trick House 4",
+		trainers = { 188, 428, 429 },
+	}
 	RouteData.Info[251 + offset] = { name = "Trick House 5", }
-	RouteData.Info[252 + offset] = { name = "Trick House 6", }
-	RouteData.Info[253 + offset] = { name = "Trick House 7", }
-	RouteData.Info[254 + offset] = { name = "Trick House 8", }
+	RouteData.Info[252 + offset] = { name = "Trick House 6",
+		trainers = { 561, 554, 407 },
+	}
+	RouteData.Info[253 + offset] = { name = "Trick House 7",
+		trainers = { 237, 105, 248, 848, 850, 849 },
+	}
+	RouteData.Info[254 + offset] = { name = "Trick House 8",
+		trainers = { 93, 76, 77 },
+	}
 	RouteData.Info[270 + offset] = { name = "Pokémon League PC", }
-	RouteData.Info[271 + offset] = { name = "Weather Institute 1F", }
-	RouteData.Info[272 + offset] = { name = "Weather Institute 2F", }
-	RouteData.Info[275 + offset] = { name = "City Space Center 1F", }
-	RouteData.Info[276 + offset] = { name = "City Space Center 2F", }
+	RouteData.Info[271 + offset] = { name = "Weather Institute 1F",
+		trainers = { 26, 596 },
+	}
+	RouteData.Info[272 + offset] = { name = "Weather Institute 2F",
+		trainers = { 18, 17, 19, 32 },
+	}
+	RouteData.Info[275 + offset] = { name = "City Space Center 1F",
+		trainers = { 586, 22, 587, 116 },
+	}
+	RouteData.Info[276 + offset] = { name = "City Space Center 2F",
+		trainers = { 588, 589, 590, 734, 514 },
+	}
+	RouteData.Info[277 + offset] = { name = "S.S. Tidal Hall", }
+	RouteData.Info[278 + offset] = { name = "S.S. Tidal Deck",
+		trainers = { 494, 495 },
+	}
+	RouteData.Info[279 + offset] = { name = "S.S. Tidal Rooms",
+		trainers = { 641, 138, 255, 294, 119, 256 },
+	}
 	RouteData.Info[285 + offset] = { name = "Victory Road B1F",
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.35, },
@@ -4123,6 +4211,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[292 + offset] = { name = "Jagged Pass",
+		trainers = { 632, 570, 474, 217, 566, 216 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 322, rate = 0.55, },
 			{ pokemonID = 66, rate = 0.25, },
@@ -4141,6 +4230,7 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 
 	RouteData.Info[302 + offset] = { name = "Mt. Pyre Ext.",
+		trainers = { 5, 4, 569 }, -- instead of 4,5 could be 23,24 or 27,28
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = {0.40,0.40,0.60}, },
 			{ pokemonID = {307,307,-1}, rate = 0.30, },
@@ -4190,7 +4280,14 @@ function RouteData.setupRouteInfoAsRSE()
 	-- Ruby/Sapphire do not have maps beyond this point
 	if not isGameEmerald then return 332 end
 
+	RouteData.Info[332] = { name = "Battle Dome L.", }
+	RouteData.Info[333] = { name = "Battle Dome Hall", }
+	RouteData.Info[334] = { name = "Battle Dome Pre", }
+	RouteData.Info[335] = { name = "Battle Dome Room",
+		trainers = { 809, 806, 810, 805, 808, 807, 811 }, -- Not really used
+	}
 	RouteData.Info[336] = { name = "Magma Hideout 1F",
+		trainers = { 717, 716 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -4198,6 +4295,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[337] = { name = "Magma Hideout 2Fa",
+		trainers = { 718, 721, 720, 719, 727, 725, 722, 723 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -4212,6 +4310,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[339] = { name = "Magma Hideout 3Fa",
+		trainers = { 724, 726, 729 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
@@ -4226,6 +4325,7 @@ function RouteData.setupRouteInfoAsRSE()
 		},
 	}
 	RouteData.Info[341] = { name = "Magma Hideout 4F",
+		trainers = { 728, 730, 731, 732, 601 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 74, rate = 0.55, },
 			{ pokemonID = 324, rate = 0.30, },
