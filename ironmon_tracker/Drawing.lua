@@ -263,7 +263,11 @@ function Drawing.drawButton(button, shadowcolor)
 
 	local iconColors = {}
 	for _, colorKey in ipairs(button.iconColors or {}) do
-		table.insert(iconColors, Theme.COLORS[colorKey] or Theme.COLORS[textColor])
+		if type(colorKey) == "number" then
+			table.insert(iconColors, colorKey)
+		else
+			table.insert(iconColors, Theme.COLORS[colorKey] or Theme.COLORS[textColor])
+		end
 	end
 	if #iconColors == 0 then -- default to using the same text color
 		table.insert(iconColors, Theme.COLORS[textColor])

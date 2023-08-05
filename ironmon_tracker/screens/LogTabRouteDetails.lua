@@ -59,7 +59,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return routeName end,
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 2, 120, 12 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 5, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 
@@ -87,75 +87,179 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	end
 
 	-- ROUTE TAB NAVIGATION
-	local navX = LogOverlay.TabBox.x + 2
-	local navY = 32
-	local headerTextWidth = Utils.calcWordPixelLength("Encounters" or Resources.LogTabRouteDetails.Encounters) + 4
+	local navX = LogOverlay.TabBox.x + 3
+	local navY = 35
+	local headerTextWidth = Utils.calcWordPixelLength("Encounters" or Resources.LogOverlay.Encounters) + 4
 	local navHeaderButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		-- TODO: Update resources
-		getText = function(self) return "Encounters" or Resources.LogTabRouteDetails.Encounters end,
+		getText = function(self) return "Encounters" or Resources.LogOverlay.Encounters end,
 		textColor = LogTabRouteDetails.Colors.text,
 		box = { navX, navY, headerTextWidth, 11 },
-		draw = function(self)
+		draw = function(self, shadowcolor)
 			Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 		end,
 	}
-	navY = navY + navHeaderButton.box[4] + 4
+	local routeNameWidth = Utils.calcWordPixelLength(routeName) + 2
+	local encDetailsCenteredX = LogOverlay.TabBox.x + routeNameWidth + Utils.getCenteredTextX("XXXXXXXXXX", LogOverlay.TabBox.width - routeNameWidth - 2)
+	local encDetailsButton = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return Resources.LogOverlay[self.resourceKey] or "" end,
+		resourceKey = "",
+		textColor = LogTabRouteDetails.Colors.text,
+		box = { encDetailsCenteredX, LogOverlay.TabBox.y + 5, 60, 16 },
+		draw = function(self, shadowcolor)
+			if self.image then
+				local x, y = self.box[1] - 17, self.box[2] - 1
+				if self.imageType == Constants.ButtonTypes.IMAGE then
+					gui.drawImage(self.image, x, y)
+				elseif self.imageType == Constants.ButtonTypes.PIXELIMAGE then
+					Drawing.drawImageAsPixels(self.image, x, y, self.iconColors, shadowcolor)
+				end
+			end
+		end,
+	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, navHeaderButton)
+	table.insert(LogTabRouteDetails.TemporaryButtons, encDetailsButton)
+	navY = navY + navHeaderButton.box[4] + 5
 
-	local tabNavigation = { "Trainers", "GrassCave", "Surfing", "OldRod", "GoodRod", "SuperRod", "RockSmash", }
+	local seedChoice = (Main.currentSeed or 1) % 2
+	local trainerHeadIcons = {
+		[1] = { [0] = "girl-rs", [1] = "boy-rs", }, -- Ruby/Sapphire
+		[2] = { [0] = "girl-e", [1] = "boy-e", }, -- Emerald
+		[3] = { [0] = "girl-frlg", [1] = "boy-frlg", }, -- FireRed/LeafGreen
+	}
+	local trainerHead = trainerHeadIcons[GameSettings.game][seedChoice]
+	local tabNavigation = {
+		{
+			encKey = "Trainers",
+			resourceKey = "TabTrainers",
+			tab = LogTabRouteDetails.Tabs.Trainers,
+			type = Constants.ButtonTypes.IMAGE,
+			image = FileManager.buildImagePath("player", trainerHead, FileManager.Extensions.TRAINER),
+		},
+		{
+			encKey = "GrassCave",
+			resourceKey = "TabGrassCave",
+			tab = LogTabRouteDetails.Tabs.GrassCave,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.GRASS,
+			iconColors = { 0xFF385810, 0xFF389030, 0xFF40B088, 0xFF70C8A0, 0xFFA0E0C0 },
+		},
+		{
+			encKey = "Surfing",
+			resourceKey = "TabSurfing",
+			tab = LogTabRouteDetails.Tabs.Surfing,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.WATER,
+			iconColors = { 0xFF4878D8, 0xFF4890D8 },
+		},
+		{
+			encKey = "OldRod",
+			resourceKey = "TabOldRod",
+			tab = LogTabRouteDetails.Tabs.OldRod,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.FISHING_ROD,
+			iconColors = { 0xFF292829, 0xFF6B3808, 0xFF946100, 0xFFC69239, 0xFFCE4D29, 0xFF6B8221, 0xFFFFFFFF, 0xFFC6DBE7, 0xFF4890D8 },
+		},
+		{
+			encKey = "GoodRod",
+			resourceKey = "TabGoodRod",
+			tab = LogTabRouteDetails.Tabs.GoodRod,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.FISHING_ROD,
+			-- 3rd and 4th are the rod's colors, 5th and 6th for ball
+			iconColors = { 0xFF292829, 0xFF404040, 0xFF424584, 0xFF7371AD, 0xFF3890F8, 0xFFF8A8A8, 0xFFFFFFFF, 0xFFC6DBE7, 0xFF4890D8 },
+		},
+		{
+			encKey = "SuperRod",
+			resourceKey = "TabSuperRod",
+			tab = LogTabRouteDetails.Tabs.SuperRod,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.FISHING_ROD,
+			-- 3rd and 4th are the rod's colors, 5th and 6th for ball
+			iconColors = { 0xFF292829, 0xFF4A4542, 0xFF94AEB5, 0xFFC6DBE7, 0xFFB038F0, 0xFFE020C0, 0xFFFFFFFF, 0xFFC6DBE7, 0xFF4890D8 },
+		},
+		{
+			encKey = "RockSmash",
+			resourceKey = "TabRockSmash",
+			tab = LogTabRouteDetails.Tabs.RockSmash,
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.ROCK,
+			iconColors = { 0xFF000000, 0xFF383818, 0xFF787040, 0xFFC8A860, 0xFF908870 },
+		},
+	}
+	local iconX, iconY = navX + 2, navY
+	local numAdded = 0
 	for _, enc in ipairs(tabNavigation) do
-		local total = encTotals[LogTabRouteDetails.Tabs[enc] or 0] or 0
+		local total = encTotals[enc.tab or 0] or 0
 		if total > 0 then
-			local resourceKey = "Tab" .. enc
 			local navButton = {
-				type = Constants.ButtonTypes.NO_BORDER,
-				-- TODO: Update resources
-				getText = function(self) return string.format("%s: %s", enc or Resources.LogTabRouteDetails[resourceKey], total) end,
+				type = enc.type,
+				image = enc.image,
 				textColor = LogTabRouteDetails.Colors.text,
-				tab = LogTabRouteDetails.Tabs[enc],
+				iconColors = enc.iconColors,
+				tab = enc.tab,
+				totalCount = total,
 				isSelected = false,
-				box = { navX, navY, 60, 11 }, -- [3] width updated later on next line
-				isVisible = function(self) return total > 0 end,
+				box = { iconX, iconY, 16, 16 },
+				clickableArea = { iconX, iconY, 16 + 20, 16 },
 				updateSelf = function(self)
 					self.isSelected = (LogOverlay.Windower.filterGrid == self.tab)
-					self.box[3] = Utils.calcWordPixelLength(self:getText()) + 4
 				end,
-				draw = function(self)
+				draw = function(self, shadowcolor)
+					local totalText = tostring(self.totalCount)
+					Drawing.drawText(self.box[1] + self.box[3] + 1, self.box[2] + 1, totalText, Theme.COLORS[self.textColor], shadowcolor)
 					if self.isSelected then
 						-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 						local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
-						Drawing.drawSelectionIndicators(self.box[1] + 1, self.box[2] + 1, self.box[3] - 1, self.box[4] - 2, color, 1, 4, 1)
+						local textWidth = Utils.calcWordPixelLength(totalText) + 5
+						Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
 					end
 				end,
 				onClick = function(self)
 					if self.isSelected then return end -- Don't change if already on this tab
 					LogTabRouteDetails.realignGrid(self.tab)
+					encDetailsButton.imageType = enc.type
+					encDetailsButton.image = enc.image
+					encDetailsButton.iconColors = enc.iconColors
+					encDetailsButton.resourceKey = enc.resourceKey or ""
 					Program.redraw(true)
 				end,
 			}
-			navButton:updateSelf()
-			navY = navY + navButton.box[4] + 1
 			table.insert(LogTabRouteDetails.TemporaryButtons, navButton)
+			numAdded = numAdded + 1
+			if numAdded % 2 == 1 then
+				iconX = iconX + navButton.box[3] + 19
+			else
+				iconX = iconX - navButton.box[3] - 19
+				iconY = iconY + navButton.box[4] + 4
+			end
 		end
 	end
 
-	local alreadyViewingTab = false
+	local currentViewedTab
 	for _, tab in pairs(LogTabRouteDetails.Tabs) do
 		if LogOverlay.Windower.filterGrid == tab then
-			alreadyViewingTab = true
+			currentViewedTab = tab
 			break
 		end
 	end
-	if not alreadyViewingTab then
+	if not currentViewedTab then
 		if #data.e.Trainers > 0 then
-			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.Trainers
+			currentViewedTab = LogTabRouteDetails.Tabs.Trainers
 		elseif #data.e.GrassCave > 0 then
-			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.GrassCave
+			currentViewedTab = LogTabRouteDetails.Tabs.GrassCave
 		else
-			LogOverlay.Windower.filterGrid = LogTabRouteDetails.Tabs.Surfing
+			currentViewedTab = LogTabRouteDetails.Tabs.Surfing
 		end
+		LogOverlay.Windower.filterGrid = currentViewedTab
 	end
+	local navTabViewed = tabNavigation[currentViewedTab] or {}
+	encDetailsButton.imageType = navTabViewed.type
+	encDetailsButton.image = navTabViewed.image
+	encDetailsButton.iconColors = navTabViewed.iconColors
+	encDetailsButton.resourceKey = navTabViewed.resourceKey or ""
 end
 
 function LogTabRouteDetails.createTrainerButton(trainer)
@@ -342,7 +446,7 @@ function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPag
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 73
-	local y = LogOverlay.TabBox.y + 30
+	local y = LogOverlay.TabBox.y + 34
 	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
@@ -363,7 +467,7 @@ function LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPag
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 73
-	local y = LogOverlay.TabBox.y + 20
+	local y = LogOverlay.TabBox.y + 24
 	local colSpacer = 24
 	local rowSpacer = 28
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

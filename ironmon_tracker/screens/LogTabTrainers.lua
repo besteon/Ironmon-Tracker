@@ -199,6 +199,9 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	local image = Constants.PixelImages.POKEBALL_SMALL
 	local colorList = TrackerScreen.PokeBalls.ColorList
 	local trainerLog = RandomizerLog.Data.Trainers[button.id] or {}
+	if #(trainerLog.party or {}) == 0 then
+		return
+	end
 	-- Easter egg for Giovanni, use masterballs
 	if GameSettings.game == 3 and 348 <= button.id and button.id <= 350 then
 		image = Constants.PixelImages.MASTERBALL_SMALL

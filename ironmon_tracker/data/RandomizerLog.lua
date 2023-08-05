@@ -529,6 +529,8 @@ function RandomizerLog.parseRoutes(logLines)
 		return
 	end
 
+	local trainersToExclude = TrainerData.getExcludedTrainers()
+
 	-- First add in routes that have trainers from Tracker data. The Log only has route info for wild encounters
 	for mapId, routeInternal in pairs(RouteData.Info or {}) do
 		local routeName = (RouteData.Info[mapId] or {}).name
@@ -549,13 +551,16 @@ function RandomizerLog.parseRoutes(logLines)
 				local avgLevel = 0
 				for _, trainerId in ipairs(routeInternal.trainers) do
 					-- Don't add in extra rivals if we know to remove them
-					if TrainerData.shouldUseTrainer(trainerId) then
+					if not trainersToExclude[trainerId] and TrainerData.shouldUseTrainer(trainerId) then
 						local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
 						avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
 						table.insert(route.EncountersAreas.Trainers.trainers, trainerId)
 					end
 				end
 				route.avgTrainerLv = avgLevel / #routeInternal.trainers
+				if route.avgTrainerLv == 0 then
+					route.avgTrainerLv = nil
+				end
 			end
 		end
 	end

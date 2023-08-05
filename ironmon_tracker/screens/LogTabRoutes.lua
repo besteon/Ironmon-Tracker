@@ -45,7 +45,7 @@ function LogTabRoutes.buildPagedButtons()
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
 				-- Don't show routes that have no encounters
-				if self.avgTrainerLv == nil and self.maxWildLv == nil then
+				if (self.avgTrainerLv or 0) == 0 and (self.maxWildLv or 0) == 0 then
 					return false
 				end
 
