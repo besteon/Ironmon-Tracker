@@ -56,12 +56,11 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 
 	-- ROUTE NAME
 	local routeName = Utils.toUpperUTF8(data.r.name)
-	local routeCenterX = Utils.getCenteredTextX(routeName, LogOverlay.TabBox.width) - 1
 	local routeNameButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return routeName end,
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + routeCenterX, LogOverlay.TabBox.y + 2, 120, 12 },
+		box = { LogOverlay.TabBox.x + 71, LogOverlay.TabBox.y + 2, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 
@@ -108,7 +107,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		getEncText = function(self) return Resources.LogOverlay[self.resourceKey] or "" end,
 		resourceKey = "",
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + 3, navHeaderButton.box[2] - 15, 50, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 29, 50, 11 },
 		draw = function(self, shadowcolor)
 			if self.image then
 				local x, y = self.box[1] + 23, self.box[2] - 18
@@ -120,27 +119,20 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 			end
 			local encText = self:getEncText()
 			local textCenteredX = LogOverlay.TabBox.x + Utils.getCenteredTextX(encText, 69) - 2
-			Drawing.drawText(textCenteredX, self.box[2], self:getEncText(encText), Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawText(textCenteredX, self.box[2], encText, Theme.COLORS[self.textColor], shadowcolor)
 		end,
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, navHeaderButton)
 	table.insert(LogTabRouteDetails.TemporaryButtons, encDetailsButton)
 	navY = navY + navHeaderButton.box[4] + 5
 
-	local seedChoice = (Main.currentSeed or 1) % 2
-	local trainerHeadIcons = {
-		[1] = { [0] = "girl-rs", [1] = "boy-rs", }, -- Ruby/Sapphire
-		[2] = { [0] = "girl-e", [1] = "boy-e", }, -- Emerald
-		[3] = { [0] = "girl-frlg", [1] = "boy-frlg", }, -- FireRed/LeafGreen
-	}
-	local trainerHead = trainerHeadIcons[GameSettings.game][seedChoice]
 	local tabNavigation = {
 		{
 			encKey = "Trainers",
 			resourceKey = "TabTrainers",
 			tab = LogTabRouteDetails.Tabs.Trainers,
 			type = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath("player", trainerHead, FileManager.Extensions.TRAINER),
+			image = LogOverlay.getPlayerIconHead(),
 		},
 		{
 			encKey = "GrassCave",
@@ -148,7 +140,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 			tab = LogTabRouteDetails.Tabs.GrassCave,
 			type = Constants.ButtonTypes.PIXELIMAGE,
 			image = Constants.PixelImages.GRASS,
-			iconColors = { 0xFF385810, 0xFF389030, 0xFF40B088, 0xFF70C8A0, 0xFFA0E0C0 },
+			iconColors = { 0xFF385810, 0xFF389030, 0xFF40B088, 0xFF70C8A0, 0xFFA0E0C0, 0xFF70C8A0 },
 		},
 		{
 			encKey = "Surfing",
@@ -214,12 +206,13 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 				draw = function(self, shadowcolor)
 					local totalText = tostring(self.totalCount)
 					Drawing.drawText(self.box[1] + self.box[3] + 1, self.box[2] + 1, totalText, Theme.COLORS[self.textColor], shadowcolor)
-					if self.isSelected then
-						-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-						local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
-						local textWidth = Utils.calcWordPixelLength(totalText) + 5
-						Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
-					end
+					-- Currently unused, unsure if I want to keep this or not
+					-- if self.isSelected then
+					-- 	-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+					-- 	local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+					-- 	local textWidth = Utils.calcWordPixelLength(totalText) + 5
+					-- 	Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
+					-- end
 				end,
 				onClick = function(self)
 					if self.isSelected then return end -- Don't change if already on this tab
@@ -450,9 +443,9 @@ function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPag
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 75
-	local y = LogOverlay.TabBox.y + 26
+	local y = LogOverlay.TabBox.y + 28
 	local colSpacer = 24
-	local rowSpacer = 34
+	local rowSpacer = 32
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
@@ -471,9 +464,9 @@ function LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPag
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
 	local x = LogOverlay.TabBox.x + 75
-	local y = LogOverlay.TabBox.y + 19
+	local y = LogOverlay.TabBox.y + 21
 	local colSpacer = 24
-	local rowSpacer = 34
+	local rowSpacer = 32
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 

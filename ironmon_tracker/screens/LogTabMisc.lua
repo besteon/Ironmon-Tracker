@@ -5,7 +5,13 @@ LogTabMisc = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 		hightlight = "Intermediate text",
-	}
+	},
+	TabIcons = {
+		{
+			x = 1, w = 12, h = 12,
+			image = FileManager.buildImagePath("icons", "tiny-pc", ".png"),
+		},
+	},
 }
 
 local columnOffsetX = 100

@@ -536,7 +536,9 @@ function RandomizerLog.parseRoutes(logLines)
 		local routeName = (RouteData.Info[mapId] or {}).name
 		RandomizerLog.Data.Routes[mapId] = {
 			name = routeName or "Unknown Area",
+			numTrainers = 0,
 			avgTrainerLv = nil,
+			numWilds = 0,
 			maxWildLv = nil,
 			EncountersAreas = {},
 		}
@@ -548,18 +550,19 @@ function RandomizerLog.parseRoutes(logLines)
 			}
 			-- Determine average level of the trainers in this area
 			if #routeInternal.trainers > 0 then
-				local avgLevel = 0
+				local numAdded, avgLevel = 0, 0
 				for _, trainerId in ipairs(routeInternal.trainers) do
 					-- Don't add in extra rivals if we know to remove them
 					if not trainersToExclude[trainerId] and TrainerData.shouldUseTrainer(trainerId) then
 						local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
+						numAdded = numAdded + 1
 						avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
 						table.insert(route.EncountersAreas.Trainers.trainers, trainerId)
 					end
 				end
-				route.avgTrainerLv = avgLevel / #routeInternal.trainers
-				if route.avgTrainerLv == 0 then
-					route.avgTrainerLv = nil
+				if numAdded > 0 and avgLevel > 0 then
+					route.numTrainers = numAdded
+					route.avgTrainerLv = avgLevel / route.numTrainers
 				end
 			end
 		end
@@ -621,7 +624,9 @@ function RandomizerLog.parseRoutes(logLines)
 				-- Create the route information table
 				RandomizerLog.Data.Routes[mapId] = {
 					name = routeName or "Unknown Area",
+					numTrainers = 0,
 					avgTrainerLv = nil,
+					numWilds = 0,
 					maxWildLv = nil,
 					EncountersAreas = {},
 				}
@@ -630,21 +635,9 @@ function RandomizerLog.parseRoutes(logLines)
 
 			-- Condense route data for multiple encounter areas and trainer sets
 			if isFishingRoute then
-				route.EncountersAreas.OldRod = {
-					setNumber = route_set_num,
-					key = "OldRod",
-					pokemon = {},
-				}
-				route.EncountersAreas.GoodRod = {
-					setNumber = route_set_num,
-					key = "GoodRod",
-					pokemon = {},
-				}
-				route.EncountersAreas.SuperRod = {
-					setNumber = route_set_num,
-					key = "SuperRod",
-					pokemon = {},
-				}
+				route.EncountersAreas.OldRod = { setNumber = route_set_num, key = "OldRod", pokemon = {}, }
+				route.EncountersAreas.GoodRod = { setNumber = route_set_num, key = "GoodRod", pokemon = {}, }
+				route.EncountersAreas.SuperRod = { setNumber = route_set_num, key = "SuperRod", pokemon = {}, }
 			else
 				route.EncountersAreas[encounterTypeKey] = {
 					setNumber = route_set_num,
@@ -699,6 +692,11 @@ function RandomizerLog.parseRoutes(logLines)
 					break
 				end
 				pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
+			end
+
+			-- Count the # of unique pokemon in this area
+			for _, p in pairs(encounterArea.pokemon or {}) do
+				route.numWilds = route.numWilds + 1
 			end
 
 			-- If the average level for the route's wild encounters hasn't be calculated yet, do that

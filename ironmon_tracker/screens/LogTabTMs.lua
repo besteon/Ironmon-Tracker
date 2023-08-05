@@ -5,7 +5,13 @@ LogTabTMs = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 		hightlight = "Intermediate text",
-	}
+	},
+	TabIcons = {
+		{
+			x = 1, y = 1, w = 14, h = 14,
+			image = FileManager.buildImagePath("icons", "tiny-tm", ".png"),
+		},
+	},
 }
 
 LogTabTMs.PagedButtons = {}

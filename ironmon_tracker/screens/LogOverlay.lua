@@ -276,13 +276,17 @@ function LogOverlay.addHeaderTabButtons()
 		LogTabMisc,
 	}
 	local offsetX = LogOverlay.margin + 1
-	local spacer = 2
+	local spacer = 3
 
 	for i, tabScreen in ipairs(orderedTabs) do
-		local width = Utils.calcWordPixelLength(Resources.LogOverlay[tabScreen.TitleResourceKey or ""]) + 2 + spacer
+		local width = spacer
+		for _, icon in ipairs(tabScreen.TabIcons or {}) do
+			width = width + (icon.w or 0) + spacer
+		end
 		local tabButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return Resources.LogOverlay[tabScreen.TitleResourceKey or ""] end,
+			-- getText = function(self) return Resources.LogOverlay[tabScreen.TitleResourceKey or ""] end,
+			tabIcons = tabScreen.TabIcons or {},
 			index = i,
 			isSelected = false,
 			box = { offsetX, 0, width, 11, },
@@ -290,10 +294,19 @@ function LogOverlay.addHeaderTabButtons()
 				self.isSelected = (LogOverlay.Windower.currentTab == tabScreen)
 				self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
 			end,
-			draw = function(self)
-				if self.isSelected then
-					Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				for _, icon in ipairs(self.tabIcons) do
+					if icon.image then
+						local adjustedX = x + (icon.x or 0) + spacer
+						local adjustedY = y + (icon.y or 0) + LogOverlay.tabHeight - (icon.h or 12)
+						gui.drawImage(icon.image, adjustedX, adjustedY)
+						x = x + (icon.w or 0) + spacer
+					end
 				end
+				-- if self.isSelected then
+				-- 	Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+				-- end
 			end,
 			onClick = function(self)
 				if self.isSelected then return end -- Don't change if already on this tab
@@ -351,6 +364,17 @@ function LogOverlay.rebuildScreen()
 	LogOverlay.refreshButtons()
 end
 
+function LogOverlay.getPlayerIconHead()
+	local seedChoice = (Main.currentSeed or 1) % 2
+	local trainerHeadIcons = {
+		[1] = { [0] = "girl-rs", [1] = "boy-rs", }, -- Ruby/Sapphire
+		[2] = { [0] = "girl-e", [1] = "boy-e", }, -- Emerald
+		[3] = { [0] = "girl-frlg", [1] = "boy-frlg", }, -- FireRed/LeafGreen
+	}
+	local trainerHead = trainerHeadIcons[GameSettings.game][seedChoice]
+	return FileManager.buildImagePath("player", trainerHead, FileManager.Extensions.TRAINER)
+end
+
 -- USER INPUT FUNCTIONS
 function LogOverlay.checkInput(xmouse, ymouse)
 	if not LogOverlay.isDisplayed then return end
@@ -379,9 +403,10 @@ function LogOverlay.drawScreen()
 
 	-- Draw tab dividers; color depends on currently viewed tab
 	gui.drawLine(LogOverlay.margin, 1, LogOverlay.margin, LogOverlay.TabBox.y - 1, borderColor)
+	local dividerHeight = 4
 	for _, headerTab in ipairs(Utils.getSortedList(LogOverlay.HeaderButtons)) do
 		local rightEdge = headerTab.box[1] + headerTab.box[3] + 2
-		gui.drawLine(rightEdge, 1, rightEdge, LogOverlay.TabBox.y - 1, borderColor)
+		gui.drawLine(rightEdge, LogOverlay.tabHeight - dividerHeight, rightEdge, LogOverlay.TabBox.y + LogOverlay.tabHeight, borderColor)
 	end
 
 	-- Draw all buttons

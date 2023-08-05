@@ -5,6 +5,16 @@ LogTabPokemon = {
 		border = "Upper box border",
 		boxFill = "Upper box background",
 	},
+	TabIcons = {
+		{
+			x = 1, w = 12, h = 14,
+			image = FileManager.buildImagePath("icons", "tiny-nidoranm", ".png"),
+		},
+		-- {
+		-- 	w = 13, h = 12,
+		-- 	image = FileManager.buildImagePath("icons", "tiny-jigglypuff", ".png"),
+		-- },
+	},
 	defaultSortKey = "PokedexNum",
 	defaultFilterKey = "PokemonName",
 }

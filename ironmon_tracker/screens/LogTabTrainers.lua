@@ -6,6 +6,16 @@ LogTabTrainers = {
 		boxFill = "Upper box background",
 		hightlight = "Intermediate text",
 	},
+	TabIcons = {
+		{
+			w = 15, h = 14,
+			image = FileManager.buildImagePath("player", "boy-e", ".png"),
+		},
+		-- {
+		-- 	w = 15, h = 14,
+		-- 	image = FileManager.buildImagePath("player", "girl-e", ".png"),
+		-- },
+	},
 	defaultSortKey = "Alphabetical",
 	defaultFilterKey = "TrainerName",
 }
