@@ -114,6 +114,15 @@ LogSearchScreen.SortBy = {
 		contexts = { [LogTabPokemon] = true, },
 		index = 9,
 	},
+	WildPokemonLevel = {
+		-- TODO: update resources
+		getText = function() return "Wild Pokémon Lv." or Resources.LogSearchScreen.WildPokemonLevel end,
+		sortFunc = function(a, b)
+			return (a.maxWildLv or 999) < (b.maxWildLv or 999) or (a.maxWildLv == b.maxWildLv and a.id < b.id)
+		end,
+		contexts = { [LogTabRoutes] = true, },
+		index = 10,
+	},
 	TrainerLevel = {
 		-- TODO: update resources
 		getText = function() return "Trainer Level" or Resources.LogSearchScreen.TrainerLevel end,
@@ -122,15 +131,6 @@ LogSearchScreen.SortBy = {
 			return t1 < t2 or (t1 == t2 and a.id < b.id)
 		end,
 		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true,},
-		index = 10,
-	},
-	WildPokemonLevel = {
-		-- TODO: update resources
-		getText = function() return "Wild Pokémon Lv." or Resources.LogSearchScreen.WildPokemonLevel end,
-		sortFunc = function(a, b)
-			return (a.maxWildLv or 999) < (b.maxWildLv or 999) or (a.maxWildLv == b.maxWildLv and a.id < b.id)
-		end,
-		contexts = { [LogTabRoutes] = true, },
 		index = 11,
 	},
 }

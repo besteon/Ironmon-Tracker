@@ -466,8 +466,9 @@ function RandomizerLog.parseTrainers(logLines)
 			class = trainerClass,
 			fullname = trainer_fullname,
 			customname = customname,
-			avgTrainerLv = nil, -- average of all party pokemon levels
+			minlevel = nil,
 			maxlevel = nil,
+			avgTrainerLv = nil, -- average of all party pokemon levels
 			party = {},
 		}
 		local trainer = RandomizerLog.Data.Trainers[trainer_num]
@@ -491,10 +492,13 @@ function RandomizerLog.parseTrainers(logLines)
 					level = level,
 					moveIds = {}, -- Holds the 4 moves this Pokemon has at this current level, needed for searching
 				}
-				trainer.avgTrainerLv = (trainer.avgTrainerLv or 0) + level
-				if trainer.maxlevel == nil or level > trainer.maxlevel then
+				if level < (trainer.minlevel or 999) then
+					trainer.minlevel = level
+				end
+				if level > (trainer.maxlevel or 0) then
 					trainer.maxlevel = level
 				end
+				trainer.avgTrainerLv = (trainer.avgTrainerLv or 0) + level
 
 				local pokemonLog = RandomizerLog.Data.Pokemon[partyPokemon.pokemonID] or {}
 				local pokemonMoves = pokemonLog.MoveSet or {}
@@ -537,8 +541,11 @@ function RandomizerLog.parseRoutes(logLines)
 		RandomizerLog.Data.Routes[mapId] = {
 			name = routeName or "Unknown Area",
 			numTrainers = 0,
+			minTrainerLv = nil,
+			maxTrainerLv = nil,
 			avgTrainerLv = nil,
 			numWilds = 0,
+			minWildLv = nil,
 			maxWildLv = nil,
 			EncountersAreas = {},
 		}
@@ -556,6 +563,12 @@ function RandomizerLog.parseRoutes(logLines)
 					if not trainersToExclude[trainerId] and TrainerData.shouldUseTrainer(trainerId) then
 						local trainerData = RandomizerLog.Data.Trainers[trainerId] or {}
 						numAdded = numAdded + 1
+						if (trainerData.minlevel or 999) < (route.minTrainerLv or 999) then
+							route.minTrainerLv = trainerData.minlevel
+						end
+						if (trainerData.maxlevel or -1) > (route.maxTrainerLv or 0) then
+							route.maxTrainerLv = trainerData.maxlevel
+						end
 						avgLevel = avgLevel + (trainerData.avgTrainerLv or 0)
 						table.insert(route.EncountersAreas.Trainers.trainers, trainerId)
 					end
@@ -625,8 +638,11 @@ function RandomizerLog.parseRoutes(logLines)
 				RandomizerLog.Data.Routes[mapId] = {
 					name = routeName or "Unknown Area",
 					numTrainers = 0,
+					minTrainerLv = nil,
+					maxTrainerLv = nil,
 					avgTrainerLv = nil,
 					numWilds = 0,
+					minWildLv = nil,
 					maxWildLv = nil,
 					EncountersAreas = {},
 				}
@@ -694,16 +710,17 @@ function RandomizerLog.parseRoutes(logLines)
 				pokemon, level_min, level_max, bst_spread = string.match(logLines[index] or "", RandomizerLog.Sectors.Routes.RoutePokemonPattern)
 			end
 
-			-- Count the # of unique pokemon in this area
-			for _, p in pairs(encounterArea.pokemon or {}) do
-				route.numWilds = route.numWilds + 1
-			end
 
-			-- If the average level for the route's wild encounters hasn't be calculated yet, do that
+			-- If the levels for the route's wild encounters haven't been noted yet, do that
 			-- Typically grass/cave encounters are parsed first from the log
-			if route.maxWildLv == nil then
+			if route.minWildLv == nil or route.maxWildLv == nil then
 				for _, p in pairs(encounterArea.pokemon or {}) do
-					if p.levelMax > (route.maxWildLv or 0) then
+					-- Count the # of unique pokemon in this area
+					route.numWilds = route.numWilds + 1
+					if (p.levelMin or 999) < (route.minWildLv or 999) then
+						route.minWildLv = p.levelMin
+					end
+					if (p.levelMax or -1) > (route.maxWildLv or 0) then
 						route.maxWildLv = p.levelMax
 					end
 				end

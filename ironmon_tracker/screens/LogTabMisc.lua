@@ -7,7 +7,7 @@ LogTabMisc = {
 		hightlight = "Intermediate text",
 	},
 	TabIcons = {
-		{
+		PC = {
 			x = 1, w = 12, h = 12,
 			image = FileManager.buildImagePath("icons", "tiny-pc", ".png"),
 		},
@@ -97,6 +97,10 @@ function LogTabMisc.initialize()
 	end
 
 	LogTabMisc.refreshButtons()
+end
+
+function LogTabMisc.getTabIcons()
+	return { LogTabMisc.TabIcons.PC }
 end
 
 function LogTabMisc.refreshButtons()

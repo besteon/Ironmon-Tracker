@@ -7,7 +7,7 @@ LogTabTMs = {
 		hightlight = "Intermediate text",
 	},
 	TabIcons = {
-		{
+		TM1 = {
 			x = 1, y = 1, w = 14, h = 14,
 			image = FileManager.buildImagePath("icons", "tiny-tm", ".png"),
 		},
@@ -32,6 +32,10 @@ function LogTabTMs.refreshButtons()
 			button:updateSelf()
 		end
 	end
+end
+
+function LogTabTMs.getTabIcons()
+	return { LogTabTMs.TabIcons.TM1 }
 end
 
 function LogTabTMs.rebuild()

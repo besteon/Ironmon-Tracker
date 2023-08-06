@@ -80,7 +80,7 @@ end
 -- Alters the string by changing the first character of each word to uppercase
 function Utils.firstToUpperEachWord(str)
 	if str == nil or str == "" then return str end
-	str = string.gsub(" " .. str, "%W%l", Utils.toUpperUTF8):sub(2)
+	str = string.gsub(" " .. str, "[%s%.%-]%l", Utils.toUpperUTF8):sub(2)
 	return str
 end
 

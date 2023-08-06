@@ -6,15 +6,49 @@ LogTabPokemon = {
 		boxFill = "Upper box background",
 	},
 	TabIcons = {
-		{
-			x = 1, w = 12, h = 14,
+		NidoranM = {
 			image = FileManager.buildImagePath("icons", "tiny-nidoranm", ".png"),
+			x = 1, y = 0,
+			w = 12, h = 14,
 		},
-		-- {
-		-- 	w = 13, h = 12,
-		-- 	image = FileManager.buildImagePath("icons", "tiny-jigglypuff", ".png"),
-		-- },
+		NidoranF = {
+			image = FileManager.buildImagePath("icons", "tiny-nidoranf", ".png"),
+			x = 1, y = 0,
+			w = 12, h = 14,
+		},
+		Pidgey = {
+			image = FileManager.buildImagePath("icons", "tiny-pidgey", ".png"),
+			x = 0, y = 0,
+			w = 16, h = 12,
+		},
+		Spearow = {
+			image = FileManager.buildImagePath("icons", "tiny-spearow", ".png"),
+			x = 0, y = 0,
+			w = 16, h = 12,
+		},
+		Jigglypuff = {
+			image = FileManager.buildImagePath("icons", "tiny-jigglypuff", ".png"),
+			x = 1, y = 0,
+			w = 11, h = 12,
+		},
+		Clefairy = {
+			image = FileManager.buildImagePath("icons", "tiny-clefairy", ".png"),
+			x = 0, y = 0,
+			w = 14, h = 13,
+		},
+		Omanyte = {
+			image = FileManager.buildImagePath("icons", "tiny-omanyte", ".png"),
+			x = 0, y = 0,
+			w = 13, h = 14,
+		},
+		Kabuto = {
+			image = FileManager.buildImagePath("icons", "tiny-kabuto", ".png"),
+			x = 0, y = 0,
+			w = 14, h = 13,
+		},
+		chosenIcon = nil, -- references the 1st chosen icon used
 	},
+	defaultIconCount = 2,
 	defaultSortKey = "PokedexNum",
 	defaultFilterKey = "PokemonName",
 }
@@ -35,6 +69,24 @@ end
 
 function LogTabPokemon.rebuild()
 	LogTabPokemon.realignGrid()
+end
+
+-- Returns N=amount randomly choosen unique icons for this tab
+function LogTabPokemon.getTabIcons(amount)
+	amount = math.max(amount or LogTabPokemon.defaultIconCount or 1, 1)
+	local icons = {}
+	for _, icon in pairs(LogTabPokemon.TabIcons or {}) do
+		icon.randomizedIndex = math.random(16000)
+		table.insert(icons, icon)
+	end
+	if (#icons - amount) <= 1 then
+		return icons
+	end
+	-- Remove all but N items at random
+	for i=1, (#icons - amount), 1 do
+		table.remove(icons, math.random(#icons))
+	end
+	return Utils.getSortedList(icons, "randomizedIndex")
 end
 
 function LogTabPokemon.buildPagedButtons()

@@ -278,25 +278,27 @@ function LogOverlay.addHeaderTabButtons()
 	local offsetX = LogOverlay.margin + 1
 	local spacer = 3
 
-	for i, tabScreen in ipairs(orderedTabs) do
+	for i, tab in ipairs(orderedTabs) do
+		local icons = tab.getTabIcons()
+		tab.chosenIcon = icons[1]
 		local width = spacer
-		for _, icon in ipairs(tabScreen.TabIcons or {}) do
+		for _, icon in ipairs(icons or {}) do
 			width = width + (icon.w or 0) + spacer
 		end
 		local tabButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			-- getText = function(self) return Resources.LogOverlay[tabScreen.TitleResourceKey or ""] end,
-			tabIcons = tabScreen.TabIcons or {},
+			icons = icons or {},
 			index = i,
 			isSelected = false,
 			box = { offsetX, 0, width, 11, },
 			updateSelf = function(self)
-				self.isSelected = (LogOverlay.Windower.currentTab == tabScreen)
+				self.isSelected = (LogOverlay.Windower.currentTab == tab)
 				self.textColor = Utils.inlineIf(self.isSelected, Theme.headerHighlightKey, LogOverlay.Colors.headerText)
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
-				for _, icon in ipairs(self.tabIcons) do
+				for _, icon in ipairs(self.icons) do
 					if icon.image then
 						local adjustedX = x + (icon.x or 0) + spacer
 						local adjustedY = y + (icon.y or 0) + LogOverlay.tabHeight - (icon.h or 12)
@@ -311,13 +313,13 @@ function LogOverlay.addHeaderTabButtons()
 			onClick = function(self)
 				if self.isSelected then return end -- Don't change if already on this tab
 				LogOverlay.TabHistory = {}
-				LogOverlay.Windower:changeTab(tabScreen)
+				LogOverlay.Windower:changeTab(tab)
 				LogSearchScreen.resetSearchSortFilter()
 				LogOverlay.refreshActiveTabGrid()
 				Program.redraw(true)
 			end,
 		}
-		table.insert(LogOverlay.HeaderButtons, tabButton)
+		LogOverlay.HeaderButtons[tab] = tabButton
 		offsetX = offsetX + width + spacer
 	end
 end
@@ -403,10 +405,10 @@ function LogOverlay.drawScreen()
 
 	-- Draw tab dividers; color depends on currently viewed tab
 	gui.drawLine(LogOverlay.margin, 1, LogOverlay.margin, LogOverlay.TabBox.y - 1, borderColor)
-	local dividerHeight = 4
+	local dividerHeight = LogOverlay.tabHeight - 1
 	for _, headerTab in ipairs(Utils.getSortedList(LogOverlay.HeaderButtons)) do
 		local rightEdge = headerTab.box[1] + headerTab.box[3] + 2
-		gui.drawLine(rightEdge, LogOverlay.tabHeight - dividerHeight, rightEdge, LogOverlay.TabBox.y + LogOverlay.tabHeight, borderColor)
+		gui.drawLine(rightEdge, LogOverlay.tabHeight - dividerHeight, rightEdge, LogOverlay.TabBox.y, borderColor)
 	end
 
 	-- Draw all buttons

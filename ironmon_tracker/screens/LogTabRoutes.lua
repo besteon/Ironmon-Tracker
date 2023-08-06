@@ -7,13 +7,19 @@ LogTabRoutes = {
 		hightlight = "Intermediate text",
 	},
 	TabIcons = {
-		{
+		Kanto = {
+			image = FileManager.buildImagePath("icons", "tiny-map-kanto", ".png"),
 			x = 1, w = 15, h = 11,
+		},
+		Hoenn = {
 			image = FileManager.buildImagePath("icons", "tiny-map-hoenn", ".png"),
+			x = 1, w = 15, h = 11,
 		},
 	},
-	defaultSortKey = "TrainerLevel",
+	chosenIcon = nil,
+	defaultSortKey = "WildPokemonLevel",
 	defaultFilterKey = "RouteName",
+	levelRangeSpacer = "--",
 }
 
 LogTabRoutes.TemporaryButtons = {}
@@ -36,6 +42,16 @@ function LogTabRoutes.refreshButtons()
 	end
 end
 
+-- Returns the Hoenn(i=1) or Kanto(i=3) map icon
+function LogTabRoutes.getTabIcons(gameIndex)
+	gameIndex = gameIndex or GameSettings.game
+	if gameIndex == 1 or gameIndex == 2 then
+		return { LogTabRoutes.TabIcons.Hoenn }
+	else
+		return { LogTabRoutes.TabIcons.Kanto }
+	end
+end
+
 function LogTabRoutes.rebuild()
 	LogTabRoutes.realignGrid(LogOverlay.Windower.filterGrid)
 end
@@ -45,54 +61,68 @@ function LogTabRoutes.buildPagedButtons()
 	LogTabRoutes.PagedButtons = {}
 
 	-- Header label buttons for the route bars
-	local routeBar = { width = 224, height = 20, }
-	routeBar.cols = {
-		{
-			x = 0,
-		},
-		{
-			x = 20,
-			-- TODO: Update resources
-			getText = function() return Utils.toUpperUTF8("Location" or Resources.LogOverlay.X) end,
-		},
-		{
-			x = routeBar.width - (20 * 4),
-			w = 16,
-			imageType = Constants.ButtonTypes.IMAGE,
-			image = LogOverlay.getPlayerIconHead(),
-		},
-		{
-			x = routeBar.width - (20 * 3),
-			getText = function() return Utils.toUpperUTF8(Resources.TrackerScreen.LevelAbbreviation .. ".") end,
-		},
-		{
-			x = routeBar.width - (20 * 2),
-			w = 12,
-			imageType = Constants.ButtonTypes.IMAGE,
-			image = FileManager.buildImagePath("icons", "tiny-nidoranm", ".png"),
-		},
-		{
-			x = routeBar.width - (20 * 1),
-			getText = function() return Utils.toUpperUTF8(Resources.TrackerScreen.LevelAbbreviation .. ".") end,
+	local rightOffsetX = 0
+	local routeBar = {
+		width = 232,
+		height = 21,
+		cols = {
+			{
+				w = 21,
+			},
+			{
+				-- TODO: Update resources
+				getText = function() return Utils.toUpperUTF8("Location" or Resources.LogOverlay.X) end,
+				w = 107
+			},
+			{
+				icon = LogTabPokemon.TabIcons.NidoranM,
+				w = 18,
+				textColor = "Lower box text",
+				boxFill = "Lower box background",
+			},
+			{
+				getText = function() return Utils.toUpperUTF8(Resources.TrackerScreen.LevelAbbreviation .. ".") end,
+				w = 34,
+				textColor = "Lower box text",
+				boxFill = "Lower box background",
+			},
+			{
+				icon = LogTabTrainers.chosenIcon or LogTabTrainers.TabIcons.BoyFRLG,
+				w = 18,
+			},
+			{
+				getText = function() return Utils.toUpperUTF8(Resources.TrackerScreen.LevelAbbreviation .. ".") end,
+				w = 34,
+			},
 		},
 	}
-	for _, headerLabel in ipairs(routeBar.cols) do
+	-- Build the column positions from right-to-left
+	for i = #routeBar.cols, 1, -1 do
+		rightOffsetX = rightOffsetX + routeBar.cols[i].w
+		routeBar.cols[i].x = routeBar.width - rightOffsetX
+	end
+
+	for i, col in ipairs(routeBar.cols) do
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			textColor = LogTabRoutes.Colors.hightlight,
-			box = { LogOverlay.TabBox.x + 6 + headerLabel.x, LogOverlay.TabBox.y + 3, 16, 16 },
+			box = { LogOverlay.TabBox.x + 2 + col.x, LogOverlay.TabBox.y + 1, 16, 16 },
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
-				if headerLabel.image then
-					if headerLabel.imageType == Constants.ButtonTypes.IMAGE then
-						local centeredX = (self.box[3] - headerLabel.w) / 2 + 2
-						gui.drawImage(headerLabel.image, x + centeredX, y + 1)
-					elseif headerLabel.imageType == Constants.ButtonTypes.PIXELIMAGE then
-						Drawing.drawImageAsPixels(headerLabel.image, x + 3, y, headerLabel.iconColors, shadowcolor)
-					end
+				local w, h = self.box[3], self.box[4]
+				if col.icon then
+					local adjustedX = x + (w - (col.icon.w or 0)) / 2 + 1
+					local adjustedY = y + (col.icon.y or 0) + (h - (col.icon.h or 12)) - 1
+					gui.drawImage(col.icon.image, adjustedX, adjustedY)
+					-- local centeredX = (w - (col.icon.w or 0)) / 2 + 2
+					-- gui.drawImage(col.icon.image, x + centeredX, y + 1)
 				end
-				if type(headerLabel.getText) == "function" then
-					Drawing.drawText(x + 3, self.box[2] + 4, headerLabel:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				if type(col.getText) == "function" then
+					local adjustedX = x + 3
+					if i > 2 then -- for "LVs"
+						adjustedX = x + Utils.getCenteredTextX(col:getText(), col.w) - 1
+					end
+					Drawing.drawText(adjustedX, y + 4, col:getText(), Theme.COLORS[self.textColor], shadowcolor)
 				end
 			end,
 		}
@@ -103,13 +133,18 @@ function LogTabRoutes.buildPagedButtons()
 	for mapId, route in pairs(RandomizerLog.Data.Routes) do
 		local routeInternal = RouteData.Info[mapId] or {}
 		local routeName =  Utils.firstToUpperEachWord(route.name or routeInternal.name)
-		local button = {
+		local routeIcon = routeInternal.icon or RouteData.Icons.RouteSign
+
+		local rowButton = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return routeName end,
 			id = mapId,
 			numTrainers = route.numTrainers,
+			minTrainerLv = route.minTrainerLv,
+			maxTrainerLv = route.maxTrainerLv,
 			avgTrainerLv = route.avgTrainerLv,
 			numWilds = route.numWilds,
+			minWildLv = route.minWildLv,
 			maxWildLv = route.maxWildLv,
 			filename = routeInternal.filename,
 			dimensions = { width = routeBar.width, height = routeBar.height, },
@@ -191,47 +226,59 @@ function LogTabRoutes.buildPagedButtons()
 				local x, y = self.box[1], self.box[2]
 				local w, h = self.box[3], self.box[4]
 				local centeredY = (h - Constants.Font.SIZE) / 2
+				local textColor = Theme.COLORS[LogTabRoutes.Colors.text]
 
-				-- Row boxes
-				gui.drawRectangle(x, y, w, h, Theme.COLORS[LogTabRoutes.Colors.border], Theme.COLORS[LogTabRoutes.Colors.boxFill])
+				-- Row boxes / dividers
 				for _, col in ipairs(routeBar.cols) do
-					gui.drawLine(x + col.x, y, x + col.x, y + h, Theme.COLORS[LogTabRoutes.Colors.border])
+					local borderColor = Theme.COLORS[LogTabRoutes.Colors.border]
+					local fillColor = Theme.COLORS[col.boxFill or false] or Theme.COLORS[LogTabRoutes.Colors.boxFill]
+					gui.drawRectangle(x + col.x, y, col.w, h, borderColor, fillColor)
 				end
+
 				-- Icon
-				local tempIcon = FileManager.buildImagePath("maps", "icon-route-sign", ".png")
-				gui.drawImage(tempIcon, x + 1, y + 1)
+				if routeIcon then
+					local adjustedX = x + routeBar.cols[1].x + 1 + (routeIcon.x or 0)
+					local adjustedY = y + 1 + (routeIcon.y or 0)
+					gui.drawImage(routeIcon:getIconPath(), adjustedX, adjustedY)
+				end
+
 				-- Route Name
-				Drawing.drawText(x + routeBar.cols[2].x + 3, y + centeredY, self:getText(), Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
-				-- Number of Trainers
-				local text = tostring(self.numTrainers or 0)
-				local centeredX = Utils.getCenteredTextX(text, 20) - 1
-				if text ~= "0" then
-					Drawing.drawText(x + routeBar.cols[3].x + centeredX, y + centeredY, text, Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
+				textColor = Theme.COLORS[routeBar.cols[2].textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+				Drawing.drawText(x + routeBar.cols[2].x + 3, y + centeredY, self:getText(), textColor, shadowcolor)
+
+				local col, text, centeredX
+				-- # Wilds and levels
+				if (self.numWilds or 0) > 0 then
+					col = routeBar.cols[3]
+					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					text = tostring(self.numWilds or 0)
+					centeredX = Utils.getCenteredTextX(text, col.w) - 1
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
+					col = routeBar.cols[4]
+					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					text = string.format("%s %s %s", self.minWildLv, LogTabRoutes.levelRangeSpacer, self.maxWildLv)
+					centeredX = Utils.getCenteredTextX(text, col.w)
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
 				end
-				-- Avg Trainer Level
-				text = tostring(math.floor((self.avgTrainerLv or 0) + 0.5))
-				if text ~= "0" then
-					centeredX = Utils.getCenteredTextX(text, 20) - 1
-					Drawing.drawText(x + routeBar.cols[4].x + centeredX, y + centeredY, text, Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
-				end
-				-- Number of Wilds
-				text = tostring(self.numWilds or 0)
-				if text ~= "0" then
-					centeredX = Utils.getCenteredTextX(text, 20) - 1
-					Drawing.drawText(x + routeBar.cols[5].x + centeredX, y + centeredY, text, Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
-				end
-				-- Max Wild Level
-				text = tostring(math.floor((self.maxWildLv or 0) + 0.5))
-				if text ~= "0" then
-					centeredX = Utils.getCenteredTextX(text, 20) - 1
-					Drawing.drawText(x + routeBar.cols[6].x + centeredX, y + centeredY, text, Theme.COLORS[LogTabRoutes.Colors.text], shadowcolor)
+				-- # Trainers and levels
+				if (self.numTrainers or 0) > 0 then
+					col = routeBar.cols[5]
+					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					text = tostring(self.numTrainers or 0)
+					centeredX = Utils.getCenteredTextX(text, col.w) - 1
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
+					col = routeBar.cols[6]
+					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					text = string.format("%s %s %s", self.minTrainerLv, LogTabRoutes.levelRangeSpacer, self.maxTrainerLv)
+					centeredX = Utils.getCenteredTextX(text, col.w)
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
 				end
 			end,
 		}
 
 		-- Only show routes that have encounters
 		if (route.avgTrainerLv or 0) ~= 0 or (route.maxWildLv or 0) ~= 0 then
-			table.insert(LogTabRoutes.PagedButtons, button)
+			table.insert(LogTabRoutes.PagedButtons, rowButton)
 		end
 	end
 end
@@ -243,8 +290,8 @@ function LogTabRoutes.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabRoutes.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 6
-	local y = LogOverlay.TabBox.y + 19
+	local x = LogOverlay.TabBox.x + 2
+	local y = LogOverlay.TabBox.y + 17
 	local colSpacer = 999
 	local rowSpacer = 0
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

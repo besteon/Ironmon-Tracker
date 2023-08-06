@@ -7,15 +7,32 @@ LogTabTrainers = {
 		hightlight = "Intermediate text",
 	},
 	TabIcons = {
-		{
+		BoyRS = {
+			image = FileManager.buildImagePath("player", "boy-rs", ".png"),
 			w = 15, h = 14,
-			image = FileManager.buildImagePath("player", "boy-e", ".png"),
 		},
-		-- {
-		-- 	w = 15, h = 14,
-		-- 	image = FileManager.buildImagePath("player", "girl-e", ".png"),
-		-- },
+		BoyE = {
+			image = FileManager.buildImagePath("player", "boy-e", ".png"),
+			w = 15, h = 14,
+		},
+		BoyFRLG = {
+			image = FileManager.buildImagePath("player", "boy-frlg", ".png"),
+			w = 15, h = 14,
+		},
+		GirlRS = {
+			image = FileManager.buildImagePath("player", "girl-rs", ".png"),
+			w = 15, h = 14,
+		},
+		GirlE = {
+			image = FileManager.buildImagePath("player", "girl-e", ".png"),
+			w = 15, h = 14,
+		},
+		GirlFRLG = {
+			image = FileManager.buildImagePath("player", "girl-frlg", ".png"),
+			w = 15, h = 14,
+		},
 	},
+	chosenIcon = nil,
 	defaultSortKey = "Alphabetical",
 	defaultFilterKey = "TrainerName",
 }
@@ -38,6 +55,17 @@ function LogTabTrainers.refreshButtons()
 			button:updateSelf()
 		end
 	end
+end
+
+-- Returns the boy(i=1) or girl(i=2) trainer head icon based on the game being played
+function LogTabTrainers.getTabIcons(index)
+	local seedChoice = (index or Main.currentSeed or 1) % 2
+	local trainerHeadIcons = {
+		[1] = { [0] = LogTabTrainers.TabIcons.GirlRS, [1] = LogTabTrainers.TabIcons.BoyRS, }, -- Ruby/Sapphire
+		[2] = { [0] = LogTabTrainers.TabIcons.GirlE, [1] = LogTabTrainers.TabIcons.BoyE, }, -- Emerald
+		[3] = { [0] = LogTabTrainers.TabIcons.GirlFRLG, [1] = LogTabTrainers.TabIcons.BoyFRLG, }, -- FireRed/LeafGreen
+	}
+	return { trainerHeadIcons[GameSettings.game or 3][seedChoice] }
 end
 
 function LogTabTrainers.rebuild()

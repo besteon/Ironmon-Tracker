@@ -5,6 +5,22 @@ RouteData = {}
 --        encounterArea = ('table')
 RouteData.Info = {}
 
+-- All route map icons are currently 20x20 pixels
+RouteData.Icons = {
+	BuildingDoor = { filename = "building-door", },
+	BuildingDoor2 = { filename = "building-door2", },
+	CaveEntrance = { filename = "cave-entrance", },
+	EliteFourStatue = { filename = "elitefour-statue", },
+	ForestTree = { filename = "forest-tree", },
+	GymBuilding = { filename = "gym-building", },
+	OceanWaves = { filename = "ocean-waves", },
+	RouteSign = { filename = "route-sign", },
+	RouteSignWooden = { filename = "route-sign-wooden", },
+}
+for _, icon in pairs(RouteData.Icons) do
+	icon.getIconPath = function(self) return FileManager.buildImagePath("maps", self.filename, ".png") end
+end
+
 RouteData.AvailableRoutes = {}
 
 RouteData.EncounterArea = {
