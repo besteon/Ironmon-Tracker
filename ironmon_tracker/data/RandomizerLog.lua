@@ -820,14 +820,204 @@ function RandomizerLog.setupMappings()
 		end
 	end
 
-	if GameSettings.game == 1 or GameSettings.game == 2 then
-		RandomizerLog.setupMappingsRSE()
+	if GameSettings.game == 1 then
+		RandomizerLog.setupRubySappRouteMappings()
+	elseif GameSettings.game == 2 then
+		RandomizerLog.setupEmeraldRouteMappings()
 	elseif GameSettings.game == 3 then
-		RandomizerLog.setupMappingsFRLG()
+		RandomizerLog.setupFRLGRouteMappings()
 	end
 end
 
-function RandomizerLog.setupMappingsRSE()
+function RandomizerLog.setupRubySappRouteMappings()
+	local isGameEmerald = (GameSettings.versioncolor == "Emerald")
+	local offset = Utils.inlineIf(isGameEmerald, 0, 1)
+
+	-- TODO: Update these manually, they are wrong
+	-- Route Set # -> IDs (can't use names, not unique matches)
+	RandomizerLog.RouteSetNumToIdMap = {}
+	RandomizerLog.RouteSetNumToIdMap[1] = 17 -- route 101 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[2] = 18 -- route 102 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[3] = 18 -- route 102 surfing
+	RandomizerLog.RouteSetNumToIdMap[4] = 18 -- route 102 fishing
+	RandomizerLog.RouteSetNumToIdMap[5] = 19 -- route 103 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[6] = 19 -- route 103 surfing
+	RandomizerLog.RouteSetNumToIdMap[7] = 19 -- route 103 fishing
+	RandomizerLog.RouteSetNumToIdMap[8] = 20 -- route 104 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[9] = 20 -- route 104 surfing
+	RandomizerLog.RouteSetNumToIdMap[10] = 20 -- route 104 fishing
+	RandomizerLog.RouteSetNumToIdMap[11] = 21 -- route 105 surfing
+	RandomizerLog.RouteSetNumToIdMap[12] = 21 -- route 105 fishing
+	RandomizerLog.RouteSetNumToIdMap[13] = 26 -- route 110 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[14] = 26 -- route 110 surfing
+	RandomizerLog.RouteSetNumToIdMap[15] = 26 -- route 110 fishing
+	RandomizerLog.RouteSetNumToIdMap[16] = 27 -- route 111 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[17] = 27 -- route 111 surfing
+	RandomizerLog.RouteSetNumToIdMap[18] = 27 -- route 111 rock smash
+	RandomizerLog.RouteSetNumToIdMap[19] = 27 -- route 111 fishing
+	RandomizerLog.RouteSetNumToIdMap[20] = 28 -- route 112 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[21] = 29 -- route 113 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[22] = 30 -- route 114 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[23] = 30 -- route 114 surfing
+	RandomizerLog.RouteSetNumToIdMap[24] = 30 -- route 114 rock smash
+	RandomizerLog.RouteSetNumToIdMap[25] = 30 -- route 114 fishing
+	RandomizerLog.RouteSetNumToIdMap[26] = 32 -- route 116 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[27] = 33 -- route 117 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[28] = 33 -- route 117 surfing
+	RandomizerLog.RouteSetNumToIdMap[29] = 33 -- route 117 fishing
+	RandomizerLog.RouteSetNumToIdMap[30] = 34 -- route 118 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[31] = 34 -- route 118 surfing
+	RandomizerLog.RouteSetNumToIdMap[32] = 34 -- route 118 fishing
+	RandomizerLog.RouteSetNumToIdMap[33] = 40 -- route 124 surfing
+	RandomizerLog.RouteSetNumToIdMap[34] = 40 -- route 124 fishing
+	RandomizerLog.RouteSetNumToIdMap[35] = 135 + offset -- petalburg woods grass/cave
+	RandomizerLog.RouteSetNumToIdMap[36] = 129 + offset -- rusturf tunnel grass/cave
+	RandomizerLog.RouteSetNumToIdMap[37] = 132 + offset -- granite cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[38] = 133 + offset -- granite cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[39] = 137 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[40] = 163 + offset -- victory road grass/cave
+	RandomizerLog.RouteSetNumToIdMap[41] = 241 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[42] = 192 + offset -- underwater surfing
+	RandomizerLog.RouteSetNumToIdMap[43] = 189 + offset -- abandoned ship surfing
+	RandomizerLog.RouteSetNumToIdMap[44] = 189 + offset -- abandoned ship fishing
+	RandomizerLog.RouteSetNumToIdMap[45] = 134 + offset -- granite cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[46] = 134 + offset -- granite cave rock smash
+	RandomizerLog.RouteSetNumToIdMap[47] = 293 + offset -- fiery path grass/cave
+	RandomizerLog.RouteSetNumToIdMap[48] = 125 + offset -- meteor falls grass/cave
+	RandomizerLog.RouteSetNumToIdMap[49] = 125 + offset -- meteor falls surfing
+	RandomizerLog.RouteSetNumToIdMap[50] = 125 + offset -- meteor falls fishing
+	RandomizerLog.RouteSetNumToIdMap[51] = 292 + offset -- jagged pass grass/cave
+	RandomizerLog.RouteSetNumToIdMap[52] = 22 -- route 106 surfing
+	RandomizerLog.RouteSetNumToIdMap[53] = 22 -- route 106 fishing
+	RandomizerLog.RouteSetNumToIdMap[54] = 23 -- route 107 surfing
+	RandomizerLog.RouteSetNumToIdMap[55] = 23 -- route 107 fishing
+	RandomizerLog.RouteSetNumToIdMap[56] = 24 -- route 108 surfing
+	RandomizerLog.RouteSetNumToIdMap[57] = 24 -- route 108 fishing
+	RandomizerLog.RouteSetNumToIdMap[58] = 25 -- route 109 surfing
+	RandomizerLog.RouteSetNumToIdMap[59] = 25 -- route 109 fishing
+	RandomizerLog.RouteSetNumToIdMap[60] = 31 -- route 115 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[61] = 31 -- route 115 surfing
+	RandomizerLog.RouteSetNumToIdMap[62] = 31 -- route 115 fishing
+	RandomizerLog.RouteSetNumToIdMap[63] = 185 + offset -- new mauville grass/cave
+	RandomizerLog.RouteSetNumToIdMap[64] = 35 -- route 119 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[65] = 35 -- route 119 surfing
+	RandomizerLog.RouteSetNumToIdMap[66] = 35 -- route 119 fishing
+	RandomizerLog.RouteSetNumToIdMap[67] = 36 -- route 120 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[68] = 36 -- route 120 surfing
+	RandomizerLog.RouteSetNumToIdMap[69] = 36 -- route 120 fishing
+	RandomizerLog.RouteSetNumToIdMap[70] = 37 -- route 121 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[71] = 37 -- route 121 surfing
+	RandomizerLog.RouteSetNumToIdMap[72] = 37 -- route 121 fishing
+	RandomizerLog.RouteSetNumToIdMap[73] = 38 -- route 122 surfing
+	RandomizerLog.RouteSetNumToIdMap[74] = 38 -- route 122 fishing
+	RandomizerLog.RouteSetNumToIdMap[75] = 39 -- route 123 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[76] = 39 -- route 123 surfing
+	RandomizerLog.RouteSetNumToIdMap[77] = 39 -- route 123 fishing
+	RandomizerLog.RouteSetNumToIdMap[78] = 138 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[79] = 139 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[80] = 140 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[81] = 141 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[82] = 142 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[83] = 302 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[84] = 303 + offset -- mt. pyre grass/cave
+	RandomizerLog.RouteSetNumToIdMap[85] = 288 + offset -- granite cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[86] = 41 -- route 125 surfing
+	RandomizerLog.RouteSetNumToIdMap[87] = 41 -- route 125 fishing
+	RandomizerLog.RouteSetNumToIdMap[88] = 42 -- route 126 surfing
+	RandomizerLog.RouteSetNumToIdMap[89] = 42 -- route 126 fishing
+	RandomizerLog.RouteSetNumToIdMap[90] = 43 -- route 127 surfing
+	RandomizerLog.RouteSetNumToIdMap[91] = 43 -- route 127 fishing
+	RandomizerLog.RouteSetNumToIdMap[92] = 44 -- route 128 surfing
+	RandomizerLog.RouteSetNumToIdMap[93] = 44 -- route 128 fishing
+	RandomizerLog.RouteSetNumToIdMap[94] = 45 -- route 129 surfing
+	RandomizerLog.RouteSetNumToIdMap[95] = 45 -- route 129 fishing
+	RandomizerLog.RouteSetNumToIdMap[96] = 46 -- route 130 grass/cave
+	RandomizerLog.RouteSetNumToIdMap[97] = 46 -- route 130 surfing
+	RandomizerLog.RouteSetNumToIdMap[98] = 46 -- route 130 fishing
+	RandomizerLog.RouteSetNumToIdMap[99] = 47 -- route 131 surfing
+	RandomizerLog.RouteSetNumToIdMap[100] = 47 -- route 131 fishing
+	RandomizerLog.RouteSetNumToIdMap[101] = 48 -- route 132 surfing
+	RandomizerLog.RouteSetNumToIdMap[102] = 48 -- route 132 fishing
+	RandomizerLog.RouteSetNumToIdMap[103] = 49 -- route 133 surfing
+	RandomizerLog.RouteSetNumToIdMap[104] = 49 -- route 133 fishing
+	RandomizerLog.RouteSetNumToIdMap[105] = 50 -- route 134 surfing
+	RandomizerLog.RouteSetNumToIdMap[106] = 50 -- route 134 fishing
+	RandomizerLog.RouteSetNumToIdMap[107] = 189 + offset -- abandoned ship surfing
+	RandomizerLog.RouteSetNumToIdMap[108] = 189 + offset -- abandoned ship fishing
+	RandomizerLog.RouteSetNumToIdMap[109] = 148 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[110] = 149 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[111] = 150 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[112] = 151 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[113] = 152 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[114] = 147 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[115] = 147 + offset -- seafloor cavern surfing
+	RandomizerLog.RouteSetNumToIdMap[116] = 147 + offset -- seafloor cavern fishing
+	RandomizerLog.RouteSetNumToIdMap[117] = 153 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[118] = 153 + offset -- seafloor cavern surfing
+	RandomizerLog.RouteSetNumToIdMap[119] = 153 + offset -- seafloor cavern fishing
+	RandomizerLog.RouteSetNumToIdMap[120] = 154 + offset -- seafloor cavern grass/cave
+	RandomizerLog.RouteSetNumToIdMap[121] = 154 + offset -- seafloor cavern surfing
+	RandomizerLog.RouteSetNumToIdMap[122] = 154 + offset -- seafloor cavern fishing
+	RandomizerLog.RouteSetNumToIdMap[123] = 157 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[124] = 158 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[125] = 159 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[126] = 160 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[127] = 161 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[128] = 184 + offset -- new mauville grass/cave
+	RandomizerLog.RouteSetNumToIdMap[129] = 238 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[130] = 238 + offset -- safari zone surfing
+	RandomizerLog.RouteSetNumToIdMap[131] = 238 + offset -- safari zone fishing
+	RandomizerLog.RouteSetNumToIdMap[132] = 239 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[133] = 239 + offset -- safari zone rock smash
+	RandomizerLog.RouteSetNumToIdMap[134] = 240 + offset -- safari zone grass/cave
+	RandomizerLog.RouteSetNumToIdMap[135] = 240 + offset -- safari zone surfing
+	RandomizerLog.RouteSetNumToIdMap[136] = 240 + offset -- safari zone fishing
+	RandomizerLog.RouteSetNumToIdMap[137] = 285 + offset -- victory road grass/cave
+	RandomizerLog.RouteSetNumToIdMap[138] = 285 + offset -- victory road rock smash
+	RandomizerLog.RouteSetNumToIdMap[139] = 286 + offset -- victory road grass/cave
+	RandomizerLog.RouteSetNumToIdMap[140] = 286 + offset -- victory road surfing
+	RandomizerLog.RouteSetNumToIdMap[141] = 286 + offset -- victory road fishing
+	RandomizerLog.RouteSetNumToIdMap[142] = 126 + offset -- meteor falls grass/cave
+	RandomizerLog.RouteSetNumToIdMap[143] = 126 + offset -- meteor falls surfing
+	RandomizerLog.RouteSetNumToIdMap[144] = 126 + offset -- meteor falls fishing
+	RandomizerLog.RouteSetNumToIdMap[145] = 127 + offset -- meteor falls grass/cave
+	RandomizerLog.RouteSetNumToIdMap[146] = 127 + offset -- meteor falls surfing
+	RandomizerLog.RouteSetNumToIdMap[147] = 127 + offset -- meteor falls fishing
+	RandomizerLog.RouteSetNumToIdMap[148] = 128 + offset -- meteor falls grass/cave
+	RandomizerLog.RouteSetNumToIdMap[149] = 128 + offset -- meteor falls surfing
+	RandomizerLog.RouteSetNumToIdMap[150] = 128 + offset -- meteor falls fishing
+	RandomizerLog.RouteSetNumToIdMap[151] = 164 + offset -- shoal cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[152] = 165 + offset -- shoal cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[153] = 168 + offset -- shoal cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[154] = 168 + offset -- shoal cave surfing
+	RandomizerLog.RouteSetNumToIdMap[155] = 168 + offset -- shoal cave fishing
+	RandomizerLog.RouteSetNumToIdMap[156] = 169 + offset -- shoal cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[157] = 169 + offset -- shoal cave surfing
+	RandomizerLog.RouteSetNumToIdMap[158] = 169 + offset -- shoal cave fishing
+	RandomizerLog.RouteSetNumToIdMap[159] = 6 -- lilycove city surfing
+	RandomizerLog.RouteSetNumToIdMap[160] = 6 -- lilycove city fishing
+	RandomizerLog.RouteSetNumToIdMap[161] = 12 -- dewford town surfing
+	RandomizerLog.RouteSetNumToIdMap[162] = 12 -- dewford town fishing
+	RandomizerLog.RouteSetNumToIdMap[163] = 2 -- slateport city surfing
+	RandomizerLog.RouteSetNumToIdMap[164] = 2 -- slateport city fishing
+	RandomizerLog.RouteSetNumToIdMap[165] = 7 -- mossdeep city surfing
+	RandomizerLog.RouteSetNumToIdMap[166] = 7 -- mossdeep city fishing
+	RandomizerLog.RouteSetNumToIdMap[167] = 16 -- pacifidlog town surfing
+	RandomizerLog.RouteSetNumToIdMap[168] = 16 -- pacifidlog town fishing
+	RandomizerLog.RouteSetNumToIdMap[169] = 9 -- ever grande city surfing
+	RandomizerLog.RouteSetNumToIdMap[170] = 9 -- ever grande city fishing
+	RandomizerLog.RouteSetNumToIdMap[171] = 1 -- petalburg city surfing
+	RandomizerLog.RouteSetNumToIdMap[172] = 1 -- petalburg city fishing
+	RandomizerLog.RouteSetNumToIdMap[173] = 196 + offset -- underwater surfing
+	RandomizerLog.RouteSetNumToIdMap[174] = 167 + offset -- shoal cave grass/cave
+	RandomizerLog.RouteSetNumToIdMap[175] = 322 + offset -- sky pillar grass/cave
+	RandomizerLog.RouteSetNumToIdMap[176] = 8 -- sootopolis city surfing
+	RandomizerLog.RouteSetNumToIdMap[177] = 8 -- sootopolis city fishing
+	RandomizerLog.RouteSetNumToIdMap[178] = 324 + offset -- sky pillar grass/cave
+	RandomizerLog.RouteSetNumToIdMap[179] = 330 + offset -- sky pillar grass/cave
+end
+
+function RandomizerLog.setupEmeraldRouteMappings()
 	local isGameEmerald = (GameSettings.versioncolor == "Emerald")
 	local offset = Utils.inlineIf(isGameEmerald, 0, 1)
 
@@ -1051,7 +1241,7 @@ function RandomizerLog.setupMappingsRSE()
 	RandomizerLog.RouteSetNumToIdMap[209] = 431 -- meteor falls grass/cave
 end
 
-function RandomizerLog.setupMappingsFRLG()
+function RandomizerLog.setupFRLGRouteMappings()
 	-- Route Set # -> IDs (can't use names, not unique matches)
 	RandomizerLog.RouteSetNumToIdMap = {}
 	RandomizerLog.RouteSetNumToIdMap[1] = 335 -- monean chamber (grass/cave)

@@ -453,288 +453,31 @@ function TrainerData.getPortraitIcon(trainerClass)
 end
 
 function TrainerData.setupTrainersAsRubySapphire()
-	TrainerData.GymTMs = {
-		{ leader = "Roxanne", number = 39, },
-		{ leader = "Brawly", number = 8, },
-		{ leader = "Wattson", number = 34, },
-		{ leader = "Flannery", number = 50, },
-		{ leader = "Norman", number = 42, },
-		{ leader = "Winona", number = 40, },
-		{ leader = "Tate & Liza", number = 4, },
-		{ leader = "Wallace", number = 3, },
-	}
+	-- Mostly a copy of Emerald, with a few changes
+	TrainerData.setupTrainersAsEmerald()
 
-	TrainerData.Trainers = {
-		[261] = {
-			name = "Sidney",
-			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-1",
-		},
-		[262] = {
-			name = "Phoebe",
-			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-2",
-		},
-		[263] = {
-			name = "Glacia",
-			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-3",
-		},
-		[264] = {
-			name = "Drake",
-			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rse-elitefour-4",
-		},
-		[265] = {
-			name = "Roxanne",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-1",
-		},
-		[266] = {
-			name = "Brawly",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-2",
-		},
-		[267] = {
-			name = "Wattson",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-3",
-		},
-		[268] = {
-			name = "Flannery",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-4",
-		},
-		[269] = {
-			name = "Norman",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-5",
-		},
-		[270] = {
-			name = "Winona",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-6",
-		},
-		[271] = {
-			name = "Tate & Liza",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rse-gymleader-7",
-		},
-		[272] = {
-			name = "Wallace",
-			group = TrainerData.TrainerGroups.Gym,
-			filename = "rs-gymleader-8",
-		},
-		[335] = {
-			name = "Steven",
-			group = TrainerData.TrainerGroups.Elite4,
-			filename = "rs-elitefour-champ",
-		},
-		[520] = {
-			name = "Brendan 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[523] = {
-			name = "Brendan 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[526] = {
-			name = "Brendan 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[521] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[524] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[527] = {
-			name = "Brendan 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[522] = {
-			name = "Brendan 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[525] = {
-			name = "Brendan 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[528] = {
-			name = "Brendan 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[661] = {
-			name = "Brendan 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Left",
-		},
-		[662] = {
-			name = "Brendan 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Middle",
-		},
-		[663] = {
-			name = "Brendan 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-brendan",
-			whichRival = "Brendan Right",
-		},
-		[529] = {
-			name = "May 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[532] = {
-			name = "May 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[535] = {
-			name = "May 1",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[530] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[533] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[536] = {
-			name = "May 2",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[531] = {
-			name = "May 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[534] = {
-			name = "May 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[537] = {
-			name = "May 3",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[664] = {
-			name = "May 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Left",
-		},
-		[665] = {
-			name = "May 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Middle",
-		},
-		[666] = {
-			name = "May 4",
-			group = TrainerData.TrainerGroups.Rival,
-			filename = "rs-rival-may",
-			whichRival = "May Right",
-		},
-		[1] = {
-			name = "Archie 1",
+	TrainerData.GymTMs[8] = { leader = "Wallace", number = 3, }
+
+	-- Trainers differ based on Ruby or Sapphire
+	-- if GameSettings.versioncolor == "Sapphire" then
+		TrainerData.Trainers[1] = {
+			class = TrainerData.Classes.Archie,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-archie",
-		},
-		[35] = {
-			name = "Archie 2",
+		}
+		TrainerData.Trainers[34] = {
+			class = TrainerData.Classes.Archie,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-archie",
-		},
-		[34] = {
-			name = "Archie 3",
+		}
+		TrainerData.Trainers[35] = {
+			class = TrainerData.Classes.Archie,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-archie",
-		},
-		[566] = {
-			name = "Maxie 1",
+		}
+		TrainerData.Trainers[566] = {
+			class = TrainerData.Classes.Maxie,
 			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
-		},
-		[602] = {
-			name = "Maxie 2",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
-		},
-		[601] = {
-			name = "Maxie 3",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-maxie",
-		},
-		[656] = {
-			name = "Wally 1",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[519] = {
-			name = "Wally 2",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[657] = {
-			name = "Wally 3",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[658] = {
-			name = "Wally 4",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[659] = {
-			name = "Wally 5",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-		[660] = {
-			name = "Wally 6",
-			group = TrainerData.TrainerGroups.Boss,
-			filename = "rse-wally",
-		},
-	}
+		}
+	-- else
+	-- end
 end
 
 function TrainerData.setupTrainersAsEmerald()

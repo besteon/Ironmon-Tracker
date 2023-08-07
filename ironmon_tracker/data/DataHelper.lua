@@ -725,7 +725,7 @@ function DataHelper.buildRouteLogDisplay(mapId)
 
 	data.r.id = mapId or 0
 	data.r.name =  Utils.firstToUpper(routeLog.name or routeInternal.name or Constants.BLANKLINE)
-	data.r.filename = routeInternal.filename or Constants.BLANKLINE
+	data.r.icon = routeInternal.icon or RouteData.Icons.RouteSign
 
 	for key, _ in pairs(RandomizerLog.EncounterTypes) do
 		data.e[key] = {}

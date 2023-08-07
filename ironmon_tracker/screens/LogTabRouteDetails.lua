@@ -54,7 +54,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	LogTabRouteDetails.TemporaryButtons = {}
 	LogTabRouteDetails.PagedButtons = {}
 
-	-- ROUTE NAME
+	-- ROUTE NAME & ICON
 	local routeName = Utils.toUpperUTF8(data.r.name)
 	local routeNameButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -63,6 +63,13 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		box = { LogOverlay.TabBox.x + 71, LogOverlay.TabBox.y + 2, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
+	-- Currentl unused, doesn't quite fit
+	-- local routeIconButton = {
+	-- 	type = Constants.ButtonTypes.IMAGE,
+	-- 	image = data.r.icon:getIconPath(),
+	-- 	box = { LogOverlay.TabBox.x + LogOverlay.TabBox.width - 20, LogOverlay.TabBox.y + 1, 20, 20 },
+	-- }
+	-- table.insert(LogTabRouteDetails.TemporaryButtons, routeIconButton)
 
 	-- GRID: TRAINER & WILD ENCOUNTERS
 	local encTotals = {}

@@ -63,7 +63,7 @@ function LogTabRoutes.buildPagedButtons()
 	-- Header label buttons for the route bars
 	local rightOffsetX = 0
 	local routeBar = {
-		width = 232,
+		width = 230,
 		height = 21,
 		cols = {
 			{
@@ -72,7 +72,7 @@ function LogTabRoutes.buildPagedButtons()
 			{
 				-- TODO: Update resources
 				getText = function() return Utils.toUpperUTF8("Location" or Resources.LogOverlay.X) end,
-				w = 107
+				w = 105
 			},
 			{
 				icon = LogTabPokemon.TabIcons.NidoranM,
@@ -102,11 +102,12 @@ function LogTabRoutes.buildPagedButtons()
 		routeBar.cols[i].x = routeBar.width - rightOffsetX
 	end
 
+	-- Build grid header icons/labels
 	for i, col in ipairs(routeBar.cols) do
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			textColor = LogTabRoutes.Colors.hightlight,
-			box = { LogOverlay.TabBox.x + 2 + col.x, LogOverlay.TabBox.y + 1, 16, 16 },
+			box = { LogOverlay.TabBox.x + col.x + 3, LogOverlay.TabBox.y + 1, 16, 16 },
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
 				local w, h = self.box[3], self.box[4]
@@ -290,7 +291,7 @@ function LogTabRoutes.realignGrid(gridFilter, sortFunc, startingPage)
 
 	table.sort(LogTabRoutes.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 2
+	local x = LogOverlay.TabBox.x + 3
 	local y = LogOverlay.TabBox.y + 17
 	local colSpacer = 999
 	local rowSpacer = 0
