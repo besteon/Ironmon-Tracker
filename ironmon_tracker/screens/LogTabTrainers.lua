@@ -134,15 +134,24 @@ function LogTabTrainers.buildPagedButtons()
 	for id, trainerLog in pairs(RandomizerLog.Data.Trainers) do
 		local trainerInternal = TrainerData.getTrainerInfo(id)
 		local fullname = Utils.firstToUpperEachWord(trainerLog.fullname)
+		local customFullname = Utils.firstToUpperEachWord(trainerLog.customFullname)
 		local button = {
 			type = Constants.ButtonTypes.IMAGE,
 			image = TrainerData.getPortraitIcon(trainerInternal.class),
-			getText = function(self) return fullname end,
+			getText = function(self) -- Mostly just used for searching
+				if Options["Use Custom Trainer Names"] then
+					return customFullname
+				else
+					return fullname
+				end
+			end,
 			textColor = LogTabTrainers.Colors.text,
 			id = id,
 			class = Utils.firstToUpperEachWord(trainerLog.class),
 			name = Utils.firstToUpperEachWord(trainerLog.name),
-			customname = trainerLog.customname,
+			customClass = Utils.firstToUpperEachWord(trainerLog.customClass),
+			customName = Utils.firstToUpperEachWord(trainerLog.customName),
+			customFullname = customFullname,
 			maxlevel = trainerLog.maxlevel or 0,
 			dimensions = { width = 32, height = 32, },
 			group = trainerInternal.group or TrainerData.TrainerGroups.Other,
@@ -226,9 +235,10 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	local x = button.box[1] - 3
 	local y = button.box[2] - Constants.SCREEN.LINESPACING
 	local textColor = Theme.COLORS[button.textColor]
-	local nameText = button.name
+	local nameText = Utils.inlineIf(Options["Use Custom Trainer Names"], button.customName, button.name)
+	local classText = Utils.inlineIf(Options["Use Custom Trainer Names"], button.customClass, button.class)
 	if TrainerData.shouldUseClassName(button.id) then
-		nameText = button.class
+		nameText = classText
 	end
 	Drawing.drawText(x, y, nameText, textColor, shadowcolor)
 

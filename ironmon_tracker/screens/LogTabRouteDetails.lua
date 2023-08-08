@@ -277,11 +277,19 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 	local button = {
 		type = Constants.ButtonTypes.IMAGE,
 		image = trainerImage,
-		getText = function(self) return trainer.fullname end,
+		getText = function(self)
+			if Options["Use Custom Trainer Names"] then
+				return trainer.customFullname
+			else
+				return trainer.fullname
+			end
+		end,
 		textColor = LogTabRouteDetails.Colors.text,
 		isSelected = false,
 		class = trainer.class,
 		name = trainer.name,
+		customClass = trainer.customClass,
+		customName = trainer.customName,
 		id = trainer.id,
 		maxlevel = trainer.maxlevel,
 		dimensions = { width = 32, height = 32, },

@@ -208,8 +208,12 @@ function LogTabTrainerDetails.drawTab()
 
 	-- TRAINER NAME & ICON
 	gui.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
-	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(data.t.class), highlightColor, shadowcolor)
-	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(data.t.name), highlightColor, shadowcolor)
+	local classText, nameText = data.t.class, data.t.name
+	if Options["Use Custom Trainer Names"] then
+		classText, nameText = data.t.customClass, data.t.customName
+	end
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(classText), highlightColor, shadowcolor)
+	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(nameText), highlightColor, shadowcolor)
 
 	-- Draw all buttons
 	for _, button in pairs(LogTabTrainerDetails.TemporaryButtons) do

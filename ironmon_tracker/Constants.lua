@@ -143,6 +143,7 @@ Constants.OrderedLists = {
 		"Enable custom extensions",
 		"Show Team View",
 		"Show Pre Evolutions",
+		"Use Custom Trainer Names",
 	},
 	CONTROLS = {
 		"Load next seed",

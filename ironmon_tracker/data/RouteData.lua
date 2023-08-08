@@ -3038,6 +3038,10 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.CityMap,
 		trainers = { 592, 593, 599, 600, 768, 769, },
 	}
+	-- No Rivals in Ruby/Sapphire
+	if not isGameEmerald then
+		RouteData.Info[4].trainers = nil
+	end
 	RouteData.Info[5] = {
 		name = "Fortree City",
 		icon = RouteData.Icons.CityMap,
@@ -3670,7 +3674,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[37] = {
 		name = "Route 121",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 764, 107, 127, 286, 766, 765, 254, 300, 11, 767 },
+		trainers = isGameEmerald and { 764, 107, 127, 286, 766, 765, 254, 300, 11, 767 } -- E
+			or { 764, 107, 127, 286, 766, 765, 254, 300, 767 }, -- RS
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.30, },
 			{ pokemonID = {263,263,261}, rate = 0.20, },
@@ -3723,7 +3728,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[39] = {
 		name = "Route 123",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 539, 503, 39, 484, 106, 13, 92, 75, 195, 12, 249, 29, 238, 504, 505 },
+		trainers = isGameEmerald and { 539, 503, 39, 484, 106, 13, 92, 75, 195, 12, 249, 29, 238, 504, 505 }
+			or { 39, 484, 106, 92, 75, 195, 249, 238 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.30, },
 			{ pokemonID = {263,263,261}, rate = 0.20, },
@@ -3754,7 +3760,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[40] = {
 		name = "Route 124",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 450, 15, 687, 159, 449, 174, 595, 160 },
+		trainers = isGameEmerald and { 450, 15, 687, 159, 449, 174, 595, 160 }
+			or { 450, 687, 159, 449, 174, 160 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3786,7 +3793,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[41] = {
 		name = "Route 125",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 492, 161, 452, 451, 403, 506, 162, 678 },
+		trainers = isGameEmerald and { 492, 161, 452, 451, 403, 506, 162, 678 }
+			or { 492, 161, 452, 451, 403, 162, 678 } ,
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3809,7 +3817,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[42] = {
 		name = "Route 126",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 576, 383, 164, 453, 163, 459, 377, 454 },
+		trainers = isGameEmerald and { 576, 383, 164, 453, 163, 459, 377, 454 }
+			or { 383, 164, 453, 163, 459, 377, 454 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3841,7 +3850,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[43] = {
 		name = "Route 127",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 674, 577, 667, 669, 668, 374, 672, 384 },
+		trainers = isGameEmerald and { 674, 577, 667, 669, 668, 374, 672, 384 }
+			or { 674, 667, 669, 668, 374, 672, 384 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3873,7 +3883,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[44] = {
 		name = "Route 128",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 671, 670, 673, 376, 386, 464, 578 },
+		trainers = isGameEmerald and { 671, 670, 673, 376, 386, 464, 578 }
+			or { 671, 670, 673, 376, 386, 464 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3906,7 +3917,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[45] = {
 		name = "Route 129",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 675, 378, 387, 580, 676 },
+		trainers = isGameEmerald and { 675, 378, 387, 580, 676 }
+			or { 675, 378, 387, 676 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -3979,7 +3991,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[48] = {
 		name = "Route 132",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 169, 458, 350, 181, 594, 733, 758, 598 },
+		trainers = isGameEmerald and { 169, 458, 350, 181, 594, 733, 758, 598 }
+			or { 169, 458, 350, 181 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -4003,7 +4016,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[49] = {
 		name = "Route 133",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 461, 414, 511, 137, 88, 460, 170 },
+		trainers = isGameEmerald and { 461, 414, 511, 137, 88, 460, 170 }
+			or { 461, 414, 88, 460, 170 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -4027,7 +4041,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[50] = {
 		name = "Route 134",
 		icon = RouteData.Icons.RouteSignWooden,
-		trainers = { 463, 172, 180, 509, 510, 397, 508, 413, 507 },
+		trainers = isGameEmerald and { 463, 172, 180, 509, 510, 397, 508, 413, 507 }
+			or { 463, 172, 180, 397, 413 },
 		[RouteData.EncounterArea.SURFING] = {
 			{ pokemonID = 72, rate = 0.60, },
 			{ pokemonID = 278, rate = 0.35, },
@@ -4144,6 +4159,14 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.GymBuilding,
 		-- trainers = { }, -- Combine with id=109
 	}
+	-- Ruby/Sapphire gyms have different trainers
+	if not isGameEmerald then
+		RouteData.Info[65].trainers = { 426, 179, 425, 266 } -- Dewford Gym
+		RouteData.Info[69].trainers = { 202, 204, 201, 648, 203, 205, 650, 268 } -- Lavaridge Gym 1F
+		RouteData.Info[94].trainers = { 320, 321, 265 } -- Rustboro Gym
+		RouteData.Info[108].trainers = { 233, 246, 245, 235, 234, 244, 271 } -- Mossdeep Gym
+		RouteData.Info[109].trainers = { 128, 613, 115, 131, 614, 301, 130, 118, 129, 272 } -- Sootopolis Gym 1F
+	end
 	RouteData.Info[111] = {
 		name = "Sidney's Room",
 		icon = RouteData.Icons.EliteFourStatue,
@@ -4352,7 +4375,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[136 + offset] = {
 		name = "Mt. Chimney",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 146, 579, 597, 602, 126, 125, 313, 1, 124 },
+		trainers = isGameEmerald and { 146, 579, 597, 602, 126, 125, 313, 1, 124 }
+			or { 579, 597, 602, 126, 125, 313, 124 },
 	}
 	RouteData.Info[137 + offset] = {
 		name = "Mt. Pyre 1F",
@@ -4364,7 +4388,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[138 + offset] = {
 		name = "Mt. Pyre 2F",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 145, 35, 31, 640 },
+		trainers = isGameEmerald and { 145, 35, 31, 640 }
+			or { 145, 640 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
@@ -4372,7 +4397,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[139 + offset] = {
 		name = "Mt. Pyre 3F",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 247, 9, 236 },
+		trainers = isGameEmerald and { 247, 9, 236 }
+			or { 247, 236 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 1.00, },
 		},
@@ -4398,7 +4424,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[142 + offset] = {
 		name = "Mt. Pyre 6F",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 108, 475 },
+		trainers = isGameEmerald and { 108, 475 }
+			or { 108 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = 0.90, },
 			{ pokemonID = {353,355,355}, rate = 0.10, },
@@ -4412,7 +4439,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[144 + offset] = {
 		name = "Aqua Hideout B1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = { 23, 3, 192, 193 },
+		trainers = isGameEmerald and { 23, 3, 192, 193 }
+			or { 23, 3 },
 	}
 	RouteData.Info[145 + offset] = {
 		name = "Aqua Hideout B2F",
@@ -4426,7 +4454,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[147 + offset] = {
 		name = "Seafloor Cavern", -- Entrance
 		icon = RouteData.Icons.CaveEntrance,
-		trainers = { 6, 7, 8, 9, 567, 33, 34 }, -- All combined here
+		trainers = isGameEmerald and { 6, 7, 8, 9, 567, 33, 34 } -- All caverns combined here
+			or { 6, 7, 8, 33, 34 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 41, rate = 0.90, },
 			{ pokemonID = 42, rate = 0.10, },
@@ -4591,7 +4620,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[163 + offset] = {
 		name = "Victory Road 1F",
 		icon = RouteData.Icons.CaveEntrance,
-		trainers = { 80, 96, 97, 81, 100, 83, 417, 38, 99, 82, 98, 540, 546, 79, 325, 324, 519 },
+		trainers = isGameEmerald and { 80, 96, 97, 81, 100, 83, 417, 38, 99, 82, 98, 540, 546, 79, 325, 324, 519 }
+			or { 80, 96, 97, 81, 100, 83, 99, 82, 98, 79, 519 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 42, rate = 0.25, },
 			{ pokemonID = 297, rate = 0.25, },
@@ -4721,7 +4751,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[188 + offset] = {
 		name = "Abandoned Ship 1F", -- Rooms
 		icon = RouteData.Icons.BuildingDoorSmall,
-		trainers = { 144, 375, 66, 547, 418, 642 },
+		trainers = isGameEmerald and { 144, 375, 66, 547, 418, 642 }
+			or { 66, 642 },
 	}
 	RouteData.Info[189 + offset] = {
 		name = "Abandoned Ship B1F", -- Corridors
@@ -4900,22 +4931,25 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[271 + offset] = {
 		name = "Weather Institute 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = { 26, 596 },
+		trainers = isGameEmerald and { 26, 17, 596 }
+			or { 26, 17 },
 	}
 	RouteData.Info[272 + offset] = {
 		name = "Weather Institute 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = { 18, 17, 19, 32 },
+		trainers = { 18, 19, 32 },
 	}
 	RouteData.Info[275 + offset] = {
 		name = "City Space Center 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = { 586, 22, 587, 116 },
+		trainers = isGameEmerald and { 586, 22, 587, 116 }
+			or { 586, 587 },
 	}
 	RouteData.Info[276 + offset] = {
 		name = "City Space Center 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = { 588, 589, 590, 734, 514 },
+		trainers = isGameEmerald and { 588, 589, 590, 734, 514 }
+			or { 588, 589, 590, 734 },
 	}
 	RouteData.Info[277 + offset] = {
 		name = "S.S. Tidal Hall",
@@ -4983,7 +5017,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[292 + offset] = {
 		name = "Jagged Pass",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 632, 570, 474, 217, 566, 216 },
+		trainers = isGameEmerald and { 632, 570, 474, 217, 566, 216 }
+			or { 632, 570, 474, 216 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 322, rate = 0.55, },
 			{ pokemonID = 66, rate = 0.25, },
@@ -5006,7 +5041,8 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[302 + offset] = {
 		name = "Mt. Pyre Ext.",
 		icon = RouteData.Icons.MountainTop,
-		trainers = { 5, 4, 569 }, -- instead of 4,5 could be 23,24 or 27,28
+		trainers = isGameEmerald and { 5, 4, 569 } -- instead of 4,5 could be 23,24 or 27,28
+			or { 5, 4 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = {355,353,353}, rate = {0.40,0.40,0.60}, },
 			{ pokemonID = {307,307,-1}, rate = 0.30, },

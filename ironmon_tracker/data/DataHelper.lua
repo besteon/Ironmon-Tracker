@@ -660,7 +660,9 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 	data.t.name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE
 	data.t.class = Utils.firstToUpperEachWord(trainerLog.class) or ""
 	data.t.fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE
-	data.t.customname = trainerLog.customname or Constants.BLANKLINE
+	data.t.customName = Utils.firstToUpperEachWord(trainerLog.customName) or Constants.BLANKLINE
+	data.t.customClass = Utils.firstToUpperEachWord(trainerLog.customClass) or Constants.BLANKLINE
+	data.t.customFullname = Utils.firstToUpperEachWord(trainerLog.customname) or Constants.BLANKLINE
 
 	for _, partyMon in ipairs(trainerLog.party or {}) do
 		local pokemon = {
@@ -735,26 +737,31 @@ function DataHelper.buildRouteLogDisplay(mapId)
 		if key == "Trainers" then
 			for _, trainerId in ipairs(encounterArea.trainers or {}) do
 				local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
-				local trainerLog = RandomizerLog.Data.Trainers[trainerId] or {}
-				local trainer = {
-					id = trainerId,
-					name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE,
-					class = Utils.firstToUpperEachWord(trainerLog.class) or "",
-					fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
-					filename = TrainerData.getPortraitIcon(trainerInternal.class) or Constants.BLANKLINE,
-					maxlevel = trainerLog.maxlevel or 0,
-					pokemon = {},
-				}
-
-				for _, pokemonLog in ipairs(trainerLog.party or {}) do
-					local pokemon = {
-						pokemonID = pokemonLog.pokemonID or 0,
-						level = pokemonLog.level or 0
+				local trainerLog = RandomizerLog.Data.Trainers[trainerId]
+				if trainerLog ~= nil then -- Emerald has more trainers than Ruby/Sapphire; exclude the missing ones
+					local trainer = {
+						id = trainerId,
+						name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE,
+						class = Utils.firstToUpperEachWord(trainerLog.class) or "",
+						fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
+						customName = Utils.firstToUpperEachWord(trainerLog.customName) or Constants.BLANKLINE,
+						customClass = Utils.firstToUpperEachWord(trainerLog.customClass) or "",
+						customFullname = Utils.firstToUpperEachWord(trainerLog.customFullname) or Constants.BLANKLINE,
+						filename = TrainerData.getPortraitIcon(trainerInternal.class) or Constants.BLANKLINE,
+						maxlevel = trainerLog.maxlevel or 0,
+						pokemon = {},
 					}
-					table.insert(trainer.pokemon, pokemon)
-				end
 
-				table.insert(data.e[key], trainer)
+					for _, pokemonLog in ipairs(trainerLog.party or {}) do
+						local pokemon = {
+							pokemonID = pokemonLog.pokemonID or 0,
+							level = pokemonLog.level or 0
+						}
+						table.insert(trainer.pokemon, pokemon)
+					end
+
+					table.insert(data.e[key], trainer)
+				end
 			end
 		else
 			for pokemonID, enc in pairs(encounterArea.pokemon or {}) do

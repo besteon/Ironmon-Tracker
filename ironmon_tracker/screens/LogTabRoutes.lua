@@ -252,14 +252,16 @@ function LogTabRoutes.buildPagedButtons()
 				if (self.numWilds or 0) > 0 then
 					col = routeBar.cols[3]
 					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					local shadowcolor2 = Utils.calcShadowColor(Theme.COLORS[col.boxFill or false] or Theme.COLORS[LogTabRoutes.Colors.boxFill])
 					text = tostring(self.numWilds or 0)
 					centeredX = Utils.getCenteredTextX(text, col.w) - 1
-					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor2)
 					col = routeBar.cols[4]
 					textColor = Theme.COLORS[col.textColor or false] or Theme.COLORS[LogTabRoutes.Colors.text]
+					shadowcolor2 = Utils.calcShadowColor(Theme.COLORS[col.boxFill or false] or Theme.COLORS[LogTabRoutes.Colors.boxFill])
 					text = string.format("%s %s %s", self.minWildLv, LogTabRoutes.levelRangeSpacer, self.maxWildLv)
 					centeredX = Utils.getCenteredTextX(text, col.w)
-					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor)
+					Drawing.drawText(x + col.x + centeredX, y + centeredY, text, textColor, shadowcolor2)
 				end
 				-- # Trainers and levels
 				if (self.numTrainers or 0) > 0 then
