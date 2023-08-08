@@ -237,9 +237,17 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	local textColor = Theme.COLORS[button.textColor]
 	local nameText = Utils.inlineIf(Options["Use Custom Trainer Names"], button.customName, button.name)
 	local classText = Utils.inlineIf(Options["Use Custom Trainer Names"], button.customClass, button.class)
+
 	if TrainerData.shouldUseClassName(button.id) then
 		nameText = classText
 	end
+
+	-- Grunts don't have unique names, so append their trainer ID for easier referencing
+	local isGrunt = { [TrainerData.Classes.TeamRocketGrunt] = true, [TrainerData.Classes.TeamAquaGrunt] = true, [TrainerData.Classes.TeamMagmaGrunt] = true, }
+	if isGrunt[TrainerData.getTrainerInfo(button.id).class or false] then
+		nameText = string.format("%s #%s", nameText, button.id)
+	end
+
 	Drawing.drawText(x, y, nameText, textColor, shadowcolor)
 
 	-- Draw pokeballs for each Pokemon on the trainer's team below the trainer icon

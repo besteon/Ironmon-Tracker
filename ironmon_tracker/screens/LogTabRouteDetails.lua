@@ -60,7 +60,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return routeName end,
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + 71, LogOverlay.TabBox.y + 2, 120, 12 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, 120, 12 },
 	}
 	table.insert(LogTabRouteDetails.TemporaryButtons, routeNameButton)
 	-- Currentl unused, doesn't quite fit
@@ -95,18 +95,17 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 	end
 
 	-- ROUTE TAB NAVIGATION
-	local navX = LogOverlay.TabBox.x + 3
+	local navX = LogOverlay.TabBox.x + LogOverlay.TabBox.width - 69 + 3
 	local navY = 62
 
-	local headerTextWidth = Utils.calcWordPixelLength("Encounters" or Resources.LogOverlay.Encounters) + 4
 	local navHeaderButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		-- TODO: Update resources
-		getText = function(self) return "Encounters" or Resources.LogOverlay.Encounters end,
+		getText = function(self) return "Encounters:" or Resources.LogOverlay.Encounters end,
 		textColor = LogTabRouteDetails.Colors.text,
-		box = { navX, navY, headerTextWidth, 11 },
+		box = { navX, navY, 64, 11 },
 		draw = function(self, shadowcolor)
-			Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+			-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
 		end,
 	}
 	local encDetailsButton = {
@@ -114,10 +113,10 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		getEncText = function(self) return Resources.LogOverlay[self.resourceKey] or "" end,
 		resourceKey = "",
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 29, 50, 11 },
+		box = { navX, LogOverlay.TabBox.y + 2, 64, 11 },
 		draw = function(self, shadowcolor)
 			if self.image then
-				local x, y = self.box[1] + 23, self.box[2] - 18
+				local x, y = self.box[1] + 23, self.box[2] + 18
 				if self.imageType == Constants.ButtonTypes.IMAGE then
 					gui.drawImage(self.image, x, y + 1)
 				elseif self.imageType == Constants.ButtonTypes.PIXELIMAGE then
@@ -125,7 +124,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 				end
 			end
 			local encText = self:getEncText()
-			local textCenteredX = LogOverlay.TabBox.x + Utils.getCenteredTextX(encText, 69) - 2
+			local textCenteredX = navX + Utils.getCenteredTextX(encText, 69) - 6
 			Drawing.drawText(textCenteredX, self.box[2], encText, Theme.COLORS[self.textColor], shadowcolor)
 		end,
 	}
@@ -457,11 +456,11 @@ function LogTabRouteDetails.realignTrainerGrid(gridFilter, sortFunc, startingPag
 
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 75
+	local x = LogOverlay.TabBox.x + 7
 	local y = LogOverlay.TabBox.y + 28
 	local colSpacer = 24
 	local rowSpacer = 32
-	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
+	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x - 69
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
 	LogOverlay.Windower.filterGrid = gridFilter or LogTabRouteDetails.Tabs.Trainers
@@ -478,11 +477,11 @@ function LogTabRouteDetails.realignPokemonGrid(gridFilter, sortFunc, startingPag
 
 	table.sort(LogTabRouteDetails.PagedButtons, sortFunc)
 
-	local x = LogOverlay.TabBox.x + 75
+	local x = LogOverlay.TabBox.x + 7
 	local y = LogOverlay.TabBox.y + 21
 	local colSpacer = 24
 	local rowSpacer = 32
-	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x
+	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x - 69
 	local maxHeight = LogOverlay.TabBox.height + LogOverlay.TabBox.y
 
 	LogOverlay.Windower.filterGrid = gridFilter or LogOverlay.Windower.filterGrid
@@ -520,10 +519,12 @@ function LogTabRouteDetails.drawTab()
 		LogTabRouteDetails.dataSet = data
 	end
 
-	local encWidth, encY = 69, 61
-	-- Draw box surrounded the encounters nav tables
-	gui.drawLine(LogOverlay.TabBox.x, encY, encWidth, encY, Theme.COLORS[LogTabRouteDetails.Colors.border])
-	gui.drawLine(encWidth, encY, encWidth, LogOverlay.TabBox.y + LogOverlay.TabBox.height, Theme.COLORS[LogTabRouteDetails.Colors.border])
+	local w, h = 69, 96
+	local x, y = LogOverlay.TabBox.x + LogOverlay.TabBox.width - w, LogOverlay.TabBox.y + LogOverlay.TabBox.height - h
+	-- Draw box surrounding the encounters nav tables
+	gui.drawRectangle(x, y, w, h, borderColor)
+	-- gui.drawLine(x, y, x, LogOverlay.TabBox.y + LogOverlay.TabBox.height, borderColor)
+	-- gui.drawLine(x, y, x + w, y, borderColor)
 
 	-- Draw all buttons
 	for _, button in pairs(LogTabRouteDetails.TemporaryButtons) do

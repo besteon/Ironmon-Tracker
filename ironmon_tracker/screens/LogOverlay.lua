@@ -102,47 +102,45 @@ LogOverlay.HeaderButtons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return LogOverlay.Windower:getPageText() end,
-		textColor = Theme.headerHighlightKey,
+		textColor = LogOverlay.Colors.headerText,
 		box = { LogOverlay.margin + pagerOffsetX, 0, 50, 10, },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end, -- Likely won't use, unsure where to place it
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		textColor = Theme.headerHighlightKey,
+		textColor = LogOverlay.Colors.headerText,
 		shadowcolor = false,
 		box = { LogOverlay.margin + pagerOffsetX - 13, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
 		onClick = function(self) LogOverlay.Windower:prevPage() end,
 	},
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		textColor = Theme.headerHighlightKey,
+		textColor = LogOverlay.Colors.headerText,
 		shadowcolor = false,
 		box = { LogOverlay.margin + pagerOffsetX + 50, 1, 10, 10 },
 		isVisible = function() return LogOverlay.Windower.totalPages > 1 end,
-		updateSelf = function(self) self.textColor = Theme.headerHighlightKey end,
 		onClick = function(self) LogOverlay.Windower:nextPage() end,
 	},
 	XIcon = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.CLOSE,
-		textColor = Theme.headerHighlightKey,
+		textColor = LogOverlay.Colors.headerText,
 		box = { LogOverlay.margin + 228, 2, 10, 10 },
 		updateSelf = function(self)
-			self.textColor = Theme.headerHighlightKey
 			local canGoBackTabs = {
 				[LogTabPokemonDetails] = true,
 				[LogTabTrainerDetails] = true,
 				[LogTabRouteDetails] = true,
 			}
 			if canGoBackTabs[LogOverlay.Windower.currentTab] then
+				self.textColor = Theme.headerHighlightKey
 				self.image = Constants.PixelImages.LEFT_ARROW
 				self.box[2] = 1
 			else
+				self.textColor = LogOverlay.Colors.headerText
 				self.image = Constants.PixelImages.CLOSE
 				self.box[2] = 2
 			end
@@ -346,6 +344,9 @@ function LogOverlay.refreshActiveTabGrid()
 			currentTab.realignGrid()
 		end
 	elseif type(currentTab.refreshButtons) == "function" then
+		LogOverlay.Windower.filterGrid = ""
+		LogOverlay.Windower.totalPages = 1
+		LogOverlay.Windower.currentPage = 1
 		currentTab.refreshButtons()
 	end
 end

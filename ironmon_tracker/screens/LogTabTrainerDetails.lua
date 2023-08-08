@@ -212,6 +212,11 @@ function LogTabTrainerDetails.drawTab()
 	if Options["Use Custom Trainer Names"] then
 		classText, nameText = data.t.customClass, data.t.customName
 	end
+	-- Grunts don't have unique names, so append their trainer ID for easier referencing
+	local isGrunt = { [TrainerData.Classes.TeamRocketGrunt] = true, [TrainerData.Classes.TeamAquaGrunt] = true, [TrainerData.Classes.TeamMagmaGrunt] = true, }
+	if isGrunt[TrainerData.getTrainerInfo(data.t.id).class or false] then
+		nameText = string.format("%s #%s", nameText, data.t.id)
+	end
 	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(classText), highlightColor, shadowcolor)
 	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(nameText), highlightColor, shadowcolor)
 
