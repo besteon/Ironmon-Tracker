@@ -100,8 +100,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 
 	local navHeaderButton = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		-- TODO: Update resources
-		getText = function(self) return "Encounters:" or Resources.LogOverlay.Encounters end,
+		getText = function(self) return Resources.LogOverlay.LabelEncounters .. ":" end,
 		textColor = LogTabRouteDetails.Colors.text,
 		box = { navX, navY, 64, 11 },
 		draw = function(self, shadowcolor)
@@ -113,10 +112,10 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 		getEncText = function(self) return Resources.LogOverlay[self.resourceKey] or "" end,
 		resourceKey = "",
 		textColor = LogTabRouteDetails.Colors.hightlight,
-		box = { navX, LogOverlay.TabBox.y + 2, 64, 11 },
+		box = { navX, LogOverlay.TabBox.y + 7, 64, 11 },
 		draw = function(self, shadowcolor)
 			if self.image then
-				local x, y = self.box[1] + 23, self.box[2] + 18
+				local x, y = self.box[1] + 23, self.box[2] + 14
 				if self.imageType == Constants.ButtonTypes.IMAGE then
 					gui.drawImage(self.image, x, y + 1)
 				elseif self.imageType == Constants.ButtonTypes.PIXELIMAGE then

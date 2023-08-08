@@ -32,8 +32,7 @@ LogTabMisc.Buttons = {
 	CustomTrainerNames = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Use Custom Trainer Names",
-		-- TODO: Update Resources
-		getText = function(self) return "Custom Trainer Names" or Resources.LogOverlay.CheckboxCustomTrainerNames end,
+		getText = function(self) return Resources.LogOverlay.CheckboxCustomTrainerNames end,
 		clickableArea = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 17, 90, 10, },
 		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 17, 8, 8, },
 		toggleState = Options["Use Custom Trainer Names"],

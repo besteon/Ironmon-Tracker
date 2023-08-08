@@ -70,8 +70,7 @@ function LogTabRoutes.buildPagedButtons()
 				w = 21,
 			},
 			{
-				-- TODO: Update resources
-				getText = function() return Utils.toUpperUTF8("Location" or Resources.LogOverlay.X) end,
+				getText = function() return Utils.toUpperUTF8(Resources.LogOverlay.LabelLocation) end,
 				w = 105
 			},
 			{
@@ -151,9 +150,9 @@ function LogTabRoutes.buildPagedButtons()
 			dimensions = { width = routeBar.width, height = routeBar.height, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
-				-- If no search text entered, check any filter groups
+				-- If no search text entered, check any filter groups and/or show all results
 				if LogSearchScreen.searchText == "" then
-					-- TODO: Optional nav filters; currently none available, therefore show all
+					-- (Optional nav filters would go here)
 					return true
 				end
 

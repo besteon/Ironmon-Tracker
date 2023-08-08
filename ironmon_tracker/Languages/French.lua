@@ -490,6 +490,15 @@ ScreenResources{
 		FilterElite4 = "Elite 4", -- NEEDS TRANSLATION
 		FilterBoss = "Boss", -- NEEDS TRANSLATION
 		FilterOther = "Other", -- NEEDS TRANSLATION
+		LabelLocation = "Location", -- NEEDS TRANSLATION
+		LabelEncounters = "Encounters", -- NEEDS TRANSLATION
+		TabTrainers = "Trainers", -- NEEDS TRANSLATION
+		TabGrassCave = "Grass / Cave", -- NEEDS TRANSLATION
+		TabSurfing = "Surfing", -- NEEDS TRANSLATION
+		TabOldRod = "Old Rod", -- NEEDS TRANSLATION
+		TabGoodRod = "Good Rod", -- NEEDS TRANSLATION
+		TabSuperRod = "Super Rod", -- NEEDS TRANSLATION
+		TabRockSmash = "Rock Smash", -- NEEDS TRANSLATION
 		FilterTMNumber = "TM #", -- NEEDS TRANSLATION
 		FilterGymTMs = "Gym TMs", -- NEEDS TRANSLATION
 		LabelPokemonGame = "Pokémon Game", -- NEEDS TRANSLATION
@@ -498,6 +507,7 @@ ScreenResources{
 		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
+		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
 		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
 	},
@@ -514,10 +524,13 @@ ScreenResources{
 		SortSPA = "Sp. Atk", -- NEEDS TRANSLATION
 		SortSPD = "Sp. Def", -- NEEDS TRANSLATION
 		SortSPE = "Speed", -- NEEDS TRANSLATION
+		SortWildPokemonLv = "Wild Pokémon Lv.", -- NEEDS TRANSLATION
+		SortTrainerLevel = "Trainer Level", -- NEEDS TRANSLATION
 		FilterName = "Pokémon Name", -- NEEDS TRANSLATION
 		FilterAbility = "Ability", -- NEEDS TRANSLATION
 		FilterMove = "Levelup Move", -- NEEDS TRANSLATION
 		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
+		FilterRouteName = "Route Name", -- NEEDS TRANSLATION
 	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION
