@@ -310,7 +310,7 @@ function LogSearchScreen.createButtons()
 		end,
 	}
 
-	LogSearchScreen.refreshDropDowns()
+	-- The Sort and Filter dropdown boxes are created dynamically, based on screen context
 end
 
 function LogSearchScreen.refreshDropDowns()
@@ -340,6 +340,7 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		type = Constants.ButtonTypes.FULL_BORDER,
 		box = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height, },
+		clickableArea = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height - 1, },
 		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 		textColor = LSS.Colors.lowerText,
 		onClick = function(self)
@@ -428,6 +429,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 		type = Constants.ButtonTypes.FULL_BORDER,
 		textColor = LSS.Colors.lowerText,
 		box = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height, },
+		clickableArea = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height - 1, },
 		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 		onClick = function(self)
 			-- Don't expand this dropdown menu if another one is open
@@ -482,6 +484,7 @@ function LogSearchScreen.createUpdateFilterDropdown()
 		}
 		table.insert(LSS.DropdownButtonsFilterBy, filterButton)
 	end
+
 	Utils.gridAlign(LSS.DropdownButtonsFilterBy, dropdownBox.x, dropdownBox.y + dropdownBox.height, 0, 0, true)
 
 	-- If the current filter doesn't exist within the current context, replace it

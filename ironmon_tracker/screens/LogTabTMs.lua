@@ -82,14 +82,12 @@ function LogTabTMs.buildPagedButtons(gymTMs)
 	LogTabTMs.PagedButtons = {}
 
 	for tmNumber, tm in pairs(RandomizerLog.Data.TMs) do
-		local gymLeader, gymNumber, trainerId, filterGroup
+		local gymNumber, trainerId, filterGroup
 		if gymTMs[tmNumber] ~= nil then
-			gymLeader = gymTMs[tmNumber].leader
 			gymNumber = gymTMs[tmNumber].gymNumber
 			trainerId = gymTMs[tmNumber].trainerId
 			filterGroup = "Gym TMs"
 		else
-			gymLeader = "None"
 			gymNumber = 0
 			-- if not a gym TM, then it doesn't have a trainerId or filterGroup
 		end
@@ -105,7 +103,6 @@ function LogTabTMs.buildPagedButtons(gymTMs)
 			textColor = LogTabTMs.Colors.text,
 			tmNumber = tmNumber,
 			moveId = tm.moveId,
-			gymLeader = gymLeader,
 			gymNumber = gymNumber,
 			trainerId = trainerId,
 			group = filterGroup,
@@ -134,6 +131,8 @@ function LogTabTMs.buildGymTMButtons()
 
 	local gymColOffsetX = 80 + 17
 	for _, tmButton in pairs(LogTabTMs.PagedButtons) do
+		local trainerLog = RandomizerLog.Data.Trainers[tmButton.trainerId or -1] or {}
+
 		if tmButton.group == "Gym TMs" then
 			local badgeName = GameSettings.badgePrefix .. "_badge" .. tmButton.gymNumber
 			local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
@@ -141,7 +140,13 @@ function LogTabTMs.buildGymTMButtons()
 
 			local gymButton = {
 				type = Constants.ButtonTypes.NO_BORDER,
-				getText = function(self) return tmButton.gymLeader end,
+				getText = function(self)
+					if Options["Use Custom Trainer Names"] then
+						return Utils.firstToUpperEachWord(trainerLog.customName)
+					else
+						return Utils.firstToUpperEachWord(trainerLog.name)
+					end
+				end,
 				textColor = tmButton.textColor,
 				trainerId = tmButton.trainerId,
 				group = tmButton.group,
