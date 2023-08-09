@@ -274,7 +274,7 @@ end
 
 function LogTabTrainers.realignGrid(gridFilter, sortFunc, startingPage)
 	gridFilter = gridFilter or TrainerData.TrainerGroups.Gym
-	sortFunc = sortFunc or LogOverlay.NavFilters.Trainers.All.sortFunc
+	sortFunc = sortFunc or LogOverlay.NavFilters.Trainers.Gym.sortFunc
 	startingPage = startingPage or 1
 
 	table.sort(LogTabTrainers.PagedButtons, sortFunc)
