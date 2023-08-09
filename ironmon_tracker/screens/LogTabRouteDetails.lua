@@ -518,12 +518,10 @@ function LogTabRouteDetails.drawTab()
 		LogTabRouteDetails.dataSet = data
 	end
 
+	-- Draw box surrounding the encounters nav tables
 	local w, h = 69 - 1, 96
 	local x, y = LogOverlay.TabBox.x + LogOverlay.TabBox.width - w, LogOverlay.TabBox.y + LogOverlay.TabBox.height - h
-	-- Draw box surrounding the encounters nav tables
 	gui.drawRectangle(x, y, w, h, borderColor)
-	-- gui.drawLine(x, y, x, LogOverlay.TabBox.y + LogOverlay.TabBox.height, borderColor)
-	-- gui.drawLine(x, y, x + w, y, borderColor)
 
 	-- Draw all buttons
 	for _, button in pairs(LogTabRouteDetails.TemporaryButtons) do

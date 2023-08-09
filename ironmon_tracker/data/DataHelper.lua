@@ -499,8 +499,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	end
 
 	data.r.id = routeId or 0
-	data.r.name = route.name or Constants.BLANKLINE
-	data.r.name = Utils.formatSpecialCharacters(data.r.name)
+	data.r.name = Utils.formatSpecialCharacters(route.name) or Constants.BLANKLINE
 	data.r.totalTrainerEncounters = 0
 	data.r.totalWildEncounters = 0
 

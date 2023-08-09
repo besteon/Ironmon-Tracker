@@ -91,6 +91,13 @@ function RouteData.initialize()
 		maxMapId = RouteData.setupRouteInfoAsFRLG()
 	end
 
+	-- Route names currently aren't translated or part of Resources, thus verify they can be displayed properly
+	for _, route in pairs(RouteData.Info or {}) do
+		if route.name then
+			route.name = Utils.formatSpecialCharacters(route.name)
+		end
+	end
+
 	RouteData.populateAvailableRoutes(maxMapId)
 
 	-- At some point we might want to implement this so that wild encounter data is automatic

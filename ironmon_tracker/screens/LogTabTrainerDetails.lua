@@ -208,9 +208,11 @@ function LogTabTrainerDetails.drawTab()
 
 	-- TRAINER NAME & ICON
 	gui.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
-	local classText, nameText = data.t.class, data.t.name
+	local classText = data.t.class
+	local nameText = data.t.name
 	if Options["Use Custom Trainer Names"] then
-		classText, nameText = data.t.customClass, data.t.customName
+		classText = data.t.customClass
+		nameText = data.t.customName
 	end
 	-- Grunts don't have unique names, so append their trainer ID for easier referencing
 	local isGrunt = { [TrainerData.Classes.TeamRocketGrunt] = true, [TrainerData.Classes.TeamAquaGrunt] = true, [TrainerData.Classes.TeamMagmaGrunt] = true, }

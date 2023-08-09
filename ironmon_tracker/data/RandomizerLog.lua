@@ -157,8 +157,8 @@ function RandomizerLog.formatInput(str)
 	str = str:gsub("’", "'")
 	str = str:gsub("%[PK%]%[MN%]", "PKMN")
 
-	str = Utils.toLowerUTF8(str)
 	str = Utils.formatSpecialCharacters(str)
+	str = Utils.toLowerUTF8(str)
 	return str
 end
 
