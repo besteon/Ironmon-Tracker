@@ -767,6 +767,16 @@ function Program.HandleExit()
 	CrashRecoveryScreen.logCrashReport(false)
 end
 
+-- Returns focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
+function Program.focusBizhawkWindow()
+	if not Main.IsOnBizhawk() then return end
+	local bizhawkWindowName = GameSettings.getRomName()
+	if bizhawkWindowName and bizhawkWindowName ~= "" then
+		local command = string.format("AppActivate(%s)", bizhawkWindowName)
+		FileManager.tryOsExecute(command)
+	end
+end
+
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
 function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)

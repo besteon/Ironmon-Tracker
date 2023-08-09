@@ -576,14 +576,6 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
-	-- TODO: Temp allowing it to work using os.execute()
-	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
-	-- if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-	-- 	print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
-	-- 	Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
-	-- 	return nil
-	-- end
-
 	local files = Main.GetQuickloadFiles()
 
 	if #files.jarList == 0 or #files.settingsList == 0 or #files.romList == 0 then
