@@ -4376,7 +4376,7 @@ function RouteData.setupRouteInfoAsRSE()
 		name = "Mt. Chimney",
 		icon = RouteData.Icons.MountainTop,
 		trainers = isGameEmerald and { 146, 579, 597, 602, 126, 125, 313, 1, 124 }
-			or { 579, 597, 602, 126, 125, 313, 124 },
+			or { 14, 31, 35, 126, 125, 313, 124 },
 	}
 	RouteData.Info[137 + offset] = {
 		name = "Mt. Pyre 1F",
@@ -4939,18 +4939,18 @@ function RouteData.setupRouteInfoAsRSE()
 		icon = RouteData.Icons.BuildingDoorLarge,
 		trainers = { 18, 19, 32 },
 	}
-	RouteData.Info[275 + offset] = {
-		name = "City Space Center 1F",
-		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = isGameEmerald and { 586, 22, 587, 116 }
-			or { 586, 587 },
-	}
-	RouteData.Info[276 + offset] = {
-		name = "City Space Center 2F",
-		icon = RouteData.Icons.BuildingDoorLarge,
-		trainers = isGameEmerald and { 588, 589, 590, 734, 514 }
-			or { 588, 589, 590, 734 },
-	}
+	if isGameEmerald then
+		RouteData.Info[275 + offset] = {
+			name = "City Space Center 1F",
+			icon = RouteData.Icons.BuildingDoorLarge,
+			trainers = { 586, 22, 587, 116 },
+		}
+		RouteData.Info[276 + offset] = {
+			name = "City Space Center 2F",
+			icon = RouteData.Icons.BuildingDoorLarge,
+			trainers = { 588, 589, 590, 734, 514 },
+		}
+	end
 	RouteData.Info[277 + offset] = {
 		name = "S.S. Tidal Hall",
 		icon = RouteData.Icons.BuildingDoorSmall,
@@ -5018,7 +5018,7 @@ function RouteData.setupRouteInfoAsRSE()
 		name = "Jagged Pass",
 		icon = RouteData.Icons.MountainTop,
 		trainers = isGameEmerald and { 632, 570, 474, 217, 566, 216 }
-			or { 632, 570, 474, 216 },
+			or { 632, 474, 216 },
 		[RouteData.EncounterArea.LAND] = {
 			{ pokemonID = 322, rate = 0.55, },
 			{ pokemonID = 66, rate = 0.25, },
@@ -5098,6 +5098,10 @@ function RouteData.setupRouteInfoAsRSE()
 			{ pokemonID = 384, rate = 1.00, },
 		},
 	}
+
+	if GameSettings.versioncolor == "Ruby" then
+		RouteData.swapRubySapphireTeamTrainers()
+	end
 
 	-- Ruby/Sapphire do not have maps beyond this point
 	if not isGameEmerald then return 332 end
@@ -5353,4 +5357,45 @@ function RouteData.setupRouteInfoAsRSE()
 	}
 
 	return 424
+end
+
+-- Swaps trainerIds of all Team Aqua and Team Magma story encounters
+function RouteData.swapRubySapphireTeamTrainers()
+	-- Trainers in routes defined using Sapphire by default, use this for alt trainer lists
+	-- https://www.serebii.net/rubysapphire/teamaquamagma.shtml
+
+	-- Team Aqua/Magma trainerIds are mirror copies of each other, just 565 apart
+	local teamDiff = 565
+
+	local teamBossMap = {
+		[30] = 596,	[596] = 30, -- Matt 2 / Tabitha 2
+		[31] = 597,	[597] = 31, -- Matt 1 / Tabitha 1
+		[32] = 599,	[599] = 32, -- Shelly 1 / Courtney 1
+		[33] = 600,	[600] = 33, -- Shelly 2 / Courtney 2
+		[34] = 601,	[601] = 34, -- Archie 2 / Maxie 2
+		[35] = 602,	[602] = 35, -- Archie 1 / Maxie 1
+	}
+	for _, route in pairs(RouteData.Info or {}) do
+		for i, trainerId in ipairs(route.trainers or {}) do
+			if trainerId >= 2 and trainerId <= 28 then -- Team Aqua (change to Team Magma)
+				route.trainers[i] = trainerId + teamDiff
+			elseif trainerId >= 567 and trainerId <= 593 then -- Team Magma (change to Team Aqua)
+				route.trainers[i] = trainerId - teamDiff
+			elseif teamBossMap[trainerId] then -- Swap Team Boss (admins/leader)
+				route.trainers[i] = teamBossMap[trainerId]
+			end
+		end
+	end
+
+	-- Swap Team Hideout names
+	local offset = 1 -- If emerald, this is 0. Keep variable for easier code searching
+	if RouteData.Info[143 + offset].trainers[1] == 2 then
+		RouteData.Info[143 + offset].name = "Aqua Hideout 1F"
+		RouteData.Info[144 + offset].name = "Aqua Hideout B1F"
+		RouteData.Info[145 + offset].name = "Aqua Hideout B2F"
+	else
+		RouteData.Info[143 + offset].name = "Magma Hideout 1F"
+		RouteData.Info[144 + offset].name = "Magma Hideout B1F"
+		RouteData.Info[145 + offset].name = "Magma Hideout B2F"
+	end
 end

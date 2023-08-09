@@ -519,7 +519,7 @@ function LogTabRouteDetails.drawTab()
 	end
 
 	local w, h = 69, 96
-	local x, y = LogOverlay.TabBox.x + LogOverlay.TabBox.width - w, LogOverlay.TabBox.y + LogOverlay.TabBox.height - h
+	local x, y = LogOverlay.TabBox.x + LogOverlay.TabBox.width - w + 1, LogOverlay.TabBox.y + LogOverlay.TabBox.height - h
 	-- Draw box surrounding the encounters nav tables
 	gui.drawRectangle(x, y, w, h, borderColor)
 	-- gui.drawLine(x, y, x, LogOverlay.TabBox.y + LogOverlay.TabBox.height, borderColor)

@@ -1149,15 +1149,10 @@ function RandomizerLog.setupEmeraldRouteMappings()
 	RandomizerLog.RouteSetNumToIdMap[122] = 154 + offset -- seafloor cavern fishing
 	RandomizerLog.RouteSetNumToIdMap[123] = 157 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[124] = 158 + offset -- cave of origin grass/cave
-	if isGameEmerald then
-		RandomizerLog.RouteSetNumToIdMap[125] = 162 + offset -- cave of origin grass/cave
-		RandomizerLog.RouteSetNumToIdMap[126] = 162 + offset -- cave of origin grass/cave
-		RandomizerLog.RouteSetNumToIdMap[127] = 162 + offset -- cave of origin grass/cave
-	else
-		RandomizerLog.RouteSetNumToIdMap[125] = 159 + offset -- cave of origin grass/cave
-		RandomizerLog.RouteSetNumToIdMap[126] = 160 + offset -- cave of origin grass/cave
-		RandomizerLog.RouteSetNumToIdMap[127] = 161 + offset -- cave of origin grass/cave
-	end
+	-- Next 3 are in Emerald only
+	RandomizerLog.RouteSetNumToIdMap[125] = 162 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[126] = 162 + offset -- cave of origin grass/cave
+	RandomizerLog.RouteSetNumToIdMap[127] = 162 + offset -- cave of origin grass/cave
 	RandomizerLog.RouteSetNumToIdMap[128] = 184 + offset -- new mauville grass/cave
 	RandomizerLog.RouteSetNumToIdMap[129] = 238 + offset -- safari zone grass/cave
 	RandomizerLog.RouteSetNumToIdMap[130] = 238 + offset -- safari zone surfing
