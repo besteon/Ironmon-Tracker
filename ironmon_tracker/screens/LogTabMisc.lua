@@ -20,7 +20,7 @@ LogTabMisc.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Show Pre Evolutions",
 		getText = function(self) return Resources.LogOverlay.CheckboxShowPreEvolutions end,
-		clickableArea = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 4, 90, 10, },
+		clickableArea = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 5, 90, 10, },
 		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 5, 8, 8, },
 		toggleState = Options["Show Pre Evolutions"],
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
@@ -33,9 +33,23 @@ LogTabMisc.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Use Custom Trainer Names",
 		getText = function(self) return Resources.LogOverlay.CheckboxCustomTrainerNames end,
-		clickableArea = { LogOverlay.TabBox.x + 4, LogOverlay.TabBox.y + 17, 90, 10, },
+		clickableArea = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 17, 90, 10, },
 		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 17, 8, 8, },
 		toggleState = Options["Use Custom Trainer Names"],
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			Program.redraw(true)
+		end,
+	},
+	OpenBookMode = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Open Book Play Mode",
+		-- TODO: Update Resources
+		getText = function(self) return "Open Book Play Mode" or Resources.LogOverlay.CheckboxOpenBookMode end,
+		clickableArea = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 29, 90, 10, },
+		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 29, 8, 8, },
+		toggleState = Options["Open Book Play Mode"],
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
 			self.toggleState = Options.toggleSetting(self.optionKey)
@@ -53,7 +67,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelPokemonGame .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Game or Constants.BLANKLINE end,
 		index = 1,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 35, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 45, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -63,7 +77,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomizerVersion .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Version or Constants.BLANKLINE end,
 		index = 2,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 48, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 57, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -73,7 +87,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomSeed .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE end,
 		index = 3,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 61, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 69, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -83,7 +97,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelSettingsString .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE end,
 		index = 4,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 74, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 81, 100, 11 },
 		draw = function(self, shadowcolor)
 			local settingsString = self:getValue()
 			local offsetY = self.box[2] + Constants.SCREEN.LINESPACING
