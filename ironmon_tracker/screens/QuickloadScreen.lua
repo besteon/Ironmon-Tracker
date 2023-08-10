@@ -82,7 +82,7 @@ QuickloadScreen.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Refocus emulator after load",
 		getText = function(self) return Resources.QuickloadScreen.OptionRefocusEmulator end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 110, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 8, 8 },
 		toggleState = false,
 		isVisible = function(self) return Main.emulator ~= Main.EMU.BIZHAWK28 end, -- Option not needed nor used for Bizhawk 2.8
@@ -181,6 +181,7 @@ function QuickloadScreen.createButtons()
 				end
 			end,
 			onClick = function(self)
+				if not self:statusIconVisible() then return end
 				if self.isSet then
 					Options.FILES[self.optionKey] = ""
 					self.isSet = false
