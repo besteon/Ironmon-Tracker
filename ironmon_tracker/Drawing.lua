@@ -15,10 +15,12 @@ Drawing.AnimatedPokemon = {
 	destroy = function(self)
 		if self.formWindow and self.formWindow ~= 0 then
 			forms.destroy(self.formWindow)
+			self.formWindow = 0
 		end
 	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
+	isVisible = function(self) return self.formWindow and self.formWindow ~= 0 end,
 	formWindow = 0,
 	pictureBox = 0,
 	addonMissing = 0,

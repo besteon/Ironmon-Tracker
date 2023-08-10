@@ -7,38 +7,45 @@ QuickloadScreen = {
 QuickloadScreen.SetButtonSetup = {
 	["ROMs Folder"] = {
 		resourceKey = "OptionRomsFolder",
-		offsetY = Constants.SCREEN.MARGIN + 54,
+		offsetY = Constants.SCREEN.MARGIN + 55,
+		statusIconVisible = function(self) return Options["Use premade ROMs"] end,
 	},
 	["Randomizer JAR"] = {
 		resourceKey = "OptionRandomizerJar",
-		offsetY = Constants.SCREEN.MARGIN + 88,
+		offsetY = Constants.SCREEN.MARGIN + 87,
+		statusIconVisible = function(self) return Options["Generate ROM each time"] end,
 	},
 	["Source ROM"] = {
 		resourceKey = "OptionSourceRom",
-		offsetY = Constants.SCREEN.MARGIN + 102,
+		offsetY = Constants.SCREEN.MARGIN + 101,
+		statusIconVisible = function(self) return Options["Generate ROM each time"] end,
 	},
 	["Settings File"] = {
 		resourceKey = "OptionSettingsFile",
-		offsetY = Constants.SCREEN.MARGIN + 116,
+		offsetY = Constants.SCREEN.MARGIN + 115,
+		statusIconVisible = function(self) return Options["Generate ROM each time"] end,
 	},
 }
 
 QuickloadScreen.Buttons = {
 	ButtonCombo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function()
-			local comboFormatted = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
-			return string.format("%s: %s", Resources.QuickloadScreen.ButtonCombo, comboFormatted)
-		end,
+		getText = function() return Resources.QuickloadScreen.ButtonCombo .. ":" end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, Constants.SCREEN.MARGIN + 12, 130, 11 },
+		draw = function(self, shadowcolor)
+			local offsetX = Utils.calcWordPixelLength(self:getText())
+			local comboRaw = Options.CONTROLS["Load next seed"] or Constants.BLANKLINE
+			local comboFormatted = comboRaw:gsub(" ", ""):gsub(",", " + ")
+			Drawing.drawText(self.box[1] + offsetX + 5, self.box[2], comboFormatted, Theme.COLORS["Intermediate text"], shadowcolor)
+		end,
 		onClick = function() SetupScreen.openEditControlsWindow() end
 	},
 	PremadeRoms = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Use premade ROMs",
 		getText = function(self) return Resources.QuickloadScreen.OptionPremadeRoms end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 44, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 44, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 44, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 44, 8, 8 },
 		toggleState = false,
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
@@ -56,8 +63,8 @@ QuickloadScreen.Buttons = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Generate ROM each time",
 		getText = function(self) return Resources.QuickloadScreen.OptionGenerateRom end,
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 77, Constants.SCREEN.RIGHT_GAP - 12, 8 },
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, Constants.SCREEN.MARGIN + 77, 8, 8 },
+		clickableArea = { Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 74, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + 13, Constants.SCREEN.MARGIN + 74, 8, 8 },
 		toggleState = false,
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		onClick = function(self)
@@ -68,6 +75,20 @@ QuickloadScreen.Buttons = {
 			QuickloadScreen.verifyOptions()
 			QuickloadScreen.refreshButtons()
 			NavigationMenu.refreshButtons()
+			Program.redraw(true)
+		end
+	},
+	RefocusEmulator = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Refocus emulator after load",
+		getText = function(self) return Resources.QuickloadScreen.OptionRefocusEmulator end,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, Constants.SCREEN.RIGHT_GAP - 12, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 137, 8, 8 },
+		toggleState = false,
+		isVisible = function(self) return Main.emulator ~= Main.EMU.BIZHAWK28 end, -- Option not needed nor used for Bizhawk 2.8
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
 			Program.redraw(true)
 		end
 	},
@@ -130,7 +151,9 @@ function QuickloadScreen.createButtons()
 		QuickloadScreen.Buttons[optionKey] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			getText = function(self)
-				if self.isSet then
+				if not self:statusIconVisible() then
+					return "   " .. Constants.BLANKLINE
+				elseif self.isSet then
 					return Resources.QuickloadScreen.ButtonClear
 				else
 					return " " .. Resources.QuickloadScreen.ButtonSet
@@ -138,21 +161,24 @@ function QuickloadScreen.createButtons()
 			end,
 			optionKey = optionKey,
 			isSet = false,
+			statusIconVisible = optionObj.statusIconVisible,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, optionObj.offsetY, 24, 11 },
 			draw = function(self, shadowcolor)
 				local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 				local labelText = Resources.QuickloadScreen[optionObj.resourceKey]
 				Drawing.drawText(topboxX + 6, self.box[2], labelText, Theme.COLORS[self.textColor], shadowcolor)
 
-				local image, imageColor
-				if self.isSet then
-					image = Constants.PixelImages.CHECKMARK
-					imageColor = Theme.COLORS["Positive text"]
-				else
-					image = Constants.PixelImages.CROSS
-					imageColor = Theme.COLORS["Negative text"]
+				if self:statusIconVisible() then
+					local image, imageColor
+					if self.isSet then
+						image = Constants.PixelImages.CHECKMARK
+						imageColor = Theme.COLORS["Positive text"]
+					else
+						image = Constants.PixelImages.CROSS
+						imageColor = Theme.COLORS["Negative text"]
+					end
+					Drawing.drawImageAsPixels(image, self.box[1] - 20, self.box[2], { imageColor }, shadowcolor)
 				end
-				Drawing.drawImageAsPixels(image, self.box[1] - 20, self.box[2], { imageColor }, shadowcolor)
 			end,
 			onClick = function(self)
 				if self.isSet then
@@ -316,42 +342,54 @@ function QuickloadScreen.drawScreen()
 	-- Draw top border box
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
 
-	-- Draw text to explain a choice should be made
-	local chooseText = string.format("%s:", Resources.QuickloadScreen.ChoiceHeader)
-	Drawing.drawText(topboxX + 2, topboxY + 17, chooseText, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
-	gui.drawRectangle(topboxX + 4 + 1, topboxY + 30 + 1, topboxWidth - 8, 29, shadowcolor)
-	gui.drawRectangle(topboxX + 4, topboxY + 30, topboxWidth - 8, 29, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
-	gui.drawRectangle(topboxX + 4 + 1, topboxY + 63 + 1, topboxWidth - 8, 58, shadowcolor)
-	gui.drawRectangle(topboxX + 4, topboxY + 63, topboxWidth - 8, 58, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
+	local offsetY = topboxY
 
+	-- Draw text to explain a choice should be made
+	offsetY = offsetY + 18
+	local chooseText = string.format("%s:", Resources.QuickloadScreen.ChoiceHeader)
+	Drawing.drawText(topboxX + 2, offsetY, chooseText, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	offsetY = offsetY + Constants.SCREEN.LINESPACING + 1
+
+	local boxes = {
+		{ x = topboxX + 4, y = offsetY, w = topboxWidth - 8, h = 30, },
+		{ x = topboxX + 4, y = offsetY + 30, w = topboxWidth - 8, h = 60, },
+	}
+	for _, box in ipairs(boxes) do
+		gui.drawRectangle(box.x + 1, box.y + 1, box.w, box.h, shadowcolor)
+		gui.drawRectangle(box.x, box.y, box.w, box.h, Theme.COLORS[QuickloadScreen.borderColor], Theme.COLORS[QuickloadScreen.boxFillColor])
+	end
+
+	-- Removing for now, might add in later if quickload setup gets redone
 	-- Draw near the bottom of the screen showing what settings are currently loaded
-	local labelInfo
-	if QuickloadScreen.Buttons.PremadeRoms.toggleState then
-		if QuickloadScreen.Buttons["ROMs Folder"].isSet then
-			local foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
-			if foldername ~= "" then
-				if foldername:len() < 18 then
-					labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelFolder, foldername)
-				else
-					labelInfo = foldername
-				end
-			end
-		end
-	elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
-		if QuickloadScreen.Buttons["Settings File"].isSet then
-			local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
-			if filename ~= "" then
-				if filename:len() < 18 then
-					labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelSettings, filename)
-				else
-					labelInfo = filename
-				end
-			end
-		end
-	end
-	if labelInfo ~= nil then
-		Drawing.drawText(topboxX + 2, topboxY + 125, labelInfo, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
-	end
+	-- local labelInfo
+	-- if QuickloadScreen.Buttons.PremadeRoms.toggleState then
+	-- 	gui.drawRectangle(boxes[1].x, boxes[1].y, boxes[1].w, boxes[1].h, Theme.COLORS["Intermediate text"])
+	-- 	if QuickloadScreen.Buttons["ROMs Folder"].isSet then
+	-- 		local foldername = FileManager.extractFolderNameFromPath(Options.FILES["ROMs Folder"])
+	-- 		if foldername ~= "" then
+	-- 			if foldername:len() < 18 then
+	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelFolder, foldername)
+	-- 			else
+	-- 				labelInfo = foldername
+	-- 			end
+	-- 		end
+	-- 	end
+	-- elseif QuickloadScreen.Buttons.GenerateRom.toggleState then
+	-- 	gui.drawRectangle(boxes[2].x, boxes[2].y, boxes[2].w, boxes[2].h, Theme.COLORS["Intermediate text"])
+	-- 	if QuickloadScreen.Buttons["Settings File"].isSet then
+	-- 		local filename = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
+	-- 		if filename ~= "" then
+	-- 			if filename:len() < 18 then
+	-- 				labelInfo = string.format("%s: %s", Resources.QuickloadScreen.LabelSettings, filename)
+	-- 			else
+	-- 				labelInfo = filename
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+	-- if labelInfo ~= nil then
+	-- 	Drawing.drawText(topboxX + 2, topboxY + 126, labelInfo, Theme.COLORS[QuickloadScreen.textColor], shadowcolor)
+	-- end
 
 	-- Draw all buttons
 	for _, button in pairs(QuickloadScreen.Buttons) do

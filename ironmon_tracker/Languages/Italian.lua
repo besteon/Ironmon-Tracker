@@ -243,6 +243,7 @@ ScreenResources{
 		Title = "Quickload Setup", -- NEEDS TRANSLATION
 		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
 		ChoiceHeader = "Choose a quickload option", -- NEEDS TRANSLATION
+		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
 		OptionRomsFolder = "ROMs Folder", -- NEEDS TRANSLATION
