@@ -515,6 +515,7 @@ ScreenResources{
 		Title = "Search the Log",
 		LabelSortBy = "Sort by",
 		LabelSearch = "Search",
+		LabelNoResults = "No results",
 		SortAlphabetical = "Alphabetical",
 		SortPokedexNum = "Pokédex Number",
 		SortBST = "BST",

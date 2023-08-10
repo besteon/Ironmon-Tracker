@@ -182,6 +182,7 @@ end
 
 -- Unsure if this will actually be needed, likely some of them
 function LogTabPokemon.drawTab()
+	local textColor = Theme.COLORS[LogTabPokemon.Colors.text]
 	local borderColor = Theme.COLORS[LogTabPokemon.Colors.border]
 	local fillColor = Theme.COLORS[LogTabPokemon.Colors.boxFill]
 	local shadowcolor = Utils.calcShadowColor(fillColor)
@@ -191,7 +192,15 @@ function LogTabPokemon.drawTab()
 	gui.drawRectangle(LogOverlay.TabBox.x, LogOverlay.TabBox.y, LogOverlay.TabBox.width, LogOverlay.TabBox.height, borderColor, fillColor)
 
 	-- Draw the paged items
+	local atLeastOne = false
 	for _, button in pairs(LogTabPokemon.PagedButtons) do
 		Drawing.drawButton(button, shadowcolor)
+		if not atLeastOne and button:isVisible() then
+			atLeastOne = true
+		end
+	end
+
+	if not atLeastOne then
+		LogSearchScreen.drawNoSearchResults(textColor, shadowcolor)
 	end
 end

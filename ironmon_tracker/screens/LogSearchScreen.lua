@@ -724,6 +724,25 @@ function LogSearchScreen.drawScreen()
 	end
 end
 
+-- When no search results are returned, displays an image of MissingNo at (x,y) or centered on screen
+function LogSearchScreen.drawNoSearchResults(textColor, shadowcolor, x, y)
+	textColor = textColor or Theme.COLORS["Default text"]
+	shadowcolor = shadowcolor or Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local textX = x
+
+	local image = {
+		filepath = FileManager.buildImagePath(FileManager.Folders.Icons, "missingno", ".png"),
+		w = 24, h = 56,
+	}
+	x = x or LogOverlay.TabBox.x + math.floor((LogOverlay.TabBox.width - image.w) / 2 + 0.5)
+	y = y or LogOverlay.TabBox.y + math.floor((LogOverlay.TabBox.height - image.h) / 2 + 0.5) - 4
+	gui.drawImage(image.filepath, x, y)
+
+	local noResultsText = string.format("(%s)", Resources.LogSearchScreen.LabelNoResults)
+	textX = textX or Utils.getCenteredTextX(noResultsText, LogOverlay.TabBox.width)
+	Drawing.drawText(textX, y + image.h + 2, noResultsText, textColor, shadowcolor)
+end
+
 --- Draws a shadow on the edges of the given rectangle, either inside or outside
 --- @param box table<integer,integer,integer,integer> Table containing the x, y, width, and height of the rectangle
 --- @param shadowcolor integer Color of the shadow, current theme colors can be accessed via Theme.COLORS

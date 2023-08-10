@@ -515,6 +515,7 @@ ScreenResources{
 		Title = "Search the Log", -- NEEDS TRANSLATION
 		LabelSortBy = "Sort by", -- NEEDS TRANSLATION
 		LabelSearch = "Search", -- NEEDS TRANSLATION
+		LabelNoResults = "No results", -- NEEDS TRANSLATION
 		SortAlphabetical = "Alphabetical", -- NEEDS TRANSLATION
 		SortPokedexNum = "Pokédex Number", -- NEEDS TRANSLATION
 		SortBST = "BST", -- NEEDS TRANSLATION

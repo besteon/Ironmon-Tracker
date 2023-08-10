@@ -327,7 +327,16 @@ function LogTabRoutes.drawTab()
 	for _, button in pairs(LogTabRoutes.TemporaryButtons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
+
+	local atLeastOne = false
 	for _, button in pairs(LogTabRoutes.PagedButtons) do
 		Drawing.drawButton(button, shadowcolor)
+		if not atLeastOne and button:isVisible() then
+			atLeastOne = true
+		end
+	end
+
+	if not atLeastOne then
+		LogSearchScreen.drawNoSearchResults(textColor, shadowcolor)
 	end
 end

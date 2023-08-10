@@ -320,7 +320,15 @@ function LogTabTrainers.drawTab()
 	end
 
 	-- Draw the paged items
+	local atLeastOne = false
 	for _, button in pairs(LogTabTrainers.PagedButtons) do
 		Drawing.drawButton(button, shadowcolor)
+		if not atLeastOne and button:isVisible() then
+			atLeastOne = true
+		end
+	end
+
+	if not atLeastOne then
+		LogSearchScreen.drawNoSearchResults(textColor, shadowcolor)
 	end
 end
