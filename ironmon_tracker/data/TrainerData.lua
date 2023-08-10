@@ -157,277 +157,39 @@ function TrainerData.shouldUseTrainer(trainerId)
 	return Tracker.Data.whichRival == trainerInternal.whichRival
 end
 
--- Returns a list of trainers to exclude from a parsed log, usually they are dummy trainers
+-- Returns a list of trainers to exclude from a parsed log, often dummy trainers or VS Seeker rematch
 function TrainerData.getExcludedTrainers()
+	-- Holds individual trainerIds or a table-pair of ids, which is a range of ids
+	local trainerIdRanges = {}
 	if GameSettings.game == 1 or GameSettings.game == 2 then -- Ruby/Sapphire/Emerald
-		-- Most of these are vs seeker rematches
-		local trainerIds = {
-			[40] = true,
-			[41] = true,
-			[42] = true,
-			[43] = true,
-			[47] = true,
-			[48] = true,
-			[49] = true,
-			[50] = true,
-			[54] = true,
-			[55] = true,
-			[56] = true,
-			[60] = true,
-			[61] = true,
-			[62] = true,
-			[63] = true,
-			[67] = true,
-			[68] = true,
-			[69] = true,
-			[70] = true,
-			[84] = true,
-			[85] = true,
-			[86] = true,
-			[87] = true,
-			[101] = true,
-			[102] = true,
-			[103] = true,
-			[104] = true,
-			[110] = true,
-			[111] = true,
-			[112] = true,
-			[113] = true,
-			[117] = true,
-			[120] = true,
-			[121] = true,
-			[122] = true,
-			[123] = true,
-			[132] = true,
-			[133] = true,
-			[134] = true,
-			[135] = true,
-			[139] = true,
-			[140] = true,
-			[141] = true,
-			[142] = true,
-			[147] = true,
-			[148] = true,
-			[149] = true,
-			[150] = true,
-			[173] = true,
-			[175] = true,
-			[176] = true,
-			[177] = true,
-			[178] = true,
-			[184] = true,
-			[185] = true,
-			[186] = true,
-			[187] = true,
-			[197] = true,
-			[198] = true,
-			[199] = true,
-			[200] = true,
-			[207] = true,
-			[208] = true,
-			[209] = true,
-			[210] = true,
-			[219] = true,
-			[220] = true,
-			[221] = true,
-			[222] = true,
-			[228] = true,
-			[229] = true,
-			[230] = true,
-			[231] = true,
-			[239] = true,
-			[240] = true,
-			[241] = true,
-			[242] = true,
-			[250] = true,
-			[251] = true,
-			[252] = true,
-			[253] = true,
-			[257] = true,
-			[258] = true,
-			[259] = true,
-			[260] = true,
-			[276] = true,
-			[277] = true,
-			[278] = true,
-			[279] = true,
-			[282] = true,
-			[283] = true,
-			[284] = true,
-			[285] = true,
-			[288] = true,
-			[289] = true,
-			[290] = true,
-			[291] = true,
-			[295] = true,
-			[296] = true,
-			[297] = true,
-			[298] = true,
-			[303] = true,
-			[304] = true,
-			[305] = true,
-			[306] = true,
-			[308] = true,
-			[309] = true,
-			[310] = true,
-			[311] = true,
-			[314] = true,
-			[315] = true,
-			[316] = true,
-			[317] = true,
-			[328] = true,
-			[329] = true,
-			[330] = true,
-			[331] = true,
-			[341] = true,
-			[346] = true,
-			[347] = true,
-			[348] = true,
-			[349] = true,
-			[354] = true,
-			[355] = true,
-			[356] = true,
-			[357] = true,
-			[360] = true,
-			[361] = true,
-			[362] = true,
-			[363] = true,
-			[365] = true,
-			[366] = true,
-			[367] = true,
-			[368] = true,
-			[370] = true,
-			[371] = true,
-			[372] = true,
-			[373] = true,
-			[379] = true,
-			[380] = true,
-			[381] = true,
-			[382] = true,
-			[388] = true,
-			[389] = true,
-			[390] = true,
-			[391] = true,
-			[393] = true,
-			[394] = true,
-			[395] = true,
-			[396] = true,
-			[409] = true,
-			[410] = true,
-			[411] = true,
-			[412] = true,
-			[421] = true,
-			[422] = true,
-			[423] = true,
-			[424] = true,
-			[430] = true,
-			[431] = true,
-			[432] = true,
-			[433] = true,
-			[437] = true,
-			[438] = true,
-			[439] = true,
-			[440] = true,
-			[456] = true,
-			[462] = true,
-			[466] = true,
-			[467] = true,
-			[468] = true,
-			[477] = true,
-			[478] = true,
-			[479] = true,
-			[480] = true,
-			[482] = true,
-			[485] = true,
-			[486] = true,
-			[487] = true,
-			[488] = true,
-			[489] = true,
-			[497] = true,
-			[498] = true,
-			[499] = true,
-			[500] = true,
-			[515] = true,
-			[516] = true,
-			[517] = true,
-			[518] = true,
-			[541] = true,
-			[542] = true,
-			[543] = true,
-			[544] = true,
-			[548] = true,
-			[549] = true,
-			[550] = true,
-			[551] = true,
-			[555] = true,
-			[556] = true,
-			[557] = true,
-			[558] = true,
-			[562] = true,
-			[563] = true,
-			[564] = true,
-			[565] = true,
-			[607] = true,
-			[608] = true,
-			[609] = true,
-			[610] = true,
-			[622] = true,
-			[623] = true,
-			[624] = true,
-			[625] = true,
-			[633] = true,
-			[634] = true,
-			[636] = true,
-			[637] = true,
-			[638] = true,
-			[639] = true,
-			[643] = true,
-			[644] = true,
-			[645] = true,
-			[646] = true,
-			[657] = true,
-			[658] = true,
-			[659] = true,
-			[660] = true,
-			[682] = true,
-			[683] = true,
-			[684] = true,
-			[685] = true,
-			[688] = true,
-			[689] = true,
-			[690] = true,
-			[691] = true,
+		trainerIdRanges = {
+			{40, 43}, {47, 50}, {54, 56}, {60, 63}, {67, 70}, {84, 87}, {101, 104}, {110, 113}, 117,
+			{120, 123}, {132, 135}, {139, 142}, {147, 150}, 173, {175, 178}, {184, 187}, {197, 200},
+			{207, 210}, {219, 222}, {228, 231}, {239, 242}, {250, 253}, {257, 260}, {276, 279}, {282, 285},
+			{288, 291}, {295, 298}, {303, 306}, {308, 311}, {314, 317}, {328, 331}, 341, {346, 349},
+			{354, 357}, {360, 363}, {365, 368}, {370, 373}, {379, 382}, {388, 391}, {393, 396}, {409, 412},
+			{421, 424}, {430, 433}, {437, 440}, 456, 462, {466, 468}, {477, 480}, 482, {485, 489},
+			{497, 500}, {515, 518}, {541, 544}, {548, 551}, {555, 558}, {562, 565}, {607, 610}, {622, 625},
+			{633, 634}, {636, 639}, {643, 646}, {657, 660}, {682, 685}, {688, 691}, {770, 801}, {805, 847},
+			{851, 855},
 		}
-		for i=770, 801, 1 do
-			trainerIds[i] = true
-		end
-		for i=805, 847, 1 do
-			trainerIds[i] = true
-		end
-		trainerIds[851] = true
-		trainerIds[852] = true
-		trainerIds[853] = true
-		trainerIds[854] = true
-		trainerIds[855] = true
-		return trainerIds
 	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
-		local trainerIds = {}
-		for i=1, 88, 1 do
-			trainerIds[i] = true
-		end
-		for i=492, 497, 1 do
-			trainerIds[i] = true
-		end
-		for i=511, 515, 1 do
-			trainerIds[i] = true
-		end
-		trainerIds[147] = true
-		trainerIds[200] = true
-		trainerIds[263] = true
-		trainerIds[530] = true
-		return trainerIds
+		trainerIdRanges = {
+			{1, 88}, 147, 200, 263, {492, 497}, {511, 515}, 530,
+		}
 	end
-	return {}
+
+	local trainerIds = {}
+	for _, item in pairs(trainerIdRanges) do
+		if type(item) == "number" then
+			trainerIds[item] = true
+		elseif type(item) == "table" then
+			for i = (item[1] or 9999), (item[2] or 9999), 1 do
+				trainerIds[i] = true
+			end
+		end
+	end
+	return trainerIds
 end
 
 -- Helper functions for the image retrieval functions
