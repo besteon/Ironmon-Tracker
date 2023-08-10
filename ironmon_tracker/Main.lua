@@ -179,6 +179,11 @@ function Main.Run()
 			CrashRecoveryScreen.logCrashReport(false)
 		end, "SafelyCloseWithoutCrash")
 
+		-- Bizhawk 2.9+ doesn't properly refocus onto the emulator window after Quickload
+		if Options["Refocus emulator after load"] and Main.emulator ~= Main.EMU.BIZHAWK28 and not Drawing.AnimatedPokemon:isVisible() then
+			Program.focusBizhawkWindow()
+		end
+
 		Main.AfterStartupScreenRedirect()
 		Main.hasRunOnce = true
 		Program.hasRunOnce = true
@@ -297,7 +302,7 @@ function Main.AfterStartupScreenRedirect()
 		return
 	end
 
-	if Main.CrashReport.crashedOccurred then
+	if Main.CrashReport and Main.CrashReport.crashedOccurred then
 		CrashRecoveryScreen.previousScreen = Program.currentScreen
 		Program.changeScreenView(CrashRecoveryScreen)
 		return
@@ -474,9 +479,9 @@ function Main.LoadNextRom()
 		Main.DisplayError("No Quickload method has been chosen yet.\n\nEnable this at: Tracker Settings (gear icon) -> Quickload")
 	end
 
+	-- Tracker restart is expected from quickload, so avoid a falsely-flagged "crash"
+	CrashRecoveryScreen.logCrashReport(false)
 	if nextRomInfo ~= nil then
-		-- Emulator is closing as expected; no crash
-		CrashRecoveryScreen.logCrashReport(false)
 
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
@@ -576,14 +581,6 @@ function Main.GetNextRomFromFolder()
 end
 
 function Main.GenerateNextRom()
-	-- TODO: Temp allowing it to work using os.execute()
-	-- Auto-generate ROM not supported on Linux Bizhawk 2.8, Lua 5.1
-	-- if Main.emulator == Main.EMU.BIZHAWK28 and Main.OS ~= "Windows" then
-	-- 	print("> ERROR: The auto-generate a new ROM feature is not supported on Bizhawk 2.8.")
-	-- 	Main.DisplayError("The auto-generate a new ROM feature is not supported on Bizhawk 2.8.\n\nPlease use Bizhawk 2.9+ or the other Quickload option: From a ROMs Folder.")
-	-- 	return nil
-	-- end
-
 	local files = Main.GetQuickloadFiles()
 
 	if #files.jarList == 0 or #files.settingsList == 0 or #files.romList == 0 then

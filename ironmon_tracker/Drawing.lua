@@ -15,10 +15,12 @@ Drawing.AnimatedPokemon = {
 	destroy = function(self)
 		if self.formWindow and self.formWindow ~= 0 then
 			forms.destroy(self.formWindow)
+			self.formWindow = 0
 		end
 	end,
 	setPokemon = function(self, pokemonID) Drawing.setAnimatedPokemon(pokemonID) end,
 	relocatePokemon = function(self) Drawing.relocateAnimatedPokemon() end,
+	isVisible = function(self) return self.formWindow and self.formWindow ~= 0 end,
 	formWindow = 0,
 	pictureBox = 0,
 	addonMissing = 0,
@@ -491,7 +493,7 @@ function Drawing.setupAnimatedPictureBox()
 
 	Drawing.AnimatedPokemon:destroy()
 
-	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon", function() client.unpause() end)
+	local form = forms.newform(Drawing.AnimatedPokemon.POPUP_WIDTH, Drawing.AnimatedPokemon.POPUP_HEIGHT, "Animated Pokemon")
 	forms.setproperty(form, "AllowTransparency", true)
 	forms.setproperty(form, "BackColor", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
 	forms.setproperty(form, "TransparencyKey", Drawing.AnimatedPokemon.TRANSPARENCY_COLOR)
@@ -519,8 +521,7 @@ function Drawing.setupAnimatedPictureBox()
 	Drawing.AnimatedPokemon.pokemonID = 0
 	Drawing.AnimatedPokemon.requiresRelocating = true
 
-	-- Return focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
-	os.execute(string.format('AppActivate(%s)', GameSettings.getRomName() or ""))
+	Program.focusBizhawkWindow()
 end
 
 function Drawing.setAnimatedPokemon(pokemonID)

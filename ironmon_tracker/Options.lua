@@ -27,6 +27,7 @@ Options = {
 	["Reveal info if randomized"] = true,
 	["Show experience points bar"] = false,
 	["Animated Pokemon popout"] = false,
+	["Refocus emulator after load"] = true,
 	["Use premade ROMs"] = false,
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,

@@ -1037,12 +1037,12 @@ function Utils.openBrowserWindow(url, notifyMessage)
 
 	if Main.OS == "Windows" then
 		-- The first parameter is the title of the window, the second is the url
-		os.execute(string.format('start "" "%s"', url))
+		FileManager.tryOsExecute(string.format('start "" "%s"', url))
 	else
 		-- TODO: Currently don't have a good way to differentiate between the two Unix systems
-		local success = os.execute(string.format('open "%s"', url)) -- Mac OSX
+		local success = FileManager.tryOsExecute(string.format('open "%s"', url)) -- Mac OSX
 		if not success then
-			success = os.execute(string.format('xdg-open "%s"', url)) -- Linux
+			success = FileManager.tryOsExecute(string.format('xdg-open "%s"', url)) -- Linux
 			if not success then
 				Main.DisplayError(notifyMessage)
 				print(string.format("> %s", url))

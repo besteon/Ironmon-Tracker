@@ -241,7 +241,7 @@ function FileManager.tryOsExecute(command, errorFile)
 
 	-- An attempted fix to allow non-english characters in paths; but this is only half of it, so it's incomplete.
 	-- Leaving this here in case some more research is done to figure out how to work around this.
-	local foreignCompatibleCommand = "@chcp 65001>nul && " .. commandWithOutput
+	-- local foreignCompatibleCommand = "@chcp 65001>nul && " .. commandWithOutput
 
 	local result = os.execute(commandWithOutput)
 	local success = (result == true or result == 0) -- 0 = success in some cases
