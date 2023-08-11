@@ -444,7 +444,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 	if not RouteData.hasRouteEncounterArea(mapId, encounterArea) then return {} end
 
 	local areaInfo
-	local totalPossible
+	local totalPossible = 0
 	if Options["Open Book Play Mode"] or LogOverlay.isDisplayed then
 		areaInfo = {}
 		local selectedEncKey
