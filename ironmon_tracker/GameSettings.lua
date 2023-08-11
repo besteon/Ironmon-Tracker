@@ -338,9 +338,9 @@ function GameSettings.setGameInfo(gamecode)
 	local game = games[gamecode]
 	if game ~= nil then
 		GameSettings.gamecode = gamecode
-		GameSettings.game = game.GAME_NUMBER
+		GameSettings.game = game.GAME_NUMBER -- 1:Ruby/Sapphire, 2:Emerald, 3:FireRed/LeafGreen
 		GameSettings.gamename = game.GAME_NAME
-		GameSettings.versiongroup = game.VERSION_GROUP
+		GameSettings.versiongroup = game.VERSION_GROUP -- 1:Ruby/Sapphire/Emerald, 2:FireRed/LeafGreen
 		GameSettings.versioncolor = game.VERSION_COLOR
 		GameSettings.language = game.LANGUAGE
 		GameSettings.badgePrefix = game.BADGE_PREFIX

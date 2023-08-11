@@ -77,6 +77,13 @@ function Utils.firstToUpper(str)
 	return str
 end
 
+-- Alters the string by changing the first character of each word to uppercase
+function Utils.firstToUpperEachWord(str)
+	if str == nil or str == "" then return str end
+	str = string.gsub(" " .. str, "[%s%.%-]%l", Utils.toUpperUTF8):sub(2)
+	return str
+end
+
 function Utils.split(s, delimiter, trimWhitespace)
 	local result = {}
 	for match in (s .. delimiter):gmatch("(.-)" .. delimiter) do
@@ -122,9 +129,14 @@ function Utils.centerTextOffset(text, charSize, width)
 end
 
 function Utils.calcWordPixelLength(text)
-	if text == nil or #text == 0 or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
+	local pattern = "."
+	if Main.supportsSpecialChars then
+		---@diagnostic disable-next-line: undefined-global
+		pattern = utf8.charpattern
+	end
 	local totalLength = 0
-	for c in text:gmatch("(.)") do
+	for c in text:gmatch(pattern) do
 		totalLength = totalLength + Constants.charWidth(c) + 1
 	end
 	return totalLength - 1 -- remove trailing space-pixel
@@ -906,9 +918,22 @@ function Utils.getGameStat(statIndex)
 	return math.floor(gameStatValue)
 end
 
--- Organizes a list of buttons in a row by column fashion based on (x,y,w,h) and what page they should display on.
+-- Returns a new list, sorted by their indexKey number (default: 'index' attribute)
+function Utils.getSortedList(unorderedList, indexKey)
+	indexKey = indexKey or "index"
+	local list = {}
+	for _, v in pairs(unorderedList) do
+		if type(v[indexKey]) == "number" then
+			table.insert(list, v)
+		end
+	end
+	table.sort(list, function(a, b) return a[indexKey] < b[indexKey] end)
+	return list
+end
+
+-- Organizes a list of ordered objects in a row-by-column fashion based on (x,y,w,h) and what page they should display on.
 -- Returns total pages
-function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
+function Utils.gridAlign(orderedList, startX, startY, colSpacer, rowSpacer, listVerticallyFirst, cutoffX, cutoffY)
 	listVerticallyFirst = (listVerticallyFirst == true)
 	cutoffX = cutoffX or Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 	cutoffY = cutoffY or Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN
@@ -919,7 +944,7 @@ function Utils.gridAlign(buttonList, startX, startY, colSpacer, rowSpacer, listV
 	local currentPage = 1
 	local currentPageItems = 0
 
-	for _, button in ipairs(buttonList) do
+	for _, button in ipairs(orderedList) do
 		if button.includeInGrid == nil or button:includeInGrid() then
 			button.dimensions = button.dimensions or {}
 

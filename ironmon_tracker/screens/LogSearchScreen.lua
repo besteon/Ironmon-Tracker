@@ -8,9 +8,15 @@ LogSearchScreen = {
 		lowerBoxFill = "Lower box background",
 	},
 	KeyboardCharacters = {
+		{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" },
 		{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" },
 		{ "A", "S", "D", "F", "G", "H", "J", "K", "L" },
 		{ "Z", "X", "C", "V", "B", "N", "M" },
+	},
+	AllowedTabViews = {
+		[LogTabPokemon] = true,
+		[LogTabTrainers] = true,
+		[LogTabRoutes] = true,
 	},
 	padding = 2,
 	searchText = "",
@@ -21,85 +27,137 @@ LogSearchScreen = {
 }
 
 LogSearchScreen.SortBy = {
-	Alphabetical = {
-		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
-		sortFunc = function(a, b)
-			local name1, name2 = a:getPokemonName(), b:getPokemonName()
-			return name1 < name2 or (name1 == name2 and a.pokemonID < b.pokemonID)
-		end,
-	},
 	PokedexNum = {
 		getText = function() return Resources.LogSearchScreen.SortPokedexNum end,
 		sortFunc = function(a, b)
-			return a.pokemonID < b.pokemonID
+			return a.id < b.id
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 1,
+	},
+	Alphabetical = {
+		getText = function() return Resources.LogSearchScreen.SortAlphabetical end,
+		sortFunc = function(a, b)
+			local name1, name2 = a:getText(), b:getText()
+			return name1 < name2 or (name1 == name2 and a.id < b.id)
+		end,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 2,
 	},
 	BST = {
 		getText = function() return Resources.LogSearchScreen.SortBST end,
 		sortFunc = function(a, b)
-			return PokemonData.Pokemon[a.pokemonID].bst > PokemonData.Pokemon[b.pokemonID].bst or
-				(PokemonData.Pokemon[a.pokemonID].bst == PokemonData.Pokemon[b.pokemonID].bst and a.pokemonID < b.pokemonID)
+			return PokemonData.Pokemon[a.id].bst > PokemonData.Pokemon[b.id].bst or
+				(PokemonData.Pokemon[a.id].bst == PokemonData.Pokemon[b.id].bst and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 3,
 	},
 	HP = {
 		getText = function() return Resources.LogSearchScreen.SortHP end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["hp"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["hp"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["hp"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["hp"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 4,
 	},
 	ATK = {
 		getText = function() return Resources.LogSearchScreen.SortATK end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["atk"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["atk"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["atk"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["atk"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 5,
 	},
 	DEF = {
 		getText = function() return Resources.LogSearchScreen.SortDEF end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["def"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["def"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["def"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["def"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 6,
 	},
 	SPA = {
 		getText = function() return Resources.LogSearchScreen.SortSPA end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spa"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spa"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["spa"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["spa"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 7,
 	},
 	SPD = {
 		getText = function() return Resources.LogSearchScreen.SortSPD end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spd"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spd"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["spd"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["spd"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 8,
+
 	},
 	SPE = {
 		getText = function() return Resources.LogSearchScreen.SortSPE end,
 		sortFunc = function(a, b)
-			local p1, p2 = RandomizerLog.Data.Pokemon[a.pokemonID].BaseStats["spe"],
-				RandomizerLog.Data.Pokemon[b.pokemonID].BaseStats["spe"]
-			return p1 > p2 or (p1 == p2 and a.pokemonID < b.pokemonID)
+			local p1, p2 = RandomizerLog.Data.Pokemon[a.id].BaseStats["spe"],
+				RandomizerLog.Data.Pokemon[b.id].BaseStats["spe"]
+			return p1 > p2 or (p1 == p2 and a.id < b.id)
 		end,
+		contexts = { [LogTabPokemon] = true, },
+		index = 9,
+	},
+	WildPokemonLevel = {
+		getText = function() return Resources.LogSearchScreen.SortWildPokemonLv end,
+		sortFunc = function(a, b)
+			return (a.maxWildLv or 999) < (b.maxWildLv or 999) or (a.maxWildLv == b.maxWildLv and a.id < b.id)
+		end,
+		contexts = { [LogTabRoutes] = true, },
+		index = 10,
+	},
+	TrainerLevel = {
+		getText = function() return Resources.LogSearchScreen.SortTrainerLevel end,
+		sortFunc = function(a, b)
+			local t1, t2 = (a.avgTrainerLv or 999) + (a.maxlevel or 0), (b.avgTrainerLv or 999) + (b.maxlevel or 0)
+			return t1 < t2 or (t1 == t2 and a.id < b.id)
+		end,
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true,},
+		index = 11,
 	},
 }
 
 LogSearchScreen.FilterBy = {
-	Name = {
+	RouteName = {
+		getText = function() return Resources.LogSearchScreen.FilterRouteName end,
+		contexts = { [LogTabRoutes] = true, },
+		index = 1,
+	},
+	TrainerName = {
+		getText = function() return Resources.LogSearchScreen.FilterTrainerName end,
+		contexts = { [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 2,
+	},
+	PokemonName = {
 		getText = function() return Resources.LogSearchScreen.FilterName end,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 3,
 	},
-	Ability = {
+	PokemonAbility = {
 		getText = function() return Resources.LogSearchScreen.FilterAbility end,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 4,
 	},
-	Move = {
+	PokemonMove = {
 		getText = function() return Resources.LogSearchScreen.FilterMove end,
+		contexts = { [LogTabPokemon] = true, [LogTabTrainers] = true, [LogTabRoutes] = true, },
+		index = 5,
 	},
 }
 
@@ -110,8 +168,8 @@ LogSearchScreen.DropdownButtonsFilterBy = {}
 --- Initializes the LogSearchScreen
 --- @return nil
 function LogSearchScreen.initialize()
-	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.Alphabetical
-	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.Name
+	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy.PokedexNum
+	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy.PokemonName
 	LogSearchScreen.clearSearch()
 	LogSearchScreen.createButtons()
 end
@@ -148,7 +206,8 @@ function LogSearchScreen.createButtons()
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
 				LSS.clearSearch()
-				LSS.updateSearch()
+				LogOverlay.refreshActiveTabGrid()
+				Program.redraw(true)
 			end
 		end,
 		draw = function(self)
@@ -179,7 +238,8 @@ function LogSearchScreen.createButtons()
 			if #LSS.searchText > 0 and not LSS.filterDropDownOpen then
 				self.clicked = 2
 				LSS.searchText = LSS.searchText:sub(1, #LSS.searchText - 1)
-				LSS.updateSearch()
+				LogOverlay.refreshActiveTabGrid()
+				Program.redraw(true)
 			end
 		end,
 		draw = function(self)
@@ -247,8 +307,12 @@ function LogSearchScreen.createButtons()
 		end,
 	}
 
-	LSS.createUpdateFilterDropdown()
-	LSS.createUpdateSortOrderDropdown()
+	-- The Sort and Filter dropdown boxes are created dynamically, based on screen context
+end
+
+function LogSearchScreen.refreshDropDowns()
+	LogSearchScreen.createUpdateFilterDropdown()
+	LogSearchScreen.createUpdateSortOrderDropdown()
 end
 
 function LogSearchScreen.createUpdateSortOrderDropdown()
@@ -261,13 +325,19 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
 	}
 
-	local iBox = { topBox.x + 35, topBox.y + LSS.padding + 1, 90, 13, }
+	local dropdownBox = {
+		x = topBox.x + 40,
+		y = topBox.y + LSS.padding + 1,
+		width = 90,
+		height = 13,
+	}
 
 	-- Create the dropdown buttons, first is the label/top level button. This will be the only one visible when the dropdown is closed
 	LSS.Buttons.SortBySelected = {
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		type = Constants.ButtonTypes.FULL_BORDER,
-		box = { iBox[1], iBox[2], iBox[3], iBox[4], },
+		box = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height, },
+		clickableArea = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height - 1, },
 		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 		textColor = LSS.Colors.lowerText,
 		onClick = function(self)
@@ -286,39 +356,31 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 			-- Vertical line
 			gui.drawLine(x + w - size - 1, y + 1, x + w - size - 1, y + h - 1, Theme.COLORS[self.boxColors[1]])
 			-- Text w/ shadow
-			local text = LSS.currentSortOrder:getText()
-			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
+			if LSS.currentSortOrder ~= nil then
+				local text = LSS.currentSortOrder:getText()
+				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
+			end
 		end
 	}
 
 	-- Rest of the buttons are hidden until the dropdown is opened
 	LSS.DropdownButtonsSortBy = {}
-	local orderedSortBys = {
-		LSS.SortBy.Alphabetical,
-		LSS.SortBy.PokedexNum,
-		LSS.SortBy.BST,
-		LSS.SortBy.HP,
-		LSS.SortBy.ATK,
-		LSS.SortBy.DEF,
-		LSS.SortBy.SPA,
-		LSS.SortBy.SPD,
-		LSS.SortBy.SPE,
-	}
-	for i, sortby in ipairs(orderedSortBys) do
-		local boxY = iBox[2] + (iBox[4] * i)
-
-		LSS.DropdownButtonsSortBy[sortby] = {
+	local orderedSortBys = Utils.getSortedList(LSS.SortBy)
+	for _, sortby in ipairs(orderedSortBys) do
+		local sortbyButton = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			textColor = LSS.Colors.lowerText,
-			box = { iBox[1], boxY, iBox[3], iBox[4], },
+			dimensions = { width = dropdownBox.width, height = dropdownBox.height, },
 			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
+			isVisible = function(self) return LSS.sortDropDownOpen and self.pageVisible ~= -1 end,
+			includeInGrid = function(self) return sortby.contexts[LogOverlay.Windower.currentTab or {}] end,
 			onClick = function(self)
 				LSS.sortDropDownOpen = not LSS.sortDropDownOpen
 				LSS.currentSortOrder = sortby
 				LSS.createUpdateSortOrderDropdown()
-				LSS.updateSearch()
+				LogOverlay.refreshActiveTabGrid()
+				Program.redraw(true)
 			end,
-			isVisible = function(self) return LSS.sortDropDownOpen end,
 			draw = function(self)
 				-- Individual draw function to draw text shadows but not a shadow for the whole box
 				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, sortby:getText(), Theme.COLORS[self.textColor],
@@ -329,6 +391,14 @@ function LogSearchScreen.createUpdateSortOrderDropdown()
 				end
 			end
 		}
+		table.insert(LSS.DropdownButtonsSortBy, sortbyButton)
+	end
+
+	Utils.gridAlign(LSS.DropdownButtonsSortBy, dropdownBox.x, dropdownBox.y + dropdownBox.height, 0, 0, true)
+
+	-- If the current sortby doesn't exist within the current context, replace it
+	if not LSS.currentSortOrder.contexts[LogOverlay.Windower.currentTab or {}] then
+		LSS.currentSortOrder = orderedSortBys[1] or LSS.currentSortOrder
 	end
 end
 
@@ -343,14 +413,20 @@ function LogSearchScreen.createUpdateFilterDropdown()
 		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
 	}
 
-	local iBox = { topBox.x + 35, LSS.Buttons.SearchTextField.box[2] - Constants.SCREEN.LINESPACING - LSS.padding * 2 - 1, 90, 13, }
+	local dropdownBox = {
+		x = topBox.x + 40,
+		y = LSS.Buttons.SearchTextField.box[2] - Constants.SCREEN.LINESPACING - LSS.padding * 2 - 1,
+		width = 90,
+		height = 13,
+	}
 
 	-- Create the dropdown buttons, first is the label/top level button.
 	LSS.Buttons.FilterBySelected = {
 		image = Constants.PixelImages.TRIANGLE_DOWN,
 		type = Constants.ButtonTypes.FULL_BORDER,
 		textColor = LSS.Colors.lowerText,
-		box = { iBox[1], iBox[2], iBox[3], iBox[4], },
+		box = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height, },
+		clickableArea = { dropdownBox.x, dropdownBox.y, dropdownBox.width, dropdownBox.height - 1, },
 		boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
 		onClick = function(self)
 			-- Don't expand this dropdown menu if another one is open
@@ -368,33 +444,31 @@ function LogSearchScreen.createUpdateFilterDropdown()
 			-- Vertical line
 			gui.drawLine(x + w - size - 1, y + 1, x + w - size - 1, y + h - 1, Theme.COLORS[self.boxColors[1]])
 			-- Text w/ shadow
-			local text = LSS.currentFilter:getText()
-			Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
+			if LSS.currentFilter ~= nil then
+				local text = LSS.currentFilter:getText()
+				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, text, Theme.COLORS[self.textColor], LSS.Colors.lowerTextShadow)
+			end
 		end
 	}
 
 	-- Rest of the buttons are hidden until the dropdown is opened
 	LSS.DropdownButtonsFilterBy = {}
-	local orderedFilters = {
-		LSS.FilterBy.Name,
-		LSS.FilterBy.Ability,
-		LSS.FilterBy.Move,
-	}
-	for i, filter in ipairs(orderedFilters) do
-		local boxY = iBox[2] + (iBox[4] * i)
-
-		LSS.DropdownButtonsFilterBy[filter] = {
+	local orderedFilters = Utils.getSortedList(LSS.FilterBy)
+	for _, filter in ipairs(orderedFilters) do
+		local filterButton = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			textColor = LSS.Colors.lowerText,
-			box = { iBox[1], boxY, iBox[3], iBox[4], },
+			dimensions = { width = dropdownBox.width, height = dropdownBox.height, },
 			boxColors = { LSS.Colors.lowerBorder, LSS.Colors.lowerBoxFill, },
+			isVisible = function(self) return LSS.filterDropDownOpen and self.pageVisible ~= -1 end,
+			includeInGrid = function(self) return filter.contexts[LogOverlay.Windower.currentTab or {}] end,
 			onClick = function(self)
 				LSS.currentFilter = filter
 				LSS.filterDropDownOpen = not LSS.filterDropDownOpen
 				LSS.createUpdateFilterDropdown()
-				LSS.updateSearch()
+				LogOverlay.refreshActiveTabGrid()
+				Program.redraw(true)
 			end,
-			isVisible = function(self) return LSS.filterDropDownOpen end,
 			draw = function(self)
 				-- Individual draw function to draw text shadows but not a shadow for the whole box
 				Drawing.drawText(self.box[1] + 1, self.box[2] + 1, filter:getText(), Theme.COLORS[self.textColor],
@@ -405,6 +479,14 @@ function LogSearchScreen.createUpdateFilterDropdown()
 				end
 			end
 		}
+		table.insert(LSS.DropdownButtonsFilterBy, filterButton)
+	end
+
+	Utils.gridAlign(LSS.DropdownButtonsFilterBy, dropdownBox.x, dropdownBox.y + dropdownBox.height, 0, 0, true)
+
+	-- If the current filter doesn't exist within the current context, replace it
+	if not LSS.currentFilter.contexts[LogOverlay.Windower.currentTab or {}] then
+		LSS.currentFilter = orderedFilters[1] or LSS.currentFilter
 	end
 end
 
@@ -412,21 +494,44 @@ function LogSearchScreen.clearSearch()
 	LogSearchScreen.searchText = ""
 end
 
-function LogSearchScreen.updateSearch()
-	LogOverlay.realignPokemonGrid(LogSearchScreen.searchText, LogSearchScreen.currentSortOrder.sortFunc)
-	LogOverlay.refreshInnerButtons()
-	Program.redraw(true)
+-- Checks if it's contextually correct to show search screen; returns true if so, false otherwise
+function LogSearchScreen.tryDisplayOrHide()
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	if LogSearchScreen.AllowedTabViews[currentTab] then
+		LogSearchScreen.refreshDropDowns()
+		if Program.currentScreen ~= LogSearchScreen then
+			Program.changeScreenView(LogSearchScreen)
+		end
+		return true
+	end
+
+	-- For any other tab, show Bulbasaur by default (prevents search box from appearing)
+	if Program.currentScreen == LogSearchScreen then
+		InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, 1)
+	end
+	return false
+end
+
+-- Resets the sort by and filters based on the active tab, also clears the search text
+function LogSearchScreen.resetSearchSortFilter()
+	local currentTab = LogOverlay.Windower.currentTab or {}
+	LogSearchScreen.currentSortOrder = LogSearchScreen.SortBy[currentTab.defaultSortKey or "Alphabetical"]
+	LogSearchScreen.currentFilter = LogSearchScreen.FilterBy[currentTab.defaultFilterKey or "PokemonName"]
+	LogSearchScreen.sortDropDownOpen = false
+	LogSearchScreen.filterDropDownOpen = false
+	LogSearchScreen.clearSearch()
 end
 
 --- Builds a set of keyboard buttons in qwerty layout, the buttons are stored in LogSearchScreen.KeyboardButtons
 function LogSearchScreen.createKeyboardButtons()
 	local LSS = LogSearchScreen
 
+	local height = 60
 	local botBox = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 50,
+		y = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - height,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10,
+		height = height,
 		paddingX = 2, -- The padding between keys on the x axis
 		paddingY = 2, -- The padding between keys on the y axis
 		paddingBoard = 4, -- The padding between the keyboard keys and box drawn around it
@@ -434,7 +539,6 @@ function LogSearchScreen.createKeyboardButtons()
 
 	-- Calculate key and keyboard dimensions
 	local width = botBox.width
-	local height = 50
 	local autosizeHeight = false
 
 	local keysByRow = LSS.KeyboardCharacters
@@ -462,8 +566,11 @@ function LogSearchScreen.createKeyboardButtons()
 
 	-- ==================== Build keyboard buttons ====================
 	for index, keyRow in ipairs(keysByRow) do
-		local rowOffset = math.floor((index - 1) * (0.5 * keyWidth) + 0.5)
-		local keyX = keyRowX + rowOffset
+		local keyX = keyRowX
+		-- After the first and second rows, offset with a pyramid effect
+		if index > 2 then
+			keyX = keyX + math.floor((index - 2) * (0.5 * keyWidth) + 0.5)
+		end
 		for _, key in ipairs(keyRow) do
 			-- ===== KEYS =====
 			-- Center the character in the box
@@ -489,7 +596,8 @@ function LogSearchScreen.createKeyboardButtons()
 					if LSS.searchText and #LSS.searchText < LSS.Buttons.SearchTextField.maxLetters then
 						LSS.searchText = LSS.searchText .. self.textToAdd
 					end
-					LSS.updateSearch()
+					LogOverlay.refreshActiveTabGrid()
+					Program.redraw(true)
 				end,
 				draw = function(self)
 					Drawing.drawText(self.box[1] + self.textOffsetX + 1, self.box[2], self.keyText,
@@ -592,7 +700,7 @@ function LogSearchScreen.drawScreen()
 	-- Draw sort and filter labels
 	local sortByText = Resources.LogSearchScreen.LabelSortBy .. ":"
 	Drawing.drawText(topBox.x + 3, LSS.Buttons.SortBySelected.box[2] + 1, sortByText, topBox.text, topBox.shadow)
-	local filterByText = Resources.LogSearchScreen.LabelFilter .. ":"
+	local filterByText = Resources.LogSearchScreen.LabelSearch .. ":"
 	Drawing.drawText(topBox.x + 3, LSS.Buttons.FilterBySelected.box[2] + 1, filterByText, topBox.text, topBox.shadow)
 
 	-- Draw bottom border box for keyboard
@@ -614,6 +722,25 @@ function LogSearchScreen.drawScreen()
 	for _, button in pairs(LSS.DropdownButtonsFilterBy) do
 		Drawing.drawButton(button)
 	end
+end
+
+-- When no search results are returned, displays an image of MissingNo at (x,y) or centered on screen
+function LogSearchScreen.drawNoSearchResults(textColor, shadowcolor, x, y)
+	textColor = textColor or Theme.COLORS["Default text"]
+	shadowcolor = shadowcolor or Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local textX = x
+
+	local image = {
+		filepath = FileManager.buildImagePath(FileManager.Folders.Icons, "missingno", ".png"),
+		w = 24, h = 56,
+	}
+	x = x or LogOverlay.TabBox.x + math.floor((LogOverlay.TabBox.width - image.w) / 2 + 0.5)
+	y = y or LogOverlay.TabBox.y + math.floor((LogOverlay.TabBox.height - image.h) / 2 + 0.5) - 4
+	gui.drawImage(image.filepath, x, y)
+
+	local noResultsText = string.format("(%s)", Resources.LogSearchScreen.LabelNoResults)
+	textX = textX or Utils.getCenteredTextX(noResultsText, LogOverlay.TabBox.width)
+	Drawing.drawText(textX, y + image.h + 2, noResultsText, textColor, shadowcolor)
 end
 
 --- Draws a shadow on the edges of the given rectangle, either inside or outside

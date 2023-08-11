@@ -43,6 +43,7 @@ Options = {
 	["Enable custom extensions"] = false,
 	["Show Team View"] = false,
 	["Show Pre Evolutions"] = false,
+	["Use Custom Trainer Names"] = false,
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
 		["Toggle view"] = "Start",

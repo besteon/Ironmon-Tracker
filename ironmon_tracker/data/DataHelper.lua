@@ -499,8 +499,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	end
 
 	data.r.id = routeId or 0
-	data.r.name = route.name or Constants.BLANKLINE
-	data.r.name = Utils.formatSpecialCharacters(data.r.name)
+	data.r.name = Utils.formatSpecialCharacters(route.name) or Constants.BLANKLINE
 	data.r.totalTrainerEncounters = 0
 	data.r.totalWildEncounters = 0
 
@@ -541,23 +540,18 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.p = {} -- data about the Pokemon itself
 	data.x = {} -- misc data to display, such as notes
 
-	local pokemonDex
+	local pokemonInternal
 	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
-		pokemonDex = PokemonData.BlankPokemon
+		pokemonInternal = PokemonData.BlankPokemon
 		return data -- likely want a safer way
 	else
-		pokemonDex = PokemonData.Pokemon[pokemonID]
+		pokemonInternal = PokemonData.Pokemon[pokemonID]
 	end
 	local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID]
 
-	data.p.id = pokemonDex.pokemonID or 0
-	-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-	if RandomizerLog.areLanguagesMismatched() then
-		data.p.name = pokemonDex.name or Constants.BLANKLINE
-	else
-		data.p.name = pokemonLog.Name or pokemonDex.name or Constants.BLANKLINE
-	end
-	data.p.bst = pokemonDex.bst or Constants.BLANKLINE
+	data.p.id = pokemonInternal.pokemonID or 0
+	data.p.name = RandomizerLog.getPokemonName(pokemonID)
+	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
 		pokemonLog.Types[2],
@@ -582,40 +576,40 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's randomized evolutions
 	data.p.evos = {}
 	for _, evoId in ipairs(pokemonLog.Evolutions or {}) do
-		local evoInfo = {
+		local evo = {
 			id = evoId,
 			name = PokemonData.Pokemon[evoId].name,
 		}
-		table.insert(data.p.evos, evoInfo)
+		table.insert(data.p.evos, evo)
 	end
 
 	-- Pre-evolutions
 	data.p.prevos = {}
 	for _, prevoId in ipairs(pokemonLog.PreEvolutions or {}) do
-		local prevoInfo = {
+		local prevo = {
 			id = prevoId,
 			name = PokemonData.Pokemon[prevoId].name,
 		}
-		table.insert(data.p.prevos, prevoInfo)
+		table.insert(data.p.prevos, prevo)
 	end
 
 
 	-- The Pokemon's level-up move list, in order of levels
 	data.p.moves = {}
-	for _, move in ipairs(pokemonLog.MoveSet or {}) do
-		local moveInfo = {
-			id = move.moveId,
-			level = move.level,
+	for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
+		local move = {
+			id = moveLog.moveId,
+			level = moveLog.level,
 		}
-		local moveDex = MoveData.Moves[move.moveId]
-		if moveDex ~= nil then
-			moveInfo.name = moveDex.name
-			moveInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		local moveInternal = MoveData.Moves[moveLog.moveId]
+		if moveInternal ~= nil then
+			move.name = moveInternal.name
+			move.isstab = Utils.isSTAB(moveInternal, moveInternal.type, data.p.types)
 		else
-			moveInfo.name = move.name or Constants.BLANKLINE
-			moveInfo.isstab = false
+			move.name = moveLog.name or Constants.BLANKLINE
+			move.isstab = false
 		end
-		table.insert(data.p.moves, moveInfo)
+		table.insert(data.p.moves, move)
 	end
 
 	-- Determine gym TMs for the game
@@ -627,21 +621,21 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	-- The Pokemon's TM Move Compatibility, which moves it can learn from TMs
 	data.p.tmmoves = {}
 	for _, tmNumber in ipairs(pokemonLog.TMMoves or {}) do
-		local tm = RandomizerLog.Data.TMs[tmNumber]
-		local tmInfo = {
+		local tmLog = RandomizerLog.Data.TMs[tmNumber]
+		local tm = {
 			tm = tmNumber,
-			moveId = tm.moveId,
+			moveId = tmLog.moveId,
 			gymNum = gymTMs[tmNumber] or 9,
 		}
-		local moveDex = MoveData.Moves[tm.moveId]
-		if moveDex ~= nil then
-			tmInfo.moveName = moveDex.name
-			tmInfo.isstab = Utils.isSTAB(moveDex, moveDex.type, data.p.types)
+		local moveInternal = MoveData.Moves[tmLog.moveId]
+		if moveInternal ~= nil then
+			tm.moveName = moveInternal.name
+			tm.isstab = Utils.isSTAB(moveInternal, moveInternal.type, data.p.types)
 		else
-			tmInfo.moveName = tm.name or Constants.BLANKLINE
-			tmInfo.isstab = false
+			tm.moveName = tmLog.name or Constants.BLANKLINE
+			tm.isstab = false
 		end
-		table.insert(data.p.tmmoves, tmInfo)
+		table.insert(data.p.tmmoves, tm)
 	end
 
 	return data
@@ -657,21 +651,22 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 		return data
 	end
 
-	local trainer = RandomizerLog.Data.Trainers[trainerId]
-	local trainerInfo = TrainerData.getTrainerInfo(trainerId)
+	local trainerLog = RandomizerLog.Data.Trainers[trainerId]
+	local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
 
 	data.t.id = trainerId or 0
-	data.t.filename = trainerInfo.filename or Constants.BLANKLINE
+	data.t.filename = TrainerData.getFullImage(trainerInternal.class) or Constants.BLANKLINE
+	data.t.name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE
+	data.t.class = Utils.firstToUpperEachWord(trainerLog.class) or ""
+	data.t.fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE
+	data.t.customName = Utils.firstToUpperEachWord(trainerLog.customName) or Constants.BLANKLINE
+	data.t.customClass = Utils.firstToUpperEachWord(trainerLog.customClass) or Constants.BLANKLINE
+	data.t.customFullname = Utils.firstToUpperEachWord(trainerLog.customname) or Constants.BLANKLINE
 
-	if trainerInfo.name ~= "Unknown" then
-		data.t.name = trainerInfo.name or Constants.BLANKLINE
-	else
-		data.t.name = Utils.firstToUpper(trainer.name) or Constants.BLANKLINE
-	end
-
-	for _, partyMon in ipairs(trainer.party or {}) do
-		local pokemonInfo = {
+	for _, partyMon in ipairs(trainerLog.party or {}) do
+		local pokemon = {
 			id = partyMon.pokemonID or 0,
+			name = RandomizerLog.getPokemonName(partyMon.pokemonID),
 			level = partyMon.level or 0,
 			moves = {},
 			helditem = partyMon.helditem,
@@ -683,43 +678,106 @@ function DataHelper.buildTrainerLogDisplay(trainerId)
 			pokemonLog.Types[2],
 		}
 
-		-- When languages don't match, there's no way to tell if the name in the log is a custom name or not, assume it's not
-		if RandomizerLog.areLanguagesMismatched() then
-			pokemonInfo.name = PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-		else
-			pokemonInfo.name = pokemonLog.Name or PokemonData.Pokemon[partyMon.pokemonID].name or Constants.BLANKLINE
-		end
+		for _, moveId in ipairs(partyMon.moveIds) do
+			local move = {
+				moveId = moveId,
+				name = Constants.BLANKLINE,
+				isstab = false,
+			}
 
-		local movesLeftToAdd = 4
-		local pokemonMoves = pokemonLog.MoveSet or {}
-		-- Pokemon forget moves in order from 1st learned to last, so figure out current moveset working backwards
-		for j = #pokemonMoves, 1, -1 do
-			if pokemonMoves[j].level <= partyMon.level then
-				local moveToAdd = {
-					moveId = pokemonMoves[j].moveId,
-				}
-				local moveDex = MoveData.Moves[pokemonMoves[j].moveId]
-				if moveDex ~= nil then
-					moveToAdd.name = moveDex.name
-					moveToAdd.isstab = Utils.isSTAB(moveDex, moveDex.type, pokemonTypes)
-				else
-					moveToAdd.name = pokemonMoves[j].name or Constants.BLANKLINE
-					moveToAdd.isstab = false
-				end
-				table.insert(pokemonInfo.moves, 1, moveToAdd) -- insert at the front to add them in "reverse" or bottom-up
-				movesLeftToAdd = movesLeftToAdd - 1
-				if movesLeftToAdd <= 0 then
-					break
+			local moveInternal = MoveData.Moves[moveId]
+			if moveInternal ~= nil then
+				move.name = moveInternal.name
+				move.isstab = Utils.isSTAB(moveInternal, moveInternal.type, pokemonTypes)
+			else
+				-- Otherwise likely a custom name, look it up from its move list, cannot confirm if STAB
+				for _, moveLog in ipairs(pokemonLog.MoveSet or {}) do
+					if moveLog.moveId == moveId then
+						move.name = moveLog.name or Constants.BLANKLINE
+						break
+					end
 				end
 			end
+			table.insert(pokemon.moves, move)
 		end
-		table.insert(data.p, pokemonInfo)
+		table.insert(data.p, pokemon)
 	end
 
 	-- Gym number (if applicable), otherwise nil
-	if trainerInfo.group == TrainerData.TrainerGroups.Gym then
-		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d)"))
+	if trainerInternal.group == TrainerData.TrainerGroups.Gym then
+		data.x.gymNumber = tonumber(string.match(data.t.filename, "gymleader%-(%d+)"))
 	end
+
+	return data
+end
+
+function DataHelper.buildRouteLogDisplay(mapId)
+	local data = {}
+	data.r = {} -- data about the Route itself
+	data.e = {} -- data about each trainer or wild encounter area in the Route (list of trainers/areas, each is a list of pokemon)
+	data.x = {} -- misc data to display, such as notes
+
+	if mapId == nil or RandomizerLog.Data.Routes[mapId] == nil then
+		return data
+	end
+
+	local routeLog = RandomizerLog.Data.Routes[mapId]
+	local routeInternal = RouteData.Info[mapId] or {}
+
+	data.r.id = mapId or 0
+	data.r.name =  Utils.firstToUpper(routeLog.name or routeInternal.name or Constants.BLANKLINE)
+	data.r.icon = routeInternal.icon or RouteData.Icons.RouteSign
+
+	for key, _ in pairs(RandomizerLog.EncounterTypes) do
+		data.e[key] = {}
+	end
+
+	for key, encounterArea in pairs(routeLog.EncountersAreas) do
+		if key == "Trainers" then
+			for _, trainerId in ipairs(encounterArea.trainers or {}) do
+				local trainerInternal = TrainerData.getTrainerInfo(trainerId) or {}
+				local trainerLog = RandomizerLog.Data.Trainers[trainerId]
+				if trainerLog ~= nil then -- Emerald has more trainers than Ruby/Sapphire; exclude the missing ones
+					local trainer = {
+						id = trainerId,
+						name = Utils.firstToUpperEachWord(trainerLog.name) or Constants.BLANKLINE,
+						class = Utils.firstToUpperEachWord(trainerLog.class) or "",
+						fullname = Utils.firstToUpperEachWord(trainerLog.fullname) or Constants.BLANKLINE,
+						customName = Utils.firstToUpperEachWord(trainerLog.customName) or Constants.BLANKLINE,
+						customClass = Utils.firstToUpperEachWord(trainerLog.customClass) or "",
+						customFullname = Utils.firstToUpperEachWord(trainerLog.customFullname) or Constants.BLANKLINE,
+						filename = TrainerData.getPortraitIcon(trainerInternal.class) or Constants.BLANKLINE,
+						maxlevel = trainerLog.maxlevel or 0,
+						pokemon = {},
+					}
+
+					for _, pokemonLog in ipairs(trainerLog.party or {}) do
+						local pokemon = {
+							pokemonID = pokemonLog.pokemonID or 0,
+							level = pokemonLog.level or 0
+						}
+						table.insert(trainer.pokemon, pokemon)
+					end
+
+					table.insert(data.e[key], trainer)
+				end
+			end
+		else
+			for pokemonID, enc in pairs(encounterArea.pokemon or {}) do
+				local pokemonEnc = {
+					pokemonID = pokemonID,
+					levelMin = enc.levelMin or 0,
+					levelMax = enc.levelMax or 0,
+					rate = enc.rate or 0,
+				}
+				table.insert(data.e[key], pokemonEnc)
+			end
+		end
+	end
+
+	-- Currently unused
+	data.x.avgTrainerLv = routeLog.avgTrainerLv
+	data.x.maxWildLv = routeLog.maxWildLv
 
 	return data
 end
