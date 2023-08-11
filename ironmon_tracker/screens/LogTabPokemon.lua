@@ -150,16 +150,20 @@ function LogTabPokemon.buildPagedButtons()
 	end
 
 	-- First main page viewed by default is the Pokemon Window, so set that up now
-	LogTabPokemon.realignGrid()
+	if LogOverlay.isDisplayed then
+		LogTabPokemon.realignGrid()
+	end
 end
 
 function LogTabPokemon.realignGrid(gridFilter, sortFunc, startingPage)
 	-- Default grid to Pokédex number
 	gridFilter = gridFilter or "#"
-	sortFunc = sortFunc or LogSearchScreen.currentSortOrder.sortFunc --pokedexNumber
 	startingPage = startingPage or 1
 
-	table.sort(LogTabPokemon.PagedButtons, sortFunc)
+	if sortFunc or LogSearchScreen.currentSortOrder then
+		sortFunc = sortFunc or LogSearchScreen.currentSortOrder.sortFunc --pokedexNumber
+		table.sort(LogTabPokemon.PagedButtons, sortFunc)
+	end
 
 	local x = LogOverlay.TabBox.x + 19
 	local y = LogOverlay.TabBox.y + 1

@@ -16,6 +16,7 @@ LogTabTMs = {
 
 LogTabTMs.PagedButtons = {}
 LogTabTMs.NavFilterButtons = {}
+LogTabTMs.GymLabelButtons = {}
 
 function LogTabTMs.initialize()
 	LogTabTMs.buildNavigation()
@@ -23,6 +24,11 @@ end
 
 function LogTabTMs.refreshButtons()
 	for _, button in pairs(LogTabTMs.NavFilterButtons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
+	for _, button in pairs(LogTabTMs.GymLabelButtons) do
 		if type(button.updateSelf) == "function" then
 			button:updateSelf()
 		end
@@ -126,6 +132,7 @@ function LogTabTMs.buildPagedButtons(gymTMs)
 end
 
 function LogTabTMs.buildGymTMButtons()
+	LogTabTMs.GymLabelButtons = {}
 	local gymTMNav = LogOverlay.NavFilters.TMs.GymTMs
 	LogTabTMs.realignGrid(gymTMNav.group, gymTMNav.sortFunc)
 
@@ -164,7 +171,7 @@ function LogTabTMs.buildGymTMButtons()
 					-- InfoScreen.changeScreenView(InfoScreen.Screens.TRAINER_INFO, self.trainerId) -- TODO: (future feature) implied redraw
 				end,
 			}
-			table.insert(LogTabTMs.NavFilterButtons, gymButton)
+			table.insert(LogTabTMs.GymLabelButtons, gymButton)
 		end
 	end
 end
@@ -201,6 +208,7 @@ end
 -- USER INPUT FUNCTIONS
 function LogTabTMs.checkInput(xmouse, ymouse)
 	Input.checkButtonsClicked(xmouse, ymouse, LogTabTMs.NavFilterButtons)
+	Input.checkButtonsClicked(xmouse, ymouse, LogTabTMs.GymLabelButtons)
 	Input.checkButtonsClicked(xmouse, ymouse, LogTabTMs.PagedButtons)
 end
 
@@ -221,6 +229,9 @@ function LogTabTMs.drawTab()
 
 	-- Draw the navigation
 	for _, button in pairs(LogTabTMs.NavFilterButtons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
+	for _, button in pairs(LogTabTMs.GymLabelButtons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
 

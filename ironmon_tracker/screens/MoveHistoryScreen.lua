@@ -91,14 +91,21 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 	startingLevel = startingLevel or 1
 	MoveHistoryScreen.TemporaryButtons = {}
 
-	local trackedMoves = Tracker.getMoves(pokemonID)
-	for _, tMove in ipairs(trackedMoves) do
-		if MoveData.isValid(tMove.id) then -- Don't add in the placeholder moves
+	local moves
+	if Options["Open Book Play Mode"] then
+		local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID] or {}
+		moves = pokemonLog.MoveSet or {}
+	else
+		moves = Tracker.getMoves(pokemonID)
+	end
+	for _, move in ipairs(moves) do
+		local moveId = move.id or move.moveId
+		if MoveData.isValid(moveId) then -- Don't add in the placeholder moves
 			local moveButton = {
 				type = Constants.ButtonTypes.NO_BORDER,
-				getText = function(self) return MoveData.Moves[tMove.id].name end,
+				getText = function(self) return MoveData.Moves[moveId].name end,
 				textColor = MoveHistoryScreen.Colors.text,
-				trackedMove = tMove,
+				trackedMove = move,
 				isVisible = function(self) return self.pageVisible == MoveHistoryScreen.Pagination.currentPage end,
 				draw = function(self, shadowcolor)
 					-- Implied move text is drawn, then the levels off to the right-side
@@ -108,22 +115,24 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 					Drawing.drawNumber(self.box[1] + 99 + 3, self.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 99 from drawScreen()
 				end,
 				onClick = function(self)
-					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, tMove.id)
+					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveId)
 				end
 			}
 			table.insert(MoveHistoryScreen.TemporaryButtons, moveButton)
 		end
 	end
 
-	-- Sort based on min level seen, or last level seen, in descending order
-	local sortFunc = function(a, b)
-		if a.trackedMove.minLv ~= nil and b.trackedMove.minLv ~= nil then
-			return a.trackedMove.minLv > b.trackedMove.minLv
-		else
-			return a.trackedMove.level > b.trackedMove.level
+	if not Options["Open Book Play Mode"] then
+		-- Sort based on min level seen, or last level seen, in descending order
+		local sortFunc = function(a, b)
+			if a.trackedMove.minLv ~= nil and b.trackedMove.minLv ~= nil then
+				return a.trackedMove.minLv > b.trackedMove.minLv
+			else
+				return a.trackedMove.level > b.trackedMove.level
+			end
 		end
+		table.sort(MoveHistoryScreen.TemporaryButtons, sortFunc)
 	end
-	table.sort(MoveHistoryScreen.TemporaryButtons, sortFunc)
 
 	-- After sorting the moves, determine which are visible on which page, and where on the page vertically
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12

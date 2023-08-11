@@ -45,12 +45,21 @@ LogTabMisc.Buttons = {
 	OpenBookMode = {
 		type = Constants.ButtonTypes.CHECKBOX,
 		optionKey = "Open Book Play Mode",
-		-- TODO: Update Resources
-		getText = function(self) return "Open Book Play Mode" or Resources.LogOverlay.CheckboxOpenBookMode end,
+		getText = function(self) return Resources.LogOverlay.CheckboxOpenBookMode end,
 		clickableArea = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 29, 90, 10, },
 		box = { LogOverlay.TabBox.x + 5, LogOverlay.TabBox.y + 29, 8, 8, },
 		toggleState = Options["Open Book Play Mode"],
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		draw = function(self, shadowcolor)
+			if self.toggleState then
+				local color = Theme.COLORS[LogTabMisc.Colors.hightlight]
+				local x, y = self.box[1] + self.box[3], self.box[2] - 2
+				x = x + Utils.calcWordPixelLength(self:getText()) + 7
+				Drawing.drawImageAsPixels(Constants.PixelImages.WARNING, x, y + 1, color, shadowcolor)
+				local warningMsg = Resources.LogOverlay.LabelExtraTimeWarning
+				Drawing.drawText(x + 10, y, warningMsg, color, shadowcolor)
+			end
+		end,
 		onClick = function(self)
 			self.toggleState = Options.toggleSetting(self.optionKey)
 			Program.redraw(true)
@@ -67,7 +76,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelPokemonGame .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Game or Constants.BLANKLINE end,
 		index = 1,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 45, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 50, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -77,7 +86,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomizerVersion .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.Version or Constants.BLANKLINE end,
 		index = 2,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 57, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 62, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -87,7 +96,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelRandomSeed .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.RandomSeed or Constants.BLANKLINE end,
 		index = 3,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 69, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 74, 100, 11 },
 		draw = function(self, shadowcolor)
 			Drawing.drawText(self.box[1] + columnOffsetX, self.box[2], self:getValue(), Theme.COLORS[self.textColor], shadowcolor)
 		end,
@@ -97,7 +106,7 @@ LogTabMisc.Buttons = {
 		getText = function(self) return Resources.LogOverlay.LabelSettingsString .. ":" end,
 		getValue = function(self) return RandomizerLog.Data.Settings.SettingsString or Constants.BLANKLINE end,
 		index = 4,
-		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 81, 100, 11 },
+		box = { LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 86, 100, 11 },
 		draw = function(self, shadowcolor)
 			local settingsString = self:getValue()
 			local offsetY = self.box[2] + Constants.SCREEN.LINESPACING

@@ -220,7 +220,24 @@ function LogTabRoutes.buildPagedButtons()
 			end,
 			onClick = function(self)
 				LogOverlay.Windower:changeTab(LogTabRouteDetails, 1, 1, self.id)
-				Program.redraw(true)
+				-- Find first available enoucnter area
+				local encounterArea
+				for _, encType in ipairs(Utils.getSortedList(RandomizerLog.EncounterTypes)) do
+					if encType.logKey ~= RandomizerLog.EncounterTypes.Trainers.logKey then
+						encounterArea = encType.internalArea
+						break
+					end
+				end
+				if route.numWilds > 0 and RouteData.hasRouteEncounterArea(self.id, encounterArea) then
+					local routeInfo = {
+						mapId = self.id,
+						encounterArea = encounterArea,
+					}
+					InfoScreen.changeScreenView(InfoScreen.Screens.ROUTE_INFO, routeInfo)
+				else
+					Program.redraw(true)
+				end
+
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]

@@ -82,39 +82,55 @@ RandomizerLog.EncounterTypes = {
 	Trainers = {
 		-- Not used for wild encounters
 		logKey = "Trainers",
+		internalArea = RouteData.EncounterArea.TRAINER,
+		index = 1,
 	},
 	GrassCave = {
 		logKey = "Grass/Cave",
-		rates = { 0.20, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05, 0.05, 0.04, 0.04, 0.01, 0.01, }
+		internalArea = RouteData.EncounterArea.LAND,
+		rates = { 0.20, 0.20, 0.10, 0.10, 0.10, 0.10, 0.05, 0.05, 0.04, 0.04, 0.01, 0.01, },
+		index = 2,
 	},
 	Surfing = {
 		logKey = "Surfing",
-		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
+		internalArea = RouteData.EncounterArea.SURFING,
+		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, },
+		index = 3,
 	},
 	RockSmash = {
 		logKey = "Rock Smash",
-		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, }
+		internalArea = RouteData.EncounterArea.ROCKSMASH,
+		rates = { 0.60, 0.30, 0.05, 0.04, 0.01, },
+		index = 4,
 	},
 	OldRod = {
 		logKey = "Fishing",
-		rates = { 0.70, 0.30, }
+		internalArea = RouteData.EncounterArea.OLDROD,
+		rates = { 0.70, 0.30, },
+		index = 5,
 	},
 	GoodRod = {
 		logKey = "Fishing",
-		rates = { 0.60, 0.20, 0.20, }
+		internalArea = RouteData.EncounterArea.GOODROD,
+		rates = { 0.60, 0.20, 0.20, },
+		index = 6,
 	},
 	SuperRod = {
 		logKey = "Fishing",
-		rates = { 0.40, 0.40, 0.15, 0.04, 0.01, }
+		internalArea = RouteData.EncounterArea.SUPERROD,
+		rates = { 0.40, 0.40, 0.15, 0.04, 0.01, },
+		index = 7,
 	},
 }
+
+-- A table of parsed data from the log file: Settings, Pokemon, TMs, Trainers, PickupItems
+RandomizerLog.Data = {}
 
 function RandomizerLog.initialize()
 	-- Holds the path of the previously loaded log file. This is used to check if a new file needs to be parsed
 	RandomizerLog.loadedLogPath = nil
 
-	-- A table of parsed data from the log file: Settings, Pokemon, TMs, Trainers, PickupItems
-	RandomizerLog.Data = {}
+	RandomizerLog.initBlankData()
 end
 
 -- Parses the log file at 'filepath' into the data object RandomizerLog.Data

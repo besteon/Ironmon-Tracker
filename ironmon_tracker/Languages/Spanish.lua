@@ -509,6 +509,8 @@ ScreenResources{
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
 		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
+		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
+		LabelExtraTimeWarning = "Adds 2 seconds to game load", -- NEEDS TRANSLATION
 		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
 	},

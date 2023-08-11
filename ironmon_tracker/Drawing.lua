@@ -357,6 +357,7 @@ end
 
 function Drawing.drawImageAsPixels(imageMatrix, x, y, colorList, shadowcolor)
 	if imageMatrix == nil then return end
+	colorList = colorList or Theme.COLORS["Default text"]
 
 	-- Convert to a list if only a single color is supplied
 	if type(colorList) == "number" then
