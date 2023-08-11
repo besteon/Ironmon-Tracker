@@ -258,6 +258,9 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.prevScreenInfo = InfoScreen.infoLookup
 	InfoScreen.viewScreen = screen
 	InfoScreen.infoLookup = info
+	if screen == InfoScreen.Screens.ROUTE_INFO and (Options["Open Book Play Mode"] or LogOverlay.isDisplayed) then
+		InfoScreen.Buttons.ShowRouteLevels.toggleState = true
+	end
 	Program.changeScreenView(InfoScreen)
 end
 
@@ -429,7 +432,7 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.infoLookup.mapId = mapId
 			InfoScreen.infoLookup.encounterArea = encounterArea
 			InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
-			InfoScreen.Buttons.ShowRouteLevels.toggleState = false
+			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
 			Program.redraw(true)
 		end
 		client.unpause()
@@ -442,19 +445,47 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 	local areaInfo
 	local totalPossible
-	if InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState then
-		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
-		totalPossible = #areaInfo
-	else
-		local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
+	if Options["Open Book Play Mode"] or LogOverlay.isDisplayed then
 		areaInfo = {}
-		for _, id in ipairs(trackedPokemonIDs) do
+		local selectedEncKey
+		for key, val in pairs(RandomizerLog.EncounterTypes) do
+			if val.internalArea == encounterArea then
+				selectedEncKey = key
+				break
+			end
+		end
+		local routeLog = RandomizerLog.Data.Routes[mapId] or {}
+		local routeAreas = routeLog.EncountersAreas or {}
+		local encArea = routeAreas[selectedEncKey or false] or {}
+		for id, pokemon in pairs(encArea.pokemon or {}) do
 			table.insert(areaInfo, {
 				pokemonID = id,
-				rate = nil,
+				minLv = pokemon.levelMin,
+				maxLv = pokemon.levelMax,
+				rate = pokemon.rate,
 			})
 		end
-		totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
+		table.sort(areaInfo, function(a,b)
+			return (a.rate or 0) > (b.rate or 0) or (a.rate == b.rate and a.pokemonID < b.pokemonID)
+		end)
+		totalPossible = #areaInfo
+	end
+	-- If log info isn't available, revert back to using normal route display
+	if totalPossible == 0 then
+		if InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState then
+			areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
+			totalPossible = #areaInfo
+		else
+			local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
+			areaInfo = {}
+			for _, id in ipairs(trackedPokemonIDs) do
+				table.insert(areaInfo, {
+					pokemonID = id,
+					rate = nil,
+				})
+			end
+			totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
+		end
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
@@ -938,7 +969,10 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
 	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
-	if not (InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState) then
+	local showPercents = InfoScreen.Buttons.ShowRoutePercentages.toggleState
+	local showLevels = InfoScreen.Buttons.ShowRouteLevels.toggleState
+	-- Don't clarify the pokemon are shown "in order of appearence" if the order is known
+	if not (Options["Open Book Play Mode"] or LogOverlay.isDisplayed or showPercents or showLevels) then
 		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", Theme.COLORS["Lower box text"], boxBotShadow)
 	end
 
@@ -953,9 +987,9 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		Drawing.drawButton(iconButton, boxBotShadow)
 
 		local iconInfoText = nil
-		if InfoScreen.Buttons.ShowRoutePercentages.toggleState and iconButton.rate ~= nil then
+		if showPercents and iconButton.rate ~= nil then
 			iconInfoText = math.floor(iconButton.rate * 100) .. "%"
-		elseif InfoScreen.Buttons.ShowRouteLevels.toggleState and iconButton.minLv ~= nil and iconButton.maxLv ~= nil then
+		elseif showLevels and iconButton.minLv ~= nil and iconButton.maxLv ~= nil then
 			if iconButton.minLv == 0 and iconButton.maxLv == 0 then
 				iconInfoText = Constants.HIDDEN_INFO
 			else

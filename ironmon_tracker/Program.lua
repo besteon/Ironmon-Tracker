@@ -81,7 +81,10 @@ Program.GameTimer = {
 		self.timeLastChecked = currTime
 		if self.hasStarted and not self.isPaused then
 			local timeDelta = math.floor(os.difftime(currTime, prevTime))
-			Tracker.Data.playtime = Tracker.Data.playtime + timeDelta
+			-- If emulator itself is paused-unpaused, don't add all that "paused time"
+			if timeDelta > 0 then
+				Tracker.Data.playtime = Tracker.Data.playtime + 1
+			end
 			self.readyToDraw = (timeDelta ~= 0)
 		end
 
@@ -109,7 +112,8 @@ Program.GameTimer = {
 		self:unpause()
 	end,
 	checkInput = function(self, xmouse, ymouse)
-		if not Options["Display play time"] then return end
+		-- Don't pause if either game screen overlay is covering the screen
+		if not Options["Display play time"] or LogOverlay.isDisplayed or UpdateScreen.showNotes then return end
 		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
 		if clicked then
 			if self.isPaused then
@@ -761,6 +765,16 @@ function Program.HandleExit()
 
 	-- Emulator is closing as expected; no crash
 	CrashRecoveryScreen.logCrashReport(false)
+end
+
+-- Returns focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
+function Program.focusBizhawkWindow()
+	if not Main.IsOnBizhawk() then return end
+	local bizhawkWindowName = GameSettings.getRomName()
+	if bizhawkWindowName and bizhawkWindowName ~= "" then
+		local command = string.format("AppActivate(%s)", bizhawkWindowName)
+		FileManager.tryOsExecute(command)
+	end
 end
 
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.

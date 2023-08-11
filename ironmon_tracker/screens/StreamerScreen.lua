@@ -119,7 +119,6 @@ function StreamerScreen.openEditAttemptsWindow()
 			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
 				Main.currentSeed = newAttemptsCount
 				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
-				StartupScreen.refreshButtons()
 				Program.redraw(true)
 			end
 		end

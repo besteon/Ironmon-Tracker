@@ -245,6 +245,7 @@ ScreenResources{
 		Title = "Quickload Setup", -- NEEDS TRANSLATION
 		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
 		ChoiceHeader = "Choose a quickload option", -- NEEDS TRANSLATION
+		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
 		OptionRomsFolder = "ROMs Folder", -- NEEDS TRANSLATION
@@ -476,8 +477,8 @@ ScreenResources{
 	LogOverlay = { -- Log Viewer
 		HeaderTabPokemon = "Pokémon", -- NEEDS TRANSLATION
 		HeaderTabTrainers = "Trainers", -- NEEDS TRANSLATION
-		HeaderTabTMs = "TMs", -- NEEDS TRANSLATION
 		HeaderTabRoutes = "Routes", -- NEEDS TRANSLATION
+		HeaderTabTMs = "TMs", -- NEEDS TRANSLATION
 		HeaderTabMisc = "Misc.", -- NEEDS TRANSLATION
 		LabelBaseStats = "Base Stats", -- NEEDS TRANSLATION
 		LabelBSTTotal = "Total", -- NEEDS TRANSLATION
@@ -492,6 +493,15 @@ ScreenResources{
 		FilterElite4 = "Elite 4", -- NEEDS TRANSLATION
 		FilterBoss = "Boss", -- NEEDS TRANSLATION
 		FilterOther = "Other", -- NEEDS TRANSLATION
+		LabelLocation = "Location", -- NEEDS TRANSLATION
+		LabelEncounters = "Encounters", -- NEEDS TRANSLATION
+		TabTrainers = "Trainers", -- NEEDS TRANSLATION
+		TabGrassCave = "Grass / Cave", -- NEEDS TRANSLATION
+		TabSurfing = "Surfing", -- NEEDS TRANSLATION
+		TabOldRod = "Old Rod", -- NEEDS TRANSLATION
+		TabGoodRod = "Good Rod", -- NEEDS TRANSLATION
+		TabSuperRod = "Super Rod", -- NEEDS TRANSLATION
+		TabRockSmash = "Rock Smash", -- NEEDS TRANSLATION
 		FilterTMNumber = "TM #", -- NEEDS TRANSLATION
 		FilterGymTMs = "Gym TMs", -- NEEDS TRANSLATION
 		LabelPokemonGame = "Pokémon Game", -- NEEDS TRANSLATION
@@ -500,13 +510,17 @@ ScreenResources{
 		LabelSettingsString = "Settings String", -- NEEDS TRANSLATION
 		ButtonShareSeed = "Share Seed", -- NEEDS TRANSLATION
 		CheckboxShowPreEvolutions = "Show Pre Evolutions", -- NEEDS TRANSLATION
+		CheckboxCustomTrainerNames = "Custom Trainer Names", -- NEEDS TRANSLATION
+		CheckboxOpenBookMode = "Open Book Play Mode", -- NEEDS TRANSLATION
+		LabelExtraTimeWarning = "May add extra load time", -- NEEDS TRANSLATION
 		PromptShareSeedTitle = "Share Randomizer Seed", -- NEEDS TRANSLATION
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.", -- NEEDS TRANSLATION
 	},
 	LogSearchScreen = {
 		Title = "Search the Log", -- NEEDS TRANSLATION
 		LabelSortBy = "Sort by", -- NEEDS TRANSLATION
-		LabelFilter = "Filter", -- NEEDS TRANSLATION
+		LabelSearch = "Search", -- NEEDS TRANSLATION
+		LabelNoResults = "No results", -- NEEDS TRANSLATION
 		SortAlphabetical = "Alphabetical", -- NEEDS TRANSLATION
 		SortPokedexNum = "Pokédex Number", -- NEEDS TRANSLATION
 		SortBST = "BST", -- NEEDS TRANSLATION
@@ -516,9 +530,13 @@ ScreenResources{
 		SortSPA = "Sp. Atk", -- NEEDS TRANSLATION
 		SortSPD = "Sp. Def", -- NEEDS TRANSLATION
 		SortSPE = "Speed", -- NEEDS TRANSLATION
+		SortWildPokemonLv = "Wild Pokémon Lv.", -- NEEDS TRANSLATION
+		SortTrainerLevel = "Trainer Level", -- NEEDS TRANSLATION
 		FilterName = "Pokémon Name", -- NEEDS TRANSLATION
 		FilterAbility = "Ability", -- NEEDS TRANSLATION
 		FilterMove = "Levelup Move", -- NEEDS TRANSLATION
+		FilterTrainerName = "Trainer Name", -- NEEDS TRANSLATION
+		FilterRouteName = "Route Name", -- NEEDS TRANSLATION
 	},
 	TeamViewArea = {
 		EggNickname = "EGG", -- NEEDS TRANSLATION

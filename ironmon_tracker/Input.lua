@@ -221,26 +221,29 @@ end
 
 function Input.checkAnyMovesClicked(xmouse, ymouse)
 	local pokemon = Tracker.getViewedPokemon()
-	local pokemonMoves = nil
-	if pokemon ~= nil then
-		if not Tracker.Data.isViewingOwn then
-			pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
-		elseif Tracker.Data.hasCheckedSummary then
-			pokemonMoves = pokemon.moves
-		end
+	if pokemon == nil then
+		return
+	end
+
+	local pokemonMoves
+	if not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] then
+		pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
+	elseif Tracker.Data.hasCheckedSummary then
+		pokemonMoves = pokemon.moves
+	end
+	if pokemonMoves == nil then
+		return
 	end
 
 	-- move info lookup, only if pokemon exists and the user should know about its moves already
 	-- TODO: Turn these into buttons
-	if pokemonMoves ~= nil then
-		local moveOffsetX = Constants.SCREEN.WIDTH + 7
-		local moveOffsetY = 95
-		for moveIndex = 1, 4, 1 do
-			if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
-				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
-				break
-			end
-			moveOffsetY = moveOffsetY + 10
+	local moveOffsetX = Constants.SCREEN.WIDTH + 7
+	local moveOffsetY = 95
+	for moveIndex = 1, 4, 1 do
+		if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
+			break
 		end
+		moveOffsetY = moveOffsetY + 10
 	end
 end

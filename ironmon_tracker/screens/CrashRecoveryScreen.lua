@@ -135,8 +135,6 @@ function CrashRecoveryScreen.goBack()
 end
 
 function CrashRecoveryScreen.readCrashReport()
-	if not CrashRecoveryScreen.isEnabled() then return end
-
 	local crashReport = FileManager.readTableFromFile(FileManager.Files.CRASH_REPORT) or {}
 	crashReport.crashedOccurred = (crashReport.crashedOccurred == true) -- convert possible nil to a boolean
 	return crashReport

@@ -11,18 +11,25 @@ NavigationMenu.Buttons = {
 	VersionInfo = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "v" .. tostring(Main.TrackerVersion) end,
+		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN - 2, 22, 10 },
 		isVisible = function() return not NavigationMenu.showCredits end,
+		updateSelf = function(self)
+			local width = Utils.calcWordPixelLength(self:getText())
+			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - width - 3
+		end,
 	},
 	SetupAndOptions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
 		image = Constants.PixelImages.NOTEPAD,
+		index = 1,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(SetupScreen) end
 	},
 	Extras = {
 		getText = function(self) return Resources.NavigationMenu.ButtonExtras end,
 		image = Constants.PixelImages.POKEBALL,
+		index = 2,
 		iconColors = { NavigationMenu.Colors.textColor, NavigationMenu.Colors.boxFill, NavigationMenu.Colors.boxFill, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(ExtrasScreen) end
@@ -30,12 +37,14 @@ NavigationMenu.Buttons = {
 	GameplaySettings = {
 		getText = function(self) return Resources.NavigationMenu.ButtonGameplay end,
 		image = Constants.PixelImages.PHYSICAL,
+		index = 3,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(GameOptionsScreen) end
 	},
 	QuickloadSettings = {
 		getText = function(self) return Resources.NavigationMenu.ButtonQuickload end,
 		image = Constants.PixelImages.CLOCK,
+		index = 4,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		updateSelf = function (self)
 			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
@@ -50,6 +59,7 @@ NavigationMenu.Buttons = {
 	ThemeCustomization = {
 		getText = function(self) return Resources.NavigationMenu.ButtonTheme end,
 		image = Constants.PixelImages.SPARKLES,
+		index = 5,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
@@ -59,6 +69,7 @@ NavigationMenu.Buttons = {
 	LanguageSettings = {
 		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
 		image = Constants.PixelImages.LANGUAGE_LETTERS,
+		index = 6,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
@@ -71,6 +82,7 @@ NavigationMenu.Buttons = {
 			end
 		end,
 		image = Constants.PixelImages.INSTALL_BOX,
+		index = 7,
 		isVisible = function(self) return not NavigationMenu.showCredits end,
 		updateSelf = function(self)
 			if Main.isOnLatestVersion() then
@@ -92,12 +104,14 @@ NavigationMenu.Buttons = {
 	StreamerTools = {
 		getText = function(self) return Resources.NavigationMenu.ButtonStreaming end,
 		image = Constants.PixelImages.SPECIAL,
+		index = 8,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(StreamerScreen) end
 	},
 	Extensions = {
 		getText = function(self) return Resources.NavigationMenu.ButtonExtensions end,
 		image = Constants.PixelImages.EXTENSIONS,
+		index = 9,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			CustomExtensionsScreen.buildOutPagedButtons()
@@ -158,18 +172,6 @@ NavigationMenu.Buttons = {
 	end),
 }
 
-NavigationMenu.OrderedMenuList = {
-	NavigationMenu.Buttons.SetupAndOptions,
-	NavigationMenu.Buttons.Extras,
-	NavigationMenu.Buttons.GameplaySettings,
-	NavigationMenu.Buttons.QuickloadSettings,
-	NavigationMenu.Buttons.ThemeCustomization,
-	NavigationMenu.Buttons.LanguageSettings,
-	NavigationMenu.Buttons.CheckForUpdates,
-	NavigationMenu.Buttons.StreamerTools,
-	NavigationMenu.Buttons.Extensions,
-}
-
 function NavigationMenu.initialize()
 	NavigationMenu.showCredits = false
 
@@ -178,7 +180,7 @@ function NavigationMenu.initialize()
 	local spacer = 6
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = Constants.SCREEN.MARGIN + 12 + spacer
-	for i, button in ipairs(NavigationMenu.OrderedMenuList) do
+	for i, button in ipairs(Utils.getSortedList(NavigationMenu.Buttons)) do
 		button.type = Constants.ButtonTypes.ICON_BORDER
 		button.box = { startX, startY, btnWidth, btnHeight }
 
@@ -190,16 +192,13 @@ function NavigationMenu.initialize()
 		end
 	end
 
-	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
-
 	for _, button in pairs(NavigationMenu.Buttons) do
-		button.textColor = NavigationMenu.Colors.textColor
-		button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
-	end
-
-	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
-	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
-		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
+		if button.textColor == nil then
+			button.textColor = NavigationMenu.Colors.textColor
+		end
+		if button.boxColors == nil then
+			button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
+		end
 	end
 
 	-- Yet another fun Easter Egg that shows up only once in a while

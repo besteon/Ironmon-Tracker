@@ -54,9 +54,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Multi-Language support, Crash recovery, Log Viewer search
+### Log Viewer Routes and Open Book play mode
 
-![image](https://user-images.githubusercontent.com/4258818/254057395-e2b48598-e285-470d-b721-3649dc32fc6c.png)
+![Image showing the new route screen as seen in the log viewer.](https://user-images.githubusercontent.com/4258818/259355750-37a4fad6-389a-4b65-8de1-0d12a2e56ee4.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
