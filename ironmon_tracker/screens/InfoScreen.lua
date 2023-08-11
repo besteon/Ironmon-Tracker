@@ -455,7 +455,8 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			end
 		end
 		local routeLog = RandomizerLog.Data.Routes[mapId] or {}
-		local encArea = routeLog.EncountersAreas[selectedEncKey or false] or {}
+		local routeAreas = routeLog.EncountersAreas or {}
+		local encArea = routeAreas[selectedEncKey or false] or {}
 		for id, pokemon in pairs(encArea.pokemon or {}) do
 			table.insert(areaInfo, {
 				pokemonID = id,
@@ -468,19 +469,23 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			return (a.rate or 0) > (b.rate or 0) or (a.rate == b.rate and a.pokemonID < b.pokemonID)
 		end)
 		totalPossible = #areaInfo
-	elseif InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState then
-		areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
-		totalPossible = #areaInfo
-	else
-		local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
-		areaInfo = {}
-		for _, id in ipairs(trackedPokemonIDs) do
-			table.insert(areaInfo, {
-				pokemonID = id,
-				rate = nil,
-			})
+	end
+	-- If log info isn't available, revert back to using normal route display
+	if totalPossible == 0 then
+		if InfoScreen.Buttons.ShowRoutePercentages.toggleState or InfoScreen.Buttons.ShowRouteLevels.toggleState then
+			areaInfo = RouteData.getEncounterAreaPokemon(mapId, encounterArea)
+			totalPossible = #areaInfo
+		else
+			local trackedPokemonIDs = Tracker.getRouteEncounters(mapId, encounterArea)
+			areaInfo = {}
+			for _, id in ipairs(trackedPokemonIDs) do
+				table.insert(areaInfo, {
+					pokemonID = id,
+					rate = nil,
+				})
+			end
+			totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 		end
-		totalPossible = RouteData.countPokemonInArea(mapId, encounterArea)
 	end
 
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3
