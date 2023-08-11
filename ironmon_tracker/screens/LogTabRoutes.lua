@@ -149,6 +149,11 @@ function LogTabRoutes.buildPagedButtons()
 			filename = routeInternal.filename,
 			dimensions = { width = routeBar.width, height = routeBar.height, },
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
+			updateSelf = function(self)
+				if not self.box then return end
+				-- Make the clickable area just a tad smaller to prevent overlappying clicks
+				self.clickableArea = { self.box[1], self.box[2] + 1, self.box[3], self.box[4] - 2, }
+			end,
 			includeInGrid = function(self)
 				-- If no search text entered, check any filter groups and/or show all results
 				if LogSearchScreen.searchText == "" then
