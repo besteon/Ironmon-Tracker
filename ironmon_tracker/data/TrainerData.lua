@@ -183,8 +183,9 @@ function TrainerData.getExcludedTrainers()
 	for _, item in pairs(trainerIdRanges) do
 		if type(item) == "number" then
 			trainerIds[item] = true
-		elseif type(item) == "table" then
-			for i = (item[1] or 9999), (item[2] or 9999), 1 do
+		elseif type(item) == "table" and #item == 2 then
+			-- Add each number sequentially from the first value to the second value
+			for i = item[1], item[2], 1 do
 				trainerIds[i] = true
 			end
 		end
@@ -221,8 +222,9 @@ local mapClassesToTrainers = function(classMap, trainerList)
 					class = class,
 					group = class.group
 				}
-			elseif type(item) == "table" then
-				for i = (item[1] or 9999), (item[2] or 9999), 1 do
+			elseif type(item) == "table" and #item == 2 then
+				-- Add each number sequentially from the first value to the second value
+				for i = item[1], item[2], 1 do
 					trainerList[i] = {
 						class = class,
 						group = class.group
