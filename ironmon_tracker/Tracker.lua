@@ -410,9 +410,7 @@ end
 
 -- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-	-- Default to 'true' if not using open book setting
-	local useOpenBookInfo = not Options["Open Book Play Mode"] or Tracker.Data.isViewingOwn
-	local viewedPokemon = Battle.getViewedPokemon(useOpenBookInfo)
+	local viewedPokemon = Battle.getViewedPokemon(true)
 
 	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
 		return Tracker.Data.hiddenPowers[viewedPokemon.personality]

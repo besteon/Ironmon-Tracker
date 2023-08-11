@@ -250,7 +250,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		-- Update: Specific Moves
 		if move.id == 237 then -- 237 = Hidden Power
-			if data.x.viewingOwn or useOpenBookInfo then
+			if data.x.viewingOwn then
 				move.type = Tracker.getHiddenPowerType()
 			else
 				move.type = MoveData.HiddenPowerTypeList[1] -- Unknown type
