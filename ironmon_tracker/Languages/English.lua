@@ -510,7 +510,7 @@ ScreenResources{
 		CheckboxShowPreEvolutions = "Show Pre Evolutions",
 		CheckboxCustomTrainerNames = "Custom Trainer Names",
 		CheckboxOpenBookMode = "Open Book Play Mode",
-		LabelExtraTimeWarning = "Adds 2 seconds to game load",
+		LabelExtraTimeWarning = "May add extra load time",
 		PromptShareSeedTitle = "Share Randomizer Seed",
 		PromptShareSeedDesc = "Copy/paste everything below to share. Load it through Randomizer --> Premade Seed.",
 	},
