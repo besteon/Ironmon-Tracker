@@ -17,12 +17,15 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon()
-			local pokemonID = 0
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				pokemonID = pokemon.pokemonID
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
 			end
-			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonID)
+			if Options["Open Book Play Mode"] then
+				LogOverlay.Windower:changeTab(LogTabPokemon)
+				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end
 	},
 	TypeDefenses = {
@@ -99,6 +102,30 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	LogViewerQuickAccess = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
+		isVisible = function() return Tracker.Data.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
+		onClick = function(self)
+			TrackerScreen.Buttons.PokemonIcon:onClick()
+		end
+	},
+	InvisibleStatsArea = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
+		isVisible = function() return Options["Open Book Play Mode"] and not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
+			end
+			LogOverlay.Windower:changeTab(LogTabPokemon)
+			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
+		end,
+	},
 	RouteDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
@@ -126,8 +153,13 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
+				if Options["Open Book Play Mode"] then
+					local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
+					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
+				else
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
+				end
 			end
 		end
 	},
@@ -144,6 +176,8 @@ TrackerScreen.Buttons = {
 				local abilityId
 				if Tracker.Data.isViewingOwn then
 					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+				elseif Options["Open Book Play Mode"] then
+					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
 				else
 					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 					abilityId = trackedAbilities[2].id
@@ -328,18 +362,14 @@ function TrackerScreen.initialize()
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		TrackerScreen.Buttons[statKey] = {
 			type = Constants.ButtonTypes.STAT_STAGE,
-			getText = function(self)
-				return Constants.STAT_STATES[self.statState].text
-			end,
+			getText = function(self) return Constants.STAT_STATES[self.statState].text end,
 			textColor = "Default text",
 			box = { Constants.SCREEN.WIDTH + 129, heightOffset, 8, 8 },
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn end,
+			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
-				if not self:isVisible() then return end
-
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 
@@ -774,7 +804,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
 		end
-		extraInfoColor = Theme.COLORS["Intermediate text"]
+		-- Prioritize showing open book stuff with highlight color
+		if Options["Open Book Play Mode"] then
+			extraInfoColor = Theme.COLORS["Default text"]
+		else
+			extraInfoColor = Theme.COLORS["Intermediate text"]
+		end
 	end
 
 	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
@@ -805,18 +840,14 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
 		if data.p.evo ~= PokemonData.Evolutions.NONE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
+			local evoReadyFriendship = (Options["Determine friendship readiness"] and data.p.evo == PokemonData.Evolutions.FRIEND_READY)
+			local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
+			local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
 			local evoTextColor
-			if Tracker.Data.isViewingOwn then
-				local evoReadyFriendship = (Options["Determine friendship readiness"] and data.p.evo == PokemonData.Evolutions.FRIEND_READY)
-				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
-				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
-				if evoReadyFriendship or evoReadyLevel or evoReadyStone then
-					evoTextColor = Theme.COLORS["Positive text"]
-				else
-					evoTextColor = Theme.COLORS["Intermediate text"]
-				end
+			if evoReadyFriendship or evoReadyLevel or evoReadyStone then
+				evoTextColor = Theme.COLORS["Positive text"]
 			else
-				evoTextColor = Theme.COLORS["Default text"]
+				evoTextColor = Theme.COLORS["Intermediate text"]
 			end
 			-- Highlight some % of the evo text based on progress towards friendship requirement
 			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
@@ -843,7 +874,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + 5
 	end
 
-	-- Tracker.Data.isViewingOwn and
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
@@ -888,6 +918,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 			-- Auto-tracking PC Heals button
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
+		else
+			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
 	elseif Battle.inBattle then
 		local encounterText, routeText, routeInfoX
@@ -960,7 +992,12 @@ function TrackerScreen.drawStatsArea(data)
 			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
-			Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
+			if Options["Open Book Play Mode"] then
+				local bstSpread = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+				Drawing.drawNumber(statOffsetX + 25, statOffsetY, bstSpread, 3, Theme.COLORS["Intermediate text"], shadowcolor)
+			else
+				Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
+			end
 		end
 		statOffsetY = statOffsetY + 10
 	end

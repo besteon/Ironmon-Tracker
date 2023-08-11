@@ -157,6 +157,10 @@ function LogTabTrainers.buildPagedButtons()
 			group = trainerInternal.group or TrainerData.TrainerGroups.Other,
 			isVisible = function(self) return LogOverlay.Windower.currentPage == self.pageVisible end,
 			includeInGrid = function(self)
+				if not TrainerData.shouldUseTrainer(self.id) then
+					return false
+				end
+
 				-- If no search text entered, check any filter groups
 				if LogSearchScreen.searchText == "" then
 					if LogOverlay.Windower.filterGrid == self.group then

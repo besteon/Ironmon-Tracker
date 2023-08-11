@@ -145,6 +145,7 @@ Constants.OrderedLists = {
 		"Show Team View",
 		"Show Pre Evolutions",
 		"Use Custom Trainer Names",
+		"Open Book Play Mode",
 	},
 	CONTROLS = {
 		"Load next seed",

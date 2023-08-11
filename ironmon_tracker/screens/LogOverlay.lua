@@ -43,6 +43,9 @@ LogOverlay.Windower = {
 	end,
 	changeTab = function(self, newTab, pageNum, totalPages, tabInfoId, filterGrid)
 		if newTab == nil then return end
+		if not LogOverlay.isDisplayed then
+			LogOverlay.isDisplayed = true
+		end
 
 		local prevTab = {
 			tab = self.currentTab,
@@ -255,6 +258,22 @@ function LogOverlay.initialize()
 			button.boxColors = { LogOverlay.Colors.headerBorder, LogOverlay.Colors.headerFill }
 		end
 	end
+
+	if Options["Open Book Play Mode"] then
+		local logpath = LogOverlay.getLogFileAutodetected() or LogOverlay.getLogFileFromPrompt()
+
+		if (logpath or "") ~= "" then
+			RandomizerLog.loadedLogPath = logpath
+			local success = RandomizerLog.parseLog(logpath)
+
+			if success then
+				LogOverlay.buildAllTabs()
+				LogOverlay.Windower.currentTab = LogTabPokemon
+				LogSearchScreen.resetSearchSortFilter()
+				LogOverlay.refreshActiveTabGrid()
+			end
+		end
+	end
 end
 
 function LogOverlay.refreshButtons()
@@ -332,7 +351,6 @@ function LogOverlay.buildAllTabs()
 	LogTabRoutes.buildPagedButtons()
 	-- TMs
 	LogTabTMs.buildPagedButtons(gymTMs)
-	LogTabTMs.buildGymTMButtons()
 end
 
 function LogOverlay.refreshActiveTabGrid()
@@ -438,7 +456,7 @@ function LogOverlay.viewLogFile(postfix)
 end
 
 --- Attempts to determine the log file that matches the currently loaded rom. If not match or can't find, returns nil
---- @param postFix string The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
+--- @param postFix string|nil The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
 --- @return string|nil
 function LogOverlay.getLogFileAutodetected(postFix)
 	postFix = postFix or FileManager.PostFixes.AUTORANDOMIZED

@@ -99,6 +99,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local targetInfo = Battle.getDoublesCursorTargetInfo()
 	local viewedPokemon = Battle.getViewedPokemon(data.x.viewingOwn)
 	local opposingPokemon = Tracker.getPokemon(targetInfo.slot, targetInfo.isOwner) -- currently used exclusively for Low Kick weight calcs
+	local useOpenBookInfo = not data.x.viewingOwn and Options["Open Book Play Mode"]
 
 	if viewedPokemon == nil or viewedPokemon.pokemonID == 0 or not Program.isValidMapLocation() then
 		viewedPokemon = Tracker.getDefaultPokemon()
@@ -115,6 +116,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		for key, value in pairs(PokemonData.Pokemon[viewedPokemon.pokemonID]) do
 			viewedPokemon[key] = value
 		end
+	end
+
+	local pokemonLog = {}
+	if RandomizerLog.Data.Pokemon then
+		pokemonLog = RandomizerLog.Data.Pokemon[viewedPokemon.pokemonID] or {}
 	end
 
 	-- POKEMON ITSELF (data.p)
@@ -137,7 +143,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.negativestat = ""
 	data.p.stages = {}
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
-		data.p[statKey] = viewedPokemon.stats[statKey] or Constants.BLANKLINE
+		if useOpenBookInfo then
+			data.p[statKey] = pokemonLog.BaseStats and pokemonLog.BaseStats[statKey] or Constants.BLANKLINE
+		else
+			data.p[statKey] = viewedPokemon.stats[statKey] or Constants.BLANKLINE
+		end
 		data.p.stages[statKey] = viewedPokemon.statStages[statKey] or 6
 
 		local natureMultiplier = Utils.getNatureMultiplier(statKey, data.p.nature)
@@ -175,6 +185,20 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		if abilityId ~= nil and abilityId ~= 0 then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
+	elseif useOpenBookInfo then
+		local abilityIds = {
+			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
+			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
+		}
+		if abilityIds[1] ~= nil and abilityIds[1] ~= 0 then
+			if abilityIds[2] ~= nil and abilityIds[2] ~= abilityIds[1] then
+				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name .. " /"
+				data.p.line2 = AbilityData.Abilities[abilityIds[2]].name
+			else
+				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name
+				data.p.line2 = Constants.BLANKLINE
+			end
+		end
 	else
 		local trackedAbilities = Tracker.getAbilities(viewedPokemon.pokemonID)
 		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
@@ -193,7 +217,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.m.moves = { {}, {}, {}, {}, } -- four empty move placeholders
 
 	local stars
-	if data.x.viewingOwn then
+	if data.x.viewingOwn or useOpenBookInfo then
 		stars = { "", "", "", "" }
 	else
 		stars = Utils.calculateMoveStars(viewedPokemon.pokemonID, viewedPokemon.level)
@@ -202,7 +226,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	local trackedMoves = Tracker.getMoves(viewedPokemon.pokemonID)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
-		if data.x.viewingOwn then
+		if data.x.viewingOwn or useOpenBookInfo then
 			if viewedPokemon.moves[i] ~= nil and viewedPokemon.moves[i].id ~= 0 then
 				moveToCopy = MoveData.Moves[viewedPokemon.moves[i].id]
 			end
@@ -275,7 +299,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 		-- Update: Actual PP Values
 		if move.name ~= MoveData.BlankMove.name then
-			if data.x.viewingOwn then
+			if data.x.viewingOwn or useOpenBookInfo then
 				move.pp = viewedPokemon.moves[i].pp
 			elseif Options["Count enemy PP usage"] then
 				-- Interate over tracked moves, since we don't know the full move list
@@ -294,7 +318,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			move.showeffective = false
 		elseif not Options["Reveal info if randomized"] then
 			-- If move info is randomized and the user doesn't want to know about it, hide it
-			if data.x.viewingOwn then
+			if data.x.viewingOwn or useOpenBookInfo then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
 				move.showeffective = not PokemonData.IsRand.pokemonTypes
 			else

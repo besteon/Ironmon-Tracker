@@ -211,13 +211,11 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 				draw = function(self, shadowcolor)
 					local totalText = tostring(self.totalCount)
 					Drawing.drawText(self.box[1] + self.box[3] + 1, self.box[2] + 1, totalText, Theme.COLORS[self.textColor], shadowcolor)
-					-- Currently unused, unsure if I want to keep this or not
-					-- if self.isSelected then
-					-- 	-- Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
-					-- 	local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
-					-- 	local textWidth = Utils.calcWordPixelLength(totalText) + 5
-					-- 	Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
-					-- end
+					if self.isSelected then
+						local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
+						local textWidth = Utils.calcWordPixelLength(totalText) + 4
+						Drawing.drawSelectionIndicators(self.box[1] - 1, self.box[2] - 1, self.box[3] + textWidth, self.box[4] + 1, color, 1, 4, 1)
+					end
 				end,
 				onClick = function(self)
 					if self.isSelected then return end -- Don't change if already on this tab
