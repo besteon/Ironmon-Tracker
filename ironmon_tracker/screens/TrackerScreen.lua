@@ -102,6 +102,16 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
+	LogViewerQuickAccess = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
+		isVisible = function() return Tracker.Data.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
+		onClick = function(self)
+			TrackerScreen.Buttons.PokemonIcon:onClick()
+		end
+	},
 	InvisibleStatsArea = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
@@ -908,6 +918,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 			-- Auto-tracking PC Heals button
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
+		else
+			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
 	elseif Battle.inBattle then
 		local encounterText, routeText, routeInfoX
