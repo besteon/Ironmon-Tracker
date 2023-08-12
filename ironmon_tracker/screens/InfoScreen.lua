@@ -258,8 +258,9 @@ function InfoScreen.changeScreenView(screen, info)
 	InfoScreen.prevScreenInfo = InfoScreen.infoLookup
 	InfoScreen.viewScreen = screen
 	InfoScreen.infoLookup = info
-	if screen == InfoScreen.Screens.ROUTE_INFO and (Options["Open Book Play Mode"] or LogOverlay.isDisplayed) then
-		InfoScreen.Buttons.ShowRouteLevels.toggleState = true
+	if screen == InfoScreen.Screens.ROUTE_INFO then
+		InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
+		InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
 	end
 	Program.changeScreenView(InfoScreen)
 end
