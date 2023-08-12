@@ -104,23 +104,28 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 	-- ABILITIES
 	local offsetY = 0
 	for i, abilityId in ipairs(data.p.abilities) do
-		local btnText
-		if AbilityData.isValid(abilityId) then
-			btnText = string.format("%s: %s", i, AbilityData.Abilities[abilityId].name)
-		else
-			btnText = Constants.BLANKLINE
-		end
 		local abilityBtn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return btnText end,
+			getText = function(self)
+				if AbilityData.isValid(abilityId) then
+					return string.format("%s: %s", i, AbilityData.Abilities[abilityId].name)
+				else
+					return Constants.BLANKLINE
+				end
+			end,
 			textColor = LogTabPokemonDetails.Colors.text,
 			abilityId = abilityId,
 			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, 11 },
 			updateSelf = function(self)
-				if LogSearchScreen.searchText ~= "" and Utils.containsText(self:getText():sub(2), LogSearchScreen.searchText, true) then
-					self.textColor = LogTabPokemonDetails.Colors.hightlight
-				else
-					self.textColor = LogTabPokemonDetails.Colors.text
+				self.textColor = LogTabPokemonDetails.Colors.text
+				if LogSearchScreen.searchText == "" or not AbilityData.isValid(abilityId) then
+					return
+				end
+				local abilityName = AbilityData.Abilities[abilityId].name
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
+					if Utils.containsText(abilityName, LogSearchScreen.searchText, true) then
+						self.textColor = LogTabPokemonDetails.Colors.hightlight
+					end
 				end
 			end,
 			onClick = function(self)
@@ -539,8 +544,11 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
 			updateSelf = function(self)
 				self.textColor = moveColor
+				if LogSearchScreen.searchText == "" then
+					return
+				end
 				-- Highlight moves that are found by the search
-				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
+				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
 					if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 						self.textColor = LogTabPokemonDetails.Colors.hightlight
 					end
