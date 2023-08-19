@@ -2,6 +2,10 @@ Input = {
 	prevMouseInput = {},
 	prevJoypadInput = {},
 	currentColorPicker = nil,
+	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
+	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
+	resumeMouse = false, -- Set to true to enable corresponding input on the next frame
+	resumeJoypad = false, -- Set to true to enable corresponding input on the next frame
 }
 
 Input.StatHighlighter = {
@@ -57,6 +61,13 @@ Input.StatHighlighter = {
 	end,
 }
 
+function Input.initialize()
+	Input.allowMouse = true
+	Input.allowJoypad = true
+	Input.resumeMouse = false
+	Input.resumeJoypad = false
+end
+
 function Input.checkForInput()
 	if not Main.IsOnBizhawk() then
 		return
@@ -65,18 +76,31 @@ function Input.checkForInput()
 	if Input.currentColorPicker ~= nil then
 		Input.currentColorPicker:handleInput()
 	else
-		-- Check inputs from the Mouse
-		local mouseInput = input.getmouse()
-		if mouseInput["Left"] and not Input.prevMouseInput["Left"] then
-			local xmouse = mouseInput["X"]
-			local ymouse = mouseInput["Y"] + Constants.SCREEN.UP_GAP
-			Input.checkMouseInput(xmouse, ymouse)
+		if Input.allowMouse then
+			local mouseInput = input.getmouse()
+			if mouseInput["Left"] and not Input.prevMouseInput["Left"] then
+				local xmouse = mouseInput["X"]
+				local ymouse = mouseInput["Y"] + Constants.SCREEN.UP_GAP
+				Input.checkMouseInput(xmouse, ymouse)
+			end
+			Input.prevMouseInput = mouseInput
 		end
-		Input.prevMouseInput = mouseInput
 
-		Input.checkJoypadInput()
+		if Input.allowJoypad then
+			Input.checkJoypadInput()
+		end
 
 		CustomCode.inputCheckBizhawk()
+
+		-- If instructed to resume input, do so after 1 frame of input checks, to prevent "resume into immediate input trigger"
+		if Input.resumeMouse then
+			Input.resumeMouse = false
+			Input.allowMouse = true
+		end
+		if Input.resumeJoypad then
+			Input.resumeJoypad = false
+			Input.allowJoypad = true
+		end
 	end
 end
 

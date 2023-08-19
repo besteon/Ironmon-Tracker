@@ -131,12 +131,10 @@ function TrackedDataScreen.openSaveDataPrompt()
 			end
 			Tracker.saveData(formInput)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 55, 60)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 140, 60)
 end
 

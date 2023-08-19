@@ -663,16 +663,14 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 80, 145, 105, 25)
 	forms.button(form, Resources.TrackerScreen.PromptNoteClearAbilities, function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
 	end, 195, 145, 105, 25)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 310, 145, 55, 25)
 end
 
@@ -693,12 +691,10 @@ function TrackerScreen.openEditStepGoalWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 82, 100)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 167, 100)
 end
 

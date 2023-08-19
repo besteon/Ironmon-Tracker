@@ -302,8 +302,7 @@ end
 
 function Program.destroyActiveForm()
 	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
-		forms.destroy(Program.activeFormId)
-		Program.activeFormId = 0
+		Utils.closeBizhawkForm(Program.activeFormId)
 	end
 end
 

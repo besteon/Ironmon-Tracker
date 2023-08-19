@@ -168,13 +168,11 @@ function SetupScreen.openEditControlsWindow()
 		Main.SaveSettings(true)
 		Program.redraw(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, offsetY + 5, 95, 30)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 230, offsetY + 5, 65, 30)
 end
 

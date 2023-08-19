@@ -122,12 +122,10 @@ function StreamerScreen.openEditAttemptsWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 72, 60)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 157, 60)
 end
 
@@ -145,8 +143,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 		Options["Welcome message"] = newMessage
 		Main.SaveSettings(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, 165)
 
 	forms.button(form, Resources.AllScreens.Clear, function()
@@ -154,8 +151,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 	end, 205, 165)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 290, 165)
 end
 
@@ -183,13 +179,11 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		StreamerScreen.saveFavorites()
 		Program.redraw(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 200, 29)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, 69)
 end
 

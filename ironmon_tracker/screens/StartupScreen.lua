@@ -209,13 +209,11 @@ function StartupScreen.openChoosePokemonWindow()
 		Program.redraw(true)
 		Main.SaveSettings(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 200, 29)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, 69)
 end
 

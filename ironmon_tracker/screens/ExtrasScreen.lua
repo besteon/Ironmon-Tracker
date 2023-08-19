@@ -175,14 +175,15 @@ function ExtrasScreen.openEditTimerPrompt()
 	if not wasPaused then
 		Program.GameTimer:pause()
 	end
-	local unpauseTimerFunc = function()
+	local closeAndUnpauseTimer = function()
 		if not wasPaused then
 			Program.GameTimer:unpause()
 		end
-		client.unpause()
+		Utils.closeBizhawkForm()
 	end
+	Input.allowMouse = false
 
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.LabelTimer, 320, 130, nil, nil, unpauseTimerFunc)
+	local form = Utils.createBizhawkForm(Resources.StreamerScreen.LabelTimer, 320, 130, nil, nil, closeAndUnpauseTimer)
 
 	local hour = math.floor(Tracker.Data.playtime / 3600) % 10000
 	local min = math.floor(Tracker.Data.playtime / 60) % 60
@@ -200,13 +201,11 @@ function ExtrasScreen.openEditTimerPrompt()
 		-- Update total play time
 		Tracker.Data.playtime = hour * 3600 + min * 60 + sec
 		Program.GameTimer:update()
-		unpauseTimerFunc()
+		closeAndUnpauseTimer()
 		Program.redraw(true)
-		forms.destroy(form)
 	end, 72, 60)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		unpauseTimerFunc()
-		forms.destroy(form)
+		closeAndUnpauseTimer()
 	end, 157, 60)
 end
 

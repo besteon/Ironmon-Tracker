@@ -303,10 +303,17 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	height = height or 600
 	x = x or 100
 	y = y or 50
-	onCloseFunc = onCloseFunc or function() client.unpause() end
 	blockInput = (blockInput == nil) or (blockInput == true) -- default to true
 
+	-- By default, disable mouse inputs and resume them when the prompt closes
+	-- If a close func is provided, the caller needs to manage disabling/enabling mouse inputs instead
+	if onCloseFunc == nil then
+		Input.allowMouse = false
+		onCloseFunc = Utils.closeBizhawkForm
+	end
+
 	Program.destroyActiveForm()
+	Input.resumeMouse = false -- closing any active form resumes inputs, which we don't want yet
 	local form = forms.newform(width, height, title, onCloseFunc)
 	Program.activeFormId = form
 	Utils.setFormLocation(form, x, y)
@@ -318,6 +325,14 @@ function Utils.createBizhawkForm(title, width, height, x, y, onCloseFunc, blockI
 	end
 
 	return form
+end
+
+function Utils.closeBizhawkForm(form)
+	form = form or Program.activeFormId
+	client.unpause()
+	forms.destroy(form)
+	Program.activeFormId = 0
+	Input.resumeMouse = true
 end
 
 function Utils.randomPokemonID()

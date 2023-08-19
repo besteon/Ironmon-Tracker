@@ -324,8 +324,7 @@ function InfoScreen.openMoveInfoWindow()
 			InfoScreen.infoLookup = moveId
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
@@ -363,8 +362,7 @@ function InfoScreen.openAbilityInfoWindow()
 			InfoScreen.infoLookup = abilityId
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
@@ -394,8 +392,7 @@ function InfoScreen.openPokemonInfoWindow()
 			InfoScreen.infoLookup = pokemonId
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
@@ -436,8 +433,7 @@ function InfoScreen.openRouteInfoWindow()
 			InfoScreen.Buttons.ShowRouteLevels.toggleState = (Options["Open Book Play Mode"] or LogOverlay.isDisplayed)
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
