@@ -946,6 +946,7 @@ function Battle.moveDelayed()
 	return Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfused -- Pause for "X is confused"
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfused2 -- Confusion animation
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsConfusedNoMore -- Pause for "X snapped out of confusion"
+	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedWokeUp -- Confusion animation
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsInLove -- Pause for the "X is in love with Y" delay
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsInLove2 --Infatuation animation
 	or Battle.battleMsg == GameSettings.BattleScript_MoveUsedIsFrozen -- Ignore "X is frozen solid"
