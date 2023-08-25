@@ -1,6 +1,4 @@
-TrackerScreen = {
-
-}
+TrackerScreen = {}
 
 TrackerScreen.Buttons = {
 	PokemonIcon = {
@@ -19,12 +17,15 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon()
-			local pokemonID = 0
-			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				pokemonID = pokemon.pokemonID
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
 			end
-			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemonID)
+			if Options["Open Book Play Mode"] then
+				LogOverlay.Windower:changeTab(LogTabPokemon)
+				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
+			end
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end
 	},
 	TypeDefenses = {
@@ -65,12 +66,10 @@ TrackerScreen.Buttons = {
 	},
 	PCHealAutoTracking = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		text = "",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
 		boxColors = { "Upper box border", "Upper box background" },
 		toggleState = false,
-		toggleColor = "Positive text",
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
@@ -79,7 +78,7 @@ TrackerScreen.Buttons = {
 	},
 	PCHealIncrement = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "+",
+		getText = function(self) return "+" end,
 		textColor = "Positive text",
 		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
@@ -92,7 +91,7 @@ TrackerScreen.Buttons = {
 	},
 	PCHealDecrement = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = Constants.BLANKLINE,
+		getText = function(self) return Constants.BLANKLINE end,
 		textColor = "Negative text",
 		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
@@ -103,25 +102,37 @@ TrackerScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	BattleDetails = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		text = "",
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
-		isVisible = function() return not Tracker.Data.isViewingOwn --[[and not Battle.isWildEncounter]] end,
+	LogViewerQuickAccess = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
+		isVisible = function() return Tracker.Data.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
 		onClick = function(self)
-			BattleStatusScreen.loadData()
-			Program.changeScreenView(BattleStatusScreen)
+			TrackerScreen.Buttons.PokemonIcon:onClick()
 		end
+	},
+	InvisibleStatsArea = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
+		isVisible = function() return Options["Open Book Play Mode"] and not Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			if not PokemonData.isValid(pokemon.pokemonID) then
+				return
+			end
+			LogOverlay.Windower:changeTab(LogTabPokemon)
+			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, pokemon.pokemonID)
+			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
+		end,
 	},
 	RouteDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
-		text = "",
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
-		isVisible = function() return not Tracker.Data.isViewingOwn and not Battle.isWildEncounter end,
+		isVisible = function() return not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
@@ -142,8 +153,13 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
-				local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
-				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
+				if Options["Open Book Play Mode"] then
+					local abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 0) -- 0 is the first ability
+					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
+				else
+					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
+					InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, trackedAbilities[1].id)
+				end
 			end
 		end
 	},
@@ -160,6 +176,8 @@ TrackerScreen.Buttons = {
 				local abilityId
 				if Tracker.Data.isViewingOwn then
 					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+				elseif Options["Open Book Play Mode"] then
+					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
 				else
 					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
 					abilityId = trackedAbilities[2].id
@@ -171,7 +189,6 @@ TrackerScreen.Buttons = {
 	MovesHistory = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "",
 		textColor = "Intermediate text", -- set later after highlight color is calculated
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 81, 77, 10 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 69, 81, 10, 10 },
@@ -190,7 +207,7 @@ TrackerScreen.Buttons = {
 	NotepadTracking = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.NOTEPAD,
-		text = "(Leave a note)",
+		getText = function(self) return string.format("(%s)", Resources.TrackerScreen.LeaveANote) end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 11, 11 },
@@ -205,8 +222,9 @@ TrackerScreen.Buttons = {
 	LastAttackSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.SWORD_ATTACK,
-		text = "",
+		getText = function(self) return self.updatedText or "" end,
 		textColor = "Lower box text",
+		iconColors = { "Lower box text" },
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 140, 13, 13 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.LAST_ATTACK end,
@@ -217,7 +235,7 @@ TrackerScreen.Buttons = {
 	RouteSummary = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
-		text = "",
+		getText = function(self) return self.updatedText or "" end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 140, 138, 12 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, 140, 8, 12 },
@@ -233,11 +251,15 @@ TrackerScreen.Buttons = {
 	PedometerStepText = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.CLOCK,
-		text = "Steps: ##,###", -- Placeholder template, see updateText() below
+		getText = function(self)
+			local stepCount = Program.Pedometer:getCurrentStepcount()
+			local formattedStepCount = Utils.formatNumberWithCommas(stepCount)
+			return string.format("%s: %s", Resources.TrackerScreen.PedometerSteps, formattedStepCount)
+		end,
 		textColor = "Lower box text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 141, 10, 10 },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
-		updateText = function(self)
+		updateSelf = function(self)
 			local stepCount = Program.Pedometer:getCurrentStepcount()
 			if stepCount > 999999 then -- 1,000,000 is the arbitrary cutoff
 				stepCount = 999999
@@ -247,19 +269,17 @@ TrackerScreen.Buttons = {
 			else
 				self.textColor = "Lower box text"
 			end
-			local formattedStepCount = Utils.formatNumberWithCommas(stepCount)
-			self.text = string.format("Steps: %s", formattedStepCount)
 		end,
 	},
 	PedometerGoal = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Goal",
+		getText = function(self) return Resources.TrackerScreen.PedometerGoal end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, 140, 23, 11 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 81, 140, 23, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
-		updateText = function(self)
+		updateSelf = function(self)
 			if Program.Pedometer.goalSteps == 0 then
 				self.textColor = "Lower box text"
 			else
@@ -270,20 +290,23 @@ TrackerScreen.Buttons = {
 	},
 	PedometerReset = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Reset",
+		getText = function(self)
+			local stepCount = Program.Pedometer:getCurrentStepcount()
+			if stepCount <= 0 then
+				return Resources.TrackerScreen.PedometerTotal
+			else
+				return Resources.TrackerScreen.PedometerReset
+			end
+		end,
 		textColor = "Lower box text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, 140, 28, 11 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, 140, 28, 11 },
 		boxColors = { "Lower box border", "Lower box background" },
 		isVisible = function() return TrackerScreen.carouselIndex == TrackerScreen.CarouselTypes.PEDOMETER end,
-		updateText = function(self)
-			local stepCount = Program.Pedometer:getCurrentStepcount()
-			self.text = Utils.inlineIf(stepCount <= 0, " Total", "Reset")
-		end,
 		onClick = function(self)
-			if self.text == "Reset" then
+			if self:getText() == Resources.TrackerScreen.PedometerReset then
 				Program.Pedometer.lastResetCount = Program.Pedometer.totalSteps
-			elseif self.text == " Total" then
+			elseif self:getText() == Resources.TrackerScreen.PedometerTotal then
 				Program.Pedometer.lastResetCount = 0
 			end
 			Program.redraw(true)
@@ -305,14 +328,20 @@ TrackerScreen.CarouselItems = {}
 
 TrackerScreen.PokeBalls = {
 	chosenBall = -1,
-	ColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }, -- Colors used to draw all Pokeballs
-	ColorListGray = { 0xFF000000, Utils.calcGrayscale(0xFFF04037, 0.6), 0xFFFFFFFF, },
-	ColorListFainted = { 0xFF000000, 0x22F04037, 0x44FFFFFF, },
-	Labels = {
-		[1] = "Left",
-		[2] = "Middle",
-		[3] = "Right",
-	},
+	ColorList = { Drawing.Colors.BLACK, 0xFFF04037, Drawing.Colors.WHITE, }, -- Colors used to draw all Pokeballs
+	ColorListGray = { Drawing.Colors.BLACK, Utils.calcGrayscale(0xFFF04037, 0.6), Drawing.Colors.WHITE, },
+	ColorListFainted = { Drawing.Colors.BLACK, 0x22F04037, 0x44FFFFFF, },
+	getLabel = function(ballIndex)
+		if ballIndex == 1 then
+			return Resources.TrackerScreen.RandomBallLeft
+		elseif ballIndex == 2 then
+			return Resources.TrackerScreen.RandomBallMiddle
+		elseif ballIndex == 3 then
+			return Resources.TrackerScreen.RandomBallRight
+		else
+			return Constants.BLANKLINE
+		end
+	end,
 	Left = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 17,
 		y = Constants.SCREEN.MARGIN + 18,
@@ -333,18 +362,15 @@ function TrackerScreen.initialize()
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		TrackerScreen.Buttons[statKey] = {
 			type = Constants.ButtonTypes.STAT_STAGE,
-			text = "",
+			getText = function(self) return Constants.STAT_STATES[self.statState].text end,
 			textColor = "Default text",
 			box = { Constants.SCREEN.WIDTH + 129, heightOffset, 8, 8 },
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn end,
+			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
-				if not self:isVisible() then return end
-
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
-				self.text = Constants.STAT_STATES[self.statState].text
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
 
 				local pokemon = Battle.getViewedPokemon(false)
@@ -375,8 +401,8 @@ function TrackerScreen.initialize()
 				-- Update image path if the state has changed
 				if self.badgeState ~= state then
 					self.badgeState = state
-					local badgeOffText = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
-					local name = GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOffText
+					local badgeOff = Utils.inlineIf(self.badgeState == 0, "_OFF", "")
+					local name = GameSettings.badgePrefix .. "_badge" .. self.badgeIndex .. badgeOff
 					self.image = FileManager.buildImagePath(FileManager.Folders.Badges, name, FileManager.Extensions.BADGE)
 				end
 			end
@@ -386,8 +412,16 @@ function TrackerScreen.initialize()
 	-- Set the color for next move level highlighting for the current theme now, instead of constantly re-calculating it
 	Theme.setNextMoveLevelHighlight(true)
 	TrackerScreen.buildCarousel()
-
 	TrackerScreen.randomlyChooseBall()
+	TrackerScreen.refreshButtons()
+end
+
+function TrackerScreen.refreshButtons()
+	for _, button in pairs(TrackerScreen.Buttons) do
+		if button.updateSelf ~= nil then
+			button:updateSelf()
+		end
+	end
 end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
@@ -395,7 +429,10 @@ function TrackerScreen.buildCarousel()
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
-		isVisible = function() return Tracker.Data.isViewingOwn and not (Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()) end,
+		isVisible = function()
+			local pedometerIsShowing = Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()
+			return Tracker.Data.isViewingOwn and not pedometerIsShowing
+		end,
 		framesToShow = 210,
 		getContentList = function()
 			local badgeButtons = {}
@@ -430,7 +467,11 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.LAST_ATTACK] = {
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
-		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Options["Show last damage calcs"] and Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0 end,
+		isVisible = function()
+			local properBattleTiming = Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
+			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
+			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
+		end,
 		framesToShow = 180,
 		getContentList = function()
 			local lastAttackMsg
@@ -438,23 +479,25 @@ function TrackerScreen.buildCarousel()
 			if MoveData.isValid(Battle.lastEnemyMoveId) then
 				local moveInfo = MoveData.Moves[Battle.lastEnemyMoveId] or MoveData.BlankMove
 				if Battle.damageReceived > 0 then
-					local damageLabel = Utils.inlineIf(Battle.numBattlers > 2, "Total received", moveInfo.name)
-					lastAttackMsg = string.format("%s: %d damage", damageLabel, math.floor(Battle.damageReceived))
+					local damageLabel = Utils.inlineIf(Battle.numBattlers > 2, Resources.TrackerScreen.DamageTakenInTeams, moveInfo.name)
+					lastAttackMsg = string.format("%s: %d %s", damageLabel, math.floor(Battle.damageReceived), Resources.TrackerScreen.DamageTaken)
 					local ownPokemon = Battle.getViewedPokemon(true)
 					if ownPokemon ~= nil and Battle.damageReceived >= ownPokemon.curHP then
-						-- Warn user that the damage taken is potentially lethal
-						TrackerScreen.Buttons.LastAttackSummary.textColor = "Negative text"
+						-- Change the icon color to warn user that the damage taken is potentially lethal
+						TrackerScreen.Buttons.LastAttackSummary.iconColors = { "Negative text" }
 					else
-						TrackerScreen.Buttons.LastAttackSummary.textColor = "Lower box text"
+						TrackerScreen.Buttons.LastAttackSummary.iconColors = { "Lower box text" }
 					end
 				else
+					-- Unused
 					lastAttackMsg = "Last move: " .. moveInfo.name
 				end
 			else
+				-- Unused
 				lastAttackMsg = "Waiting for a new move..."
 			end
 
-			TrackerScreen.Buttons.LastAttackSummary.text = lastAttackMsg
+			TrackerScreen.Buttons.LastAttackSummary.updatedText = lastAttackMsg
 			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.LastAttackSummary }
 			else
@@ -466,24 +509,43 @@ function TrackerScreen.buildCarousel()
 	-- ROUTE INFO
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
-		isVisible = function() return (not Tracker.Data.isViewingOwn or not Options["Disable mainscreen carousel"]) and Battle.inBattle and Battle.CurrentRoute.hasInfo end,
+		isVisible = function()
+			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
+			return Battle.inBattle and Battle.CurrentRoute.hasInfo and not carouselDisabled
+		end,
 		framesToShow = 180,
 		getContentList = function()
-			-- local routeInfo = RouteData.Info[Program.GameData.mapId]
 			local totalPossible = RouteData.countPokemonInArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local routeEncounters = Tracker.getRouteEncounters(Program.GameData.mapId, Battle.CurrentRoute.encounterArea)
 			local totalSeen = #routeEncounters
 
-			if Battle.CurrentRoute.encounterArea == RouteData.EncounterArea.ROCKSMASH then
-				TrackerScreen.Buttons.RouteSummary.text = "Rock Smash: " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+			local ratioText
+			-- For randomizer settings that have more Pokemon in a route than normal
+			if totalSeen > totalPossible then
+				ratioText = tostring(totalSeen)
 			else
-				TrackerScreen.Buttons.RouteSummary.text = Battle.CurrentRoute.encounterArea .. ": Seen " .. totalSeen .. "/" .. totalPossible .. " " .. Constants.Words.POKEMON
+				ratioText = string.format("%s/%s", totalSeen, totalPossible)
 			end
+
+			local encounterAreaLabels = {
+				[RouteData.EncounterArea.LAND] = Resources.TrackerScreen.EncounterWalking,
+				[RouteData.EncounterArea.SURFING] = Resources.TrackerScreen.EncounterSurfing,
+				[RouteData.EncounterArea.UNDERWATER] = Resources.TrackerScreen.EncounterUnderwater,
+				[RouteData.EncounterArea.STATIC] = Resources.TrackerScreen.EncounterStatic,
+				[RouteData.EncounterArea.ROCKSMASH] = Resources.TrackerScreen.EncounterRockSmash,
+				[RouteData.EncounterArea.SUPERROD] = Resources.TrackerScreen.EncounterSuperRod,
+				[RouteData.EncounterArea.GOODROD] = Resources.TrackerScreen.EncounterGoodRod,
+				[RouteData.EncounterArea.OLDROD] = Resources.TrackerScreen.EncounterOldRod,
+			}
+
+			local encounterAreaText = encounterAreaLabels[Battle.CurrentRoute.encounterArea]
+			local routeSummaryText = string.format("%s: %s %s", encounterAreaText, ratioText, Resources.TrackerScreen.EncounterSeenPokemon)
+			TrackerScreen.Buttons.RouteSummary.updatedText = routeSummaryText
 
 			if Main.IsOnBizhawk() then
 				return { TrackerScreen.Buttons.RouteSummary }
 			else
-				return TrackerScreen.Buttons.RouteSummary.text or ""
+				return TrackerScreen.Buttons.RouteSummary.updatedText or ""
 			end
 		end,
 	}
@@ -494,9 +556,8 @@ function TrackerScreen.buildCarousel()
 		isVisible = function() return Tracker.Data.isViewingOwn and Program.Pedometer:isInUse() end,
 		framesToShow = 210,
 		getContentList = function()
-			TrackerScreen.Buttons.PedometerStepText:updateText()
-			TrackerScreen.Buttons.PedometerGoal:updateText()
-			TrackerScreen.Buttons.PedometerReset:updateText()
+			TrackerScreen.Buttons.PedometerStepText:updateSelf()
+			TrackerScreen.Buttons.PedometerGoal:updateSelf()
 			if Main.IsOnBizhawk() then
 				return {
 					TrackerScreen.Buttons.PedometerStepText,
@@ -504,7 +565,7 @@ function TrackerScreen.buildCarousel()
 					TrackerScreen.Buttons.PedometerReset,
 				}
 			else
-				return TrackerScreen.Buttons.PedometerStepText.text or ""
+				return TrackerScreen.Buttons.PedometerStepText:getText() or ""
 			end
 		end,
 	}
@@ -553,7 +614,6 @@ function TrackerScreen.updateButtonStates()
 			local statValue = statMarkings[statKey]
 
 			button.statState = statValue
-			button.text = Constants.STAT_STATES[statValue].text
 			button.textColor = Constants.STAT_STATES[statValue].textColor
 		end
 	end
@@ -562,18 +622,17 @@ end
 function TrackerScreen.openNotePadWindow(pokemonId)
 	if not PokemonData.isValid(pokemonId) then return end
 
-	local form = Utils.createBizhawkForm("Leave a Note", 465, 220)
+	local pokemonName = PokemonData.Pokemon[pokemonId].name
+	local form = Utils.createBizhawkForm(string.format("%s (%s)", Resources.TrackerScreen.LeaveANote, pokemonName), 465, 220)
 
-	forms.label(form, "Enter a note for " .. PokemonData.Pokemon[pokemonId].name .. " (70 char. max):", 9, 10, 300, 20)
+	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteDesc, pokemonName), 9, 10, 300, 20)
 	local noteTextBox = forms.textbox(form, Tracker.getNote(pokemonId), 430, 20, nil, 10, 30)
 
 	local abilityList = {}
 	table.insert(abilityList, Constants.BLANKLINE)
 	abilityList = AbilityData.populateAbilityDropdown(abilityList)
 
-	local trackedAbilities = Tracker.getAbilities(pokemonId)
-
-	forms.label(form, "Select one or both abilities for " .. PokemonData.Pokemon[pokemonId].name .. ":", 9, 60, 220, 20)
+	forms.label(form, string.format("%s %s:", Resources.TrackerScreen.PromptNoteAbilityDesc, pokemonName), 9, 60, 220, 20)
 	local abilityOneDropdown = forms.dropdown(form, {["Init"]="Loading Ability1"}, 10, 80, 145, 30)
 	forms.setdropdownitems(abilityOneDropdown, abilityList, true) -- true = alphabetize list
 	forms.setproperty(abilityOneDropdown, "AutoCompleteSource", "ListItems")
@@ -583,47 +642,49 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(abilityTwoDropdown, "AutoCompleteMode", "Append")
 
-	if trackedAbilities[1].id ~= 0 then
-		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbilities[1].id].name)
+	local trackedAbilities = Tracker.getAbilities(pokemonId)
+	local trackedAbility1 = trackedAbilities[1].id
+	local trackedAbility2 = trackedAbilities[2].id
+
+	if AbilityData.isValid(trackedAbility1) then
+		forms.settext(abilityOneDropdown, AbilityData.Abilities[trackedAbility1].name)
 	end
-	if trackedAbilities[2].id ~= 0 then
-		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbilities[2].id].name)
+	if AbilityData.isValid(trackedAbility2) then
+		forms.settext(abilityTwoDropdown, AbilityData.Abilities[trackedAbility2].name)
 	end
 
-	forms.button(form, "Save && Close", function()
-
+	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
+	forms.button(form, saveAndClose, function()
 		local formInput = forms.gettext(noteTextBox)
-		local abilityOneText = forms.gettext(abilityOneDropdown)
-		local abilityTwoText = forms.gettext(abilityTwoDropdown)
-		--local pokemonViewed = Tracker.getViewedPokemon()
 		if formInput ~= nil then
+			local abilityOneText = forms.gettext(abilityOneDropdown)
+			local abilityTwoText = forms.gettext(abilityTwoDropdown)
 			Tracker.TrackNote(pokemonId, formInput)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		forms.destroy(form)
 		client.unpause()
-		Program.redraw(true)
 		forms.destroy(form)
-	end, 85, 145, 85, 25)
-	forms.button(form, "Clear Abilities", function()
+	end, 80, 145, 105, 25)
+	forms.button(form, Resources.TrackerScreen.PromptNoteClearAbilities, function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
-	end, 180, 145, 105, 25)
-	forms.button(form, "Cancel", function()
+	end, 195, 145, 105, 25)
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
-	end, 295, 145, 55, 25)
+	end, 310, 145, 55, 25)
 end
 
 function TrackerScreen.openEditStepGoalWindow()
-	local form = Utils.createBizhawkForm("Choose a Step Goal", 320, 170)
+	local form = Utils.createBizhawkForm(Resources.TrackerScreen.PromptStepsTitle, 350, 170)
 
-	forms.label(form, "Pedometer will change color when goal is reached.", 26, 10, 300, 20)
-	forms.label(form, "(Set to 0 to turn-off)", 100, 28, 300, 20)
-	forms.label(form, "Enter a step goal:", 48, 50, 300, 20)
-	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 50, 70)
-	forms.button(form, "Save", function()
+	forms.label(form, Resources.TrackerScreen.PromptStepsDesc1, 36, 10, 300, 20)
+	forms.label(form, string.format("[%s]", Resources.TrackerScreen.PromptStepsDesc2), 110, 28, 300, 20)
+	forms.label(form, Resources.TrackerScreen.PromptStepsEnterGoal, 58, 50, 300, 20)
+	local textBox = forms.textbox(form, (Program.Pedometer.goalSteps or 0), 200, 30, "UNSIGNED", 60, 70)
+
+	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
 		if formInput ~= nil and formInput ~= "" then
 			local newStepGoal = tonumber(formInput)
@@ -634,11 +695,11 @@ function TrackerScreen.openEditStepGoalWindow()
 		end
 		client.unpause()
 		forms.destroy(form)
-	end, 72, 100)
-	forms.button(form, "Cancel", function()
+	end, 82, 100)
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
-	end, 157, 100)
+	end, 167, 100)
 end
 
 function TrackerScreen.randomlyChooseBall()
@@ -674,13 +735,20 @@ function TrackerScreen.drawScreen()
 
 	local displayData = DataHelper.buildTrackerScreenDisplay()
 
+	-- Upper boxes
 	if TrackerScreen.canShowBallPicker() then
 		TrackerScreen.drawBallPicker()
 	else
 		TrackerScreen.drawPokemonInfoArea(displayData)
 	end
 	TrackerScreen.drawStatsArea(displayData)
-	TrackerScreen.drawMovesArea(displayData)
+
+	-- Lower boxes
+	if Tracker.getPokemon(1, true) == nil and Options["Show on new game screen"] then -- show favorites
+		TrackerScreen.drawFavorites()
+	else
+		TrackerScreen.drawMovesArea(displayData)
+	end
 	TrackerScreen.drawCarouselArea(displayData)
 end
 
@@ -732,20 +800,25 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		end
 	else
 		if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
-			extraInfoText = string.format("Last seen Lv.%s", data.p.lastlevel)
+			extraInfoText = string.format("%s %s.%s", Resources.TrackerScreen.BattleLastSeen, Resources.TrackerScreen.LevelAbbreviation, data.p.lastlevel)
 		else
-			extraInfoText = "New encounter!"
+			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
 		end
-		extraInfoColor = Theme.COLORS["Intermediate text"]
+		-- Prioritize showing open book stuff with highlight color
+		if Options["Open Book Play Mode"] then
+			extraInfoColor = Theme.COLORS["Default text"]
+		else
+			extraInfoColor = Theme.COLORS["Intermediate text"]
+		end
 	end
 
-	local levelEvoText, evoSpacing
-	if data.p.evo == Constants.BLANKLINE then
-		levelEvoText = string.format("Lv.%s", data.p.level)
-	else
-		levelEvoText = string.format("Lv.%s (", data.p.level)
+	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
+	local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
+	local evoSpacing
+	if data.p.evo ~= PokemonData.Evolutions.NONE then
+		levelEvoText = levelEvoText .. " ("
 		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
-		levelEvoText = levelEvoText .. data.p.evo .. ")"
+		levelEvoText = levelEvoText .. abbreviationText .. ")"
 	end
 
 	-- Squeeze text together a bit to show the exp bar
@@ -759,25 +832,32 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 	-- POKEMON HP, LEVEL, & EVOLUTION INFO
 	if Tracker.Data.isViewingOwn then
-		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, "HP:", Theme.COLORS["Default text"], shadowcolor)
+		local hpText = string.format("%s:", Resources.TrackerScreen.HPAbbreviation)
+		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, hpText, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + 16, offsetY, extraInfoText, extraInfoColor, shadowcolor)
 		offsetY = offsetY + linespacing
 
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, levelEvoText, Theme.COLORS["Default text"], shadowcolor)
-		if data.p.evo ~= Constants.BLANKLINE and evoSpacing ~= nil then
+		if data.p.evo ~= PokemonData.Evolutions.NONE and evoSpacing ~= nil then
 			-- Draw over the evo method in the new color to reflect if evo is possible/ready
-			local evoTextColor = Theme.COLORS["Default text"]
-			if Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
-				local evoReadyFriendship = (data.p.evo == PokemonData.Evolutions.FRIEND_READY)
-				local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
-				local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
-				if evoReadyFriendship or evoReadyLevel or evoReadyStone then
-					evoTextColor = Theme.COLORS["Positive text"]
-				elseif data.p.evo ~= Constants.BLANKLINE then
-					evoTextColor = Theme.COLORS["Intermediate text"]
-				end
+			local evoReadyFriendship = (Options["Determine friendship readiness"] and data.p.evo == PokemonData.Evolutions.FRIEND_READY)
+			local evoReadyLevel = Utils.isReadyToEvolveByLevel(data.p.evo, data.p.level)
+			local evoReadyStone = Utils.isReadyToEvolveByStone(data.p.evo)
+			local evoTextColor
+			if evoReadyFriendship or evoReadyLevel or evoReadyStone then
+				evoTextColor = Theme.COLORS["Positive text"]
+			else
+				evoTextColor = Theme.COLORS["Intermediate text"]
 			end
-			Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, data.p.evo, evoTextColor, shadowcolor)
+			-- Highlight some % of the evo text based on progress towards friendship requirement
+			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
+				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase)
+				local numHighlightedChars = math.floor(abbreviationText:len() * percentFill)
+				local highlightedEvo = abbreviationText:sub(1, numHighlightedChars)
+				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
+			else
+				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
+			end
 		end
 		offsetY = offsetY + linespacing
 	else
@@ -794,7 +874,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + 5
 	end
 
-	-- Tracker.Data.isViewingOwn and
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
@@ -815,11 +894,14 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	if Tracker.Data.isViewingOwn and data.p.id ~= 0 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, "Heals in Bag:", Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, string.format("%.0f%%", data.x.healperc) .. " HP (" .. data.x.healnum .. ")", Theme.COLORS["Default text"], shadowcolor)
+		local healsInBagText = string.format("%s:", Resources.TrackerScreen.HealsInBag)
+		local healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, healsInBagText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, healsValueText, Theme.COLORS["Default text"], shadowcolor)
 
 		if Options["Track PC Heals"] then
-			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, "PC Heals:", Theme.COLORS["Default text"], shadowcolor)
+			local pcHealsText = string.format("%s:", Resources.TrackerScreen.PCHeals)
+			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, pcHealsText, Theme.COLORS["Default text"], shadowcolor)
 			-- Right-align the PC Heals number
 			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 75
 			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, data.x.pcheals, Utils.getCenterHealColor(), shadowcolor)
@@ -828,30 +910,33 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			local incBtn = TrackerScreen.Buttons.PCHealIncrement
 			local decBtn = TrackerScreen.Buttons.PCHealDecrement
 			if Theme.DRAW_TEXT_SHADOWS then
-				Drawing.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
-				Drawing.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn.text, shadowcolor, nil, 5, Constants.Font.FAMILY)
+				Drawing.drawText(incBtn.box[1] + 1, incBtn.box[2] + 1, incBtn:getText(), shadowcolor, nil, 5, Constants.Font.FAMILY)
+				Drawing.drawText(decBtn.box[1] + 1, decBtn.box[2] + 1, decBtn:getText(), shadowcolor, nil, 5, Constants.Font.FAMILY)
 			end
-			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn.text, Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
-			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn.text, Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
+			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn:getText(), Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
+			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn:getText(), Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
 
 			-- Auto-tracking PC Heals button
 			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
+		else
+			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
 	elseif Battle.inBattle then
-		local encounterText, routeText
+		local encounterText, routeText, routeInfoX
 		if Battle.isWildEncounter then
-			encounterText = "Seen in the wild: " .. data.x.encounters
+			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, data.x.encounters)
 			routeText = data.x.route
+			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11
+			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		else
-			encounterText = "Seen on trainers: " .. data.x.encounters
-			routeText = string.format("Team:")
-			Drawing.drawButton(TrackerScreen.Buttons.BattleDetails)
+			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
+			routeText = string.format("%s:", Resources.TrackerScreen.BattleTeam)
+			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
-		Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
 	end
 end
 
@@ -865,6 +950,14 @@ function TrackerScreen.drawStatsArea(data)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + statBoxWidth, 5, Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- Draw the six primary stats
+	local statLabels = {
+		["HP"] = Resources.TrackerScreen.StatHP,
+		["ATK"] = Resources.TrackerScreen.StatATK,
+		["DEF"] = Resources.TrackerScreen.StatDEF,
+		["SPA"] = Resources.TrackerScreen.StatSPA,
+		["SPD"] = Resources.TrackerScreen.StatSPD,
+		["SPE"] = Resources.TrackerScreen.StatSPE,
+	}
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
@@ -879,9 +972,14 @@ function TrackerScreen.drawStatsArea(data)
 			end
 		end
 
+		local langOffset = 0
+		if Resources.currentLanguage == Resources.Languages.JAPANESE then
+			langOffset = 3
+		end
+
 		-- Draw stat label and nature symbol next to it
-		Drawing.drawText(statOffsetX, statOffsetY, statKey:upper(), textColor, shadowcolor)
-		Drawing.drawText(statOffsetX + 16, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
+		Drawing.drawText(statOffsetX, statOffsetY, statLabels[statKey:upper()], textColor, shadowcolor)
+		Drawing.drawText(statOffsetX + 16 + langOffset, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
 		if Battle.inBattle then
@@ -894,7 +992,12 @@ function TrackerScreen.drawStatsArea(data)
 			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
-			Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
+			if Options["Open Book Play Mode"] then
+				local bstSpread = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
+				Drawing.drawNumber(statOffsetX + 25, statOffsetY, bstSpread, 3, Theme.COLORS["Intermediate text"], shadowcolor)
+			else
+				Drawing.drawButton(TrackerScreen.Buttons[statKey], shadowcolor)
+			end
 		end
 		statOffsetY = statOffsetY + 10
 	end
@@ -903,14 +1006,14 @@ function TrackerScreen.drawStatsArea(data)
 	-- The "ACC" and "EVA" stats occupy the same space as the "BST". Prioritize showing ACC/EVA if either has changed during battle (6 is neutral)
 	local useAccEvaInstead = Battle.inBattle and (data.p.stages.acc ~= 6 or data.p.stages.eva ~= 6)
 	if useAccEvaInstead then
-		Drawing.drawText(statOffsetX - 1, statOffsetY + 1, "Acc", Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, "Eva", Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(statOffsetX - 1, statOffsetY + 1, Resources.TrackerScreen.StatAccuracy, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, Resources.TrackerScreen.StatEvasion, Theme.COLORS["Default text"], shadowcolor)
 		local accIntensity = data.p.stages.acc - 6
 		local evaIntensity = data.p.stages.eva - 6
 		Drawing.drawChevronsVerticalIntensity(statOffsetX + 15, statOffsetY + 5, accIntensity, 3,4,2,1,2)
 		Drawing.drawChevronsVerticalIntensity(statOffsetX + 22, statOffsetY + 5, evaIntensity, 3,4,2,1,2)
 	else
-		Drawing.drawText(statOffsetX, statOffsetY, "BST", Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(statOffsetX, statOffsetY, Resources.TrackerScreen.StatBST, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawNumber(statOffsetX + 25, statOffsetY, data.p.bst, 3, Theme.COLORS["Default text"], shadowcolor)
 	end
 
@@ -936,19 +1039,20 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Draw move headers
 	gui.defaultTextBackground(Theme.COLORS["Main background"])
-	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmoveheader, Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, moveOffsetY - moveTableHeaderHeightDiff, "PP", Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, moveOffsetY - moveTableHeaderHeightDiff, "Pow", Theme.COLORS["Header text"], bgHeaderShadow)
-	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, moveOffsetY - moveTableHeaderHeightDiff, "Acc", Theme.COLORS["Header text"], bgHeaderShadow)
+	local headerY = moveOffsetY - moveTableHeaderHeightDiff
+	Drawing.drawText(Constants.SCREEN.WIDTH + moveNameOffset - 1, headerY, data.m.nextmoveheader, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + movePPOffset, headerY, Resources.TrackerScreen.HeaderPP, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, Theme.COLORS["Header text"], bgHeaderShadow)
+	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, Theme.COLORS["Header text"], bgHeaderShadow)
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
-		Drawing.drawText(Constants.SCREEN.WIDTH + 30, moveOffsetY - moveTableHeaderHeightDiff, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
-		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, moveOffsetY - moveTableHeaderHeightDiff, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Draw the Moves view box
@@ -1079,7 +1183,39 @@ function TrackerScreen.drawBallPicker()
 	local infoBoxHeight = 23
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	local chosenBallText = TrackerScreen.PokeBalls.Labels[TrackerScreen.PokeBalls.chosenBall] or Constants.BLANKLINE
-	Drawing.drawText(Constants.SCREEN.WIDTH + 8, 57, "Randomly chosen ball:", Theme.COLORS["Default text"], shadowcolor)
+	local randomBallText = string.format("%s:", Resources.TrackerScreen.RandomBallChosen)
+	local chosenBallText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
+	Drawing.drawText(Constants.SCREEN.WIDTH + 8, 57, randomBallText, Theme.COLORS["Default text"], shadowcolor)
 	Drawing.drawText(Constants.SCREEN.WIDTH + 4 + Utils.centerTextOffset(chosenBallText, 4, 96), 68, chosenBallText, Theme.COLORS["Intermediate text"], shadowcolor)
+end
+
+function TrackerScreen.drawFavorites()
+	-- Draw header
+	gui.defaultTextBackground(Theme.COLORS["Main background"])
+	local headerX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local headerY = Constants.SCREEN.MARGIN + 76
+	local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+	Drawing.drawText(headerX, headerY, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+
+	-- Draw lower box & favorites
+	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+	local boxY = 92
+	local width = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
+	local height = 46
+	gui.drawRectangle(boxX, boxY, width, height, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+
+	local favoritesButtons = {
+		StartupScreen.Buttons.PokemonFavorite1,
+		StartupScreen.Buttons.PokemonFavorite2,
+		StartupScreen.Buttons.PokemonFavorite3,
+	}
+	-- Temporarily adjust the button's vertical location
+	local shiftY = 8
+	for _, button in ipairs(favoritesButtons) do
+		local prevY = button.box[2]
+		button.box[2] = button.box[2] + shiftY
+		Drawing.drawButton(button)
+		button.box[2] = prevY
+	end
 end

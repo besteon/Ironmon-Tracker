@@ -34,7 +34,7 @@ function ColorPicker.new(colorkey)
 	self.colorDisplay = nil
 
 	self.colorkey = colorkey
-
+	self.backgroundColor = 0xFF404040 -- Dark Grey
 	self.color = string.format("%X", Theme.COLORS[colorkey])
 	self.originalColor  = "0x"..string.format("%X",Theme.COLORS[colorkey])
 
@@ -126,7 +126,7 @@ function ColorPicker:drawMainCanvas()
 	forms.clear(self.mainCanvas,0x00000000)
 	local wheelPath = FileManager.buildImagePath("colorPicker", "HSVwheel3.png")
 	local gradientPath = FileManager.buildImagePath("colorPicker", "HSVgradient.png")
-	forms.drawRectangle(self.mainCanvas,0,0,250,300,nil,0xFF404040)
+	forms.drawRectangle(self.mainCanvas,0,0,self.width+30,self.height+30,nil,self.backgroundColor)
 	forms.drawImage(self.mainCanvas,wheelPath,10,10,150,150)
 	forms.drawImage(self.mainCanvas,gradientPath,self.constants.SLIDER_X_POS,self.constants.SLIDER_Y_POS,self.constants.SLIDER_WIDTH,self.constants.SLIDER_HEIGHT)
 	forms.drawEllipse(self.mainCanvas,self.ellipsesPos[1]-3,self.ellipsesPos[2]-3,6,6,nil,tonumber(self.color))
@@ -135,8 +135,26 @@ function ColorPicker:drawMainCanvas()
 	forms.drawRectangle(self.mainCanvas,sliderX,sliderY,14,4,nil,nil)
 
 	forms.drawRectangle(self.mainCanvas,15,173,30,30,nil,tonumber(self.color))
-	forms.drawText(self.mainCanvas,50,179,self.colorkey,0xFFFFFFFF,0x00000000,14,"Arial")
-	forms.drawText(self.mainCanvas,14,221,"Hex Color:",0xFFFFFFFF,0x00000000,14,"Arial")
+
+	local colorResourceKeys = {
+		["Default text"] = "ColorDefaultText",
+		["Lower box text"] = "ColorLowerBoxText",
+		["Positive text"] = "ColorPositiveText",
+		["Negative text"] = "ColorNegativeText",
+		["Intermediate text"] = "ColorIntermediateText",
+		["Header text"] = "ColorHeaderText",
+		["Upper box border"] = "ColorUpperBoxBorder",
+		["Upper box background"] = "ColorUpperBoxBackground",
+		["Lower box border"] = "ColorLowerBoxBorder",
+		["Lower box background"] = "ColorLowerBoxBackground",
+		["Main background"] = "ColorMainBackground",
+	}
+
+	local colorKeyLabel = Resources.ThemeScreen[colorResourceKeys[self.colorkey] or ""] or "???"
+	forms.drawText(self.mainCanvas,50,179,colorKeyLabel,Drawing.Colors.WHITE,0x00000000,14,"Arial")
+
+	local hexLabel = string.format("%s:", Resources.ThemeScreen.PromptColorPickerHexColor)
+	forms.drawText(self.mainCanvas,14,221,hexLabel,Drawing.Colors.WHITE,0x00000000,14,"Arial")
 
 	forms.refresh(self.mainCanvas)
 end
@@ -144,10 +162,11 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	self.mainForm = Utils.createBizhawkForm("Color Picker", self.width, self.height, 0, 0, function() self:onClose() end)
+	self.mainForm = Utils.createBizhawkForm(Resources.ThemeScreen.PromptColorPickerTitle, self.width, self.height, 0, 0, function() self:onClose() end)
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
-	self.saveButton = forms.button(self.mainForm,"Save && Close", function() self:onSave() end,15,250,95,30)
-	self.cancelButton = forms.button(self.mainForm,"Cancel", function() self:onClose() end,125,250,65,30)
+	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
+	self.saveButton = forms.button(self.mainForm,saveAndClose, function() self:onSave() end,15,250,95,30)
+	self.cancelButton = forms.button(self.mainForm,Resources.AllScreens.Cancel, function() self:onClose() end,125,250,65,30)
 	self.mainCanvas = forms.pictureBox(self.mainForm,0,0,250,300)
 	forms.setlocation(self.mainForm,self.xPos,self.yPos)
 

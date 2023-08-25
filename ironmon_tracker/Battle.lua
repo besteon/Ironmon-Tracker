@@ -10,6 +10,7 @@ Battle = {
 	numBattlers = 0,
 	partySize = 6,
 	isNewTurn = true,
+	recentBattleWasTutorial = false,
 
 	-- "Low accuracy" values
 	battleMsg = 0,
@@ -53,7 +54,6 @@ Battle = {
 		[0] = {},
 		[1] = {},
 	},
-	LastMoves = {}
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -122,10 +122,8 @@ function Battle.updateBattleStatus()
 		Battle.endCurrentBattle()
 	end
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
-		if not Battle.isWildEncounter then
-			GameOverScreen.incrementLosses()
-		end
 		LogOverlay.isGameOver = true
+		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
 		GameOverScreen.nextTeamPokemon()
 		Program.changeScreenView(GameOverScreen)
@@ -190,19 +188,15 @@ function Battle.updateViewSlots()
 	--Track if ally pokemon changes, to reset transform and ability changes
 	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleParties[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
-		Battle.LastMoves[0] = 0
 	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleParties[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
-		Battle.LastMoves[2] = 0
 	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
-		Battle.LastMoves[1] = 0
 		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight]  then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
-		Battle.LastMoves[3] = 0
 		Battle.changeOpposingPokemonView(false)
 	end
 end
@@ -290,7 +284,6 @@ function Battle.updateTrackedInfo()
 			if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 and currentAction == 0 then
 				-- 0 = MOVE_USED
 				if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
-					Battle.LastMoves[Battle.attacker] = lastMoveByAttacker
 					if Battle.AbilityChangeData.prevAction ~= actionCount then
 						Battle.AbilityChangeData.recordNextMove = true
 						Battle.AbilityChangeData.prevAction = actionCount
@@ -631,6 +624,8 @@ function Battle.beginNewBattle()
 		Battle.partySize = Memory.readbyte(GameSettings.gPlayerPartyCount)
 	end
 	Battle.isGhost = false
+	-- While in the tutorial, a battle won't normally start, thus if we're here then this battle isn't turtorial
+	Battle.recentBattleWasTutorial = false
 
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
@@ -647,7 +642,6 @@ function Battle.beginNewBattle()
 		RightOwn = 2,
 		RightOther = 2,
 	}
-	Battle.LastMoves = {}
 	Battle.populateBattlePartyObject()
 	Input.StatHighlighter:resetSelectedStat()
 
@@ -715,7 +709,6 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
-	Battle.LastMoves = {}
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
 	Tracker.Data.otherPokemon = {}
 	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }

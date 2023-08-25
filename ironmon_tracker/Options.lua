@@ -1,17 +1,14 @@
 Options = {
-	-- Tracks if any option elements were modified so we know if we need to save them to the Settings.ini file
-	settingsUpdated = false,
-
 	FIRST_RUN = true,
-
 	FILES = {
 		["ROMs Folder"] = "",
 		["Randomizer JAR"] = "",
 		["Source ROM"] = "",
 		["Settings File"] = "",
 	},
-
 	-- 'Default' set of Options, but will get replaced by what's in Settings.ini
+	["Language"] = Resources.Default.Language.Key,
+	["Autodetect language from game"] = true,
 	["Disable mainscreen carousel"] = false,
 	["Auto swap to enemy"] = true,
 	["Show random ball picker"] = true,
@@ -30,19 +27,24 @@ Options = {
 	["Reveal info if randomized"] = true,
 	["Show experience points bar"] = false,
 	["Animated Pokemon popout"] = false,
+	["Refocus emulator after load"] = true,
 	["Use premade ROMs"] = false,
 	["Generate ROM each time"] = false,
 	["Display repel usage"] = false,
 	["Display pedometer"] = false,
+	["Display play time"] = false,
+	["Game timer location"] = "LowerRight",
 	["Dev branch updates"] = false,
 	["Welcome message"] = "", -- Default is empty, which will display the GBA Controls
 	["Startup favorites"] = "1,4,7",
 	["Show on new game screen"] = false,
 	["Enable restore points"] = true,
+	["Enable crash recovery"] = true,
 	["Enable custom extensions"] = false,
 	["Show Team View"] = false,
 	["Show Pre Evolutions"] = false,
-
+	["Use Custom Trainer Names"] = false,
+	["Open Book Play Mode"] = false,
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
 		["Toggle view"] = "Start",
@@ -111,14 +113,18 @@ function Options.initialize()
 	Drawing.AnimatedPokemon:create()
 end
 
-function Options.updateSetting(optionKey, value)
-	Options[optionKey] = value
-	Options.settingsUpdated = true
-	Program.redraw(true)
+-- Toggles the boolean setting (optionKey) and returns the resulting value
+function Options.toggleSetting(optionKey)
+	if optionKey == nil then return end
+	if type(Options[optionKey]) == "boolean" then
+		Options.addUpdateSetting(optionKey, not Options[optionKey])
+	end
+	return Options[optionKey]
 end
 
-function Options.forceSave()
-	Options.settingsUpdated = true
-	Main.SaveSettings()
-	Program.redraw(true)
+-- Updates the setting (optionKey) or if it doesn't exist, adds it. Then saves the change to the Settings.ini file
+function Options.addUpdateSetting(optionKey, value)
+	if optionKey == nil then return end
+	Options[optionKey] = value
+	Main.SaveSettings(true)
 end

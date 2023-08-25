@@ -173,11 +173,15 @@ function Input.checkMouseInput(xmouse, ymouse)
 		Program.currentScreen.checkInput(xmouse, ymouse)
 	end
 
-	-- The extra screens don't occupy the same screen space and need their own check
+	Program.GameTimer:checkInput(xmouse, ymouse)
+
+	-- The extra screens don't occupy the same screen space and need their own check; order matters
 	if TeamViewArea.isDisplayed() then
 		TeamViewArea.checkInput(xmouse, ymouse)
 	end
-	if LogOverlay.isDisplayed then
+	if UpdateScreen.showNotes then
+		Input.checkButtonsClicked(xmouse, ymouse, UpdateScreen.Pager.Buttons)
+	elseif LogOverlay.isDisplayed then
 		LogOverlay.checkInput(xmouse, ymouse)
 	end
 end
@@ -186,31 +190,8 @@ function Input.isMouseInArea(xmouse, ymouse, x, y, width, height)
 	return (xmouse >= x and xmouse <= x + width) and (ymouse >= y and ymouse <= y + height)
 end
 
-function Input.checkButtonsClicked(xmouse, ymouse, buttons,indexed)
-	if indexed then
-		for _, button in ipairs(buttons) do
-			-- Only check for clicks on the button if it's visible (no function implies visibility)
-			if button.isVisible == nil or button:isVisible() then
-				local isAreaClicked
-
-				-- If the button has an override for which area to check for mouse clicks, use that
-				if button.clickableArea ~= nil then
-					isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.clickableArea[1], button.clickableArea[2], button.clickableArea[3], button.clickableArea[4])
-				elseif button.box ~= nil then
-					isAreaClicked = Input.isMouseInArea(xmouse, ymouse, button.box[1], button.box[2], button.box[3], button.box[4])
-				else
-					isAreaClicked = false
-				end
-
-				if isAreaClicked and button.onClick ~= nil then
-					CustomCode.onButtonClicked(button)
-					button:onClick()
-					break;
-				end
-			end
-		end
-		return
-	end
+function Input.checkButtonsClicked(xmouse, ymouse, buttons)
+	local buttonQueue = {}
 	for _, button in pairs(buttons) do
 		-- Only check for clicks on the button if it's visible (no function implies visibility)
 		if button.isVisible == nil or button:isVisible() then
@@ -225,36 +206,44 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons,indexed)
 				isAreaClicked = false
 			end
 
+			-- Queue up all of the buttons to click before clicking any of them
 			if isAreaClicked and button.onClick ~= nil then
-				CustomCode.onButtonClicked(button)
-				button:onClick()
+				table.insert(buttonQueue, button)
 			end
 		end
+	end
+	-- Finally, click all buttons at once
+	for _, button in pairs(buttonQueue) do
+		CustomCode.onButtonClicked(button)
+		button:onClick()
 	end
 end
 
 function Input.checkAnyMovesClicked(xmouse, ymouse)
 	local pokemon = Tracker.getViewedPokemon()
-	local pokemonMoves = nil
-	if pokemon ~= nil then
-		if not Tracker.Data.isViewingOwn then
-			pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
-		elseif Tracker.Data.hasCheckedSummary then
-			pokemonMoves = pokemon.moves
-		end
+	if pokemon == nil then
+		return
+	end
+
+	local pokemonMoves
+	if not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] then
+		pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
+	elseif Tracker.Data.hasCheckedSummary then
+		pokemonMoves = pokemon.moves
+	end
+	if pokemonMoves == nil then
+		return
 	end
 
 	-- move info lookup, only if pokemon exists and the user should know about its moves already
 	-- TODO: Turn these into buttons
-	if pokemonMoves ~= nil then
-		local moveOffsetX = Constants.SCREEN.WIDTH + 7
-		local moveOffsetY = 95
-		for moveIndex = 1, 4, 1 do
-			if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
-				InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
-				break
-			end
-			moveOffsetY = moveOffsetY + 10
+	local moveOffsetX = Constants.SCREEN.WIDTH + 7
+	local moveOffsetY = 95
+	for moveIndex = 1, 4, 1 do
+		if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
+			break
 		end
+		moveOffsetY = moveOffsetY + 10
 	end
 end

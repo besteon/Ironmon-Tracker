@@ -1,15 +1,4 @@
-StartupScreen = {
-	Labels = {
-		title = "Ironmon Tracker",
-		version = "Version:",
-		game = "Game:",
-		attempts = "Attempts:",
-		controls = "GBA Controls:",
-		swapView = "Swap viewed " .. Constants.Words.POKEMON .. ":",
-		quickload = "Quickload next ROM:",
-		eraseSave = "Erase game save data:",
-	},
-}
+StartupScreen = {}
 
 StartupScreen.Buttons = {
 	SettingsGear = {
@@ -31,43 +20,27 @@ StartupScreen.Buttons = {
 	},
 	UpdateAvailable = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "",
+		getText = function(self) return Utils.inlineIf(self.newVersionAvailable, "*", "") end,
 		textColor = "Positive text",
+		newVersionAvailable = false,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 12, 30, 10 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 74, Constants.SCREEN.MARGIN + 12, 10, 10 },
-		isVisible = function(self) return self.text == "*" end, -- check on text instead of Main.isOnLatestVersion() again
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 12, 10, 10 },
+		isVisible = function(self) return self.newVersionAvailable end,
 		updateSelf = function(self)
-			if not Main.isOnLatestVersion() then
-				self.text = "*"
-				if string.len(Main.TrackerVersion or "") > 5 then
-					self.box[1] = self.box[1] + 4
-				end
-			else
-				self.text = ""
+			self.newVersionAvailable = not Main.isOnLatestVersion()
+			if self.newVersionAvailable then
+				local offsetX = Utils.calcWordPixelLength(Main.TrackerVersion .. " ")
+				self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + offsetX
 			end
 		end,
 		onClick = function(self) Program.changeScreenView(UpdateScreen) end
 	},
 	AttemptsCount = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = Constants.BLANKLINE,
+		getText = function(self) return tostring(Main.currentSeed) or Constants.BLANKLINE end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 33, 11 },
 		isVisible = function() return Main.currentSeed > 1 end,
-		updateSelf = function(self)
-			self.text = tostring(Main.currentSeed) or Constants.BLANKLINE
-		end,
-		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
-	},
-	AttemptsEdit = {
-		type = Constants.ButtonTypes.PIXELIMAGE,
-		image = Constants.PixelImages.NOTEPAD,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54, Constants.SCREEN.MARGIN + 37, 10, 10 },
-		isVisible = function() return false and Main.currentSeed > 1 end, -- Removing this for now, Streamer Tools exists
-		updateSelf = function(self)
-			local txtLength = string.len(StartupScreen.Buttons.AttemptsCount.text or "") + 1
-			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 54 + (txtLength * 5) -- 5 pixels per digit
-		end,
-		onClick = function(self) StartupScreen.openEditAttemptsWindow() end
+		onClick = function(self) StreamerScreen.openEditAttemptsWindow() end
 	},
 	NotesAreaEdit = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -78,26 +51,26 @@ StartupScreen.Buttons = {
 		isVisible = function() return not Options["Show on new game screen"] and Options["Welcome message"] == "" end,
 		onClick = function(self) Program.changeScreenView(StreamerScreen) end
 	},
-	EraseGame = { -- Currently unused
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "< Press",
-		textColor = "Lower box text",
-		boxColors = { "Lower box border", "Lower box background" },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
-		isVisible = function() return false and Options["Welcome message"] == "" end, -- TODO: For now, we aren't using this button
-		onClick = function(self)
-			if Main.IsOnBizhawk() then
-				local joypadButtons = {
-					Up = true,
-					B = true,
-					Select = true,
-				}
-				joypad.set(joypadButtons)
-				Main.frameAdvance()
-				joypad.set(joypadButtons)
-			end
-		end
-	},
+	-- EraseGame = { -- Currently unused
+	-- 	type = Constants.ButtonTypes.FULL_BORDER,
+	-- 	getText = function(self) return "< Press" end,
+	-- 	textColor = "Lower box text",
+	-- 	boxColors = { "Lower box border", "Lower box background" },
+	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
+	-- 	isVisible = function() return false and Options["Welcome message"] == "" end, -- TODO: For now, we aren't using this button
+	-- 	onClick = function(self)
+	-- 		if Main.IsOnBizhawk() then
+	-- 			local joypadButtons = {
+	-- 				Up = true,
+	-- 				B = true,
+	-- 				Select = true,
+	-- 			}
+	-- 			joypad.set(joypadButtons)
+	-- 			Main.frameAdvance()
+	-- 			joypad.set(joypadButtons)
+	-- 		end
+	-- 	end
+	-- },
 	PokemonFavorite1 = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 90, 32, 44 },
@@ -134,13 +107,24 @@ function StartupScreen.initialize()
 		if button.boxColors == nil then
 			button.boxColors = { "Upper box border", "Upper box background" }
 		end
-		if button.updateSelf ~= nil then
-			button:updateSelf()
-		end
 	end
 
-	if Tracker.DataMessage ~= nil and Tracker.DataMessage ~= Tracker.LoadStatusMessages.newGame then
-		print(string.format("> %s", Tracker.DataMessage))
+	StartupScreen.refreshButtons()
+
+	-- Output to console the Tracker data load status to help with troubleshooting
+	if Tracker.LoadStatus ~= nil then
+		local loadStatusMessage = Resources.StartupScreen[Tracker.LoadStatus]
+		if loadStatusMessage then
+			print(string.format("> %s: %s", Resources.StartupScreen.TrackedDataMsgLabel, loadStatusMessage))
+		end
+	end
+end
+
+function StartupScreen.refreshButtons()
+	for _, button in pairs(StartupScreen.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
 	end
 end
 
@@ -175,15 +159,21 @@ function StartupScreen.setPokemonIcon(displayOption)
 end
 
 function StartupScreen.openChoosePokemonWindow()
-	local form = Utils.createBizhawkForm("Choose a Pokemon", 330, 145)
+	local form = Utils.createBizhawkForm(Resources.StartupScreen.PromptChooseAPokemonTitle, 330, 145)
+
+	local dropdownOptions = {
+		string.format("-- %s", Resources.StartupScreen.PromptChooseAPokemonByAttempt),
+		string.format("-- %s", Resources.StartupScreen.PromptChooseAPokemonByRandom),
+		string.format("-- %s", Resources.StartupScreen.PromptChooseAPokemonNone),
+	}
 
 	local allPokemon = PokemonData.namesToList()
-	table.insert(allPokemon, "-- Based on attempt #")
-	table.insert(allPokemon, "-- Random each time")
-	table.insert(allPokemon, "-- None")
+	for _, opt in ipairs(dropdownOptions) do
+		table.insert(allPokemon, opt)
+	end
 	table.insert(allPokemon, "...................................") -- A spacer to separate special options
 
-	forms.label(form, "Choose a Pokemon to show during startup:", 49, 10, 250, 20)
+	forms.label(form,Resources.StartupScreen.PromptChooseAPokemonDesc, 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, allPokemon, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
@@ -191,24 +181,24 @@ function StartupScreen.openChoosePokemonWindow()
 
 	local initialChoice
 	if Options["Startup Pokemon displayed"] == Options.StartupIcon.attempts then
-		initialChoice = "-- Based on attempt #"
+		initialChoice = dropdownOptions[1]
 	elseif Options["Startup Pokemon displayed"] == Options.StartupIcon.random then
-		initialChoice = "-- Random each time"
+		initialChoice = dropdownOptions[2]
 	elseif Options["Startup Pokemon displayed"] == Options.StartupIcon.none then
-		initialChoice = "-- None"
+		initialChoice = dropdownOptions[3]
 	else
 		initialChoice = PokemonData.Pokemon[Options["Startup Pokemon displayed"] or "1"].name
 	end
 	forms.settext(pokedexDropdown, initialChoice)
 
-	forms.button(form, "Save", function()
+	forms.button(form, Resources.AllScreens.Save, function()
 		local optionSelected = forms.gettext(pokedexDropdown)
 
-		if optionSelected == "-- Based on attempt #" then
+		if optionSelected == dropdownOptions[1] then
 			optionSelected = Options.StartupIcon.attempts
-		elseif optionSelected == "-- Random each time" then
+		elseif optionSelected == dropdownOptions[2] then
 			optionSelected = Options.StartupIcon.random
-		elseif optionSelected == "-- None" then
+		elseif optionSelected == dropdownOptions[3] then
 			optionSelected = Options.StartupIcon.none
 		elseif optionSelected ~= "..................................." then
 			-- The option is a Pokemon's name and needs to be convered to an ID
@@ -223,37 +213,10 @@ function StartupScreen.openChoosePokemonWindow()
 		forms.destroy(form)
 	end, 200, 29)
 
-	forms.button(form,"Cancel", function()
+	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)
 	end, 120, 69)
-end
-
-function StartupScreen.openEditAttemptsWindow()
-	local form = Utils.createBizhawkForm("Edit Attempts Counter", 320, 130)
-
-	forms.label(form, "Enter the number of attempts:", 48, 10, 300, 20)
-	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
-	forms.button(form, "Save", function()
-		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
-			local newAttemptsCount = tonumber(formInput)
-			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
-				Main.currentSeed = newAttemptsCount
-				StartupScreen.Buttons.AttemptsCount:updateSelf()
-				StartupScreen.Buttons.AttemptsEdit:updateSelf()
-
-				Main.WriteAttemptsCountToFile(Main.GetAttemptsFile(), newAttemptsCount)
-				Program.redraw(true)
-			end
-		end
-		client.unpause()
-		forms.destroy(form)
-	end, 72, 60)
-	forms.button(form, "Cancel", function()
-		client.unpause()
-		forms.destroy(form)
-	end, 157, 60)
 end
 
 -- USER INPUT FUNCTIONS
@@ -293,34 +256,37 @@ function StartupScreen.drawScreen()
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
-	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.title:upper(), Theme.COLORS["Intermediate text"], topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, Utils.toUpperUTF8(Resources.StartupScreen.Title), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.version, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Version .. ":", topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, Main.TrackerVersion, topBox.text, topBox.shadow)
-	-- Drawing.drawButton(StartupScreen.Buttons.UpdateAvailable, topBox.shadow)
 	textLineY = textLineY + linespacing
 
-	Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.game, topBox.text, topBox.shadow)
+	Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Game .. ":", topBox.text, topBox.shadow)
 	Drawing.drawText(topcolX, textLineY, GameSettings.versioncolor, topBox.text, topBox.shadow)
 	textLineY = textLineY + linespacing
 
 	if StartupScreen.Buttons.AttemptsCount.isVisible() then
-		Drawing.drawText(topBox.x + 2, textLineY, StartupScreen.Labels.attempts, topBox.text, topBox.shadow)
-		-- Drawing.drawButton(StartupScreen.Buttons.AttemptsEdit, topBox.shadow)
-		-- Drawing.drawButton(StartupScreen.Buttons.AttemptsCount, topBox.shadow)
+		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen.Attempts .. ":", topBox.text, topBox.shadow)
 	end
 	textLineY = textLineY + linespacing
 
-	local successfulData = Tracker.DataMessage:find(Tracker.LoadStatusMessages.fromFile) ~= nil
-	local dataColor = Utils.inlineIf(successfulData, Theme.COLORS["Positive text"], topBox.text)
-	local wrappedText = Utils.getWordWrapLines(Tracker.DataMessage, 32)
-	if #wrappedText == 1 then
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[1], dataColor, topBox.shadow)
-	elseif #wrappedText >= 2 then
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[1], dataColor, topBox.shadow)
+	-- Display info about the tracked data notes, except when starting a new game (keep it clean)
+	if Tracker.LoadStatus and Tracker.LoadStatus ~= Tracker.LoadStatusKeys.NEW_GAME then
+		local messageColor
+		if Tracker.LoadStatus == Tracker.LoadStatusKeys.LOAD_SUCCESS then
+			messageColor = Theme.COLORS["Positive text"]
+		elseif Tracker.LoadStatus == Tracker.LoadStatusKeys.ERROR then
+			messageColor = Theme.COLORS["Negative text"]
+		else
+			messageColor = topBox.text
+		end
+
+		local trackerNotesLabel = string.format("%s:", Resources.StartupScreen.TrackedDataMsgLabel or "")
+		Drawing.drawText(topBox.x + 2, textLineY, trackerNotesLabel, topBox.text, topBox.shadow)
 		textLineY = textLineY + linespacing - 2
-		Drawing.drawText(topBox.x + 2, textLineY, wrappedText[2], dataColor, topBox.shadow)
+		Drawing.drawText(topBox.x + 2, textLineY, Resources.StartupScreen[Tracker.LoadStatus] or "", messageColor, topBox.shadow)
 	end
 
 	-- If Favorites are selected to be shown and no custom welcome message has been written, show game controls by default
@@ -329,10 +295,10 @@ function StartupScreen.drawScreen()
 	-- HEADER DIVIDER
 	if showCustomWelcome then
 		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-		Drawing.drawText(botBox.x + 1, botBox.y - 11, StreamerScreen.Labels.favorites, Theme.COLORS["Header text"], bgShadow)
+		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
 	else
 		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-		Drawing.drawText(botBox.x + 1, botBox.y - 11, StartupScreen.Labels.controls, Theme.COLORS["Header text"], bgShadow)
+		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderControls, Theme.COLORS["Header text"], bgShadow)
 	end
 
 	-- BOTTOM BORDER BOX
@@ -361,24 +327,24 @@ function StartupScreen.drawScreen()
 		-- Draw the GBA pixel image as a black icon against white background
 		local gbaX = botBox.x + 117
 		local gbaY = botBox.y + 2
-		gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, 0xFFFFFFFF)
-		Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, { 0xFF000000, 0xFFFFFFFF })
+		gui.drawRectangle(gbaX - 2, gbaY - 2, 25, 16, botBox.border, Drawing.Colors.WHITE)
+		Drawing.drawImageAsPixels(Constants.PixelImages.GBA, gbaX, gbaY, { Drawing.Colors.BLACK, Drawing.Colors.WHITE })
 
 		local indentChars = "    "
 		local swapFormatted = indentChars .. Options.CONTROLS["Toggle view"]:upper()
-		Drawing.drawText(botBox.x + 2, textLineY, StartupScreen.Labels.swapView, botBox.text, botBox.shadow)
+		Drawing.drawText(botBox.x + 2, textLineY, Resources.StartupScreen.ControlsSwapView .. ":", botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 2
 		Drawing.drawText(botBox.x + 2, textLineY, swapFormatted, botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 1
 
 		local comboFormatted = indentChars .. Options.CONTROLS["Load next seed"]:upper():gsub(" ", ""):gsub(",", " + ")
-		Drawing.drawText(botBox.x + 2, textLineY, StartupScreen.Labels.quickload, botBox.text, botBox.shadow)
+		Drawing.drawText(botBox.x + 2, textLineY, Resources.StartupScreen.ControlsQuickload .. ":", botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 2
 		Drawing.drawText(botBox.x + 2, textLineY, comboFormatted, botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 1
 
 		local clearFormatted = indentChars .. "UP + B + SELECT"
-		Drawing.drawText(botBox.x + 2, textLineY, StartupScreen.Labels.eraseSave, botBox.text, botBox.shadow)
+		Drawing.drawText(botBox.x + 2, textLineY, Resources.StartupScreen.ControlsEraseGameSave .. ":", botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 2
 		Drawing.drawText(botBox.x + 2, textLineY, clearFormatted, botBox.text, botBox.shadow)
 		textLineY = textLineY + linespacing - 1
