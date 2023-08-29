@@ -188,7 +188,7 @@ function ExtrasScreen.openEditTimerPrompt()
 	end
 	Input.allowMouse = false
 
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.LabelTimer, 320, 130, nil, nil, closeAndUnpauseTimer)
+	local form = Utils.createBizhawkForm(Resources.ExtrasScreen.LabelTimer, 320, 130, nil, nil, closeAndUnpauseTimer)
 
 	local hour = math.floor(Tracker.Data.playtime / 3600) % 10000
 	local min = math.floor(Tracker.Data.playtime / 60) % 60

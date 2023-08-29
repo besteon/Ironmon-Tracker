@@ -156,7 +156,7 @@ function SetupScreen.openEditControlsWindow()
 		offsetY = offsetY + 24
 	end
 
-	-- 'Save & Close' and 'Cancel' buttons
+	-- Buttons
 	local saveCloseLabel = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
 	forms.button(form, saveCloseLabel, function()
 		for i, controlTuple in ipairs(controlKeyMap) do
@@ -169,11 +169,18 @@ function SetupScreen.openEditControlsWindow()
 		Program.redraw(true)
 
 		Utils.closeBizhawkForm(form)
-	end, 120, offsetY + 5, 95, 30)
+	end, 45, offsetY + 5, 105, 25)
+
+	forms.button(form, Resources.SetupScreen.PromptEditControllerResetDefault, function()
+		for i, controlTuple in ipairs(controlKeyMap) do
+			local default = Options.Defaults.CONTROLS[controlTuple[1]]
+			forms.settext(inputTextboxes[i], default or "")
+		end
+	end, 175, offsetY + 5, 120, 25)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
-	end, 230, offsetY + 5, 65, 30)
+	end, 320, offsetY + 5, 75, 25)
 end
 
 -- USER INPUT FUNCTIONS

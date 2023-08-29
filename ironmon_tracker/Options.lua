@@ -109,6 +109,12 @@ Options.StartupIcon = {
 
 Options["Startup Pokemon displayed"] = Options.StartupIcon.attempts
 
+local defaultOptions = {}
+FileManager.copyTable(Options, defaultOptions)
+defaultOptions.IconSetMap = nil
+defaultOptions.StartupIcon = nil
+Options.Defaults = defaultOptions
+
 function Options.initialize()
 	Drawing.AnimatedPokemon:create()
 end
