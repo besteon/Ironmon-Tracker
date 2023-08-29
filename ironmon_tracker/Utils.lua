@@ -515,17 +515,16 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 	end
 
 	local movesText = Resources.TrackerScreen.HeaderMoves
-	local nextMoveSpacing = 13
 	-- Don't show the asterisk on your own Pokemon
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
-		nextMoveSpacing = nextMoveSpacing + 1
 	end
 
 	local header = string.format("%s %s/%s", movesText, movesLearned, #allMoveLevels)
 	if foundNextMove then
-		nextMoveSpacing = nextMoveSpacing + string.len(header) * 4 + string.len(tostring(movesLearned)) + string.len(tostring(#allMoveLevels))
-		header = header .. " (" .. nextMoveLevel .. ")"
+		header = header .. " ("
+		local nextMoveSpacing = Utils.calcWordPixelLength(header)
+		header = header .. nextMoveLevel .. ")"
 		return header, nextMoveLevel, nextMoveSpacing
 	else
 		return header, nil, nil

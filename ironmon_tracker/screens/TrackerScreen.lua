@@ -813,7 +813,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	local evoSpacing
 	if data.p.evo ~= PokemonData.Evolutions.NONE then
 		levelEvoText = levelEvoText .. " ("
-		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
+		evoSpacing = 1 + Utils.calcWordPixelLength(levelEvoText)
 		levelEvoText = levelEvoText .. abbreviationText .. ")"
 	end
 
@@ -850,9 +850,9 @@ function TrackerScreen.drawPokemonInfoArea(data)
 				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase)
 				local numHighlightedChars = math.floor(abbreviationText:len() * percentFill)
 				local highlightedEvo = abbreviationText:sub(1, numHighlightedChars)
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
 			else
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 			end
 		end
 		offsetY = offsetY + linespacing
@@ -1041,14 +1041,15 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, Theme.COLORS["Header text"], bgHeaderShadow)
 
-	-- Redraw next move level in the header with a different color if close to learning new move
+	-- Inidicate there are more moves being tracked than can fit on screen
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
 		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
-		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		local headerLevelHighlightX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + data.m.nextmovespacing
+		Drawing.drawText(headerLevelHighlightX, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Draw the Moves view box

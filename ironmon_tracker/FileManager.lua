@@ -628,3 +628,15 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 
 	return true
 end
+
+-- Recursively copies the contents of 'source' table into 'destination' table
+function FileManager.copyTable(source, destination)
+	for key, val in pairs(source or {}) do
+		if type(val) == "table" then
+			destination[key] = {}
+			FileManager.copyTable(val, destination[key])
+		else
+			destination[key] = val
+		end
+	end
+end

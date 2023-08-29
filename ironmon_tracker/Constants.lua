@@ -602,639 +602,154 @@ Constants.PixelImages = {
 
 -- Table of special characters to return based on whether emulator supports those special characters [true/false]
 Constants.Char = {
-	[" "] = {
-		width = 1,
-	},
-	["%"] = {
-		width = 7,
-	},
-	["0"] = {
-		width = 4,
-	},
-	["1"] = {
-		width = 4,
-	},
-	["2"] = {
-		width = 4,
-	},
-	["3"] = {
-		width = 4,
-	},
-	["4"] = {
-		width = 4,
-	},
-	["5"] = {
-		width = 4,
-	},
-	["6"] = {
-		width = 4,
-	},
-	["7"] = {
-		width = 4,
-	},
-	["8"] = {
-		width = 4,
-	},
-	["9"] = {
-		width = 4,
-	},
-	["="] = {
-		width = 4,
-	},
-	[","] = {
-		width = 2,
-	},
-	["-"] = {
-		width = 2,
-	},
-	["_"] = {
-		width = 5,
-	},
-	["."] = {
-		width = 1,
-	},
-	["("] = {
-		width = 2,
-	},
-	[")"] = {
-		width = 2,
-	},
-	["#"] = {
-		width = 5,
-	},
-	["&"] = {
-		width = 5,
-	},
-	["?"] = {
-		width = 4,
-	},
-	["<"] = {
-		width = 4,
-	},
-	[">"] = {
-		width = 4,
-	},
-	["/"] = {
-		width = 4,
-	},
-	[":"] = {
-		width = 1,
-	},
-	["a"] = {
-		width = 4,
-	},
-	["A"] = {
-		width = 5,
-	},
-	["b"] = {
-		width = 4,
-	},
-	["B"] = {
-		width = 4,
-	},
-	["c"] = {
-		width = 3,
-	},
-	["C"] = {
-		width = 4,
-	},
-	["d"] = {
-		width = 4,
-	},
-	["D"] = {
-		width = 5,
-	},
-	["e"] = {
-		width = 4,
-	},
-	["E"] = {
-		width = 4,
-	},
-	["f"] = {
-		width = 2,
-	},
-	["F"] = {
-		width = 4,
-	},
-	["g"] = {
-		width = 4,
-	},
-	["G"] = {
-		width = 5,
-	},
-	["h"] = {
-		width = 4,
-	},
-	["H"] = {
-		width = 5,
-	},
-	["i"] = {
-		width = 1,
-	},
-	["I"] = {
-		width = 1,
-	},
-	["j"] = {
-		width = 2,
-	},
-	["J"] = {
-		width = 2,
-	},
-	["k"] = {
-		width = 4,
-	},
-	["K"] = {
-		width = 5,
-	},
-	["l"] = {
-		width = 1,
-	},
-	["L"] = {
-		width = 3,
-	},
-	["m"] = {
-		width = 7,
-	},
-	["M"] = {
-		width = 6,
-	},
-	["n"] = {
-		width = 4,
-	},
-	["N"] = {
-		width = 5,
-	},
-	["o"] = {
-		width = 4,
-	},
-	["O"] = {
-		width = 5,
-	},
-	["p"] = {
-		width = 4,
-	},
-	["P"] = {
-		width = 4,
-	},
-	["q"] = {
-		width = 3,
-	},
-	["Q"] = {
-		width = 5,
-	},
-	["r"] = {
-		width = 2,
-	},
-	["R"] = {
-		width = 5,
-	},
-	["s"] = {
-		width = 3,
-	},
-	["S"] = {
-		width = 4,
-	},
-	["t"] = {
-		width = 2,
-	},
-	["T"] = {
-		width = 3,
-	},
-	["u"] = {
-		width = 4,
-	},
-	["U"] = {
-		width = 4,
-	},
-	["v"] = {
-		width = 3,
-	},
-	["V"] = {
-		width = 5,
-	},
-	["w"] = {
-		width = 5,
-	},
-	["W"] = {
-		width = 7,
-	},
-	["x"] = {
-		width = 3,
-	},
-	["X"] = {
-		width = 4,
-	},
-	["y"] = {
-		width = 3,
-	},
-	["Y"] = {
-		width = 5,
-	},
-	["z"] = {
-		width = 3,
-	},
-	["Z"] = {
-		width = 4,
-	},
-	["♂"] = {
-		encoded = "?",
-	},
-	["♀"] = {
-		encoded = "?",
-	},
-	["…"] = {
-		encoded = '..',
-		plain = "...",
-	},
-	["“"] = {
-		encoded = '"',
-		plain = "\"",
-	},
-	["”"] = {
-		encoded = '"',
-		plain = "\"",
-	},
-	["‘"] = {
-		encoded = "'",
-		plain = "'",
-	},
-	["À"] = {
-		encoded = "\192",
-		lower = "à",
-		plain = "A",
-		width = 5,
-	},
-	["Á"] = {
-		encoded = "\193",
-		lower = "á",
-		plain = "A",
-		width = 5,
-	},
-	["Â"] = {
-		encoded = "\194",
-		lower = "â",
-		plain = "A",
-		width = 5,
-	},
-	["Ã"] = {
-		encoded = "\195",
-		lower = "ã",
-		plain = "A",
-		width = 5,
-	},
-	["Ä"] = {
-		encoded = "\196",
-		lower = "ä",
-		plain = "A",
-		width = 5,
-	},
-	["Å"] = {
-		encoded = "\197",
-		lower = "å",
-		plain = "A",
-		width = 5,
-	},
-	["Æ"] = {
-		encoded = "\198",
-		lower = "æ",
-		plain = "AE",
-		width = 6, -- Untested
-	},
-	["Ç"] = {
-		encoded = "\199",
-		lower = "ç",
-		plain = "C",
-		width = 4,
-	},
-	["È"] = {
-		encoded = "\200",
-		lower = "è",
-		plain = "E",
-		width = 4,
-	},
-	["É"] = {
-		encoded = "\201",
-		lower = "é",
-		plain = "E",
-		width = 4,
-	},
-	["Ê"] = {
-		encoded = "\202",
-		lower = "ê",
-		plain = "E",
-		width = 4,
-	},
-	["Ë"] = {
-		encoded = "\203",
-		lower = "ë",
-		plain = "E",
-		width = 4,
-	},
-	["Ì"] = {
-		encoded = "\204",
-		lower = "ì",
-		plain = "I",
-		width = 1,
-	},
-	["Í"] = {
-		encoded = "\205",
-		lower = "í",
-		plain = "I",
-		width = 1,
-	},
-	["Î"] = {
-		encoded = "\206",
-		lower = "î",
-		plain = "I",
-		width = 1,
-	},
-	["Ï"] = {
-		encoded = "\207",
-		lower = "ï",
-		plain = "I",
-		width = 1,
-	},
-	["Ð"] = {
-		encoded = "\208",
-		lower = "ð",
-		plain = "D",
-		width = 5,
-	},
-	["Ñ"] = {
-		encoded = "\209",
-		lower = "ñ",
-		plain = "N",
-		width = 5,
-	},
-	["Ò"] = {
-		encoded = "\210",
-		lower = "ò",
-		plain = "O",
-		width = 5,
-	},
-	["Ó"] = {
-		encoded = "\211",
-		lower = "ó",
-		plain = "O",
-		width = 5,
-	},
-	["Ô"] = {
-		encoded = "\212",
-		lower = "ô",
-		plain = "O",
-		width = 5,
-	},
-	["Õ"] = {
-		encoded = "\213",
-		lower = "õ",
-		plain = "O",
-		width = 5,
-	},
-	["Ö"] = {
-		encoded = "\214",
-		lower = "ö",
-		plain = "O",
-		width = 5,
-	},
-	["Ø"] = {
-		encoded = "\216",
-		lower = "ø",
-		plain = "O",
-		width = 5,
-	},
-	["Ù"] = {
-		encoded = "\217",
-		lower = "ù",
-		plain = "U",
-		width = 4,
-	},
-	["Ú"] = {
-		encoded = "\218",
-		lower = "ú",
-		plain = "U",
-		width = 4,
-	},
-	["Û"] = {
-		encoded = "\219",
-		lower = "û",
-		plain = "U",
-		width = 4,
-	},
-	["Ü"] = {
-		encoded = "\220",
-		lower = "ü",
-		plain = "U",
-		width = 4,
-	},
-	["Ý"] = {
-		encoded = "\221",
-		lower = "ý",
-		plain = "Y",
-		width = 5,
-	},
-	["Þ"] = {
-		encoded = "\222",
-		lower = "þ",
-		plain = "P",
-		width = 4,
-	},
-	["Ÿ"] = {
-		-- encoded = nil, -- \376 not available
-		lower = "ÿ",
-		plain = "y",
-		width = 5,
-	},
-	["ß"] = {
-		encoded = "\223",
-		plain = "B",
-		width = 5,
-	},
-	["à"] = {
-		encoded = "\224",
-		upper = "À",
-		plain = "a",
-		width = 4,
-	},
-	["á"] = {
-		encoded = "\225",
-		upper = "Á",
-		plain = "a",
-		width = 4,
-	},
-	["â"] = {
-		encoded = "\226",
-		upper = "Â",
-		plain = "a",
-		width = 4,
-	},
-	["ã"] = {
-		encoded = "\227",
-		upper = "Ã",
-		plain = "a",
-		width = 4,
-	},
-	["ä"] = {
-		encoded = "\228",
-		upper = "Ä",
-		plain = "a",
-		width = 4,
-	},
-	["å"] = {
-		encoded = "\229",
-		upper = "Å",
-		plain = "a",
-		width = 4,
-	},
-	["æ"] = {
-		encoded = "\230",
-		upper = "Æ",
-		plain = "ae",
-		width = 6, -- Untested
-	},
-	["ç"] = {
-		encoded = "\231",
-		upper = "Ç",
-		plain = "c",
-		width = 3,
-	},
-	["è"] = {
-		encoded = "\232",
-		upper = "È",
-		plain = "e",
-		width = 4,
-	},
-	["é"] = {
-		encoded = "\233",
-		upper = "É",
-		plain = "e",
-		width = 4,
-	},
-	["ê"] = {
-		encoded = "\234",
-		upper = "Ê",
-		plain = "e",
-		width = 4,
-	},
-	["ë"] = {
-		encoded = "\235",
-		upper = "Ë",
-		plain = "e",
-		width = 4,
-	},
-	["ì"] = {
-		encoded = "\236",
-		upper = "Ì",
-		plain = "i",
-		width = 1,
-	},
-	["í"] = {
-		encoded = "\237",
-		upper = "Í",
-		plain = "i",
-		width = 1,
-	},
-	["î"] = {
-		encoded = "\238",
-		upper = "Î",
-		plain = "i",
-		width = 1,
-	},
-	["ï"] = {
-		encoded = "\239",
-		upper = "Ï",
-		plain = "i",
-		width = 1,
-	},
-	["ð"] = {
-		encoded = "\240",
-		upper = "Ð",
-		plain = "o",
-		width = 4,
-	},
-	["ñ"] = {
-		encoded = "\241",
-		upper = "Ñ",
-		plain = "n",
-		width = 4,
-	},
-	["ò"] = {
-		encoded = "\242",
-		upper = "Ò",
-		plain = "o",
-		width = 4,
-	},
-	["ó"] = {
-		encoded = "\243",
-		upper = "Ó",
-		plain = "o",
-		width = 4,
-	},
-	["ô"] = {
-		encoded = "\244",
-		upper = "Ô",
-		plain = "o",
-		width = 4,
-	},
-	["õ"] = {
-		encoded = "\245",
-		upper = "Õ",
-		plain = "o",
-		width = 4,
-	},
-	["ö"] = {
-		encoded = "\246",
-		upper = "Ö",
-		plain = "o",
-		width = 4,
-	},
-	["ø"] = {
-		encoded = "\248",
-		upper = "Ø",
-		plain = "o",
-		width = 4,
-	},
-	["ù"] = {
-		encoded = "\249",
-		upper = "Ù",
-		plain = "u",
-		width = 4,
-	},
-	["ú"] = {
-		encoded = "\250",
-		upper = "Ú",
-		plain = "u",
-		width = 4,
-	},
-	["û"] = {
-		encoded = "\251",
-		upper = "Û",
-		plain = "u",
-		width = 4,
-	},
-	["ü"] = {
-		encoded = "\252",
-		upper = "Ü",
-		plain = "u",
-		width = 4,
-	},
-	["ý"] = {
-		encoded = "\253",
-		upper = "Ý",
-		plain = "y",
-		width = 3,
-	},
-	["þ"] = {
-		encoded = "\254",
-		upper = "Þ",
-		plain ="p",
-		width = 4,
-	},
-	["ÿ"] = {
-		encoded = "\255",
-		upper = "Ÿ",
-		plain = "y",
-		width = 3,
-	},
+	[" "] = { width = 1, },
+	["%"] = { width = 7, },
+	["0"] = { width = 4, },
+	["1"] = { width = 4, },
+	["2"] = { width = 4, },
+	["3"] = { width = 4, },
+	["4"] = { width = 4, },
+	["5"] = { width = 4, },
+	["6"] = { width = 4, },
+	["7"] = { width = 4, },
+	["8"] = { width = 4, },
+	["9"] = { width = 4, },
+	["="] = { width = 4, },
+	[","] = { width = 2, },
+	["-"] = { width = 2, },
+	["_"] = { width = 5, },
+	["."] = { width = 1, },
+	["("] = { width = 2, },
+	[")"] = { width = 2, },
+	["#"] = { width = 5, },
+	["&"] = { width = 5, },
+	["?"] = { width = 4, },
+	["<"] = { width = 4, },
+	[">"] = { width = 4, },
+	["/"] = { width = 4, },
+	[":"] = { width = 1, },
+	["a"] = { width = 4, },
+	["A"] = { width = 4, },
+	["b"] = { width = 4, },
+	["B"] = { width = 4, },
+	["c"] = { width = 3, },
+	["C"] = { width = 4, },
+	["d"] = { width = 4, },
+	["D"] = { width = 5, },
+	["e"] = { width = 4, },
+	["E"] = { width = 4, },
+	["f"] = { width = 1, },
+	["F"] = { width = 4, },
+	["g"] = { width = 4, },
+	["G"] = { width = 5, },
+	["h"] = { width = 4, },
+	["H"] = { width = 5, },
+	["i"] = { width = 1, },
+	["I"] = { width = 1, },
+	["j"] = { width = 2, },
+	["J"] = { width = 2, },
+	["k"] = { width = 4, },
+	["K"] = { width = 5, },
+	["l"] = { width = 1, },
+	["L"] = { width = 3, },
+	["m"] = { width = 7, },
+	["M"] = { width = 6, },
+	["n"] = { width = 4, },
+	["N"] = { width = 5, },
+	["o"] = { width = 4, },
+	["O"] = { width = 5, },
+	["p"] = { width = 4, },
+	["P"] = { width = 4, },
+	["q"] = { width = 3, },
+	["Q"] = { width = 5, },
+	["r"] = { width = 2, },
+	["R"] = { width = 5, },
+	["s"] = { width = 3, },
+	["S"] = { width = 4, },
+	["t"] = { width = 2, },
+	["T"] = { width = 3, },
+	["u"] = { width = 4, },
+	["U"] = { width = 4, },
+	["v"] = { width = 3, },
+	["V"] = { width = 4, },
+	["w"] = { width = 5, },
+	["W"] = { width = 7, },
+	["x"] = { width = 3, },
+	["X"] = { width = 4, },
+	["y"] = { width = 3, },
+	["Y"] = { width = 5, },
+	["z"] = { width = 3, },
+	["Z"] = { width = 4, },
+	["♂"] = { encoded = "?", },
+	["♀"] = { encoded = "?", },
+	["…"] = { encoded = '..', plain = "...", },
+	["“"] = { encoded = '"', plain = "\"", },
+	["”"] = { encoded = '"', plain = "\"", },
+	["‘"] = { encoded = "'", plain = "'", },
+	["À"] = { encoded = "\192", lower = "à", plain = "A", width = 5, },
+	["Á"] = { encoded = "\193", lower = "á", plain = "A", width = 5, },
+	["Â"] = { encoded = "\194", lower = "â", plain = "A", width = 5, },
+	["Ã"] = { encoded = "\195", lower = "ã", plain = "A", width = 5, },
+	["Ä"] = { encoded = "\196", lower = "ä", plain = "A", width = 5, },
+	["Å"] = { encoded = "\197", lower = "å", plain = "A", width = 5, },
+	["Æ"] = { encoded = "\198", lower = "æ", plain = "AE", width = 6, },
+	["Ç"] = { encoded = "\199", lower = "ç", plain = "C", width = 4, },
+	["È"] = { encoded = "\200", lower = "è", plain = "E", width = 4, },
+	["É"] = { encoded = "\201", lower = "é", plain = "E", width = 4, },
+	["Ê"] = { encoded = "\202", lower = "ê", plain = "E", width = 4, },
+	["Ë"] = { encoded = "\203", lower = "ë", plain = "E", width = 4, },
+	["Ì"] = { encoded = "\204", lower = "ì", plain = "I", width = 1, },
+	["Í"] = { encoded = "\205", lower = "í", plain = "I", width = 1, },
+	["Î"] = { encoded = "\206", lower = "î", plain = "I", width = 1, },
+	["Ï"] = { encoded = "\207", lower = "ï", plain = "I", width = 1, },
+	["Ð"] = { encoded = "\208", lower = "ð", plain = "D", width = 5, },
+	["Ñ"] = { encoded = "\209", lower = "ñ", plain = "N", width = 5, },
+	["Ò"] = { encoded = "\210", lower = "ò", plain = "O", width = 5, },
+	["Ó"] = { encoded = "\211", lower = "ó", plain = "O", width = 5, },
+	["Ô"] = { encoded = "\212", lower = "ô", plain = "O", width = 5, },
+	["Õ"] = { encoded = "\213", lower = "õ", plain = "O", width = 5, },
+	["Ö"] = { encoded = "\214", lower = "ö", plain = "O", width = 5, },
+	["Ø"] = { encoded = "\216", lower = "ø", plain = "O", width = 5, },
+	["Ù"] = { encoded = "\217", lower = "ù", plain = "U", width = 4, },
+	["Ú"] = { encoded = "\218", lower = "ú", plain = "U", width = 4, },
+	["Û"] = { encoded = "\219", lower = "û", plain = "U", width = 4, },
+	["Ü"] = { encoded = "\220", lower = "ü", plain = "U", width = 4, },
+	["Ý"] = { encoded = "\221", lower = "ý", plain = "Y", width = 5, },
+	["Þ"] = { encoded = "\222", lower = "þ", plain = "P", width = 4, },
+	-- \376 not available
+	["Ÿ"] = { encoded = nil, lower = "ÿ", plain = "y", width = 5, },
+	["ß"] = { encoded = "\223", plain = "B", width = 5, },
+	["à"] = { encoded = "\224", upper = "À", plain = "a", width = 4, },
+	["á"] = { encoded = "\225", upper = "Á", plain = "a", width = 4, },
+	["â"] = { encoded = "\226", upper = "Â", plain = "a", width = 4, },
+	["ã"] = { encoded = "\227", upper = "Ã", plain = "a", width = 4, },
+	["ä"] = { encoded = "\228", upper = "Ä", plain = "a", width = 4, },
+	["å"] = { encoded = "\229", upper = "Å", plain = "a", width = 4, },
+	["æ"] = { encoded = "\230", upper = "Æ", plain = "ae", width = 6, },
+	["ç"] = { encoded = "\231", upper = "Ç", plain = "c", width = 3, },
+	["è"] = { encoded = "\232", upper = "È", plain = "e", width = 4, },
+	["é"] = { encoded = "\233", upper = "É", plain = "e", width = 4, },
+	["ê"] = { encoded = "\234", upper = "Ê", plain = "e", width = 4, },
+	["ë"] = { encoded = "\235", upper = "Ë", plain = "e", width = 4, },
+	["ì"] = { encoded = "\236", upper = "Ì", plain = "i", width = 1, },
+	["í"] = { encoded = "\237", upper = "Í", plain = "i", width = 1, },
+	["î"] = { encoded = "\238", upper = "Î", plain = "i", width = 1, },
+	["ï"] = { encoded = "\239", upper = "Ï", plain = "i", width = 1, },
+	["ð"] = { encoded = "\240", upper = "Ð", plain = "o", width = 4, },
+	["ñ"] = { encoded = "\241", upper = "Ñ", plain = "n", width = 4, },
+	["ò"] = { encoded = "\242", upper = "Ò", plain = "o", width = 4, },
+	["ó"] = { encoded = "\243", upper = "Ó", plain = "o", width = 4, },
+	["ô"] = { encoded = "\244", upper = "Ô", plain = "o", width = 4, },
+	["õ"] = { encoded = "\245", upper = "Õ", plain = "o", width = 4, },
+	["ö"] = { encoded = "\246", upper = "Ö", plain = "o", width = 4, },
+	["ø"] = { encoded = "\248", upper = "Ø", plain = "o", width = 4, },
+	["ù"] = { encoded = "\249", upper = "Ù", plain = "u", width = 4, },
+	["ú"] = { encoded = "\250", upper = "Ú", plain = "u", width = 4, },
+	["û"] = { encoded = "\251", upper = "Û", plain = "u", width = 4, },
+	["ü"] = { encoded = "\252", upper = "Ü", plain = "u", width = 4, },
+	["ý"] = { encoded = "\253", upper = "Ý", plain = "y", width = 3, },
+	["þ"] = { encoded = "\254", upper = "Þ", plain ="p", width = 4, },
+	["ÿ"] = { encoded = "\255", upper = "Ÿ", plain = "y", width = 3, },
 }
 
 if not Main.supportsSpecialChars then
