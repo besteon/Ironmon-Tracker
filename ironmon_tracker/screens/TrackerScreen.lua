@@ -3,15 +3,10 @@ TrackerScreen = {}
 TrackerScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		getIconPath = function(self)
-			local pokemonID = 0
-			local pokemon = Tracker.getViewedPokemon()
-			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
-			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-				pokemonID = pokemon.pokemonID
-			end
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+		getIconId = function(self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			SpriteData.addUpdateActiveIcon(pokemon.pokemonID)
+			return pokemon.pokemonID
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
@@ -875,7 +870,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		if data.p.status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep] then
-			Drawing.addUpdateAnimatedIcon(data.p.id, Drawing.SpriteTypes.Sleep)
+			SpriteData.addUpdateActiveIcon(data.p.id, SpriteData.Types.Sleep)
 		end
 		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end

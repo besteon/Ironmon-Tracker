@@ -12,9 +12,9 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 14, 31, 28 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 10, 32, 32 },
 		pokemonID = 0,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		getIconId = function(self)
+			SpriteData.addUpdateActiveIcon(self.pokemonID)
+			return self.pokemonID
 		end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
 	},
@@ -76,7 +76,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite1:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite1:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite1:onClick() end,
 	},
 	PokemonFavorite2 = {
@@ -84,7 +84,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite2:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite2:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite2:onClick() end,
 	},
 	PokemonFavorite3 = {
@@ -92,7 +92,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite3:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite3:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite3:onClick() end,
 	},
 }

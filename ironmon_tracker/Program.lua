@@ -229,43 +229,99 @@ function Program.initialize()
 	Program.Frames.waitToDraw = 1
 	Program.Frames.Others = {}
 
-	Program.parseSpriteData()
+	-- Program.parseSpriteData()
 end
 
+-- TODO: Remove before PR
 function Program.parseSpriteData()
-	local folderpath = FileManager.prependDir("spritedata")
-	local outputfile = FileManager.prependDir("sprite-anim-data.txt")
+	if true then return end
 
-	local idToAnim = {}
-	for id, _ in ipairs(PokemonData.Pokemon) do
-		local animfile = folderpath .. FileManager.slash .. tostring(id) .. FileManager.slash .. "AnimData.xml"
+
+
+
+
+
+
+	local spriteFolder = FileManager.prependDir("spritedata")
+	local outputfile = spriteFolder .. FileManager.slash .. "sprite-anim-data.txt"
+
+	local idToNatDex = {}
+	for nat, id in pairs(RouteData.NatDexToIndex or {}) do
+		idToNatDex[id] = nat
+	end
+	local function getNatId(pokemonID)
+		local natID = idToNatDex[pokemonID or false] or pokemonID
+		if true or natID < 252 then
+			return natID
+		else
+			-- return natDexToFusionID[natID] or 0
+		end
+	end
+
+	local function downloadFiles(pokemonID)
+		local urlFormat = "https://spriteserver.pmdcollab.org/assets/%04d/sprites.zip"
+		local natId = getNatId(pokemonID)
+		local zipUrl = string.format(urlFormat, natId)
+		local archiveFolder = spriteFolder .. FileManager.slash .. tostring(pokemonID)
+		local archiveZip = spriteFolder .. FileManager.slash .. tostring(pokemonID) .. ".zip"
+		local batchCommands = {
+			string.format('curl -L "%s" -o "%s" --ssl-no-revoke', zipUrl, archiveZip),
+			string.format('cd "%s"', spriteFolder),
+			string.format('mkdir "%s"', archiveFolder),
+			string.format('tar -xzf "%s" -C %s', archiveZip, archiveFolder),
+			string.format('del "%s"', archiveZip),
+		}
+		local pauseCommand = string.format('echo && echo Unable to download %s %s && exit 6', pokemonID, natId)
+		local combinedCommand = string.format("(%s) || (%s)", table.concat(batchCommands, ' && '), pauseCommand)
+		local result = os.execute(combinedCommand)
+		if not (result == true or result == 0) then -- true / 0 = successful
+			print(string.format("> Error downloading: %s -> %s", pokemonID, natId))
+			return false
+		end
+
+		return true
+	end
+
+	local idToParsedSector = {}
+	local function parseData(pokemonID)
+		local animfile = spriteFolder .. FileManager.slash .. tostring(pokemonID) .. FileManager.slash .. "AnimData.xml"
 		local animLines = FileManager.readLinesFromFile(animfile)
 		if #animLines > 0 then
-			idToAnim[id] = {}
+			idToParsedSector[pokemonID] = {}
+			local p = idToParsedSector[pokemonID]
 			local sector
 			for _, line in ipairs(animLines) do
 				if not sector then
 					if Utils.containsText(line, "<Name>Walk</Name>") then
 						sector = "Walk"
-						idToAnim[id]["Walk"] = { w = 0, h = 0, durations = {} }
+						p["Walk"] = { w = 0, h = 0, durations = {} }
 					elseif Utils.containsText(line, "<Name>Idle</Name>") then
 						sector = "Idle"
-						idToAnim[id]["Idle"] = { w = 0, h = 0, durations = {} }
+						p["Idle"] = { w = 0, h = 0, durations = {} }
 					elseif Utils.containsText(line, "<Name>Sleep</Name>") then
 						sector = "Sleep"
-						idToAnim[id]["Sleep"] = { w = 0, h = 0, durations = {} }
+						p["Sleep"] = { w = 0, h = 0, durations = {} }
 					elseif Utils.containsText(line, "<Name>Faint</Name>") then
 						sector = "Faint"
-						idToAnim[id]["Faint"] = { w = 0, h = 0, durations = {} }
+						p["Faint"] = { w = 0, h = 0, durations = {} }
 					end
 				end
 				if sector then
 					if Utils.containsText(line, "<FrameWidth>") then
-						idToAnim[id][sector].w = string.match(line, "(%d+)") or -1
+						p[sector].w = string.match(line, "(%d+)") or -1
 					elseif Utils.containsText(line, "<FrameHeight>") then
-						idToAnim[id][sector].h = string.match(line, "(%d+)") or -1
+						p[sector].h = string.match(line, "(%d+)") or -1
 					elseif Utils.containsText(line, "<Duration>") then
-						table.insert(idToAnim[id][sector].durations, string.match(line, "(%d+)") or -1)
+						table.insert(p[sector].durations, string.match(line, "(%d+)") or -1)
+					elseif Utils.containsText(line, "<CopyOf>") then
+						local label = string.match(line, ">([^><]+)<")
+						if label and p[label] and p[label].durations then
+							p[sector].w = p[label].w
+							p[sector].h = p[label].h
+							FileManager.copyTable(p[label].durations, p[sector].durations)
+						else
+							print("Need frame durations for " .. pokemonID .. " @ " .. line)
+						end
 					elseif Utils.containsText(line, "</Anim>") then
 						sector = nil
 					end
@@ -274,20 +330,34 @@ function Program.parseSpriteData()
 		end
 	end
 
-	-- [6] = {
-	-- 	[Drawing.SpriteTypes.Idle] = { w = 40, h = 48, durations = { 15, 15, 15, 15 } },
-	-- 	[Drawing.SpriteTypes.Walk] = { w = 40, h = 48, durations = { 8, 10, 8, 10 } },
-	-- 	-- [Drawing.SpriteTypes.Hurt] = { w = 64, h = 64, durations = { 2, 8 } },
-	-- 	[Drawing.SpriteTypes.Sleep] = { w = 32, h = 48, durations = { 30, 35 } },
-	-- 	[Drawing.SpriteTypes.Faint] = { w = 48, h = 48, durations = { 8, 12, 4, 10 } },
-	-- }
+	for pokemonID, _ in ipairs(PokemonData.Pokemon) do
+		if pokemonID >= 18 then
+			local success = downloadFiles(pokemonID)
+			if success then
+				parseData(pokemonID)
+			end
+		end
+	end
+
+	local animToPng = {
+		["Walk"] = "Walk-Anim.png",
+		["Idle"] = "Idle-Anim.png",
+		["Sleep"] = "Sleep-Anim.png",
+		["Faint"] = "Faint-Anim.png",
+	}
 
 	local lines = {}
-	local animFormat = "		[Drawing.SpriteTypes.%s] = { w = %s, h = %s, durations = { %s } },"
-	for id, sectors in pairs(idToAnim) do
+	local animFormat = "		[Drawing.SpriteTypes.%s] = { w = %s, h = %s, x = 0, y = 0, durations = { %s } },"
+	for id, sectors in pairs(idToParsedSector) do
+		local sourceFolder = spriteFolder .. FileManager.slash .. tostring(id) .. FileManager.slash
 		table.insert(lines, string.format("	[%s] = {", id))
 		for animType, animInfo in pairs(sectors or {}) do
 			table.insert(lines, string.format(animFormat, animType, animInfo.w, animInfo.h, table.concat(animInfo.durations, ", ")))
+			local sourceFile = sourceFolder .. (animToPng[animType] or "NOTAVAILABLE")
+			if FileManager.fileExists(sourceFile) then
+				local destFile = FileManager.buildSpritePath(animType:lower(), tostring(id), ".png")
+				FileManager.CopyFile(sourceFile, destFile)
+			end
 		end
 		table.insert(lines, string.format("	},"))
 	end
@@ -351,7 +421,7 @@ function Program.redraw(forced)
 	end
 
 	CustomCode.afterRedraw()
-	Drawing.cleanupIconSprites()
+	SpriteData.cleanupActiveIcons()
 end
 
 function Program.changeScreenView(screen)
@@ -497,7 +567,7 @@ function Program.stepFrames()
 		end
 	end
 
-	Drawing.updateIconSpriteAnimations()
+	SpriteData.updateActiveIcons()
 end
 
 function Program.createFrameCounter(frames, callFunc)

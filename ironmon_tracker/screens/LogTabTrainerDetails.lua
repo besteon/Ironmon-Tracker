@@ -103,9 +103,9 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 					end
 				end
 			end,
-			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+			getIconId = function(self)
+				SpriteData.addUpdateActiveIcon(self.pokemonID)
+				return self.pokemonID
 			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then

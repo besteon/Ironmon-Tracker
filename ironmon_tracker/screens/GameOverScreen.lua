@@ -9,10 +9,10 @@ GameOverScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106, 6, 31, 29 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 106, 2, 32, 32 },
 		teamIndex = 1,
-		getIconPath = function(self)
+		getIconId = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(pokemon.pokemonID), iconset.extension)
+			SpriteData.addUpdateActiveIcon(pokemon.pokemonID)
+			return pokemon.pokemonID
 		end,
 		onClick = function(self)
 			GameOverScreen.nextTeamPokemon(self.teamIndex)

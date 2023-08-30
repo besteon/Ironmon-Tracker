@@ -205,9 +205,9 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = { x, y, pokemonIconSize, pokemonIconSize },
 			preEvoSet = i,
 			isVisible = function(self) return self.preEvoSet == LogTabPokemonDetails.currentPreEvoSet end,
-			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+			getIconId = function(self)
+				SpriteData.addUpdateActiveIcon(self.pokemonID)
+				return self.pokemonID
 			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
@@ -245,9 +245,9 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		pokemonID = data.p.id,
 		box = pokeIcon,
 		clickableArea = { pokeIcon[1], pokeIcon[2], pokeIcon[3], pokeIcon[4] + evoLabelTextHeight },
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		getIconId = function(self)
+			SpriteData.addUpdateActiveIcon(self.pokemonID)
+			return self.pokemonID
 		end,
 		onClick = function(self)
 			if PokemonData.isValid(self.pokemonID) then
@@ -287,9 +287,9 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = evoBox,
 			evoSet = evoSet,
 			isVisible = function(self) return self.evoSet == LogTabPokemonDetails.currentEvoSet end,
-			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+			getIconId = function(self)
+				SpriteData.addUpdateActiveIcon(self.pokemonID)
+				return self.pokemonID
 			end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then

@@ -28,57 +28,11 @@ Drawing.AnimatedPokemon = {
 	requiresRelocating = false,
 }
 
-Drawing.SpriteTestID = 5 -- TODO: Remove before PR
-Drawing.SpriteTypes = {
-	Idle = "idle", -- shares image with walk
-	Walk = "walk",
-	Sleep = "sleep",
-	Faint = "faint",
-}
-Drawing.SpriteIcons = {
-	Active = {},
-	[1] = {
-		[Drawing.SpriteTypes.Faint] = { w = 32, h = 24, durations = { 8, 12, 4, 10 } },
-		[Drawing.SpriteTypes.Walk] = { w = 40, h = 40, durations = { 4, 4, 4, 4, 4, 4 } },
-		[Drawing.SpriteTypes.Idle] = { w = 32, h = 40, durations = { 40, 6, 6 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 24, h = 24, durations = { 30, 35 } },
-	},
-	[2] = {
-		[Drawing.SpriteTypes.Walk] = { w = 32, h = 32, durations = { 8, 10, 8, 10 } },
-		[Drawing.SpriteTypes.Idle] = { w = 32, h = 32, durations = { 40, 12, 12, 12 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 24, h = 32, durations = { 30, 35 } },
-	},
-	[3] = {
-		[Drawing.SpriteTypes.Walk] = { w = 32, h = 32, durations = { 8, 16, 8, 16 } },
-		[Drawing.SpriteTypes.Idle] = { w = 32, h = 32, durations = { 30, 16, 12, 16 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 32, h = 32, durations = { 30, 35 } },
-	},
-	[4] = {
-		[Drawing.SpriteTypes.Faint] = { w = 32, h = 32, durations = { 8, 12, 4, 10 } },
-		[Drawing.SpriteTypes.Walk] = { w = 32, h = 32, durations = { 6, 8, 6, 8 } },
-		[Drawing.SpriteTypes.Idle] = { w = 32, h = 40, durations = { 12, 8, 8, 8 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 32, h = 24, durations = { 30, 35 } },
-	},
-	[5] = {
-		[Drawing.SpriteTypes.Faint] = { w = 40, h = 32, durations = { 8, 12, 4, 10 } },
-		[Drawing.SpriteTypes.Walk] = { w = 24, h = 32, durations = { 8, 10, 8, 10 } },
-		[Drawing.SpriteTypes.Idle] = { w = 32, h = 56, durations = { 40, 2, 3, 3, 3, 2 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 24, h = 32, durations = { 30, 35 } },
-	},
-	[6] = {
-		[Drawing.SpriteTypes.Faint] = { w = 48, h = 48, durations = { 8, 12, 4, 10 } },
-		[Drawing.SpriteTypes.Walk] = { w = 40, h = 48, durations = { 8, 10, 8, 10 } },
-		[Drawing.SpriteTypes.Idle] = { w = 40, h = 48, durations = { 15, 15, 15, 15 } },
-		[Drawing.SpriteTypes.Sleep] = { w = 32, h = 48, durations = { 30, 35 } },
-	},
-}
-
 function Drawing.initialize()
 	if Main.IsOnBizhawk() then
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
 	end
-	Drawing.SpriteIcons.Active = {}
 end
 
 function Drawing.clearGUI()
@@ -94,15 +48,19 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	gui.drawRectangle(x, y, width, height, bgcolor, bgcolor)
 end
 
-function Drawing.drawPokemonIcon(pokemonID, x, y)
+function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if not PokemonData.isImageIDValid(pokemonID) then
-		pokemonID = 0 -- Blank Pokemon data/icon
+		return
 	end
-
+	width = width or 32
+	height = height or 32
 	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-
-	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
+	if iconset.isAnimated then
+		Drawing.drawSpriteIcon(pokemonID, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0))
+	else
+		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+		gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+	end
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -361,13 +319,14 @@ function Drawing.drawButton(button, shadowcolor)
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
 		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
-		local imagePath = button:getIconPath()
-		if imagePath ~= nil then
+		local pokemonID = button:getIconId()
+		if PokemonData.isImageIDValid(pokemonID) then
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			if iconset.isAnimated then
-				Drawing.drawAnimatedIcon(Drawing.SpriteTestID, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0))
+				Drawing.drawSpriteIcon(pokemonID, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0))
 			else
-				gui.drawImage(imagePath, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+				gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
 			end
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
@@ -543,118 +502,23 @@ function Drawing.isAnimatedIconSet()
 	return Main.IsOnBizhawk() and Options.IconSetMap[Options["Pokemon icon set"]].isAnimated
 end
 
-function Drawing.addUpdateAnimatedIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+function Drawing.drawSpriteIcon(pokemonID, x, y)
 	if not Drawing.isAnimatedIconSet() then return end
-	animationType = animationType or Drawing.SpriteTypes.Idle
-	startIndexFrame = startIndexFrame or 1
-	framesElapsed = framesElapsed or 0.0
-	-- Don't add if not a real animated pokemon, or the icon has already been added
-	if not PokemonData.isValid(pokemonID) or not Drawing.SpriteIcons[pokemonID] then
+
+	if SpriteData.DEBUG then
+		pokemonID = SpriteData.DebugId or pokemonID
+	end
+
+	if not PokemonData.isValid(pokemonID) or not SpriteData.Icons[pokemonID] then
 		return
 	end
 
-	-- Don't add the icon if the same pokemon + animation
-	local activeIcon = Drawing.SpriteIcons.Active[pokemonID]
-	if activeIcon and activeIcon.animationType == animationType then
-		return
-	end
-
-	local icon = Drawing.SpriteIcons[pokemonID][animationType]
-	local canLoop = animationType ~= Drawing.SpriteTypes.Faint
-	local totalDuration = 0
-	local indexCutoffs = {}
-	for _, frameDuration in ipairs(icon.durations or {}) do
-		totalDuration = totalDuration + frameDuration
-		table.insert(indexCutoffs, totalDuration)
-	end
-	if totalDuration <= 0 then
-		return
-	end
-
-	activeIcon = {
-		pokemonID = pokemonID,
-		animationType = animationType,
-		indexFrame = startIndexFrame,
-		framesElapsed = framesElapsed,
-		duration = totalDuration,
-		inUse = true,
-		step = function(self)
-			-- Sync with client frame rate (turbo/unthrottle)
-			local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-			local delta = 1.0 / fpsMultiplier
-			self.framesElapsed = (self.framesElapsed + delta) % self.duration
-			if not canLoop and self.indexFrame >= #indexCutoffs then
-				return
-			end
-			-- Check if index frame has changed
-			local prevIndex = self.indexFrame
-			for i, cutoff in ipairs(indexCutoffs) do
-				if self.framesElapsed <= cutoff then
-					self.indexFrame = i
-					break
-				end
-			end
-			-- Trigger a screen draw if new animation frame is active
-			if prevIndex ~= self.indexFrame then
-				Program.Frames.waitToDraw = 0
-			end
-		end,
-	}
-	Drawing.SpriteIcons.Active[pokemonID] = activeIcon
-	return activeIcon
-end
-
-function Drawing.updateIconSpriteAnimations()
-	if not Drawing.isAnimatedIconSet() then return end
-
-	local j = Input.prevJoypadInput
-	local canWalk = not (Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed)
-	canWalk = canWalk and (j["Left"] or j["Right"] or j["Up"] or j["Down"])
-
-	for _, activeIcon in pairs(Drawing.SpriteIcons.Active or {}) do
-		-- Check if the walk/idle animation needs to be updated, reusing frame info
-		if activeIcon.animationType == Drawing.SpriteTypes.Idle and canWalk then
-			Drawing.addUpdateAnimatedIcon(activeIcon.pokemonID, Drawing.SpriteTypes.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
-		elseif activeIcon.animationType == Drawing.SpriteTypes.Walk and not canWalk then
-			Drawing.addUpdateAnimatedIcon(activeIcon.pokemonID, Drawing.SpriteTypes.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
-		end
-
-		if type(activeIcon.step) == "function" then
-			activeIcon:step()
-		end
-	end
-end
-
--- If an animated icon sprite is no longer being drawn, remove it from the animation frame counters
-function Drawing.cleanupIconSprites()
-	if not Drawing.isAnimatedIconSet() then return end
-	local keysToRemove = {}
-	for key, activeIcon in pairs(Drawing.SpriteIcons.Active or {}) do
-		if not activeIcon.inUse then
-			table.insert(keysToRemove, key)
-		else
-			activeIcon.inUse = false
-		end
-	end
-	for _, key in ipairs(keysToRemove) do
-		Drawing.SpriteIcons.Active[key] = nil
-		-- TODO: Remove before PR
-		Utils.printDebug("Removing sprite -> %s", key)
-	end
-end
-
-function Drawing.drawAnimatedIcon(pokemonID, x, y)
-	if not Drawing.isAnimatedIconSet() then return end
-	if not PokemonData.isValid(pokemonID) or not Drawing.SpriteIcons[pokemonID] then
-		return
-	end
-
-	local activeIcon = Drawing.SpriteIcons.Active[pokemonID] or Drawing.addUpdateAnimatedIcon(pokemonID)
+	local activeIcon = SpriteData.ActiveIcons[pokemonID] or SpriteData.addUpdateActiveIcon(pokemonID)
 	if not activeIcon then
 		return
 	end
 
-	local icon = Drawing.SpriteIcons[pokemonID][activeIcon.animationType]
+	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType]
 	if not icon then
 		return
 	end
@@ -662,15 +526,13 @@ function Drawing.drawAnimatedIcon(pokemonID, x, y)
 	activeIcon.inUse = true
 
 	-- Determine source index frame to draw
+	local imagePath = FileManager.buildSpritePath(activeIcon.animationType, tostring(pokemonID), ".png")
 	local indexFrame = activeIcon.indexFrame or 1
 	local facingFrame = Input.getSpriteFacingDirection(activeIcon.animationType)
 	local sourceX = icon.w * (indexFrame - 1)
 	local sourceY = icon.h * (facingFrame - 1)
-	local animTypeToDraw = activeIcon.animationType
-	if animTypeToDraw == Drawing.SpriteTypes.Idle then
-		animTypeToDraw = Drawing.SpriteTypes.Walk
-	end
-	local imagePath = FileManager.buildSpritePath(animTypeToDraw, tostring(pokemonID), ".png")
+	x = x + (icon.x or 0)
+	y = y + (icon.y or 0)
 	gui.drawImageRegion(imagePath, sourceX, sourceY, icon.w, icon.h, x, y)
 end
 

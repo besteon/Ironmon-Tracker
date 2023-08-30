@@ -508,9 +508,9 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
-			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+			getIconId = function(self)
+				SpriteData.addUpdateActiveIcon(self.pokemonID)
+				return self.pokemonID
 			end,
 			pokemonID = pokemonID,
 			rate = rate,
@@ -624,11 +624,11 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 		gui.drawRectangle(offsetX + 106, offsetY + 50, 31, 12, boxInfoTopShadow, boxInfoTopShadow)
 		gui.drawRectangle(offsetX + 105, offsetY + 49, 31, 12, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
 	end
-	Drawing.drawPokemonIcon(data.p.id, offsetX + 105, offsetY + 2)
 	Drawing.drawTypeIcon(data.p.types[1], offsetX + 106, offsetY + 37)
 	if data.p.types[2] ~= data.p.types[1] then
 		Drawing.drawTypeIcon(data.p.types[2], offsetX + 106, offsetY + 49)
 	end
+	Drawing.drawPokemonIcon(data.p.id, offsetX + 105, offsetY + 2)
 	offsetY = offsetY + 12 + linespacing
 
 	-- BST

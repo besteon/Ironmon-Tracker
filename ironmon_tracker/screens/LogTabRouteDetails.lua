@@ -407,9 +407,9 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			end
 		end,
 		includeInGrid = function(self) return LogOverlay.Windower.filterGrid == self.tab end,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
+		getIconId = function(self)
+			SpriteData.addUpdateActiveIcon(self.id)
+			return self.id
 		end,
 		onClick = function(self)
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.id)

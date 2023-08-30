@@ -96,7 +96,7 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 				local eggIcon = FileManager.buildImagePath(iconset.folder, "412", iconset.extension) -- #412 = egg
 				if eggIcon ~= nil then
-					gui.drawImage(eggIcon, self.x + 1, yOffset - 7 + (iconset.yOffset or 0), 32, 32)
+					gui.drawImage(eggIcon, self.x + 1 + (iconset.xOffset or 0), yOffset - 7 + (iconset.yOffset or 0), 32, 32)
 				end
 			end
 
@@ -163,9 +163,9 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 	local iconBtn = {
 		pokemonID = Utils.inlineIf(isEgg, 412, pokemon.pokemonID), -- #412 = egg
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		getIconId = function(self)
+			SpriteData.addUpdateActiveIcon(self.pokemonID)
+			return self.pokemonID
 		end,
 		clickableArea = { x + 1, yOffset, 32, 27 },
 		box = { x + 1, yOffset - 7, 32, 32 },

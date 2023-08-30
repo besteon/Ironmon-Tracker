@@ -26,9 +26,9 @@ SetupScreen.Buttons = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 27, 32, 32 },
 		pokemonID = 1,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
+		getIconId = function(self)
+			SpriteData.addUpdateActiveIcon(self.pokemonID)
+			return self.pokemonID
 		end,
 		onClick = function(self)
 			self.pokemonID = Utils.randomPokemonID()
