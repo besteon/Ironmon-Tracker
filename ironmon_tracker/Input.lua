@@ -166,6 +166,23 @@ function Input.checkJoypadInput()
 	Input.prevJoypadInput = joypadButtons
 end
 
+function Input.getSpriteFacingDirection(animationType)
+	if animationType ~= Drawing.SpriteTypes.Walk then
+		return 1
+	end
+	local j = Input.prevJoypadInput
+	if j["Right"] and j["Down"] then return 2
+	elseif j["Right"] and j["Up"] then return 4
+	elseif j["Left"] and j["Up"] then return 6
+	elseif j["Left"] and j["Down"] then return 8
+	elseif j["Down"] then return 1
+	elseif j["Right"] then return 3
+	elseif j["Up"] then return 5
+	elseif j["Left"] then return 7
+	else return 1
+	end
+end
+
 function Input.togglePokemonViewed()
 	if Battle.inBattle then
 		Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn

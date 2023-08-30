@@ -14,6 +14,7 @@ FileManager.Folders = {
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
 	Images = "images",
+	Sprites = "sprites",
 	Trainers = "trainers",
 	TrainersPortraits = "trainerPortraits",
 	Badges = "badges",
@@ -399,6 +400,17 @@ function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 		FileManager.Folders.TrackerCode,
 		FileManager.Folders.Images,
 		tostring(imageFolder),
+		tostring(imageName) .. (imageExtension or "")
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
+function FileManager.buildSpritePath(animationType, imageName, imageExtension)
+	local listOfPaths = {
+		FileManager.Folders.TrackerCode,
+		FileManager.Folders.Images,
+		FileManager.Folders.Sprites,
+		tostring(animationType),
 		tostring(imageName) .. (imageExtension or "")
 	}
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))

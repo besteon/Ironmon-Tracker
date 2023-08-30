@@ -54,7 +54,7 @@ Options = {
 }
 
 Options.IconSetMap = {
-	totalCount = 5,
+	totalCount = 6,
 	["1"] = {
 		name = "Original", -- The name of the icon set which is displayed on the Tracker Setup screen
 		folder = "pokemon", -- The folder within the tracker files where each icon is stored, expected to be in /ironmon-tracker/images/
@@ -68,7 +68,6 @@ Options.IconSetMap = {
 		folder = "pokemonStadium",
 		extension = ".png",
 		yOffset = 4,
-		adjustQuestionMark = false,
 		author = "AmberCyprian",
 	},
 	["3"] = {
@@ -84,7 +83,6 @@ Options.IconSetMap = {
 		folder = "pokemonMysteryDungeon",
 		extension = ".png",
 		yOffset = 4,
-		adjustQuestionMark = false,
 		author = "Fellshadow",
 	},
 	["5"] = {
@@ -92,8 +90,16 @@ Options.IconSetMap = {
 		folder = "pokemonVPet",
 		extension = ".png",
 		yOffset = 2,
-		adjustQuestionMark = false,
 		author = "Ryastoise",
+	},
+	["6"] = {
+		name = "Animated",
+		folder = "sprites",
+		extension = ".png",
+		xOffset = -2,
+		yOffset = 2,
+		isAnimated = true,
+		author = "UTDZac",
 	},
 }
 

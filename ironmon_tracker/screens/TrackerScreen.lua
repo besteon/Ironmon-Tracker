@@ -755,8 +755,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	-- POKEMON ICON & TYPES
-	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+	-- POKEMON TYPES
 	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
@@ -870,8 +869,15 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + 5
 	end
 
+	-- POKEMON ICON (draw last to overlap anything else, if necessary)
+	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+
+	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
+		if data.p.status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep] then
+			Drawing.addUpdateAnimatedIcon(data.p.id, Drawing.SpriteTypes.Sleep)
+		end
+		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 
 	-- HELD ITEM AND ABILITIES

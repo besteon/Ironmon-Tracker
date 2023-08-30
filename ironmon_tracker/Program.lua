@@ -13,6 +13,7 @@ Program = {
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
 		battleDataDelay = 60, -- counts down
+		Others = {}, -- list of other frame counter objects
 	},
 }
 
@@ -226,6 +227,78 @@ function Program.initialize()
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
+	Program.Frames.Others = {}
+
+	Program.parseSpriteData()
+end
+
+function Program.parseSpriteData()
+	local folderpath = FileManager.prependDir("spritedata")
+	local outputfile = FileManager.prependDir("sprite-anim-data.txt")
+
+	local idToAnim = {}
+	for id, _ in ipairs(PokemonData.Pokemon) do
+		local animfile = folderpath .. FileManager.slash .. tostring(id) .. FileManager.slash .. "AnimData.xml"
+		local animLines = FileManager.readLinesFromFile(animfile)
+		if #animLines > 0 then
+			idToAnim[id] = {}
+			local sector
+			for _, line in ipairs(animLines) do
+				if not sector then
+					if Utils.containsText(line, "<Name>Walk</Name>") then
+						sector = "Walk"
+						idToAnim[id]["Walk"] = { w = 0, h = 0, durations = {} }
+					elseif Utils.containsText(line, "<Name>Idle</Name>") then
+						sector = "Idle"
+						idToAnim[id]["Idle"] = { w = 0, h = 0, durations = {} }
+					elseif Utils.containsText(line, "<Name>Sleep</Name>") then
+						sector = "Sleep"
+						idToAnim[id]["Sleep"] = { w = 0, h = 0, durations = {} }
+					elseif Utils.containsText(line, "<Name>Faint</Name>") then
+						sector = "Faint"
+						idToAnim[id]["Faint"] = { w = 0, h = 0, durations = {} }
+					end
+				end
+				if sector then
+					if Utils.containsText(line, "<FrameWidth>") then
+						idToAnim[id][sector].w = string.match(line, "(%d+)") or -1
+					elseif Utils.containsText(line, "<FrameHeight>") then
+						idToAnim[id][sector].h = string.match(line, "(%d+)") or -1
+					elseif Utils.containsText(line, "<Duration>") then
+						table.insert(idToAnim[id][sector].durations, string.match(line, "(%d+)") or -1)
+					elseif Utils.containsText(line, "</Anim>") then
+						sector = nil
+					end
+				end
+			end
+		end
+	end
+
+	-- [6] = {
+	-- 	[Drawing.SpriteTypes.Idle] = { w = 40, h = 48, durations = { 15, 15, 15, 15 } },
+	-- 	[Drawing.SpriteTypes.Walk] = { w = 40, h = 48, durations = { 8, 10, 8, 10 } },
+	-- 	-- [Drawing.SpriteTypes.Hurt] = { w = 64, h = 64, durations = { 2, 8 } },
+	-- 	[Drawing.SpriteTypes.Sleep] = { w = 32, h = 48, durations = { 30, 35 } },
+	-- 	[Drawing.SpriteTypes.Faint] = { w = 48, h = 48, durations = { 8, 12, 4, 10 } },
+	-- }
+
+	local lines = {}
+	local animFormat = "		[Drawing.SpriteTypes.%s] = { w = %s, h = %s, durations = { %s } },"
+	for id, sectors in pairs(idToAnim) do
+		table.insert(lines, string.format("	[%s] = {", id))
+		for animType, animInfo in pairs(sectors or {}) do
+			table.insert(lines, string.format(animFormat, animType, animInfo.w, animInfo.h, table.concat(animInfo.durations, ", ")))
+		end
+		table.insert(lines, string.format("	},"))
+	end
+
+	local file = io.open(outputfile, "w")
+	if file ~= nil then
+		for _, line in ipairs(lines) do
+			file:write(line .. "\n")
+		end
+		file:close()
+	end
 end
 
 function Program.mainLoop()
@@ -278,6 +351,7 @@ function Program.redraw(forced)
 	end
 
 	CustomCode.afterRedraw()
+	Drawing.cleanupIconSprites()
 end
 
 function Program.changeScreenView(screen)
@@ -416,6 +490,38 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+
+	for _, framecounter in pairs(Program.Frames.Others or {}) do
+		if type(framecounter.step) == "function" then
+			framecounter:step()
+		end
+	end
+
+	Drawing.updateIconSpriteAnimations()
+end
+
+function Program.createFrameCounter(frames, callFunc)
+	if (frames or 0) <= 0 then return nil end
+	return {
+		framesElapsed = 0.0,
+		maxFrames = frames,
+		paused = false,
+		pause = function(self) self.paused = true end,
+		unpause = function(self) self.paused = false end,
+		step = function(self)
+			if self.paused then return end
+			-- Sync with client frame rate (turbo/unthrottle)
+			local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+			local delta = 1.0 / fpsMultiplier
+			self.framesElapsed = self.framesElapsed + delta
+			if self.framesElapsed >= self.maxFrames then
+				self.framesElapsed = 0.0
+				if type(callFunc) == "function" then
+					callFunc()
+				end
+			end
+		end,
+	}
 end
 
 function Program.updateRepelSteps()
