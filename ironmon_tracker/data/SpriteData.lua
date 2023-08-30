@@ -19,6 +19,9 @@ function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFram
 	if not Drawing.isAnimatedIconSet() then return end
 
 	if SpriteData.DEBUG then
+		pokemonID = SpriteData.DebugId or pokemonID
+	end
+	if SpriteData.DEBUG then
 		animationType = SpriteData.DebugType or animationType
 	end
 
@@ -37,6 +40,10 @@ function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFram
 	end
 
 	local icon = SpriteData.Icons[pokemonID][animationType]
+	if not icon then
+		return
+	end
+
 	local canLoop = animationType ~= SpriteData.Types.Faint
 	local totalDuration = 0
 	local indexCutoffs = {}
@@ -89,11 +96,13 @@ function SpriteData.updateActiveIcons()
 	canWalk = canWalk and not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu and not GameOverScreen.isDisplayed
 
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
-		-- Check if the walk/idle animation needs to be updated, reusing frame info
-		if canWalk and activeIcon.animationType == SpriteData.Types.Idle then
-			SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
-		elseif not canWalk and activeIcon.animationType == SpriteData.Types.Walk then
-			SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
+		if not SpriteData.DEBUG then
+			-- Check if the walk/idle animation needs to be updated, reusing frame info
+			if canWalk and activeIcon.animationType == SpriteData.Types.Idle then
+				SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
+			elseif not canWalk and activeIcon.animationType == SpriteData.Types.Walk then
+				SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
+			end
 		end
 
 		if type(activeIcon.step) == "function" then
@@ -118,15 +127,28 @@ function SpriteData.cleanupActiveIcons()
 		SpriteData.ActiveIcons[key] = nil
 		-- TODO: Remove before PR
 		if SpriteData.DEBUG then
-			Utils.printDebug("Removing sprite -> %s", key)
+			-- Utils.printDebug("Removing sprite -> %s", key)
 		end
 	end
 end
 
+-- TODO: remove this before PR
+function SpriteData.refreshAssets()
+	local d = SpriteData.DEBUG
+	local did = SpriteData.DebugId
+	local dtype = SpriteData.DebugType
+
+	local spritefile = FileManager.LuaCode[16].filepath
+	FileManager.loadLuaFile(spritefile)
+	SpriteData.DEBUG = d
+	SpriteData.DebugId = did
+	SpriteData.DebugType = dtype
+end
+
 -- TODO: remove references to DEBUG
 SpriteData.DEBUG = true
-SpriteData.DebugId = 1
-SpriteData.DebugType = SpriteData.Types.Faint
+SpriteData.DebugId = 43
+SpriteData.DebugType = SpriteData.Types.Idle
 
 SpriteData.Icons = {
 	[1] = {
@@ -136,218 +158,218 @@ SpriteData.Icons = {
 		[SpriteData.Types.Walk] = { w = 40, h = 40, x = -3, y = 4, durations = { 4, 4, 4, 4, 4, 4 } },
 	},
 	[2] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 7, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 7, durations = { 40, 12, 12, 12 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 7, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 5, y = 7, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 1, y = 7, durations = { 40, 12, 12, 12 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 7, durations = { 8, 10, 8, 10 } },
 	},
 	[3] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 7, durations = { 30, 35 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 6, durations = { 30, 35 } },
 		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 7, durations = { 30, 16, 12, 16 } },
 		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 7, durations = { 8, 16, 8, 16 } },
 	},
 	[4] = {
-		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 6, durations = { 12, 8, 8, 8 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 6, durations = { 6, 8, 6, 8 } },
+		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 1, y = 6, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 12, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 6, durations = { 12, 8, 8, 8 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 8, durations = { 6, 8, 6, 8 } },
 	},
 	[5] = {
-		[SpriteData.Types.Faint] = { w = 40, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = -1, durations = { 40, 2, 3, 3, 3, 2 } },
-		[SpriteData.Types.Walk] = { w = 24, h = 32, x = 4, y = 8, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Faint] = { w = 40, h = 32, x = 0, y = 5, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 5, y = 9, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 1, y = -1, durations = { 40, 2, 3, 3, 3, 2 } },
+		[SpriteData.Types.Walk] = { w = 24, h = 32, x = 5, y = 9, durations = { 8, 10, 8, 10 } },
 	},
 	[6] = {
 		[SpriteData.Types.Faint] = { w = 48, h = 48, x = -3, y = 2, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 32, h = 48, x = -3, y = 2, durations = { 30, 35 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 48, x = -1, y = 3, durations = { 30, 35 } },
 		[SpriteData.Types.Idle] = { w = 40, h = 48, x = -3, y = 2, durations = { 15, 15, 15, 15 } },
 		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -3, y = 3, durations = { 8, 10, 8, 10 } },
 	},
 	[7] = {
-		[SpriteData.Types.Faint] = { w = 40, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 1, y = 10, durations = { 30, 2, 2, 4, 4, 4, 2, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 0, durations = { 12, 8, 12, 8 } },
+		[SpriteData.Types.Faint] = { w = 40, h = 32, x = 0, y = 6, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 12, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 1, y = 9, durations = { 30, 2, 2, 4, 4, 4, 2, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 9, durations = { 12, 8, 12, 8 } },
 	},
 	[8] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 40, 2, 2, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 4, y = 5, durations = { 40, 2, 2, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 3, durations = { 8, 10, 8, 10 } },
 	},
 	[9] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 40, x = 0, y = 0, durations = { 32, 12, 4, 4, 4, 4, 4, 8 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 14, 8, 14 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 1, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 40, x = -3, y = 7, durations = { 32, 12, 4, 4, 4, 4, 4, 8 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 6, durations = { 8, 14, 8, 14 } },
 	},
 	[10] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 0, durations = { 8, 8, 8, 8, 8, 8, 8, 4, 10, 4 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 0, durations = { 10, 10, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 4, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 1, y = 8, durations = { 8, 8, 8, 8, 8, 8, 8, 4, 10, 4 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 7, durations = { 10, 10, 10 } },
 	},
 	[11] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 10, 14, 10, 14 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 0, y = 0, durations = { 4, 2, 2, 2, 2, 4, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 2, durations = { 10, 14, 10, 14 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 1, y = 1, durations = { 4, 2, 2, 2, 2, 4, 4, 4, 4, 4 } },
 	},
 	[12] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 35, 30 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 0, durations = { 8, 8, 8, 8 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 0, durations = { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 1, y = 8, durations = { 35, 30 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 4, durations = { 8, 8, 8, 8 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 3, durations = { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 } },
 	},
 	[13] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 40, 8, 8, 8 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 6, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 5, durations = { 40, 8, 8, 8 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 5, durations = { 8, 10, 8 } },
 	},
 	[14] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 40, 1, 1, 4, 1, 1 } },
-		[SpriteData.Types.Walk] = { w = 24, h = 40, x = 0, y = 0, durations = { 8, 4, 4, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 5, y = 7, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 5, y = 7, durations = { 40, 1, 1, 4, 1, 1 } },
+		[SpriteData.Types.Walk] = { w = 24, h = 40, x = 5, y = 7, durations = { 8, 4, 4, 4, 10 } },
 	},
 	[15] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 56, x = 0, y = 0, durations = { 16, 8, 16, 16, 8, 16 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 4, 4, 4, 4 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 0, y = 0, durations = { 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 56, x = 3, y = 4, durations = { 16, 8, 16, 16, 8, 16 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 4, durations = { 4, 4, 4, 4 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 1, y = 4, durations = { 4, 4, 4, 4 } },
 	},
 	[16] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 16, x = 0, y = 0, durations = { 35, 30 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 30, 4, 4, 4, 4 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 0, durations = { 6, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 16, x = 5, y = 14, durations = { 35, 30 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 5, y = 3, durations = { 30, 4, 4, 4, 4 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 6, durations = { 6, 4, 4, 4, 4 } },
 	},
 	[17] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 40, 2, 4, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 6, 10, 6, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 2, durations = { 40, 2, 4, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 4, durations = { 6, 10, 6, 10 } },
 	},
 	[18] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 40, 2, 4, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 12, 8, 12 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 11, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 2, durations = { 40, 2, 4, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 5, durations = { 8, 12, 8, 12 } },
 	},
 	[19] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 0, durations = { 40, 2, 2, 2, 4, 2, 2, 2 } },
-		[SpriteData.Types.Walk] = { w = 48, h = 40, x = 0, y = 0, durations = { 6, 4, 4, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 11, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 1, y = 8, durations = { 40, 2, 2, 2, 4, 2, 2, 2 } },
+		[SpriteData.Types.Walk] = { w = 48, h = 40, x = -7, y = 2, durations = { 6, 4, 4, 4, 4, 4, 4 } },
 	},
 	[20] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 35, 30 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 30, 6, 3, 4, 3, 6 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 4, 6, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 4, y = 11, durations = { 35, 30 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 0, durations = { 30, 6, 3, 4, 3, 6 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -3, y = 2, durations = { 4, 6, 4, 4, 4, 4 } },
 	},
 	[21] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 40, 2, 3, 4, 3, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 6, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 11, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 5, y = 4, durations = { 40, 2, 3, 4, 3, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 4, durations = { 6, 4, 4, 4, 4 } },
 	},
 	[22] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 72, x = 0, y = 0, durations = { 40, 20, 4, 4, 4, 4, 4, 4, 4, 4 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 64, x = 0, y = 0, durations = { 4, 5, 6, 4, 5, 6 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 72, x = -3, y = -8, durations = { 40, 20, 4, 4, 4, 4, 4, 4, 4, 4 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 64, x = -3, y = -1, durations = { 4, 5, 6, 4, 5, 6 } },
 	},
 	[23] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 16, 16 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 6, 6, 6, 6, 6, 6 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = -1, y = 6, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 1, durations = { 16, 16 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -3, y = 1, durations = { 6, 6, 6, 6, 6, 6 } },
 	},
 	[24] = {
 		[SpriteData.Types.Faint] = { w = 32, h = 48, x = 0, y = 0, durations = { 6, 6, 6 } },
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 0, durations = { 32, 14 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 56, x = 0, y = 0, durations = { 6, 6, 8, 6, 6, 6 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 7, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 2, y = 0, durations = { 32, 14 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 56, x = -2, y = -1, durations = { 6, 6, 8, 6, 6, 6 } },
 	},
 	[25] = {
-		[SpriteData.Types.Faint] = { w = 40, h = 40, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 56, x = 0, y = 0, durations = { 40, 2, 3, 3, 3, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Faint] = { w = 40, h = 40, x = -1, y = 3, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = -2, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 56, x = -3, y = -1, durations = { 40, 2, 3, 3, 3, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 5, durations = { 8, 10, 8, 10 } },
 	},
 	[26] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 56, x = 0, y = 0, durations = { 40, 2, 4, 4, 4, 2 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = -1, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 56, x = -2, y = 0, durations = { 40, 2, 4, 4, 4, 2 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -2, y = 2, durations = { 8, 10, 8, 10 } },
 	},
 	[27] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 40, 2, 2, 2 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 0, durations = { 6, 10, 6, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 5, durations = { 40, 2, 2, 2 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 1, y = 8, durations = { 6, 10, 6, 10 } },
 	},
 	[28] = {
-		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 25, 10, 25, 10 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 2, y = 8, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 4, durations = { 25, 10, 25, 10 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 4, durations = { 8, 10, 8, 10 } },
 	},
 	[29] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 24, 6, 6, 6, 6 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 6, 4, 4, 4, 4, 4, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 5, y = 4, durations = { 24, 6, 6, 6, 6 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -3, y = -1, durations = { 6, 4, 4, 4, 4, 4, 4 } },
 	},
 	[30] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 0, y = 0, durations = { 40, 2, 4, 2 } },
-		[SpriteData.Types.Walk] = { w = 24, h = 32, x = 0, y = 0, durations = { 6, 8, 6, 8 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 4, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 40, x = 5, y = 4, durations = { 40, 2, 4, 2 } },
+		[SpriteData.Types.Walk] = { w = 24, h = 32, x = 5, y = 7, durations = { 6, 8, 6, 8 } },
 	},
 	[31] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 20, 6, 6, 6, 12 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 40, x = 5, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 5, durations = { 20, 6, 6, 6, 12 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 1, y = 5, durations = { 8, 10, 8, 10 } },
 	},
 	[32] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 30, 4, 4, 4, 4 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 6, 6, 5, 6, 6, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 1, y = 0, durations = { 30, 4, 4, 4, 4 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -3, y = -2, durations = { 6, 6, 5, 6, 6, 4 } },
 	},
 	[33] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 40, x = 0, y = 0, durations = { 40, 10, 2, 2, 2, 2, 2, 2, 2, 6 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 40, x = 0, y = 0, durations = { 6, 12, 6, 12 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 2, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 40, x = -3, y = 4, durations = { 40, 10, 2, 2, 2, 2, 2, 2, 2, 6 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 40, x = -3, y = 4, durations = { 6, 12, 6, 12 } },
 	},
 	[34] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 35, 12 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 48, x = 0, y = 0, durations = { 8, 14, 8, 14 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 40, x = 1, y = 5, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 4, durations = { 35, 12 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 48, x = -4, y = 3, durations = { 8, 14, 8, 14 } },
 	},
 	[35] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 0, durations = { 30, 3, 4, 5, 4, 3 } },
-		[SpriteData.Types.Walk] = { w = 24, h = 40, x = 0, y = 0, durations = { 8, 4, 8, 4, 8, 4, 8, 4 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 3, y = 12, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 0, y = 4, durations = { 30, 3, 4, 5, 4, 3 } },
+		[SpriteData.Types.Walk] = { w = 24, h = 40, x = 4, y = 5, durations = { 8, 4, 8, 4, 8, 4, 8, 4 } },
 	},
 	[36] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 30, 6, 6, 6, 6, 6 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 0, y = 0, durations = { 8, 6, 6, 6, 8, 6, 6, 6 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = -1, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 2, durations = { 30, 6, 6, 6, 6, 6 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 48, x = 0, y = 2, durations = { 8, 6, 6, 6, 8, 6, 6, 6 } },
 	},
 	[37] = {
-		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 0, durations = { 40, 12, 20, 12 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 6, 4, 4, 4, 6 } },
+		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 4, y = 6, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 3, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 6, durations = { 40, 12, 20, 12 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 4, durations = { 6, 4, 4, 4, 6 } },
 	},
 	[38] = {
-		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 0, y = 0, durations = { 8, 12, 4, 10 } },
-		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 40, x = 0, y = 0, durations = { 60, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 0, y = 6, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = -4, y = 8, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 40, x = -3, y = 4, durations = { 60, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 40, x = -3, y = 3, durations = { 8, 10, 8, 10 } },
 	},
 	[39] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 35, 35 } },
-		[SpriteData.Types.Idle] = { w = 24, h = 32, x = 0, y = 0, durations = { 25, 8, 15, 8, 15 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 6, 4, 4, 4, 6 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 3, y = 10, durations = { 35, 35 } },
+		[SpriteData.Types.Idle] = { w = 24, h = 32, x = 4, y = 7, durations = { 25, 8, 15, 8, 15 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 4, durations = { 6, 4, 4, 4, 6 } },
 	},
 	[40] = {
-		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 35, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 0, durations = { 40, 4, 6, 4 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 0, durations = { 8, 10, 8, 10 } },
+		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 3, y = 11, durations = { 35, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 48, x = 0, y = 2, durations = { 40, 4, 6, 4 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 6, durations = { 8, 10, 8, 10 } },
 	},
 	[41] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 0, durations = { 10, 6, 6, 6, 6, 6, 6, 8 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 0, durations = { 6, 6, 6, 6, 6, 6, 6, 6 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 10, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 1, durations = { 10, 6, 6, 6, 6, 6, 6, 8 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 3, durations = { 6, 6, 6, 6, 6, 6, 6, 6 } },
 	},
 	[42] = {
-		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 0, durations = { 30, 35 } },
-		[SpriteData.Types.Idle] = { w = 40, h = 56, x = 0, y = 0, durations = { 6, 6, 6, 6 } },
-		[SpriteData.Types.Walk] = { w = 40, h = 64, x = 0, y = 0, durations = { 6, 6, 6, 6, 6, 6, 6, 6 } },
+		[SpriteData.Types.Sleep] = { w = 32, h = 24, x = 0, y = 12, durations = { 30, 35 } },
+		[SpriteData.Types.Idle] = { w = 40, h = 56, x = -4, y = 3, durations = { 6, 6, 6, 6 } },
+		[SpriteData.Types.Walk] = { w = 40, h = 64, x = -4, y = 0, durations = { 6, 6, 6, 6, 6, 6, 6, 6 } },
 	},
 	[43] = {
 		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 0, y = 0, durations = { 30, 35 } },
