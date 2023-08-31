@@ -893,17 +893,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + 5
 	end
 
-	-- POKEMON ICON (draw last to overlap anything else, if necessary)
-	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
-
-	-- STATUS ICON
-	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		if data.p.status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep] then
-			SpriteData.addUpdateActiveIcon(data.p.id, SpriteData.Types.Sleep)
-		end
-		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
-	end
-
 	-- HELD ITEM AND ABILITIES
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.line1, Theme.COLORS["Intermediate text"], shadowcolor)
 	offsetY = offsetY + linespacing
@@ -913,6 +902,17 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	-- Unsqueeze the text
 	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
 		linespacing = linespacing + 1
+	end
+
+	-- POKEMON ICON (draw last to overlap anything else, if necessary)
+	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+
+	-- STATUS ICON
+	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
+		if data.p.status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep] then
+			SpriteData.addUpdateActiveIcon(data.p.id, SpriteData.Types.Sleep)
+		end
+		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 
 	-- HEALS INFO / ENCOUNTER INFO
