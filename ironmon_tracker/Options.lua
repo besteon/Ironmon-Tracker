@@ -93,11 +93,9 @@ Options.IconSetMap = {
 		author = "Ryastoise",
 	},
 	["6"] = {
-		name = "Animated",
+		name = "Walk Buddy",
 		folder = "sprites",
 		extension = ".png",
-		-- xOffset = -2,
-		-- yOffset = 2,
 		isAnimated = true,
 		author = "UTDZac",
 	},
