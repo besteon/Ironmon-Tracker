@@ -202,6 +202,7 @@ ScreenResources{
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
+		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION
