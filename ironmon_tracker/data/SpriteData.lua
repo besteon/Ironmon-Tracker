@@ -221,7 +221,7 @@ end
 -- These Sprites were taken from https://sprites.pmdcollab.org/#/
 SpriteData.Icons = {
 	[1] = {
-		[SpriteData.Types.Faint] = { w = 32, h = 24, x = 5, y = 11, durations = { 8, 12, 4, 10 } },
+		[SpriteData.Types.Faint] = { w = 32, h = 24, x = 5, y = 12, durations = { 8, 12, 4, 10 } },
 		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 11, durations = { 30, 35 } },
 		[SpriteData.Types.Idle] = { w = 32, h = 40, x = 1, y = 4, durations = { 40, 6, 6 } },
 		[SpriteData.Types.Walk] = { w = 40, h = 40, x = -3, y = 4, durations = { 4, 4, 4, 4, 4, 4 } },
@@ -1028,7 +1028,7 @@ SpriteData.Icons = {
 		[SpriteData.Types.Faint] = { w = 32, h = 40, x = 0, y = 2, durations = { 8, 12, 4, 10 } },
 		[SpriteData.Types.Sleep] = { w = 24, h = 32, x = 4, y = 9, durations = { 30, 35 } },
 		[SpriteData.Types.Idle] = { w = 32, h = 56, x = 0, y = 0, durations = { 30, 4, 4, 4 } },
-		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 6, durations = { 8, 12, 8, 12 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 40, x = 0, y = 7, durations = { 8, 12, 8, 12 } },
 	},
 	[158] = {
 		[SpriteData.Types.Faint] = { w = 40, h = 32, x = 0, y = 7, durations = { 8, 12, 4, 10 } },

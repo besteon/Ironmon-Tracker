@@ -14,7 +14,6 @@ FileManager.Folders = {
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
 	Images = "images",
-	Sprites = "sprites",
 	Trainers = "trainers",
 	TrainersPortraits = "trainerPortraits",
 	Badges = "badges",
@@ -407,10 +406,11 @@ function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 end
 
 function FileManager.buildSpritePath(animationType, imageName, imageExtension)
+	local imageFolder = Options.getIconSet().folder
 	local listOfPaths = {
 		FileManager.Folders.TrackerCode,
 		FileManager.Folders.Images,
-		FileManager.Folders.Sprites,
+		imageFolder,
 		tostring(animationType),
 		tostring(imageName) .. (imageExtension or "")
 	}

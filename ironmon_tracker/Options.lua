@@ -95,7 +95,7 @@ Options.IconSetMap = {
 	},
 	{
 		name = "Walking Pals",
-		folder = "sprites",
+		folder = "spritesWalkingPals",
 		extension = ".png",
 		isAnimated = true,
 		author = "UTDZac",
