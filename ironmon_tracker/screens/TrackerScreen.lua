@@ -75,7 +75,8 @@ TrackerScreen.Buttons = {
 		onClick = function(self)
 			self.toggleState = not self.toggleState
 			if self.toggleState then
-				self.iconColors = { "Positive text", "Positive text", "Intermediate text" }
+				-- self.iconColors = { "Default text", "Positive text", "Intermediate text" }
+				self.iconColors = { 0xFFF04037, 0xFFFF0000, 0xFFFFFFFF }
 			else
 				self.iconColors = { "Default text", "Upper box background", "Upper box background" }
 			end
