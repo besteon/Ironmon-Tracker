@@ -163,10 +163,7 @@ function TeamViewArea.createPartyMemberBox(pokemon, x, y, width, height)
 	local iconBtn = {
 		pokemonID = Utils.inlineIf(isEgg, 412, pokemon.pokemonID), -- #412 = egg
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.pokemonID)
-			return self.pokemonID
-		end,
+		getIconId = function(self) return self.pokemonID end,
 		clickableArea = { x + 1, yOffset, 32, 27 },
 		box = { x + 1, yOffset - 7, 32, 32 },
 		onClick = function(self)

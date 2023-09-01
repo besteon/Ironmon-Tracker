@@ -52,10 +52,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 75, 32, 32 },
 		pokemonID = 1,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.pokemonID)
-			return self.pokemonID
-		end,
+		getIconId = function(self) return self.pokemonID end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -66,10 +63,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 75, 32, 32 },
 		pokemonID = 4,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.pokemonID)
-			return self.pokemonID
-		end,
+		getIconId = function(self) return self.pokemonID end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -80,10 +74,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 75, 32, 32 },
 		pokemonID = 7,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.pokemonID)
-			return self.pokemonID
-		end,
+		getIconId = function(self) return self.pokemonID end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)

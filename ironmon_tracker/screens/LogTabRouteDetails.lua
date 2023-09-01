@@ -407,10 +407,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			end
 		end,
 		includeInGrid = function(self) return LogOverlay.Windower.filterGrid == self.tab end,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.id)
-			return self.id
-		end,
+		getIconId = function(self) return self.id end,
 		onClick = function(self)
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.id)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw

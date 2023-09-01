@@ -505,10 +505,6 @@ end
 function Drawing.drawSpriteIcon(pokemonID, x, y)
 	if not Drawing.isAnimatedIconSet() then return end
 
-	if SpriteData.DEBUG then
-		pokemonID = SpriteData.DebugId or pokemonID
-	end
-
 	if not PokemonData.isValid(pokemonID) or not SpriteData.Icons[pokemonID] then
 		return
 	end
@@ -518,7 +514,7 @@ function Drawing.drawSpriteIcon(pokemonID, x, y)
 		return
 	end
 
-	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType]
+	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType] or SpriteData.Icons[pokemonID][SpriteData.Types.Idle]
 	if not icon then
 		return
 	end

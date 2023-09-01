@@ -5,25 +5,12 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		getIconId = function(self)
 			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
-			SpriteData.addUpdateActiveIcon(pokemon.pokemonID)
 			return pokemon.pokemonID
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			if SpriteData.DEBUG then
-				local nextType = {
-					[SpriteData.Types.Idle] = SpriteData.Types.Walk,
-					[SpriteData.Types.Walk] = SpriteData.Types.Sleep,
-					[SpriteData.Types.Sleep] = SpriteData.Types.Faint,
-					[SpriteData.Types.Faint] = SpriteData.Types.Idle,
-				}
-				SpriteData.DebugType = nextType[SpriteData.DebugType or SpriteData.Types.Idle]
-				SpriteData.refreshAssets()
-				SpriteData.addUpdateActiveIcon(SpriteData.DebugId, SpriteData.DebugType)
-				return
-			end
 			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
@@ -122,21 +109,8 @@ TrackerScreen.Buttons = {
 	InvisibleStatsArea = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
-		isVisible = function() return SpriteData.DEBUG or Options["Open Book Play Mode"] and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Options["Open Book Play Mode"] and not Tracker.Data.isViewingOwn end,
 		onClick = function(self)
-			if SpriteData.DEBUG then
-				SpriteData.DebugId = SpriteData.DebugId + 1
-				if SpriteData.DebugId > 411 then
-					SpriteData.DebugId = 1
-				elseif SpriteData.DebugId > 251 and SpriteData.DebugId < 277 then
-					SpriteData.DebugId = 277
-				end
-				SpriteData.DebugType = SpriteData.Types.Idle
-				SpriteData.addUpdateActiveIcon(SpriteData.DebugId, SpriteData.DebugType)
-				Utils.printDebug("Debugging %s:%s", PokemonData.Pokemon[SpriteData.DebugId].name, SpriteData.DebugId)
-				return
-			end
-
 			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
@@ -842,11 +816,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	-- POKEMON NAME
-	local debugname = data.p.name
-	if SpriteData.DEBUG then
-		debugname = PokemonData.Pokemon[SpriteData.DebugId].name
-	end
-	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, debugname or data.p.name, Theme.COLORS["Default text"], shadowcolor)
+	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.name, Theme.COLORS["Default text"], shadowcolor)
 	offsetY = offsetY + linespacing
 
 	-- POKEMON HP, LEVEL, & EVOLUTION INFO

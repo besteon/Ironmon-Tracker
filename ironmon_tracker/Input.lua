@@ -132,27 +132,6 @@ function Input.checkJoypadInput()
 
 	CustomCode.inputCheckMGBA()
 
-	if SpriteData.DEBUG and joypadButtons["B"] and not Input.prevJoypadInput["B"] then
-		TrackerScreen.Buttons.PokemonIcon:onClick()
-	end
-	if SpriteData.DEBUG and joypadButtons["A"] and not Input.prevJoypadInput["A"] then
-		TrackerScreen.Buttons.InvisibleStatsArea:onClick()
-	end
-	if SpriteData.DEBUG and joypadButtons["Select"] and not Input.prevJoypadInput["Select"] then
-		if SpriteData.DEBUG then
-			SpriteData.DebugId = SpriteData.DebugId - 1
-			if SpriteData.DebugId < 1 then
-				SpriteData.DebugId = 411
-			elseif SpriteData.DebugId > 251 and SpriteData.DebugId < 277 then
-				SpriteData.DebugId = 251
-			end
-			SpriteData.DebugType = SpriteData.Types.Idle
-			SpriteData.addUpdateActiveIcon(SpriteData.DebugId, SpriteData.DebugType)
-			Utils.printDebug("Debugging %s:%s", PokemonData.Pokemon[SpriteData.DebugId].name, SpriteData.DebugId)
-			return
-		end
-	end
-
 	-- "Options.CONTROLS["Toggle view"]" pressed
 	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
 		Input.togglePokemonViewed()

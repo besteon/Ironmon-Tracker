@@ -18,13 +18,6 @@ end
 function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
 	if not Drawing.isAnimatedIconSet() then return end
 
-	if SpriteData.DEBUG then
-		pokemonID = SpriteData.DebugId or pokemonID
-	end
-	if SpriteData.DEBUG then
-		animationType = SpriteData.DebugType or animationType
-	end
-
 	animationType = animationType or SpriteData.Types.Idle
 	startIndexFrame = startIndexFrame or 1
 	framesElapsed = framesElapsed or 0.0
@@ -36,6 +29,7 @@ function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFram
 	-- Don't add the icon if the same pokemon + animation
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
 	if activeIcon and activeIcon.animationType == animationType then
+		-- Utils.printDebug("%s %s exists, skipping", pokemonID, animationType)
 		return
 	end
 
@@ -55,6 +49,7 @@ function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFram
 		return
 	end
 
+	-- Utils.printDebug("Adding %s-%s", pokemonID, animationType)
 	activeIcon = {
 		pokemonID = pokemonID,
 		animationType = animationType,
@@ -93,11 +88,12 @@ function SpriteData.updateActiveIcons()
 
 	local j = Input.prevJoypadInput
 	local canWalk = j["Left"] or j["Right"] or j["Up"] or j["Down"]
-	canWalk = canWalk and not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu and not GameOverScreen.isDisplayed
+	local walkable = not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu and not LogOverlay.isGameOver and not LogOverlay.isDisplayed
+	-- Utils.printDebug("Can Walk: %s, Walkable: %s", tostring(canWalk), tostring(walkable))
 
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
-		if not SpriteData.DEBUG then
-			-- Check if the walk/idle animation needs to be updated, reusing frame info
+		-- Check if the walk/idle animation needs to be updated, reusing frame info
+		if walkable then
 			if canWalk and activeIcon.animationType == SpriteData.Types.Idle then
 				SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
 			elseif not canWalk and activeIcon.animationType == SpriteData.Types.Walk then
@@ -125,30 +121,28 @@ function SpriteData.cleanupActiveIcons()
 	end
 	for _, key in ipairs(keysToRemove) do
 		SpriteData.ActiveIcons[key] = nil
-		-- TODO: Remove before PR
-		if SpriteData.DEBUG then
-			-- Utils.printDebug("Removing sprite -> %s", key)
-		end
+		-- TODO: Remove before PR DEBUG
+		Utils.printDebug("Removing sprite -> %s", key)
 	end
 end
 
 -- TODO: remove this before PR
-function SpriteData.refreshAssets()
-	local d = SpriteData.DEBUG
-	local did = SpriteData.DebugId
-	local dtype = SpriteData.DebugType
+-- function SpriteData.refreshAssets()
+-- 	local d = SpriteData.DEBUG
+-- 	local did = SpriteData.DebugId
+-- 	local dtype = SpriteData.DebugType
 
-	local spritefile = FileManager.LuaCode[16].filepath
-	FileManager.loadLuaFile(spritefile)
-	SpriteData.DEBUG = d
-	SpriteData.DebugId = did
-	SpriteData.DebugType = dtype
-end
+-- 	local spritefile = FileManager.LuaCode[16].filepath
+-- 	FileManager.loadLuaFile(spritefile)
+-- 	SpriteData.DEBUG = d
+-- 	SpriteData.DebugId = did
+-- 	SpriteData.DebugType = dtype
+-- end
 
--- TODO: remove references to DEBUG
-SpriteData.DEBUG = false
-SpriteData.DebugId = 406
-SpriteData.DebugType = SpriteData.Types.Idle
+-- -- TODO: remove references to DEBUG
+-- SpriteData.DEBUG = false
+-- SpriteData.DebugId = 406
+-- SpriteData.DebugType = SpriteData.Types.Idle
 
 SpriteData.Icons = {
 	[1] = {

@@ -503,15 +503,13 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			maxLv = areaInfo[index].maxLv
 		end
 
-		local x = startX + offsetX
-		local y = startY + offsetY - Options.IconSetMap[Options["Pokemon icon set"]].yOffset
+		local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+		local x = startX + offsetX - (iconset.xOffset or 0)
+		local y = startY + offsetY - (iconset.yOffset or 0)
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
-			getIconId = function(self)
-				SpriteData.addUpdateActiveIcon(self.pokemonID)
-				return self.pokemonID
-			end,
+			getIconId = function(self) return self.pokemonID end,
 			pokemonID = pokemonID,
 			rate = rate,
 			minLv = minLv,

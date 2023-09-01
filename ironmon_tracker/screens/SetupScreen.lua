@@ -2,7 +2,8 @@ SetupScreen = {
 	textColor = "Lower box text",
 	borderColor = "Lower box border",
 	boxFillColor = "Lower box background",
-	iconChangeInterval = 10,
+	changeIconInSeconds = 3, -- Number of seconds
+	timeLastChanged = -1,
 }
 
 SetupScreen.Buttons = {
@@ -26,13 +27,10 @@ SetupScreen.Buttons = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 27, 32, 32 },
 		pokemonID = 1,
-		getIconId = function(self)
-			SpriteData.addUpdateActiveIcon(self.pokemonID)
-			return self.pokemonID
-		end,
+		getIconId = function(self) return self.pokemonID end,
 		onClick = function(self)
 			self.pokemonID = Utils.randomPokemonID()
-			SetupScreen.iconChangeInterval = 10
+			SetupScreen.timeLastChanged = os.time()
 			Program.redraw(true)
 		end
 	},
@@ -43,7 +41,7 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
-			SetupScreen.iconChangeInterval = 10
+			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", nextSet)
 			Program.redraw(true)
 		end
@@ -55,7 +53,7 @@ SetupScreen.Buttons = {
 		onClick = function(self)
 			local currIndex = tonumber(Options["Pokemon icon set"])
 			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
-			SetupScreen.iconChangeInterval = 10
+			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", prevSet)
 			Program.redraw(true)
 		end
@@ -85,6 +83,7 @@ function SetupScreen.initialize()
 
 	-- Randomize what Pokemon icon is shown
 	SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
+	SetupScreen.timeLastChanged = os.time()
 
 	local abraGif = FileManager.buildImagePath(FileManager.Folders.AnimatedPokemon, "abra", FileManager.Extensions.ANIMATED_POKEMON)
 	local animatedBtnOption = SetupScreen.Buttons["Animated Pokemon popout"]
@@ -210,13 +209,13 @@ function SetupScreen.drawScreen()
 	for _, button in pairs(SetupScreen.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
+	-- Redraw so it appears over any other buttons
+	Drawing.drawButton(SetupScreen.Buttons.PokemonIcon, shadowcolor)
 
-	-- Randomize the pokemon shown every iconChangeInterval
-	-- Tracker screen redraw occurs every Program.Frames.waitToDraw frames,
-	-- so overall interval is effectively iconChangeInterval * Program.Frames.waitToDraw frames
-	if SetupScreen.iconChangeInterval == 0 then
+	-- Randomize the pokemon shown every 'changeIconInSeconds'
+	local currentTime = os.time()
+	if currentTime >= SetupScreen.timeLastChanged + SetupScreen.changeIconInSeconds then
 		SetupScreen.Buttons.PokemonIcon.pokemonID = Utils.randomPokemonID()
+		SetupScreen.timeLastChanged = currentTime
 	end
-
-	SetupScreen.iconChangeInterval = (SetupScreen.iconChangeInterval - 1) % 10
 end

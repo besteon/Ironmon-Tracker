@@ -11,7 +11,6 @@ GameOverScreen.Buttons = {
 		teamIndex = 1,
 		getIconId = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
-			SpriteData.addUpdateActiveIcon(pokemon.pokemonID)
 			return pokemon.pokemonID
 		end,
 		onClick = function(self)
