@@ -65,14 +65,20 @@ TrackerScreen.Buttons = {
 		end
 	},
 	PCHealAutoTracking = {
-		type = Constants.ButtonTypes.CHECKBOX,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.HEART,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
-		boxColors = { "Upper box border", "Upper box background" },
-		toggleState = false,
+		iconColors = { "Default text", "Upper box background", "Upper box background" },
+		box = { Constants.SCREEN.WIDTH + 87, 59, 10, 8 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		toggleState = false,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
+			if self.toggleState then
+				self.iconColors = { "Positive text", "Positive text", "Intermediate text" }
+			else
+				self.iconColors = { "Default text", "Upper box background", "Upper box background" }
+			end
 			Program.redraw(true)
 		end
 	},
@@ -80,7 +86,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "+" end,
 		textColor = "Positive text",
-		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
+		box = { Constants.SCREEN.WIDTH + 83, 69, 5, 5 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
@@ -93,7 +99,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Constants.BLANKLINE end,
 		textColor = "Negative text",
-		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
+		box = { Constants.SCREEN.WIDTH + 83, 73, 5, 5 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
@@ -893,16 +899,17 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		local healsInBagText = string.format("%s:", Resources.TrackerScreen.HealsInBag)
 		local healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, healsInBagText, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, healsValueText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 68, healsValueText, Theme.COLORS["Default text"], shadowcolor)
 
 		if Options["Track PC Heals"] then
-			local pcHealsText = string.format("%s:", Resources.TrackerScreen.PCHeals)
-			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, pcHealsText, Theme.COLORS["Default text"], shadowcolor)
-			-- Right-align the PC Heals number
-			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 75
-			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, data.x.pcheals, Utils.getCenterHealColor(), shadowcolor)
+			-- Auto-tracking PC Heals button
+			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 
-			-- Draw the '+'', '-'', and toggle button for auto PC tracking
+			-- Right-align the PC Heals number
+			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 87
+			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 68, data.x.pcheals, Utils.getCenterHealColor(), shadowcolor)
+
+			-- Draw the '+' and '-' for incrementing/decrementing heal count
 			local incBtn = TrackerScreen.Buttons.PCHealIncrement
 			local decBtn = TrackerScreen.Buttons.PCHealDecrement
 			if Theme.DRAW_TEXT_SHADOWS then
@@ -911,9 +918,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn:getText(), Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
 			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn:getText(), Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
-
-			-- Auto-tracking PC Heals button
-			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
