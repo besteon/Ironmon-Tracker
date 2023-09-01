@@ -104,8 +104,7 @@ ScreenResources{
 		RandomBallLeft = "Left", -- NEEDS TRANSLATION
 		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
 		RandomBallRight = "Right", -- NEEDS TRANSLATION
-		HealsInBag = "Heals in Bag", -- NEEDS TRANSLATION
-		PCHeals = "PC Heals", -- NEEDS TRANSLATION
+		HealsInBag = "Heals", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
 		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
