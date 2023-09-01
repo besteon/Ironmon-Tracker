@@ -289,8 +289,10 @@ function StartupScreen.drawScreen()
 
 	-- HEADER DIVIDER
 	if showCustomWelcome then
-		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+		if Options["Show on new game screen"] then
+			local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+			Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+		end
 	else
 		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderControls, Theme.COLORS["Header text"], bgShadow)
@@ -302,6 +304,7 @@ function StartupScreen.drawScreen()
 	textLineY = botBox.y + 1
 
 	if showCustomWelcome then
+		textLineY = textLineY + 1
 		if Options["Show on new game screen"] then
 			textLineY = textLineY + 30
 		end
@@ -313,7 +316,7 @@ function StartupScreen.drawScreen()
 		for line in welcomeMsg:gmatch("[^\r\n]+") do
 			table.insert(lines, line)
 			Drawing.drawText(botBox.x + 2, textLineY, line, botBox.text, botBox.shadow)
-			textLineY = textLineY + Constants.SCREEN.LINESPACING
+			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 		end
 		-- Redraw main background on the right to cut-off excess text overflow
 		gui.drawLine(botBox.x + botBox.width, botBox.y, botBox.x + botBox.width, botBox.y + botBox.height, botBox.border)

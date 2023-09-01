@@ -72,12 +72,12 @@ InfoScreen.Buttons = {
 			local animType = LogOverlay.isDisplayed and SpriteData.Types.Idle or self.animType
 			return pokemonID, self.animType or animType
 		end,
-		animType = SpriteData.DefaultType,
+		animType = SpriteData.Types.Idle,
 		clickableArea = { Constants.SCREEN.WIDTH + 112, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.animationAllowed() and not LogOverlay.isDisplayed and not TeamViewArea.isDisplayed() then
+			if SpriteData.animationAllowed() and not LogOverlay.isDisplayed then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
@@ -190,7 +190,11 @@ InfoScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.prevScreen, InfoScreen.prevScreenInfo)
 		else
 			InfoScreen.clearScreenData()
-			Program.changeScreenView(TrackerScreen)
+			if Program.isValidMapLocation() then
+				Program.changeScreenView(TrackerScreen)
+			else
+				Program.changeScreenView(StartupScreen)
+			end
 		end
 	end, "Lower box text"),
 	BackTop = Drawing.createUIElementBackButton(function()
@@ -297,7 +301,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreenInfo = 0
 	InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
 	InfoScreen.Buttons.ShowRouteLevels.toggleState = false
-	InfoScreen.Buttons.PokemonInfoIcon.spriteType = SpriteData.DefaultType
+	InfoScreen.Buttons.PokemonInfoIcon.spriteType = SpriteData.Types.Idle
 end
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
@@ -529,7 +533,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			maxLv = areaInfo[index].maxLv
 		end
 
-		local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+		local iconset = Options.getIconSet()
 		local x = startX + offsetX - (iconset.xOffset or 0)
 		local y = startY + offsetY - (iconset.yOffset or 0)
 
@@ -673,7 +677,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if evoDetails[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, evoDetails[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
-	if data.p.id == 96 and Options.IconSetMap[Options["Pokemon icon set"]].name == "Explorers" then
+	if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
 		-- Pokémon Mystery Dungeon Drowzee easter egg
 		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
@@ -998,9 +1002,10 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	end
 
 	-- POKEMON SEEN
+	local iconset = Options.getIconSet()
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252--[[ Question mark icon]] and Options.IconSetMap[Options["Pokemon icon set"]].adjustQuestionMark then
-			iconButton.box[2] = iconButton.box[2] + Options.IconSetMap[Options["Pokemon icon set"]].yOffset
+		if iconButton.pokemonID == 252--[[ Question mark icon]] and iconset.adjustQuestionMark then
+			iconButton.box[2] = iconButton.box[2] + (iconset.yOffset or 0)
 		end
 
 		local x = iconButton.box[1]

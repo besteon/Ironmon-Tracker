@@ -10,7 +10,7 @@ SetupScreen.Buttons = {
 	ChoosePortrait = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			local iconset = Options.getIconSet()
 			return string.format("%s:  %s", Resources.SetupScreen.PokemonIconSetLabel, iconset.name)
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 12, 65, 11 },
@@ -18,7 +18,7 @@ SetupScreen.Buttons = {
 	PortraitAuthor = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			local iconset = Options.getIconSet()
 			return string.format("%s:  %s", Resources.SetupScreen.PokemonIconSetAuthor, iconset.author)
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2, Constants.SCREEN.MARGIN + 22, 65, 11 },
@@ -27,7 +27,10 @@ SetupScreen.Buttons = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 52, Constants.SCREEN.MARGIN + 27, 32, 32 },
 		pokemonID = 1,
-		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
+		getIconId = function(self)
+			local animType = Options["Allow sprites to walk"] and SpriteData.Types.Walk or SpriteData.Types.Idle
+			return self.pokemonID, animType
+		end,
 		onClick = function(self)
 			self.pokemonID = Utils.randomPokemonID()
 			SetupScreen.timeLastChanged = os.time()
@@ -39,8 +42,8 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.RIGHT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 94, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
-			local currIndex = tonumber(Options["Pokemon icon set"])
-			local nextSet = tostring((currIndex % Options.IconSetMap.totalCount) + 1)
+			local currIndex = tonumber(Options["Pokemon icon set"]) or 1
+			local nextSet = tostring((currIndex % #Options.IconSetMap) + 1)
 			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", nextSet)
 			Program.redraw(true)
@@ -51,10 +54,28 @@ SetupScreen.Buttons = {
 		image = Constants.PixelImages.LEFT_ARROW,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 34, Constants.SCREEN.MARGIN + 42, 10, 10, },
 		onClick = function(self)
-			local currIndex = tonumber(Options["Pokemon icon set"])
-			local prevSet = tostring((currIndex - 2 ) % Options.IconSetMap.totalCount + 1)
+			local currIndex = tonumber(Options["Pokemon icon set"]) or 1
+			local prevSet = tostring((currIndex - 2 ) % #Options.IconSetMap + 1)
 			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", prevSet)
+			Program.redraw(true)
+		end
+	},
+	OptionAllowSpritesToWalk = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		optionKey = "Allow sprites to walk",
+		getText = function(self) return Resources.SetupScreen.OptionAllowSpritesToWalk end,
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 55, 33, 8 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 55, 8, 8 },
+		isVisible = function(self) return Options.getIconSet().isAnimated end,
+		toggleState = true,
+		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
+		onClick = function(self)
+			self.toggleState = Options.toggleSetting(self.optionKey)
+			SetupScreen.timeLastChanged = os.time()
+			if not Options[self.optionKey] then
+				SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
+			end
 			Program.redraw(true)
 		end
 	},

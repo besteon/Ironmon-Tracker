@@ -18,7 +18,7 @@ function SpriteData.initialize()
 end
 
 function SpriteData.animationAllowed()
-	return Main.IsOnBizhawk() and Options.IconSetMap[Options["Pokemon icon set"]].isAnimated
+	return Main.IsOnBizhawk() and Options.getIconSet().isAnimated
 end
 
 function SpriteData.validPokemon(pokemonID)
@@ -26,11 +26,10 @@ function SpriteData.validPokemon(pokemonID)
 end
 
 function SpriteData.screenCanControlWalking(screen)
-	-- TODO: Likely want to supply an Option to disable the ability to control walking, as it can be distracting, if so, do that check here
 	local allowedScreens = {
 		[TrackerScreen] = true,
 	}
-	return allowedScreens[screen or false]
+	return Options["Allow sprites to walk"] and allowedScreens[screen or false]
 end
 
 -- Returns the active icon w/ its current animation type, or adds it with the provided animation type
@@ -41,27 +40,13 @@ function SpriteData.getOrAddActiveIcon(pokemonID, animationType)
 	return SpriteData.ActiveIcons[pokemonID] or SpriteData.createActiveIcon(pokemonID, animationType)
 end
 
-function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
-		return
-	end
-	animationType = animationType or SpriteData.DefaultType
-
-	-- Don't "change" if the active icon already exists with that animation type, or that animation type doesn't exist
-	local activeIcon = SpriteData.ActiveIcons[pokemonID]
-	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.Icons[pokemonID][animationType] then
-		return
-	end
-
-	-- Utils.printDebug("Adding %s-%s", pokemonID, animationType)
-	-- Create a new or replacement active icon with the updated animationType
-	return SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
-end
-
 function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
 	animationType = animationType or SpriteData.DefaultType
 	startIndexFrame = startIndexFrame or 1
 	framesElapsed = framesElapsed or 0.0
+	if not Options["Allow sprites to walk"] and animationType == SpriteData.Types.Walk then
+		animationType = SpriteData.DefaultType
+	end
 
 	local icon = SpriteData.Icons[pokemonID][animationType] or SpriteData.Icons[pokemonID][SpriteData.DefaultType]
 	if not icon or not icon.durations or #icon.durations == 0 then
@@ -106,6 +91,33 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 	}
 	SpriteData.ActiveIcons[pokemonID] = activeIcon
 	return activeIcon
+end
+
+function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+		return
+	end
+	animationType = animationType or SpriteData.DefaultType
+	if not Options["Allow sprites to walk"] and animationType == SpriteData.Types.Walk then
+		animationType = SpriteData.DefaultType
+	end
+
+	-- Don't "change" if the active icon already exists with that animation type, or that animation type doesn't exist
+	local activeIcon = SpriteData.ActiveIcons[pokemonID]
+	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.Icons[pokemonID][animationType] then
+		return
+	end
+
+	-- Utils.printDebug("Adding %s-%s", pokemonID, animationType)
+	-- Create a new or replacement active icon with the updated animationType
+	return SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+end
+
+-- Changes all active icons to 'animationType' (if able)
+function SpriteData.changeAllActiveIcons(animationType)
+	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
+		SpriteData.changeActiveIcon(activeIcon.pokemonID, animationType)
+	end
 end
 
 function SpriteData.updateActiveIcons()
@@ -189,7 +201,12 @@ function SpriteData.getNextAnimType(pokemonID, currentType)
 		return currentType or SpriteData.DefaultType
 	end
 	local icon = SpriteData.Icons[pokemonID]
-	local orderedTypes = { SpriteData.Types.Idle, SpriteData.Types.Walk, SpriteData.Types.Sleep, SpriteData.Types.Faint }
+	local orderedTypes = {
+		SpriteData.Types.Idle,
+		Options["Allow sprites to walk"] and SpriteData.Types.Walk or nil, -- exclude from list if not enabled
+		SpriteData.Types.Sleep,
+		SpriteData.Types.Faint,
+	}
 	local returnNextType = false
 	for _, animType in ipairs(orderedTypes) do
 		if returnNextType and icon[animType] then

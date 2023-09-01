@@ -52,7 +52,7 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if not PokemonData.isImageIDValid(pokemonID) then
 		return
 	end
-	local iconset = Options.IconSetMap[Options["Pokemon icon set"]] or {}
+	local iconset = Options.getIconSet()
 	x = x + (iconset.xOffset or 0)
 	y = y + (iconset.yOffset or 0)
 	width = width or 32
@@ -324,7 +324,7 @@ function Drawing.drawButton(button, shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
 		local pokemonID, animType = button:getIconId()
 		if PokemonData.isImageIDValid(pokemonID) then
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+			local iconset = Options.getIconSet()
 			if iconset.isAnimated then
 				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
 			else
