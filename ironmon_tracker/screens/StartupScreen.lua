@@ -12,7 +12,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 14, 31, 28 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 10, 32, 32 },
 		pokemonID = 0,
-		getIconId = function(self) return self.pokemonID end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
 	},
 	UpdateAvailable = {

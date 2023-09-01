@@ -1,4 +1,8 @@
 SpriteData = {}
+
+-- TODO: add a sleep timer (60 seconds); if no input for a while, put icon to sleep
+
+-- Holds a list of icons currently being animated on screen, as only those need to be updated with new animations
 SpriteData.ActiveIcons = {}
 
 SpriteData.Types = {
@@ -7,97 +11,120 @@ SpriteData.Types = {
 	Sleep = "sleep",
 	Faint = "faint",
 }
-
--- TODO: update all icon references to allow for animated sprites
--- TODO: add a sleep timer; if no input for a while, put icon to sleep
+SpriteData.DefaultType = SpriteData.Types.Idle
 
 function SpriteData.initialize()
 	SpriteData.ActiveIcons = {}
 end
 
-function SpriteData.addUpdateActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
-	if not Drawing.isAnimatedIconSet() then return end
+function SpriteData.animationAllowed()
+	return Main.IsOnBizhawk() and Options.IconSetMap[Options["Pokemon icon set"]].isAnimated
+end
 
-	animationType = animationType or SpriteData.Types.Idle
-	startIndexFrame = startIndexFrame or 1
-	framesElapsed = framesElapsed or 0.0
-	-- Don't add if not a real animated pokemon, or the icon has already been added
-	if not PokemonData.isValid(pokemonID) or not SpriteData.Icons[pokemonID] then
+function SpriteData.validPokemon(pokemonID)
+	return PokemonData.isValid(pokemonID) and SpriteData.Icons[pokemonID] ~= nil
+end
+
+function SpriteData.screenCanControlWalking(screen)
+	-- TODO: Likely want to supply an Option to disable the ability to control walking, as it can be distracting, if so, do that check here
+	local allowedScreens = {
+		[TrackerScreen] = true,
+	}
+	return allowedScreens[screen or false]
+end
+
+-- Returns the active icon w/ its current animation type, or adds it with the provided animation type
+function SpriteData.getOrAddActiveIcon(pokemonID, animationType)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
 		return
 	end
+	return SpriteData.ActiveIcons[pokemonID] or SpriteData.createActiveIcon(pokemonID, animationType)
+end
 
-	-- Don't add the icon if the same pokemon + animation
+function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+		return
+	end
+	animationType = animationType or SpriteData.DefaultType
+
+	-- Don't "change" if the active icon already exists with that animation type, or that animation type doesn't exist
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
-	if activeIcon and activeIcon.animationType == animationType then
-		-- Utils.printDebug("%s %s exists, skipping", pokemonID, animationType)
-		return
-	end
-
-	local icon = SpriteData.Icons[pokemonID][animationType]
-	if not icon then
-		return
-	end
-
-	local canLoop = animationType ~= SpriteData.Types.Faint
-	local totalDuration = 0
-	local indexCutoffs = {}
-	for _, frameDuration in ipairs(icon.durations or {}) do
-		totalDuration = totalDuration + frameDuration
-		table.insert(indexCutoffs, totalDuration)
-	end
-	if totalDuration <= 0 then
+	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.Icons[pokemonID][animationType] then
 		return
 	end
 
 	-- Utils.printDebug("Adding %s-%s", pokemonID, animationType)
-	activeIcon = {
+	-- Create a new or replacement active icon with the updated animationType
+	return SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+end
+
+function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+	animationType = animationType or SpriteData.DefaultType
+	startIndexFrame = startIndexFrame or 1
+	framesElapsed = framesElapsed or 0.0
+
+	local icon = SpriteData.Icons[pokemonID][animationType] or SpriteData.Icons[pokemonID][SpriteData.DefaultType]
+	if not icon or not icon.durations or #icon.durations == 0 then
+		return nil
+	end
+
+	-- Assign each active frame to its corresponding sprite index (which image from left-to-right to draw)
+	local totalDuration = 0
+	local frameToIndex = {}
+	for spriteIndex, duration in ipairs(icon.durations) do
+		for i = 0, duration - 1, 1 do
+			frameToIndex[totalDuration + i] = spriteIndex
+		end
+		totalDuration = totalDuration + duration
+	end
+	if totalDuration <= 0 then
+		return nil
+	end
+
+	local activeIcon = {
 		pokemonID = pokemonID,
 		animationType = animationType,
 		indexFrame = startIndexFrame,
 		framesElapsed = framesElapsed,
-		duration = totalDuration,
+		totalDuration = totalDuration,
+		canLoop = animationType ~= SpriteData.Types.Faint,
 		inUse = true,
 		step = function(self)
 			-- Sync with client frame rate (turbo/unthrottle)
-			local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-			local delta = 1.0 / fpsMultiplier
-			self.framesElapsed = (self.framesElapsed + delta) % self.duration
-			if not canLoop and self.indexFrame >= #indexCutoffs then
+			local delta = 1.0 / Program.clientFpsMultiplier
+			self.framesElapsed = (self.framesElapsed + delta) % self.totalDuration
+			if not self.canLoop and self.indexFrame >= #icon.durations then
 				return
 			end
-			-- Check if index frame has changed
+			-- Check if sprite index frame has changed. If so, trigger a screen redraw
 			local prevIndex = self.indexFrame
-			for i, cutoff in ipairs(indexCutoffs) do
-				if self.framesElapsed <= cutoff then
-					self.indexFrame = i
-					break
-				end
-			end
-			-- Trigger a screen draw if new animation frame is active
-			if prevIndex ~= self.indexFrame then
+			self.indexFrame = frameToIndex[math.floor(self.framesElapsed)] or 1
+			if self.indexFrame ~= prevIndex then
 				Program.Frames.waitToDraw = 0
 			end
-		end,
+		end
 	}
 	SpriteData.ActiveIcons[pokemonID] = activeIcon
 	return activeIcon
 end
 
 function SpriteData.updateActiveIcons()
-	if not Drawing.isAnimatedIconSet() then return end
+	if not SpriteData.animationAllowed() then
+		return
+	end
 
 	local j = Input.prevJoypadInput
 	local canWalk = j["Left"] or j["Right"] or j["Up"] or j["Down"]
-	local walkable = not Battle.inBattle and not Battle.battleStarting and not Program.inStartMenu and not LogOverlay.isGameOver and not LogOverlay.isDisplayed
-	-- Utils.printDebug("Can Walk: %s, Walkable: %s", tostring(canWalk), tostring(walkable))
+	local walkableAllowed = SpriteData.screenCanControlWalking(Program.currentScreen)
+		and not (Battle.inBattle or Battle.battleStarting or Program.inStartMenu or LogOverlay.isGameOver or LogOverlay.isDisplayed)
 
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
 		-- Check if the walk/idle animation needs to be updated, reusing frame info
-		if walkable then
+		if walkableAllowed then
 			if canWalk and activeIcon.animationType == SpriteData.Types.Idle then
-				SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
+				SpriteData.changeActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
 			elseif not canWalk and activeIcon.animationType == SpriteData.Types.Walk then
-				SpriteData.addUpdateActiveIcon(activeIcon.pokemonID, SpriteData.Types.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
+				SpriteData.changeActiveIcon(activeIcon.pokemonID, SpriteData.Types.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
 			end
 		end
 
@@ -107,9 +134,42 @@ function SpriteData.updateActiveIcons()
 	end
 end
 
+function SpriteData.checkForFainting(pokemonID, isZeroHP)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+		return
+	end
+	local activeIcon = SpriteData.ActiveIcons[pokemonID]
+	if not activeIcon then
+		return
+	end
+	if isZeroHP and activeIcon.animationType ~= SpriteData.Types.Faint then
+		SpriteData.changeActiveIcon(pokemonID, SpriteData.Types.Faint)
+	elseif not isZeroHP and activeIcon.animationType == SpriteData.Types.Faint then
+		SpriteData.changeActiveIcon(pokemonID, SpriteData.DefaultType)
+	end
+end
+
+function SpriteData.checkForSleeping(pokemonID, status)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+		return
+	end
+	local activeIcon = SpriteData.ActiveIcons[pokemonID]
+	if not activeIcon then
+		return
+	end
+	local sleepStatus = MiscData.StatusCodeMap[MiscData.StatusType.Sleep]
+	if status == sleepStatus and activeIcon.animationType ~= SpriteData.Types.Sleep then
+		SpriteData.changeActiveIcon(pokemonID, SpriteData.Types.Sleep)
+	elseif status ~= sleepStatus and activeIcon.animationType == SpriteData.Types.Sleep then
+		SpriteData.changeActiveIcon(pokemonID, SpriteData.DefaultType)
+	end
+end
+
 -- If an animated icon sprite is no longer being drawn, remove it from the animation frame counters
 function SpriteData.cleanupActiveIcons()
-	if not Drawing.isAnimatedIconSet() then return end
+	if not SpriteData.animationAllowed() then
+		return
+	end
 
 	local keysToRemove = {}
 	for key, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
@@ -121,29 +181,27 @@ function SpriteData.cleanupActiveIcons()
 	end
 	for _, key in ipairs(keysToRemove) do
 		SpriteData.ActiveIcons[key] = nil
-		-- TODO: Remove before PR DEBUG
-		Utils.printDebug("Removing sprite -> %s", key)
 	end
 end
 
--- TODO: remove this before PR
--- function SpriteData.refreshAssets()
--- 	local d = SpriteData.DEBUG
--- 	local did = SpriteData.DebugId
--- 	local dtype = SpriteData.DebugType
+function SpriteData.getNextAnimType(pokemonID, currentType)
+	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) or not currentType then
+		return currentType or SpriteData.DefaultType
+	end
+	local icon = SpriteData.Icons[pokemonID]
+	local orderedTypes = { SpriteData.Types.Idle, SpriteData.Types.Walk, SpriteData.Types.Sleep, SpriteData.Types.Faint }
+	local returnNextType = false
+	for _, animType in ipairs(orderedTypes) do
+		if returnNextType and icon[animType] then
+			return animType
+		elseif currentType == animType then
+			returnNextType = true
+		end
+	end
+	return SpriteData.DefaultType
+end
 
--- 	local spritefile = FileManager.LuaCode[16].filepath
--- 	FileManager.loadLuaFile(spritefile)
--- 	SpriteData.DEBUG = d
--- 	SpriteData.DebugId = did
--- 	SpriteData.DebugType = dtype
--- end
-
--- -- TODO: remove references to DEBUG
--- SpriteData.DEBUG = false
--- SpriteData.DebugId = 406
--- SpriteData.DebugType = SpriteData.Types.Idle
-
+-- These Sprites were taken from https://sprites.pmdcollab.org/#/
 SpriteData.Icons = {
 	[1] = {
 		[SpriteData.Types.Faint] = { w = 32, h = 24, x = 5, y = 11, durations = { 8, 12, 4, 10 } },

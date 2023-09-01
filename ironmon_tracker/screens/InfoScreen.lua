@@ -58,6 +58,31 @@ InfoScreen.Buttons = {
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self) InfoScreen.showNextPokemon(-1) end
 	},
+	PokemonInfoIcon = {
+		type = Constants.ButtonTypes.POKEMON_ICON,
+		getIconId = function(self)
+			local pokemonID = InfoScreen.infoLookup
+			-- Safety check to make sure this icon has the requested sprite animation type
+			if SpriteData.animationAllowed() and SpriteData.validPokemon(pokemonID) then
+				if not SpriteData.Icons[pokemonID][self.animType] then
+					self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
+				end
+			end
+			-- If the log viewer is open, use its animation type
+			local animType = LogOverlay.isDisplayed and SpriteData.Types.Idle or self.animType
+			return pokemonID, self.animType or animType
+		end,
+		animType = SpriteData.DefaultType,
+		clickableArea = { Constants.SCREEN.WIDTH + 112, 5, 32, 27 },
+		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
+		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
+		onClick = function(self)
+			if SpriteData.animationAllowed() and not LogOverlay.isDisplayed and not TeamViewArea.isDisplayed() then
+				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
+				Program.redraw(true)
+			end
+		end
+	},
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.InfoScreen.ButtonHistory end,
@@ -272,6 +297,7 @@ function InfoScreen.clearScreenData()
 	InfoScreen.prevScreenInfo = 0
 	InfoScreen.Buttons.ShowRoutePercentages.toggleState = false
 	InfoScreen.Buttons.ShowRouteLevels.toggleState = false
+	InfoScreen.Buttons.PokemonInfoIcon.spriteType = SpriteData.DefaultType
 end
 
 -- Display a Pokemon that is 'N' entries ahead of the currently shown Pokemon; N can be negative
@@ -509,7 +535,7 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 
 		iconButtons[index] = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
-			getIconId = function(self) return self.pokemonID end,
+			getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
 			pokemonID = pokemonID,
 			rate = rate,
 			minLv = minLv,
@@ -614,7 +640,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	local pokemonName = Utils.toUpperUTF8(data.p.name)
 	Drawing.drawHeader(offsetX - 2, offsetY - 1, pokemonName, Theme.COLORS["Default text"], boxInfoTopShadow)
 
-	-- POKEMON ICON & TYPES
+	-- POKEMON TYPES
 	offsetY = offsetY - 7
 	gui.drawRectangle(offsetX + 106, offsetY + 37, 31, 13, boxInfoTopShadow, boxInfoTopShadow)
 	gui.drawRectangle(offsetX + 105, offsetY + 36, 31, 13, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box border"])
@@ -626,7 +652,6 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if data.p.types[2] ~= data.p.types[1] then
 		Drawing.drawTypeIcon(data.p.types[2], offsetX + 106, offsetY + 49)
 	end
-	Drawing.drawPokemonIcon(data.p.id, offsetX + 105, offsetY + 2)
 	offsetY = offsetY + 12 + linespacing
 
 	-- BST
@@ -748,6 +773,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.LookupPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.PokemonInfoIcon, boxInfoTopShadow)
 
 	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoBotShadow)

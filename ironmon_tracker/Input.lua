@@ -167,7 +167,7 @@ function Input.checkJoypadInput()
 end
 
 function Input.getSpriteFacingDirection(animationType)
-	if animationType ~= SpriteData.Types.Walk then
+	if animationType ~= SpriteData.Types.Walk or not SpriteData.screenCanControlWalking(Program.currentScreen) then
 		return 1
 	end
 	local j = Input.prevJoypadInput

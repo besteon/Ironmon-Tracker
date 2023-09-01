@@ -11,7 +11,14 @@ GameOverScreen.Buttons = {
 		teamIndex = 1,
 		getIconId = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
-			return pokemon.pokemonID
+			local animType = SpriteData.Types.Faint
+			-- Safety check to make sure this icon has the requested sprite animation type
+			if SpriteData.animationAllowed() and SpriteData.validPokemon(pokemon.pokemonID) then
+				if not SpriteData.Icons[pokemon.pokemonID][animType] then
+					animType = SpriteData.getNextAnimType(pokemon.pokemonID, animType)
+				end
+			end
+			return pokemon.pokemonID, SpriteData.Types.Faint
 		end,
 		onClick = function(self)
 			GameOverScreen.nextTeamPokemon(self.teamIndex)
@@ -332,6 +339,9 @@ function GameOverScreen.drawScreen()
 	gui.defaultTextBackground(topBox.fill)
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
+	-- Draw Pokemon Icon first, so text can overlap it
+	Drawing.drawButton(GameOverScreen.Buttons.PokemonIcon, topBox.shadow)
+
 	-- Draw header text
 	Drawing.drawText(topBox.x + 2, textLineY, Utils.toUpperUTF8(Resources.GameOverScreen.Title), Theme.COLORS["Intermediate text"], topBox.shadow)
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
@@ -378,8 +388,10 @@ function GameOverScreen.drawScreen()
 	gui.defaultTextBackground(botBox.fill)
 	gui.drawRectangle(botBox.x, botBox.y, botBox.width, botBox.height, botBox.border, botBox.fill)
 
-	-- Draw all buttons
+	-- Draw all other buttons
 	for _, button in pairs(GameOverScreen.Buttons) do
-		Drawing.drawButton(button, botBox.shadow)
+		if button ~= GameOverScreen.Buttons.PokemonIcon then
+			Drawing.drawButton(button, botBox.shadow)
+		end
 	end
 end

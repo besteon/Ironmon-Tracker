@@ -5,6 +5,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
 		getIconId = function(self)
 			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			-- Don't return a SpriteData.Type with this, as the animation is allowed to change here
 			return pokemon.pokemonID
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
@@ -570,8 +571,7 @@ function TrackerScreen.getCurrentCarouselItem()
 	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
 
 	-- Adjust rotation delay check for carousel based on the speed of emulation
-	local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-	local adjustedVisibilityFrames = carousel.framesToShow * fpsMultiplier
+	local adjustedVisibilityFrames = carousel.framesToShow * Program.clientFpsMultiplier
 
 	-- Check if the current carousel's time has expired, or if it shouldn't be shown
 	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > adjustedVisibilityFrames then
@@ -801,6 +801,8 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		end
 	end
 
+	SpriteData.checkForFainting(data.p.id, data.p.curHP <= 0)
+
 	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
 	local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
 	local evoSpacing
@@ -929,9 +931,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		if data.p.status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep] then
-			SpriteData.addUpdateActiveIcon(data.p.id, SpriteData.Types.Sleep)
-		end
+		SpriteData.checkForSleeping(data.p.id, data.p.status)
 		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 end

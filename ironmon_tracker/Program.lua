@@ -5,6 +5,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
+	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
 		highAccuracyUpdate = 10, -- counts down
@@ -453,6 +454,8 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
+		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+
 		Program.updateMapLocation() -- trying this here to solve many future problems
 
 		if not Program.GameTimer.hasStarted and Program.isValidMapLocation() then
@@ -581,8 +584,7 @@ function Program.createFrameCounter(frames, callFunc)
 		step = function(self)
 			if self.paused then return end
 			-- Sync with client frame rate (turbo/unthrottle)
-			local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-			local delta = 1.0 / fpsMultiplier
+			local delta = 1.0 / Program.clientFpsMultiplier
 			self.framesElapsed = self.framesElapsed + delta
 			if self.framesElapsed >= self.maxFrames then
 				self.framesElapsed = 0.0

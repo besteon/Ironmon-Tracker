@@ -103,7 +103,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 					end
 				end
 			end,
-			getIconId = function(self) return self.pokemonID end,
+			getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
 					LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.pokemonID)

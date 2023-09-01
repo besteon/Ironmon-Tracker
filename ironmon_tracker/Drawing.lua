@@ -52,14 +52,17 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if not PokemonData.isImageIDValid(pokemonID) then
 		return
 	end
+	local iconset = Options.IconSetMap[Options["Pokemon icon set"]] or {}
+	x = x + (iconset.xOffset or 0)
+	y = y + (iconset.yOffset or 0)
 	width = width or 32
 	height = height or 32
-	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
+
 	if iconset.isAnimated then
-		Drawing.drawSpriteIcon(pokemonID, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0))
+		Drawing.drawSpriteIcon(x, y, pokemonID)
 	else
 		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-		gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+		gui.drawImage(image, x, y, width, height)
 	end
 end
 
@@ -319,11 +322,11 @@ function Drawing.drawButton(button, shadowcolor)
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
 		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
-		local pokemonID = button:getIconId()
+		local pokemonID, animType = button:getIconId()
 		if PokemonData.isImageIDValid(pokemonID) then
 			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
 			if iconset.isAnimated then
-				Drawing.drawSpriteIcon(pokemonID, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0))
+				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
 			else
 				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
 				gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
@@ -498,27 +501,27 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	end
 end
 
-function Drawing.isAnimatedIconSet()
-	return Main.IsOnBizhawk() and Options.IconSetMap[Options["Pokemon icon set"]].isAnimated
-end
-
-function Drawing.drawSpriteIcon(pokemonID, x, y)
-	if not Drawing.isAnimatedIconSet() then return end
-
-	if not PokemonData.isValid(pokemonID) or not SpriteData.Icons[pokemonID] then
+function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
+	if not SpriteData.animationAllowed() or not PokemonData.isValid(pokemonID) or not SpriteData.Icons[pokemonID] then
 		return
 	end
 
-	local activeIcon = SpriteData.ActiveIcons[pokemonID] or SpriteData.addUpdateActiveIcon(pokemonID)
+	local activeIcon = SpriteData.getOrAddActiveIcon(pokemonID, requiredAnimType)
 	if not activeIcon then
 		return
 	end
 
-	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType] or SpriteData.Icons[pokemonID][SpriteData.Types.Idle]
+	-- If a required animation type is being requested, change to that (if able)
+	if requiredAnimType and activeIcon.animationType ~= requiredAnimType and not activeIcon.inUse then
+		SpriteData.changeActiveIcon(pokemonID, requiredAnimType)
+	end
+
+	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType]
 	if not icon then
 		return
 	end
 
+	-- Mark that this sprite animation is being used
 	activeIcon.inUse = true
 
 	-- Determine source index frame to draw

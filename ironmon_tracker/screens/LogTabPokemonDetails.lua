@@ -205,7 +205,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = { x, y, pokemonIconSize, pokemonIconSize },
 			preEvoSet = i,
 			isVisible = function(self) return self.preEvoSet == LogTabPokemonDetails.currentPreEvoSet end,
-			getIconId = function(self) return self.pokemonID end,
+			getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
 					LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.pokemonID)
@@ -242,7 +242,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		pokemonID = data.p.id,
 		box = pokeIcon,
 		clickableArea = { pokeIcon[1], pokeIcon[2], pokeIcon[3], pokeIcon[4] + evoLabelTextHeight },
-		getIconId = function(self) return self.pokemonID end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			if PokemonData.isValid(self.pokemonID) then
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
@@ -281,7 +281,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = evoBox,
 			evoSet = evoSet,
 			isVisible = function(self) return self.evoSet == LogTabPokemonDetails.currentEvoSet end,
-			getIconId = function(self) return self.pokemonID end,
+			getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 			onClick = function(self)
 				if PokemonData.isValid(self.pokemonID) then
 					LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.pokemonID)
