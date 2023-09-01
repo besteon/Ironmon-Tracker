@@ -5,6 +5,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
+	idleTime = 0,
 	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -222,6 +223,7 @@ function Program.initialize()
 
 	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
+	Program.idleTime = 0
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
@@ -393,6 +395,15 @@ function Program.update()
 			Program.AutoSaver:checkForNextSave()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
+
+		-- Check if the player has return from being afk and if needed wake up animated sprites
+		if Input.joypadPressedEachSecond then
+			Program.idleTime = 0
+			if SpriteData.spritesAreSleeping then
+				SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
+				SpriteData.spritesAreSleeping = false
+			end
+		end
 	end
 
 	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
@@ -401,6 +412,17 @@ function Program.update()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
 		CrashRecoveryScreen.trySaveBackup()
+
+		-- Check if the player has been afk long enough to put animated sprites to sleep
+		if not Input.joypadPressedEachSecond then
+			Program.idleTime = Program.idleTime + 3
+			if not SpriteData.spritesAreSleeping and Program.idleTime >= SpriteData.idleTimeUntilSleep and not LogOverlay.isDisplayed then
+				SpriteData.changeAllActiveIcons(SpriteData.Types.Sleep)
+				SpriteData.spritesAreSleeping = true
+			end
+		end
+		-- Reset the joypad button tracking so wait for the next 3 seconds if pressed
+		Input.joypadPressedEachSecond = false
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)

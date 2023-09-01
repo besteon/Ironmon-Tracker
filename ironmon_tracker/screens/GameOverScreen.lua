@@ -18,7 +18,7 @@ GameOverScreen.Buttons = {
 					animType = SpriteData.getNextAnimType(pokemon.pokemonID, animType)
 				end
 			end
-			return pokemon.pokemonID, SpriteData.Types.Faint
+			return pokemon.pokemonID, animType
 		end,
 		onClick = function(self)
 			GameOverScreen.nextTeamPokemon(self.teamIndex)

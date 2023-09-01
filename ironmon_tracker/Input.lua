@@ -1,6 +1,7 @@
 Input = {
 	prevMouseInput = {},
 	prevJoypadInput = {},
+	joypadPressedEachSecond = false,
 	currentColorPicker = nil,
 	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
 	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
@@ -164,6 +165,14 @@ function Input.checkJoypadInput()
 
 	-- Save the joypad inputs to prevent triggering on the next frame (no autofire)
 	Input.prevJoypadInput = joypadButtons
+
+	-- Record that a button was pressed recently
+	if not Input.joypadPressedEachSecond then
+		if joypadButtons["Up"] or joypadButtons["Down"] or joypadButtons["Left"] or joypadButtons["Right"] or joypadButtons["A"]
+		or joypadButtons["B"] or joypadButtons["Start"] or joypadButtons["Select"] or joypadButtons["R"] or joypadButtons["L"] then
+			Input.joypadPressedEachSecond = true
+		end
+	end
 end
 
 function Input.getSpriteFacingDirection(animationType)

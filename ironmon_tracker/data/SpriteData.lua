@@ -1,4 +1,7 @@
-SpriteData = {}
+SpriteData = {
+	idleTimeUntilSleep = 60, -- Number of seconds of idle time allowed before all sprites start to sleep
+	spritesAreSleeping = false,
+}
 
 -- TODO: add a sleep timer (60 seconds); if no input for a while, put icon to sleep
 
@@ -14,6 +17,7 @@ SpriteData.Types = {
 SpriteData.DefaultType = SpriteData.Types.Idle
 
 function SpriteData.initialize()
+	SpriteData.spritesAreSleeping = false
 	SpriteData.ActiveIcons = {}
 end
 
