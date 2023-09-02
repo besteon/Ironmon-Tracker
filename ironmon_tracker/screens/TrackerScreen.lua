@@ -808,8 +808,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		end
 	end
 
-	SpriteData.checkForFainting(data.p.id, data.p.curHP <= 0)
-
 	local levelEvoText = string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, data.p.level)
 	local abbreviationText = Utils.getEvoAbbreviation(data.p.evo)
 	local evoSpacing
@@ -932,11 +930,12 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	-- POKEMON ICON (draw last to overlap anything else, if necessary)
+	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
+	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		SpriteData.checkForSleeping(data.p.id, data.p.status)
 		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 end

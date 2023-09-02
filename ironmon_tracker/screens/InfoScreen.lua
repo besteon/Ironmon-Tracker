@@ -63,10 +63,8 @@ InfoScreen.Buttons = {
 		getIconId = function(self)
 			local pokemonID = InfoScreen.infoLookup
 			-- Safety check to make sure this icon has the requested sprite animation type
-			if SpriteData.animationAllowed() and SpriteData.validPokemon(pokemonID) then
-				if not SpriteData.Icons[pokemonID][self.animType] then
-					self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
-				end
+			if SpriteData.canDrawPokemonIcon(pokemonID) and not SpriteData.Icons[pokemonID][self.animType] then
+				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type
 			local animType = LogOverlay.isDisplayed and SpriteData.Types.Idle or self.animType
@@ -77,7 +75,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.animationAllowed() and not LogOverlay.isDisplayed then
+			if SpriteData.canDrawPokemonIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
@@ -547,10 +545,10 @@ function InfoScreen.getPokemonButtonsForEncounterArea(mapId, encounterArea)
 			box = { x, y, iconWidth, iconWidth },
 			isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.ROUTE_INFO end,
 			onClick = function(self)
-				if not self:isVisible() then return end
-				if self.pokemonID ~= 252 then
-					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
+				if not self:isVisible() or self.pokemonID == 252 then
+					return
 				end
+				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 			end
 		}
 
@@ -1004,7 +1002,8 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	-- POKEMON SEEN
 	local iconset = Options.getIconSet()
 	for _, iconButton in pairs(InfoScreen.TemporaryButtons) do
-		if iconButton.pokemonID == 252--[[ Question mark icon]] and iconset.adjustQuestionMark then
+		-- id 252 is the question mark icon
+		if iconButton.pokemonID == 252 and iconset.adjustQuestionMark then
 			iconButton.box[2] = iconButton.box[2] + (iconset.yOffset or 0)
 		end
 

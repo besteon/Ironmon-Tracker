@@ -25,8 +25,8 @@ function SpriteData.animationAllowed()
 	return Main.IsOnBizhawk() and Options.getIconSet().isAnimated
 end
 
-function SpriteData.validPokemon(pokemonID)
-	return PokemonData.isValid(pokemonID) and SpriteData.Icons[pokemonID] ~= nil
+function SpriteData.canDrawPokemonIcon(pokemonID)
+	return SpriteData.animationAllowed() and PokemonData.isImageIDValid(pokemonID) and SpriteData.Icons[pokemonID] ~= nil
 end
 
 function SpriteData.screenCanControlWalking(screen)
@@ -38,7 +38,7 @@ end
 
 -- Returns the active icon w/ its current animation type, or adds it with the provided animation type
 function SpriteData.getOrAddActiveIcon(pokemonID, animationType)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) then
 		return
 	end
 	return SpriteData.ActiveIcons[pokemonID] or SpriteData.createActiveIcon(pokemonID, animationType)
@@ -98,7 +98,7 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 end
 
 function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) then
 		return
 	end
 	animationType = animationType or SpriteData.DefaultType
@@ -150,8 +150,8 @@ function SpriteData.updateActiveIcons()
 	end
 end
 
-function SpriteData.checkForFainting(pokemonID, isZeroHP)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
+	if not SpriteData.canDrawPokemonIcon(pokemonID) then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
@@ -165,19 +165,34 @@ function SpriteData.checkForFainting(pokemonID, isZeroHP)
 	end
 end
 
-function SpriteData.checkForSleeping(pokemonID, status)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) then
+function SpriteData.checkForSleepingStatus(pokemonID, status)
+	if not SpriteData.canDrawPokemonIcon(pokemonID) then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
 	if not activeIcon then
 		return
 	end
-	local sleepStatus = MiscData.StatusCodeMap[MiscData.StatusType.Sleep]
-	if status == sleepStatus and activeIcon.animationType ~= SpriteData.Types.Sleep then
+	local isAsleep = status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep]
+	if isAsleep and activeIcon.animationType ~= SpriteData.Types.Sleep then
 		SpriteData.changeActiveIcon(pokemonID, SpriteData.Types.Sleep)
-	elseif status ~= sleepStatus and activeIcon.animationType == SpriteData.Types.Sleep then
+	elseif not isAsleep and activeIcon.animationType == SpriteData.Types.Sleep then
 		SpriteData.changeActiveIcon(pokemonID, SpriteData.DefaultType)
+	end
+end
+
+function SpriteData.checkForIdleSleeping(idleSeconds)
+	if not SpriteData.animationAllowed() or not LogOverlay.isDisplayed then
+		return
+	end
+	-- Check if the player has returned from being afk and if needed wake up animated sprites
+	if SpriteData.spritesAreSleeping and idleSeconds < SpriteData.idleTimeUntilSleep then
+		SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
+		SpriteData.spritesAreSleeping = false
+	-- Check if the player has been afk long enough to put animated sprites to sleep
+	elseif not SpriteData.spritesAreSleeping and idleSeconds >= SpriteData.idleTimeUntilSleep then
+		SpriteData.changeAllActiveIcons(SpriteData.Types.Sleep)
+		SpriteData.spritesAreSleeping = true
 	end
 end
 
@@ -201,7 +216,7 @@ function SpriteData.cleanupActiveIcons()
 end
 
 function SpriteData.getNextAnimType(pokemonID, currentType)
-	if not SpriteData.animationAllowed() or not SpriteData.validPokemon(pokemonID) or not currentType then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) or not currentType then
 		return currentType or SpriteData.DefaultType
 	end
 	local icon = SpriteData.Icons[pokemonID]
@@ -1523,7 +1538,11 @@ SpriteData.Icons = {
 		[SpriteData.Types.Idle] = { w = 24, h = 56, x = 5, y = 4, durations = { 8, 7, 6, 6, 6, 7 } },
 		[SpriteData.Types.Walk] = { w = 24, h = 48, x = 5, y = 6, durations = { 4, 4, 4, 4, 4, 4, 4, 4 } },
 	},
-	-- 252-276 are unused slots in gen 3
+	-- 252-276 are unused slots in gen 3, 252 is the "missing pokemon" icon
+	[252] = {
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 0, durations = { 60 } },
+		[SpriteData.Types.Walk] = { w = 32, h = 32, x = 0, y = 0, durations = { 60 } },
+	},
 	[277] = {
 		[SpriteData.Types.Faint] = { w = 32, h = 32, x = 3, y = 8, durations = { 8, 12, 4, 10 } },
 		[SpriteData.Types.Sleep] = { w = 32, h = 32, x = -2, y = 8, durations = { 30, 35 } },
@@ -2218,5 +2237,13 @@ SpriteData.Icons = {
 		[SpriteData.Types.Sleep] = { w = 24, h = 56, x = 4, y = 5, durations = { 28, 10, 10, 28, 10, 10 } },
 		[SpriteData.Types.Idle] = { w = 24, h = 48, x = 4, y = 8, durations = { 18, 8, 18, 8 } },
 		[SpriteData.Types.Walk] = { w = 32, h = 56, x = 0, y = 4, durations = { 4, 4, 6, 6, 4, 4, 4, 4, 6, 6, 4, 4 } },
+	},
+	-- Egg
+	[412] = {
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 1, durations = { 48, 8, 8, 8 } },
+	},
+	-- Pokémon Tower Ghost
+	[413] = {
+		[SpriteData.Types.Idle] = { w = 32, h = 32, x = 0, y = 2, durations = { 48, 8, 44, 8 } },
 	},
 }

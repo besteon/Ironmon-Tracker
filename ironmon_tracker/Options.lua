@@ -58,47 +58,47 @@ Options = {
 Options.IconSetMap = {
 	{
 		name = "Original", -- The name of the icon set which is displayed on the Tracker Setup screen
+		author = "Besteon", -- The name of the creator of the icon set which is displayed on the Tracker Setup screen
 		folder = "pokemon", -- The folder within the tracker files where each icon is stored, expected to be in /ironmon-tracker/images/
 		extension = ".gif", -- The file extension for each icon, expected that all icons use the same file extension
 		yOffset = 0, -- A number of pixels to shift the drawing of the icon downward
 		adjustQuestionMark = true, -- If true, will shift the question mark icon on the RouteInfo screen downward `yOffset` pixels
-		author = "Besteon", -- The name of the creator of the icon set which is displayed on the Tracker Setup screen
 	},
 	{
 		name = "Stadium",
+		author = "AmberCyprian",
 		folder = "pokemonStadium",
 		extension = ".png",
 		yOffset = 4,
-		author = "AmberCyprian",
 	},
 	{
 		name = "Gen 7+",
+		author = "kittenchilly",
 		folder = "pokemonUpdated",
 		extension = ".png",
 		yOffset = 2,
 		adjustQuestionMark = true,
-		author = "kittenchilly",
 	},
 	{
 		name = "Explorers",
+		author = "Fellshadow",
 		folder = "pokemonMysteryDungeon",
 		extension = ".png",
 		yOffset = 4,
-		author = "Fellshadow",
 	},
 	{
 		name = "Virtual Pet",
+		author = "Ryastoise",
 		folder = "pokemonVPet",
 		extension = ".png",
 		yOffset = 2,
-		author = "Ryastoise",
 	},
 	{
 		name = "Walking Pals",
+		author = "UTDZac",
 		folder = "spritesWalkingPals",
 		extension = ".png",
 		isAnimated = true,
-		author = "UTDZac",
 	},
 }
 -- Setup references for extensions that still use the deprecated key

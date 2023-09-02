@@ -396,13 +396,9 @@ function Program.update()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
 
-		-- Check if the player has return from being afk and if needed wake up animated sprites
 		if Input.joypadPressedEachSecond then
 			Program.idleTime = 0
-			if SpriteData.spritesAreSleeping then
-				SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
-				SpriteData.spritesAreSleeping = false
-			end
+			SpriteData.checkForIdleSleeping(Program.idleTime)
 		end
 	end
 
@@ -413,16 +409,13 @@ function Program.update()
 		Program.updateBadgesObtained()
 		CrashRecoveryScreen.trySaveBackup()
 
-		-- Check if the player has been afk long enough to put animated sprites to sleep
 		if not Input.joypadPressedEachSecond then
 			Program.idleTime = Program.idleTime + 3
-			if not SpriteData.spritesAreSleeping and Program.idleTime >= SpriteData.idleTimeUntilSleep and not LogOverlay.isDisplayed then
-				SpriteData.changeAllActiveIcons(SpriteData.Types.Sleep)
-				SpriteData.spritesAreSleeping = true
-			end
+			SpriteData.checkForIdleSleeping(Program.idleTime)
+		else
+			-- Reset the joypad button tracking, checking only once every 3 seconds if active
+			Input.joypadPressedEachSecond = false
 		end
-		-- Reset the joypad button tracking so wait for the next 3 seconds if pressed
-		Input.joypadPressedEachSecond = false
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
