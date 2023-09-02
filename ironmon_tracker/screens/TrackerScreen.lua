@@ -937,7 +937,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
 		SpriteData.checkForSleeping(data.p.id, data.p.status)
-		Drawing.drawStatusIcon(MiscData.StatusCodeMap[MiscData.StatusType.Sleep] or data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
+		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 end
 
