@@ -730,7 +730,8 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	local displayData = DataHelper.buildTrackerScreenDisplay()
+	local mustViewOwn = not Battle.canViewEnemy() or nil
+	local displayData = DataHelper.buildTrackerScreenDisplay(mustViewOwn)
 
 	-- Upper boxes
 	if TrackerScreen.canShowBallPicker() then

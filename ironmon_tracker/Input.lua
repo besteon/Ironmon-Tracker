@@ -191,7 +191,7 @@ function Input.getSpriteFacingDirection(animationType)
 end
 
 function Input.togglePokemonViewed()
-	if Battle.inBattle then
+	if Battle.canViewEnemy() then
 		Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
 
 		-- Check toggling through other Pokemon available in doubles battles

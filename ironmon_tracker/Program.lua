@@ -14,6 +14,7 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
+		hideEnemy = 0, -- counts down
 		battleDataDelay = 60, -- counts down
 		Others = {}, -- list of other frame counter objects
 	},
@@ -438,6 +439,9 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+	if Program.Frames.hideEnemy > 0 then
+		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
+	end
 
 	for _, framecounter in pairs(Program.Frames.Others or {}) do
 		if type(framecounter.step) == "function" then
@@ -448,9 +452,11 @@ function Program.stepFrames()
 	SpriteData.updateActiveIcons()
 end
 
-function Program.createFrameCounter(frames, callFunc)
-	if (frames or 0) <= 0 then return nil end
-	return {
+-- Creates a frame counter that executes 'callFunc' after 'N=frames' emulation steps.
+-- 'scaleWithSpeedup': if true, will sync to real life time instead of emulation client frame rate / speed
+function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+	if label == nil or (frames or 0) <= 0 then return nil end
+	Program.Frames.Others[label] = {
 		framesElapsed = 0.0,
 		maxFrames = frames,
 		paused = false,
@@ -459,7 +465,7 @@ function Program.createFrameCounter(frames, callFunc)
 		step = function(self)
 			if self.paused then return end
 			-- Sync with client frame rate (turbo/unthrottle)
-			local delta = 1.0 / Program.clientFpsMultiplier
+			local delta = scaleWithSpeedup and (1.0 / Program.clientFpsMultiplier) or 1
 			self.framesElapsed = self.framesElapsed + delta
 			if self.framesElapsed >= self.maxFrames then
 				self.framesElapsed = 0.0
@@ -469,6 +475,12 @@ function Program.createFrameCounter(frames, callFunc)
 			end
 		end,
 	}
+	return Program.Frames.Others[label]
+end
+
+function Program.removeFrameCounter(label)
+	if label == nil then return end
+	Program.Frames.Others[label] = nil
 end
 
 function Program.updateRepelSteps()
