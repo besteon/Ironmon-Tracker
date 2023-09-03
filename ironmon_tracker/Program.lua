@@ -288,6 +288,7 @@ end
 
 function Program.changeScreenView(screen)
 	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
+	Program.lastActiveTimestamp = os.time()
 	if type(screen.refreshButtons) == "function" then
 		screen:refreshButtons()
 	end
