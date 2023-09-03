@@ -31,7 +31,7 @@ end
 
 function SpriteData.screenCanControlWalking(screen)
 	local allowedScreens = {
-		[TrackerScreen] = true,
+		[TrackerScreen] = Tracker.getPokemon(1, true) ~= nil, -- only allow walking if player has a pokemon
 	}
 	return Options["Allow sprites to walk"] and allowedScreens[screen or false]
 end
@@ -129,8 +129,8 @@ function SpriteData.updateActiveIcons()
 		return
 	end
 
-	local j = Input.prevJoypadInput
-	local canWalk = j["Left"] or j["Right"] or j["Up"] or j["Down"]
+	local joypad = Input.getJoypadInputFormatted()
+	local canWalk = joypad["Left"] or joypad["Right"] or joypad["Up"] or joypad["Down"]
 	local walkableAllowed = SpriteData.screenCanControlWalking(Program.currentScreen)
 		and not (Battle.inBattle or Battle.battleStarting or Program.inStartMenu or LogOverlay.isGameOver or LogOverlay.isDisplayed)
 

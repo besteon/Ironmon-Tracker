@@ -396,7 +396,7 @@ function Program.update()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
 
-		if Input.joypadPressedEachSecond then
+		if Input.joypadUsedRecently then
 			Program.idleTime = 0
 			SpriteData.checkForIdleSleeping(Program.idleTime)
 		end
@@ -409,12 +409,12 @@ function Program.update()
 		Program.updateBadgesObtained()
 		CrashRecoveryScreen.trySaveBackup()
 
-		if not Input.joypadPressedEachSecond then
+		if not Input.joypadUsedRecently then
 			Program.idleTime = Program.idleTime + 3
 			SpriteData.checkForIdleSleeping(Program.idleTime)
 		else
 			-- Reset the joypad button tracking, checking only once every 3 seconds if active
-			Input.joypadPressedEachSecond = false
+			Input.joypadUsedRecently = false
 		end
 	end
 

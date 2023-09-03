@@ -741,12 +741,12 @@ function TrackerScreen.drawScreen()
 	TrackerScreen.drawStatsArea(displayData)
 
 	-- Lower boxes
+	TrackerScreen.drawCarouselArea(displayData)
 	if Tracker.getPokemon(1, true) == nil and Options["Show on new game screen"] then -- show favorites
 		TrackerScreen.drawFavorites()
 	else
 		TrackerScreen.drawMovesArea(displayData)
 	end
-	TrackerScreen.drawCarouselArea(displayData)
 end
 
 function TrackerScreen.drawPokemonInfoArea(data)
@@ -1058,7 +1058,7 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Draw the Moves view box
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 46, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 44, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if Options["Show physical special icons"] then -- Check if move categories will be drawn
 		moveNameOffset = moveNameOffset + 8
@@ -1203,7 +1203,7 @@ function TrackerScreen.drawFavorites()
 	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local boxY = 92
 	local width = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local height = 46
+	local height = 44
 	gui.drawRectangle(boxX, boxY, width, height, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	local favoritesButtons = {

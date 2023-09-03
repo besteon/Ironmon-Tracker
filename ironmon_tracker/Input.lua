@@ -1,7 +1,7 @@
 Input = {
 	prevMouseInput = {},
 	prevJoypadInput = {},
-	joypadPressedEachSecond = false,
+	joypadUsedRecently = false,
 	currentColorPicker = nil,
 	allowMouse = true, -- Accepts input from Mouse; false will ignore all clicks
 	allowJoypad = true, -- Accepts input from Joypad controller; false will ignore joystick/buttons
@@ -105,14 +105,13 @@ function Input.checkForInput()
 	end
 end
 
--- returns a table such that 'table[button] = true' if that button is being pressed
+-- Returns a table with all joypad buttons as keys, and the value of true if its pressed down
 function Input.getJoypadInputFormatted()
 	if Main.IsOnBizhawk() then
 		-- Check inputs from the Joypad controller
-		return joypad.get()
+		return joypad.get() or {}
 	else
-		local keysMasked = emu:getKeys()
-
+		local keysMasked = emu:getKeys() or 0
 		return {
 			["A"] = Utils.getbits(keysMasked, 0, 1) == 1,
 			["B"] = Utils.getbits(keysMasked, 1, 1) == 1,
@@ -129,28 +128,34 @@ function Input.getJoypadInputFormatted()
 end
 
 function Input.checkJoypadInput()
-	local joypadButtons = Input.getJoypadInputFormatted()
+	local joypad = Input.getJoypadInputFormatted()
+	local toggleViewBtn = Options.CONTROLS["Toggle view"] or ""
+	local cycleStatBtn = Options.CONTROLS["Cycle through stats"] or ""
+	local markStatBtn = Options.CONTROLS["Mark stat"] or ""
+	local quickloadBtns = Options.CONTROLS["Load next seed"] or ""
 
 	CustomCode.inputCheckMGBA()
 
-	-- "Options.CONTROLS["Toggle view"]" pressed
-	if joypadButtons[Options.CONTROLS["Toggle view"]] and Input.prevJoypadInput[Options.CONTROLS["Toggle view"]] ~= joypadButtons[Options.CONTROLS["Toggle view"]] then
+	if joypad[toggleViewBtn] and not Input.prevJoypadInput[toggleViewBtn] then
 		Input.togglePokemonViewed()
 	end
 
-	-- "Options.CONTROLS["Cycle through stats"]" pressed, display box over next stat
-	if joypadButtons[Options.CONTROLS["Cycle through stats"]] and Input.prevJoypadInput[Options.CONTROLS["Cycle through stats"]] ~= joypadButtons[Options.CONTROLS["Cycle through stats"]] then
+	if joypad[cycleStatBtn] and not Input.prevJoypadInput[cycleStatBtn] then
 		Input.StatHighlighter:cycleToNextStat()
 	else
 		Input.StatHighlighter:incrementHighlightedFrames()
 	end
 
-	-- "Options.CONTROLS["Load next seed"]"
+	if joypad[markStatBtn] and not Input.prevJoypadInput[markStatBtn] then
+		Input.StatHighlighter:markSelectedStat()
+	end
+
 	if not Main.loadNextSeed then
 		local allPressed = true
-		for button in string.gmatch(Options.CONTROLS["Load next seed"], '([^,%s]+)') do
-			if joypadButtons[button] ~= true then
+		for button in string.gmatch(quickloadBtns, '([^,%s]+)') do
+			if not joypad[button] then
 				allPressed = false
+				break
 			end
 		end
 		if allPressed == true then
@@ -158,20 +163,13 @@ function Input.checkJoypadInput()
 		end
 	end
 
-	-- "Options.CONTROLS["Mark stat"]" pressed, cycle stat prediction for selected stat
-	if joypadButtons[Options.CONTROLS["Mark stat"]] and Input.prevJoypadInput[Options.CONTROLS["Mark stat"]] ~= joypadButtons[Options.CONTROLS["Mark stat"]] then
-		Input.StatHighlighter:markSelectedStat()
-	end
-
 	-- Save the joypad inputs to prevent triggering on the next frame (no autofire)
-	Input.prevJoypadInput = joypadButtons
+	Input.prevJoypadInput = joypad
 
 	-- Record that a button was pressed recently
-	if not Input.joypadPressedEachSecond then
-		if joypadButtons["Up"] or joypadButtons["Down"] or joypadButtons["Left"] or joypadButtons["Right"] or joypadButtons["A"]
-		or joypadButtons["B"] or joypadButtons["Start"] or joypadButtons["Select"] or joypadButtons["R"] or joypadButtons["L"] then
-			Input.joypadPressedEachSecond = true
-		end
+	if not Input.joypadUsedRecently then
+		Input.joypadUsedRecently = joypad["Up"] or joypad["Down"] or joypad["Left"] or joypad["Right"]
+			or joypad["A"] or joypad["B"] or joypad["Start"] or joypad["Select"] or joypad["R"] or joypad["L"]
 	end
 end
 
@@ -179,15 +177,15 @@ function Input.getSpriteFacingDirection(animationType)
 	if animationType ~= SpriteData.Types.Walk or not SpriteData.screenCanControlWalking(Program.currentScreen) then
 		return 1
 	end
-	local j = Input.prevJoypadInput
-	if j["Right"] and j["Down"] then return 2
-	elseif j["Right"] and j["Up"] then return 4
-	elseif j["Left"] and j["Up"] then return 6
-	elseif j["Left"] and j["Down"] then return 8
-	elseif j["Down"] then return 1
-	elseif j["Right"] then return 3
-	elseif j["Up"] then return 5
-	elseif j["Left"] then return 7
+	local joypad = Input.getJoypadInputFormatted()
+	if joypad["Right"] and joypad["Down"] then return 2
+	elseif joypad["Right"] and joypad["Up"] then return 4
+	elseif joypad["Left"] and joypad["Up"] then return 6
+	elseif joypad["Left"] and joypad["Down"] then return 8
+	elseif joypad["Down"] then return 1
+	elseif joypad["Right"] then return 3
+	elseif joypad["Up"] then return 5
+	elseif joypad["Left"] then return 7
 	else return 1
 	end
 end
