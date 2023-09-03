@@ -99,6 +99,7 @@ Options.IconSetMap = {
 		folder = "spritesWalkingPals",
 		extension = ".png",
 		isAnimated = true,
+		iconKey = "WalkingPals",
 	},
 }
 -- Setup references for extensions that still use the deprecated key

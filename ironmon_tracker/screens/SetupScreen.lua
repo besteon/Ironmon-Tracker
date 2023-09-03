@@ -46,6 +46,9 @@ SetupScreen.Buttons = {
 			local nextSet = tostring((currIndex % #Options.IconSetMap) + 1)
 			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", nextSet)
+			if Options.getIconSet().isAnimated then
+				SpriteData.changeIconSet(nextSet)
+			end
 			Program.redraw(true)
 		end
 	},
@@ -58,6 +61,10 @@ SetupScreen.Buttons = {
 			local prevSet = tostring((currIndex - 2 ) % #Options.IconSetMap + 1)
 			SetupScreen.timeLastChanged = os.time()
 			Options.addUpdateSetting("Pokemon icon set", prevSet)
+			if Options.getIconSet().isAnimated then
+				SpriteData.changeIconSet(prevSet)
+			end
+
 			Program.redraw(true)
 		end
 	},

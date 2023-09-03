@@ -63,7 +63,7 @@ InfoScreen.Buttons = {
 		getIconId = function(self)
 			local pokemonID = InfoScreen.infoLookup
 			-- Safety check to make sure this icon has the requested sprite animation type
-			if SpriteData.canDrawPokemonIcon(pokemonID) and not SpriteData.Icons[pokemonID][self.animType] then
+			if SpriteData.canDrawPokemonIcon(pokemonID) and not SpriteData.IconData[pokemonID][self.animType] then
 				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type

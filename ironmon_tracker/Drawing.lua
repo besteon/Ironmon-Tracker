@@ -529,7 +529,7 @@ function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
 		SpriteData.changeActiveIcon(pokemonID, requiredAnimType)
 	end
 
-	local icon = SpriteData.Icons[pokemonID][activeIcon.animationType]
+	local icon = SpriteData.IconData[pokemonID][activeIcon.animationType]
 	if not icon then
 		return
 	end

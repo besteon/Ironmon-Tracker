@@ -1,10 +1,10 @@
 SpriteData = {
 	idleTimeUntilSleep = 55, -- Number of seconds of idle time allowed before all sprites start to sleep
-	spritesAreSleeping = false,
+	spritesAfkSleeping = false, -- Internal tracking variable to determine if the Tracker screen mon should be asleep
 }
 
--- TODO: add a sleep timer (60 seconds); if no input for a while, put icon to sleep
-
+-- Holds list of animation frame data for all Pokémon for the active iconset, uses metatables
+SpriteData.IconData = {}
 -- Holds a list of icons currently being animated on screen, as only those need to be updated with new animations
 SpriteData.ActiveIcons = {}
 
@@ -14,11 +14,31 @@ SpriteData.Types = {
 	Sleep = "sleep",
 	Faint = "faint",
 }
+
+SpriteData.DefaultIconSetIndex = 6
 SpriteData.DefaultType = SpriteData.Types.Idle
 
 function SpriteData.initialize()
-	SpriteData.spritesAreSleeping = false
+	SpriteData.spritesAfkSleeping = false
+	SpriteData.IconData = {}
 	SpriteData.ActiveIcons = {}
+
+	local iconset = Options.getIconSet()
+	if iconset.isAnimated then
+		SpriteData.changeIconSet(iconset)
+	else
+		SpriteData.changeIconSet(Options.IconSetMap[SpriteData.DefaultIconSetIndex])
+	end
+end
+
+-- Updates metatable references for SpriteData.IconData to refer to the provided 'iconset'
+function SpriteData.changeIconSet(iconset)
+	iconset = iconset or {}
+	local iconKey = iconset.iconKey or false
+	if not iconset.isAnimated or not SpriteData[iconKey] then return end
+	local mt = {}
+	setmetatable(SpriteData.IconData, mt)
+	mt.__index = SpriteData[iconKey]
 end
 
 function SpriteData.animationAllowed()
@@ -26,7 +46,7 @@ function SpriteData.animationAllowed()
 end
 
 function SpriteData.canDrawPokemonIcon(pokemonID)
-	return SpriteData.animationAllowed() and PokemonData.isImageIDValid(pokemonID) and SpriteData.Icons[pokemonID] ~= nil
+	return SpriteData.animationAllowed() and PokemonData.isImageIDValid(pokemonID) and SpriteData.IconData[pokemonID] ~= nil
 end
 
 function SpriteData.screenCanControlWalking(screen)
@@ -52,7 +72,7 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 		animationType = SpriteData.DefaultType
 	end
 
-	local icon = SpriteData.Icons[pokemonID][animationType] or SpriteData.Icons[pokemonID][SpriteData.DefaultType]
+	local icon = SpriteData.IconData[pokemonID][animationType] or SpriteData.IconData[pokemonID][SpriteData.DefaultType]
 	if not icon or not icon.durations or #icon.durations == 0 then
 		return nil
 	end
@@ -108,7 +128,7 @@ function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, 
 
 	-- Don't "change" if the active icon already exists with that animation type, or that animation type doesn't exist
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
-	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.Icons[pokemonID][animationType] then
+	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.IconData[pokemonID][animationType] then
 		return
 	end
 
@@ -150,7 +170,7 @@ function SpriteData.updateActiveIcons()
 end
 
 function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) or SpriteData.spritesAreSleeping then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
@@ -165,7 +185,7 @@ function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
 end
 
 function SpriteData.checkForSleepingStatus(pokemonID, status)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) or SpriteData.spritesAreSleeping then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
@@ -186,13 +206,13 @@ function SpriteData.checkForIdleSleeping(idleSeconds)
 	end
 	idleSeconds = idleSeconds or 0
 	-- Check if the player has returned from being afk and if needed wake up animated sprites
-	if SpriteData.spritesAreSleeping and idleSeconds < SpriteData.idleTimeUntilSleep then
+	if SpriteData.spritesAfkSleeping and idleSeconds < SpriteData.idleTimeUntilSleep then
 		SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
-		SpriteData.spritesAreSleeping = false
+		SpriteData.spritesAfkSleeping = false
 	-- Check if the player has been afk long enough to put animated sprites to sleep
-	elseif not SpriteData.spritesAreSleeping and idleSeconds >= SpriteData.idleTimeUntilSleep then
+	elseif not SpriteData.spritesAfkSleeping and idleSeconds >= SpriteData.idleTimeUntilSleep then
 		SpriteData.changeAllActiveIcons(SpriteData.Types.Sleep)
-		SpriteData.spritesAreSleeping = true
+		SpriteData.spritesAfkSleeping = true
 	end
 end
 
@@ -219,7 +239,7 @@ function SpriteData.getNextAnimType(pokemonID, currentType)
 	if not SpriteData.canDrawPokemonIcon(pokemonID) or not currentType then
 		return currentType or SpriteData.DefaultType
 	end
-	local icon = SpriteData.Icons[pokemonID]
+	local icon = SpriteData.IconData[pokemonID]
 	local orderedTypes = {
 		SpriteData.Types.Idle,
 		Options["Allow sprites to walk"] and SpriteData.Types.Walk or nil, -- exclude from list if not enabled
@@ -238,7 +258,7 @@ function SpriteData.getNextAnimType(pokemonID, currentType)
 end
 
 -- These Sprites were taken from https://sprites.pmdcollab.org/#/
-SpriteData.Icons = {
+SpriteData.WalkingPals = {
 	[1] = {
 		[SpriteData.Types.Faint] = { w = 32, h = 24, x = 5, y = 12, durations = { 8, 12, 4, 10 } },
 		[SpriteData.Types.Sleep] = { w = 24, h = 24, x = 5, y = 11, durations = { 30, 35 } },
