@@ -210,9 +210,9 @@ function Drawing.drawTransparentTextbox(x, y, text, textColor, bgColor, shadowco
 	bgColor = bgColor or Theme.COLORS["Upper box background"]
 	shadowcolor = shadowcolor or Utils.calcShadowColor(bgColor)
 
-	local rectWidth = 3 + Utils.calcWordPixelLength(text)
-	bgColor = math.max(bgColor - 0x33000000, 0x00000000) -- minimum 0
-	gui.drawRectangle(x, y + 1, rectWidth, Constants.Font.SIZE - 1, bgColor, bgColor)
+	local rectWidth = 1 + Utils.calcWordPixelLength(text)
+	bgColor = math.max(bgColor - 0x40000000, 0x00000000) -- minimum 0
+	gui.drawRectangle(x + 1, y + 1, rectWidth, Constants.Font.SIZE - 1, bgColor, bgColor)
 	Drawing.drawText(x, y, text, textColor, shadowcolor)
 end
 

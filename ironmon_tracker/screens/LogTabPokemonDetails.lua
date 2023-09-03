@@ -213,12 +213,14 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				end
 			end,
 			draw = function(self, shadowcolor)
-				local evoTextSize = Utils.calcWordPixelLength(evoText or "")
+				local evoTextSize = Utils.calcWordPixelLength(self:getText() or "")
 				-- Center text
-				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				local textX = self.box[1] + centeringOffsetX + pokemonIconSize + pokemonIconSpacing + evoArrowSize
+				local offsetX = math.max((self.box[3] - evoTextSize) / 2, 0)
+				local textX = self.box[1] + offsetX + pokemonIconSize + pokemonIconSpacing + evoArrowSize
 				local textY = self.box[2] + self.box[4] + 2
-				Drawing.drawText(textX, textY, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
+				Drawing.drawTransparentTextbox(textX, textY, self:getText(), textColor, bgColor, shadowcolor)
 			end
 		}
 		table.insert(LogTabPokemonDetails.TemporaryButtons, preEvoButton)
@@ -248,7 +250,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID)
 			end
 		end,
-		draw = function(self)
+		draw = function(self, shadowcolor)
 			if Options["Show Pre Evolutions"] and hasEvo then
 				local color = Theme.COLORS[LogTabPokemonDetails.Colors.hightlight]
 				local w, h = pokemonIconSize - 1, pokemonIconSize - 4
@@ -289,11 +291,13 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				end
 			end,
 			draw = function(self, shadowcolor)
-				local evoTextSize = Utils.calcWordPixelLength(evo.method or "")
-				-- Center text
-				local centeringOffsetX = math.max(self.box[3] / 2 - evoTextSize / 2, 0)
-				Drawing.drawText(self.box[1] + centeringOffsetX, self.box[2] + self.box[4] + 2, self:getText(),
-					Theme.COLORS[self.textColor], shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
+				local evoText = self:getText() or ""
+				local evoTextSize = Utils.calcWordPixelLength(evoText)
+				local offsetX = math.max((self.box[3] - evoTextSize) / 2, 0)
+				Drawing.drawTransparentTextbox(x + offsetX, y + self.box[4] + 2, evoText, textColor, bgColor, shadowcolor)
 			end
 		}
 		table.insert(LogTabPokemonDetails.TemporaryButtons, evoButton)
@@ -482,9 +486,13 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
 			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
 		end,
-		draw = function(self)
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
 			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+				Drawing.drawUnderline(self, textColor)
 			end
 		end,
 		onClick = function(self)
@@ -504,9 +512,13 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
 			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
 		end,
-		draw = function(self)
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
+			Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
 			if self.isSelected then
-				Drawing.drawUnderline(self, Theme.COLORS[self.textColor])
+				Drawing.drawUnderline(self, textColor)
 			end
 		end,
 		onClick = function(self)
@@ -546,6 +558,11 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				end
 			end,
 			draw = function (self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
+				Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
+
 				if Options["Show physical special icons"] and MoveData.isValid(self.moveId) then
 					local move = MoveData.Moves[self.moveId]
 					local image
@@ -555,7 +572,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 						image = Constants.PixelImages.SPECIAL
 					end
 					if image then
-						Drawing.drawImageAsPixels(image, self.box[1] + moveCategoryOffset, self.box[2] + 2, { Theme.COLORS[self.textColor] }, shadowcolor)
+						Drawing.drawImageAsPixels(image, x + moveCategoryOffset, y + 2, { textColor }, shadowcolor)
 					end
 				end
 			end,
@@ -696,14 +713,6 @@ function LogTabPokemonDetails.drawTab()
 		LogTabPokemonDetails.dataSet = data
 	end
 
-	-- Draw Pokemon name
-	local nameText = Utils.toUpperUTF8(data.p.name)
-	Drawing.drawText(LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, nameText, highlightColor, shadowcolor)
-
-	-- data.p.helditems -- unused
-
-	LogTabPokemonDetails.drawStatGraph(data.p, shadowcolor)
-
 	-- Draw all buttons
 	for _, button in pairs(LogTabPokemonDetails.TemporaryButtons) do
 		Drawing.drawButton(button, shadowcolor)
@@ -711,6 +720,14 @@ function LogTabPokemonDetails.drawTab()
 	for _, button in pairs(LogTabPokemonDetails.Pager.Buttons) do
 		Drawing.drawButton(button, shadowcolor)
 	end
+
+	-- Draw Pokemon name
+	local nameText = Utils.toUpperUTF8(data.p.name)
+	Drawing.drawTransparentTextbox(LogOverlay.TabBox.x + 3, LogOverlay.TabBox.y + 2, nameText, highlightColor, fillColor, shadowcolor)
+
+	-- data.p.helditems -- unused
+
+	LogTabPokemonDetails.drawStatGraph(data.p, shadowcolor)
 end
 
 function LogTabPokemonDetails.drawStatGraph(pokemonData, shadowcolor)
@@ -729,8 +746,8 @@ function LogTabPokemonDetails.drawStatGraph(pokemonData, shadowcolor)
 
 	-- Draw header for stat box
 	local bstTotal = string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, pokemonData.bst)
-	Drawing.drawText(statBox.x, statBox.y - 11, Resources.LogOverlay.LabelBaseStats, textColor, shadowcolor)
-	Drawing.drawText(statBox.x + statBox.width - 39, statBox.y - 11, bstTotal, textColor, shadowcolor)
+	Drawing.drawTransparentTextbox(statBox.x, statBox.y - 11, Resources.LogOverlay.LabelBaseStats, textColor, fillColor, shadowcolor)
+	Drawing.drawTransparentTextbox(statBox.x + statBox.width - 39, statBox.y - 11, bstTotal, textColor, fillColor, shadowcolor)
 
 	-- Draw stat box
 	gui.drawRectangle(statBox.x, statBox.y, statBox.width, statBox.height, borderColor, fillColor)

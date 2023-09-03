@@ -46,6 +46,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return string.format("%s. %s", i, partyPokemon.name) end, -- e.g. "1. Shuckle"
 			textColor = LogTabTrainerDetails.Colors.text,
+			index = 10 + i,
 			pokemonID = partyPokemon.id,
 			isSelected = false,
 			box = { partyListX, partyListY, 60, 11 },
@@ -70,12 +71,19 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 					InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.pokemonID) -- implied redraw
 				end
 			end,
+			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[LogTabTrainerDetails.Colors.boxFill]
+				Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
+			end,
 		}
 		partyListY = partyListY + Constants.SCREEN.LINESPACING - 1
 
 		local pokemonIconButton = {
 			type = Constants.ButtonTypes.POKEMON_ICON,
 			getText = function(self) return string.format("%s.%s", Resources.TrackerScreen.LevelAbbreviation, partyPokemon.level) end,
+			index = i,
 			pokemonID = partyPokemon.id,
 			textColor = LogTabTrainerDetails.Colors.text,
 			isSelected = false,
@@ -111,14 +119,15 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				end
 			end,
 			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[LogTabTrainerDetails.Colors.boxFill]
 				-- Draw the Pokemon's level below the icon
-				local levelOffsetX = self.box[1] + 5
-				local levelOffsetY = self.box[2] + self.box[4] + 2
-				Drawing.drawText(levelOffsetX, levelOffsetY, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				Drawing.drawTransparentTextbox(x + 5, y + self.box[4] + 2, self:getText(), textColor, bgColor, shadowcolor)
 				-- If this was found through search
 				if self.isSelected then
 					local color = Theme.COLORS[LogTabTrainerDetails.Colors.hightlight]
-					Drawing.drawSelectionIndicators(self.box[1] + 1, self.box[2] + 7, self.box[3] - 3, self.box[4] - 6, color, 1, 5, 1)
+					Drawing.drawSelectionIndicators(x + 1, y + 7, self.box[3] - 3, self.box[4] - 6, color, 1, 5, 1)
 				end
 			end,
 		}
@@ -130,12 +139,13 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 		-- PARTY POKEMON's MOVES
 		local moveOffsetX = startX + offsetX + 30
 		local moveOffsetY = startY + offsetY
-		for _, moveInfo in ipairs(partyPokemon.moves or {}) do
+		for j, moveInfo in ipairs(partyPokemon.moves or {}) do
 			local moveColor = Utils.inlineIf(moveInfo.isstab, "Positive text", LogTabTrainerDetails.Colors.text)
 			local moveBtn = {
 				type = Constants.ButtonTypes.NO_BORDER,
 				getText = function(self) return moveInfo.name end,
 				textColor = moveColor,
+				index = (i * 10) + 10 + j,
 				moveId = moveInfo.moveId,
 				box = { moveOffsetX, moveOffsetY, 60, 11 },
 				updateSelf = function(self)
@@ -152,6 +162,12 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 						InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, self.moveId) -- implied redraw
 					end
 				end,
+				draw = function(self, shadowcolor)
+					local x, y = self.box[1], self.box[2]
+					local textColor = Theme.COLORS[self.textColor]
+					local bgColor = Theme.COLORS[LogTabTrainerDetails.Colors.boxFill]
+					Drawing.drawTransparentTextbox(x + 1, y, self:getText(), textColor, bgColor, shadowcolor)
+				end,
 			}
 			table.insert(LogTabTrainerDetails.TemporaryButtons, moveBtn)
 			moveOffsetY = moveOffsetY + Constants.SCREEN.LINESPACING - 1
@@ -164,6 +180,9 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			offsetY = offsetY + rowOffset
 		end
 	end
+
+	-- Sort so that icons are drawn first, then text on top
+	table.sort(LogTabTrainerDetails.TemporaryButtons, function(a,b) return (a.index or 999) < (b.index or 999) end)
 
 	LogTabTrainerDetails.refreshButtons()
 end
@@ -196,6 +215,11 @@ function LogTabTrainerDetails.drawTab()
 		LogTabTrainerDetails.dataSet = data
 	end
 
+	-- Draw all buttons
+	for _, button in pairs(LogTabTrainerDetails.TemporaryButtons) do
+		Drawing.drawButton(button, shadowcolor)
+	end
+
 	-- GYM LEADER BADGE
 	if data.x.gymNumber ~= nil then
 		local badgeName = GameSettings.badgePrefix .. "_badge" .. data.x.gymNumber
@@ -216,11 +240,6 @@ function LogTabTrainerDetails.drawTab()
 	if isGrunt[TrainerData.getTrainerInfo(data.t.id).class or false] then
 		nameText = string.format("%s #%s", nameText, data.t.id)
 	end
-	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(classText), highlightColor, shadowcolor)
-	Drawing.drawText(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(nameText), highlightColor, shadowcolor)
-
-	-- Draw all buttons
-	for _, button in pairs(LogTabTrainerDetails.TemporaryButtons) do
-		Drawing.drawButton(button, shadowcolor)
-	end
+	Drawing.drawTransparentTextbox(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 1, Utils.toUpperUTF8(classText), highlightColor, fillColor, shadowcolor)
+	Drawing.drawTransparentTextbox(LogOverlay.TabBox.x + 2, LogOverlay.TabBox.y + 10, Utils.toUpperUTF8(nameText), highlightColor, fillColor, shadowcolor)
 end
