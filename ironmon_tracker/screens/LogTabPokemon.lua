@@ -142,8 +142,11 @@ function LogTabPokemon.buildPagedButtons()
 			end,
 			draw = function(self, shadowcolor)
 				-- Draw the Pokemon's name above the icon
-				gui.drawRectangle(self.box[1], self.box[2] + 1 - 1, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-				Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local name = self:getText() or ""
+				local nameWidth = Utils.calcWordPixelLength(name)
+				local offsetX = math.floor((self.box[3] - nameWidth) / 2) - 2
+				gui.drawRectangle(self.box[1] + offsetX, self.box[2] - 1, nameWidth + 3, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
+				Drawing.drawText(self.box[1] + offsetX, self.box[2] - 2, name, Theme.COLORS[self.textColor], shadowcolor)
 			end,
 		}
 		table.insert(LogTabPokemon.PagedButtons, button)
@@ -166,7 +169,7 @@ function LogTabPokemon.realignGrid(gridFilter, sortFunc, startingPage)
 	end
 
 	local x = LogOverlay.TabBox.x + 19
-	local y = LogOverlay.TabBox.y + 1
+	local y = LogOverlay.TabBox.y + 2
 	local colSpacer = 23
 	local rowSpacer = 4
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

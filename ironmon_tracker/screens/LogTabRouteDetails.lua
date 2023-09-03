@@ -417,8 +417,10 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 		end,
 		draw = function(self, shadowcolor)
 			-- Draw the Pokemon's name above the icon
-			gui.drawRectangle(self.box[1], self.box[2] - 3, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-			Drawing.drawText(self.box[1] - 3, self.box[2] - 4, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+			local pokemonName = self:getText() or ""
+			local nameWidth = Utils.calcWordPixelLength(pokemonName)
+			gui.drawRectangle(self.box[1] - 3, self.box[2] - 3, nameWidth + 3, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
+			Drawing.drawText(self.box[1] - 3, self.box[2] - 4, pokemonName, Theme.COLORS[self.textColor], shadowcolor)
 			-- Draw the level range and encounter rate below the icon
 			local belowY = 34
 			Drawing.drawText(self.box[1] - 3, self.box[2] + belowY, levelRangeText, Theme.COLORS[self.textColor], shadowcolor)
