@@ -5,7 +5,7 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
-	idleTime = 0,
+	lastActiveTimestamp = 0,
 	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
@@ -223,7 +223,7 @@ function Program.initialize()
 
 	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
-	Program.idleTime = 0
+	Program.lastActiveTimestamp = os.time()
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
@@ -397,8 +397,8 @@ function Program.update()
 		end
 
 		if Input.joypadUsedRecently then
-			Program.idleTime = 0
-			SpriteData.checkForIdleSleeping(Program.idleTime)
+			Program.lastActiveTimestamp = os.time()
+			SpriteData.checkForIdleSleeping(0)
 		end
 	end
 
@@ -410,8 +410,8 @@ function Program.update()
 		CrashRecoveryScreen.trySaveBackup()
 
 		if not Input.joypadUsedRecently then
-			Program.idleTime = Program.idleTime + 3
-			SpriteData.checkForIdleSleeping(Program.idleTime)
+			local secondsSinceLastActive = math.max(os.time() - Program.lastActiveTimestamp, 0)
+			SpriteData.checkForIdleSleeping(secondsSinceLastActive)
 		else
 			-- Reset the joypad button tracking, checking only once every 3 seconds if active
 			Input.joypadUsedRecently = false

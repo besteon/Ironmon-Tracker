@@ -1,5 +1,5 @@
 SpriteData = {
-	idleTimeUntilSleep = 60, -- Number of seconds of idle time allowed before all sprites start to sleep
+	idleTimeUntilSleep = 55, -- Number of seconds of idle time allowed before all sprites start to sleep
 	spritesAreSleeping = false,
 }
 
@@ -112,7 +112,6 @@ function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, 
 		return
 	end
 
-	-- Utils.printDebug("Adding %s-%s", pokemonID, animationType)
 	-- Create a new or replacement active icon with the updated animationType
 	return SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
 end
@@ -151,7 +150,7 @@ function SpriteData.updateActiveIcons()
 end
 
 function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) or SpriteData.spritesAreSleeping then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
@@ -166,7 +165,7 @@ function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
 end
 
 function SpriteData.checkForSleepingStatus(pokemonID, status)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+	if not SpriteData.canDrawPokemonIcon(pokemonID) or SpriteData.spritesAreSleeping then
 		return
 	end
 	local activeIcon = SpriteData.ActiveIcons[pokemonID]
@@ -182,9 +181,10 @@ function SpriteData.checkForSleepingStatus(pokemonID, status)
 end
 
 function SpriteData.checkForIdleSleeping(idleSeconds)
-	if not SpriteData.animationAllowed() or not LogOverlay.isDisplayed then
+	if not SpriteData.animationAllowed() or LogOverlay.isDisplayed then
 		return
 	end
+	idleSeconds = idleSeconds or 0
 	-- Check if the player has returned from being afk and if needed wake up animated sprites
 	if SpriteData.spritesAreSleeping and idleSeconds < SpriteData.idleTimeUntilSleep then
 		SpriteData.changeAllActiveIcons(SpriteData.DefaultType)
