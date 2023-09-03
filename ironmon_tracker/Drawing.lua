@@ -203,6 +203,19 @@ function Drawing.drawChevronsVerticalIntensity(x, y, intensity, max, width, heig
 	end
 end
 
+-- Draws a semi-transparent rectangle box behind the text
+function Drawing.drawTransparentTextbox(x, y, text, textColor, bgColor, shadowcolor)
+	if (text or "") == "" then return end
+	textColor = textColor or Theme.COLORS["Default text"]
+	bgColor = bgColor or Theme.COLORS["Upper box background"]
+	shadowcolor = shadowcolor or Utils.calcShadowColor(bgColor)
+
+	local rectWidth = 3 + Utils.calcWordPixelLength(text)
+	bgColor = math.max(bgColor - 0x33000000, 0x00000000) -- minimum 0
+	gui.drawRectangle(x, y + 1, rectWidth, Constants.Font.SIZE - 1, bgColor, bgColor)
+	Drawing.drawText(x, y, text, textColor, shadowcolor)
+end
+
 function Drawing.drawUnderline(button, color)
 	if button == nil or button.box == nil then return end
 	color = color or Theme.COLORS[button.textColor or ""] or Theme.COLORS["Default text"]

@@ -956,9 +956,11 @@ function InfoScreen.drawAbilityInfoScreen(abilityId)
 end
 
 function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
+	local botBoxTextColor = Theme.COLORS["Lower box text"]
+	local botBoxBGColor = Theme.COLORS["Lower box background"]
 	local bgHeaderShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 	local boxTopShadow = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
-	local boxBotShadow = Utils.calcShadowColor(Theme.COLORS["Lower box background"])
+	local boxBotShadow = Utils.calcShadowColor(botBoxBGColor)
 	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local boxWidth = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
 	local boxTopY = Constants.SCREEN.MARGIN
@@ -982,7 +984,7 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 	Drawing.drawButton(InfoScreen.Buttons.ShowRouteLevels, boxTopShadow)
 
 	-- BOT BOX VIEW
-	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
+	gui.defaultTextBackground(botBoxBGColor)
 	local encounterHeaderText
 	if encounterArea == RouteData.EncounterArea.STATIC then
 		encounterHeaderText = string.format("%s %s", encounterArea, Resources.InfoScreen.LabelSeenEncounters)
@@ -990,13 +992,13 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 		encounterHeaderText = string.format("%s %s", Resources.InfoScreen.LabelSeenBy, encounterArea)
 	end
 	Drawing.drawText(boxX + 10, botBoxY - 11, encounterHeaderText, Theme.COLORS["Header text"], bgHeaderShadow)
-	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+	gui.drawRectangle(boxX, botBoxY, boxWidth, botBoxHeight, Theme.COLORS["Lower box border"], botBoxBGColor)
 
 	local showPercents = InfoScreen.Buttons.ShowRoutePercentages.toggleState
 	local showLevels = InfoScreen.Buttons.ShowRouteLevels.toggleState
 	-- Don't clarify the pokemon are shown "in order of appearence" if the order is known
 	if not (Options["Open Book Play Mode"] or LogOverlay.isDisplayed or showPercents or showLevels) then
-		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", Theme.COLORS["Lower box text"], boxBotShadow)
+		Drawing.drawText(boxX + 2, botBoxY, Resources.InfoScreen.LabelOrderAppearance .. ":", botBoxTextColor, boxBotShadow)
 	end
 
 	-- POKEMON SEEN
@@ -1022,9 +1024,9 @@ function InfoScreen.drawRouteInfoScreen(mapId, encounterArea)
 			end
 		end
 		if iconInfoText ~= nil then
-			local iconInfoOffsetX = Utils.getCenteredTextX(iconInfoText, 30)
-			gui.drawRectangle(x + 1, y, 30, 8, Theme.COLORS["Lower box background"], Theme.COLORS["Lower box background"])
-			Drawing.drawText(x + iconInfoOffsetX, y - 1, iconInfoText, Theme.COLORS["Lower box text"], boxBotShadow)
+			local infoWidth = Utils.calcWordPixelLength(iconInfoText)
+			local offsetX = math.floor((32 - infoWidth) / 2) - 2 -- center the text
+			Drawing.drawTransparentTextbox(x + offsetX, y - 1, iconInfoText, botBoxTextColor, botBoxBGColor, boxBotShadow)
 		end
 	end
 
