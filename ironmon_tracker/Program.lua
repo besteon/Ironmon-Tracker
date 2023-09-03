@@ -317,7 +317,9 @@ end
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
-		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+		if Main.IsOnBizhawk() then
+			Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+		end
 
 		Program.updateMapLocation() -- trying this here to solve many future problems
 
