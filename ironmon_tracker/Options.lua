@@ -78,6 +78,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		yOffset = 2,
 		adjustQuestionMark = true,
+		-- source = "https://msikma.github.io/pokesprite/index.html",
 	},
 	{
 		name = "Explorers",
@@ -85,6 +86,7 @@ Options.IconSetMap = {
 		folder = "pokemonMysteryDungeon",
 		extension = ".png",
 		yOffset = 4,
+		-- source = "https://sprites.pmdcollab.org/",
 	},
 	{
 		name = "Virtual Pet",
@@ -100,6 +102,7 @@ Options.IconSetMap = {
 		extension = ".png",
 		isAnimated = true,
 		iconKey = "WalkingPals",
+		-- source = "https://sprites.pmdcollab.org/",
 	},
 }
 -- Setup references for extensions that still use the deprecated key

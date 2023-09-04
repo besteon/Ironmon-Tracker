@@ -454,8 +454,12 @@ function Program.stepFrames()
 	SpriteData.updateActiveIcons()
 end
 
--- Creates a frame counter that executes 'callFunc' after 'N=frames' emulation steps.
--- 'scaleWithSpeedup': if true, will sync to real life time instead of emulation client frame rate / speed
+--- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
+--- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
+--- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
+--- @param callFunc function|nil Optional function to call each time the counter reaches 0.
+--- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+--- @return table|nil FrameCounter Returns the created frame counter
 function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
 	if label == nil or (frames or 0) <= 0 then return nil end
 	Program.Frames.Others[label] = {
