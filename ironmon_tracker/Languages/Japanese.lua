@@ -196,6 +196,7 @@ ScreenResources{
 		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
+		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION

@@ -91,6 +91,7 @@ FileManager.LuaCode = {
 	{ name = "DataHelper", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
+	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
@@ -404,6 +405,18 @@ function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+function FileManager.buildSpritePath(animationType, imageName, imageExtension)
+	local imageFolder = Options.getIconSet().folder
+	local listOfPaths = {
+		FileManager.Folders.TrackerCode,
+		FileManager.Folders.Images,
+		imageFolder,
+		tostring(animationType),
+		tostring(imageName) .. (imageExtension or "")
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
 -- Returns a properly formatted folder path where custom code files are located
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {
@@ -477,7 +490,7 @@ function FileManager.CopyFile(filepath, filepathCopy, overwriteOrAppend)
 
 	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
 	if FileManager.fileExists(filepathCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
-		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', filepathCopy))
+		-- print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', filepathCopy))
 		return false
 	end
 

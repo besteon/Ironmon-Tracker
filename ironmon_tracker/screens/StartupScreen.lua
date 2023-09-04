@@ -12,10 +12,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 14, 31, 28 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 10, 32, 32 },
 		pokemonID = 0,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Walk end,
 		onClick = function(self) StartupScreen.openChoosePokemonWindow() end
 	},
 	UpdateAvailable = {
@@ -76,7 +73,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite1:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite1:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite1:onClick() end,
 	},
 	PokemonFavorite2 = {
@@ -84,7 +81,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite2:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite2:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite2:onClick() end,
 	},
 	PokemonFavorite3 = {
@@ -92,7 +89,7 @@ StartupScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 90, 32, 44 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 86, 32, 32 },
 		isVisible = function(self) return Options["Show on new game screen"] end,
-		getIconPath = function(self) return StreamerScreen.Buttons.PokemonFavorite3:getIconPath() end,
+		getIconId = function(self) return StreamerScreen.Buttons.PokemonFavorite3:getIconId() end,
 		onClick = function(self) StreamerScreen.Buttons.PokemonFavorite3:onClick() end,
 	},
 }
@@ -292,8 +289,10 @@ function StartupScreen.drawScreen()
 
 	-- HEADER DIVIDER
 	if showCustomWelcome then
-		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+		if Options["Show on new game screen"] then
+			local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
+			Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderFavorites, Theme.COLORS["Header text"], bgShadow)
+		end
 	else
 		local bgShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
 		Drawing.drawText(botBox.x + 1, botBox.y - 11, Resources.StartupScreen.HeaderControls, Theme.COLORS["Header text"], bgShadow)
@@ -305,6 +304,7 @@ function StartupScreen.drawScreen()
 	textLineY = botBox.y + 1
 
 	if showCustomWelcome then
+		textLineY = textLineY + 1
 		if Options["Show on new game screen"] then
 			textLineY = textLineY + 30
 		end
@@ -316,7 +316,7 @@ function StartupScreen.drawScreen()
 		for line in welcomeMsg:gmatch("[^\r\n]+") do
 			table.insert(lines, line)
 			Drawing.drawText(botBox.x + 2, textLineY, line, botBox.text, botBox.shadow)
-			textLineY = textLineY + Constants.SCREEN.LINESPACING
+			textLineY = textLineY + Constants.SCREEN.LINESPACING - 1
 		end
 		-- Redraw main background on the right to cut-off excess text overflow
 		gui.drawLine(botBox.x + botBox.width, botBox.y, botBox.x + botBox.width, botBox.y + botBox.height, botBox.border)

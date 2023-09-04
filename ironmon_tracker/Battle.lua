@@ -133,25 +133,31 @@ end
 -- Updates once every [10] frames. Be careful adding too many things to this 10 frame update
 function Battle.updateHighAccuracy()
 	Battle.processBattleTurn()
+	Battle.updateViewSlots()
 end
 
 -- Updates once every [30] frames.
 function Battle.updateLowAccuracy()
-	Battle.updateViewSlots()
 	Battle.updateTrackedInfo()
 	Battle.updateLookupInfo()
 end
 
+-- Returns true if the player is allowed to view the enemy Pokémon
+function Battle.canViewEnemy()
+	return Battle.inBattle and Program.Frames.hideEnemy <= 0
+end
+
 -- isOwn: true if it belongs to the player; false otherwise
 function Battle.getViewedPokemon(isOwn)
+	local mustViewOwn = isOwn or not Battle.canViewEnemy()
 	local viewSlot
-	if isOwn then
+	if mustViewOwn then
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
 
-	return Tracker.getPokemon(viewSlot, isOwn)
+	return Tracker.getPokemon(viewSlot, mustViewOwn)
 end
 
 function Battle.updateViewSlots()
@@ -192,10 +198,10 @@ function Battle.updateViewSlots()
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
 	end
 	-- Pokemon on the left is not the one that was there previously
-	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft]  then
+	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
 		Battle.changeOpposingPokemonView(true)
-	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight]  then
+	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
 		Battle.changeOpposingPokemonView(false)
 	end
@@ -629,7 +635,6 @@ function Battle.beginNewBattle()
 
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
-	Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
 	if Tracker.Data.whichRival == nil then
 		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
@@ -655,8 +660,12 @@ function Battle.beginNewBattle()
 		Program.currentScreen = TrackerScreen
 	end
 
-	 -- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
+	-- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
+	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
+	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy - 1, function()
+		Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+		Program.removeFrameCounter("AutoswapEnemy")
+	end, false)
 
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
@@ -739,7 +748,7 @@ function Battle.endCurrentBattle()
 	Battle.opposingTrainerId = 0
 
 	-- Delay drawing the return to viewing your pokemon screen
-	Program.Frames.waitToDraw = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
+	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 
 	CustomCode.afterBattleEnds()
@@ -749,7 +758,7 @@ function Battle.resetBattle()
 	local oldSaveDataFrames = Program.Frames.saveData
 	Battle.endCurrentBattle()
 	Battle.beginNewBattle()
-	Program.Frames.waitToDraw = 60
+	Program.Frames.hideEnemy = 60
 	Program.Frames.saveData = oldSaveDataFrames
 end
 
@@ -771,8 +780,9 @@ function Battle.changeOpposingPokemonView(isLeft)
 
 	Input.StatHighlighter:resetSelectedStat()
 
-	-- Delay drawing the new pokemon, because of send out animation
+	-- Reset the delay because a new Pokémon was sent out
 	Program.Frames.waitToDraw = 0
+	Program.Frames.hideEnemy = 0
 end
 
 function Battle.populateBattlePartyObject()

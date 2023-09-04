@@ -52,10 +52,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 75, 32, 32 },
 		pokemonID = 1,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -66,10 +63,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 75, 32, 32 },
 		pokemonID = 4,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -80,10 +74,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 75, 32, 32 },
 		pokemonID = 7,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)

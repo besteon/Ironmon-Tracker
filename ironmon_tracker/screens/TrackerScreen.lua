@@ -3,15 +3,10 @@ TrackerScreen = {}
 TrackerScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		getIconPath = function(self)
-			local pokemonID = 0
-			local pokemon = Tracker.getViewedPokemon()
-			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
-			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-				pokemonID = pokemon.pokemonID
-			end
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+		getIconId = function(self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			-- Don't return a SpriteData.Type with this, as the animation is allowed to change here
+			return pokemon.pokemonID
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
@@ -583,8 +578,7 @@ function TrackerScreen.getCurrentCarouselItem()
 	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
 
 	-- Adjust rotation delay check for carousel based on the speed of emulation
-	local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-	local adjustedVisibilityFrames = carousel.framesToShow * fpsMultiplier
+	local adjustedVisibilityFrames = carousel.framesToShow * Program.clientFpsMultiplier
 
 	-- Check if the current carousel's time has expired, or if it shouldn't be shown
 	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > adjustedVisibilityFrames then
@@ -736,7 +730,8 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	local displayData = DataHelper.buildTrackerScreenDisplay()
+	local mustViewOwn = not Battle.canViewEnemy() or nil
+	local displayData = DataHelper.buildTrackerScreenDisplay(mustViewOwn)
 
 	-- Upper boxes
 	if TrackerScreen.canShowBallPicker() then
@@ -747,12 +742,12 @@ function TrackerScreen.drawScreen()
 	TrackerScreen.drawStatsArea(displayData)
 
 	-- Lower boxes
+	TrackerScreen.drawCarouselArea(displayData)
 	if Tracker.getPokemon(1, true) == nil and Options["Show on new game screen"] then -- show favorites
 		TrackerScreen.drawFavorites()
 	else
 		TrackerScreen.drawMovesArea(displayData)
 	end
-	TrackerScreen.drawCarouselArea(displayData)
 end
 
 function TrackerScreen.drawPokemonInfoArea(data)
@@ -762,8 +757,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	-- POKEMON ICON & TYPES
-	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+	-- POKEMON TYPES
 	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
@@ -877,10 +871,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + 5
 	end
 
-	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
-	end
-
 	-- HELD ITEM AND ABILITIES
 	Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, data.p.line1, Theme.COLORS["Intermediate text"], shadowcolor)
 	offsetY = offsetY + linespacing
@@ -938,6 +928,16 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
+	end
+
+	-- POKEMON ICON (draw last to overlap anything else, if necessary)
+	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
+	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+
+	-- STATUS ICON
+	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
+		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 end
 
@@ -1059,7 +1059,7 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Draw the Moves view box
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 46, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 44, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if Options["Show physical special icons"] then -- Check if move categories will be drawn
 		moveNameOffset = moveNameOffset + 8
@@ -1204,7 +1204,7 @@ function TrackerScreen.drawFavorites()
 	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local boxY = 92
 	local width = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local height = 46
+	local height = 44
 	gui.drawRectangle(boxX, boxY, width, height, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	local favoritesButtons = {
