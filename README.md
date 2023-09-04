@@ -54,9 +54,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Log Viewer Routes and Open Book play mode
+### Walking Pals Interactive Icon Set
 
-![Image showing the new route screen as seen in the log viewer.](https://user-images.githubusercontent.com/4258818/259355750-37a4fad6-389a-4b65-8de1-0d12a2e56ee4.png)
+![Image showing the new walking pals icon set. It shows a Quagsire standing in a walking-position on the main Tracker screen. The next image shows the same Quagsire asleep with its mouth open.](https://user-images.githubusercontent.com/4258818/265281719-455fdc67-8e65-460a-9eff-e536ffba7928.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
