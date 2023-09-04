@@ -23,109 +23,109 @@ ScreenResources{
 		"Hey! What's it doing? Down it goes!", -- NEEDS TRANSLATION
 	},
 	AllScreens = {
-		Back = "Back", -- NEEDS TRANSLATION
-		Yes = "Yes", -- NEEDS TRANSLATION
-		No = "No", -- NEEDS TRANSLATION
-		OK = "OK", -- NEEDS TRANSLATION
-		Cancel = "Cancel", -- NEEDS TRANSLATION
-		Preview = "Preview", -- NEEDS TRANSLATION
-		Save = "Save", -- NEEDS TRANSLATION
-		Close = "Close", -- NEEDS TRANSLATION
-		Clear = "Clear", -- NEEDS TRANSLATION
-		Import = "Import", -- NEEDS TRANSLATION
-		Export = "Export", -- NEEDS TRANSLATION
-		Lookup = "Look up", -- NEEDS TRANSLATION
-		Page = "Page", -- NEEDS TRANSLATION
+		Back = "Back", -- NEEDS TRANSLATION, CURRENTLY UNUSED
+		Yes = "Ja",
+		No = "Nein",
+		OK = "OK",
+		Cancel = "Abbrechen",
+		Preview = "Vorschau",
+		Save = "Speichern",
+		Close = "Schließen",
+		Clear = "Löschen",
+		Import = "Importieren",
+		Export = "Exportieren",
+		Lookup = "Durchsuchen",
+		Page = "Seite",
 	},
 	PokemonEvolutionDetails = {
 		-- abbreviation: appears on the main Tracker Screen
 		-- short: used for the log viewer
 		-- detailed: used for Pokémon Info Look up
 		LEVEL = {
-			short = "Lv.", -- NEEDS TRANSLATION
-			detailed = "Level", -- NEEDS TRANSLATION
+			short = "Lv.",
+			detailed = "Level",
 		},
 		FRIEND = {
-			abbreviation = "FRIEND", -- NEEDS TRANSLATION
-			short = "Friend", -- NEEDS TRANSLATION
-			detailed = "Friendship", -- NEEDS TRANSLATION
+			abbreviation = "FREUND",
+			short = "Freund",
+			detailed = "Freundschaft",
 		},
 		FRIEND_READY = {
-			abbreviation = "READY", -- NEEDS TRANSLATION
+			abbreviation = "BEREIT",
 		},
 		THUNDER = {
-			abbreviation = "THUNDER", -- NEEDS TRANSLATION
-			short = "Thunder", -- NEEDS TRANSLATION
+			abbreviation = "DONNER",
+			short = "Donner",
 			detailed = "Donnerstein",
 		},
 		FIRE = {
-			abbreviation = "FIRE", -- NEEDS TRANSLATION
-			short = "Fire", -- NEEDS TRANSLATION
+			abbreviation = "FEUER",
+			short = "Feuer",
 			detailed = "Feuerstein",
 		},
 		WATER = {
-			abbreviation = "WATER", -- NEEDS TRANSLATION
-			short = "Water", -- NEEDS TRANSLATION
+			abbreviation = "WASSER",
+			short = "Wasser",
 			detailed = "Wasserstein",
 		},
 		MOON = {
-			abbreviation = "MOON", -- NEEDS TRANSLATION
-			short = "Moon", -- NEEDS TRANSLATION
+			abbreviation = "MOND",
+			short = "Mond",
 			detailed = "Mondstein",
 		},
 		LEAF = {
-			abbreviation = "LEAF", -- NEEDS TRANSLATION
-			short = "Leaf", -- NEEDS TRANSLATION
+			abbreviation = "BLATT",
+			short = "Blatt",
 			detailed = "Blattstein",
 		},
 		SUN = {
-			abbreviation = "SUN", -- NEEDS TRANSLATION
-			short = "Sun", -- NEEDS TRANSLATION
+			abbreviation = "SONNE",
+			short = "Sonne",
 			detailed = "Sonnenstein",
 		},
 		LEAF_SUN = {
-			abbreviation = "LF/SN", -- NEEDS TRANSLATION
+			abbreviation = "BL/SN",
 		},
 		WATER30 = {
-			abbreviation = "30/WTR", -- NEEDS TRANSLATION
+			abbreviation = "30/WSR",
 		},
 		WATER37 = {
-			abbreviation = "37/WTR", -- NEEDS TRANSLATION
+			abbreviation = "37/WSR",
 		},
 		EEVEE_STONES = {
-			abbreviation = "STONE", -- NEEDS TRANSLATION
-			detailed = "5 Diff. Stones", -- NEEDS TRANSLATION
+			abbreviation = "STEIN",
+			detailed = "5 versch. Steine",
 		},
 	},
 	TrackerScreen = {
-		HPAbbreviation = "HP", -- NEEDS TRANSLATION
-		LevelAbbreviation = "Lv", -- NEEDS TRANSLATION
-		RandomBallChosen = "Randomly chosen ball", -- NEEDS TRANSLATION
-		RandomBallLeft = "Left", -- NEEDS TRANSLATION
-		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
-		RandomBallRight = "Right", -- NEEDS TRANSLATION
-		HealsInBag = "Heals", -- NEEDS TRANSLATION
-		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
-		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
-		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
-		BattleSeenOnTrainers = "Seen on trainers", -- NEEDS TRANSLATION
-		BattleTeam = "Team", -- NEEDS TRANSLATION
-		StatHP = "HP", -- NEEDS TRANSLATION
-		StatATK = "ATK", -- NEEDS TRANSLATION
-		StatDEF = "DEF", -- NEEDS TRANSLATION
-		StatSPA = "SPA", -- NEEDS TRANSLATION
-		StatSPD = "SPD", -- NEEDS TRANSLATION
-		StatSPE = "SPE", -- NEEDS TRANSLATION
-		StatBST = "BST", -- NEEDS TRANSLATION
-		StatAccuracy = "Acc", -- NEEDS TRANSLATION
-		StatEvasion = "Eva", -- NEEDS TRANSLATION
-		HeaderMoves = "Moves", -- NEEDS TRANSLATION
-		HeaderPP = "PP", -- NEEDS TRANSLATION
-		HeaderPow = "Pow", -- NEEDS TRANSLATION
-		HeaderAcc = "Acc", -- NEEDS TRANSLATION
-		LeaveANote = "Leave a note", -- NEEDS TRANSLATION
-		DamageTaken = "damage", -- NEEDS TRANSLATION
-		DamageTakenInTeams = "Total received", -- NEEDS TRANSLATION
+		HPAbbreviation = "KP",
+		LevelAbbreviation = "Lv",
+		RandomBallChosen = "Zufälligen Ball auswählen",
+		RandomBallLeft = "Links",
+		RandomBallMiddle = "Mitte",
+		RandomBallRight = "Rechts",
+		HealsInBag = "Heilungen",
+		BattleNewEncounter = "Neue Begegnung",
+		BattleLastSeen = "Zuletzt gesehen",
+		BattleSeenInTheWild = "Gesehen in der Wildnis",
+		BattleSeenOnTrainers = "Gesehen bei Trainern",
+		BattleTeam = "Team",
+		StatHP = "KP",
+		StatATK = "ANG",
+		StatDEF = "VER",
+		StatSPA = "SPA",
+		StatSPD = "SPV",
+		StatSPE = "INI",
+		StatBST = "BST",
+		StatAccuracy = "Gen",
+		StatEvasion = "Aus",
+		HeaderMoves = "Attacken",
+		HeaderPP = "AP",
+		HeaderPow = "Stä",
+		HeaderAcc = "Gen",
+		LeaveANote = "Notiz hinzufügen",
+		DamageTaken = "schaden",
+		DamageTakenInTeams = "Gesamt erhalten",
 		PedometerSteps = "Steps", -- NEEDS TRANSLATION
 		PedometerGoal = "Goal", -- NEEDS TRANSLATION
 		PedometerTotal = "Total", -- NEEDS TRANSLATION
@@ -139,9 +139,9 @@ ScreenResources{
 		EncounterGoodRod = "Good Rod", -- NEEDS TRANSLATION
 		EncounterOldRod = "Old Rod", -- NEEDS TRANSLATION
 		EncounterSeenPokemon = "Seen Pokémon", -- NEEDS TRANSLATION
-		PromptNoteDesc = "Enter a short note for", -- NEEDS TRANSLATION
-		PromptNoteAbilityDesc = "Set one or both abilities for", -- NEEDS TRANSLATION
-		PromptNoteClearAbilities = "Clear Abilities", -- NEEDS TRANSLATION
+		PromptNoteDesc = "Eine kurze Notiz hinzufügen für",
+		PromptNoteAbilityDesc = "Eine oder beide Fähigkeiten setzen für",
+		PromptNoteClearAbilities = "Fähigkeiten löschen",
 		PromptStepsTitle = "Choose a Step Goal", -- NEEDS TRANSLATION
 		PromptStepsDesc1 = "Pedometer will change color when your goal is reached.", -- NEEDS TRANSLATION
 		PromptStepsDesc2 = "Set to 0 to turn off", -- NEEDS TRANSLATION
