@@ -52,10 +52,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 8, 75, 32, 32 },
 		pokemonID = 1,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -66,10 +63,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 53, 75, 32, 32 },
 		pokemonID = 4,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -80,10 +74,7 @@ StreamerScreen.Buttons = {
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 79, 32, 29 },
 		box = 			{ Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 98, 75, 32, 32 },
 		pokemonID = 7,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.pokemonID), iconset.extension)
-		end,
+		getIconId = function(self) return self.pokemonID, SpriteData.Types.Idle end,
 		onClick = function(self)
 			StreamerScreen.openPokemonPickerWindow(self, self.pokemonID)
 			Program.redraw(true)
@@ -122,12 +113,10 @@ function StreamerScreen.openEditAttemptsWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 72, 60)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 157, 60)
 end
 
@@ -145,8 +134,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 		Options["Welcome message"] = newMessage
 		Main.SaveSettings(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, 165)
 
 	forms.button(form, Resources.AllScreens.Clear, function()
@@ -154,8 +142,7 @@ function StreamerScreen.openEditWelcomeMessageWindow()
 	end, 205, 165)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 290, 165)
 end
 
@@ -183,13 +170,11 @@ function StreamerScreen.openPokemonPickerWindow(iconButton, initPokemonID)
 		StreamerScreen.saveFavorites()
 		Program.redraw(true)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 200, 29)
 
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 120, 69)
 end
 

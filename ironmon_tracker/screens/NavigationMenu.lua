@@ -261,7 +261,7 @@ end
 function NavigationMenu.drawCredits()
 	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxColX = topboxX + 58
+	local topboxColX = topboxX + 57
 	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
@@ -283,7 +283,7 @@ function NavigationMenu.drawCredits()
 	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
 
 	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
-	gui.drawImage(espeonImage, topboxColX + 40, offsetY - 13, 32, 32)
+	gui.drawImage(espeonImage, topboxColX + 41, offsetY - 13, 32, 32)
 	offsetY = offsetY + linespacing + 10
 
 	local contributorText = string.format("%s:", Resources.NavigationMenu.CreditsContributors)
@@ -292,7 +292,6 @@ function NavigationMenu.drawCredits()
 
 	-- Draw Contributors List
 	offsetX = offsetX + 4
-	topboxColX = topboxColX
 	for i=1, #Main.CreditsList.Contributors, 2 do
 		Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[i], Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
 		if Main.CreditsList.Contributors[i + 1] ~= nil then

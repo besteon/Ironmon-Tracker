@@ -87,10 +87,10 @@ function CustomCode.loadExtension(extensionKey)
 	end
 
 	-- Check for required attributes from the extension
-	selfObject.name = selfObject.name or extensionKey
-	selfObject.author = selfObject.author or "Unknown"
-	selfObject.description = selfObject.description or ""
-	selfObject.version = selfObject.version or "0.0"
+	selfObject.name = Utils.formatSpecialCharacters(selfObject.name) or extensionKey
+	selfObject.author = Utils.formatSpecialCharacters(selfObject.author) or "Unknown"
+	selfObject.description = Utils.formatSpecialCharacters(selfObject.description) or ""
+	selfObject.version = Utils.formatSpecialCharacters(selfObject.version) or "0.0"
 
 	-- If the extension is new (not part of Settings.ini), create space for it
 	if CustomCode.ExtensionLibrary[extensionKey] == nil then

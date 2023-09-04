@@ -125,7 +125,7 @@ function AddItems.addItem(formsTable)
 end
 
 function AddItems.DisplayUsage()
-	local form = forms.newform(400, 150, "[v" .. Main.TrackerVersion .. "] Add Items Utility")
+	local form = Utils.createBizhawkForm("[v" .. Main.TrackerVersion .. "] Add Items Utility", 400, 150)
 	forms.setproperty(form, "MinimizeBox", false)
 	forms.setproperty(form, "MaximizeBox", false)
 	if Main.emulator == Main.EMU.BIZHAWK29 or Main.emulator == Main.EMU.BIZHAWK_FUTURE then
@@ -142,7 +142,7 @@ function AddItems.DisplayUsage()
 	local usageText = "Welcome to the Add Items tool!\nTo use: simply specify an item/quantity and click the \"Add\" button.\n\nIt is HIGHLY recommended to make a savestate to act as a restore point before adding any items (particularly key items), just in case."
 	forms.label(form, usageText, 18, 10, 350, 65)
 	forms.button(form, "Close", function()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 155, 85)
 end
 

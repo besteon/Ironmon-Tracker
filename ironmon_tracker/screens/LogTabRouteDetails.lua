@@ -407,26 +407,25 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 			end
 		end,
 		includeInGrid = function(self) return LogOverlay.Windower.filterGrid == self.tab end,
-		getIconPath = function(self)
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
-		end,
+		getIconId = function(self) return self.id, SpriteData.Types.Walk end,
 		onClick = function(self)
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.id)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 		end,
 		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			local textColor = Theme.COLORS[self.textColor]
+			local bgColor = Theme.COLORS[self.boxColors[2]]
 			-- Draw the Pokemon's name above the icon
-			gui.drawRectangle(self.box[1], self.box[2] - 3, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-			Drawing.drawText(self.box[1] - 3, self.box[2] - 4, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawTransparentTextbox(x - 3, y - 4, self:getText() or "", textColor, bgColor, shadowcolor)
 			-- Draw the level range and encounter rate below the icon
 			local belowY = 34
-			Drawing.drawText(self.box[1] - 3, self.box[2] + belowY, levelRangeText, Theme.COLORS[self.textColor], shadowcolor)
-			Drawing.drawText(self.box[1] + rateCenterX + 1, self.box[2] + belowY + 9, rateText, Theme.COLORS[self.textColor], shadowcolor)
+			Drawing.drawTransparentTextbox(x - 3, y + belowY, levelRangeText, textColor, bgColor, shadowcolor)
+			Drawing.drawTransparentTextbox(x + rateCenterX + 1, y + belowY + 9, rateText, textColor, bgColor, shadowcolor)
 			-- If this was found through search
 			if self.isSelected then
 				local color = Theme.COLORS[LogTabRouteDetails.Colors.hightlight]
-				Drawing.drawSelectionIndicators(self.box[1], self.box[2] + 7, self.box[3] - 1, self.box[4] - 5, color, 1, 5, 1)
+				Drawing.drawSelectionIndicators(x, y + 7, self.box[3] - 1, self.box[4] - 5, color, 1, 5, 1)
 			end
 		end,
 	}

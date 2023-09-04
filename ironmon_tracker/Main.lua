@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "1", patch = "1" }
+Main.Version = { major = "8", minor = "2", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Kurumas", "davidhouweling", "Aeiry", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Aeiry", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 Main.EMU = {

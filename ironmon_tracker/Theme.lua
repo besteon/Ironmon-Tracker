@@ -510,7 +510,7 @@ function Theme.openImportWindow()
 				Main.DisplayError("The theme config string you entered is invalid.\n\nPlease enter a valid theme config string.")
 			end
 		end
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 55)
 end
 
@@ -524,7 +524,7 @@ function Theme.openExportWindow()
 	forms.label(form, Resources.ThemeScreen.PromptCopyThemeCode .. ":", 9, 30, 300, 20)
 	forms.textbox(form, themePreset.code or "", 480, 20, nil, 10, 55)
 	forms.button(form, Resources.AllScreens.Close, function()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 80)
 end
 
@@ -557,8 +557,7 @@ function Theme.openPresetsWindow()
 		Theme.Buttons.RemoveTheme:resetButtonToDefault()
 		Theme.importThemeFromText(themePreset.code, false)
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
@@ -632,12 +631,10 @@ function Theme.openSaveCurrentThemeWindow()
 		FileManager.addCustomThemeToFile(themeName, themeCode)
 		Theme.refreshThemePreview()
 
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 91, 75)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 176, 75)
 end
 

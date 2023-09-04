@@ -48,15 +48,22 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	gui.drawRectangle(x, y, width, height, bgcolor, bgcolor)
 end
 
-function Drawing.drawPokemonIcon(pokemonID, x, y)
+function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 	if not PokemonData.isImageIDValid(pokemonID) then
-		pokemonID = 0 -- Blank Pokemon data/icon
+		return
 	end
+	local iconset = Options.getIconSet()
+	x = x + (iconset.xOffset or 0)
+	y = y + (iconset.yOffset or 0)
+	width = width or 32
+	height = height or 32
 
-	local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-	local imagepath = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-
-	gui.drawImage(imagepath, x, y + iconset.yOffset, 32, 32)
+	if iconset.isAnimated then
+		Drawing.drawSpriteIcon(x, y, pokemonID)
+	else
+		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+		gui.drawImage(image, x, y, width, height)
+	end
 end
 
 function Drawing.drawTypeIcon(type, x, y)
@@ -196,6 +203,19 @@ function Drawing.drawChevronsVerticalIntensity(x, y, intensity, max, width, heig
 	end
 end
 
+-- Draws a semi-transparent rectangle box behind the text
+function Drawing.drawTransparentTextbox(x, y, text, textColor, bgColor, shadowcolor)
+	if (text or "") == "" then return end
+	textColor = textColor or Theme.COLORS["Default text"]
+	bgColor = bgColor or Theme.COLORS["Upper box background"]
+	shadowcolor = shadowcolor or Utils.calcShadowColor(bgColor)
+
+	local rectWidth = 1 + Utils.calcWordPixelLength(text)
+	bgColor = math.max(bgColor - 0x40000000, 0x00000000) -- minimum 0
+	gui.drawRectangle(x + 1, y + 1, rectWidth, Constants.Font.SIZE - 1, bgColor, bgColor)
+	Drawing.drawText(x, y, text, textColor, shadowcolor)
+end
+
 function Drawing.drawUnderline(button, color)
 	if button == nil or button.box == nil then return end
 	color = color or Theme.COLORS[button.textColor or ""] or Theme.COLORS["Default text"]
@@ -315,10 +335,15 @@ function Drawing.drawButton(button, shadowcolor)
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
 		Drawing.drawText(x + width + 1, y, text, Theme.COLORS[textColor], shadowcolor)
 	elseif button.type == Constants.ButtonTypes.POKEMON_ICON then
-		local imagePath = button:getIconPath()
-		if imagePath ~= nil then
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			gui.drawImage(imagePath, x, y + (iconset.yOffset or 0), width, height)
+		local pokemonID, animType = button:getIconId()
+		if PokemonData.isImageIDValid(pokemonID) then
+			local iconset = Options.getIconSet()
+			if iconset.isAnimated then
+				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
+			else
+				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+				gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+			end
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
 		if text == Constants.STAT_STATES[2].text or text == Constants.STAT_STATES[3].text then
@@ -487,6 +512,40 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 	for i=0, 7, 1 do
 		Drawing.drawText(x + 2 + (i*6), y + 45, "--", themeColors["Lower box text"], nil, fontSize, fontFamily)
 	end
+end
+
+function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
+	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+		return
+	end
+
+	local activeIcon = SpriteData.getOrAddActiveIcon(pokemonID, requiredAnimType)
+	if not activeIcon then
+		return
+	end
+
+	-- If a required animation type is being requested, change to that (if able)
+	if requiredAnimType and activeIcon.animationType ~= requiredAnimType and not activeIcon.inUse then
+		SpriteData.changeActiveIcon(pokemonID, requiredAnimType)
+	end
+
+	local icon = SpriteData.IconData[pokemonID][activeIcon.animationType]
+	if not icon then
+		return
+	end
+
+	-- Mark that this sprite animation is being used
+	activeIcon.inUse = true
+
+	-- Determine source index frame to draw
+	local imagePath = FileManager.buildSpritePath(activeIcon.animationType, tostring(pokemonID), ".png")
+	local indexFrame = activeIcon.indexFrame or 1
+	local facingFrame = Input.getSpriteFacingDirection(activeIcon.animationType)
+	local sourceX = icon.w * (indexFrame - 1)
+	local sourceY = icon.h * (facingFrame - 1)
+	x = x + (icon.x or 0)
+	y = y + (icon.y or 0)
+	gui.drawImageRegion(imagePath, sourceX, sourceY, icon.w, icon.h, x, y)
 end
 
 function Drawing.setupAnimatedPictureBox()

@@ -5,6 +5,8 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
+	lastActiveTimestamp = 0,
+	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
 		highAccuracyUpdate = 10, -- counts down
@@ -12,7 +14,9 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
+		hideEnemy = 0, -- counts down
 		battleDataDelay = 60, -- counts down
+		Others = {}, -- list of other frame counter objects
 	},
 }
 
@@ -220,12 +224,14 @@ function Program.initialize()
 
 	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
+	Program.lastActiveTimestamp = os.time()
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
+	Program.Frames.Others = {}
 end
 
 function Program.mainLoop()
@@ -278,10 +284,12 @@ function Program.redraw(forced)
 	end
 
 	CustomCode.afterRedraw()
+	SpriteData.cleanupActiveIcons()
 end
 
 function Program.changeScreenView(screen)
 	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
+	Program.lastActiveTimestamp = os.time()
 	if type(screen.refreshButtons) == "function" then
 		screen:refreshButtons()
 	end
@@ -302,14 +310,17 @@ end
 
 function Program.destroyActiveForm()
 	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
-		forms.destroy(Program.activeFormId)
-		Program.activeFormId = 0
+		Utils.closeBizhawkForm(Program.activeFormId)
 	end
 end
 
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
+		if Main.IsOnBizhawk() then
+			Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+		end
+
 		Program.updateMapLocation() -- trying this here to solve many future problems
 
 		if not Program.GameTimer.hasStarted and Program.isValidMapLocation() then
@@ -388,6 +399,11 @@ function Program.update()
 			Program.AutoSaver:checkForNextSave()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
+
+		if Input.joypadUsedRecently then
+			Program.lastActiveTimestamp = os.time()
+			SpriteData.checkForIdleSleeping(0)
+		end
 	end
 
 	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
@@ -396,6 +412,14 @@ function Program.update()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
 		CrashRecoveryScreen.trySaveBackup()
+
+		if not Input.joypadUsedRecently then
+			local secondsSinceLastActive = math.max(os.time() - Program.lastActiveTimestamp, 0)
+			SpriteData.checkForIdleSleeping(secondsSinceLastActive)
+		else
+			-- Reset the joypad button tracking, checking only once every 3 seconds if active
+			Input.joypadUsedRecently = false
+		end
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
@@ -417,6 +441,52 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+	if Program.Frames.hideEnemy > 0 then
+		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
+	end
+
+	for _, framecounter in pairs(Program.Frames.Others or {}) do
+		if type(framecounter.step) == "function" then
+			framecounter:step()
+		end
+	end
+
+	SpriteData.updateActiveIcons()
+end
+
+--- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
+--- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
+--- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
+--- @param callFunc function|nil Optional function to call each time the counter reaches 0.
+--- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+--- @return table|nil FrameCounter Returns the created frame counter
+function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+	if label == nil or (frames or 0) <= 0 then return nil end
+	Program.Frames.Others[label] = {
+		framesElapsed = 0.0,
+		maxFrames = frames,
+		paused = false,
+		pause = function(self) self.paused = true end,
+		unpause = function(self) self.paused = false end,
+		step = function(self)
+			if self.paused then return end
+			-- Sync with client frame rate (turbo/unthrottle)
+			local delta = scaleWithSpeedup and (1.0 / Program.clientFpsMultiplier) or 1
+			self.framesElapsed = self.framesElapsed + delta
+			if self.framesElapsed >= self.maxFrames then
+				self.framesElapsed = 0.0
+				if type(callFunc) == "function" then
+					callFunc()
+				end
+			end
+		end,
+	}
+	return Program.Frames.Others[label]
+end
+
+function Program.removeFrameCounter(label)
+	if label == nil then return end
+	Program.Frames.Others[label] = nil
 end
 
 function Program.updateRepelSteps()

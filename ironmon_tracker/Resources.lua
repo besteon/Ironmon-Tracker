@@ -70,7 +70,7 @@ function Resources.initialize()
 
 	-- Load in default language data first, to fill in gaps in other language data
 	Resources.loadAndApplyLanguage(Resources.Default.Language)
-	Resources.copyTable(Resources.Data, Resources.Default.Data)
+	FileManager.copyTable(Resources.Data, Resources.Default.Data)
 
 	-- Define metatables
 	local default_mt = {}
@@ -132,7 +132,7 @@ function Resources.loadAndApplyLanguage(language)
 	end
 
 	-- Prepopulate with default data. Newly loaded data (if it exists) replaces each key
-	Resources.copyTable(Resources.Default.Data, Resources.Data)
+	FileManager.copyTable(Resources.Default.Data, Resources.Data)
 
 	-- Load data into Resources.Data
 	dofile(langFilePath)
@@ -188,15 +188,4 @@ function Resources.sanitizeTable(data)
 		end
 	end
 	sanitize(data)
-end
-
-function Resources.copyTable(source, dest)
-	for key, val in pairs(source) do
-		if type(val) == "table" then
-			dest[key] = {}
-			Resources.copyTable(val, dest[key])
-		else
-			dest[key] = val
-		end
-	end
 end
