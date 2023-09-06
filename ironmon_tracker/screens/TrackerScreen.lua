@@ -3,15 +3,10 @@ TrackerScreen = {}
 TrackerScreen.Buttons = {
 	PokemonIcon = {
 		type = Constants.ButtonTypes.POKEMON_ICON,
-		getIconPath = function(self)
-			local pokemonID = 0
-			local pokemon = Tracker.getViewedPokemon()
-			--Don't want to consider Ghost a valid pokemon, but do want to use its ID (413) for the image name
-			if pokemon ~= nil and (PokemonData.isImageIDValid(pokemon.pokemonID)) then
-				pokemonID = pokemon.pokemonID
-			end
-			local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-			return FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
+		getIconId = function(self)
+			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			-- Don't return a SpriteData.Type with this, as the animation is allowed to change here
+			return pokemon.pokemonID
 		end,
 		clickableArea = { Constants.SCREEN.WIDTH + 5, 5, 32, 27 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
@@ -65,14 +60,21 @@ TrackerScreen.Buttons = {
 		end
 	},
 	PCHealAutoTracking = {
-		type = Constants.ButtonTypes.CHECKBOX,
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.HEART,
 		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + 89, 68, 8, 8 },
-		boxColors = { "Upper box border", "Upper box background" },
-		toggleState = false,
+		iconColors = { "Default text", "Upper box background", "Upper box background" },
+		box = { Constants.SCREEN.WIDTH + 87, 59, 10, 8 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		toggleState = false,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
+			if self.toggleState then
+				-- self.iconColors = { "Default text", "Positive text", "Intermediate text" }
+				self.iconColors = { 0xFFF04037, 0xFFFF0000, 0xFFFFFFFF }
+			else
+				self.iconColors = { "Default text", "Upper box background", "Upper box background" }
+			end
 			Program.redraw(true)
 		end
 	},
@@ -80,7 +82,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "+" end,
 		textColor = "Positive text",
-		box = { Constants.SCREEN.WIDTH + 70, 67, 8, 4 },
+		box = { Constants.SCREEN.WIDTH + 83, 69, 5, 5 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
@@ -93,7 +95,7 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Constants.BLANKLINE end,
 		textColor = "Negative text",
-		box = { Constants.SCREEN.WIDTH + 70, 73, 7, 4 },
+		box = { Constants.SCREEN.WIDTH + 83, 73, 5, 5 },
 		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
@@ -576,8 +578,7 @@ function TrackerScreen.getCurrentCarouselItem()
 	local carousel = TrackerScreen.CarouselItems[TrackerScreen.carouselIndex]
 
 	-- Adjust rotation delay check for carousel based on the speed of emulation
-	local fpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
-	local adjustedVisibilityFrames = carousel.framesToShow * fpsMultiplier
+	local adjustedVisibilityFrames = carousel.framesToShow * Program.clientFpsMultiplier
 
 	-- Check if the current carousel's time has expired, or if it shouldn't be shown
 	if carousel == nil or not carousel.isVisible() or Program.Frames.carouselActive > adjustedVisibilityFrames then
@@ -663,16 +664,14 @@ function TrackerScreen.openNotePadWindow(pokemonId)
 			Tracker.setAbilities(pokemonId, abilityOneText, abilityTwoText)
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 80, 145, 105, 25)
 	forms.button(form, Resources.TrackerScreen.PromptNoteClearAbilities, function()
 		forms.settext(abilityOneDropdown, Constants.BLANKLINE)
 		forms.settext(abilityTwoDropdown, Constants.BLANKLINE)
 	end, 195, 145, 105, 25)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 310, 145, 55, 25)
 end
 
@@ -693,12 +692,10 @@ function TrackerScreen.openEditStepGoalWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 82, 100)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 167, 100)
 end
 
@@ -733,7 +730,8 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	local displayData = DataHelper.buildTrackerScreenDisplay()
+	local mustViewOwn = not Battle.canViewEnemy() or nil
+	local displayData = DataHelper.buildTrackerScreenDisplay(mustViewOwn)
 
 	-- Upper boxes
 	if TrackerScreen.canShowBallPicker() then
@@ -744,12 +742,12 @@ function TrackerScreen.drawScreen()
 	TrackerScreen.drawStatsArea(displayData)
 
 	-- Lower boxes
+	TrackerScreen.drawCarouselArea(displayData)
 	if Tracker.getPokemon(1, true) == nil and Options["Show on new game screen"] then -- show favorites
 		TrackerScreen.drawFavorites()
 	else
 		TrackerScreen.drawMovesArea(displayData)
 	end
-	TrackerScreen.drawCarouselArea(displayData)
 end
 
 function TrackerScreen.drawPokemonInfoArea(data)
@@ -759,8 +757,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	-- POKEMON ICON & TYPES
-	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+	-- POKEMON TYPES
 	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
@@ -817,7 +814,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	local evoSpacing
 	if data.p.evo ~= PokemonData.Evolutions.NONE then
 		levelEvoText = levelEvoText .. " ("
-		evoSpacing = offsetX + string.len(levelEvoText) * 3 + string.len(data.p.level) * 2
+		evoSpacing = 1 + Utils.calcWordPixelLength(levelEvoText)
 		levelEvoText = levelEvoText .. abbreviationText .. ")"
 	end
 
@@ -854,9 +851,9 @@ function TrackerScreen.drawPokemonInfoArea(data)
 				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase)
 				local numHighlightedChars = math.floor(abbreviationText:len() * percentFill)
 				local highlightedEvo = abbreviationText:sub(1, numHighlightedChars)
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + evoSpacing, offsetY, highlightedEvo, Theme.COLORS["Positive text"], shadowcolor)
 			else
-				Drawing.drawText(Constants.SCREEN.WIDTH + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
+				Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + evoSpacing, offsetY, abbreviationText, evoTextColor, shadowcolor)
 			end
 		end
 		offsetY = offsetY + linespacing
@@ -872,10 +869,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		local expPercentage = data.p.curExp / data.p.totalExp
 		Drawing.drawPercentageBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
 		offsetY = offsetY + 5
-	end
-
-	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
-		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 
 	-- HELD ITEM AND ABILITIES
@@ -897,16 +890,17 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		local healsInBagText = string.format("%s:", Resources.TrackerScreen.HealsInBag)
 		local healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, healsInBagText, Theme.COLORS["Default text"], shadowcolor)
-		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 67, healsValueText, Theme.COLORS["Default text"], shadowcolor)
+		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 68, healsValueText, Theme.COLORS["Default text"], shadowcolor)
 
 		if Options["Track PC Heals"] then
-			local pcHealsText = string.format("%s:", Resources.TrackerScreen.PCHeals)
-			Drawing.drawText(Constants.SCREEN.WIDTH + 60, 57, pcHealsText, Theme.COLORS["Default text"], shadowcolor)
-			-- Right-align the PC Heals number
-			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 75
-			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 67, data.x.pcheals, Utils.getCenterHealColor(), shadowcolor)
+			-- Auto-tracking PC Heals button
+			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 
-			-- Draw the '+'', '-'', and toggle button for auto PC tracking
+			-- Right-align the PC Heals number
+			local healNumberSpacing = (2 - string.len(tostring(data.x.pcheals))) * 5 + 87
+			Drawing.drawText(Constants.SCREEN.WIDTH + healNumberSpacing, 68, data.x.pcheals, Utils.getCenterHealColor(), shadowcolor)
+
+			-- Draw the '+' and '-' for incrementing/decrementing heal count
 			local incBtn = TrackerScreen.Buttons.PCHealIncrement
 			local decBtn = TrackerScreen.Buttons.PCHealDecrement
 			if Theme.DRAW_TEXT_SHADOWS then
@@ -915,9 +909,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 			Drawing.drawText(incBtn.box[1], incBtn.box[2], incBtn:getText(), Theme.COLORS[incBtn.textColor], nil, 5, Constants.Font.FAMILY)
 			Drawing.drawText(decBtn.box[1], decBtn.box[2], decBtn:getText(), Theme.COLORS[decBtn.textColor], nil, 5, Constants.Font.FAMILY)
-
-			-- Auto-tracking PC Heals button
-			Drawing.drawButton(TrackerScreen.Buttons.PCHealAutoTracking, shadowcolor)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
@@ -937,6 +928,16 @@ function TrackerScreen.drawPokemonInfoArea(data)
 
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 53, encounterText, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(routeInfoX, Constants.SCREEN.MARGIN + 63, routeText, Theme.COLORS["Default text"], shadowcolor)
+	end
+
+	-- POKEMON ICON (draw last to overlap anything else, if necessary)
+	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
+	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
+	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+
+	-- STATUS ICON
+	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
+		Drawing.drawStatusIcon(data.p.status, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 30 - 16 + 1, Constants.SCREEN.MARGIN + 1)
 	end
 end
 
@@ -1045,19 +1046,20 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + movePowerOffset, headerY, Resources.TrackerScreen.HeaderPow, Theme.COLORS["Header text"], bgHeaderShadow)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, Theme.COLORS["Header text"], bgHeaderShadow)
 
-	-- Redraw next move level in the header with a different color if close to learning new move
+	-- Inidicate there are more moves being tracked than can fit on screen
 	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
 		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
 	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
-		Drawing.drawText(Constants.SCREEN.WIDTH + data.m.nextmovespacing, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
+		local headerLevelHighlightX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + data.m.nextmovespacing
+		Drawing.drawText(headerLevelHighlightX, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Draw the Moves view box
 	gui.defaultTextBackground(Theme.COLORS["Lower box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 46, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, moveOffsetY - 2, Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN), 44, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	if Options["Show physical special icons"] then -- Check if move categories will be drawn
 		moveNameOffset = moveNameOffset + 8
@@ -1202,7 +1204,7 @@ function TrackerScreen.drawFavorites()
 	local boxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local boxY = 92
 	local width = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local height = 46
+	local height = 44
 	gui.drawRectangle(boxX, boxY, width, height, Theme.COLORS["Lower box border"], Theme.COLORS["Lower box background"])
 
 	local favoritesButtons = {

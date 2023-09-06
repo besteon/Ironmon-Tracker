@@ -165,7 +165,7 @@ function LogTabMisc.openRandomizerShareWindow()
 	forms.label(form, Resources.LogOverlay.PromptShareSeedDesc, 9, 10, 495, 20)
 	forms.textbox(form, table.concat(shareExport, " " .. newline), 480, 120, nil, 10, 35, true, false, "Vertical")
 	forms.button(form, Resources.AllScreens.Close, function()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 165)
 end
 

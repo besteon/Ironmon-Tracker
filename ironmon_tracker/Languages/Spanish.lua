@@ -104,8 +104,7 @@ ScreenResources{
 		RandomBallLeft = "Left", -- NEEDS TRANSLATION
 		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
 		RandomBallRight = "Right", -- NEEDS TRANSLATION
-		HealsInBag = "Heals in Bag", -- NEEDS TRANSLATION
-		PCHeals = "PC Heals", -- NEEDS TRANSLATION
+		HealsInBag = "Heals", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
 		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION
@@ -195,6 +194,7 @@ ScreenResources{
 		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
+		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
@@ -203,6 +203,7 @@ ScreenResources{
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
+		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION

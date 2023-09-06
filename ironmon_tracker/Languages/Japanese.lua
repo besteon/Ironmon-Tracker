@@ -105,7 +105,6 @@ ScreenResources{
 		RandomBallMiddle = "中",
 		RandomBallRight = "右",
 		HealsInBag = "道具内回復",
-		PCHeals = "ＰＣ回復",
 		BattleNewEncounter = "新出現",
 		BattleLastSeen = "前出現",
 		BattleSeenInTheWild = "野生バトル",
@@ -197,6 +196,7 @@ ScreenResources{
 		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
+		OptionAllowSpritesToWalk = "Walk", -- NEEDS TRANSLATION
 		ButtonEditControls = "Controls", -- NEEDS TRANSLATION
 		ButtonManageData = "Manage Data", -- NEEDS TRANSLATION
 		PromptEditControllerTitle = "Controller Inputs", -- NEEDS TRANSLATION
@@ -205,6 +205,7 @@ ScreenResources{
 		PromptEditControllerToggleView = "Toggle View", -- NEEDS TRANSLATION
 		PromptEditControllerCycleStats = "Cycle through stats", -- NEEDS TRANSLATION
 		PromptEditControllerMarkStat = "Mark stat", -- NEEDS TRANSLATION
+		PromptEditControllerResetDefault = "Reset to Default", -- NEEDS TRANSLATION
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION

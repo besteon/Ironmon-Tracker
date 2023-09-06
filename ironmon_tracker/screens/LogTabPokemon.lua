@@ -132,18 +132,20 @@ function LogTabPokemon.buildPagedButtons()
 
 				return false
 			end,
-			getIconPath = function(self)
-				local iconset = Options.IconSetMap[Options["Pokemon icon set"]]
-				return FileManager.buildImagePath(iconset.folder, tostring(self.id), iconset.extension)
-			end,
+			getIconId = function(self) return self.id, SpriteData.Types.Idle end,
 			onClick = function(self)
 				LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, self.id)
 				InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 			end,
 			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				local textColor = Theme.COLORS[self.textColor]
+				local bgColor = Theme.COLORS[self.boxColors[2]]
 				-- Draw the Pokemon's name above the icon
-				gui.drawRectangle(self.box[1], self.box[2] + 1 - 1, 32, 8, Theme.COLORS[self.boxColors[2]], Theme.COLORS[self.boxColors[2]])
-				Drawing.drawText(self.box[1] - 5, self.box[2] - 1, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
+				local pokemonName = self:getText() or ""
+				local nameWidth = Utils.calcWordPixelLength(pokemonName)
+				local offsetX = math.floor((self.box[3] - nameWidth) / 2) - 2
+				Drawing.drawTransparentTextbox(x + offsetX, y - 2, pokemonName, textColor, bgColor, shadowcolor)
 			end,
 		}
 		table.insert(LogTabPokemon.PagedButtons, button)
@@ -166,7 +168,7 @@ function LogTabPokemon.realignGrid(gridFilter, sortFunc, startingPage)
 	end
 
 	local x = LogOverlay.TabBox.x + 19
-	local y = LogOverlay.TabBox.y + 1
+	local y = LogOverlay.TabBox.y + 2
 	local colSpacer = 23
 	local rowSpacer = 4
 	local maxWidth = LogOverlay.TabBox.width + LogOverlay.TabBox.x

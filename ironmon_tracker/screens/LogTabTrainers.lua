@@ -236,7 +236,7 @@ end
 -- Draw pokeballs for each pokemon on their team
 function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 	-- Draw the name above the trainer icon
-	local x = button.box[1] - 3
+	local x = button.box[1]
 	local y = button.box[2] - Constants.SCREEN.LINESPACING
 	local textColor = Theme.COLORS[button.textColor]
 	local nameText = Utils.inlineIf(Options["Use Custom Trainer Names"], button.customName, button.name)
@@ -252,24 +252,24 @@ function LogTabTrainers.drawTrainerPortraitInfo(button, shadowcolor)
 		nameText = string.format("%s #%s", nameText, button.id)
 	end
 
-	Drawing.drawText(x, y, nameText, textColor, shadowcolor)
+	local nameWidth = Utils.calcWordPixelLength(nameText)
+	local offsetX = math.floor((button.box[3] - nameWidth) / 2) - 3
+	Drawing.drawText(x + offsetX, y, nameText, textColor, shadowcolor)
 
 	-- Draw pokeballs for each Pokemon on the trainer's team below the trainer icon
-	y = button.box[2] + button.box[4] + 2
 	local image = Constants.PixelImages.POKEBALL_SMALL
 	local colorList = TrackerScreen.PokeBalls.ColorList
 	local trainerLog = RandomizerLog.Data.Trainers[button.id] or {}
-	if #(trainerLog.party or {}) == 0 then
-		return
-	end
 	-- Easter egg for Giovanni, use masterballs
 	if GameSettings.game == 3 and 348 <= button.id and button.id <= 350 then
 		image = Constants.PixelImages.MASTERBALL_SMALL
 		colorList = { Drawing.Colors.BLACK, 0xFFA040B8, Drawing.Colors.WHITE, 0xFFF86088, }
 	end
-	if #trainerLog.party <= 3 then
-		x = x + 8
+	if #(trainerLog.party or {}) == 0 then
+		return
 	end
+	x = x + 1 + (button.box[3] - (#trainerLog.party * 8)) / 2
+	y = button.box[2] + button.box[4] + 2
 	for _ = 1, #trainerLog.party, 1 do
 		Drawing.drawImageAsPixels(image, x, y, colorList, shadowcolor)
 		x = x + 8

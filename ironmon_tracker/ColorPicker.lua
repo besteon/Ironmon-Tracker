@@ -162,11 +162,15 @@ end
 function ColorPicker:show()
 	if self.colorkey == nil then return end
 
-	self.mainForm = Utils.createBizhawkForm(Resources.ThemeScreen.PromptColorPickerTitle, self.width, self.height, 0, 0, function() self:onClose() end)
+	local closeFormFunc = function()
+		Utils.closeBizhawkForm(self.mainForm)
+		self:onClose()
+	end
+	self.mainForm = Utils.createBizhawkForm(Resources.ThemeScreen.PromptColorPickerTitle, self.width, self.height, 0, 0, closeFormFunc)
 	self.colorTextBox = forms.textbox(self.mainForm,"",65,10,"HEX",90,218)
 	local saveAndClose = string.format("%s && %s", Resources.AllScreens.Save, Resources.AllScreens.Close)
 	self.saveButton = forms.button(self.mainForm,saveAndClose, function() self:onSave() end,15,250,95,30)
-	self.cancelButton = forms.button(self.mainForm,Resources.AllScreens.Cancel, function() self:onClose() end,125,250,65,30)
+	self.cancelButton = forms.button(self.mainForm,Resources.AllScreens.Cancel, closeFormFunc,125,250,65,30)
 	self.mainCanvas = forms.pictureBox(self.mainForm,0,0,250,300)
 	forms.setlocation(self.mainForm,self.xPos,self.yPos)
 
@@ -187,6 +191,7 @@ end
 function ColorPicker:onSave()
 	-- Save the color from the colorpicker over the theme's original color, then close then window
 	self.originalColor = self.color
+	Utils.closeBizhawkForm(self.mainForm)
 	self:onClose()
 end
 
@@ -195,8 +200,6 @@ function ColorPicker:onClose()
 	Theme.settingsUpdated = true
 	Program.changeScreenView(Theme)
 	Input.currentColorPicker = nil
-	forms.destroy(self.mainForm)
-	client.unpause()
 end
 
 function ColorPicker:handleInput()

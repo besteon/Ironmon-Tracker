@@ -39,6 +39,8 @@ function Tracker.initialize()
 	else
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
 	end
+	-- Always start by showing the player's own Pokémon; shouldn't have been saving this 'view' to begin with
+	Tracker.Data.isViewingOwn = true
 end
 
 -- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
@@ -119,14 +121,15 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isValidMapLocation() then return nil end
 
+	local mustViewOwn = Tracker.Data.isViewingOwn or not Battle.canViewEnemy()
 	local viewSlot
-	if Tracker.Data.isViewingOwn then
+	if mustViewOwn then
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
 
-	return Tracker.getPokemon(viewSlot, Tracker.Data.isViewingOwn)
+	return Tracker.getPokemon(viewSlot, mustViewOwn)
 end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)

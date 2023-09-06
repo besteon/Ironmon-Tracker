@@ -337,7 +337,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 			end
 		end
-		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle
+		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle and Battle.canViewEnemy()
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then

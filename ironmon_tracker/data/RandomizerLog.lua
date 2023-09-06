@@ -51,7 +51,7 @@ RandomizerLog.Sectors = {
 	Trainers = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Trainers Pokemon"),
 		-- Matches: trainer_num, trainername, party
-		NextTrainerPattern = "^#(%d+)%s%((.+)%s*=>%s*(.+)%)[^%s]*%s%-%s(.*)",
+		NextTrainerPattern = "^#(%d+)%s%(([^=>]+)%s*=?>?%s*(.*)%)[^%s]*%s%-%s(.*)",
 		-- Matches: partypokemon (pokemon name with held item and level info)
 		PartyPattern = "([^,]+)",
 		-- Matches: pokemon and helditem[optional], level

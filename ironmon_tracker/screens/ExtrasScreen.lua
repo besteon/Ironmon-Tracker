@@ -51,7 +51,7 @@ ExtrasScreen.Buttons = {
 	},
 	EstimateIVs = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self)
+		getCustomText = function(self)
 			if self.ivText ~= nil and self.ivText ~= "" then
 				return self.ivText
 			else
@@ -59,7 +59,12 @@ ExtrasScreen.Buttons = {
 			end
 		end,
 		ivText = "",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 112, 132, 12 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 112, 132, 13 },
+		draw = function(self, shadowcolor)
+			-- Override drawing the button's text such that it's 1 pixel lower than normal
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(x + 1, y + 1, self:getCustomText(), Theme.COLORS[self.textColor or ExtrasScreen.Colors.text], shadowcolor)
+		end,
 		onClick = function(self)
 			self.ivText = ExtrasScreen.getJudgeMessage()
 			Program.redraw(true)
@@ -175,14 +180,15 @@ function ExtrasScreen.openEditTimerPrompt()
 	if not wasPaused then
 		Program.GameTimer:pause()
 	end
-	local unpauseTimerFunc = function()
+	local closeAndUnpauseTimer = function()
 		if not wasPaused then
 			Program.GameTimer:unpause()
 		end
-		client.unpause()
+		Utils.closeBizhawkForm()
 	end
+	Input.allowMouse = false
 
-	local form = Utils.createBizhawkForm(Resources.StreamerScreen.LabelTimer, 320, 130, nil, nil, unpauseTimerFunc)
+	local form = Utils.createBizhawkForm(Resources.ExtrasScreen.LabelTimer, 320, 130, nil, nil, closeAndUnpauseTimer)
 
 	local hour = math.floor(Tracker.Data.playtime / 3600) % 10000
 	local min = math.floor(Tracker.Data.playtime / 60) % 60
@@ -200,13 +206,11 @@ function ExtrasScreen.openEditTimerPrompt()
 		-- Update total play time
 		Tracker.Data.playtime = hour * 3600 + min * 60 + sec
 		Program.GameTimer:update()
-		unpauseTimerFunc()
+		closeAndUnpauseTimer()
 		Program.redraw(true)
-		forms.destroy(form)
 	end, 72, 60)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		unpauseTimerFunc()
-		forms.destroy(form)
+		closeAndUnpauseTimer()
 	end, 157, 60)
 end
 

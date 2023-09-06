@@ -178,8 +178,7 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
