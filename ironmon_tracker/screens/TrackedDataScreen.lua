@@ -152,7 +152,7 @@ function TrackedDataScreen.openLoadDataPrompt()
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
 	if filepath ~= "" then
 		local playtime = Tracker.Data.playtime
-		local loadStatus = Tracker.loadData(filepath)
+		local loadStatus = Tracker.loadData(filepath, true)
 		Tracker.Data.playtime = playtime
 
 		local loadStatusMessage = Resources.StartupScreen[loadStatus or -1]
