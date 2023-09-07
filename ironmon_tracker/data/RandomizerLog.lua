@@ -301,6 +301,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 	local index = RandomizerLog.Sectors.BaseStatsItems.LineNumber + 1 -- remove the first line to skip the table header
 	while index <= #logLines do
 		local id, pokemon, types, hp, atk, def, spa, spd, spe, ability1, ability2, helditems = string.match(logLines[index] or "", RandomizerLog.Sectors.BaseStatsItems.PokemonBSTPattern)
+		id = tonumber(tostring(id)) or 0
 		pokemon = RandomizerLog.formatInput(pokemon)
 		pokemon = RandomizerLog.alternateNidorans(pokemon)
 
@@ -309,7 +310,7 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 			return
 		end
 
-		local pokemonId = RouteData.verifyPID(tonumber(tostring(id)) or 0)
+		local pokemonId = PokemonData.dexMapNationalToInternal(id)
 		local pokemonData = RandomizerLog.Data.Pokemon[pokemonId]
 		if pokemonData ~= nil then
 			-- Setup future lookups to handle custom names

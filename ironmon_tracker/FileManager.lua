@@ -84,6 +84,7 @@ FileManager.LuaCode = {
 	{ name = "GameSettings", filepath = "GameSettings.lua", },
 	-- Data files
 	{ name = "PokemonData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonData.lua", },
+	{ name = "PokemonRevoData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "PokemonRevoData.lua", },
 	{ name = "MoveData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MoveData.lua", },
 	{ name = "AbilityData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "AbilityData.lua", },
 	{ name = "MiscData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "MiscData.lua", },

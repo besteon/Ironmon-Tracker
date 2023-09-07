@@ -49,23 +49,8 @@ RouteData.OrderedEncounters = {
 	RouteData.EncounterArea.TRAINER,
 }
 
--- Used for looking up the gen3 pokedex number (index) based on the Pokemon's national dex number
-RouteData.NatDexToIndex = {
-	[252] = 277, [253] = 278, [254] = 279, [255] = 280, [256] = 281, [257] = 282, [258] = 283, [259] = 284,
-	[260] = 285, [261] = 286, [262] = 287, [263] = 288, [264] = 289, [265] = 290, [266] = 291, [267] = 292, [268] = 293, [269] = 294,
-	[270] = 295, [271] = 296, [272] = 297, [273] = 298, [274] = 299, [275] = 300, [276] = 304, [277] = 305, [278] = 309, [279] = 310,
-	[280] = 392, [281] = 393, [282] = 394, [283] = 311, [284] = 312, [285] = 306, [286] = 307, [287] = 364, [288] = 365, [289] = 366,
-	[290] = 301, [291] = 302, [292] = 303, [293] = 370, [294] = 371, [295] = 372, [296] = 335, [297] = 336, [298] = 350, [299] = 320,
-	[300] = 315, [301] = 316, [302] = 322, [303] = 355, [304] = 382, [305] = 383, [306] = 384, [307] = 356, [308] = 357, [309] = 337,
-	[310] = 338, [311] = 353, [312] = 354, [313] = 386, [314] = 387, [315] = 363, [316] = 367, [317] = 368, [318] = 330, [319] = 331,
-	[320] = 313, [321] = 314, [322] = 339, [323] = 340, [324] = 321, [325] = 351, [326] = 352, [327] = 308, [328] = 332, [329] = 333,
-	[330] = 334, [331] = 344, [332] = 345, [333] = 358, [334] = 359, [335] = 380, [336] = 379, [337] = 348, [338] = 349, [339] = 323,
-	[340] = 324, [341] = 326, [342] = 327, [343] = 318, [344] = 319, [345] = 388, [346] = 389, [347] = 390, [348] = 391, [349] = 328,
-	[350] = 329, [351] = 385, [352] = 317, [353] = 377, [354] = 378, [355] = 361, [356] = 362, [357] = 369, [358] = 411, [359] = 376,
-	[360] = 360, [361] = 346, [362] = 347, [363] = 341, [364] = 342, [365] = 343, [366] = 373, [367] = 374, [368] = 375, [369] = 381,
-	[370] = 325, [371] = 395, [372] = 396, [373] = 397, [374] = 398, [375] = 399, [376] = 400, [377] = 401, [378] = 402, [379] = 403,
-	[380] = 407, [381] = 408, [382] = 404, [383] = 405, [384] = 406, [385] = 409, [386] = 410,
-}
+-- [Deprecated] Use PokemonData.dexMapNationalToInternal(id) instead.
+RouteData.NatDexToIndex = {}
 
 -- Maps the rodId from 'gSpecialVar_ItemId' to encounterArea
 RouteData.Rods = {
@@ -83,8 +68,14 @@ RouteData.Locations = {
 }
 
 function RouteData.initialize()
-	local maxMapId = 0
+	-- Setup references for extensions that still use the deprecated table map
+	local mt = {}
+	setmetatable(RouteData.NatDexToIndex, mt)
+	mt.__index = function(table, key)
+		return PokemonData.dexMapNationalToInternal(key)
+	end
 
+	local maxMapId = 0
 	if GameSettings.game == 1 or GameSettings.game == 2 then
 		maxMapId = RouteData.setupRouteInfoAsRSE()
 	elseif GameSettings.game == 3 then
@@ -132,15 +123,6 @@ function RouteData.hasRouteEncounterArea(mapId, encounterArea)
 	if encounterArea == nil or not RouteData.hasRoute(mapId) then return false end
 
 	return RouteData.Info[mapId][encounterArea] ~= nil and RouteData.Info[mapId][encounterArea] ~= {}
-end
-
-function RouteData.verifyPID(pokemonID)
-	-- Convert from national dex to gen3 dex (applies to ids > 251)
-	if RouteData.NatDexToIndex[pokemonID] ~= nil then
-		return RouteData.NatDexToIndex[pokemonID]
-	else
-		return pokemonID
-	end
 end
 
 function RouteData.countPokemonInArea(mapId, encounterArea)
@@ -299,7 +281,8 @@ function RouteData.getEncounterAreaPokemon(mapId, encounterArea)
 				info[key] = encVal[pIndex]
 			end
 		end
-		info.pokemonID = RouteData.verifyPID(info.pokemonID)
+		-- the pokedex #s stored in route encounter data are national pokedex #s
+		info.pokemonID = PokemonData.dexMapNationalToInternal(info.pokemonID)
 
 		-- Some version have fewer Pokemon than others; if so, the ID will be -1
 		if PokemonData.isValid(info.pokemonID) then
