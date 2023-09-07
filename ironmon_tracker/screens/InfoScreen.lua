@@ -81,10 +81,10 @@ InfoScreen.Buttons = {
 			end
 		end
 	},
-	ShowRevos = {
+	ViewRandomEvos = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "View ..." or Resources.InfoScreen.ButtonViewEvos end,
-		textColor = "Default text",
+		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
 		boxColors = { "Upper box border", "Upper box background" },
 		shouldShow = false, -- for now, need to update this during the legacy drawScreen method
@@ -689,7 +689,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if evoDetails[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, evoDetails[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
-	InfoScreen.Buttons.ShowRevos.shouldShow = (evoDetails[1] ~= Constants.BLANKLINE)
+	InfoScreen.Buttons.ViewRandomEvos.shouldShow = (evoDetails[1] ~= Constants.BLANKLINE)
 	-- Removing this easter egg for now, since Drowzee has an evo
 	-- if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
 	-- 	-- Pokémon Mystery Dungeon Drowzee easter egg
@@ -792,7 +792,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PokemonInfoIcon, boxInfoTopShadow)
-	Drawing.drawButton(InfoScreen.Buttons.ShowRevos, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.ViewRandomEvos, boxInfoTopShadow)
 
 	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoBotShadow)

@@ -13,7 +13,7 @@ RandomEvosScreen.Buttons = {
 	PreviousEvoOption = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 20, Constants.SCREEN.MARGIN + 4, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 18, Constants.SCREEN.MARGIN + 4, 10, 10, },
 		isVisible = function() return #(RandomEvosScreen.evoOptions or {}) > 0 end,
 		onClick = function(self)
 			local total = #RandomEvosScreen.evoOptions
@@ -25,7 +25,7 @@ RandomEvosScreen.Buttons = {
 	NextEvoOption = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 113, Constants.SCREEN.MARGIN + 4, 10, 10, },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 4, 10, 10, },
 		isVisible = function() return #(RandomEvosScreen.evoOptions or {}) > 0 end,
 		onClick = function(self)
 			local total = #RandomEvosScreen.evoOptions
@@ -221,20 +221,20 @@ function RandomEvosScreen.drawScreen()
 	end
 
 	-- Draw header text
+	local headerText
 	local hasEvoOptions = #(RandomEvosScreen.evoOptions or {}) > 0
 	if hasEvoOptions then
 		local targetEvoId = RandomEvosScreen.evoOptions[RandomEvosScreen.evoOptionIndex] or 0
 		local evoPokemon = PokemonData.Pokemon[targetEvoId] or PokemonData.BlankPokemon
-		local evoHeader = string.format("%s %s: %s", "Evo" or Resources.InfoScreen.LabelEvolution, RandomEvosScreen.evoOptionIndex, evoPokemon.name)
-		local headerTextWidth = Utils.calcWordPixelLength(evoHeader)
-		local offsetX = box.x + math.floor((box.width - headerTextWidth) / 2)
-		Drawing.drawTransparentTextbox(offsetX, box.y + 3, evoHeader, Theme.COLORS[RandomEvosScreen.Colors.text], box.fill, box.shadow)
+		headerText = string.format("%s %s: %s", "Evo" or Resources.InfoScreen.LabelEvolution, RandomEvosScreen.evoOptionIndex, evoPokemon.name)
 	else
-		local pokemonName = Utils.toUpperUTF8(PokemonData.Pokemon[RandomEvosScreen.pokemonID].name)
-		Drawing.drawHeader(box.x, box.y - 1, pokemonName, Theme.COLORS[RandomEvosScreen.Colors.text], box.shadow)
+		local pokemon = PokemonData.Pokemon[RandomEvosScreen.pokemonID] or PokemonData.BlankPokemon
+		headerText = string.format("%s (%s)", "Random Evos" or Resources.InfoScreen.LabelEvolution, pokemon.name)
 	end
+	local centeredX = Utils.getCenteredTextX(headerText, box.width)
+	Drawing.drawTransparentTextbox(box.x + centeredX, box.y + 3, headerText, Theme.COLORS[RandomEvosScreen.Colors.text], box.fill, box.shadow)
 
-	-- Draw all buttons
+	-- Draw all other buttons
 	for _, button in pairs(RandomEvosScreen.Buttons) do
 		Drawing.drawButton(button, box.shadow)
 	end
