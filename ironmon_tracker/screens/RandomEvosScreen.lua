@@ -226,10 +226,10 @@ function RandomEvosScreen.drawScreen()
 	if hasEvoOptions then
 		local targetEvoId = RandomEvosScreen.evoOptions[RandomEvosScreen.evoOptionIndex] or 0
 		local evoPokemon = PokemonData.Pokemon[targetEvoId] or PokemonData.BlankPokemon
-		headerText = string.format("%s %s: %s", "Evo" or Resources.InfoScreen.LabelEvolution, RandomEvosScreen.evoOptionIndex, evoPokemon.name)
+		headerText = string.format("%s %s: %s", Resources.RandomEvosScreen.LabelEvoShort, RandomEvosScreen.evoOptionIndex, evoPokemon.name)
 	else
 		local pokemon = PokemonData.Pokemon[RandomEvosScreen.pokemonID] or PokemonData.BlankPokemon
-		headerText = string.format("%s (%s)", "Random Evos" or Resources.InfoScreen.LabelEvolution, pokemon.name)
+		headerText = string.format("%s (%s)", Resources.RandomEvosScreen.LabelRandomEvos, pokemon.name)
 	end
 	local centeredX = Utils.getCenteredTextX(headerText, box.width)
 	Drawing.drawTransparentTextbox(box.x + centeredX, box.y + 3, headerText, Theme.COLORS[RandomEvosScreen.Colors.text], box.fill, box.shadow)

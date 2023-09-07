@@ -209,7 +209,10 @@ ScreenResources{
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION
+		TabTools = "Tools", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
 		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
+		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
@@ -350,6 +353,7 @@ ScreenResources{
 	},
 	InfoScreen = {
 		-- Pokémon Info
+		ButtonViewEvos = "View ...", -- NEEDS TRANSLATION
 		ButtonHistory = "History", -- NEEDS TRANSLATION
 		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
 		KilogramAbbreviation = "kg", -- NEEDS TRANSLATION
@@ -460,6 +464,10 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	RandomEvosScreen = {
+		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
+		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION

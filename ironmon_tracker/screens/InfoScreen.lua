@@ -83,7 +83,7 @@ InfoScreen.Buttons = {
 	},
 	ViewRandomEvos = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "View ..." or Resources.InfoScreen.ButtonViewEvos end,
+		getText = function(self) return Resources.InfoScreen.ButtonViewEvos end,
 		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
 		boxColors = { "Upper box border", "Upper box background" },
