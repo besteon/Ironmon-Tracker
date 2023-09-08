@@ -32,10 +32,8 @@ ExtrasScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 47, 130, 16 },
 		isVisible = function(self) return ExtrasScreen.currentTab == ExtrasScreen.Tabs.Tools end,
 		onClick = function(self)
-			self.isVisible = function() return false end
-			Program.redraw(true)
-			-- CoverageCalculatorScreen.buildOutPagedButtons()
-			-- Program.changeScreenView(CoverageCalculatorScreen)
+			CoverageCalcScreen.prepopulateMoveTypes()
+			Program.changeScreenView(CoverageCalcScreen)
 		end
 	},
 	TimeMachine = {
