@@ -216,6 +216,10 @@ function Program.initialize()
 		Program.currentScreen = StartupScreen
 	end
 
+	if Main.IsOnBizhawk() then
+		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	end
+
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
