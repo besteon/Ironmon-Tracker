@@ -229,9 +229,9 @@ function CoverageCalcScreen.createButtons()
 		local tabKey = keys[1]
 		local label = keys[2]
 		local valueColor = keys[3]
+		local labelCenterX = Utils.getCenteredTextX(label, 20) - 2
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return label end,
 			textColor = SCREEN.Colors.highlight,
 			calcValue = 0,
 			tab = SCREEN.Tabs[tabKey],
@@ -242,8 +242,11 @@ function CoverageCalcScreen.createButtons()
 				self.calcValue = #SCREEN.addedTypesOrdered > 0 and #effData or 0
 			end,
 			draw = function(self, shadowcolor)
+				-- Manually draw the texts so they're centered
 				local x, y = self.box[1], self.box[2]
 				local w, h = self.box[3], self.box[4]
+				Drawing.drawText(x + labelCenterX, y, label, Theme.COLORS[self.textColor], shadowcolor)
+
 				local centeredOffsetX = Utils.getCenteredTextX(tostring(self.calcValue), w) - 2
 				local colorForValue = valueColor
 				local resultsText
