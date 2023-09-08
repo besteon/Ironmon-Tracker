@@ -2,7 +2,7 @@
 RandomizerLog = {}
 
 RandomizerLog.Patterns = {
-	RandomizerVersion = "Randomizer Version:%s*([%d%.]+).*$", -- Note: log file line 1 does NOT start with "Rando..."
+	RandomizerVersion = "Randomizer Version:%s*([^%s]+)%s*$", -- Note: log file line 1 does NOT start with "Rando..."
 	RandomizerSeed = "^Random Seed:%s*(%d+)%s*$",
 	RandomizerSettings = "^Settings String:%s*(.+)%s*$",
 	RandomizerGame = "^Randomization of%s*(.+)%s+completed",
