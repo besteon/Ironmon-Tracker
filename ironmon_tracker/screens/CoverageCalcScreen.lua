@@ -429,7 +429,7 @@ function CoverageCalcScreen.prepopulateMoveTypes()
 			table.insert(SCREEN.leadMovesetIds, move.id) -- TODO: Might use this to help calc stricter coverage later
 
 			local moveInternal = MoveData.Moves[move.id]
-			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] then
+			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] and not SCREEN.addedTypes[moveInternal.type] then
 				SCREEN.addedTypes[moveInternal.type] = true
 				table.insert(SCREEN.addedTypesOrdered, moveInternal.type)
 			end
