@@ -424,6 +424,15 @@ ScreenResources{
 		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.", -- NEEDS TRANSLATION
 		WarningIfUnsure = "If you are unsure, simply do not view the log file.", -- NEEDS TRANSLATION
 	},
+	CoverageCalcScreen = {
+		Title = "Coverage Calculator", -- NEEDS TRANSLATION
+		ButtonAddType = "Add Type", -- NEEDS TRANSLATION
+		ButtonClearTypes = "Clear All", -- NEEDS TRANSLATION
+		ButtonPokemonMatchups = "Pokémon Matchups", -- NEEDS TRANSLATION
+		OptionFullyEvolvedOnly = "Fully evolved Pokémon only", -- NEEDS TRANSLATION
+		TitleAddMoveType = "Add a Move Type", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine", -- NEEDS TRANSLATION
 		OptionEnableRestorePoints = "Enable restore points", -- NEEDS TRANSLATION

@@ -9,21 +9,30 @@ CoverageCalcScreen = {
 	Tabs = { Immune = 0.0, Quarter = 0.25, Half = 0.5, Neutral = 1, Super = 2, Quad = 4, },
 	currentView = 1,
 	currentTab = 4,
-	leadMovesetIds = {},
+	leadMovesetIds = {}, -- Currently unused
 	addedTypes = {},
 	addedTypesOrdered = {},
-	calcData = {},
+	CoverageData = {}, -- Recalculated each time types or options change
 }
 local SCREEN = CoverageCalcScreen
 
 SCREEN.Buttons = {
 	AddMoveType = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function() return "Add Type" or Resources.CoverageCalcScreen.ButtonAddType end, -- TODO: DEBUG ADD LANGUAGE
+		getText = function() return Resources.CoverageCalcScreen.ButtonAddType end,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 16, Constants.SCREEN.MARGIN + 22, 50, 12 },
 		isDisabled = false,
-		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main and #SCREEN.addedTypesOrdered < 6 end,
+		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main end,
+		updateSelf = function(self)
+			self.isDisabled = #SCREEN.addedTypesOrdered >= 6
+		end,
+		draw = function(self, shadowcolor)
+			if self.isDisabled then
+				gui.drawRectangle(self.box[1], self.box[2], self.box[3], self.box[4], Drawing.ColorEffects.DISABLE, Drawing.ColorEffects.DISABLE)
+			end
+		end,
 		onClick = function(self)
+			if self.isDisabled then return end
 			SCREEN.currentView = SCREEN.Views.MoveTypes
 			SCREEN.refreshButtons()
 			Program.redraw(true)
@@ -31,7 +40,7 @@ SCREEN.Buttons = {
 	},
 	ClearMoveTypes = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function() return "Clear All" or Resources.CoverageCalcScreen.ButtonClearTypes end, -- TODO: DEBUG ADD LANGUAGE
+		getText = function() return Resources.CoverageCalcScreen.ButtonClearTypes end,
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 74, Constants.SCREEN.MARGIN + 22, 50, 12 },
 		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main end,
 		onClick = function(self)
@@ -42,7 +51,7 @@ SCREEN.Buttons = {
 	},
 	OptionOnlyFullyEvolved = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function() return " Fully evolved Pokémon only" or (" " .. Resources.CoverageCalcScreen.OptionOnlyFullyEvolved) end, -- TODO: DEBUG ADD LANGUAGE
+		getText = function() return " " .. Resources.CoverageCalcScreen.OptionFullyEvolvedOnly end,
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 113, Constants.SCREEN.RIGHT_GAP - 12, 8 },
 		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 113, 8, 8 },
 		toggleState = false,
@@ -54,17 +63,18 @@ SCREEN.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	SwitchViewPokemon = {
+	ViewPokemonMatchups = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		getText = function(self) return "View Pokémon" or Resources.CoverageCalcScreen.ButtonViewPokemon end, -- TODO: DEBUG ADD LANGUAGE
+		getText = function(self) return Resources.CoverageCalcScreen.ButtonPokemonMatchups end,
 		image = Constants.PixelImages.POKEBALL,
 		iconColors = TrackerScreen.PokeBalls.ColorList,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 129, 95, 16 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 5, Constants.SCREEN.MARGIN + 129, 105, 16 },
 		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main and #SCREEN.addedTypesOrdered > 0 end,
 		onClick = function()
 			SCREEN.currentView = SCREEN.Views.Pokemon
+			-- Find next available tab to switch to
 			for _, tab in pairs(SCREEN.Tabs) do
-				if #(SCREEN.calcData[tab] or {}) > 0 then
+				if #(SCREEN.CoverageData[tab] or {}) > 0 then
 					SCREEN.changeTab(tab)
 					break
 				end
@@ -118,17 +128,16 @@ SCREEN.Pager = {
 		table.sort(self.Buttons, self.defaultSort)
 		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 2
 		local y = Constants.SCREEN.MARGIN + 17
-		local colSpacer = 3
-		local rowSpacer = 7
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10
-		local totalPages = Utils.gridAlign(self.Buttons, x, y, colSpacer, rowSpacer, false, cutoffX, cutoffY)
+		local totalPages = Utils.gridAlign(self.Buttons, x, y, 3, 7, false, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
 	end,
 	getPageText = function(self)
 		if self.totalPages <= 1 then return Resources.AllScreens.Page end
-		return string.format("%s/%s", self.currentPage, self.totalPages)
+		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
+		return buffer .. string.format("%s/%s", self.currentPage, self.totalPages)
 	end,
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
@@ -187,6 +196,9 @@ function CoverageCalcScreen.createButtons()
 				gui.drawRectangle(x, y, w + 1, h + 1, shadowcolor)
 				gui.drawRectangle(x - 1, y - 1, w + 1, h + 1, Theme.COLORS[self.boxColors[1]], shadowcolor)
 				Drawing.drawTypeIcon(self.moveType, x, y)
+				if self.isDisabled then
+					gui.drawRectangle(x - 1, y - 1, w + 1, h + 1, Drawing.ColorEffects.DISABLE, Drawing.ColorEffects.DISABLE)
+				end
 			end,
 		}
 	end
@@ -238,7 +250,7 @@ function CoverageCalcScreen.createButtons()
 			dimensions = { width = 20, height = 20 },
 			isVisible = function(self) return SCREEN.currentView == SCREEN.Views.Main end,
 			updateSelf = function(self)
-				local effData = SCREEN.calcData[self.tab] or {}
+				local effData = SCREEN.CoverageData[self.tab] or {}
 				self.calcValue = #SCREEN.addedTypesOrdered > 0 and #effData or 0
 			end,
 			draw = function(self, shadowcolor)
@@ -285,9 +297,10 @@ function CoverageCalcScreen.createButtons()
 	for _, typeKey in ipairs(orderedTypeKeys) do
 		local moveType = PokemonData.Types[typeKey]
 		local button = createMoveTypeBtn(moveType)
-		-- Only visible if not already added
-		button.isVisible = function(self) return SCREEN.currentView == SCREEN.Views.MoveTypes and not SCREEN.addedTypes[moveType] end
+		button.isVisible = function(self) return SCREEN.currentView == SCREEN.Views.MoveTypes end
+		button.updateSelf = function(self) self.isDisabled = SCREEN.addedTypes[moveType] end
 		button.onClick = function(self)
+			if self.isDisabled then return end
 			SCREEN.addedTypes[moveType] = true
 			table.insert(SCREEN.addedTypesOrdered, moveType)
 			SCREEN.performCalc()
@@ -321,7 +334,7 @@ function CoverageCalcScreen.createButtons()
 			tab = SCREEN.Tabs[tabKey],
 			isSelected = false,
 			box = {	startX, startY, tabWidth, tabHeight },
-			isVisible = function(self) return SCREEN.currentView == SCREEN.Views.Pokemon and #(SCREEN.calcData[self.tab] or {}) > 0 end,
+			isVisible = function(self) return SCREEN.currentView == SCREEN.Views.Pokemon and #(SCREEN.CoverageData[self.tab] or {}) > 0 end,
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
 				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
@@ -333,7 +346,7 @@ function CoverageCalcScreen.createButtons()
 				local bgColor = Theme.COLORS[self.boxColors[2]]
 				gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, bgColor, bgColor) -- Box fill
 				if not self.isSelected then
-					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, 0x20000000, 0x20000000) -- Darken
+					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, Drawing.ColorEffects.DARKEN, Drawing.ColorEffects.DARKEN)
 				end
 				gui.drawLine(x + 1, y, x + w - 1, y, color) -- Top edge
 				gui.drawLine(x, y + 1, x, y + h - 1, color) -- Left edge
@@ -354,7 +367,7 @@ function CoverageCalcScreen.buildPagedButtons()
 	SCREEN.Pager.Buttons = {}
 
 	for _, tab in pairs(SCREEN.Tabs) do
-		for i, pokemonID in ipairs(SCREEN.calcData[tab] or {}) do
+		for _, pokemonID in ipairs(SCREEN.CoverageData[tab] or {}) do
 			local bst = tonumber(PokemonData.Pokemon[pokemonID].bst or "") or 0
 			local button = {
 				type = Constants.ButtonTypes.POKEMON_ICON,
@@ -366,6 +379,7 @@ function CoverageCalcScreen.buildPagedButtons()
 				boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 				isVisible = function(self) return SCREEN.currentView == SCREEN.Views.Pokemon and SCREEN.Pager.currentPage == self.pageVisible end,
 				includeInGrid = function(self) return SCREEN.currentTab == self.tab end,
+				-- Intentionally don't allow clicking on icons yet, as clicking Back isn't smart enough to return to this screen; might as in later
 				-- onClick = function(self)
 				-- 	InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, self.id) -- implied redraw
 				-- end,
@@ -374,8 +388,8 @@ function CoverageCalcScreen.buildPagedButtons()
 				-- 	local x, y = self.box[1], self.box[2]
 				-- 	local textColor = Theme.COLORS[self.textColor]
 				-- 	local bgColor = Theme.COLORS[self.boxColors[2]]
-				-- 	-- Draw the evo percentage below the icon
-				-- 	Drawing.drawTransparentTextbox(x + centeredOffsetX - 1, y + 33, evoPercent, textColor, bgColor, shadowcolor)
+				-- 	-- Draw the text below the icon
+				-- 	Drawing.drawTransparentTextbox(x + centeredOffsetX - 1, y + 33, text, textColor, bgColor, shadowcolor)
 				-- end,
 			}
 			table.insert(SCREEN.Pager.Buttons, button)
@@ -426,7 +440,7 @@ function CoverageCalcScreen.prepopulateMoveTypes()
 end
 
 function CoverageCalcScreen.performCalc()
-	SCREEN.calcData = {
+	SCREEN.CoverageData = {
 		[SCREEN.Tabs.Immune] = {},
 		[SCREEN.Tabs.Quarter] = {},
 		[SCREEN.Tabs.Half] = {},
@@ -483,8 +497,8 @@ function CoverageCalcScreen.performCalc()
 			else
 				highestEff = calcHighestEffectiveness(pokemon.types[1], pokemon.types[2])
 			end
-			if SCREEN.calcData[highestEff] then
-				table.insert(SCREEN.calcData[highestEff], id)
+			if SCREEN.CoverageData[highestEff] then
+				table.insert(SCREEN.CoverageData[highestEff], id)
 			end
 		end
 	end
@@ -496,7 +510,7 @@ function CoverageCalcScreen.resetTypesAndData()
 	SCREEN.leadMovesetIds = {}
 	SCREEN.addedTypes = {}
 	SCREEN.addedTypesOrdered = {}
-	SCREEN.calcData = {}
+	SCREEN.CoverageData = {}
 end
 
 -- USER INPUT FUNCTIONS
@@ -543,8 +557,7 @@ function CoverageCalcScreen.drawMainView(box)
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	-- TODO: DEBUG ADD LANGUAGE
-	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8("Coverage Calculator" or Resources.CoverageCalcScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.Title), Theme.COLORS["Header text"], headerShadow)
 end
 
 function CoverageCalcScreen.drawMoveTypesView(box)
@@ -554,8 +567,7 @@ function CoverageCalcScreen.drawMoveTypesView(box)
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	-- TODO: DEBUG ADD LANGUAGE
-	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8("Add a Move Type" or Resources.CoverageCalcScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.TitleAddMoveType), Theme.COLORS["Header text"], headerShadow)
 end
 
 function CoverageCalcScreen.drawPokemonView(box)
@@ -572,9 +584,9 @@ function CoverageCalcScreen.drawPokemonView(box)
 		Drawing.drawButton(button, box.shadow)
 	end
 
-	local totalCount = #(SCREEN.calcData[SCREEN.currentTab] or {})
+	local totalCount = #(SCREEN.CoverageData[SCREEN.currentTab] or {})
 	if totalCount > 0 then
-		local totalText = string.format("%s: %s", "Total" or Resources.CoverageCalcScreen.LabelTotal, totalCount) -- TODO: DEBUG ADD LANGUAGE
+		local totalText = string.format("%s: %s", Resources.CoverageCalcScreen.LabelTotal, totalCount)
 		Drawing.drawTransparentTextbox(box.x + 3, box.y + 124, totalText, box.text, box.fill, box.shadow)
 	end
 end

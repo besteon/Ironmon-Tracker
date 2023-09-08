@@ -169,7 +169,7 @@ function ExtrasScreen.createTabs()
 				local bgColor = Theme.COLORS[self.boxColors[2]]
 				gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, bgColor, bgColor) -- Box fill
 				if not self.isSelected then
-					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, 0x20000000, 0x20000000) -- Darken
+					gui.drawRectangle(x + 1, y + 1, w - 1, h - 2, Drawing.ColorEffects.DARKEN, Drawing.ColorEffects.DARKEN)
 				end
 				gui.drawLine(x + 1, y, x + w - 1, y, color) -- Top edge
 				gui.drawLine(x, y + 1, x, y + h - 1, color) -- Left edge
