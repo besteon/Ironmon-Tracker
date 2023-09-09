@@ -42,7 +42,7 @@ SCREEN.Buttons = {
 	ClearMoveTypes = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function() return Resources.CoverageCalcScreen.ButtonClearTypes end,
-		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 74, Constants.SCREEN.MARGIN + 22, 50, 12 },
+		box = {	Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 73, Constants.SCREEN.MARGIN + 22, 50, 12 },
 		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main end,
 		onClick = function(self)
 			SCREEN.resetTypesAndData()
@@ -442,7 +442,8 @@ function CoverageCalcScreen.prepopulateMoveTypes()
 
 	for _, move in ipairs(leadPokemon.moves or {}) do
 		if MoveData.isValid(move.id) then
-			table.insert(SCREEN.leadMovesetIds, move.id) -- TODO: Might use this to help calc stricter coverage later
+			-- TODO: Might use current moveset to help calc stricter coverage later (e.g. Night Shade, Will-O-Wisp, Hidden Power)
+			table.insert(SCREEN.leadMovesetIds, move.id)
 
 			local moveInternal = MoveData.Moves[move.id]
 			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] and not SCREEN.addedTypes[moveInternal.type] then
