@@ -189,7 +189,7 @@ end
 function RandomEvosScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
 
-	local box = {
+	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
@@ -201,22 +201,22 @@ function RandomEvosScreen.drawScreen()
 	}
 
 	-- Draw top border box
-	gui.defaultTextBackground(box.fill)
-	gui.drawRectangle(box.x, box.y, box.width, box.height, box.border, box.fill)
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	if not PokemonData.isValid(RandomEvosScreen.pokemonID) then
-		Drawing.drawButton(RandomEvosScreen.Buttons.Back, box.shadow)
+		Drawing.drawButton(RandomEvosScreen.Buttons.Back, canvas.shadow)
 		return
 	end
 
 	-- Draw each of possibile evolutions Pokemon
 	for _, button in pairs(RandomEvosScreen.Pager.Buttons) do
-		Drawing.drawButton(button, box.shadow)
+		Drawing.drawButton(button, canvas.shadow)
 	end
 	-- Then manually draw all the texts so they properly overlap the icons
 	for _, button in pairs(RandomEvosScreen.Pager.Buttons) do
 		if button:isVisible() and type(button.drawAfter) == "function" then
-			button:drawAfter(box.shadow)
+			button:drawAfter(canvas.shadow)
 		end
 	end
 
@@ -231,11 +231,11 @@ function RandomEvosScreen.drawScreen()
 		local pokemon = PokemonData.Pokemon[RandomEvosScreen.pokemonID] or PokemonData.BlankPokemon
 		headerText = string.format("%s (%s)", Resources.RandomEvosScreen.LabelRandomEvos, pokemon.name)
 	end
-	local centeredX = Utils.getCenteredTextX(headerText, box.width)
-	Drawing.drawTransparentTextbox(box.x + centeredX, box.y + 3, headerText, Theme.COLORS[RandomEvosScreen.Colors.text], box.fill, box.shadow)
+	local centeredX = Utils.getCenteredTextX(headerText, canvas.width)
+	Drawing.drawTransparentTextbox(canvas.x + centeredX, canvas.y + 3, headerText, Theme.COLORS[RandomEvosScreen.Colors.text], canvas.fill, canvas.shadow)
 
 	-- Draw all other buttons
 	for _, button in pairs(RandomEvosScreen.Buttons) do
-		Drawing.drawButton(button, box.shadow)
+		Drawing.drawButton(button, canvas.shadow)
 	end
 end

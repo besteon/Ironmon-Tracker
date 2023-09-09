@@ -15,6 +15,7 @@ CoverageCalcScreen = {
 	CoverageData = {}, -- Recalculated each time types or options change
 }
 local SCREEN = CoverageCalcScreen
+local TAB_HEIGHT = 12
 
 SCREEN.Buttons = {
 	AddMoveType = {
@@ -72,7 +73,7 @@ SCREEN.Buttons = {
 		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main and #SCREEN.addedTypesOrdered > 0 end,
 		onClick = function()
 			SCREEN.currentView = SCREEN.Views.Pokemon
-			-- Find next available tab to switch to
+			-- Find next available tab to switch to (order checked not guaranteed)
 			for _, tab in pairs(SCREEN.Tabs) do
 				if #(SCREEN.CoverageData[tab] or {}) > 0 then
 					SCREEN.changeTab(tab)
@@ -321,7 +322,6 @@ function CoverageCalcScreen.createButtons()
 	-- POKEMON TABS VIEW
 	startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	startY = Constants.SCREEN.MARGIN
-	local tabHeight = 12
 	local tabPadding = 6
 
 	for _, keys in ipairs(effectivenesses) do
@@ -333,7 +333,7 @@ function CoverageCalcScreen.createButtons()
 			getText = function(self) return tabText end,
 			tab = SCREEN.Tabs[tabKey],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, tabHeight },
+			box = {	startX, startY, tabWidth, TAB_HEIGHT },
 			isVisible = function(self) return SCREEN.currentView == SCREEN.Views.Pokemon and #(SCREEN.CoverageData[self.tab] or {}) > 0 end,
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
@@ -416,11 +416,27 @@ function CoverageCalcScreen.prepopulateMoveTypes()
 		[MoveData.Categories.PHYSICAL] = true,
 		[MoveData.Categories.SPECIAL] = true,
 	}
+	-- These shouldn't be counted automatically as "coverage" since they don't have a damage multiplier
+	-- Unfortunately this excludes Night Shade when caring about Shedinja, but don't have a good solution otherwise
 	local excludedMoveIds = {
+		[12] = true, -- Guillotine
+		[32] = true, -- Horn Drill
+		[49] = true, -- SonicBoom
+		[68] = true, -- Counter
+		[69] = true, -- Seismic Toss
+		[82] = true, -- Dragon Rage
+		[90] = true, -- Fissure
+		[101] = true, -- Night Shade
+		[117] = true, -- Bide
+		[149] = true, -- Psywave
+		[162] = true, -- Super Fang
 		[165] = true, -- Struggle (I guess)
 		[237] = true, -- Hidden Power
+		[243] = true, -- Mirror Coat
 		[248] = true, -- Future Sight
 		[251] = true, -- Beat Up
+		[283] = true, -- Endeavor
+		[329] = true, -- Sheer Cold
 		[353] = true, -- Doom Desire
 	}
 
@@ -473,29 +489,14 @@ function CoverageCalcScreen.performCalc()
 		end
 		return highestEff
 	end
-	local calcShedCoverage = function()
-		local shedinja = PokemonData.Pokemon[303]
-		local highestEff = 0
-		for _, moveType in ipairs(SCREEN.addedTypesOrdered or {}) do
-			local moveEff = 1
-			moveEff = moveEff * (MoveData.TypeToEffectiveness[moveType][shedinja.types[1]] or 1)
-			moveEff = moveEff * (MoveData.TypeToEffectiveness[moveType][shedinja.types[2]] or 1)
-			-- Only count types that are super effective or better
-			if moveEff > highestEff and moveEff >= 2 then
-				highestEff = moveEff
-			end
-		end
-		return highestEff
-	end
 
 	-- Check all pokemon for highest effectiveness, and categorize them
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		if shouldCheckPokemon(id) then
-			local highestEff
-			if id == 303 then -- Shedinja
-				highestEff = calcShedCoverage()
-			else
-				highestEff = calcHighestEffectiveness(pokemon.types[1], pokemon.types[2])
+			local highestEff = calcHighestEffectiveness(pokemon.types[1], pokemon.types[2])
+			-- For Shedinja, only count types that are super effective or better
+			if id == 303 and highestEff < 2 then
+				highestEff = 0
 			end
 			if SCREEN.CoverageData[highestEff] then
 				table.insert(SCREEN.CoverageData[highestEff], id)
@@ -525,7 +526,7 @@ end
 function CoverageCalcScreen.drawScreen()
 	Drawing.drawBackgroundAndMargins()
 
-	local box = {
+	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
 		y = Constants.SCREEN.MARGIN + 10,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
@@ -537,56 +538,55 @@ function CoverageCalcScreen.drawScreen()
 	}
 
 	if SCREEN.currentView == SCREEN.Views.Main then
-		SCREEN.drawMainView(box)
+		SCREEN.drawMainView(canvas)
 	elseif SCREEN.currentView == SCREEN.Views.MoveTypes then
-		SCREEN.drawMoveTypesView(box)
+		SCREEN.drawMoveTypesView(canvas)
 	elseif SCREEN.currentView == SCREEN.Views.Pokemon then
-		SCREEN.drawPokemonView(box)
+		SCREEN.drawPokemonView(canvas)
 	end
 
 	-- Draw all other buttons
 	for _, button in pairs(SCREEN.Buttons) do
-		Drawing.drawButton(button, box.shadow)
+		Drawing.drawButton(button, canvas.shadow)
 	end
 end
 
-function CoverageCalcScreen.drawMainView(box)
+function CoverageCalcScreen.drawMainView(canvas)
 	-- Draw top border box
-	gui.defaultTextBackground(box.fill)
-	gui.drawRectangle(box.x, box.y, box.width, box.height, box.border, box.fill)
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.Title), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.Title), Theme.COLORS["Header text"], headerShadow)
 end
 
-function CoverageCalcScreen.drawMoveTypesView(box)
+function CoverageCalcScreen.drawMoveTypesView(canvas)
 	-- Draw top border box
-	gui.defaultTextBackground(box.fill)
-	gui.drawRectangle(box.x, box.y, box.width, box.height, box.border, box.fill)
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw header text
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(box.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.TitleAddMoveType), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(canvas.x, Constants.SCREEN.MARGIN - 2, Utils.toUpperUTF8(Resources.CoverageCalcScreen.TitleAddMoveType), Theme.COLORS["Header text"], headerShadow)
 end
 
-function CoverageCalcScreen.drawPokemonView(box)
-	local tabHeight = 12
-	box.y = Constants.SCREEN.MARGIN + tabHeight
-	box.height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - tabHeight
+function CoverageCalcScreen.drawPokemonView(canvas)
+	canvas.y = Constants.SCREEN.MARGIN + TAB_HEIGHT
+	canvas.height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - TAB_HEIGHT
 
 	-- Draw top border box
-	gui.defaultTextBackground(box.fill)
-	gui.drawRectangle(box.x, box.y, box.width, box.height, box.border, box.fill)
+	gui.defaultTextBackground(canvas.fill)
+	gui.drawRectangle(canvas.x, canvas.y, canvas.width, canvas.height, canvas.border, canvas.fill)
 
 	-- Draw each of possibile evolutions Pokemon
 	for _, button in pairs(SCREEN.Pager.Buttons) do
-		Drawing.drawButton(button, box.shadow)
+		Drawing.drawButton(button, canvas.shadow)
 	end
 
 	local totalCount = #(SCREEN.CoverageData[SCREEN.currentTab] or {})
 	if totalCount > 0 then
 		local totalText = string.format("%s: %s", Resources.CoverageCalcScreen.LabelTotal, totalCount)
-		Drawing.drawTransparentTextbox(box.x + 3, box.y + 124, totalText, box.text, box.fill, box.shadow)
+		Drawing.drawTransparentTextbox(canvas.x + 3, canvas.y + 124, totalText, canvas.text, canvas.fill, canvas.shadow)
 	end
 end
