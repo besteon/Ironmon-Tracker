@@ -417,7 +417,7 @@ function FileManager.buildSpritePath(animationType, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
--- Returns a properly formatted folder path where custom code files are located
+-- Returns a properly formatted folder path where custom code files are located; includes trailing slash
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {
 		FileManager.Folders.Custom,

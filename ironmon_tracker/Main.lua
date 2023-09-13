@@ -859,8 +859,9 @@ function Main.ReadAttemptsCount()
 				Main.currentSeed = smallestSeedNumber
 			end
 		end
+	else
+		-- Otherwise, leave the attempts count as-is
 	end
-	-- Otherwise, leave the attempts count at default, which is 1
 end
 
 function Main.WriteAttemptsCountToFile(filepath, attemptsCount)
