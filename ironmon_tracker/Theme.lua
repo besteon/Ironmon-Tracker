@@ -32,16 +32,7 @@ Theme.PresetsIndex = {
 	ACTIVE = 1,
 	DEFAULT = 2,
 }
-Theme.Presets = {
-	{
-		getText = function(self) return Resources.ThemeScreen.LabelActiveCustomTheme or "Active Theme (Custom)" end,
-		code = "", -- updated later in refreshThemePreview()
-	},
-	{
-		getText = function(self) return Resources.ThemeScreen.LabelDefaultTheme or "Default Theme" end,
-		code = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
-	},
-}
+Theme.Presets = {}
 
 Theme.PresetPreviewColors = {}
 for k, v in pairs(Theme.COLORS) do
@@ -237,6 +228,7 @@ function Theme.initialize()
 		button.boxColors = { Theme.Screen.borderColor, Theme.Screen.boxFillColor }
 	end
 
+	Theme.resetPresets()
 	Theme.populateThemePresets()
 	Theme.loadPresets()
 	Theme.refreshThemePreview()
@@ -280,6 +272,19 @@ function Theme.refreshButtons()
 			button:updateSelf()
 		end
 	end
+end
+
+function Theme.resetPresets()
+	Theme.Presets = {
+		{
+			getText = function(self) return Resources.ThemeScreen.LabelActiveCustomTheme or "Active Theme (Custom)" end,
+			code = "", -- updated later in refreshThemePreview()
+		},
+		{
+			getText = function(self) return Resources.ThemeScreen.LabelDefaultTheme or "Default Theme" end,
+			code = "FFFFFF FFFFFF 00FF00 FF0000 FFFF00 FFFFFF AAAAAA 222222 AAAAAA 222222 000000 1 1",
+		},
+	}
 end
 
 function Theme.loadPresets()

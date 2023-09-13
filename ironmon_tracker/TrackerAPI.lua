@@ -2,7 +2,7 @@ TrackerAPI = {}
 
 -- Returns the map id number of the current location of the player's character. When not in the game, the value is 0 (intro screen).
 function TrackerAPI.getMapId()
-	return Program.GameData.mapId
+	return Program.GameData.mapId or 0
 end
 
 -- Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.

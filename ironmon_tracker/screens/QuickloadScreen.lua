@@ -53,6 +53,8 @@ QuickloadScreen.Buttons = {
 			Options["Generate ROM each time"] = false
 			self.toggleState = Options.toggleSetting(self.optionKey)
 
+			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
+			Main.ReadAttemptsCount()
 			QuickloadScreen.verifyOptions()
 			QuickloadScreen.refreshButtons()
 			NavigationMenu.refreshButtons()
@@ -72,6 +74,8 @@ QuickloadScreen.Buttons = {
 			Options["Use premade ROMs"] = false
 			self.toggleState = Options.toggleSetting(self.optionKey)
 
+			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
+			Main.ReadAttemptsCount()
 			QuickloadScreen.verifyOptions()
 			QuickloadScreen.refreshButtons()
 			NavigationMenu.refreshButtons()
@@ -238,6 +242,8 @@ function QuickloadScreen.handleSetRomFolder(button)
 		else
 			Options.FILES[button.optionKey] = file
 			button.isSet = true
+			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
+			Main.ReadAttemptsCount()
 		end
 
 		Main.SaveSettings(true)
@@ -310,6 +316,8 @@ function QuickloadScreen.handleSetCustomSettings(button)
 		if extension == "rnqs" then
 			Options.FILES[button.optionKey] = file
 			button.isSet = true
+			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
+			Main.ReadAttemptsCount()
 			Main.SaveSettings(true)
 			Program.redraw(true)
 		else

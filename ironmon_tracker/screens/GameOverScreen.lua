@@ -1,6 +1,12 @@
 GameOverScreen = {
+	Statuses = {
+		STILL_PLAYING = 1,
+		LOST = 2,
+		WON = 3,
+	},
 	chosenQuoteIndex = 1,
 	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
+	status = nil,
 }
 
 GameOverScreen.Buttons = {
@@ -30,6 +36,7 @@ GameOverScreen.Buttons = {
 		getText = function(self) return Resources.GameOverScreen.ButtonContinuePlaying end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 66, 112, 16 },
 		onClick = function(self)
+			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 			-- Clear out this flag if player continues playing
 			if Battle.defeatedSteven then
 				Battle.defeatedSteven = false
@@ -65,6 +72,7 @@ GameOverScreen.Buttons = {
 				self.confirmAction = true
 				Program.redraw(true)
 			else
+				GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 				LogOverlay.isDisplayed = false
 				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()
@@ -129,6 +137,7 @@ function GameOverScreen.initialize()
 	GameOverScreen.isDisplayed = false -- Prevents repeated changing screens due to BattleOutcome persisting
 	GameOverScreen.battleStartSaveState = nil -- Creates a temporary save state in memory, for restarting a battle
 	GameOverScreen.enteredFromSpecialLocation = false
+	GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 
 	for _, button in pairs(GameOverScreen.Buttons) do
 		button.textColor = "Lower box text"
@@ -173,7 +182,13 @@ function GameOverScreen.shouldDisplay(battleOutcome)
 		if GameOverScreen.isDisplayed then
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end
+		GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 		return false
+	end
+	if Battle.defeatedSteven or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then -- Won the final battle
+		GameOverScreen.status = GameOverScreen.Statuses.WON
+	else
+		GameOverScreen.status = GameOverScreen.Statuses.LOST
 	end
 	return not GameOverScreen.isDisplayed
 end
@@ -358,10 +373,8 @@ function GameOverScreen.drawScreen()
 	end
 	textLineY = textLineY + Constants.SCREEN.LINESPACING
 
-	local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
-
 	-- Draw the game winning message or a random Pokémon Stadium announcer quote
-	if inHallOfFame or Battle.defeatedSteven then
+	if GameOverScreen.status == GameOverScreen.Statuses.WON then
 		local wrappedQuotes = Utils.getWordWrapLines(Resources.GameOverScreen.QuoteCongratulations, 30)
 		local firstTwoLines = { wrappedQuotes[1], wrappedQuotes[2] }
 		textLineY = textLineY + 5 * (2 - #firstTwoLines)

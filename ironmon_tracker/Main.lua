@@ -790,7 +790,7 @@ function Main.GetAttemptsFile()
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
 	local attemptsFileName, attemptsFilePath, settingsFileName
-	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
+	if Options["Generate ROM each time"] and Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
@@ -859,8 +859,9 @@ function Main.ReadAttemptsCount()
 				Main.currentSeed = smallestSeedNumber
 			end
 		end
+	else
+		-- Otherwise, leave the attempts count as-is
 	end
-	-- Otherwise, leave the attempts count at default, which is 1
 end
 
 function Main.WriteAttemptsCountToFile(filepath, attemptsCount)
