@@ -193,12 +193,21 @@ GameSettings.GameCharMap = {
 }
 
 function GameSettings.initialize()
-	local gamecode = memory.read_u32_be(0x0000AC, "ROM")
-	local gameversion = memory.read_u32_be(0x0000BC, "ROM")
+	local gamecode = Utils.reverseEndian32(Memory.read32(0x080000AC))
+
+	-- Don't load game address again if it's the same game
+	if GameSettings.hasInitialized and GameSettings.gamecode == gamecode then
+		return
+	end
 
 	GameSettings.setGameInfo(gamecode)
-	if GameSettings.gamename == "Unsupported Game" then return end -- Skip rest of setup if game not supported
 
+	-- Skip rest of setup if game not supported
+	if GameSettings.gamename == "Unsupported Game" then
+		return
+	end
+
+	local gameversion = Utils.reverseEndian32(Memory.read32(0x080000BC))
 	local gameIndex, versionIndex = GameSettings.setGameVersion(gameversion)
 
 	-- 0x02...
@@ -209,10 +218,27 @@ function GameSettings.initialize()
 	GameSettings.setRomAddresses(gameIndex, versionIndex)
 	-- Ability auto-tracking scripts
 	GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
-
-	-- Set up route data for the game
-	RouteData.setupRouteInfo(GameSettings.game)
+	GameSettings.hasInitialized = true
 end
+
+function GameSettings.getRomName()
+	if Main.IsOnBizhawk() then
+		return gameinfo.getromname() or ""
+	else
+		if emu == nil then return nil end -- I don't think this is needed anymore, but leaving it in for safety
+		return emu:getGameTitle() or ""
+	end
+end
+
+function GameSettings.getRomHash()
+	if Main.IsOnBizhawk() then
+		return gameinfo.getromhash() or ""
+	else
+		---@diagnostic disable-next-line: undefined-global
+		return emu:checksum(C.CHECKSUM.CRC32) or ""
+	end
+end
+
 
 function GameSettings.setGameInfo(gamecode)
 	-- Mapped by key=gamecode
@@ -309,14 +335,16 @@ function GameSettings.setGameInfo(gamecode)
 		},
 	}
 
-	if games[gamecode] ~= nil then
-		GameSettings.game = games[gamecode].GAME_NUMBER
-		GameSettings.gamename = games[gamecode].GAME_NAME
-		GameSettings.versiongroup = games[gamecode].VERSION_GROUP
-		GameSettings.versioncolor = games[gamecode].VERSION_COLOR
-		GameSettings.language = games[gamecode].LANGUAGE
-		GameSettings.badgePrefix = games[gamecode].BADGE_PREFIX
-		GameSettings.badgeXOffsets = games[gamecode].BADGE_XOFFSETS
+	local game = games[gamecode]
+	if game ~= nil then
+		GameSettings.gamecode = gamecode
+		GameSettings.game = game.GAME_NUMBER -- 1:Ruby/Sapphire, 2:Emerald, 3:FireRed/LeafGreen
+		GameSettings.gamename = game.GAME_NAME
+		GameSettings.versiongroup = game.VERSION_GROUP -- 1:Ruby/Sapphire/Emerald, 2:FireRed/LeafGreen
+		GameSettings.versioncolor = game.VERSION_COLOR
+		GameSettings.language = game.LANGUAGE
+		GameSettings.badgePrefix = game.BADGE_PREFIX
+		GameSettings.badgeXOffsets = game.BADGE_XOFFSETS
 	else
 		GameSettings.gamename = "Unsupported Game"
 		Main.DisplayError("This game is unsupported by the Ironmon Tracker.\n\nCheck the tracker's README.txt file for currently supported games.")
@@ -331,106 +359,88 @@ function GameSettings.setGameVersion(gameversion)
 		["Ruby"] = {
 			gameIndex = 1,
 			[0x00410000] = { -- English 1.0
-				versionName = "Pokemon Ruby v1.0",
+				versionName = "Pokémon Ruby v1.0",
 				versionIndex = 1,
 			},
 			[0x01400000] = { -- English 1.1
-				versionName = "Pokemon Ruby v1.1",
+				versionName = "Pokémon Ruby v1.1",
 				versionIndex = 2
 			},
 			[0x023F0000] = { -- English 1.2
-				versionName = "Pokemon Ruby v1.2",
+				versionName = "Pokémon Ruby v1.2",
 				versionIndex = 3
 			},
 		},
 		["Sapphire"] = {
 			gameIndex = 2,
 			[0x00550000] = { -- English 1.0
-				versionName = "Pokemon Sapphire v1.0",
+				versionName = "Pokémon Sapphire v1.0",
 				versionIndex = 1,
 			},
 			[0x01540000] = { -- English 1.1
-				versionName = "Pokemon Sapphire v1.1",
+				versionName = "Pokémon Sapphire v1.1",
 				versionIndex = 2
 			},
 			[0x02530000] = { -- English 1.2
-				versionName = "Pokemon Sapphire v1.2",
+				versionName = "Pokémon Sapphire v1.2",
 				versionIndex = 3
 			},
 		},
 		["Emerald"] = {
 			gameIndex = 3,
 			[0x00720000] = { -- English
-				versionName = "Pokemon Emerald",
+				versionName = "Pokémon Emerald",
 				versionIndex = 1,
 			},
 		},
 		["FireRed"] = {
 			gameIndex = 4,
 			[0x00680000] = { -- English 1.0
-				versionName = "Pokemon FireRed v1.0",
+				versionName = "Pokémon FireRed v1.0",
 				versionIndex = 1,
 			},
 			[0x01670000] = { -- English 1.1
-				versionName = "Pokemon FireRed v1.1",
+				versionName = "Pokémon FireRed v1.1",
 				versionIndex = 2
 			},
 			[0x005A0000] = { -- Spanish
-				versionName = "Pokemon Rojo Fuego",
+				versionName = "Pokémon Rojo Fuego",
 				versionIndex = 3,
 			},
 			[0x00640000] = { -- Italian
-				versionName = "Pokemon Rosso Fuoco",
+				versionName = "Pokémon Rosso Fuoco",
 				versionIndex = 4,
 			},
 			[0x00670000] = { -- French
-				versionName = "Pokemon Rouge Feu",
+				versionName = "Pokémon Rouge Feu",
 				versionIndex = 5,
 			},
 			[0x00690000] = { -- German
-				versionName = "Pokemon Feuerrote",
+				versionName = "Pokémon Feuerrote",
 				versionIndex = 6,
 			},
 			[0x00630000] = { -- Japanese
-				versionName = "Pokemon FireRed J",
+				versionName = "Pokémon FireRed J",
 				versionIndex = 7,
 			},
 		},
 		["LeafGreen"] = {
 			gameIndex = 5,
 			[0x00810000] = { -- English 1.0
-				versionName = "Pokemon LeafGreen v1.0",
+				versionName = "Pokémon LeafGreen v1.0",
 				versionIndex = 1,
 			},
 			[0x01800000] = { -- English 1.1
-				versionName = "Pokemon LeafGreen v1.1",
+				versionName = "Pokémon LeafGreen v1.1",
 				versionIndex = 2
 			},
 		},
 	}
 
-	print(string.format("%s %s", "ROM Detected:", games[GameSettings.versioncolor][gameversion].versionName))
+	local gameInfo = games[GameSettings.versioncolor]
+	GameSettings.fullVersionName = gameInfo[gameversion].versionName
 
-	-- Load non-English language data
-	local gameLanguage = GameSettings.language
-	if gameLanguage == "Spanish" then
-		dofile(Main.DataFolder .. "/Languages/SpainData.lua")
-		SpainData.updateToSpainData()
-	elseif gameLanguage == "Italian" then
-		dofile(Main.DataFolder .. "/Languages/ItalyData.lua")
-		ItalyData.updateToItalyData()
-	elseif gameLanguage == "French" then
-		dofile(Main.DataFolder .. "/Languages/FranceData.lua")
-		FranceData.updateToFranceData()
-	elseif gameLanguage == "German" then
-		dofile(Main.DataFolder .. "/Languages/GermanyData.lua")
-		GermanyData.updateToGermanyData()
-	elseif gameLanguage == "Japanese" then
-		dofile(langFolder .. FileManager.Files.LanguageCode.JapanData)
-		JapanData.updateToJapanData()
-	end
-
-	return games[GameSettings.versioncolor].gameIndex, games[GameSettings.versioncolor][gameversion].versionIndex
+	return gameInfo.gameIndex, gameInfo[gameversion].versionIndex
 end
 
 -- EWRAM (02xxxxxx) addresses are the same between all versions of a game
@@ -461,26 +471,27 @@ function GameSettings.setEwramAddresses()
 		-- RS: pssData (gSharedMem + 0x18000) + lastpage offset
 		gTrainerBattleOpponent_A = { 0x0202ff5e, 0x02038bca, { 0x020386ae, 0x020386ae + jpOffset }, },
 		gTrainerBattleOpponent_B = { nil, 0x02038bcc, nil }, -- Emerald Only
-		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, 0x0203b140 },
-		gBattleTypeFlags = { 0x020239f8, 0x02022fec, 0x02022b4c },
-		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, 0x02023bc8 },
-		gBattlersCount = { 0x02024a68, 0x0202406c, 0x02023bcc },
-		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, 0x02023bce },
-		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, 0x02023bda },
-		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, 0x02023be2 },
-		gBattleMons = { 0x02024a80, 0x02024084, 0x02023be4 },
-		gTakenDmg = { 0x02024bf4, 0x020241f8, 0x02023d58 },
-		gBattlerAttacker = { 0x02024c07, 0x0202420B, 0x02023d6b },
-		gBattlerTarget = { 0x02024c08, 0x0202420c, 0x02023d6c },
-		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, 0x02023d74 },
-		gMoveResultFlags = { 0x02024c68, 0x0202427c, 0x02023dcc },
-		gHitMarker = { 0x02024c6c, 0x02024280, 0x02023dd0 },
-		gBattleCommunication = { 0x02024d1e, 0x02024332, 0x02023e82 },
-		gBattleOutcome = { 0x02024d26, 0x0202433a, 0x02023e8a }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-		gBattleWeather = { 0x02024db8, 0x020243cc, 0x02023f1c },
-		gMoveToLearn = { 0x02024e82, 0x020244e2, 0x02024022 },
-		gMapHeader = { 0x0202e828, 0x02037318, 0x02036dfc },
-		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, 0x020370d0 },
+		sMonSummaryScreen = { 0x02018000 + 0x76, 0x0203cf1c, { 0x0203b140, 0x0203b140 + jpOffset }, },
+		gBattleTypeFlags = { 0x020239f8, 0x02022fec, { 0x02022b4c, 0x02022b4c + jpOffset }, },
+		gBattleControllerExecFlags = { 0x02024a64, 0x02024068, { 0x02023bc8, 0x02023bc8 + jpOffset }, },
+		gBattlersCount = { 0x02024a68, 0x0202406c, { 0x02023bcc, 0x02023B2C }, },
+		gBattlerPartyIndexes = { 0x02024a6a, 0x0202406e, { 0x02023bce, 0x02023bce + jpOffset }, },
+		gActionsByTurnOrder = { 0x02024a76, 0x0202407a, { 0x02023bda, 0x02023bda + jpOffset }, },
+		gCurrentTurnActionNumber = { 0x02024a7e, 0x02024082, { 0x02023be2, 0x02023be2 + jpOffset }, },
+		gBattleMons = { 0x02024a80, 0x02024084, { 0x02023be4, 0x02023b44 }, },
+		gTakenDmg = { 0x02024bf4, 0x020241f8, { 0x02023d58, 0x02023d58 + jpOffset }, },
+		gBattlerAttacker = { 0x02024c07, 0x0202420B, { 0x02023d6b, 0x02023d6b + jpOffset }, },
+		gBattlerTarget = { 0x02024c08, 0x0202420c, { 0x02023d6c, 0x02023d6c + jpOffset }, },
+		gBattlescriptCurrInstr = { 0x02024c10, 0x02024214, { 0x02023d74, 0x02023d74 + jpOffset }, },
+		gMoveResultFlags = { 0x02024c68, 0x0202427c, { 0x02023dcc, 0x02023dcc + jpOffset }, },
+		gHitMarker = { 0x02024c6c, 0x02024280, { 0x02023dd0, 0x02023dd0 + jpOffset }, },
+		gBattleCommunication = { 0x02024d1e, 0x02024332, { 0x02023e82, 0x02023e82 + jpOffset }, },
+		gBattleOutcome = { 0x02024d26, 0x0202433a, { 0x02023e8a, 0x02023DEA }, }, -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+		gBattleStructPtr = { nil, 0x0202449c, { 0x02023fe8, 0x02023fe8 + jpOffset }, },
+		gBattleWeather = { 0x02024db8, 0x020243cc, { 0x02023f1c, 0x02023f1c + jpOffset }, },
+		gMoveToLearn = { 0x02024e82, 0x020244e2, { 0x02024022, 0x02024022 + jpOffset }, },
+		gMapHeader = { 0x0202e828, 0x02037318, { 0x02036dfc, 0x02036D30 }, },
+		gSpecialVar_Result = { 0x0202e8dc, 0x020375f0, { 0x020370d0, 0x020370d0 + jpOffset }, },
 		-- RS: gUnknown_0202E8E2
 		sSpecialFlags = { 0x0202e8e2, 0x020375fc, { 0x020370e0, 0x020370e0 + jpOffset }, }, -- [3 = In catching tutorial, 0 = Not in catching tutorial]
 		gSpecialVar_ItemId = { 0x0203855e, 0x0203ce7c, { 0x0203ad30, 0x0203ad30 + jpOffset }, },
@@ -506,7 +517,8 @@ function GameSettings.setEwramAddresses()
 		gBattleTextBuff1 = { nil, 0x02022f58, { 0x02022ab8, 0x02022ab8 + jpOffset }, },
 		gBattleTerrain = { nil, 0x02022ff0, { 0x02022b50, 0x02022b50 + jpOffset }, },
 		-- This address doesn't exist at all in RS
-		sStartMenuWindowId = { nil, 0x0203cd8c, 0x0203abe0 },
+		sStartMenuWindowId = { nil, 0x0203cd8c, { 0x0203abe0, 0x0203abe0 + jpOffset }, },
+		sSaveDialogDelay = { nil, 0x2037620, nil},
 	}
 
 	local languageIndex
@@ -536,7 +548,7 @@ function GameSettings.setIwramAddresses()
 		-- Addresses only in IWRAM for RS, but in EWRAM for Em/FRLG (so were already set by this point, omit to avoid overwrite)
 		pstats = { { 0x03004360 }, { nil, nil }, { nil, nil, nil } },
 		estats = { { 0x030045C0 }, { nil, nil }, { nil, nil, nil } },
-                gPlayerPartyCount = { { 0x03004350 }, { nil, nil }, { nil, nil, nil } },
+		gPlayerPartyCount = { { 0x03004350 }, { nil, nil }, { nil, nil, nil } },
 		sBattleBuffersTransferData = { { 0x03004040 }, { nil, nil }, { nil, nil, nil } },
 		gBattleTextBuff1 = { { 0x030041c0 }, { nil, nil }, { nil, nil, nil } },
 		gBattleTerrain = { { 0x0300428c }, { nil, nil }, { nil, nil, nil } },
@@ -549,8 +561,9 @@ function GameSettings.setIwramAddresses()
 		gMultiUsePlayerCursor = { { 0x03004344 }, { 0x03005d74 }, { 0x03004ff4, nil, nil } },
 
 		-- IWRAM addresses present in all games
-		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004ee0 } },
-		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x03004fe0 } },
+		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004fd0, 0x03004ee0 } },
+		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x030050d0, 0x03004fe0 } },
+		sSaveDialogDelay = { { 0x030006ac }, { nil, nil }, { 0x03000fa8, 0x03000fe8, 0x03000fa8 } },
 	}
 
 	local languageIndex
@@ -730,6 +743,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x82db1b6,},
 			{ 0x81d8fcc, 0x81d903c, 0x81d8afe, 0x81d6436, 0x81d779e, 0x81dd262, 0x081BCF88 },
 			{ 0x81d8fa8, 0x81d9018,}
+		},
+		BattleScript_MoveUsedWokeUp = {
+			{ 0x081d9509, 0x081d9521, 0x081d9521 },
+			{ 0x081d9499, 0x081d94b1, 0x081d94b1 },
+			{ 0x082db22E },
+			{ 0x081d9044, 0x081D90B4, 0x081D64AE, 0x081D8B76, 0x081D7816, 0x081DD2DA, 0x081BD000 },
+			{ 0x081d9020, 0x081d9090,},
 		},
 	}
 
@@ -1214,7 +1234,7 @@ function GameSettings.setAbilityTrackingAddresses(gameIndex, versionIndex)
 end
 
 function GameSettings.getTrackerAutoSaveName()
-	local filenameEnding = Constants.Files.PostFixes.AUTOSAVE .. Constants.Files.Extensions.TRACKED_DATA
+	local filenameEnding = FileManager.PostFixes.AUTOSAVE .. FileManager.Extensions.TRACKED_DATA
 
 	-- Remove trailing " (___)" from game name
 	return GameSettings.gamename:gsub("%s%(.*%)", " ") .. filenameEnding

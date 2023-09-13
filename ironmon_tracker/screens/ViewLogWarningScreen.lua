@@ -1,22 +1,4 @@
 ViewLogWarningScreen = {
-	Labels = {
-		-- First warnings paragraph. Second value is text color
-		warnings1 = {
-			{ "Are you sure you want to view the",   "Intermediate text" },
-			{ "log file?",                           "Intermediate text" },
-			{ "",                                    "" },
-			{ "In Ironmon, it's against the spirit", "" },
-			{ "of the challenge to view log info",   "" },
-			{ "about the game before it's over.",    "" },
-		},
-		-- Second warnings paragraph, displayed below "yes" button
-		warnings2 = {
-			{ "If you are unsure, simply do not", "" },
-			{ "view the log file.",               "" }
-		},
-		header = "! ! W A R N I N G ! !",
-		yes = "Yes, I'm sure",
-	},
 	Colors = {
 		text = "Lower box text",
 		border = "Lower box border",
@@ -24,38 +6,44 @@ ViewLogWarningScreen = {
 	},
 }
 
-local buttonHeight = 16
-local buttonWidth = 75
--- Used to more easily place the "Yes" button
-local buttonYOffset = Constants.SCREEN.MARGIN + 10 +
-	 ((#ViewLogWarningScreen.Labels.warnings1 + 1) * (Constants.SCREEN.LINESPACING))
--- Center the "Yes" button
-local buttonXOffset = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN +
-	 ((Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)) / 2) - (buttonWidth / 2)
-
 ViewLogWarningScreen.Buttons = {
-	-- "Yes, I'm sure" button, displayed in the middle of the screen
-	Yes = {
+	ViewLogFile = {
 		type = Constants.ButtonTypes.ICON_BORDER,
-		image = Constants.PixelImages.WARNING,
-		text = ViewLogWarningScreen.Labels.yes,
-		box = { buttonXOffset, buttonYOffset, buttonWidth, buttonHeight },
-		textColor = "Intermediate text",
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewCurrentLog end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 39, 56, 16 },
 		onClick = function(self)
 			LogOverlay.viewLogFile(FileManager.PostFixes.AUTORANDOMIZED)
-		end
+		end,
 	},
-	-- "Back" button, displayed in the bottom right corner of the screen
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
+	ViewPreviousLogFile = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		getText = function(self) return Resources.ViewLogWarningScreen.ButtonViewPreviousLog end,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 64, Constants.SCREEN.MARGIN + 39, 72, 16 },
 		onClick = function(self)
-			-- Save all of the Options to the Settings.ini file, and navigate back to the main Tracker screen
-			Main.SaveSettings()
-			Program.changeScreenView(ExtrasScreen)
+			LogOverlay.viewLogFile(FileManager.PostFixes.PREVIOUSATTEMPT)
 		end
 	},
+	WarningIcon1 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 41, Constants.SCREEN.MARGIN + 60, 10, 10 },
+	},
+	WarningIcon2 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 65, Constants.SCREEN.MARGIN + 60, 10, 10 },
+	},
+	WarningIcon3 = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 89, Constants.SCREEN.MARGIN + 60, 10, 10 },
+	},
+	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(ExtrasScreen) end),
 }
 
 -- Initialize the screen
@@ -92,47 +80,37 @@ function ViewLogWarningScreen.drawScreen()
 	}
 
 	-- Draw header text
-	local headerText = ViewLogWarningScreen.Labels.header:upper()
+	local headerText = Utils.toUpperUTF8(Resources.ViewLogWarningScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	local centerOffsetX = Utils.getCenteredTextX(headerText, topBox.width)
-	Drawing.drawText(topBox.x + centerOffsetX, Constants.SCREEN.MARGIN - 2, headerText,
-		Theme.COLORS[ViewLogWarningScreen.Colors.text],
-		headerShadow)
+	Drawing.drawText(topBox.x, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
 	gui.drawRectangle(topBox.x, topBox.y, topBox.width, topBox.height, topBox.border, topBox.fill)
 
+	local textLineY = topBox.y + 3
+
+	local wrappedDesc = Utils.getWordWrapLines(Resources.ViewLogWarningScreen.WarningAreYouSure, 32)
+	for _, line in pairs(wrappedDesc) do
+		Drawing.drawText(topBox.x + 4, textLineY, line, topBox.text, topBox.shadow)
+		textLineY = textLineY + Constants.SCREEN.LINESPACING
+	end
+	textLineY = textLineY + Constants.SCREEN.LINESPACING * 2 + 14 -- Skip over the view log buttons
+
+	wrappedDesc = Utils.getWordWrapLines(Resources.ViewLogWarningScreen.WarningSpiritOfIronmon, 35)
+	for _, line in pairs(wrappedDesc) do
+		Drawing.drawText(topBox.x + 4, textLineY, line, topBox.text, topBox.shadow)
+		textLineY = textLineY + Constants.SCREEN.LINESPACING
+	end
+	textLineY = textLineY + 6
+
+	wrappedDesc = Utils.getWordWrapLines(Resources.ViewLogWarningScreen.WarningIfUnsure, 35)
+	for _, line in pairs(wrappedDesc) do
+		Drawing.drawText(topBox.x + 4, textLineY, line, topBox.text, topBox.shadow)
+		textLineY = textLineY + Constants.SCREEN.LINESPACING
+	end
+
 	-- Draw buttons
 	for _, button in pairs(ViewLogWarningScreen.Buttons) do
 		Drawing.drawButton(button, topBox.shadow)
-	end
-
-	-- Draw warning paragraph 1
-	for i in ipairs(ViewLogWarningScreen.Labels.warnings1) do
-		local text = ViewLogWarningScreen.Labels.warnings1[i][1]
-		local color = ViewLogWarningScreen.Labels.warnings1[i][2]
-		if color == "" then
-			color = ViewLogWarningScreen.Colors.text
-		end
-		local shadow = Utils.calcShadowColor(Theme.COLORS[ViewLogWarningScreen.Colors.boxFill])
-		local centerOffsetX = Utils.getCenteredTextX(text, topBox.width)
-		Drawing.drawText(topBox.x + centerOffsetX, topBox.y + (i * Constants.SCREEN.LINESPACING) - 9, text,
-			Theme.COLORS[color],
-			shadow)
-	end
-
-	-- Draw warning paragraph 2
-	for i in ipairs(ViewLogWarningScreen.Labels.warnings2) do
-		local text = ViewLogWarningScreen.Labels.warnings2[i][1]
-		local color = ViewLogWarningScreen.Labels.warnings2[i][2]
-		if color == "" then
-			color = ViewLogWarningScreen.Colors.text
-		end
-		local shadow = Utils.calcShadowColor(Theme.COLORS[ViewLogWarningScreen.Colors.boxFill])
-		local centerOffsetX = Utils.getCenteredTextX(text, topBox.width)
-		Drawing.drawText(topBox.x + centerOffsetX, buttonYOffset + buttonHeight + (i * Constants.SCREEN.LINESPACING) - 4,
-			text,
-			Theme.COLORS[color],
-			shadow)
 	end
 end

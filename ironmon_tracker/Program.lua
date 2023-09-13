@@ -5,6 +5,8 @@ Program = {
 	inCatchingTutorial = false,
 	hasCompletedTutorial = false,
 	activeFormId = 0,
+	lastActiveTimestamp = 0,
+	clientFpsMultiplier = 1,
 	Frames = {
 		waitToDraw = 30, -- counts down
 		highAccuracyUpdate = 10, -- counts down
@@ -12,7 +14,9 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
+		hideEnemy = 0, -- counts down
 		battleDataDelay = 60, -- counts down
+		Others = {}, -- list of other frame counter objects
 	},
 }
 
@@ -31,6 +35,124 @@ Program.GameData = {
 	},
 }
 
+Program.GameTimer = {
+	timeLastChecked = 0, -- Number of seconds
+	showPauseTipUntil = 0, -- Displays "how to pause timer" tip until this time occurs; number of seconds
+	hasStarted = false, -- Used to determine if the game has started (not in Title menus)
+	isPaused = false, -- Used to manually pause the timer
+	readyToDraw = false, -- Anytime the timer changes, it needs to be redrawn
+	textColor = 0xFFFFFFFF,
+	pauseColor = 0xFFFFFF00,
+	notStartedColor = 0xFFAAAAAA,
+	boxColor = 0x78000000,
+	margin = 0,
+	padding = 2,
+	location = "LowerRight",
+	box = {
+		x = Constants.SCREEN.WIDTH,
+		y = Constants.SCREEN.HEIGHT,
+		width = 20,
+		height = Constants.Font.SIZE,
+	},
+	getText = function(self)
+		return Utils.formatTime(Tracker.Data.playtime or 0)
+	end,
+	initialize = function(self)
+		self.hasStarted = false
+		self.location = Options["Game timer location"] or "LowerRight"
+		self.box.height = Constants.Font.SIZE - 4 + (2 * self.padding)
+		self:update()
+	end,
+	start = function(self)
+		self.hasStarted = true
+		self.isPaused = false
+		self.timeLastChecked = os.time()
+		self.showPauseTipUntil = self.timeLastChecked
+	end,
+	pause = function(self)
+		if not self.hasStarted then return end
+		self.isPaused = true
+	end,
+	unpause = function(self)
+		if self.isPaused then
+			self.timeLastChecked = os.time()
+		end
+		self.isPaused = false
+	end,
+	update = function(self)
+		local currTime = os.time()
+		local prevTime = self.timeLastChecked
+		self.timeLastChecked = currTime
+		if self.hasStarted and not self.isPaused then
+			local timeDelta = math.floor(os.difftime(currTime, prevTime))
+			-- If emulator itself is paused-unpaused, don't add all that "paused time"
+			if timeDelta > 0 then
+				Tracker.Data.playtime = Tracker.Data.playtime + 1
+			end
+			self.readyToDraw = (timeDelta ~= 0)
+		end
+
+		self.box.width = Utils.calcWordPixelLength(self:getText() or "") - 1 + (2 * self.padding)
+		self:updateLocationCoords()
+	end,
+	updateLocationCoords = function(self)
+		if self.location == "UpperLeft" or self.location == "LowerLeft" then
+			self.box.x = math.max(self.margin, 0)
+		elseif self.location == "UpperCenter" or self.location == "LowerCenter" then
+			self.box.x = math.floor(math.max((Constants.SCREEN.WIDTH - self.box.width) / 2 - 1, 0))
+		else -- Lower-X
+			self.box.x = math.max(Constants.SCREEN.WIDTH - self.box.width - self.margin - 1, 0)
+		end
+		if self.location == "UpperLeft" or self.location == "UpperCenter" or self.location == "UpperRight" then
+			self.box.y = math.max(self.margin, 0)
+		else -- Lower-Y
+			self.box.y = math.max(Constants.SCREEN.HEIGHT - self.box.height - self.margin - 1, 0)
+		end
+	end,
+	reset = function(self)
+		Tracker.Data.playtime = 0
+		self.hasStarted = false
+		self.readyToDraw = false
+		self:unpause()
+	end,
+	checkInput = function(self, xmouse, ymouse)
+		-- Don't pause if either game screen overlay is covering the screen
+		if not Options["Display play time"] or LogOverlay.isDisplayed or UpdateScreen.showNotes then return end
+		local clicked = Input.isMouseInArea(xmouse, ymouse, self.box.x, self.box.y, self.box.width, self.box.height)
+		if clicked then
+			if self.isPaused then
+				self:unpause()
+			else
+				self:pause()
+			end
+			self.readyToDraw = true
+		end
+	end,
+	draw = function(self)
+		self.readyToDraw = false
+		if Options["Display play time"] then
+			local x, y, width, height = self.box.x, self.box.y, self.box.width, self.box.height
+			local formattedTime = self:getText()
+			local color = self.textColor
+			if not self.hasStarted then
+				color = self.notStartedColor
+			elseif self.isPaused then
+				color = self.pauseColor
+			end
+			gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+			Drawing.drawText(x, y - 1, formattedTime, color)
+
+			if self.showPauseTipUntil > self.timeLastChecked then
+				width = Utils.calcWordPixelLength(Resources.ExtrasScreen.TimerPauseTip) - 1 + (2 * self.padding)
+				x = math.max(self.box.x + self.box.width - width - self.margin, 0)
+				y = math.max(self.box.y - self.box.height - self.margin - 2, self.box.height + self.margin + 2)
+				gui.drawRectangle(x, y, width, height, self.boxColor, self.boxColor)
+				Drawing.drawText(x, y - 1, Resources.ExtrasScreen.TimerPauseTip, self.textColor)
+			end
+		end
+	end,
+}
+
 Program.ActiveRepel = {
 	inUse = false,
 	stepCount = 0,
@@ -40,6 +162,11 @@ Program.ActiveRepel = {
 		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
+	end,
+	draw = function(self)
+		if self:shouldDisplay() then
+			Drawing.drawRepelUsage()
+		end
 	end,
 }
 
@@ -69,9 +196,14 @@ Program.AutoSaver = {
 		return false
 	end,
 	checkForNextSave = function(self)
-		if not Main.IsOnBizhawk() then return end -- flush saveRAM only for Bizhawk
 		if self:updateSaveCount() then
-			client.saveram()
+			-- Force Tracker Data to also save
+			Program.Frames.saveData = 0
+
+			-- Flush saveRAM only for Bizhawk
+			if Main.IsOnBizhawk() then
+				client.saveram()
+			end
 		end
 	end
 }
@@ -91,12 +223,15 @@ function Program.initialize()
 	end
 
 	Program.AutoSaver:updateSaveCount()
+	Program.GameTimer:initialize()
+	Program.lastActiveTimestamp = os.time()
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
 	Program.Frames.three_sec_update = 0
 	Program.Frames.waitToDraw = 1
+	Program.Frames.Others = {}
 end
 
 function Program.mainLoop()
@@ -114,22 +249,26 @@ end
 
 -- 'forced' = true will force a draw, skipping the normal frame wait time
 function Program.redraw(forced)
-	-- Only redraw the screen every half second (60 frames/sec)
-	if not forced and Program.Frames.waitToDraw > 0 then
-		Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+	local shouldDraw = (forced == true) or (Program.Frames.waitToDraw <= 0) or Program.GameTimer.readyToDraw
+
+	if not shouldDraw then
+		if Program.Frames.waitToDraw > 0 then
+			Program.Frames.waitToDraw = Program.Frames.waitToDraw - 1
+		end
 		return
 	end
 
+	-- Only redraw the screen every half second (60 frames/sec)
 	Program.Frames.waitToDraw = 30
 
 	if Main.IsOnBizhawk() then
-		-- Draw the repel icon here so that it's drawn regardless of what tracker screen is displayed
-		if Program.ActiveRepel:shouldDisplay() then
-			Drawing.drawRepelUsage()
-		end
+		Program.ActiveRepel:draw()
+		Program.GameTimer:draw()
 
-		-- The LogOverlay viewer doesn't occupy the same screen space and needs its own check
-		if LogOverlay.isDisplayed then
+		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
+		if UpdateScreen.showNotes then
+			UpdateScreen.drawReleaseNotesOverlay()
+		elseif LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
 		end
 
@@ -145,10 +284,15 @@ function Program.redraw(forced)
 	end
 
 	CustomCode.afterRedraw()
+	SpriteData.cleanupActiveIcons()
 end
 
 function Program.changeScreenView(screen)
 	-- table.insert(Program.previousScreens, Program.currentScreen) -- TODO: implement later
+	Program.lastActiveTimestamp = os.time()
+	if type(screen.refreshButtons) == "function" then
+		screen:refreshButtons()
+	end
 	Program.currentScreen = screen
 	Program.redraw(true)
 end
@@ -166,15 +310,26 @@ end
 
 function Program.destroyActiveForm()
 	if Program.activeFormId ~= nil and Program.activeFormId ~= 0 then
-		forms.destroy(Program.activeFormId)
-		Program.activeFormId = 0
+		Utils.closeBizhawkForm(Program.activeFormId)
 	end
 end
 
 function Program.update()
 	-- Be careful adding too many things to this 10 frame update
 	if Program.Frames.highAccuracyUpdate == 0 then
+		if Main.IsOnBizhawk() then
+			Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+		end
+
 		Program.updateMapLocation() -- trying this here to solve many future problems
+
+		if not Program.GameTimer.hasStarted and Program.isValidMapLocation() then
+			Program.GameTimer:start()
+		end
+		Program.GameTimer:update()
+		if not CrashRecoveryScreen.started and Program.isValidMapLocation() then
+			CrashRecoveryScreen.startSavingBackups()
+		end
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] then
@@ -196,7 +351,7 @@ function Program.update()
 
 	-- Get any "new" information from game memory for player's pokemon team every half second (60 frames/sec)
 	if Program.Frames.lowAccuracyUpdate == 0 then
-		Program.inCatchingTutorial = Program.isInCatchingTutorial()
+		Program.updateCatchingTutorial()
 
 		if not Program.inCatchingTutorial and not Program.isInEvolutionScene() then
 			Program.updatePokemonTeams()
@@ -244,6 +399,11 @@ function Program.update()
 			Program.AutoSaver:checkForNextSave()
 			TimeMachineScreen.checkCreatingRestorePoint()
 		end
+
+		if Input.joypadUsedRecently then
+			Program.lastActiveTimestamp = os.time()
+			SpriteData.checkForIdleSleeping(0)
+		end
 	end
 
 	-- Only update "Heals in Bag", Evolution Stones, "PC Heals", and "Badge Data" info every 3 seconds (3 seconds * 60 frames/sec)
@@ -251,6 +411,15 @@ function Program.update()
 		Program.updateBagItems()
 		Program.updatePCHeals()
 		Program.updateBadgesObtained()
+		CrashRecoveryScreen.trySaveBackup()
+
+		if not Input.joypadUsedRecently then
+			local secondsSinceLastActive = math.max(os.time() - Program.lastActiveTimestamp, 0)
+			SpriteData.checkForIdleSleeping(secondsSinceLastActive)
+		else
+			-- Reset the joypad button tracking, checking only once every 3 seconds if active
+			Input.joypadUsedRecently = false
+		end
 	end
 
 	-- Only save tracker data every 1 minute (60 seconds * 60 frames/sec) and after every battle (set elsewhere)
@@ -272,6 +441,52 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
+	if Program.Frames.hideEnemy > 0 then
+		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
+	end
+
+	for _, framecounter in pairs(Program.Frames.Others or {}) do
+		if type(framecounter.step) == "function" then
+			framecounter:step()
+		end
+	end
+
+	SpriteData.updateActiveIcons()
+end
+
+--- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
+--- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
+--- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
+--- @param callFunc function|nil Optional function to call each time the counter reaches 0.
+--- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+--- @return table|nil FrameCounter Returns the created frame counter
+function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+	if label == nil or (frames or 0) <= 0 then return nil end
+	Program.Frames.Others[label] = {
+		framesElapsed = 0.0,
+		maxFrames = frames,
+		paused = false,
+		pause = function(self) self.paused = true end,
+		unpause = function(self) self.paused = false end,
+		step = function(self)
+			if self.paused then return end
+			-- Sync with client frame rate (turbo/unthrottle)
+			local delta = scaleWithSpeedup and (1.0 / Program.clientFpsMultiplier) or 1
+			self.framesElapsed = self.framesElapsed + delta
+			if self.framesElapsed >= self.maxFrames then
+				self.framesElapsed = 0.0
+				if type(callFunc) == "function" then
+					callFunc()
+				end
+			end
+		end,
+	}
+	return Program.Frames.Others[label]
+end
+
+function Program.removeFrameCounter(label)
+	if label == nil then return end
+	Program.Frames.Others[label] = nil
 end
 
 function Program.updateRepelSteps()
@@ -330,8 +545,10 @@ function Program.updatePokemonTeams()
 					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
 						-- Reset the tracker data as old data was loaded and we have a different trainerID now
 						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
+						local playtime = Tracker.Data.playtime
 						Tracker.resetData()
 						Tracker.Data.trainerID = newPokemonData.trainerID
+						Tracker.Data.playtime = playtime
 					end
 
 					-- Unset the new game flag
@@ -348,14 +565,6 @@ function Program.updatePokemonTeams()
 				newPokemonData.totalExp = totalExp
 
 				Tracker.addUpdatePokemon(newPokemonData, personality, true)
-
-				-- TODO: Removing for now until some better option is available, not sure there is one
-				-- If this is a newly caught Pokémon, track all of its moves. Can't do this later cause TMs/HMs
-				-- if previousPersonality == 0 then
-				-- 	for _, move in ipairs(newPokemonData.moves) do
-				-- 		Tracker.TrackMove(newPokemonData.pokemonID, move.id, newPokemonData.level)
-				-- 	end
-				-- end
 			end
 		end
 
@@ -391,11 +600,11 @@ function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
-	local aux          = personality % 24
-	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
-	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
+	local aux			= personality % 24
+	local growthoffset	= (MiscData.TableData.growth[aux + 1] - 1) * 12
+	local attackoffset	= (MiscData.TableData.attack[aux + 1] - 1) * 12
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-	local miscoffset   = (MiscData.TableData.misc[aux + 1] - 1) * 12
+	local miscoffset	= (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -615,11 +824,26 @@ function Program.isValidMapLocation()
 end
 
 function Program.HandleExit()
-	if Main.IsOnBizhawk() then
-		gui.clearImageCache()
-		Drawing.clearGUI()
-		client.SetGameExtraPadding(0, 0, 0, 0)
-		forms.destroyall()
+	if not Main.IsOnBizhawk() then
+		return
+	end
+
+	gui.clearImageCache()
+	Drawing.clearGUI()
+	client.SetGameExtraPadding(0, 0, 0, 0)
+	forms.destroyall()
+
+	-- Emulator is closing as expected; no crash
+	CrashRecoveryScreen.logCrashReport(false)
+end
+
+-- Returns focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window
+function Program.focusBizhawkWindow()
+	if not Main.IsOnBizhawk() then return end
+	local bizhawkWindowName = GameSettings.getRomName()
+	if bizhawkWindowName and bizhawkWindowName ~= "" then
+		local command = string.format("AppActivate(%s)", bizhawkWindowName)
+		FileManager.tryOsExecute(command)
 	end
 end
 
@@ -673,19 +897,21 @@ function Program.getPokemonTypes(isOwn, isLeft)
 	}
 end
 
--- Returns true only if the player hasn't completed the catching tutorial
-function Program.isInCatchingTutorial()
-	if Program.hasCompletedTutorial then return false end
+-- Updates 'inCatchingTutorial' and 'hasCompletedTutorial' based on if the player has/hasn't completed the catching tutorial
+function Program.updateCatchingTutorial()
+	if Program.hasCompletedTutorial then return end
 
 	local tutorialFlag = Memory.readbyte(GameSettings.sSpecialFlags)
-	if tutorialFlag == 3 then
-		Program.inCatchingTutorial = true
-	elseif Program.inCatchingTutorial and tutorialFlag == 0 then
-		Program.inCatchingTutorial = false
+
+	-- At some point after the tutorial has begun, it will end (Flag=0)
+	if Program.inCatchingTutorial and tutorialFlag == 0 then
 		Program.hasCompletedTutorial = true
 	end
 
-	return Program.inCatchingTutorial
+	Program.inCatchingTutorial = (tutorialFlag == 3)
+	if Program.inCatchingTutorial then
+		Battle.recentBattleWasTutorial = true
+	end
 end
 
 function Program.isInEvolutionScene()
@@ -774,12 +1000,15 @@ function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 		return totals
 	end
 
+	-- Define some max values to prevent erroneous game data reads
+	local maxPossibleQuantity = 999
 	-- Formatted as: healingItemsInBag[itemID] = quantity
 	for itemID, quantity in pairs(healingItemsInBag) do
 		local healItemData = MiscData.HealingItems[itemID]
 		if healItemData ~= nil and quantity > 0 then
 			local healingPercentage = 0
 			if healItemData.type == MiscData.HealingType.Constant then
+				-- Healing is in a percentage compared to the mon's max HP
 				local percentage = healItemData.amount / pokemonMaxHP * 100
 				if percentage > 100 then
 					percentage = 100
@@ -788,9 +1017,11 @@ function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
 			elseif healItemData.type == MiscData.HealingType.Percentage then
 				healingPercentage = healItemData.amount * quantity
 			end
-			-- Healing is in a percentage compared to the mon's max HP
-			totals.healing = totals.healing + healingPercentage
-			totals.numHeals = totals.numHeals + quantity
+
+			if quantity > 0 and quantity <= maxPossibleQuantity then
+				totals.healing = totals.healing + healingPercentage
+				totals.numHeals = totals.numHeals + quantity
+			end
 		end
 	end
 

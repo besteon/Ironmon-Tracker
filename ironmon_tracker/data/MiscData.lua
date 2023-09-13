@@ -44,55 +44,33 @@ MiscData.StatusCodeMap = {
 	[MiscData.StatusType.Faint] = "FNT",
 }
 
--- Currently unused data
-MiscData.Natures = {
-	"Hardy", "Lonely", "Brave", "Adamant", "Naughty",
-	"Bold", "Docile", "Relaxed", "Impish", "Lax",
-	"Timid", "Hasty", "Serious", "Jolly", "Naive",
-	"Modest", "Mild", "Quiet", "Bashful", "Rash",
-	"Calm", "Gentle", "Sassy", "Careful", "Quirky"
-}
+function MiscData.updateResources()
+	if Resources.Game.NatureNames and #Resources.Game.NatureNames > 0 then
+		MiscData.Natures = Resources.Game.NatureNames
+	end
+	if Resources.Game.ItemNames and #Resources.Game.ItemNames > 0 then
+		MiscData.Items = Resources.Game.ItemNames
+	end
+	for itemId, item in pairs(MiscData.HealingItems) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
+	for itemId, item in pairs(MiscData.StatusItems) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
+	for itemId, item in pairs(MiscData.EvolutionStones) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
+end
 
-MiscData.Items = {
-	"Master Ball", "Ultra Ball", "Great Ball", "Pok" .. Constants.getC("é") .. " Ball", "Safari Ball", "Net Ball", "Dive Ball", "Nest Ball",
-	"Repeat Ball", "Timer Ball", "Luxury Ball", "Premier Ball", "Potion", "Antidote", "Burn Heal", "Ice Heal", "Awakening",
-	"Parlyz Heal", "Full Restore", "Max Potion", "Hyper Potion", "Super Potion", "Full Heal", "Revive", "Max Revive", "Fresh Water",
-	"Soda Pop", "Lemonade", "Moomoo Milk", "EnergyPowder", "Energy Root", "Heal Powder", "Revival Herb", "Ether", "Max Ether",
-	"Elixir", "Max Elixir", "Lava Cookie", "Blue Flute", "Yellow Flute", "Red Flute", "Black Flute", "White Flute", "Berry Juice",
-	"Sacred Ash", "Shoal Salt", "Shoal Shell", "Red Shard", "Blue Shard", "Yellow Shard", "Green Shard", "unknown", "unknown",
-	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "HP Up", "Protein",
-	"Iron", "Carbos", "Calcium", "Rare Candy", "PP Up", "Zinc", "PP Max", "unknown", "Guard Spec.", "Dire Hit", "X Attack",
-	"X Defend", "X Speed", "X Accuracy", "X Special", "Pok" .. Constants.getC("é") .. " Doll", "Fluffy Tail", "unknown", "Super Repel", "Max Repel",
-	"Escape Rope", "Repel", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "Sun Stone", "Moon Stone",
-	"Fire Stone", "Thunder Stone", "Water Stone", "Leaf Stone", "unknown", "unknown", "unknown", "unknown", "TinyMushroom",
-	"Big Mushroom", "unknown", "Pearl", "Big Pearl", "Stardust", "Star Piece", "Nugget", "Heart Scale", "unknown", "unknown",
-	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "Orange Mail", "Harbor Mail", "Glitter Mail",
-	"Mech Mail", "Wood Mail", "Wave Mail", "Bead Mail", "Shadow Mail", "Tropic Mail", "Dream Mail", "Fab Mail", "Retro Mail",
-	"Cheri Berry", "Chesto Berry", "Pecha Berry", "Rawst Berry", "Aspear Berry", "Leppa Berry", "Oran Berry", "Persim Berry",
-	"Lum Berry", "Sitrus Berry", "Figy Berry", "Wiki Berry", "Mago Berry", "Aguav Berry", "Iapapa Berry", "Razz Berry", "Bluk Berry",
-	"Nanab Berry", "Wepear Berry", "Pinap Berry", "Pomeg Berry", "Kelpsy Berry", "Qualot Berry", "Hondew Berry", "Grepa Berry",
-	"Tamato Berry", "Cornn Berry", "Magost Berry", "Rabuta Berry", "Nomel Berry", "Spelon Berry", "Pamtre Berry", "Watmel Berry",
-	"Durin Berry", "Belue Berry", "Liechi Berry", "Ganlon Berry", "Salac Berry", "Petaya Berry", "Apicot Berry", "Lansat Berry",
-	"Starf Berry", "Enigma Berry", "unknown", "unknown", "unknown", "BrightPowder", "White Herb", "Macho Brace", "Exp. Share",
-	"Quick Claw", "Soothe Bell", "Mental Herb", "Choice Band", "King's Rock", "SilverPowder", "Amulet Coin", "Cleanse Tag", "Soul Dew",
-	"DeepSeaTooth", "DeepSeaScale", "Smoke Ball", "Everstone", "Focus Band", "Lucky Egg", "Scope Lens", "Metal Coat", "Leftovers",
-	"Dragon Scale", "Light Ball", "Soft Sand", "Hard Stone", "Miracle Seed", "BlackGlasses", "Black Belt", "Magnet", "Mystic Water",
-	"Sharp Beak", "Poison Barb", "NeverMeltIce", "Spell Tag", "TwistedSpoon", "Charcoal", "Dragon Fang", "Silk Scarf", "Up-Grade",
-	"Shell Bell", "Sea Incense", "Lax Incense", "Lucky Punch", "Metal Powder", "Thick Club", "Stick", "unknown", "unknown", "unknown",
-	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown",
-	"unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown", "unknown",
-	"unknown", "unknown", "unknown", "Red Scarf", "Blue Scarf", "Pink Scarf", "Green Scarf", "Yellow Scarf", "Mach Bike", "Coin Case",
-	"Itemfinder", "Old Rod", "Good Rod", "Super Rod", "S.S. Ticket", "Contest Pass", "unknown", "Wailmer Pail", "Devon Goods",
-	"Soot Sack", "Basement Key", "Acro Bike", "Pok" .. Constants.getC("é") .. "block Case", "Letter", "Eon Ticket", "Red Orb", "Blue Orb", "Scanner", "Go-Goggles",
-	"Meteorite", "Rm. 1 Key", "Rm. 2 Key", "Rm. 4 Key", "Rm. 6 Key", "Storage Key", "Root Fossil", "Claw Fossil", "Devon Scope",
-	"TM01", "TM02", "TM03", "TM04", "TM05", "TM06", "TM07", "TM08", "TM09", "TM10", "TM11", "TM12", "TM13", "TM14", "TM15",
-	"TM16", "TM17", "TM18", "TM19", "TM20", "TM21", "TM22", "TM23", "TM24", "TM25", "TM26", "TM27", "TM28", "TM29", "TM30",
-	"TM31", "TM32", "TM33", "TM34", "TM35", "TM36", "TM37", "TM38", "TM39", "TM40", "TM41", "TM42", "TM43", "TM44", "TM45",
-	"TM46", "TM47", "TM48", "TM49", "TM50", "HM01", "HM02", "HM03", "HM04", "HM05", "HM06", "HM07", "HM08", "unknown", "unknown",
-	"Oak's Parcel","Pok" .. Constants.getC("é") .. " Flute", "Secret Key", "Bike Voucher", "Gold Teeth", "Old Amber", "Card Key", "Lift Key", "Helix Fossil", "Dome Fossil", "Silph Scope",
-	"Bicycle", "Town Map", "Vs. Seeker", "Fame Checker", "TM Case", "Berry Pouch", "Teachy TV", "Tri-Pass", "Rainbow Pass", "Tea",
-	"MysticTicket", "AuroraTicket", "Powder Jar", "Ruby", "Sapphire", "Magma Emblem", "Old Sea Map"
-}
+-- Ordered lists that are populated from Resources
+MiscData.Natures = {}
+MiscData.Items = {}
 
 MiscData.HealingItems = {
 	[13] = {
@@ -334,37 +312,31 @@ MiscData.EvolutionStones = {
 	[93] = {
 		id = 93,
 		name = "Sun Stone",
-		evolutions = {PokemonData.Evolutions.SUN, PokemonData.Evolutions.LEAF_SUN, PokemonData.Evolutions.STONES},
 		pocket = MiscData.BagPocket.Items,
 	},
 	[94] = {
 		id = 94,
 		name = "Moon Stone",
-		evolutions = {PokemonData.Evolutions.MOON, PokemonData.Evolutions.STONES},
 		pocket = MiscData.BagPocket.Items,
 	},
 	[95] = {
 		id = 95,
 		name = "Fire Stone",
-		evolutions = {PokemonData.Evolutions.FIRE, PokemonData.Evolutions.STONES},
 		pocket = MiscData.BagPocket.Items,
 	},
 	[96] = {
 		id = 96,
 		name = "Thunder Stone",
-		evolutions = {PokemonData.Evolutions.THUNDER, PokemonData.Evolutions.STONES},
 		pocket = MiscData.BagPocket.Items,
 	},
 	[97] = {
 		id = 97,
 		name = "Water Stone",
-		evolutions = {PokemonData.Evolutions.WATER, PokemonData.Evolutions.STONES},
 		pocket = MiscData.BagPocket.Items,
 	},
 	[98] = {
 		id = 98,
 		name = "Leaf Stone",
-		evolutions = {PokemonData.Evolutions.LEAF, PokemonData.Evolutions.LEAF_SUN},
 		pocket = MiscData.BagPocket.Items,
 	},
 }

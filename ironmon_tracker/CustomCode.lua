@@ -1,10 +1,4 @@
 CustomCode = {
-	Labels = {
-		filesLoadSuccess = "Extensions Loaded",
-		filesLoadFailure = "Extensions Missing",
-		unknownAuthor = "Unknown",
-	},
-
 	-- When an extension's code errors, that is logged here and then printed.
 	-- Future errors of the same message are not printed, to avoid cluttering the Lua Console.
 	KnownErrors = {},
@@ -56,11 +50,13 @@ function CustomCode.initialize()
 	end
 
 	if #filesLoaded.successful > 0 then
-		print(string.format("%s: %s", CustomCode.Labels.filesLoadSuccess, table.concat(filesLoaded.successful, ", ")))
+		local listAsString = table.concat(filesLoaded.successful, ", ")
+		print(string.format("%s: %s", Resources.CustomCode.ExtensionsLoaded, listAsString))
 	end
 	-- For now, don't display old extension files that failed to load
 	-- if #filesLoaded.failed > 0 then
-	-- 	print(string.format("%s: %s", CustomCode.Labels.filesLoadFailure, table.concat(filesLoaded.failed, ", ")))
+	-- 	local listAsString = table.concat(filesLoaded.failed, ", ")
+	-- 	print(string.format("%s: %s", Resources.CustomCode.ExtensionsMissing, listAsString))
 	-- end
 end
 
@@ -91,10 +87,10 @@ function CustomCode.loadExtension(extensionKey)
 	end
 
 	-- Check for required attributes from the extension
-	selfObject.name = selfObject.name or extensionKey
-	selfObject.author = selfObject.author or CustomCode.Labels.unknownAuthor
-	selfObject.description = selfObject.description or ""
-	selfObject.version = selfObject.version or "0.0"
+	selfObject.name = Utils.formatSpecialCharacters(selfObject.name) or extensionKey
+	selfObject.author = Utils.formatSpecialCharacters(selfObject.author) or "Unknown"
+	selfObject.description = Utils.formatSpecialCharacters(selfObject.description) or ""
+	selfObject.version = Utils.formatSpecialCharacters(selfObject.version) or "0.0"
 
 	-- If the extension is new (not part of Settings.ini), create space for it
 	if CustomCode.ExtensionLibrary[extensionKey] == nil then

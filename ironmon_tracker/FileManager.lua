@@ -8,12 +8,14 @@ FileManager.Folders = {
 	Custom = "extensions",
 	Quickload = "quickload",
 	SavedGames = "saved_games", -- needs to be created first to be used
+	BackupSaves = "backup_saves", -- needs to be created first to be used
 	DataCode = "data",
 	ScreensCode = "screens",
 	Languages = "Languages",
 	RandomizerSettings = "RandomizerSettings",
 	Images = "images",
 	Trainers = "trainers",
+	TrainersPortraits = "trainerPortraits",
 	Badges = "badges",
 	Icons = "icons",
 	AnimatedPokemon = "pokemonAnimated",
@@ -26,6 +28,7 @@ FileManager.Files = {
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
+	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
 
 	LanguageCode = {
 		SpainData = "SpainData.lua",
@@ -45,6 +48,7 @@ FileManager.PostFixes = {
 	AUTORANDOMIZED = "AutoRandomized",
 	PREVIOUSATTEMPT = "PreviousAttempt",
 	AUTOSAVE = "AutoSave",
+	BACKUPSAVE = "BackupSave",
 }
 
 FileManager.Extensions = {
@@ -55,7 +59,8 @@ FileManager.Extensions = {
 	ANIMATED_POKEMON = ".gif",
 	TRAINER = ".png",
 	BADGE = ".png",
-	SAVESTATE = ".State", -- Bizhawk save-state
+	BIZHAWK_SAVESTATE = ".State",
+	MGBA_SAVESTATE = ".ss0", -- ".ss0" through ".ss9" are okay to use
 	LUA_CODE = ".lua",
 }
 
@@ -63,6 +68,7 @@ FileManager.Urls = {
 	VERSION = "https://api.github.com/repos/besteon/Ironmon-Tracker/releases/latest",
 	DOWNLOAD = "https://github.com/besteon/Ironmon-Tracker/releases/latest",
 	WIKI = "https://github.com/besteon/Ironmon-Tracker/wiki",
+	DISCUSSIONS = "https://github.com/besteon/Ironmon-Tracker/discussions/389", -- Discussion: "Help us translate the Ironmon Tracker"
 	EXTENSIONS = "https://github.com/besteon/Ironmon-Tracker/wiki/Tracker-Add-ons#custom-code-extensions",
 }
 
@@ -70,6 +76,7 @@ FileManager.Urls = {
 FileManager.LuaCode = {
 	-- First set of core files
 	{ name = "Inifile", filepath = "Inifile.lua", },
+	{ name = "Resources", filepath = "Resources.lua", },
 	{ name = "Constants", filepath = "Constants.lua", },
 	{ name = "TrackerAPI", filepath = "TrackerAPI.lua", },
 	{ name = "Utils", filepath = "Utils.lua", },
@@ -84,12 +91,13 @@ FileManager.LuaCode = {
 	{ name = "DataHelper", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataHelper.lua", },
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
+	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
+	{ name = "Drawing", filepath = "Drawing.lua", },
 	{ name = "Theme", filepath = "Theme.lua", },
 	{ name = "ColorPicker", filepath = "ColorPicker.lua", },
 	{ name = "Input", filepath = "Input.lua", },
-	{ name = "Drawing", filepath = "Drawing.lua", },
 	{ name = "Program", filepath = "Program.lua", },
 	{ name = "Battle", filepath = "Battle.lua", },
 	{ name = "Pickle", filepath = "Pickle.lua", },
@@ -107,6 +115,7 @@ FileManager.LuaCode = {
 	{ name = "QuickloadScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "QuickloadScreen.lua", },
 	{ name = "GameOptionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOptionsScreen.lua", },
 	{ name = "TrackedDataScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackedDataScreen.lua", },
+	{ name = "LanguageScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LanguageScreen.lua", },
 	{ name = "StatsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StatsScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
@@ -116,9 +125,18 @@ FileManager.LuaCode = {
 	{ name = "CustomExtensionsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CustomExtensionsScreen.lua", },
 	{ name = "SingleExtensionScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "SingleExtensionScreen.lua", },
 	{ name = "ViewLogWarningScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "ViewLogWarningScreen.lua", },
+	{ name = "CrashRecoveryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "CrashRecoveryScreen.lua"},
 	{ name = "LogOverlay", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogOverlay.lua", },
+	{ name = "LogTabPokemon", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemon.lua", },
+	{ name = "LogTabPokemonDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabPokemonDetails.lua", },
+	{ name = "LogTabTrainers", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainers.lua", },
+	{ name = "LogTabTrainerDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTrainerDetails.lua", },
+	{ name = "LogTabRoutes", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabRoutes.lua", },
+	{ name = "LogTabRouteDetails", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabRouteDetails.lua", },
+	{ name = "LogTabTMs", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabTMs.lua", },
+	{ name = "LogTabMisc", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogTabMisc.lua", },
 	{ name = "TeamViewArea", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TeamViewArea.lua", },
-	{ name = "BattleEffectsScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "BattleEffectsScreen.lua", },
+	{ name = "LogSearchScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "LogSearchScreen.lua"},
 	-- Miscellaneous files
 	{ name = "CustomCode", filepath = "CustomCode.lua", },
 }
@@ -128,10 +146,36 @@ function FileManager.fileExists(filepath)
 	return FileManager.getPathIfExists(filepath) ~= nil
 end
 
+function FileManager.folderExists(folderpath)
+	if folderpath == nil then return false end
+	if folderpath:sub(-1) ~= "/" and folderpath:sub(-1) ~= "\\" then
+		folderpath = folderpath .. FileManager.slash
+	end
+
+	-- Hacky but simply way to check if a folder exists: try to rename it
+	-- The "code" return value only exists in Lua 5.2+, but not required to use here
+	local exists, err, code = os.rename(folderpath, folderpath)
+	-- Code 13 = Permission denied, but it exists
+	if exists or (not exists and code == 13) then
+		return true
+	end
+
+	-- Otherwise check the absolute path of the file
+	folderpath = FileManager.prependDir(folderpath)
+	exists, err, code = os.rename(folderpath, folderpath)
+	if exists or (not exists and code == 13) then
+		return true
+	end
+
+	return false
+end
+
 -- Returns the path that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
 function FileManager.getPathIfExists(filepath)
+	filepath = string.match(filepath or "", "^%s*(.-)%s*$") -- remove leading/trailing spaces
+
 	-- Empty filepaths "" can be opened successfully on Linux, as directories are considered files
-	if filepath == nil or filepath == "" then return nil end
+	if filepath == "" then return nil end
 
 	local file = io.open(filepath, "r")
 	if file ~= nil then
@@ -198,7 +242,7 @@ function FileManager.tryOsExecute(command, errorFile)
 
 	-- An attempted fix to allow non-english characters in paths; but this is only half of it, so it's incomplete.
 	-- Leaving this here in case some more research is done to figure out how to work around this.
-	local foreignCompatibleCommand = "@chcp 65001>nul && " .. commandWithOutput
+	-- local foreignCompatibleCommand = "@chcp 65001>nul && " .. commandWithOutput
 
 	local result = os.execute(commandWithOutput)
 	local success = (result == true or result == 0) -- 0 = success in some cases
@@ -239,6 +283,23 @@ function FileManager.loadLuaFile(filename, silenceErrors)
 	end
 
 	return false
+end
+
+-- Executes 'functionName' for all code files loaded in the Tracker, except Main, FileManager, and UpdateOrInstall.
+function FileManager.executeEachFile(functionName)
+	local globalRef
+	if Main.emulator == Main.EMU.BIZHAWK28 then
+		globalRef = _G -- Lua 5.1 only
+	else
+		globalRef = _ENV -- Lua 5.4
+	end
+
+	for _, luafile in ipairs(FileManager.LuaCode) do
+		local luaObject = globalRef[luafile.name or ""] or {}
+		if type(luaObject[functionName]) == "function" then
+			luaObject[functionName]()
+		end
+	end
 end
 
 -- Returns a properly formatted path that contains only the correct path-separators based on the OS
@@ -344,6 +405,18 @@ function FileManager.buildImagePath(imageFolder, imageName, imageExtension)
 	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
 end
 
+function FileManager.buildSpritePath(animationType, imageName, imageExtension)
+	local imageFolder = Options.getIconSet().folder
+	local listOfPaths = {
+		FileManager.Folders.TrackerCode,
+		FileManager.Folders.Images,
+		imageFolder,
+		tostring(animationType),
+		tostring(imageName) .. (imageExtension or "")
+	}
+	return FileManager.prependDir(table.concat(listOfPaths, FileManager.slash))
+end
+
 -- Returns a properly formatted folder path where custom code files are located
 function FileManager.getCustomFolderPath()
 	local listOfPaths = {
@@ -417,7 +490,7 @@ function FileManager.CopyFile(filepath, filepathCopy, overwriteOrAppend)
 
 	-- If the file exists but the option to overwrite/append was not specified, avoid altering the file
 	if FileManager.fileExists(filepathCopy) and not (overwriteOrAppend == "overwrite" or overwriteOrAppend == "append") then
-		print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', filepathCopy))
+		-- print(string.format('Error: Unable to modify file "%s", no overwrite/append option specified.', filepathCopy))
 		return false
 	end
 
@@ -567,4 +640,16 @@ function FileManager.removeCustomThemeFromFile(themeName, themeCode)
 	file:close()
 
 	return true
+end
+
+-- Recursively copies the contents of 'source' table into 'destination' table
+function FileManager.copyTable(source, destination)
+	for key, val in pairs(source or {}) do
+		if type(val) == "table" then
+			destination[key] = {}
+			FileManager.copyTable(val, destination[key])
+		else
+			destination[key] = val
+		end
+	end
 end

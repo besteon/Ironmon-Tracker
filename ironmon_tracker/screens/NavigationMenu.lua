@@ -1,48 +1,54 @@
 NavigationMenu = {
-	headerText = "Tracker Settings",
-	textColor = "Default text",
-	borderColor = "Upper box border",
-	boxFillColor = "Upper box background",
-	showCredits = false,
-	Labels = {
-		wikiBrowserErrMsg = "Check the Lua Console for a link to the Tracker's Help Wiki.",
+	Colors = {
+		textColor = "Default text",
+		border = "Upper box border",
+		boxFill = "Upper box background",
 	},
+	showCredits = false,
 }
 
 NavigationMenu.Buttons = {
 	VersionInfo = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "v" .. tostring(Main.TrackerVersion),
+		getText = function(self) return "v" .. tostring(Main.TrackerVersion) end,
+		textColor = "Header text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN - 2, 22, 10 },
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function(self) UpdateScreen.openReleaseNotesWindow() end
+		updateSelf = function(self)
+			local width = Utils.calcWordPixelLength(self:getText())
+			self.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN - width - 3
+		end,
 	},
 	SetupAndOptions = {
-		text = "Setup",
+		getText = function(self) return Resources.NavigationMenu.ButtonSetup end,
 		image = Constants.PixelImages.NOTEPAD,
+		index = 1,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(SetupScreen) end
 	},
 	Extras = {
-		text = "Extras",
+		getText = function(self) return Resources.NavigationMenu.ButtonExtras end,
 		image = Constants.PixelImages.POKEBALL,
-		iconColors = { NavigationMenu.textColor, NavigationMenu.boxFillColor, NavigationMenu.boxFillColor, },
+		index = 2,
+		iconColors = { NavigationMenu.Colors.textColor, NavigationMenu.Colors.boxFill, NavigationMenu.Colors.boxFill, },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(ExtrasScreen) end
 	},
 	GameplaySettings = {
-		text = "Gameplay",
+		getText = function(self) return Resources.NavigationMenu.ButtonGameplay end,
 		image = Constants.PixelImages.PHYSICAL,
+		index = 3,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(GameOptionsScreen) end
 	},
 	QuickloadSettings = {
-		text = "Quickload",
+		getText = function(self) return Resources.NavigationMenu.ButtonQuickload end,
 		image = Constants.PixelImages.CLOCK,
+		index = 4,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		updateText = function (self)
-			if Options[QuickloadScreen.OptionKeys[1]] or Options[QuickloadScreen.OptionKeys[2]] then
-				self.textColor = NavigationMenu.textColor
+		updateSelf = function (self)
+			if Options["Use premade ROMs"] or Options["Generate ROM each time"] then
+				self.textColor = NavigationMenu.Colors.textColor
 			else
 				-- If neither quickload option is enabled, then highlight it to draw user's attention
 				self.textColor = "Intermediate text"
@@ -51,30 +57,37 @@ NavigationMenu.Buttons = {
 		onClick = function() Program.changeScreenView(QuickloadScreen) end
 	},
 	ThemeCustomization = {
-		text = "Theme",
+		getText = function(self) return Resources.NavigationMenu.ButtonTheme end,
 		image = Constants.PixelImages.SPARKLES,
+		index = 5,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			Theme.refreshThemePreview()
 			Program.changeScreenView(Theme)
 		end
 	},
-	ManageTrackedData = {
-		text = "Data",
-		image = Constants.PixelImages.GEAR,
+	LanguageSettings = {
+		getText = function(self) return Resources.NavigationMenu.ButtonLanguage end,
+		image = Constants.PixelImages.LANGUAGE_LETTERS,
+		index = 6,
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(TrackedDataScreen) end
+		onClick = function() Program.changeScreenView(LanguageScreen) end
 	},
 	CheckForUpdates = {
-		text = "Update",
-		image = Constants.PixelImages.INSTALL_BOX,
-		isVisible = function(self) return not NavigationMenu.showCredits end,
-		updateText = function(self)
+		getText = function(self)
 			if Main.isOnLatestVersion() then
-				self.text = "Update"
-				self.textColor = NavigationMenu.textColor
+				return Resources.NavigationMenu.ButtonUpdate
 			else
-				self.text = "Update *"
+				return string.format("%s *", Resources.NavigationMenu.ButtonUpdate)
+			end
+		end,
+		image = Constants.PixelImages.INSTALL_BOX,
+		index = 7,
+		isVisible = function(self) return not NavigationMenu.showCredits end,
+		updateSelf = function(self)
+			if Main.isOnLatestVersion() then
+				self.textColor = NavigationMenu.Colors.textColor
+			else
 				self.textColor = "Positive text"
 			end
 		end,
@@ -88,21 +101,17 @@ NavigationMenu.Buttons = {
 			Program.changeScreenView(UpdateScreen)
 		end
 	},
-	ViewStats = {
-		text = "Stats",
-		image = Constants.PixelImages.MAGNIFYING_GLASS,
-		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function() Program.changeScreenView(StatsScreen) end
-	},
 	StreamerTools = {
-		text = "Streaming",
+		getText = function(self) return Resources.NavigationMenu.ButtonStreaming end,
 		image = Constants.PixelImages.SPECIAL,
+		index = 8,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function() Program.changeScreenView(StreamerScreen) end
 	},
 	Extensions = {
-		text = "Extensions",
+		getText = function(self) return Resources.NavigationMenu.ButtonExtensions end,
 		image = Constants.PixelImages.EXTENSIONS,
+		index = 9,
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function()
 			CustomExtensionsScreen.buildOutPagedButtons()
@@ -110,7 +119,13 @@ NavigationMenu.Buttons = {
 		end
 	},
 	MirageButton = {
-		text = "It's a secret...",
+		getText = function(self)
+			if GameSettings.game == 3 then
+				return "Reveal Mew by Truck"
+			else
+				return "Mirage Island Portal"
+			end
+		end,
 		image = Constants.PixelImages.POKEBALL,
 		type = Constants.ButtonTypes.ICON_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15, Constants.SCREEN.MARGIN + 110, 110, 15 },
@@ -120,13 +135,13 @@ NavigationMenu.Buttons = {
 		onClick = function(self)
 			-- A non-functional button only appears very rarely, and will disappear after it's clicked a few times
 			self.timesClicked = self.timesClicked + 1
-			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.textColor, "Intermediate text")
+			self.textColor = Utils.inlineIf(self.timesClicked % 2 == 0, NavigationMenu.Colors.textColor, "Intermediate text")
 			Program.redraw(true)
 		end
 	},
 	Credits = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Credits",
+		getText = function(self) return Resources.NavigationMenu.ButtonCredits end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 135, 32, 11 },
 		isVisible = function() return not NavigationMenu.showCredits end,
 		onClick = function(self)
@@ -136,41 +151,25 @@ NavigationMenu.Buttons = {
 	},
 	Help = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Help",
+		getText = function(self) return Resources.NavigationMenu.ButtonHelp end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 41, Constants.SCREEN.MARGIN + 135, 23, 11 },
 		isVisible = function() return not NavigationMenu.showCredits end,
-		onClick = function(self) NavigationMenu.openWikiBrowserWindow() end
-	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
 		onClick = function(self)
-			if NavigationMenu.showCredits then
-				NavigationMenu.showCredits = false
-				Program.redraw(true)
-			else
-				if Program.isValidMapLocation() then
-					Program.changeScreenView(TrackerScreen)
-				else
-					Program.changeScreenView(StartupScreen)
-				end
-			end
+			Utils.openBrowserWindow(FileManager.Urls.WIKI, Resources.NavigationMenu.MessageCheckConsole)
 		end
 	},
-}
-
-NavigationMenu.OrderedMenuList = {
-	NavigationMenu.Buttons.SetupAndOptions,
-	NavigationMenu.Buttons.Extras,
-	NavigationMenu.Buttons.GameplaySettings,
-	NavigationMenu.Buttons.QuickloadSettings,
-	NavigationMenu.Buttons.ThemeCustomization,
-	NavigationMenu.Buttons.ManageTrackedData,
-	NavigationMenu.Buttons.ViewStats,
-	NavigationMenu.Buttons.CheckForUpdates,
-	NavigationMenu.Buttons.StreamerTools,
-	NavigationMenu.Buttons.Extensions,
+	Back = Drawing.createUIElementBackButton(function()
+		if NavigationMenu.showCredits then
+			NavigationMenu.showCredits = false
+			Program.redraw(true)
+		else
+			if Program.isValidMapLocation() then
+				Program.changeScreenView(TrackerScreen)
+			else
+				Program.changeScreenView(StartupScreen)
+			end
+		end
+	end),
 }
 
 function NavigationMenu.initialize()
@@ -181,7 +180,7 @@ function NavigationMenu.initialize()
 	local spacer = 6
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = Constants.SCREEN.MARGIN + 12 + spacer
-	for i, button in ipairs(NavigationMenu.OrderedMenuList) do
+	for i, button in ipairs(Utils.getSortedList(NavigationMenu.Buttons)) do
 		button.type = Constants.ButtonTypes.ICON_BORDER
 		button.box = { startX, startY, btnWidth, btnHeight }
 
@@ -193,30 +192,31 @@ function NavigationMenu.initialize()
 		end
 	end
 
-	table.insert(NavigationMenu.OrderedMenuList, NavigationMenu.Buttons.MirageButton)
-
 	for _, button in pairs(NavigationMenu.Buttons) do
-		button.textColor = NavigationMenu.textColor
-		button.boxColors = { NavigationMenu.borderColor, NavigationMenu.boxFillColor }
+		if button.textColor == nil then
+			button.textColor = NavigationMenu.Colors.textColor
+		end
+		if button.boxColors == nil then
+			button.boxColors = { NavigationMenu.Colors.border, NavigationMenu.Colors.boxFill }
+		end
 	end
-
-	NavigationMenu.Buttons.VersionInfo.textColor = "Header text"
-	if string.len(NavigationMenu.Buttons.VersionInfo.text or "") > 6 then
-		NavigationMenu.Buttons.VersionInfo.box[1] = NavigationMenu.Buttons.VersionInfo.box[1] - 4
-	end
-	NavigationMenu.Buttons.QuickloadSettings:updateText()
-	NavigationMenu.Buttons.CheckForUpdates:updateText()
 
 	-- Yet another fun Easter Egg that shows up only once in a while
 	if math.random(256) == 1 then
-		NavigationMenu.Buttons.MirageButton.text = Utils.inlineIf(GameSettings.game == 3, "Reveal Mew by Truck", "Mirage Island Portal")
+		NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
 		-- Disabling to allow room for more buttons
-		-- NavigationMenu.Buttons.MirageButton.canBeSeenToday = true
+		NavigationMenu.Buttons.MirageButton.canBeSeenToday = false
 	end
+
+	NavigationMenu.refreshButtons()
 end
 
-function NavigationMenu.openWikiBrowserWindow()
-	Utils.openBrowserWindow(FileManager.Urls.WIKI, NavigationMenu.Labels.wikiBrowserErrMsg)
+function NavigationMenu.refreshButtons()
+	for _, button in pairs(NavigationMenu.Buttons) do
+		if type(button.updateSelf) == "function" then
+			button:updateSelf()
+		end
+	end
 end
 
 -- USER INPUT FUNCTIONS
@@ -227,25 +227,26 @@ end
 -- DRAWING FUNCTIONS
 function NavigationMenu.drawScreen()
 	Drawing.drawBackgroundAndMargins()
-	gui.defaultTextBackground(Theme.COLORS[NavigationMenu.boxFillColor])
+	gui.defaultTextBackground(Theme.COLORS[NavigationMenu.Colors.boxFill])
 
 	if NavigationMenu.showCredits then
 		NavigationMenu.drawCredits()
 		return
 	end
 
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.boxFillColor])
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 
 	-- Draw header text
+	local headerText = Utils.toUpperUTF8(Resources.NavigationMenu.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, NavigationMenu.headerText:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX, Constants.SCREEN.MARGIN - 2, headerText, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
 
 	-- Draw all buttons, manually
 	for _, button in pairs(NavigationMenu.Buttons) do
@@ -258,41 +259,43 @@ function NavigationMenu.drawScreen()
 end
 
 function NavigationMenu.drawCredits()
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.boxFillColor])
+	local shadowcolor = Utils.calcShadowColor(Theme.COLORS[NavigationMenu.Colors.boxFill])
 	local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local topboxColX = topboxX + 58
+	local topboxColX = topboxX + 57
 	local topboxY = Constants.SCREEN.MARGIN + 10
 	local topboxWidth = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2)
 	local topboxHeight = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - 10
 	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	-- Draw header text
-	local creditsHeader = "Ironmon Tracker"
+	local creditsHeader = Utils.toUpperUTF8(Resources.StartupScreen.Title)
 	local headerShadow = Utils.calcShadowColor(Theme.COLORS["Main background"])
-	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader:upper(), Theme.COLORS["Header text"], headerShadow)
+	Drawing.drawText(topboxX + 29, Constants.SCREEN.MARGIN - 2, creditsHeader, Theme.COLORS["Header text"], headerShadow)
 
 	-- Draw top border box
-	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.borderColor], Theme.COLORS[NavigationMenu.boxFillColor])
+	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[NavigationMenu.Colors.border], Theme.COLORS[NavigationMenu.Colors.boxFill])
 
 	local offsetX = topboxX + 2
 	local offsetY = topboxY + 8
 
-	Drawing.drawText(offsetX, offsetY, "Created by:", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
-	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)
+	Drawing.drawText(offsetX, offsetY, createdByText, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
+	Drawing.drawText(topboxColX, offsetY, Main.CreditsList.CreatedBy, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
+
 	local espeonImage = FileManager.buildImagePath(Options.IconSetMap["1"].folder, "196", Options.IconSetMap["1"].extension)
-	gui.drawImage(espeonImage, topboxColX + 40, offsetY - 13, 32, 32)
+	gui.drawImage(espeonImage, topboxColX + 41, offsetY - 13, 32, 32)
 	offsetY = offsetY + linespacing + 10
 
-	Drawing.drawText(offsetX, offsetY, "Contributors: ", Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+	local contributorText = string.format("%s:", Resources.NavigationMenu.CreditsContributors)
+	Drawing.drawText(offsetX, offsetY, contributorText, Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
 	offsetY = offsetY + linespacing + 1
 
 	-- Draw Contributors List
 	offsetX = offsetX + 4
-	topboxColX = topboxColX
 	for i=1, #Main.CreditsList.Contributors, 2 do
-		Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[i], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+		Drawing.drawText(offsetX, offsetY, Main.CreditsList.Contributors[i], Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
 		if Main.CreditsList.Contributors[i + 1] ~= nil then
-			Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[i + 1], Theme.COLORS[NavigationMenu.textColor], shadowcolor)
+			Drawing.drawText(topboxColX, offsetY, Main.CreditsList.Contributors[i + 1], Theme.COLORS[NavigationMenu.Colors.textColor], shadowcolor)
 		end
 		offsetY = offsetY + linespacing
 	end

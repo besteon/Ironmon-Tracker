@@ -1,11 +1,4 @@
 MoveHistoryScreen = {
-	Labels = {
-		headerMoves = "Move seen at level:",
-		headerMin = "Min",
-		headerMax = "Max",
-		noTrackedMoves = "(No tracked move data yet)",
-		pageFormat = "Page %s/%s" -- e.g. Page 1/3
-	},
 	Colors = {
 		text = "Lower box text",
 		headerMoves = "Intermediate text",
@@ -20,16 +13,18 @@ MoveHistoryScreen.Pagination = {
 	totalPages = 0,
 	itemsPerPage = 7,
 	getPageText = function(self)
-		if self.totalPages <= 1 then return "Page" end
-		return string.format(MoveHistoryScreen.Labels.pageFormat, self.currentPage, self.totalPages)
+		if self.totalPages <= 1 then return Resources.AllScreens.Page end
+		return string.format("%s %s/%s", Resources.AllScreens.Page, self.currentPage, self.totalPages)
 	end,
 	prevPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 	nextPage = function(self)
 		if self.totalPages <= 1 then return end
 		self.currentPage = (self.currentPage % self.totalPages) + 1
+		Program.redraw(true)
 	end,
 }
 
@@ -44,12 +39,9 @@ MoveHistoryScreen.Buttons = {
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "", -- Set later via updateText()
+		getText = function(self) return MoveHistoryScreen.Pagination:getPageText() end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 46, Constants.SCREEN.MARGIN + 135, 50, 10, },
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
-		updateText = function(self)
-			self.text = MoveHistoryScreen.Pagination:getPageText()
-		end,
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
@@ -58,8 +50,6 @@ MoveHistoryScreen.Buttons = {
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
 		onClick = function(self)
 			MoveHistoryScreen.Pagination:prevPage()
-			MoveHistoryScreen.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
 		end
 	},
 	NextPage = {
@@ -69,32 +59,28 @@ MoveHistoryScreen.Buttons = {
 		isVisible = function() return MoveHistoryScreen.Pagination.totalPages > 1 end,
 		onClick = function(self)
 			MoveHistoryScreen.Pagination:nextPage()
-			MoveHistoryScreen.Buttons.CurrentPage:updateText()
-			Program.redraw(true)
 		end
 	},
-	Back = {
-		type = Constants.ButtonTypes.FULL_BORDER,
-		text = "Back",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 136, 24, 11 },
-		onClick = function(self)
-			if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
-				Program.changeScreenView(TrackerScreen)
-			else
-				Program.changeScreenView(InfoScreen)
-			end
+	Back = Drawing.createUIElementBackButton(function()
+		if InfoScreen.infoLookup == nil or InfoScreen.infoLookup == 0 then
+			Program.changeScreenView(TrackerScreen)
+		else
+			Program.changeScreenView(InfoScreen)
 		end
-	},
+	end),
 }
 
 MoveHistoryScreen.TemporaryButtons = {}
 
 function MoveHistoryScreen.initialize()
 	for _, button in pairs(MoveHistoryScreen.Buttons) do
-		button.textColor = MoveHistoryScreen.Colors.text
-		button.boxColors = { MoveHistoryScreen.Colors.border, MoveHistoryScreen.Colors.boxFill }
+		if button.textColor == nil then
+			button.textColor = MoveHistoryScreen.Colors.text
+		end
+		if button.boxColors == nil then
+			button.boxColors = { MoveHistoryScreen.Colors.border, MoveHistoryScreen.Colors.boxFill }
+		end
 	end
-	MoveHistoryScreen.Buttons.CurrentPage:updateText()
 end
 
 -- Lists out all known tracked moves for the Pokemon provided. If too many tracked moves, trims based on [startingLevel:optional]
@@ -105,32 +91,48 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 	startingLevel = startingLevel or 1
 	MoveHistoryScreen.TemporaryButtons = {}
 
-	local trackedMoves = Tracker.getMoves(pokemonID)
-	for _, tMove in ipairs(trackedMoves) do
-		if MoveData.isValid(tMove.id) then -- Don't add in the placeholder moves
+	local moves
+	if Options["Open Book Play Mode"] then
+		local pokemonLog = RandomizerLog.Data.Pokemon[pokemonID] or {}
+		moves = pokemonLog.MoveSet or {}
+	else
+		moves = Tracker.getMoves(pokemonID)
+	end
+	for _, move in ipairs(moves) do
+		local moveId = move.id or move.moveId
+		if MoveData.isValid(moveId) then -- Don't add in the placeholder moves
 			local moveButton = {
 				type = Constants.ButtonTypes.NO_BORDER,
-				text = MoveData.Moves[tMove.id].name,
+				getText = function(self) return MoveData.Moves[moveId].name end,
 				textColor = MoveHistoryScreen.Colors.text,
-				trackedMove = tMove,
+				trackedMove = move,
 				isVisible = function(self) return self.pageVisible == MoveHistoryScreen.Pagination.currentPage end,
+				draw = function(self, shadowcolor)
+					-- Implied move text is drawn, then the levels off to the right-side
+					local minLvTxt = self.trackedMove.minLv or self.trackedMove.level
+					local maxLvTxt = self.trackedMove.maxLv or self.trackedMove.level
+					Drawing.drawNumber(self.box[1] + 74 + 3, self.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 74 from drawScreen()
+					Drawing.drawNumber(self.box[1] + 99 + 3, self.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor) -- 99 from drawScreen()
+				end,
 				onClick = function(self)
-					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, tMove.id)
+					InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, moveId)
 				end
 			}
 			table.insert(MoveHistoryScreen.TemporaryButtons, moveButton)
 		end
 	end
 
-	-- Sort based on min level seen, or last level seen, in descending order
-	local sortFunc = function(a, b)
-		if a.trackedMove.minLv ~= nil and b.trackedMove.minLv ~= nil then
-			return a.trackedMove.minLv > b.trackedMove.minLv
-		else
-			return a.trackedMove.level > b.trackedMove.level
+	if not Options["Open Book Play Mode"] then
+		-- Sort based on min level seen, or last level seen, in descending order
+		local sortFunc = function(a, b)
+			if a.trackedMove.minLv ~= nil and b.trackedMove.minLv ~= nil then
+				return a.trackedMove.minLv > b.trackedMove.minLv
+			else
+				return a.trackedMove.level > b.trackedMove.level
+			end
 		end
+		table.sort(MoveHistoryScreen.TemporaryButtons, sortFunc)
 	end
-	table.sort(MoveHistoryScreen.TemporaryButtons, sortFunc)
 
 	-- After sorting the moves, determine which are visible on which page, and where on the page vertically
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 12
@@ -145,13 +147,12 @@ function MoveHistoryScreen.buildOutHistory(pokemonID, startingLevel)
 
 	MoveHistoryScreen.Pagination.currentPage = 1
 	MoveHistoryScreen.Pagination.totalPages = math.ceil(#MoveHistoryScreen.TemporaryButtons / MoveHistoryScreen.Pagination.itemsPerPage)
-	MoveHistoryScreen.Buttons.CurrentPage:updateText()
 
 	return true
 end
 
 function MoveHistoryScreen.openPokemonInfoWindow()
-	local form = Utils.createBizhawkForm("Pokedex Look up", 360, 105)
+	local form = Utils.createBizhawkForm(Resources.MoveHistoryScreen.PromptPokemonTitle, 360, 105)
 
 	local pokemonName
 	if PokemonData.isValid(MoveHistoryScreen.pokemonID) then
@@ -161,14 +162,14 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 	end
 	local pokedexData = PokemonData.namesToList()
 
-	forms.label(form, "Choose a Pokemon to look up:", 49, 10, 250, 20)
+	forms.label(form, Resources.MoveHistoryScreen.PromptPokemonDesc .. ":", 49, 10, 250, 20)
 	local pokedexDropdown = forms.dropdown(form, {["Init"]="Loading Pokedex"}, 50, 30, 145, 30)
 	forms.setdropdownitems(pokedexDropdown, pokedexData, true) -- true = alphabetize the list
 	forms.setproperty(pokedexDropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(pokedexDropdown, "AutoCompleteMode", "Append")
 	forms.settext(pokedexDropdown, pokemonName)
 
-	forms.button(form, "Look up", function()
+	forms.button(form, Resources.AllScreens.Lookup, function()
 		local pokemonNameFromForm = forms.gettext(pokedexDropdown)
 		local pokemonId = PokemonData.getIdFromName(pokemonNameFromForm)
 
@@ -177,8 +178,7 @@ function MoveHistoryScreen.openPokemonInfoWindow()
 				Program.redraw(true)
 			end
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 212, 29)
 end
 
@@ -210,7 +210,7 @@ function MoveHistoryScreen.drawScreen()
 	gui.drawRectangle(topboxX, topboxY, topboxWidth, topboxHeight, Theme.COLORS[MoveHistoryScreen.Colors.border], Theme.COLORS[MoveHistoryScreen.Colors.boxFill])
 
 	-- Draw header text
-	local pokemonName = PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name:upper()
+	local pokemonName = Utils.toUpperUTF8(PokemonData.Pokemon[MoveHistoryScreen.pokemonID].name)
 	Drawing.drawHeader(topboxX, topboxY - 1, pokemonName, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING + 4
 
@@ -220,23 +220,17 @@ function MoveHistoryScreen.drawScreen()
 	-- Draw all moves in the tracked move history
 	local offsetX = topboxX + 13
 	local minColX, maxColX = 74, 99
-	Drawing.drawText(offsetX - 8, topboxY, MoveHistoryScreen.Labels.headerMoves, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
-	Drawing.drawText(offsetX + minColX, topboxY, MoveHistoryScreen.Labels.headerMin, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
-	Drawing.drawText(offsetX + maxColX, topboxY, MoveHistoryScreen.Labels.headerMax, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	Drawing.drawText(offsetX - 8, topboxY, Resources.MoveHistoryScreen.HeaderMoves, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	Drawing.drawText(offsetX + minColX, topboxY, Resources.MoveHistoryScreen.HeaderMin, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
+	Drawing.drawText(offsetX + maxColX, topboxY, Resources.MoveHistoryScreen.HeaderMax, Theme.COLORS[MoveHistoryScreen.Colors.headerMoves], shadowcolor)
 	topboxY = topboxY + Constants.SCREEN.LINESPACING
 
-	for _, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
-		if button:isVisible() then
-			local minLvTxt = button.trackedMove.minLv or button.trackedMove.level
-			local maxLvTxt = button.trackedMove.maxLv or button.trackedMove.level
-			Drawing.drawText(button.box[1], button.box[2], button.text, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + minColX + 3, button.box[2], minLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-			Drawing.drawNumber(button.box[1] + maxColX + 3, button.box[2], maxLvTxt, 2, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
-		end
-	end
-
 	if #MoveHistoryScreen.TemporaryButtons == 0 then
-		Drawing.drawText(offsetX, topboxY + 5, MoveHistoryScreen.Labels.noTrackedMoves, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+		Drawing.drawText(offsetX, topboxY + 5, Resources.MoveHistoryScreen.NoTrackedMoves, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+	else
+		for _, button in ipairs(MoveHistoryScreen.TemporaryButtons) do
+			Drawing.drawButton(button, shadowcolor)
+		end
 	end
 
 	-- Draw all buttons
@@ -263,7 +257,7 @@ function MoveHistoryScreen.drawMovesLearnedBoxes(offsetX, offsetY)
 	local boxWidth = 16
 	local boxHeight = 13
 	if #movelvls == 0 then -- If the Pokemon learns no moves at all
-		Drawing.drawText(offsetX + 6, offsetY, "Does not learn any moves", Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
+		Drawing.drawText(offsetX + 6, offsetY, Resources.MoveHistoryScreen.NoMovesLearned, Theme.COLORS[MoveHistoryScreen.Colors.text], shadowcolor)
 	end
 	for i, moveLvl in ipairs(movelvls) do -- 14 is the greatest number of moves a gen3 Pokemon can learn
 		local nextBoxX = ((i - 1) % 8) * boxWidth -- 8 possible columns

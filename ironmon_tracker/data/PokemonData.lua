@@ -2,125 +2,150 @@ PokemonData = {
 	totalPokemon = 411,
 }
 
+PokemonData.IsRand = {
+	pokemonTypes = false,
+	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
+	pokemonFriendship = false,
+}
+
 -- Enumerated constants that defines the various types a Pokémon and its Moves are
 PokemonData.Types = {
-		NORMAL = "normal",
-		FIGHTING = "fighting",
-		FLYING = "flying",
-		POISON = "poison",
-		GROUND = "ground",
-		ROCK = "rock",
-		BUG = "bug",
-		GHOST = "ghost",
-		STEEL = "steel",
-		FIRE = "fire",
-		WATER = "water",
-		GRASS = "grass",
-		ELECTRIC = "electric",
-		PSYCHIC = "psychic",
-		ICE = "ice",
-		DRAGON = "dragon",
-		DARK = "dark",
-		FAIRY = "fairy", -- Expect this to be unused in Gen 1-5
-		UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
-		EMPTY = "", -- No second type for this Pokémon or an empty field
+	NORMAL = "normal",
+	FIGHTING = "fighting",
+	FLYING = "flying",
+	POISON = "poison",
+	GROUND = "ground",
+	ROCK = "rock",
+	BUG = "bug",
+	GHOST = "ghost",
+	STEEL = "steel",
+	FIRE = "fire",
+	WATER = "water",
+	GRASS = "grass",
+	ELECTRIC = "electric",
+	PSYCHIC = "psychic",
+	ICE = "ice",
+	DRAGON = "dragon",
+	DARK = "dark",
+	-- FAIRY = "fairy", -- Currently unused. Expect this to be unused in Gen 1-5
+	UNKNOWN = "unknown", -- For the move "Curse" in Gen 2-4
+	EMPTY = "", -- No second type for this Pokémon or an empty field
 }
 
 -- Enumerated constants that defines various evolution possibilities
 -- This enum does NOT include levels for evolution, only stones, friendship, no evolution, etc.
 PokemonData.Evolutions = {
-	NONE = Constants.BLANKLINE, -- This Pokémon does not evolve.
-	LEVEL = "LEVEL", -- Unused directly, necessary as an info index
-	FRIEND = "FRIEND", -- High friendship
-	FRIEND_READY = "READY", -- High friendship, Pokémon has enough friendship to evolve
-	STONES = "STONE", -- Various evolution stone items
-	THUNDER = "THUNDER", -- Thunder stone item
-	FIRE = "FIRE", -- Fire stone item
-	WATER = "WATER", -- Water stone item
-	MOON = "MOON", -- Moon stone item
-	LEAF = "LEAF", -- Leaf stone item
-	SUN = "SUN", -- Sun stone item
-	LEAF_SUN = "LF/SN", -- Leaf or Sun stone items
-	WATER30 = "30/WTR", -- Water stone item or at level 30
-	WATER37 = "37/WTR", -- Water stone item or at level 37
-}
--- Table of Evolution methods as a short or detailed list, each containing the evo method(s)
-PokemonData.EvoMethods = {
-	[PokemonData.Evolutions.NONE] = {
+	-- This Pokémon does not evolve.
+	NONE = {
+		abbreviation = Constants.BLANKLINE,
 		short = { Constants.BLANKLINE, },
 		detailed = { Constants.BLANKLINE, },
 	},
-	[PokemonData.Evolutions.LEVEL] = {
+	-- Unused directly, necessary as an info index
+	LEVEL = {
+		abbreviation = "LEVEL",
 		short = { "Lv.%s", }, -- requires level parameter
 		detailed = { "Level %s", }, -- requires level value
 	},
-	[PokemonData.Evolutions.FRIEND] = {
+	-- High friendship
+	FRIEND = {
+		abbreviation = "FRIEND",
 		short = { "Friend", },
 		detailed = { "%s Friendship", }, -- requires friendship value
 	},
-	[PokemonData.Evolutions.STONES] = {
+	-- High friendship, Pokémon has enough friendship to evolve
+	FRIEND_READY = {
+		abbreviation = "READY",
+	},
+	-- Various evolution stone items
+	EEVEE_STONES = {
+		abbreviation = "STONE",
 		short = { "Thunder", "Water", "Fire", "Sun", "Moon", },
 		detailed = { "5 Diff. Stones", },
+		evoItemIds = { [93] = true, [94] = true, [95] = true, [96] = true, [97] = true, },
 	},
-	[PokemonData.Evolutions.THUNDER] = {
+	-- Thunder stone item
+	THUNDER = {
+		abbreviation = "THUNDER",
 		short = { "Thunder", },
 		detailed = { "Thunder Stone", },
+		evoItemIds = { [96] = true, },
 	},
-	[PokemonData.Evolutions.WATER] = {
-		short = { "Water", },
-		detailed = { "Water Stone", },
-	},
-	[PokemonData.Evolutions.FIRE] = {
+	-- Fire stone item
+	FIRE = {
+		abbreviation = "FIRE",
 		short = { "Fire", },
 		detailed = { "Fire Stone", },
+		evoItemIds = { [95] = true, },
 	},
-	[PokemonData.Evolutions.LEAF] = {
-		short = { "Leaf", },
-		detailed = { "Leaf Stone", },
+	-- Water stone item
+	WATER = {
+		abbreviation = "WATER",
+		short = { "Water", },
+		detailed = { "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
-	[PokemonData.Evolutions.SUN] = {
-		short = { "Sun", },
-		detailed = { "Sun Stone", },
-	},
-	[PokemonData.Evolutions.MOON] = {
+	-- Moon stone item
+	MOON = {
+		abbreviation = "MOON",
 		short = { "Moon", },
 		detailed = { "Moon Stone", },
+		evoItemIds = { [94] = true, },
 	},
-	[PokemonData.Evolutions.LEAF_SUN] = {
+	-- Leaf stone item
+	LEAF = {
+		abbreviation = "LEAF",
+		short = { "Leaf", },
+		detailed = { "Leaf Stone", },
+		evoItemIds = { [98] = true, },
+	},
+	-- Sun stone item
+	SUN = {
+		abbreviation = "SUN",
+		short = { "Sun", },
+		detailed = { "Sun Stone", },
+		evoItemIds = { [93] = true, },
+	},
+	-- Leaf or Sun stone items
+	LEAF_SUN = {
+		abbreviation = "LF/SN",
 		short = { "Leaf", "Sun", },
 		detailed = { "Leaf Stone", "Sun Stone", },
+		evoItemIds = { [93] = true, [98] = true, },
 	},
-	[PokemonData.Evolutions.WATER30] = {
+	-- Water stone item or at level 30
+	WATER30 = {
+		abbreviation = "30/WTR",
 		short = { "Lv.30", "Water", },
 		detailed = { "Level 30", "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
-	[PokemonData.Evolutions.WATER37] = {
+	-- Water stone item or at level 37
+	WATER37 = {
+		abbreviation = "37/WTR",
 		short = { "Lv.37", "Water", },
 		detailed = { "Level 37", "Water Stone", },
+		evoItemIds = { [97] = true, },
 	},
 }
 
 PokemonData.BlankPokemon = {
 	pokemonID = 0,
 	name = Constants.BLANKLINE,
-	types = { PokemonData.Types.EMPTY, PokemonData.Types.EMPTY },
+	types = { PokemonData.Types.UNKNOWN, PokemonData.Types.EMPTY },
 	abilities = { 0, 0 },
 	evolution = PokemonData.Evolutions.NONE,
 	bst = Constants.BLANKLINE,
 	movelvls = { {}, {} },
 	weight = 0.0,
+	friendship = 0,
+	friendshipBase = 0,
 }
 
-PokemonData.IsRand = {
-	pokemonTypes = false,
-	pokemonAbilities = false, -- Currently unused by the Tracker, as it never reveals this information by default
-}
-
--- Reads the types and abilities for each Pokemon in the Pokedex
-function PokemonData.readDataFromMemory()
+function PokemonData.initialize()
+	-- Reads the types and abilities for each Pokemon in the Pokedex
 	-- If any data at all was randomized, read in full Pokemon data from memory
 	if PokemonData.checkIfDataIsRandomized() then
-		print("Randomized " .. Constants.Words.POKEMON .. " data detected, reading from game memory...")
 		for pokemonID=1, PokemonData.totalPokemon, 1 do
 			local pokemonData = PokemonData.Pokemon[pokemonID]
 
@@ -136,16 +161,75 @@ function PokemonData.readDataFromMemory()
 					pokemonData.abilities = abilities
 				end
 			end
+			if PokemonData.IsRand.pokemonFriendship then
+				local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+				if friendshipBase ~= 0 then
+					pokemonData.friendshipBase = friendshipBase
+				end
+			end
 		end
-		local datalog = Constants.BLANKLINE .. " New " .. Constants.Words.POKEMON .. " data loaded: "
-		if PokemonData.IsRand.pokemonTypes then
-			datalog = datalog .. "Types, "
-		end
-		if PokemonData.IsRand.pokemonAbilities then
-			datalog = datalog .. "Abilities, "
-		end
-		print(datalog:sub(1, -3)) -- Remove trailing ", "
 	end
+
+	-- Add in pokemon IDs since they were never manually included in the past
+	for id, pokemon in ipairs(PokemonData.Pokemon) do
+		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
+			pokemon.pokemonID = id
+		end
+	end
+end
+
+function PokemonData.updateResources()
+	for i, val in ipairs(PokemonData.Pokemon) do
+		if Resources.Game.PokemonNames[i] then
+			val.name = Resources.Game.PokemonNames[i]
+		end
+	end
+
+	-- Manually add in each evolution translation, as each has different formatting
+	local PE = PokemonData.Evolutions
+	local RPED = Resources.PokemonEvolutionDetails
+	-- PE.LEVEL.abbreviation = RPED.LEVEL.abbreviation -- Doesn't need translation; not displayed
+	PE.LEVEL.short = { RPED.LEVEL.short .. "%s" }
+	PE.LEVEL.detailed = { RPED.LEVEL.detailed .. " %s" }
+	PE.FRIEND.abbreviation = RPED.FRIEND.abbreviation
+	PE.FRIEND.short = { RPED.FRIEND.short }
+	PE.FRIEND.detailed = { "%s " .. RPED.FRIEND.detailed }
+	PE.FRIEND_READY.abbreviation = RPED.FRIEND_READY.abbreviation
+	PE.EEVEE_STONES.abbreviation = RPED.EEVEE_STONES.abbreviation
+	PE.EEVEE_STONES.short = { RPED.THUNDER.short, RPED.WATER.short, RPED.FIRE.short, RPED.SUN.short, RPED.MOON.short, }
+	PE.EEVEE_STONES.detailed = { RPED.EEVEE_STONES.detailed, }
+	PE.THUNDER.abbreviation = RPED.THUNDER.abbreviation
+	PE.THUNDER.short = { RPED.THUNDER.short }
+	PE.THUNDER.detailed = { RPED.THUNDER.detailed }
+	PE.FIRE.abbreviation = RPED.FIRE.abbreviation
+	PE.FIRE.short = { RPED.FIRE.short }
+	PE.FIRE.detailed = { RPED.FIRE.detailed }
+	PE.WATER.abbreviation = RPED.WATER.abbreviation
+	PE.WATER.short = { RPED.WATER.short }
+	PE.WATER.detailed = { RPED.WATER.detailed }
+	PE.MOON.abbreviation = RPED.MOON.abbreviation
+	PE.MOON.short = { RPED.MOON.short }
+	PE.MOON.detailed = { RPED.MOON.detailed }
+	PE.LEAF.abbreviation = RPED.LEAF.abbreviation
+	PE.LEAF.short = { RPED.LEAF.short }
+	PE.LEAF.detailed = { RPED.LEAF.detailed }
+	PE.SUN.abbreviation = RPED.SUN.abbreviation
+	PE.SUN.short = { RPED.SUN.short }
+	PE.SUN.detailed = { RPED.SUN.detailed }
+	PE.LEAF_SUN.abbreviation = RPED.LEAF_SUN.abbreviation
+	PE.LEAF_SUN.short = { RPED.LEAF.short, RPED.SUN.short, }
+	PE.LEAF_SUN.detailed = { RPED.LEAF.detailed, RPED.SUN.detailed, }
+	PE.WATER30.abbreviation = RPED.WATER30.abbreviation
+	PE.WATER30.short = { RPED.LEVEL.short .. "30", RPED.WATER.short, }
+	PE.WATER30.detailed = { RPED.LEVEL.detailed .. " 30", RPED.WATER.detailed, }
+	PE.WATER37.abbreviation = RPED.WATER37.abbreviation
+	PE.WATER37.short = { RPED.LEVEL.short .. "37", RPED.WATER.short, }
+	PE.WATER37.detailed = { RPED.LEVEL.detailed .. " 37", RPED.WATER.detailed, }
+end
+
+function PokemonData.getTypeResource(typename)
+	typename = typename or "unknown"
+	return Resources.Game.PokemonTypes[typename] or Resources.Game.PokemonTypes.unknown
 end
 
 function PokemonData.readPokemonTypesFromMemory(pokemonID)
@@ -170,13 +254,22 @@ function PokemonData.readPokemonAbilitiesFromMemory(pokemonID)
 	}
 end
 
+function PokemonData.readPokemonBaseFriendshipFromMemory(pokemonID)
+	local baseFriendshipData = Memory.readword(GameSettings.gBaseStats + (pokemonID * 0x1C) + 0x12)
+	local friendshipBase = Utils.getbits(baseFriendshipData, 0, 8)
+
+	return friendshipBase
+end
+
 function PokemonData.checkIfDataIsRandomized()
 	local areTypesRandomized = false
 	local areAbilitiesRandomized = false
+	local areBaseFriendshipsModified = false
 
 	-- Check once if any data was randomized
 	local types = PokemonData.readPokemonTypesFromMemory(1) -- Bulbasaur
 	local abilities = PokemonData.readPokemonAbilitiesFromMemory(1) -- Bulbasaur
+	local friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(1) -- Bulbasaur
 
 	if types ~= nil then
 		areTypesRandomized = types[1] ~= PokemonData.Types.GRASS or types[2] ~= PokemonData.Types.POISON
@@ -184,11 +277,15 @@ function PokemonData.checkIfDataIsRandomized()
 	if abilities ~= nil then
 		areAbilitiesRandomized = abilities[1] ~= 65 or abilities[2] ~= 65 -- 65 = Overgrow
 	end
+	if friendshipBase ~= 0 then
+		areBaseFriendshipsModified = friendshipBase ~= 70  -- Bulbasaur's base friendship is 70
+	end
 
 	-- Check twice if any data was randomized (Randomizer does *not* force a change)
-	if not areTypesRandomized or not areAbilitiesRandomized then
+	if not areTypesRandomized or not areAbilitiesRandomized or not areBaseFriendshipsModified then
 		types = PokemonData.readPokemonTypesFromMemory(131) -- Lapras
 		abilities = PokemonData.readPokemonAbilitiesFromMemory(131) -- Lapras
+		friendshipBase = PokemonData.readPokemonBaseFriendshipFromMemory(131) --Lapras
 
 		if types ~= nil and (types[1] ~= PokemonData.Types.WATER or types[2] ~= PokemonData.Types.ICE) then
 			areTypesRandomized = true
@@ -196,14 +293,18 @@ function PokemonData.checkIfDataIsRandomized()
 		if abilities ~= nil and (abilities[1] ~= 11 or abilities[2] ~= 75) then -- 11 = Water Absorb, 75 = Shell Armor
 			areAbilitiesRandomized = true
 		end
+		if friendshipBase ~= 0 and (friendshipBase ~= 70) then -- Lapras' base friendship is 70
+			areBaseFriendshipsModified = true
+		end
 	end
 
 	PokemonData.IsRand.pokemonTypes = areTypesRandomized
 	-- For now, read in all ability data since it's not stored in the PokemonData.Pokemon below
 	areAbilitiesRandomized = true
 	PokemonData.IsRand.pokemonAbilities = areAbilitiesRandomized
+	PokemonData.IsRand.pokemonFriendship = areBaseFriendshipsModified
 
-	return areTypesRandomized or areAbilitiesRandomized
+	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
 
 function PokemonData.getAbilityId(pokemonID, abilityNum)
@@ -212,7 +313,7 @@ function PokemonData.getAbilityId(pokemonID, abilityNum)
 	end
 
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local abilityId = pokemon.abilities[abilityNum + 1] -- stored from memory as [0 or 1]
+	local abilityId = pokemon.abilities[abilityNum + 1] -- abilityNum stored from memory as [0 or 1]
 	return abilityId
 end
 
@@ -235,14 +336,47 @@ function PokemonData.getIdFromName(pokemonName)
 	return nil
 end
 
-function PokemonData.toList()
-	local allPokemon = {}
-	for _, pokemon in pairs(PokemonData.Pokemon) do
+function PokemonData.namesToList()
+	local pokemonNames = {}
+	for _, pokemon in ipairs(PokemonData.Pokemon) do
 		if pokemon.bst ~= Constants.BLANKLINE then -- Skip fake Pokemon
-			table.insert(allPokemon, pokemon.name)
+			table.insert(pokemonNames, pokemon.name)
 		end
 	end
-	return allPokemon
+	return pokemonNames
+end
+
+-- Returns a table that contains the type weaknesses, resistances, and immunities for a Pokémon, listed as type-strings
+function PokemonData.getEffectiveness(pokemonID)
+	local effectiveness = {
+		[0] = {},
+		[0.25] = {},
+		[0.5] = {},
+		[1] = {},
+		[2] = {},
+		[4] = {},
+	}
+
+	if not PokemonData.isValid(pokemonID) then
+		return effectiveness
+	end
+
+	local pokemon = PokemonData.Pokemon[pokemonID]
+
+	for moveType, typeMultiplier in pairs(MoveData.TypeToEffectiveness) do
+		local total = 1
+		if typeMultiplier[pokemon.types[1]] ~= nil then
+			total = total * typeMultiplier[pokemon.types[1]]
+		end
+		if pokemon.types[2] ~= pokemon.types[1] and typeMultiplier[pokemon.types[2]] ~= nil then
+			total = total * typeMultiplier[pokemon.types[2]]
+		end
+		if effectiveness[total] ~= nil then
+			table.insert(effectiveness[total], moveType)
+		end
+	end
+
+	return effectiveness
 end
 
 PokemonData.TypeIndexMap = {
@@ -555,7 +689,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.MOON,
 		bst = "323",
 		movelvls = { { 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 }, { 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45 } },
-		weight = 7.5
+		weight = 7.5,
+		friendshipBase = 140
 	},
 	{
 		name = "Clefable",
@@ -563,7 +698,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "473",
 		movelvls = { {}, {} },
-		weight = 40.0
+		weight = 40.0,
+		friendshipBase = 140
 	},
 	{
 		name = "Vulpix",
@@ -1179,7 +1315,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "450",
 		movelvls = { { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 }, { 5, 9, 13, 17, 23, 29, 35, 41, 49, 57 } },
-		weight = 34.6
+		weight = 34.6,
+		friendshipBase = 140
 	},
 	{
 		name = "Tangela",
@@ -1336,7 +1473,7 @@ PokemonData.Pokemon = {
 	{
 		name = "Eevee",
 		types = { PokemonData.Types.NORMAL, PokemonData.Types.EMPTY },
-		evolution = PokemonData.Evolutions.STONES,
+		evolution = PokemonData.Evolutions.EEVEE_STONES,
 		bst = "325",
 		movelvls = { { 8, 16, 23, 30, 36, 42 }, { 8, 16, 23, 30, 36, 42 } },
 		weight = 6.5
@@ -1659,7 +1796,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.FRIEND,
 		bst = "218",
 		movelvls = { { 4, 8, 13 }, { 4, 8, 13, 17 } },
-		weight = 3.0
+		weight = 3.0,
+		friendshipBase = 140
 	},
 	{
 		name = "Igglybuff",
@@ -2211,7 +2349,8 @@ PokemonData.Pokemon = {
 		evolution = PokemonData.Evolutions.NONE,
 		bst = "540",
 		movelvls = { { 4, 7, 10, 13, 18, 23, 28, 33, 40, 47 }, { 4, 7, 10, 13, 18, 23, 28, 33, 40, 47 } },
-		weight = 46.8
+		weight = 46.8,
+		friendshipBase = 140
 	},
 	{
 		name = "Raikou",
