@@ -469,7 +469,7 @@ function CoverageCalcScreen.performCalc()
 	-- Helper functions
 	local onlyCheckEvos = SCREEN.Buttons.OptionOnlyFullyEvolved.toggleState
 	local shouldCheckPokemon = function(pokemonID)
-		-- Skip Shedinja and empty, placeholder Pokemon
+		-- Skip the empty/placeholder Pokemon
 		if not PokemonData.isValid(pokemonID) or (pokemonID > 251 and pokemonID < 277) then
 			return false
 		end
