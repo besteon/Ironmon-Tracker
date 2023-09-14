@@ -207,7 +207,10 @@ ScreenResources{
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras", -- NEEDS TRANSLATION
+		TabTools = "Tools", -- NEEDS TRANSLATION
+		TabOptions = "Options", -- NEEDS TRANSLATION
 		ButtonViewLogs = "Logs", -- NEEDS TRANSLATION
+		ButtonCoverageCalculator = "Coverage Calculator", -- NEEDS TRANSLATION
 		ButtonTimeMachine = "Time Machine", -- NEEDS TRANSLATION
 		ButtonCrashRecovery = "Crash Recovery", -- NEEDS TRANSLATION
 		LabelTimer = "Timer options", -- NEEDS TRANSLATION
@@ -348,6 +351,7 @@ ScreenResources{
 	},
 	InfoScreen = {
 		-- Pokémon Info
+		ButtonViewEvos = "View ...", -- NEEDS TRANSLATION
 		ButtonHistory = "History", -- NEEDS TRANSLATION
 		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
 		KilogramAbbreviation = "kg",
@@ -420,6 +424,15 @@ ScreenResources{
 		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.", -- NEEDS TRANSLATION
 		WarningIfUnsure = "If you are unsure, simply do not view the log file.", -- NEEDS TRANSLATION
 	},
+	CoverageCalcScreen = {
+		Title = "Coverage Calculator", -- NEEDS TRANSLATION
+		ButtonAddType = "Add Type", -- NEEDS TRANSLATION
+		ButtonClearTypes = "Clear All", -- NEEDS TRANSLATION
+		ButtonPokemonMatchups = "Pokémon Matchups", -- NEEDS TRANSLATION
+		OptionFullyEvolvedOnly = "Fully evolved Pokémon only", -- NEEDS TRANSLATION
+		TitleAddMoveType = "Add a Move Type", -- NEEDS TRANSLATION
+		LabelTotal = "Total", -- NEEDS TRANSLATION
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine", -- NEEDS TRANSLATION
 		OptionEnableRestorePoints = "Enable restore points", -- NEEDS TRANSLATION
@@ -458,6 +471,10 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save", -- NEEDS TRANSLATION
 		ButtonInspectLogFile = "Inspect the log", -- NEEDS TRANSLATION
 		ButtonOpenLogFile = "Open a log file", -- NEEDS TRANSLATION
+	},
+	RandomEvosScreen = {
+		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
+		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
