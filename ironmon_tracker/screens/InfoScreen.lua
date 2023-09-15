@@ -81,6 +81,20 @@ InfoScreen.Buttons = {
 			end
 		end
 	},
+	ViewRandomEvos = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return Resources.InfoScreen.ButtonViewEvos end,
+		textColor = "Intermediate text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4, Constants.SCREEN.MARGIN + 46, 31, 10 },
+		boxColors = { "Upper box border", "Upper box background" },
+		shouldShow = false, -- for now, need to update this during the legacy drawScreen method
+		isVisible = function(self) return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO and self.shouldShow end,
+		onClick = function (self)
+			if RandomEvosScreen.buildPagedButtons(InfoScreen.infoLookup) then
+				Program.changeScreenView(RandomEvosScreen)
+			end
+		end,
+	},
 	MoveHistory = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return Resources.InfoScreen.ButtonHistory end,
@@ -635,7 +649,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 
 	-- Draw top view box
 	gui.defaultTextBackground(Theme.COLORS["Upper box background"])
-	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 8, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, botOffsetY - linespacing - 7, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON NAME
 	offsetY = offsetY - 3
@@ -675,10 +689,12 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	if evoDetails[2] ~= nil then
 		Drawing.drawText(offsetColumnX, offsetY, evoDetails[2], Theme.COLORS["Default text"], boxInfoTopShadow)
 	end
-	if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
-		-- Pokémon Mystery Dungeon Drowzee easter egg
-		Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
-	end
+	InfoScreen.Buttons.ViewRandomEvos.shouldShow = (evoDetails[1] ~= Constants.BLANKLINE)
+	-- Removing this easter egg for now, since Drowzee has an evo
+	-- if data.p.id == 96 and Options.getIconSet().name == "Explorers" then
+	-- 	-- Pokémon Mystery Dungeon Drowzee easter egg
+	-- 	Drawing.drawText(offsetX, offsetY, "This was all a trick. I deceived you.", Theme.COLORS["Default text"], boxInfoTopShadow)
+	-- end
 	offsetY = offsetY + linespacing
 
 	-- Draw bottom view box and header
@@ -776,6 +792,7 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	Drawing.drawButton(InfoScreen.Buttons.NextPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PreviousPokemon, boxInfoTopShadow)
 	Drawing.drawButton(InfoScreen.Buttons.PokemonInfoIcon, boxInfoTopShadow)
+	Drawing.drawButton(InfoScreen.Buttons.ViewRandomEvos, boxInfoTopShadow)
 
 	Drawing.drawButton(InfoScreen.Buttons.MoveHistory, boxInfoBotShadow)
 	Drawing.drawButton(InfoScreen.Buttons.TypeDefenses, boxInfoBotShadow)

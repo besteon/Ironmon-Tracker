@@ -54,9 +54,9 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ## Latest Changes
 
-### Walking Pals Interactive Icon Set
+### Randomized Evos and Coverage Calculator
 
-![Image showing the new walking pals icon set. It shows a Quagsire standing in a walking-position on the main Tracker screen. The next image shows the same Quagsire asleep with its mouth open.](https://user-images.githubusercontent.com/4258818/265281719-455fdc67-8e65-460a-9eff-e536ffba7928.png)
+![A screen showing the possible random evolutions for Bulbasaur; twelve visible on the current page.](https://user-images.githubusercontent.com/4258818/266699708-174a0b8a-281d-459a-bc9e-129c8c66f18c.png)![A screen showing the new coverage calculator, with four move types chosen and the calculated coverage displayed below.](https://user-images.githubusercontent.com/4258818/266700515-e001d5ec-f9bf-4c6a-99c6-b01609e2c31a.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 

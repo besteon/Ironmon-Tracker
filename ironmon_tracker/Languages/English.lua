@@ -207,7 +207,10 @@ ScreenResources{
 	},
 	ExtrasScreen = {
 		Title = "Tracker Extras",
+		TabTools = "Tools",
+		TabOptions = "Options",
 		ButtonViewLogs = "Logs",
+		ButtonCoverageCalculator = "Coverage Calculator",
 		ButtonTimeMachine = "Time Machine",
 		ButtonCrashRecovery = "Crash Recovery",
 		LabelTimer = "Timer options",
@@ -348,6 +351,7 @@ ScreenResources{
 	},
 	InfoScreen = {
 		-- Pokémon Info
+		ButtonViewEvos = "View ...",
 		ButtonHistory = "History",
 		ButtonResistances = "Show resistances",
 		KilogramAbbreviation = "kg",
@@ -420,6 +424,15 @@ ScreenResources{
 		WarningSpiritOfIronmon = "In Ironmon, it's against the spirit of the challenge to view log info about the game before it's over.",
 		WarningIfUnsure = "If you are unsure, simply do not view the log file.",
 	},
+	CoverageCalcScreen = {
+		Title = "Coverage Calculator",
+		ButtonAddType = "Add Type",
+		ButtonClearTypes = "Clear All",
+		ButtonPokemonMatchups = "Pokémon Matchups",
+		OptionFullyEvolvedOnly = "Fully evolved Pokémon only",
+		TitleAddMoveType = "Add a Move Type",
+		LabelTotal = "Total",
+	},
 	TimeMachineScreen = {
 		Title = "Time Machine",
 		OptionEnableRestorePoints = "Enable restore points",
@@ -458,6 +471,10 @@ ScreenResources{
 		ButtonSaveFailed = "Unable to save",
 		ButtonInspectLogFile = "Inspect the log",
 		ButtonOpenLogFile = "Open a log file",
+	},
+	RandomEvosScreen = {
+		LabelRandomEvos = "Random Evos",
+		LabelEvoShort = "Evo",
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level",

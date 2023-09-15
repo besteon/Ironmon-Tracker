@@ -216,6 +216,10 @@ function Program.initialize()
 		Program.currentScreen = StartupScreen
 	end
 
+	if Main.IsOnBizhawk() then
+		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	end
+
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
 	if friendshipRequired > 1 and friendshipRequired <= 220 then
@@ -600,11 +604,11 @@ function Program.readNewPokemon(startAddress, personality)
 	local otid = Memory.readdword(startAddress + 4)
 	local magicword = Utils.bit_xor(personality, otid) -- The XOR encryption key for viewing the Pokemon data
 
-	local aux			= personality % 24
-	local growthoffset	= (MiscData.TableData.growth[aux + 1] - 1) * 12
-	local attackoffset	= (MiscData.TableData.attack[aux + 1] - 1) * 12
+	local aux = personality % 24
+	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
+	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
 	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
-	local miscoffset	= (MiscData.TableData.misc[aux + 1] - 1) * 12
+	local miscoffset = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
 	local growth1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + growthoffset), magicword)
@@ -613,7 +617,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
-	local misc2   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
+	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	local nickname = ""
 	for i=0, 9, 1 do
@@ -627,7 +631,6 @@ function Program.readNewPokemon(startAddress, personality)
 	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
 	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
-	-- local misc1   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
 	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
 	-- Checksum, currently unused
@@ -639,6 +642,19 @@ function Program.readNewPokemon(startAddress, personality)
 
 	local species = Utils.getbits(growth1, 0, 16) -- Pokemon's Pokedex ID
 	local abilityNum = Utils.getbits(misc2, 31, 1) -- [0 or 1] to determine which ability, available in PokemonData
+
+	-- Check for shininess: https://bulbapedia.bulbagarden.net/wiki/Personality_value#Shininess
+	local trainerID = Utils.getbits(otid, 0, 16)
+	local secretID = Utils.getbits(otid, 16, 16)
+	local p1 = math.floor(personality / 65536)
+	local p2 = personality % 65536
+	local isShiny = Utils.bit_xor(Utils.bit_xor(Utils.bit_xor(trainerID, secretID), p1), p2) < 8
+	local hasPokerus
+	if GameSettings.game ~= 3 then -- PokeRus doesn't exist in FRLG due to lack of passing time
+		local misc1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset), magicword)
+		-- First 4 bits are number of days until Pokerus is cured, Second 4 bits are the strain variation
+		hasPokerus = Utils.getbits(misc1, 0, 8) > 0
+	end
 
 	-- Determine status condition
 	local status_aux = Memory.readdword(startAddress + 80)
@@ -670,7 +686,7 @@ function Program.readNewPokemon(startAddress, personality)
 	return {
 		personality = personality,
 		nickname = nickname,
-		trainerID = Utils.getbits(otid, 0, 16),
+		trainerID = trainerID,
 		pokemonID = species,
 		heldItem = Utils.getbits(growth1, 16, 16),
 		experience = growth2,
@@ -678,6 +694,8 @@ function Program.readNewPokemon(startAddress, personality)
 		level = Utils.getbits(level_and_currenthp, 0, 8),
 		nature = personality % 25,
 		isEgg = Utils.getbits(misc2, 30, 1), -- [0 or 1] to determine if mon is still an egg (1 if true)
+		isShiny = isShiny,
+		hasPokerus = hasPokerus, -- Not realistically available in FRLG
 		abilityNum = abilityNum,
 		status = status_result,
 		sleep_turns = sleep_turns_result,
@@ -699,8 +717,6 @@ function Program.readNewPokemon(startAddress, personality)
 		},
 
 		-- Unused data that can be added back in later
-		-- secretID = Utils.getbits(otid, 16, 16), -- Unused
-		-- pokerus = Utils.getbits(misc1, 0, 8), -- Unused
 		-- iv = misc2,
 		-- ev1 = effort1,
 		-- ev2 = effort2,

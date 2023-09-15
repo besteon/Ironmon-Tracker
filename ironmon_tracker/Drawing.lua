@@ -1,8 +1,12 @@
-Drawing = {}
-
-Drawing.Colors = {
-	BLACK = 0xFF000000,
-	WHITE = 0xFFFFFFFF,
+Drawing = {
+	Colors = {
+		RED = 0xFFFF0000, BLUE = 0xFF0000FF, GREEN = 0xFF00FF00, YELLOW = 0xFFFFFF00, MAGENTA = 0xFFFF00FF, CYAN = 0xFF00FFFF,
+		BLACK = 0xFF000000, WHITE = 0xFFFFFFFF, GRAY = 0xFFAAAAAA, DARKGRAY = 0xFF222222,
+	},
+	ColorEffects = {
+		DARKEN = 0x20000000,
+		DISABLE = 0xB0000000,
+	},
 }
 
 Drawing.AnimatedPokemon = {
