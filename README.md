@@ -56,7 +56,7 @@ We'd ideally like to support all non-English versions if we can, progress update
 
 ### Randomized Evos and Coverage Calculator
 
-![A screen showing the possible random evolutions for Bublasaur; twelve visible on the current page.](https://user-images.githubusercontent.com/4258818/266699708-174a0b8a-281d-459a-bc9e-129c8c66f18c.png)![A screen showing the new coverage calculator, with four move types chosen and the calculated coverage displayed below.](https://user-images.githubusercontent.com/4258818/266700515-e001d5ec-f9bf-4c6a-99c6-b01609e2c31a.png)
+![A screen showing the possible random evolutions for Bulbasaur; twelve visible on the current page.](https://user-images.githubusercontent.com/4258818/266699708-174a0b8a-281d-459a-bc9e-129c8c66f18c.png)![A screen showing the new coverage calculator, with four move types chosen and the calculated coverage displayed below.](https://user-images.githubusercontent.com/4258818/266700515-e001d5ec-f9bf-4c6a-99c6-b01609e2c31a.png)
 
 See the project's Wiki for a full [Version Changelog](https://github.com/besteon/Ironmon-Tracker/wiki/Version-Changelog).
 
