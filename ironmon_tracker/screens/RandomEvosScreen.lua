@@ -209,7 +209,7 @@ function RandomEvosScreen.drawScreen()
 		return
 	end
 
-	-- Draw each of possibile evolutions Pokemon
+	-- Draw each of the possible Pokémon evolutions
 	for _, button in pairs(RandomEvosScreen.Pager.Buttons) do
 		Drawing.drawButton(button, canvas.shadow)
 	end

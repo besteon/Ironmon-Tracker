@@ -253,7 +253,7 @@ function Utils.encodeDecodeForSettingsIni(text, doEncode)
 end
 
 --- Shortens text by removing characters from the end until its no more than pixelWidth in size
---- @param text string The text to be shortned (if able)
+--- @param text string The text to be shortened (if able)
 --- @param pixelWidth number The maximum width in pixels the text can be
 --- @param appendEllipsis boolean|nil If true and text gets shortened, ellipsis will be added to the end
 --- @return string
