@@ -334,8 +334,8 @@ function QuickloadScreen.handleSetCustomSettings(button)
 		if extension == "rnqs" then
 			Options.FILES[button.optionKey] = file
 			button.isSet = true
-			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
-			Main.ReadAttemptsCount()
+			-- After changing the setup, read-in any existing attempts counter for the new quickload choice or force-create a new one if it doesn't exist
+			Main.ReadAttemptsCount(true)
 			Main.SaveSettings(true)
 		else
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
