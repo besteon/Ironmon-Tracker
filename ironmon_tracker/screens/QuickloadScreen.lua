@@ -148,9 +148,11 @@ function QuickloadScreen.initialize()
 	QuickloadScreen.Buttons.PremadeRoms.toggleState = Options[optionPremade]
 	QuickloadScreen.Buttons.GenerateRom.toggleState = Options[optionGenerate]
 	NavigationMenu.refreshButtons()
+	QuickloadScreen.refreshButtons()
 end
 
 function QuickloadScreen.createButtons()
+	local filenameCutoff = 98
 	for optionKey, optionObj in pairs(QuickloadScreen.SetButtonSetup) do
 		QuickloadScreen.Buttons[optionKey] = {
 			type = Constants.ButtonTypes.FULL_BORDER,
@@ -163,25 +165,37 @@ function QuickloadScreen.createButtons()
 					return " " .. Resources.QuickloadScreen.ButtonSet
 				end
 			end,
+			filename = "",
 			optionKey = optionKey,
 			isSet = false,
 			statusIconVisible = optionObj.statusIconVisible,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 108, optionObj.offsetY, 24, 11 },
+			updateSelf = function(self)
+				if not self.isSet then
+					self.filename = ""
+				elseif self.filename == "" then
+					if optionKey == "ROMs Folder" then
+						self.filename = FileManager.extractFolderNameFromPath(Options.FILES[optionKey] or "") or ""
+					else
+						self.filename = FileManager.extractFileNameFromPath(Options.FILES[optionKey] or "", true) or ""
+					end
+					self.filename = Utils.formatSpecialCharacters(self.filename)
+					self.filename = Utils.shortenText(self.filename, filenameCutoff, true)
+				end
+			end,
 			draw = function(self, shadowcolor)
 				local topboxX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 				local labelText = Resources.QuickloadScreen[optionObj.resourceKey]
-				Drawing.drawText(topboxX + 6, self.box[2], labelText, Theme.COLORS[self.textColor], shadowcolor)
+				local labelColor = Theme.COLORS[self.textColor]
+				-- If a file is set, use its name instead of the label
+				if self.isSet and self.filename ~= "" then
+					labelText = self.filename
+					labelColor = Theme.COLORS["Positive text"]
+				end
+				Drawing.drawText(topboxX + 6, self.box[2], labelText, labelColor, shadowcolor)
 
-				if self:statusIconVisible() then
-					local image, imageColor
-					if self.isSet then
-						image = Constants.PixelImages.CHECKMARK
-						imageColor = Theme.COLORS["Positive text"]
-					else
-						image = Constants.PixelImages.CROSS
-						imageColor = Theme.COLORS["Negative text"]
-					end
-					Drawing.drawImageAsPixels(image, self.box[1] - 20, self.box[2], { imageColor }, shadowcolor)
+				if not self.isSet and self:statusIconVisible() then
+					Drawing.drawImageAsPixels(Constants.PixelImages.CROSS, self.box[1] - 20, self.box[2], { Theme.COLORS["Negative text"] }, shadowcolor)
 				end
 			end,
 			onClick = function(self)
@@ -190,6 +204,7 @@ function QuickloadScreen.createButtons()
 					Options.FILES[self.optionKey] = ""
 					self.isSet = false
 					Main.SaveSettings(true)
+					QuickloadScreen.refreshButtons()
 					Program.redraw(true)
 				else
 					if type(self.clickFunction) == "function" then
@@ -247,9 +262,10 @@ function QuickloadScreen.handleSetRomFolder(button)
 		end
 
 		Main.SaveSettings(true)
-		Program.redraw(true)
 	end
 
+	QuickloadScreen.refreshButtons()
+	Program.redraw(true)
 	Utils.tempEnableBizhawkSound()
 end
 
@@ -266,12 +282,13 @@ function QuickloadScreen.handleSetRandomizerJar(button)
 			Options.FILES[button.optionKey] = file
 			button.isSet = true
 			Main.SaveSettings(true)
-			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not the Randomizer JAR file.\n\nPlease select the JAR file in the Randomizer ZX folder.")
 		end
 	end
 
+	QuickloadScreen.refreshButtons()
+	Program.redraw(true)
 	Utils.tempEnableBizhawkSound()
 end
 
@@ -288,12 +305,13 @@ function QuickloadScreen.handleSetSourceRom(button)
 			Options.FILES[button.optionKey] = file
 			button.isSet = true
 			Main.SaveSettings(true)
-			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not a GBA ROM file.\n\nPlease select a GBA file: has the file extension \".gba\"")
 		end
 	end
 
+	QuickloadScreen.refreshButtons()
+	Program.redraw(true)
 	Utils.tempEnableBizhawkSound()
 end
 
@@ -319,12 +337,13 @@ function QuickloadScreen.handleSetCustomSettings(button)
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
 			Main.SaveSettings(true)
-			Program.redraw(true)
 		else
 			Main.DisplayError("The file selected is not a Randomizer Settings file.\n\nPlease select an RNQS file: has the file extension \".rnqs\"")
 		end
 	end
 
+	QuickloadScreen.refreshButtons()
+	Program.redraw(true)
 	Utils.tempEnableBizhawkSound()
 end
 

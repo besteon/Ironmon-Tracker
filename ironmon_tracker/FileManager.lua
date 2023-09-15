@@ -447,33 +447,33 @@ function FileManager.extractFolderNameFromPath(path)
 	return ""
 end
 
-function FileManager.extractFileNameFromPath(path)
+function FileManager.extractFileNameFromPath(path, includeExtension)
 	if path == nil or path == "" then return "" end
 
-	local nameStartIndex = path:match("^.*()" .. FileManager.slash) or 0 -- path to file
-	local nameEndIndex = path:match("^.*()%.") -- file extension
-	if nameEndIndex ~= nil then
-		local filename = path:sub(nameStartIndex + 1, nameEndIndex - 1)
-		if filename ~= nil then
-			return filename
-		end
+	local folder, filename, extension = FileManager.getPathParts(path)
+	if includeExtension and filename then
+		return filename .. (extension or "")
+	else
+		return filename or ""
 	end
-
-	return ""
 end
 
 function FileManager.extractFileExtensionFromPath(path)
 	if path == nil or path == "" then return "" end
 
-	local extStartIndex = path:match("^.*()%.") -- file extension
-	if extStartIndex ~= nil then
-		local extension = path:sub(extStartIndex + 1)
-		if extension ~= nil then
-			return extension:lower()
-		end
+	local folder, filename, extension = FileManager.getPathParts(path)
+	if extension and #extension > 1 then
+		return extension:sub(2) -- remove the leading '.'
+	else
+		return ""
 	end
+end
 
-	return ""
+--- Returns the folder, filename, and extension for the given filepath
+--- @param filepath string The full file path to split apart
+--- @return string folder, string filename, string extension
+function FileManager.getPathParts(filepath)
+	return string.match(filepath or "", "^(.-)([^\\/]-)(%.[^\\/%.]-)%.?$")
 end
 
 -- Copies file at 'filepath' to 'filecopyPath' with option to overwrite the file if it exists, or append to it
