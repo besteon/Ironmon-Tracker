@@ -294,6 +294,7 @@ function FileManager.executeEachFile(functionName)
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
 	else
+		---@diagnostic disable-next-line: undefined-global
 		globalRef = _ENV -- Lua 5.4
 	end
 
