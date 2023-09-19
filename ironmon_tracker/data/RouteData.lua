@@ -222,12 +222,14 @@ function RouteData.getNextAvailableEncounterArea(mapId, encounterArea)
 
 	local numEncounters = #RouteData.OrderedEncounters
 	local nextIndex = (startingIndex % numEncounters) + 1
-	while startingIndex ~= nextIndex do
+	local maxIterations = numEncounters + 1
+	while startingIndex ~= nextIndex and maxIterations >= 0 do
 		encounterArea = RouteData.OrderedEncounters[nextIndex]
 		if RouteData.hasRouteEncounterArea(mapId, encounterArea) then
 			break
 		end
 		nextIndex = (nextIndex % numEncounters) + 1
+		maxIterations = maxIterations - 1
 	end
 
 	return encounterArea
