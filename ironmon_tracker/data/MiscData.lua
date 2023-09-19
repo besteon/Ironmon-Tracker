@@ -62,6 +62,11 @@ function MiscData.updateResources()
 			item.name = Resources.Game.ItemNames[itemId]
 		end
 	end
+	for itemId, item in pairs(MiscData.PPItems) do
+		if Resources.Game.ItemNames[itemId] then
+			item.name = Resources.Game.ItemNames[itemId]
+		end
+	end
 	for itemId, item in pairs(MiscData.EvolutionStones) do
 		if Resources.Game.ItemNames[itemId] then
 			item.name = Resources.Game.ItemNames[itemId]
@@ -305,6 +310,44 @@ MiscData.StatusItems = {
 		id = 141,
 		name = "Lum Berry",
 		type = MiscData.StatusType.All,
+		pocket = MiscData.BagPocket.Berries,
+	},
+}
+
+MiscData.PPItems = {
+	[34] = {
+		id = 34,
+		name = "Ether",
+		amount = 10,
+		type = MiscData.HealingType.Constant,
+		pocket = MiscData.BagPocket.Items,
+	},
+	[35] = {
+		id = 35,
+		name = "Max Ether",
+		amount = 100,
+		type = MiscData.HealingType.Percentage,
+		pocket = MiscData.BagPocket.Items,
+	},
+	[36] = {
+		id = 36,
+		name = "Elixir",
+		amount = 10,
+		type = MiscData.HealingType.Constant,
+		pocket = MiscData.BagPocket.Items,
+	},
+	[37] = {
+		id = 37,
+		name = "Max Elixir",
+		amount = 100,
+		type = MiscData.HealingType.Percentage,
+		pocket = MiscData.BagPocket.Items,
+	},
+	[138] = {
+		id = 138,
+		name = "Leppa Berry",
+		amount = 10,
+		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Berries,
 	},
 }
