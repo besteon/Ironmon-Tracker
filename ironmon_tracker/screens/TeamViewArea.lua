@@ -44,12 +44,8 @@ function TeamViewArea.buildOutPartyScreen()
 	local boxWidth = math.floor(TeamViewArea.Canvas.width / 6)
 	local boxHeight = TeamViewArea.Canvas.height - 1
 	for i=1, 6, 1 do
-		-- Alternative "Tracker.getPokemon" to allow for eggs
-		local personality = Tracker.Data.ownTeam[i]
-		local pokemon = Tracker.Data.ownPokemon[personality or -1]
-		local validPokemon = pokemon ~= nil and (personality ~= 0 or (pokemon.trainerID ~= nil and pokemon.trainerID ~= 0))
-
-		if validPokemon and (PokemonData.isValid(pokemon.pokemonID) or pokemon.isEgg == 1) then
+		local pokemon = Tracker.getPokemon(i, true, false) or {}
+		if PokemonData.isValid(pokemon.pokemonID) or pokemon.isEgg == 1 then
 			local partyMember = TeamViewArea.createPartyMemberBox(pokemon, nextBoxX, nextBoxY, boxWidth, boxHeight)
 			if partyMember ~= nil then
 				table.insert(TeamViewArea.PartyPokemon, partyMember)

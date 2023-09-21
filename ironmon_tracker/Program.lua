@@ -25,6 +25,8 @@ Program.GameData = {
 	wildBattles = -999, -- used to track differences in GAME STATS
 	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
+	PlayerTeam = {}, -- [SlotOnTeam:number] = PokemonGameData:table
+	EnemyTeam = {}, -- [SlotOnTeam:number] = PokemonGameData:table
 	-- All items currently found in the player's bag
 	Items = {
 		healingTotal = 0, -- A calculation of total HP heals
@@ -233,6 +235,9 @@ function Program.initialize()
 	Program.GameTimer:initialize()
 	Program.lastActiveTimestamp = os.time()
 
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
+
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
 	Program.Frames.lowAccuracyUpdate = 0
@@ -339,9 +344,9 @@ function Program.update()
 		end
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
-		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isValidMapLocation() then
+		if Options["Animated Pokemon popout"] and Program.isValidMapLocation() then
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or Tracker.getDefaultPokemon()
+			if leadPokemon.pokemonID ~= 0 then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -530,16 +535,18 @@ function Program.updatePokemonTeams()
 	local addressOffset = 0
 
 	-- Check if it's a new game (no Pokémon yet)
-	if not Tracker.Data.isNewGame and Tracker.Data.ownTeam[1] == 0 then
+	if not Tracker.Data.isNewGame and Program.GameData.PlayerTeam[1] == nil then
 		Tracker.Data.isNewGame = true
 	end
+
+	-- Clear out old data
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
 
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
-		-- local previousPersonality = Tracker.Data.ownTeam[i] -- See below
-		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
@@ -557,28 +564,22 @@ function Program.updatePokemonTeams()
 						Tracker.Data.trainerID = newPokemonData.trainerID
 						Tracker.Data.playtime = playtime
 					end
-
 					-- Unset the new game flag
 					Tracker.Data.isNewGame = false
 				end
-
-				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
-				-- newPokemonData.trainerID = nil
 
 				-- Include experience information for each Pokemon in the player's team
 				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
 				newPokemonData.currentExp = curExp
 				newPokemonData.totalExp = totalExp
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+				Program.GameData.PlayerTeam[i] = newPokemonData
 			end
 		end
 
 		-- Then lookup information on the opposing Pokemon
 		personality = Memory.readdword(GameSettings.estats + addressOffset)
 		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
-		Tracker.Data.otherTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
 			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
@@ -593,7 +594,7 @@ function Program.updatePokemonTeams()
 					end
 				end
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, false)
+				Program.GameData.EnemyTeam[i] = newPokemonData
 			end
 		end
 
@@ -730,8 +731,8 @@ end
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, false)
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+		local pokemon = Tracker.getPokemon(i, false) or Tracker.getDefaultPokemon()
+		if PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
 			if (pokemon.curHP or 0) > 0 then
 				numAlive = numAlive + 1
@@ -1049,7 +1050,7 @@ end
 function Program.calcLeadPokemonHealingInfo()
 	local leadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
 	local maxHP = leadPokemon.stats.hp or 0
-	if not Tracker.Data.isViewingOwn or maxHP == 0 then
+	if not Battle.isViewingOwn or maxHP == 0 then
 		return
 	end
 

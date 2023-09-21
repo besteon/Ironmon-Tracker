@@ -2,18 +2,6 @@ Tracker = {}
 Tracker.Data = {}
 Tracker.DataMessage = "" -- Used for StartupScreen to display info about tracked data loaded
 
--- When Tracker data changes between versions, this will force new data into the tracker
--- Tracker.ForceUpdateData[source][key], such that it references Tracker.Data[source][key], using 'source' loosely, based on implementation
-Tracker.ForceUpdateData = {
-	pokemonData = {
-		abilityNum = true,
-		experience = true,
-		currentExp = true,
-		totalExp = true,
-		nickname = true,
-	},
-}
-
 -- Dual-purpose enum to determine the status of the tracked data loaded on startup and refernece the relevant Resource key
 Tracker.LoadStatusKeys = {
 	NEW_GAME = "TrackedDataMsgNewGame",
@@ -39,89 +27,49 @@ function Tracker.initialize()
 	else
 		Tracker.LoadStatus = Tracker.LoadStatusKeys.AUTO_DISABLED
 	end
-	-- Always start by showing the player's own Pokémon; shouldn't have been saving this 'view' to begin with
-	Tracker.Data.isViewingOwn = true
 end
 
--- Either adds this pokemon to storage if it doesn't exist, or updates it if it's already there
-function Tracker.addUpdatePokemon(pokemonData, personality, isOwn)
-	if pokemonData == nil or personality == nil then return end
-	if isOwn == nil then isOwn = true end
+function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
+	slotNumber = slotNumber or 1
+	isOwn = isOwn ~= false -- default to true
+	excludeEggs = excludeEggs ~= false -- default to true
 
-	if isOwn and Tracker.Data.ownPokemon == nil then
-		Tracker.Data.ownPokemon = {}
-	elseif not isOwn and Tracker.Data.otherPokemon == nil then
-		Tracker.Data.otherPokemon = {}
-	end
-
-	local pokemon
-	if isOwn then
-		pokemon = Tracker.Data.ownPokemon[personality]
-	else
-		pokemon = Tracker.Data.otherPokemon[personality]
-	end
-
-	-- If the Pokemon already exists, update the parts of it that you can; otherwise add it.
-	if pokemon ~= nil then
-		-- Update each pokemon key if it exists between both Pokemon
-		for key, _ in pairs(pokemonData) do
-			if (pokemonData[key] ~= nil and pokemon[key] ~= nil) or Tracker.ForceUpdateData.pokemonData[key] then
-				pokemon[key] = pokemonData[key]
-			end
-		end
-	else
-		if isOwn then
-			Tracker.Data.ownPokemon[personality] = pokemonData
-		else
-			Tracker.Data.otherPokemon[personality] = pokemonData
-		end
-	end
-end
-
-function Tracker.getPokemon(slotNumber, isOwn)
-	if slotNumber == nil then return nil end
-	if isOwn == nil then isOwn = true end
-
-	local personality = Utils.inlineIf(isOwn, Tracker.Data.ownTeam[slotNumber], Tracker.Data.otherTeam[slotNumber])
-	if personality == nil then
+	local team = isOwn and Program.GameData.PlayerTeam or Program.GameData.EnemyTeam
+	local pokemon = team[slotNumber]
+	if pokemon == nil then
 		return nil
 	end
-
 	-- Personality of 0 is okay for some real trainers, usually occurs in Battle
-	local pokemonInSlot = Utils.inlineIf(isOwn, Tracker.Data.ownPokemon[personality], Tracker.Data.otherPokemon[personality])
-	if pokemonInSlot == nil or (personality == 0 and (pokemonInSlot.trainerID == nil or pokemonInSlot.trainerID == 0)) then
+	if pokemon.personality == 0 and (pokemon.trainerID or 0) == 0 then
 		return nil
 	end
 
-	if isOwn then
-		local isEggPokemon = Tracker.Data.ownPokemon[personality].isEgg == 1
-		if isEggPokemon then
-			-- Currently viewed pokemon is still an egg
-			local nextSlot = slotNumber
-			local numPokemon = #Tracker.Data.ownTeam
-			repeat
-				-- Cycle to the next non-egg party member (you're required at least one non-egg in the party)
-				nextSlot = (nextSlot % numPokemon) + 1
-				personality = Tracker.Data.ownTeam[nextSlot]
-				if personality ~= nil and personality ~= 0 then
-					isEggPokemon = Tracker.Data.ownPokemon[personality].isEgg == 1
-				end
-			until not isEggPokemon or nextSlot == slotNumber
-		end
-		return Tracker.Data.ownPokemon[personality]
-	elseif Battle.isGhost then
-		-- Return Ghost dummy instead of showing the hidden mon's data, but keep the level
+	-- Return Ghost dummy instead of showing the hidden mon's data, but still show its level
+	if not isOwn and Battle.isGhost then
 		local retPokemon = Tracker.getGhostPokemon()
-		retPokemon.level = Tracker.Data.otherPokemon[personality].level
+		retPokemon.level = pokemon.level
 		return retPokemon
 	end
-	return Tracker.Data.otherPokemon[personality]
+
+	-- Try and find another Pokemon on the team that isn't an egg
+	if isOwn and excludeEggs and pokemon.isEgg == 1 then
+		local nextSlot = (slotNumber % 6) + 1
+		for _ = 1, 6, 1 do
+			pokemon = team[nextSlot]
+			if pokemon and pokemon.personality ~= 0 and pokemon.isEgg ~= 1 then
+				return pokemon
+			end
+			nextSlot = (nextSlot % 6) + 1
+		end
+	end
+
+	return pokemon
 end
 
 function Tracker.getViewedPokemon()
 	if not Program.isValidMapLocation() then return nil end
 
-	local mustViewOwn = Tracker.Data.isViewingOwn or not Battle.canViewEnemy()
+	local mustViewOwn = Battle.isViewingOwn or not Battle.canViewEnemy()
 	local viewSlot
 	if mustViewOwn then
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
@@ -134,11 +82,9 @@ end
 
 function Tracker.getOrCreateTrackedPokemon(pokemonID)
 	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
-
 	if Tracker.Data.allPokemon[pokemonID] == nil then
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
-
 	return Tracker.Data.allPokemon[pokemonID]
 end
 
@@ -166,16 +112,10 @@ end
 
 function Tracker.TrackStatMarking(pokemonID, statStage, statState)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-
 	if trackedPokemon.statmarkings == nil then
-		trackedPokemon.statmarkings = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
+		trackedPokemon.statmarkings = {}
 	end
-
-	if trackedPokemon.statmarkings[statStage] ~= nil then
-		trackedPokemon.statmarkings[statStage] = statState
-	else
-		print(string.format("> ERROR: The stat stage %s does not exist.", statStage))
-	end
+	trackedPokemon.statmarkings[statStage] = statState
 end
 
 -- Adds the Pokemon's move to the tracked data if it doesn't exist, otherwise updates it.
@@ -241,7 +181,6 @@ function Tracker.TrackEncounter(pokemonID, isWild)
 	if trackedPokemon.encounters == nil then
 		trackedPokemon.encounters = { wild = 0, trainer = 0 }
 	end
-
 	if isWild then
 		trackedPokemon.encounters.wild = trackedPokemon.encounters.wild + 1
 	else
@@ -254,87 +193,72 @@ function Tracker.TrackRouteEncounter(mapId, encounterArea, pokemonID)
 	if Tracker.Data.encounterTable[mapId] == nil then
 		Tracker.Data.encounterTable[mapId] = {}
 	end
+	local route = Tracker.Data.encounterTable[mapId]
 
-	if Tracker.Data.encounterTable[mapId][encounterArea] == nil then
-		Tracker.Data.encounterTable[mapId][encounterArea] = { pokemonID }
+	if route[encounterArea] == nil then
+		route[encounterArea] = { pokemonID }
 	else
-		local hasEncounteredBefore = false
-		for _, encounterID in pairs(Tracker.Data.encounterTable[mapId][encounterArea]) do
+		-- Don't insert into tracked mons if it's already there
+		for _, encounterID in pairs(route[encounterArea]) do
 			if pokemonID == encounterID then
-				hasEncounteredBefore = true
-				break
+				return
 			end
 		end
-		if not hasEncounteredBefore then
-			table.insert(Tracker.Data.encounterTable[mapId][encounterArea], pokemonID)
-		end
+		table.insert(route[encounterArea], pokemonID)
 	end
 end
 
 function Tracker.TrackNote(pokemonID, note)
 	if note == nil then return end
-
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 	trackedPokemon.note = note
 end
 
 function Tracker.TrackHiddenPowerType(personality, moveType)
 	if personality == nil or moveType == nil or personality == 0 then return end
-
 	Tracker.Data.hiddenPowers[personality] = moveType
 end
 
+-- Currently unused
 function Tracker.isTrackingMove(pokemonID, moveId, level)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.moves == nil then
-		return false
-	end
-
-	for _, move in ipairs(trackedPokemon.moves) do -- intentionall check ALL tracked moves
+	for _, move in ipairs(trackedPokemon.moves or {}) do -- intentionally check ALL tracked moves
 		-- If the move doesn't provide any new information, consider it tracked
 		if moveId == move.id and level >= move.level then
 			return true
 		end
 	end
-
 	return false
 end
 
+--- @param trainerId number The trainerId to check if it's a rival
 function Tracker.tryTrackWhichRival(trainerId)
-	if trainerId == nil or trainerId == 0 or Tracker.Data.whichRival ~= nil then return end
+	if trainerId == 0 or Tracker.Data.whichRival ~= nil then return end
 
-	local trainer = TrainerData.getTrainerInfo(trainerId) or {}
-	if trainer.whichRival ~= nil then -- verify this trainer is a rival trainer
-		Tracker.Data.whichRival = trainer.whichRival
+	local trainerData = TrainerData.getTrainerInfo(trainerId) or {}
+	if trainerData.whichRival ~= nil then -- verify this trainer is a rival trainer
+		Tracker.Data.whichRival = trainerData.whichRival
 	end
 end
 
 -- If the Pokemon is being tracked, return information on moves; otherwise default move values = 1
 function Tracker.getMoves(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.moves == nil then
-		return {
-			{ id = 0, level = 1, pp = 0 },
-			{ id = 0, level = 1, pp = 0 },
-			{ id = 0, level = 1, pp = 0 },
-			{ id = 0, level = 1, pp = 0 },
-		}
-	else
-		return trackedPokemon.moves
-	end
+	return trackedPokemon.moves or {
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+	}
 end
 
 -- If the Pokemon is being tracked, return information on abilities; otherwise a default ability values = 0
 function Tracker.getAbilities(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.abilities == nil then
-		return {
-			{ id = 0 },
-			{ id = 0 },
-		}
-	else
-		return trackedPokemon.abilities
-	end
+	return trackedPokemon.abilities or {
+		{ id = 0 },
+		{ id = 0 },
+	}
 end
 
 function Tracker.setAbilities(pokemonID, abilityOneText, abilityTwoText)
@@ -368,33 +292,31 @@ end
 -- If the Pokemon is being tracked, return information on statmarkings; otherwise default stat values = 1
 function Tracker.getStatMarkings(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.statmarkings == nil then
-		return { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 }
-	else
-		return trackedPokemon.statmarkings
-	end
+	local markings = trackedPokemon.statmarkings or {}
+	return {
+		hp = markings.hp or 0,
+		atk = markings.atk or 0,
+		def = markings.def or 0,
+		spa = markings.spa or 0,
+		spd = markings.spd or 0,
+		spe = markings.spe or 0,
+	}
 end
 
 -- If the Pokemon is being tracked, return its encounter count; otherwise default encounter values = 0
 function Tracker.getEncounters(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.encounters == nil then
-		return 0
-	elseif isWild then
-		return trackedPokemon.encounters.wild
+	local encounters = trackedPokemon.encounters or {}
+	if isWild then
+		return encounters.wild or 0
 	else
-		return trackedPokemon.encounters.trainer
+		return encounters.trainer or 0
 	end
 end
 
 function Tracker.getRouteEncounters(mapId, encounterArea)
-	if mapId == 0 or Tracker.Data.encounterTable[mapId] == nil then
-		return {}
-	elseif encounterArea == nil or Tracker.Data.encounterTable[mapId][encounterArea] == nil then
-		return {}
-	else
-		return Tracker.Data.encounterTable[mapId][encounterArea]
-	end
+	local location = Tracker.Data.encounterTable[mapId or false] or {}
+	return location[encounterArea or false] or {}
 end
 
 -- If the Pokemon is being tracked, return its note; otherwise default note value = ""
@@ -402,36 +324,24 @@ function Tracker.getNote(pokemonID)
 	if pokemonID == 413 then -- Ghost
 		return "Spoooky!"
 	end
-
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.note == nil then
-		return ""
-	else
-		return trackedPokemon.note
-	end
+	return trackedPokemon.note or ""
 end
 
 -- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
 function Tracker.getHiddenPowerType()
-	local viewedPokemon = Battle.getViewedPokemon(true)
-
-	if viewedPokemon ~= nil and Tracker.Data.hiddenPowers[viewedPokemon.personality] ~= nil then
-		return Tracker.Data.hiddenPowers[viewedPokemon.personality]
-	else
-		return MoveData.HiddenPowerTypeList[1]
-	end
+	local viewedPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	return Tracker.Data.hiddenPowers[viewedPokemon.personality or 0] or MoveData.HiddenPowerTypeList[1]
 end
 
 -- Note the last level seen of each Pokemon on the enemy team
 function Tracker.recordLastLevelsSeen()
-	for _, pokemon in pairs(Tracker.Data.otherPokemon) do
-		if pokemon ~= nil and pokemon.level ~= nil and pokemon.level > 0 and pokemon.level <= 100 then
+	for _, pokemon in pairs(Program.GameData.EnemyTeam) do
+		if pokemon.level > 0 and pokemon.level <= 100 then
 			local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemon.pokemonID)
-
 			if trackedPokemon.encounters == nil then
 				trackedPokemon.encounters = { wild = 0, trainer = 0 }
 			end
-
 			trackedPokemon.encounters.lastlevel = pokemon.level
 		end
 	end
@@ -440,11 +350,8 @@ end
 -- Returns the level of the Pokemon last time it was seen; returns nil if never seen before
 function Tracker.getLastLevelSeen(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if trackedPokemon.encounters == nil then
-		return nil
-	else
-		return trackedPokemon.encounters.lastlevel
-	end
+	local encounters = trackedPokemon.encounters or {}
+	return encounters.lastlevel
 end
 
 function Tracker.getDefaultPokemon()
@@ -490,41 +397,33 @@ function Tracker.getGhostPokemon()
 end
 
 function Tracker.resetData()
-	-- If adding new data fields to this object, always append to the end; allows TDAT files to be upgrade-safe
 	Tracker.Data = {
 		version = Main.TrackerVersion,
 		romHash = GameSettings.getRomHash(),
-
+		-- The player's visible trainerID
 		trainerID = 0,
-		allPokemon = {}, -- Used to track information about all pokemon seen thus far
-		ownPokemon = {}, -- a set of Pokemon that are owned by the player, either in their team or in PC, stored uniquely by the pokemon's personality value
-		otherPokemon = {}, -- Only tracks the current Pokemon you are fighting, up to two in a doubles battle.
-
-		ownTeam = { 0, 0, 0, 0, 0, 0 }, -- Holds six reference personality ids for which 'ownPokemon' are on your team currently, 1st slot = lead pokemon
-		otherTeam = { 0, 0, 0, 0, 0, 0 },
-		ownViewSlot = 1, -- During battle, this references which of your own six pokemon [1-6] are being used
-		otherViewSlot = 1, -- During battle, this references which of the other six pokemon [1-6] are being used
-		isViewingOwn = true,
-		inBattle = false, -- No longer used, doubt it's safe to remove, haven't tested
-
+		-- Used to track information about all pokemon seen thus far
+		allPokemon = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
-		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
+		-- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
+		gameStatsHeals = 0,
 		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
-		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
-		-- healingItems = { -- No longer in use, moved to Program.GameData.Items
-		-- 	healing = 0,
-		-- 	numHeals = 0,
-		-- },
-		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
+		-- Track hidden power types for each of your own Pokemon [personality] = [type]
+		hiddenPowers = {
 			[0] = MoveData.HiddenPowerTypeList[1],
 		},
-		encounterTable = { -- key: mapId, value: lookup table with key for terrain type and value of unique pokemonIDs
-		},
-		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES), -- Tally of fishing encounters, to track when one occurs
-		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH), -- Tally of rock smash uses, to track encounters
-		isNewGame = true, -- Flag for new game, to check if stored trainerID is correct
-		whichRival = nil, -- To determine which rival the player will fight through the entire game, based on starter ball selection
-		playtime = 0, -- Number of seconds
+		-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
+		encounterTable = {},
+		-- Tally of fishing encounters, to track when one occurs
+		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES),
+		-- Tally of rock smash uses, to track encounters
+		gameStatsRockSmash = Utils.getGameStat(Constants.GAME_STATS.USED_ROCK_SMASH),
+		-- Flag for new game, to check if stored trainerID is correct
+		isNewGame = true,
+		-- To determine which rival the player will fight through the entire game, based on starter ball selection
+		whichRival = nil,
+		-- Number of seconds
+		playtime = 0,
 	}
 end
 
@@ -559,9 +458,15 @@ function Tracker.loadData(filepath, forced)
 		return Tracker.LoadStatus
 	end
 
+	-- Don't replace some data
+	local dontOverwrite = {
+		version = true,
+		romHash = true,
+		trainerID = true,
+	}
 	for k, v in pairs(fileData) do
 		-- Only add data elements if the current Tracker data schema uses it
-		if Tracker.Data[k] ~= nil then
+		if Tracker.Data[k] ~= nil and not dontOverwrite[k] then
 			Tracker.Data[k] = v
 		end
 	end

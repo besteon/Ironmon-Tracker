@@ -284,7 +284,7 @@ MGBA.Screens = {
 			-- Automatically default to showing the currently viewed Pokémon's ability
 			if self.abilityId == nil or self.abilityId == 0 then
 				local pokemon = Tracker.getViewedPokemon() or PokemonData.BlankPokemon
-				if Tracker.Data.isViewingOwn then
+				if Battle.isViewingOwn then
 					self.abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum) or 0
 				else
 					local trackedAbilities = Tracker.getAbilities(pokemon.pokemonID)
@@ -814,7 +814,7 @@ MGBA.CommandMap = {
 				return
 			end
 
-			if Tracker.Data.isViewingOwn then
+			if Battle.isViewingOwn then
 				printf(" %s", Resources.MGBACommands.NoteError3)
 			else
 				Tracker.TrackNote(pokemon.pokemonID, noteText)

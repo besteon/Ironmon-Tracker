@@ -91,7 +91,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.m = {} -- data about the Moves of the Pokemon
 	data.x = {} -- misc data to display, such as heals, encounters, badges
 
-	data.x.viewingOwn = Tracker.Data.isViewingOwn
+	data.x.viewingOwn = Battle.isViewingOwn
 	if forceView ~= nil then
 		data.x.viewingOwn = forceView
 	end
@@ -360,10 +360,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	if Battle.inBattle then
-		data.x.encounters = Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter)
-		if data.x.encounters > 999 then
-			data.x.encounters = 999
-		end
+		data.x.encounters = math.min(Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter), 999) -- Max 999
 	else
 		data.x.encounters = 0
 	end

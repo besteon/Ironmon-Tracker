@@ -544,7 +544,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 
 	local movesText = Resources.TrackerScreen.HeaderMoves
 	-- Don't show the asterisk on your own Pokemon
-	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
+	if not Battle.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
 	end
 
