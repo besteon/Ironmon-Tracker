@@ -186,12 +186,14 @@ function GameOverScreen.shouldDisplay(battleOutcome)
 		if Battle.defeatedSteven or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then
 			GameOverScreen.status = GameOverScreen.Statuses.WON
 			return true
-		else
+		-- Check for WON status since player leaves Hall Of Fame when going to FRLG credits
+		elseif GameOverScreen.status ~= GameOverScreen.Statuses.WON then
 			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
 			return false
 		end
+	else
+		GameOverScreen.status = GameOverScreen.Statuses.LOST
 	end
-	GameOverScreen.status = GameOverScreen.Statuses.LOST
 	return not GameOverScreen.isDisplayed
 end
 
