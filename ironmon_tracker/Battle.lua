@@ -654,9 +654,15 @@ function Battle.beginNewBattle()
 	if Program.currentScreen == InfoScreen then
 		InfoScreen.clearScreenData()
 		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == RandomEvosScreen then
+		Program.currentScreen = TrackerScreen
 	elseif Program.currentScreen == MoveHistoryScreen then
 		Program.currentScreen = TrackerScreen
 	elseif Program.currentScreen == TypeDefensesScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == CoverageCalcScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == HealsInBagScreen then
 		Program.currentScreen = TrackerScreen
 	end
 
@@ -732,13 +738,19 @@ function Battle.endCurrentBattle()
 
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 
-	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
+	-- Handles a common case of looking up something on a different screen, then moving on with the current battle. As the battle ends, return to the main screen.
 	if Program.currentScreen == InfoScreen then
 		InfoScreen.clearScreenData()
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == RandomEvosScreen then
 		Program.currentScreen = TrackerScreen
 	elseif Program.currentScreen == MoveHistoryScreen then
 		Program.currentScreen = TrackerScreen
 	elseif Program.currentScreen == TypeDefensesScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == CoverageCalcScreen then
+		Program.currentScreen = TrackerScreen
+	elseif Program.currentScreen == HealsInBagScreen then
 		Program.currentScreen = TrackerScreen
 	elseif GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
 		Battle.defeatedSteven = true
