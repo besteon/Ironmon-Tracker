@@ -188,6 +188,16 @@ TrackerScreen.Buttons = {
 			end
 		end
 	},
+	HealsInBag = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 55, 21 },
+		isVisible = function() return Tracker.Data.isViewingOwn end,
+		onClick = function(self)
+			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.HP)
+			Program.changeScreenView(HealsInBagScreen)
+		end
+	},
 	MovesHistory = {
 		-- Invisible clickable button
 		type = Constants.ButtonTypes.NO_BORDER,

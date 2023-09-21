@@ -29,11 +29,12 @@ Program.GameData = {
 	Items = {
 		healingTotal = 0, -- A calculation of total HP heals
 		healingPercentage = 0, -- A calculation of percentage heals
-		HPHeals = {}, -- Map of [itemId] -> quanity of item
-		PPHeals = {}, -- Map of [itemId] -> quanity of item
-		StatusHeals = {}, -- Map of [itemId] -> quanity of item
-		EvoStones = {}, -- Map of [itemId] -> quanity of item
-		Other = {}, -- Map of [itemId] -> quanity of item
+		-- Each of the below: map of [itemId] -> quanity of item
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	},
 }
 
@@ -1009,6 +1010,9 @@ function Program.updateBagItems()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		-- Don't have a use for these yet, so not reading them from memory
+		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
+		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
