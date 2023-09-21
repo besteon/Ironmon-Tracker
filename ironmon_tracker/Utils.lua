@@ -845,18 +845,12 @@ end
 -- Checks if the player has a usable stone in their bag to evolve the pokémon
 function Utils.isReadyToEvolveByStone(evoMethod)
 	evoMethod = evoMethod or PokemonData.Evolutions.NONE
-
-	if evoMethod.evoItemIds == nil then
-		return false
-	end
-
 	-- Check through the possible evolutions with the stones available
-	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
-		if quantity > 0 and evoMethod.evoItemIds[itemID] then
+	for _, itemID in pairs(evoMethod.evoItemIds or {}) do
+		if Program.GameData.Items.EvoStones[itemID] then
 			return true
 		end
 	end
-
 	return false
 end
 

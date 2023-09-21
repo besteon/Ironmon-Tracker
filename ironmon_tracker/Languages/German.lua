@@ -476,6 +476,13 @@ ScreenResources{
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
 		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
 	},
+	HealsInBagScreen = {
+		TabAll = "All", -- NEEDS TRANSLATION
+		TabHP = "HP", -- NEEDS TRANSLATION
+		TabPP = "PP", -- NEEDS TRANSLATION
+		TabStatus = "Status", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
 		HeaderMin = "Min", -- NEEDS TRANSLATION
