@@ -393,7 +393,9 @@ function Battle.updateTrackedInfo()
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then
 		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
-		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+		if ownLeftAbilityId ~= 0 then
+			Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+		end
 		Battle.updateStatStages(ownLeftPokemon, true, true)
 	end
 
@@ -401,7 +403,9 @@ function Battle.updateTrackedInfo()
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
 		if ownRightPokemon ~= nil and Battle.Combatants.RightOwn <= Battle.partySize then
 			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
-			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+			if ownRightAbilityId ~= 0 then
+				Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+			end
 			Battle.updateStatStages(ownRightPokemon, true, false)
 		end
 	end
@@ -512,7 +516,6 @@ function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 end
 
 function Battle.checkAbilitiesToTrack()
-
 	-- Track previous ability activation for handling Synchronize
 	if Battle.Synchronize.turnCount < Battle.turnCount then
 		Battle.Synchronize.turnCount = Battle.turnCount

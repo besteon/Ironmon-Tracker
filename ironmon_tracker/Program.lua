@@ -687,7 +687,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local def_and_speed = Memory.readdword(startAddress + 92)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
-	return {
+	return Program.DefaultPokemon:new({
 		personality = personality,
 		nickname = nickname,
 		trainerID = trainerID,
@@ -719,12 +719,11 @@ function Program.readNewPokemon(startAddress, personality)
 			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
 			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
-
 		-- Unused data that can be added back in later
 		-- iv = misc2,
 		-- ev1 = effort1,
 		-- ev2 = effort2,
-	}
+	})
 end
 
 -- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
@@ -1073,4 +1072,44 @@ function Program.calcLeadPokemonHealingInfo()
 			items.healingPercentage = items.healingPercentage + percentageAmt
 		end
 	end
+end
+
+Program.DefaultPokemon = {
+	personality = 0,
+	nickname = "",
+	trainerID = 0,
+	pokemonID = 0,
+	heldItem = 0,
+	experience = 0,
+	currentExp = 0,
+	totalExp = 100,
+	friendship = 0,
+	level = 0,
+	nature = 0,
+	isEgg = 0,
+	isShiny = false,
+	hasPokerus = false,
+	abilityNum = -1,
+	status = 0,
+	sleep_turns = 0,
+	curHP = 0,
+	stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+	moves = {
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+	},
+	-- Unused data that can be added later
+	-- iv = misc2,
+	-- ev1 = effort1,
+	-- ev2 = effort2,
+}
+
+function Program.DefaultPokemon:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
 end

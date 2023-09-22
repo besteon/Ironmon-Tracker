@@ -182,7 +182,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
 		local abilityId = PokemonData.getAbilityId(viewedPokemon.pokemonID, viewedPokemon.abilityNum)
-		if abilityId ~= nil and abilityId ~= 0 then
+		if abilityId ~= 0 then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
 	elseif useOpenBookInfo then
@@ -190,8 +190,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
 		}
-		if abilityIds[1] ~= nil and abilityIds[1] ~= 0 then
-			if abilityIds[2] ~= nil and abilityIds[2] ~= abilityIds[1] then
+		if abilityIds[1] ~= 0 then
+			if abilityIds[2] ~= abilityIds[1] then
 				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name .. " /"
 				data.p.line2 = AbilityData.Abilities[abilityIds[2]].name
 			else
@@ -227,13 +227,15 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
 		if data.x.viewingOwn or useOpenBookInfo then
-			if viewedPokemon.moves[i] ~= nil and viewedPokemon.moves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[viewedPokemon.moves[i].id]
+			local viewedMove = viewedPokemon.moves[i] or {}
+			if MoveData.isValid(viewedMove.id) then
+				moveToCopy = MoveData.Moves[viewedMove.id]
 			end
-		elseif trackedMoves ~= nil then
+		else
 			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-			if trackedMoves[i] ~= nil and trackedMoves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[trackedMoves[i].id]
+			local trackedMove = trackedMoves[i] or {}
+			if MoveData.isValid(trackedMove.id) then
+				moveToCopy = MoveData.Moves[trackedMove.id]
 			end
 		end
 

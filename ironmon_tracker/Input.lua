@@ -263,9 +263,10 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	-- TODO: Turn these into buttons
 	local moveOffsetX = Constants.SCREEN.WIDTH + 7
 	local moveOffsetY = 95
-	for moveIndex = 1, 4, 1 do
-		if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
-			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
+	for i = 1, 4, 1 do
+		local move = pokemonMoves[i] or {}
+		if MoveData.isValid(move.id) and Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, move.id)
 			break
 		end
 		moveOffsetY = moveOffsetY + 10
