@@ -1,8 +1,20 @@
 TrackerAPI = {}
 
--- Returns the map id number of the current location of the player's character. When not in the game, the value is 0 (intro screen).
+--- Returns the map id number of the current location of the player's character. When not in the game, the value is 0 (intro screen).
+--- @return number mapId
 function TrackerAPI.getMapId()
 	return Program.GameData.mapId or 0
+end
+
+--- Returns a storted list of all the trainers that the player has done battle with
+---@return table trainerIds The sorted list of unique trainerIds
+function TrackerAPI.getDefeatedTrainers()
+	local trainerIds = {}
+	for trainerId, _ in pairs(Tracker.Data.allTrainers or {}) do
+		table.insert(trainerIds, trainerId)
+	end
+	table.sort(trainerIds, function(a,b) return a < b end)
+	return trainerIds
 end
 
 -- Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.

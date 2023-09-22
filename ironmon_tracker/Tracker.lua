@@ -219,6 +219,13 @@ function Tracker.TrackHiddenPowerType(personality, moveType)
 	Tracker.Data.hiddenPowers[personality] = moveType
 end
 
+-- Track that the player has defeated a trainer in battle
+--- @param trainerId number The TrainerId of a trainer
+function Tracker.TrackerTrainer(trainerId)
+	if trainerId == 0 then return end
+	Tracker.Data.allTrainers[trainerId] = true
+end
+
 -- Currently unused
 function Tracker.isTrackingMove(pokemonID, moveId, level)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
@@ -404,6 +411,8 @@ function Tracker.resetData()
 		trainerID = 0,
 		-- Used to track information about all pokemon seen thus far
 		allPokemon = {},
+		-- Used to track information about all trainers battled thus far: [trainerId] = true
+		allTrainers = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		-- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
 		gameStatsHeals = 0,
