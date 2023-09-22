@@ -425,6 +425,14 @@ function Tracker.resetData()
 		-- Number of seconds
 		playtime = 0,
 	}
+	-- Add compatibility for deprecated attributes
+	local mt = {}
+	setmetatable(Tracker.Data, mt)
+	mt.__index = function(_, key)
+		if key == "isViewingOwn" then
+			return Battle.isViewingOwn
+		end
+	end
 end
 
 function Tracker.saveData(filename)

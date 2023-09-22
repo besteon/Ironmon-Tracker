@@ -67,6 +67,8 @@ function Input.initialize()
 	Input.allowJoypad = true
 	Input.resumeMouse = false
 	Input.resumeJoypad = false
+	-- Add compatibility for deprecated functions
+	Input.togglePokemonViewed = Battle.togglePokemonViewed
 end
 
 function Input.checkForInput()
