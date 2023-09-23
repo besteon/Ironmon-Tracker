@@ -59,7 +59,7 @@ SCREEN.Buttons = {
 		isVisible = function() return SCREEN.currentView == SCREEN.Views.Main end,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
-			SCREEN.performCalc()
+			SCREEN.performCalc(self.toggleState)
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end,
@@ -407,9 +407,25 @@ end
 function CoverageCalcScreen.prepopulateMoveTypes()
 	SCREEN.resetTypesAndData()
 
-	local leadPokemon = Tracker.getPokemon(1, true)
-	if not leadPokemon then
-		return
+	local moveTypes, moveIds = CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(1)
+	for _, moveType in ipairs(moveTypes or {}) do
+		SCREEN.addedTypes[moveType] = true
+	end
+	for _, moveId in ipairs(moveIds or {}) do
+		table.insert(SCREEN.leadMovesetIds, moveId)
+	end
+	SCREEN.addedTypesOrdered = moveTypes
+
+	SCREEN.performCalc()
+end
+
+--- Returns a list of move types and moveIds, effective for calculating coverage for a Pokémon on the player's team
+--- @param slotNumber number The slot number of the Pokémon on the player's team (lead = 1)
+--- @return table moveTypes, table moveIds A list of effective move types & moveIds to be used for coverage calculations
+function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
+	local pokemon = Tracker.getPokemon(slotNumber or 1, true)
+	if not pokemon then
+		return {}, {}
 	end
 
 	local allowedCategories = {
@@ -440,24 +456,38 @@ function CoverageCalcScreen.prepopulateMoveTypes()
 		[353] = true, -- Doom Desire
 	}
 
-	for _, move in ipairs(leadPokemon.moves or {}) do
+	local addedTypes = {}
+	local moveTypes = {}
+	local moveIds = {}
+	for _, move in ipairs(pokemon.moves or {}) do
 		if MoveData.isValid(move.id) then
 			-- TODO: Might use current moveset to help calc stricter coverage later (e.g. Night Shade, Will-O-Wisp, Hidden Power)
-			table.insert(SCREEN.leadMovesetIds, move.id)
+			table.insert(moveIds, move.id)
 
 			local moveInternal = MoveData.Moves[move.id]
-			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] and not SCREEN.addedTypes[moveInternal.type] then
-				SCREEN.addedTypes[moveInternal.type] = true
-				table.insert(SCREEN.addedTypesOrdered, moveInternal.type)
+			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] and not addedTypes[moveInternal.type] then
+				addedTypes[moveInternal.type] = true
+				table.insert(moveTypes, moveInternal.type)
 			end
 		end
 	end
-
-	SCREEN.performCalc()
+	return moveTypes, moveIds
 end
 
-function CoverageCalcScreen.performCalc()
-	SCREEN.CoverageData = {
+--- Updates the SCREEN.CoverageData table with information for the chosen coverage
+--- @param onlyFullyEvolved boolean|nil (Optional) If true, only check against fully evolved Pokémon; default=true
+function CoverageCalcScreen.performCalc(onlyFullyEvolved)
+	onlyFullyEvolved = onlyFullyEvolved or SCREEN.Buttons.OptionOnlyFullyEvolved.toggleState
+	SCREEN.CoverageData = CoverageCalcScreen.calculateCoverageTable(SCREEN.addedTypesOrdered, onlyFullyEvolved)
+	SCREEN.buildPagedButtons()
+end
+
+--- Returns a CoverageData table with information for the chosen coverage
+--- @param moveTypes table A list of move types (PokemonData.Types)
+--- @param onlyFullyEvolved boolean|nil (Optional) If true, only check against fully evolved Pokémon; default=false
+--- @return table CoverageData A table of [Effectiveness] = { pokemonIDs... }
+function CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
+	local coverageData = {
 		[SCREEN.Tabs.Immune] = {},
 		[SCREEN.Tabs.Quarter] = {},
 		[SCREEN.Tabs.Half] = {},
@@ -465,32 +495,30 @@ function CoverageCalcScreen.performCalc()
 		[SCREEN.Tabs.Super] = {},
 		[SCREEN.Tabs.Quad] = {},
 	}
-
 	-- Helper functions
-	local onlyCheckEvos = SCREEN.Buttons.OptionOnlyFullyEvolved.toggleState
 	local shouldCheckPokemon = function(pokemonID)
 		-- Skip the empty/placeholder Pokemon
 		if not PokemonData.isValid(pokemonID) or (pokemonID > 251 and pokemonID < 277) then
 			return false
 		end
-		if onlyCheckEvos and PokemonData.Pokemon[pokemonID].evolution ~= PokemonData.Evolutions.NONE then
+		if onlyFullyEvolved and PokemonData.Pokemon[pokemonID].evolution ~= PokemonData.Evolutions.NONE then
 			return false
 		end
 		return true
 	end
 	local calcHighestEffectiveness = function(type1, type2)
 		local highestEff = 0
-		for _, moveType in ipairs(SCREEN.addedTypesOrdered or {}) do
+		for _, moveType in ipairs(moveTypes or {}) do
+			local eff = MoveData.TypeToEffectiveness[moveType] or {}
 			local moveEff = 1
-			moveEff = moveEff * (MoveData.TypeToEffectiveness[moveType][type1] or 1)
-			moveEff = moveEff * (MoveData.TypeToEffectiveness[moveType][type2] or 1)
+			moveEff = moveEff * (eff[type1] or 1)
+			moveEff = moveEff * (eff[type2] or 1)
 			if moveEff > highestEff then
 				highestEff = moveEff
 			end
 		end
 		return highestEff
 	end
-
 	-- Check all pokemon for highest effectiveness, and categorize them
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
 		if shouldCheckPokemon(id) then
@@ -499,13 +527,12 @@ function CoverageCalcScreen.performCalc()
 			if id == 303 and highestEff < 2 then
 				highestEff = 0
 			end
-			if SCREEN.CoverageData[highestEff] then
-				table.insert(SCREEN.CoverageData[highestEff], id)
+			if coverageData[highestEff] then
+				table.insert(coverageData[highestEff], id)
 			end
 		end
 	end
-
-	SCREEN.buildPagedButtons()
+	return coverageData
 end
 
 function CoverageCalcScreen.resetTypesAndData()
