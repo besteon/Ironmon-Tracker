@@ -109,7 +109,7 @@ SCREEN.Pager = {
 
 function HealsInBagScreen.initialize()
 	SCREEN.currentView = 1
-	SCREEN.currentTab = SCREEN.Tabs.HP
+	SCREEN.currentTab = SCREEN.Tabs.All
 	SCREEN.createButtons()
 
 	for _, button in pairs(SCREEN.Buttons) do
