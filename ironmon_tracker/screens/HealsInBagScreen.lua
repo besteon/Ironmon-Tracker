@@ -109,7 +109,7 @@ SCREEN.Pager = {
 
 function HealsInBagScreen.initialize()
 	SCREEN.currentView = 1
-	SCREEN.currentTab = SCREEN.Tabs.HP
+	SCREEN.currentTab = SCREEN.Tabs.All
 	SCREEN.createButtons()
 
 	for _, button in pairs(SCREEN.Buttons) do
@@ -268,9 +268,12 @@ function HealsInBagScreen.buildPagedButtons(tab)
 					textColor = Theme.COLORS["Positive text"]
 				end
 				-- Draw the quantity off to the right
-				local quantityText = string.format("x%s", quantity)
+				local quantityText = string.format("%s", quantity)
 				local extraWidth = Utils.calcWordPixelLength(quantityText)
-				Drawing.drawText(x + w - extraWidth, y, quantityText, textColor, shadowcolor)
+				local offsetX = x + w - extraWidth
+				Drawing.drawText(offsetX, y, quantityText, textColor, shadowcolor)
+				gui.drawLine(offsetX - 2, y + 5, offsetX, y + 8, textColor)
+				gui.drawLine(offsetX - 2, y + 8, offsetX, y + 5, textColor)
 			end,
 		}
 		table.insert(SCREEN.Pager.Buttons, button)

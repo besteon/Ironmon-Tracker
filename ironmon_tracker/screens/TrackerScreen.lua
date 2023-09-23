@@ -194,7 +194,7 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 55, 21 },
 		isVisible = function() return Battle.isViewingOwn end,
 		onClick = function(self)
-			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.HP)
+			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.All)
 			Program.changeScreenView(HealsInBagScreen)
 		end
 	},
