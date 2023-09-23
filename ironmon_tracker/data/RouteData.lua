@@ -423,15 +423,15 @@ function RouteData.setupRouteInfoAsFRLG()
 
 	-- [AreaName] = { combained list of mapIds }
 	RouteData.CombinedAreas = {
-		MtMoon = { 114, 115, 116 },
-		SSAnne = { 118, 119, 120, 121, 122, 123 },
-		RockTunnel = { 154, 155 },
-		RocketHideout = { 128, 129, 130, 131 },
-		PokemonTower = { 161, 162, 163, 164, 165, 166, 167 },
-		CinnabarMansion = { 143, 144, 145, 146 },
-		SilphCo = { 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142 },
-		VictoryRoad = { 125, 126, 127},
-		EliteFour = { 213, 214, 215, 216, 217 },
+		MtMoon = { name = "Mt. Moon", 114, 115, 116 },
+		SSAnne = { name = "S.S. Anne", 118, 119, 120, 121, 122, 123, 177, 178 },
+		RockTunnel = { name = "Rock Tunnel", 154, 155 },
+		RocketHideout = { name = "Rocket Hideout", 128, 129, 130, 131 },
+		PokemonTower = { name = "Pokémon Tower", 161, 162, 163, 164, 165, 166, 167 },
+		CinnabarMansion = { name = "Poké Mansion (Cinnabar)", 143, 144, 145, 146 },
+		SilphCo = { name = "Silph Co.", 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142 },
+		VictoryRoad = { name = "Victory Road", 125, 126, 127},
+		EliteFour = { name = "Elite Four (Indigo Plateau)", 213, 214, 215, 216, 217 },
 	}
 
 	RouteData.Info = {

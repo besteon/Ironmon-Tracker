@@ -1015,26 +1015,28 @@ function Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
 	local route = RouteData.Info[mapId or false]
 	if not route then return {}, 0 end
 	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
-	local allTrainers = route.trainers or {}
 	local defeatedTrainers = {}
-	for _, trainerId in ipairs(allTrainers) do
-		if TrainerData.shouldUseTrainer(trainerId) and Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
-			table.insert(defeatedTrainers, trainerId)
+	local totalTrainers = 0
+	for _, trainerId in ipairs(route.trainers or {}) do
+		if TrainerData.shouldUseTrainer(trainerId) then
+			totalTrainers = totalTrainers + 1
+			if Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+				table.insert(defeatedTrainers, trainerId)
+			end
 		end
 	end
-	return defeatedTrainers, #allTrainers
+	return defeatedTrainers, totalTrainers
 end
 
---- Returns a list of trainerIds of trainers defeated in the combined area (RouteData.CombinedAreas), as well as the total number of trainers in those areas
---- @param areaKey string
+--- Returns a list of trainerIds of trainers defeated in the combined area (Use RouteData.CombinedAreas), as well as the total number of trainers in those areas
+--- @param mapIdList table
 --- @return table defeatedTrainers, number totalTrainers
-function Program.getDefeatedTrainersByCombinedArea(areaKey)
-	local combinedArea = RouteData.CombinedAreas[areaKey or false]
-	if not combinedArea then return {}, 0 end
+function Program.getDefeatedTrainersByCombinedArea(mapIdList)
+	if type(mapIdList) ~= "table" then return {}, 0 end
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local totalTrainers = 0
 	local defeatedTrainers = {}
-	for _, mapId in ipairs(combinedArea) do
+	for _, mapId in ipairs(mapIdList) do
 		local defeatedList, total = Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
 		totalTrainers = totalTrainers + total
 		for _, trainerId in ipairs(defeatedList) do
