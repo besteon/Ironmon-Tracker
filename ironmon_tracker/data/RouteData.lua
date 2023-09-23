@@ -1944,7 +1944,7 @@ function RouteData.setupRouteInfoAsFRLG()
 			},
 		},
 		[228] = {
-			name = "Saffron City Dojo",
+			name = "Dojo",
 			icon = RouteData.Icons.BuildingDoorSmall,
 			trainers = { 321, 319, 320, 318, 317 },
 		},

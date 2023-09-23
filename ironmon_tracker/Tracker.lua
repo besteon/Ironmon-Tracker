@@ -31,7 +31,7 @@ Tracker.DefaultData = {
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
-	hiddenPowers = { [0] = MoveData.HiddenPowerTypeList[1] },
+	hiddenPowers = {},
 	-- Track the PC Heals shown on screen (manually set or automated)
 	centerHeals = 0,
 	-- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
@@ -401,7 +401,10 @@ end
 --- @return string
 function Tracker.getHiddenPowerType()
 	local viewedPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	return Tracker.Data.hiddenPowers[viewedPokemon.personality or 0] or MoveData.HiddenPowerTypeList[1]
+	if (viewedPokemon.personality or 0) == 0 then
+		return MoveData.HiddenPowerTypeList[1]
+	end
+	return Tracker.Data.hiddenPowers[viewedPokemon.personality] or MoveData.HiddenPowerTypeList[1]
 end
 
 --- Note the last level seen of each Pokemon on the enemy team
@@ -449,6 +452,9 @@ function Tracker.resetData()
 	Tracker.Data = Tracker.DefaultData:new({
 		version = Main.TrackerVersion,
 		romHash = GameSettings.getRomHash(),
+		allPokemon = {},
+		encounterTable = {},
+		hiddenPowers = {},
 		hasCheckedSummary = not Options["Hide stats until summary shown"],
 		centerHeals = Options["PC heals count downward"] and 10 or 0,
 		gameStatsFishing = Utils.getGameStat(Constants.GAME_STATS.FISHING_CAPTURES),

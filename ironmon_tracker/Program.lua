@@ -1046,6 +1046,13 @@ function Program.getDefeatedTrainersByCombinedArea(mapIdList)
 	return defeatedTrainers, totalTrainers
 end
 
+--- @param tmhmNumber number The TM/HM number to use for move lookup
+--- @return number moveId The moveId corresponding to the tm/hm number
+function Program.getMoveIdFromTMHMNumber(tmhmNumber)
+	tmhmNumber = tmhmNumber - 1 -- TM 01 is at address position 0
+	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
+end
+
 function Program.updateBagItems()
 	Program.GameData.Items = {
 		healingTotal = 0,
