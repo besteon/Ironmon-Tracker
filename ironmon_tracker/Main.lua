@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "2", patch = "0" }
+Main.Version = { major = "8", minor = "3", patch = "0" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "bdjeffyp", "Amber Cyprian", "thisisatest", "kittenchilly", "Aeiry", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "Aeiry", "Amber Cyprian", "bdjeffyp", "thisisatest", "kittenchilly", "brdy", "Harkenn", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 Main.EMU = {
@@ -783,14 +783,19 @@ function Main.SaveCurrentRom(filename)
 	return nil
 end
 
-function Main.GetAttemptsFile()
+--- Attempts to find an attempts file based off of the Quickload settings file, then off of the currently loaded ROM name
+--- @param forceUseSettingsFile boolean Force return of filepath of an attempts file to be created from the Quickload settings file
+--- @return string attemptsFilePath Filepath to an attempts file
+function Main.GetAttemptsFile(forceUseSettingsFile)
+	forceUseSettingsFile = forceUseSettingsFile or false
+
 	-- If temp quickload files are available, use those instead of spending resources to look them up
 	local quickloadFiles = Main.tempQuickloadFiles
 
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
 	local attemptsFileName, attemptsFilePath, settingsFileName
-	if Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
+	if Options["Generate ROM each time"] and Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
@@ -805,6 +810,9 @@ function Main.GetAttemptsFile()
 		-- Return early if an attemptsFilePath has been found
 		if attemptsFilePath ~= nil then
 			return attemptsFilePath
+		elseif forceUseSettingsFile then
+			-- Force return a filepath to an attempts file to be created based off settings file
+			return FileManager.prependDir(attemptsFileName)
 		end
 	end
 
@@ -834,9 +842,13 @@ function Main.GetAttemptsFile()
 	return attemptsFilePath
 end
 
--- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name
-function Main.ReadAttemptsCount()
-	local filepath = Main.GetAttemptsFile()
+--- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name.
+--- Resulting attempts # is stored in Main.currentSeed
+--- @param forceUseSettingsFile boolean Force creation of new attempts # for the current Quickload settings file
+function Main.ReadAttemptsCount(forceUseSettingsFile)
+	forceUseSettingsFile = forceUseSettingsFile or false
+
+	local filepath = Main.GetAttemptsFile(forceUseSettingsFile)
 	local attemptsRead = io.open(filepath, "r")
 
 	-- First check if a matching "attempts file" already exists, if so read from that
@@ -859,8 +871,12 @@ function Main.ReadAttemptsCount()
 				Main.currentSeed = smallestSeedNumber
 			end
 		end
+	elseif Options["Generate ROM each time"] and forceUseSettingsFile then
+		-- Set a new attempts count for newly-set Settings file
+		Main.currentSeed = 0 -- 0 so that first quickload results in attempt 1
+	else
+		-- Otherwise, leave the attempts count as-is
 	end
-	-- Otherwise, leave the attempts count at default, which is 1
 end
 
 function Main.WriteAttemptsCountToFile(filepath, attemptsCount)

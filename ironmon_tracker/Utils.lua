@@ -252,6 +252,33 @@ function Utils.encodeDecodeForSettingsIni(text, doEncode)
 	return text
 end
 
+--- Shortens text by removing characters from the end until its no more than pixelWidth in size
+--- @param text string The text to be shortened (if able)
+--- @param pixelWidth number The maximum width in pixels the text can be
+--- @param appendEllipsis boolean|nil If true and text gets shortened, ellipsis will be added to the end
+--- @return string
+function Utils.shortenText(text, pixelWidth, appendEllipsis)
+	local size = Utils.calcWordPixelLength(text)
+	if size <= pixelWidth then
+		return text
+	end
+	local ellipsis = "..."
+	if appendEllipsis then
+		pixelWidth = pixelWidth - Utils.calcWordPixelLength(ellipsis)
+	end
+	-- Remove one character at a time
+	local maxIteration = 9999
+	while size > pixelWidth and maxIteration > 0 do
+		text = text:sub(1, -2)
+		size = Utils.calcWordPixelLength(text)
+		maxIteration = maxIteration - 1 -- Safety precaution to prevent infinite loops / freezing
+	end
+	if appendEllipsis then
+		text = text .. ellipsis
+	end
+	return text
+end
+
 -- Searches `wordlist` for the closest matching `word` based on Levenshtein distance. Returns: key, result
 -- If the minimum distance is greater than the `threshold`, the original 'word' is returned and key is nil
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua

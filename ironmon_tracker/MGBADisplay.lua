@@ -341,7 +341,7 @@ MGBADisplay.LineBuilder = {
 			table.insert(lines, Utils.formatUTF8("- %s", Resources.MGBAScreens.QuickloadMultipleRoms))
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 			table.insert(lines, MGBADisplay.Symbols.EmptyLine)
-		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionDisabled then
+		elseif MGBA.OptionMap[31] ~= nil and MGBA.OptionMap[31]:getValue() == MGBADisplay.Symbols.OptionEnabled then
 			-- for i = 33, 35, 1 do
 			-- 	local opt = MGBA.OptionMap[i]
 			-- 	if opt ~= nil then
