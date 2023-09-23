@@ -767,9 +767,6 @@ function Battle.endCurrentBattle()
 	end
 
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
-	if lastBattleStatus == 1 and not Battle.isWildEncounter then -- status(1) = Won the battle
-		Tracker.TrackerTrainer(Battle.opposingTrainerId)
-	end
 
 	-- Handles a common case of looking up a move, then moving on with the current battle. As the battle ends, the move info screen should go away.
 	if Program.currentScreen == InfoScreen then

@@ -28,8 +28,6 @@ Tracker.DefaultData = {
 	playtime = 0,
 	-- Used to track information about all Pokémon seen thus far
 	allPokemon = {},
-	-- Used to track information about all Trainers battled thus far: [trainerId] = true
-	allTrainers = {},
 	-- [mapId:number] = encounterArea:table (lookup table with key for terrain type and a list of unique pokemonIDs)
 	encounterTable = {},
 	-- Track Hidden Power types for each of the player's own Pokémon [personality] = [movetype]
@@ -277,13 +275,6 @@ end
 function Tracker.TrackHiddenPowerType(personality, moveType)
 	if personality == nil or moveType == nil or personality == 0 then return end
 	Tracker.Data.hiddenPowers[personality] = moveType
-end
-
--- Track that the player has defeated a trainer in battle
---- @param trainerId number The TrainerId of a trainer
-function Tracker.TrackerTrainer(trainerId)
-	if trainerId == 0 then return end
-	Tracker.Data.allTrainers[trainerId] = true
 end
 
 -- Currently unused

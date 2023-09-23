@@ -993,6 +993,57 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
+--- Returns true if the trainer has been defeated by the player; false otherwise
+--- @param trainerId number
+--- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return boolean isDefeated
+function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
+	if not TrainerData.Trainers[trainerId or false] then return false end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local idAddrOffset = math.floor((0x500 + trainerId) / 8) -- TRAINER_FLAG_START (0x500)
+	local idBit = (0x500 + trainerId) % 8
+	local trainerFlagAddr = saveBlock1Addr + GameSettings.gameFlagsOffset + idAddrOffset
+	local result = Memory.readbyte(trainerFlagAddr)
+	return Utils.getbits(result, idBit, 1) ~= 0
+end
+
+--- Returns a list of trainerIds of trainers defeated in a route/location, as well as the total number of trainers there
+--- @param mapId number
+--- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+	local route = RouteData.Info[mapId or false]
+	if not route then return {}, 0 end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local allTrainers = route.trainers or {}
+	local defeatedTrainers = {}
+	for _, trainerId in ipairs(allTrainers) do
+		if TrainerData.shouldUseTrainer(trainerId) and Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+			table.insert(defeatedTrainers, trainerId)
+		end
+	end
+	return defeatedTrainers, #allTrainers
+end
+
+--- Returns a list of trainerIds of trainers defeated in the combined area (RouteData.CombinedAreas), as well as the total number of trainers in those areas
+--- @param areaKey string
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByCombinedArea(areaKey)
+	local combinedArea = RouteData.CombinedAreas[areaKey or false]
+	if not combinedArea then return {}, 0 end
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local totalTrainers = 0
+	local defeatedTrainers = {}
+	for _, mapId in ipairs(combinedArea) do
+		local defeatedList, total = Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+		totalTrainers = totalTrainers + total
+		for _, trainerId in ipairs(defeatedList) do
+			table.insert(defeatedTrainers, trainerId)
+		end
+	end
+	return defeatedTrainers, totalTrainers
+end
+
 function Program.updateBagItems()
 	Program.GameData.Items = {
 		healingTotal = 0,

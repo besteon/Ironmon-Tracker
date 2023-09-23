@@ -500,6 +500,7 @@ function GameSettings.setEwramAddresses()
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]

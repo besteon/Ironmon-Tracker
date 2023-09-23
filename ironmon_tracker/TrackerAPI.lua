@@ -6,17 +6,6 @@ function TrackerAPI.getMapId()
 	return Program.GameData.mapId or 0
 end
 
---- Returns a storted list of all the trainers that the player has done battle with
---- @return table trainerIds The sorted list of unique trainerIds
-function TrackerAPI.getDefeatedTrainers()
-	local trainerIds = {}
-	for trainerId, _ in pairs(Tracker.Data.allTrainers or {}) do
-		table.insert(trainerIds, trainerId)
-	end
-	table.sort(trainerIds, function(a,b) return a < b end)
-	return trainerIds
-end
-
 --- Saves a setting to the user's Settings.ini file so that it can be remembered after the emulator shuts down and reopens.
 --- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
 --- @param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
