@@ -348,10 +348,10 @@ function Battle.updateTrackedInfo()
 								end
 							else
 								-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
-								local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-								local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot]
+								local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
+								local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
 								local transformData = attacker.transformData
-								if not transformData.isOwn then
+								if transformData and not transformData.isOwn then
 									-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic)
 									if lastMoveByAttacker == attacker.moves[1] or lastMoveByAttacker == attacker.moves[2] or lastMoveByAttacker == attacker.moves[3] or lastMoveByAttacker == attacker.moves[4] then
 										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
@@ -374,10 +374,10 @@ function Battle.updateTrackedInfo()
 			end
 		else
 			--Focus Punch
-			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-			local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot]
+			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
+			local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
 			local transformData = attacker.transformData
-			if not transformData.isOwn then
+			if transformData and not transformData.isOwn then
 				-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic). Focus Punch needs to hard-coded, focus punch doesn't become the last-used move until the second part
 				if 264 == attacker.moves[1] or 264 == attacker.moves[2] or 264 == attacker.moves[3] or 264 == attacker.moves[4] then
 					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
@@ -969,7 +969,6 @@ function Battle.resetAbilityMapPokemon(slot, isOwn)
 end
 
 function Battle.trackTransformedMoves()
-
 	--Do nothing if no pokemon is viewing their moves
 	if Memory.readbyte(GameSettings.sBattleBuffersTransferData) ~= 20 then return end
 
@@ -990,8 +989,10 @@ function Battle.trackTransformedMoves()
 	if currentSelectingMon % 2 ~= 0 then return end
 
 	-- Track all moves, if we are copying an enemy mon
-	local transformData = Battle.BattleParties[0][Battle.Combatants[Battle.IndexMap[currentSelectingMon]]].transformData
-	if not transformData.isOwn or transformData.slot > Battle.partySize then
+	local selectedSlot = Battle.Combatants[Battle.IndexMap[currentSelectingMon]] or 0
+	local attacker = Battle.BattleParties[0][selectedSlot] or {}
+	local transformData = attacker.transformData
+	if transformData and not transformData.isOwn or transformData.slot > Battle.partySize then
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
