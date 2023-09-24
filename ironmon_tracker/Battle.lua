@@ -762,6 +762,8 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
+
+	Program.recalcLeadPokemonHealingInfo()
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
 	Program.GameData.EnemyTeam = {}
 

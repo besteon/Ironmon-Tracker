@@ -132,13 +132,14 @@ function Tracker.getViewedPokemon()
 end
 
 --- @param pokemonID number
+--- @param createIfDoesntExist boolean|nil (Optional) If true, will create a tracked Pokémon data entry (default=true)
 --- @return table trackedPokemon A table containing information about this tracked Pokémon (empty if it's not being tracked)
-function Tracker.getOrCreateTrackedPokemon(pokemonID)
+function Tracker.getOrCreateTrackedPokemon(pokemonID, createIfDoesntExist)
 	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
-	if Tracker.Data.allPokemon[pokemonID] == nil then
+	if Tracker.Data.allPokemon[pokemonID] == nil and createIfDoesntExist ~= false then
 		Tracker.Data.allPokemon[pokemonID] = {}
 	end
-	return Tracker.Data.allPokemon[pokemonID]
+	return Tracker.Data.allPokemon[pokemonID] or {}
 end
 
 --- Adds the Pokemon's ability to the tracked data if it doesn't exist, otherwise updates it.
@@ -279,7 +280,7 @@ end
 
 -- Currently unused
 function Tracker.isTrackingMove(pokemonID, moveId, level)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	for _, move in ipairs(trackedPokemon.moves or {}) do -- intentionally check ALL tracked moves
 		-- If the move doesn't provide any new information, consider it tracked
 		if moveId == move.id and level >= move.level then
@@ -303,7 +304,7 @@ end
 --- @param pokemonID number
 --- @return table moves A table of moves for the Pokémon; each has an id, level, and pp value
 function Tracker.getMoves(pokemonID)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.moves or {}
 end
 
@@ -311,7 +312,7 @@ end
 --- @param pokemonID number
 --- @return table abilities
 function Tracker.getAbilities(pokemonID)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.abilities or {
 		{ id = 0 },
 		{ id = 0 },
@@ -353,7 +354,7 @@ end
 --- @param pokemonID number
 --- @return table statMarkings A table containing markings for all six stats
 function Tracker.getStatMarkings(pokemonID)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	local markings = trackedPokemon.sm or {}
 	return {
 		hp = markings.hp or 0,
@@ -370,7 +371,7 @@ end
 --- @param isWild boolean
 --- @return number
 function Tracker.getEncounters(pokemonID, isWild)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	if isWild then
 		return trackedPokemon.eW or 0
 	else
@@ -393,7 +394,7 @@ function Tracker.getNote(pokemonID)
 	if pokemonID == 413 then -- Ghost
 		return "Spoooky!"
 	end
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.note or ""
 end
 
@@ -421,7 +422,7 @@ end
 --- @param pokemonID number
 --- @return number|nil
 function Tracker.getLastLevelSeen(pokemonID)
-	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.eL
 end
 

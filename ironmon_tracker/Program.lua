@@ -25,8 +25,8 @@ Program.GameData = {
 	wildBattles = -999, -- used to track differences in GAME STATS
 	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
-	PlayerTeam = {}, -- [SlotOnTeam:number] = PokemonGameData:table
-	EnemyTeam = {}, -- [SlotOnTeam:number] = PokemonGameData:table
+	PlayerTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
+	EnemyTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
 	-- All items currently found in the player's bag
 	Items = {
 		healingTotal = 0, -- A calculation of total HP heals
