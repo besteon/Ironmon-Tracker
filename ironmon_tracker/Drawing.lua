@@ -435,7 +435,7 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 	local drawnFirstBall = false
 	local offsetX = 0
 	for i=6, 1, -1 do -- Reverse order to match in-game team display
-		local pokemon = Tracker.getPokemon(i, false) or Tracker.getDefaultPokemon()
+		local pokemon = Tracker.getPokemon(i, false) or {}
 		if PokemonData.isValid(pokemon.pokemonID) then
 			local colorList
 			if pokemon.curHP > 0 then

@@ -400,7 +400,7 @@ end
 --- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
 --- @return string
 function Tracker.getHiddenPowerType()
-	local viewedPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local viewedPokemon = Battle.getViewedPokemon(true) or {}
 	if (viewedPokemon.personality or 0) == 0 then
 		return MoveData.HiddenPowerTypeList[1]
 	end

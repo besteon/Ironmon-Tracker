@@ -345,8 +345,8 @@ function Program.update()
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
 		if Options["Animated Pokemon popout"] and Program.isValidMapLocation() then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or Tracker.getDefaultPokemon()
-			if leadPokemon.pokemonID ~= 0 then
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or {}
+			if PokemonData.isValid(leadPokemon.pokemonID) then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -730,7 +730,7 @@ end
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, false) or Tracker.getDefaultPokemon()
+		local pokemon = Tracker.getPokemon(i, false) or {}
 		if PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
 			if (pokemon.curHP or 0) > 0 then
@@ -1103,13 +1103,16 @@ function Program.updateBagItems()
 	end
 
 	-- After updating items in bag, recalculate lead mon heals info
-	Program.calcLeadPokemonHealingInfo()
+	Program.recalcLeadPokemonHealingInfo()
 end
 
-function Program.calcLeadPokemonHealingInfo()
-	local leadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
-	local maxHP = leadPokemon.stats.hp or 0
-	if not Battle.isViewingOwn or maxHP == 0 then
+function Program.recalcLeadPokemonHealingInfo()
+	if not Battle.isViewingOwn then
+		return
+	end
+	local leadPokemon = Battle.getViewedPokemon(true)
+	local maxHP = leadPokemon and leadPokemon.stats and leadPokemon.stats.hp or 0
+	if maxHP == 0 then
 		return
 	end
 

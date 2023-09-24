@@ -967,7 +967,7 @@ MGBA.CommandMap = {
 			local hiddenpowerName = MoveData.Moves[hiddenpowerMoveId].name or "Hidden Power"
 
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemonViewed = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemonViewed = Battle.getViewedPokemon(true) or {}
 			if not PokemonData.isValid(pokemonViewed.pokemonID) then
 				printf(" %s", Resources.MGBACommands.HiddenPowerError2)
 				return

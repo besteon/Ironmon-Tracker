@@ -172,8 +172,7 @@ function Battle.togglePokemonViewed()
 	end
 
 	if Battle.isViewingOwn then
-		-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
-		Program.Frames.three_sec_update = 30
+		Program.recalcLeadPokemonHealingInfo()
 	end
 
 	Program.redraw(true)

@@ -384,7 +384,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	end
 
 	-- Your lead Pokémon
-	local ownLeadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local ownLeadPokemon = Battle.getViewedPokemon(true) or {}
 
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
@@ -412,9 +412,9 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local pokemonViewed = Tracker.getViewedPokemon() or {}
 	if pokemonViewed.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = pokemonViewed.level
+		data.x.viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		data.x.viewedPokemonLevel = 0
 	end

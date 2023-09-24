@@ -12,7 +12,7 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
 			end
@@ -28,12 +28,12 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 27, 30, 24, },
 		isVisible = function()
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			return PokemonData.isValid(pokemon.pokemonID)
 		end,
 		onClick = function (self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
-			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID or 0)
 			Program.changeScreenView(TypeDefensesScreen)
 		end,
 	},
@@ -119,7 +119,7 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
 		isVisible = function() return Options["Open Book Play Mode"] and not Battle.isViewingOwn end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
 			end
@@ -771,7 +771,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	if not Options["Reveal info if randomized"] and not Battle.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
-	else
+	elseif data.p.types[1] ~= PokemonData.Types.UNKNOWN then
 		Drawing.drawTypeIcon(data.p.types[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 		if data.p.types[2] ~= data.p.types[1] then
 			Drawing.drawTypeIcon(data.p.types[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
