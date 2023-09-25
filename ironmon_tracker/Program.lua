@@ -530,10 +530,8 @@ function Program.updateRepelSteps()
 	end
 end
 
+-- Read in game data for both the Player's entire team and the Enemy's entire team
 function Program.updatePokemonTeams()
-	-- Check for updates to each pokemon team
-	local addressOffset = 0
-
 	-- Check if it's a new game (no Pokémon yet)
 	if not Tracker.Data.isNewGame and Program.GameData.PlayerTeam[1] == nil then
 		Tracker.Data.isNewGame = true
@@ -543,37 +541,21 @@ function Program.updatePokemonTeams()
 	Program.GameData.PlayerTeam = {}
 	Program.GameData.EnemyTeam = {}
 
+	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
-				-- Sets the player's trainerID as soon as they get their first Pokemon
-				if Tracker.Data.isNewGame and newPokemonData.trainerID ~= nil and newPokemonData.trainerID ~= 0 then
-					if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
-						Tracker.Data.trainerID = newPokemonData.trainerID
-					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
-						-- Reset the tracker data as old data was loaded and we have a different trainerID now
-						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
-						local playtime = Tracker.Data.playtime
-						Tracker.resetData()
-						Tracker.Data.trainerID = newPokemonData.trainerID
-						Tracker.Data.playtime = playtime
-					end
-					-- Unset the new game flag
-					Tracker.Data.isNewGame = false
-				end
+			local pokemon = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
+				Tracker.verifyDataForPlayer(pokemon.trainerID)
 
 				-- Include experience information for each Pokemon in the player's team
-				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
-				newPokemonData.currentExp = curExp
-				newPokemonData.totalExp = totalExp
+				pokemon.currentExp, pokemon.totalExp = Program.getNextLevelExp(pokemon.pokemonID, pokemon.level, pokemon.experience)
 
-				Program.GameData.PlayerTeam[i] = newPokemonData
+				Program.GameData.PlayerTeam[i] = pokemon
 			end
 		end
 
@@ -582,19 +564,18 @@ function Program.updatePokemonTeams()
 		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
+			local pokemon = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
 				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
 				if not Battle.inBattle then
-					for _, move in pairs(newPokemonData.moves) do
+					for _, move in pairs(pokemon.moves) do
 						if move.id ~= 0 then
 							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
 						end
 					end
 				end
 
-				Program.GameData.EnemyTeam[i] = newPokemonData
+				Program.GameData.EnemyTeam[i] = pokemon
 			end
 		end
 

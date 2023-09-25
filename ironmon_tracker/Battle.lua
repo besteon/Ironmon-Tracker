@@ -293,7 +293,7 @@ function Battle.updateTrackedInfo()
 
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
 	if Program.Frames.battleDataDelay > 0 then
-		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
+		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 10 -- 10 for high accuracy updates
 		return
 	end
 
@@ -678,6 +678,7 @@ function Battle.beginNewBattle()
 		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
 	end
 
+	Battle.isViewingOwn = true
 	Battle.isViewingLeft = true
 	Battle.Combatants = {
 		LeftOwn = 1,
@@ -993,7 +994,7 @@ function Battle.trackTransformedMoves()
 	local selectedSlot = Battle.Combatants[Battle.IndexMap[currentSelectingMon]] or 0
 	local attacker = Battle.BattleParties[0][selectedSlot] or {}
 	local transformData = attacker.transformData
-	if transformData and not transformData.isOwn or transformData.slot > Battle.partySize then
+	if transformData and (not transformData.isOwn or transformData.slot > Battle.partySize) then
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do

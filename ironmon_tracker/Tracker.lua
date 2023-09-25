@@ -158,9 +158,9 @@ function Tracker.TrackAbility(pokemonID, abilityId)
 	end
 
 	-- Only add as second ability if it's different than the first ability
-	if trackedPokemon.abilities[1].id == nil or trackedPokemon.abilities[1].id == 0 then
+	if (trackedPokemon.abilities[1].id or 0) == 0 then
 		trackedPokemon.abilities[1].id = abilityId
-	elseif (trackedPokemon.abilities[2].id == nil or trackedPokemon.abilities[2].id == 0) and trackedPokemon.abilities[1].id ~= abilityId then
+	elseif ((trackedPokemon.abilities[2].id or 0) == 0) and trackedPokemon.abilities[1].id ~= abilityId then
 		trackedPokemon.abilities[2].id = abilityId
 	end
 	-- If this pokemon already has two abilities being tracked, simply do nothing.
@@ -511,6 +511,27 @@ function Tracker.loadData(filepath, forced)
 
 	Tracker.LoadStatus = Tracker.LoadStatusKeys.LOAD_SUCCESS
 	return Tracker.LoadStatus
+end
+
+--- Verifies the current Tracker.Data is accurate for this current game, based on the player's in-game TrainerID
+--- @param playerTrainerId number The game's trainerID assigned to the player
+function Tracker.verifyDataForPlayer(playerTrainerId)
+	-- The player won't have a trainerID until they get their first Pokmon
+	if not Tracker.Data.isNewGame or (playerTrainerId or 0) == 0 then
+		return
+	end
+	-- Unset the new game flag
+	Tracker.Data.isNewGame = false
+	if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
+		Tracker.Data.trainerID = playerTrainerId
+	elseif Tracker.Data.trainerID ~= playerTrainerId then
+		-- Reset the tracker data as old data was loaded and we have a different trainerID now
+		print("Old/Incorrect data was detected for this ROM. Initializing new data.")
+		local playtime = Tracker.Data.playtime
+		Tracker.resetData()
+		Tracker.Data.trainerID = playerTrainerId
+		Tracker.Data.playtime = playtime
+	end
 end
 
 -- If the Tracker version of the imported data is older, check for legacy data and properly import it
