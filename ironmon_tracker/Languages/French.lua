@@ -2928,11 +2928,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Forecast",
