@@ -537,10 +537,6 @@ function Program.updatePokemonTeams()
 		Tracker.Data.isNewGame = true
 	end
 
-	-- Clear out old data
-	Program.GameData.PlayerTeam = {}
-	Program.GameData.EnemyTeam = {}
-
 	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
@@ -557,6 +553,8 @@ function Program.updatePokemonTeams()
 
 				Program.GameData.PlayerTeam[i] = pokemon
 			end
+		else
+			Program.GameData.PlayerTeam[i] = nil
 		end
 
 		-- Then lookup information on the opposing Pokemon
@@ -577,6 +575,8 @@ function Program.updatePokemonTeams()
 
 				Program.GameData.EnemyTeam[i] = pokemon
 			end
+		else
+			Program.GameData.EnemyTeam[i] = nil
 		end
 
 		-- Next Pokemon - Each is offset by 100 bytes
