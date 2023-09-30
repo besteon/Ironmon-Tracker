@@ -132,7 +132,7 @@ end
 
 function TimeMachineScreen.checkCreatingRestorePoint()
 	-- Reasons not to create a restore point; once it's okay to make one (i.e. start the game or finish a battle) time catches up and a new state is created
-	if not Options["Enable restore points"] or not Program.isValidMapLocation() or Battle.inBattle or Battle.battleStarting then
+	if not Options["Enable restore points"] or not Program.isValidMapLocation() or Battle.inBattle then
 		return
 	end
 

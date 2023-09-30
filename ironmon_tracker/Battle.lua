@@ -1,7 +1,7 @@
 Battle = {
-	totalBattles = 0,
+	--totalBattles = 0,
 	inBattle = false,
-	battleStarting = false,
+	battleStarted = false,
 	isWildEncounter = false,
 	isGhost = false,
 	opposingTrainerId = 0,
@@ -105,22 +105,31 @@ function Battle.updateBattleStatus()
 	local firstMonID = Memory.readword(GameSettings.gBattleMons)
 	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
 
-	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if totalBattles <= 0xFFFFFF then -- Prevents bad data read due to address shifts related to battles starting
-		if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
-			Battle.battleStarting = true
-		end
-		Battle.totalBattles = totalBattles
-	end
-
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
+
+	local gBattleMainFunc = 0x03004f84
+	local BattleIntroDrawTrainersOrMonsSprites = 0x08013084
+	--local BattleIntroDrawPartySummaryScreens = 0x08013350
+	local BattleIntroOpponentSendsOutMonAnimation = 0x080135b0
+	local TryDoEventsBeforeFirstTurn = 0x08013870
+
+	if Battle.inBattle and not Battle.battleStarted then
+		local battleMainFunction = gBattleMainFunc
+		if Battle.isWildEncounter and battleMainFunction >= BattleIntroDrawTrainersOrMonsSprites and battleMainFunction <= TryDoEventsBeforeFirstTurn then
+			Battle.battleStarted = true
+		elseif not Battle.isWildEncounter and battleMainFunction >= BattleIntroOpponentSendsOutMonAnimation and battleMainFunction <= TryDoEventsBeforeFirstTurn then
+			Battle.battleStarted = true
+		end
+	end
+
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
+	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
 		Battle.endCurrentBattle()
 	end
+
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
 		LogOverlay.isGameOver = true
 		Program.GameTimer:pause()
@@ -138,8 +147,10 @@ end
 
 -- Updates once every [30] frames.
 function Battle.updateLowAccuracy()
-	Battle.updateTrackedInfo()
-	Battle.updateLookupInfo()
+	if Battle.battleStarted then
+		Battle.updateTrackedInfo()
+		Battle.updateLookupInfo()
+	end
 end
 
 -- Returns true if the player is allowed to view the enemy Pokémon
@@ -259,12 +270,6 @@ function Battle.updateTrackedInfo()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13). Also, game must be FR/LG
 	Battle.isGhost = GameSettings.game == 3 and (Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0)
-
-	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
-	if Program.Frames.battleDataDelay > 0 then
-		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
-		return
-	end
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
@@ -608,11 +613,10 @@ function Battle.beginNewBattle()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
-	Program.Frames.battleDataDelay = 60
+	--Program.Frames.battleDataDelay = 60
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
-	Battle.battleStarting = false
 	Battle.turnCount = 0
 	Battle.prevDamageTotal = 0
 	Battle.damageReceived = 0
@@ -693,7 +697,7 @@ function Battle.endCurrentBattle()
 	Battle.numBattlers = 0
 	Battle.partySize = 6
 	Battle.inBattle = false
-	Battle.battleStarting = false
+	Battle.battleStarted = false
 	Battle.isWildEncounter = false -- default battle type is trainer battle
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
