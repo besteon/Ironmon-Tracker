@@ -210,21 +210,59 @@ function HealsInBagScreen.buildPagedButtons(tab)
 		return value
 	end
 
+	local pokemon = Battle.getViewedPokemon(true) or {}
+	local maxHP, monMissingHP, monStatus, monPPEmpty
+	if PokemonData.isValid(pokemon.pokemonID) then
+		maxHP = pokemon.stats.hp
+		monMissingHP = math.max(maxHP - pokemon.curHP, 0) -- min 0
+		monStatus = pokemon.status or 0
+		if monStatus == MiscData.StatusType.Toxic then
+			monStatus = MiscData.StatusType.Poison
+		end
+		for _, move in pairs(pokemon.moves or {}) do
+			if move.pp <= 1 and tonumber(move.id) ~= 166 then -- 166: Sketch
+				monPPEmpty = true
+				break
+			end
+		end
+	end
+	monStatus = monStatus or MiscData.StatusType.None
+
 	local tabContents = {}
 	if tab == SCREEN.Tabs.HP then
 		for itemID, _ in pairs(Program.GameData.Items.HPHeals or {}) do
 			local sortValue = calcSortValue(itemID)
-			table.insert(tabContents, { id = itemID, bagKey = "HPHeals", sortValue = sortValue })
+			local item = MiscData.HealingItems[itemID]
+			local healAmt = 0
+			if item.type == MiscData.HealingType.Constant then
+				healAmt = item.amount
+			elseif item.type == MiscData.HealingType.Percentage and maxHP then
+				healAmt = math.floor(maxHP * item.amount / 100)
+			end
+			-- Consider the healing item helpful/efficient if 66% of its healing restores the mon's HP
+			local isHelpful
+			if maxHP and monMissingHP and (healAmt * 2/3) <= monMissingHP then
+				isHelpful = true
+			end
+			table.insert(tabContents, { id = itemID, bagKey = "HPHeals", sortValue = sortValue, isHelpful = isHelpful })
 		end
 	elseif tab == SCREEN.Tabs.PP then
 		for itemID, _ in pairs(Program.GameData.Items.PPHeals or {}) do
 			local sortValue = calcSortValue(itemID)
-			table.insert(tabContents, { id = itemID, bagKey = "PPHeals", sortValue = sortValue })
+			table.insert(tabContents, { id = itemID, bagKey = "PPHeals", sortValue = sortValue, isHelpful = monPPEmpty })
 		end
 	elseif tab == SCREEN.Tabs.Status then
 		for itemID, _ in pairs(Program.GameData.Items.StatusHeals or {}) do
 			local sortValue = calcSortValue(itemID)
-			table.insert(tabContents, { id = itemID, bagKey = "StatusHeals", sortValue = sortValue })
+			local statusType = MiscData.StatusItems[itemID].type or MiscData.StatusType.None
+			-- Helpful if it can fix the status condition (revive/faint not checked)
+			local isHelpful
+			if monStatus == statusType and monStatus > MiscData.StatusType.None then
+				isHelpful = true
+			elseif monStatus > MiscData.StatusType.None and monStatus < MiscData.StatusType.Faint and statusType == MiscData.StatusType.All then
+				isHelpful = true
+			end
+			table.insert(tabContents, { id = itemID, bagKey = "StatusHeals", sortValue = sortValue, isHelpful = isHelpful })
 		end
 	elseif tab == SCREEN.Tabs.Battle then
 		for itemID, _ in pairs(Program.GameData.Items.Other or {}) do
@@ -251,7 +289,7 @@ function HealsInBagScreen.buildPagedButtons(tab)
 			id = item.id,
 			sortValue = item.sortValue,
 			dimensions = { width = 85, height = 11, },
-			textColor = SCREEN.Colors.text,
+			textColor = item.isHelpful and "Positive text" or SCREEN.Colors.text,
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
 			includeInGrid = function(self) return SCREEN.currentTab == self.tab end,

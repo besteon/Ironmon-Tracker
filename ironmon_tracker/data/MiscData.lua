@@ -21,7 +21,6 @@ MiscData.HealingType = {
 	Percentage = "Percentage",
 }
 
--- Currently unused data
 MiscData.StatusType = {
 	None = 0,
 	Sleep = 1,
