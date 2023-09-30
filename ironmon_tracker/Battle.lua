@@ -646,7 +646,7 @@ function Battle.beginNewBattle()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
-	Program.Frames.battleDataDelay = 60
+	Program.Frames.battleDataDelay = 70
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
@@ -706,8 +706,8 @@ function Battle.beginNewBattle()
 	end
 
 	-- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
-	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy - 1, function()
+	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250) - 1 -- Minus 1 so that it better syncs up with Program/Battle updates
+	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy, function()
 		Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		Program.removeFrameCounter("AutoswapEnemy")
 	end, false)
@@ -1026,7 +1026,8 @@ function Battle.getDoublesCursorTargetInfo()
 	-- 0 2
 	local targetInfo = {}
 
-	if Battle.isViewingOwn then
+	local shouldViewOwn = Battle.isViewingOwn or not Battle.canViewEnemy()
+	if shouldViewOwn then
 		targetInfo.slot = Battle.Combatants.LeftOther
 		targetInfo.target = 1
 		targetInfo.isLeft = true
@@ -1051,7 +1052,7 @@ function Battle.getDoublesCursorTargetInfo()
 	end
 
 	-- Viewing an enemy pokemon should always calc stats against your default pokemon; Also, not all games have this address
-	if not Battle.isViewingOwn or GameSettings.gMultiUsePlayerCursor == nil then
+	if not shouldViewOwn or GameSettings.gMultiUsePlayerCursor == nil then
 		return targetInfo
 	end
 
