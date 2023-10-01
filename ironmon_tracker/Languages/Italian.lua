@@ -3113,7 +3113,7 @@ GameResources{
 		"Pietrasolare", --Pietrasolare english:Sun Stone
 		"Pietralunare", --Pietralunare english:Moon Stone
 		"Pietrafocaia", --Pietrafocaia english:Fire Stone
-		"Pietratuono", --Pietratuono english:Thunder Stone
+		"Pietratuono", --Pietratuono english:Thunderstone
 		"Pietraidrica", --Pietraidrica english:Water Stone
 		"Pietrafoglia", --Pietrafoglia english:Leaf Stone
 		"????????", --???????? english:unknown

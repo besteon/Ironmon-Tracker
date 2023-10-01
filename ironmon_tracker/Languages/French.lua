@@ -3113,7 +3113,7 @@ GameResources{
 		"Pierresoleil", --Pierresoleil english:Sun Stone
 		"Pierre Lune", --Pierre Lune english:Moon Stone
 		"Pierre Feu", --Pierre Feu english:Fire Stone
-		"Pierrefoudre", --Pierrefoudre english:Thunder Stone
+		"Pierrefoudre", --Pierrefoudre english:Thunderstone
 		"Pierre Eau", --Pierre Eau english:Water Stone
 		"Pierreplante", --Pierreplante english:Leaf Stone
 		"????????", --???????? english:unknown

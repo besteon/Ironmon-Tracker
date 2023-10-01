@@ -458,7 +458,7 @@ MiscData.EvolutionStones = {
 	},
 	[96] = {
 		id = 96,
-		name = "Thunder Stone",
+		name = "Thunderstone",
 		icon = "evo-stone",
 		pocket = MiscData.BagPocket.Items,
 	},

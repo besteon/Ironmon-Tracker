@@ -64,11 +64,11 @@ PokemonData.Evolutions = {
 		detailed = { "5 Diff. Stones", },
 		evoItemIds = { 93, 94, 95, 96, 97 },
 	},
-	-- Thunder stone item
+	-- Thunderstone item
 	THUNDER = {
 		abbreviation = "THUNDER",
 		short = { "Thunder", },
-		detailed = { "Thunder Stone", },
+		detailed = { "Thunderstone", },
 		evoItemIds = { 96 },
 	},
 	-- Fire stone item
