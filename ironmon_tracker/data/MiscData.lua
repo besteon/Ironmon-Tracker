@@ -1,4 +1,5 @@
 MiscData = {}
+-- List of items: https://bulbapedia.bulbagarden.net/wiki/List_of_items_by_index_number_(Generation_III)
 
 MiscData.TableData = {
 	growth = { 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 3, 4, 2, 2, 3, 4, 3, 4, 2, 2, 3, 4, 3, 4 },
@@ -103,10 +104,16 @@ for i=1, 12, 1 do
 	MiscData.PokeBalls[i] = true
 end
 for i=289, 338, 1 do
-	MiscData.TMs[i] = true
+	MiscData.TMs[i] = {
+		icon = "tiny-tm",
+		pocket = MiscData.BagPocket.TMHM,
+	}
 end
 for i=339, 346, 1 do
-	MiscData.HMs[i] = true
+	MiscData.HMs[i] = {
+		icon = "tiny-tm",
+		pocket = MiscData.BagPocket.TMHM,
+	}
 end
 
 MiscData.HealingItems = {
@@ -121,7 +128,7 @@ MiscData.HealingItems = {
 	[19] = {
 		id = 19,
 		name = "Full Restore",
-		icon = "max-potion",
+		icon = "full-restore",
 		amount = 100,
 		type = MiscData.HealingType.Percentage,
 		pocket = MiscData.BagPocket.Items,
@@ -153,7 +160,7 @@ MiscData.HealingItems = {
 	[26] = {
 		id = 26,
 		name = "Fresh Water",
-		icon = "super-potion",
+		icon = "fresh-water",
 		amount = 50,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -161,7 +168,7 @@ MiscData.HealingItems = {
 	[27] = {
 		id = 27,
 		name = "Soda Pop",
-		icon = "super-potion",
+		icon = "soda-pop",
 		amount = 60,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -169,7 +176,7 @@ MiscData.HealingItems = {
 	[28] = {
 		id = 28,
 		name = "Lemonade",
-		icon = "super-potion",
+		icon = "lemonade",
 		amount = 80,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -177,7 +184,7 @@ MiscData.HealingItems = {
 	[29] = {
 		id = 29,
 		name = "Moomoo Milk",
-		icon = "hyper-potion",
+		icon = "moomoo-milk",
 		amount = 100,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -185,7 +192,7 @@ MiscData.HealingItems = {
 	[30] = {
 		id = 30,
 		name = "EnergyPowder",
-		icon = "super-potion",
+		icon = "energy-powder",
 		amount = 50,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -193,7 +200,7 @@ MiscData.HealingItems = {
 	[31] = {
 		id = 31,
 		name = "Energy Root",
-		icon = "hyper-potion",
+		icon = "energy-root",
 		amount = 200,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -201,7 +208,7 @@ MiscData.HealingItems = {
 	[44] = {
 		id = 44,
 		name = "Berry Juice",
-		icon = "potion",
+		icon = "berry-juice",
 		amount = 20,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -311,7 +318,7 @@ MiscData.StatusItems = {
 	[19] = {
 		id = 19,
 		name = "Full Restore",
-		icon = "max-potion",
+		icon = "full-restore",
 		type = MiscData.StatusType.All,
 		pocket = MiscData.BagPocket.Items,
 	},
@@ -325,14 +332,14 @@ MiscData.StatusItems = {
 	[32] = {
 		id = 32,
 		name = "Heal Powder",
-		icon = "full-heal",
+		icon = "heal-powder",
 		type = MiscData.StatusType.All,
 		pocket = MiscData.BagPocket.Items,
 	},
 	[38] = {
 		id = 38,
 		name = "Lava Cookie",
-		icon = "full-heal",
+		icon = "lava-cookie",
 		type = MiscData.StatusType.All,
 		pocket = MiscData.BagPocket.Items,
 	},
@@ -391,7 +398,7 @@ MiscData.PPItems = {
 	[34] = {
 		id = 34,
 		name = "Ether",
-		icon = "elixir",
+		icon = "ether",
 		amount = 10,
 		type = MiscData.HealingType.Constant,
 		pocket = MiscData.BagPocket.Items,
@@ -399,7 +406,7 @@ MiscData.PPItems = {
 	[35] = {
 		id = 35,
 		name = "Max Ether",
-		icon = "elixir",
+		icon = "ether",
 		amount = 100,
 		type = MiscData.HealingType.Percentage,
 		pocket = MiscData.BagPocket.Items,
@@ -469,13 +476,20 @@ MiscData.EvolutionStones = {
 	},
 }
 
-MiscData.BattleItems = {}
-for i=39, 41, 1 do -- Flutes
-	MiscData.BattleItems[i] = {
-		icon = "flute",
+MiscData.BattleItems = {
+	[39] = {
+		icon = "blue-flute",
 		pocket = MiscData.BagPocket.Items,
-	}
-end
+	},
+	[40] = {
+		icon = "yellow-flute",
+		pocket = MiscData.BagPocket.Items,
+	},
+	[41] = {
+		icon = "red-flute",
+		pocket = MiscData.BagPocket.Items,
+	},
+}
 for i=73, 79, 1 do -- X Items, Dire Hit, Guard Spec.
 	MiscData.BattleItems[i] = {
 		icon = "x-item",
@@ -503,10 +517,10 @@ MiscData.OtherItems[86] = { -- Repel
 	pocket = MiscData.BagPocket.Items,
 }
 MiscData.OtherItems[180] = { -- White Herb
-	icon = "candy",
+	icon = "white-herb",
 	pocket = MiscData.BagPocket.Items,
 }
 MiscData.OtherItems[185] = { -- Mental Herb
-	icon = "candy",
+	icon = "mental-herb",
 	pocket = MiscData.BagPocket.Items,
 }
