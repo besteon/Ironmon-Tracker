@@ -349,8 +349,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	-- MISC DATA (data.x)
-	data.x.healperc = math.min(9999, Tracker.Data.healingItems.healing or 0)
-	data.x.healnum = math.min(99, Tracker.Data.healingItems.numHeals or 0)
+	data.x.healperc = math.min(9999, Program.GameData.Items.healingPercentage or 0) -- Max of 9999
+	data.x.healnum = math.min(99, Program.GameData.Items.healingTotal or 0) -- Max of 99
 	data.x.pcheals = Tracker.Data.centerHeals
 
 	data.x.route = Constants.BLANKLINE

@@ -121,6 +121,7 @@ FileManager.LuaCode = {
 	{ name = "RandomEvosScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "RandomEvosScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
+	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },
@@ -294,6 +295,7 @@ function FileManager.executeEachFile(functionName)
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
 	else
+		---@diagnostic disable-next-line: undefined-global
 		globalRef = _ENV -- Lua 5.4
 	end
 

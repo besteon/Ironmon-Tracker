@@ -132,7 +132,7 @@ function Utils.calcWordPixelLength(text)
 	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
 	local pattern = "."
 	if Main.supportsSpecialChars then
-		---@diagnostic disable-next-line: undefined-global
+		---@diagnostic disable-next-line: undefined-global, undefined-field
 		pattern = utf8.charpattern
 	end
 	local totalLength = 0
@@ -284,6 +284,7 @@ end
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
 function Utils.getClosestWord(word, wordlist, threshold)
 	if word == nil or word == "" then return word end
+	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
 		local m = {}
@@ -844,18 +845,12 @@ end
 -- Checks if the player has a usable stone in their bag to evolve the pokémon
 function Utils.isReadyToEvolveByStone(evoMethod)
 	evoMethod = evoMethod or PokemonData.Evolutions.NONE
-
-	if evoMethod.evoItemIds == nil then
-		return false
-	end
-
 	-- Check through the possible evolutions with the stones available
-	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
-		if quantity > 0 and evoMethod.evoItemIds[itemID] then
+	for _, itemID in pairs(evoMethod.evoItemIds or {}) do
+		if Program.GameData.Items.EvoStones[itemID] then
 			return true
 		end
 	end
-
 	return false
 end
 

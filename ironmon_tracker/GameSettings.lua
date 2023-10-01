@@ -506,8 +506,14 @@ function GameSettings.setEwramAddresses()
 		-- FRLG: [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		badgeOffset = { 0x1220 + 0x100, 0x1270 + 0x10C, 0xEE0 + 0x104 },
 		bagPocket_Items_offset = { 0x560, 0x560, 0x310 },
-		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
 		bagPocket_Items_Size = { 20, 30, 42 },
+		bagPocket_KeyItems_offset = { 0x5B0, 0x5D8, 0x3b8 },
+		bagPocket_KeyItems_Size = { 20, 30, 30 },
+		bagPocket_Balls_offset = { 0x600, 0x650, 0x430 },
+		bagPocket_Balls_Size = { 16, 16, 13 },
+		bagPocket_TmHm_offset = { 0x640, 0x690, 0x464 },
+		bagPocket_TmHm_Size = { 64, 64, 58 },
+		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
 		bagPocket_Berries_Size = { 46, 46, 43 },
 		-- RS don't use an encryption key
 		EncryptionKeyOffset = { nil, 0xAC, 0xF20 },

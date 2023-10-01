@@ -476,6 +476,13 @@ ScreenResources{
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
 		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
 	},
+	HealsInBagScreen = {
+		TabAll = "All", -- NEEDS TRANSLATION
+		TabHP = "HP", -- NEEDS TRANSLATION
+		TabPP = "PP", -- NEEDS TRANSLATION
+		TabStatus = "Status", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
 		HeaderMin = "Min", -- NEEDS TRANSLATION
@@ -2921,11 +2928,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Forecast",

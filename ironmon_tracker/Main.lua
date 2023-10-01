@@ -784,7 +784,7 @@ function Main.SaveCurrentRom(filename)
 end
 
 --- Attempts to find an attempts file based off of the Quickload settings file, then off of the currently loaded ROM name
---- @param forceUseSettingsFile boolean Force return of filepath of an attempts file to be created from the Quickload settings file
+--- @param forceUseSettingsFile boolean|nil Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
@@ -844,7 +844,7 @@ end
 
 --- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name.
 --- Resulting attempts # is stored in Main.currentSeed
---- @param forceUseSettingsFile boolean Force creation of new attempts # for the current Quickload settings file
+--- @param forceUseSettingsFile boolean|nil Force creation of new attempts # for the current Quickload settings file (default: false)
 function Main.ReadAttemptsCount(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
 

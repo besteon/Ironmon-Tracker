@@ -511,10 +511,10 @@ function Tracker.resetData()
 		gameStatsHeals = 0, -- Tally of auto-tracked heals, separate to allow manual adjusting of centerHeals
 		centerHeals = Utils.inlineIf(Options["PC heals count downward"], 10, 0),
 		-- items = {}, -- Currently unused. If plans to use, this would instead be stored under allPokemon tracked data
-		healingItems = {
-			healing = 0,
-			numHeals = 0,
-		},
+		-- healingItems = { -- No longer in use, moved to Program.GameData.Items
+		-- 	healing = 0,
+		-- 	numHeals = 0,
+		-- },
 		hiddenPowers = { -- Track hidden power types for each of your own Pokemon [personality] = [type]
 			[0] = MoveData.HiddenPowerTypeList[1],
 		},

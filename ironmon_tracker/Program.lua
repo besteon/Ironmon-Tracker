@@ -23,13 +23,16 @@ Program.GameData = {
 	wildBattles = -999, -- used to track differences in GAME STATS
 	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
-	evolutionStones = { -- The evolution stones currently in bag
-			[93] = 0, -- Sun Stone
-			[94] = 0, -- Moon Stone
-			[95] = 0, -- Fire Stone
-			[96] = 0, -- Thunder Stone
-			[97] = 0, -- Water Stone
-			[98] = 0, -- Leaf Stone
+	-- All items currently found in the player's bag
+	Items = {
+		healingTotal = 0, -- A calculation of total HP heals
+		healingPercentage = 0, -- A calculation of percentage heals
+		-- Each of the below: map of [itemId] -> quanity of item
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	},
 }
 
@@ -986,93 +989,82 @@ function Program.validPokemonData(pokemonData)
 end
 
 function Program.updateBagItems()
-	if not Tracker.Data.isViewingOwn then return end
-
-	local leadPokemon = Battle.getViewedPokemon(true)
-	if leadPokemon ~= nil then
-		local healingItems, evolutionStones = Program.getBagItems()
-		if healingItems ~= nil then
-			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
-		end
-		if evolutionStones ~= nil then
-			Program.GameData.evolutionStones = evolutionStones
-		end
-	end
-end
-
-function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
-	local totals = {
-		healing = 0,
-		numHeals = 0,
+	Program.GameData.Items = {
+		healingTotal = 0,
+		healingPercentage = 0,
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	}
-
-	-- Check for potential divide-by-zero errors
-	if pokemonMaxHP == nil or pokemonMaxHP == 0 then
-		return totals
-	end
-
-	-- Define some max values to prevent erroneous game data reads
-	local maxPossibleQuantity = 999
-	-- Formatted as: healingItemsInBag[itemID] = quantity
-	for itemID, quantity in pairs(healingItemsInBag) do
-		local healItemData = MiscData.HealingItems[itemID]
-		if healItemData ~= nil and quantity > 0 then
-			local healingPercentage = 0
-			if healItemData.type == MiscData.HealingType.Constant then
-				-- Healing is in a percentage compared to the mon's max HP
-				local percentage = healItemData.amount / pokemonMaxHP * 100
-				if percentage > 100 then
-					percentage = 100
-				end
-				healingPercentage = percentage * quantity
-			elseif healItemData.type == MiscData.HealingType.Percentage then
-				healingPercentage = healItemData.amount * quantity
-			end
-
-			if quantity > 0 and quantity <= maxPossibleQuantity then
-				totals.healing = totals.healing + healingPercentage
-				totals.numHeals = totals.numHeals + quantity
-			end
-		end
-	end
-
-	return totals
-end
-
-function Program.getBagItems()
-	local healingItems = {}
-	local evoStones = {
-		[93] = 0, -- Sun Stone
-		[94] = 0, -- Moon Stone
-		[95] = 0, -- Fire Stone
-		[96] = 0, -- Thunder Stone
-		[97] = 0, -- Water Stone
-		[98] = 0, -- Leaf Stone
-	}
+	local items = Program.GameData.Items
 
 	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		-- Don't have a use for these yet, so not reading them from memory
+		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
+		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
-			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
+			-- Read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 then
+			-- Only add to items if the item exists
+			if MiscData.Items[itemID] then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
-
-				if MiscData.HealingItems[itemID] ~= nil then
-					healingItems[itemID] = quantity
-				elseif MiscData.EvolutionStones[itemID] ~= nil then
-					evoStones[itemID] = quantity
+				if key ~= nil then
+					quantity = Utils.bit_xor(quantity, key)
+				end
+				if quantity > 0 then
+					if MiscData.HealingItems[itemID] then
+						items.HPHeals[itemID] = quantity
+					elseif MiscData.PPItems[itemID] then
+						items.PPHeals[itemID] = quantity
+					elseif MiscData.StatusItems[itemID] then
+						items.StatusHeals[itemID] = quantity
+					elseif MiscData.EvolutionStones[itemID] then
+						items.EvoStones[itemID] = quantity
+					else
+						items.Other[itemID] = quantity
+					end
 				end
 			end
 		end
 	end
 
-	return healingItems, evoStones
+	-- After updating items in bag, recalculate lead mon heals info
+	Program.calcLeadPokemonHealingInfo()
+end
+
+function Program.calcLeadPokemonHealingInfo()
+	local leadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local maxHP = leadPokemon.stats.hp or 0
+	if not Tracker.Data.isViewingOwn or maxHP == 0 then
+		return
+	end
+
+	local items = Program.GameData.Items
+	items.healingTotal = 0
+	items.healingPercentage = 0
+
+	for itemID, quantity in pairs(items.HPHeals or {}) do
+		-- An arbitrary max value to prevent erroneous game data reads
+		if quantity <= 999 then
+			local healItemData = MiscData.HealingItems[itemID] or {}
+			local percentageAmt = 0
+			if healItemData.type == MiscData.HealingType.Constant then
+				-- Healing is in a percentage compared to the mon's max HP
+				percentageAmt = quantity * math.min(healItemData.amount / maxHP * 100, 100) -- max of 100
+			elseif healItemData.type == MiscData.HealingType.Percentage then
+				percentageAmt = quantity * healItemData.amount
+			end
+			items.healingTotal = items.healingTotal + quantity
+			items.healingPercentage = items.healingPercentage + percentageAmt
+		end
+	end
 end

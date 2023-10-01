@@ -177,16 +177,20 @@ end
 function GameOverScreen.shouldDisplay(battleOutcome)
 	if not Main.IsOnBizhawk() then return false end
 
-	-- Skip game over screen if most recent battle was the tutorial or if the player didn't lose or tie the battle
+	-- Skip game over screen if most recent battle was the tutorial or if the player didn't LOSE or TIE the battle
 	if Battle.recentBattleWasTutorial or (battleOutcome ~= 2 and battleOutcome ~= 3) then
 		if GameOverScreen.isDisplayed then
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end
-		GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
-		return false
-	end
-	if Battle.defeatedSteven or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then -- Won the final battle
-		GameOverScreen.status = GameOverScreen.Statuses.WON
+		-- Check if the player won the game, final battle was won
+		if Battle.defeatedSteven or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then
+			GameOverScreen.status = GameOverScreen.Statuses.WON
+			return true
+		-- Check for WON status since player leaves Hall Of Fame when going to FRLG credits
+		elseif GameOverScreen.status ~= GameOverScreen.Statuses.WON then
+			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
+			return false
+		end
 	else
 		GameOverScreen.status = GameOverScreen.Statuses.LOST
 	end
