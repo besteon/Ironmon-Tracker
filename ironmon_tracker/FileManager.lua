@@ -535,16 +535,13 @@ function FileManager.writeTableToFile(table, filename)
 
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
-
 		--append a trailing \n if one is absent
 		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
-			file:write(dataLine)
-			file:write("\n")
+			file:write(dataLine .. "\n")
 		end
+		file:flush()
 		file:close()
-	else
-		print("> ERROR: Unable to create auto-save file: " .. filename)
 	end
 end
 
@@ -555,7 +552,6 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-
 		if dataString ~= nil and dataString ~= "" then
 			tableData = Pickle.unpickle(dataString)
 		end

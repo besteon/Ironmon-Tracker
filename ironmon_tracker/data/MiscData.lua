@@ -96,19 +96,18 @@ end
 MiscData.Natures = {}
 MiscData.Items = {}
 
--- Don't have a use for these yet
--- MiscData.PokeBalls = {}
--- MiscData.TMs = {}
--- MiscData.HMs = {}
--- for i=1, 12, 1 do
--- 	MiscData.PokeBalls[i] = true
--- end
--- for i=289, 338, 1 do
--- 	MiscData.TMs[i] = true
--- end
--- for i=339, 346, 1 do
--- 	MiscData.HMs[i] = true
--- end
+MiscData.PokeBalls = {}
+MiscData.TMs = {}
+MiscData.HMs = {}
+for i=1, 12, 1 do
+	MiscData.PokeBalls[i] = true
+end
+for i=289, 338, 1 do
+	MiscData.TMs[i] = true
+end
+for i=339, 346, 1 do
+	MiscData.HMs[i] = true
+end
 
 MiscData.HealingItems = {
 	[13] = {

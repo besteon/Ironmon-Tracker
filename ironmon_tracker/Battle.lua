@@ -6,6 +6,7 @@ Battle = {
 	isGhost = false,
 	opposingTrainerId = 0,
 	defeatedSteven = false, -- Used exclusively for Emerald
+	isViewingOwn = true, -- If the Tracker screen is viewing your own pokemon, or the enemy
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
 	partySize = 6,
@@ -73,6 +74,10 @@ Battle.EnemyTrainersToHideAlly = {
 	[3] = {}, -- FRLG
 }
 
+function Battle.initialize()
+	Battle.isViewingOwn = true
+end
+
 function Battle.update()
 	if not Program.isValidMapLocation() then
 		return
@@ -84,8 +89,8 @@ function Battle.update()
 
 	if not Battle.inBattle then
 		-- For cases when closing the Tracker mid battle and loading it after battle
-		if not Tracker.Data.isViewingOwn then
-			Tracker.Data.isViewingOwn = true
+		if not Battle.isViewingOwn then
+			Battle.isViewingOwn = true
 		end
 		return
 	end
@@ -147,14 +152,40 @@ function Battle.canViewEnemy()
 	return Battle.inBattle and Program.Frames.hideEnemy <= 0
 end
 
+function Battle.togglePokemonViewed()
+	if not Battle.canViewEnemy() then
+		return
+	end
+
+	Battle.isViewingOwn = not Battle.isViewingOwn
+
+	-- Check toggling through other Pokemon available in doubles battles
+	if Battle.isViewingOwn and Battle.numBattlers > 2 then
+		-- Swap sides on returning to allied side
+		Battle.isViewingLeft = not Battle.isViewingLeft
+
+		-- For some doubles battles, do not reveal your ally partner's Pokémon (such as Emerald Steven fight)
+		local shouldHideAlly = Battle.EnemyTrainersToHideAlly[GameSettings.game or 1][Battle.opposingTrainerId or 0]
+		if not Battle.isViewingLeft and shouldHideAlly then
+			Battle.isViewingOwn = not Battle.isViewingOwn
+		end
+	end
+
+	if Battle.isViewingOwn then
+		Program.recalcLeadPokemonHealingInfo()
+	end
+
+	Program.redraw(true)
+end
+
 -- isOwn: true if it belongs to the player; false otherwise
 function Battle.getViewedPokemon(isOwn)
 	local mustViewOwn = isOwn or not Battle.canViewEnemy()
 	local viewSlot
 	if mustViewOwn then
-		viewSlot = Utils.inlineIf(Battle.isViewingLeft or not Tracker.Data.isViewingOwn, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft or not Battle.isViewingOwn, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
 	else
-		viewSlot = Utils.inlineIf(Battle.isViewingLeft or Tracker.Data.isViewingOwn, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
+		viewSlot = Utils.inlineIf(Battle.isViewingLeft or Battle.isViewingOwn, Battle.Combatants.LeftOther, Battle.Combatants.RightOther)
 	end
 
 	return Tracker.getPokemon(viewSlot, mustViewOwn)
@@ -262,7 +293,7 @@ function Battle.updateTrackedInfo()
 
 	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
 	if Program.Frames.battleDataDelay > 0 then
-		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 30 -- 30 for low accuracy updates
+		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 10 -- 10 for high accuracy updates
 		return
 	end
 
@@ -316,10 +347,10 @@ function Battle.updateTrackedInfo()
 								end
 							else
 								-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
-								local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-								local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot]
+								local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
+								local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
 								local transformData = attacker.transformData
-								if not transformData.isOwn then
+								if transformData and not transformData.isOwn then
 									-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic)
 									if lastMoveByAttacker == attacker.moves[1] or lastMoveByAttacker == attacker.moves[2] or lastMoveByAttacker == attacker.moves[3] or lastMoveByAttacker == attacker.moves[4] then
 										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
@@ -342,10 +373,10 @@ function Battle.updateTrackedInfo()
 			end
 		else
 			--Focus Punch
-			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]]
-			local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot]
+			local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
+			local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
 			local transformData = attacker.transformData
-			if not transformData.isOwn then
+			if transformData and not transformData.isOwn then
 				-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic). Focus Punch needs to hard-coded, focus punch doesn't become the last-used move until the second part
 				if 264 == attacker.moves[1] or 264 == attacker.moves[2] or 264 == attacker.moves[3] or 264 == attacker.moves[4] then
 					local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
@@ -361,7 +392,9 @@ function Battle.updateTrackedInfo()
 	local ownLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn,true)
 	if ownLeftPokemon ~= nil and Battle.Combatants.LeftOwn <= Battle.partySize then
 		local ownLeftAbilityId = PokemonData.getAbilityId(ownLeftPokemon.pokemonID, ownLeftPokemon.abilityNum)
-		Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+		if ownLeftAbilityId ~= 0 then
+			Tracker.TrackAbility(ownLeftPokemon.pokemonID, ownLeftAbilityId)
+		end
 		Battle.updateStatStages(ownLeftPokemon, true, true)
 	end
 
@@ -369,7 +402,9 @@ function Battle.updateTrackedInfo()
 		local ownRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOwn,true)
 		if ownRightPokemon ~= nil and Battle.Combatants.RightOwn <= Battle.partySize then
 			local ownRightAbilityId = PokemonData.getAbilityId(ownRightPokemon.pokemonID, ownRightPokemon.abilityNum)
-			Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+			if ownRightAbilityId ~= 0 then
+				Tracker.TrackAbility(ownRightPokemon.pokemonID, ownRightAbilityId)
+			end
 			Battle.updateStatStages(ownRightPokemon, true, false)
 		end
 	end
@@ -391,13 +426,21 @@ function Battle.updateTrackedInfo()
 		local otherLeftPokemon = Tracker.getPokemon(Battle.Combatants.LeftOther,false)
 		if otherLeftPokemon ~= nil then
 			Battle.updateStatStages(otherLeftPokemon, false, true)
-			Battle.checkEnemyEncounter(otherLeftPokemon, battleFlags)
+			local battler = Battle.BattleParties[1][Battle.Combatants.LeftOther]
+			if battler and not battler.seenAlready then
+				battler.seenAlready = true
+				Battle.incrementEnemyEncounter(otherLeftPokemon, battleFlags)
+			end
 		end
 		if Battle.numBattlers == 4 then
 			local otherRightPokemon = Tracker.getPokemon(Battle.Combatants.RightOther,false)
 			if otherRightPokemon ~= nil then
 				Battle.updateStatStages(otherRightPokemon, false, false)
-				Battle.checkEnemyEncounter(otherRightPokemon, battleFlags)
+				local battler = Battle.BattleParties[1][Battle.Combatants.RightOther]
+				if battler and not battler.seenAlready then
+					battler.seenAlready = true
+					Battle.incrementEnemyEncounter(otherRightPokemon, battleFlags)
+				end
 			end
 		end
 	end
@@ -434,11 +477,7 @@ function Battle.updateStatStages(pokemon, isOwn, isLeft)
 	end
 end
 
--- If the pokemon doesn't belong to the player, and hasn't been encountered yet, increment
-function Battle.checkEnemyEncounter(opposingPokemon, battleFlags)
-	if opposingPokemon.hasBeenEncountered then return end
-
-	opposingPokemon.hasBeenEncountered = true
+function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
 	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
 
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
@@ -476,7 +515,6 @@ function Battle.checkEnemyEncounter(opposingPokemon, battleFlags)
 end
 
 function Battle.checkAbilitiesToTrack()
-
 	-- Track previous ability activation for handling Synchronize
 	if Battle.Synchronize.turnCount < Battle.turnCount then
 		Battle.Synchronize.turnCount = Battle.turnCount
@@ -608,7 +646,7 @@ function Battle.beginNewBattle()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
-	Program.Frames.battleDataDelay = 60
+	Program.Frames.battleDataDelay = 70
 
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
@@ -636,10 +674,9 @@ function Battle.beginNewBattle()
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
-	if Tracker.Data.whichRival == nil then
-		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
-	end
+	Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
 
+	Battle.isViewingOwn = true
 	Battle.isViewingLeft = true
 	Battle.Combatants = {
 		LeftOwn = 1,
@@ -667,9 +704,9 @@ function Battle.beginNewBattle()
 	end
 
 	-- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
-	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy - 1, function()
-		Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250) - 1 -- Minus 1 so that it better syncs up with Program/Battle updates
+	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy, function()
+		Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		Program.removeFrameCounter("AutoswapEnemy")
 	end, false)
 
@@ -712,7 +749,7 @@ function Battle.endCurrentBattle()
 
 	Battle.CurrentRoute.hasInfo = false
 
-	Tracker.Data.isViewingOwn = true
+	Battle.isViewingOwn = true
 	Battle.isViewingLeft = true
 	Battle.Combatants = {
 		LeftOwn = 1,
@@ -724,16 +761,15 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
+
+	Program.recalcLeadPokemonHealingInfo()
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
-	Tracker.Data.otherPokemon = {}
-	Tracker.Data.otherTeam = { 0, 0, 0, 0, 0, 0 }
+	Program.GameData.EnemyTeam = {}
 
 	-- Reset stat stage changes for the owner's pokemon team
 	for i=1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, true)
-		if pokemon ~= nil then
-			pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
-		end
+		local pokemon = Tracker.getPokemon(i, true) or {}
+		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
@@ -783,7 +819,7 @@ end
 
 function Battle.changeOpposingPokemonView(isLeft)
 	if Options["Auto swap to enemy"] then
-		Tracker.Data.isViewingOwn = false
+		Battle.isViewingOwn = false
 		Battle.isViewingLeft = isLeft
 		if not Main.IsOnBizhawk() then
 			MGBA.Screens.LookupPokemon.manuallySet = false
@@ -837,6 +873,7 @@ function Battle.populateBattlePartyObject()
 			}
 			local ability = PokemonData.getAbilityId(enemyPokemon.pokemonID, enemyPokemon.abilityNum)
 			Battle.BattleParties[1][i] = {
+				seenAlready = false,
 				abilityOwner = {
 					isOwn = false,
 					slot = i
@@ -932,7 +969,6 @@ function Battle.resetAbilityMapPokemon(slot, isOwn)
 end
 
 function Battle.trackTransformedMoves()
-
 	--Do nothing if no pokemon is viewing their moves
 	if Memory.readbyte(GameSettings.sBattleBuffersTransferData) ~= 20 then return end
 
@@ -953,8 +989,10 @@ function Battle.trackTransformedMoves()
 	if currentSelectingMon % 2 ~= 0 then return end
 
 	-- Track all moves, if we are copying an enemy mon
-	local transformData = Battle.BattleParties[0][Battle.Combatants[Battle.IndexMap[currentSelectingMon]]].transformData
-	if not transformData.isOwn or transformData.slot > Battle.partySize then
+	local selectedSlot = Battle.Combatants[Battle.IndexMap[currentSelectingMon]] or 0
+	local attacker = Battle.BattleParties[0][selectedSlot] or {}
+	local transformData = attacker.transformData
+	if transformData and (not transformData.isOwn or transformData.slot > Battle.partySize) then
 		local copiedMon = Tracker.getPokemon(transformData.slot, false)
 		if copiedMon ~= nil then
 			for _, move in pairs(copiedMon.moves) do
@@ -986,7 +1024,8 @@ function Battle.getDoublesCursorTargetInfo()
 	-- 0 2
 	local targetInfo = {}
 
-	if Tracker.Data.isViewingOwn then
+	local shouldViewOwn = Battle.isViewingOwn or not Battle.canViewEnemy()
+	if shouldViewOwn then
 		targetInfo.slot = Battle.Combatants.LeftOther
 		targetInfo.target = 1
 		targetInfo.isLeft = true
@@ -1011,7 +1050,7 @@ function Battle.getDoublesCursorTargetInfo()
 	end
 
 	-- Viewing an enemy pokemon should always calc stats against your default pokemon; Also, not all games have this address
-	if not Tracker.Data.isViewingOwn or GameSettings.gMultiUsePlayerCursor == nil then
+	if not shouldViewOwn or GameSettings.gMultiUsePlayerCursor == nil then
 		return targetInfo
 	end
 

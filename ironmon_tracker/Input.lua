@@ -25,7 +25,7 @@ Input.StatHighlighter = {
 	end,
 	-- Cycle through the six visible stats to enable marking them as high/low/neutral
 	cycleToNextStat = function(self)
-		if Tracker.Data.isViewingOwn then return end
+		if Battle.isViewingOwn then return end
 		if self.framesSinceInput < self.framesHighlightMax then
 			self.statIndex = (self.statIndex % 6) + 1
 		end
@@ -51,7 +51,7 @@ Input.StatHighlighter = {
 		end
 	end,
 	isActive = function(self)
-		return not Tracker.Data.isViewingOwn and self.framesSinceInput < self.framesHighlightMax
+		return not Battle.isViewingOwn and self.framesSinceInput < self.framesHighlightMax
 	end,
 	shouldDisplay = function(self)
 		if not self:isActive() then
@@ -67,6 +67,8 @@ function Input.initialize()
 	Input.allowJoypad = true
 	Input.resumeMouse = false
 	Input.resumeJoypad = false
+	-- Add compatibility for deprecated functions
+	Input.togglePokemonViewed = Battle.togglePokemonViewed
 end
 
 function Input.checkForInput()
@@ -137,7 +139,7 @@ function Input.checkJoypadInput()
 	CustomCode.inputCheckMGBA()
 
 	if joypad[toggleViewBtn] and not Input.prevJoypadInput[toggleViewBtn] then
-		Input.togglePokemonViewed()
+		Battle.togglePokemonViewed()
 	end
 
 	if joypad[cycleStatBtn] and not Input.prevJoypadInput[cycleStatBtn] then
@@ -188,32 +190,6 @@ function Input.getSpriteFacingDirection(animationType)
 	elseif joypad["Left"] then return 7
 	else return 1
 	end
-end
-
-function Input.togglePokemonViewed()
-	if Battle.canViewEnemy() then
-		Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
-
-		-- Check toggling through other Pokemon available in doubles battles
-		if Tracker.Data.isViewingOwn and Battle.numBattlers > 2 then
-			-- Swap sides on returning to allied side
-			Battle.isViewingLeft = not Battle.isViewingLeft
-
-			-- For some doubles battles, do not reveal your ally partner's Pokémon (such as Emerald Steven fight)
-			local shouldHideAlly = Battle.EnemyTrainersToHideAlly[GameSettings.game or 1][Battle.opposingTrainerId or 0]
-			if not Battle.isViewingLeft and shouldHideAlly then
-				Tracker.Data.isViewingOwn = not Tracker.Data.isViewingOwn
-			end
-		end
-
-		if Tracker.Data.isViewingOwn then
-			-- Recalculate "Heals In Bag" HP percentages using a constant value (so player sees the update)
-			Program.Frames.three_sec_update = 30
-		end
-	end
-
-	-- Always redraw the screen to show any changes; Toggle works as a refresh button
-	Program.redraw(true)
 end
 
 function Input.checkMouseInput(xmouse, ymouse)
@@ -274,7 +250,7 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	end
 
 	local pokemonMoves
-	if not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] then
+	if not Battle.isViewingOwn and not Options["Open Book Play Mode"] then
 		pokemonMoves = Tracker.getMoves(pokemon.pokemonID) -- tracked moves only
 	elseif Tracker.Data.hasCheckedSummary then
 		pokemonMoves = pokemon.moves
@@ -287,9 +263,10 @@ function Input.checkAnyMovesClicked(xmouse, ymouse)
 	-- TODO: Turn these into buttons
 	local moveOffsetX = Constants.SCREEN.WIDTH + 7
 	local moveOffsetY = 95
-	for moveIndex = 1, 4, 1 do
-		if Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
-			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, pokemonMoves[moveIndex].id)
+	for i = 1, 4, 1 do
+		local move = pokemonMoves[i] or {}
+		if MoveData.isValid(move.id) and Input.isMouseInArea(xmouse, ymouse, moveOffsetX, moveOffsetY, 75, 10) then
+			InfoScreen.changeScreenView(InfoScreen.Screens.MOVE_INFO, move.id)
 			break
 		end
 		moveOffsetY = moveOffsetY + 10

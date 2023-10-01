@@ -248,7 +248,7 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 end
 
 function Drawing.drawInputOverlay()
-	if not Tracker.Data.isViewingOwn and Input.StatHighlighter:shouldDisplay() then
+	if not Battle.isViewingOwn and Input.StatHighlighter:shouldDisplay() then
 		local statKey = Input.StatHighlighter:getSelectedStat()
 		local statButton = TrackerScreen.Buttons[statKey]
 		if statButton ~= nil then
@@ -435,8 +435,8 @@ function Drawing.drawTrainerTeamPokeballs(x, y, shadowcolor)
 	local drawnFirstBall = false
 	local offsetX = 0
 	for i=6, 1, -1 do -- Reverse order to match in-game team display
-		local pokemon = Tracker.getPokemon(i, false)
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+		local pokemon = Tracker.getPokemon(i, false) or {}
+		if PokemonData.isValid(pokemon.pokemonID) then
 			local colorList
 			if pokemon.curHP > 0 then
 				colorList = TrackerScreen.PokeBalls.ColorList

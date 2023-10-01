@@ -555,7 +555,7 @@ function LogOverlay.parseAndDisplay(logpath)
 		LogSearchScreen.resetSearchSortFilter()
 		LogOverlay.refreshActiveTabGrid()
 		-- If the player has a Pokemon, show it on the side-screen
-		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+		local leadPokemon = Tracker.getPokemon(1, true) or {}
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, leadPokemon.pokemonID)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)

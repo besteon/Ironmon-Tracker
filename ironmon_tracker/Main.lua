@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "3", patch = "0" }
+Main.Version = { major = "8", minor = "3", patch = "5" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -431,30 +431,7 @@ end
 -- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-
-	if Main.TrackerVersion == versionToCheck then
-		return true
-	end
-
-	local currMajor, currMinor, currPatch = string.match(Main.TrackerVersion, "(%d+)%.(%d+)%.(%d+)")
-	local latestMajor, latestMinor, latestPatch = string.match(versionToCheck, "(%d+)%.(%d+)%.(%d+)")
-
-	currMajor, currMinor, currPatch = (tonumber(currMajor) or 0), (tonumber(currMinor) or 0), (tonumber(currPatch) or 0)
-	latestMajor, latestMinor, latestPatch = (tonumber(latestMajor) or 0), (tonumber(latestMinor) or 0), (tonumber(latestPatch) or 0)
-
-	if currMajor > latestMajor then
-		return true
-	elseif currMajor == latestMajor then
-		if currMinor > latestMinor then
-			return true
-		elseif currMinor == latestMinor then
-			if currPatch > latestPatch then
-				return true
-			end
-		end
-	end
-
-	return false
+	return Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
 end
 
 function Main.LoadNextRom()

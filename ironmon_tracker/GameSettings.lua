@@ -500,6 +500,7 @@ function GameSettings.setEwramAddresses()
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
@@ -625,6 +626,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0831f72c },
 			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, 0x082104ec },
 			{ 0x08253ac0, 0x08253b30 },
+		},
+		sTMHMMoves = {
+			{ 0x08376504, 0x0837651c, 0x0837651c },
+			{ 0x08376494, 0x083764ac, 0x083764ac },
+			{ 0x08616040 },
+			{ 0x0845a80c, 0x0845a86c, 0x08455FC4, 0x084538DC, 0x08454C4C, 0x0845A720, 0x08417204 },
+			{ 0x0845a22c, 0x0845a29c },
 		},
 		-- GetEvolutionTargetSpecies + 0x13E
 		FriendshipRequiredToEvo = {

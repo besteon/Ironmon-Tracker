@@ -154,6 +154,9 @@ function TrackedDataScreen.openLoadDataPrompt()
 		local playtime = Tracker.Data.playtime
 		local loadStatus = Tracker.loadData(filepath, true)
 		Tracker.Data.playtime = playtime
+		if loadStatus == Tracker.LoadStatusKeys.LOAD_SUCCESS then
+			Tracker.saveData()
+		end
 
 		local loadStatusMessage = Resources.StartupScreen[loadStatus or -1]
 		if loadStatusMessage then
