@@ -12,6 +12,7 @@ Tracker.LoadStatusKeys = {
 Tracker.LoadStatus = nil
 
 Tracker.DefaultData = {
+	-- NOTE: These root attributes cannot be nil, or they won't be loaded from the TDAT file
 	-- The version number of the Ironmon Tracker
 	version = "1.0.0",
 	-- The ROM Hash is used to uniquely identify this game from others
@@ -23,7 +24,7 @@ Tracker.DefaultData = {
 	-- Track if the player has checked the Summary for their active Pokémon
 	hasCheckedSummary = true,
 	-- To determine which rival the player will fight through the entire game, based on starter ball selection
-	whichRival = nil,
+	whichRival = "",
 	-- Number of seconds of playtime for this play session
 	playtime = 0,
 	-- Used to track information about all Pokémon seen thus far
@@ -292,11 +293,22 @@ end
 
 --- @param trainerId number The trainerId to check if it's a rival
 function Tracker.tryTrackWhichRival(trainerId)
-	if trainerId == 0 or Tracker.Data.whichRival ~= nil then return end
+	-- Skip setting the rival info if it's already set
+	if trainerId == 0 or Tracker.getWhichRival() ~= nil then return end
 
 	local trainerData = TrainerData.getTrainerInfo(trainerId) or {}
 	if trainerData.whichRival ~= nil then -- verify this trainer is a rival trainer
 		Tracker.Data.whichRival = trainerData.whichRival
+	end
+end
+
+--- Returns info on which Rival the player is fighting throughout the game. If not set, returns nil
+--- @return string|nil nameAndDirection FRLG: "Left/Middle/Right", RSE: "TrainerName Left/Middle/Right"
+function Tracker.getWhichRival()
+	if Tracker.Data.whichRival == "" then
+		return nil
+	else
+		return Tracker.Data.whichRival
 	end
 end
 

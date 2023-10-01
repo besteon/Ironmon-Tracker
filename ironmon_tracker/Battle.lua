@@ -674,9 +674,7 @@ function Battle.beginNewBattle()
 	Battle.opposingTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
 	-- If the player hasn't fought the Rival yet, use this to determine their pokemon team based on starter ball selection
-	if Tracker.Data.whichRival == nil then
-		Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
-	end
+	Tracker.tryTrackWhichRival(Battle.opposingTrainerId)
 
 	Battle.isViewingOwn = true
 	Battle.isViewingLeft = true
