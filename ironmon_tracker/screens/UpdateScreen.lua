@@ -153,7 +153,11 @@ UpdateScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	Back = Drawing.createUIElementBackButton(function() UpdateScreen.exitScreenAndRemindMe(true) end),
+	Back = Drawing.createUIElementBackButton(function()
+		-- Don't allow navigating off of this page if an update is in progress
+		if not Drawing.allowCachedImages then return end
+		UpdateScreen.exitScreenAndRemindMe(true)
+	end),
 }
 
 UpdateScreen.Pager = {
