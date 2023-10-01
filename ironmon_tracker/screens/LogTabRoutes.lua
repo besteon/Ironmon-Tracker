@@ -113,9 +113,9 @@ function LogTabRoutes.buildPagedButtons()
 				if col.icon then
 					local adjustedX = x + (w - (col.icon.w or 0)) / 2 + 1
 					local adjustedY = y + (col.icon.y or 0) + (h - (col.icon.h or 12)) - 1
-					gui.drawImage(col.icon.image, adjustedX, adjustedY)
+					Drawing.drawImage(col.icon.image, adjustedX, adjustedY)
 					-- local centeredX = (w - (col.icon.w or 0)) / 2 + 2
-					-- gui.drawImage(col.icon.image, x + centeredX, y + 1)
+					-- Drawing.drawImage(col.icon.image, x + centeredX, y + 1)
 				end
 				if type(col.getText) == "function" then
 					local adjustedX = x + 3
@@ -261,7 +261,7 @@ function LogTabRoutes.buildPagedButtons()
 				if routeIcon then
 					local adjustedX = x + routeBar.cols[1].x + 1 + (routeIcon.x or 0)
 					local adjustedY = y + 1 + (routeIcon.y or 0)
-					gui.drawImage(routeIcon:getIconPath(), adjustedX, adjustedY)
+					Drawing.drawImage(routeIcon:getIconPath(), adjustedX, adjustedY)
 				end
 
 				-- Route Name

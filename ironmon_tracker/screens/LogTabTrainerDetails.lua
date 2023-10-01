@@ -224,11 +224,11 @@ function LogTabTrainerDetails.drawTab()
 	if data.x.gymNumber ~= nil then
 		local badgeName = GameSettings.badgePrefix .. "_badge" .. data.x.gymNumber
 		local badgeImage = FileManager.buildImagePath(FileManager.Folders.Badges, badgeName, FileManager.Extensions.BADGE)
-		gui.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
+		Drawing.drawImage(badgeImage, LogOverlay.TabBox.x + 44, LogOverlay.TabBox.y + 2)
 	end
 
 	-- TRAINER NAME & ICON
-	gui.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
+	Drawing.drawImage(data.t.filename, LogOverlay.TabBox.x, LogOverlay.TabBox.y + 20)
 	local classText = data.t.class
 	local nameText = data.t.name
 	if Options["Use Custom Trainer Names"] then

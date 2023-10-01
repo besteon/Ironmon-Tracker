@@ -106,7 +106,7 @@ UpdateScreen.Buttons = {
 				return Resources.UpdateScreen.ButtonOpenDownload
 			elseif Options["Dev branch updates"] then
 				return Resources.UpdateScreen.ButtonInstallFromDev
-			elseif Main.Version.updateAfterRestart then
+			elseif Main.Version.updateAfterRestart or true then -- TODO: Remove after testing
 				return Resources.UpdateScreen.ButtonInstallNow
 			else
 				return Resources.UpdateScreen.ButtonBeginInstall
@@ -122,9 +122,8 @@ UpdateScreen.Buttons = {
 				Main.Version.remindMe = true
 				UpdateScreen.exitScreen()
 			else
-				if Main.Version.updateAfterRestart then
-					-- Instructs Main to perform the update after the current emulation frame loop finishes
-					Main.updateRequested = true
+				if Main.Version.updateAfterRestart or true then -- TODO: Remove after testing
+					UpdateScreen.beginAutoUpdate()
 				else
 					UpdateScreen.prepareForUpdateAfterRestart()
 				end
@@ -318,22 +317,30 @@ function UpdateScreen.prepareForUpdateAfterRestart()
 	Program.redraw(true)
 end
 
-function UpdateScreen.performAutoUpdate()
-	Main.updateRequested = false
+function UpdateScreen.beginAutoUpdate()
+	local imageCacheClearDelay = 60 -- 1 seconds
+	local updateStartDelay = 60 * 5 + 2 -- about 5 seconds
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
-
-	Utils.tempDisableBizhawkSound()
-
-	if Main.IsOnBizhawk() then
-		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
-	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 		Tracker.saveData()
 	end
+
+	if Main.IsOnBizhawk() then
+		-- Required to make Bizhawk release images so that they can be replaced
+		Drawing.allowCachedImages = false
+		Drawing.clearImageCache(imageCacheClearDelay)
+	else
+		updateStartDelay = 15
+	end
+	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
+	Program.addFrameCounter("PerformUpdate", updateStartDelay, UpdateScreen.performUpdate, 1, true)
+end
+
+function UpdateScreen.performUpdate()
+	Utils.tempDisableBizhawkSound()
 
 	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
@@ -347,6 +354,7 @@ function UpdateScreen.performAutoUpdate()
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
 
+	Drawing.allowCachedImages = true
 	Utils.tempEnableBizhawkSound()
 
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts

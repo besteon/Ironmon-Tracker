@@ -319,7 +319,7 @@ function LogOverlay.addHeaderTabButtons()
 					if icon.image then
 						local adjustedX = x + (icon.x or 0) + spacer
 						local adjustedY = y + (icon.y or 0) + LogOverlay.tabHeight - (icon.h or 12)
-						gui.drawImage(icon.image, adjustedX, adjustedY)
+						Drawing.drawImage(icon.image, adjustedX, adjustedY)
 						x = x + (icon.w or 0) + spacer
 					end
 				end

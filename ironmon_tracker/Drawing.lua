@@ -7,6 +7,7 @@ Drawing = {
 		DARKEN = 0x20000000,
 		DISABLE = 0xB0000000,
 	},
+	allowCachedImages = true,
 }
 
 Drawing.AnimatedPokemon = {
@@ -33,6 +34,7 @@ Drawing.AnimatedPokemon = {
 }
 
 function Drawing.initialize()
+	Drawing.allowCachedImages = true
 	if Main.IsOnBizhawk() then
 		client.SetGameExtraPadding(0, Constants.SCREEN.UP_GAP, Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.DOWN_GAP)
 		gui.defaultTextBackground(0)
@@ -43,6 +45,18 @@ function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 end
 
+---@param waitFramesBeforeClearing number|nil [Optional] Will wait N frames before clearing the cache, useful for allowing any final image draws
+---@param scaleWithSpeedup boolean|nil [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+function Drawing.clearImageCache(waitFramesBeforeClearing, scaleWithSpeedup)
+	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
+		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, function()
+			gui.clearImageCache()
+		end, 1, scaleWithSpeedup)
+	else
+		gui.clearImageCache()
+	end
+end
+
 function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	x = x or Constants.SCREEN.WIDTH
 	y = y or 0
@@ -50,6 +64,38 @@ function Drawing.drawBackgroundAndMargins(x, y, width, height, bgcolor)
 	height = height or Constants.SCREEN.HEIGHT
 	bgcolor = bgcolor or Theme.COLORS["Main background"]
 	gui.drawRectangle(x, y, width, height, bgcolor, bgcolor)
+end
+
+---@param filepath string The absolute filepath to the image file; see FileManager.buildImagePath()
+---@param x number The x-coordinate on the game screen canvas to draw the image
+---@param y number The y-coordinate on the game screen canvas to draw the image
+---@param width number|nil [Optional] If specified and the image is larger, will resize accordingly
+---@param height number|nil [Optional] If specified and the image is larger, will resize accordingly
+function Drawing.drawImage(filepath, x, y, width, height)
+	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if width ~= nil and height ~= nil then
+		gui.drawImage(filepath, x, y, width, height)
+	else
+		gui.drawImage(filepath, x, y)
+	end
+end
+
+---@param filepath string The absolute filepath to the image file; see FileManager.buildImagePath()
+---@param sourceX number The x-coordinate from the source image file
+---@param sourceY number The y-coordinate from the source image file
+---@param sourceW number The width to draw from the source image file
+---@param sourceH number The height to draw from the source image file
+---@param destX number The x-coordinate on the game screen canvas to draw the image
+---@param destY number The y-coordinate on the game screen canvas to draw the image
+---@param destW number|nil [Optional] If specified and the image is larger, will resize accordingly
+---@param destH number|nil [Optional] If specified and the image is larger, will resize accordingly
+function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
+	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
+	if destW ~= nil and destH ~= nil then
+		gui.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
+	else
+		gui.drawImageRegion(filepath, sourceX, sourceY, destX, destY)
+	end
 end
 
 function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
@@ -66,20 +112,20 @@ function Drawing.drawPokemonIcon(pokemonID, x, y, width, height)
 		Drawing.drawSpriteIcon(x, y, pokemonID)
 	else
 		local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-		gui.drawImage(image, x, y, width, height)
+		Drawing.drawImage(image, x, y, width, height)
 	end
 end
 
 function Drawing.drawTypeIcon(type, x, y)
 	if type == nil or type == "" then return end
 
-	gui.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
+	Drawing.drawImage(FileManager.buildImagePath("types", type, ".png"), x, y, 30, 12)
 end
 
 function Drawing.drawStatusIcon(status, x, y)
 	if status == nil or status == "" then return end
 
-	gui.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
+	Drawing.drawImage(FileManager.buildImagePath("status", status, ".png"), x, y, 16, 8)
 end
 
 function Drawing.drawText(x, y, text, color, shadowcolor, size, family, style)
@@ -333,7 +379,7 @@ function Drawing.drawButton(button, shadowcolor)
 		end
 	elseif button.type == Constants.ButtonTypes.IMAGE then
 		if button.image ~= nil then
-			gui.drawImage(button.image, x, y)
+			Drawing.drawImage(button.image, x, y)
 		end
 	elseif button.type == Constants.ButtonTypes.PIXELIMAGE then
 		Drawing.drawImageAsPixels(button.image, x, y, iconColors, shadowcolor)
@@ -346,7 +392,7 @@ function Drawing.drawButton(button, shadowcolor)
 				Drawing.drawSpriteIcon(x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), pokemonID, animType)
 			else
 				local image = FileManager.buildImagePath(iconset.folder, tostring(pokemonID), iconset.extension)
-				gui.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
+				Drawing.drawImage(image, x + (iconset.xOffset or 0), y + (iconset.yOffset or 0), width, height)
 			end
 		end
 	elseif button.type == Constants.ButtonTypes.STAT_STAGE then
@@ -549,7 +595,7 @@ function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
 	local sourceY = icon.h * (facingFrame - 1)
 	x = x + (icon.x or 0)
 	y = y + (icon.y or 0)
-	gui.drawImageRegion(imagePath, sourceX, sourceY, icon.w, icon.h, x, y)
+	Drawing.drawImageRegion(imagePath, sourceX, sourceY, icon.w, icon.h, x, y)
 end
 
 function Drawing.setupAnimatedPictureBox()
@@ -662,7 +708,7 @@ function Drawing.drawRepelUsage()
 	end
 	-- Draw repel item icon
 	local repelImage = FileManager.buildImagePath(FileManager.Folders.Icons, FileManager.Files.Other.REPEL)
-	gui.drawImage(repelImage, xOffset, yOffset)
+	Drawing.drawImage(repelImage, xOffset, yOffset)
 	xOffset = xOffset + 18
 
 	local repelBarHeight = 21

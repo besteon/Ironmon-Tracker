@@ -301,7 +301,7 @@ function HealsInBagScreen.buildPagedButtons(tab)
 				end
 				-- Draw the image icon off to the left
 				if self.image then
-					gui.drawImage(self.image, x - 20, y)
+					Drawing.drawImage(self.image, x - 20, y)
 				end
 				-- Draw the quantity off to the right
 				local quantityText = string.format("%s", quantity)

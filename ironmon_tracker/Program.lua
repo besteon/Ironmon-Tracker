@@ -469,14 +469,16 @@ end
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
 --- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
 --- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
---- @param callFunc function|nil Optional function to call each time the counter reaches 0.
---- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+--- @param callFunc function|nil [Optional] Function to call each time the counter reaches 0, up to 'numExecutions' times.
+--- @param numExecutions number|nil [Optional] If provided, will execute the 'callFunc' a total of that many times; otherwise no limit (default:unlimited)
+--- @param scaleWithSpeedup boolean|nil [Optional] If true, syncs the counter to real time instead of the client's frame rate, ignoring speedup (default:false)
 --- @return table|nil FrameCounter Returns the created frame counter
-function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWithSpeedup)
 	if label == nil or (frames or 0) <= 0 then return nil end
 	Program.Frames.Others[label] = {
 		framesElapsed = 0.0,
 		maxFrames = frames,
+		timesExecuted = 0,
 		paused = false,
 		pause = function(self) self.paused = true end,
 		unpause = function(self) self.paused = false end,
@@ -489,6 +491,12 @@ function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
 				self.framesElapsed = 0.0
 				if type(callFunc) == "function" then
 					callFunc()
+					if numExecutions then
+						self.timesExecuted = self.timesExecuted + 1
+						if self.timesExecuted >= numExecutions then
+							Program.removeFrameCounter(label)
+						end
+					end
 				end
 			end
 		end,
@@ -828,7 +836,7 @@ function Program.HandleExit()
 		return
 	end
 
-	gui.clearImageCache()
+	Drawing.clearImageCache()
 	Drawing.clearGUI()
 	client.SetGameExtraPadding(0, 0, 0, 0)
 	forms.destroyall()

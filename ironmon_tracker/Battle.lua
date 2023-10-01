@@ -707,8 +707,7 @@ function Battle.beginNewBattle()
 	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250) - 1 -- Minus 1 so that it better syncs up with Program/Battle updates
 	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy, function()
 		Battle.isViewingOwn = not Options["Auto swap to enemy"]
-		Program.removeFrameCounter("AutoswapEnemy")
-	end, false)
+	end, 1, false)
 
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false

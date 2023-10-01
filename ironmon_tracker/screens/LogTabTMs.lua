@@ -161,7 +161,7 @@ function LogTabTMs.buildGymTMButtons()
 				isVisible = function(self) return LogOverlay.Windower.filterGrid == self.group end,
 				draw = function(self, shadowcolor)
 					-- Draw badge icon to the left of the TM move
-					gui.drawImage(badgeImage, tmButton.box[1] - 18, tmButton.box[2] - 2)
+					Drawing.drawImage(badgeImage, tmButton.box[1] - 18, tmButton.box[2] - 2)
 					-- Draw the gym leader name and gym # to the right of the TM move
 					Drawing.drawText(self.box[1] + 55, self.box[2], gymLabel, Theme.COLORS[self.textColor], shadowcolor)
 				end,
