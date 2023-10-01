@@ -248,11 +248,11 @@ function Drawing.drawMoveEffectiveness(x, y, value)
 end
 
 function Drawing.drawInputOverlay()
-	if not Battle.isViewingOwn and Input.StatHighlighter:shouldDisplay() then
+	if Input.StatHighlighter:shouldDisplay() then
 		local statKey = Input.StatHighlighter:getSelectedStat()
-		local statButton = TrackerScreen.Buttons[statKey]
-		if statButton ~= nil then
-			gui.drawRectangle(statButton.box[1], statButton.box[2], statButton.box[3], statButton.box[4], Theme.COLORS["Intermediate text"], 0x000000)
+		local statButton = TrackerScreen.Buttons[statKey or false]
+		if statButton and statButton.box then
+			gui.drawRectangle(statButton.box[1], statButton.box[2], statButton.box[3], statButton.box[4], Theme.COLORS["Intermediate text"])
 		end
 	end
 end

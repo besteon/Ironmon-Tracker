@@ -36,8 +36,10 @@ Input.StatHighlighter = {
 		if not self:isActive() then return end
 		self.framesSinceInput = 0
 		local statKey = self:getSelectedStat()
-		local statButton = TrackerScreen.Buttons[statKey]
-		statButton:onClick()
+		local statButton = TrackerScreen.Buttons[statKey or false]
+		if statButton and type(statButton.onClick) == "function" then
+			statButton:onClick()
+		end
 	end,
 	resetSelectedStat = function(self)
 		self.statIndex = 1
@@ -45,8 +47,8 @@ Input.StatHighlighter = {
 	-- The selected stat to highlight is only visible N frames
 	incrementHighlightedFrames = function(self)
 		if not self:isActive() then return end
-		self.framesSinceInput = self.framesSinceInput + 1
-		if self.framesSinceInput == self.framesHighlightMax then
+		self.framesSinceInput = self.framesSinceInput + (1.0 / Program.clientFpsMultiplier)
+		if self.framesSinceInput >= self.framesHighlightMax then
 			Program.redraw(true)
 		end
 	end,
@@ -54,11 +56,7 @@ Input.StatHighlighter = {
 		return not Battle.isViewingOwn and self.framesSinceInput < self.framesHighlightMax
 	end,
 	shouldDisplay = function(self)
-		if not self:isActive() then
-			return false
-		else
-			return (self.framesSinceInput % (self.framesToHighlight * 2)) < self.framesToHighlight
-		end
+		return self:isActive() and (self.framesSinceInput % (self.framesToHighlight * 2)) < self.framesToHighlight
 	end,
 }
 
