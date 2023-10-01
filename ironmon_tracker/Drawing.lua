@@ -94,7 +94,7 @@ function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, d
 	if destW ~= nil and destH ~= nil then
 		gui.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
 	else
-		gui.drawImageRegion(filepath, sourceX, sourceY, destX, destY)
+		gui.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY)
 	end
 end
 
