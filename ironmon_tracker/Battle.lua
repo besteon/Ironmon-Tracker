@@ -114,19 +114,22 @@ function Battle.updateBattleStatus()
 	--local BattleIntroDrawPartySummaryScreens = 0x08013350
 	local BattleIntroOpponentSendsOutMonAnimation = 0x080135b0
 	local TryDoEventsBeforeFirstTurn = 0x08013870
+	local ReturnFromBattleToOverworld = 0x08015b6c
+	local battleMainFunction = Memory.readdword(gBattleMainFunc)
 
 	if Battle.inBattle and not Battle.battleStarted then
-		local battleMainFunction = gBattleMainFunc
 		if Battle.isWildEncounter and battleMainFunction >= BattleIntroDrawTrainersOrMonsSprites and battleMainFunction <= TryDoEventsBeforeFirstTurn then
 			Battle.battleStarted = true
+			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 		elseif not Battle.isWildEncounter and battleMainFunction >= BattleIntroOpponentSendsOutMonAnimation and battleMainFunction <= TryDoEventsBeforeFirstTurn then
 			Battle.battleStarted = true
+			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 		end
 	end
 
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
+	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction >= ReturnFromBattleToOverworld) then
 		Battle.endCurrentBattle()
 	end
 
@@ -155,7 +158,7 @@ end
 
 -- Returns true if the player is allowed to view the enemy Pokémon
 function Battle.canViewEnemy()
-	return Battle.inBattle and Program.Frames.hideEnemy <= 0
+	return Battle.inBattle and Battle.battleStarted
 end
 
 -- isOwn: true if it belongs to the player; false otherwise
@@ -664,13 +667,6 @@ function Battle.beginNewBattle()
 		Program.currentScreen = TrackerScreen
 	end
 
-	-- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250)
-	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy - 1, function()
-		Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
-		Program.removeFrameCounter("AutoswapEnemy")
-	end, false)
-
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
 	end
@@ -752,7 +748,6 @@ function Battle.endCurrentBattle()
 	Battle.opposingTrainerId = 0
 
 	-- Delay drawing the return to viewing your pokemon screen
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 
 	CustomCode.afterBattleEnds()
@@ -762,7 +757,6 @@ function Battle.resetBattle()
 	local oldSaveDataFrames = Program.Frames.saveData
 	Battle.endCurrentBattle()
 	Battle.beginNewBattle()
-	Program.Frames.hideEnemy = 60
 	Program.Frames.saveData = oldSaveDataFrames
 end
 
@@ -786,7 +780,6 @@ function Battle.changeOpposingPokemonView(isLeft)
 
 	-- Reset the delay because a new Pokémon was sent out
 	Program.Frames.waitToDraw = 0
-	Program.Frames.hideEnemy = 0
 end
 
 function Battle.populateBattlePartyObject()

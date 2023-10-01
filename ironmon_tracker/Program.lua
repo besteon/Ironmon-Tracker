@@ -14,8 +14,6 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
-		hideEnemy = 0, -- counts down
-		--battleDataDelay = 60, -- counts down
 		Others = {}, -- list of other frame counter objects
 	},
 }
@@ -445,9 +443,6 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
-	if Program.Frames.hideEnemy > 0 then
-		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
-	end
 
 	for _, framecounter in pairs(Program.Frames.Others or {}) do
 		if type(framecounter.step) == "function" then
