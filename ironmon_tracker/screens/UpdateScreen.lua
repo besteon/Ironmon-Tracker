@@ -106,10 +106,8 @@ UpdateScreen.Buttons = {
 				return Resources.UpdateScreen.ButtonOpenDownload
 			elseif Options["Dev branch updates"] then
 				return Resources.UpdateScreen.ButtonInstallFromDev
-			elseif Main.Version.updateAfterRestart or true then -- TODO: Remove after testing
-				return Resources.UpdateScreen.ButtonInstallNow
 			else
-				return Resources.UpdateScreen.ButtonBeginInstall
+				return Resources.UpdateScreen.ButtonInstallNow
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 73, 90, 16 },
@@ -122,11 +120,7 @@ UpdateScreen.Buttons = {
 				Main.Version.remindMe = true
 				UpdateScreen.exitScreen()
 			else
-				if Main.Version.updateAfterRestart or true then -- TODO: Remove after testing
-					UpdateScreen.beginAutoUpdate()
-				else
-					UpdateScreen.prepareForUpdateAfterRestart()
-				end
+				UpdateScreen.beginAutoUpdate()
 			end
 		end
 	},
@@ -265,7 +259,7 @@ end
 function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
 	Main.Version.remindMe = shouldRemindMe
 	Main.Version.showUpdate = false
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
 	UpdateScreen.showNotes = false
@@ -310,12 +304,13 @@ function UpdateScreen.buildOutPagedButtons()
 	return true
 end
 
-function UpdateScreen.prepareForUpdateAfterRestart()
-	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
-	Main.Version.updateAfterRestart = true
-	Main.SaveSettings(true)
-	Program.redraw(true)
-end
+-- Currently unused
+-- function UpdateScreen.prepareForUpdateAfterRestart()
+-- 	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
+-- 	Main.Version.updateAfterRestart = true
+-- 	Main.SaveSettings(true)
+-- 	Program.redraw(true)
+-- end
 
 function UpdateScreen.beginAutoUpdate()
 	local imageCacheClearDelay = 60 -- 1 seconds
@@ -345,7 +340,7 @@ function UpdateScreen.performUpdate()
 	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
-		Main.Version.updateAfterRestart = false
+		-- Main.Version.updateAfterRestart = false -- Currently unused
 		Main.Version.showReleaseNotes = true
 		-- Emulator is closing as expected; no crash
 		CrashRecoveryScreen.logCrashReport(false)

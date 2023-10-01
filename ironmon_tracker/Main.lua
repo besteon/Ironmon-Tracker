@@ -25,7 +25,7 @@ function Main.Initialize()
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused, leaving in for now in case the new stuff doesn't work out
 	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
 	Main.Version.showReleaseNotes = true
 
@@ -314,10 +314,11 @@ function Main.AfterStartupScreenRedirect()
 		Main.SaveSettings(true)
 	end
 
-	if Main.Version.updateAfterRestart and not Main.hasRunOnce then
-		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-		Program.changeScreenView(UpdateScreen)
-	end
+	-- Currently unused
+	-- if Main.Version.updateAfterRestart and not Main.hasRunOnce then
+	-- 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+	-- 	Program.changeScreenView(UpdateScreen)
+	-- end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -895,9 +896,10 @@ function Main.LoadSettings()
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
 		end
-		if settings.config.UpdateAfterRestart ~= nil then
-			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
-		end
+		-- Currently unused
+		-- if settings.config.UpdateAfterRestart ~= nil then
+		-- 	Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
+		-- end
 		if settings.config.ShowReleaseNotes ~= nil then
 			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
 		end
@@ -1003,7 +1005,8 @@ function Main.SaveSettings(forced)
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
-	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
+	-- Currently unused
+	-- settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do
