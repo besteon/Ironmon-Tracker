@@ -441,37 +441,37 @@ MiscData.EvolutionStones = {
 	[93] = {
 		id = 93,
 		name = "Sun Stone",
-		icon = "evo-stone",
+		icon = "sun-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 	[94] = {
 		id = 94,
 		name = "Moon Stone",
-		icon = "evo-stone",
+		icon = "moon-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 	[95] = {
 		id = 95,
 		name = "Fire Stone",
-		icon = "evo-stone",
+		icon = "fire-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 	[96] = {
 		id = 96,
 		name = "Thunderstone",
-		icon = "evo-stone",
+		icon = "thunder-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 	[97] = {
 		id = 97,
 		name = "Water Stone",
-		icon = "evo-stone",
+		icon = "water-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 	[98] = {
 		id = 98,
 		name = "Leaf Stone",
-		icon = "evo-stone",
+		icon = "leaf-stone",
 		pocket = MiscData.BagPocket.Items,
 	},
 }
