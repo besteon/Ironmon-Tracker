@@ -37,13 +37,6 @@ HealsInBagScreen = {
 }
 local SCREEN = HealsInBagScreen
 local TAB_HEIGHT = 12
-local BATTLE_ITEM_IDS = {}
-for i=39, 41, 1 do -- Flutes
-	BATTLE_ITEM_IDS[i] = true
-end
-for i=73, 79, 1 do -- X Items, Dire Hit, Guard Spec.
-	BATTLE_ITEM_IDS[i] = true
-end
 
 SCREEN.Buttons = {
 	CurrentPage = {
@@ -82,11 +75,11 @@ SCREEN.Pager = {
 	defaultSort = function(a, b) return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id) end,
 	realignButtonsToGrid = function(self)
 		table.sort(self.Buttons, self.defaultSort)
-		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 26
+		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 38
 		local y = Constants.SCREEN.MARGIN + 17
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
-		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10
-		local totalPages = Utils.gridAlign(self.Buttons, x, y, 2, 2, true, cutoffX, cutoffY)
+		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 12
+		local totalPages = Utils.gridAlign(self.Buttons, x, y, 2, 4, true, cutoffX, cutoffY)
 		self.currentPage = 1
 		self.totalPages = totalPages or 1
 	end,
@@ -195,7 +188,7 @@ function HealsInBagScreen.buildPagedButtons(tab)
 			value = 40000
 		elseif MiscData.PPItems[itemID] then
 			value = 30000
-		elseif BATTLE_ITEM_IDS[itemID] then
+		elseif MiscData.BattleItems[itemID] then
 			value = 20000
 		end
 		if itemData.type == MiscData.HealingType.Percentage then
@@ -266,7 +259,7 @@ function HealsInBagScreen.buildPagedButtons(tab)
 		end
 	elseif tab == SCREEN.Tabs.Battle then
 		for itemID, _ in pairs(Program.GameData.Items.Other or {}) do
-			if BATTLE_ITEM_IDS[itemID] then
+			if MiscData.BattleItems[itemID] then
 				table.insert(tabContents, { id = itemID, bagKey = "Other", sortValue = 20000 })
 			end
 		end
@@ -285,10 +278,11 @@ function HealsInBagScreen.buildPagedButtons(tab)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return MiscData.Items[item.id] or Constants.BLANKLINE end,
+			image = MiscData.getItemIcon(item.id),
 			tab = tab,
 			id = item.id,
 			sortValue = item.sortValue,
-			dimensions = { width = 85, height = 11, },
+			dimensions = { width = 80, height = 11, },
 			textColor = item.isHelpful and "Positive text" or SCREEN.Colors.text,
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
@@ -304,6 +298,10 @@ function HealsInBagScreen.buildPagedButtons(tab)
 				local quantity = bag[item.id] or 0
 				if quantity == 69 then -- Nice
 					textColor = Theme.COLORS["Positive text"]
+				end
+				-- Draw the image icon off to the left
+				if self.image then
+					gui.drawImage(self.image, x - 20, y)
 				end
 				-- Draw the quantity off to the right
 				local quantityText = string.format("%s", quantity)
