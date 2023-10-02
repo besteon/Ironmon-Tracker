@@ -1,7 +1,6 @@
 Battle = {
-	--totalBattles = 0,
-	inBattle = false,
-	battleStarted = false,
+	inBattleScreen = false,
+	dataReady = false,
 	isWildEncounter = false,
 	isGhost = false,
 	opposingTrainerId = 0,
@@ -74,8 +73,29 @@ Battle.EnemyTrainersToHideAlly = {
 	[3] = {}, -- FRLG
 }
 
+-- Add compatibility for deprecated attributes
+local mt = {}
+setmetatable(Battle, mt)
+mt.__index = function(_, key)
+	if key == "inBattle" then
+		return Battle.inActiveBattle()
+	end
+end
+
 function Battle.initialize()
+	-- Reset most battle variables; will get properly updated later if relevant
+	Battle.inBattleScreen = false
+	Battle.dataReady = false
 	Battle.isViewingOwn = true
+	Battle.isViewingLeft = true
+	Battle.isWildEncounter = false
+	Battle.isGhost = false
+end
+
+--- Returns true if the player is in an active battle and battle game data is available to be used
+--- @return boolean
+function Battle.inActiveBattle()
+	return Battle.inBattleScreen and Battle.dataReady
 end
 
 function Battle.update()
@@ -83,11 +103,11 @@ function Battle.update()
 		return
 	end
 
+	-- First check if the player is actually in a battle before updating other battle data
 	if Program.Frames.highAccuracyUpdate == 0 and not Program.inCatchingTutorial then
 		Battle.updateBattleStatus()
 	end
-
-	if not Battle.inBattle then
+	if not Battle.inActiveBattle() then
 		-- For cases when closing the Tracker mid battle and loading it after battle
 		if not Battle.isViewingOwn then
 			Battle.isViewingOwn = true
@@ -116,19 +136,19 @@ function Battle.updateBattleStatus()
 
 	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 
-	if Battle.inBattle and not Battle.battleStarted then
+	if Battle.inBattleScreen and not Battle.dataReady then
 		if Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
-			Battle.battleStarted = true
+			Battle.dataReady = true
 			Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		elseif not Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
-			Battle.battleStarted = true
+			Battle.dataReady = true
 			Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		end
 	end
 
-	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
+	if not Battle.inBattleScreen and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction == GameSettings.ReturnFromBattleToOverworld) then
+	elseif Battle.dataReady and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction == GameSettings.ReturnFromBattleToOverworld) then
 		Battle.endCurrentBattle()
 	end
 
@@ -149,19 +169,14 @@ end
 
 -- Updates once every [30] frames.
 function Battle.updateLowAccuracy()
-	if Battle.battleStarted then
+	if Battle.dataReady then
 		Battle.updateTrackedInfo()
 		Battle.updateLookupInfo()
 	end
 end
 
--- Returns true if the player is allowed to view the enemy Pokémon
-function Battle.canViewEnemy()
-	return Battle.inBattle and Battle.battleStarted
-end
-
 function Battle.togglePokemonViewed()
-	if not Battle.canViewEnemy() then
+	if not Battle.inActiveBattle() then
 		return
 	end
 
@@ -188,7 +203,7 @@ end
 
 -- isOwn: true if it belongs to the player; false otherwise
 function Battle.getViewedPokemon(isOwn)
-	local mustViewOwn = isOwn or not Battle.canViewEnemy()
+	local mustViewOwn = isOwn or not Battle.inActiveBattle()
 	local viewSlot
 	if mustViewOwn then
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft or not Battle.isViewingOwn, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
@@ -640,7 +655,7 @@ function Battle.updateLookupInfo()
 end
 
 function Battle.beginNewBattle()
-	if Battle.inBattle then return end
+	if Battle.inBattleScreen then return end
 
 	GameOverScreen.createTempSaveState()
 
@@ -649,8 +664,8 @@ function Battle.beginNewBattle()
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
 	-- If this is a new battle, reset views and other pokemon tracker info
-	Battle.inBattle = true
-	Battle.battleStarted = false
+	Battle.inBattleScreen = true
+	Battle.dataReady = false
 	Battle.turnCount = 0
 	Battle.prevDamageTotal = 0
 	Battle.damageReceived = 0
@@ -711,7 +726,7 @@ function Battle.beginNewBattle()
 end
 
 function Battle.endCurrentBattle()
-	if not Battle.inBattle then return end
+	if not Battle.inBattleScreen then return end
 
 	-- Only record Last Level Seen after the battle, so the info shown doesn't get overwritten by current level
 	Tracker.recordLastLevelsSeen()
@@ -728,8 +743,8 @@ function Battle.endCurrentBattle()
 
 	Battle.numBattlers = 0
 	Battle.partySize = 6
-	Battle.inBattle = false
-	Battle.battleStarted = false
+	Battle.inBattleScreen = false
+	Battle.dataReady = false
 	Battle.isWildEncounter = false -- default battle type is trainer battle
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
@@ -1014,7 +1029,7 @@ function Battle.getDoublesCursorTargetInfo()
 	-- 0 2
 	local targetInfo = {}
 
-	local shouldViewOwn = Battle.isViewingOwn or not Battle.canViewEnemy()
+	local shouldViewOwn = Battle.isViewingOwn or not Battle.inActiveBattle()
 	if shouldViewOwn then
 		targetInfo.slot = Battle.Combatants.LeftOther
 		targetInfo.target = 1

@@ -161,7 +161,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.p.stages.eva = viewedPokemon.statStages.eva or 6
 
 	-- Update: Pokemon Types
-	if Battle.inBattle and (data.x.viewingOwn or not Battle.isGhost) then
+	if Battle.inActiveBattle() and (data.x.viewingOwn or not Battle.isGhost) then
 		-- Update displayed types as typing changes (i.e. Color Change)
 		data.p.types = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 	else
@@ -262,7 +262,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			if move.id == 311 then -- 311 = Weather Ball
 				move.type, move.power = Utils.calculateWeatherBall(move.type, move.power)
 				move.category = MoveData.TypeToCategory[move.type]
-			elseif move.id == 67 and Battle.inBattle and opposingPokemon ~= nil then -- 67 = Low Kick
+			elseif move.id == 67 and Battle.inActiveBattle() and opposingPokemon ~= nil then -- 67 = Low Kick
 				local targetWeight
 				if opposingPokemon.weight ~= nil then
 					targetWeight = opposingPokemon.weight
@@ -284,7 +284,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 
 		-- Update: If STAB
-		if Battle.inBattle then
+		if Battle.inActiveBattle() then
 			local ownTypes = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 			move.isstab = Utils.isSTAB(move, move.type, ownTypes)
 		end
@@ -339,7 +339,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 			end
 		end
-		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.canViewEnemy()
+		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inActiveBattle()
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
@@ -361,7 +361,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.route = Utils.formatSpecialCharacters(data.x.route)
 	end
 
-	if Battle.inBattle then
+	if Battle.inActiveBattle() then
 		data.x.encounters = math.min(Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter), 999) -- Max 999
 	else
 		data.x.encounters = 0

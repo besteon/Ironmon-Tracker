@@ -216,7 +216,7 @@ MGBA.Screens = {
 				self.pokemonID = pokemon.pokemonID or 0
 			end
 
-			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inBattle then -- Temp using battle
+			if self.data == nil or self.pokemonID ~= self.data.p.pokemonID or Battle.inActiveBattle() then -- Temp using battle
 				self.data = DataHelper.buildPokemonInfoDisplay(self.pokemonID)
 				self.displayLines, self.isUpdated = MGBADisplay.Utils.tryUpdatingLines(MGBADisplay.LineBuilder.buildPokemonInfo, self.displayLines, self.data)
 			end
@@ -257,7 +257,7 @@ MGBA.Screens = {
 			end
 		end,
 		checkForEnemyAttack = function(self)
-			if not Battle.inBattle and self.lastTurnLookup ~= -1 then
+			if not Battle.inActiveBattle() and self.lastTurnLookup ~= -1 then
 				self.lastTurnLookup = -1
 			elseif not Battle.enemyHasAttacked and MoveData.isValid(Battle.actualEnemyMoveId) and self.lastTurnLookup ~= Battle.turnCount then
 				self.lastTurnLookup = Battle.turnCount

@@ -762,7 +762,7 @@ function Utils.calculateFriendshipBasedDamage(movePower, friendship)
 end
 
 function Utils.calculateWeatherBall(moveType, movePower)
-	if not Battle.inBattle then
+	if not Battle.inActiveBattle() then
 		return moveType, movePower
 	end
 

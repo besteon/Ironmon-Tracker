@@ -380,7 +380,7 @@ function TrackerScreen.initialize()
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inBattle and not Battle.isViewingOwn and not Options["Open Book Play Mode"] end,
+			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
@@ -480,7 +480,7 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 		isVisible = function()
-			local properBattleTiming = Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
+			local properBattleTiming = Battle.inActiveBattle() and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
 			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
 			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
 		end,
@@ -523,7 +523,7 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function()
 			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Battle.inBattle and Battle.CurrentRoute.hasInfo and not carouselDisabled
+			return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo and not carouselDisabled
 		end,
 		framesToShow = 180,
 		getContentList = function()
@@ -740,7 +740,7 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	local mustViewOwn = not Battle.canViewEnemy() or nil
+	local mustViewOwn = not Battle.inActiveBattle() or nil
 	local displayData = DataHelper.buildTrackerScreenDisplay(mustViewOwn)
 
 	-- Upper boxes
@@ -922,7 +922,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
-	elseif Battle.inBattle then
+	elseif Battle.inActiveBattle() then
 		local encounterText, routeText, routeInfoX
 		if Battle.isWildEncounter then
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, data.x.encounters)
@@ -993,7 +993,7 @@ function TrackerScreen.drawStatsArea(data)
 		Drawing.drawText(statOffsetX + 16 + langOffset, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
-		if Battle.inBattle then
+		if Battle.inActiveBattle() then
 			local statStageIntensity = data.p.stages[statKey] - 6 -- between [0 and 12], convert to [-6 and 6]
 			Drawing.drawChevronsVerticalIntensity(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3,4,2,1,2)
 		end
@@ -1015,7 +1015,7 @@ function TrackerScreen.drawStatsArea(data)
 
 	-- Draw BST or ACC/EVA
 	-- The "ACC" and "EVA" stats occupy the same space as the "BST". Prioritize showing ACC/EVA if either has changed during battle (6 is neutral)
-	local useAccEvaInstead = Battle.inBattle and (data.p.stages.acc ~= 6 or data.p.stages.eva ~= 6)
+	local useAccEvaInstead = Battle.inActiveBattle() and (data.p.stages.acc ~= 6 or data.p.stages.eva ~= 6)
 	if useAccEvaInstead then
 		Drawing.drawText(statOffsetX - 1, statOffsetY + 1, Resources.TrackerScreen.StatAccuracy, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, Resources.TrackerScreen.StatEvasion, Theme.COLORS["Default text"], shadowcolor)

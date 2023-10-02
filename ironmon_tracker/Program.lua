@@ -162,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarted or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -180,7 +180,7 @@ Program.Pedometer = {
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarted or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -392,7 +392,7 @@ function Program.update()
 				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
 			end
 
-			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarted) then
+			if Options["Display repel usage"] and not Battle.inActiveBattle() then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
@@ -568,7 +568,7 @@ function Program.updatePokemonTeams()
 			local pokemon = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
 			if Program.validPokemonData(pokemon) then
 				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
-				if not Battle.inBattle then
+				if not Battle.inActiveBattle() then
 					for _, move in pairs(pokemon.moves) do
 						if move.id ~= 0 then
 							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
@@ -751,7 +751,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle or Battle.battleStarted then
+	if Battle.inActiveBattle() then
 		return
 	end
 

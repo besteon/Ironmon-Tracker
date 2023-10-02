@@ -121,7 +121,7 @@ end
 function Tracker.getViewedPokemon()
 	if not Program.isValidMapLocation() then return nil end
 
-	local mustViewOwn = Battle.isViewingOwn or not Battle.canViewEnemy()
+	local mustViewOwn = Battle.isViewingOwn or not Battle.inActiveBattle()
 	local viewSlot
 	if mustViewOwn then
 		viewSlot = Utils.inlineIf(Battle.isViewingLeft, Battle.Combatants.LeftOwn, Battle.Combatants.RightOwn)
