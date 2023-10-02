@@ -56,7 +56,7 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER",
 			short = "Thunder",
-			detailed = "Thunder Stone",
+			detailed = "Thunderstone",
 		},
 		FIRE = {
 			abbreviation = "FIRE",
@@ -3527,7 +3527,7 @@ GameResources{
 		"Sun Stone",
 		"Moon Stone",
 		"Fire Stone",
-		"Thunder Stone",
+		"Thunderstone",
 		"Water Stone",
 		"Leaf Stone",
 		"unknown",

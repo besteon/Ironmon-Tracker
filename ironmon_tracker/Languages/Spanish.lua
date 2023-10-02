@@ -3113,7 +3113,7 @@ GameResources{
 		"Piedra Solar", --Piedra Solar english:Sun Stone
 		"Piedra Lunar", --Piedra Lunar english:Moon Stone
 		"Piedra Fuego", --Piedra Fuego english:Fire Stone
-		"Piedratrueno", --Piedratrueno english:Thunder Stone
+		"Piedratrueno", --Piedratrueno english:Thunderstone
 		"Piedra Agua", --Piedra Agua english:Water Stone
 		"Piedra Hoja", --Piedra Hoja english:Leaf Stone
 		"????????", --???????? english:unknown

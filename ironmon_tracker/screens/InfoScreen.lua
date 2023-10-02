@@ -220,12 +220,12 @@ InfoScreen.Buttons = {
 		isVisible = function()
 			if InfoScreen.viewScreen ~= InfoScreen.Screens.MOVE_INFO or InfoScreen.infoLookup ~= 237 then return false end
 			-- Only reveal the HP set arrows if the player's active Pokemon has the move
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			return PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) -- 237 = Hidden Power
 		end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType()
@@ -253,7 +253,7 @@ InfoScreen.Buttons = {
 		isVisible = function() return InfoScreen.Buttons.HiddenPowerPrev:isVisible() end,
 		onClick = function(self)
 			-- If the player's lead pokemon has Hidden Power, lookup that tracked typing
-			local pokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
 				local oldType = Tracker.getHiddenPowerType()

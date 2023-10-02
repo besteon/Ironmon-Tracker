@@ -91,7 +91,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	data.m = {} -- data about the Moves of the Pokemon
 	data.x = {} -- misc data to display, such as heals, encounters, badges
 
-	data.x.viewingOwn = Tracker.Data.isViewingOwn
+	data.x.viewingOwn = Battle.isViewingOwn
 	if forceView ~= nil then
 		data.x.viewingOwn = forceView
 	end
@@ -182,7 +182,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
 		local abilityId = PokemonData.getAbilityId(viewedPokemon.pokemonID, viewedPokemon.abilityNum)
-		if abilityId ~= nil and abilityId ~= 0 then
+		if abilityId ~= 0 then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
 	elseif useOpenBookInfo then
@@ -190,8 +190,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
 		}
-		if abilityIds[1] ~= nil and abilityIds[1] ~= 0 then
-			if abilityIds[2] ~= nil and abilityIds[2] ~= abilityIds[1] then
+		if abilityIds[1] ~= 0 then
+			if abilityIds[2] ~= abilityIds[1] then
 				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name .. " /"
 				data.p.line2 = AbilityData.Abilities[abilityIds[2]].name
 			else
@@ -227,13 +227,15 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	for i = 1, 4, 1 do
 		local moveToCopy = MoveData.BlankMove
 		if data.x.viewingOwn or useOpenBookInfo then
-			if viewedPokemon.moves[i] ~= nil and viewedPokemon.moves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[viewedPokemon.moves[i].id]
+			local viewedMove = viewedPokemon.moves[i] or {}
+			if MoveData.isValid(viewedMove.id) then
+				moveToCopy = MoveData.Moves[viewedMove.id]
 			end
-		elseif trackedMoves ~= nil then
+		else
 			-- If the Pokemon doesn't belong to the player, pull move data from tracked data
-			if trackedMoves[i] ~= nil and trackedMoves[i].id ~= 0 then
-				moveToCopy = MoveData.Moves[trackedMoves[i].id]
+			local trackedMove = trackedMoves[i] or {}
+			if MoveData.isValid(trackedMove.id) then
+				moveToCopy = MoveData.Moves[trackedMove.id]
 			end
 		end
 
@@ -337,7 +339,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 				end
 			end
 		end
-		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.inBattle and Battle.canViewEnemy()
+		move.showeffective = move.showeffective and Options["Show move effectiveness"] and Battle.canViewEnemy()
 
 		-- Update: Calculate move effectiveness
 		if move.showeffective then
@@ -360,10 +362,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	end
 
 	if Battle.inBattle then
-		data.x.encounters = Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter)
-		if data.x.encounters > 999 then
-			data.x.encounters = 999
-		end
+		data.x.encounters = math.min(Tracker.getEncounters(viewedPokemon.pokemonID, Battle.isWildEncounter), 999) -- Max 999
 	else
 		data.x.encounters = 0
 	end
@@ -385,7 +384,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	end
 
 	-- Your lead Pokémon
-	local ownLeadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local ownLeadPokemon = Battle.getViewedPokemon(true) or {}
 
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
@@ -413,9 +412,9 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.x.note = Tracker.getNote(pokemon.pokemonID) or ""
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local pokemonViewed = Tracker.getViewedPokemon() or {}
 	if pokemonViewed.pokemonID == pokemon.pokemonID then
-		data.x.viewedPokemonLevel = pokemonViewed.level
+		data.x.viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		data.x.viewedPokemonLevel = 0
 	end

@@ -106,10 +106,8 @@ UpdateScreen.Buttons = {
 				return Resources.UpdateScreen.ButtonOpenDownload
 			elseif Options["Dev branch updates"] then
 				return Resources.UpdateScreen.ButtonInstallFromDev
-			elseif Main.Version.updateAfterRestart then
-				return Resources.UpdateScreen.ButtonInstallNow
 			else
-				return Resources.UpdateScreen.ButtonBeginInstall
+				return Resources.UpdateScreen.ButtonInstallNow
 			end
 		end,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 25, Constants.SCREEN.MARGIN + 73, 90, 16 },
@@ -122,12 +120,7 @@ UpdateScreen.Buttons = {
 				Main.Version.remindMe = true
 				UpdateScreen.exitScreen()
 			else
-				if Main.Version.updateAfterRestart then
-					-- Instructs Main to perform the update after the current emulation frame loop finishes
-					Main.updateRequested = true
-				else
-					UpdateScreen.prepareForUpdateAfterRestart()
-				end
+				UpdateScreen.beginAutoUpdate()
 			end
 		end
 	},
@@ -160,7 +153,11 @@ UpdateScreen.Buttons = {
 			Program.redraw(true)
 		end
 	},
-	Back = Drawing.createUIElementBackButton(function() UpdateScreen.exitScreenAndRemindMe(true) end),
+	Back = Drawing.createUIElementBackButton(function()
+		-- Don't allow navigating off of this page if an update is in progress
+		if not Drawing.allowCachedImages then return end
+		UpdateScreen.exitScreenAndRemindMe(true)
+	end),
 }
 
 UpdateScreen.Pager = {
@@ -266,7 +263,7 @@ end
 function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
 	Main.Version.remindMe = shouldRemindMe
 	Main.Version.showUpdate = false
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused
 	Main.SaveSettings(true)
 	UpdateScreen.Buttons.CheckForUpdates:reset()
 	UpdateScreen.showNotes = false
@@ -311,34 +308,43 @@ function UpdateScreen.buildOutPagedButtons()
 	return true
 end
 
-function UpdateScreen.prepareForUpdateAfterRestart()
-	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
-	Main.Version.updateAfterRestart = true
-	Main.SaveSettings(true)
-	Program.redraw(true)
-end
+-- Currently unused
+-- function UpdateScreen.prepareForUpdateAfterRestart()
+-- 	UpdateScreen.currentState = UpdateScreen.States.AFTER_RESTART
+-- 	Main.Version.updateAfterRestart = true
+-- 	Main.SaveSettings(true)
+-- 	Program.redraw(true)
+-- end
 
-function UpdateScreen.performAutoUpdate()
-	Main.updateRequested = false
+function UpdateScreen.beginAutoUpdate()
+	local imageCacheClearDelay = 60 -- 1 seconds
+	local updateStartDelay = 60 * 5 + 2 -- about 5 seconds
 	UpdateScreen.currentState = UpdateScreen.States.IN_PROGRESS
 	Program.redraw(true)
-
-	Utils.tempDisableBizhawkSound()
-
-	if Main.IsOnBizhawk() then
-		gui.clearImageCache() -- Required to make Bizhawk release images so that they can be replaced
-		Main.frameAdvance() -- Required to allow the redraw to occur before batch commands begin
-	end
 
 	-- Don't bother saving tracked data if the player doesn't have a Pokemon yet
 	if Options["Auto save tracked game data"] and Tracker.getPokemon(1, true) ~= nil then
 		Tracker.saveData()
 	end
 
+	if Main.IsOnBizhawk() then
+		-- Required to make Bizhawk release images so that they can be replaced
+		Drawing.allowCachedImages = false
+		Drawing.clearImageCache(imageCacheClearDelay)
+	else
+		updateStartDelay = 15
+	end
+	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
+	Program.addFrameCounter("PerformUpdate", updateStartDelay, UpdateScreen.performUpdate, 1, true)
+end
+
+function UpdateScreen.performUpdate()
+	Utils.tempDisableBizhawkSound()
+
 	if UpdateOrInstall.performParallelUpdate() then
 		UpdateScreen.currentState = UpdateScreen.States.SUCCESS
 		Main.Version.showUpdate = false
-		Main.Version.updateAfterRestart = false
+		-- Main.Version.updateAfterRestart = false -- Currently unused
 		Main.Version.showReleaseNotes = true
 		-- Emulator is closing as expected; no crash
 		CrashRecoveryScreen.logCrashReport(false)
@@ -347,6 +353,7 @@ function UpdateScreen.performAutoUpdate()
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
 
+	Drawing.allowCachedImages = true
 	Utils.tempEnableBizhawkSound()
 
 	-- With the changes to parallel updates only working after a restart, if the update is successful, simply restart the Tracker scripts

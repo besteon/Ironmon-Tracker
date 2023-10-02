@@ -3113,7 +3113,7 @@ GameResources{
 		"Sonnenstein", --Sonnenstein english:Sun Stone
 		"Mondstein", --Mondstein english:Moon Stone
 		"Feuerstein", --Feuerstein english:Fire Stone
-		"Donnerstein", --Donnerstein english:Thunder Stone
+		"Donnerstein", --Donnerstein english:Thunderstone
 		"Wasserstein", --Wasserstein english:Water Stone
 		"Blattstein", --Blattstein english:Leaf Stone
 		"????????", --???????? english:unknown

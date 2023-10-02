@@ -56,7 +56,7 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER", -- NEEDS TRANSLATION
 			short = "Thunder", -- NEEDS TRANSLATION
-			detailed = "Thunder Stone", -- NEEDS TRANSLATION
+			detailed = "Thunderstone", -- NEEDS TRANSLATION
 		},
 		FIRE = {
 			abbreviation = "FIRE", -- NEEDS TRANSLATION

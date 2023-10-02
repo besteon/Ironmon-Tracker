@@ -64,11 +64,11 @@ PokemonData.Evolutions = {
 		detailed = { "5 Diff. Stones", },
 		evoItemIds = { 93, 94, 95, 96, 97 },
 	},
-	-- Thunder stone item
+	-- Thunderstone item
 	THUNDER = {
 		abbreviation = "THUNDER",
 		short = { "Thunder", },
-		detailed = { "Thunder Stone", },
+		detailed = { "Thunderstone", },
 		evoItemIds = { 96 },
 	},
 	-- Fire stone item
@@ -307,14 +307,13 @@ function PokemonData.checkIfDataIsRandomized()
 	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
 
+--- @return integer abilityId The abilityId of the Pokémon, or 0 if it doesn't exist
 function PokemonData.getAbilityId(pokemonID, abilityNum)
 	if abilityNum == nil or not PokemonData.isValid(pokemonID) then
 		return 0
 	end
-
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local abilityId = pokemon.abilities[abilityNum + 1] -- abilityNum stored from memory as [0 or 1]
-	return abilityId
+	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
 function PokemonData.isValid(pokemonID)

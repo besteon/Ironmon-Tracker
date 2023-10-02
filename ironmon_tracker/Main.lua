@@ -1,7 +1,7 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "3", patch = "0" }
+Main.Version = { major = "8", minor = "3", patch = "5" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
@@ -25,7 +25,7 @@ function Main.Initialize()
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused, leaving in for now in case the new stuff doesn't work out
 	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
 	Main.Version.showReleaseNotes = true
 
@@ -189,15 +189,13 @@ function Main.Run()
 		Program.hasRunOnce = true
 
 		-- Allow emulation frame after frame until a new seed is quickloaded or a tracker update is requested
-		while not Main.loadNextSeed and not Main.updateRequested do
+		while not Main.loadNextSeed do
 			xpcall(function() Program.mainLoop() end, FileManager.logError)
 			Main.frameAdvance()
 		end
 
 		if Main.loadNextSeed then
 			Main.LoadNextRom()
-		elseif Main.updateRequested then
-			UpdateScreen.performAutoUpdate()
 		end
 	else
 		MGBA.printStartupInstructions()
@@ -316,10 +314,11 @@ function Main.AfterStartupScreenRedirect()
 		Main.SaveSettings(true)
 	end
 
-	if Main.Version.updateAfterRestart and not Main.hasRunOnce then
-		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-		Program.changeScreenView(UpdateScreen)
-	end
+	-- Currently unused
+	-- if Main.Version.updateAfterRestart and not Main.hasRunOnce then
+	-- 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+	-- 	Program.changeScreenView(UpdateScreen)
+	-- end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -431,30 +430,7 @@ end
 -- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-
-	if Main.TrackerVersion == versionToCheck then
-		return true
-	end
-
-	local currMajor, currMinor, currPatch = string.match(Main.TrackerVersion, "(%d+)%.(%d+)%.(%d+)")
-	local latestMajor, latestMinor, latestPatch = string.match(versionToCheck, "(%d+)%.(%d+)%.(%d+)")
-
-	currMajor, currMinor, currPatch = (tonumber(currMajor) or 0), (tonumber(currMinor) or 0), (tonumber(currPatch) or 0)
-	latestMajor, latestMinor, latestPatch = (tonumber(latestMajor) or 0), (tonumber(latestMinor) or 0), (tonumber(latestPatch) or 0)
-
-	if currMajor > latestMajor then
-		return true
-	elseif currMajor == latestMajor then
-		if currMinor > latestMinor then
-			return true
-		elseif currMinor == latestMinor then
-			if currPatch > latestPatch then
-				return true
-			end
-		end
-	end
-
-	return false
+	return Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
 end
 
 function Main.LoadNextRom()
@@ -920,9 +896,10 @@ function Main.LoadSettings()
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
 		end
-		if settings.config.UpdateAfterRestart ~= nil then
-			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
-		end
+		-- Currently unused
+		-- if settings.config.UpdateAfterRestart ~= nil then
+		-- 	Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
+		-- end
 		if settings.config.ShowReleaseNotes ~= nil then
 			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
 		end
@@ -1028,7 +1005,8 @@ function Main.SaveSettings(forced)
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
-	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
+	-- Currently unused
+	-- settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do
