@@ -37,10 +37,6 @@ GameOverScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 66, 112, 16 },
 		onClick = function(self)
 			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
-			-- Clear out this flag if player continues playing
-			if Battle.defeatedSteven then
-				Battle.defeatedSteven = false
-			end
 			LogOverlay.isGameOver = false
 			LogOverlay.isDisplayed = false
 			Program.GameTimer:unpause()
@@ -61,7 +57,7 @@ GameOverScreen.Buttons = {
 		end,
 		confirmAction = false,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 87, 112, 16 },
-		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and not Battle.defeatedSteven end,
+		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and not Battle.hasDefeatedSteven() end,
 		updateSelf = function(self)
 			self.textColor = "Lower box text"
 			self.confirmAction = false
@@ -183,7 +179,7 @@ function GameOverScreen.shouldDisplay(battleOutcome)
 			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
 		end
 		-- Check if the player won the game, final battle was won
-		if Battle.defeatedSteven or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then
+		if Battle.hasDefeatedSteven() or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then
 			GameOverScreen.status = GameOverScreen.Statuses.WON
 			return true
 		-- Check for WON status since player leaves Hall Of Fame when going to FRLG credits

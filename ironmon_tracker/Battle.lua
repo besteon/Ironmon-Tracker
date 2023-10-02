@@ -4,7 +4,6 @@ Battle = {
 	isWildEncounter = false,
 	isGhost = false,
 	opposingTrainerId = 0,
-	defeatedSteven = false, -- Used exclusively for Emerald
 	isViewingOwn = true, -- If the Tracker screen is viewing your own pokemon, or the enemy
 	isViewingLeft = true, -- By default, out of battle should view the left combatant slot (index = 0)
 	numBattlers = 0,
@@ -129,30 +128,44 @@ function Battle.updateBattleStatus()
 	local numBattlers = Memory.readbyte(GameSettings.gBattlersCount)
 	local firstMonID = Memory.readword(GameSettings.gBattleMons)
 	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
-
-	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
-	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
 
+	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+	local statusOrOutcome = Memory.readbyte(GameSettings.gBattleOutcome) -- For current or the last battle (gBattleOutcome isn't cleared when a battle ends)
+	local battleStatusActive = statusOrOutcome == 0 and opposingPokemon ~= nil
+
+	-- Flags to check if it's okay to start reading battle related game data (shortly after a battle begins) or if the battle has completely ended
+	local msgTiming = {
+		DataStart = {
+			[GameSettings.BattleIntroDrawPartySummaryScreens] = true, -- wild encounter
+			[GameSettings.BattleIntroOpponentSendsOutMonAnimation] = true, -- trainer encounter
+			[GameSettings.HandleTurnActionSelectionState] = true,
+		},
+		DataEnd = {
+			[0] = true,
+			[GameSettings.ReturnFromBattleToOverworld] = true,
+		},
+	}
 	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 
 	if Battle.inBattleScreen and not Battle.dataReady then
-		if Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
+		if Battle.isWildEncounter and msgTiming.DataStart[battleMainFunction] then
 			Battle.dataReady = true
 			Battle.isViewingOwn = not Options["Auto swap to enemy"]
-		elseif not Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
+		elseif not Battle.isWildEncounter and msgTiming.DataStart[battleMainFunction] then
 			Battle.dataReady = true
 			Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		end
 	end
 
-	if not Battle.inBattleScreen and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
+	if not Battle.inBattleScreen and battleStatusActive and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.dataReady and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction == GameSettings.ReturnFromBattleToOverworld) then
+	elseif Battle.dataReady and not battleStatusActive and msgTiming.DataEnd[battleMainFunction] then
 		Battle.endCurrentBattle()
 	end
 
-	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
+	-- Should occur exactly once per lost battle
+	if GameOverScreen.shouldDisplay(statusOrOutcome) then
 		LogOverlay.isGameOver = true
 		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
@@ -797,7 +810,6 @@ function Battle.endCurrentBattle()
 	elseif Program.currentScreen == HealsInBagScreen then
 		Program.currentScreen = TrackerScreen
 	elseif GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
-		Battle.defeatedSteven = true
 		Program.currentScreen = GameOverScreen
 	end
 
@@ -814,6 +826,12 @@ function Battle.resetBattle()
 	Battle.endCurrentBattle()
 	Battle.beginNewBattle()
 	Program.Frames.saveData = oldSaveDataFrames
+end
+
+--- Returns true if the current game is Emerald and the player has defeated Steven (trainerId: 804)
+--- @return boolean
+function Battle.hasDefeatedSteven()
+	return GameSettings.game == 2 and Program.hasDefeatedTrainer(804)
 end
 
 function Battle.handleNewTurn()
