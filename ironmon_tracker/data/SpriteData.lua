@@ -151,7 +151,7 @@ function SpriteData.updateActiveIcons()
 	local joypad = Input.getJoypadInputFormatted()
 	local canWalk = joypad["Left"] or joypad["Right"] or joypad["Up"] or joypad["Down"]
 	local walkableAllowed = SpriteData.screenCanControlWalking(Program.currentScreen)
-		and not (Battle.inBattle or Battle.battleStarting or Program.inStartMenu or LogOverlay.isGameOver or LogOverlay.isDisplayed)
+		and not (Battle.inBattle or Battle.battleStarted or Program.inStartMenu or LogOverlay.isGameOver or LogOverlay.isDisplayed)
 
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
 		-- Check if the walk/idle animation needs to be updated, reusing frame info

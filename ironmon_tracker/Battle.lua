@@ -1,7 +1,7 @@
 Battle = {
-	totalBattles = 0,
+	--totalBattles = 0,
 	inBattle = false,
-	battleStarting = false,
+	battleStarted = false,
 	isWildEncounter = false,
 	isGhost = false,
 	opposingTrainerId = 0,
@@ -110,22 +110,28 @@ function Battle.updateBattleStatus()
 	local firstMonID = Memory.readword(GameSettings.gBattleMons)
 	local isFakeBattle = numBattlers == 0 or not PokemonData.isValid(firstMonID)
 
-	local totalBattles = Utils.getGameStat(Constants.GAME_STATS.TOTAL_BATTLES)
-	if totalBattles <= 0xFFFFFF then -- Prevents bad data read due to address shifts related to battles starting
-		if Battle.totalBattles ~= 0 and (Battle.totalBattles < totalBattles) and not isFakeBattle then
-			Battle.battleStarting = true
-		end
-		Battle.totalBattles = totalBattles
-	end
-
 	-- BattleStatus [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
+
+	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
+
+	if Battle.inBattle and not Battle.battleStarted then
+		if Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
+			Battle.battleStarted = true
+			Battle.isViewingOwn = not Options["Auto swap to enemy"]
+		elseif not Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
+			Battle.battleStarted = true
+			Battle.isViewingOwn = not Options["Auto swap to enemy"]
+		end
+	end
+
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.inBattle and (lastBattleStatus ~= 0 or opposingPokemon==nil) then
+	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction == GameSettings.ReturnFromBattleToOverworld) then
 		Battle.endCurrentBattle()
 	end
+
 	if GameOverScreen.shouldDisplay(lastBattleStatus) then -- should occur exactly once per lost battle
 		LogOverlay.isGameOver = true
 		Program.GameTimer:pause()
@@ -143,13 +149,15 @@ end
 
 -- Updates once every [30] frames.
 function Battle.updateLowAccuracy()
-	Battle.updateTrackedInfo()
-	Battle.updateLookupInfo()
+	if Battle.battleStarted then
+		Battle.updateTrackedInfo()
+		Battle.updateLookupInfo()
+	end
 end
 
 -- Returns true if the player is allowed to view the enemy Pokémon
 function Battle.canViewEnemy()
-	return Battle.inBattle and Program.Frames.hideEnemy <= 0
+	return Battle.inBattle and Battle.battleStarted
 end
 
 function Battle.togglePokemonViewed()
@@ -290,12 +298,6 @@ function Battle.updateTrackedInfo()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	--If this is a Ghost battle (bit 15), and the Silph Scope has not been obtained (bit 13). Also, game must be FR/LG
 	Battle.isGhost = GameSettings.game == 3 and (Utils.getbits(battleFlags, 15, 1) == 1 and Utils.getbits(battleFlags, 13, 1) == 0)
-
-	-- Required delay between reading Pokemon data from battle, as it takes ~N frames for old battle values to be cleared out
-	if Program.Frames.battleDataDelay > 0 then
-		Program.Frames.battleDataDelay = Program.Frames.battleDataDelay - 10 -- 10 for high accuracy updates
-		return
-	end
 
 	-- Update useful battle values, will expand/rework this later
 	Battle.readBattleValues()
@@ -646,11 +648,9 @@ function Battle.beginNewBattle()
 	local battleFlags = Memory.readdword(GameSettings.gBattleTypeFlags)
 	Battle.isWildEncounter = Utils.getbits(battleFlags, 3, 1) == 0
 
-	Program.Frames.battleDataDelay = 70
-
 	-- If this is a new battle, reset views and other pokemon tracker info
 	Battle.inBattle = true
-	Battle.battleStarting = false
+	Battle.battleStarted = false
 	Battle.turnCount = 0
 	Battle.prevDamageTotal = 0
 	Battle.damageReceived = 0
@@ -703,12 +703,6 @@ function Battle.beginNewBattle()
 		Program.currentScreen = TrackerScreen
 	end
 
-	-- Delay drawing the new pokemon (or effectiveness of your own), because of send out animation
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 150, 250) - 1 -- Minus 1 so that it better syncs up with Program/Battle updates
-	Program.addFrameCounter("AutoswapEnemy", Program.Frames.hideEnemy, function()
-		Battle.isViewingOwn = not Options["Auto swap to enemy"]
-	end, 1, false)
-
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
 	end
@@ -735,7 +729,7 @@ function Battle.endCurrentBattle()
 	Battle.numBattlers = 0
 	Battle.partySize = 6
 	Battle.inBattle = false
-	Battle.battleStarting = false
+	Battle.battleStarted = false
 	Battle.isWildEncounter = false -- default battle type is trainer battle
 	Battle.turnCount = -1
 	Battle.lastEnemyMoveId = 0
@@ -795,7 +789,6 @@ function Battle.endCurrentBattle()
 	Battle.opposingTrainerId = 0
 
 	-- Delay drawing the return to viewing your pokemon screen
-	Program.Frames.hideEnemy = Utils.inlineIf(Battle.isWildEncounter, 70, 150)
 	Program.Frames.saveData = Utils.inlineIf(Battle.isWildEncounter, 70, 150) -- Save data after every battle
 
 	CustomCode.afterBattleEnds()
@@ -805,7 +798,6 @@ function Battle.resetBattle()
 	local oldSaveDataFrames = Program.Frames.saveData
 	Battle.endCurrentBattle()
 	Battle.beginNewBattle()
-	Program.Frames.hideEnemy = 60
 	Program.Frames.saveData = oldSaveDataFrames
 end
 
@@ -829,7 +821,6 @@ function Battle.changeOpposingPokemonView(isLeft)
 
 	-- Reset the delay because a new Pokémon was sent out
 	Program.Frames.waitToDraw = 0
-	Program.Frames.hideEnemy = 0
 end
 
 function Battle.populateBattlePartyObject()

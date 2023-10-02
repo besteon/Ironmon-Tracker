@@ -793,7 +793,7 @@ MGBADisplay.LineBuilder = {
 				table.insert(lines, carouselText)
 			end
 		end
-		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarting) then
+		if Options["Display repel usage"] and Program.ActiveRepel.inUse and not (Battle.inBattle or Battle.battleStarted) then
 			local repelBarSize = 20
 			local remainingFraction = math.floor(Program.ActiveRepel.stepCount * repelBarSize / Program.ActiveRepel.duration)
 			local repelBarFill = string.rep("=", remainingFraction)

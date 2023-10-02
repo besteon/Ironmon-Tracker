@@ -568,6 +568,7 @@ function GameSettings.setIwramAddresses()
 		gMultiUsePlayerCursor = { { 0x03004344 }, { 0x03005d74 }, { 0x03004ff4, nil, nil } },
 
 		-- IWRAM addresses present in all games
+		gBattleMainFunc = { { 0x030042d4 }, { 0x03005d04 }, { 0x03004f84, 0x03004FC4, 0x3004ED4 } },
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004fd0, 0x03004ee0 } },
 		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x030050d0, 0x03004fe0 } },
 		sSaveDialogDelay = { { 0x030006ac }, { nil, nil }, { 0x03000fa8, 0x03000fe8, 0x03000fa8 } },
@@ -649,6 +650,34 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0813e571 },
 			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, 0x080cf9f9 },
 			{ 0x080ce8b1, 0x080ce8c5 },
+		},
+		BattleIntroDrawPartySummaryScreens = {
+			{ 0x08011601, 0x08011601, 0x08011601 }, --bc_801333C
+			{ 0x08011601, 0x08011601, 0x08011601 },
+			{ 0x0803af81 },
+			{ 0x0801333d, 0x08013351, 0x080132AD, 0x080132C1, 0x080132AD, 0x080132C1, 0x08012B69 },
+			{ 0x0801333d, 0x08013351 },
+		},
+		BattleIntroOpponentSendsOutMonAnimation = {
+			{ 0x080118C5, 0x080118C5, 0x080118C5 }, --bc_801362C
+			{ 0x080118C5, 0x080118C5, 0x080118C5 },
+			{ 0x0803b25d },
+			{ 0x0801359d, 0x080135b1, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x0801359d, 0x080135b1 },
+		},
+		HandleTurnActionSelectionState = {
+			{ 0x08012325, 0x08012325, 0x08012325 }, --sub_8012324
+			{ 0x08012325, 0x08012325, 0x08012325 },
+			{ 0x0803be75 },
+			{ 0x08014041, 0x08014055, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x08014041, 0x08014055 },
+		},
+		ReturnFromBattleToOverworld = {
+			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
+			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
+			{ 0x0803df71 },
+			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x080CEB3D, 0x08015ADD, 0x08015129 },
+			{ 0x08015b59, 0x08015b6d },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3
 		BattleScript_RanAwayUsingMonAbility = {
