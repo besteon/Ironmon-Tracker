@@ -275,7 +275,7 @@ function NavigationMenu.drawCredits(canvas)
 	-- Draw the original Espeon gif image
 	local originalIconSet = Options.IconSetMap[1]
 	local espeonImage = FileManager.buildImagePath(originalIconSet.folder, "196", originalIconSet.extension)
-	gui.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
+	Drawing.drawImage(espeonImage, canvas.x + 104, canvas.y, 32, 32)
 
 	local textLineY = canvas.y + 4
 	local createdByText = string.format("%s:", Resources.NavigationMenu.CreditsCreatedBy)

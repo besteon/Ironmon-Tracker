@@ -26,11 +26,11 @@ function Pickle:pickle_(root)
 	while #self._refToTable > savecount do
 		savecount = savecount + 1
 		local t = self._refToTable[savecount]
-		s = s .. "{\n"
+		s = s .. "{"
 		for i, v in pairs(t) do
-			s = string.format("%s[%s]=%s,\n", s, self:value_(i), self:value_(v))
+			s = string.format("%s[%s]=%s,", s, self:value_(i), self:value_(v))
 		end
-		s = s .. "},\n"
+		s = s .. "},"
 	end
 
 	return string.format("{%s}", s)

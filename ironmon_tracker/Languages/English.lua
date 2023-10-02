@@ -56,7 +56,7 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER",
 			short = "Thunder",
-			detailed = "Thunder Stone",
+			detailed = "Thunderstone",
 		},
 		FIRE = {
 			abbreviation = "FIRE",
@@ -475,6 +475,13 @@ ScreenResources{
 	RandomEvosScreen = {
 		LabelRandomEvos = "Random Evos",
 		LabelEvoShort = "Evo",
+	},
+	HealsInBagScreen = {
+		TabAll = "All",
+		TabHP = "HP",
+		TabPP = "PP",
+		TabStatus = "Status",
+		TabBattle = "Battle",
 	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level",
@@ -3335,11 +3342,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
 			NameKey = "Forecast",
@@ -3520,7 +3527,7 @@ GameResources{
 		"Sun Stone",
 		"Moon Stone",
 		"Fire Stone",
-		"Thunder Stone",
+		"Thunderstone",
 		"Water Stone",
 		"Leaf Stone",
 		"unknown",

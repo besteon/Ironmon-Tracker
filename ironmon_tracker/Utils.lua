@@ -132,7 +132,7 @@ function Utils.calcWordPixelLength(text)
 	if text == nil or text == "" or Utils.startsWithJapaneseChineseChar(text) then return 0 end
 	local pattern = "."
 	if Main.supportsSpecialChars then
-		---@diagnostic disable-next-line: undefined-global
+		---@diagnostic disable-next-line: undefined-global, undefined-field
 		pattern = utf8.charpattern
 	end
 	local totalLength = 0
@@ -284,6 +284,7 @@ end
 -- https://stackoverflow.com/questions/42681501/how-do-you-make-a-string-dictionary-function-in-lua
 function Utils.getClosestWord(word, wordlist, threshold)
 	if word == nil or word == "" then return word end
+	threshold = threshold or 3
 	local function min(a, b, c) return math.min(math.min(a, b), c) end
 	local function matrix(row, col)
 		local m = {}
@@ -483,7 +484,7 @@ function Utils.calculateMoveStars(pokemonID, level)
 
 	-- If nothing has been tracked thus far for this Pokemon, return no stars
 	local trackedMoves = Tracker.getMoves(pokemonID)
-	if trackedMoves[1].moveId == 0 then
+	if type(trackedMoves[1]) ~= "table" or not MoveData.isValid(trackedMoves[1].id) then
 		return stars
 	end
 
@@ -492,7 +493,8 @@ function Utils.calculateMoveStars(pokemonID, level)
 	local allMoveLevels = PokemonData.Pokemon[pokemonID].movelvls[GameSettings.versiongroup]
 	for _, lv in pairs(allMoveLevels) do
 		for i = 1, 4, 1 do
-			if lv > trackedMoves[i].level and lv <= level then
+			local move = trackedMoves[i] or {}
+			if lv > (move.level or 1) and lv <= level then
 				movesLearnedSince[i] = movesLearnedSince[i] + 1
 			end
 		end
@@ -501,9 +503,10 @@ function Utils.calculateMoveStars(pokemonID, level)
 	-- Determine which moves are the oldest, by ranking them against their levels learnt.
 	local moveAgeRank = { 1, 1, 1, 1 }
 	for i = 1, 4, 1 do
+		local move = trackedMoves[i] or {}
 		for moveIndexCompare, moveCompare in pairs(trackedMoves) do
 			if i ~= moveIndexCompare then
-				if trackedMoves[i].level > moveCompare.level then
+				if (move.level or 1) > (moveCompare.level or 1) then
 					moveAgeRank[i] = moveAgeRank[i] + 1
 				end
 			end
@@ -512,7 +515,8 @@ function Utils.calculateMoveStars(pokemonID, level)
 
 	-- A move is only star'd if it was possible it has been forgotten
 	for i = 1, 4, 1 do
-		if trackedMoves[i].level ~= 1 and movesLearnedSince[i] >= moveAgeRank[i] then
+		local move = trackedMoves[i] or {}
+		if (move.level or 1) ~= 1 and movesLearnedSince[i] >= moveAgeRank[i] then
 			stars[i] = "*"
 		end
 	end
@@ -543,7 +547,7 @@ function Utils.getMovesLearnedHeader(pokemonID, level)
 
 	local movesText = Resources.TrackerScreen.HeaderMoves
 	-- Don't show the asterisk on your own Pokemon
-	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
+	if not Battle.isViewingOwn and #Tracker.getMoves(pokemonID) > 4 then
 		movesText = movesText .. "*"
 	end
 
@@ -758,7 +762,7 @@ function Utils.calculateFriendshipBasedDamage(movePower, friendship)
 end
 
 function Utils.calculateWeatherBall(moveType, movePower)
-	if not Battle.inBattle then
+	if not Battle.inActiveBattle() then
 		return moveType, movePower
 	end
 
@@ -844,18 +848,12 @@ end
 -- Checks if the player has a usable stone in their bag to evolve the pokémon
 function Utils.isReadyToEvolveByStone(evoMethod)
 	evoMethod = evoMethod or PokemonData.Evolutions.NONE
-
-	if evoMethod.evoItemIds == nil then
-		return false
-	end
-
 	-- Check through the possible evolutions with the stones available
-	for itemID, quantity in pairs(Program.GameData.evolutionStones) do
-		if quantity > 0 and evoMethod.evoItemIds[itemID] then
+	for _, itemID in pairs(evoMethod.evoItemIds or {}) do
+		if Program.GameData.Items.EvoStones[itemID] then
 			return true
 		end
 	end
-
 	return false
 end
 
@@ -1146,4 +1144,39 @@ function Utils.checkForVersionUpdate(url, currentVersion, versionResponsePattern
 	Utils.tempEnableBizhawkSound()
 
 	return isUpdateAvailable
+end
+
+--- Compare two version numbers against each other, checking if the first is newer than the second (version1 > version2)
+--- @param version1 string A version number in the format: #.#.#
+--- @param version2 string A version number in the format: #.#.#
+--- @return boolean isNewer Returns true if version1 is newer (greater) than version2; false otherwise
+function Utils.isNewerVersion(version1, version2)
+	-- Quickly check the most common outcome
+	if version1 == version2 then
+		return false
+	end
+
+	-- Get the major/minor/patch version numbers
+	local major1, minor1, patch1 = string.match(version1, "(%d+)%.(%d+)%.?(%d*)")
+	local major2, minor2, patch2 = string.match(version2, "(%d+)%.(%d+)%.?(%d*)")
+
+	-- Convert to numbers such that "05" is less than "8"
+	major1 = tonumber(major1 or "") or 0
+	minor1 = tonumber(minor1 or "") or 0
+	patch1 = tonumber(patch1 or "") or 0
+	major2 = tonumber(major2 or "") or 0
+	minor2 = tonumber(minor2 or "") or 0
+	patch2 = tonumber(patch2 or "") or 0
+
+	-- Major version number has priority over the others, then Minor version number after that
+	if major1 > major2 then
+		return true
+	elseif major1 == major2 then
+		if minor1 > minor2 then
+			return true
+		elseif minor1 == minor2 and patch1 > patch2 then
+			return true
+		end
+	end
+	return false
 end

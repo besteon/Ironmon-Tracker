@@ -14,8 +14,6 @@ Program = {
 		three_sec_update = 180, -- counts down
 		saveData = 3600, -- counts down
 		carouselActive = 0, -- counts up
-		hideEnemy = 0, -- counts down
-		battleDataDelay = 60, -- counts down
 		Others = {}, -- list of other frame counter objects
 	},
 }
@@ -25,13 +23,18 @@ Program.GameData = {
 	wildBattles = -999, -- used to track differences in GAME STATS
 	trainerBattles = -999, -- used to track differences in GAME STATS
 	friendshipRequired = 220,
-	evolutionStones = { -- The evolution stones currently in bag
-			[93] = 0, -- Sun Stone
-			[94] = 0, -- Moon Stone
-			[95] = 0, -- Fire Stone
-			[96] = 0, -- Thunder Stone
-			[97] = 0, -- Water Stone
-			[98] = 0, -- Leaf Stone
+	PlayerTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
+	EnemyTeam = {}, -- [SlotOnTeam:number] = Pokemon:table(DefaultPokemon)
+	-- All items currently found in the player's bag
+	Items = {
+		healingTotal = 0, -- A calculation of total HP heals
+		healingPercentage = 0, -- A calculation of percentage heals
+		-- Each of the below: map of [itemId] -> quanity of item
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	},
 }
 
@@ -159,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -177,7 +180,7 @@ Program.Pedometer = {
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inBattle or Battle.battleStarting or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -229,6 +232,9 @@ function Program.initialize()
 	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
 	Program.lastActiveTimestamp = os.time()
+
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
 
 	-- Update data asap
 	Program.Frames.highAccuracyUpdate = 0
@@ -336,9 +342,9 @@ function Program.update()
 		end
 
 		-- If the lead Pokemon changes, then update the animated Pokemon picture box
-		if Options["Animated Pokemon popout"] then
-			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true)
-			if leadPokemon ~= nil and leadPokemon.pokemonID ~= 0 and Program.isValidMapLocation() then
+		if Options["Animated Pokemon popout"] and Program.isValidMapLocation() then
+			local leadPokemon = Tracker.getPokemon(Battle.Combatants.LeftOwn, true) or {}
+			if PokemonData.isValid(leadPokemon.pokemonID) then
 				if leadPokemon.pokemonID ~= Drawing.AnimatedPokemon.pokemonID then
 					Drawing.AnimatedPokemon:setPokemon(leadPokemon.pokemonID)
 				elseif Drawing.AnimatedPokemon.requiresRelocating then
@@ -386,7 +392,7 @@ function Program.update()
 				Tracker.TrackMove(learnedInfoTable.pokemonID, learnedInfoTable.moveId, learnedInfoTable.level)
 			end
 
-			if Options["Display repel usage"] and not (Battle.inBattle or Battle.battleStarting) then
+			if Options["Display repel usage"] and not Battle.inActiveBattle() then
 				-- Check if the player is in the start menu (for hiding the repel usage icon)
 				Program.inStartMenu = Program.isInStartMenu()
 				-- Check for active repel and steps remaining
@@ -445,9 +451,6 @@ function Program.stepFrames()
 	Program.Frames.three_sec_update = (Program.Frames.three_sec_update - 1) % 180
 	Program.Frames.saveData = (Program.Frames.saveData - 1) % 3600
 	Program.Frames.carouselActive = Program.Frames.carouselActive + 1
-	if Program.Frames.hideEnemy > 0 then
-		Program.Frames.hideEnemy = Program.Frames.hideEnemy - 1
-	end
 
 	for _, framecounter in pairs(Program.Frames.Others or {}) do
 		if type(framecounter.step) == "function" then
@@ -461,14 +464,16 @@ end
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
 --- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
 --- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
---- @param callFunc function|nil Optional function to call each time the counter reaches 0.
---- @param scaleWithSpeedup boolean|nil If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+--- @param callFunc function|nil [Optional] Function to call each time the counter reaches 0, up to 'numExecutions' times.
+--- @param numExecutions number|nil [Optional] If provided, will execute the 'callFunc' a total of that many times; otherwise no limit (default:unlimited)
+--- @param scaleWithSpeedup boolean|nil [Optional] If true, syncs the counter to real time instead of the client's frame rate, ignoring speedup (default:false)
 --- @return table|nil FrameCounter Returns the created frame counter
-function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
+function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWithSpeedup)
 	if label == nil or (frames or 0) <= 0 then return nil end
 	Program.Frames.Others[label] = {
 		framesElapsed = 0.0,
 		maxFrames = frames,
+		timesExecuted = 0,
 		paused = false,
 		pause = function(self) self.paused = true end,
 		unpause = function(self) self.paused = false end,
@@ -481,6 +486,12 @@ function Program.addFrameCounter(label, frames, callFunc, scaleWithSpeedup)
 				self.framesElapsed = 0.0
 				if type(callFunc) == "function" then
 					callFunc()
+					if numExecutions then
+						self.timesExecuted = self.timesExecuted + 1
+						if self.timesExecuted >= numExecutions then
+							Program.removeFrameCounter(label)
+						end
+					end
 				end
 			end
 		end,
@@ -522,76 +533,53 @@ function Program.updateRepelSteps()
 	end
 end
 
+-- Read in game data for both the Player's entire team and the Enemy's entire team
 function Program.updatePokemonTeams()
-	-- Check for updates to each pokemon team
-	local addressOffset = 0
-
 	-- Check if it's a new game (no Pokémon yet)
-	if not Tracker.Data.isNewGame and Tracker.Data.ownTeam[1] == 0 then
+	if not Tracker.Data.isNewGame and Program.GameData.PlayerTeam[1] == nil then
 		Tracker.Data.isNewGame = true
 	end
 
+	local addressOffset = 0
 	for i = 1, 6, 1 do
 		-- Lookup information on the player's Pokemon first
 		local personality = Memory.readdword(GameSettings.pstats + addressOffset)
 		local trainerID = Memory.readdword(GameSettings.pstats + addressOffset + 4)
-		-- local previousPersonality = Tracker.Data.ownTeam[i] -- See below
-		Tracker.Data.ownTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
-				-- Sets the player's trainerID as soon as they get their first Pokemon
-				if Tracker.Data.isNewGame and newPokemonData.trainerID ~= nil and newPokemonData.trainerID ~= 0 then
-					if Tracker.Data.trainerID == nil or Tracker.Data.trainerID == 0 then
-						Tracker.Data.trainerID = newPokemonData.trainerID
-					elseif Tracker.Data.trainerID ~= newPokemonData.trainerID then
-						-- Reset the tracker data as old data was loaded and we have a different trainerID now
-						print("Old/Incorrect data was detected for this ROM. Initializing new data.")
-						local playtime = Tracker.Data.playtime
-						Tracker.resetData()
-						Tracker.Data.trainerID = newPokemonData.trainerID
-						Tracker.Data.playtime = playtime
-					end
-
-					-- Unset the new game flag
-					Tracker.Data.isNewGame = false
-				end
-
-				-- Remove trainerID value from the pokemon data itself since it's now owned by the player, saves data space
-				-- No longer remove, as it's currently used to verify Trainer pokemon with personality values of 0
-				-- newPokemonData.trainerID = nil
+			local pokemon = Program.readNewPokemon(GameSettings.pstats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
+				Tracker.verifyDataForPlayer(pokemon.trainerID)
 
 				-- Include experience information for each Pokemon in the player's team
-				local curExp, totalExp = Program.getNextLevelExp(newPokemonData.pokemonID, newPokemonData.level, newPokemonData.experience)
-				newPokemonData.currentExp = curExp
-				newPokemonData.totalExp = totalExp
+				pokemon.currentExp, pokemon.totalExp = Program.getNextLevelExp(pokemon.pokemonID, pokemon.level, pokemon.experience)
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, true)
+				Program.GameData.PlayerTeam[i] = pokemon
 			end
+		else
+			Program.GameData.PlayerTeam[i] = nil
 		end
 
 		-- Then lookup information on the opposing Pokemon
 		personality = Memory.readdword(GameSettings.estats + addressOffset)
 		trainerID = Memory.readdword(GameSettings.estats + addressOffset + 4)
-		Tracker.Data.otherTeam[i] = personality
 
 		if personality ~= 0 or trainerID ~= 0 then
-			local newPokemonData = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
-
-			if Program.validPokemonData(newPokemonData) then
+			local pokemon = Program.readNewPokemon(GameSettings.estats + addressOffset, personality)
+			if Program.validPokemonData(pokemon) then
 				-- Double-check a race condition where current PP values are wildly out of range if retrieved right before a battle begins
-				if not Battle.inBattle then
-					for _, move in pairs(newPokemonData.moves) do
+				if not Battle.inActiveBattle() then
+					for _, move in pairs(pokemon.moves) do
 						if move.id ~= 0 then
 							move.pp = tonumber(MoveData.Moves[move.id].pp) -- set value to max PP
 						end
 					end
 				end
 
-				Tracker.addUpdatePokemon(newPokemonData, personality, false)
+				Program.GameData.EnemyTeam[i] = pokemon
 			end
+		else
+			Program.GameData.EnemyTeam[i] = nil
 		end
 
 		-- Next Pokemon - Each is offset by 100 bytes
@@ -683,7 +671,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local def_and_speed = Memory.readdword(startAddress + 92)
 	local spatk_and_spdef = Memory.readdword(startAddress + 96)
 
-	return {
+	return Program.DefaultPokemon:new({
 		personality = personality,
 		nickname = nickname,
 		trainerID = trainerID,
@@ -715,20 +703,19 @@ function Program.readNewPokemon(startAddress, personality)
 			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
 			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
-
 		-- Unused data that can be added back in later
 		-- iv = misc2,
 		-- ev1 = effort1,
 		-- ev2 = effort2,
-	}
+	})
 end
 
 -- Returns two values [numAlive, total] for a given Trainer's Pokémon team.
 function Program.getTeamCounts()
 	local numAlive, total = 0, 0
 	for i = 1, 6, 1 do
-		local pokemon = Tracker.getPokemon(i, false)
-		if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
+		local pokemon = Tracker.getPokemon(i, false) or {}
+		if PokemonData.isValid(pokemon.pokemonID) then
 			total = total + 1
 			if (pokemon.curHP or 0) > 0 then
 				numAlive = numAlive + 1
@@ -764,7 +751,7 @@ function Program.updatePCHeals()
 	-- Does not include whiteouts, as those don't increment either of these gamestats
 
 	-- Save blocks move and are re-encrypted right as the battle starts
-	if Battle.inBattle or Battle.battleStarting then
+	if Battle.inActiveBattle() then
 		return
 	end
 
@@ -844,7 +831,7 @@ function Program.HandleExit()
 		return
 	end
 
-	gui.clearImageCache()
+	Drawing.clearImageCache()
 	Drawing.clearGUI()
 	client.SetGameExtraPadding(0, 0, 0, 0)
 	forms.destroyall()
@@ -990,94 +977,186 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
+--- Returns true if the trainer has been defeated by the player; false otherwise
+--- @param trainerId number
+--- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return boolean isDefeated
+function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
+	if not TrainerData.Trainers[trainerId or false] then return false end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local idAddrOffset = math.floor((0x500 + trainerId) / 8) -- TRAINER_FLAG_START (0x500)
+	local idBit = (0x500 + trainerId) % 8
+	local trainerFlagAddr = saveBlock1Addr + GameSettings.gameFlagsOffset + idAddrOffset
+	local result = Memory.readbyte(trainerFlagAddr)
+	return Utils.getbits(result, idBit, 1) ~= 0
+end
+
+--- Returns a list of trainerIds of trainers defeated in a route/location, as well as the total number of trainers there
+--- @param mapId number
+--- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+	local route = RouteData.Info[mapId or false]
+	if not route then return {}, 0 end
+	saveBlock1Addr = saveBlock1Addr or Utils.getSaveBlock1Addr()
+	local defeatedTrainers = {}
+	local totalTrainers = 0
+	for _, trainerId in ipairs(route.trainers or {}) do
+		if TrainerData.shouldUseTrainer(trainerId) then
+			totalTrainers = totalTrainers + 1
+			if Program.hasDefeatedTrainer(trainerId, saveBlock1Addr) then
+				table.insert(defeatedTrainers, trainerId)
+			end
+		end
+	end
+	return defeatedTrainers, totalTrainers
+end
+
+--- Returns a list of trainerIds of trainers defeated in the combined area (Use RouteData.CombinedAreas), as well as the total number of trainers in those areas
+--- @param mapIdList table
+--- @return table defeatedTrainers, number totalTrainers
+function Program.getDefeatedTrainersByCombinedArea(mapIdList)
+	if type(mapIdList) ~= "table" then return {}, 0 end
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local totalTrainers = 0
+	local defeatedTrainers = {}
+	for _, mapId in ipairs(mapIdList) do
+		local defeatedList, total = Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+		totalTrainers = totalTrainers + total
+		for _, trainerId in ipairs(defeatedList) do
+			table.insert(defeatedTrainers, trainerId)
+		end
+	end
+	return defeatedTrainers, totalTrainers
+end
+
+--- @param tmhmNumber number The TM/HM number to use for move lookup
+--- @return number moveId The moveId corresponding to the tm/hm number
+function Program.getMoveIdFromTMHMNumber(tmhmNumber)
+	tmhmNumber = tmhmNumber - 1 -- TM 01 is at address position 0
+	return Memory.readword(GameSettings.sTMHMMoves + (tmhmNumber * 0x2)) -- Each ID is 2 bytes in size
+end
+
 function Program.updateBagItems()
-	if not Tracker.Data.isViewingOwn then return end
-
-	local leadPokemon = Battle.getViewedPokemon(true)
-	if leadPokemon ~= nil then
-		local healingItems, evolutionStones = Program.getBagItems()
-		if healingItems ~= nil then
-			Tracker.Data.healingItems = Program.calcBagHealingItems(leadPokemon.stats.hp, healingItems)
-		end
-		if evolutionStones ~= nil then
-			Program.GameData.evolutionStones = evolutionStones
-		end
-	end
-end
-
-function Program.calcBagHealingItems(pokemonMaxHP, healingItemsInBag)
-	local totals = {
-		healing = 0,
-		numHeals = 0,
+	Program.GameData.Items = {
+		healingTotal = 0,
+		healingPercentage = 0,
+		HPHeals = {},
+		PPHeals = {},
+		StatusHeals = {},
+		EvoStones = {},
+		Other = {},
 	}
-
-	-- Check for potential divide-by-zero errors
-	if pokemonMaxHP == nil or pokemonMaxHP == 0 then
-		return totals
-	end
-
-	-- Define some max values to prevent erroneous game data reads
-	local maxPossibleQuantity = 999
-	-- Formatted as: healingItemsInBag[itemID] = quantity
-	for itemID, quantity in pairs(healingItemsInBag) do
-		local healItemData = MiscData.HealingItems[itemID]
-		if healItemData ~= nil and quantity > 0 then
-			local healingPercentage = 0
-			if healItemData.type == MiscData.HealingType.Constant then
-				-- Healing is in a percentage compared to the mon's max HP
-				local percentage = healItemData.amount / pokemonMaxHP * 100
-				if percentage > 100 then
-					percentage = 100
-				end
-				healingPercentage = percentage * quantity
-			elseif healItemData.type == MiscData.HealingType.Percentage then
-				healingPercentage = healItemData.amount * quantity
-			end
-
-			if quantity > 0 and quantity <= maxPossibleQuantity then
-				totals.healing = totals.healing + healingPercentage
-				totals.numHeals = totals.numHeals + quantity
-			end
-		end
-	end
-
-	return totals
-end
-
-function Program.getBagItems()
-	local healingItems = {}
-	local evoStones = {
-		[93] = 0, -- Sun Stone
-		[94] = 0, -- Moon Stone
-		[95] = 0, -- Fire Stone
-		[96] = 0, -- Thunder Stone
-		[97] = 0, -- Water Stone
-		[98] = 0, -- Leaf Stone
-	}
+	local items = Program.GameData.Items
 
 	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
 	local saveBlock1Addr = Utils.getSaveBlock1Addr()
 	local addressesToScan = {
 		[saveBlock1Addr + GameSettings.bagPocket_Items_offset] = GameSettings.bagPocket_Items_Size,
 		[saveBlock1Addr + GameSettings.bagPocket_Berries_offset] = GameSettings.bagPocket_Berries_Size,
+		-- Don't have a use for these yet, so not reading them from memory
+		-- [saveBlock1Addr + GameSettings.bagPocket_Balls_offset] = GameSettings.bagPocket_Balls_Size,
+		-- [saveBlock1Addr + GameSettings.bagPocket_TmHm_offset] = GameSettings.bagPocket_TmHm_Size,
 	}
 	for address, size in pairs(addressesToScan) do
 		for i = 0, (size - 1), 1 do
-			--read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
+			-- Read 4 bytes at once, should be less expensive than reading two sets of 2 bytes.
 			local itemid_and_quantity = Memory.readdword(address + i * 0x4)
 			local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
-			if itemID ~= 0 then
+			-- Only add to items if the item exists
+			if MiscData.Items[itemID] then
 				local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
-				if key ~= nil then quantity = Utils.bit_xor(quantity, key) end
-
-				if MiscData.HealingItems[itemID] ~= nil then
-					healingItems[itemID] = quantity
-				elseif MiscData.EvolutionStones[itemID] ~= nil then
-					evoStones[itemID] = quantity
+				if key ~= nil then
+					quantity = Utils.bit_xor(quantity, key)
+				end
+				if quantity > 0 then
+					if MiscData.HealingItems[itemID] then
+						items.HPHeals[itemID] = quantity
+					elseif MiscData.PPItems[itemID] then
+						items.PPHeals[itemID] = quantity
+					elseif MiscData.StatusItems[itemID] then
+						items.StatusHeals[itemID] = quantity
+					elseif MiscData.EvolutionStones[itemID] then
+						items.EvoStones[itemID] = quantity
+					else
+						items.Other[itemID] = quantity
+					end
 				end
 			end
 		end
 	end
 
-	return healingItems, evoStones
+	-- After updating items in bag, recalculate lead mon heals info
+	Program.recalcLeadPokemonHealingInfo()
+end
+
+function Program.recalcLeadPokemonHealingInfo()
+	if not Battle.isViewingOwn then
+		return
+	end
+	local leadPokemon = Battle.getViewedPokemon(true)
+	local maxHP = leadPokemon and leadPokemon.stats and leadPokemon.stats.hp or 0
+	if maxHP == 0 then
+		return
+	end
+
+	local items = Program.GameData.Items
+	items.healingTotal = 0
+	items.healingPercentage = 0
+
+	for itemID, quantity in pairs(items.HPHeals or {}) do
+		-- An arbitrary max value to prevent erroneous game data reads
+		if quantity <= 999 then
+			local healItemData = MiscData.HealingItems[itemID] or {}
+			local percentageAmt = 0
+			if healItemData.type == MiscData.HealingType.Constant then
+				-- Healing is in a percentage compared to the mon's max HP
+				percentageAmt = quantity * math.min(healItemData.amount / maxHP * 100, 100) -- max of 100
+			elseif healItemData.type == MiscData.HealingType.Percentage then
+				percentageAmt = quantity * healItemData.amount
+			end
+			items.healingTotal = items.healingTotal + quantity
+			items.healingPercentage = items.healingPercentage + percentageAmt
+		end
+	end
+end
+
+Program.DefaultPokemon = {
+	personality = 0,
+	nickname = "",
+	trainerID = 0,
+	pokemonID = 0,
+	heldItem = 0,
+	experience = 0,
+	currentExp = 0,
+	totalExp = 100,
+	friendship = 0,
+	level = 0,
+	nature = 0,
+	isEgg = 0,
+	isShiny = false,
+	hasPokerus = false,
+	abilityNum = -1,
+	status = 0,
+	sleep_turns = 0,
+	curHP = 0,
+	stats = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 },
+	moves = {
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+		{ id = 0, level = 1, pp = 0 },
+	},
+	-- Unused data that can be added later
+	-- iv = misc2,
+	-- ev1 = effort1,
+	-- ev2 = effort2,
+}
+
+function Program.DefaultPokemon:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
 end

@@ -121,6 +121,7 @@ FileManager.LuaCode = {
 	{ name = "RandomEvosScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "RandomEvosScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
+	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },
@@ -294,6 +295,7 @@ function FileManager.executeEachFile(functionName)
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
 	else
+		---@diagnostic disable-next-line: undefined-global
 		globalRef = _ENV -- Lua 5.4
 	end
 
@@ -533,16 +535,13 @@ function FileManager.writeTableToFile(table, filename)
 
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
-
 		--append a trailing \n if one is absent
 		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
-			file:write(dataLine)
-			file:write("\n")
+			file:write(dataLine .. "\n")
 		end
+		file:flush()
 		file:close()
-	else
-		print("> ERROR: Unable to create auto-save file: " .. filename)
 	end
 end
 
@@ -553,7 +552,6 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-
 		if dataString ~= nil and dataString ~= "" then
 			tableData = Pickle.unpickle(dataString)
 		end

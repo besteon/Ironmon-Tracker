@@ -736,7 +736,7 @@ function LogSearchScreen.drawNoSearchResults(textColor, shadowcolor, x, y)
 	}
 	x = x or LogOverlay.TabBox.x + math.floor((LogOverlay.TabBox.width - image.w) / 2 + 0.5)
 	y = y or LogOverlay.TabBox.y + math.floor((LogOverlay.TabBox.height - image.h) / 2 + 0.5) - 4
-	gui.drawImage(image.filepath, x, y)
+	Drawing.drawImage(image.filepath, x, y)
 
 	local noResultsText = string.format("(%s)", Resources.LogSearchScreen.LabelNoResults)
 	textX = textX or Utils.getCenteredTextX(noResultsText, LogOverlay.TabBox.width)

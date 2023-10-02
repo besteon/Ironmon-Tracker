@@ -246,10 +246,10 @@ function MoveHistoryScreen.drawMovesLearnedBoxes(offsetX, offsetY)
 	local movelvls = pokemon.movelvls[GameSettings.versiongroup]
 
 	-- Used for highlighting which moves have already been learned, but only for the Pokémon actively being viewed
-	local pokemonViewed = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+	local pokemonViewed = Tracker.getViewedPokemon() or {}
 	local viewedPokemonLevel
 	if pokemonViewed.pokemonID == pokemon.pokemonID then
-		viewedPokemonLevel = pokemonViewed.level
+		viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		viewedPokemonLevel = 0
 	end

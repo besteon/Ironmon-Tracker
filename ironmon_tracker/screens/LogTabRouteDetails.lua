@@ -117,7 +117,7 @@ function LogTabRouteDetails.buildZoomButtons(mapId)
 			if self.image then
 				local x, y = self.box[1] + 23, self.box[2] + 14
 				if self.imageType == Constants.ButtonTypes.IMAGE then
-					gui.drawImage(self.image, x, y + 1)
+					Drawing.drawImage(self.image, x, y + 1)
 				elseif self.imageType == Constants.ButtonTypes.PIXELIMAGE then
 					Drawing.drawImageAsPixels(self.image, x, y, self.iconColors, shadowcolor)
 				end

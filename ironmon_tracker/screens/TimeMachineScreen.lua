@@ -7,7 +7,7 @@ TimeMachineScreen = {
 	rpCount = 0,
 	maxRestorePoints = 10,
 	timeLastCreatedRP = 0,
-	timeToWaitPerRP = 5 * 60, -- 5 minutes * 60 seconds/min
+	timeToWaitPerRP = 4 * 60, -- 5 minutes * 60 seconds/min
 }
 
 -- A collection of temporary save states created in memory through Bizhawk
@@ -108,6 +108,7 @@ function TimeMachineScreen.initialize()
 		end
 	end
 
+	TimeMachineScreen.rpCount = 0
 	-- First restore point to be made at the 8 second mark, for second chance at choosing a diff starter
 	TimeMachineScreen.timeLastCreatedRP = os.time() - (TimeMachineScreen.timeToWaitPerRP - 8)
 
@@ -132,7 +133,7 @@ end
 
 function TimeMachineScreen.checkCreatingRestorePoint()
 	-- Reasons not to create a restore point; once it's okay to make one (i.e. start the game or finish a battle) time catches up and a new state is created
-	if not Options["Enable restore points"] or not Program.isValidMapLocation() or Battle.inBattle or Battle.battleStarting then
+	if not Options["Enable restore points"] or not Program.isValidMapLocation() or Battle.inActiveBattle() then
 		return
 	end
 
