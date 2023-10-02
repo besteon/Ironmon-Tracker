@@ -599,7 +599,9 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success, fileLines = FileManager.tryOsExecute(javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+	local errorLogFilepath = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
+	local success, fileLines = FileManager.tryOsExecute(javacommand, errorLogFilepath)
+
 	if success then
 		local output = table.concat(fileLines, "\n")
 		-- It's possible this message changes in the future?
@@ -612,8 +614,18 @@ function Main.GenerateNextRom()
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not success or not FileManager.fileExists(nextRomPath) then
-		local err1 = "ERROR: The Randomizer program failed to generate a ROM."
-		local err2 = string.format("Check the %s log file in the Tracker folder for errors.", FileManager.Files.RANDOMIZER_ERROR_LOG)
+		local output = table.concat(FileManager.readLinesFromFile(errorLogFilepath), "\n")
+		local missingJava = Utils.containsText(output, "'java' is not recognized", true)
+		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
+		local err1
+		if missingJava then
+			err1 = string.format('ERROR: Java not installed, Quickload requires "Java 64-bit Offline."')
+		elseif missing64bit then
+			err1 = string.format('ERROR: Wrong Java installed, Quickload requires "Java 64-bit Offline."')
+		else
+			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
+		end
+		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
 		print("> " .. err2)
 		Main.DisplayError(err1 .. "\n\n" .. err2)
