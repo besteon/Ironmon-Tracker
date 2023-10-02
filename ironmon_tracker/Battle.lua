@@ -186,32 +186,6 @@ function Battle.togglePokemonViewed()
 	Program.redraw(true)
 end
 
-function Battle.togglePokemonViewed()
-	if not Battle.canViewEnemy() then
-		return
-	end
-
-	Battle.isViewingOwn = not Battle.isViewingOwn
-
-	-- Check toggling through other Pokemon available in doubles battles
-	if Battle.isViewingOwn and Battle.numBattlers > 2 then
-		-- Swap sides on returning to allied side
-		Battle.isViewingLeft = not Battle.isViewingLeft
-
-		-- For some doubles battles, do not reveal your ally partner's Pokémon (such as Emerald Steven fight)
-		local shouldHideAlly = Battle.EnemyTrainersToHideAlly[GameSettings.game or 1][Battle.opposingTrainerId or 0]
-		if not Battle.isViewingLeft and shouldHideAlly then
-			Battle.isViewingOwn = not Battle.isViewingOwn
-		end
-	end
-
-	if Battle.isViewingOwn then
-		Program.recalcLeadPokemonHealingInfo()
-	end
-
-	Program.redraw(true)
-end
-
 -- isOwn: true if it belongs to the player; false otherwise
 function Battle.getViewedPokemon(isOwn)
 	local mustViewOwn = isOwn or not Battle.canViewEnemy()
