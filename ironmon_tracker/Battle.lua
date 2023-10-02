@@ -114,7 +114,7 @@ function Battle.updateBattleStatus()
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
 
-	local battleMainFunction = Memory.readdword(GamesSettings.gBattleMainFunc)
+	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 
 	if Battle.inBattle and not Battle.battleStarted then
 		if Battle.isWildEncounter and battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens then
