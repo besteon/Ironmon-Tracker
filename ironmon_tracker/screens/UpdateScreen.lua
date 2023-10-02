@@ -335,10 +335,14 @@ function UpdateScreen.beginAutoUpdate()
 		updateStartDelay = 15
 	end
 	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
-	Program.addFrameCounter("PerformUpdate", updateStartDelay, UpdateScreen.performUpdate, 1, true)
+	Program.addFrameCounter("PerformUpdate", updateStartDelay, function()
+		Main.updateRequested = true
+	end, 1, true)
 end
 
+-- Don't call this function inside of the Main loop's xpcall. Must do it outside.
 function UpdateScreen.performUpdate()
+	Main.updateRequested = nil
 	Utils.tempDisableBizhawkSound()
 
 	if UpdateOrInstall.performParallelUpdate() then
