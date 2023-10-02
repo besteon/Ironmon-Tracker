@@ -137,9 +137,14 @@ function Battle.updateBattleStatus()
 	-- Flags to check if it's okay to start reading battle related game data (shortly after a battle begins) or if the battle has completely ended
 	local msgTiming = {
 		DataStart = {
-			[GameSettings.BattleIntroDrawPartySummaryScreens] = true, -- wild encounter
-			[GameSettings.BattleIntroOpponentSendsOutMonAnimation] = true, -- trainer encounter
-			[GameSettings.HandleTurnActionSelectionState] = true,
+			[true] = {--isWildEncounter
+				[GameSettings.BattleIntroDrawPartySummaryScreens] = true, -- wild encounter
+				[GameSettings.HandleTurnActionSelectionState] = true,
+			},
+			[false] = {
+				[GameSettings.BattleIntroOpponentSendsOutMonAnimation] = true, -- trainer encounter
+				[GameSettings.HandleTurnActionSelectionState] = true,
+			},
 		},
 		DataEnd = {
 			[0] = true,
@@ -148,14 +153,9 @@ function Battle.updateBattleStatus()
 	}
 	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 
-	if Battle.inBattleScreen and not Battle.dataReady then
-		if Battle.isWildEncounter and msgTiming.DataStart[battleMainFunction] then
-			Battle.dataReady = true
-			Battle.isViewingOwn = not Options["Auto swap to enemy"]
-		elseif not Battle.isWildEncounter and msgTiming.DataStart[battleMainFunction] then
-			Battle.dataReady = true
-			Battle.isViewingOwn = not Options["Auto swap to enemy"]
-		end
+	if Battle.inBattleScreen and not Battle.dataReady and msgTiming.DataStart[Battle.isWildEncounter][battleMainFunction]then
+		Battle.dataReady = true
+		Battle.isViewingOwn = not Options["Auto swap to enemy"]
 	end
 
 	if not Battle.inBattleScreen and battleStatusActive and not isFakeBattle then
