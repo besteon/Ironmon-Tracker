@@ -117,12 +117,13 @@ function Battle.updateBattleStatus()
 	local battleMainFunction = Memory.readdword(GameSettings.gBattleMainFunc)
 
 	if Battle.inBattle and not Battle.battleStarted then
-		if Battle.isWildEncounter and battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens then
+		console.log(battleMainFunction)
+		if Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
 			Battle.battleStarted = true
-			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
-		elseif not Battle.isWildEncounter and battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation then
+			Battle.isViewingOwn = not Options["Auto swap to enemy"]
+		elseif not Battle.isWildEncounter and (battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation or battleMainFunction == GameSettings.HandleTurnActionSelectionState) then
 			Battle.battleStarted = true
-			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
+			Battle.isViewingOwn = not Options["Auto swap to enemy"]
 		end
 	end
 

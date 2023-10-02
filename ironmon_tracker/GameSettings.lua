@@ -665,6 +665,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0801359d, 0x080135b1, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
 			{ 0x0801359d, 0x080135b1 },
 		},
+		HandleTurnActionSelectionState = {
+			{ 0x08012325, 0x08012325, 0x08012325 }, --sub_8012324
+			{ 0x08012325, 0x08012325, 0x08012325 },
+			{ 0x0803be75 },
+			{ 0x08014041, 0x08014055, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x08014041, 0x08014055 },
+		},
 		ReturnFromBattleToOverworld = {
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
 			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
