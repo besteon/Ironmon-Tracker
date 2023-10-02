@@ -109,19 +109,13 @@ function Battle.updateBattleStatus()
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 	local opposingPokemon = Tracker.getPokemon(1, false) -- get the lead pokemon on the enemy team
 
-	local gBattleMainFunc = 0x03004f84
-	local BattleIntroDrawTrainersOrMonsSprites = 0x08013084
-	--local BattleIntroDrawPartySummaryScreens = 0x08013350
-	local BattleIntroOpponentSendsOutMonAnimation = 0x080135b0
-	local TryDoEventsBeforeFirstTurn = 0x08013870
-	local ReturnFromBattleToOverworld = 0x08015b6c
-	local battleMainFunction = Memory.readdword(gBattleMainFunc)
+	local battleMainFunction = Memory.readdword(GamesSettings.gBattleMainFunc)
 
 	if Battle.inBattle and not Battle.battleStarted then
-		if Battle.isWildEncounter and battleMainFunction >= BattleIntroDrawTrainersOrMonsSprites and battleMainFunction <= TryDoEventsBeforeFirstTurn then
+		if Battle.isWildEncounter and battleMainFunction == GameSettings.BattleIntroDrawPartySummaryScreens then
 			Battle.battleStarted = true
 			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
-		elseif not Battle.isWildEncounter and battleMainFunction >= BattleIntroOpponentSendsOutMonAnimation and battleMainFunction <= TryDoEventsBeforeFirstTurn then
+		elseif not Battle.isWildEncounter and battleMainFunction == GameSettings.BattleIntroOpponentSendsOutMonAnimation then
 			Battle.battleStarted = true
 			Tracker.Data.isViewingOwn = not Options["Auto swap to enemy"]
 		end
@@ -129,7 +123,7 @@ function Battle.updateBattleStatus()
 
 	if not Battle.inBattle and lastBattleStatus == 0 and opposingPokemon ~= nil and not isFakeBattle then
 		Battle.beginNewBattle()
-	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction >= ReturnFromBattleToOverworld) then
+	elseif Battle.battleStarted and (lastBattleStatus ~= 0 or opposingPokemon==nil) and (battleMainFunction==0 or battleMainFunction == GameSettings.ReturnFromBattleToOverworld) then
 		Battle.endCurrentBattle()
 	end
 
