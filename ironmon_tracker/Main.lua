@@ -432,7 +432,7 @@ end
 -- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-	return Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
+	return not Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
 end
 
 function Main.LoadNextRom()

@@ -804,7 +804,6 @@ function Battle.resetBattle()
 end
 
 --- Swap back to the main tracker screen if relevant. Handles a common case of looking up something on a different screen then starting/ending a battle.
---- @return boolean success True if successfully autoswaps; false otherwise
 function Battle.trySwapScreenBackToMain()
 	local screenAllowsAutoSwap = {
 		[InfoScreen] = true,
