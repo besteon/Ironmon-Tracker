@@ -715,21 +715,7 @@ function Battle.beginNewBattle()
 	Battle.populateBattlePartyObject()
 	Input.StatHighlighter:resetSelectedStat()
 
-	-- Handles a common case of looking up a move, then entering combat. As a battle begins, the move info screen should go away.
-	if Program.currentScreen == InfoScreen then
-		InfoScreen.clearScreenData()
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == RandomEvosScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == MoveHistoryScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == TypeDefensesScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == CoverageCalcScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == HealsInBagScreen then
-		Program.currentScreen = TrackerScreen
-	end
+	Battle.trySwapScreenBackToMain()
 
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
@@ -795,21 +781,10 @@ function Battle.endCurrentBattle()
 
 	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
 
-	-- Handles a common case of looking up something on a different screen, then moving on with the current battle. As the battle ends, return to the main screen.
-	if Program.currentScreen == InfoScreen then
-		InfoScreen.clearScreenData()
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == RandomEvosScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == MoveHistoryScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == TypeDefensesScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == CoverageCalcScreen then
-		Program.currentScreen = TrackerScreen
-	elseif Program.currentScreen == HealsInBagScreen then
-		Program.currentScreen = TrackerScreen
-	elseif GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then -- Emerald only, 804 = Steven, status(1) = Win
+	Battle.trySwapScreenBackToMain()
+
+	-- Check if the game is over for Emerald only, 804 = Steven, status(1) = Win
+	if GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then
 		Program.currentScreen = GameOverScreen
 	end
 
@@ -826,6 +801,25 @@ function Battle.resetBattle()
 	Battle.endCurrentBattle()
 	Battle.beginNewBattle()
 	Program.Frames.saveData = oldSaveDataFrames
+end
+
+--- Swap back to the main tracker screen if relevant. Handles a common case of looking up something on a different screen then starting/ending a battle.
+--- @return boolean success True if successfully autoswaps; false otherwise
+function Battle.trySwapScreenBackToMain()
+	local screenAllowsAutoSwap = {
+		[InfoScreen] = true,
+		[RandomEvosScreen] = true,
+		[MoveHistoryScreen] = true,
+		[TypeDefensesScreen] = true,
+		[CoverageCalcScreen] = true,
+		[HealsInBagScreen] = true,
+	}
+	if Program.currentScreen == InfoScreen then
+		InfoScreen.clearScreenData()
+	end
+	if screenAllowsAutoSwap[Program.currentScreen or false] then
+		Program.currentScreen = TrackerScreen
+	end
 end
 
 --- Returns true if the current game is Emerald and the player has defeated Steven (trainerId: 804)

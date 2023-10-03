@@ -7,7 +7,7 @@ TimeMachineScreen = {
 	rpCount = 0,
 	maxRestorePoints = 10,
 	timeLastCreatedRP = 0,
-	timeToWaitPerRP = 4 * 60, -- 5 minutes * 60 seconds/min
+	timeToWaitPerRP = 4 * 60, -- total time is in # of seconds
 }
 
 -- A collection of temporary save states created in memory through Bizhawk
