@@ -98,7 +98,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		x = LogOverlay.TabBox.x + 1,
 		y = LogOverlay.TabBox.y + 13,
 		w = 60,
-		h = Constants.SCREEN.LINESPACING*2
+		h = Constants.SCREEN.LINESPACING * 2
 	}
 
 	-- ABILITIES
@@ -115,7 +115,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			end,
 			textColor = LogTabPokemonDetails.Colors.text,
 			abilityId = abilityId,
-			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, 11 },
+			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, Constants.SCREEN.LINESPACING },
 			updateSelf = function(self)
 				self.textColor = LogTabPokemonDetails.Colors.text
 				if LogSearchScreen.searchText == "" or not AbilityData.isValid(abilityId) then
@@ -135,7 +135,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			end,
 		}
 		table.insert(LogTabPokemonDetails.TemporaryButtons, abilityBtn)
-		offsetY = offsetY + Constants.SCREEN.LINESPACING
+		offsetY = offsetY + abilityBtn.box[4]
 	end
 
 	local evoMethods = Utils.getShortenedEvolutionsInfo(PokemonData.Pokemon[data.p.id].evolution) or {}

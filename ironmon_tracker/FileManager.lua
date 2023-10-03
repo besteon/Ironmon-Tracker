@@ -121,6 +121,7 @@ FileManager.LuaCode = {
 	{ name = "RandomEvosScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "RandomEvosScreen.lua", },
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
+	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },
@@ -206,30 +207,53 @@ end
 function FileManager.setupWorkingDirectory()
 	FileManager.dir = IronmonTracker.workingDir or ""
 
-	local getDirCommand
-	if FileManager.slash == "\\" then -- Windows
-		getDirCommand = "cd"
-	else -- Linux
-		getDirCommand = "pwd"
+	-- First check if the working directory has been looked up before
+	local knownDirPath = FileManager.Folders.TrackerCode .. FileManager.slash .. "knownworkingdir.txt"
+	local knownDirFile = io.open(knownDirPath, "r")
+	-- If the file doesn't exist, try another path
+	if knownDirFile == nil then
+		knownDirPath = FileManager.dir .. knownDirPath
+		knownDirFile = io.open(knownDirPath, "r")
 	end
 
-	-- Bizhawk handles current working directory differently, this is the only way to get it
-	local success, fileLines = FileManager.tryOsExecute(getDirCommand)
-	if success then
-		if #fileLines >= 1 and Main.IsOnBizhawk() and FileManager.dir == "" then
-			FileManager.dir = fileLines[1]
+	-- If the working directory is known (used in the past), then load that instead of running an os execute
+	if knownDirFile ~= nil then
+		FileManager.dir = knownDirFile:read("*a") or ""
+		knownDirFile:close()
+		FileManager.dir = FileManager.dir:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+		-- Then verify that this saved working directory is correct and usable (user might have moved files/folders)
+		if not FileManager.fileExists(FileManager.prependDir(FileManager.Files.UPDATE_OR_INSTALL)) then
+			FileManager.dir = ""
 		end
 	end
 
-	-- Properly format the working directory
-	FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
-	if FileManager.dir:sub(-1) ~= FileManager.slash then
-		FileManager.dir = FileManager.dir .. FileManager.slash
-	end
-
-	-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
-	if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
-		FileManager.dir = ""
+	-- Otherwise, if no known working directory was found, look it up the hard way
+	if knownDirFile == nil or FileManager.dir == "" then
+		-- Windows: "cd", Linux: "pwd"
+		local getDirCommand = FileManager.slash == "\\" and "cd" or "pwd"
+		-- Bizhawk handles current working directory differently, this is the only way to get it
+		local success, fileLines = FileManager.tryOsExecute(getDirCommand)
+		if success and #fileLines > 0 and Main.IsOnBizhawk() and FileManager.dir == "" then
+			FileManager.dir = fileLines[1]
+		end
+		-- Properly format the working directory
+		FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
+		if FileManager.dir:sub(-1) ~= FileManager.slash then
+			FileManager.dir = FileManager.dir .. FileManager.slash
+		end
+		-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
+		if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
+			FileManager.dir = ""
+		end
+		-- Save known working directory to file to load for future startups
+		if FileManager.dir ~= "" then
+			knownDirFile = io.open(knownDirPath, "w")
+			if knownDirFile then
+				knownDirFile:write(FileManager.dir)
+				knownDirFile:flush()
+				knownDirFile:close()
+			end
+		end
 	end
 
 	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
@@ -294,6 +318,7 @@ function FileManager.executeEachFile(functionName)
 	if Main.emulator == Main.EMU.BIZHAWK28 then
 		globalRef = _G -- Lua 5.1 only
 	else
+		---@diagnostic disable-next-line: undefined-global
 		globalRef = _ENV -- Lua 5.4
 	end
 
@@ -533,16 +558,13 @@ function FileManager.writeTableToFile(table, filename)
 
 	if file ~= nil then
 		local dataString = Pickle.pickle(table)
-
 		--append a trailing \n if one is absent
 		if dataString:sub(-1) ~= "\n" then dataString = dataString .. "\n" end
 		for dataLine in dataString:gmatch("(.-)\n") do
-			file:write(dataLine)
-			file:write("\n")
+			file:write(dataLine .. "\n")
 		end
+		file:flush()
 		file:close()
-	else
-		print("> ERROR: Unable to create auto-save file: " .. filename)
 	end
 end
 
@@ -553,7 +575,6 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-
 		if dataString ~= nil and dataString ~= "" then
 			tableData = Pickle.unpickle(dataString)
 		end

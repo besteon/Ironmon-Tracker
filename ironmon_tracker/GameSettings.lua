@@ -500,14 +500,21 @@ function GameSettings.setEwramAddresses()
 
 		-- RS uses this directly, Em/FRLG use a pointer in  IWRAM instead, which is set later
 		gSaveBlock1 = { 0x02025734, nil, nil },
+		gameFlagsOffset = { 0x1220, 0x1270, 0xEE0 },
 		gameStatsOffset = { 0x1540, 0x159C, 0x1200 },
 		gameVarsOffset = { 0x1340, 0x139C, 0x1000 }, -- SaveBlock1 -> vars[VARS_COUNT]
 		-- RS/Em: [SaveBlock1's flags offset] + [Badge flag offset: SYSTEM_FLAGS / 8]
 		-- FRLG: [SaveBlock1's flags offset] + [Badge flag offset: (SYSTEM_FLAGS + FLAG_BADGE01_GET) / 8]
 		badgeOffset = { 0x1220 + 0x100, 0x1270 + 0x10C, 0xEE0 + 0x104 },
 		bagPocket_Items_offset = { 0x560, 0x560, 0x310 },
-		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
 		bagPocket_Items_Size = { 20, 30, 42 },
+		bagPocket_KeyItems_offset = { 0x5B0, 0x5D8, 0x3b8 },
+		bagPocket_KeyItems_Size = { 20, 30, 30 },
+		bagPocket_Balls_offset = { 0x600, 0x650, 0x430 },
+		bagPocket_Balls_Size = { 16, 16, 13 },
+		bagPocket_TmHm_offset = { 0x640, 0x690, 0x464 },
+		bagPocket_TmHm_Size = { 64, 64, 58 },
+		bagPocket_Berries_offset = { 0x740, 0x790, 0x54c },
 		bagPocket_Berries_Size = { 46, 46, 43 },
 		-- RS don't use an encryption key
 		EncryptionKeyOffset = { nil, 0xAC, 0xF20 },
@@ -561,6 +568,7 @@ function GameSettings.setIwramAddresses()
 		gMultiUsePlayerCursor = { { 0x03004344 }, { 0x03005d74 }, { 0x03004ff4, nil, nil } },
 
 		-- IWRAM addresses present in all games
+		gBattleMainFunc = { { 0x030042d4 }, { 0x03005d04 }, { 0x03004f84, 0x03004FC4, 0x3004ED4 } },
 		gBattleResults = { { 0x030042e0 }, { 0x03005d10 }, { 0x03004f90, 0x03004fd0, 0x03004ee0 } },
 		gTasks = { { 0x03004b20 }, { 0x03005e00 }, { 0x03005090, 0x030050d0, 0x03004fe0 } },
 		sSaveDialogDelay = { { 0x030006ac }, { nil, nil }, { 0x03000fa8, 0x03000fe8, 0x03000fa8 } },
@@ -620,6 +628,13 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x08253ae4, 0x08253b54, 0x0824f2ac, 0x0824cbc4, 0x0824df34, 0x08253a08, 0x082104ec },
 			{ 0x08253ac0, 0x08253b30 },
 		},
+		sTMHMMoves = {
+			{ 0x08376504, 0x0837651c, 0x0837651c },
+			{ 0x08376494, 0x083764ac, 0x083764ac },
+			{ 0x08616040 },
+			{ 0x0845a80c, 0x0845a86c, 0x08455FC4, 0x084538DC, 0x08454C4C, 0x0845A720, 0x08417204 },
+			{ 0x0845a22c, 0x0845a29c },
+		},
 		-- GetEvolutionTargetSpecies + 0x13E
 		FriendshipRequiredToEvo = {
 			{ 0x0803F5CA, 0x0803F5CA, 0x0803F5CA },
@@ -635,6 +650,34 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0813e571 },
 			{ 0x080ce8dd, 0x080ce8f1, 0x080CEB45, 0x080CEA5D, 0x080CEB3D, 0x080CEA7D, 0x080cf9f9 },
 			{ 0x080ce8b1, 0x080ce8c5 },
+		},
+		BattleIntroDrawPartySummaryScreens = {
+			{ 0x08011601, 0x08011601, 0x08011601 }, --bc_801333C
+			{ 0x08011601, 0x08011601, 0x08011601 },
+			{ 0x0803af81 },
+			{ 0x0801333d, 0x08013351, 0x080132AD, 0x080132C1, 0x080132AD, 0x080132C1, 0x08012B69 },
+			{ 0x0801333d, 0x08013351 },
+		},
+		BattleIntroOpponentSendsOutMonAnimation = {
+			{ 0x080118C5, 0x080118C5, 0x080118C5 }, --bc_801362C
+			{ 0x080118C5, 0x080118C5, 0x080118C5 },
+			{ 0x0803b25d },
+			{ 0x0801359d, 0x080135b1, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x0801359d, 0x080135b1 },
+		},
+		HandleTurnActionSelectionState = {
+			{ 0x08012325, 0x08012325, 0x08012325 }, --sub_8012324
+			{ 0x08012325, 0x08012325, 0x08012325 },
+			{ 0x0803be75 },
+			{ 0x08014041, 0x08014055, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x08014041, 0x08014055 },
+		},
+		ReturnFromBattleToOverworld = {
+			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
+			{ 0x08013eb1, 0x08013eb1, 0x08013eb1 },
+			{ 0x0803df71 },
+			{ 0x08015b59, 0x08015b6d, 0x08015AC9, 0x08015ADD, 0x080CEB3D, 0x08015ADD, 0x08015129 },
+			{ 0x08015b59, 0x08015b6d },
 		},
 		-- BattleScript_RanAwayUsingMonAbility + 0x3
 		BattleScript_RanAwayUsingMonAbility = {

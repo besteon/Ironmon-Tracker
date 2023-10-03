@@ -28,6 +28,11 @@ RandomizerLog.Sectors = {
 		-- Matches: id, pokemon, types, hp, atk, def, spatk, spdef, spd, ability1, ability2, helditems
 		PokemonBSTPattern = "^%s*(%d*)|(.-)%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|%s*(%d*)|(.-)%s*|(.-)%s*|(.*)",
 	},
+	Moves = {
+		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Move Data"),
+		-- Matches: moveId, movename, movetype, power, acc, pp
+		MovePattern = "^%s*(%d*)|(.-)%s*|(.-)%s*|%s*(%d*)|%s*(%d*)|%s*(%d*)",
+	},
 	MoveSets = {
 		HeaderPattern = RandomizerLog.Patterns.getSectorHeaderPattern("Pokemon Movesets"),
 		-- Matches: pokemon
@@ -149,6 +154,7 @@ function RandomizerLog.parseLog(filepath)
 	RandomizerLog.parseRandomizerSettings(logLines)
 	RandomizerLog.parseBaseStatsItems(logLines) -- required to parse first
 	RandomizerLog.parseEvolutions(logLines)
+	RandomizerLog.parseMoves(logLines)
 	RandomizerLog.parseMoveSets(logLines)
 	RandomizerLog.parseTMMoves(logLines)
 	RandomizerLog.parseTMCompatibility(logLines)
@@ -199,6 +205,7 @@ function RandomizerLog.initBlankData()
 	RandomizerLog.Data = {
 		Settings = {},
 		Pokemon = {},
+		Moves = {},
 		TMs = {},
 		Trainers = {},
 		Routes = {},
@@ -345,6 +352,38 @@ function RandomizerLog.parseBaseStatsItems(logLines)
 				pokemonData.HeldItems = RandomizerLog.formatInput(helditems)
 			end
 		end
+		index = index + 1
+	end
+end
+
+function RandomizerLog.parseMoves(logLines)
+	if RandomizerLog.Sectors.Moves.LineNumber == nil then
+		return
+	end
+
+	-- Parse the sector
+	local index = RandomizerLog.Sectors.Moves.LineNumber + 1 -- remove the first line to skip the table header
+	while index <= #logLines do
+		local moveId, movename, movetype, power, acc, pp = string.match(logLines[index] or "", RandomizerLog.Sectors.Moves.MovePattern)
+		moveId = tonumber(RandomizerLog.formatInput(moveId) or "") -- nil if not a number
+		power = tonumber(RandomizerLog.formatInput(power) or "") -- nil if not a number
+		acc = tonumber(RandomizerLog.formatInput(acc) or "") -- nil if not a number
+		pp = tonumber(RandomizerLog.formatInput(pp) or "") -- nil if not a number
+
+		-- If nothing matches, end of sector
+		if moveId == nil or RandomizerLog.formatInput(movename) == nil or movetype == nil then
+			return
+		end
+
+		RandomizerLog.Data.Moves[moveId] = {
+			moveId = moveId,
+			name = movename, -- For custom move names
+			type = PokemonData.Types[Utils.toUpperUTF8(movetype or "")] or PokemonData.Types.EMPTY,
+			power = power,
+			acc = acc,
+			pp = pp,
+		}
+
 		index = index + 1
 	end
 end

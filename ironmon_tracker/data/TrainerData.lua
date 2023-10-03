@@ -149,12 +149,13 @@ function TrainerData.shouldUseTrainer(trainerId)
 	if trainerInternal == TrainerData.BlankTrainer then
 		return false
 	end
+	local whichRival = Tracker.getWhichRival()
 	-- Always okay to use trainer if it's not a rival
-	if Tracker.Data.whichRival == nil or trainerInternal.whichRival == nil then
+	if whichRival == nil or trainerInternal.whichRival == nil then
 		return true
 	end
 	-- Otherwise, make sure it's the correct rival
-	return Tracker.Data.whichRival == trainerInternal.whichRival
+	return whichRival == trainerInternal.whichRival
 end
 
 -- Returns a list of trainers to exclude from a parsed log, often dummy trainers or VS Seeker rematch

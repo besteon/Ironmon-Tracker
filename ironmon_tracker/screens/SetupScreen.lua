@@ -123,11 +123,11 @@ end
 function SetupScreen.createButtons()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 4
 	local startY = Constants.SCREEN.MARGIN + 66
-	local linespacing = Constants.SCREEN.LINESPACING + 1
 
 	local optionKeyMap = {
 		{"Show Team View", "OptionShowTeamView", },
 		{"Right justified numbers", "OptionRightJustifiedNumbers", },
+		{"Show nicknames", "OptionShowNicknames", },
 		{"Disable mainscreen carousel", "OptionDisableCarousel", },
 		{"Track PC Heals", "OptionTrackPCHeals", },
 		{"PC heals count downward", "OptionPCHealsCountDown", },
@@ -156,7 +156,7 @@ function SetupScreen.createButtons()
 				end
 			end
 		}
-		startY = startY + linespacing
+		startY = startY + Constants.SCREEN.LINESPACING
 	end
 end
 

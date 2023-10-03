@@ -114,6 +114,7 @@ Constants.OrderedLists = {
 		"Show random ball picker",
 		"Hide stats until summary shown",
 		"Right justified numbers",
+		"Show nicknames",
 		"Show physical special icons",
 		"Show move effectiveness",
 		"Calculate variable damage",

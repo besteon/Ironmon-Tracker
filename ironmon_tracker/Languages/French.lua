@@ -191,6 +191,7 @@ ScreenResources{
 		PokemonIconSetAuthor = "Added by", -- NEEDS TRANSLATION
 		OptionShowTeamView = "Show Team View", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionDisableCarousel = "Disable mainscreen carousel", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDown = "PC heals count downward", -- NEEDS TRANSLATION
@@ -476,6 +477,13 @@ ScreenResources{
 		LabelRandomEvos = "Random Evos", -- NEEDS TRANSLATION
 		LabelEvoShort = "Evo", -- NEEDS TRANSLATION
 	},
+	HealsInBagScreen = {
+		TabAll = "All", -- NEEDS TRANSLATION
+		TabHP = "HP", -- NEEDS TRANSLATION
+		TabPP = "PP", -- NEEDS TRANSLATION
+		TabStatus = "Status", -- NEEDS TRANSLATION
+		TabBattle = "Battle", -- NEEDS TRANSLATION
+	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level", -- NEEDS TRANSLATION
 		HeaderMin = "Min", -- NEEDS TRANSLATION
@@ -593,6 +601,7 @@ ScreenResources{
 		OptionKeyError = "Option key doesn't exist", -- NEEDS TRANSLATION
 		OptionFileError = "File not found", -- NEEDS TRANSLATION
 		OptionRightJustifiedNumbers = "Right justified numbers", -- NEEDS TRANSLATION
+		OptionShowNicknames = "Show nicknames", -- NEEDS TRANSLATION
 		OptionAutosaveTrackedData = "Autosave tracked game data", -- NEEDS TRANSLATION
 		OptionTrackPCHeals = "Track PC Heals", -- NEEDS TRANSLATION
 		OptionPCHealsCountDownward = "PC heals count downward", -- NEEDS TRANSLATION
@@ -2921,11 +2930,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Forecast",
@@ -3106,7 +3115,7 @@ GameResources{
 		"Pierresoleil", --Pierresoleil english:Sun Stone
 		"Pierre Lune", --Pierre Lune english:Moon Stone
 		"Pierre Feu", --Pierre Feu english:Fire Stone
-		"Pierrefoudre", --Pierrefoudre english:Thunder Stone
+		"Pierrefoudre", --Pierrefoudre english:Thunderstone
 		"Pierre Eau", --Pierre Eau english:Water Stone
 		"Pierreplante", --Pierreplante english:Leaf Stone
 		"????????", --???????? english:unknown

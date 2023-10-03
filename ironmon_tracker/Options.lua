@@ -19,6 +19,7 @@ Options = {
 	["Calculate variable damage"] = true,
 	["Determine friendship readiness"] = true,
 	["Count enemy PP usage"] = true,
+	["Show nicknames"] = false,
 	["Track PC Heals"] = false,
 	["PC heals count downward"] = true,
 	["Auto save tracked game data"] = true,

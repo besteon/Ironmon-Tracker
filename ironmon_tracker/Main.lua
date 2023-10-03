@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "3", patch = "0" }
+Main.Version = { major = "8", minor = "3", patch = "6" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "Aeiry", "Amber Cyprian", "bdjeffyp", "thisisatest", "kittenchilly", "brdy", "Harkenn", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "Aeiry", "Amber Cyprian", "bdjeffyp", "thisisatest", "kittenchilly", "IMTYP0", "brdy", "Harkenn", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 Main.EMU = {
@@ -25,7 +25,7 @@ function Main.Initialize()
 	Main.Version.dateChecked = ""
 	Main.Version.showUpdate = false
 	-- Informs the Tracker to perform an update the next time that Tracker is loaded.
-	Main.Version.updateAfterRestart = false
+	-- Main.Version.updateAfterRestart = false -- Currently unused, leaving in for now in case the new stuff doesn't work out
 	-- Used to display the release notes once, after each new version update. Defaults true for updates that didn't have this
 	Main.Version.showReleaseNotes = true
 
@@ -197,7 +197,7 @@ function Main.Run()
 		if Main.loadNextSeed then
 			Main.LoadNextRom()
 		elseif Main.updateRequested then
-			UpdateScreen.performAutoUpdate()
+			UpdateScreen.performUpdate()
 		end
 	else
 		MGBA.printStartupInstructions()
@@ -316,10 +316,11 @@ function Main.AfterStartupScreenRedirect()
 		Main.SaveSettings(true)
 	end
 
-	if Main.Version.updateAfterRestart and not Main.hasRunOnce then
-		UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
-		Program.changeScreenView(UpdateScreen)
-	end
+	-- Currently unused
+	-- if Main.Version.updateAfterRestart and not Main.hasRunOnce then
+	-- 	UpdateScreen.currentState = UpdateScreen.States.NOT_UPDATED
+	-- 	Program.changeScreenView(UpdateScreen)
+	-- end
 end
 
 -- Determines if there is an update to the current Tracker version
@@ -431,30 +432,7 @@ end
 -- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-
-	if Main.TrackerVersion == versionToCheck then
-		return true
-	end
-
-	local currMajor, currMinor, currPatch = string.match(Main.TrackerVersion, "(%d+)%.(%d+)%.(%d+)")
-	local latestMajor, latestMinor, latestPatch = string.match(versionToCheck, "(%d+)%.(%d+)%.(%d+)")
-
-	currMajor, currMinor, currPatch = (tonumber(currMajor) or 0), (tonumber(currMinor) or 0), (tonumber(currPatch) or 0)
-	latestMajor, latestMinor, latestPatch = (tonumber(latestMajor) or 0), (tonumber(latestMinor) or 0), (tonumber(latestPatch) or 0)
-
-	if currMajor > latestMajor then
-		return true
-	elseif currMajor == latestMajor then
-		if currMinor > latestMinor then
-			return true
-		elseif currMinor == latestMinor then
-			if currPatch > latestPatch then
-				return true
-			end
-		end
-	end
-
-	return false
+	return Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
 end
 
 function Main.LoadNextRom()
@@ -621,7 +599,9 @@ function Main.GenerateNextRom()
 		nextRomPath
 	)
 
-	local success, fileLines = FileManager.tryOsExecute(javacommand, FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG))
+	local errorLogFilepath = FileManager.prependDir(FileManager.Files.RANDOMIZER_ERROR_LOG)
+	local success, fileLines = FileManager.tryOsExecute(javacommand, errorLogFilepath)
+
 	if success then
 		local output = table.concat(fileLines, "\n")
 		-- It's possible this message changes in the future?
@@ -634,8 +614,18 @@ function Main.GenerateNextRom()
 
 	-- If something went wrong and the ROM wasn't generated to the ROM path
 	if not success or not FileManager.fileExists(nextRomPath) then
-		local err1 = "ERROR: The Randomizer program failed to generate a ROM."
-		local err2 = string.format("Check the %s log file in the Tracker folder for errors.", FileManager.Files.RANDOMIZER_ERROR_LOG)
+		local output = table.concat(FileManager.readLinesFromFile(errorLogFilepath), "\n")
+		local missingJava = Utils.containsText(output, "'java' is not recognized", true)
+		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
+		local err1
+		if missingJava then
+			err1 = string.format('ERROR: Java not installed, Quickload requires "Java 64-bit Offline."')
+		elseif missing64bit then
+			err1 = string.format('ERROR: Wrong Java installed, Quickload requires "Java 64-bit Offline."')
+		else
+			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
+		end
+		local err2 = "~~~ The Randomizer program failed to generate a ROM ~~~"
 		print("> " .. err1)
 		print("> " .. err2)
 		Main.DisplayError(err1 .. "\n\n" .. err2)
@@ -784,7 +774,7 @@ function Main.SaveCurrentRom(filename)
 end
 
 --- Attempts to find an attempts file based off of the Quickload settings file, then off of the currently loaded ROM name
---- @param forceUseSettingsFile boolean Force return of filepath of an attempts file to be created from the Quickload settings file
+--- @param forceUseSettingsFile boolean|nil Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
@@ -844,7 +834,7 @@ end
 
 --- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name.
 --- Resulting attempts # is stored in Main.currentSeed
---- @param forceUseSettingsFile boolean Force creation of new attempts # for the current Quickload settings file
+--- @param forceUseSettingsFile boolean|nil Force creation of new attempts # for the current Quickload settings file (default: false)
 function Main.ReadAttemptsCount(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
 
@@ -920,9 +910,10 @@ function Main.LoadSettings()
 		if settings.config.ShowUpdateNotification ~= nil then
 			Main.Version.showUpdate = settings.config.ShowUpdateNotification
 		end
-		if settings.config.UpdateAfterRestart ~= nil then
-			Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
-		end
+		-- Currently unused
+		-- if settings.config.UpdateAfterRestart ~= nil then
+		-- 	Main.Version.updateAfterRestart = settings.config.UpdateAfterRestart
+		-- end
 		if settings.config.ShowReleaseNotes ~= nil then
 			Main.Version.showReleaseNotes = settings.config.ShowReleaseNotes
 		end
@@ -1028,7 +1019,8 @@ function Main.SaveSettings(forced)
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
-	settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
+	-- Currently unused
+	-- settings.config.UpdateAfterRestart = Main.Version.updateAfterRestart
 	settings.config.ShowReleaseNotes = Main.Version.showReleaseNotes
 
 	for configKey, _ in pairs(Options.FILES) do

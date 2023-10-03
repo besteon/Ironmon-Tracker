@@ -12,7 +12,7 @@ TrackerScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, -1, 32, 32 },
 		isVisible = function() return true end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
 			end
@@ -28,12 +28,12 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 27, 30, 24, },
 		isVisible = function()
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			return PokemonData.isValid(pokemon.pokemonID)
 		end,
 		onClick = function (self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
-			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID)
+			local pokemon = Tracker.getViewedPokemon() or {}
+			TypeDefensesScreen.buildOutPagedButtons(pokemon.pokemonID or 0)
 			Program.changeScreenView(TypeDefensesScreen)
 		end,
 	},
@@ -65,7 +65,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		iconColors = { "Default text", "Upper box background", "Upper box background" },
 		box = { Constants.SCREEN.WIDTH + 87, 59, 10, 8 },
-		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		isVisible = function() return Battle.isViewingOwn and Options["Track PC Heals"] end,
 		toggleState = false,
 		onClick = function(self)
 			self.toggleState = not self.toggleState
@@ -83,7 +83,7 @@ TrackerScreen.Buttons = {
 		getText = function(self) return "+" end,
 		textColor = "Positive text",
 		box = { Constants.SCREEN.WIDTH + 83, 69, 5, 5 },
-		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		isVisible = function() return Battle.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals + 1
 			-- Prevent triple digit values (shouldn't go anywhere near this in survival)
@@ -96,7 +96,7 @@ TrackerScreen.Buttons = {
 		getText = function(self) return Constants.BLANKLINE end,
 		textColor = "Negative text",
 		box = { Constants.SCREEN.WIDTH + 83, 73, 5, 5 },
-		isVisible = function() return Tracker.Data.isViewingOwn and Options["Track PC Heals"] end,
+		isVisible = function() return Battle.isViewingOwn and Options["Track PC Heals"] end,
 		onClick = function(self)
 			Tracker.Data.centerHeals = Tracker.Data.centerHeals - 1
 			-- Prevent negative values
@@ -109,7 +109,7 @@ TrackerScreen.Buttons = {
 		image = Constants.PixelImages.MAGNIFYING_GLASS,
 		textColor = "Intermediate text",
 		box = { Constants.SCREEN.WIDTH + 84, 64, 10, 10 },
-		isVisible = function() return Tracker.Data.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
+		isVisible = function() return Battle.isViewingOwn and Options["Open Book Play Mode"] and not Options["Track PC Heals"] end,
 		onClick = function(self)
 			TrackerScreen.Buttons.PokemonIcon:onClick()
 		end
@@ -117,9 +117,9 @@ TrackerScreen.Buttons = {
 	InvisibleStatsArea = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		box = { Constants.SCREEN.WIDTH + 103, Constants.SCREEN.MARGIN, 44, 75 },
-		isVisible = function() return Options["Open Book Play Mode"] and not Tracker.Data.isViewingOwn end,
+		isVisible = function() return Options["Open Book Play Mode"] and not Battle.isViewingOwn end,
 		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon() or Tracker.getDefaultPokemon()
+			local pokemon = Tracker.getViewedPokemon() or {}
 			if not PokemonData.isValid(pokemon.pokemonID) then
 				return
 			end
@@ -134,7 +134,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
@@ -151,7 +151,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + 37, 35, 63, 11},
 		box = { Constants.SCREEN.WIDTH + 88, 43, 11, 11 },
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
@@ -176,7 +176,7 @@ TrackerScreen.Buttons = {
 			local pokemon = Tracker.getViewedPokemon()
 			if pokemon ~= nil and PokemonData.isValid(pokemon.pokemonID) then
 				local abilityId
-				if Tracker.Data.isViewingOwn then
+				if Battle.isViewingOwn then
 					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
 				elseif Options["Open Book Play Mode"] then
 					abilityId = PokemonData.getAbilityId(pokemon.pokemonID, 1) -- 1 is the second ability
@@ -186,6 +186,16 @@ TrackerScreen.Buttons = {
 				end
 				InfoScreen.changeScreenView(InfoScreen.Screens.ABILITY_INFO, abilityId)
 			end
+		end
+	},
+	HealsInBag = {
+		-- Invisible clickable button
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 54, 55, 21 },
+		isVisible = function() return Battle.isViewingOwn end,
+		onClick = function(self)
+			HealsInBagScreen.changeTab(HealsInBagScreen.Tabs.All)
+			Program.changeScreenView(HealsInBagScreen)
 		end
 	},
 	MovesHistory = {
@@ -370,7 +380,7 @@ function TrackerScreen.initialize()
 			boxColors = { "Upper box border", "Upper box background" },
 			statStage = statKey,
 			statState = 0,
-			isVisible = function() return Battle.inBattle and not Tracker.Data.isViewingOwn and not Options["Open Book Play Mode"] end,
+			isVisible = function() return Battle.inActiveBattle() and not Battle.isViewingOwn and not Options["Open Book Play Mode"] end,
 			onClick = function(self)
 				self.statState = ((self.statState + 1) % 4) -- 4 total possible markings for a stat state
 				self.textColor = Constants.STAT_STATES[self.statState].textColor
@@ -433,7 +443,7 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.BADGES,
 		isVisible = function()
 			local pedometerIsShowing = Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()
-			return Tracker.Data.isViewingOwn and not pedometerIsShowing
+			return Battle.isViewingOwn and not pedometerIsShowing
 		end,
 		framesToShow = 210,
 		getContentList = function()
@@ -449,7 +459,7 @@ function TrackerScreen.buildCarousel()
 	-- NOTES
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.NOTES] = {
 		type = TrackerScreen.CarouselTypes.NOTES,
-		isVisible = function() return not Tracker.Data.isViewingOwn end,
+		isVisible = function() return not Battle.isViewingOwn end,
 		framesToShow = 180,
 		getContentList = function(pokemonID)
 			local noteText = Tracker.getNote(pokemonID)
@@ -470,8 +480,8 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 		isVisible = function()
-			local properBattleTiming = Battle.inBattle and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
-			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
+			local properBattleTiming = Battle.inActiveBattle() and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
+			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
 			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
 		end,
 		framesToShow = 180,
@@ -512,8 +522,8 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function()
-			local carouselDisabled = Tracker.Data.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Battle.inBattle and Battle.CurrentRoute.hasInfo and not carouselDisabled
+			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
+			return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo and not carouselDisabled
 		end,
 		framesToShow = 180,
 		getContentList = function()
@@ -555,7 +565,7 @@ function TrackerScreen.buildCarousel()
 	--  PEDOMETER
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.PEDOMETER] = {
 		type = TrackerScreen.CarouselTypes.PEDOMETER,
-		isVisible = function() return Tracker.Data.isViewingOwn and Program.Pedometer:isInUse() end,
+		isVisible = function() return Battle.isViewingOwn and Program.Pedometer:isInUse() end,
 		framesToShow = 210,
 		getContentList = function()
 			TrackerScreen.Buttons.PedometerStepText:updateSelf()
@@ -730,7 +740,7 @@ function TrackerScreen.drawScreen()
 
 	Drawing.drawBackgroundAndMargins()
 
-	local mustViewOwn = not Battle.canViewEnemy() or nil
+	local mustViewOwn = not Battle.inActiveBattle() or nil
 	local displayData = DataHelper.buildTrackerScreenDisplay(mustViewOwn)
 
 	-- Upper boxes
@@ -758,10 +768,10 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON TYPES
-	if not Options["Reveal info if randomized"] and not Tracker.Data.isViewingOwn and PokemonData.IsRand.pokemonTypes then
+	if not Options["Reveal info if randomized"] and not Battle.isViewingOwn and PokemonData.IsRand.pokemonTypes then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
-	else
+	elseif data.p.types[1] ~= PokemonData.Types.UNKNOWN then
 		Drawing.drawTypeIcon(data.p.types[1], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 		if data.p.types[2] ~= data.p.types[1] then
 			Drawing.drawTypeIcon(data.p.types[2], Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 45)
@@ -779,7 +789,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	local extraInfoText
 	local extraInfoColor
 
-	if Tracker.Data.isViewingOwn then
+	if Battle.isViewingOwn then
 		if data.p.hp <= 0 then
 			extraInfoText = string.format("%s/%s", Constants.HIDDEN_INFO, Constants.HIDDEN_INFO)
 			extraInfoColor = Theme.COLORS["Default text"]
@@ -819,7 +829,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	end
 
 	-- Squeeze text together a bit to show the exp bar
-	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+	if Options["Show experience points bar"] and Battle.isViewingOwn then
 		linespacing = linespacing - 1
 	end
 
@@ -828,7 +838,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	offsetY = offsetY + linespacing
 
 	-- POKEMON HP, LEVEL, & EVOLUTION INFO
-	if Tracker.Data.isViewingOwn then
+	if Battle.isViewingOwn then
 		local hpText = string.format("%s:", Resources.TrackerScreen.HPAbbreviation)
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX, offsetY, hpText, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(Constants.SCREEN.WIDTH + offsetX + 16, offsetY, extraInfoText, extraInfoColor, shadowcolor)
@@ -847,7 +857,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 				evoTextColor = Theme.COLORS["Intermediate text"]
 			end
 			-- Highlight some % of the evo text based on progress towards friendship requirement
-			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Tracker.Data.isViewingOwn then
+			if (data.p.evo == PokemonData.Evolutions.FRIEND) and Options["Determine friendship readiness"] and Battle.isViewingOwn then
 				local percentFill = (data.p.friendship - data.p.friendshipBase) / (Program.GameData.friendshipRequired - data.p.friendshipBase)
 				local numHighlightedChars = math.floor(abbreviationText:len() * percentFill)
 				local highlightedEvo = abbreviationText:sub(1, numHighlightedChars)
@@ -865,7 +875,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		offsetY = offsetY + linespacing
 	end
 
-	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+	if Options["Show experience points bar"] and Battle.isViewingOwn then
 		local expPercentage = data.p.curExp / data.p.totalExp
 		Drawing.drawPercentageBar(Constants.SCREEN.WIDTH + offsetX + 2, offsetY + 2, 60, 3, expPercentage)
 		offsetY = offsetY + 5
@@ -878,7 +888,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	offsetY = offsetY + linespacing
 
 	-- Unsqueeze the text
-	if Options["Show experience points bar"] and Tracker.Data.isViewingOwn then
+	if Options["Show experience points bar"] and Battle.isViewingOwn then
 		linespacing = linespacing + 1
 	end
 
@@ -886,7 +896,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	local infoBoxHeight = 23
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN + 52, 96, infoBoxHeight, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
-	if Tracker.Data.isViewingOwn and data.p.id ~= 0 then
+	if Battle.isViewingOwn and data.p.id ~= 0 then
 		local healsInBagText = string.format("%s:", Resources.TrackerScreen.HealsInBag)
 		local healsValueText = string.format("%.0f%% %s (%s)", data.x.healperc, Resources.TrackerScreen.HPAbbreviation, data.x.healnum)
 		Drawing.drawText(Constants.SCREEN.WIDTH + 6, 57, healsInBagText, Theme.COLORS["Default text"], shadowcolor)
@@ -912,7 +922,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		else
 			Drawing.drawButton(TrackerScreen.Buttons.LogViewerQuickAccess, shadowcolor)
 		end
-	elseif Battle.inBattle then
+	elseif Battle.inActiveBattle() then
 		local encounterText, routeText, routeInfoX
 		if Battle.isWildEncounter then
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, data.x.encounters)
@@ -963,7 +973,7 @@ function TrackerScreen.drawStatsArea(data)
 		local textColor = Theme.COLORS["Default text"]
 		local natureSymbol = ""
 
-		if Tracker.Data.isViewingOwn then
+		if Battle.isViewingOwn then
 			if statKey == data.p.positivestat then
 				textColor = Theme.COLORS["Positive text"]
 				natureSymbol = "+"
@@ -983,13 +993,13 @@ function TrackerScreen.drawStatsArea(data)
 		Drawing.drawText(statOffsetX + 16 + langOffset, statOffsetY - 1, natureSymbol, textColor, nil, 5, Constants.Font.FAMILY)
 
 		-- Draw stat battle increases/decreases, stages range from -6 to +6
-		if Battle.inBattle then
+		if Battle.inActiveBattle() then
 			local statStageIntensity = data.p.stages[statKey] - 6 -- between [0 and 12], convert to [-6 and 6]
 			Drawing.drawChevronsVerticalIntensity(statOffsetX + 20, statOffsetY + 4, statStageIntensity, 3,4,2,1,2)
 		end
 
 		-- Draw stat value, or the stat tracking box if enemy Pokemon
-		if Tracker.Data.isViewingOwn then
+		if Battle.isViewingOwn then
 			local statValueText = Utils.inlineIf(data.p[statKey] == 0, Constants.BLANKLINE, data.p[statKey])
 			Drawing.drawNumber(statOffsetX + 25, statOffsetY, statValueText, 3, textColor, shadowcolor)
 		else
@@ -1005,7 +1015,7 @@ function TrackerScreen.drawStatsArea(data)
 
 	-- Draw BST or ACC/EVA
 	-- The "ACC" and "EVA" stats occupy the same space as the "BST". Prioritize showing ACC/EVA if either has changed during battle (6 is neutral)
-	local useAccEvaInstead = Battle.inBattle and (data.p.stages.acc ~= 6 or data.p.stages.eva ~= 6)
+	local useAccEvaInstead = Battle.inActiveBattle() and (data.p.stages.acc ~= 6 or data.p.stages.eva ~= 6)
 	if useAccEvaInstead then
 		Drawing.drawText(statOffsetX - 1, statOffsetY + 1, Resources.TrackerScreen.StatAccuracy, Theme.COLORS["Default text"], shadowcolor)
 		Drawing.drawText(statOffsetX + 27, statOffsetY + 1, Resources.TrackerScreen.StatEvasion, Theme.COLORS["Default text"], shadowcolor)
@@ -1036,7 +1046,7 @@ function TrackerScreen.drawMovesArea(data)
 
 	-- Used to determine if the information about the move should be revealed to the player,
 	-- or not, possibly because its randomized further and its requested to remain hidden
-	local allowHiddenMoveInfo = Tracker.Data.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
+	local allowHiddenMoveInfo = Battle.isViewingOwn or Options["Reveal info if randomized"] or not MoveData.IsRand.moveType
 
 	-- Draw move headers
 	gui.defaultTextBackground(Theme.COLORS["Main background"])
@@ -1047,12 +1057,12 @@ function TrackerScreen.drawMovesArea(data)
 	Drawing.drawText(Constants.SCREEN.WIDTH + moveAccOffset, headerY, Resources.TrackerScreen.HeaderAcc, Theme.COLORS["Header text"], bgHeaderShadow)
 
 	-- Inidicate there are more moves being tracked than can fit on screen
-	if not Tracker.Data.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
+	if not Battle.isViewingOwn and #Tracker.getMoves(data.p.id) > 4 then
 		Drawing.drawText(Constants.SCREEN.WIDTH + 30, headerY, "*", Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
 
 	-- Redraw next move level in the header with a different color if close to learning new move
-	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Tracker.Data.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
+	if data.m.nextmovelevel ~= nil and data.m.nextmovespacing ~= nil and Battle.isViewingOwn and data.p.level + 1 >= data.m.nextmovelevel then
 		local headerLevelHighlightX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + data.m.nextmovespacing
 		Drawing.drawText(headerLevelHighlightX, headerY, data.m.nextmovelevel, Theme.COLORS[Theme.headerHighlightKey], bgHeaderShadow)
 	end
@@ -1073,7 +1083,7 @@ function TrackerScreen.drawMovesArea(data)
 		local moveTypeColor = Utils.inlineIf(move.name == MoveData.BlankMove.name, Theme.COLORS["Lower box text"], Constants.MoveTypeColors[move.type])
 		local movePowerColor = Theme.COLORS["Lower box text"]
 
-		if move.id == 237 and Tracker.Data.isViewingOwn then -- 237 = Hidden Power
+		if move.id == 237 and Battle.isViewingOwn then -- 237 = Hidden Power
 			moveTypeColor = Utils.inlineIf(move.type == PokemonData.Types.UNKNOWN, Theme.COLORS["Lower box text"], Constants.MoveTypeColors[move.type])
 		elseif move.id == 67 and Options["Calculate variable damage"] then -- 67 = Weather Ball
 			moveTypeColor = Constants.MoveTypeColors[move.type]

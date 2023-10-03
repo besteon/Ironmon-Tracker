@@ -56,7 +56,7 @@ ScreenResources{
 		THUNDER = {
 			abbreviation = "THUNDER",
 			short = "Thunder",
-			detailed = "Thunder Stone",
+			detailed = "Thunderstone",
 		},
 		FIRE = {
 			abbreviation = "FIRE",
@@ -191,6 +191,7 @@ ScreenResources{
 		PokemonIconSetAuthor = "Added by",
 		OptionShowTeamView = "Show Team View",
 		OptionRightJustifiedNumbers = "Right justified numbers",
+		OptionShowNicknames = "Show nicknames",
 		OptionDisableCarousel = "Disable mainscreen carousel",
 		OptionTrackPCHeals = "Track PC Heals",
 		OptionPCHealsCountDown = "PC heals count downward",
@@ -476,6 +477,13 @@ ScreenResources{
 		LabelRandomEvos = "Random Evos",
 		LabelEvoShort = "Evo",
 	},
+	HealsInBagScreen = {
+		TabAll = "All",
+		TabHP = "HP",
+		TabPP = "PP",
+		TabStatus = "Status",
+		TabBattle = "Battle",
+	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level",
 		HeaderMin = "Min",
@@ -593,6 +601,7 @@ ScreenResources{
 		OptionKeyError = "Option key doesn't exist",
 		OptionFileError = "File not found",
 		OptionRightJustifiedNumbers = "Right justified numbers",
+		OptionShowNicknames = "Show nicknames",
 		OptionAutosaveTrackedData = "Autosave tracked game data",
 		OptionTrackPCHeals = "Track PC Heals",
 		OptionPCHealsCountDownward = "PC heals count downward",
@@ -3335,11 +3344,11 @@ GameResources{
 		},
 		{
 			NameKey = "Plus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
+			Description = "When in a Double Battle where any active Pokémon has the Ability Minus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
 			NameKey = "Minus",
-			Description = "When in a Double Battle where another allied Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
+			Description = "When in a Double Battle where any active Pokémon has the Ability Plus, this Pokémon's Special Attack stat increases by 50%.",
 		},
 		{
 			NameKey = "Forecast",
@@ -3520,7 +3529,7 @@ GameResources{
 		"Sun Stone",
 		"Moon Stone",
 		"Fire Stone",
-		"Thunder Stone",
+		"Thunderstone",
 		"Water Stone",
 		"Leaf Stone",
 		"unknown",

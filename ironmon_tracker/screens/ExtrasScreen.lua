@@ -235,7 +235,7 @@ function ExtrasScreen.createButtons()
 end
 
 function ExtrasScreen.getJudgeMessage()
-	local leadPokemon = Battle.getViewedPokemon(true) or Tracker.getDefaultPokemon()
+	local leadPokemon = Battle.getViewedPokemon(true) or {}
 	if not PokemonData.isValid(leadPokemon.pokemonID) then
 		return Resources.ExtrasScreen.EstimateResultUnavailable or ""
 	end

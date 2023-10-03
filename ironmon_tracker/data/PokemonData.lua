@@ -62,70 +62,70 @@ PokemonData.Evolutions = {
 		abbreviation = "STONE",
 		short = { "Thunder", "Water", "Fire", "Sun", "Moon", },
 		detailed = { "5 Diff. Stones", },
-		evoItemIds = { [93] = true, [94] = true, [95] = true, [96] = true, [97] = true, },
+		evoItemIds = { 93, 94, 95, 96, 97 },
 	},
-	-- Thunder stone item
+	-- Thunderstone item
 	THUNDER = {
 		abbreviation = "THUNDER",
 		short = { "Thunder", },
-		detailed = { "Thunder Stone", },
-		evoItemIds = { [96] = true, },
+		detailed = { "Thunderstone", },
+		evoItemIds = { 96 },
 	},
 	-- Fire stone item
 	FIRE = {
 		abbreviation = "FIRE",
 		short = { "Fire", },
 		detailed = { "Fire Stone", },
-		evoItemIds = { [95] = true, },
+		evoItemIds = { 95 },
 	},
 	-- Water stone item
 	WATER = {
 		abbreviation = "WATER",
 		short = { "Water", },
 		detailed = { "Water Stone", },
-		evoItemIds = { [97] = true, },
+		evoItemIds = { 97 },
 	},
 	-- Moon stone item
 	MOON = {
 		abbreviation = "MOON",
 		short = { "Moon", },
 		detailed = { "Moon Stone", },
-		evoItemIds = { [94] = true, },
+		evoItemIds = { 94 },
 	},
 	-- Leaf stone item
 	LEAF = {
 		abbreviation = "LEAF",
 		short = { "Leaf", },
 		detailed = { "Leaf Stone", },
-		evoItemIds = { [98] = true, },
+		evoItemIds = { 98 },
 	},
 	-- Sun stone item
 	SUN = {
 		abbreviation = "SUN",
 		short = { "Sun", },
 		detailed = { "Sun Stone", },
-		evoItemIds = { [93] = true, },
+		evoItemIds = { 93 },
 	},
 	-- Leaf or Sun stone items
 	LEAF_SUN = {
 		abbreviation = "LF/SN",
 		short = { "Leaf", "Sun", },
 		detailed = { "Leaf Stone", "Sun Stone", },
-		evoItemIds = { [93] = true, [98] = true, },
+		evoItemIds = { 93, 98, },
 	},
 	-- Water stone item or at level 30
 	WATER30 = {
 		abbreviation = "30/WTR",
 		short = { "Lv.30", "Water", },
 		detailed = { "Level 30", "Water Stone", },
-		evoItemIds = { [97] = true, },
+		evoItemIds = { 97 },
 	},
 	-- Water stone item or at level 37
 	WATER37 = {
 		abbreviation = "37/WTR",
 		short = { "Lv.37", "Water", },
 		detailed = { "Level 37", "Water Stone", },
-		evoItemIds = { [97] = true, },
+		evoItemIds = { 97 },
 	},
 }
 
@@ -307,14 +307,13 @@ function PokemonData.checkIfDataIsRandomized()
 	return areTypesRandomized or areAbilitiesRandomized or areBaseFriendshipsModified
 end
 
+--- @return integer abilityId The abilityId of the Pokémon, or 0 if it doesn't exist
 function PokemonData.getAbilityId(pokemonID, abilityNum)
 	if abilityNum == nil or not PokemonData.isValid(pokemonID) then
 		return 0
 	end
-
 	local pokemon = PokemonData.Pokemon[pokemonID]
-	local abilityId = pokemon.abilities[abilityNum + 1] -- abilityNum stored from memory as [0 or 1]
-	return abilityId
+	return pokemon.abilities[abilityNum + 1] or 0 -- abilityNum stored from memory as [0 or 1]
 end
 
 function PokemonData.isValid(pokemonID)

@@ -319,7 +319,7 @@ function LogOverlay.addHeaderTabButtons()
 					if icon.image then
 						local adjustedX = x + (icon.x or 0) + spacer
 						local adjustedY = y + (icon.y or 0) + LogOverlay.tabHeight - (icon.h or 12)
-						gui.drawImage(icon.image, adjustedX, adjustedY)
+						Drawing.drawImage(icon.image, adjustedX, adjustedY)
 						x = x + (icon.w or 0) + spacer
 					end
 				end
@@ -555,7 +555,7 @@ function LogOverlay.parseAndDisplay(logpath)
 		LogSearchScreen.resetSearchSortFilter()
 		LogOverlay.refreshActiveTabGrid()
 		-- If the player has a Pokemon, show it on the side-screen
-		local leadPokemon = Tracker.getPokemon(1, true) or Tracker.getDefaultPokemon()
+		local leadPokemon = Tracker.getPokemon(1, true) or {}
 		if PokemonData.isValid(leadPokemon.pokemonID) then
 			LogOverlay.Windower:changeTab(LogTabPokemonDetails, 1, 1, leadPokemon.pokemonID)
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, leadPokemon.pokemonID)
