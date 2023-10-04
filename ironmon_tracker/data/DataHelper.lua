@@ -126,7 +126,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
 	data.p.name = viewedPokemon.name or Constants.BLANKLINE
-	if Options["Show nicknames"] and viewedPokemon.nickname and viewedPokemon.nickname ~= "" then
+	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(viewedPokemon.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
 	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
