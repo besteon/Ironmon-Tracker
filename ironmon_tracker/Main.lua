@@ -442,6 +442,7 @@ function Main.LoadNextRom()
 	Utils.tempDisableBizhawkSound()
 
 	if Main.IsOnBizhawk() then
+		Drawing.clearImageCache()
 		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	else
 		MGBA.clearConsole()
