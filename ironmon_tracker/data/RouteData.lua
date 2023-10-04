@@ -3132,6 +3132,7 @@ function RouteData.setupRouteInfoAsRSE()
 	-- [AreaName] = { combained list of mapIds }
 	RouteData.CombinedAreas = {
 		GraniteCave = { name = "Granite Cave" },
+		OceanicMuseum = { name = "Oceanic Museum" },
 		TrickHouse = { name = "Trick House" },
 		MeteorFalls = { name = "Meteor Falls" },
 		LavaridgeGym = { name = "Lavaridge Gym" },
@@ -4295,10 +4296,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[86] = {
 		name = "Oceanic Museum 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 	}
 	RouteData.Info[87] = {
 		name = "Oceanic Museum 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 		trainers = { 20, 21 },
 	}
 	RouteData.Info[89] = {
