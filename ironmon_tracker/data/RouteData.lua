@@ -1843,12 +1843,12 @@ function RouteData.setupRouteInfoAsFRLG()
 			name = "Pokémon Tower 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
 			area = RouteData.CombinedAreas.PokemonTower,
-			trainers = { 429, 430, 431 },
 		},
 		[162] = {
 			name = "Pokémon Tower 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
 			area = RouteData.CombinedAreas.PokemonTower,
+			trainers = { 429, 430, 431 },
 		},
 		[163] = {
 			name = "Pokémon Tower 3F",
