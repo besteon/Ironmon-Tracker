@@ -453,14 +453,18 @@ MGBA.OptionMap = {
 		getText = function() return Resources.MGBA.OptionRightJustifiedNumbers end,
 	},
 	[2] = {
+		optionKey = "Show nicknames",
+		getText = function() return Resources.MGBA.OptionShowNicknames end,
+	},
+	[3] = {
 		optionKey = "Auto save tracked game data",
 		getText = function() return Resources.MGBA.OptionAutosaveTrackedData end,
 	},
-	[3] = {
+	[4] = {
 		optionKey = "Track PC Heals",
 		getText = function() return Resources.MGBA.OptionTrackPCHeals end,
 	},
-	[4] = {
+	[5] = {
 		optionKey = "PC heals count downward",
 		getText = function() return Resources.MGBA.OptionPCHealsCountDownward end,
 		updateSelf = function(self)
@@ -474,15 +478,15 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[5] = {
+	[6] = {
 		optionKey = "Display pedometer",
 		getText = function() return Resources.MGBA.OptionDisplayPedometer end,
 	},
-	[6] = {
+	[7] = {
 		optionKey = "Display repel usage",
 		getText = function() return Resources.MGBA.OptionDisplayRepel end,
 	},
-	[7] = {
+	[8] = {
 		optionKey = "Animated Pokemon popout",
 		getText = function() return Resources.MGBA.OptionAnimatedPokemonGIF end,
 		updateSelf = function(self, params)
@@ -501,7 +505,7 @@ MGBA.OptionMap = {
 			return true
 		end,
 	},
-	[8] = {
+	[9] = {
 		optionKey = "Dev branch updates",
 		getText = function() return Resources.MGBA.OptionDevBranchUpdates end,
 	},
