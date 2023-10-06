@@ -89,6 +89,13 @@ function Battle.initialize()
 	Battle.isViewingLeft = true
 	Battle.isWildEncounter = false
 	Battle.isGhost = false
+	Battle.attacker = 0
+	Battle.turnCount = -1
+	Battle.prevDamageTotal = 0
+	Battle.damageReceived = 0
+	Battle.lastEnemyMoveId = 0
+	Battle.enemyHasAttacked = false
+	Battle.firstActionTaken = false
 end
 
 --- Returns true if the player is in an active battle and battle game data is available to be used
