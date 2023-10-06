@@ -228,7 +228,7 @@ InfoScreen.Buttons = {
 			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
-				local oldType = Tracker.getHiddenPowerType()
+				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
 				if oldType ~= nil then
 					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do
@@ -256,7 +256,7 @@ InfoScreen.Buttons = {
 			local pokemon = Battle.getViewedPokemon(true) or {}
 			if PokemonData.isValid(pokemon.pokemonID) and Utils.pokemonHasMove(pokemon, 237) then -- 237 = Hidden Power
 				-- Locate current Hidden Power type index value (requires looking up each time if player's Pokemon changes)
-				local oldType = Tracker.getHiddenPowerType()
+				local oldType = Tracker.getHiddenPowerType(pokemon)
 				local typeId = 0
 				if oldType ~= nil then
 					for index, hptype in ipairs(MoveData.HiddenPowerTypeList) do

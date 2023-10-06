@@ -126,7 +126,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
 	data.p.name = viewedPokemon.name or Constants.BLANKLINE
-	if Options["Show nicknames"] and viewedPokemon.nickname and viewedPokemon.nickname ~= "" then
+	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(viewedPokemon.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
 	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
@@ -256,9 +256,9 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		-- Update: Specific Moves
 		if move.id == 237 then -- 237 = Hidden Power
 			if data.x.viewingOwn then
-				move.type = Tracker.getHiddenPowerType()
+				move.type = Tracker.getHiddenPowerType(viewedPokemon)
 			else
-				move.type = MoveData.HiddenPowerTypeList[1] -- Unknown type
+				move.type = MoveData.HIDDEN_POWER_NOT_SET
 			end
 			move.category = MoveData.TypeToCategory[move.type]
 		elseif Options["Calculate variable damage"] then
@@ -452,7 +452,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	local hideSomeInfo = not Options["Reveal info if randomized"] and not Utils.pokemonHasMove(ownLeadPokemon, move.id)
 
 	if moveId == 237 and Utils.pokemonHasMove(ownLeadPokemon, 237) then -- 237 = Hidden Power
-		data.m.type = Tracker.getHiddenPowerType() or PokemonData.Types.UNKNOWN
+		data.m.type = Tracker.getHiddenPowerType(ownLeadPokemon)
 		data.m.category = MoveData.TypeToCategory[data.m.type]
 		data.x.ownHasHiddenPower = true
 	end

@@ -336,6 +336,9 @@ function UpdateScreen.beginAutoUpdate()
 	end
 	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
 	Program.addFrameCounter("PerformUpdate", updateStartDelay, function()
+		if Main.IsOnBizhawk() then
+			Drawing.clearImageCache() -- doing this an extra time to be safe
+		end
 		Main.updateRequested = true
 	end, 1, true)
 end

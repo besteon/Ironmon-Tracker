@@ -447,7 +447,7 @@ function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
 		[149] = true, -- Psywave
 		[162] = true, -- Super Fang
 		[165] = true, -- Struggle (I guess)
-		[237] = true, -- Hidden Power
+		[237] = true, -- Hidden Power -- Allowed later, but only if it's type is tracked
 		[243] = true, -- Mirror Coat
 		[248] = true, -- Future Sight
 		[251] = true, -- Beat Up
@@ -456,18 +456,27 @@ function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
 		[353] = true, -- Doom Desire
 	}
 
-	local addedTypes = {}
+	local alreadyAddedTypes = {}
 	local moveTypes = {}
 	local moveIds = {}
 	for _, move in ipairs(pokemon.moves or {}) do
 		if MoveData.isValid(move.id) then
-			-- TODO: Might use current moveset to help calc stricter coverage later (e.g. Night Shade, Will-O-Wisp, Hidden Power)
+			-- TODO: Might use current moveset to help calc stricter coverage later (e.g. Night Shade, Will-O-Wisp)
 			table.insert(moveIds, move.id)
 
 			local moveInternal = MoveData.Moves[move.id]
-			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] and not addedTypes[moveInternal.type] then
-				addedTypes[moveInternal.type] = true
-				table.insert(moveTypes, moveInternal.type)
+			local typeToAdd
+			if allowedCategories[moveInternal.category] and not excludedMoveIds[move.id] then
+				typeToAdd = moveInternal.type
+			elseif move.id == 237 then -- 237 = Hidden Power, but only use if it's type is set/tracked
+				local hiddenPowerType = Tracker.getHiddenPowerType(pokemon)
+				if hiddenPowerType ~= MoveData.HIDDEN_POWER_NOT_SET then
+					typeToAdd = hiddenPowerType
+				end
+			end
+			if typeToAdd and not alreadyAddedTypes[typeToAdd] then
+				alreadyAddedTypes[typeToAdd] = true
+				table.insert(moveTypes, typeToAdd)
 			end
 		end
 	end

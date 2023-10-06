@@ -410,14 +410,15 @@ function Tracker.getNote(pokemonID)
 	return trackedPokemon.note or ""
 end
 
---- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
+--- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- @param pokemon table|nil (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
-function Tracker.getHiddenPowerType()
-	local viewedPokemon = Battle.getViewedPokemon(true) or {}
-	if (viewedPokemon.personality or 0) == 0 then
-		return MoveData.HiddenPowerTypeList[1]
+function Tracker.getHiddenPowerType(pokemon)
+	pokemon = pokemon or Battle.getViewedPokemon(true) or {}
+	if (pokemon.personality or 0) == 0 then
+		return MoveData.HIDDEN_POWER_NOT_SET
 	end
-	return Tracker.Data.hiddenPowers[viewedPokemon.personality] or MoveData.HiddenPowerTypeList[1]
+	return Tracker.Data.hiddenPowers[pokemon.personality] or MoveData.HIDDEN_POWER_NOT_SET
 end
 
 --- Note the last level seen of each Pokemon on the enemy team

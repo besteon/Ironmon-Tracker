@@ -48,6 +48,7 @@ end
 ---@param waitFramesBeforeClearing number|nil [Optional] Will wait N frames before clearing the cache, useful for allowing any final image draws
 ---@param scaleWithSpeedup boolean|nil [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
 function Drawing.clearImageCache(waitFramesBeforeClearing, scaleWithSpeedup)
+	if not Main.IsOnBizhawk() then return end
 	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
 		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, function()
 			gui.clearImageCache()
