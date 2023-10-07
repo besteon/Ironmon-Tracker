@@ -251,6 +251,7 @@ function Program.mainLoop()
 	end
 	Input.checkForInput()
 	Program.update()
+	Network.update()
 	Battle.update()
 	CustomCode.afterEachFrame()
 	Program.redraw(false)

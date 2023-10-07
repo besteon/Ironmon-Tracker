@@ -104,6 +104,7 @@ FileManager.LuaCode = {
 	{ name = "Pickle", filepath = "Pickle.lua", },
 	{ name = "Tracker", filepath = "Tracker.lua", },
 	{ name = "MGBA", filepath = "MGBA.lua", },
+	{ name = "Network", filepath = "Network.lua", },
 	-- Screen files
 	{ name = "MGBADisplay", filepath = "MGBADisplay.lua", },
 	{ name = "TrackerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TrackerScreen.lua", },

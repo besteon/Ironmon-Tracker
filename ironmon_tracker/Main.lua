@@ -970,6 +970,16 @@ function Main.LoadSettings()
 		end
 	end
 
+	-- [NETWORK]
+	if settings.network ~= nil then
+		for key, _ in pairs(Network.Options or {}) do
+			local optionValue = settings.network[string.gsub(key, " ", "_")]
+			if optionValue ~= nil then
+				Network.Options[key] = optionValue
+			end
+		end
+	end
+
 	-- [EXTENSIONS]
 	CustomCode.ExtensionLibrary = {}
 	if settings.extensions ~= nil then
@@ -1006,14 +1016,13 @@ function Main.SaveSettings(forced)
 		return
 	end
 
-	local settings = Main.MetaSettings
-
-	if settings == nil then settings = {} end
-	if settings.config == nil then settings.config = {} end
-	if settings.tracker == nil then settings.tracker = {} end
-	if settings.controls == nil then settings.controls = {} end
-	if settings.theme == nil then settings.theme = {} end
-	if settings.extensions == nil then settings.extensions = {} end
+	local settings = Main.MetaSettings or {}
+	settings.config = settings.config or {}
+	settings.tracker = settings.tracker or {}
+	settings.controls = settings.controls or {}
+	settings.theme = settings.theme or {}
+	settings.network = settings.network or {}
+	settings.extensions = settings.extensions or {}
 
 	-- [CONFIG]
 	settings.config.RemindMeLater = Main.Version.remindMe
@@ -1048,6 +1057,12 @@ function Main.SaveSettings(forced)
 	end
 	settings.theme["MOVE_TYPES_ENABLED"] = Theme.MOVE_TYPES_ENABLED
 	settings.theme["DRAW_TEXT_SHADOWS"] = Theme.DRAW_TEXT_SHADOWS
+
+	-- [NETWORK]
+	for key, val in pairs(Network.Options or {}) do
+		local encodedKey = string.gsub(key, " ", "_")
+		settings.network[encodedKey] = val
+	end
 
 	-- [EXTENSIONS]
 	for extKey, extension in pairs(CustomCode.ExtensionLibrary) do
