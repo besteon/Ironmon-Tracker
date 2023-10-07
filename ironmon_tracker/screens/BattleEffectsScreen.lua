@@ -538,7 +538,7 @@ function loadOther(index)
 	if MoveData.isValid(lastMoveID) then
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLastMove] = MoveData.Moves[lastMoveID].name
 	else
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLastMove] = "N/A"
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLastMove] = Resources.BattleEffectsScreen.TextNotAvailable
 	end
 end
 
@@ -552,7 +552,6 @@ function BattleEffectsScreen.loadData()
 		loadSideStatuses(i)
 		loadDisableStruct(i)
 		loadWishStruct(i)
-		console.log(i)
 		loadOther(i)
 	end
 end
@@ -670,7 +669,7 @@ function drawPerSideUI()
 			elseif value.count then
 				text = text .. ": " .. value.count
 			elseif value.remainingTurns then
-				text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurnsLeft
+				text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining
 			elseif value.source then
 				local sourceMon = Battle.BattleParties[value.source%2][Battle.Combatants[Battle.IndexMap[value.source]]] or {}
 				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)

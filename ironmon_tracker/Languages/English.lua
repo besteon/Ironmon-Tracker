@@ -574,6 +574,7 @@ ScreenResources{
 		TextField = "Field",
 		TextTurnsRemaining = "Turns Left",
 		TextLastMove = "Last Move",
+		TextNotAvailable ="N/A",
 
 		WeatherDefault = "None",
 		WeatherRain = "Rain",
