@@ -26,6 +26,7 @@ FileManager.Files = {
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
+	JSON_LIBRARY = FileManager.Folders.TrackerCode .. FileManager.slash .. "Json.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
 	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
@@ -176,6 +177,7 @@ function FileManager.folderExists(folderpath)
 end
 
 -- Returns the path that allows opening a file at 'filepath', if one exists and it can be opened; otherwise, returns nil
+---@return string|nil filepath
 function FileManager.getPathIfExists(filepath)
 	filepath = string.match(filepath or "", "^%s*(.-)%s*$") -- remove leading/trailing spaces
 
@@ -200,6 +202,7 @@ function FileManager.getPathIfExists(filepath)
 end
 
 -- Returns the absolute file path using a local filename/path and the working directory of the Tracker
+---@return string filepath
 function FileManager.prependDir(filenameOrPath)
 	return FileManager.dir .. (filenameOrPath or "")
 end
@@ -675,6 +678,20 @@ function FileManager.copyTable(source, destination)
 			FileManager.copyTable(val, destination[key])
 		else
 			destination[key] = val
+		end
+	end
+end
+
+--- Loads the external Json library into FileManager.JsonLibrary
+function FileManager.setupJsonLibrary()
+	if type(FileManager.JsonLibrary) == "table" then
+		return
+	end
+	local filepath = FileManager.getPathIfExists(FileManager.Files.JSON_LIBRARY)
+	if filepath ~= nil then
+		FileManager.JsonLibrary = dofile(filepath)
+		if type(FileManager.JsonLibrary) ~= "table" then
+			FileManager.JsonLibrary = nil
 		end
 	end
 end

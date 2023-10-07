@@ -13,10 +13,10 @@ Network.ConnectionTypes = {
 Network.Options = {
 	["ConnectionType"] = Network.ConnectionTypes.None,
 	["DataFolder"] = "",
-	-- ["WebSocketIP"] = "", -- Not supported
-	-- ["WebSocketPort"] = "", -- Not supported
-	-- ["HttpGet"] = "", -- Not supported
-	-- ["HttpPost"] = "", -- Not supported
+	["WebSocketIP"] = nil, -- Not supported
+	["WebSocketPort"] = nil, -- Not supported
+	["HttpGet"] = nil, -- Not supported
+	["HttpPost"] = nil, -- Not supported
 }
 
 function Network.initialize()
@@ -71,8 +71,44 @@ function Network.update()
 	Network.CurrentConnection:TryUpdate()
 end
 
+--- The update function used by the "TextFiles" Network connection type
 function Network.updateByText()
+	local C = Network.CurrentConnection
+	if not C.OutboundFile or not C.InboundFile or not FileManager.JsonLibrary then
+		return
+	end
 
+	-- Read new requests from the other application's outbound text file
+	local requests
+	local outboundFile = io.open(C.OutboundFile, "r")
+	if outboundFile then
+		local inputStr = outboundFile:read("*a") or ""
+		if #inputStr > 0 then
+			requests = FileManager.JsonLibrary.decode(inputStr)
+		end
+	end
+
+	-- Process the requests
+	local responses = {}
+	for key, request in pairs(requests or {}) do
+		-- TODO: implement, likely not as simple as doing them all. Need a RequestManager
+	end
+
+	-- Send responses to the other application's inbound text file
+	if #responses == 0 and C.InboundWasEmpty then
+		-- Prevent consecutive empty file writes
+		return
+	end
+	local inboundFile = io.open(C.InboundFile, "w")
+	if inboundFile then
+		local outputStr = ""
+		if #responses > 0 then
+			outputStr = FileManager.JsonLibrary.encode(responses)
+		end
+		inboundFile:write(outputStr)
+		inboundFile:close()
+		C.InboundWasEmpty = (#outputStr == 0)
+	end
 end
 
 -- Connection object prototype
