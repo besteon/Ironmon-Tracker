@@ -26,11 +26,11 @@ FileManager.Files = {
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
+	REQUESTS_DATA = FileManager.Folders.TrackerCode .. FileManager.slash .. "Requests.json",
 	JSON_LIBRARY = FileManager.Folders.TrackerCode .. FileManager.slash .. "Json.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
 	CRASH_REPORT = FileManager.Folders.TrackerCode .. FileManager.slash .. "crashreport.txt",
-
 	LanguageCode = {
 		SpainData = "SpainData.lua",
 		ItalyData = "ItalyData.lua",
@@ -94,6 +94,7 @@ FileManager.LuaCode = {
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
+	{ name = "RequestsManager", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RequestsManager.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
@@ -613,6 +614,33 @@ function FileManager.readLinesFromFile(filename)
 	file:close()
 
 	return lines
+end
+
+--- Returns true if data is written to file, false if resulting json is empty, or nil if no file
+---@param filepath string
+---@param data table
+---@return boolean|nil dataWritten
+function FileManager.encodeToJsonFile(filepath, data)
+	local file = filepath and io.open(filepath, "w")
+	if file then
+		-- Empty Json is "[]"
+		local output = FileManager.JsonLibrary.encode(data) or "[]"
+		file:write(output)
+		file:close()
+		return (#output > 2)
+	end
+end
+
+--- Returns a lua table of the decoded json string from a file, or nil if no file
+---@param filepath string
+---@return table|nil data
+function FileManager.decodeJsonFile(filepath)
+	local file = filepath and io.open(filepath, "r")
+	if file then
+		local input = file:read("*a") or ""
+		file:close()
+		return #input > 0 and FileManager.JsonLibrary.decode(input) or {}
+	end
 end
 
 function FileManager.addCustomThemeToFile(themeName, themeCode)

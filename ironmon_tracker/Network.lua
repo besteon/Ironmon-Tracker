@@ -1,15 +1,19 @@
-local DEBUG = true
-
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
+	TEXT_INBOUND_FILE = "Inbound-Tracker.txt",
+	TEXT_OUTBOUND_FILE = "Outbound-Tracker.txt",
+	-- WEBSOCKET_SERVER_IP = "127.0.0.1", -- Not supported
+	-- WEBSOCKET_SERVER_PORT = "8080", -- Not supported
 }
+
 Network.ConnectionTypes = {
 	TextFiles = "Text",
 	WebSockets = "WebSockets", -- Not supported
 	Http = "Http", -- Not supported
 	None = "None",
 }
+
 Network.Options = {
 	["ConnectionType"] = Network.ConnectionTypes.None,
 	["DataFolder"] = "",
@@ -30,9 +34,6 @@ end
 
 function Network.loadConnectionSettings()
 	local connectionType = Network.Options["ConnectionType"] or Network.ConnectionTypes.None
-	if DEBUG then
-		connectionType = Network.ConnectionTypes.TextFiles
-	end
 	Network.CurrentConnection = nil
 	Network.tryConnect(connectionType)
 end
@@ -54,11 +55,8 @@ function Network.tryConnect(connectionType)
 		C.UpdateFrequency = 3
 		C.UpdateFunction = Network.updateByText
 		local folder = Network.Options["DataFolder"] or ""
-		if DEBUG then
-			folder = [[C:\Users\shado\Dropbox\Stream Stuff\Streamer.bot-x64-0.1.19\data]]
-		end
-		C.InboundFile = folder .. FileManager.slash .. "Inbound-Tracker.txt"
-		C.OutboundFile = folder .. FileManager.slash .. "Outbound-Tracker.txt"
+		C.InboundFile = folder .. FileManager.slash .. Network.TEXT_INBOUND_FILE
+		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
 		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
 	end
 end
@@ -68,7 +66,12 @@ function Network.update()
 	if Program.Frames.highAccuracyUpdate ~= 0 or not Network.isConnected() then
 		return
 	end
+
+	-- Check for any new requests from the server, process them accordingly, and send back responses
+	-- Server Requests should a one-time use only; once accepted, the server shouldn't send the same request again
 	Network.CurrentConnection:TryUpdate()
+
+	RequestsManager.trySaveData()
 end
 
 --- The update function used by the "TextFiles" Network connection type
@@ -78,36 +81,26 @@ function Network.updateByText()
 		return
 	end
 
-	-- Read new requests from the other application's outbound text file
-	local requests
-	local outboundFile = io.open(C.OutboundFile, "r")
-	if outboundFile then
-		local inputStr = outboundFile:read("*a") or ""
-		if #inputStr > 0 then
-			requests = FileManager.JsonLibrary.decode(inputStr)
-		end
+	-- Part 1: Read new requests from the other application's outbound text file
+	local newRequests = FileManager.decodeJsonFile(C.OutboundFile)
+	for _, request in pairs(newRequests or {}) do
+		RequestsManager.addRequest(RequestsManager.IRequest:new({
+			GUID = request.GUID,
+			EventType = request.EventType,
+			CreatedAt = request.CreatedAt,
+			Username = request.Username,
+			Args = request.Args,
+		}))
 	end
 
-	-- Process the requests
-	local responses = {}
-	for key, request in pairs(requests or {}) do
-		-- TODO: implement, likely not as simple as doing them all. Need a RequestManager
-	end
+	-- Part 2: Process the requests
+	local responses = RequestsManager.processAllRequests()
 
-	-- Send responses to the other application's inbound text file
-	if #responses == 0 and C.InboundWasEmpty then
-		-- Prevent consecutive empty file writes
-		return
-	end
-	local inboundFile = io.open(C.InboundFile, "w")
-	if inboundFile then
-		local outputStr = ""
-		if #responses > 0 then
-			outputStr = FileManager.JsonLibrary.encode(responses)
-		end
-		inboundFile:write(outputStr)
-		inboundFile:close()
-		C.InboundWasEmpty = (#outputStr == 0)
+	-- Part 3: Send responses to the other application's inbound text file
+	-- Prevent consecutive "empty" file writes
+	if #responses > 0 or not C.InboundWasEmpty then
+		local success = FileManager.encodeToJsonFile(C.InboundFile, responses)
+		C.InboundWasEmpty = (success == false) -- false if no resulting json data
 	end
 end
 
@@ -119,13 +112,12 @@ Network.IConnection = {
 	UpdateFunction = function(self) end,
 	-- Don't override the follow functions
 	TryUpdate = function(self, updateFunc)
-		local currentTime = os.time()
-		if (self.UpdateFrequency or 0) > 0 and (currentTime - Network.lastUpdateTime) >= self.UpdateFrequency then
+		if (self.UpdateFrequency or 0) > 0 and (os.time() - Network.lastUpdateTime) >= self.UpdateFrequency then
 			updateFunc = updateFunc or self.UpdateFunction
 			if type(updateFunc) == "function" then
 				updateFunc(self)
 			end
-			Network.lastUpdateTime = currentTime
+			Network.lastUpdateTime = os.time()
 		end
 	end,
 }

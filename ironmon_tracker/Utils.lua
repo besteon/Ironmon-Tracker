@@ -383,6 +383,15 @@ function Utils.randomTrainerID()
 	return 0
 end
 
+---@return string guid
+function Utils.newGUID()
+	local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+	return (string.gsub(template, '[xy]', function (c)
+		local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+		return string.format('%x', v)
+	end))
+end
+
 -- Returns '1.1' if positive nature, '0.9' if negative nature, and '1' otherwise (if neutral nature)
 function Utils.getNatureMultiplier(stat, nature)
 	if nature % 6 == 0 then return 1 end
