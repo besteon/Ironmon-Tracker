@@ -1213,6 +1213,7 @@ function DataHelper.EventRequests.getCoverage(args)
 	return buildResponse(prefix, info, ", ")
 end
 
+-- TODO: Combine this with getSearchNotes below
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getNotes(args)
@@ -1281,5 +1282,157 @@ function DataHelper.EventRequests.getNotes(args)
 		table.insert(info, string.format("%s: %s", "Note", trackedNote))
 	end
 	local prefix = string.format("%s %s %s", pokemon.name, "Notes", OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getHeals(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+
+	local displayHP, displayStatus, displayPP, displayBerries
+	if params ~= "" then
+		local paramToLower = Utils.toLowerUTF8(params)
+		displayHP = Utils.containsText(paramToLower, "hp", true)
+		displayPP = Utils.containsText(paramToLower, "pp", true)
+		displayStatus = Utils.containsText(paramToLower, "status", true)
+		displayBerries = Utils.containsText(paramToLower, "berries", true)
+	end
+	-- Default to showing all (except redundant berries)
+	if not (displayHP or displayPP or displayStatus or displayBerries) then
+		displayHP = true
+		displayPP = true
+		displayStatus = true
+	end
+	local function sortFunc(a,b) return a.value > b.value or (a.value == b.value and a.id < b.id) end
+	local function getSortableItem(id, quantity)
+		if not MiscData.Items[id or 0] or (quantity or 0) <= 0 then return nil end
+		local item = MiscData.HealingItems[id] or MiscData.PPItems[id] or MiscData.StatusItems[id] or {}
+		local text = MiscData.Items[item.id]
+		if item.quantity > 1 then
+			text = string.format("%s (%s)", text, quantity)
+		end
+		local value = item.amount or 0
+		if item.type == MiscData.HealingType.Percentage then
+			value = value + 1000
+		elseif item.type == MiscData.StatusType.All then -- The really good status items
+			value = value + 2
+		elseif MiscData.StatusItems[id] then -- All other status items
+			value = value + 1
+		end
+		return { id = id, text = text, value = value }
+	end
+	local healingItems, ppItems, statusItems, berryItems = {}, {}, {}, {}
+	for id, quantity in pairs(Program.GameData.Items.HPHeals) do
+		local itemInfo = getSortableItem(id, quantity)
+		table.insert(healingItems, itemInfo)
+		if itemInfo and MiscData.HealingItems[id].pocket == MiscData.BagPocket.Berries then
+			table.insert(berryItems, itemInfo)
+		end
+	end
+	for id, quantity in pairs(Program.GameData.Items.PPHeals) do
+		local itemInfo = getSortableItem(id, quantity)
+		table.insert(ppItems, itemInfo)
+		if itemInfo and MiscData.PPItems[id].pocket == MiscData.BagPocket.Berries then
+			table.insert(berryItems, itemInfo)
+		end
+	end
+	for id, quantity in pairs(Program.GameData.Items.StatusHeals) do
+		local itemInfo = getSortableItem(id, quantity)
+		table.insert(statusItems, itemInfo)
+		if itemInfo and MiscData.StatusItems[id].pocket == MiscData.BagPocket.Berries then
+			table.insert(berryItems, itemInfo)
+		end
+	end
+	if displayHP and #healingItems > 0 then
+		table.sort(healingItems, sortFunc)
+		table.insert(info, string.format("%s: %s", "HP", table.concat(healingItems, ", ")))
+	end
+	if displayPP and #ppItems > 0 then
+		table.sort(ppItems, sortFunc)
+		table.insert(info, string.format("%s: %s", "PP", table.concat(ppItems, ", ")))
+	end
+	if displayStatus and #ppItems > 0 then
+		table.sort(statusItems, sortFunc)
+		table.insert(info, string.format("%s: %s", "STATUS", table.concat(statusItems, ", ")))
+	end
+	if displayBerries and #berryItems > 0 then
+		table.sort(berryItems, sortFunc)
+		table.insert(info, string.format("%s: %s", "BERRIES", table.concat(berryItems, ", ")))
+	end
+	local prefix = string.format("%s %s", Resources.TrackerScreen.HealsInBag, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getTMs(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getSearchNotes(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getTheme(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getGameStats(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getProgress(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getLog(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getAbout(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getHelp(args)
+	local params = (args or {}).Input or ""
+	local info = {}
+	local prefix = ""
 	return buildResponse(prefix, info)
 end

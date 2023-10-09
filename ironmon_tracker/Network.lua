@@ -67,7 +67,7 @@ function Network.closeConnections()
 	if Network.isConnected() then
 		Network.CurrentConnection.IsConnected = false
 	end
-	RequestsManager.saveData()
+	RequestsHandler.saveData()
 end
 
 function Network.update()
@@ -80,7 +80,7 @@ function Network.update()
 	-- Server Requests should a one-time use only; once accepted, the server shouldn't send the same request again
 	Network.CurrentConnection:TryUpdate()
 
-	RequestsManager.trySaveData()
+	RequestsHandler.trySaveData()
 end
 
 --- The update function used by the "TextFiles" Network connection type
@@ -93,7 +93,7 @@ function Network.updateByText()
 	-- Part 1: Read new requests from the other application's outbound text file
 	local newRequests = FileManager.decodeJsonFile(C.OutboundFile)
 	for _, request in pairs(newRequests or {}) do
-		RequestsManager.addNewRequest(RequestsManager.IRequest:new({
+		RequestsHandler.addNewRequest(RequestsHandler.IRequest:new({
 			GUID = request.GUID,
 			EventType = request.EventType,
 			CreatedAt = request.CreatedAt,
@@ -103,15 +103,15 @@ function Network.updateByText()
 	end
 
 	-- Part 2: Process the requests
-	RequestsManager.processAllRequests()
+	RequestsHandler.processAllRequests()
 
 	-- Part 3: Send responses to the other application's inbound text file
-	local responses = RequestsManager.getResponses()
+	local responses = RequestsHandler.getResponses()
 	-- Prevent consecutive "empty" file writes
 	if #responses > 0 or not C.InboundWasEmpty then
 		local success = FileManager.encodeToJsonFile(C.InboundFile, responses)
 		C.InboundWasEmpty = (success == false) -- false if no resulting json data
-		RequestsManager.clearResponses()
+		RequestsHandler.clearResponses()
 	end
 end
 
