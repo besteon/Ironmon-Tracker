@@ -94,7 +94,7 @@ FileManager.LuaCode = {
 	{ name = "RandomizerLog", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RandomizerLog.lua", },
 	{ name = "TrainerData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "TrainerData.lua", },
 	{ name = "SpriteData", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "SpriteData.lua", },
-	{ name = "RequestsHandler", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RequestsHandler.lua", },
+	{ name = "RequestHandler", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "RequestHandler.lua", },
 	-- Second set of core files
 	{ name = "Options", filepath = "Options.lua", },
 	{ name = "Drawing", filepath = "Drawing.lua", },
