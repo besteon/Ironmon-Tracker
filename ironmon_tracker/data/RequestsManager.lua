@@ -1,54 +1,20 @@
 RequestsManager = {
 	Requests = {}, -- A list of all known requests that still need to be processed
+	Responses = {}, -- A list of all responses ready to be sent
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
 }
 
--- TODO: Will likely move this elsewhere as each of these gets built out
--- CR: Channel Rewards (Point Redeems), CMD: Channel Commands (!test)
-RequestsManager.EventTypes = {
-	CR_PickBallOnce = "pick_ball_once",
-	CR_PickBallUntilOut = "pick_ball_until_out",
-	CR_ChangeTheme = "change_theme",
-	CR_ChangeFavorite = "change_favorite",
-	CMD_Revo = "revo",
-	CMD_Pokemon = "pokemon",
-	CMD_Notes = "notes",
-	CMD_Move = "move",
-	CMD_Ability = "ability",
-	CMD_Weak = "weak",
-	CMD_BST = "BST",
-	CMD_Route = "route",
-	CMD_MonsWithMove = "mons_with_move",
-	CMD_MonsWithAbility = "mons_with_ability",
-	CMD_Pivots = "pivots",
-	CMD_Dungeon = "dungeon",
-	CMD_Theme = "theme",
-	CMD_Coverage = "coverage",
-	CMD_Heals = "heals",
-	CMD_TMs = "tms",
-	CMD_GAMESTATS = "gamestats",
-	CMD_PROGRESS = "progress",
-	CMD_LOG = "log",
-	CMD_ABOUT = "about",
-	CMD_HELP = "help",
-	None = "None",
-}
-
 RequestsManager.StatusCodes = {
-	SUCCESS = 200,
-	FAIL = 400,
-	NOT_FOUND = 404,
+	PROCESSING = 102, -- The server (Tracker) has received and is processing the request, but no response is available yet
+	SUCCESS = 200, -- The request succeeded and a response message is available
+	FAIL = 400, -- The server (Tracker) won't process, likely due to a client error with formatting the request
+	NOT_FOUND = 404, -- The server (Tracker) cannot find the requested resource or event
 }
-
-local ALLOWED_EVENTTYPES = {}
-for _, val in pairs(RequestsManager.EventTypes) do
-	ALLOWED_EVENTTYPES[val] = true
-end
-ALLOWED_EVENTTYPES[RequestsManager.EventTypes.None] = nil
 
 function RequestsManager.initialize()
 	RequestsManager.Requests = {}
+	RequestsManager.Responses = {}
 	RequestsManager.lastSaveTime = os.time()
 	RequestsManager.loadData()
 end
@@ -56,28 +22,33 @@ end
 --- Adds an IRequest to the requests queue; returns true if successful
 ---@param request table IRequest object
 ---@return boolean success
-function RequestsManager.addRequest(request)
+function RequestsManager.addNewRequest(request)
 	-- Only add *new* requests with known event categories and types
-	if RequestsManager.Requests[request.GUID] or request.EventType == RequestsManager.EventTypes.None then
+	if RequestsManager.Requests[request.GUID] or request.EventType == RequestsManager.Events.None.key then
 		return false
 	end
-
 	RequestsManager.Requests[request.GUID] = request
 	return true
 end
 
---- Processes all IRequests (if able)
----@return table responses
-function RequestsManager.processAllRequests()
-	local responses = {}
+--- Adds an IResponse to the responses list, or updates an existing matching response; returns true if successful
+---@param response table IResponse object
+---@return boolean success
+function RequestsManager.addUpdateResponse(response)
+	RequestsManager.Responses[response.GUID] = response
+	return true
+end
 
-	-- TODO: Implement better, sort by time, dont process if something ahead of it in queue of same event type (if that matters), avoid duplicate requests
+--- Processes all IRequests (if able), adding them to the RequestsManager.Responses
+function RequestsManager.processAllRequests()
+	-- Filter out unknown requests
 	local requestsToProcess = {}
 	for _, request in pairs(RequestsManager.Requests) do
-		if ALLOWED_EVENTTYPES[request.EventType] then
+		local event = RequestsManager.Events[request.EventType] or RequestsManager.Events.None
+		if event ~= RequestsManager.Events.None then
 			table.insert(requestsToProcess, request)
 		else
-			table.insert(responses, RequestsManager.IResponse:new({
+			RequestsManager.addUpdateResponse(RequestsManager.IResponse:new({
 				GUID = request.GUID,
 				EventType = request.EventType,
 				StatusCode = RequestsManager.StatusCodes.NOT_FOUND,
@@ -85,7 +56,41 @@ function RequestsManager.processAllRequests()
 		end
 	end
 
+	-- TODO: Implement better, dont process if something ahead of it in queue of same event type (if that matters), somehow avoid duplicate requests
+	table.sort(requestsToProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
+
+	for _, request in ipairs(requestsToProcess) do
+		local event = RequestsManager.Events[request.EventType]
+		local response = RequestsManager.IResponse:new({
+			GUID = request.GUID,
+			EventType = request.EventType,
+			StatusCode = RequestsManager.StatusCodes.FAIL,
+			Message = ""
+		})
+		-- Only process properly formatted events
+		if type(event.process) == "function" and type(event.fulfill) == "function" then
+			response.StatusCode = RequestsManager.StatusCodes.PROCESSING
+			if request.IsReady or event:process(request) then
+				response.StatusCode = RequestsManager.StatusCodes.SUCCESS
+				response.Message = event:fulfill(request)
+			end
+		end
+		RequestsManager.addUpdateResponse(response)
+	end
+end
+
+---Returns a list of IResponses
+---@return table responses
+function RequestsManager.getResponses()
+	local responses = {}
+	for _, response in pairs(RequestsManager.Responses) do
+		table.insert(responses, response)
+	end
 	return responses
+end
+
+function RequestsManager.clearResponses()
+	RequestsManager.Responses = {}
 end
 
 --- If enough time has elapsed since the last auto-save, will save the Requests data
@@ -115,11 +120,139 @@ function RequestsManager.saveData()
 	return (success == true)
 end
 
+-- TODO: Each individual event likely has other conditions about when it can be processed or fulfilled
+--- CR: Channel Rewards (Point Redeems), CMD: Channel Commands (!test)
+--- process: Determine what to do with the IRequest, return true if ready to fulfill (IRequest.IsReady = true)
+--- fulfill: Only after fully processed and ready, finish completing the request and return a response message
+RequestsManager.Events = {
+	CR_PickBallOnce = {
+		process = function(self, request)
+			request.IsReady = false
+			-- TODO: insert into Tracker code where it needs to be
+			return request.IsReady
+		end,
+		fulfill = function(self, request)
+			return ""
+		end,
+	},
+	CR_PickBallUntilOut = {
+		process = function(self, request)
+			request.IsReady = false
+			-- TODO: insert into Tracker code where it needs to be
+			return request.IsReady
+		end,
+		fulfill = function(self, request)
+			return ""
+		end,
+	},
+	CR_ChangeTheme = {
+		process = function(self, request)
+			request.IsReady = false
+			-- TODO: insert into Tracker code where it needs to be
+			return request.IsReady
+		end,
+		fulfill = function(self, request)
+			return ""
+		end,
+	},
+	CR_ChangeFavorite = {
+		process = function(self, request)
+			request.IsReady = false
+			-- TODO: insert into Tracker code where it needs to be
+			return request.IsReady
+		end,
+		fulfill = function(self, request)
+			return "" -- TODO: Requirements implementation from scratch
+		end,
+	},
+	CR_ChangeLanguage = {
+		process = function(self, request)
+			request.IsReady = false
+			-- TODO: insert into Tracker code where it needs to be
+			return request.IsReady
+		end,
+		fulfill = function(self, request)
+			return "" -- TODO: Requirements implementation from scratch
+		end,
+	},
+	CMD_Pokemon = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.Args) end,
+	},
+	CMD_BST = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.Args) end,
+	},
+	CMD_Weak = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.Args) end,
+	},
+	CMD_Move = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.Args) end,
+	},
+	CMD_Ability = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.Args) end,
+	},
+	CMD_Route = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.Args) end,
+	},
+	CMD_Dungeon = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.Args) end,
+	},
+	CMD_Pivots = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.Args) end,
+	},
+	CMD_Revo = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.Args) end,
+	},
+	CMD_Coverage = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
+	},
+	CMD_Notes = {
+		fulfill = function(self, request) return DataHelper.EventRequests.getNotes(request.Args) end,
+	},
+	CMD_Heals = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_TMs = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_MonsWithMove = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_MonsWithAbility = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_Theme = {
+		fulfill = function(self, request) return nil end, -- TODO: Implement this from scratch
+	},
+	CMD_GameStats = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_Progress = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_Log = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_About = {
+		fulfill = function(self, request) return nil end,
+	},
+	CMD_Help = {
+		fulfill = function(self, request) return nil end,
+	},
+	None = {},
+}
+for key, val in pairs(RequestsManager.Events) do
+	val.key = key
+	-- By default, if nothing necessary to process then the Request is ready (true)
+	if type(val.process) ~= "function" then
+		val.process = function(self, request) return true end
+	end
+end
+
 -- Request/Response object prototypes
 
 RequestsManager.IRequest = {
 	GUID = "",
-	EventType = RequestsManager.EventTypes.None,
+	EventType = RequestsManager.Events.None.key,
 	CreatedAt = -1, -- Number of seconds, representing time the originating request was created
 	Username = "", -- Username of the user creating the request
 	Args = {}, -- Optional arguments passed with the request
@@ -139,7 +272,7 @@ end
 
 RequestsManager.IResponse = {
 	GUID = "",
-	EventType = RequestsManager.EventTypes.None,
+	EventType = RequestsManager.Events.None.key,
 	CreatedAt = -1, -- Number of seconds, representing time the request was processed into a response
 	StatusCode = RequestsManager.StatusCodes.NOT_FOUND,
 	Message = "", -- The informative response message to send

@@ -807,3 +807,479 @@ function DataHelper.buildRouteLogDisplay(mapId)
 
 	return data
 end
+
+-- Internal helper functions
+
+-- The max # of items to show for any commands that output a list of items (try keep chat message output short)
+local MAX_ITEMS = 12
+local OUTPUT_CHAR = ">"
+local DEFAULT_OUTPUT_MSG = "No info found."
+
+---Returns a response message by combining information into a single string
+---@param prefix string|nil [Optional] Prefixes the response with this header as "HEADER RESPONSE"
+---@param infoList table|string|nil [Optional] A list of strings (or single string) to combine
+---@param infoDelimeter string|nil [Optional] Defaults to " | "
+---@return string response Example: "Prefiex Info Item 1 | Info Item 2 | Info Item 3"
+local function buildResponse(prefix, infoList, infoDelimeter)
+	prefix = prefix and prefix ~= "" and (prefix .. " ") or ""
+	if type(infoList) ~= "table" then
+		return prefix .. tostring(infoList)
+	elseif infoList and #infoList > 0 then
+		return prefix .. table.concat(infoList, infoDelimeter or " | ")
+	else
+		return prefix .. DEFAULT_OUTPUT_MSG
+	end
+end
+local function buildDefaultResponse(input)
+	if (input or "") == "" then
+		return buildResponse()
+	else
+		return buildResponse(string.format("%s %s", input, OUTPUT_CHAR))
+	end
+end
+
+local function getPokemonOrDefault(input)
+	local id
+	if (input or "") ~= "" then
+		id = DataHelper.findPokemonId(input)
+	else
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		id = pokemon.pokemonID
+	end
+	return PokemonData.Pokemon[id or false]
+end
+local function getMoveOrDefault(input)
+	if (input or "") == "" then
+		return nil
+	end
+	return MoveData.Moves[DataHelper.findMoveId(input) or false]
+end
+local function getAbilityOrDefault(input)
+	local id
+	if (input or "") ~= "" then
+		id = DataHelper.findAbilityId(input)
+	else
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		if PokemonData.isValid(pokemon.pokemonID) then
+			id = PokemonData.getAbilityId(pokemon.pokemonID, pokemon.abilityNum)
+		end
+	end
+	return AbilityData.Abilities[id or false]
+end
+local function getRouteIdOrDefault(input)
+	if (input or "") ~= "" then
+		local id = DataHelper.findRouteId(input)
+		-- Special check for Route 21 North/South in FRLG
+		if not RouteData.Info[id or false] and Utils.containsText(input, "21") then
+			-- Okay to default to something in route 21
+			return (Utils.containsText(input, "north") and 109) or 219
+		else
+			return id
+		end
+	else
+		return TrackerAPI.getMapId()
+	end
+end
+
+DataHelper.EventRequests = {}
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getPokemon(args)
+	local params = (args or {}).Input or ""
+	local pokemon = getPokemonOrDefault(params)
+	if not pokemon then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local types
+	if pokemon.types[2] ~= PokemonData.Types.EMPTY and pokemon.types[2] ~= pokemon.types[1] then
+		types = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(pokemon.types[1]), PokemonData.getTypeResource(pokemon.types[2]))
+	else
+		types = PokemonData.getTypeResource(pokemon.types[1])
+	end
+	local coreInfo = string.format("%s #%03d (%s) %s: %s",
+		pokemon.name,
+		pokemon.pokemonID,
+		types,
+		Resources.TrackerScreen.StatBST,
+		pokemon.bst
+	)
+	table.insert(info, coreInfo)
+	local evos = table.concat(Utils.getDetailedEvolutionsInfo(pokemon.evolution), ", ")
+	table.insert(info, string.format("%s: %s", Resources.InfoScreen.LabelEvolution, evos))
+	local moves
+	if #pokemon.movelvls[GameSettings.versiongroup] > 0 then
+		moves = table.concat(pokemon.movelvls[GameSettings.versiongroup], ", ")
+	else
+		moves = "None."
+	end
+	table.insert(info, string.format("%s. %s: %s", Resources.TrackerScreen.LevelAbbreviation, Resources.TrackerScreen.HeaderMoves, moves))
+	local trackedPokemon = Tracker.Data.allPokemon[pokemon.pokemonID] or {}
+	if (trackedPokemon.eT or 0) > 0 then
+		table.insert(info, string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, trackedPokemon.eT))
+	end
+	if (trackedPokemon.eW or 0) > 0 then
+		table.insert(info, string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, trackedPokemon.eW))
+	end
+	return buildResponse(OUTPUT_CHAR, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getBST(args)
+	local params = (args or {}).Input or ""
+	local pokemon = getPokemonOrDefault(params)
+	if not pokemon then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	table.insert(info, string.format("%s: %s", Resources.TrackerScreen.StatBST, pokemon.bst))
+	local prefix = string.format("%s %s", pokemon.name, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getWeak(args)
+	local params = (args or {}).Input or ""
+	local pokemon = getPokemonOrDefault(params)
+	if not pokemon then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local pokemonDefenses = PokemonData.getEffectiveness(pokemon.pokemonID)
+	local weak4x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[4] or {}, ", "))
+	if weak4x ~= "" then
+		table.insert(info, string.format("[4x] %s", weak4x))
+	end
+	local weak2x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[2] or {}, ", "))
+	if weak2x ~= "" then
+		table.insert(info, string.format("[2x] %s", weak2x))
+	end
+	local types
+	if pokemon.types[2] ~= PokemonData.Types.EMPTY and pokemon.types[2] ~= pokemon.types[1] then
+		types = Utils.formatUTF8("%s/%s", PokemonData.getTypeResource(pokemon.types[1]), PokemonData.getTypeResource(pokemon.types[2]))
+	else
+		types = PokemonData.getTypeResource(pokemon.types[1])
+	end
+
+	if #info == 0 then
+		table.insert(info, Resources.InfoScreen.LabelNoWeaknesses)
+	end
+
+	local prefix = string.format("%s (%s) %s %s", pokemon.name, types, Resources.TypeDefensesScreen.Weaknesses, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getMove(args)
+	local params = (args or {}).Input or ""
+	local move = getMoveOrDefault(params)
+	if not move then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	table.insert(info, string.format("%s: %s",
+		Resources.InfoScreen.LabelContact,
+		move.iscontact and Resources.AllScreens.Yes or Resources.AllScreens.No))
+	table.insert(info, string.format("%s: %s", Resources.InfoScreen.LabelPP, move.pp or Constants.BLANKLINE))
+	table.insert(info, string.format("%s: %s", Resources.InfoScreen.LabelPower, move.power or Constants.BLANKLINE))
+	table.insert(info, string.format("%s: %s", Resources.TrackerScreen.HeaderAcc, move.accuracy or Constants.BLANKLINE))
+	table.insert(info, string.format("%s: %s", Resources.InfoScreen.LabelMoveSummary, move.summary))
+	local prefix = string.format("%s (%s, %s) %s",
+		move.name,
+		Utils.firstToUpperEachWord(move.type),
+		Utils.firstToUpperEachWord(move.category),
+		OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getAbility(args)
+	local params = (args or {}).Input or ""
+	local ability = getAbilityOrDefault(params)
+	if not ability then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	table.insert(info, string.format("%s: %s", ability.name, ability.description))
+	-- Emerald only
+	if GameSettings.game == 2 and ability.descriptionEmerald then
+		table.insert(info, string.format("%s: %s", Resources.InfoScreen.LabelEmeraldAbility, ability.descriptionEmerald))
+	end
+	return buildResponse(OUTPUT_CHAR, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getRoute(args)
+	local params = (args or {}).Input or ""
+	local routeId = getRouteIdOrDefault(params)
+	local route = RouteData.Info[routeId or false]
+	if not route then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	-- Check for trainers in the route
+	if route.trainers and #route.trainers > 0 then
+		local defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByLocation(routeId)
+		table.insert(info, string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainers, totalTrainers))
+	end
+	-- Check for wilds in the route
+	local encounterArea = RouteData.getNextAvailableEncounterArea(routeId, RouteData.EncounterArea.TRAINER) -- for now, default to the first area type (usually Walking)
+	local wildIds = RouteData.getEncounterAreaPokemon(routeId, encounterArea)
+	if #wildIds > 0 then
+		local seenIds = Tracker.getRouteEncounters(routeId, encounterArea or RouteData.EncounterArea.LAND)
+		local pokemonNames = {}
+		for _, pokemonId in ipairs(seenIds) do
+			if PokemonData.isValid(pokemonId) then
+				table.insert(pokemonNames, PokemonData.Pokemon[pokemonId].name)
+			end
+		end
+		local wildsText = string.format("%s: %s/%s", "Wild Pokémon seen", #seenIds, #wildIds)
+		if #seenIds > 0 then
+			wildsText = wildsText .. string.format(" (%s)", table.concat(pokemonNames, ", "))
+		end
+		table.insert(info, wildsText)
+	end
+
+	local prefix = string.format("%s %s", route.name, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getDungeon(args)
+	local params = (args or {}).Input or ""
+	local routeId = getRouteIdOrDefault(params)
+	local route = RouteData.Info[routeId or false]
+	if not route then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	-- Check for trainers in the area/route
+	local defeatedTrainers, totalTrainers
+	if route.area ~= nil then
+		defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByCombinedArea(route.area)
+	elseif route.trainers and #route.trainers > 0 then
+		defeatedTrainers, totalTrainers = Program.getDefeatedTrainersByLocation(routeId)
+	end
+	if defeatedTrainers and totalTrainers then
+		local trainersText = string.format("%s: %s/%s", "Trainers defeated", #defeatedTrainers, totalTrainers)
+		table.insert(info, trainersText)
+	end
+	local routeName = route.area and route.area.name or route.name
+	local prefix = string.format("%s %s", routeName, OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getPivots(args)
+	-- local params = (args or {}).Input or ""
+	local info = {}
+	local mapIds
+	if GameSettings.game == 3 then -- FRLG
+		mapIds = { 89, 90, 110, 117 } -- Route 1, 2, 22, Viridian Forest
+	else -- RSE
+		local offset = GameSettings.versioncolor == "Emerald" and 0 or 1 -- offset all "mapId > 107" by +1
+		mapIds = { 17, 18, 19, 20, 32, 135 + offset } -- Route 101, 102, 103, 104, 116, Petalburg Forest
+	end
+	for _, mapId in ipairs(mapIds) do
+		-- Check for tracked wild encounters in the route
+		local seenIds = Tracker.getRouteEncounters(mapId, RouteData.EncounterArea.LAND)
+		local pokemonNames = {}
+		for _, pokemonId in ipairs(seenIds) do
+			if PokemonData.isValid(pokemonId) then
+				table.insert(pokemonNames, PokemonData.Pokemon[pokemonId].name)
+			end
+		end
+		if #seenIds > 0 then
+			local route = RouteData.Info[mapId or false] or {}
+			table.insert(info, string.format("%s: %s", route.name or "Unknown Route", table.concat(pokemonNames, ", ")))
+		end
+	end
+	local prefix = string.format("%s %s", "Pivots", OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getRevo(args)
+	local params = (args or {}).Input or ""
+	local pokemonID, targetEvoId
+	if (params or "") ~= "" then
+		pokemonID = DataHelper.findPokemonId(params)
+		-- If more than one Pokémon name is provided, set the other as the target evo (i.e. "Eevee Vaporeon")
+		if pokemonID == 0 then
+			local s = Utils.split(params, " ", true)
+			pokemonID = DataHelper.findPokemonId(s[1])
+			targetEvoId = DataHelper.findPokemonId(s[2])
+		end
+	else
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		pokemonID = pokemon.pokemonID
+	end
+	local revo = PokemonRevoData.getEvoTable(pokemonID, targetEvoId)
+	if not revo then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local shortenPerc = function(p)
+		if p < 0.01 then return "<0.01%"
+		elseif p < 0.1 then return string.format("%.2f%%", p)
+		else return string.format("%.1f%%", p) end
+	end
+	local extraMons = 0
+	for _, revoInfo in ipairs(revo) do
+		if #info < MAX_ITEMS then
+			table.insert(info, string.format("%s %s", PokemonData.Pokemon[revoInfo.id].name, shortenPerc(revoInfo.perc)))
+		else
+			extraMons = extraMons + 1
+		end
+	end
+	if extraMons > 0 then
+		table.insert(info, string.format("(+%s more Pokémon)", extraMons))
+	end
+	local prefix = string.format("%s %s %s", PokemonData.Pokemon[pokemonID].name, "Evos", OUTPUT_CHAR)
+	return buildResponse(prefix, info, ", ")
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getCoverage(args)
+	local params = (args or {}).Input or ""
+	local calcFromLead = true
+	local onlyFullyEvolved = false
+	local moveTypes = {}
+	if params ~= "" then
+		for _, word in ipairs(Utils.split(params, " ", true) or {}) do
+			if Utils.containsText(word, "evolve", true) or Utils.containsText(word, "fully", true) then
+				onlyFullyEvolved = true
+			else
+				local moveType = DataHelper.findPokemonType(word)
+				if moveType and moveType ~= "EMPTY" then
+					calcFromLead = false
+					table.insert(moveTypes, PokemonData.Types[moveType] or moveType)
+				end
+			end
+		end
+	end
+	if calcFromLead then
+		moveTypes = CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(1) or {}
+	end
+	if #moveTypes == 0 then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local coverageData = CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
+	local multipliers = {}
+	for _, tab in pairs(CoverageCalcScreen.Tabs) do
+		table.insert(multipliers, tab)
+	end
+	table.sort(multipliers, function(a,b) return a < b end)
+	for _, tab in ipairs(multipliers) do
+		local mons = coverageData[tab] or {}
+		if #mons > 0 then
+			local format = "[%0dx] %s"
+			if tab == CoverageCalcScreen.Tabs.Half then
+				format = "[%0.1fx] %s"
+			elseif tab == CoverageCalcScreen.Tabs.Quarter then
+				format = "[%0.2fx] %s"
+			end
+			table.insert(info, string.format(format, tab, #mons))
+		end
+	end
+
+	local pokemon = Tracker.getPokemon(1, true) or {}
+	local typesText = Utils.firstToUpperEachWord(table.concat(moveTypes, ", "))
+	local fullyEvoText = onlyFullyEvolved and " Fully Evolved" or ""
+	local prefix = string.format("%s (%s)%s %s", "Coverage", typesText, fullyEvoText, OUTPUT_CHAR)
+	if calcFromLead and PokemonData.isValid(pokemon.pokemonID) then
+		prefix = string.format("%s's %s", PokemonData.Pokemon[pokemon.pokemonID].name, prefix)
+	end
+	return buildResponse(prefix, info, ", ")
+end
+
+---@param args table|nil
+---@return string response
+function DataHelper.EventRequests.getNotes(args)
+	local params = (args or {}).Input or ""
+	local pokemon = getPokemonOrDefault(params)
+	if not pokemon then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	-- Tracked Abilities
+	local trackedAbilities = {}
+	for _, ability in ipairs(Tracker.getAbilities(pokemon.pokemonID) or {}) do
+		if AbilityData.isValid(ability.id) then
+			table.insert(trackedAbilities, AbilityData.Abilities[ability.id].name)
+		end
+	end
+	if #trackedAbilities > 0 then
+		table.insert(info, string.format("%s: %s", "Abilities", table.concat(trackedAbilities, ", ")))
+	end
+	-- Tracked Stat Markings
+	local trackedStatMarkings = {}
+	for statKey, statMark in pairs(Tracker.getStatMarkings(pokemon.pokemonID) or {}) do
+		if statMark ~= 0 then
+			local marking = Constants.STAT_STATES[statMark] or {}
+			local symbol = string.sub(marking.text or " ", 1, 1) or ""
+			table.insert(trackedStatMarkings, string.format("%s(%s)", Utils.toUpperUTF8(statKey), symbol))
+		end
+	end
+	if #trackedStatMarkings > 0 then
+		table.insert(info, string.format("%s: %s", "Stats", table.concat(trackedStatMarkings, ", ")))
+	end
+	-- Tracked Moves
+	local trackedMoves = {}
+	for _, move in ipairs(Tracker.getMoves(pokemon.pokemonID) or {}) do
+		if MoveData.isValid(move.id) then
+			-- { id = moveId, level = level, minLv = level, maxLv = level, },
+			local lvText
+			if move.minLv and move.maxLv and move.minLv ~= move.maxLv then
+				lvText = string.format(" (%s.%s-%s)", Resources.TrackerScreen.LevelAbbreviation, move.minLv, move.maxLv)
+			elseif move.level > 0 then
+				lvText = string.format(" (%s.%s)", Resources.TrackerScreen.LevelAbbreviation, move.level)
+			end
+			table.insert(trackedMoves, string.format("%s%s", MoveData.Moves[move.id].name, lvText or ""))
+		end
+	end
+	if #trackedMoves > 0 then
+		table.insert(info, string.format("%s: %s", "Moves", table.concat(trackedMoves, ", ")))
+	end
+	-- Tracked Encounters
+	local seenInWild = Tracker.getEncounters(pokemon.pokemonID, true)
+	local seenOnTrainers = Tracker.getEncounters(pokemon.pokemonID, false)
+	local trackedSeen = {}
+	if seenInWild > 0 then
+		table.insert(trackedSeen, string.format("%s in wild", seenInWild))
+	end
+	if seenOnTrainers > 0 then
+		table.insert(trackedSeen, string.format("%s on trainers", seenOnTrainers))
+	end
+	if #trackedSeen > 0 then
+		table.insert(info, string.format("%s: %s", "Seen", table.concat(trackedSeen, ", ")))
+	end
+	-- Tracked Notes
+	local trackedNote = Tracker.getNote(pokemon.pokemonID)
+	if #trackedNote > 0 then
+		table.insert(info, string.format("%s: %s", "Note", trackedNote))
+	end
+	local prefix = string.format("%s %s %s", pokemon.name, "Notes", OUTPUT_CHAR)
+	return buildResponse(prefix, info)
+end

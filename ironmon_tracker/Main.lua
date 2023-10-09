@@ -111,28 +111,25 @@ function Main.Run()
 		if Main.resetCallbackId == nil then
 			 -- start doesn't get trigged on-reset
 			Main.resetCallbackId = callbacks:add("reset", function()
-				-- Emulator is closing as expected; no crash
-				CrashRecoveryScreen.logCrashReport(false)
+				Main.ExitSafely(false)
 				Main.Run()
 			end)
 		end
 		if Main.stopCallbackId == nil then
 			Main.stopCallbackId = callbacks:add("stop", function()
-				-- Emulator is closing as expected; no crash
-				CrashRecoveryScreen.logCrashReport(false)
+				Main.ExitSafely(false)
 				MGBA.removeActiveRunCallbacks()
 			end)
 		end
 		if Main.shutdownCallbackId == nil then
 			Main.shutdownCallbackId = callbacks:add("shutdown", function()
-				-- Emulator is closing as expected; no crash
-				CrashRecoveryScreen.logCrashReport(false)
+				Main.ExitSafely(false)
 				MGBA.removeActiveRunCallbacks()
 			end)
 		end
 		if Main.crashedCallbackId == nil then
 			Main.crashedCallbackId = callbacks:add("crashed", function()
-				CrashRecoveryScreen.logCrashReport(true)
+				Main.ExitSafely(true)
 				MGBA.removeActiveRunCallbacks()
 			end)
 		end
@@ -175,10 +172,7 @@ function Main.Run()
 
 	if Main.IsOnBizhawk() then
 		event.onexit(Program.HandleExit, "HandleExit")
-		event.onconsoleclose(function()
-			-- Emulator is closing as expected; no crash
-			CrashRecoveryScreen.logCrashReport(false)
-		end, "SafelyCloseWithoutCrash")
+		event.onconsoleclose(function() Main.ExitSafely(false) end, "SafelyCloseWithoutCrash")
 
 		-- Bizhawk 2.9+ doesn't properly refocus onto the emulator window after Quickload
 		if Options["Refocus emulator after load"] and Main.emulator ~= Main.EMU.BIZHAWK28 and not Drawing.AnimatedPokemon:isVisible() then
@@ -436,6 +430,13 @@ function Main.isOnLatestVersion(versionToCheck)
 	return not Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
 end
 
+--- Performs any final processes before emulator closes or restarts
+---@param crashed boolean|nil (Optional) If true, log that a crash occurred; for next Tracker startup
+function Main.ExitSafely(crashed)
+	Network.closeConnections()
+	CrashRecoveryScreen.logCrashReport(crashed == true)
+end
+
 function Main.LoadNextRom()
 	Main.loadNextSeed = false
 	Program.GameTimer:reset()
@@ -459,10 +460,9 @@ function Main.LoadNextRom()
 		Main.DisplayError("No Quickload method has been chosen yet.\n\nEnable this at: Tracker Settings (gear icon) -> Quickload")
 	end
 
-	-- Tracker restart is expected from quickload, so avoid a falsely-flagged "crash"
-	CrashRecoveryScreen.logCrashReport(false)
-	if nextRomInfo ~= nil then
+	Main.ExitSafely(false)
 
+	if nextRomInfo ~= nil then
 		-- After successfully generating the next ROM to load: increment attempts, reset tracker data, and make a backup save state
 		local backUpName = string.format("%s %s %s", GameSettings.versioncolor or "", FileManager.PostFixes.PREVIOUSATTEMPT, FileManager.PostFixes.BACKUPSAVE)
 		local backupfilepath = FileManager.prependDir(FileManager.Folders.BackupSaves) .. FileManager.slash .. backUpName

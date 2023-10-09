@@ -1,8 +1,9 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
-	TEXT_INBOUND_FILE = "Inbound-Tracker.txt",
-	TEXT_OUTBOUND_FILE = "Outbound-Tracker.txt",
+	TEXT_UPDATE_FREQUENCY = 3, -- # of seconds
+	TEXT_INBOUND_FILE = "Inbound-Tracker.txt", -- The CLIENT's inbound data file; Tracker is the "Server" and will write responses to this file
+	TEXT_OUTBOUND_FILE = "Outbound-Tracker.txt", -- The CLIENT's outbound data file; Tracker is the "Server" and will read requests from this file
 	-- WEBSOCKET_SERVER_IP = "127.0.0.1", -- Not supported
 	-- WEBSOCKET_SERVER_PORT = "8080", -- Not supported
 }
@@ -52,13 +53,21 @@ function Network.tryConnect(connectionType)
 	elseif connectionType == Network.ConnectionTypes.Http then
 		-- Not supported
 	elseif connectionType == Network.ConnectionTypes.TextFiles then
-		C.UpdateFrequency = 3
+		C.UpdateFrequency = Network.TEXT_UPDATE_FREQUENCY
 		C.UpdateFunction = Network.updateByText
 		local folder = Network.Options["DataFolder"] or ""
 		C.InboundFile = folder .. FileManager.slash .. Network.TEXT_INBOUND_FILE
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
 		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
 	end
+end
+
+--- Closes any active connections and saves outstanding Requests
+function Network.closeConnections()
+	if Network.isConnected() then
+		Network.CurrentConnection.IsConnected = false
+	end
+	RequestsManager.saveData()
 end
 
 function Network.update()
@@ -84,7 +93,7 @@ function Network.updateByText()
 	-- Part 1: Read new requests from the other application's outbound text file
 	local newRequests = FileManager.decodeJsonFile(C.OutboundFile)
 	for _, request in pairs(newRequests or {}) do
-		RequestsManager.addRequest(RequestsManager.IRequest:new({
+		RequestsManager.addNewRequest(RequestsManager.IRequest:new({
 			GUID = request.GUID,
 			EventType = request.EventType,
 			CreatedAt = request.CreatedAt,
@@ -94,13 +103,15 @@ function Network.updateByText()
 	end
 
 	-- Part 2: Process the requests
-	local responses = RequestsManager.processAllRequests()
+	RequestsManager.processAllRequests()
 
 	-- Part 3: Send responses to the other application's inbound text file
+	local responses = RequestsManager.getResponses()
 	-- Prevent consecutive "empty" file writes
 	if #responses > 0 or not C.InboundWasEmpty then
 		local success = FileManager.encodeToJsonFile(C.InboundFile, responses)
 		C.InboundWasEmpty = (success == false) -- false if no resulting json data
+		RequestsManager.clearResponses()
 	end
 end
 

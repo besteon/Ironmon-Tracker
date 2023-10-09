@@ -837,8 +837,7 @@ function Program.HandleExit()
 	client.SetGameExtraPadding(0, 0, 0, 0)
 	forms.destroyall()
 
-	-- Emulator is closing as expected; no crash
-	CrashRecoveryScreen.logCrashReport(false)
+	Main.ExitSafely(false)
 end
 
 -- Returns focus back to Bizhawk, using the name of the rom as the name of the Bizhawk window

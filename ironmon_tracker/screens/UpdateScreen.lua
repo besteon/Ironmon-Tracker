@@ -353,9 +353,8 @@ function UpdateScreen.performUpdate()
 		Main.Version.showUpdate = false
 		-- Main.Version.updateAfterRestart = false -- Currently unused
 		Main.Version.showReleaseNotes = true
-		-- Emulator is closing as expected; no crash
-		CrashRecoveryScreen.logCrashReport(false)
 		Main.SaveSettings(true)
+		Main.ExitSafely(false)
 	else
 		UpdateScreen.currentState = UpdateScreen.States.ERROR
 	end
