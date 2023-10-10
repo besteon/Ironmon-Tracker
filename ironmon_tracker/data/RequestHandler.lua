@@ -242,12 +242,6 @@ function RequestHandler.loadCoreEvents()
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Notes",
-		Command = "!notes",
-		Help = "name > Displays all tracked info and notes for a Pokémon.",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getNotes(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Heals",
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
@@ -260,11 +254,10 @@ function RequestHandler.loadCoreEvents()
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_SearchNotes",
-		Command = "!searchnotes",
-		Help = "[pokemon move ability] > Searches your tracked info for a [thing], and displays the results.",
-		-- TODO: Implement this from scratch; should replace !notes
-		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.Args) end,
+		Key = "CMD_Search",
+		Command = "!search",
+		Help = "[mode] [terms] > Search for a [Pokémon/Move/Ability/Note] followed by the search [terms].",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Theme",

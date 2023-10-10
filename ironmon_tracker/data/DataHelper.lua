@@ -817,17 +817,17 @@ local DEFAULT_OUTPUT_MSG = "No info found."
 
 ---Returns a response message by combining information into a single string
 ---@param prefix string|nil [Optional] Prefixes the response with this header as "HEADER RESPONSE"
----@param infoList table|string|nil [Optional] A list of strings (or single string) to combine
+---@param infoList table|string|nil [Optional] A string or list of strings to combine
 ---@param infoDelimeter string|nil [Optional] Defaults to " | "
----@return string response Example: "Prefiex Info Item 1 | Info Item 2 | Info Item 3"
+---@return string response Example: "Prefix Info Item 1 | Info Item 2 | Info Item 3"
 local function buildResponse(prefix, infoList, infoDelimeter)
 	prefix = prefix and prefix ~= "" and (prefix .. " ") or ""
-	if type(infoList) ~= "table" then
-		return prefix .. tostring(infoList)
-	elseif infoList and #infoList > 0 then
-		return prefix .. table.concat(infoList, infoDelimeter or " | ")
-	else
+	if not infoList or #infoList == 0 then
 		return prefix .. DEFAULT_OUTPUT_MSG
+	elseif type(infoList) ~= "table" then
+		return prefix .. tostring(infoList)
+	else
+		return prefix .. table.concat(infoList, infoDelimeter or " | ")
 	end
 end
 local function buildDefaultResponse(input)
@@ -1213,78 +1213,6 @@ function DataHelper.EventRequests.getCoverage(args)
 	return buildResponse(prefix, info, ", ")
 end
 
--- TODO: Combine this with getSearchNotes below
----@param args table|nil
----@return string response
-function DataHelper.EventRequests.getNotes(args)
-	local params = (args or {}).Input or ""
-	local pokemon = getPokemonOrDefault(params)
-	if not pokemon then
-		return buildDefaultResponse(params)
-	end
-
-	local info = {}
-	-- Tracked Abilities
-	local trackedAbilities = {}
-	for _, ability in ipairs(Tracker.getAbilities(pokemon.pokemonID) or {}) do
-		if AbilityData.isValid(ability.id) then
-			table.insert(trackedAbilities, AbilityData.Abilities[ability.id].name)
-		end
-	end
-	if #trackedAbilities > 0 then
-		table.insert(info, string.format("%s: %s", "Abilities", table.concat(trackedAbilities, ", ")))
-	end
-	-- Tracked Stat Markings
-	local trackedStatMarkings = {}
-	for statKey, statMark in pairs(Tracker.getStatMarkings(pokemon.pokemonID) or {}) do
-		if statMark ~= 0 then
-			local marking = Constants.STAT_STATES[statMark] or {}
-			local symbol = string.sub(marking.text or " ", 1, 1) or ""
-			table.insert(trackedStatMarkings, string.format("%s(%s)", Utils.toUpperUTF8(statKey), symbol))
-		end
-	end
-	if #trackedStatMarkings > 0 then
-		table.insert(info, string.format("%s: %s", "Stats", table.concat(trackedStatMarkings, ", ")))
-	end
-	-- Tracked Moves
-	local trackedMoves = {}
-	for _, move in ipairs(Tracker.getMoves(pokemon.pokemonID) or {}) do
-		if MoveData.isValid(move.id) then
-			-- { id = moveId, level = level, minLv = level, maxLv = level, },
-			local lvText
-			if move.minLv and move.maxLv and move.minLv ~= move.maxLv then
-				lvText = string.format(" (%s.%s-%s)", Resources.TrackerScreen.LevelAbbreviation, move.minLv, move.maxLv)
-			elseif move.level > 0 then
-				lvText = string.format(" (%s.%s)", Resources.TrackerScreen.LevelAbbreviation, move.level)
-			end
-			table.insert(trackedMoves, string.format("%s%s", MoveData.Moves[move.id].name, lvText or ""))
-		end
-	end
-	if #trackedMoves > 0 then
-		table.insert(info, string.format("%s: %s", "Moves", table.concat(trackedMoves, ", ")))
-	end
-	-- Tracked Encounters
-	local seenInWild = Tracker.getEncounters(pokemon.pokemonID, true)
-	local seenOnTrainers = Tracker.getEncounters(pokemon.pokemonID, false)
-	local trackedSeen = {}
-	if seenInWild > 0 then
-		table.insert(trackedSeen, string.format("%s in wild", seenInWild))
-	end
-	if seenOnTrainers > 0 then
-		table.insert(trackedSeen, string.format("%s on trainers", seenOnTrainers))
-	end
-	if #trackedSeen > 0 then
-		table.insert(info, string.format("%s: %s", "Seen", table.concat(trackedSeen, ", ")))
-	end
-	-- Tracked Notes
-	local trackedNote = Tracker.getNote(pokemon.pokemonID)
-	if #trackedNote > 0 then
-		table.insert(info, string.format("%s: %s", "Note", trackedNote))
-	end
-	local prefix = string.format("%s %s %s", pokemon.name, "Notes", OUTPUT_CHAR)
-	return buildResponse(prefix, info)
-end
-
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getHeals(args)
@@ -1469,11 +1397,177 @@ end
 
 ---@param args table|nil
 ---@return string response
-function DataHelper.EventRequests.getSearchNotes(args)
+function DataHelper.EventRequests.getSearch(args)
 	local params = (args or {}).Input or ""
+	local helpResponse = "Search for a [Pokémon/Move/Ability/Note] followed by the search [terms]."
+	if params == "" then
+		return buildResponse(string.format("%s %s", "[mode] [terms]", OUTPUT_CHAR), helpResponse)
+	end
+	local paramsAsList = Utils.split(params, " ", true)
+	local searchMode = Utils.toLowerUTF8(paramsAsList[1])
+	local searchTerms = Utils.toLowerUTF8(table.concat(paramsAsList, " ", 2))
+	if searchTerms == "" then
+		return buildResponse(string.format("%s %s", params, OUTPUT_CHAR), string.format("%s", "Search terms missing."))
+	end
+
 	local info = {}
-	local prefix = ""
-	return buildResponse(prefix, info)
+	if searchMode == "pokemon" then
+		local pokemon = getPokemonOrDefault(searchTerms)
+		if not pokemon then
+			return buildDefaultResponse(searchTerms)
+		end
+		-- Tracked Abilities
+		local trackedAbilities = {}
+		for _, ability in ipairs(Tracker.getAbilities(pokemon.pokemonID) or {}) do
+			if AbilityData.isValid(ability.id) then
+				table.insert(trackedAbilities, AbilityData.Abilities[ability.id].name)
+			end
+		end
+		if #trackedAbilities > 0 then
+			table.insert(info, string.format("%s: %s", "Abilities", table.concat(trackedAbilities, ", ")))
+		end
+		-- Tracked Stat Markings
+		local trackedStatMarkings = {}
+		for statKey, statMark in pairs(Tracker.getStatMarkings(pokemon.pokemonID) or {}) do
+			if statMark ~= 0 then
+				local marking = Constants.STAT_STATES[statMark] or {}
+				local symbol = string.sub(marking.text or " ", 1, 1) or ""
+				table.insert(trackedStatMarkings, string.format("%s(%s)", Utils.toUpperUTF8(statKey), symbol))
+			end
+		end
+		if #trackedStatMarkings > 0 then
+			table.insert(info, string.format("%s: %s", "Stats", table.concat(trackedStatMarkings, ", ")))
+		end
+		-- Tracked Moves
+		local trackedMoves = {}
+		for _, move in ipairs(Tracker.getMoves(pokemon.pokemonID) or {}) do
+			if MoveData.isValid(move.id) then
+				-- { id = moveId, level = level, minLv = level, maxLv = level, },
+				local lvText
+				if move.minLv and move.maxLv and move.minLv ~= move.maxLv then
+					lvText = string.format(" (%s.%s-%s)", Resources.TrackerScreen.LevelAbbreviation, move.minLv, move.maxLv)
+				elseif move.level > 0 then
+					lvText = string.format(" (%s.%s)", Resources.TrackerScreen.LevelAbbreviation, move.level)
+				end
+				table.insert(trackedMoves, string.format("%s%s", MoveData.Moves[move.id].name, lvText or ""))
+			end
+		end
+		if #trackedMoves > 0 then
+			table.insert(info, string.format("%s: %s", "Moves", table.concat(trackedMoves, ", ")))
+		end
+		-- Tracked Encounters
+		local seenInWild = Tracker.getEncounters(pokemon.pokemonID, true)
+		local seenOnTrainers = Tracker.getEncounters(pokemon.pokemonID, false)
+		local trackedSeen = {}
+		if seenInWild > 0 then
+			table.insert(trackedSeen, string.format("%s in wild", seenInWild))
+		end
+		if seenOnTrainers > 0 then
+			table.insert(trackedSeen, string.format("%s on trainers", seenOnTrainers))
+		end
+		if #trackedSeen > 0 then
+			table.insert(info, string.format("%s: %s", "Seen", table.concat(trackedSeen, ", ")))
+		end
+		-- Tracked Notes
+		local trackedNote = Tracker.getNote(pokemon.pokemonID)
+		if #trackedNote > 0 then
+			table.insert(info, string.format("%s: %s", "Note", trackedNote))
+		end
+		local prefix = string.format("%s %s %s", "Tracked", pokemon.name, OUTPUT_CHAR)
+		return buildResponse(prefix, info)
+	elseif searchMode == "move" then
+		local move = getMoveOrDefault(searchTerms)
+		if not move then
+			return buildDefaultResponse(searchTerms)
+		end
+		local moveId = tonumber(move.id) or 0
+		local foundMons = {}
+		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
+			for _, trackedMove in ipairs(trackedPokemon.moves or {}) do
+				if trackedMove.id == moveId and trackedMove.level > 0 then
+					local lvText = tostring(trackedMove.level)
+					if trackedMove.minLv and trackedMove.maxLv and trackedMove.minLv ~= trackedMove.maxLv then
+						lvText = string.format("%s-%s", trackedMove.minLv, trackedMove.maxLv)
+					end
+					local pokemon = PokemonData.Pokemon[pokemonID]
+					local notes = string.format("%s (%s.%s)", pokemon.name, Resources.TrackerScreen.LevelAbbreviation, lvText)
+					table.insert(foundMons, { id = pokemonID, bst = tonumber(pokemon.bst or "0"), notes = notes})
+					break
+				end
+			end
+		end
+		table.sort(foundMons, function(a,b) return a.bst > b.bst or (a.bst == b.bst and a.id < b.id) end)
+		local extra = 0
+		for _, mon in ipairs(foundMons) do
+			if #info < MAX_ITEMS then
+				table.insert(info, mon.notes)
+			else
+				extra = extra + 1
+			end
+		end
+		if extra > 0 then
+			table.insert(info, string.format("(+%s more Pokémon)", extra))
+		end
+		local prefix = string.format("%s %s %s Pokémon:", move.name, OUTPUT_CHAR, #foundMons)
+		return buildResponse(prefix, info)
+	elseif searchMode == "ability" then
+		local ability = getAbilityOrDefault(searchTerms)
+		if not ability then
+			return buildDefaultResponse(searchTerms)
+		end
+		local foundMons = {}
+		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
+			for _, trackedAbility in ipairs(trackedPokemon.abilities or {}) do
+				if trackedAbility.id == ability.id then
+					local pokemon = PokemonData.Pokemon[pokemonID]
+					table.insert(foundMons, { id = pokemonID, bst = tonumber(pokemon.bst or "0"), notes = pokemon.name })
+					break
+				end
+			end
+		end
+		table.sort(foundMons, function(a,b) return a.bst > b.bst or (a.bst == b.bst and a.id < b.id) end)
+		local extra = 0
+		for _, mon in ipairs(foundMons) do
+			if #info < MAX_ITEMS then
+				table.insert(info, mon.notes)
+			else
+				extra = extra + 1
+			end
+		end
+		if extra > 0 then
+			table.insert(info, string.format("(+%s more Pokémon)", extra))
+		end
+		local prefix = string.format("%s %s %s Pokémon:", ability.name, OUTPUT_CHAR, #foundMons)
+		return buildResponse(prefix, info)
+	-- elseif searchMode == "stat" then -- Might implement later
+	-- 	local prefix = string.format("%s %s", "", OUTPUT_CHAR)
+	-- 	return buildResponse(prefix, info)
+	elseif searchMode == "note" then
+		local foundMons = {}
+		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
+			if trackedPokemon.note and Utils.containsText(trackedPokemon.note, searchTerms, true) then
+				local pokemon = PokemonData.Pokemon[pokemonID]
+				table.insert(foundMons, { id = pokemonID, bst = tonumber(pokemon.bst or "0"), notes = pokemon.name })
+			end
+		end
+		table.sort(foundMons, function(a,b) return a.bst > b.bst or (a.bst == b.bst and a.id < b.id) end)
+		local extra = 0
+		for _, mon in ipairs(foundMons) do
+			if #info < MAX_ITEMS then
+				table.insert(info, mon.notes)
+			else
+				extra = extra + 1
+			end
+		end
+		if extra > 0 then
+			table.insert(info, string.format("(+%s more Pokémon)", extra))
+		end
+		local prefix = string.format("%s %s %s Pokémon:", searchTerms, OUTPUT_CHAR, #foundMons)
+		return buildResponse(prefix, info)
+	else
+		local prefix = string.format("%s %s", searchMode, OUTPUT_CHAR)
+		return buildResponse(prefix, helpResponse)
+	end
 end
 
 ---@param args table|nil
