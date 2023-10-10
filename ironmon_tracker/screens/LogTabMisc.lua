@@ -4,7 +4,7 @@ LogTabMisc = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		PC = {
@@ -52,7 +52,7 @@ LogTabMisc.Buttons = {
 		updateSelf = function(self) self.toggleState = (Options[self.optionKey] == true) end,
 		draw = function(self, shadowcolor)
 			if self.toggleState then
-				local color = Theme.COLORS[LogTabMisc.Colors.hightlight]
+				local color = Theme.COLORS[LogTabMisc.Colors.highlight]
 				local x, y = self.box[1] + self.box[3], self.box[2] - 2
 				x = x + Utils.calcWordPixelLength(self:getText()) + 7
 				Drawing.drawImageAsPixels(Constants.PixelImages.WARNING, x, y + 1, color, shadowcolor)
