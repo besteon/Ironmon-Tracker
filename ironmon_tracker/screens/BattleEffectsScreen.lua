@@ -20,6 +20,14 @@ BattleEffectsScreen = {
 		[3] = {},
 	}
 }
+function loadFieldEffects()
+	loadTerrain()
+	loadWeather()
+	local gPaydayMoney = Memory.readword(0x0202432e)
+	if gPaydayMoney ~= 0 then
+		BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectPayDay] = {active = true, amount = gPaydayMoney}
+	end
+end
 
 function loadTerrain()
 	--[[
@@ -98,6 +106,7 @@ function loadStatus2(index)
 	-----------------------------------------------------------------------------------------------------------
 
 	]]--
+	local remainingTurnsBide
 	if index == nil or index < 0 or index > 3 then
 		index = 0
 	end
@@ -117,15 +126,15 @@ function loadStatus2(index)
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectUproar] = {active=true}
 	end
 	if status2Map[8] or status2Map[9] then
-		local remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
+		remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectBide] = {active=true, remainingTurns=remainingTurnsBide}
 	end
-	if status2Map[12] then
+	if status2Map[12] and remainingTurnsBide == nil then
 		local duration = string.format("1 %s", Resources.BattleEffectsScreen.TextTurn)
 		if status2Map[4] or status2Map[5] or status2Map[6]then
-			duration = string.format("2- 3 %ss", Resources.BattleEffectsScreen.TextTurn)
-		elseif  status2Map[10] or status2Map[11] then
 			duration = string.format("2- 5 %ss", Resources.BattleEffectsScreen.TextTurn)
+		elseif  status2Map[10] or status2Map[11] then
+			duration = string.format("2- 3 %ss", Resources.BattleEffectsScreen.TextTurn)
 		end
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectMustAttack] = {active=true, totalTurns=duration}
 	end
@@ -149,9 +158,12 @@ function loadStatus2(index)
 	if status2Map[23] then
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectRage] = {active=true}
 	end
-	if status2Map[24] then
+	--[[
+		--leaving here since it is technically a battle status, but the player can physically see the substitute in the battle
+		if status2Map[24] then
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSubstitute] = {active=true}
 	end
+	]]--
 	if status2Map[25] then
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectDestinyBond] = {active=true}
 	end
@@ -206,8 +218,9 @@ function loadStatus3(index)
 		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed] then
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed].active = true
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed].source = leechSeedSource
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed] = {active=true}
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed] = {active=true, source=leechSeedSource}
 		end
 	end
 	if status3Map[3] or status3Map[4] then
@@ -284,9 +297,9 @@ function loadStatus3(index)
 		end
 		local sources = BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectMudSport].sources
 		if sources then
-			sources[index] = true
+			BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectMudSport].sources[index] = true
 		else
-			sources = {index = true}
+			BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectMudSport].sources = {[index] = true}
 		end
 	end
 	if status3Map[17] then
@@ -297,9 +310,9 @@ function loadStatus3(index)
 		end
 		local sources = BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectWaterSport].sources
 		if sources then
-			sources[index] = true
+			BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectWaterSport].sources[index] = true
 		else
-			sources = {index = true}
+			BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectWaterSport].sources = {[index] = true}
 		end
 	end
 end
@@ -400,7 +413,7 @@ function loadDisableStruct(index)
 	if index == nil or index < 0 or index > 3 then
 		return
 	end
-	local disableStructBase = 0x020242bc + (index * 0x1B)
+	local disableStructBase = 0x020242bc + (index * 0x1C)
 	local disabledMove = Memory.readword(disableStructBase + 0x04)
 	if disabledMove ~= 0 then
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectDisable] then
@@ -509,7 +522,7 @@ function loadWishStruct(index)
 	if index == nil or index < 0 or index > 3 then
 		return
 	end
-	local wishStructBase = 0x020242bc
+	local wishStructBase = 0x020243d0
 	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
 	if futureSightCounter ~= 0 then
 		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
@@ -544,8 +557,7 @@ end
 
 function BattleEffectsScreen.loadData()
 	BattleEffectsScreen.resetBattleDetails()
-	loadTerrain()
-	loadWeather()
+	loadFieldEffects()
 	for i=0,Battle.numBattlers-1,1 do
 		loadStatus2(i)
 		loadStatus3(i)
@@ -639,7 +651,8 @@ function drawBattleDetailsUI()
 	local allBattleStatuses = BattleEffectsScreen.BattleDetails
 	for key, value in pairs(allBattleStatuses) do
 		if key ~= Resources.BattleEffectsScreen.TextWeather and key ~= Resources.BattleEffectsScreen.TextTerrain and key ~= "WeatherTurns" and value.active then
-			Drawing.drawText(offsetX,offsetY, key, textColor, nil, linespacing, Constants.Font.FAMILY)
+			local text = parseInput(key,value)
+			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
 		end
@@ -660,26 +673,11 @@ function drawPerSideUI()
 
 	local Xdelta = 2
 	for key, value in pairs(allSideStatuses) do
-		local text = "- " .. key
-		if value.active then
-			if value.type then
-				text = text .. " (" .. value.type .. ")"
-			elseif value.move and MoveData.isValid(value.move) then
-				text = text .. " (" .. MoveData.Moves[value.move] .. ")"
-			elseif value.count then
-				text = text .. ": " .. value.count
-			elseif value.remainingTurns then
-				text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining
-			elseif value.source then
-				local sourceMon = Battle.BattleParties[value.source%2][Battle.Combatants[Battle.IndexMap[value.source]]] or {}
-				local abilityOwner = Tracker.getPokemon(battleMon.abilityOwner.slot,battleMon.abilityOwner.isOwn)
-				text = text .. " (" .. sourceMon.name .. ")[".. value.source .. "]"
-			end
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-			offsetY = offsetY + linespacing + 1
-			linesOnPage = linesOnPage + 1
-		end
+		local text = parseInput(key,value)
+		Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+		Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+		offsetY = offsetY + linespacing + 1
+		linesOnPage = linesOnPage + 1
 		if linesOnPage == BattleEffectsScreen.pageSize then break end
 	end
 end
@@ -703,32 +701,57 @@ function drawPerMonUI()
 	end
 	for key, value in pairs(allMonStatuses) do
 		if key ~= Resources.BattleEffectsScreen.TextLastMove then
-			local text = "- " .. key
-			if value.active then
-				if value.type then
-					text = text .. " (" .. value.type .. ")"
-				elseif value.move and MoveData.isValid(value.move) then
-					text = text .. " (" .. MoveData.Moves[value.move] .. ")"
-				elseif value.count then
-					text = text .. ": " .. value.count
-				elseif value.remainingTurns then
-					text = text .. ": " .. value.remainingTurns .. " " .. TextTurnsRemaining
-				elseif value.totalTurns then
-					text = text .. " (" .. value.totalTurns .. ")"
-				elseif value.source then
-					local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or {}
-					local sourceMon = Tracker.getPokemon(sourceMonIndex,value.source%2==0)
-					text = text .. " (" .. sourceMon.nickname .. ")"
-				end
-				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-				offsetY = offsetY + linespacing + 1
-				linesOnPage = linesOnPage + 1
-			end
+			local text = parseInput(key,value)
+
+			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+			offsetY = offsetY + linespacing + 1
+			linesOnPage = linesOnPage + 1
 			if linesOnPage == BattleEffectsScreen.pageSize then break end
 		end
 	end
 end
+
+function parseInput(key, value)
+	local text = ""
+	if value.active then
+		text = "- " .. key
+
+		if value.type then
+			text = text .. " (" .. value.type .. ")"
+		elseif value.move and MoveData.isValid(value.move) then
+			text = text .. " (" .. MoveData.Moves[value.move] .. ")"
+		elseif value.count then
+			text = text .. ": " .. value.count
+		elseif value.remainingTurns then
+			text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurn
+			if value.remainingTurns > 1 then
+				text = text .. "s"
+			end
+		elseif value.totalTurns then
+			text = text .. " (" .. value.totalTurns .. ")"
+		elseif value.source then
+			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or {}
+			local sourceMon = Tracker.getPokemon(sourceMonIndex,value.source%2==0)
+			text = text .. " (" .. sourceMon.nickname .. ")"
+		elseif value.sources then
+			text = text .. " ("
+			local i = 0
+			for sourceKey, sourceValue in pairs(value.sources) do
+				if i > 0 then
+					text = text .. ", "
+				end
+				local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or {}
+				local sourceMon = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0)
+				text = text .. sourceMon.nickname
+				i = i + 1
+			end
+			text = text .. ")"
+		end
+	end
+	return text
+end
+
 
 function drawBattleDiagram()
 	local ballColorList = { 0xFF000000, 0xFFF04037, 0xFFFFFFFF, }

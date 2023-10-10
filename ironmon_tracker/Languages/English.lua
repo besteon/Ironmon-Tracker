@@ -640,6 +640,7 @@ ScreenResources{
 		EffectFutureSight = "Future Sight",
 		EffectWish = "Wish",
 		EffectLastMove = "Last Move",
+		EffectPayDay = "Pay Day",
 	},
 	TeamViewArea = {
 		EggNickname = "EGG",
