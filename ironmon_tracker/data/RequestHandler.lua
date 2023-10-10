@@ -178,111 +178,128 @@ function RequestHandler.saveData()
 end
 
 function RequestHandler.loadCoreEvents()
-	-- TODO: Need a communication event to occur afterwards to inform the client of changes to events
+	-- TODO: Need a communication event to occur after load to inform the client of changes to events
 
 	-- CMD_: Chat Commands
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Pokemon",
 		Command = "!pokemon",
+		Help = "name > Displays useful game info for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_BST",
 		Command = "!bst",
+		Help = "name > Displays the base stat total (BST) for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Weak",
 		Command = "!weak",
+		Help = "name > Displays the weaknesses for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Move",
 		Command = "!move",
+		Help = "name > Displays game info for a move.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Ability",
 		Command = "!ability",
+		Help = "name > Displays game info for a Pokémon's ability.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Route",
 		Command = "!route",
+		Help = "name > Displays trainer and wild encounter info for a route or area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Dungeon",
 		Command = "!dungeon",
+		Help = "name > Displays info about which trainers have been defeated for an area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Pivots",
 		Command = "!pivots",
+		Help = "name > Displays known early game wild encounters for an area.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Revo",
 		Command = "!revo",
+		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Coverage",
 		Command = "!coverage",
+		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Notes",
 		Command = "!notes",
+		Help = "name > Displays all tracked info and notes for a Pokémon.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getNotes(request.Args) end,
 	}))
-
-	-- TODO: Still need to map this properly
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Heals",
 		Command = "!heals",
+		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_TMs",
 		Command = "!tms",
-		Fulfill = function(self, request) return DataHelper.EventRequests.getTMs(request.Args) end,
+		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
+		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_SearchNotes",
 		Command = "!searchnotes",
+		Help = "[pokemon move ability] > Searches your tracked info for a [thing], and displays the results.",
 		-- TODO: Implement this from scratch; should replace !notes
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Theme",
 		Command = "!theme",
-		-- TODO: Implement this from scratch
+		Help = "> Displays the name and code string for the current Tracker theme.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_GameStats",
 		Command = "!gamestats",
+		Help = "> Displays fun stats for the current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Progress",
 		Command = "!progress",
+		Help = "> Displays fun progress percentages for current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Log",
 		Command = "!log",
+		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_About",
 		Command = "!about",
+		Help = "> Displays info about the Ironmon Tracker and game being played.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Help",
 		Command = "!help",
+		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.Args) end,
 	}))
 

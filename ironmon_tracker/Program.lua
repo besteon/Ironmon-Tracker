@@ -1121,6 +1121,32 @@ function Program.recalcLeadPokemonHealingInfo()
 	end
 end
 
+---Returns sorted lists of obtained TM & HM items in the bag
+---@return table tms, table hms
+function Program.getTMsHMsBagItems()
+	local tms, hms = {}, {}
+	local key = Utils.getEncryptionKey(2) -- Want a 16-bit key
+	local address = Utils.getSaveBlock1Addr() + GameSettings.bagPocket_TmHm_offset
+	for i = 0, (GameSettings.bagPocket_TmHm_Size - 1), 1 do
+		local itemid_and_quantity = Memory.readdword(address + i * 0x4)
+		local itemID = Utils.getbits(itemid_and_quantity, 0, 16)
+		if itemID ~= 0 then
+			local quantity = Utils.getbits(itemid_and_quantity, 16, 16)
+			if key ~= nil then
+				quantity = Utils.bit_xor(quantity, key)
+			end
+			if MiscData.TMs[itemID] then
+				table.insert(tms, { id = itemID, quantity = quantity })
+			elseif MiscData.HMs[itemID] then
+				table.insert(hms, { id = itemID, quantity = quantity })
+			end
+		end
+	end
+	table.sort(tms, function(a,b) return a.id < b.id end)
+	table.sort(hms, function(a,b) return a.id < b.id end)
+	return tms, hms
+end
+
 Program.DefaultPokemon = {
 	personality = 0,
 	nickname = "",

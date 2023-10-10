@@ -1327,21 +1327,21 @@ function DataHelper.EventRequests.getHeals(args)
 	for id, quantity in pairs(Program.GameData.Items.HPHeals) do
 		local itemInfo = getSortableItem(id, quantity)
 		table.insert(healingItems, itemInfo)
-		if itemInfo and MiscData.HealingItems[id].pocket == MiscData.BagPocket.Berries then
+		if displayBerries and itemInfo and MiscData.HealingItems[id].pocket == MiscData.BagPocket.Berries then
 			table.insert(berryItems, itemInfo)
 		end
 	end
 	for id, quantity in pairs(Program.GameData.Items.PPHeals) do
 		local itemInfo = getSortableItem(id, quantity)
 		table.insert(ppItems, itemInfo)
-		if itemInfo and MiscData.PPItems[id].pocket == MiscData.BagPocket.Berries then
+		if displayBerries and itemInfo and MiscData.PPItems[id].pocket == MiscData.BagPocket.Berries then
 			table.insert(berryItems, itemInfo)
 		end
 	end
 	for id, quantity in pairs(Program.GameData.Items.StatusHeals) do
 		local itemInfo = getSortableItem(id, quantity)
 		table.insert(statusItems, itemInfo)
-		if itemInfo and MiscData.StatusItems[id].pocket == MiscData.BagPocket.Berries then
+		if displayBerries and itemInfo and MiscData.StatusItems[id].pocket == MiscData.BagPocket.Berries then
 			table.insert(berryItems, itemInfo)
 		end
 	end
@@ -1367,10 +1367,103 @@ end
 
 ---@param args table|nil
 ---@return string response
-function DataHelper.EventRequests.getTMs(args)
+function DataHelper.EventRequests.getTMsHMs(args)
 	local params = (args or {}).Input or ""
 	local info = {}
-	local prefix = ""
+	local prefix = string.format("%s %s", "TMs", OUTPUT_CHAR)
+	local canSeeTM = Options["Open Book Play Mode"]
+
+	local singleTmLookup
+	local displayGym, displayNonGym, displayHM
+	if #params ~= "" then
+		displayGym = Utils.containsText(params, "gym", true)
+		displayHM = Utils.containsText(params, "hm", true)
+		singleTmLookup = tonumber(params:match("(%d+)") or "")
+	end
+	-- Default to showing just tms (gym & other)
+	if not displayGym and not displayHM and not singleTmLookup then
+		displayGym = true
+		displayNonGym = true
+	end
+	local tms, hms = Program.getTMsHMsBagItems()
+	if singleTmLookup then
+		if not canSeeTM then
+			for _, item in ipairs(tms or {}) do
+				local tmInBag = item.id - 289 + 1 -- 289 is the item ID of the first TM
+				if singleTmLookup == tmInBag then
+					canSeeTM = true
+					break
+				end
+			end
+		end
+		local moveId = Program.getMoveIdFromTMHMNumber(singleTmLookup)
+		local textToAdd
+		if canSeeTM and MoveData.isValid(moveId) then
+			textToAdd = MoveData.Moves[moveId].name
+		else
+			textToAdd = string.format("%s %s", Constants.BLANKLINE, "(not acquired yet)")
+		end
+		return buildResponse(prefix, string.format("%s %02d: %s", "TM", singleTmLookup, textToAdd))
+	end
+	if displayGym or displayNonGym then
+		local isGymTm = {}
+		for _, gymInfo in ipairs(TrainerData.GymTMs) do
+			if gymInfo.number then
+				isGymTm[gymInfo.number] = true
+			end
+		end
+		local tmsObtained = {}
+		local otherTMs, gymTMs = {}, {}
+		for _, item in ipairs(tms or {}) do
+			local tmNumber = item.id - 289 + 1 -- 289 is the item ID of the first TM
+			local moveId = Program.getMoveIdFromTMHMNumber(tmNumber)
+			if MoveData.isValid(moveId) then
+				tmsObtained[tmNumber] = string.format("#%02d %s", tmNumber, MoveData.Moves[moveId].name)
+				if not isGymTm[tmNumber] then
+					table.insert(otherTMs, tmsObtained[tmNumber])
+				end
+			end
+		end
+		if displayGym then
+			-- Get them sorted in Gym ordered
+			for _, gymInfo in ipairs(TrainerData.GymTMs) do
+				if tmsObtained[gymInfo.number] then
+					table.insert(gymTMs, tmsObtained[gymInfo.number])
+				elseif canSeeTM then
+					local moveId = Program.getMoveIdFromTMHMNumber(gymInfo.number)
+					table.insert(gymTMs, string.format("#%02d %s", gymInfo.number, MoveData.Moves[moveId].name))
+				end
+			end
+			local textToAdd = #gymTMs > 0 and table.concat(gymTMs, ", ") or "None"
+			table.insert(info, string.format("%s: %s", Resources.LogOverlay.LabelGymTMs, textToAdd))
+		end
+		if displayNonGym then
+			local textToAdd
+			if #otherTMs > 0 then
+				local otherMax = math.min(#otherTMs, MAX_ITEMS - #gymTMs)
+				textToAdd = table.concat(otherTMs, ", ", 1, otherMax)
+				if #otherTMs > otherMax then
+					textToAdd = string.format("%s, (+%s more TMs)", textToAdd, #otherTMs - otherMax)
+				end
+			else
+				textToAdd = "None"
+			end
+			table.insert(info, string.format("%s: %s", "Other", textToAdd))
+		end
+	end
+	if displayHM then
+		local hmTexts = {}
+		for _, item in ipairs(hms or {}) do
+			local hmNumber = item.id - 339 + 1 -- 339 is the item ID of the first HM
+			local moveId = Program.getMoveIdFromTMHMNumber(hmNumber)
+			if MoveData.isValid(moveId) then
+				local hmText = string.format("%s (HM%02d)", MoveData.Moves[moveId].name, hmNumber)
+				table.insert(hmTexts, hmText)
+			end
+		end
+		local textToAdd = #hmTexts > 0 and table.concat(hmTexts, ", ") or "None"
+		table.insert(info, string.format("%s: %s", "HMs", textToAdd))
+	end
 	return buildResponse(prefix, info)
 end
 
@@ -1386,18 +1479,34 @@ end
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getTheme(args)
-	local params = (args or {}).Input or ""
 	local info = {}
-	local prefix = ""
+	local themeCode = Theme.exportThemeToText()
+	local themeName = "Custom"
+	for _, themePair in ipairs(Theme.Presets or {}) do
+		if themePair.code == themeCode then
+			themeName = themePair:getText()
+			break
+		end
+	end
+	table.insert(info, string.format("%s: %s", themeName, themeCode))
+	local prefix = string.format("%s %s", "Theme", OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
 
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getGameStats(args)
-	local params = (args or {}).Input or ""
 	local info = {}
-	local prefix = ""
+	for _, statPair in ipairs(StatsScreen.StatTables or {}) do
+		if type(statPair.getText) == "function" and type(statPair.getValue) == "function" then
+			local statValue = statPair.getValue() or 0
+			if type(statValue) == "number" then
+				statValue = Utils.formatNumberWithCommas(statValue)
+			end
+			table.insert(info, string.format("%s: %s", statPair:getText(), statValue))
+		end
+	end
+	local prefix = string.format("%s %s", Resources.GameOptionsScreen.ButtonGameStats, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
 
@@ -1405,26 +1514,80 @@ end
 ---@return string response
 function DataHelper.EventRequests.getProgress(args)
 	local params = (args or {}).Input or ""
+	local includeSevii = Utils.containsText(params, "sevii", true)
 	local info = {}
-	local prefix = ""
+	local badgesObtained, maxBadges = 0, 8
+	for i = 1, maxBadges, 1 do
+		local badgeButton = TrackerScreen.Buttons["badge" .. i] or {}
+		if (badgeButton.badgeState or 0) ~= 0 then
+			badgesObtained = badgesObtained + 1
+		end
+	end
+	table.insert(info, string.format("%s: %s/%s", "Gym badges", badgesObtained, maxBadges))
+	local saveBlock1Addr = Utils.getSaveBlock1Addr()
+	local totalDefeated, totalTrainers = 0, 0
+	for mapId, route in pairs(RouteData.Info) do
+		-- Don't check sevii islands (id = 230+) by default
+		if mapId < 230 or includeSevii then
+			if route.trainers and #route.trainers > 0 then
+				local defeatedTrainers, totalInRoute = Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
+				totalDefeated = totalDefeated + #defeatedTrainers
+				totalTrainers = totalTrainers + totalInRoute
+			end
+		end
+	end
+	table.insert(info, string.format("%s: %s/%s (%0.1f%%)",
+		"Trainers defeated",
+		totalDefeated,
+		totalTrainers,
+		totalDefeated / totalTrainers * 100))
+	local fullyEvolvedSeen, fullyEvolvedTotal = 0, 0
+	-- local legendarySeen, legendaryTotal = 0, 0
+	for pokemonID, pokemon in ipairs(PokemonData.Pokemon) do
+		if pokemon.evolution == PokemonData.Evolutions.NONE then
+			fullyEvolvedTotal = fullyEvolvedTotal + 1
+			local trackedPokemon = Tracker.Data.allPokemon[pokemonID] or {}
+			if (trackedPokemon.eT or 0) > 0 then
+				fullyEvolvedSeen = fullyEvolvedSeen + 1
+			end
+		end
+	end
+	table.insert(info, string.format("%s: %s/%s (%0.1f%%)", --, Legendary: %s/%s (%0.1f%%)",
+		"Pokémon seen fully evolved",
+		fullyEvolvedSeen,
+		fullyEvolvedTotal,
+		fullyEvolvedSeen / fullyEvolvedTotal * 100))
+	local prefix = string.format("%s %s", "Progress", OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
 
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getLog(args)
+	-- TODO: add "previous" as a parameter; requires storing this information somewhere
 	local params = (args or {}).Input or ""
+	local prefix = string.format("%s %s", "Log", OUTPUT_CHAR)
+	local hasParsedThisLog = RandomizerLog.Data.Settings and string.find(RandomizerLog.loadedLogPath or "", FileManager.PostFixes.AUTORANDOMIZED, 1, true)
+	if not hasParsedThisLog then
+		return buildResponse(prefix, "This game's log file hasn't been opened yet.")
+	end
+
 	local info = {}
-	local prefix = ""
+	for _, button in ipairs(Utils.getSortedList(LogTabMisc.Buttons or {})) do
+		table.insert(info, string.format("%s %s", button:getText(), button:getValue()))
+	end
 	return buildResponse(prefix, info)
 end
 
 ---@param args table|nil
 ---@return string response
 function DataHelper.EventRequests.getAbout(args)
-	local params = (args or {}).Input or ""
+	-- local params = (args or {}).Input or ""
 	local info = {}
-	local prefix = ""
+	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))
+	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Game, GameSettings.gamename))
+	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Attempts, Main.currentSeed or 1))
+	local prefix = string.format("%s %s", Resources.StartupScreen.Title, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
 
@@ -1432,7 +1595,29 @@ end
 ---@return string response
 function DataHelper.EventRequests.getHelp(args)
 	local params = (args or {}).Input or ""
+	local availableCommands = {}
+	for _, event in pairs(RequestHandler.Events or {}) do
+		if event.Command then
+			availableCommands[event.Command] = true
+		end
+	end
 	local info = {}
-	local prefix = ""
-	return buildResponse(prefix, info)
+	if params ~= "" then
+		local paramsAsLower = Utils.toLowerUTF8(params)
+		if paramsAsLower:sub(1, 1) ~= "!" then
+			paramsAsLower = "!" .. paramsAsLower
+		end
+		local command = availableCommands[paramsAsLower]
+		if not command or (command.Help or "") == "" then
+			return buildDefaultResponse(params)
+		end
+		table.insert(info, string.format("%s %s", paramsAsLower, command.Help))
+	else
+		for commandWord, _ in pairs(availableCommands) do
+			table.insert(info, commandWord)
+		end
+		table.sort(info, function(a,b) return a < b end)
+	end
+	local prefix = string.format("%s %s", "Tracker Commands", OUTPUT_CHAR)
+	return buildResponse(prefix, info, ", ")
 end
