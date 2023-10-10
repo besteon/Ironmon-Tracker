@@ -4,7 +4,7 @@ LogTabTMs = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		TM1 = {
@@ -66,7 +66,7 @@ function LogTabTMs.buildNavigation()
 			box = { LogOverlay.TabBox.x + nextNavX, navHeaderY, navLabelWidth, 11 },
 			updateSelf = function(self)
 				self.isSelected = (LogOverlay.Windower.filterGrid == navFilter.group and LogSearchScreen.searchText == "")
-				self.textColor = Utils.inlineIf(self.isSelected, LogTabTMs.Colors.hightlight, LogTabTMs.Colors.text)
+				self.textColor = Utils.inlineIf(self.isSelected, LogTabTMs.Colors.highlight, LogTabTMs.Colors.text)
 			end,
 			draw = function(self)
 				if self.isSelected then

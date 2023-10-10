@@ -19,7 +19,7 @@ Main.EMU = {
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
-	Main.Version.remindMe = true
+	Main.Version.remindMe = false -- Temporarily disabled (was: true), as no explicitly visible way to "remind me later" that is clear and intuitive
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
@@ -364,7 +364,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			local newVersionAvailable = not Main.isOnLatestVersion(string.format("%s.%s.0", major, minor))
 
 			-- Other than choosing to be reminded, only notify when a release comes out that is different than the last recorded newest release
-			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion
+			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion -- NOTE: "remindMe" temporarily disabled (always false)
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
@@ -900,7 +900,7 @@ function Main.LoadSettings()
 	-- [CONFIG]
 	if settings.config ~= nil then
 		if settings.config.RemindMeLater ~= nil then
-			Main.Version.remindMe = settings.config.RemindMeLater
+			-- Main.Version.remindMe = settings.config.RemindMeLater -- Temporarily disabled
 		end
 		if settings.config.LatestAvailableVersion ~= nil then
 			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
@@ -1016,7 +1016,7 @@ function Main.SaveSettings(forced)
 	if settings.extensions == nil then settings.extensions = {} end
 
 	-- [CONFIG]
-	settings.config.RemindMeLater = Main.Version.remindMe
+	-- settings.config.RemindMeLater = Main.Version.remindMe -- Temporarily disabled
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
