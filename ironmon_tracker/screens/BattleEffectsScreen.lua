@@ -130,13 +130,7 @@ function loadStatus2(index)
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectBide] = {active=true, remainingTurns=remainingTurnsBide}
 	end
 	if status2Map[12] and remainingTurnsBide == nil then
-		local duration = string.format("1 %s", Resources.BattleEffectsScreen.TextTurn)
-		if status2Map[4] or status2Map[5] or status2Map[6]then
-			duration = string.format("2- 5 %ss", Resources.BattleEffectsScreen.TextTurn)
-		elseif  status2Map[10] or status2Map[11] then
-			duration = string.format("2- 3 %ss", Resources.BattleEffectsScreen.TextTurn)
-		end
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectMustAttack] = {active=true, totalTurns=duration}
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectMustAttack] = {active=true}
 	end
 	if status2Map[13] or status2Map[14] or status2Map[15] then
 		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
@@ -168,7 +162,7 @@ function loadStatus2(index)
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectDestinyBond] = {active=true}
 	end
 	if status2Map[26] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotRun] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotEscape] = {active=true}
 	end
 	if status2Map[27] then
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectNightmare] = {active=true}
@@ -230,21 +224,19 @@ function loadStatus3(index)
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLockOn] = {active=true}
 		end
 	end
-	--[[if status3Map[5] then
-		if BattleEffectsScreen.PerMonDetails[index]["Perish Song"] then
-			BattleEffectsScreen.PerMonDetails[index]["Perish Song"].active = true
+	if status3Map[5] then
+		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] then
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].active = true
 		else
-			BattleEffectsScreen.PerMonDetails[index]["Perish Song"] = {active=true}
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] = {active=true}
 		end
-	end]]--
+	end
 	if status3Map[6] or status3Map[7] or status3Map[18] then
 		local invulnerableType = Utils.inlineIf(status3Map[6],Resources.BattleEffectsScreen.EffectAirborne,nil) or Utils.inlineIf(status3Map[7],Resources.BattleEffectsScreen.EffectUnderground,nil) or Utils.inlineIf(status3Map[18],Resources.BattleEffectsScreen.EffectUnderwater,"")
-		print (invulnerableType)
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSemiInvulnerable] then
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSemiInvulnerable].active = true
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSemiInvulnerable].type = invulnerableType
+			BattleEffectsScreen.PerMonDetails[index][invulnerableType].active = true
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectSemiInvulnerable] = {active=true, type = invulnerableType}
+			BattleEffectsScreen.PerMonDetails[index][invulnerableType] = {active=true}
 		end
 	end
 	if status3Map[8] then
@@ -450,16 +442,12 @@ function loadDisableStruct(index)
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectStockpile] = {active = true, count = stockpileCount}
 		end
 	end
-	local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
-	if perishSongCount ~= 0 then
-		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] then
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].active = true
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].count = perishSongCount
-		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] = {active = true, count = perishSongCount}
-		end
+
+	if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] and BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].active == true then
+		local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].count = perishSongCount + 1
 	end
-	local furyCutterCount = Memory.readword(disableStructBase + 0x10)
+	local furyCutterCount = Memory.readbyte(disableStructBase + 0x10)
 	if furyCutterCount ~= 0 then
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFuryCutter] then
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFuryCutter].active = true
@@ -470,11 +458,13 @@ function loadDisableStruct(index)
 	end
 	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11),0,4)
 	if rolloutCount ~= 0 then
-		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectRollout] then
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectRollout].active = true
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectRollout].count = rolloutCount
+		local lockedMoves = Memory.readword (0x02024268 + (index * 0x02))
+		local moveName = Resources.Game.MoveNames[lockedMoves] or ""
+		if BattleEffectsScreen.PerMonDetails[index][moveName] then
+			BattleEffectsScreen.PerMonDetails[index][moveName].active = true
+			BattleEffectsScreen.PerMonDetails[index][moveName].remainingTurns = rolloutCount
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectRollout] = {active = true, count = rolloutCount}
+			BattleEffectsScreen.PerMonDetails[index][moveName] = {active = true, remainingTurns = rolloutCount}
 		end
 	end
 	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13),0,4)
@@ -527,20 +517,22 @@ function loadWishStruct(index)
 	if futureSightCounter ~= 0 then
 		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight] then
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight].active = true
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight].source = futureSightSource
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight].remainingTurns = futureSightCounter
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight] = {source = futureSightSource, remainingTurns = futureSightCounter}
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight] = {active = true, source = futureSightSource, remainingTurns = futureSightCounter}
 		end
 	end
 	local wishCounter = Memory.readbyte(wishStructBase + 0x20 + (index * 0x1))
 	if wishCounter ~= 0 then
 		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish] then
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish].active = true
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish].source = wishSource
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish].remainingTurns = wishCounter
 		else
-			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish] = {source = wishSource, remainingTurns = wishCounter}
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish] = {active = true, source = wishSource, remainingTurns = wishCounter}
 		end
 	end
 end
@@ -725,9 +717,10 @@ function parseInput(key, value)
 			text = text .. ": " .. value.count
 		elseif value.remainingTurns then
 			text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurn
-			if value.remainingTurns > 1 then
+			if value.remainingTurns > 1 or value.remainingTurns == 0 then
 				text = text .. "s"
 			end
+			text = text .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining
 		elseif value.totalTurns then
 			text = text .. " (" .. value.totalTurns .. ")"
 		elseif value.source then
