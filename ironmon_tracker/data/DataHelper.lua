@@ -1427,16 +1427,18 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("%s: %s", "Abilities", table.concat(trackedAbilities, ", ")))
 		end
 		-- Tracked Stat Markings
-		local trackedStatMarkings = {}
-		for statKey, statMark in pairs(Tracker.getStatMarkings(pokemon.pokemonID) or {}) do
-			if statMark ~= 0 then
-				local marking = Constants.STAT_STATES[statMark] or {}
+		local statMarksToAdd = {}
+		local trackedStatMarkings = Tracker.getStatMarkings(pokemon.pokemonID) or {}
+		for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
+			local markVal = trackedStatMarkings[statKey]
+			if markVal ~= 0 then
+				local marking = Constants.STAT_STATES[markVal] or {}
 				local symbol = string.sub(marking.text or " ", 1, 1) or ""
-				table.insert(trackedStatMarkings, string.format("%s(%s)", Utils.toUpperUTF8(statKey), symbol))
+				table.insert(statMarksToAdd, string.format("%s(%s)", Utils.toUpperUTF8(statKey), symbol))
 			end
 		end
-		if #trackedStatMarkings > 0 then
-			table.insert(info, string.format("%s: %s", "Stats", table.concat(trackedStatMarkings, ", ")))
+		if #statMarksToAdd > 0 then
+			table.insert(info, string.format("%s: %s", "Stats", table.concat(statMarksToAdd, ", ")))
 		end
 		-- Tracked Moves
 		local trackedMoves = {}

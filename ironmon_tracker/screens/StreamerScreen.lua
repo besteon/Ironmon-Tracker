@@ -80,7 +80,20 @@ StreamerScreen.Buttons = {
 			Program.redraw(true)
 		end,
 	},
-	Back = Drawing.createUIElementBackButton(function() Program.changeScreenView(NavigationMenu) end),
+	StreamConnectOpen = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.MAGNIFYING_GLASS,
+		-- iconColors = { StreamerScreen.Colors.highlight, },
+		getText = function(self) return "Stream Connect" or Resources.StreamerScreen.ButtonStreamConnect end, -- TODO: Language
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10, Constants.SCREEN.MARGIN + 115, 100, 16 },
+		onClick = function(self) StreamConnectOverlay.open() end,
+	},
+	Back = Drawing.createUIElementBackButton(function()
+		if StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.close()
+		end
+		Program.changeScreenView(NavigationMenu)
+	end),
 }
 
 function StreamerScreen.initialize()

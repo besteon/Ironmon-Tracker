@@ -12,6 +12,7 @@ RequestHandler.StatusCodes = {
 	ALREADY_REPORTED = 208, -- The request is a duplicate of another recent request, no additional response message will be sent
 	FAIL = 400, -- The server (Tracker) won't process, likely due to a client error with formatting the request
 	NOT_FOUND = 404, -- The server (Tracker) cannot find the requested resource or event
+	UNAVAILABLE = 503, -- The server (Tracker) is not able to handle the request, usually because its event hook disabled
 }
 
 RequestHandler.Events = {
@@ -112,8 +113,9 @@ function RequestHandler.processAllRequests()
 			StatusCode = RequestHandler.StatusCodes.FAIL,
 			Message = ""
 		})
-		-- Only process properly formatted events
-		if type(event.Process) == "function" and type(event.Fulfill) == "function" then
+		if not event.IsEnabled then
+			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
+		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
 			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
@@ -179,6 +181,7 @@ end
 
 function RequestHandler.loadCoreEvents()
 	-- TODO: Need a communication event to occur after load to inform the client of changes to events
+	-- TODO: Get each "!command" alias from Settings
 
 	-- CMD_: Chat Commands
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
@@ -274,7 +277,7 @@ function RequestHandler.loadCoreEvents()
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "CMD_Progress",
 		Command = "!progress",
-		Help = "> Displays fun progress percentages for current game.",
+		Help = "> Displays fun progress percentages for the current game.",
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.Args) end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
@@ -392,6 +395,8 @@ end
 RequestHandler.IEvent = {
 	-- Required unique key
 	Key = RequestHandler.Events.None.Key,
+	-- Enable/Disable from triggering
+	IsEnabled = true,
 	-- Determine what to do with the IRequest, return true if ready to fulfill (IRequest.IsReady = true)
 	Process = function(self, request) return true end,
 	-- Only after fully processed and ready, finish completing the request and return a response message

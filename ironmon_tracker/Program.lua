@@ -162,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -277,8 +277,11 @@ function Program.redraw(forced)
 		Program.GameTimer:draw()
 
 		-- These screens occupy the main game screen space, overlayed on top, and need their own check; order matters
+		-- TODO: Create some sort of combined overlay detection variable
 		if UpdateScreen.showNotes then
 			UpdateScreen.drawReleaseNotesOverlay()
+		elseif StreamConnectOverlay.isDisplayed then
+			StreamConnectOverlay.drawScreen()
 		elseif LogOverlay.isDisplayed then
 			LogOverlay.drawScreen()
 		end

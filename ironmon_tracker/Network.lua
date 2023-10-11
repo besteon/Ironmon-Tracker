@@ -33,26 +33,57 @@ function Network.isConnected()
 	return Network.CurrentConnection and Network.CurrentConnection.IsConnected ~= false
 end
 
-function Network.loadConnectionSettings()
-	local connectionType = Network.Options["ConnectionType"] or Network.ConnectionTypes.None
-	Network.CurrentConnection = nil
-	Network.tryConnect(connectionType)
+---@return table supportedTypes
+function Network.getSupportedConnectionTypes()
+	local supportedTypes = {}
+	-- table.insert(supportedTypes, Network.ConnectionTypes.WebSockets) -- Not supported
+	-- table.insert(supportedTypes, Network.ConnectionTypes.Http) -- Not supported
+	table.insert(supportedTypes, Network.ConnectionTypes.TextFiles)
+	table.insert(supportedTypes, Network.ConnectionTypes.None)
+	return supportedTypes
 end
 
-function Network.tryConnect(connectionType)
-	if Network.isConnected() or not connectionType then
-		return
+function Network.loadConnectionSettings()
+	Network.CurrentConnection = nil
+	Network.changeConnection(Network.Options["ConnectionType"] or Network.ConnectionTypes.None)
+	Network.tryConnect()
+end
+
+---Changes the current connection type
+---@param connectionType string A Network.ConnectionTypes enum
+function Network.changeConnection(connectionType)
+	connectionType = connectionType or Network.ConnectionTypes.None
+	-- Create or swap to a new connection
+	if not Network.CurrentConnection or Network.CurrentConnection.Type ~= connectionType then
+		if Network.isConnected() then
+			Network.closeConnections()
+		end
+		Network.CurrentConnection = Network.IConnection:new({ Type = connectionType })
+		Network.Options["ConnectionType"] = connectionType
+		Main.SaveSettings(true)
 	end
-	Network.CurrentConnection = Network.IConnection:new({ Type = connectionType })
-	local C = Network.CurrentConnection
-	if connectionType == Network.ConnectionTypes.WebSockets then
+end
+
+---Attempts to connect to the network using the current connection; returns connection status
+---@return boolean isConnected
+function Network.tryConnect()
+	local C = Network.CurrentConnection or {}
+	-- Create or swap to a new connection
+	if not C.Type then
+		Network.changeConnection(Network.ConnectionTypes.None)
+		C = Network.CurrentConnection
+	end
+	if C.IsConnected then
+		return true
+	end
+	if C.Type == Network.ConnectionTypes.WebSockets then
 		-- Not supported
 		-- local SOCKET_SERVER_NOT_FOUND = "Socket server was not initialized"
 		-- local serverInfo = comm.socketServerGetInfo() or SOCKET_SERVER_NOT_FOUND
 		-- C.IsConnected = Utils.containsText(serverInfo, SOCKET_SERVER_NOT_FOUND)
-	elseif connectionType == Network.ConnectionTypes.Http then
+	elseif C.Type == Network.ConnectionTypes.Http then
 		-- Not supported
-	elseif connectionType == Network.ConnectionTypes.TextFiles then
+	elseif C.Type == Network.ConnectionTypes.TextFiles then
 		C.UpdateFrequency = Network.TEXT_UPDATE_FREQUENCY
 		C.UpdateFunction = Network.updateByText
 		local folder = Network.Options["DataFolder"] or ""
@@ -60,6 +91,7 @@ function Network.tryConnect(connectionType)
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
 		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
 	end
+	return C.IsConnected
 end
 
 --- Closes any active connections and saves outstanding Requests
