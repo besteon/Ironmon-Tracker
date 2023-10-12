@@ -9,13 +9,14 @@ Network = {
 }
 
 Network.ConnectionTypes = {
-	TextFiles = "Text",
+	Text = "Text",
 	WebSockets = "WebSockets", -- Not supported
 	Http = "Http", -- Not supported
 	None = "None",
 }
 
 Network.Options = {
+	["AutoConnectStartup"] = true,
 	["ConnectionType"] = Network.ConnectionTypes.None,
 	["DataFolder"] = "",
 	["WebSocketIP"] = nil, -- Not supported
@@ -38,7 +39,7 @@ function Network.getSupportedConnectionTypes()
 	local supportedTypes = {}
 	-- table.insert(supportedTypes, Network.ConnectionTypes.WebSockets) -- Not supported
 	-- table.insert(supportedTypes, Network.ConnectionTypes.Http) -- Not supported
-	table.insert(supportedTypes, Network.ConnectionTypes.TextFiles)
+	table.insert(supportedTypes, Network.ConnectionTypes.Text)
 	table.insert(supportedTypes, Network.ConnectionTypes.None)
 	return supportedTypes
 end
@@ -83,7 +84,7 @@ function Network.tryConnect()
 		-- C.IsConnected = Utils.containsText(serverInfo, SOCKET_SERVER_NOT_FOUND)
 	elseif C.Type == Network.ConnectionTypes.Http then
 		-- Not supported
-	elseif C.Type == Network.ConnectionTypes.TextFiles then
+	elseif C.Type == Network.ConnectionTypes.Text then
 		C.UpdateFrequency = Network.TEXT_UPDATE_FREQUENCY
 		C.UpdateFunction = Network.updateByText
 		local folder = Network.Options["DataFolder"] or ""
@@ -91,12 +92,21 @@ function Network.tryConnect()
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
 		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
 	end
+	if C.IsConnected then
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events["TS_Start"].Key,
+		}))
+	end
 	return C.IsConnected
 end
 
 --- Closes any active connections and saves outstanding Requests
 function Network.closeConnections()
 	if Network.isConnected() then
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events["TS_Stop"].Key,
+		}))
+		Network.CurrentConnection:TryUpdate()
 		Network.CurrentConnection.IsConnected = false
 	end
 	RequestHandler.saveData()
@@ -108,14 +118,15 @@ function Network.update()
 		return
 	end
 
-	-- Check for any new requests from the server, process them accordingly, and send back responses
-	-- Server Requests should a one-time use only; once accepted, the server shouldn't send the same request again
+	RequestHandler.tryNotifyConfigChanges()
+
+	-- Check for any new, unqiue requests, process them accordingly, and send back responses
 	Network.CurrentConnection:TryUpdate()
 
 	RequestHandler.trySaveData()
 end
 
---- The update function used by the "TextFiles" Network connection type
+--- The update function used by the "Text" Network connection type
 function Network.updateByText()
 	local C = Network.CurrentConnection
 	if not C.OutboundFile or not C.InboundFile or not FileManager.JsonLibrary then

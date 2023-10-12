@@ -113,11 +113,12 @@ end
 
 
 local type_func_map = {
-  [ "nil"     ] = encode_nil,
-  [ "table"   ] = encode_table,
-  [ "string"  ] = encode_string,
-  [ "number"  ] = encode_number,
-  [ "boolean" ] = tostring,
+  [ "nil"      ] = encode_nil,
+  [ "table"    ] = encode_table,
+  [ "string"   ] = encode_string,
+  [ "number"   ] = encode_number,
+  [ "boolean"  ] = tostring,
+  [ "function" ] = encode_nil,
 }
 
 

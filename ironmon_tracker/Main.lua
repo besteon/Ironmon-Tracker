@@ -974,7 +974,7 @@ function Main.LoadSettings()
 	-- [NETWORK]
 	if settings.network ~= nil then
 		for key, _ in pairs(Network.Options or {}) do
-			local optionValue = settings.network[string.gsub(key, " ", "_")]
+			local optionValue = settings.network[key]
 			if optionValue ~= nil then
 				Network.Options[key] = optionValue
 			end
@@ -1061,8 +1061,7 @@ function Main.SaveSettings(forced)
 
 	-- [NETWORK]
 	for key, val in pairs(Network.Options or {}) do
-		local encodedKey = string.gsub(key, " ", "_")
-		settings.network[encodedKey] = val
+		settings.network[key] = val
 	end
 
 	-- [EXTENSIONS]

@@ -178,11 +178,12 @@ function StreamConnectOverlay.createButtons()
 
 	-- SETTINGS TAB
 	startX = SCREEN.Canvas.x + 4
-	startY = SCREEN.Canvas.y + 5
+	startY = SCREEN.Canvas.y + 8
 	local function nextLineY(extraOffset)
 		startY = startY + Constants.SCREEN.LINESPACING + 5 + (extraOffset or 0)
 		return startY
 	end
+
 	SCREEN.Buttons.SettingsLabelIsConnected = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "Connected:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
@@ -221,6 +222,28 @@ function StreamConnectOverlay.createButtons()
 			Program.redraw(true)
 		end,
 	}
+
+
+	SCREEN.Buttons.SettingsAutoConnectStartup = {
+		type = Constants.ButtonTypes.CHECKBOX,
+		getText = function(self) return "AutoConnect on Startup" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = { startX + 2, nextLineY(10), 8, 8 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		toggleState = Network.Options["AutoConnectStartup"],
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		updateSelf = function(self)
+			self.toggleState = Network.Options["AutoConnectStartup"]
+		end,
+		onClick = function(self)
+			self.toggleState = not self.toggleState
+			Network.Options["AutoConnectStartup"] = (self.toggleState == true)
+			Main.SaveSettings(true)
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end,
+	}
+
+
 	SCREEN.Buttons.SettingsLabelConnType = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "Connection Type:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
@@ -254,14 +277,16 @@ function StreamConnectOverlay.createButtons()
 		}
 		connOffsetX = connOffsetX + width + 10
 	end
+
+
 	SCREEN.Buttons.SettingsDataFolder = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Change" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	startX + 150, nextLineY(), 35, 11 },
-		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.TextFiles end,
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
-			Drawing.drawText(startX, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
 			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "")
 			Drawing.drawText(startX + 90, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
 		end,
@@ -345,7 +370,7 @@ local function buildCommandsTab()
 	columnsW.name = ROW_WIDTH - columnsW.enabled - columnsW.rename - columnsW.roles
 	local tabContents = {}
 	for _, event in pairs(RequestHandler.Events) do
-		if event ~= RequestHandler.Events.None and event.Command then
+		if not event.Exclude and event.Command then
 			table.insert(tabContents, event)
 		end
 	end
@@ -374,9 +399,9 @@ local function buildCommandsTab()
 				self.box[2] = buttonRow.box[2] + 2
 			end,
 			onClick = function(self)
-				event.IsEnabled = not event.IsEnabled
-				self.toggleState = event.IsEnabled
-				-- TODO, do more and save
+				self.toggleState = not self.toggleState
+				event.IsEnabled = (self.toggleState == true)
+				RequestHandler.saveEventSetting(event, "IsEnabled")
 				SCREEN.refreshButtons()
 				Program.redraw(true)
 			end,
@@ -408,10 +433,7 @@ local function buildCommandsTab()
 			updateSelf = function(self)
 				self.box[2] = buttonRow.box[2] + 1
 			end,
-			onClick = function(self)
-				-- TODO: implement and use the below
-				SCREEN.refreshButtons()
-			end,
+			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
 		}
 		table.insert(SCREEN.Pager.Buttons, colRename)
 		rowX = rowX + columnsW.rename
@@ -449,7 +471,7 @@ local function buildRewardsTab()
 	columnsW.name = ROW_WIDTH - columnsW.enabled - columnsW.rename - columnsW.roles
 	local tabContents = {}
 	for _, event in pairs(RequestHandler.Events) do
-		if event ~= RequestHandler.Events.None and not event.Command then -- TODO: Fix later after adding proper event Rewards
+		if not event.Exclude and not event.Command then -- TODO: Fix later after adding proper event Rewards
 			table.insert(tabContents, event)
 		end
 	end
@@ -537,6 +559,32 @@ function StreamConnectOverlay.changeTab(tab)
 	SCREEN.buildPagedButtons(tab)
 	SCREEN.refreshButtons()
 	Program.redraw(true)
+end
+
+function StreamConnectOverlay.openCommandRenamePrompt(event)
+	local form = Utils.createBizhawkForm("Edit Command", 320, 130, 100, 50) -- TODO: Language
+	forms.label(form, "Command:", 28, 20, 110, 20) -- TODO: Language
+
+	local textbox = forms.textbox(form, event.Command, 134, 20, nil, 150, 18)
+
+	forms.button(form, Resources.AllScreens.Save, function()
+		local text = forms.gettext(textbox) or ""
+		if #text > 2 and text:sub(1,1) == "!" then -- Command requirements
+			event.Command = Utils.toLowerUTF8(text)
+			RequestHandler.saveEventSetting(event, "Command")
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 30, 50)
+	-- forms.button(form, "Reset to Default", function() -- TODO: Language
+	-- 	forms.settext(textboxPokemonName, "")
+	-- end, 120, 50)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		client.unpause()
+		forms.destroy(form)
+	end, 210, 50)
 end
 
 -- USER INPUT FUNCTIONS

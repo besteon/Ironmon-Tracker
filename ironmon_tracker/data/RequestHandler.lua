@@ -3,6 +3,7 @@ RequestHandler = {
 	Responses = {}, -- A list of all responses ready to be sent
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
+	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
 }
 
 -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -16,15 +17,16 @@ RequestHandler.StatusCodes = {
 }
 
 RequestHandler.Events = {
-	None = { Key = "None" },
+	None = { Key = "None", Exclude = true },
 }
 
 function RequestHandler.initialize()
 	RequestHandler.Requests = {}
 	RequestHandler.Responses = {}
 	RequestHandler.lastSaveTime = os.time()
-	RequestHandler.loadCoreEvents()
+	RequestHandler.addDefaultEvents()
 	RequestHandler.loadData()
+	RequestHandler.removeServerSideRequests()
 end
 
 --- Adds a IRequest to the requests queue; returns true if successful
@@ -70,6 +72,7 @@ function RequestHandler.addNewEvent(event)
 		return false
 	end
 	RequestHandler.Events[event.Key] = event
+	RequestHandler.loadEventSettings(event)
 	return true
 end
 
@@ -82,6 +85,20 @@ function RequestHandler.removeEvent(eventKey)
 	end
 	RequestHandler.Events[eventKey] = nil
 	return true
+end
+
+---Removes any existing requests that shouldn't be in the queue, usually a stop connection request immediately after starting up
+function RequestHandler.removeServerSideRequests()
+	local toRemove = {}
+	for _, request in pairs(RequestHandler.Requests or {}) do
+		local event = RequestHandler.Events[request.EventType] or RequestHandler.Events.None
+		if event.Exclude then
+			table.insert(toRemove, request)
+		end
+	end
+	for _, request in pairs(toRemove) do
+		RequestHandler.removeRequest(request.GUID)
+	end
 end
 
 --- Processes all IRequests (if able), adding them to the Responses
@@ -111,7 +128,6 @@ function RequestHandler.processAllRequests()
 			GUID = request.GUID,
 			EventType = request.EventType,
 			StatusCode = RequestHandler.StatusCodes.FAIL,
-			Message = ""
 		})
 		if not event.IsEnabled then
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
@@ -156,7 +172,6 @@ end
 function RequestHandler.trySaveData()
 	if (os.time() - RequestHandler.lastSaveTime) >= RequestHandler.SAVE_FREQUENCY then
 		RequestHandler.saveData()
-		RequestHandler.lastSaveTime = os.time()
 	end
 end
 
@@ -175,13 +190,81 @@ end
 --- Saves the list of Requests to a data file
 ---@return boolean success
 function RequestHandler.saveData()
+	RequestHandler.removeServerSideRequests()
 	local success = FileManager.encodeToJsonFile(FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
+	RequestHandler.lastSaveTime = os.time()
 	return (success == true)
 end
 
-function RequestHandler.loadCoreEvents()
-	-- TODO: Need a communication event to occur after load to inform the client of changes to events
-	-- TODO: Get each "!command" alias from Settings
+---Saves a configurable settings attribute for an event to the Settings.ini file
+---@param event table IEvent
+---@param attribute string The IEvent attribute being saved
+function RequestHandler.saveEventSetting(event, attribute)
+	if not event or not event.Key or not attribute then
+		return
+	end
+	local key = string.format(RequestHandler.EVENT_SETTINGS_FORMAT, event.Key, attribute)
+	local value = event[attribute]
+	if value ~= nil then
+		Main.SetMetaSetting("network", key, value)
+	else
+		Main.RemoveMetaSetting("network", key)
+	end
+	Main.SaveSettings(true)
+	event.ConfigurationUpdated = true
+end
+
+---Loads all configurable settings for an event from the Settings.ini file
+---@param event table IEvent
+function RequestHandler.loadEventSettings(event)
+	if not event or not event.Key then
+		return false
+	end
+	local anyLoaded = false
+	for attribute, existingValue in pairs(event) do
+		local key = string.format(RequestHandler.EVENT_SETTINGS_FORMAT, event.Key, attribute)
+		local value = Main.MetaSettings.network[key]
+		if value ~= nil and value ~= existingValue then
+			event[attribute] = value
+			anyLoaded = true
+		end
+	end
+	event.ConfigurationUpdated = anyLoaded or nil
+end
+
+function RequestHandler.tryNotifyConfigChanges()
+	local modifiedEvents = {}
+	for _, event in pairs(RequestHandler.Events) do
+		if event.ConfigurationUpdated then
+			table.insert(modifiedEvents, event)
+			event.ConfigurationUpdated = nil
+		end
+	end
+	if #modifiedEvents > 0 then
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events["TS_UpdateEvents"].Key,
+			Args = modifiedEvents
+		}))
+	end
+end
+
+function RequestHandler.addDefaultEvents()
+	-- TS_: Tracker Server
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = "TS_Start",
+		Exclude = true,
+		Fulfill = function(self, request) return "" end,
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = "TS_UpdateEvents",
+		Exclude = true,
+		Fulfill = function(self, request) return request.Args end, -- Trying this as a table instead of a string
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = "TS_Stop",
+		Exclude = true,
+		Fulfill = function(self, request) return "" end,
+	}))
 
 	-- CMD_: Chat Commands
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
@@ -357,6 +440,9 @@ RequestHandler.IRequest = {
 }
 function RequestHandler.IRequest:new(o)
 	o = o or {}
+	o.GUID = o.GUID or Utils.newGUID()
+	o.EventType = o.EventType or RequestHandler.Events.None.Key
+	o.CreatedAt = o.CreatedAt or os.time()
 	setmetatable(o, self)
 	self.__index = self
 	if o.GUID == "" then
@@ -381,14 +467,12 @@ RequestHandler.IResponse = {
 }
 function RequestHandler.IResponse:new(o)
 	o = o or {}
+	o.GUID = o.GUID or Utils.newGUID()
+	o.CreatedAt = o.CreatedAt or os.time()
+	o.StatusCode = o.StatusCode or RequestHandler.StatusCodes.NOT_FOUND
+	o.Message = o.Message or ""
 	setmetatable(o, self)
 	self.__index = self
-	if o.GUID == "" then
-		o.GUID = Utils.newGUID()
-	end
-	if o.CreatedAt == -1 then
-		o.CreatedAt = os.time()
-	end
 	return o
 end
 
@@ -404,6 +488,8 @@ RequestHandler.IEvent = {
 }
 function RequestHandler.IEvent:new(o)
 	o = o or {}
+	o.Key = o.Key or RequestHandler.Events.None.Key
+	o.IsEnabled = o.IsEnabled ~= nil and o.IsEnabled or true
 	setmetatable(o, self)
 	self.__index = self
 	return o
