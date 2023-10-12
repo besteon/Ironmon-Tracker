@@ -180,7 +180,7 @@ function StreamConnectOverlay.createButtons()
 	startX = SCREEN.Canvas.x + 4
 	startY = SCREEN.Canvas.y + 8
 	local function nextLineY(extraOffset)
-		startY = startY + Constants.SCREEN.LINESPACING + 5 + (extraOffset or 0)
+		startY = startY + Constants.SCREEN.LINESPACING + 8 + (extraOffset or 0)
 		return startY
 	end
 
@@ -222,12 +222,13 @@ function StreamConnectOverlay.createButtons()
 			Program.redraw(true)
 		end,
 	}
+	nextLineY()
 
 
 	SCREEN.Buttons.SettingsAutoConnectStartup = {
 		type = Constants.ButtonTypes.CHECKBOX,
-		getText = function(self) return "AutoConnect on Startup" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = { startX + 2, nextLineY(10), 8, 8 },
+		getText = function(self) return " " .. "Auto-Connect on Startup" or " " .. Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = { startX + 90, startY, 8, 8 },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		toggleState = Network.Options["AutoConnectStartup"],
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
@@ -242,12 +243,13 @@ function StreamConnectOverlay.createButtons()
 			Program.redraw(true)
 		end,
 	}
+	nextLineY()
 
 
 	SCREEN.Buttons.SettingsLabelConnType = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return "Connection Type:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX, nextLineY(), 50, 11 },
+		box = {	startX, startY, 50, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
 	}
 	local connOffsetX = startX + 90
@@ -277,12 +279,12 @@ function StreamConnectOverlay.createButtons()
 		}
 		connOffsetX = connOffsetX + width + 10
 	end
-
+	nextLineY()
 
 	SCREEN.Buttons.SettingsDataFolder = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Change" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + 150, nextLineY(), 35, 11 },
+		box = {	startX + 150, startY, 35, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -357,17 +359,27 @@ function StreamConnectOverlay.createButtons()
 	-- }
 end
 
-local ROW_WIDTH, ROW_HEIGHT = SCREEN.Canvas.w - 10, 14
+local ROW_MARGIN, ROW_PADDING = 5, 2
+local ROW_WIDTH, ROW_HEIGHT = (SCREEN.Canvas.w - ROW_MARGIN * 2), (11 + ROW_PADDING * 2)
+local _leftEdgeX, _rightEdgeX
+local function resetButtonRow(width, height)
+	_leftEdgeX = width or SCREEN.Canvas.x + ROW_MARGIN
+	_rightEdgeX = height or SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN
+end
+local function addLeftAligned(button)
+	button.box[1] = _leftEdgeX + ROW_PADDING
+	_leftEdgeX = button.box[1] + button.box[3] + ROW_PADDING
+end
+local function addRightAligned(button)
+	button.box[1] = _rightEdgeX - ROW_PADDING - button.box[3]
+	_rightEdgeX = button.box[1] - ROW_PADDING
+end
+resetButtonRow()
+
 local function buildCommandsTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
-	local columnsW = {
-		enabled = 14,
-		name = -1,
-		rename = 40,
-		roles = 40,
-	}
-	columnsW.name = ROW_WIDTH - columnsW.enabled - columnsW.rename - columnsW.roles
+
 	local tabContents = {}
 	for _, event in pairs(RequestHandler.Events) do
 		if not event.Exclude and event.Command then
@@ -375,7 +387,9 @@ local function buildCommandsTab()
 		end
 	end
 	table.sort(tabContents, function(a,b) return a.Command < b.Command end)
+
 	for i, event in ipairs(tabContents) do
+		resetButtonRow()
 		local buttonRow = {
 			index = i,
 			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
@@ -387,16 +401,15 @@ local function buildCommandsTab()
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
 
-		local rowX = SCREEN.Canvas.x + 5
-		local colEnabled = {
+		local btnEnabled = {
 			type = Constants.ButtonTypes.CHECKBOX,
-			box = { rowX + 1, 0, 8, 8 },
+			box = { -1, -1, 8, 8 },
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			toggleState = event.IsEnabled,
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
 				self.toggleState = event.IsEnabled
-				self.box[2] = buttonRow.box[2] + 2
+				self.box[2] = buttonRow.box[2] + ROW_PADDING + 1
 			end,
 			onClick = function(self)
 				self.toggleState = not self.toggleState
@@ -406,57 +419,58 @@ local function buildCommandsTab()
 				Program.redraw(true)
 			end,
 		}
-		table.insert(SCREEN.Pager.Buttons, colEnabled)
-		rowX = rowX + columnsW.enabled
+		table.insert(SCREEN.Pager.Buttons, btnEnabled)
+		addLeftAligned(btnEnabled)
 
-		local colName = {
+		local btnWidth = Utils.calcWordPixelLength(event.Command) + 5
+		local btnName = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self) return event.Command end,
 			textColor = SCREEN.Colors.text,
-			box = { rowX + 2, 0, columnsW.name - 2, 11 },
+			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + 1
-				self.textColor = colEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
 			end,
 		}
-		table.insert(SCREEN.Pager.Buttons, colName)
-		rowX = rowX + columnsW.name
+		table.insert(SCREEN.Pager.Buttons, btnName)
+		addLeftAligned(btnName)
 
-		local colRename = {
-			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return "Rename" or Resources.StreamConnectOverlay.X end, -- TODO: Language
-			textColor = SCREEN.Colors.text,
-			box = { rowX + 1, 0, 38, 11 },
-			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-			isVisible = function(self) return buttonRow:isVisible() end,
-			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + 1
-			end,
-			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
-		}
-		table.insert(SCREEN.Pager.Buttons, colRename)
-		rowX = rowX + columnsW.rename
-
-		local colRoles = {
+		-- Add buttons to row from right-to-left
+		btnWidth = Utils.calcWordPixelLength("Roles" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+		local btnRoles = {
 			type = Constants.ButtonTypes.FULL_BORDER,
 			getText = function(self) return "Roles" or Resources.StreamConnectOverlay.X end, -- TODO: Language
 			textColor = SCREEN.Colors.text,
-			box = { rowX + 5, 0, 30, 11 },
+			box = { -1, -1, btnWidth, 11 },
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + 1
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
 			end,
-			onClick = function(self)
-				-- TODO: implement and use the below
-				SCREEN.refreshButtons()
-			end,
+			onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt(event) end,
 		}
-		table.insert(SCREEN.Pager.Buttons, colRoles)
-		rowX = rowX + columnsW.roles
+		table.insert(SCREEN.Pager.Buttons, btnRoles)
+		addRightAligned(btnRoles)
+
+		btnWidth = Utils.calcWordPixelLength("Rename" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+		local btnRename = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			getText = function(self) return "Rename" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+			end,
+			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnRename)
+		addRightAligned(btnRename)
 	end
-	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + 5, SCREEN.Canvas.y + 5)
+	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
 
 local function buildRewardsTab()
@@ -529,6 +543,10 @@ function StreamConnectOverlay.buildPagedButtons(tab)
 		buildRewardsTab()
 	elseif tab == SCREEN.Tabs.Queue then
 		buildQueueTab()
+	else
+		SCREEN.Pager.ButtonRows = {}
+		SCREEN.Pager.Buttons = {}
+		SCREEN.Pager:realignButtonsToGrid()
 	end
 end
 
@@ -543,7 +561,7 @@ end
 function StreamConnectOverlay.open()
 	if SCREEN.isDisplayed then return end
 	SCREEN.isDisplayed = true
-	local tabToOpen = Network.isConnected() and SCREEN.Tabs.Queue or SCREEN.Tabs.Settings
+	local tabToOpen = Network.isConnected() and Utils.getSortedList(SCREEN.Tabs)[1] or SCREEN.Tabs.Settings
 	SCREEN.changeTab(tabToOpen)
 end
 
@@ -562,7 +580,7 @@ function StreamConnectOverlay.changeTab(tab)
 end
 
 function StreamConnectOverlay.openCommandRenamePrompt(event)
-	local form = Utils.createBizhawkForm("Edit Command", 320, 130, 100, 50) -- TODO: Language
+	local form = Utils.createBizhawkForm("Edit Command Name", 320, 130, 100, 50) -- TODO: Language
 	forms.label(form, "Command:", 28, 20, 110, 20) -- TODO: Language
 
 	local textbox = forms.textbox(form, event.Command, 134, 20, nil, 150, 18)
@@ -578,9 +596,38 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 		client.unpause()
 		forms.destroy(form)
 	end, 30, 50)
-	-- forms.button(form, "Reset to Default", function() -- TODO: Language
-	-- 	forms.settext(textboxPokemonName, "")
-	-- end, 120, 50)
+	forms.button(form, "(Default)", function() -- TODO: Language
+		local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+		if defaultEvent then
+			forms.settext(textbox, defaultEvent.Command)
+		end
+	end, 120, 50)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		client.unpause()
+		forms.destroy(form)
+	end, 210, 50)
+end
+
+function StreamConnectOverlay.openCommandRolesPrompt(event)
+	local form = Utils.createBizhawkForm("Edit Command Roles", 320, 130, 100, 50) -- TODO: Language
+	local commandLabel = string.format("Change allowed roles for command: %s", event.Command) -- TODO: Language
+	forms.label(form, commandLabel, 28, 20, 250, 20)
+
+	-- TODO: Implement this
+
+	forms.button(form, Resources.AllScreens.Save, function()
+		-- RequestHandler.saveEventSetting(event, "Roles")
+		SCREEN.refreshButtons()
+		Program.redraw(true)
+		client.unpause()
+		forms.destroy(form)
+	end, 30, 50)
+	forms.button(form, "(Default)", function() -- TODO: Language
+		local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+		if defaultEvent then
+			-- defaultEvent.Roles
+		end
+	end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)

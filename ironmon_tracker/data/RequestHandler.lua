@@ -20,6 +20,15 @@ RequestHandler.Events = {
 	None = { Key = "None", Exclude = true },
 }
 
+RequestHandler.EventRoles = {
+	Everyone = "Everyone", -- Allow all users, regardless of other roles selected
+	Broadcaster = "Broadcaster", -- Allow the one user who is the Broadcaster
+	Mods = "Mods", -- Allow users that are Moderators
+	VIPs = "VIPs", -- Allow users with VIP
+	Subs = "Subs", -- Allow users that are Subscribers
+	Custom = "Custom", -- Allow users that belong to a custom-defined role
+}
+
 function RequestHandler.initialize()
 	RequestHandler.Requests = {}
 	RequestHandler.Responses = {}
@@ -122,7 +131,7 @@ function RequestHandler.processAllRequests()
 	-- TODO: Implement better, dont process if something ahead of it in queue of same event type (if that matters), somehow avoid duplicate requests
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
-	for _, request in ipairs(toProcess) do
+	for i, request in ipairs(toProcess) do
 		local event = RequestHandler.Events[request.EventType]
 		local response = RequestHandler.IResponse:new({
 			GUID = request.GUID,
@@ -130,14 +139,17 @@ function RequestHandler.processAllRequests()
 			StatusCode = RequestHandler.StatusCodes.FAIL,
 		})
 		if not event.IsEnabled then
+			print(string.format("[%s] %s (Not Enabled)", i, request.EventType))
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
 		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
 			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
+			print(string.format("[%s] %s (Processing)", i, request.EventType))
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
 				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
 				response.Message = event:Fulfill(request)
 				request.SentResponse = false
+				print(string.format("[%s] %s (Success) -> '%s'", i, request.EventType, type(response.Message) == "string" and response.Message or "{N/A}"))
 			end
 		end
 		if not request.SentResponse then
@@ -203,9 +215,11 @@ function RequestHandler.saveEventSetting(event, attribute)
 	if not event or not event.Key or not attribute then
 		return
 	end
+	local defaultEvent = RequestHandler.DefaultEvents[event.Key] or {}
 	local key = string.format(RequestHandler.EVENT_SETTINGS_FORMAT, event.Key, attribute)
 	local value = event[attribute]
-	if value ~= nil then
+	-- Only save if the value isn't empty and it's not the known default value (keep Settings file a bit cleaner)
+	if value ~= nil and value ~= defaultEvent[attribute] then
 		Main.SetMetaSetting("network", key, value)
 	else
 		Main.RemoveMetaSetting("network", key)
@@ -249,11 +263,10 @@ function RequestHandler.tryNotifyConfigChanges()
 end
 
 function RequestHandler.addDefaultEvents()
-	-- TS_: Tracker Server
+	-- TS_: Tracker Server (Core events that shouldn't be modified)
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "TS_Start",
 		Exclude = true,
-		Fulfill = function(self, request) return "" end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "TS_UpdateEvents",
@@ -263,162 +276,176 @@ function RequestHandler.addDefaultEvents()
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "TS_Stop",
 		Exclude = true,
-		Fulfill = function(self, request) return "" end,
 	}))
 
+	-- Make a copy of each default event, such that they can still be referenced without being changed.
+	for key, event in pairs(RequestHandler.DefaultEvents) do
+		event.IsEnabled = true
+		local eventToAdd = RequestHandler.IEvent:new({
+			Key = key,
+			Process = event.Process,
+			Fulfill = event.Fulfill,
+		})
+		if event.Command then
+			eventToAdd.Command = event.Command
+			eventToAdd.Help = event.Help
+			eventToAdd.Roles = {}
+			FileManager.copyTable(event.Roles, eventToAdd.Roles)
+		elseif event.Reward then -- TODO: Implement
+		end
+		RequestHandler.addNewEvent(eventToAdd)
+	end
+end
+
+RequestHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Pokemon",
+	CMD_Pokemon = {
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_BST",
+	},
+	CMD_BST = {
 		Command = "!bst",
 		Help = "name > Displays the base stat total (BST) for a Pokémon.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Weak",
+	},
+	CMD_Weak = {
 		Command = "!weak",
 		Help = "name > Displays the weaknesses for a Pokémon.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Move",
+	},
+	CMD_Move = {
 		Command = "!move",
 		Help = "name > Displays game info for a move.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Ability",
+	},
+	CMD_Ability = {
 		Command = "!ability",
 		Help = "name > Displays game info for a Pokémon's ability.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Route",
+	},
+	CMD_Route = {
 		Command = "!route",
 		Help = "name > Displays trainer and wild encounter info for a route or area.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Dungeon",
+	},
+	CMD_Dungeon = {
 		Command = "!dungeon",
 		Help = "name > Displays info about which trainers have been defeated for an area.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Pivots",
+	},
+	CMD_Pivots = {
 		Command = "!pivots",
 		Help = "name > Displays known early game wild encounters for an area.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Revo",
+	},
+	CMD_Revo = {
 		Command = "!revo",
 		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Coverage",
+	},
+	CMD_Coverage = {
 		Command = "!coverage",
 		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Heals",
+	},
+	CMD_Heals = {
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_TMs",
+	},
+	CMD_TMs = {
 		Command = "!tms",
 		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Search",
+	},
+	CMD_Search = {
 		Command = "!search",
 		Help = "[mode] [terms] > Search for a [Pokémon/Move/Ability/Note] followed by the search [terms].",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Theme",
+	},
+	CMD_Theme = {
 		Command = "!theme",
 		Help = "> Displays the name and code string for the current Tracker theme.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_GameStats",
+	},
+	CMD_GameStats = {
 		Command = "!gamestats",
 		Help = "> Displays fun stats for the current game.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Progress",
+	},
+	CMD_Progress = {
 		Command = "!progress",
 		Help = "> Displays fun progress percentages for the current game.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Log",
+	},
+	CMD_Log = {
 		Command = "!log",
 		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_About",
+	},
+	CMD_About = {
 		Command = "!about",
 		Help = "> Displays info about the Ironmon Tracker and game being played.",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.Args) end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CMD_Help",
+	},
+	CMD_Help = {
 		Command = "!help",
 		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
+		Roles = { RequestHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.Args) end,
-	}))
+	},
 
 	-- CR_: Channel Rewards (Point Redeems)
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CR_PickBallOnce",
+	CR_PickBallOnce = {
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CR_PickBallUntilOut",
+	},
+	CR_PickBallUntilOut = {
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CR_ChangeFavorite",
+	},
+	CR_ChangeFavorite = {
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CR_ChangeTheme",
+	},
+	CR_ChangeTheme = {
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "CR_ChangeLanguage",
+	},
+	CR_ChangeLanguage = {
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	}))
-end
+	},
+}
 
 -- Request/Response/Event object prototypes
 
@@ -445,12 +472,6 @@ function RequestHandler.IRequest:new(o)
 	o.CreatedAt = o.CreatedAt or os.time()
 	setmetatable(o, self)
 	self.__index = self
-	if o.GUID == "" then
-		o.GUID = Utils.newGUID()
-	end
-	if o.CreatedAt == -1 then
-		o.CreatedAt = os.time()
-	end
 	return o
 end
 

@@ -47,7 +47,9 @@ end
 function Network.loadConnectionSettings()
 	Network.CurrentConnection = nil
 	Network.changeConnection(Network.Options["ConnectionType"] or Network.ConnectionTypes.None)
-	Network.tryConnect()
+	if Network.Options["AutoConnectStartup"] then
+		Network.tryConnect()
+	end
 end
 
 ---Changes the current connection type
