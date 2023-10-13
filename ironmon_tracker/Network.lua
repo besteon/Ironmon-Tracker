@@ -177,16 +177,8 @@ function Network.updateByText()
 	end
 
 	-- Part 1: Read new requests from the other application's outbound text file
-	local newRequests = FileManager.decodeJsonFile(C.OutboundFile)
-	for _, request in pairs(newRequests or {}) do
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			GUID = request.GUID,
-			EventType = request.EventType,
-			CreatedAt = request.CreatedAt,
-			Username = request.Username,
-			Args = request.Args,
-		}))
-	end
+	local requestsAsJson = FileManager.decodeJsonFile(C.OutboundFile)
+	RequestHandler.receiveJsonRequests(requestsAsJson)
 
 	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
@@ -215,16 +207,8 @@ function Network.updateBySocket()
 
 	-- Part 1: Read new requests from the other application
 	local input = ""
-	local newRequests = FileManager.JsonLibrary.decode(input) or {}
-	for _, request in pairs(newRequests or {}) do
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			GUID = request.GUID,
-			EventType = request.EventType,
-			CreatedAt = request.CreatedAt,
-			Username = request.Username,
-			Args = request.Args,
-		}))
-	end
+	local requestsAsJson = FileManager.JsonLibrary.decode(input) or {}
+	RequestHandler.receiveJsonRequests(requestsAsJson)
 
 	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
@@ -246,16 +230,8 @@ function Network.updateByHttp()
 
 	-- Part 1: Read new requests from the other application
 	local resultGet = comm.httpGet(C.HttpGetUrl) or ""
-	local newRequests = FileManager.JsonLibrary.decode(resultGet) or {}
-	for _, request in pairs(newRequests or {}) do
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			GUID = request.GUID,
-			EventType = request.EventType,
-			CreatedAt = request.CreatedAt,
-			Username = request.Username,
-			Args = request.Args,
-		}))
-	end
+	local requestsAsJson = FileManager.JsonLibrary.decode(resultGet) or {}
+	RequestHandler.receiveJsonRequests(requestsAsJson)
 
 	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()

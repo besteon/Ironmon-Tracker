@@ -3,7 +3,9 @@ RequestHandler = {
 	Responses = {}, -- A list of all responses ready to be sent
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
+	COMMAND_PREFIX = "!",
 	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
+	AUTO_DETECT_COMMAND = "CMD_AutoDetect",
 }
 
 -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -107,6 +109,44 @@ function RequestHandler.removeServerSideRequests()
 	end
 	for _, request in pairs(toRemove) do
 		RequestHandler.removeRequest(request.GUID)
+	end
+end
+
+---Receives requests as json and converts them into IRequests
+---@param jsonTable table|nil
+function RequestHandler.receiveJsonRequests(jsonTable)
+	for _, request in pairs(jsonTable or {}) do
+		-- Update the event type if auto-detect required
+		if request.EventType == RequestHandler.AUTO_DETECT_COMMAND then
+			local event = RequestHandler.getEventForCommand(request.Args.Command)
+			request.EventType = event and event.Key or request.EventType
+		end
+		-- Then add to the Requests queue
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			GUID = request.GUID,
+			EventType = request.EventType,
+			CreatedAt = request.CreatedAt,
+			Username = request.Username,
+			Args = request.Args,
+		}))
+	end
+end
+
+---Returns the IEvent for a given command; or nil if not found
+---@param command string Example: !testcommand
+---@return table|nil event
+function RequestHandler.getEventForCommand(command)
+	if not command or command == "" then
+		return nil
+	end
+	if command:sub(1,1) ~= RequestHandler.COMMAND_PREFIX then
+		command = RequestHandler.COMMAND_PREFIX .. command
+	end
+	command = Utils.toLowerUTF8(command)
+	for _, event in pairs(RequestHandler.Events) do
+		if event.Command and event.Command == command then
+			return event
+		end
 	end
 end
 
@@ -299,6 +339,7 @@ end
 
 RequestHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
+	-- CMD_AutoDetect = {}, -- Reserved interally, do not define this event
 	CMD_Pokemon = {
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
@@ -465,7 +506,7 @@ RequestHandler.IRequest = {
 	IsReady = false,
 	-- Username of the user creating the request
 	Username = "",
-	-- Optional arguments passed with the request
+	-- Optional arguments included with the request
 	Args = {},
 }
 function RequestHandler.IRequest:new(o)
