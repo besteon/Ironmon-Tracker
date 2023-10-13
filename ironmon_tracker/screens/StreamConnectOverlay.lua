@@ -281,10 +281,11 @@ function StreamConnectOverlay.createButtons()
 	end
 	nextLineY()
 
+	local setButtonOffsetX = 207
 	SCREEN.Buttons.SettingsDataFolder = {
 		type = Constants.ButtonTypes.FULL_BORDER,
-		getText = function(self) return "Change" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + 150, startY, 35, 11 },
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX + setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -292,71 +293,63 @@ function StreamConnectOverlay.createButtons()
 			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "")
 			Drawing.drawText(startX + 90, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
 		end,
-		onClick = function(self)
-			-- TODO: Implement prompt
-			print("Button pressed: Change Connection Folder")
-		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("DataFolder") end,
 	}
-	-- SCREEN.Buttons.SettingsSocketIP = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-	-- 	box = {	startX + 80, startY, 15, 11 },
-	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
-	-- 	draw = function(self, shadowcolor)
-	-- 		local x, y = self.box[1], self.box[2]
-	-- 		Drawing.drawText(startX, y, "Server IP:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-	-- 		local val = Network.Options["WebSocketIP"] or "0.0.0.0"
-	-- 		Drawing.drawText(x - 30, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-	-- 	end,
-	-- 	onClick = function(self)
-	-- 		-- TODO: Implement prompt
-	-- 	end,
-	-- }
-	-- SCREEN.Buttons.SettingsSocketPort = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-	-- 	box = {	startX + 170, startY, 15, 11 },
-	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
-	-- 	draw = function(self, shadowcolor)
-	-- 		local x, y = self.box[1], self.box[2]
-	-- 		Drawing.drawText(x - 80 + 1, y, "Port:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-	-- 		local val = Network.Options["WebSocketPort"] or "0000"
-	-- 		Drawing.drawText(x - 30, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-	-- 	end,
-	-- 	onClick = function(self)
-	-- 		-- TODO: Implement prompt
-	-- 	end,
-	-- }
-	-- SCREEN.Buttons.SettingsHTTPGet = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-	-- 	box = {	startX + 80, startY, 15, 11 },
-	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
-	-- 	draw = function(self, shadowcolor)
-	-- 		local x, y = self.box[1], self.box[2]
-	-- 		Drawing.drawText(startX, y, "Http GET:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-	-- 		local val = Network.Options["HttpGet"] or "/Get"
-	-- 		Drawing.drawText(x - 30, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-	-- 	end,
-	-- 	onClick = function(self)
-	-- 		-- TODO: Implement prompt
-	-- 	end,
-	-- }
-	-- SCREEN.Buttons.SettingsHTTPPost = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-	-- 	box = {	startX + 170, startY, 15, 11 },
-	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
-	-- 	draw = function(self, shadowcolor)
-	-- 		local x, y = self.box[1], self.box[2]
-	-- 		Drawing.drawText(x - 80 + 1, y, "Http POST:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
-	-- 		local val = Network.Options["HttpPost"] or "/Post"
-	-- 		Drawing.drawText(x - 30, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
-	-- 	end,
-	-- 	onClick = function(self)
-	-- 		-- TODO: Implement prompt
-	-- 	end,
-	-- }
+	SCREEN.Buttons.SettingsSocketIP = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Server IP:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["WebSocketIP"] or "0.0.0.0"
+			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketIP") end,
+	}
+	SCREEN.Buttons.SettingsHTTPGet = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "GET:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["HttpGet"] or "/"
+			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpGet") end,
+	}
+
+
+	nextLineY()
+	SCREEN.Buttons.SettingsSocketPort = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "Port:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["WebSocketPort"] or "0"
+			Drawing.drawText(startX + 50, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("WebSocketPort") end,
+	}
+	SCREEN.Buttons.SettingsHTTPPost = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
+		draw = function(self, shadowcolor)
+			local x, y = self.box[1], self.box[2]
+			Drawing.drawText(startX + 1, y, "POST:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
+			local val = Network.Options["HttpPost"] or "/"
+			Drawing.drawText(startX + 35, y, val, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+		end,
+		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpPost") end,
+	}
 end
 
 local ROW_MARGIN, ROW_PADDING = 5, 2
@@ -628,6 +621,36 @@ function StreamConnectOverlay.openCommandRolesPrompt(event)
 			-- defaultEvent.Roles
 		end
 	end, 120, 50)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		client.unpause()
+		forms.destroy(form)
+	end, 210, 50)
+end
+
+function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
+	local form = Utils.createBizhawkForm(string.format("Edit %s", modeKey), 320, 130, 100, 50) -- TODO: Language
+	forms.label(form, string.format("%s:", modeKey), 28, 20, 110, 20) -- TODO: Language
+
+	local textbox = forms.textbox(form, Network.Options[modeKey] or "", 134, 20, nil, 150, 18)
+
+	forms.button(form, Resources.AllScreens.Save, function()
+		local text = forms.gettext(textbox) or ""
+		if #text ~= 0 then
+			Network.closeConnections()
+			Network.Options[modeKey] = text
+			Main.SaveSettings(true)
+			SCREEN.refreshButtons()
+			Program.redraw(true)
+		end
+		client.unpause()
+		forms.destroy(form)
+	end, 30, 50)
+	-- forms.button(form, "(Default)", function() -- TODO: Language
+	-- 	local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+	-- 	if defaultEvent then
+	-- 		forms.settext(textbox, defaultEvent.Command)
+	-- 	end
+	-- end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		client.unpause()
 		forms.destroy(form)

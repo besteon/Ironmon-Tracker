@@ -139,17 +139,17 @@ function RequestHandler.processAllRequests()
 			StatusCode = RequestHandler.StatusCodes.FAIL,
 		})
 		if not event.IsEnabled then
-			print(string.format("[%s] %s (Not Enabled)", i, request.EventType))
+			-- print(string.format("[%s] %s (Not Enabled)", i, request.EventType))
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
 		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
 			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
-			print(string.format("[%s] %s (Processing)", i, request.EventType))
+			-- print(string.format("[%s] %s (Processing)", i, request.EventType))
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
 				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
 				response.Message = event:Fulfill(request)
 				request.SentResponse = false
-				print(string.format("[%s] %s (Success) -> '%s'", i, request.EventType, type(response.Message) == "string" and response.Message or "{N/A}"))
+				-- print(string.format("[%s] %s (Success) -> '%s'", i, request.EventType, type(response.Message) == "string" and response.Message or "{N/A}"))
 			end
 		end
 		if not request.SentResponse then
@@ -428,18 +428,21 @@ RequestHandler.DefaultEvents = {
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeFavorite = {
+		Duration = 10 * 60,
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeTheme = {
+		Duration = 10 * 60,
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeLanguage = {
+		Duration = 10 * 60,
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,

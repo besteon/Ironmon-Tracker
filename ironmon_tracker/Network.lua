@@ -2,27 +2,35 @@ Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
 	TEXT_UPDATE_FREQUENCY = 3, -- # of seconds
+	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
+	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
 	TEXT_INBOUND_FILE = "Inbound-Tracker.txt", -- The CLIENT's inbound data file; Tracker is the "Server" and will write responses to this file
 	TEXT_OUTBOUND_FILE = "Outbound-Tracker.txt", -- The CLIENT's outbound data file; Tracker is the "Server" and will read requests from this file
-	-- WEBSOCKET_SERVER_IP = "127.0.0.1", -- Not supported
-	-- WEBSOCKET_SERVER_PORT = "8080", -- Not supported
+	SOCKET_SERVER_NOT_FOUND = "Socket server was not initialized",
 }
 
 Network.ConnectionTypes = {
-	Text = "Text",
-	WebSockets = "WebSockets", -- Not supported
-	Http = "Http", -- Not supported
 	None = "None",
+	Text = "Text",
+
+	-- WebSockets WARNING: Bizhawk must be started with command line arguments to enable connections
+	-- It must also be a custom/new build of Bizhawk that actually supports asynchronous web sockets (not released yet)
+	WebSockets = "WebSockets",
+
+	-- HTTP WARNING: If Bizhawk is not started with command line arguments to enable connections
+	-- Then an internal Bizhawk error will crash the tracker. This cannot be bypassed with pcall() or other exception handling
+	-- Consider turning off "AutoConnectStartup" if exploring Http
+	Http = "Http",
 }
 
 Network.Options = {
 	["AutoConnectStartup"] = true,
 	["ConnectionType"] = Network.ConnectionTypes.None,
 	["DataFolder"] = "",
-	["WebSocketIP"] = nil, -- Not supported
-	["WebSocketPort"] = nil, -- Not supported
-	["HttpGet"] = nil, -- Not supported
-	["HttpPost"] = nil, -- Not supported
+	["WebSocketIP"] = "0.0.0.0", -- 127.0.0.1
+	["WebSocketPort"] = "8080",
+	["HttpGet"] = "",
+	["HttpPost"] = "",
 }
 
 function Network.initialize()
@@ -37,8 +45,8 @@ end
 ---@return table supportedTypes
 function Network.getSupportedConnectionTypes()
 	local supportedTypes = {}
-	-- table.insert(supportedTypes, Network.ConnectionTypes.WebSockets) -- Not supported
-	-- table.insert(supportedTypes, Network.ConnectionTypes.Http) -- Not supported
+	table.insert(supportedTypes, Network.ConnectionTypes.WebSockets) -- Not fully supported
+	table.insert(supportedTypes, Network.ConnectionTypes.Http) -- Not fully supported
 	table.insert(supportedTypes, Network.ConnectionTypes.Text)
 	table.insert(supportedTypes, Network.ConnectionTypes.None)
 	return supportedTypes
@@ -80,12 +88,45 @@ function Network.tryConnect()
 		return true
 	end
 	if C.Type == Network.ConnectionTypes.WebSockets then
-		-- Not supported
-		-- local SOCKET_SERVER_NOT_FOUND = "Socket server was not initialized"
-		-- local serverInfo = comm.socketServerGetInfo() or SOCKET_SERVER_NOT_FOUND
-		-- C.IsConnected = Utils.containsText(serverInfo, SOCKET_SERVER_NOT_FOUND)
+		if true then return false end -- Not fully supported
+		C.UpdateFrequency = Network.SOCKET_UPDATE_FREQUENCY
+		C.UpdateFunction = Network.updateBySocket
+		C.SocketIP = Network.Options["WebSocketIP"] or "0.0.0.0"
+		C.SocketPort = tonumber(Network.Options["WebSocketPort"] or "") or 0
+		local serverInfo
+		if C.SocketIP ~= "0.0.0.0" and C.SocketPort ~= 0 then
+			comm.socketServerSetIp(C.SocketIP)
+			comm.socketServerSetPort(C.SocketPort)
+			serverInfo = comm.socketServerGetInfo() or Network.SOCKET_SERVER_NOT_FOUND
+			-- TODO: Might also test/try 'bool comm.socketServerIsConnected()'
+		end
+		C.IsConnected = serverInfo and Utils.containsText(serverInfo, Network.SOCKET_SERVER_NOT_FOUND)
+		if C.IsConnected then
+			comm.socketServerSetTimeout(500) -- # of milliseconds
+		end
 	elseif C.Type == Network.ConnectionTypes.Http then
-		-- Not supported
+		if true then return false end -- Not fully supported
+		C.UpdateFrequency = Network.HTTP_UPDATE_FREQUENCY
+		C.UpdateFunction = Network.updateByHttp
+		C.HttpGetUrl = Network.Options["HttpGet"] or ""
+		C.HttpPostUrl = Network.Options["HttpPost"] or ""
+		if C.HttpGetUrl ~= "" then
+			-- Necessary for comm.httpTest()
+			comm.httpSetGetUrl(C.HttpGetUrl)
+		end
+		if C.HttpPostUrl ~= "" then
+			-- Necessary for comm.httpTest()
+			comm.httpSetPostUrl(C.HttpPostUrl)
+		end
+		local result
+		if C.HttpGetUrl ~= "" and C.HttpPostUrl then
+			-- See HTTP WARNING at the top of this file
+			pcall(function() result = comm.httpTest() or "N/A" end)
+		end
+		C.IsConnected = result and Utils.containsText(result, "done testing")
+		if C.IsConnected then
+			comm.httpSetTimeout(500) -- # of milliseconds
+		end
 	elseif C.Type == Network.ConnectionTypes.Text then
 		C.UpdateFrequency = Network.TEXT_UPDATE_FREQUENCY
 		C.UpdateFunction = Network.updateByText
@@ -156,6 +197,75 @@ function Network.updateByText()
 	if #responses > 0 or not C.InboundWasEmpty then
 		local success = FileManager.encodeToJsonFile(C.InboundFile, responses)
 		C.InboundWasEmpty = (success == false) -- false if no resulting json data
+		RequestHandler.clearResponses()
+	end
+end
+
+--- The update function used by the "Socket" Network connection type
+function Network.updateBySocket()
+	local C = Network.CurrentConnection
+	if C.SocketIP == "0.0.0.0" or C.SocketPort == 0 or not FileManager.JsonLibrary then
+		return
+	end
+
+	-- TODO: Not implemented. Requires custom Bizhawk build with asynchronous websocket fixes
+	if true then
+		return
+	end
+
+	-- Part 1: Read new requests from the other application
+	local input = ""
+	local newRequests = FileManager.JsonLibrary.decode(input) or {}
+	for _, request in pairs(newRequests or {}) do
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			GUID = request.GUID,
+			EventType = request.EventType,
+			CreatedAt = request.CreatedAt,
+			Username = request.Username,
+			Args = request.Args,
+		}))
+	end
+
+	-- Part 2: Process the requests
+	RequestHandler.processAllRequests()
+
+	-- Part 3: Send responses to the other application
+	local responses = RequestHandler.getResponses()
+	if #responses > 0 then
+		local output = FileManager.JsonLibrary.encode(responses) or "[]"
+		RequestHandler.clearResponses()
+	end
+end
+
+--- The update function used by the "Http" Network connection type
+function Network.updateByHttp()
+	local C = Network.CurrentConnection
+	if C.HttpGetUrl == "" or C.HttpPostUrl == "" or not FileManager.JsonLibrary then
+		return
+	end
+
+	-- Part 1: Read new requests from the other application
+	local resultGet = comm.httpGet(C.HttpGetUrl) or ""
+	local newRequests = FileManager.JsonLibrary.decode(resultGet) or {}
+	for _, request in pairs(newRequests or {}) do
+		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+			GUID = request.GUID,
+			EventType = request.EventType,
+			CreatedAt = request.CreatedAt,
+			Username = request.Username,
+			Args = request.Args,
+		}))
+	end
+
+	-- Part 2: Process the requests
+	RequestHandler.processAllRequests()
+
+	-- Part 3: Send responses to the other application
+	local responses = RequestHandler.getResponses()
+	if #responses > 0 then
+		local payload = FileManager.JsonLibrary.encode(responses) or "[]"
+		local resultPost = comm.httpPost(C.HttpPostUrl, payload)
+		Utils.printDebug("POST Response Code: %s", resultPost or "N/A")
 		RequestHandler.clearResponses()
 	end
 end
