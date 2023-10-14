@@ -36,7 +36,7 @@ function RequestHandler.initialize()
 	RequestHandler.Responses = {}
 	RequestHandler.lastSaveTime = os.time()
 	RequestHandler.addDefaultEvents()
-	RequestHandler.loadData()
+	RequestHandler.loadRequestsData()
 	RequestHandler.removeServerSideRequests()
 end
 
@@ -179,17 +179,14 @@ function RequestHandler.processAllRequests()
 			StatusCode = RequestHandler.StatusCodes.FAIL,
 		})
 		if not event.IsEnabled then
-			-- print(string.format("[%s] %s (Not Enabled)", i, request.EventType))
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
 		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
 			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
-			-- print(string.format("[%s] %s (Processing)", i, request.EventType))
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
 				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
 				response.Message = event:Fulfill(request)
 				request.SentResponse = false
-				-- print(string.format("[%s] %s (Success) -> '%s'", i, request.EventType, type(response.Message) == "string" and response.Message or "{N/A}"))
 			end
 		end
 		if not request.SentResponse then
@@ -221,15 +218,15 @@ function RequestHandler.clearResponses()
 end
 
 --- If enough time has elapsed since the last auto-save, will save the Requests data
-function RequestHandler.trySaveData()
+function RequestHandler.saveRequestsDataOnSchedule()
 	if (os.time() - RequestHandler.lastSaveTime) >= RequestHandler.SAVE_FREQUENCY then
-		RequestHandler.saveData()
+		RequestHandler.saveRequestsData()
 	end
 end
 
 --- Returns a list of IRequests from a data file
 ---@return boolean success
-function RequestHandler.loadData()
+function RequestHandler.loadRequestsData()
 	local requests = FileManager.decodeJsonFile(FileManager.Files.REQUESTS_DATA)
 	if requests then
 		RequestHandler.Requests = requests
@@ -241,7 +238,7 @@ end
 
 --- Saves the list of Requests to a data file
 ---@return boolean success
-function RequestHandler.saveData()
+function RequestHandler.saveRequestsData()
 	RequestHandler.removeServerSideRequests()
 	local success = FileManager.encodeToJsonFile(FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
 	RequestHandler.lastSaveTime = os.time()
@@ -286,7 +283,7 @@ function RequestHandler.loadEventSettings(event)
 	event.ConfigurationUpdated = anyLoaded or nil
 end
 
-function RequestHandler.tryNotifyConfigChanges()
+function RequestHandler.checkForConfigChanges()
 	local modifiedEvents = {}
 	for _, event in pairs(RequestHandler.Events) do
 		if event.ConfigurationUpdated then
@@ -311,7 +308,10 @@ function RequestHandler.addDefaultEvents()
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "TS_UpdateEvents",
 		Exclude = true,
-		Fulfill = function(self, request) return request.Args end, -- Trying this as a table instead of a string
+		Fulfill = function(self, request)
+			-- TODO: Don't have a good way to send back all of the changed event information. Unsure if embedded JSON is allowed
+			return "Server events were updated but their information isn't available. Reason: not implemented."
+		end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
 		Key = "TS_Stop",

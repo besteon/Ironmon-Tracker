@@ -90,7 +90,7 @@ function Network.tryConnect()
 	if C.Type == Network.ConnectionTypes.WebSockets then
 		if true then return false end -- Not fully supported
 		C.UpdateFrequency = Network.SOCKET_UPDATE_FREQUENCY
-		C.UpdateFunction = Network.updateBySocket
+		C.SendReceive = Network.updateBySocket
 		C.SocketIP = Network.Options["WebSocketIP"] or "0.0.0.0"
 		C.SocketPort = tonumber(Network.Options["WebSocketPort"] or "") or 0
 		local serverInfo
@@ -107,7 +107,7 @@ function Network.tryConnect()
 	elseif C.Type == Network.ConnectionTypes.Http then
 		if true then return false end -- Not fully supported
 		C.UpdateFrequency = Network.HTTP_UPDATE_FREQUENCY
-		C.UpdateFunction = Network.updateByHttp
+		C.SendReceive = Network.updateByHttp
 		C.HttpGetUrl = Network.Options["HttpGet"] or ""
 		C.HttpPostUrl = Network.Options["HttpPost"] or ""
 		if C.HttpGetUrl ~= "" then
@@ -129,7 +129,7 @@ function Network.tryConnect()
 		end
 	elseif C.Type == Network.ConnectionTypes.Text then
 		C.UpdateFrequency = Network.TEXT_UPDATE_FREQUENCY
-		C.UpdateFunction = Network.updateByText
+		C.SendReceive = Network.updateByText
 		local folder = Network.Options["DataFolder"] or ""
 		C.InboundFile = folder .. FileManager.slash .. Network.TEXT_INBOUND_FILE
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
@@ -149,10 +149,10 @@ function Network.closeConnections()
 		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
 			EventType = RequestHandler.Events["TS_Stop"].Key,
 		}))
-		Network.CurrentConnection:TryUpdate()
+		Network.CurrentConnection:SendReceive()
 		Network.CurrentConnection.IsConnected = false
 	end
-	RequestHandler.saveData()
+	RequestHandler.saveRequestsData()
 end
 
 function Network.update()
@@ -160,13 +160,8 @@ function Network.update()
 	if Program.Frames.highAccuracyUpdate ~= 0 or not Network.isConnected() then
 		return
 	end
-
-	RequestHandler.tryNotifyConfigChanges()
-
-	-- Check for any new, unqiue requests, process them accordingly, and send back responses
-	Network.CurrentConnection:TryUpdate()
-
-	RequestHandler.trySaveData()
+	Network.CurrentConnection:SendReceiveOnSchedule()
+	RequestHandler.saveRequestsDataOnSchedule()
 end
 
 --- The update function used by the "Text" Network connection type
@@ -176,14 +171,10 @@ function Network.updateByText()
 		return
 	end
 
-	-- Part 1: Read new requests from the other application
+	RequestHandler.checkForConfigChanges()
 	local requestsAsJson = FileManager.decodeJsonFile(C.InboundFile)
 	RequestHandler.receiveJsonRequests(requestsAsJson)
-
-	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
-
-	-- Part 3: Send responses to the other application
 	local responses = RequestHandler.getResponses()
 	-- Prevent consecutive "empty" file writes
 	if #responses > 0 or not C.InboundWasEmpty then
@@ -199,21 +190,16 @@ function Network.updateBySocket()
 	if C.SocketIP == "0.0.0.0" or C.SocketPort == 0 or not FileManager.JsonLibrary then
 		return
 	end
-
-	-- TODO: Not implemented. Requires custom Bizhawk build with asynchronous websocket fixes
+	-- TODO: Not implemented. Requires asynchronous compatibility
 	if true then
 		return
 	end
 
-	-- Part 1: Read new requests from the other application
+	RequestHandler.checkForConfigChanges()
 	local input = ""
 	local requestsAsJson = FileManager.JsonLibrary.decode(input) or {}
 	RequestHandler.receiveJsonRequests(requestsAsJson)
-
-	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
-
-	-- Part 3: Send responses to the other application
 	local responses = RequestHandler.getResponses()
 	if #responses > 0 then
 		local output = FileManager.JsonLibrary.encode(responses) or "[]"
@@ -227,21 +213,21 @@ function Network.updateByHttp()
 	if C.HttpGetUrl == "" or C.HttpPostUrl == "" or not FileManager.JsonLibrary then
 		return
 	end
+	-- TODO: Not implemented. Requires asynchronous compatibility
+	if true then
+		return
+	end
 
-	-- Part 1: Read new requests from the other application
+	RequestHandler.checkForConfigChanges()
 	local resultGet = comm.httpGet(C.HttpGetUrl) or ""
 	local requestsAsJson = FileManager.JsonLibrary.decode(resultGet) or {}
 	RequestHandler.receiveJsonRequests(requestsAsJson)
-
-	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
-
-	-- Part 3: Send responses to the other application
 	local responses = RequestHandler.getResponses()
 	if #responses > 0 then
 		local payload = FileManager.JsonLibrary.encode(responses) or "[]"
 		local resultPost = comm.httpPost(C.HttpPostUrl, payload)
-		Utils.printDebug("POST Response Code: %s", resultPost or "N/A")
+		-- Utils.printDebug("POST Response Code: %s", resultPost or "N/A")
 		RequestHandler.clearResponses()
 	end
 end
@@ -251,11 +237,11 @@ Network.IConnection = {
 	Type = Network.ConnectionTypes.None,
 	IsConnected = false,
 	UpdateFrequency = -1, -- Number of seconds; 0 or less will prevent updates
-	UpdateFunction = function(self) end,
+	SendReceive = function(self) end,
 	-- Don't override the follow functions
-	TryUpdate = function(self, updateFunc)
+	SendReceiveOnSchedule = function(self, updateFunc)
 		if (self.UpdateFrequency or 0) > 0 and (os.time() - Network.lastUpdateTime) >= self.UpdateFrequency then
-			updateFunc = updateFunc or self.UpdateFunction
+			updateFunc = updateFunc or self.SendReceive
 			if type(updateFunc) == "function" then
 				updateFunc(self)
 			end

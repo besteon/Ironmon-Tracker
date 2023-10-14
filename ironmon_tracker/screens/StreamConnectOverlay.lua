@@ -37,9 +37,9 @@ local TAB_HEIGHT = 12
 -- Dimensions of the screen space occupied by the current visible Tab
 SCREEN.Canvas = {
 	x = MARGIN,
-	y = TAB_HEIGHT,
+	y = TAB_HEIGHT + MARGIN,
 	w = Constants.SCREEN.WIDTH - (MARGIN * 2),
-	h = Constants.SCREEN.HEIGHT - TAB_HEIGHT - MARGIN - 1,
+	h = Constants.SCREEN.HEIGHT - TAB_HEIGHT - (MARGIN * 2) - 1,
 }
 
 local _pagerOffsetX, _pagerOffsetY = SCREEN.Canvas.x + 100, SCREEN.Canvas.y + SCREEN.Canvas.h - 12
@@ -134,6 +134,23 @@ function StreamConnectOverlay.refreshButtons()
 	end
 end
 
+local ROW_MARGIN, ROW_PADDING = 5, 2
+local ROW_WIDTH, ROW_HEIGHT = (SCREEN.Canvas.w - ROW_MARGIN * 2), (11 + ROW_PADDING * 2)
+local _leftEdgeX, _rightEdgeX
+local function resetButtonRow(width, height)
+	_leftEdgeX = width or SCREEN.Canvas.x + ROW_MARGIN
+	_rightEdgeX = height or SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN
+end
+local function addLeftAligned(button)
+	button.box[1] = _leftEdgeX + ROW_PADDING
+	_leftEdgeX = button.box[1] + button.box[3] + ROW_PADDING
+end
+local function addRightAligned(button)
+	button.box[1] = _rightEdgeX - ROW_PADDING - button.box[3]
+	_rightEdgeX = button.box[1] - ROW_PADDING
+end
+resetButtonRow()
+
 function StreamConnectOverlay.createButtons()
 	local startX = SCREEN.Canvas.x
 	local startY = SCREEN.Canvas.y - TAB_HEIGHT
@@ -212,6 +229,11 @@ function StreamConnectOverlay.createButtons()
 		end,
 		box = {	startX + 150, startY, 50, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		updateSelf = function(self)
+			-- Update width and box location depending on it's size
+			self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5
+			self.box[1] = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - self.box[3]
+		end,
 		onClick = function(self)
 			if Network.isConnected() then
 				Network.closeConnections()
@@ -252,7 +274,7 @@ function StreamConnectOverlay.createButtons()
 		box = {	startX, startY, 50, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
 	}
-	local connOffsetX = startX + 90
+	local connOffsetX = startX + 90 - 2
 	for _, connType in ipairs(Network.getSupportedConnectionTypes() or {}) do
 		local text = connType or Resources.StreamConnectOverlay.LabelOrButton -- TODO: Language
 		local width = Utils.calcWordPixelLength(text)
@@ -281,24 +303,27 @@ function StreamConnectOverlay.createButtons()
 	end
 	nextLineY()
 
-	local setButtonOffsetX = 207
+	local setButtonOffsetX = SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN - ROW_PADDING - 18
 	SCREEN.Buttons.SettingsDataFolder = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		box = {	setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
 			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "")
-			Drawing.drawText(startX + 90, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
+			if folder == "" then
+				folder = "/"
+			end
+			Drawing.drawText(startX + 90 - 1, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
 		end,
-		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("DataFolder") end,
+		onClick = function(self) StreamConnectOverlay.openNetworkFolderPrompt("DataFolder") end,
 	}
 	SCREEN.Buttons.SettingsSocketIP = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		box = {	setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -311,7 +336,7 @@ function StreamConnectOverlay.createButtons()
 	SCREEN.Buttons.SettingsHTTPGet = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		box = {	setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -327,7 +352,7 @@ function StreamConnectOverlay.createButtons()
 	SCREEN.Buttons.SettingsSocketPort = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		box = {	setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -340,7 +365,7 @@ function StreamConnectOverlay.createButtons()
 	SCREEN.Buttons.SettingsHTTPPost = {
 		type = Constants.ButtonTypes.FULL_BORDER,
 		getText = function(self) return "Set" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
-		box = {	startX + setButtonOffsetX, startY, 18, 11 },
+		box = {	setButtonOffsetX, startY, 18, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Http end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -350,24 +375,20 @@ function StreamConnectOverlay.createButtons()
 		end,
 		onClick = function(self) StreamConnectOverlay.openNetworkOptionPrompt("HttpPost") end,
 	}
-end
 
-local ROW_MARGIN, ROW_PADDING = 5, 2
-local ROW_WIDTH, ROW_HEIGHT = (SCREEN.Canvas.w - ROW_MARGIN * 2), (11 + ROW_PADDING * 2)
-local _leftEdgeX, _rightEdgeX
-local function resetButtonRow(width, height)
-	_leftEdgeX = width or SCREEN.Canvas.x + ROW_MARGIN
-	_rightEdgeX = height or SCREEN.Canvas.x + SCREEN.Canvas.w - ROW_MARGIN
+	nextLineY()
+	SCREEN.Buttons.SettingsUnsupportedModeWarning = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.WARNING,
+		getText = function(self) return "This connection mode is not yet supported by Bizhawk." end, -- TODO: Language
+		textColor = "Negative text",
+		box = {	startX + 2, startY, 10, 10 },
+		isVisible = function(self)
+			local unsupportedConn = Network.CurrentConnection.Type == Network.ConnectionTypes.WebSockets or Network.CurrentConnection.Type == Network.ConnectionTypes.Http
+			return SCREEN.currentTab == SCREEN.Tabs.Settings and unsupportedConn
+		end,
+	}
 end
-local function addLeftAligned(button)
-	button.box[1] = _leftEdgeX + ROW_PADDING
-	_leftEdgeX = button.box[1] + button.box[3] + ROW_PADDING
-end
-local function addRightAligned(button)
-	button.box[1] = _rightEdgeX - ROW_PADDING - button.box[3]
-	_rightEdgeX = button.box[1] - ROW_PADDING
-end
-resetButtonRow()
 
 local function buildCommandsTab()
 	SCREEN.Pager.ButtonRows = {}
@@ -655,6 +676,32 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 		client.unpause()
 		forms.destroy(form)
 	end, 210, 50)
+end
+
+function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
+	local path = Network.Options[modeKey] or ""
+	local filterOptions = "Text File (*.TXT)|*.txt|All files (*.*)|*.*"
+	Utils.tempDisableBizhawkSound()
+	local filepath = forms.openfile("SELECT ANY FILE IN THE FOLDER", path, filterOptions)
+	if filepath ~= "" then
+		-- Since the user had to pick a file, strip out the file name to just get the folder path
+		local pattern = "^.*()" .. FileManager.slash
+		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
+
+		-- If the file path changes
+		if not Utils.containsText(Network.Options[modeKey], filepath) then
+			Network.closeConnections()
+		end
+		if filepath == nil or filepath == "" then
+			Network.Options[modeKey] = ""
+		else
+			Network.Options[modeKey] = filepath
+		end
+		Main.SaveSettings(true)
+	end
+	Utils.tempEnableBizhawkSound()
+	SCREEN.refreshButtons()
+	Program.redraw(true)
 end
 
 -- USER INPUT FUNCTIONS
