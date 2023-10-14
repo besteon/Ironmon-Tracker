@@ -482,6 +482,19 @@ function Theme.exportThemeToText()
 	return string.upper(themeCode)
 end
 
+---Returns a the name of a theme if it exist in the theme library; if it doesn't, returns "Custom"
+---@param themeCode string
+---@return string
+function Theme.getThemeNameFromCode(themeCode)
+	themeCode = Theme.formatAsProperThemeCode(themeCode)
+	for i, themePair in ipairs(Theme.Presets or {}) do
+		if themeCode == themePair.code and i ~= 1 then -- skip "Active theme"
+			return themePair:getText()
+		end
+	end
+	return "Custom"
+end
+
 function Theme.openColorPickerWindow(colorkey)
 	local picker = ColorPicker.new(colorkey)
 	Input.currentColorPicker = picker

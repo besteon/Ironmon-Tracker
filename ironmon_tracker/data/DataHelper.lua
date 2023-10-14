@@ -1132,7 +1132,8 @@ function DataHelper.EventRequests.getRevo(args)
 	end
 	local revo = PokemonRevoData.getEvoTable(pokemonID, targetEvoId)
 	if not revo then
-		return buildDefaultResponse(params)
+		local pokemon = PokemonData.Pokemon[pokemonID or false] or {}
+		return buildDefaultResponse(pokemon.name or params)
 	end
 
 	local info = {}
@@ -1238,7 +1239,7 @@ function DataHelper.EventRequests.getHeals(args)
 		if not MiscData.Items[id or 0] or (quantity or 0) <= 0 then return nil end
 		local item = MiscData.HealingItems[id] or MiscData.PPItems[id] or MiscData.StatusItems[id] or {}
 		local text = MiscData.Items[item.id]
-		if item.quantity > 1 then
+		if quantity > 1 then
 			text = string.format("%s (%s)", text, quantity)
 		end
 		local value = item.amount or 0
@@ -1251,43 +1252,51 @@ function DataHelper.EventRequests.getHeals(args)
 		end
 		return { id = id, text = text, value = value }
 	end
+	local function sortAndCombine(label, items)
+		table.sort(items, sortFunc)
+		local t = {}
+		for _, item in ipairs(items) do table.insert(t, item.text) end
+		table.insert(info, string.format("%s: %s", label, table.concat(t, ", ")))
+	end
 	local healingItems, ppItems, statusItems, berryItems = {}, {}, {}, {}
 	for id, quantity in pairs(Program.GameData.Items.HPHeals) do
 		local itemInfo = getSortableItem(id, quantity)
-		table.insert(healingItems, itemInfo)
-		if displayBerries and itemInfo and MiscData.HealingItems[id].pocket == MiscData.BagPocket.Berries then
-			table.insert(berryItems, itemInfo)
+		if itemInfo then
+			table.insert(healingItems, itemInfo)
+			if displayBerries and MiscData.HealingItems[id].pocket == MiscData.BagPocket.Berries then
+				table.insert(berryItems, itemInfo)
+			end
 		end
 	end
 	for id, quantity in pairs(Program.GameData.Items.PPHeals) do
 		local itemInfo = getSortableItem(id, quantity)
-		table.insert(ppItems, itemInfo)
-		if displayBerries and itemInfo and MiscData.PPItems[id].pocket == MiscData.BagPocket.Berries then
-			table.insert(berryItems, itemInfo)
+		if itemInfo then
+			table.insert(ppItems, itemInfo)
+			if displayBerries and MiscData.PPItems[id].pocket == MiscData.BagPocket.Berries then
+				table.insert(berryItems, itemInfo)
+			end
 		end
 	end
 	for id, quantity in pairs(Program.GameData.Items.StatusHeals) do
 		local itemInfo = getSortableItem(id, quantity)
-		table.insert(statusItems, itemInfo)
-		if displayBerries and itemInfo and MiscData.StatusItems[id].pocket == MiscData.BagPocket.Berries then
-			table.insert(berryItems, itemInfo)
+		if itemInfo then
+			table.insert(statusItems, itemInfo)
+			if displayBerries and MiscData.StatusItems[id].pocket == MiscData.BagPocket.Berries then
+				table.insert(berryItems, itemInfo)
+			end
 		end
 	end
 	if displayHP and #healingItems > 0 then
-		table.sort(healingItems, sortFunc)
-		table.insert(info, string.format("%s: %s", "HP", table.concat(healingItems, ", ")))
+		sortAndCombine("HP", healingItems)
 	end
 	if displayPP and #ppItems > 0 then
-		table.sort(ppItems, sortFunc)
-		table.insert(info, string.format("%s: %s", "PP", table.concat(ppItems, ", ")))
+		sortAndCombine("PP", ppItems)
 	end
-	if displayStatus and #ppItems > 0 then
-		table.sort(statusItems, sortFunc)
-		table.insert(info, string.format("%s: %s", "STATUS", table.concat(statusItems, ", ")))
+	if displayStatus and #statusItems > 0 then
+		sortAndCombine("STATUS", statusItems)
 	end
 	if displayBerries and #berryItems > 0 then
-		table.sort(berryItems, sortFunc)
-		table.insert(info, string.format("%s: %s", "BERRIES", table.concat(berryItems, ", ")))
+		sortAndCombine("BERRIES", berryItems)
 	end
 	local prefix = string.format("%s %s", Resources.TrackerScreen.HealsInBag, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
@@ -1363,7 +1372,7 @@ function DataHelper.EventRequests.getTMsHMs(args)
 				end
 			end
 			local textToAdd = #gymTMs > 0 and table.concat(gymTMs, ", ") or "None"
-			table.insert(info, string.format("%s: %s", Resources.LogOverlay.LabelGymTMs, textToAdd))
+			table.insert(info, string.format("%s: %s", "Gym", textToAdd))
 		end
 		if displayNonGym then
 			local textToAdd
@@ -1403,10 +1412,16 @@ function DataHelper.EventRequests.getSearch(args)
 	if params == "" then
 		return buildResponse(string.format("%s %s", "[mode] [terms]", OUTPUT_CHAR), helpResponse)
 	end
+	local allowedSearchModes = {
+		["pokemon"] = true, ["move"] = true, ["ability"] = true, ["note"] = true,
+		["moves"] = true, ["abilities"] = true, ["notes"] = true,
+	}
 	local paramsAsList = Utils.split(params, " ", true)
 	local searchMode = Utils.toLowerUTF8(paramsAsList[1])
 	local searchTerms = Utils.toLowerUTF8(table.concat(paramsAsList, " ", 2))
-	if searchTerms == "" then
+	if not allowedSearchModes[searchMode] then
+		return buildResponse(string.format("%s %s", searchMode, OUTPUT_CHAR), helpResponse)
+	elseif searchTerms == "" then
 		return buildResponse(string.format("%s %s", params, OUTPUT_CHAR), string.format("%s", "Search terms missing."))
 	end
 
@@ -1477,7 +1492,7 @@ function DataHelper.EventRequests.getSearch(args)
 		end
 		local prefix = string.format("%s %s %s", "Tracked", pokemon.name, OUTPUT_CHAR)
 		return buildResponse(prefix, info)
-	elseif searchMode == "move" then
+	elseif searchMode == "move" or searchMode == "moves" then
 		local move = getMoveOrDefault(searchTerms)
 		if not move then
 			return buildDefaultResponse(searchTerms)
@@ -1512,7 +1527,7 @@ function DataHelper.EventRequests.getSearch(args)
 		end
 		local prefix = string.format("%s %s %s Pokémon:", move.name, OUTPUT_CHAR, #foundMons)
 		return buildResponse(prefix, info)
-	elseif searchMode == "ability" then
+	elseif searchMode == "ability" or searchMode == "abilities" then
 		local ability = getAbilityOrDefault(searchTerms)
 		if not ability then
 			return buildDefaultResponse(searchTerms)
@@ -1544,7 +1559,7 @@ function DataHelper.EventRequests.getSearch(args)
 	-- elseif searchMode == "stat" then -- Might implement later
 	-- 	local prefix = string.format("%s %s", "", OUTPUT_CHAR)
 	-- 	return buildResponse(prefix, info)
-	elseif searchMode == "note" then
+	elseif searchMode == "note" or searchMode == "notes" then
 		local foundMons = {}
 		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
 			if trackedPokemon.note and Utils.containsText(trackedPokemon.note, searchTerms, true) then
@@ -1564,7 +1579,7 @@ function DataHelper.EventRequests.getSearch(args)
 		if extra > 0 then
 			table.insert(info, string.format("(+%s more Pokémon)", extra))
 		end
-		local prefix = string.format("%s %s %s Pokémon:", searchTerms, OUTPUT_CHAR, #foundMons)
+		local prefix = string.format("%s: %s %s %s Pokémon:", "Note", searchTerms, OUTPUT_CHAR, #foundMons)
 		return buildResponse(prefix, info)
 	else
 		local prefix = string.format("%s %s", searchMode, OUTPUT_CHAR)
@@ -1577,13 +1592,7 @@ end
 function DataHelper.EventRequests.getTheme(args)
 	local info = {}
 	local themeCode = Theme.exportThemeToText()
-	local themeName = "Custom"
-	for _, themePair in ipairs(Theme.Presets or {}) do
-		if themePair.code == themeCode then
-			themeName = themePair:getText()
-			break
-		end
-	end
+	local themeName = Theme.getThemeNameFromCode(themeCode)
 	table.insert(info, string.format("%s: %s", themeName, themeCode))
 	local prefix = string.format("%s %s", "Theme", OUTPUT_CHAR)
 	return buildResponse(prefix, info)
@@ -1694,14 +1703,14 @@ function DataHelper.EventRequests.getHelp(args)
 	local availableCommands = {}
 	for _, event in pairs(RequestHandler.Events or {}) do
 		if event.Command then
-			availableCommands[event.Command] = true
+			availableCommands[event.Command] = event
 		end
 	end
 	local info = {}
 	if params ~= "" then
 		local paramsAsLower = Utils.toLowerUTF8(params)
-		if paramsAsLower:sub(1, 1) ~= "!" then
-			paramsAsLower = "!" .. paramsAsLower
+		if paramsAsLower:sub(1, 1) ~= RequestHandler.COMMAND_PREFIX then
+			paramsAsLower = RequestHandler.COMMAND_PREFIX .. paramsAsLower
 		end
 		local command = availableCommands[paramsAsLower]
 		if not command or (command.Help or "") == "" then

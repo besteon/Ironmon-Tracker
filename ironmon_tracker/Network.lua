@@ -1,11 +1,11 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
-	TEXT_UPDATE_FREQUENCY = 3, -- # of seconds
+	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
 	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
 	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
-	TEXT_INBOUND_FILE = "Inbound-Tracker.txt", -- The CLIENT's inbound data file; Tracker is the "Server" and will write responses to this file
-	TEXT_OUTBOUND_FILE = "Outbound-Tracker.txt", -- The CLIENT's outbound data file; Tracker is the "Server" and will read requests from this file
+	TEXT_INBOUND_FILE = "Tracker-Requests.txt", -- The CLIENT's outbound data file; Tracker is the "Server" and will read requests from this file
+	TEXT_OUTBOUND_FILE = "Tracker-Responses.txt", -- The CLIENT's inbound data file; Tracker is the "Server" and will write responses to this file
 	SOCKET_SERVER_NOT_FOUND = "Socket server was not initialized",
 }
 
@@ -172,22 +172,22 @@ end
 --- The update function used by the "Text" Network connection type
 function Network.updateByText()
 	local C = Network.CurrentConnection
-	if not C.OutboundFile or not C.InboundFile or not FileManager.JsonLibrary then
+	if not C.InboundFile or not C.OutboundFile or not FileManager.JsonLibrary then
 		return
 	end
 
-	-- Part 1: Read new requests from the other application's outbound text file
-	local requestsAsJson = FileManager.decodeJsonFile(C.OutboundFile)
+	-- Part 1: Read new requests from the other application
+	local requestsAsJson = FileManager.decodeJsonFile(C.InboundFile)
 	RequestHandler.receiveJsonRequests(requestsAsJson)
 
 	-- Part 2: Process the requests
 	RequestHandler.processAllRequests()
 
-	-- Part 3: Send responses to the other application's inbound text file
+	-- Part 3: Send responses to the other application
 	local responses = RequestHandler.getResponses()
 	-- Prevent consecutive "empty" file writes
 	if #responses > 0 or not C.InboundWasEmpty then
-		local success = FileManager.encodeToJsonFile(C.InboundFile, responses)
+		local success = FileManager.encodeToJsonFile(C.OutboundFile, responses)
 		C.InboundWasEmpty = (success == false) -- false if no resulting json data
 		RequestHandler.clearResponses()
 	end
