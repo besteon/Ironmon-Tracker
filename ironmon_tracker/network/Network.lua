@@ -40,8 +40,18 @@ Network.Options = {
 }
 
 function Network.initialize()
-	Network.loadConnectionSettings()
+	-- Clear and reload Event and Request information
+	EventHandler.reset()
+	RequestHandler.reset()
+	EventHandler.addDefaultEvents()
+	RequestHandler.loadRequestsData()
+	RequestHandler.removedExcludedRequests()
+
 	Network.lastUpdateTime = 0
+	Network.loadConnectionSettings()
+	if Network.Options["AutoConnectStartup"] then
+		Network.tryConnect()
+	end
 end
 
 ---@return boolean
@@ -64,9 +74,6 @@ function Network.loadConnectionSettings()
 	Network.CurrentConnection = Network.IConnection:new()
 	if (Network.Options["ConnectionType"] or "") ~= "" then
 		Network.changeConnection(Network.Options["ConnectionType"])
-	end
-	if Network.Options["AutoConnectStartup"] then
-		Network.tryConnect()
 	end
 end
 
@@ -153,10 +160,10 @@ function Network.tryConnect()
 	end
 	if C.State == Network.ConnectionState.Listen then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.Start].Key,
+			EventType = EventHandler.Events[EventHandler.CoreEventTypes.Start].Key,
 		}))
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GetRewards].Key,
+			EventType = EventHandler.Events[EventHandler.CoreEventTypes.GetRewards].Key,
 		}))
 	end
 	return C.State
@@ -172,7 +179,7 @@ end
 function Network.closeConnections()
 	if Network.isConnected() then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.Stop].Key,
+			EventType = EventHandler.Events[EventHandler.CoreEventTypes.Stop].Key,
 		}))
 		Network.CurrentConnection:SendReceive()
 		Network.updateConnectionState(Network.ConnectionState.Closed)
@@ -180,6 +187,7 @@ function Network.closeConnections()
 	RequestHandler.saveRequestsData()
 end
 
+--- Attempts to perform the scheduled network data update
 function Network.update()
 	-- Only check for possible update once every 10 frames
 	if Program.Frames.highAccuracyUpdate ~= 0 or not Network.isConnected() then
@@ -196,7 +204,7 @@ function Network.updateByText()
 		return
 	end
 
-	RequestHandler.checkForConfigChanges()
+	EventHandler.checkForConfigChanges()
 	local requestsAsJson = FileManager.decodeJsonFile(C.InboundFile)
 	RequestHandler.receiveJsonRequests(requestsAsJson)
 	RequestHandler.processAllRequests()
@@ -220,7 +228,7 @@ function Network.updateBySocket()
 		return
 	end
 
-	RequestHandler.checkForConfigChanges()
+	EventHandler.checkForConfigChanges()
 	local input = ""
 	local requestsAsJson = FileManager.JsonLibrary.decode(input) or {}
 	RequestHandler.receiveJsonRequests(requestsAsJson)
@@ -243,7 +251,7 @@ function Network.updateByHttp()
 		return
 	end
 
-	RequestHandler.checkForConfigChanges()
+	EventHandler.checkForConfigChanges()
 	local resultGet = comm.httpGet(C.HttpGetUrl) or ""
 	local requestsAsJson = FileManager.JsonLibrary.decode(resultGet) or {}
 	RequestHandler.receiveJsonRequests(requestsAsJson)

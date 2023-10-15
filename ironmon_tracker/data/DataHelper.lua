@@ -1701,7 +1701,7 @@ end
 function DataHelper.EventRequests.getHelp(args)
 	local params = (args or {}).Input or ""
 	local availableCommands = {}
-	for _, event in pairs(RequestHandler.Events or {}) do
+	for _, event in pairs(EventHandler.Events or {}) do
 		if event.Command then
 			availableCommands[event.Command] = event
 		end
@@ -1709,8 +1709,8 @@ function DataHelper.EventRequests.getHelp(args)
 	local info = {}
 	if params ~= "" then
 		local paramsAsLower = Utils.toLowerUTF8(params)
-		if paramsAsLower:sub(1, 1) ~= RequestHandler.COMMAND_PREFIX then
-			paramsAsLower = RequestHandler.COMMAND_PREFIX .. paramsAsLower
+		if paramsAsLower:sub(1, 1) ~= EventHandler.COMMAND_PREFIX then
+			paramsAsLower = EventHandler.COMMAND_PREFIX .. paramsAsLower
 		end
 		local command = availableCommands[paramsAsLower]
 		if not command or (command.Help or "") == "" then

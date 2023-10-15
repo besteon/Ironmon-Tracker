@@ -202,7 +202,7 @@ function StreamConnectOverlay.createButtons()
 	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Rewards end,
 	-- 	onClick = function(self)
 	-- 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-	-- 			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GET_REWARDS].Key,
+	-- 			EventType = EventHandler.Events[EventHandler.CoreEventTypes.GET_REWARDS].Key,
 	-- 			Args = { Received = "No" }
 	-- 		}))
 	-- 	end,
@@ -237,6 +237,33 @@ function StreamConnectOverlay.createButtons()
 			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
 				self.image = Constants.PixelImages.CROSS
 				self.textColor = "Negative text"
+			end
+		end,
+	}
+	SCREEN.Buttons.SettingsConnectionInfo = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.CROSS,
+		getText = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				return "Online: Connection established." -- TODO: Language
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				return "Online: Waiting for external connection..." -- TODO: Language
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				return "Offline." -- TODO: Language
+			end
+		end,
+		box = {	startX + 3, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 13, 13 },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
+		updateSelf = function(self)
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.iconColors = { "Positive text" }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				self.image = Constants.PixelImages.CLOCK
+				self.iconColors = { SCREEN.Colors.highlight }
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				self.image = Constants.PixelImages.CROSS
+				self.iconColors = { "Negative text" }
 			end
 		end,
 	}
@@ -418,7 +445,7 @@ local function buildCommandsTab()
 	SCREEN.Pager.Buttons = {}
 
 	local tabContents = {}
-	for _, event in pairs(RequestHandler.Events) do
+	for _, event in pairs(EventHandler.Events) do
 		if not event.Exclude and event.Command then
 			table.insert(tabContents, event)
 		end
@@ -451,7 +478,7 @@ local function buildCommandsTab()
 			onClick = function(self)
 				self.toggleState = not self.toggleState
 				event.IsEnabled = (self.toggleState == true)
-				RequestHandler.saveEventSetting(event, "IsEnabled")
+				EventHandler.saveEventSetting(event, "IsEnabled")
 				SCREEN.refreshButtons()
 				Program.redraw(true)
 			end,
@@ -515,7 +542,7 @@ local function buildRewardsTab()
 	SCREEN.Pager.Buttons = {}
 
 	local tabContents = {}
-	for _, event in pairs(RequestHandler.Events) do
+	for _, event in pairs(EventHandler.Events) do
 		if not event.Exclude and event.RewardName then
 			table.insert(tabContents, event)
 		end
@@ -551,7 +578,7 @@ local function buildRewardsTab()
 			onClick = function(self)
 				self.toggleState = not self.toggleState
 				event.IsEnabled = (self.toggleState == true)
-				RequestHandler.saveEventSetting(event, "IsEnabled")
+				EventHandler.saveEventSetting(event, "IsEnabled")
 				SCREEN.refreshButtons()
 				Program.redraw(true)
 			end,
@@ -582,12 +609,12 @@ local function buildRewardsTab()
 			image = Constants.PixelImages.REFERENCE_UP,
 			getText = function(self)
 				local externalTitle
-				if (event.TwitchRewardId or "") == "" then
+				if (event.RewardId or "") == "" then
 					externalTitle = NOT_ASSIGNED
 				else
 					externalTitle = ASSIGNED_UNKNOWN
-					if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
-						externalTitle = RequestHandler.Rewards[event.TwitchRewardId]
+					if (EventHandler.RewardsExternal[event.RewardId] or "") ~= "" then
+						externalTitle = EventHandler.RewardsExternal[event.RewardId]
 						externalTitle = Utils.formatSpecialCharacters(externalTitle)
 						externalTitle = Utils.shortenText(externalTitle, 156, true)
 					end
@@ -749,7 +776,7 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 		local text = forms.gettext(textbox) or ""
 		if #text > 2 and text:sub(1,1) == "!" then -- Command requirements
 			event.Command = Utils.toLowerUTF8(text)
-			RequestHandler.saveEventSetting(event, "Command")
+			EventHandler.saveEventSetting(event, "Command")
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end
@@ -757,7 +784,7 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 		forms.destroy(form)
 	end, 30, 50)
 	forms.button(form, "(Default)", function() -- TODO: Language
-		local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+		local defaultEvent = EventHandler.DefaultEvents[event.Key]
 		if defaultEvent then
 			forms.settext(textbox, defaultEvent.Command)
 		end
@@ -776,14 +803,14 @@ function StreamConnectOverlay.openCommandRolesPrompt(event)
 	-- TODO: Implement this
 
 	forms.button(form, Resources.AllScreens.Save, function()
-		-- RequestHandler.saveEventSetting(event, "Roles")
+		-- EventHandler.saveEventSetting(event, "Roles")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
 		client.unpause()
 		forms.destroy(form)
 	end, 30, 50)
 	forms.button(form, "(Default)", function() -- TODO: Language
-		local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+		local defaultEvent = EventHandler.DefaultEvents[event.Key]
 		if defaultEvent then
 			-- defaultEvent.Roles
 		end
@@ -803,7 +830,7 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 
 	local CHOICE_NONE = "(None)" -- TODO: Language
 	local rewardsList = { CHOICE_NONE }
-	for _, rewardTitle in pairs(RequestHandler.Rewards) do
+	for _, rewardTitle in pairs(EventHandler.RewardsExternal) do
 		table.insert(rewardsList, rewardTitle)
 	end
 
@@ -811,24 +838,24 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 	forms.setdropdownitems(dropdown, rewardsList, true) -- true = alphabetize the list
 	forms.setproperty(dropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(dropdown, "AutoCompleteMode", "Append")
-	if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
-		forms.settext(dropdown, RequestHandler.Rewards[event.TwitchRewardId])
+	if (EventHandler.RewardsExternal[event.RewardId] or "") ~= "" then
+		forms.settext(dropdown, EventHandler.RewardsExternal[event.RewardId])
 	end
 
 	forms.button(form, Resources.AllScreens.Save, function()
 		local optionSelected = forms.gettext(dropdown)
 		if not optionSelected or optionSelected == CHOICE_NONE then
-			event.TwitchRewardId = ""
+			event.RewardId = ""
 		else
-			for rewardId, rewardTitle in pairs(RequestHandler.Rewards) do
+			for rewardId, rewardTitle in pairs(EventHandler.RewardsExternal) do
 				if optionSelected == rewardTitle then
-					event.TwitchRewardId = rewardId
+					event.RewardId = rewardId
 					break
 				end
 			end
 		end
-		event.IsEnabled = event.TwitchRewardId ~= ""
-		RequestHandler.saveEventSetting(event, "TwitchRewardId")
+		event.IsEnabled = event.RewardId ~= ""
+		EventHandler.saveEventSetting(event, "RewardId")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
 		client.unpause()
@@ -862,7 +889,7 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 		forms.destroy(form)
 	end, 30, 50)
 	-- forms.button(form, "(Default)", function() -- TODO: Language
-	-- 	local defaultEvent = RequestHandler.DefaultEvents[event.Key]
+	-- 	local defaultEvent = EventHandler.DefaultEvents[event.Key]
 	-- 	if defaultEvent then
 	-- 		forms.settext(textbox, defaultEvent.Command)
 	-- 	end
