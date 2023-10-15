@@ -4,16 +4,12 @@ RequestHandler = {
 	Rewards = {}, -- A list of external rewards
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
-	COMMAND_PREFIX = "!",
 	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
-	CoreEventTypes = {
-		START = "TS_Start",
-		STOP = "TS_Stop",
-		GET_REWARDS = "TS_GetRewardsList",
-		UPDATE_EVENTS = "TS_UpdateEvents",
-		AUTO_DETECT_COMMAND = "CMD_AutoDetect",
-		AUTO_DETECT_REWARD = "CR_AutoDetect",
-	},
+
+	-- Shared values between server and client
+	COMMAND_PREFIX = "!",
+	SOURCE_STREAMERBOT = "Streamerbot",
+	REQUEST_COMPLETE = "Complete",
 }
 
 -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -24,6 +20,15 @@ RequestHandler.StatusCodes = {
 	FAIL = 400, -- The server (Tracker) won't process, likely due to a client error with formatting the request
 	NOT_FOUND = 404, -- The server (Tracker) cannot find the requested resource or event
 	UNAVAILABLE = 503, -- The server (Tracker) is not able to handle the request, usually because its event hook disabled
+}
+
+RequestHandler.CoreEventTypes = {
+	Start = "TS_Start",
+	Stop = "TS_Stop",
+	GetRewards = "TS_GetRewardsList",
+	UpdateEvents = "TS_UpdateEvents",
+	AutoDetectCommand = "CMD_AutoDetect",
+	AutoDetectReward = "CR_AutoDetect",
 }
 
 RequestHandler.Events = {
@@ -46,7 +51,7 @@ function RequestHandler.initialize()
 	RequestHandler.lastSaveTime = os.time()
 	RequestHandler.addDefaultEvents()
 	RequestHandler.loadRequestsData()
-	RequestHandler.removeServerSideRequests()
+	RequestHandler.removedExcludedRequests()
 end
 
 --- Adds a IRequest to the requests queue, or updates an existing matching request; returns true if successful
@@ -57,7 +62,11 @@ function RequestHandler.addUpdateRequest(request)
 	if not request or request.EventType == RequestHandler.Events.None.Key then
 		return false
 	end
-	RequestHandler.Requests[request.GUID] = request
+	if RequestHandler.Requests[request.GUID] then
+		FileManager.copyTable(request, RequestHandler.Requests[request.GUID])
+	else
+		RequestHandler.Requests[request.GUID] = request
+	end
 	return true
 end
 
@@ -79,7 +88,11 @@ function RequestHandler.addUpdateResponse(response)
 	if not response then
 		return false
 	end
-	RequestHandler.Responses[response.GUID] = response
+	if RequestHandler.Responses[response.GUID] then
+		FileManager.copyTable(response, RequestHandler.Responses[response.GUID])
+	else
+		RequestHandler.Responses[response.GUID] = response
+	end
 	return true
 end
 
@@ -110,8 +123,8 @@ function RequestHandler.removeEvent(eventKey)
 	return true
 end
 
----Removes any existing requests that shouldn't be in the queue, usually a stop connection request immediately after starting up
-function RequestHandler.removeServerSideRequests()
+---Removes any requests that should not be saved/loaded (e.g. core start and stop requests)
+function RequestHandler.removedExcludedRequests()
 	local toRemove = {}
 	for _, request in pairs(RequestHandler.Requests or {}) do
 		local event = RequestHandler.Events[request.EventType] or RequestHandler.Events.None
@@ -129,10 +142,10 @@ end
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
 		-- Update the event type if auto-detect required
-		if request.EventType == RequestHandler.CoreEventTypes.AUTO_DETECT_COMMAND then
+		if request.EventType == RequestHandler.CoreEventTypes.AutoDetectCommand then
 			local event = RequestHandler.getEventForCommand(request.Args.Command)
 			request.EventType = event and event.Key or request.EventType
-		elseif request.EventType == RequestHandler.CoreEventTypes.AUTO_DETECT_REWARD then
+		elseif request.EventType == RequestHandler.CoreEventTypes.AutoDetectReward then
 			local event = RequestHandler.getEventForReward(request.Args.RewardId)
 			request.EventType = event and event.Key or request.EventType
 		end
@@ -192,10 +205,10 @@ function RequestHandler.updateRewardsList(rewards)
 			RequestHandler.Rewards[reward.Id] = reward.Title
 		end
 	end
-	-- Enable/disable any Reward events with matching reward ids
+	-- Temp disable any Reward events without matching reward ids
 	for _, event in pairs(RequestHandler.Events) do
-		if event.TwitchRewardId then
-			event.IsEnabled = RequestHandler.Rewards[event.TwitchRewardId] ~= nil
+		if event.IsEnabled and event.TwitchRewardId and not RequestHandler.Rewards[event.TwitchRewardId] then
+			event.IsEnabled = false
 		end
 	end
 end
@@ -221,7 +234,7 @@ function RequestHandler.processAllRequests()
 	-- TODO: Implement better, dont process if something ahead of it in queue of same event type (if that matters), somehow avoid duplicate requests
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
-	for i, request in ipairs(toProcess) do
+	for _, request in ipairs(toProcess) do
 		local event = RequestHandler.Events[request.EventType]
 		local response = RequestHandler.IResponse:new({
 			GUID = request.GUID,
@@ -274,7 +287,7 @@ function RequestHandler.saveRequestsDataOnSchedule()
 	end
 end
 
---- Returns a list of IRequests from a data file
+--- Imports a list of IRequests from a data file; returns true if successful
 ---@return boolean success
 function RequestHandler.loadRequestsData()
 	local requests = FileManager.decodeJsonFile(FileManager.Files.REQUESTS_DATA)
@@ -289,7 +302,7 @@ end
 --- Saves the list of Requests to a data file
 ---@return boolean success
 function RequestHandler.saveRequestsData()
-	RequestHandler.removeServerSideRequests()
+	RequestHandler.removedExcludedRequests()
 	local success = FileManager.encodeToJsonFile(FileManager.Files.REQUESTS_DATA, RequestHandler.Requests)
 	RequestHandler.lastSaveTime = os.time()
 	return (success == true)
@@ -330,6 +343,10 @@ function RequestHandler.loadEventSettings(event)
 			anyLoaded = true
 		end
 	end
+	-- Disable any rewards without associations defined
+	if event.IsEnabled and event.TwitchRewardId == "" then
+		event.IsEnabled = false
+	end
 	event.ConfigurationUpdated = anyLoaded or nil
 end
 
@@ -343,7 +360,7 @@ function RequestHandler.checkForConfigChanges()
 	end
 	if #modifiedEvents > 0 then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.UPDATE_EVENTS].Key,
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.UpdateEvents].Key,
 			Args = modifiedEvents
 		}))
 	end
@@ -352,26 +369,48 @@ end
 function RequestHandler.addDefaultEvents()
 	-- TS_: Tracker Server (Core events that shouldn't be modified)
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = RequestHandler.CoreEventTypes.START,
-		Exclude = true,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = RequestHandler.CoreEventTypes.STOP,
-		Exclude = true,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = RequestHandler.CoreEventTypes.GET_REWARDS,
+		Key = RequestHandler.CoreEventTypes.Start,
 		Exclude = true,
 		Process = function(self, request)
-			return request.Args.Received == "Yes"
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
+		end,
+		Fulfill = function(self, request)
+			Network.updateConnectionState(Network.ConnectionState.Established)
+			RequestHandler.removedExcludedRequests()
+			StreamConnectOverlay.refreshButtons()
+			return RequestHandler.REQUEST_COMPLETE
+		end,
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = RequestHandler.CoreEventTypes.Stop,
+		Exclude = true,
+		Process = function(self, request)
+			local ableToStop = Network.CurrentConnection.State >= Network.ConnectionState.Established
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return ableToStop and request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
+		end,
+		Fulfill = function(self, request)
+			Network.updateConnectionState(Network.ConnectionState.Listen)
+			RequestHandler.removedExcludedRequests()
+			StreamConnectOverlay.refreshButtons()
+			return RequestHandler.REQUEST_COMPLETE
+		end,
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = RequestHandler.CoreEventTypes.GetRewards,
+		Exclude = true,
+		Process = function(self, request)
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
 		end,
 		Fulfill = function(self, request)
 			RequestHandler.updateRewardsList(request.Args.Rewards)
-			return "Complete"
+			return RequestHandler.REQUEST_COMPLETE
 		end,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = RequestHandler.CoreEventTypes.UPDATE_EVENTS,
+		Key = RequestHandler.CoreEventTypes.UpdateEvents,
 		Exclude = true,
 		Fulfill = function(self, request)
 			-- TODO: Don't have a good way to send back all of the changed event information. Unsure if embedded JSON is allowed

@@ -228,8 +228,16 @@ function StreamConnectOverlay.createButtons()
 		box = {	startX + 90, startY - 1, 11, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
 		updateSelf = function(self)
-			self.image = Network.isConnected() and Constants.PixelImages.CHECKMARK or Constants.PixelImages.CROSS
-			self.textColor = Network.isConnected() and "Positive text" or "Negative text"
+			if Network.CurrentConnection.State == Network.ConnectionState.Established then
+				self.image = Constants.PixelImages.CHECKMARK
+				self.textColor = "Positive text"
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Listen then
+				self.image = Constants.PixelImages.CLOCK
+				self.textColor = SCREEN.Colors.highlight
+			elseif Network.CurrentConnection.State == Network.ConnectionState.Closed then
+				self.image = Constants.PixelImages.CROSS
+				self.textColor = "Negative text"
+			end
 		end,
 	}
 	SCREEN.Buttons.SettingsBtnConnect = {
@@ -514,7 +522,8 @@ local function buildRewardsTab()
 	end
 	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.RewardName < b.RewardName) end)
 
-	local NOT_ASSIGNED = "(Not assigned)" -- TODO: Language
+	local NOT_ASSIGNED = ""
+	local ASSIGNED_UNKNOWN = "(Waiting for connection...)" -- TODO: Language
 
 	for i, event in ipairs(tabContents) do
 		resetButtonRow()
@@ -572,11 +581,16 @@ local function buildRewardsTab()
 			type = Constants.ButtonTypes.PIXELIMAGE,
 			image = Constants.PixelImages.REFERENCE_UP,
 			getText = function(self)
-				local externalTitle = NOT_ASSIGNED
-				if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
-					externalTitle = RequestHandler.Rewards[event.TwitchRewardId]
-					externalTitle = Utils.formatSpecialCharacters(externalTitle)
-					externalTitle = Utils.shortenText(externalTitle, 156, true)
+				local externalTitle
+				if (event.TwitchRewardId or "") == "" then
+					externalTitle = NOT_ASSIGNED
+				else
+					externalTitle = ASSIGNED_UNKNOWN
+					if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
+						externalTitle = RequestHandler.Rewards[event.TwitchRewardId]
+						externalTitle = Utils.formatSpecialCharacters(externalTitle)
+						externalTitle = Utils.shortenText(externalTitle, 156, true)
+					end
 				end
 				return externalTitle
 			end,
@@ -585,7 +599,7 @@ local function buildRewardsTab()
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
 				self.box[2] = btnName.box[2] + ROW_HEIGHT - 1
-				if not btnEnabled.toggleState or self:getText() == NOT_ASSIGNED then
+				if self:getText() == NOT_ASSIGNED then
 					self.textColor = SCREEN.Colors.highlight
 				else
 					self.textColor = SCREEN.Colors.text
@@ -703,8 +717,12 @@ end
 function StreamConnectOverlay.open()
 	if SCREEN.isDisplayed then return end
 	SCREEN.isDisplayed = true
-	local tabToOpen = Network.isConnected() and Utils.getSortedList(SCREEN.Tabs)[1] or SCREEN.Tabs.Settings
-	SCREEN.changeTab(tabToOpen)
+	if Network.isConnected() then
+		local firstTab = Utils.getSortedList(SCREEN.Tabs)[1]
+		SCREEN.changeTab(firstTab)
+	else
+		SCREEN.changeTab(SCREEN.Tabs.Settings)
+	end
 end
 
 function StreamConnectOverlay.close()

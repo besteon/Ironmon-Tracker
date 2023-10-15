@@ -17,10 +17,16 @@ Network.ConnectionTypes = {
 	-- It must also be a custom/new build of Bizhawk that actually supports asynchronous web sockets (not released yet)
 	WebSockets = "WebSockets",
 
-	-- HTTP WARNING: If Bizhawk is not started with command line arguments to enable connections
+	-- Http WARNING: If Bizhawk is not started with command line arguments to enable connections
 	-- Then an internal Bizhawk error will crash the tracker. This cannot be bypassed with pcall() or other exception handling
 	-- Consider turning off "AutoConnectStartup" if exploring Http
 	Http = "Http",
+}
+
+Network.ConnectionState = {
+	Closed = 0, -- The server (Tracker) is not currently connected nor trying to connect
+	Listen = 1, -- The server (Tracker) is online and trying to connect, waiting for response from a client
+	Established = 9, -- Both the server (Tracker) and client are connected; communication is open
 }
 
 Network.Options = {
@@ -38,23 +44,27 @@ function Network.initialize()
 	Network.lastUpdateTime = 0
 end
 
+---@return boolean
 function Network.isConnected()
-	return Network.CurrentConnection and Network.CurrentConnection.IsConnected ~= false
+	return Network.CurrentConnection.State > Network.ConnectionState.Closed
 end
 
 ---@return table supportedTypes
 function Network.getSupportedConnectionTypes()
-	local supportedTypes = {}
-	table.insert(supportedTypes, Network.ConnectionTypes.WebSockets) -- Not fully supported
-	table.insert(supportedTypes, Network.ConnectionTypes.Http) -- Not fully supported
-	table.insert(supportedTypes, Network.ConnectionTypes.Text)
-	table.insert(supportedTypes, Network.ConnectionTypes.None)
+	local supportedTypes = {
+		Network.ConnectionTypes.None,
+		Network.ConnectionTypes.Text,
+		Network.ConnectionTypes.WebSockets, -- Not fully supported
+		Network.ConnectionTypes.Http, -- Not fully supported
+	}
 	return supportedTypes
 end
 
 function Network.loadConnectionSettings()
-	Network.CurrentConnection = nil
-	Network.changeConnection(Network.Options["ConnectionType"] or Network.ConnectionTypes.None)
+	Network.CurrentConnection = Network.IConnection:new()
+	if (Network.Options["ConnectionType"] or "") ~= "" then
+		Network.changeConnection(Network.Options["ConnectionType"])
+	end
 	if Network.Options["AutoConnectStartup"] then
 		Network.tryConnect()
 	end
@@ -65,7 +75,7 @@ end
 function Network.changeConnection(connectionType)
 	connectionType = connectionType or Network.ConnectionTypes.None
 	-- Create or swap to a new connection
-	if not Network.CurrentConnection or Network.CurrentConnection.Type ~= connectionType then
+	if Network.CurrentConnection.Type ~= connectionType then
 		if Network.isConnected() then
 			Network.closeConnections()
 		end
@@ -75,8 +85,8 @@ function Network.changeConnection(connectionType)
 	end
 end
 
----Attempts to connect to the network using the current connection; returns connection status
----@return boolean isConnected
+---Attempts to connect to the network using the current connection
+---@return number connectionState The resulting Network.ConnectionState
 function Network.tryConnect()
 	local C = Network.CurrentConnection or {}
 	-- Create or swap to a new connection
@@ -84,11 +94,12 @@ function Network.tryConnect()
 		Network.changeConnection(Network.ConnectionTypes.None)
 		C = Network.CurrentConnection
 	end
-	if C.IsConnected then
-		return true
+	-- Don't try to connect if connection is fully established
+	if C.State >= Network.ConnectionState.Established then
+		return C.State
 	end
 	if C.Type == Network.ConnectionTypes.WebSockets then
-		if true then return false end -- Not fully supported
+		if true then return Network.ConnectionState.Closed end -- Not fully supported
 		C.UpdateFrequency = Network.SOCKET_UPDATE_FREQUENCY
 		C.SendReceive = Network.updateBySocket
 		C.SocketIP = Network.Options["WebSocketIP"] or "0.0.0.0"
@@ -100,12 +111,13 @@ function Network.tryConnect()
 			serverInfo = comm.socketServerGetInfo() or Network.SOCKET_SERVER_NOT_FOUND
 			-- TODO: Might also test/try 'bool comm.socketServerIsConnected()'
 		end
-		C.IsConnected = serverInfo and Utils.containsText(serverInfo, Network.SOCKET_SERVER_NOT_FOUND)
-		if C.IsConnected then
+		local ableToConnect = serverInfo and Utils.containsText(serverInfo, Network.SOCKET_SERVER_NOT_FOUND)
+		if ableToConnect then
+			C.State = Network.ConnectionState.Listen
 			comm.socketServerSetTimeout(500) -- # of milliseconds
 		end
 	elseif C.Type == Network.ConnectionTypes.Http then
-		if true then return false end -- Not fully supported
+		if true then return Network.ConnectionState.Closed end -- Not fully supported
 		C.UpdateFrequency = Network.HTTP_UPDATE_FREQUENCY
 		C.SendReceive = Network.updateByHttp
 		C.HttpGetUrl = Network.Options["HttpGet"] or ""
@@ -123,8 +135,9 @@ function Network.tryConnect()
 			-- See HTTP WARNING at the top of this file
 			pcall(function() result = comm.httpTest() or "N/A" end)
 		end
-		C.IsConnected = result and Utils.containsText(result, "done testing")
-		if C.IsConnected then
+		local ableToConnect = result and Utils.containsText(result, "done testing")
+		if ableToConnect then
+			C.State = Network.ConnectionState.Listen
 			comm.httpSetTimeout(500) -- # of milliseconds
 		end
 	elseif C.Type == Network.ConnectionTypes.Text then
@@ -133,28 +146,36 @@ function Network.tryConnect()
 		local folder = Network.Options["DataFolder"] or ""
 		C.InboundFile = folder .. FileManager.slash .. Network.TEXT_INBOUND_FILE
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
-		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
+		local ableToConnect = (folder ~= "") and FileManager.folderExists(folder)
+		if ableToConnect then
+			C.State = Network.ConnectionState.Listen
+		end
 	end
-	if C.IsConnected then
+	if C.State == Network.ConnectionState.Listen then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.START].Key,
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.Start].Key,
 		}))
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GET_REWARDS].Key,
-			Args = { Received = "No" }
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GetRewards].Key,
 		}))
 	end
-	return C.IsConnected
+	return C.State
+end
+
+---Updates the current connection state to the one provided
+---@param connectionState number a Network.ConnectionState
+function Network.updateConnectionState(connectionState)
+	Network.CurrentConnection.State = connectionState
 end
 
 --- Closes any active connections and saves outstanding Requests
 function Network.closeConnections()
 	if Network.isConnected() then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.STOP].Key,
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.Stop].Key,
 		}))
 		Network.CurrentConnection:SendReceive()
-		Network.CurrentConnection.IsConnected = false
+		Network.updateConnectionState(Network.ConnectionState.Closed)
 	end
 	RequestHandler.saveRequestsData()
 end
@@ -239,7 +260,7 @@ end
 -- Connection object prototype
 Network.IConnection = {
 	Type = Network.ConnectionTypes.None,
-	IsConnected = false,
+	State = Network.ConnectionState.Closed,
 	UpdateFrequency = -1, -- Number of seconds; 0 or less will prevent updates
 	SendReceive = function(self) end,
 	-- Don't override the follow functions
