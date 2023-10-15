@@ -27,8 +27,6 @@ RequestHandler.CoreEventTypes = {
 	Stop = "TS_Stop",
 	GetRewards = "TS_GetRewardsList",
 	UpdateEvents = "TS_UpdateEvents",
-	AutoDetectCommand = "CMD_AutoDetect",
-	AutoDetectReward = "CR_AutoDetect",
 }
 
 RequestHandler.Events = {
@@ -141,13 +139,15 @@ end
 ---@param jsonTable table|nil
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
-		-- Update the event type if auto-detect required
-		if request.EventType == RequestHandler.CoreEventTypes.AutoDetectCommand then
-			local event = RequestHandler.getEventForCommand(request.Args.Command)
-			request.EventType = event and event.Key or request.EventType
-		elseif request.EventType == RequestHandler.CoreEventTypes.AutoDetectReward then
-			local event = RequestHandler.getEventForReward(request.Args.RewardId)
-			request.EventType = event and event.Key or request.EventType
+		-- If missing, try and automatically detect the event type based on provided args
+		if not RequestHandler.Events[request.EventType] then
+			if request.Args.Command then
+				local event = RequestHandler.getEventForCommand(request.Args.Command)
+				request.EventType = event and event.Key or request.EventType
+			elseif request.Args.RewardId then
+				local event = RequestHandler.getEventForReward(request.Args.RewardId)
+				request.EventType = event and event.Key or request.EventType
+			end
 		end
 		-- Then add to the Requests queue
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
@@ -442,7 +442,6 @@ end
 
 RequestHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
-	-- CMD_AutoDetect = {}, -- Reserved interally, do not define this event
 	CMD_Pokemon = {
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
@@ -558,7 +557,6 @@ RequestHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.Args) end,
 	},
 
-	-- CR_AutoDetect = {}, -- Reserved interally, do not define this event
 	-- CR_: Channel Rewards (Point Redeems)
 	CR_PickBallOnce = {
 		RewardName = "Pick Starter Ball (One Try)",

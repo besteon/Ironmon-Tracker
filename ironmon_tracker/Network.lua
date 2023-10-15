@@ -261,7 +261,7 @@ end
 Network.IConnection = {
 	Type = Network.ConnectionTypes.None,
 	State = Network.ConnectionState.Closed,
-	UpdateFrequency = -1, -- Number of seconds; 0 or less will prevent updates
+	UpdateFrequency = -1, -- Number of seconds; 0 or less will prevent scheduled updates
 	SendReceive = function(self) end,
 	-- Don't override the follow functions
 	SendReceiveOnSchedule = function(self, updateFunc)
