@@ -193,6 +193,21 @@ function StreamConnectOverlay.createButtons()
 		startX = startX + tabWidth
 	end
 
+	-- Unsure if I want to use this or not
+	-- local refreshWidth = Utils.calcWordPixelLength("Refresh" or Resources.StreamConnectOverlay.LabelOrButton) + 6 -- TODO: Language
+	-- SCREEN.Buttons.RewardsRefresh = {
+	-- 	type = Constants.ButtonTypes.FULL_BORDER,
+	-- 	getText = function(self) return "Refresh" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+	-- 	box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, refreshWidth, 11 },
+	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Rewards end,
+	-- 	onClick = function(self)
+	-- 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+	-- 			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GET_REWARDS].Key,
+	-- 			Args = { Received = "No" }
+	-- 		}))
+	-- 	end,
+	-- }
+
 	-- SETTINGS TAB
 	startX = SCREEN.Canvas.x + 4
 	startY = SCREEN.Canvas.y + 8
@@ -400,14 +415,14 @@ local function buildCommandsTab()
 			table.insert(tabContents, event)
 		end
 	end
-	table.sort(tabContents, function(a,b) return a.Command < b.Command end)
+	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.Command < b.Command) end)
 
 	for i, event in ipairs(tabContents) do
 		resetButtonRow()
 		local buttonRow = {
 			index = i,
 			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
-			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
+			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Commands end,
 			includeInGrid = function(self)
 				-- Allow checkboxes to filter enabled, disabled, etc
 				return true
@@ -490,33 +505,146 @@ end
 local function buildRewardsTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
-	local columnsW = {
-		enabled = 14,
-		name = -1,
-		rename = 30,
-		roles = 30,
-	}
-	columnsW.name = ROW_WIDTH - columnsW.enabled - columnsW.rename - columnsW.roles
+
 	local tabContents = {}
 	for _, event in pairs(RequestHandler.Events) do
-		if not event.Exclude and not event.Command then -- TODO: Fix later after adding proper event Rewards
+		if not event.Exclude and event.RewardName then
 			table.insert(tabContents, event)
 		end
 	end
-	table.sort(tabContents, function(a,b) return a.Key < b.Key end) -- TODO: Fix later
+	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.RewardName < b.RewardName) end)
+
+	local NOT_ASSIGNED = "(Not assigned)" -- TODO: Language
+
 	for i, event in ipairs(tabContents) do
+		resetButtonRow()
 		local buttonRow = {
 			index = i,
-			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
-			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
+			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT * 2, }, -- Twice as tall
+			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Rewards end,
 			includeInGrid = function(self)
-				-- Allow checkboxes to show enabled, show disabled, etc
+				-- Allow checkboxes to filter enabled, disabled, etc
 				return true
 			end,
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
+
+		local btnEnabled = {
+			type = Constants.ButtonTypes.CHECKBOX,
+			box = { -1, -1, 8, 8 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			toggleState = event.IsEnabled,
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.toggleState = event.IsEnabled
+				self.box[2] = buttonRow.box[2] + ROW_PADDING + (ROW_HEIGHT / 2)
+			end,
+			onClick = function(self)
+				self.toggleState = not self.toggleState
+				event.IsEnabled = (self.toggleState == true)
+				RequestHandler.saveEventSetting(event, "IsEnabled")
+				SCREEN.refreshButtons()
+				Program.redraw(true)
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnEnabled)
+		addLeftAligned(btnEnabled)
+
+		local eventName = Utils.formatSpecialCharacters(event.RewardName)
+		local btnWidth = Utils.calcWordPixelLength(eventName) + 5
+		local btnName = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return eventName end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+			end,
+			draw = function(self, shadowcolor)
+				Drawing.drawUnderline(self)
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnName)
+
+		local btnAssociatedReward = {
+			type = Constants.ButtonTypes.PIXELIMAGE,
+			image = Constants.PixelImages.REFERENCE_UP,
+			getText = function(self)
+				local externalTitle = NOT_ASSIGNED
+				if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
+					externalTitle = RequestHandler.Rewards[event.TwitchRewardId]
+					externalTitle = Utils.formatSpecialCharacters(externalTitle)
+					externalTitle = Utils.shortenText(externalTitle, 156, true)
+				end
+				return externalTitle
+			end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, 11, 11 },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = btnName.box[2] + ROW_HEIGHT - 1
+				if not btnEnabled.toggleState or self:getText() == NOT_ASSIGNED then
+					self.textColor = SCREEN.Colors.highlight
+				else
+					self.textColor = SCREEN.Colors.text
+				end
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnAssociatedReward)
+		btnName.box[1] = _leftEdgeX + ROW_PADDING
+		btnAssociatedReward.box[1] = _leftEdgeX + ROW_PADDING + 2
+		_leftEdgeX = btnName.box[1] + btnWidth + ROW_PADDING
+
+		-- Add buttons to row from right-to-left
+		btnWidth = Utils.calcWordPixelLength("Options" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+		local btnOptions = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			getText = function(self) return "Options" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+			end,
+			onClick = function(self)  end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnOptions)
+
+		local btnAddChange = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			getText = function(self)
+				-- TODO: Language
+				if btnAssociatedReward:getText() == NOT_ASSIGNED then
+					return "Add" or Resources.StreamConnectOverlay.X
+				else
+					return "Change" or Resources.StreamConnectOverlay.X
+				end
+			end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, -1, 11 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = btnOptions.box[2] + ROW_HEIGHT
+				self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5 -- Auto resize
+				if btnAssociatedReward:getText() == NOT_ASSIGNED then
+					self.textColor = SCREEN.Colors.highlight
+				else
+					self.textColor = SCREEN.Colors.text
+				end
+			end,
+			onClick = function(self) StreamConnectOverlay.openRewardListPrompt(event) end,
+		}
+		btnAddChange:updateSelf()
+		table.insert(SCREEN.Pager.Buttons, btnAddChange)
+		btnOptions.box[1] = _rightEdgeX - ROW_PADDING - btnOptions.box[3]
+		btnAddChange.box[1] = _rightEdgeX - ROW_PADDING - btnOptions.box[3]
+		_rightEdgeX = btnOptions.box[1] - ROW_PADDING
 	end
-	SCREEN.Pager:realignButtonsToGrid()
+	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
 
 local function buildQueueTab()
@@ -646,6 +774,55 @@ function StreamConnectOverlay.openCommandRolesPrompt(event)
 		client.unpause()
 		forms.destroy(form)
 	end, 210, 50)
+end
+
+function StreamConnectOverlay.openRewardListPrompt(event)
+	local form = Utils.createBizhawkForm("Edit Reward Association", 320, 160, 100, 50) -- TODO: Language
+	local rewardEventText = string.format("Tracker Reward: %s", event.RewardName) -- TODO: Language
+	forms.label(form, rewardEventText, 28, 10, 300, 20)
+	local rewardTriggerTxt = "Triggered by Twitch Reward:" -- TODO: Language
+	forms.label(form, rewardTriggerTxt, 28, 35, 250, 20)
+
+	local CHOICE_NONE = "(None)" -- TODO: Language
+	local rewardsList = { CHOICE_NONE }
+	for _, rewardTitle in pairs(RequestHandler.Rewards) do
+		table.insert(rewardsList, rewardTitle)
+	end
+
+	local dropdown = forms.dropdown(form, {["Init"]="Loading Rewards"}, 33, 60, 230, 30)
+	forms.setdropdownitems(dropdown, rewardsList, true) -- true = alphabetize the list
+	forms.setproperty(dropdown, "AutoCompleteSource", "ListItems")
+	forms.setproperty(dropdown, "AutoCompleteMode", "Append")
+	if (RequestHandler.Rewards[event.TwitchRewardId] or "") ~= "" then
+		forms.settext(dropdown, RequestHandler.Rewards[event.TwitchRewardId])
+	end
+
+	forms.button(form, Resources.AllScreens.Save, function()
+		local optionSelected = forms.gettext(dropdown)
+		if not optionSelected or optionSelected == CHOICE_NONE then
+			event.TwitchRewardId = ""
+		else
+			for rewardId, rewardTitle in pairs(RequestHandler.Rewards) do
+				if optionSelected == rewardTitle then
+					event.TwitchRewardId = rewardId
+					break
+				end
+			end
+		end
+		event.IsEnabled = event.TwitchRewardId ~= ""
+		RequestHandler.saveEventSetting(event, "TwitchRewardId")
+		SCREEN.refreshButtons()
+		Program.redraw(true)
+		client.unpause()
+		forms.destroy(form)
+	end, 30, 100)
+	forms.button(form, Resources.AllScreens.Clear, function()
+		forms.settext(dropdown, CHOICE_NONE)
+	end, 120, 100)
+	forms.button(form, Resources.AllScreens.Cancel, function()
+		client.unpause()
+		forms.destroy(form)
+	end, 210, 100)
 end
 
 function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)

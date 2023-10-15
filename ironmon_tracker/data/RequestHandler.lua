@@ -1,11 +1,19 @@
 RequestHandler = {
 	Requests = {}, -- A list of all known requests that still need to be processed
 	Responses = {}, -- A list of all responses ready to be sent
+	Rewards = {}, -- A list of external rewards
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
 	COMMAND_PREFIX = "!",
 	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
-	AUTO_DETECT_COMMAND = "CMD_AutoDetect",
+	CoreEventTypes = {
+		START = "TS_Start",
+		STOP = "TS_Stop",
+		GET_REWARDS = "TS_GetRewardsList",
+		UPDATE_EVENTS = "TS_UpdateEvents",
+		AUTO_DETECT_COMMAND = "CMD_AutoDetect",
+		AUTO_DETECT_REWARD = "CR_AutoDetect",
+	},
 }
 
 -- https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -34,18 +42,19 @@ RequestHandler.EventRoles = {
 function RequestHandler.initialize()
 	RequestHandler.Requests = {}
 	RequestHandler.Responses = {}
+	RequestHandler.Rewards = {}
 	RequestHandler.lastSaveTime = os.time()
 	RequestHandler.addDefaultEvents()
 	RequestHandler.loadRequestsData()
 	RequestHandler.removeServerSideRequests()
 end
 
---- Adds a IRequest to the requests queue; returns true if successful
+--- Adds a IRequest to the requests queue, or updates an existing matching request; returns true if successful
 ---@param request table IRequest object
 ---@return boolean success
-function RequestHandler.addNewRequest(request)
-	-- Only add requests if they're new and match an existing event type
-	if RequestHandler.Requests[request.GUID] or request.EventType == RequestHandler.Events.None.Key then
+function RequestHandler.addUpdateRequest(request)
+	-- Only add requests if they match an existing event type
+	if not request or request.EventType == RequestHandler.Events.None.Key then
 		return false
 	end
 	RequestHandler.Requests[request.GUID] = request
@@ -67,6 +76,9 @@ end
 ---@param response table IResponse object
 ---@return boolean success
 function RequestHandler.addUpdateResponse(response)
+	if not response then
+		return false
+	end
 	RequestHandler.Responses[response.GUID] = response
 	return true
 end
@@ -112,17 +124,20 @@ function RequestHandler.removeServerSideRequests()
 	end
 end
 
----Receives requests as json and converts them into IRequests
+---Receives [external] requests as Json and converts them into IRequests
 ---@param jsonTable table|nil
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
 		-- Update the event type if auto-detect required
-		if request.EventType == RequestHandler.AUTO_DETECT_COMMAND then
+		if request.EventType == RequestHandler.CoreEventTypes.AUTO_DETECT_COMMAND then
 			local event = RequestHandler.getEventForCommand(request.Args.Command)
+			request.EventType = event and event.Key or request.EventType
+		elseif request.EventType == RequestHandler.CoreEventTypes.AUTO_DETECT_REWARD then
+			local event = RequestHandler.getEventForReward(request.Args.RewardId)
 			request.EventType = event and event.Key or request.EventType
 		end
 		-- Then add to the Requests queue
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
 			GUID = request.GUID,
 			EventType = request.EventType,
 			CreatedAt = request.CreatedAt,
@@ -136,7 +151,7 @@ end
 ---@param command string Example: !testcommand
 ---@return table|nil event
 function RequestHandler.getEventForCommand(command)
-	if not command or command == "" then
+	if (command or "") == "" then
 		return nil
 	end
 	if command:sub(1,1) ~= RequestHandler.COMMAND_PREFIX then
@@ -144,8 +159,43 @@ function RequestHandler.getEventForCommand(command)
 	end
 	command = Utils.toLowerUTF8(command)
 	for _, event in pairs(RequestHandler.Events) do
-		if event.Command and event.Command == command then
+		if event.Command == command then
 			return event
+		end
+	end
+end
+
+---Returns the IEvent for a given rewardId; or nil if not found
+---@param rewardId string
+---@return table|nil event
+function RequestHandler.getEventForReward(rewardId)
+	if (rewardId or "") == "" then
+		return nil
+	end
+	for _, event in pairs(RequestHandler.Events) do
+		if event.TwitchRewardId == rewardId then
+			return event
+		end
+	end
+end
+
+---Updates internal Reward events with associated RewardIds and RewardTitles
+---@param rewards table
+function RequestHandler.updateRewardsList(rewards)
+	-- Unsure if this clear out is necessary yet
+	if #rewards > 0 then
+		RequestHandler.Rewards = {}
+	end
+
+	for _, reward in pairs(rewards or {}) do
+		if reward.Id and reward.Title and reward.Id ~= "" then
+			RequestHandler.Rewards[reward.Id] = reward.Title
+		end
+	end
+	-- Enable/disable any Reward events with matching reward ids
+	for _, event in pairs(RequestHandler.Events) do
+		if event.TwitchRewardId then
+			event.IsEnabled = RequestHandler.Rewards[event.TwitchRewardId] ~= nil
 		end
 	end
 end
@@ -185,7 +235,7 @@ function RequestHandler.processAllRequests()
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
 				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
-				response.Message = event:Fulfill(request)
+				response.Message = event:Fulfill(request) or ""
 				request.SentResponse = false
 			end
 		end
@@ -292,8 +342,8 @@ function RequestHandler.checkForConfigChanges()
 		end
 	end
 	if #modifiedEvents > 0 then
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events["TS_UpdateEvents"].Key,
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.UPDATE_EVENTS].Key,
 			Args = modifiedEvents
 		}))
 	end
@@ -302,20 +352,31 @@ end
 function RequestHandler.addDefaultEvents()
 	-- TS_: Tracker Server (Core events that shouldn't be modified)
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "TS_Start",
+		Key = RequestHandler.CoreEventTypes.START,
 		Exclude = true,
 	}))
 	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "TS_UpdateEvents",
+		Key = RequestHandler.CoreEventTypes.STOP,
+		Exclude = true,
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = RequestHandler.CoreEventTypes.GET_REWARDS,
+		Exclude = true,
+		Process = function(self, request)
+			return request.Args.Received == "Yes"
+		end,
+		Fulfill = function(self, request)
+			RequestHandler.updateRewardsList(request.Args.Rewards)
+			return "Complete"
+		end,
+	}))
+	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
+		Key = RequestHandler.CoreEventTypes.UPDATE_EVENTS,
 		Exclude = true,
 		Fulfill = function(self, request)
 			-- TODO: Don't have a good way to send back all of the changed event information. Unsure if embedded JSON is allowed
 			return "Server events were updated but their information isn't available. Reason: not implemented."
 		end,
-	}))
-	RequestHandler.addNewEvent(RequestHandler.IEvent:new({
-		Key = "TS_Stop",
-		Exclude = true,
 	}))
 
 	-- Make a copy of each default event, such that they can still be referenced without being changed.
@@ -331,7 +392,10 @@ function RequestHandler.addDefaultEvents()
 			eventToAdd.Help = event.Help
 			eventToAdd.Roles = {}
 			FileManager.copyTable(event.Roles, eventToAdd.Roles)
-		elseif event.Reward then -- TODO: Implement
+		elseif event.RewardName then
+			eventToAdd.RewardName = event.RewardName
+			eventToAdd.TwitchRewardId = event.TwitchRewardId
+			FileManager.copyTable(event.Keywords, eventToAdd.Keywords)
 		end
 		RequestHandler.addNewEvent(eventToAdd)
 	end
@@ -455,35 +519,52 @@ RequestHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.Args) end,
 	},
 
+	-- CR_AutoDetect = {}, -- Reserved interally, do not define this event
 	-- CR_: Channel Rewards (Point Redeems)
 	CR_PickBallOnce = {
+		RewardName = "Pick Starter Ball (One Try)",
+		TwitchRewardId = "",
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_PickBallUntilOut = {
+		RewardName = "Pick Starter Ball (Until Out)",
+		TwitchRewardId = "",
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeFavorite = {
-		Duration = 10 * 60,
+		RewardName = "Change Favorite Pokémon",
+		TwitchRewardId = "",
+		Options = {
+			Duration = 10 * 60, -- # of seconds
+		},
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeTheme = {
-		Duration = 10 * 60,
+		RewardName = "Change Tracker Theme",
+		TwitchRewardId = "",
+		Options = {
+			Duration = 10 * 60, -- # of seconds
+		},
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	CR_ChangeLanguage = {
-		Duration = 10 * 60,
+		RewardName = "Change Tracker Language",
+		TwitchRewardId = "",
+		Options = {
+			Duration = 10 * 60, -- # of seconds
+		},
 		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
 			return request.IsReady
 		end,

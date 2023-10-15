@@ -136,8 +136,12 @@ function Network.tryConnect()
 		C.IsConnected = (folder ~= "") and FileManager.folderExists(folder)
 	end
 	if C.IsConnected then
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events["TS_Start"].Key,
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.START].Key,
+		}))
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.GET_REWARDS].Key,
+			Args = { Received = "No" }
 		}))
 	end
 	return C.IsConnected
@@ -146,8 +150,8 @@ end
 --- Closes any active connections and saves outstanding Requests
 function Network.closeConnections()
 	if Network.isConnected() then
-		RequestHandler.addNewRequest(RequestHandler.IRequest:new({
-			EventType = RequestHandler.Events["TS_Stop"].Key,
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventType = RequestHandler.Events[RequestHandler.CoreEventTypes.STOP].Key,
 		}))
 		Network.CurrentConnection:SendReceive()
 		Network.CurrentConnection.IsConnected = false
