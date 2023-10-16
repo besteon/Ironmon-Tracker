@@ -438,6 +438,15 @@ function StreamConnectOverlay.createButtons()
 			return SCREEN.currentTab == SCREEN.Tabs.Settings and unsupportedConn
 		end,
 	}
+
+	SCREEN.Buttons.SettingsGetCode = {
+		type = Constants.ButtonTypes.ICON_BORDER,
+		image = Constants.PixelImages.INSTALL_BOX,
+		getText = function(self) return "Get Streamerbot Code" end, -- TODO: Language
+		box = { startX + 62, SCREEN.Canvas.y + 95, 110, 16 },
+		isVisible = function() return SCREEN.currentTab == SCREEN.Tabs.Settings and Network.CurrentConnection.Type == Network.ConnectionTypes.Text end,
+		onClick = function(self) StreamConnectOverlay.openGetCodeWindow() end
+	}
 end
 
 local function buildCommandsTab()
@@ -691,31 +700,136 @@ end
 local function buildQueueTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
-	local columnsW = {
-		enabled = 14,
-		name = -1,
-		rename = 30,
-		roles = 30,
-	}
-	columnsW.name = ROW_WIDTH - columnsW.enabled - columnsW.rename - columnsW.roles
+
 	local tabContents = {}
-	for _, request in pairs(RequestHandler.Requests) do
-		table.insert(tabContents, request)
+	for key, queue in pairs(EventHandler.Queues) do
+		-- Put the active item at the front
+		if queue.ActiveRequest then
+			table.insert(tabContents, { QueueName = key, Request = queue.ActiveRequest })
+		end
+		-- Then sort the rest and add them in
+		local requests = {}
+		for _, request in pairs(queue.Requests) do
+			if request ~= queue.ActiveRequest then
+				table.insert(requests, request)
+			end
+		end
+		table.sort(requests, queue.Sort or function(a,b) return a.CreatedAt < b.CreatedAt end)
+		for _, request in ipairs(requests) do
+			table.insert(tabContents, { QueueName = key, Request = request })
+		end
 	end
-	table.sort(tabContents, function(a,b) return a.CreatedAt < b.CreatedAt end)
-	for i, event in ipairs(tabContents) do
+	-- TODO: Might do other group-sorting here later
+
+	for i, item in ipairs(tabContents) do
+		local Q = EventHandler.Queues[item.QueueName]
+		local event = EventHandler.Events[item.Request.EventType] or EventHandler.Events.None
+
+		resetButtonRow()
 		local buttonRow = {
 			index = i,
-			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
-			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
+			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT * 2, }, -- Twice as tall
+			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Queue end,
 			includeInGrid = function(self)
-				-- Allow checkboxes to show enabled, show disabled, etc
+				-- Allow checkboxes to filter enabled, disabled, etc
 				return true
 			end,
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
+
+		-- local btnEnabled = {
+		-- 	type = Constants.ButtonTypes.CHECKBOX,
+		-- 	box = { -1, -1, 8, 8 },
+		-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		-- 	toggleState = item.IsEnabled,
+		-- 	isVisible = function(self) return buttonRow:isVisible() end,
+		-- 	updateSelf = function(self)
+		-- 		self.toggleState = item.IsEnabled
+		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING + 1
+		-- 	end,
+		-- 	onClick = function(self)
+		-- 		self.toggleState = not self.toggleState
+		-- 		item.IsEnabled = (self.toggleState == true)
+		-- 		EventHandler.saveEventSetting(item, "IsEnabled")
+		-- 		SCREEN.refreshButtons()
+		-- 		Program.redraw(true)
+		-- 	end,
+		-- }
+		-- table.insert(SCREEN.Pager.Buttons, btnEnabled)
+		-- addLeftAligned(btnEnabled)
+
+		-- local btnWidth = Utils.calcWordPixelLength(item.QueueName) + 5
+		-- local btnQueueName = {
+		-- 	type = Constants.ButtonTypes.NO_BORDER,
+		-- 	getText = function(self) return item.QueueName end,
+		-- 	textColor = SCREEN.Colors.text,
+		-- 	box = { -1, -1, btnWidth, 11 },
+		-- 	isVisible = function(self) return buttonRow:isVisible() end,
+		-- 	updateSelf = function(self)
+		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
+		-- 	end,
+		-- }
+		-- table.insert(SCREEN.Pager.Buttons, btnQueueName)
+
+		local btnWidth = Utils.calcWordPixelLength(event.RewardName) + 5
+		local btnRequestName = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self) return event.RewardName end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.textColor = item.Request == Q.ActiveRequest and "Positive text" or SCREEN.Colors.text
+			end,
+			draw = function(self, shadowcolor)
+				Drawing.drawUnderline(self)
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnRequestName)
+		local btnUsernameInfo = {
+			type = Constants.ButtonTypes.NO_BORDER,
+			getText = function(self)
+				local minutesAgo = math.ceil((os.time() - item.Request.CreatedAt) / 60)
+				local timestampText -- TODO: Language
+				if minutesAgo == 1 then
+					timestampText = "1 minute ago"
+				else
+					timestampText = string.format("%s minutes ago", minutesAgo)
+				end
+				-- local time = os.date("%M:%S", item.Request.CreatedAt)
+				return string.format("%s) %s %s %s", i, item.Request.Username, Constants.BLANKLINE, timestampText)
+			end,
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_PADDING + ROW_HEIGHT - 1
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnUsernameInfo)
+		btnRequestName.box[1] = _leftEdgeX + ROW_PADDING
+		btnUsernameInfo.box[1] = _leftEdgeX + ROW_PADDING + 2
+		_leftEdgeX = btnRequestName.box[1] + btnWidth + ROW_PADDING
+
+		-- Add buttons to row from right-to-left
+		-- btnWidth = Utils.calcWordPixelLength("X" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+		-- local btnRoles = {
+		-- 	type = Constants.ButtonTypes.FULL_BORDER,
+		-- 	getText = function(self) return "X" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+		-- 	textColor = SCREEN.Colors.text,
+		-- 	box = { -1, -1, btnWidth, 11 },
+		-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		-- 	isVisible = function(self) return buttonRow:isVisible() end,
+		-- 	updateSelf = function(self)
+		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
+		-- 	end,
+		-- 	onClick = function(self) end,
+		-- }
+		-- table.insert(SCREEN.Pager.Buttons, btnRoles)
+		-- addRightAligned(btnRoles)
 	end
-	SCREEN.Pager:realignButtonsToGrid()
+	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
 
 function StreamConnectOverlay.buildPagedButtons(tab)
@@ -780,8 +894,7 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 30, 50)
 	forms.button(form, "(Default)", function() -- TODO: Language
 		local defaultEvent = EventHandler.DefaultEvents[event.Key]
@@ -790,8 +903,7 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 		end
 	end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 210, 50)
 end
 
@@ -806,8 +918,7 @@ function StreamConnectOverlay.openCommandRolesPrompt(event)
 		-- EventHandler.saveEventSetting(event, "Roles")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 30, 50)
 	forms.button(form, "(Default)", function() -- TODO: Language
 		local defaultEvent = EventHandler.DefaultEvents[event.Key]
@@ -816,8 +927,7 @@ function StreamConnectOverlay.openCommandRolesPrompt(event)
 		end
 	end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 210, 50)
 end
 
@@ -858,15 +968,13 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 		EventHandler.saveEventSetting(event, "RewardId")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 30, 100)
 	forms.button(form, Resources.AllScreens.Clear, function()
 		forms.settext(dropdown, CHOICE_NONE)
 	end, 120, 100)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 210, 100)
 end
 
@@ -885,8 +993,7 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 			SCREEN.refreshButtons()
 			Program.redraw(true)
 		end
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 30, 50)
 	-- forms.button(form, "(Default)", function() -- TODO: Language
 	-- 	local defaultEvent = EventHandler.DefaultEvents[event.Key]
@@ -895,8 +1002,7 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 	-- 	end
 	-- end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
-		client.unpause()
-		forms.destroy(form)
+		Utils.closeBizhawkForm(form)
 	end, 210, 50)
 end
 
@@ -924,6 +1030,17 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 	Utils.tempEnableBizhawkSound()
 	SCREEN.refreshButtons()
 	Program.redraw(true)
+end
+
+function StreamConnectOverlay.openGetCodeWindow()
+	local form = Utils.createBizhawkForm("Import to Streamerbot", 800, 600) -- TODO: Language
+	local codeText = Network.getStreamerbotCode()
+
+	forms.label(form, "Copy all of the below code and IMPORT into Streamer.bot:", 9, 10, 495, 20) -- TODO: Language
+	forms.textbox(form, codeText, 775, 485, nil, 10, 35, true, true, "Vertical")
+	forms.button(form, Resources.AllScreens.Close, function()
+		Utils.closeBizhawkForm(form)
+	end, 350, 528)
 end
 
 -- USER INPUT FUNCTIONS

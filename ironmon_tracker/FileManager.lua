@@ -28,6 +28,7 @@ FileManager.Files = {
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	REQUESTS_DATA = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Network .. FileManager.slash .. "Requests.json",
+	STREAMERBOT_CODE = FileManager.Folders.TrackerCode .. FileManager.slash .. FileManager.Folders.Network .. FileManager.slash .. "StreamerbotCodeImport.txt",
 	JSON_LIBRARY = FileManager.Folders.TrackerCode .. FileManager.slash .. "Json.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",

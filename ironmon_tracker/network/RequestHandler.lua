@@ -3,6 +3,8 @@ RequestHandler = {
 	Responses = {}, -- A list of all responses ready to be sent
 	lastSaveTime = 0,
 	SAVE_FREQUENCY = 60, -- Number of seconds to wait before saving Requests data to file
+	REQUIRES_MESSAGE_CAP = true, -- If true, shortens outgoing responses to message cap
+	MESSAGE_CAP = 499, -- Maximum # of characters allow for a given response
 
 	-- Shared values between server and client
 	SOURCE_STREAMERBOT = "Streamerbot",
@@ -156,7 +158,7 @@ function RequestHandler.processAllRequests()
 			if request.IsReady or event:Process(request) then
 				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
 				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
-				response.Message = event:Fulfill(request) or ""
+				response.Message = RequestHandler.validateMessage(event:Fulfill(request))
 				request.SentResponse = false
 			end
 		end
@@ -172,6 +174,17 @@ function RequestHandler.processAllRequests()
 	for _, request in pairs(toRemove) do
 		RequestHandler.removeRequest(request.GUID)
 	end
+end
+
+---Ensures the 'msg' is valid for sending (doesn't exceed the MESSAGE_CAP)
+---@param msg string
+---@return string
+function RequestHandler.validateMessage(msg)
+	msg = msg or ""
+	if not RequestHandler.REQUIRES_MESSAGE_CAP or #msg <= RequestHandler.MESSAGE_CAP then
+		return msg
+	end
+	return msg:sub(1, RequestHandler.MESSAGE_CAP - 4) .. "..."
 end
 
 --- Saves the list of Requests to a data file

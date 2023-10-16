@@ -1200,11 +1200,31 @@ function TrackerScreen.drawBallPicker()
 	Drawing.drawButton(TrackerScreen.Buttons.SettingsGear, canvas.shadow)
 	Drawing.drawButton(TrackerScreen.Buttons.RerollBallPicker, canvas.shadow)
 
-	local randomBallText = string.format("%s:", Resources.TrackerScreen.RandomBallChosen)
-	local chosenBallText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
+	local botText = TrackerScreen.PokeBalls.getLabel(TrackerScreen.PokeBalls.chosenBall)
+	local topText, botColor
+	if EventHandler.Queues.BallRedeems.HasPickedBall then
+		local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
+		local direction = EventHandler.Queues.BallRedeems.ChosenDirection or ""
+		if username ~= "" then
+			topText = string.format("%s %s:", username, "picks") -- TODO: Language
+		else
+			topText = string.format("%s:", "Chosen Ball")
+		end
+		if direction == "Random" then
+			botText = botText .. string.format(" (%s)", Utils.firstToUpper(direction))
+		end
+		botColor = Theme.COLORS["Positive text"]
+	else
+		topText = string.format("%s:", Resources.TrackerScreen.RandomBallChosen)
+		botColor = canvas.highlight
+	end
+
+	local topCenterX = math.max(Utils.getCenteredTextX(topText, canvas.w) - 1, 1) -- Minimum of 1
+	local botCenterX = math.max(Utils.getCenteredTextX(botText, canvas.w) - 1, 1) -- Minimum of 1
+
 	gui.drawRectangle(canvas.x, canvas.y2, canvas.w, canvas.h2, canvas.border, canvas.fill)
-	Drawing.drawText(canvas.x + Utils.getCenteredTextX(randomBallText, canvas.w), canvas.y2 + 1, randomBallText, canvas.text, canvas.shadow)
-	Drawing.drawText(canvas.x + Utils.getCenteredTextX(chosenBallText, canvas.w), canvas.y2 + Constants.SCREEN.LINESPACING, chosenBallText, canvas.highlight, canvas.shadow)
+	Drawing.drawText(canvas.x + topCenterX, canvas.y2 + 1, topText, canvas.text, canvas.shadow)
+	Drawing.drawText(canvas.x + botCenterX, canvas.y2 + Constants.SCREEN.LINESPACING, botText, botColor, canvas.shadow)
 end
 
 function TrackerScreen.drawFavorites()

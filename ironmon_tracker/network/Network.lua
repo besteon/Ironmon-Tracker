@@ -289,6 +289,12 @@ function Network.IConnection:new(o)
 	return o
 end
 
+-- Temp, will figure this out later
+function Network.getStreamerbotCode()
+	local filepath = FileManager.prependDir(FileManager.Files.STREAMERBOT_CODE)
+	return FileManager.readLinesFromFile(filepath)[1] or ""
+end
+
 -- Not supported
 
 -- [Web Sockets] Streamer.bot Docs

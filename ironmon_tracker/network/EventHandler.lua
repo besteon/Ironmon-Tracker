@@ -1,9 +1,16 @@
 EventHandler = {
 	RewardsExternal = {}, -- A list of external rewards
+	Queues = {}, -- A table of lists for each set of processed requests that still need to be fulfilled
 	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
 
 	-- Shared values between server and client
 	COMMAND_PREFIX = "!",
+
+	-- TODO: CUSTOM OPTIONS FOR TESTING
+	OutputToFileRewardUsername = true,
+	OutputToFileRewardDirection = true,
+	RedemptionUsernameOutput = "RedemptionUser.txt",
+	RedemptionDirectionOutput = "RedemptionDirection.txt",
 }
 
 EventHandler.CoreEventTypes = {
@@ -28,6 +35,12 @@ EventHandler.EventRoles = {
 
 function EventHandler.reset()
 	EventHandler.RewardsExternal = {}
+	EventHandler.Queues = {
+		BallRedeems = { Requests = {}, },
+		-- ThemeChanges = { Requests = {}, },
+		-- LanguageChanges = { Requests = {}, },
+	}
+	EventHandler.outputCurrentRedemption()
 end
 
 ---Checks if the event is of a known event type
@@ -175,6 +188,15 @@ function EventHandler.checkForConfigChanges()
 	end
 end
 
+function EventHandler.queueNewRequest(queueKey, request)
+	local Q = EventHandler.Queues[queueKey]
+	if not Q or Q.Requests[request.GUID] then
+		return false
+	end
+	Q.Requests[request.GUID] = request
+	return true
+end
+
 function EventHandler.addDefaultEvents()
 	-- TS_: Tracker Server (Core events that shouldn't be modified)
 	EventHandler.addNewEvent(EventHandler.IEvent:new({
@@ -249,6 +271,41 @@ function EventHandler.addDefaultEvents()
 			end
 		end
 		EventHandler.addNewEvent(eventToAdd)
+	end
+end
+
+-- Helper functions; likely move these elsewhere
+local function parseBallChoice(input)
+	if input == "l" or Utils.containsText(input, "left") then
+		return "Left", 1
+	elseif input == "r" or Utils.containsText(input, "right") then
+		return "Right", 3
+	elseif input == "m" or Utils.containsText(input, "mid") then
+		return "Middle", 2
+	else
+		return "Random", TrackerScreen.randomlyChooseBall() or math.random(3)
+	end
+end
+
+-- Temporary
+function EventHandler.outputCurrentRedemption()
+	if EventHandler.OutputToFileRewardUsername then
+		local filename = EventHandler.RedemptionUsernameOutput or "RedemptionUsernameOutput.txt"
+		local file = io.open(FileManager.getCustomFolderPath() .. filename, "w")
+		if file then
+			local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
+			file:write(username ~= "" and username or Constants.BLANKLINE)
+			file:close()
+		end
+	end
+	if EventHandler.OutputToFileRewardDirection then
+		local filename = EventHandler.RedemptionDirectionOutput or "RedemptionDirectionOutput.txt"
+		local file = io.open(FileManager.getCustomFolderPath() .. filename, "w")
+		if file then
+			local direction = EventHandler.Queues.BallRedeems.ChosenDirection or Constants.BLANKLINE
+			file:write(direction)
+			file:close()
+		end
 	end
 end
 
@@ -373,32 +430,138 @@ EventHandler.DefaultEvents = {
 	CR_PickBallOnce = {
 		RewardName = "Pick Starter Ball (One Try)",
 		RewardId = "",
-		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-			return request.IsReady
+		Process = function(self, request)
+			EventHandler.queueNewRequest("BallRedeems", request)
+			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
+				return false
+			elseif not EventHandler.Queues.BallRedeems.ActiveRequest then
+				EventHandler.Queues.BallRedeems.ActiveRequest = request
+			elseif EventHandler.Queues.BallRedeems.ActiveRequest ~= request then
+				return false
+			end
+
+			if not Program.isValidMapLocation() then
+				return false
+			end
+
+			local pokemon = Tracker.getPokemon(1, true) or {}
+			local hasPokemon = PokemonData.isValid(pokemon.pokemonID)
+
+			-- Check first if this seed is ineligible for a ball redeem (game is already in progress)
+			if not EventHandler.Queues.BallRedeems.HasPickedBall and hasPokemon then
+				EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
+				return false
+			end
+			-- Then pick the ball (if not already picked)
+			if not EventHandler.Queues.BallRedeems.HasPickedBall then
+				-- Parse user input or the reward name to determine the chosen ball direction; default random
+				local args = request.Args or {}
+				local input = Utils.toLowerUTF8(args.Input or "")
+				if input == "" then
+					input = Utils.toLowerUTF8(args.RewardName or "")
+				end
+				local direction, ballNumber = parseBallChoice(input)
+
+				TrackerScreen.PokeBalls.chosenBall = ballNumber
+				EventHandler.Queues.BallRedeems.ChosenUsername = request.Username
+				EventHandler.Queues.BallRedeems.ChosenDirection = direction
+				EventHandler.Queues.BallRedeems.HasPickedBall = true
+				EventHandler.outputCurrentRedemption() -- TODO: For Maple, remove later
+			end
+			-- Finally, wait until the player has a Pokemon before completing the redeem request
+			if not hasPokemon then
+				return false
+			end
+
+			-- This condition is complete when the player has a Pokémon in their party while in the Lab, but haven't fought the Rival yet
+			local stillInLab = RouteData.Locations.IsInLab[TrackerAPI.getMapId()]
+			local hasFoughtRival = Tracker.getWhichRival() ~= nil
+			return stillInLab and not hasFoughtRival
 		end,
-		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
+		Fulfill = function(self, request)
+			EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
+			local pokemon = Tracker.getPokemon(1, true) or {}
+			local pokemonName = PokemonData.Pokemon[pokemon.pokemonID or false].name or "N/A"
+			return string.format("%s's ball pick redeem complete (one try): %s is the chosen starter Pokémon!", request.Username, pokemonName)
+		end,
 	},
 	CR_PickBallUntilOut = {
 		RewardName = "Pick Starter Ball (Until Out)",
 		RewardId = "",
-		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-			return request.IsReady
+		Process = function(self, request)
+			EventHandler.queueNewRequest("BallRedeems", request)
+			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
+				return false
+			elseif not EventHandler.Queues.BallRedeems.ActiveRequest then
+				EventHandler.Queues.BallRedeems.ActiveRequest = request
+			elseif EventHandler.Queues.BallRedeems.ActiveRequest ~= request then
+				return false
+			end
+
+			if not Program.isValidMapLocation() then
+				return false
+			end
+
+			local pokemon = Tracker.getPokemon(1, true) or {}
+			local hasPokemon = PokemonData.isValid(pokemon.pokemonID)
+
+			-- Check first if this seed is ineligible for a ball redeem (game is already in progress)
+			if not EventHandler.Queues.BallRedeems.HasPickedBall and hasPokemon then
+				EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
+				return false
+			end
+			-- Then pick the ball (if not already picked)
+			if not EventHandler.Queues.BallRedeems.HasPickedBall then
+				-- Parse user input or the reward name to determine the chosen ball direction; default random
+				local args = request.Args or {}
+				local input = Utils.toLowerUTF8(args.Input or "")
+				if input == "" then
+					input = Utils.toLowerUTF8(args.RewardName or "")
+				end
+				local direction, ballNumber = parseBallChoice(input)
+
+				TrackerScreen.PokeBalls.chosenBall = ballNumber
+				EventHandler.Queues.BallRedeems.ChosenUsername = request.Username
+				EventHandler.Queues.BallRedeems.ChosenDirection = direction
+				EventHandler.Queues.BallRedeems.HasPickedBall = true
+				EventHandler.outputCurrentRedemption() -- TODO: For Maple, remove later
+			end
+			-- Finally, wait until the player has a Pokemon before completing the redeem request
+			if not hasPokemon then
+				return false
+			end
+
+			-- This condition is complete when the player has a Pokémon in their party and they've just beaten the Lab Rival
+			local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome) -- [0 = In battle, 1 = Won the match, 2 = Lost the match, 4 = Fled, 7 = Caught]
+			local lastFoughtTrainerId = Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+			local rivalIds
+			if GameSettings.game == 3 then -- FRLG
+				rivalIds = { [326] = true, [327] = true, [328] = true }
+			else -- RSE
+				rivalIds = { [520] = true, [523] = true, [526] = true, [529] = true, [532] = true, [535] = true }
+			end
+			return lastBattleStatus == 1 and rivalIds[lastFoughtTrainerId] ~= nil -- Won the battle against the first rival
 		end,
-		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	},
-	CR_ChangeFavorite = {
-		RewardName = "Change Favorite Pokémon",
-		RewardId = "",
-		Options = {
-			Duration = 10 * 60, -- # of seconds
-		},
-		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-			return request.IsReady
+		Fulfill = function(self, request)
+			EventHandler.Queues.BallRedeems.CannotRedeemThisSeed = true
+			local pokemon = Tracker.getPokemon(1, true) or {}
+			local pokemonName = PokemonData.Pokemon[pokemon.pokemonID or false].name or "N/A"
+			return string.format("%s's ball pick redeem complete (until out): The chosen starter %s gets out!", request.Username, pokemonName)
 		end,
-		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
+	-- CR_ChangeFavorite = {
+	-- 	RewardName = "Change Favorite Pokémon",
+	-- 	RewardId = "",
+	-- 	Options = {
+	-- 		Duration = 10 * 60, -- # of seconds
+	-- 	},
+	-- 	Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
+	-- 		return request.IsReady
+	-- 	end,
+	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
+	-- },
 	CR_ChangeTheme = {
-		RewardName = "Change Tracker Theme",
+		RewardName = "Change Tracker Theme (DON'T USE LOL)",
 		RewardId = "",
 		Options = {
 			Duration = 10 * 60, -- # of seconds
@@ -408,17 +571,17 @@ EventHandler.DefaultEvents = {
 		end,
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
-	CR_ChangeLanguage = {
-		RewardName = "Change Tracker Language",
-		RewardId = "",
-		Options = {
-			Duration = 10 * 60, -- # of seconds
-		},
-		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-			return request.IsReady
-		end,
-		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	},
+	-- CR_ChangeLanguage = {
+	-- 	RewardName = "Change Tracker Language",
+	-- 	RewardId = "",
+	-- 	Options = {
+	-- 		Duration = 10 * 60, -- # of seconds
+	-- 	},
+	-- 	Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
+	-- 		return request.IsReady
+	-- 	end,
+	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
+	-- },
 }
 
 -- Event object prototypes
