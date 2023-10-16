@@ -1847,7 +1847,7 @@ GameResources{
 		},
 		{
 			NameKey = "Pin Missile",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Leer",
@@ -2203,7 +2203,7 @@ GameResources{
 		},
 		{
 			NameKey = "Spike Cannon",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Constrict",
@@ -2239,7 +2239,7 @@ GameResources{
 		},
 		{
 			NameKey = "Barrage",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Leech Life",
@@ -2471,7 +2471,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bone Rush",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Lock-On",
@@ -3003,7 +3003,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bullet Seed",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Aerial Ace",
@@ -3011,7 +3011,7 @@ GameResources{
 		},
 		{
 			NameKey = "Icicle Spear",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Iron Defense",
@@ -3079,7 +3079,7 @@ GameResources{
 		},
 		{
 			NameKey = "Rock Blast",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
 		},
 		{
 			NameKey = "Shock Wave",
