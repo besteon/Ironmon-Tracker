@@ -3,7 +3,7 @@ LogTabPokemonDetails = {
 		text = "Lower box text",
 		border = "Lower box border",
 		boxFill = "Lower box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	Tabs = {
 		LevelMoves = 1,
@@ -124,7 +124,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				local abilityName = AbilityData.Abilities[abilityId].name
 				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonAbility then
 					if Utils.containsText(abilityName, LogSearchScreen.searchText, true) then
-						self.textColor = LogTabPokemonDetails.Colors.hightlight
+						self.textColor = LogTabPokemonDetails.Colors.highlight
 					end
 				end
 			end,
@@ -252,7 +252,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		end,
 		draw = function(self, shadowcolor)
 			if Options["Show Pre Evolutions"] and hasEvo then
-				local color = Theme.COLORS[LogTabPokemonDetails.Colors.hightlight]
+				local color = Theme.COLORS[LogTabPokemonDetails.Colors.highlight]
 				local w, h = pokemonIconSize - 1, pokemonIconSize - 4
 				Drawing.drawSelectionIndicators(self.box[1], self.box[2] + evoLabelTextHeight - 1, w, h, color, 1, 5, 1)
 			end
@@ -484,7 +484,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		box = { movesColX, movesRowY, 60, 11 },
 		updateSelf = function(self)
 			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
-			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
+			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.highlight, LogTabPokemonDetails.Colors.text)
 		end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -510,7 +510,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		box = { movesColX + 70, movesRowY, 41, 11 },
 		updateSelf = function(self)
 			self.isSelected = (LogTabPokemonDetails.Pager.currentTab == self.tab)
-			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.hightlight, LogTabPokemonDetails.Colors.text)
+			self.textColor = Utils.inlineIf(self.isSelected, LogTabPokemonDetails.Colors.highlight, LogTabPokemonDetails.Colors.text)
 		end,
 		draw = function(self, shadowcolor)
 			local x, y = self.box[1], self.box[2]
@@ -553,7 +553,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 				-- Highlight moves that are found by the search
 				if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove then
 					if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
-						self.textColor = LogTabPokemonDetails.Colors.hightlight
+						self.textColor = LogTabPokemonDetails.Colors.highlight
 					end
 				end
 			end,
@@ -613,7 +613,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 		local moveText, moveColor
 		if tmInfo.label ~= nil then
 			moveText = tmInfo.label
-			moveColor = LogTabPokemonDetails.Colors.hightlight
+			moveColor = LogTabPokemonDetails.Colors.highlight
 		else
 			moveText = string.format("TM%02d  %s", tmInfo.tm, tmInfo.moveName)
 			if tmInfo.isstab then
@@ -693,7 +693,7 @@ end
 -- Unsure if this will actually be needed, likely some of them
 function LogTabPokemonDetails.drawTab()
 	local textColor = Theme.COLORS[LogTabPokemonDetails.Colors.text]
-	local highlightColor = Theme.COLORS[LogTabPokemonDetails.Colors.hightlight]
+	local highlightColor = Theme.COLORS[LogTabPokemonDetails.Colors.highlight]
 	local borderColor = Theme.COLORS[LogTabPokemonDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
 	local shadowcolor = Utils.calcShadowColor(fillColor)

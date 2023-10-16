@@ -4,7 +4,7 @@ LogTabRoutes = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		Kanto = {
@@ -105,7 +105,7 @@ function LogTabRoutes.buildPagedButtons()
 	for i, col in ipairs(routeBar.cols) do
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			textColor = LogTabRoutes.Colors.hightlight,
+			textColor = LogTabRoutes.Colors.highlight,
 			box = { LogOverlay.TabBox.x + col.x + 3, LogOverlay.TabBox.y + 1, 16, 16 },
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
