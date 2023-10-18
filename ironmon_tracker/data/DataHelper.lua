@@ -1448,7 +1448,7 @@ function DataHelper.EventRequests.getSearch(args)
 	end
 	if not searchMode then
 		local prefix = string.format("%s %s", params, OUTPUT_CHAR)
-		return buildResponse(prefix, helpResponse)
+		return buildResponse(prefix, "Can't find a Pokémon, move, or ability with that name.")
 	end
 
 	local info = {}
@@ -1552,7 +1552,7 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("(+%s more Pokémon)", extra))
 		end
 		local prefix = string.format("%s %s %s Pokémon:", move.name, OUTPUT_CHAR, #foundMons)
-		return buildResponse(prefix, info)
+		return buildResponse(prefix, info, ",")
 	elseif searchMode == "ability" or searchMode == "abilities" then
 		local ability = AbilityData.Abilities[searchId]
 		if not ability then
@@ -1581,7 +1581,7 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("(+%s more Pokémon)", extra))
 		end
 		local prefix = string.format("%s %s %s Pokémon:", ability.name, OUTPUT_CHAR, #foundMons)
-		return buildResponse(prefix, info)
+		return buildResponse(prefix, info, ",")
 	end
 	-- Unused
 	local prefix = string.format("%s %s", params, OUTPUT_CHAR)
@@ -1617,7 +1617,7 @@ function DataHelper.EventRequests.getSearchNotes(args)
 		table.insert(info, string.format("(+%s more Pokémon)", extra))
 	end
 	local prefix = string.format("%s: \"%s\" %s %s Pokémon:", "Note", params, OUTPUT_CHAR, #foundMons)
-	return buildResponse(prefix, info)
+	return buildResponse(prefix, info, ",")
 end
 
 ---@param args table?
@@ -1674,8 +1674,9 @@ function DataHelper.EventRequests.getProgress(args)
 			end
 		end
 	end
-	table.insert(info, string.format("%s: %s/%s (%0.1f%%)",
+	table.insert(info, string.format("%s%s: %s/%s (%0.1f%%)",
 		"Trainers defeated",
+		includeSevii and ", including Sevii" or "",
 		totalDefeated,
 		totalTrainers,
 		totalDefeated / totalTrainers * 100))
