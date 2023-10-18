@@ -79,7 +79,7 @@ end
 
 ---Returns the IEvent for a given command; or nil if not found
 ---@param command string Example: !testcommand
----@return table|nil event
+---@return table? event
 function EventHandler.getEventForCommand(command)
 	if (command or "") == "" then
 		return nil
@@ -97,7 +97,7 @@ end
 
 ---Returns the IEvent for a given rewardId; or nil if not found
 ---@param rewardId string
----@return table|nil event
+---@return table? event
 function EventHandler.getEventForReward(rewardId)
 	if (rewardId or "") == "" then
 		return nil
@@ -254,6 +254,7 @@ function EventHandler.addDefaultEvents()
 		event.IsEnabled = true
 		local eventToAdd = EventHandler.IEvent:new({
 			Key = key,
+			Name = event.Name,
 			Process = event.Process,
 			Fulfill = event.Fulfill,
 		})
@@ -262,8 +263,7 @@ function EventHandler.addDefaultEvents()
 			eventToAdd.Help = event.Help
 			eventToAdd.Roles = {}
 			FileManager.copyTable(event.Roles, eventToAdd.Roles)
-		elseif event.RewardName then
-			eventToAdd.RewardName = event.RewardName
+		elseif event.RewardId then
 			eventToAdd.RewardId = event.RewardId
 			if event.Options then
 				eventToAdd.Options = {}
@@ -312,114 +312,140 @@ end
 EventHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
 	CMD_Pokemon = {
+		Name = "Pokémon Info", -- TODO: Language
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.Args) end,
 	},
 	CMD_BST = {
+		Name = "Pokémon BST", -- TODO: Language
 		Command = "!bst",
 		Help = "name > Displays the base stat total (BST) for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.Args) end,
 	},
 	CMD_Weak = {
+		Name = "Pokémon Weaknesses", -- TODO: Language
 		Command = "!weak",
 		Help = "name > Displays the weaknesses for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.Args) end,
 	},
 	CMD_Move = {
+		Name = "Move Info", -- TODO: Language
 		Command = "!move",
 		Help = "name > Displays game info for a move.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.Args) end,
 	},
 	CMD_Ability = {
+		Name = "Ability Info", -- TODO: Language
 		Command = "!ability",
 		Help = "name > Displays game info for a Pokémon's ability.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.Args) end,
 	},
 	CMD_Route = {
+		Name = "Route Info", -- TODO: Language
 		Command = "!route",
 		Help = "name > Displays trainer and wild encounter info for a route or area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.Args) end,
 	},
 	CMD_Dungeon = {
+		Name = "Dungeon Info", -- TODO: Language
 		Command = "!dungeon",
 		Help = "name > Displays info about which trainers have been defeated for an area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.Args) end,
 	},
 	CMD_Pivots = {
+		Name = "Pivots Seen", -- TODO: Language
 		Command = "!pivots",
 		Help = "name > Displays known early game wild encounters for an area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.Args) end,
 	},
 	CMD_Revo = {
+		Name = "Pokémon Random Evolutions", -- TODO: Language
 		Command = "!revo",
 		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.Args) end,
 	},
 	CMD_Coverage = {
+		Name = "Move Coverage Effectiveness", -- TODO: Language
 		Command = "!coverage",
 		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
 	},
 	CMD_Heals = {
+		Name = "Heals in Bag", -- TODO: Language
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.Args) end,
 	},
 	CMD_TMs = {
+		Name = "TM Lookup", -- TODO: Language
 		Command = "!tms",
 		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.Args) end,
 	},
 	CMD_Search = {
+		Name = "Search Tracked Info", -- TODO: Language
 		Command = "!search",
-		Help = "[mode] [terms] > Search for a [Pokémon/Move/Ability/Note] followed by the search [terms].",
+		Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.Args) end,
 	},
+	CMD_SearchNotes = {
+		Name = "Search Notes on Pokémon", -- TODO: Language
+		Command = "!searchnotes",
+		Help = "notes > Displays a list of Pokémon with any matching notes.",
+		Roles = { EventHandler.EventRoles.Everyone, },
+		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.Args) end,
+	},
 	CMD_Theme = {
+		Name = "Theme Export", -- TODO: Language
 		Command = "!theme",
-		Help = "> Displays the name and code string for the current Tracker theme.",
+		Help = "name > Displays the name and code string for a Tracker theme.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.Args) end,
 	},
 	CMD_GameStats = {
+		Name = "Game Stats", -- TODO: Language
 		Command = "!gamestats",
 		Help = "> Displays fun stats for the current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.Args) end,
 	},
 	CMD_Progress = {
+		Name = "Game Progress", -- TODO: Language
 		Command = "!progress",
 		Help = "> Displays fun progress percentages for the current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.Args) end,
 	},
 	CMD_Log = {
+		Name = "Log Randomizer Settings", -- TODO: Language
 		Command = "!log",
 		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.Args) end,
 	},
 	CMD_About = {
+		Name = "About the Tracker", -- TODO: Language
 		Command = "!about",
 		Help = "> Displays info about the Ironmon Tracker and game being played.",
 		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.Args) end,
 	},
 	CMD_Help = {
+		Name = "Command Help", -- TODO: Language
 		Command = "!help",
 		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
 		Roles = { EventHandler.EventRoles.Everyone, },
@@ -428,7 +454,7 @@ EventHandler.DefaultEvents = {
 
 	-- CR_: Channel Rewards (Point Redeems)
 	CR_PickBallOnce = {
-		RewardName = "Pick Starter Ball (One Try)",
+		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
 		Process = function(self, request)
 			EventHandler.queueNewRequest("BallRedeems", request)
@@ -486,7 +512,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	CR_PickBallUntilOut = {
-		RewardName = "Pick Starter Ball (Until Out)",
+		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
 		Process = function(self, request)
 			EventHandler.queueNewRequest("BallRedeems", request)
@@ -550,7 +576,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	-- CR_ChangeFavorite = {
-	-- 	RewardName = "Change Favorite Pokémon",
+	-- 	Name = "Change Favorite Pokémon",
 	-- 	RewardId = "",
 	-- 	Options = {
 	-- 		Duration = 10 * 60, -- # of seconds
@@ -561,7 +587,7 @@ EventHandler.DefaultEvents = {
 	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	-- },
 	CR_ChangeTheme = {
-		RewardName = "Change Tracker Theme (DON'T USE LOL)",
+		Name = "Change Tracker Theme (DON'T USE LOL)",
 		RewardId = "",
 		Options = {
 			Duration = 10 * 60, -- # of seconds
@@ -572,7 +598,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
 	-- CR_ChangeLanguage = {
-	-- 	RewardName = "Change Tracker Language",
+	-- 	Name = "Change Tracker Language",
 	-- 	RewardId = "",
 	-- 	Options = {
 	-- 		Duration = 10 * 60, -- # of seconds
@@ -589,6 +615,8 @@ EventHandler.DefaultEvents = {
 EventHandler.IEvent = {
 	-- Required unique key
 	Key = EventHandler.Events.None.Key,
+	-- Required display name of the event
+	Name = "",
 	-- Enable/Disable from triggering
 	IsEnabled = true,
 	-- Determine what to do with the IRequest, return true if ready to fulfill (IRequest.IsReady = true)

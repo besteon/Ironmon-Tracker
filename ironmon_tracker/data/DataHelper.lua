@@ -1,7 +1,11 @@
 DataHelper = {}
 
--- Searches for a Pokémon by name, finds the best match
-function DataHelper.findPokemonId(name)
+---Searches for a Pokémon by name, finds the best match; returns 0 if no good match
+---@param name string
+---@param threshold number? Default threshold distance of 3
+---@return number pokemonID
+function DataHelper.findPokemonId(name, threshold)
+	threshold = threshold or 3
 	if name == nil or name == "" then
 		return PokemonData.BlankPokemon.pokemonID
 	end
@@ -9,17 +13,23 @@ function DataHelper.findPokemonId(name)
 	-- Format list of Pokemon as id, name pairs
 	local pokemonNames = {}
 	for id, pokemon in ipairs(PokemonData.Pokemon) do
-		pokemonNames[id] = Utils.toLowerUTF8(pokemon.name)
+		if (pokemon.bst ~= Constants.BLANKLINE) then
+			pokemonNames[id] = Utils.toLowerUTF8(pokemon.name)
+		end
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), pokemonNames, 3)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), pokemonNames, threshold)
 	return id or PokemonData.BlankPokemon.pokemonID
 end
 
--- Searches for a Move by name, finds the best match
-function DataHelper.findMoveId(name)
+---Searches for a Move by name, finds the best match; returns 0 if no good match
+---@param name string
+---@param threshold number? Default threshold distance of 3
+---@return number moveId
+function DataHelper.findMoveId(name, threshold)
+	threshold = threshold or 3
 	if name == nil or name == "" then
-		return tonumber(MoveData.BlankMove.id)
+		return tonumber(MoveData.BlankMove.id) or 0
 	end
 
 	-- Format list of Moves as id, name pairs
@@ -28,12 +38,16 @@ function DataHelper.findMoveId(name)
 		moveNames[id] = Utils.toLowerUTF8(move.name)
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), moveNames, 3)
-	return id or tonumber(MoveData.BlankMove.id)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), moveNames, threshold)
+	return id or tonumber(MoveData.BlankMove.id) or 0
 end
 
--- Searches for an Ability by name, finds the best match
-function DataHelper.findAbilityId(name)
+---Searches for an Ability by name, finds the best match; returns 0 if no good match
+---@param name string
+---@param threshold number? Default threshold distance of 3
+---@return number abilityId
+function DataHelper.findAbilityId(name, threshold)
+	threshold = threshold or 3
 	if name == nil or name == "" then
 		return AbilityData.DefaultAbility.id
 	end
@@ -44,12 +58,16 @@ function DataHelper.findAbilityId(name)
 		abilityNames[id] = Utils.toLowerUTF8(ability.name)
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), abilityNames, 3)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), abilityNames, threshold)
 	return id or AbilityData.DefaultAbility.id
 end
 
--- Searches for a Route by name, finds the best match
-function DataHelper.findRouteId(name)
+---Searches for a Route by name, finds the best match; returns 0 if no good match
+---@param name string
+---@param threshold number? Default threshold distance of 5!
+---@return number mapId
+function DataHelper.findRouteId(name, threshold)
+	threshold = threshold or 5
 	if name == nil or name == "" then
 		return RouteData.BlankRoute.id
 	end
@@ -62,24 +80,24 @@ function DataHelper.findRouteId(name)
 	-- Format list of Routes as id, name pairs
 	local routeNames = {}
 	for id, route in pairs(RouteData.Info) do
-		if route.name ~= nil then
-			routeNames[id] = Utils.toLowerUTF8(route.name)
-		else
-			routeNames[id] = "Unnamed Route"
-		end
+		routeNames[id] = Utils.toLowerUTF8(route.name or "Unnamed Route")
 	end
 
-	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), routeNames, 5)
+	local id, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), routeNames, threshold)
 	return id or RouteData.BlankRoute.id
 end
 
--- Searches for a Pokémon Type by name, finds the best match; returns nil if no match found
-function DataHelper.findPokemonType(typeName)
-	if typeName == nil or typeName == "" then
+---Searches for a Pokémon Type by name, finds the best match; returns nil if no match found
+---@param name string
+---@param threshold number? Default threshold distance of 3
+---@return string? type PokemonData.Type
+function DataHelper.findPokemonType(name, threshold)
+	threshold = threshold or 3
+	if name == nil or name == "" then
 		return nil
 	end
 
-	local type, _ = Utils.getClosestWord(Utils.toLowerUTF8(typeName), PokemonData.Types, 3)
+	local type, _ = Utils.getClosestWord(Utils.toLowerUTF8(name), PokemonData.Types, threshold)
 	return type
 end
 
@@ -816,9 +834,9 @@ local OUTPUT_CHAR = ">"
 local DEFAULT_OUTPUT_MSG = "No info found."
 
 ---Returns a response message by combining information into a single string
----@param prefix string|nil [Optional] Prefixes the response with this header as "HEADER RESPONSE"
----@param infoList table|string|nil [Optional] A string or list of strings to combine
----@param infoDelimeter string|nil [Optional] Defaults to " | "
+---@param prefix string? [Optional] Prefixes the response with this header as "HEADER RESPONSE"
+---@param infoList table|string? [Optional] A string or list of strings to combine
+---@param infoDelimeter string? [Optional] Defaults to " | "
 ---@return string response Example: "Prefix Info Item 1 | Info Item 2 | Info Item 3"
 local function buildResponse(prefix, infoList, infoDelimeter)
 	prefix = prefix and prefix ~= "" and (prefix .. " ") or ""
@@ -883,7 +901,7 @@ end
 
 DataHelper.EventRequests = {}
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getPokemon(args)
 	local params = (args or {}).Input or ""
@@ -926,7 +944,7 @@ function DataHelper.EventRequests.getPokemon(args)
 	return buildResponse(OUTPUT_CHAR, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getBST(args)
 	local params = (args or {}).Input or ""
@@ -941,7 +959,7 @@ function DataHelper.EventRequests.getBST(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getWeak(args)
 	local params = (args or {}).Input or ""
@@ -975,7 +993,7 @@ function DataHelper.EventRequests.getWeak(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getMove(args)
 	local params = (args or {}).Input or ""
@@ -1000,7 +1018,7 @@ function DataHelper.EventRequests.getMove(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getAbility(args)
 	local params = (args or {}).Input or ""
@@ -1018,7 +1036,7 @@ function DataHelper.EventRequests.getAbility(args)
 	return buildResponse(OUTPUT_CHAR, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getRoute(args)
 	local params = (args or {}).Input or ""
@@ -1056,7 +1074,7 @@ function DataHelper.EventRequests.getRoute(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getDungeon(args)
 	local params = (args or {}).Input or ""
@@ -1083,7 +1101,7 @@ function DataHelper.EventRequests.getDungeon(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getPivots(args)
 	-- local params = (args or {}).Input or ""
@@ -1113,7 +1131,7 @@ function DataHelper.EventRequests.getPivots(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getRevo(args)
 	local params = (args or {}).Input or ""
@@ -1157,7 +1175,7 @@ function DataHelper.EventRequests.getRevo(args)
 	return buildResponse(prefix, info, ", ")
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getCoverage(args)
 	local params = (args or {}).Input or ""
@@ -1214,7 +1232,7 @@ function DataHelper.EventRequests.getCoverage(args)
 	return buildResponse(prefix, info, ", ")
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getHeals(args)
 	local params = (args or {}).Input or ""
@@ -1302,7 +1320,7 @@ function DataHelper.EventRequests.getHeals(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getTMsHMs(args)
 	local params = (args or {}).Input or ""
@@ -1404,32 +1422,39 @@ function DataHelper.EventRequests.getTMsHMs(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getSearch(args)
 	local params = (args or {}).Input or ""
-	local helpResponse = "Search for a [Pokémon/Move/Ability/Note] followed by the search [terms]."
+	local helpResponse = "Search tracked info for a Pokémon, move, or ability."
 	if params == "" then
-		return buildResponse(string.format("%s %s", "[mode] [terms]", OUTPUT_CHAR), helpResponse)
+		return buildResponse(params, helpResponse)
 	end
-	local allowedSearchModes = {
-		["pokemon"] = true, ["move"] = true, ["ability"] = true, ["note"] = true,
-		["moves"] = true, ["abilities"] = true, ["notes"] = true,
-	}
-	local paramsAsList = Utils.split(params, " ", true)
-	local searchMode = Utils.toLowerUTF8(paramsAsList[1])
-	local searchTerms = Utils.toLowerUTF8(table.concat(paramsAsList, " ", 2))
-	if not allowedSearchModes[searchMode] then
-		return buildResponse(string.format("%s %s", searchMode, OUTPUT_CHAR), helpResponse)
-	elseif searchTerms == "" then
-		return buildResponse(string.format("%s %s", params, OUTPUT_CHAR), string.format("%s", "Search terms missing."))
+	local function getModeAndId(input, threshold)
+		local id = DataHelper.findPokemonId(input, threshold)
+		if id ~= 0 then return "pokemon", id end
+		id = DataHelper.findMoveId(input, threshold)
+		if id ~= 0 then return "move", id end
+		id = DataHelper.findAbilityId(input, threshold)
+		if id ~= 0 then return "ability", id end
+		return nil, 0
+	end
+	local searchMode, searchId
+	for i=1, 4, 1 do
+		searchMode, searchId = getModeAndId(params, i)
+		if searchMode then
+			break
+		end
+	end
+	if not searchMode then
+		return buildResponse(params, helpResponse)
 	end
 
 	local info = {}
 	if searchMode == "pokemon" then
-		local pokemon = getPokemonOrDefault(searchTerms)
+		local pokemon = PokemonData.Pokemon[searchId]
 		if not pokemon then
-			return buildDefaultResponse(searchTerms)
+			return buildDefaultResponse(params)
 		end
 		-- Tracked Abilities
 		local trackedAbilities = {}
@@ -1493,9 +1518,9 @@ function DataHelper.EventRequests.getSearch(args)
 		local prefix = string.format("%s %s %s", "Tracked", pokemon.name, OUTPUT_CHAR)
 		return buildResponse(prefix, info)
 	elseif searchMode == "move" or searchMode == "moves" then
-		local move = getMoveOrDefault(searchTerms)
+		local move = MoveData.Moves[searchId]
 		if not move then
-			return buildDefaultResponse(searchTerms)
+			return buildDefaultResponse(params)
 		end
 		local moveId = tonumber(move.id) or 0
 		local foundMons = {}
@@ -1528,9 +1553,9 @@ function DataHelper.EventRequests.getSearch(args)
 		local prefix = string.format("%s %s %s Pokémon:", move.name, OUTPUT_CHAR, #foundMons)
 		return buildResponse(prefix, info)
 	elseif searchMode == "ability" or searchMode == "abilities" then
-		local ability = getAbilityOrDefault(searchTerms)
+		local ability = AbilityData.Abilities[searchId]
 		if not ability then
-			return buildDefaultResponse(searchTerms)
+			return buildDefaultResponse(params)
 		end
 		local foundMons = {}
 		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
@@ -1556,38 +1581,44 @@ function DataHelper.EventRequests.getSearch(args)
 		end
 		local prefix = string.format("%s %s %s Pokémon:", ability.name, OUTPUT_CHAR, #foundMons)
 		return buildResponse(prefix, info)
-	-- elseif searchMode == "stat" then -- Might implement later
-	-- 	local prefix = string.format("%s %s", "", OUTPUT_CHAR)
-	-- 	return buildResponse(prefix, info)
-	elseif searchMode == "note" or searchMode == "notes" then
-		local foundMons = {}
-		for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
-			if trackedPokemon.note and Utils.containsText(trackedPokemon.note, searchTerms, true) then
-				local pokemon = PokemonData.Pokemon[pokemonID]
-				table.insert(foundMons, { id = pokemonID, bst = tonumber(pokemon.bst or "0"), notes = pokemon.name })
-			end
-		end
-		table.sort(foundMons, function(a,b) return a.bst > b.bst or (a.bst == b.bst and a.id < b.id) end)
-		local extra = 0
-		for _, mon in ipairs(foundMons) do
-			if #info < MAX_ITEMS then
-				table.insert(info, mon.notes)
-			else
-				extra = extra + 1
-			end
-		end
-		if extra > 0 then
-			table.insert(info, string.format("(+%s more Pokémon)", extra))
-		end
-		local prefix = string.format("%s: %s %s %s Pokémon:", "Note", searchTerms, OUTPUT_CHAR, #foundMons)
-		return buildResponse(prefix, info)
-	else
-		local prefix = string.format("%s %s", searchMode, OUTPUT_CHAR)
-		return buildResponse(prefix, helpResponse)
 	end
+	-- Unused
+	return buildResponse(params, helpResponse)
 end
 
----@param args table|nil
+---@param args table?
+---@return string response
+function DataHelper.EventRequests.getSearchNotes(args)
+	local params = (args or {}).Input or ""
+	if params == "" then
+		return buildDefaultResponse(params)
+	end
+
+	local info = {}
+	local foundMons = {}
+	for pokemonID, trackedPokemon in pairs(Tracker.Data.allPokemon or {}) do
+		if trackedPokemon.note and Utils.containsText(trackedPokemon.note, params, true) then
+			local pokemon = PokemonData.Pokemon[pokemonID]
+			table.insert(foundMons, { id = pokemonID, bst = tonumber(pokemon.bst or "0"), notes = pokemon.name })
+		end
+	end
+	table.sort(foundMons, function(a,b) return a.bst > b.bst or (a.bst == b.bst and a.id < b.id) end)
+	local extra = 0
+	for _, mon in ipairs(foundMons) do
+		if #info < MAX_ITEMS then
+			table.insert(info, mon.notes)
+		else
+			extra = extra + 1
+		end
+	end
+	if extra > 0 then
+		table.insert(info, string.format("(+%s more Pokémon)", extra))
+	end
+	local prefix = string.format("%s: \"%s\" %s %s Pokémon:", "Note", params, OUTPUT_CHAR, #foundMons)
+	return buildResponse(prefix, info)
+end
+
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getTheme(args)
 	local info = {}
@@ -1598,7 +1629,7 @@ function DataHelper.EventRequests.getTheme(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getGameStats(args)
 	local info = {}
@@ -1615,7 +1646,7 @@ function DataHelper.EventRequests.getGameStats(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getProgress(args)
 	local params = (args or {}).Input or ""
@@ -1666,7 +1697,7 @@ function DataHelper.EventRequests.getProgress(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getLog(args)
 	-- TODO: add "previous" as a parameter; requires storing this information somewhere
@@ -1684,7 +1715,7 @@ function DataHelper.EventRequests.getLog(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getAbout(args)
 	-- local params = (args or {}).Input or ""
@@ -1696,13 +1727,13 @@ function DataHelper.EventRequests.getAbout(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table|nil
+---@param args table?
 ---@return string response
 function DataHelper.EventRequests.getHelp(args)
 	local params = (args or {}).Input or ""
 	local availableCommands = {}
 	for _, event in pairs(EventHandler.Events or {}) do
-		if event.Command then
+		if event.Command and event.IsEnabled then
 			availableCommands[event.Command] = event
 		end
 	end

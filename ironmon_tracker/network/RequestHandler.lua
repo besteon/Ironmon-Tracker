@@ -99,7 +99,7 @@ function RequestHandler.removedExcludedRequests()
 end
 
 ---Receives [external] requests as Json and converts them into IRequests
----@param jsonTable table|nil
+---@param jsonTable table?
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
 		-- If missing, try and automatically detect the event type based on provided args

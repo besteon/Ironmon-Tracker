@@ -86,7 +86,7 @@ SCREEN.Pager = {
 		y = y or SCREEN.Canvas.y + 20
 		local cutoffX = SCREEN.Canvas.w - MARGIN
 		local cutoffY = _pagerOffsetY
-		local totalPages = Utils.gridAlign(self.ButtonRows, x, y, 0, 0, true, cutoffX, cutoffY)
+		local totalPages = Utils.gridAlign(self.ButtonRows, x, y, 0, 3, true, cutoffX, cutoffY)
 		for _, button in pairs(self.Buttons) do
 			if button.updateSelf ~= nil then button:updateSelf() end
 		end
@@ -135,7 +135,7 @@ function StreamConnectOverlay.refreshButtons()
 end
 
 local ROW_MARGIN, ROW_PADDING = 5, 2
-local ROW_WIDTH, ROW_HEIGHT = (SCREEN.Canvas.w - ROW_MARGIN * 2), (11 + ROW_PADDING * 2)
+local ROW_WIDTH, ROW_HEIGHT = (SCREEN.Canvas.w - ROW_MARGIN * 2), ((Constants.SCREEN.LINESPACING + ROW_PADDING) * 2)
 local _leftEdgeX, _rightEdgeX
 local function resetButtonRow(width, height)
 	_leftEdgeX = width or SCREEN.Canvas.x + ROW_MARGIN
@@ -459,7 +459,7 @@ local function buildCommandsTab()
 			table.insert(tabContents, event)
 		end
 	end
-	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.Command < b.Command) end)
+	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.Name < b.Name) end)
 
 	for i, event in ipairs(tabContents) do
 		resetButtonRow()
@@ -474,6 +474,8 @@ local function buildCommandsTab()
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
 
+		-- TODO: Have a help/info button to hide the row and reveal help text for the command
+
 		local btnEnabled = {
 			type = Constants.ButtonTypes.CHECKBOX,
 			box = { -1, -1, 8, 8 },
@@ -482,7 +484,7 @@ local function buildCommandsTab()
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
 				self.toggleState = event.IsEnabled
-				self.box[2] = buttonRow.box[2] + ROW_PADDING + 1
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING
 			end,
 			onClick = function(self)
 				self.toggleState = not self.toggleState
@@ -495,16 +497,21 @@ local function buildCommandsTab()
 		table.insert(SCREEN.Pager.Buttons, btnEnabled)
 		addLeftAligned(btnEnabled)
 
-		local btnWidth = Utils.calcWordPixelLength(event.Command) + 5
+		local btnWidth = Utils.calcWordPixelLength(event.Name) + 5
 		local btnName = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return event.Command end,
+			getText = function(self) return event.Name end,
 			textColor = SCREEN.Colors.text,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
 				self.box[2] = buttonRow.box[2] + ROW_PADDING
 				self.textColor = btnEnabled.toggleState and SCREEN.Colors.text or "Negative text"
+			end,
+			draw = function(self, shadowcolor)
+				Drawing.drawUnderline(self)
+				local x, y = self.box[1], self.box[2]
+				Drawing.drawText(x + 1, y + Constants.SCREEN.LINESPACING + ROW_PADDING, event.Command, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
 			end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnName)
@@ -552,11 +559,11 @@ local function buildRewardsTab()
 
 	local tabContents = {}
 	for _, event in pairs(EventHandler.Events) do
-		if not event.Exclude and event.RewardName then
+		if not event.Exclude and event.RewardId then
 			table.insert(tabContents, event)
 		end
 	end
-	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.RewardName < b.RewardName) end)
+	table.sort(tabContents, function(a,b) return a.IsEnabled and not b.IsEnabled or (a.IsEnabled == b.IsEnabled and a.Name < b.Name) end)
 
 	local NOT_ASSIGNED = ""
 	local ASSIGNED_UNKNOWN = "(Waiting for connection...)" -- TODO: Language
@@ -565,7 +572,7 @@ local function buildRewardsTab()
 		resetButtonRow()
 		local buttonRow = {
 			index = i,
-			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT * 2, }, -- Twice as tall
+			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
 			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Rewards end,
 			includeInGrid = function(self)
 				-- Allow checkboxes to filter enabled, disabled, etc
@@ -582,7 +589,7 @@ local function buildRewardsTab()
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
 				self.toggleState = event.IsEnabled
-				self.box[2] = buttonRow.box[2] + ROW_PADDING + (ROW_HEIGHT / 2)
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING
 			end,
 			onClick = function(self)
 				self.toggleState = not self.toggleState
@@ -595,7 +602,7 @@ local function buildRewardsTab()
 		table.insert(SCREEN.Pager.Buttons, btnEnabled)
 		addLeftAligned(btnEnabled)
 
-		local eventName = Utils.formatSpecialCharacters(event.RewardName)
+		local eventName = Utils.formatSpecialCharacters(event.Name)
 		local btnWidth = Utils.calcWordPixelLength(eventName) + 5
 		local btnName = {
 			type = Constants.ButtonTypes.NO_BORDER,
@@ -634,7 +641,7 @@ local function buildRewardsTab()
 			box = { -1, -1, 11, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = btnName.box[2] + ROW_HEIGHT - 1
+				self.box[2] = btnName.box[2] + ROW_HEIGHT / 2
 				if self:getText() == NOT_ASSIGNED then
 					self.textColor = SCREEN.Colors.highlight
 				else
@@ -678,7 +685,7 @@ local function buildRewardsTab()
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = btnOptions.box[2] + ROW_HEIGHT
+				self.box[2] = btnOptions.box[2] + ROW_HEIGHT / 2
 				self.box[3] = Utils.calcWordPixelLength(self:getText()) + 5 -- Auto resize
 				if btnAssociatedReward:getText() == NOT_ASSIGNED then
 					self.textColor = SCREEN.Colors.highlight
@@ -728,7 +735,7 @@ local function buildQueueTab()
 		resetButtonRow()
 		local buttonRow = {
 			index = i,
-			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT * 2, }, -- Twice as tall
+			dimensions = { width = ROW_WIDTH, height = ROW_HEIGHT, },
 			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible and SCREEN.currentTab == SCREEN.Tabs.Queue end,
 			includeInGrid = function(self)
 				-- Allow checkboxes to filter enabled, disabled, etc
@@ -771,10 +778,10 @@ local function buildQueueTab()
 		-- }
 		-- table.insert(SCREEN.Pager.Buttons, btnQueueName)
 
-		local btnWidth = Utils.calcWordPixelLength(event.RewardName) + 5
+		local btnWidth = Utils.calcWordPixelLength(event.Name) + 5
 		local btnRequestName = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return event.RewardName end,
+			getText = function(self) return event.Name end,
 			textColor = SCREEN.Colors.text,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
@@ -804,7 +811,7 @@ local function buildQueueTab()
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_PADDING + ROW_HEIGHT - 1
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2
 			end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnUsernameInfo)
@@ -933,7 +940,7 @@ end
 
 function StreamConnectOverlay.openRewardListPrompt(event)
 	local form = Utils.createBizhawkForm("Edit Reward Association", 320, 160, 100, 50) -- TODO: Language
-	local rewardEventText = string.format("Tracker Reward: %s", event.RewardName) -- TODO: Language
+	local rewardEventText = string.format("Tracker Reward: %s", event.Name) -- TODO: Language
 	forms.label(form, rewardEventText, 28, 10, 300, 20)
 	local rewardTriggerTxt = "Triggered by Twitch Reward:" -- TODO: Language
 	forms.label(form, rewardTriggerTxt, 28, 35, 250, 20)
