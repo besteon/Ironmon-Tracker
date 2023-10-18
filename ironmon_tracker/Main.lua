@@ -428,11 +428,13 @@ function Main.updateReleaseNotes(response)
 	end
 end
 
--- Checks the current version of the Tracker against the version of the latest release, true if greater/equal; false otherwise.
--- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
+--- Checks the current version of the Tracker against the version of the latest release.
+--- @param versionToCheck string (optional) Version number to check the current tracker version against.
+--- @return boolean isOnLatestVersion Returns true if current tracker version is newer/equal to the version to check.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-	return not Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
+	-- If versionToCheck is not newer than the current version, then current version is the latest version
+	return not Utils.isNewerVersion(versionToCheck, Main.TrackerVersion)
 end
 
 function Main.LoadNextRom()
