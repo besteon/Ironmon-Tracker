@@ -27,7 +27,7 @@ end
 --- Gets a setting from the user's Settings.ini file
 --- @param extensionName string The name of the extension calling this function; use only alphanumeric characters, no spaces
 --- @param key string The name of the setting. Combined with extensionName (ext_key) when saved in Settings file
---- @return string|number|boolean|nil value Returns the value that was saved, or returns nil if it doesn't exist.
+--- @return string|number|boolean? value Returns the value that was saved, or returns nil if it doesn't exist.
 function TrackerAPI.getExtensionSetting(extensionName, key)
 	if extensionName == nil or key == nil or Main.MetaSettings.extconfig == nil then return nil end
 

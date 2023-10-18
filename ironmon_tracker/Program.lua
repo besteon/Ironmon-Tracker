@@ -468,10 +468,10 @@ end
 --- Creates a frame counter that counts down N frames (or emulation steps), and repeats indefinitely.
 --- @param label string The name key for this counter, referenced by Program.Frames.Other[label]
 --- @param frames integer The number of frames, N, to count down. When it reaches 0, it restarts.
---- @param callFunc function|nil [Optional] Function to call each time the counter reaches 0, up to 'numExecutions' times.
---- @param numExecutions number|nil [Optional] If provided, will execute the 'callFunc' a total of that many times; otherwise no limit (default:unlimited)
---- @param scaleWithSpeedup boolean|nil [Optional] If true, syncs the counter to real time instead of the client's frame rate, ignoring speedup (default:false)
---- @return table|nil FrameCounter Returns the created frame counter
+--- @param callFunc function? [Optional] Function to call each time the counter reaches 0, up to 'numExecutions' times.
+--- @param numExecutions number? [Optional] If provided, will execute the 'callFunc' a total of that many times; otherwise no limit (default:unlimited)
+--- @param scaleWithSpeedup boolean? [Optional] If true, syncs the counter to real time instead of the client's frame rate, ignoring speedup (default:false)
+--- @return table? FrameCounter Returns the created frame counter
 function Program.addFrameCounter(label, frames, callFunc, numExecutions, scaleWithSpeedup)
 	if label == nil or (frames or 0) <= 0 then return nil end
 	Program.Frames.Others[label] = {
@@ -982,7 +982,7 @@ end
 
 --- Returns true if the trainer has been defeated by the player; false otherwise
 --- @param trainerId number
---- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
 --- @return boolean isDefeated
 function Program.hasDefeatedTrainer(trainerId, saveBlock1Addr)
 	if not TrainerData.Trainers[trainerId or false] then return false end
@@ -996,7 +996,7 @@ end
 
 --- Returns a list of trainerIds of trainers defeated in a route/location, as well as the total number of trainers there
 --- @param mapId number
---- @param saveBlock1Addr number|nil (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
+--- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
 --- @return table defeatedTrainers, number totalTrainers
 function Program.getDefeatedTrainersByLocation(mapId, saveBlock1Addr)
 	local route = RouteData.Info[mapId or false]

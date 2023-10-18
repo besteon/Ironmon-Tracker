@@ -255,7 +255,7 @@ end
 --- Shortens text by removing characters from the end until its no more than pixelWidth in size
 --- @param text string The text to be shortened (if able)
 --- @param pixelWidth number The maximum width in pixels the text can be
---- @param appendEllipsis boolean|nil If true and text gets shortened, ellipsis will be added to the end
+--- @param appendEllipsis boolean? If true and text gets shortened, ellipsis will be added to the end
 --- @return string
 function Utils.shortenText(text, pixelWidth, appendEllipsis)
 	local size = Utils.calcWordPixelLength(text)

@@ -9,8 +9,8 @@ end
 
 --- Looks up the table of randomized evolution percentages for a Pokémon
 --- @param pokemonID integer The ID of the base Pokémon that is evolving
---- @param targetEvoId integer|nil Optional: If the Pokémon has multiple regular evolutions, the target Pokémon ID must be provided
---- @return table|nil
+--- @param targetEvoId integer? Optional: If the Pokémon has multiple regular evolutions, the target Pokémon ID must be provided
+--- @return table?
 function PokemonRevoData.getEvoTable(pokemonID, targetEvoId)
 	PokemonRevoData.tryLoadData()
 	if not PokemonData.isValid(pokemonID) or not revoData[pokemonID] then
@@ -31,7 +31,7 @@ end
 
 --- Gets a list of the Pokémon's normal evolutions (if any)
 --- @param pokemonID integer The ID of the base Pokémon that is evolving
---- @return table|nil
+--- @return table?
 function PokemonRevoData.getEvoOptions(pokemonID)
 	PokemonRevoData.tryLoadData()
 	if not PokemonData.isValid(pokemonID) or not revoData[pokemonID] then
