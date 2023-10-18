@@ -429,7 +429,7 @@ function Main.updateReleaseNotes(response)
 end
 
 --- Checks the current version of the Tracker against the version of the latest release.
---- @param versionToCheck string (optional) Version number to check the current tracker version against.
+--- @param versionToCheck string? (optional) Version number to check the current tracker version against.
 --- @return boolean isOnLatestVersion Returns true if current tracker version is newer/equal to the version to check.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
@@ -777,7 +777,7 @@ function Main.SaveCurrentRom(filename)
 end
 
 --- Attempts to find an attempts file based off of the Quickload settings file, then off of the currently loaded ROM name
---- @param forceUseSettingsFile boolean|nil Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
+--- @param forceUseSettingsFile boolean? Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
@@ -837,7 +837,7 @@ end
 
 --- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name.
 --- Resulting attempts # is stored in Main.currentSeed
---- @param forceUseSettingsFile boolean|nil Force creation of new attempts # for the current Quickload settings file (default: false)
+--- @param forceUseSettingsFile boolean? Force creation of new attempts # for the current Quickload settings file (default: false)
 function Main.ReadAttemptsCount(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
 
