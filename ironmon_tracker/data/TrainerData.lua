@@ -176,7 +176,7 @@ function TrainerData.getExcludedTrainers()
 		}
 	elseif GameSettings.game == 3 then -- FireRed/LeafGreen
 		trainerIdRanges = {
-			{1, 88}, 147, 200, 263, {492, 497}, {511, 515}, 530,
+			{1, 88}, 101, 147, 200, 263, {454, 461}, {492, 515}, 530, {621, 741},
 		}
 	end
 
