@@ -518,22 +518,6 @@ local function buildCommandsTab()
 		addLeftAligned(btnName)
 
 		-- Add buttons to row from right-to-left
-		btnWidth = Utils.calcWordPixelLength("Roles" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
-		local btnRoles = {
-			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return "Roles" or Resources.StreamConnectOverlay.X end, -- TODO: Language
-			textColor = SCREEN.Colors.text,
-			box = { -1, -1, btnWidth, 11 },
-			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-			isVisible = function(self) return buttonRow:isVisible() end,
-			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_PADDING
-			end,
-			onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt(event) end,
-		}
-		table.insert(SCREEN.Pager.Buttons, btnRoles)
-		addRightAligned(btnRoles)
-
 		btnWidth = Utils.calcWordPixelLength("Rename" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
 		local btnRename = {
 			type = Constants.ButtonTypes.FULL_BORDER,
@@ -551,6 +535,23 @@ local function buildCommandsTab()
 		addRightAligned(btnRename)
 	end
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
+
+	-- TODO: This should apply to all commands
+	-- btnWidth = Utils.calcWordPixelLength("Roles" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
+	-- local btnRoles = {
+	-- 	type = Constants.ButtonTypes.FULL_BORDER,
+	-- 	getText = function(self) return "Roles" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+	-- 	textColor = SCREEN.Colors.text,
+	-- 	box = { -1, -1, btnWidth, 11 },
+	-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+	-- 	isVisible = function(self) return buttonRow:isVisible() end,
+	-- 	updateSelf = function(self)
+	-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
+	-- 	end,
+	-- 	onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt(event) end,
+	-- }
+	-- table.insert(SCREEN.Pager.Buttons, btnRoles)
+
 end
 
 local function buildRewardsTab()

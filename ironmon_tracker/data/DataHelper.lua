@@ -1447,7 +1447,8 @@ function DataHelper.EventRequests.getSearch(args)
 		end
 	end
 	if not searchMode then
-		return buildResponse(params, helpResponse)
+		local prefix = string.format("%s %s", params, OUTPUT_CHAR)
+		return buildResponse(prefix, helpResponse)
 	end
 
 	local info = {}
@@ -1583,7 +1584,8 @@ function DataHelper.EventRequests.getSearch(args)
 		return buildResponse(prefix, info)
 	end
 	-- Unused
-	return buildResponse(params, helpResponse)
+	local prefix = string.format("%s %s", params, OUTPUT_CHAR)
+	return buildResponse(prefix, helpResponse)
 end
 
 ---@param args table?
