@@ -4,6 +4,7 @@ TrainerData = {}
 -- These are populated later after the game being played is determined
 TrainerData.Trainers = {}
 TrainerData.GymTMs = {}
+TrainerData.FinalTrainer = {} -- The final trainer to defeat to win Ironmon
 
 TrainerData.TrainerGroups = {
 	All = "All",
@@ -115,6 +116,9 @@ TrainerData.BlankTrainer = {
 }
 
 function TrainerData.initialize()
+	TrainerData.Trainers = {}
+	TrainerData.GymTMs = {}
+	TrainerData.FinalTrainer = {}
 	if GameSettings.game == 1 then
 		TrainerData.setupTrainersAsRubySapphire()
 	elseif GameSettings.game == 2 then
@@ -348,6 +352,8 @@ function TrainerData.setupTrainersAsRubySapphire()
 	TrainerData.Trainers[536].whichRival = "May Right"
 	TrainerData.Trainers[537].whichRival = "May Right"
 	TrainerData.Trainers[666].whichRival = "May Right"
+
+	TrainerData.FinalTrainer = { [335] = true }
 end
 
 function TrainerData.setupTrainersAsEmerald()
@@ -468,6 +474,8 @@ function TrainerData.setupTrainersAsEmerald()
 	TrainerData.Trainers[537].whichRival = "May Right"
 	TrainerData.Trainers[666].whichRival = "May Right"
 	TrainerData.Trainers[769].whichRival = "May Right"
+
+	TrainerData.FinalTrainer = { [804] = true }
 end
 
 function TrainerData.setupTrainersAsFRLG()
@@ -584,4 +592,7 @@ function TrainerData.setupTrainersAsFRLG()
 	TrainerData.Trainers[434].whichRival = "Right"
 	TrainerData.Trainers[437].whichRival = "Right"
 	TrainerData.Trainers[440].whichRival = "Right"
+
+	-- All 3 rivals
+	TrainerData.FinalTrainer = { [438] = true, [439] = true, [440] = true }
 end

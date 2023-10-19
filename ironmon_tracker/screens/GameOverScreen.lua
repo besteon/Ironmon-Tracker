@@ -4,6 +4,7 @@ GameOverScreen = {
 		LOST = 2,
 		WON = 3,
 	},
+	isDisplayed = false, -- Prevents repeated changing screens due to BattleOutcome persisting
 	chosenQuoteIndex = 1,
 	enteredFromSpecialLocation = false, -- prevents constantly changing back to game over screen
 	status = nil,
@@ -17,7 +18,7 @@ GameOverScreen.Buttons = {
 		teamIndex = 1,
 		getIconId = function(self)
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
-			local animType = SpriteData.Types.Faint
+			local animType = GameOverScreen.status == GameOverScreen.Statuses.WON and SpriteData.Types.Idle or SpriteData.Types.Faint
 			-- Safety check to make sure this icon has the requested sprite animation type
 			if SpriteData.canDrawPokemonIcon(pokemon.pokemonID) and not SpriteData.IconData[pokemon.pokemonID][animType] then
 				animType = SpriteData.getNextAnimType(pokemon.pokemonID, animType)
@@ -57,7 +58,7 @@ GameOverScreen.Buttons = {
 		end,
 		confirmAction = false,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 14, Constants.SCREEN.MARGIN + 87, 112, 16 },
-		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and not Battle.hasDefeatedSteven() end,
+		isVisible = function(self) return Main.IsOnBizhawk() and GameOverScreen.battleStartSaveState ~= nil and GameOverScreen.status ~= GameOverScreen.Statuses.WON end,
 		updateSelf = function(self)
 			self.textColor = "Lower box text"
 			self.confirmAction = false
@@ -130,7 +131,7 @@ GameOverScreen.Buttons = {
 }
 
 function GameOverScreen.initialize()
-	GameOverScreen.isDisplayed = false -- Prevents repeated changing screens due to BattleOutcome persisting
+	GameOverScreen.isDisplayed = false
 	GameOverScreen.battleStartSaveState = nil -- Creates a temporary save state in memory, for restarting a battle
 	GameOverScreen.enteredFromSpecialLocation = false
 	GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
@@ -141,6 +142,14 @@ function GameOverScreen.initialize()
 	end
 	GameOverScreen.refreshButtons()
 	GameOverScreen.Buttons.SaveGameFiles:reset()
+end
+
+function GameOverScreen.refreshButtons()
+	for _, button in pairs(GameOverScreen.Buttons) do
+		if button.updateSelf ~= nil then
+			button:updateSelf()
+		end
+	end
 end
 
 function GameOverScreen.randomizeAnnouncerQuote()
@@ -161,36 +170,26 @@ function GameOverScreen.randomizeAnnouncerQuote()
 	return Resources.GameOverScreenQuotes[GameOverScreen.chosenQuoteIndex] or ""
 end
 
-function GameOverScreen.refreshButtons()
-	for _, button in pairs(GameOverScreen.Buttons) do
-		if button.updateSelf ~= nil then
-			button:updateSelf()
-		end
+---Returns true if a GameOver has occurred and the screen should be displayed (lost/tied, or won final battle)
+---@param lastBattleStatus number?
+---@param lastTrainerId number? The TrainerId of the most recent enemy trainer that was battled
+---@return boolean isGameOver
+function GameOverScreen.checkForGameOver(lastBattleStatus, lastTrainerId)
+	if not Main.IsOnBizhawk() or LogOverlay.isGameOver or GameOverScreen.isDisplayed or Battle.recentBattleWasTutorial then
+		return false
 	end
-end
 
--- Returns true if the conditions are correct to display the screen
-function GameOverScreen.shouldDisplay(battleOutcome)
-	if not Main.IsOnBizhawk() then return false end
+	lastBattleStatus = lastBattleStatus or Memory.readbyte(GameSettings.gBattleOutcome)
+	lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
 
-	-- Skip game over screen if most recent battle was the tutorial or if the player didn't LOSE or TIE the battle
-	if Battle.recentBattleWasTutorial or (battleOutcome ~= 2 and battleOutcome ~= 3) then
-		if GameOverScreen.isDisplayed then
-			GameOverScreen.isDisplayed = false -- Clears it out for when playing chooses to continue playing
-		end
-		-- Check if the player won the game, final battle was won
-		if Battle.hasDefeatedSteven() or RouteData.Locations.IsInHallOfFame[TrackerAPI.getMapId()] then
-			GameOverScreen.status = GameOverScreen.Statuses.WON
-			return true
-		-- Check for WON status since player leaves Hall Of Fame when going to FRLG credits
-		elseif GameOverScreen.status ~= GameOverScreen.Statuses.WON then
-			GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
-			return false
-		end
-	else
+	-- BattleStatus [2 = Lost the match, 3 = Tied]
+	if lastBattleStatus == 2 or lastBattleStatus == 3 then
 		GameOverScreen.status = GameOverScreen.Statuses.LOST
+	elseif Battle.wonFinalBattle(lastBattleStatus, lastTrainerId) then
+		GameOverScreen.status = GameOverScreen.Statuses.WON
 	end
-	return not GameOverScreen.isDisplayed
+
+	return GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 end
 
 function GameOverScreen.nextTeamPokemon(startingIndex)
@@ -320,10 +319,6 @@ end
 
 -- DRAWING FUNCTIONS
 function GameOverScreen.drawScreen()
-	if not GameOverScreen.isDisplayed then
-		GameOverScreen.isDisplayed = true
-	end
-
 	Drawing.drawBackgroundAndMargins()
 
 	local topBox = {

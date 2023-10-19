@@ -3122,8 +3122,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
-	if not isGameEmerald then
-		-- Ironmon ends after Steven battle, not e4. This is handled by Battle.endCurrentBattle()
+	if isGameEmerald then
+		-- In Emerald, Ironmon ends after Steven battle, not e4.
+		RouteData.Locations.IsInHallOfFame = {
+			[431] = true,
+		}
+	else
 		RouteData.Locations.IsInHallOfFame = {
 			[298 + offset] = true,
 		}

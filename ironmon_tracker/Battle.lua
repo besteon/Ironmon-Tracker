@@ -172,7 +172,8 @@ function Battle.updateBattleStatus()
 	end
 
 	-- Should occur exactly once per lost battle
-	if GameOverScreen.shouldDisplay(statusOrOutcome) then
+	if GameOverScreen.checkForGameOver(statusOrOutcome) then
+		GameOverScreen.isDisplayed = true
 		LogOverlay.isGameOver = true
 		Program.GameTimer:pause()
 		GameOverScreen.randomizeAnnouncerQuote()
@@ -677,6 +678,7 @@ end
 function Battle.beginNewBattle()
 	if Battle.inBattleScreen then return end
 
+	GameOverScreen.isDisplayed = false
 	GameOverScreen.createTempSaveState()
 
 	-- BATTLE_TYPE_TRAINER (1 << 3)
@@ -786,14 +788,7 @@ function Battle.endCurrentBattle()
 		pokemon.statStages = { hp = 6, atk = 6, def = 6, spa = 6, spd = 6, spe = 6, acc = 6, eva = 6 }
 	end
 
-	local lastBattleStatus = Memory.readbyte(GameSettings.gBattleOutcome)
-
 	Battle.trySwapScreenBackToMain()
-
-	-- Check if the game is over for Emerald only, 804 = Steven, status(1) = Win
-	if GameSettings.game == 2 and Battle.opposingTrainerId == 804 and lastBattleStatus == 1 then
-		Program.currentScreen = GameOverScreen
-	end
 
 	Battle.opposingTrainerId = 0
 
@@ -828,10 +823,15 @@ function Battle.trySwapScreenBackToMain()
 	end
 end
 
---- Returns true if the current game is Emerald and the player has defeated Steven (trainerId: 804)
---- @return boolean
-function Battle.hasDefeatedSteven()
-	return GameSettings.game == 2 and Program.hasDefeatedTrainer(804)
+---Returns true if the player has beaten that final trainer needed to win Ironmon
+---@param lastBattleStatus number?
+---@param lastTrainerId number? The TrainerId of the most recent enemy trainer that was battled
+---@return boolean
+function Battle.wonFinalBattle(lastBattleStatus, lastTrainerId)
+	lastBattleStatus = lastBattleStatus or Memory.readbyte(GameSettings.gBattleOutcome)
+	lastTrainerId = lastTrainerId or Memory.readword(GameSettings.gTrainerBattleOpponent_A)
+	-- BattleStatus [1 = Won the match]
+	return lastBattleStatus == 1 and TrainerData.FinalTrainer[lastTrainerId]
 end
 
 function Battle.handleNewTurn()
