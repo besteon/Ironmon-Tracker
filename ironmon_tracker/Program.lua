@@ -162,7 +162,7 @@ Program.ActiveRepel = {
 	duration = 100,
 	shouldDisplay = function(self)
 		local enabledAndAllowed = Options["Display repel usage"] and Program.ActiveRepel.inUse and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or GameOverScreen.isDisplayed or LogOverlay.isDisplayed or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
+		local hasConflict = Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING or StreamConnectOverlay.isDisplayed or UpdateScreen.showNotes
 		local inHallOfFame = Program.GameData.mapId ~= nil and RouteData.Locations.IsInHallOfFame[Program.GameData.mapId]
 		return enabledAndAllowed and not hasConflict and not inHallOfFame
 	end,
@@ -180,7 +180,7 @@ Program.Pedometer = {
 	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
-		local hasConflict = Battle.inActiveBattle() or GameOverScreen.isDisplayed or LogOverlay.isDisplayed
+		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
 		return enabledAndAllowed and not hasConflict
 	end,
 }
@@ -375,12 +375,7 @@ function Program.update()
 				if Program.currentScreen == StartupScreen then
 					-- If the game hasn't started yet, show the start-up screen instead of the main Tracker screen
 					Program.currentScreen = TrackerScreen
-				elseif RouteData.Locations.IsInHallOfFame[Program.GameData.mapId] and not GameOverScreen.enteredFromSpecialLocation then
-					GameOverScreen.enteredFromSpecialLocation = true
-					Program.currentScreen = GameOverScreen
 				end
-			elseif GameOverScreen.enteredFromSpecialLocation then
-				GameOverScreen.enteredFromSpecialLocation = false
 			end
 
 			-- Check if summary screen has being shown
