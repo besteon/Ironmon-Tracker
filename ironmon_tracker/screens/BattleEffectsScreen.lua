@@ -349,7 +349,7 @@ function loadSideStatuses(index)
 	local sideStatuses = Memory.readword(0x0202428e + (index * 0x02))
 	--local sideStatuses = 65535
 	local sideTimersBase = 0x02024294 + (index * 0x0C)
-	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 8)
+	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 9)
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
 		BattleEffectsScreen.PerSideDetails[index][Resources.BattleEffectsScreen.EffectReflect] = {active = true,remainingTurns = turnsLeftReflect}
@@ -490,13 +490,16 @@ function loadDisableStruct(index)
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLockOn].source = lockOnSource
 	end
 	local truantCheck = Memory.readbyte(disableStructBase + 0x18)
-	if truantCheck % 1 == 1 then
+	--[[
+		--Leaving the logic in, but opting to not include Truant turn info since it could reveal the mon had truant before it was tracked
+		if truantCheck == 1 then
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] then
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant].active = true
 		else
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTruant] = {active = true}
 		end
 	end
+	]]--
 end
 
 function loadWishStruct(index)
