@@ -42,7 +42,7 @@ SCREEN.Canvas = {
 	h = Constants.SCREEN.HEIGHT - TAB_HEIGHT - (MARGIN * 2) - 1,
 }
 
-local _pagerOffsetX, _pagerOffsetY = SCREEN.Canvas.x + 100, SCREEN.Canvas.y + SCREEN.Canvas.h - 12
+local _pagerOffsetX, _pagerOffsetY = SCREEN.Canvas.x + 100, SCREEN.Canvas.y + SCREEN.Canvas.h - 14
 SCREEN.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -320,7 +320,7 @@ function StreamConnectOverlay.createButtons()
 
 	SCREEN.Buttons.SettingsLabelConnType = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return "Connection Type:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
+		getText = function(self) return "Connection Mode:" or Resources.StreamConnectOverlay.LabelOrButton end, -- TODO: Language
 		box = {	startX, startY, 50, 11 },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Settings end,
 	}
@@ -453,6 +453,16 @@ local function buildCommandsTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
 
+	SCREEN.Buttons.CommandsRoles = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self) return "Role Permissions" or Resources.StreamConnectOverlay.X end, -- TODO: Language
+		textColor = SCREEN.Colors.text,
+		box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, Utils.calcWordPixelLength("Role Permissions") + 5, 11 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Commands end,
+		onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt({Key="",Command="DO NOT USE YET"} ) end,
+	}
+
 	local tabContents = {}
 	for _, event in pairs(EventHandler.Events) do
 		if not event.Exclude and event.Command then
@@ -535,23 +545,6 @@ local function buildCommandsTab()
 		addRightAligned(btnRename)
 	end
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
-
-	-- TODO: This should apply to all commands
-	-- btnWidth = Utils.calcWordPixelLength("Roles" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
-	-- local btnRoles = {
-	-- 	type = Constants.ButtonTypes.FULL_BORDER,
-	-- 	getText = function(self) return "Roles" or Resources.StreamConnectOverlay.X end, -- TODO: Language
-	-- 	textColor = SCREEN.Colors.text,
-	-- 	box = { -1, -1, btnWidth, 11 },
-	-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-	-- 	isVisible = function(self) return buttonRow:isVisible() end,
-	-- 	updateSelf = function(self)
-	-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
-	-- 	end,
-	-- 	onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt(event) end,
-	-- }
-	-- table.insert(SCREEN.Pager.Buttons, btnRoles)
-
 end
 
 local function buildRewardsTab()
@@ -708,6 +701,40 @@ end
 local function buildQueueTab()
 	SCREEN.Pager.ButtonRows = {}
 	SCREEN.Pager.Buttons = {}
+
+	SCREEN.Buttons.QueueClear = {
+		type = Constants.ButtonTypes.FULL_BORDER,
+		getText = function(self)
+			if self.confirmReset then
+				return string.format("%s", "Are you sure?") -- TODO: Language
+			else
+				return string.format("%s", "Clear Queue") -- TODO: Language
+			end
+		end,
+		textColor = SCREEN.Colors.text,
+		confirmReset = false,
+		box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, 58, 11 },
+		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Queue end,
+		updateSelf = function(self)
+			if self.confirmReset then
+				self.textColor = "Negative text"
+			else
+				self.textColor = SCREEN.Colors.text
+			end
+		end,
+		onClick = function(self)
+			if self.confirmReset then
+				self.confirmReset = false
+				EventHandler.cancelAllQueues()
+				buildQueueTab()
+			else
+				self.confirmReset = true
+			end
+			self:updateSelf()
+			Program.redraw(true)
+		end,
+	}
 
 	local tabContents = {}
 	for key, queue in pairs(EventHandler.Queues) do

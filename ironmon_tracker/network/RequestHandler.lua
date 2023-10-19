@@ -153,6 +153,9 @@ function RequestHandler.processAllRequests()
 		})
 		if not event.IsEnabled then
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
+		elseif request.IsCancelled then
+			request.Message = "Cancelled."
+			request.SentResponse = false
 		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
 			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
 			if request.IsReady or event:Process(request) then

@@ -197,6 +197,21 @@ function EventHandler.queueNewRequest(queueKey, request)
 	return true
 end
 
+---Cancels and removes all active Requests from the requests queue; returns number that were cancelled
+---@return number numCancelled
+function EventHandler.cancelAllQueues()
+	local count = 0
+	for _, queue in pairs(EventHandler.Queues) do
+		for _, request in pairs(queue.Requests) do
+			request.IsCancelled = true
+			count = count + 1
+		end
+		queue.ActiveRequest = nil
+		queue.Requests = {}
+	end
+	return count
+end
+
 function EventHandler.addDefaultEvents()
 	-- TS_: Tracker Server (Core events that shouldn't be modified)
 	EventHandler.addNewEvent(EventHandler.IEvent:new({
@@ -587,7 +602,7 @@ EventHandler.DefaultEvents = {
 	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	-- },
 	CR_ChangeTheme = {
-		Name = "Change Tracker Theme (DON'T USE LOL)",
+		Name = "Change Tracker Theme (DON'T USE)",
 		RewardId = "",
 		Options = {
 			Duration = 10 * 60, -- # of seconds

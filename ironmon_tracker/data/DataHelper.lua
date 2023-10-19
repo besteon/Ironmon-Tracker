@@ -1274,7 +1274,7 @@ function DataHelper.EventRequests.getHeals(args)
 		table.sort(items, sortFunc)
 		local t = {}
 		for _, item in ipairs(items) do table.insert(t, item.text) end
-		table.insert(info, string.format("%s: %s", label, table.concat(t, ", ")))
+		table.insert(info, string.format("[%s] %s", label, table.concat(t, ", ")))
 	end
 	local healingItems, ppItems, statusItems, berryItems = {}, {}, {}, {}
 	for id, quantity in pairs(Program.GameData.Items.HPHeals) do
@@ -1311,10 +1311,10 @@ function DataHelper.EventRequests.getHeals(args)
 		sortAndCombine("PP", ppItems)
 	end
 	if displayStatus and #statusItems > 0 then
-		sortAndCombine("STATUS", statusItems)
+		sortAndCombine("Status", statusItems)
 	end
 	if displayBerries and #berryItems > 0 then
-		sortAndCombine("BERRIES", berryItems)
+		sortAndCombine("Berries", berryItems)
 	end
 	local prefix = string.format("%s %s", Resources.TrackerScreen.HealsInBag, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
@@ -1390,7 +1390,7 @@ function DataHelper.EventRequests.getTMsHMs(args)
 				end
 			end
 			local textToAdd = #gymTMs > 0 and table.concat(gymTMs, ", ") or "None"
-			table.insert(info, string.format("%s: %s", "Gym", textToAdd))
+			table.insert(info, string.format("[%s] %s", "Gym", textToAdd))
 		end
 		if displayNonGym then
 			local textToAdd
@@ -1403,7 +1403,7 @@ function DataHelper.EventRequests.getTMsHMs(args)
 			else
 				textToAdd = "None"
 			end
-			table.insert(info, string.format("%s: %s", "Other", textToAdd))
+			table.insert(info, string.format("[%s] %s", "Other", textToAdd))
 		end
 	end
 	if displayHM then
