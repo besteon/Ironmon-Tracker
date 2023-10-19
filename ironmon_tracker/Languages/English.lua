@@ -640,6 +640,7 @@ ScreenResources{
 		EffectTruant = "Loafing",
 		EffectFutureSight = "Future Attack",
 		EffectWish = "Wish",
+		EffectKnockOff = "Knock Off",
 		EffectLastMove = "Last Move",
 		EffectPayDay = "Pay Day",
 	},

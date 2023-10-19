@@ -23,7 +23,7 @@ BattleEffectsScreen = {
 function loadFieldEffects()
 	loadTerrain()
 	loadWeather()
-	local gPaydayMoney = Memory.readword(0x0202432e)
+	local gPaydayMoney = Memory.readword(GameSettings.gPaydayMoney)
 	if gPaydayMoney ~= 0 then
 		BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectPayDay] = {active = true, amount = gPaydayMoney}
 	end
@@ -59,8 +59,8 @@ function loadWeather()
 		#define B_WEATHER_SUN_PERMANENT       (1 << 6)
 		#define B_WEATHER_HAIL_TEMPORARY      (1 << 7)
 	]]
-	local weatherByte = Memory.readbyte(0x020243cc)
-	local weatherTurns = Memory.readbyte(0x020243d0 + 0x28)
+	local weatherByte = Memory.readbyte(GameSettings.gBattleWeather)
+	local weatherTurns = Memory.readbyte(GameSettings.gWishFutureKnock + 0x28)
 
 	if weatherByte == 0 then
 		BattleEffectsScreen.BattleDetails.Weather = BattleEffectsScreen.WeatherNameMap["default"]
@@ -211,7 +211,7 @@ function loadStatus3(index)
 	if index == nil or index < 0 or index > 3 then
 		return
 	end
-	local status3Data = Memory.readdword(0x020242ac + index * (0x04))
+	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
 	local status3Map = Utils.generatebitwisemap(status3Data, 21)
 	if status3Map[2] then
 		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
@@ -346,9 +346,9 @@ function loadSideStatuses(index)
 	if index == nil or index < 0 or index > 1 then
 		index = 0
 	end
-	local sideStatuses = Memory.readword(0x0202428e + (index * 0x02))
+	local sideStatuses = Memory.readword(GameSettings.gStatuses3 + (index * 0x02))
 	--local sideStatuses = 65535
-	local sideTimersBase = 0x02024294 + (index * 0x0C)
+	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
 	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 9)
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
@@ -410,7 +410,7 @@ function loadDisableStruct(index)
 	if index == nil or index < 0 or index > 3 then
 		return
 	end
-	local disableStructBase = 0x020242bc + (index * 0x1C)
+	local disableStructBase = GameSettings.gDisableStructs + (index * 0x1C)
 	local disabledMove = Memory.readword(disableStructBase + 0x04)
 	if disabledMove ~= 0 then
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectDisable] then
@@ -463,7 +463,7 @@ function loadDisableStruct(index)
 	end
 	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11),0,4)
 	if rolloutCount ~= 0 then
-		local lockedMoves = Memory.readword (0x02024268 + (index * 0x02))
+		local lockedMoves = Memory.readword (GameSettings.gLockedMoves + (index * 0x02))
 		local moveName = Resources.Game.MoveNames[lockedMoves] or ""
 		if BattleEffectsScreen.PerMonDetails[index][moveName] then
 			BattleEffectsScreen.PerMonDetails[index][moveName].active = true
@@ -520,7 +520,7 @@ function loadWishStruct(index)
 	if index == nil or index < 0 or index > 3 then
 		return
 	end
-	local wishStructBase = 0x020243d0
+	local wishStructBase = GameSettings.gWishFutureKnock
 	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
 	if futureSightCounter ~= 0 then
 		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
@@ -541,6 +541,14 @@ function loadWishStruct(index)
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish].remainingTurns = wishCounter
 		else
 			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectWish] = {active = true, source = wishSource, remainingTurns = wishCounter}
+		end
+	end
+	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + Utils.inlineIf(index<2,0,1))
+	if knockOffCheck ~= 0 then
+		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectKnockOff] then
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectKnockOff].active = true
+		else
+			BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectKnockOff] = {active = true}
 		end
 	end
 end
