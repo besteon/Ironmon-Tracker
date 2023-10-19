@@ -60,11 +60,11 @@ function loadWeather()
 		#define B_WEATHER_HAIL_TEMPORARY      (1 << 7)
 	]]
 	local weatherByte = Memory.readbyte(0x020243cc)
-	local weatherTurns = Memory.readbyte(0x020242bc + 0x28)
+	local weatherTurns = Memory.readbyte(0x020243d0 + 0x28)
 
 	if weatherByte == 0 then
 		BattleEffectsScreen.BattleDetails.Weather = BattleEffectsScreen.WeatherNameMap["default"]
-		BattleEffectsScreen.BattleDetails.WeatherTurns = nil
+		BattleEffectsScreen.BattleDetails.WeatherTurns = 0
 	else
 		local weatherBitIndex = 0
 		while weatherByte > 1 do
@@ -73,7 +73,12 @@ function loadWeather()
 		end
 		local weatherText = BattleEffectsScreen.WeatherNameMap[weatherBitIndex]
 		BattleEffectsScreen.BattleDetails.Weather = Utils.inlineIf(weatherText ~= nil,weatherText, BattleEffectsScreen.WeatherNameMap["default"])
-		BattleEffectsScreen.BattleDetails.WeatherTurns = weatherTurns
+		--Weather Turns are not reset to 0 when temporary weather becomes permanent
+		if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
+			BattleEffectsScreen.BattleDetails.WeatherTurns = weatherTurns
+		else
+			BattleEffectsScreen.BattleDetails.WeatherTurns = 0
+		end
 	end
 end
 
@@ -641,8 +646,16 @@ function drawBattleDetailsUI()
 
 	local Xdelta = 2
 	local allBattleStatuses = BattleEffectsScreen.BattleDetails
+	local weatherText
+	if allBattleStatuses.WeatherTurns > 0 then
+		weatherText =  Resources.BattleEffectsScreen.TextWeatherTurns .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining .. ":  " .. allBattleStatuses.WeatherTurns
+		Drawing.drawText(offsetX,offsetY, weatherText, textColor, nil, linespacing, Constants.Font.FAMILY)
+		offsetY = offsetY + linespacing + 1
+		linesOnPage = linesOnPage + 1
+	end
+
 	for key, value in pairs(allBattleStatuses) do
-		if key ~= Resources.BattleEffectsScreen.TextWeather and key ~= Resources.BattleEffectsScreen.TextTerrain and key ~= "WeatherTurns" and value.active then
+		if key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" and value.active then
 			local text = parseInput(key,value)
 			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
 			offsetY = offsetY + linespacing + 1
@@ -712,7 +725,7 @@ function parseInput(key, value)
 		if value.type then
 			text = text .. " (" .. value.type .. ")"
 		elseif value.move and MoveData.isValid(value.move) then
-			text = text .. " (" .. MoveData.Moves[value.move] .. ")"
+			text = text .. " (" .. MoveData.Moves[value.move].name .. ")"
 		elseif value.count then
 			text = text .. ": " .. value.count
 		elseif value.remainingTurns then
@@ -725,8 +738,9 @@ function parseInput(key, value)
 			text = text .. " (" .. value.totalTurns .. ")"
 		elseif value.source then
 			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or {}
-			local sourceMon = Tracker.getPokemon(sourceMonIndex,value.source%2==0)
-			text = text .. " (" .. sourceMon.nickname .. ")"
+			local sourceMonId = Tracker.getPokemon(sourceMonIndex,value.source%2==0).pokemonID
+			local sourceMonName = PokemonData.Pokemon[sourceMonId].name
+			text = text .. " (" .. sourceMonName .. ")"
 		elseif value.sources then
 			text = text .. " ("
 			local i = 0
@@ -735,8 +749,9 @@ function parseInput(key, value)
 					text = text .. ", "
 				end
 				local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or {}
-				local sourceMon = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0)
-				text = text .. sourceMon.nickname
+				local sourceMonId = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0).pokemonID
+				local sourceMonName = PokemonData.Pokemon[sourceMonId].name
+				text = text .. sourceMonName
 				i = i + 1
 			end
 			text = text .. ")"
