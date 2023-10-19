@@ -484,7 +484,7 @@ function CoverageCalcScreen.getPartyPokemonEffectiveMoveTypes(slotNumber)
 end
 
 --- Updates the SCREEN.CoverageData table with information for the chosen coverage
---- @param onlyFullyEvolved boolean|nil (Optional) If true, only check against fully evolved Pokémon; default=true
+--- @param onlyFullyEvolved boolean? (Optional) If true, only check against fully evolved Pokémon; default=true
 function CoverageCalcScreen.performCalc(onlyFullyEvolved)
 	onlyFullyEvolved = onlyFullyEvolved or SCREEN.Buttons.OptionOnlyFullyEvolved.toggleState
 	SCREEN.CoverageData = CoverageCalcScreen.calculateCoverageTable(SCREEN.addedTypesOrdered, onlyFullyEvolved)
@@ -493,7 +493,7 @@ end
 
 --- Returns a CoverageData table with information for the chosen coverage
 --- @param moveTypes table A list of move types (PokemonData.Types)
---- @param onlyFullyEvolved boolean|nil (Optional) If true, only check against fully evolved Pokémon; default=false
+--- @param onlyFullyEvolved boolean? (Optional) If true, only check against fully evolved Pokémon; default=false
 --- @return table CoverageData A table of [Effectiveness] = { pokemonIDs... }
 function CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
 	local coverageData = {
