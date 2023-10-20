@@ -392,6 +392,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
 	data.p.bst = pokemon.bst or Constants.BLANKLINE
+	data.p.yield = tostring(pokemon.yield) or Constants.BLANKLINE
 	data.p.weight = pokemon.weight or Constants.BLANKLINE
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
