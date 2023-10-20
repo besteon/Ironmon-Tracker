@@ -150,6 +150,8 @@ function Battle.updateBattleStatus()
 			},
 			[false] = {
 				[GameSettings.BattleIntroOpponentSendsOutMonAnimation] = true, -- trainer encounter
+				[GameSettings.BattleIntroOpponent2SendsOutMonAnimation] = true,
+				[GameSettings.BattleIntroRecordMonsToDex] = true,
 				[GameSettings.HandleTurnActionSelectionState] = true,
 			},
 		},

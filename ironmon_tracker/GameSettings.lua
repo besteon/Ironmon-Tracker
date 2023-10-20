@@ -665,6 +665,21 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 			{ 0x0801359d, 0x080135b1, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
 			{ 0x0801359d, 0x080135b1 },
 		},
+		--Only exists for Emerald
+		BattleIntroOpponent2SendsOutMonAnimation = {
+			{ nil, nil, nil },
+			{ nil, nil, nil },
+			{ 0x0803b1dd },
+			{ nil, nil, nil, nil, nil, nil, nil },
+			{ nil, nil },
+		},
+		BattleIntroRecordMonsToDex = {
+			{ 0x08011a69, 0x08011a69, 0x08011a69 }, --unref_sub_8011A68
+			{ 0x08011a69, 0x08011a69, 0x08011a69 },
+			{ 0x0803b315 },
+			{ 0x0801362d, 0x08013641, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
+			{ 0x0801362d, 0x08013641 },
+		},
 		HandleTurnActionSelectionState = {
 			{ 0x08012325, 0x08012325, 0x08012325 }, --sub_8012324
 			{ 0x08012325, 0x08012325, 0x08012325 },
