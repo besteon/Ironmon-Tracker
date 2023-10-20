@@ -833,6 +833,14 @@ local MAX_ITEMS = 12
 local OUTPUT_CHAR = ">"
 local DEFAULT_OUTPUT_MSG = "No info found."
 
+---@param args table|string? A table{Input=""} or string
+---@return string
+local function getParams(args)
+	if type(args) == "table" and args.Input then
+		return args.Input
+	end
+	return type(args) == "string" and args or ""
+end
 ---Returns a response message by combining information into a single string
 ---@param prefix string? [Optional] Prefixes the response with this header as "HEADER RESPONSE"
 ---@param infoList table|string? [Optional] A string or list of strings to combine
@@ -901,10 +909,10 @@ end
 
 DataHelper.EventRequests = {}
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getPokemon(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local pokemon = getPokemonOrDefault(params)
 	if not pokemon then
 		return buildDefaultResponse(params)
@@ -944,10 +952,10 @@ function DataHelper.EventRequests.getPokemon(args)
 	return buildResponse(OUTPUT_CHAR, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getBST(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local pokemon = getPokemonOrDefault(params)
 	if not pokemon then
 		return buildDefaultResponse(params)
@@ -959,10 +967,10 @@ function DataHelper.EventRequests.getBST(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getWeak(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local pokemon = getPokemonOrDefault(params)
 	if not pokemon then
 		return buildDefaultResponse(params)
@@ -993,10 +1001,10 @@ function DataHelper.EventRequests.getWeak(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getMove(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local move = getMoveOrDefault(params)
 	if not move then
 		return buildDefaultResponse(params)
@@ -1018,10 +1026,10 @@ function DataHelper.EventRequests.getMove(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getAbility(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local ability = getAbilityOrDefault(params)
 	if not ability then
 		return buildDefaultResponse(params)
@@ -1036,10 +1044,10 @@ function DataHelper.EventRequests.getAbility(args)
 	return buildResponse(OUTPUT_CHAR, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getRoute(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local routeId = getRouteIdOrDefault(params)
 	local route = RouteData.Info[routeId or false]
 	if not route then
@@ -1074,10 +1082,10 @@ function DataHelper.EventRequests.getRoute(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getDungeon(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local routeId = getRouteIdOrDefault(params)
 	local route = RouteData.Info[routeId or false]
 	if not route then
@@ -1101,10 +1109,10 @@ function DataHelper.EventRequests.getDungeon(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getPivots(args)
-	-- local params = (args or {}).Input or ""
+	-- local params = getParams(args)
 	local info = {}
 	local mapIds
 	if GameSettings.game == 3 then -- FRLG
@@ -1131,10 +1139,10 @@ function DataHelper.EventRequests.getPivots(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getRevo(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local pokemonID, targetEvoId
 	if (params or "") ~= "" then
 		pokemonID = DataHelper.findPokemonId(params)
@@ -1175,10 +1183,10 @@ function DataHelper.EventRequests.getRevo(args)
 	return buildResponse(prefix, info, ", ")
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getCoverage(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local calcFromLead = true
 	local onlyFullyEvolved = false
 	local moveTypes = {}
@@ -1232,10 +1240,10 @@ function DataHelper.EventRequests.getCoverage(args)
 	return buildResponse(prefix, info, ", ")
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getHeals(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local info = {}
 
 	local displayHP, displayStatus, displayPP, displayBerries
@@ -1320,10 +1328,10 @@ function DataHelper.EventRequests.getHeals(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getTMsHMs(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local info = {}
 	local prefix = string.format("%s %s", "TMs", OUTPUT_CHAR)
 	local canSeeTM = Options["Open Book Play Mode"]
@@ -1422,10 +1430,10 @@ function DataHelper.EventRequests.getTMsHMs(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getSearch(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local helpResponse = "Search tracked info for a Pokémon, move, or ability."
 	if params == "" then
 		return buildResponse(params, helpResponse)
@@ -1482,21 +1490,29 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("%s: %s", "Stats", table.concat(statMarksToAdd, ", ")))
 		end
 		-- Tracked Moves
+		local extra = 0
 		local trackedMoves = {}
 		for _, move in ipairs(Tracker.getMoves(pokemon.pokemonID) or {}) do
 			if MoveData.isValid(move.id) then
-				-- { id = moveId, level = level, minLv = level, maxLv = level, },
-				local lvText
-				if move.minLv and move.maxLv and move.minLv ~= move.maxLv then
-					lvText = string.format(" (%s.%s-%s)", Resources.TrackerScreen.LevelAbbreviation, move.minLv, move.maxLv)
-				elseif move.level > 0 then
-					lvText = string.format(" (%s.%s)", Resources.TrackerScreen.LevelAbbreviation, move.level)
+				if #trackedMoves < MAX_ITEMS then
+					-- { id = moveId, level = level, minLv = level, maxLv = level, },
+					local lvText
+					if move.minLv and move.maxLv and move.minLv ~= move.maxLv then
+						lvText = string.format(" (%s.%s-%s)", Resources.TrackerScreen.LevelAbbreviation, move.minLv, move.maxLv)
+					elseif move.level > 0 then
+						lvText = string.format(" (%s.%s)", Resources.TrackerScreen.LevelAbbreviation, move.level)
+					end
+					table.insert(trackedMoves, string.format("%s%s", MoveData.Moves[move.id].name, lvText or ""))
+				else
+					extra = extra + 1
 				end
-				table.insert(trackedMoves, string.format("%s%s", MoveData.Moves[move.id].name, lvText or ""))
 			end
 		end
 		if #trackedMoves > 0 then
 			table.insert(info, string.format("%s: %s", "Moves", table.concat(trackedMoves, ", ")))
+			if extra > 0 then
+				table.insert(info, string.format("(+%s more)", extra))
+			end
 		end
 		-- Tracked Encounters
 		local seenInWild = Tracker.getEncounters(pokemon.pokemonID, true)
@@ -1552,7 +1568,7 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("(+%s more Pokémon)", extra))
 		end
 		local prefix = string.format("%s %s %s Pokémon:", move.name, OUTPUT_CHAR, #foundMons)
-		return buildResponse(prefix, info, ",")
+		return buildResponse(prefix, info, ", ")
 	elseif searchMode == "ability" or searchMode == "abilities" then
 		local ability = AbilityData.Abilities[searchId]
 		if not ability then
@@ -1581,17 +1597,17 @@ function DataHelper.EventRequests.getSearch(args)
 			table.insert(info, string.format("(+%s more Pokémon)", extra))
 		end
 		local prefix = string.format("%s %s %s Pokémon:", ability.name, OUTPUT_CHAR, #foundMons)
-		return buildResponse(prefix, info, ",")
+		return buildResponse(prefix, info, ", ")
 	end
 	-- Unused
 	local prefix = string.format("%s %s", params, OUTPUT_CHAR)
 	return buildResponse(prefix, helpResponse)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getSearchNotes(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	if params == "" then
 		return buildDefaultResponse(params)
 	end
@@ -1617,10 +1633,10 @@ function DataHelper.EventRequests.getSearchNotes(args)
 		table.insert(info, string.format("(+%s more Pokémon)", extra))
 	end
 	local prefix = string.format("%s: \"%s\" %s %s Pokémon:", "Note", params, OUTPUT_CHAR, #foundMons)
-	return buildResponse(prefix, info, ",")
+	return buildResponse(prefix, info, ", ")
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getTheme(args)
 	local info = {}
@@ -1631,7 +1647,7 @@ function DataHelper.EventRequests.getTheme(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getGameStats(args)
 	local info = {}
@@ -1648,10 +1664,10 @@ function DataHelper.EventRequests.getGameStats(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getProgress(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local includeSevii = Utils.containsText(params, "sevii", true)
 	local info = {}
 	local badgesObtained, maxBadges = 0, 8
@@ -1700,11 +1716,11 @@ function DataHelper.EventRequests.getProgress(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getLog(args)
 	-- TODO: add "previous" as a parameter; requires storing this information somewhere
-	local params = (args or {}).Input or ""
+	-- local params = getParams(args)
 	local prefix = string.format("%s %s", "Log", OUTPUT_CHAR)
 	local hasParsedThisLog = RandomizerLog.Data.Settings and string.find(RandomizerLog.loadedLogPath or "", FileManager.PostFixes.AUTORANDOMIZED, 1, true)
 	if not hasParsedThisLog then
@@ -1718,10 +1734,10 @@ function DataHelper.EventRequests.getLog(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getAbout(args)
-	-- local params = (args or {}).Input or ""
+	-- local params = getParams(args)
 	local info = {}
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Game, GameSettings.gamename))
@@ -1730,10 +1746,10 @@ function DataHelper.EventRequests.getAbout(args)
 	return buildResponse(prefix, info)
 end
 
----@param args table?
+---@param args table|string?
 ---@return string response
 function DataHelper.EventRequests.getHelp(args)
-	local params = (args or {}).Input or ""
+	local params = getParams(args)
 	local availableCommands = {}
 	for _, event in pairs(EventHandler.Events or {}) do
 		if event.Command and event.IsEnabled then
