@@ -45,8 +45,8 @@ function SpriteData.animationAllowed()
 	return Main.IsOnBizhawk() and Options.getIconSet().isAnimated
 end
 
-function SpriteData.canDrawPokemonIcon(pokemonID)
-	return SpriteData.animationAllowed() and PokemonData.isImageIDValid(pokemonID) and SpriteData.IconData[pokemonID] ~= nil
+function SpriteData.canDrawIcon(iconKey)
+	return SpriteData.animationAllowed() and SpriteData.IconData[iconKey or false] ~= nil
 end
 
 function SpriteData.screenCanControlWalking(screen)
@@ -57,14 +57,14 @@ function SpriteData.screenCanControlWalking(screen)
 end
 
 -- Returns the active icon w/ its current animation type, or adds it with the provided animation type
-function SpriteData.getOrAddActiveIcon(pokemonID, animationType)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+function SpriteData.getOrAddActiveIcon(iconKey, animationType)
+	if not SpriteData.canDrawIcon(iconKey) then
 		return
 	end
-	return SpriteData.ActiveIcons[pokemonID] or SpriteData.createActiveIcon(pokemonID, animationType)
+	return SpriteData.ActiveIcons[iconKey] or SpriteData.createActiveIcon(iconKey, animationType)
 end
 
-function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+function SpriteData.createActiveIcon(iconKey, animationType, startIndexFrame, framesElapsed)
 	animationType = animationType or SpriteData.DefaultType
 	startIndexFrame = startIndexFrame or 1
 	framesElapsed = framesElapsed or 0.0
@@ -72,7 +72,7 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 		animationType = SpriteData.DefaultType
 	end
 
-	local icon = SpriteData.IconData[pokemonID][animationType] or SpriteData.IconData[pokemonID][SpriteData.DefaultType]
+	local icon = SpriteData.IconData[iconKey][animationType] or SpriteData.IconData[iconKey][SpriteData.DefaultType]
 	if not icon or not icon.durations or #icon.durations == 0 then
 		return nil
 	end
@@ -91,7 +91,7 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 	end
 
 	local activeIcon = {
-		pokemonID = pokemonID,
+		iconKey = iconKey,
 		animationType = animationType,
 		indexFrame = startIndexFrame,
 		framesElapsed = framesElapsed,
@@ -113,12 +113,12 @@ function SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, 
 			end
 		end
 	}
-	SpriteData.ActiveIcons[pokemonID] = activeIcon
+	SpriteData.ActiveIcons[iconKey] = activeIcon
 	return activeIcon
 end
 
-function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+function SpriteData.changeActiveIcon(iconKey, animationType, startIndexFrame, framesElapsed)
+	if not SpriteData.canDrawIcon(iconKey) then
 		return
 	end
 	animationType = animationType or SpriteData.DefaultType
@@ -127,19 +127,19 @@ function SpriteData.changeActiveIcon(pokemonID, animationType, startIndexFrame, 
 	end
 
 	-- Don't "change" if the active icon already exists with that animation type, or that animation type doesn't exist
-	local activeIcon = SpriteData.ActiveIcons[pokemonID]
-	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.IconData[pokemonID][animationType] then
+	local activeIcon = SpriteData.ActiveIcons[iconKey]
+	if not activeIcon or activeIcon.animationType == animationType or not SpriteData.IconData[iconKey][animationType] then
 		return
 	end
 
 	-- Create a new or replacement active icon with the updated animationType
-	return SpriteData.createActiveIcon(pokemonID, animationType, startIndexFrame, framesElapsed)
+	return SpriteData.createActiveIcon(iconKey, animationType, startIndexFrame, framesElapsed)
 end
 
 -- Changes all active icons to 'animationType' (if able)
 function SpriteData.changeAllActiveIcons(animationType)
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
-		SpriteData.changeActiveIcon(activeIcon.pokemonID, animationType)
+		SpriteData.changeActiveIcon(activeIcon.iconKey, animationType)
 	end
 end
 
@@ -154,12 +154,12 @@ function SpriteData.updateActiveIcons()
 		and not (Battle.inActiveBattle() or Program.inStartMenu or LogOverlay.isGameOver or LogOverlay.isDisplayed)
 
 	for _, activeIcon in pairs(SpriteData.ActiveIcons or {}) do
-		-- Check if the walk/idle animation needs to be updated, reusing frame info
+		-- Check if the walk/idle animation needs to be updated
 		if walkableAllowed then
 			if canWalk and activeIcon.animationType == SpriteData.Types.Idle then
-				SpriteData.changeActiveIcon(activeIcon.pokemonID, SpriteData.Types.Walk, activeIcon.indexFrame, activeIcon.framesElapsed)
+				SpriteData.changeActiveIcon(activeIcon.iconKey, SpriteData.Types.Walk)
 			elseif not canWalk and activeIcon.animationType == SpriteData.Types.Walk then
-				SpriteData.changeActiveIcon(activeIcon.pokemonID, SpriteData.Types.Idle, activeIcon.indexFrame, activeIcon.framesElapsed)
+				SpriteData.changeActiveIcon(activeIcon.iconKey, SpriteData.Types.Idle)
 			end
 		end
 
@@ -169,34 +169,34 @@ function SpriteData.updateActiveIcons()
 	end
 end
 
-function SpriteData.checkForFaintingStatus(pokemonID, isZeroHP)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
+function SpriteData.checkForFaintingStatus(iconKey, isZeroHP)
+	if not SpriteData.canDrawIcon(iconKey) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
 		return
 	end
-	local activeIcon = SpriteData.ActiveIcons[pokemonID]
+	local activeIcon = SpriteData.ActiveIcons[iconKey]
 	if not activeIcon then
 		return
 	end
 	if isZeroHP and activeIcon.animationType ~= SpriteData.Types.Faint then
-		SpriteData.changeActiveIcon(pokemonID, SpriteData.Types.Faint)
+		SpriteData.changeActiveIcon(iconKey, SpriteData.Types.Faint)
 	elseif not isZeroHP and activeIcon.animationType == SpriteData.Types.Faint then
-		SpriteData.changeActiveIcon(pokemonID, SpriteData.DefaultType)
+		SpriteData.changeActiveIcon(iconKey, SpriteData.DefaultType)
 	end
 end
 
-function SpriteData.checkForSleepingStatus(pokemonID, status)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
+function SpriteData.checkForSleepingStatus(iconKey, status)
+	if not SpriteData.canDrawIcon(iconKey) or LogOverlay.isDisplayed or SpriteData.spritesAfkSleeping then
 		return
 	end
-	local activeIcon = SpriteData.ActiveIcons[pokemonID]
+	local activeIcon = SpriteData.ActiveIcons[iconKey]
 	if not activeIcon then
 		return
 	end
 	local isAsleep = status == MiscData.StatusCodeMap[MiscData.StatusType.Sleep]
 	if isAsleep and activeIcon.animationType ~= SpriteData.Types.Sleep then
-		SpriteData.changeActiveIcon(pokemonID, SpriteData.Types.Sleep)
+		SpriteData.changeActiveIcon(iconKey, SpriteData.Types.Sleep)
 	elseif not isAsleep and activeIcon.animationType == SpriteData.Types.Sleep then
-		SpriteData.changeActiveIcon(pokemonID, SpriteData.DefaultType)
+		SpriteData.changeActiveIcon(iconKey, SpriteData.DefaultType)
 	end
 end
 
@@ -235,11 +235,11 @@ function SpriteData.cleanupActiveIcons()
 	end
 end
 
-function SpriteData.getNextAnimType(pokemonID, currentType)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) or not currentType then
+function SpriteData.getNextAnimType(iconKey, currentType)
+	if not SpriteData.canDrawIcon(iconKey) or not currentType then
 		return currentType or SpriteData.DefaultType
 	end
-	local icon = SpriteData.IconData[pokemonID]
+	local icon = SpriteData.IconData[iconKey]
 	local orderedTypes = {
 		SpriteData.Types.Idle,
 		Options["Allow sprites to walk"] and SpriteData.Types.Walk or nil, -- exclude from list if not enabled

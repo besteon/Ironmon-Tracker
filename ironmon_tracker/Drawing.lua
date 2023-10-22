@@ -566,7 +566,7 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 end
 
 function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+	if not SpriteData.canDrawIcon(pokemonID) then
 		return
 	end
 
