@@ -128,17 +128,6 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end,
 	},
-	BattleDetails = {
-		type = Constants.ButtonTypes.NO_BORDER,
-		text = "",
-		textColor = "Default text",
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
-		isVisible = function() return Battle.inActiveBattle and not Battle.isWildEncounter end,
-		onClick = function(self)
-			BattleEffectsScreen.loadData()
-			Program.changeScreenView(BattleEffectsScreen)
-		end
-	},
 	RouteDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
@@ -333,6 +322,17 @@ TrackerScreen.Buttons = {
 				Program.Pedometer.lastResetCount = 0
 			end
 			Program.redraw(true)
+		end
+	},
+	BattleDetails = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		text = "",
+		textColor = "Default text",
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
+		isVisible = function() return Battle.inActiveBattle() and not Battle.isWildEncounter end,
+		onClick = function(self)
+			BattleEffectsScreen.loadData()
+			Program.changeScreenView(BattleEffectsScreen)
 		end
 	},
 }

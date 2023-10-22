@@ -1,5 +1,4 @@
 BattleEffectsScreen = {
-	viewingGeneralBattleInfo = false,
 	viewingIndividualStatuses = false,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
@@ -596,7 +595,6 @@ function BattleEffectsScreen.resetBattleDetails()
 	BattleEffectsScreen.effectMonIndex = -1
 	BattleEffectsScreen.viewingIndividualStatuses = true
 	BattleEffectsScreen.viewingSideStauses = false
-	BattleEffectsScreen.viewingGeneralBattleInfo = false
 
 	BattleEffectsScreen.currentPage = 1
 	BattleEffectsScreen.numPages = 1
@@ -777,71 +775,62 @@ function drawBattleDiagram()
 	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
 	local defaultArrowColorList = {Theme.COLORS["Default text"]}
 	local selectedArrowColorList = {Theme.COLORS["Positive text"]}
+	local BattleBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 90,y=Constants.SCREEN.MARGIN + 20,height=36,width=50}
+	local AllyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 20,height=15,width=36}
+	local EnemyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 35,height=15,width=36}
+	local LeftAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
+	local RightAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
+	local LeftEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
+	local RightEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
+	local TeamBoxes = {[0] = AllyTeamBox, [1] = EnemyTeamBox}
+	local MonBoxes = {[0] = LeftAllyBall, [1] = LeftEnemyBall, [2] = RightAllyBall, [3] = RightEnemyBall}
 
 	--Draw battle box first so team box is highlighted properly
 	if BattleEffectsScreen.viewingSideStauses or BattleEffectsScreen.viewingIndividualStatuses then
-		BattleEffectsScreen.Buttons[7].boxColors = {"Upper box border", 0x00000000}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[7])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[7].box[1] + 3, BattleEffectsScreen.Buttons[7].box[2] + 11, defaultArrowColorList, null)
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, "Upper box border", 0x00000000)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 3, BattleBox.y + 11, selectedArrowColorList, null)
 	end
-	--Draw Buttons
+	--Draw Team Boxes
 	if BattleEffectsScreen.viewingSideStauses then
-		BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex)%2)].boxColors = {"Positive text", "Upper box background"}
-		BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex + 1)%2)].boxColors = {"Upper box border", "Upper box background"}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex + 1)%2)])
-		Drawing.drawButton(BattleEffectsScreen.Buttons[5+((BattleEffectsScreen.viewedSideIndex)%2)])
+		gui.drawRectangle(TeamBoxes[BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[BattleEffectsScreen.viewedSideIndex].height, "Positive text", "Upper box background")
+		gui.drawRectangle(TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].height, "Upper box border", "Upper box background")
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x + Utils.inlineIf(BattleEffectsScreen.viewedSideIndex == 0,3,29), TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[BattleEffectsScreen.viewedSideIndex].x + Utils.inlineIf(BattleEffectsScreen.viewedSideIndex == 0,3,29), TeamBoxes[BattleEffectsScreen.viewedSideIndex].y + 3, selectedArrowColorList, null)
 	else
-		BattleEffectsScreen.Buttons[5].boxColors = {"Upper box border", "Upper box background"}
-		BattleEffectsScreen.Buttons[6].boxColors = {"Upper box border", "Upper box background"}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[5])
-		Drawing.drawButton(BattleEffectsScreen.Buttons[6])
-	end
-	Drawing.drawButton(BattleEffectsScreen.Buttons[1])
-	Drawing.drawButton(BattleEffectsScreen.Buttons[2])
-	Drawing.drawButton(BattleEffectsScreen.Buttons[3])
-	Drawing.drawButton(BattleEffectsScreen.Buttons[4])
-	if BattleEffectsScreen.viewingSideStauses then
-		if BattleEffectsScreen.viewedSideIndex == 0 then
-			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
-			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, selectedArrowColorList, null)
-		else
-			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
-			Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, selectedArrowColorList, null)
-		end
-	elseif BattleEffectsScreen.viewingIndividualStatuses then
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
-		Drawing.drawSelectionIndicators(
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[1],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[2],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[3],
-			BattleEffectsScreen.Buttons[BattleEffectsScreen.viewedMonIndex+1].box[4], Theme.COLORS["Positive text"], 1, 3, 0)
-	else
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, BattleEffectsScreen.Buttons[5].box[1] + 29, BattleEffectsScreen.Buttons[5].box[2] + 3, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[6].box[1] + 3, BattleEffectsScreen.Buttons[6].box[2] + 3, defaultArrowColorList, null)
-	end
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[1].box[1], BattleEffectsScreen.Buttons[1].box[2], ballColorList, null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[2].box[1], BattleEffectsScreen.Buttons[2].box[2], ballColorList, null)
-	if Battle.numBattlers == 4 then
-		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[3].box[1], BattleEffectsScreen.Buttons[3].box[2], ballColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[4].box[1], BattleEffectsScreen.Buttons[4].box[2], ballColorList, null)
-	else
-		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[3].box[1], BattleEffectsScreen.Buttons[3].box[2], inactiveBallColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, BattleEffectsScreen.Buttons[4].box[1], BattleEffectsScreen.Buttons[4].box[2], inactiveBallColorList, null)
+		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, "Upper box border", "Upper box background")
+		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, "Upper box border", "Upper box background")
 	end
 
+	--Draw Mon Boxes
+	if BattleEffectsScreen.viewingIndividualStatuses then
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 29, TeamBoxes[0].y + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 3, TeamBoxes[1].x + 3, defaultArrowColorList, null)
+		Drawing.drawSelectionIndicators(
+			MonBoxes[BattleEffectsScreen.viewedMonIndex].x,
+			MonBoxes[BattleEffectsScreen.viewedMonIndex].y,
+			MonBoxes[BattleEffectsScreen.viewedMonIndex].width,
+			MonBoxes[BattleEffectsScreen.viewedMonIndex].height, Theme.COLORS["Positive text"], 1, 3, 0)
+	end
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[0].x, MonBoxes[0].y, ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[1].x, MonBoxes[1].y, ballColorList, null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[2].x, MonBoxes[2].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), null)
+
 	if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then
-		BattleEffectsScreen.Buttons[7].boxColors = {"Positive text", 0x00000000}
-		Drawing.drawButton(BattleEffectsScreen.Buttons[7])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleEffectsScreen.Buttons[7].box[1] + 3, BattleEffectsScreen.Buttons[7].box[2] + 11, selectedArrowColorList, null)
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, "Positive text", 0x00000000)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 3, BattleBox.y + 11, selectedArrowColorList, null)
 	end
 end
 
 function drawPaging()
 	if BattleEffectsScreen.numPages > 1 then
+		local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
+		local offsetY = Constants.SCREEN.MARGIN
+		local linespacing = Constants.SCREEN.LINESPACING - 1
+		local textColor = Theme.COLORS["Default text"]
+		local defaultArrowColorList = {Theme.COLORS["Default text"]}
 		if BattleEffectsScreen.currentPage > 1 then
 			Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, offsetX + 45, offsetY, defaultArrowColorList, null)
-			--Drawing.drawButton(BattleEffectsScreen.Buttons[8])
 		end
 		Drawing.drawText(offsetX + 54, offsetY - 3, BattleEffectsScreen.currentPage .. "/" .. BattleEffectsScreen.numPages, textColor, nil, linespacing, Constants.Font.FAMILY)
 		if BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages then
@@ -851,8 +840,8 @@ function drawPaging()
 end
 
 function BattleEffectsScreen.drawScreen()
-	if Battle.inBattle == false then
-		BattleEffectsScreen.Buttons[10].onClick()
+	if not Battle.inActiveBattle() then
+		BattleEffectsScreen.Buttons.Back.onClick()
 		return
 	end
 	drawTitle()
@@ -865,7 +854,7 @@ function BattleEffectsScreen.drawScreen()
 		drawBattleDetailsUI()
 	end
 	drawPaging()
-	Drawing.drawButton(BattleEffectsScreen.Buttons[10])
+	Drawing.drawButton(BattleEffectsScreen.Buttons.Back)
 end
 
 function BattleEffectsScreen.checkInput(xmouse, ymouse)
@@ -901,7 +890,7 @@ function BattleEffectsScreen.initialize()
 		["default"] = Resources.BattleEffectsScreen.TerrainDefault,
 	}
 	BattleEffectsScreen.Buttons = {
-		[1] = { --LeftOwn
+		LeftOwn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 37, 11, 11 },
 			boxColors = {"Upper box border", "Upper box background"},
@@ -914,7 +903,7 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[2] = { --LeftOther
+		LeftOther = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123, Constants.SCREEN.MARGIN + 22, 11, 11 },
@@ -927,7 +916,7 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[3] = { --RightOwn
+		RightOwn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
@@ -940,7 +929,7 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[4] = { --RightOther
+		RightOther = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110, Constants.SCREEN.MARGIN + 22, 11, 11 },
@@ -953,8 +942,8 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[5] = { --Ally Team
-			type = Constants.ButtonTypes.FULL_BORDER,
+		AllyTeam = {
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 35, 36, 15 },
 			isVisible = function() return true end,
@@ -966,8 +955,8 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[6] = { -- Enemy Team
-			type = Constants.ButtonTypes.FULL_BORDER,
+		EnemyTeam = {
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 20, 36, 15 },
 			isVisible = function() return true end,
@@ -979,8 +968,8 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[7] = { -- Entire Battle
-			type = Constants.ButtonTypes.FULL_BORDER,
+		BattleView = {
+			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 90, Constants.SCREEN.MARGIN + 20, 46, 30},
 			isVisible = function() return true end,
@@ -993,7 +982,7 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[8] = { --PageLeft
+		PageLeft = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
@@ -1003,7 +992,7 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[9] = { --PageRight
+		PageRight = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
@@ -1013,16 +1002,9 @@ function BattleEffectsScreen.initialize()
 				Program.redraw(true)
 			end
 		},
-		[10] = { --Back
-			type = Constants.ButtonTypes.FULL_BORDER,
-			text = Resources.AllScreens.Back,
-			textColor = "Default text",
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 112, Constants.SCREEN.MARGIN + 135, 24, 11 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				Program.changeScreenView(TrackerScreen)
-			end
-		},
+		Back = Drawing.createUIElementBackButton(function()
+			Program.changeScreenView(TrackerScreen)
+		end),
 	}
 end
 --[[

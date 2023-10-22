@@ -231,7 +231,6 @@ function Input.checkButtonsClicked(xmouse, ymouse, buttons)
 			-- Queue up all of the buttons to click before clicking any of them
 			if isAreaClicked and button.onClick ~= nil then
 				table.insert(buttonQueue, button)
-				break
 			end
 		end
 	end
