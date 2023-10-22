@@ -671,7 +671,7 @@ function GameSettings.setRomAddresses(gameIndex, versionIndex)
 		BattleIntroOpponentSendsOutMonAnimation = {
 			{ 0x080118C5, 0x080118C5, 0x080118C5 }, --bc_801362C
 			{ 0x080118C5, 0x080118C5, 0x080118C5 },
-			{ 0x0803b25d },
+			{ 0x0803b315 }, --BattleIntroRecordMonsToDex for Emerald
 			{ 0x0801359d, 0x080135b1, 0x0801359D, 0x080135B1, 0x0801359D, 0x080135B1, 0x08012E59 },
 			{ 0x0801359d, 0x080135b1 },
 		},
