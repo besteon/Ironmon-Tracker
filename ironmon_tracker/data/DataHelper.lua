@@ -387,7 +387,6 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.id = pokemon.pokemonID or 0
 	data.p.name = pokemon.name or Constants.BLANKLINE
 	data.p.bst = pokemon.bst or Constants.BLANKLINE
-	data.p.expYield = pokemon.expYield or Constants.BLANKLINE
 	data.p.weight = pokemon.weight or Constants.BLANKLINE
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
@@ -416,6 +415,15 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 		data.x.viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		data.x.viewedPokemonLevel = 0
+	end
+
+	-- Experience yield
+	if data.x.viewedPokemonLevel ~= 0 then
+		local yield = PokemonData.Pokemon[pokemonViewed.pokemonID].expYield or 0
+		local ratio = Battle.isWildEncounter and (pokemonViewed.level / 7) or (pokemonViewed.level * 3 / 14)
+		data.p.expYield = math.floor(yield * ratio)
+	else
+		data.p.expYield = pokemon.expYield or Constants.BLANKLINE
 	end
 
 	return data
