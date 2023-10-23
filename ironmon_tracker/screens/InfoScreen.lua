@@ -676,8 +676,9 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	offsetY = offsetY + 12 + linespacing
 
 	-- BST & EXP. YIELD
+	local expTextColor = data.x.viewedPokemonLevel ~= 0 and "Positive text" or "Default text"
 	Drawing.drawText(offsetX, offsetY, string.format("%s: %s", Resources.TrackerScreen.StatBST, data.p.bst), Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, string.format("%s: %s", Resources.InfoScreen.ExpYield, data.p.expYield), Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, string.format("%s: %s", Resources.InfoScreen.ExpYield, data.p.expYield), Theme.COLORS[expTextColor], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
