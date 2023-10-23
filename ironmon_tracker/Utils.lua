@@ -379,7 +379,7 @@ function Utils.closeBizhawkForm(form)
 end
 
 function Utils.randomPokemonID()
-	local pokemonID = math.random(PokemonData.totalPokemon - 25)
+	local pokemonID = math.random(#PokemonData.Pokemon - 25)
 	if pokemonID > 251 then
 		pokemonID = pokemonID + 25
 	end

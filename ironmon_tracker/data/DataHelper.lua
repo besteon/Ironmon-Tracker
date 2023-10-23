@@ -111,12 +111,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		viewedPokemon = defaultPokemon
 	end
 
-	-- Add in Pokedex information about the Pokemon
-	if PokemonData.isValid(viewedPokemon.pokemonID) then
-		for key, value in pairs(PokemonData.Pokemon[viewedPokemon.pokemonID]) do
-			viewedPokemon[key] = value
-		end
-	end
+	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or PokemonData.BlankPokemon
 
 	local pokemonLog = {}
 	if RandomizerLog.Data.Pokemon then
@@ -125,20 +120,20 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
-	data.p.name = viewedPokemon.name or Constants.BLANKLINE
+	data.p.name = pokemonInternal.name or Constants.BLANKLINE
 	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(viewedPokemon.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
 	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
 	data.p.level = viewedPokemon.level or Constants.BLANKLINE
-	data.p.evo = viewedPokemon.evolution or Constants.BLANKLINE
-	data.p.bst = viewedPokemon.bst or Constants.BLANKLINE
+	data.p.evo = pokemonInternal.evolution or Constants.BLANKLINE
+	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
 	data.p.lastlevel = Tracker.getLastLevelSeen(viewedPokemon.pokemonID) or ""
 	data.p.status = MiscData.StatusCodeMap[viewedPokemon.status] or ""
 	data.p.curExp = viewedPokemon.currentExp or 0
 	data.p.totalExp = viewedPokemon.totalExp or 100
-	data.p.friendship = viewedPokemon.friendship or 70 -- Current friendship value; 70 is default for most Pokémon
-	data.p.friendshipBase = viewedPokemon.friendshipBase or 70 -- The starting friendship value of the Pokémon
+	data.p.friendship = viewedPokemon.friendship or 70 -- Current value; 70 is default for most Pokémon
+	data.p.friendshipBase = pokemonInternal.friendshipBase or 70 -- The starting value of the Pokémon
 
 	-- Add: Stats, Stages, and Nature
 	data.p.nature = viewedPokemon.nature
@@ -168,7 +163,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		-- Update displayed types as typing changes (i.e. Color Change)
 		data.p.types = Program.getPokemonTypes(data.x.viewingOwn, Battle.isViewingLeft)
 	else
-		data.p.types = { viewedPokemon.types[1], viewedPokemon.types[2], }
+		data.p.types = { pokemonInternal.types[1], pokemonInternal.types[2], }
 	end
 
 	-- Update: Pokemon Evolution
@@ -325,7 +320,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			-- If move info is randomized and the user doesn't want to know about it, hide it
 			if data.x.viewingOwn or useOpenBookInfo then
 				-- Don't show effectiveness of the player's moves if the enemy types are unknown
-				move.showeffective = not PokemonData.IsRand.pokemonTypes
+				move.showeffective = not PokemonData.IsRand.types
 			else
 				if MoveData.IsRand.moveType then
 					move.type = PokemonData.Types.UNKNOWN
@@ -396,7 +391,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.p.evo = pokemon.evolution or PokemonData.Evolutions.NONE
 
 	-- Hide Pokemon types if player shouldn't know about them
-	if not PokemonData.IsRand.pokemonTypes or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
+	if not PokemonData.IsRand.types or Options["Reveal info if randomized"] or (pokemon.pokemonID == ownLeadPokemon.pokemonID) then
 		data.p.types = { pokemon.types[1], pokemon.types[2] }
 	else
 		data.p.types = { PokemonData.Types.UNKNOWN, PokemonData.Types.UNKNOWN }
@@ -420,6 +415,15 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 		data.x.viewedPokemonLevel = pokemonViewed.level or 0
 	else
 		data.x.viewedPokemonLevel = 0
+	end
+
+	-- Experience yield
+	if data.x.viewedPokemonLevel ~= 0 then
+		local yield = PokemonData.Pokemon[pokemonViewed.pokemonID].expYield or 0
+		local ratio = Battle.isWildEncounter and (pokemonViewed.level / 7) or (pokemonViewed.level * 3 / 14)
+		data.p.expYield = math.floor(yield * ratio)
+	else
+		data.p.expYield = pokemon.expYield or Constants.BLANKLINE
 	end
 
 	return data
@@ -577,7 +581,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 
 	data.p.id = pokemonInternal.pokemonID or 0
 	data.p.name = RandomizerLog.getPokemonName(pokemonID)
-	data.p.bst = pokemonInternal.bst or Constants.BLANKLINE
+	data.p.bst = pokemonInternal.bstCalculated or pokemonInternal.bst or Constants.BLANKLINE
 	data.p.types = {
 		pokemonLog.Types[1],
 		pokemonLog.Types[2],

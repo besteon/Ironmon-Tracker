@@ -368,7 +368,7 @@ function CoverageCalcScreen.buildPagedButtons()
 
 	for _, tab in pairs(SCREEN.Tabs) do
 		for _, pokemonID in ipairs(SCREEN.CoverageData[tab] or {}) do
-			local bst = tonumber(PokemonData.Pokemon[pokemonID].bst or "") or 0
+			local bst = PokemonData.Pokemon[pokemonID].bst or 0
 			local button = {
 				type = Constants.ButtonTypes.POKEMON_ICON,
 				getIconId = function(self) return self.id, SpriteData.Types.Idle end,

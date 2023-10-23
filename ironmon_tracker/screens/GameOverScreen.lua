@@ -20,7 +20,7 @@ GameOverScreen.Buttons = {
 			local pokemon = Tracker.getPokemon(self.teamIndex or 1, true) or Tracker.getDefaultPokemon()
 			local animType = GameOverScreen.status == GameOverScreen.Statuses.WON and SpriteData.Types.Idle or SpriteData.Types.Faint
 			-- Safety check to make sure this icon has the requested sprite animation type
-			if SpriteData.canDrawPokemonIcon(pokemon.pokemonID) and not SpriteData.IconData[pokemon.pokemonID][animType] then
+			if SpriteData.canDrawIcon(pokemon.pokemonID) and not SpriteData.IconData[pokemon.pokemonID][animType] then
 				animType = SpriteData.getNextAnimType(pokemon.pokemonID, animType)
 			end
 			return pokemon.pokemonID, animType

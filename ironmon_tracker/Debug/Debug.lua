@@ -15,8 +15,8 @@ function Debug.createEditPokeForm()
 	local x = 10
 	local pokedexData = {}
 	table.insert(pokedexData, "Unchanged")
-	for _, data in pairs(PokemonData.Pokemon) do
-		if data.bst ~= Constants.BLANKLINE then
+	for id, data in ipairs(PokemonData.Pokemon) do
+		if id < 252 or id > 276 then
 			table.insert(pokedexData, data.name)
 		end
 	end

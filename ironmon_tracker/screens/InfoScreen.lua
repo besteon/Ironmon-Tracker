@@ -63,7 +63,7 @@ InfoScreen.Buttons = {
 		getIconId = function(self)
 			local pokemonID = InfoScreen.infoLookup
 			-- Safety check to make sure this icon has the requested sprite animation type
-			if SpriteData.canDrawPokemonIcon(pokemonID) and not SpriteData.IconData[pokemonID][self.animType] then
+			if SpriteData.canDrawIcon(pokemonID) and not SpriteData.IconData[pokemonID][self.animType] then
 				self.animType = SpriteData.getNextAnimType(pokemonID, self.animType)
 			end
 			-- If the log viewer is open, use its animation type
@@ -75,7 +75,7 @@ InfoScreen.Buttons = {
 		box = { Constants.SCREEN.WIDTH + 112, 0, 32, 32 },
 		isVisible = function() return InfoScreen.viewScreen == InfoScreen.Screens.POKEMON_INFO end,
 		onClick = function(self)
-			if SpriteData.canDrawPokemonIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
+			if SpriteData.canDrawIcon(InfoScreen.infoLookup) and not LogOverlay.isDisplayed then
 				self.animType = SpriteData.getNextAnimType(InfoScreen.infoLookup, self.animType)
 				Program.redraw(true)
 			end
@@ -675,9 +675,10 @@ function InfoScreen.drawPokemonInfoScreen(pokemonID)
 	end
 	offsetY = offsetY + 12 + linespacing
 
-	-- BST
-	Drawing.drawText(offsetX, offsetY, Resources.TrackerScreen.StatBST .. ":", Theme.COLORS["Default text"], boxInfoTopShadow)
-	Drawing.drawText(offsetColumnX, offsetY, data.p.bst, Theme.COLORS["Default text"], boxInfoTopShadow)
+	-- BST & EXP. YIELD
+	local expTextColor = data.x.viewedPokemonLevel ~= 0 and "Positive text" or "Default text"
+	Drawing.drawText(offsetX, offsetY, string.format("%s: %s", Resources.TrackerScreen.StatBST, data.p.bst), Theme.COLORS["Default text"], boxInfoTopShadow)
+	Drawing.drawText(offsetColumnX, offsetY, string.format("%s: %s", Resources.InfoScreen.ExpYield, data.p.expYield), Theme.COLORS[expTextColor], boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 
 	-- WEIGHT
