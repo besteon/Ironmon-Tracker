@@ -259,8 +259,17 @@ function EventHandler.addDefaultEvents()
 		Key = EventHandler.CoreEventTypes.UpdateEvents,
 		Exclude = true,
 		Fulfill = function(self, request)
-			-- TODO: Don't have a good way to send back all of the changed event information. Unsure if embedded JSON is allowed
-			return "Server events were updated but their information isn't available. Reason: not implemented."
+			local allowedEvents = {}
+			for _, event in pairs(EventHandler.Events) do
+				if event.IsEnabled and not event.Exclude then
+					if event.Command and event.Command ~= "" then
+						table.insert(allowedEvents, event.Command:sub(2))
+					elseif event.RewardId and event.RewardId ~= "" then
+						table.insert(allowedEvents, event.RewardId)
+					end
+				end
+			end
+			return #allowedEvents > 0 and table.concat(allowedEvents, ",") or ""
 		end,
 	}))
 

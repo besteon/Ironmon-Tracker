@@ -166,6 +166,12 @@ function RequestHandler.processAllRequests()
 			end
 		end
 		if not request.SentResponse then
+			-- If this request is a channel point redeem, send back info to complete/cancel it
+			if (event.RewardId or "") ~= "" then
+				response.AdditionalInfo = response.AdditionalInfo or {}
+				response.AdditionalInfo["RewardId"] = request.Args["RewardId"]
+				response.AdditionalInfo["RedemptionId"] = request.Args["RedemptionId"]
+			end
 			RequestHandler.addUpdateResponse(response)
 			request.SentResponse = true
 		end

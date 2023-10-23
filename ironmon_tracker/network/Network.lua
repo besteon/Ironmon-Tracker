@@ -165,6 +165,9 @@ function Network.tryConnect()
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
 			EventType = EventHandler.Events[EventHandler.CoreEventTypes.GetRewards].Key,
 		}))
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventType = EventHandler.Events[EventHandler.CoreEventTypes.UpdateEvents].Key,
+		}))
 	end
 	return C.State
 end
