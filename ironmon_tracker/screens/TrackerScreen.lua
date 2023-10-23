@@ -134,7 +134,7 @@ TrackerScreen.Buttons = {
 		textColor = "Default text",
 		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
-		isVisible = function() return false --[[not Battle.isViewingOwn]] end,
+		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
 
