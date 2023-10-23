@@ -2,7 +2,6 @@ BattleEffectsScreen = {
 	viewingIndividualStatuses = false,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
-	effectMonIndex = -1,
 	viewedSideIndex = 0,
 	currentPage = 1,
 	numPages = 1,
@@ -345,7 +344,7 @@ function loadSideStatuses(index)
 	if index == nil or index < 0 or index > 1 then
 		index = 0
 	end
-	local sideStatuses = Memory.readword(GameSettings.gStatuses3 + (index * 0x02))
+	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
 	--local sideStatuses = 65535
 	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
 	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 9)
@@ -592,7 +591,6 @@ function BattleEffectsScreen.resetBattleDetails()
 	}
 	BattleEffectsScreen.viewedMonIndex = 0
 	BattleEffectsScreen.viewedSideIndex = 0
-	BattleEffectsScreen.effectMonIndex = -1
 	BattleEffectsScreen.viewingIndividualStatuses = true
 	BattleEffectsScreen.viewingSideStauses = false
 
@@ -775,36 +773,36 @@ function drawBattleDiagram()
 	local inactiveBallColorList = { 0xFF000000, 0xFFb3b3b3, 0xFFFFFFFF, }
 	local defaultArrowColorList = {Theme.COLORS["Default text"]}
 	local selectedArrowColorList = {Theme.COLORS["Positive text"]}
-	local BattleBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 90,y=Constants.SCREEN.MARGIN + 20,height=36,width=50}
-	local AllyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 20,height=15,width=36}
-	local EnemyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 35,height=15,width=36}
+	local BattleBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91,y=Constants.SCREEN.MARGIN + 20,height=30,width=45}
+	local EnemyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 20,height=15,width=36}
+	local AllyTeamBox = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100,y=Constants.SCREEN.MARGIN + 35,height=15,width=36}
 	local LeftAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
-	local RightAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
-	local LeftEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
-	local RightEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
+	local RightAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 116,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
+	local RightEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
+	local LeftEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
 	local TeamBoxes = {[0] = AllyTeamBox, [1] = EnemyTeamBox}
 	local MonBoxes = {[0] = LeftAllyBall, [1] = LeftEnemyBall, [2] = RightAllyBall, [3] = RightEnemyBall}
 
 	--Draw battle box first so team box is highlighted properly
 	if BattleEffectsScreen.viewingSideStauses or BattleEffectsScreen.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, "Upper box border", 0x00000000)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 3, BattleBox.y + 11, selectedArrowColorList, null)
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, defaultArrowColorList, null)
 	end
 	--Draw Team Boxes
 	if BattleEffectsScreen.viewingSideStauses then
-		gui.drawRectangle(TeamBoxes[BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[BattleEffectsScreen.viewedSideIndex].height, "Positive text", "Upper box background")
-		gui.drawRectangle(TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].height, "Upper box border", "Upper box background")
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x + Utils.inlineIf(BattleEffectsScreen.viewedSideIndex == 0,3,29), TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y + 3, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[BattleEffectsScreen.viewedSideIndex].x + Utils.inlineIf(BattleEffectsScreen.viewedSideIndex == 0,3,29), TeamBoxes[BattleEffectsScreen.viewedSideIndex].y + 3, selectedArrowColorList, null)
+		gui.drawRectangle(TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+		gui.drawRectangle(TeamBoxes[BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS["Positive text"], Theme.COLORS["Upper box background"])
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), null)
 	else
-		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, "Upper box border", "Upper box background")
-		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, "Upper box border", "Upper box background")
+		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, defaultArrowColorList, null)
 	end
 
 	--Draw Mon Boxes
 	if BattleEffectsScreen.viewingIndividualStatuses then
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 29, TeamBoxes[0].y + 3, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 3, TeamBoxes[1].x + 3, defaultArrowColorList, null)
 		Drawing.drawSelectionIndicators(
 			MonBoxes[BattleEffectsScreen.viewedMonIndex].x,
 			MonBoxes[BattleEffectsScreen.viewedMonIndex].y,
@@ -817,8 +815,8 @@ function drawBattleDiagram()
 	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), null)
 
 	if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then
-		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, "Positive text", 0x00000000)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 3, BattleBox.y + 11, selectedArrowColorList, null)
+		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS["Positive text"])
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, selectedArrowColorList, null)
 	end
 end
 
@@ -892,7 +890,7 @@ function BattleEffectsScreen.initialize()
 	BattleEffectsScreen.Buttons = {
 		LeftOwn = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 102, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
 			boxColors = {"Upper box border", "Upper box background"},
 			isVisible = function() return true end,
 			onClick = function(self)
@@ -906,7 +904,7 @@ function BattleEffectsScreen.initialize()
 		LeftOther = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123, Constants.SCREEN.MARGIN + 22, 11, 11 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 21, 13, 13 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
@@ -919,7 +917,7 @@ function BattleEffectsScreen.initialize()
 		RightOwn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 115, Constants.SCREEN.MARGIN + 37, 11, 11 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 114, Constants.SCREEN.MARGIN + 36, 13, 13 },
 			isVisible = function() return Battle.numBattlers == 4 end,
 			onClick = function(self)
 				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
@@ -932,7 +930,7 @@ function BattleEffectsScreen.initialize()
 		RightOther = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 110, Constants.SCREEN.MARGIN + 22, 11, 11 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109, Constants.SCREEN.MARGIN + 21, 13, 13 },
 			isVisible = function() return Battle.numBattlers == 4 end,
 			onClick = function(self)
 				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
@@ -945,7 +943,7 @@ function BattleEffectsScreen.initialize()
 		AllyTeam = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 35, 36, 15 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129, Constants.SCREEN.MARGIN + 35, 6, 15 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
@@ -958,7 +956,7 @@ function BattleEffectsScreen.initialize()
 		EnemyTeam = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 100, Constants.SCREEN.MARGIN + 20, 36, 15 },
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 20, 6, 15 },
 			isVisible = function() return true end,
 			onClick = function(self)
 				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
@@ -971,7 +969,7 @@ function BattleEffectsScreen.initialize()
 		BattleView = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			boxColors = {"Upper box border", "Upper box background"},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 90, Constants.SCREEN.MARGIN + 20, 46, 30},
+			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 20, 9, 30},
 			isVisible = function() return true end,
 			onClick = function(self)
 				if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then return end
