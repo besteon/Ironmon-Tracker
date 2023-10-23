@@ -129,7 +129,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		viewedPokemon = defaultPokemon
 	end
 
-	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or {}
+	local pokemonInternal = PokemonData.Pokemon[viewedPokemon.pokemonID] or PokemonData.BlankPokemon
 
 	local pokemonLog = {}
 	if RandomizerLog.Data.Pokemon then
