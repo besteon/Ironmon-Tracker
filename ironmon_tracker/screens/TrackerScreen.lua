@@ -332,6 +332,7 @@ TrackerScreen.Buttons = {
 		isVisible = function() return Battle.inActiveBattle() and not Battle.isWildEncounter end,
 		onClick = function(self)
 			BattleEffectsScreen.loadData()
+			BattleEffectsScreen.refreshIndex()
 			Program.changeScreenView(BattleEffectsScreen)
 		end
 	},
