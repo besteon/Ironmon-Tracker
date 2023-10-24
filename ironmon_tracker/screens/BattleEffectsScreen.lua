@@ -776,7 +776,7 @@ local function parseInput(key, value)
 		elseif value.totalTurns then
 			text = text .. " (" .. value.totalTurns .. ")"
 		elseif value.source then
-			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or {}
+			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or 0
 			local sourceMonId = Tracker.getPokemon(sourceMonIndex,value.source%2==0).pokemonID
 			local sourceMonName = PokemonData.Pokemon[sourceMonId].name
 			text = text .. " (" .. sourceMonName .. ")"
@@ -787,7 +787,7 @@ local function parseInput(key, value)
 				if i > 0 then
 					text = text .. ", "
 				end
-				local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or {}
+				local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or 0
 				local sourceMonId = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0).pokemonID
 				local sourceMonName = PokemonData.Pokemon[sourceMonId].name
 				text = text .. sourceMonName
@@ -961,19 +961,19 @@ local function drawBattleDiagram()
 	--Draw battle box first so team box is highlighted properly
 	if BattleEffectsScreen.viewingSideStauses or BattleEffectsScreen.viewingIndividualStatuses then
 		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, defaultArrowColorList, nil)
 	end
 	--Draw Team Boxes
 	if BattleEffectsScreen.viewingSideStauses then
 		gui.drawRectangle(TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[1-BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 		gui.drawRectangle(TeamBoxes[BattleEffectsScreen.viewedSideIndex].x, TeamBoxes[BattleEffectsScreen.viewedSideIndex].y, TeamBoxes[BattleEffectsScreen.viewedSideIndex].width, TeamBoxes[BattleEffectsScreen.viewedSideIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.highlight], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==0,selectedArrowColorList,defaultArrowColorList), nil)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, Utils.inlineIf(BattleEffectsScreen.viewedSideIndex==1,selectedArrowColorList,defaultArrowColorList), nil)
 	else
 		gui.drawRectangle(TeamBoxes[0].x, TeamBoxes[0].y, TeamBoxes[0].width, TeamBoxes[0].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 		gui.drawRectangle(TeamBoxes[1].x, TeamBoxes[1].y, TeamBoxes[1].width, TeamBoxes[1].height, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
-		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, defaultArrowColorList, null)
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, defaultArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.LEFT_TRIANGLE, TeamBoxes[0].x + 30, TeamBoxes[0].y + 3, defaultArrowColorList, nil)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, TeamBoxes[1].x + 2, TeamBoxes[1].y + 3, defaultArrowColorList, nil)
 	end
 
 	--Draw Mon Boxes
@@ -984,14 +984,14 @@ local function drawBattleDiagram()
 			MonBoxes[BattleEffectsScreen.viewedMonIndex].width,
 			MonBoxes[BattleEffectsScreen.viewedMonIndex].height, Theme.COLORS[BattleEffectsScreen.Colors.highlight], 1, 3, 0)
 	end
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[0].x, MonBoxes[0].y, ballColorList, null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[1].x, MonBoxes[1].y, ballColorList, null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[2].x, MonBoxes[2].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), null)
-	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), null)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[0].x, MonBoxes[0].y, ballColorList, nil)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[1].x, MonBoxes[1].y, ballColorList, nil)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[2].x, MonBoxes[2].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), nil)
+	Drawing.drawImageAsPixels(Constants.PixelImages.POKEBALL, MonBoxes[3].x, MonBoxes[3].y, Utils.inlineIf(Battle.numBattlers == 4,ballColorList,inactiveBallColorList), nil)
 
 	if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then
 		gui.drawRectangle(BattleBox.x, BattleBox.y, BattleBox.width, BattleBox.height, Theme.COLORS[BattleEffectsScreen.Colors.highlight])
-		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, selectedArrowColorList, null)
+		Drawing.drawImageAsPixels(Constants.PixelImages.RIGHT_TRIANGLE, BattleBox.x + 2, BattleBox.y + 11, selectedArrowColorList, nil)
 	end
 end
 
@@ -1001,7 +1001,6 @@ local function drawPaging()
 		local offsetY = BattleEffectsScreen.Buttons.PageLeft.box[2]
 		local linespacing = Constants.SCREEN.LINESPACING - 1
 		local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-		local defaultArrowColorList = {Theme.COLORS[BattleEffectsScreen.Colors.text]}
 		local shadowColor = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 		if BattleEffectsScreen.currentPage > 1 then
 			Drawing.drawButton(BattleEffectsScreen.Buttons.PageLeft, shadowColor)
@@ -1033,5 +1032,5 @@ function BattleEffectsScreen.drawScreen()
 end
 
 function BattleEffectsScreen.checkInput(xmouse, ymouse)
-	Input.checkButtonsClicked(xmouse, ymouse, BattleEffectsScreen.Buttons, true)
+	Input.checkButtonsClicked(xmouse, ymouse, BattleEffectsScreen.Buttons)
 end
