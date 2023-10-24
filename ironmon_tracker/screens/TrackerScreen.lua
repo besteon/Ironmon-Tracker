@@ -945,7 +945,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
 			routeText = string.format("%s:", Resources.TrackerScreen.BattleTeam)
 			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-			Drawing.drawButton(TrackerScreen.Buttons.BattleDetails)
 			Drawing.drawTrainerTeamPokeballs(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, shadowcolor)
 		end
 
