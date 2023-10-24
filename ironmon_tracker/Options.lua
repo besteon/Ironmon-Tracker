@@ -47,6 +47,7 @@ Options = {
 	["Use Custom Trainer Names"] = false,
 	["Open Book Play Mode"] = false,
 	["Allow sprites to walk"] = true,
+	["Fast Forward Battle Intro"] = false,
 	CONTROLS = {
 		["Load next seed"] = "A, B, Start",
 		["Toggle view"] = "Start",

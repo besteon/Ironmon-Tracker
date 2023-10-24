@@ -229,6 +229,7 @@ ScreenResources{
 		EstimateResultDecent = "Decent.",
 		EstimateResultUnavailable = "Estimate is unavailable.",
 		TimerPauseTip = "(Click on the timer to pause)",
+		OptionFastForwardBattleIntro = "Fast Forward Battle Intro"
 	},
 	GameOptionsScreen = {
 		Title = "Gameplay Options",

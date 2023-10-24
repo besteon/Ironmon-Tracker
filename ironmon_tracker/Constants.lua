@@ -148,6 +148,7 @@ Constants.OrderedLists = {
 		"Use Custom Trainer Names",
 		"Open Book Play Mode",
 		"Allow sprites to walk",
+		"Fast Forward Battle Intro"
 	},
 	CONTROLS = {
 		"Load next seed",

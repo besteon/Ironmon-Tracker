@@ -24,6 +24,9 @@ Battle = {
 	lastEnemyMoveId = 0,
 	enemyHasAttacked = false,
 	firstActionTaken = false,
+	
+	emulationSpeed = 100, -- (Percent) Used to store the last known client speed when fast forwarding battle intro
+	isFastForwarding = false,
 
 	-- "Low accuracy" values
 	Synchronize = {
@@ -185,6 +188,10 @@ function Battle.updateLowAccuracy()
 	if Battle.dataReady then
 		Battle.updateTrackedInfo()
 		Battle.updateLookupInfo()
+
+		if Options["Fast Forward Battle Intro"] then
+			Battle.updateEmulationSpeed()
+		end	
 	end
 end
 
@@ -667,6 +674,23 @@ function Battle.updateLookupInfo()
 	end
 end
 
+-- Starts the fast forward sequence if the option is set
+function Battle.startFastForward()
+	Battle.clientSpeed = client.getconfig().SpeedPercent --Store Current client speed
+	Battle.isFastForwarding = true
+	client.speedmode(6400);
+end
+
+--Checks if emulation speed should be set back to normal once battle intro is over
+function Battle.updateEmulationSpeed()
+	--Check if the client is fast forwarding && ready to take action
+	if Battle.isFastForwarding and Memory.readdword(GameSettings.gBattleMainFunc) == GameSettings.HandleTurnActionSelectionState then
+		client.speedmode(Battle.clientSpeed);
+		Battle.isFastForwarding = false;
+	end
+end
+
+
 function Battle.beginNewBattle()
 	if Battle.inBattleScreen then return end
 
@@ -719,6 +743,10 @@ function Battle.beginNewBattle()
 
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
+	end
+
+	if Options["Fast Forward Battle Intro"] then
+		Battle.startFastForward();
 	end
 
 	CustomCode.afterBattleBegins()
