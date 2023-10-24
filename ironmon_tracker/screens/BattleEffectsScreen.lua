@@ -1,130 +1,137 @@
 BattleEffectsScreen = {
+	viewingIndividualStatuses = true,
+	viewingSideStauses = false,
+	viewedMonIndex = 0,
+	viewedSideIndex = 0,
+	currentPage = 1,
+	numPages = 1,
 	pageSize = 7,
-	Buttons = {
-		LeftOwn = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			isVisible = function() return true end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 0 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 0
-				Program.redraw(true)
-			end
-		},
-		LeftOther = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 21, 13, 13 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 1
-				Program.redraw(true)
-			end
-		},
-		RightOwn = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 114, Constants.SCREEN.MARGIN + 36, 13, 13 },
-			isVisible = function() return Battle.numBattlers == 4 end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 2
-				Program.redraw(true)
-			end
-		},
-		RightOther = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109, Constants.SCREEN.MARGIN + 21, 13, 13 },
-			isVisible = function() return Battle.numBattlers == 4 end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = true
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedMonIndex = 3
-				Program.redraw(true)
-			end
-		},
-		AllyTeam = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129, Constants.SCREEN.MARGIN + 35, 6, 15 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = false
-				BattleEffectsScreen.viewingSideStauses = true
-				BattleEffectsScreen.viewedSideIndex = 0
-				Program.redraw(true)
-			end
-		},
-		EnemyTeam = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 20, 6, 15 },
-			isVisible = function() return true end,
-			onClick = function(self)
-				if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
-				BattleEffectsScreen.viewingIndividualStatuses = false
-				BattleEffectsScreen.viewingSideStauses = true
-				BattleEffectsScreen.viewedSideIndex = 1
-				Program.redraw(true)
-			end
-		},
-		BattleView = {
-			type = Constants.ButtonTypes.NO_BORDER,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 20, 9, 30},
-			isVisible = function() return true end,
-			onClick = function(self)
-				if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then return end
-				BattleEffectsScreen.viewingIndividualStatuses = false
-				BattleEffectsScreen.viewingSideStauses = false
-				BattleEffectsScreen.viewedSideIndex = 0
-				BattleEffectsScreen.viewedMonIndex = 0
-				Program.redraw(true)
-			end
-		},
-		PageLeft = {
-			type = Constants.ButtonTypes.PIXELIMAGE,
-			image = Constants.PixelImages.LEFT_ARROW,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 48, Constants.SCREEN.MARGIN + 137, 10, 10 },
-			isVisible = function() return BattleEffectsScreen.currentPage > 1 end,
-			onClick = function(self)
-				BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage - 1
-				Program.redraw(true)
-			end
-		},
-		PageRight = {
-			type = Constants.ButtonTypes.PIXELIMAGE,
-			image = Constants.PixelImages.RIGHT_ARROW,
-			boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
-			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 86, Constants.SCREEN.MARGIN + 137, 10, 10 },
-			isVisible = function() return BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages end,
-			onClick = function(self)
-				BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage + 1
-				Program.redraw(true)
-			end
-		},
-		Back = Drawing.createUIElementBackButton(function()
-			Program.changeScreenView(TrackerScreen)
-		end),
-	},
 	Colors = {
 		text = "Default text",
 		highlight = "Positive text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
 	},
+}
+
+BattleEffectsScreen.Buttons = {
+	LeftOwn = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		isVisible = function() return true end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 0 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = true
+			BattleEffectsScreen.viewingSideStauses = false
+			BattleEffectsScreen.viewedMonIndex = 0
+			Program.redraw(true)
+		end
+	},
+	LeftOther = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 122, Constants.SCREEN.MARGIN + 21, 13, 13 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 1 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = true
+			BattleEffectsScreen.viewingSideStauses = false
+			BattleEffectsScreen.viewedMonIndex = 1
+			Program.redraw(true)
+		end
+	},
+	RightOwn = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 114, Constants.SCREEN.MARGIN + 36, 13, 13 },
+		isVisible = function() return Battle.numBattlers == 4 end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 2 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = true
+			BattleEffectsScreen.viewingSideStauses = false
+			BattleEffectsScreen.viewedMonIndex = 2
+			Program.redraw(true)
+		end
+	},
+	RightOther = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109, Constants.SCREEN.MARGIN + 21, 13, 13 },
+		isVisible = function() return Battle.numBattlers == 4 end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingIndividualStatuses and BattleEffectsScreen.viewedMonIndex == 3 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = true
+			BattleEffectsScreen.viewingSideStauses = false
+			BattleEffectsScreen.viewedMonIndex = 3
+			Program.redraw(true)
+		end
+	},
+	AllyTeam = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129, Constants.SCREEN.MARGIN + 35, 6, 15 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 0 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = false
+			BattleEffectsScreen.viewingSideStauses = true
+			BattleEffectsScreen.viewedSideIndex = 0
+			Program.redraw(true)
+		end
+	},
+	EnemyTeam = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 20, 6, 15 },
+		isVisible = function() return true end,
+		onClick = function(self)
+			if BattleEffectsScreen.viewingSideStauses and BattleEffectsScreen.viewedSideIndex == 1 then return end
+			BattleEffectsScreen.viewingIndividualStatuses = false
+			BattleEffectsScreen.viewingSideStauses = true
+			BattleEffectsScreen.viewedSideIndex = 1
+			Program.redraw(true)
+		end
+	},
+	BattleView = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 91, Constants.SCREEN.MARGIN + 20, 9, 30},
+		isVisible = function() return true end,
+		onClick = function(self)
+			if not BattleEffectsScreen.viewingSideStauses and not BattleEffectsScreen.viewingIndividualStatuses then return end
+			BattleEffectsScreen.viewingIndividualStatuses = false
+			BattleEffectsScreen.viewingSideStauses = false
+			BattleEffectsScreen.viewedSideIndex = 0
+			BattleEffectsScreen.viewedMonIndex = 0
+			Program.redraw(true)
+		end
+	},
+	PageLeft = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.LEFT_ARROW,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 48, Constants.SCREEN.MARGIN + 137, 10, 10 },
+		isVisible = function() return BattleEffectsScreen.currentPage > 1 end,
+		onClick = function(self)
+			BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage - 1
+			Program.redraw(true)
+		end
+	},
+	PageRight = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.RIGHT_ARROW,
+		boxColors = {BattleEffectsScreen.Colors.border, BattleEffectsScreen.Colors.boxFill},
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 86, Constants.SCREEN.MARGIN + 137, 10, 10 },
+		isVisible = function() return BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages end,
+		onClick = function(self)
+			BattleEffectsScreen.currentPage = BattleEffectsScreen.currentPage + 1
+			Program.redraw(true)
+		end
+	},
+	Back = Drawing.createUIElementBackButton(function()
+		Program.changeScreenView(TrackerScreen)
+	end),
 }
 
 function BattleEffectsScreen.initialize()
