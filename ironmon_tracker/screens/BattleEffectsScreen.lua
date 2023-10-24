@@ -1,41 +1,6 @@
 BattleEffectsScreen = {
-	Colors = {
-		text = "Default text",
-		highlight = "Positive text",
-		border = "Upper box border",
-		boxFill = "Upper box background",
-	},
-}
-
-function BattleEffectsScreen.initialize()
-	BattleEffectsScreen.BattleDetails = {
-		Weather = Resources.BattleEffectsScreen.WeatherDefault,
-		Terrain = Resources.BattleEffectsScreen.TerrainDefault,
-	}
-
-	BattleEffectsScreen.WeatherNameMap = {
-		[0] = Resources.BattleEffectsScreen.WeatherRain,
-		[1] = Resources.BattleEffectsScreen.WeatherRain,
-		[2] = Resources.BattleEffectsScreen.WeatherRain,
-		[3] = Resources.BattleEffectsScreen.WeatherSandstorm,
-		[4] = Resources.BattleEffectsScreen.WeatherSandstorm,
-		[5] = Resources.BattleEffectsScreen.WeatherSunlight,
-		[6] = Resources.BattleEffectsScreen.WeatherSunlight,
-		[7] = Resources.BattleEffectsScreen.WeatherHail,
-		["default"] = Resources.BattleEffectsScreen.WeatherDefault,
-	}
-	BattleEffectsScreen.TerrainNameMap = {
-		[0] = Resources.BattleEffectsScreen.TerrainGrass,
-		[1] = Resources.BattleEffectsScreen.Terrain,
-		[2] = Resources.BattleEffectsScreen.TerrainSand,
-		[3] = Resources.BattleEffectsScreen.TerrainUnderwater,
-		[4] = Resources.BattleEffectsScreen.TerrainWater,
-		[5] = Resources.BattleEffectsScreen.TerrainPond,
-		[6] = Resources.BattleEffectsScreen.TerrainMountain,
-		[7] = Resources.BattleEffectsScreen.TerrainCave,
-		["default"] = Resources.BattleEffectsScreen.TerrainDefault,
-	}
-	BattleEffectsScreen.Buttons = {
+	pageSize = 7,
+	Buttons = {
 		LeftOwn = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 101, Constants.SCREEN.MARGIN + 36, 13, 13 },
@@ -153,6 +118,42 @@ function BattleEffectsScreen.initialize()
 		Back = Drawing.createUIElementBackButton(function()
 			Program.changeScreenView(TrackerScreen)
 		end),
+	},
+	Colors = {
+		text = "Default text",
+		highlight = "Positive text",
+		border = "Upper box border",
+		boxFill = "Upper box background",
+	},
+}
+
+function BattleEffectsScreen.initialize()
+	BattleEffectsScreen.BattleDetails = {
+		Weather = Resources.BattleEffectsScreen.WeatherDefault,
+		Terrain = Resources.BattleEffectsScreen.TerrainDefault,
+	}
+
+	BattleEffectsScreen.WeatherNameMap = {
+		[0] = Resources.BattleEffectsScreen.WeatherRain,
+		[1] = Resources.BattleEffectsScreen.WeatherRain,
+		[2] = Resources.BattleEffectsScreen.WeatherRain,
+		[3] = Resources.BattleEffectsScreen.WeatherSandstorm,
+		[4] = Resources.BattleEffectsScreen.WeatherSandstorm,
+		[5] = Resources.BattleEffectsScreen.WeatherSunlight,
+		[6] = Resources.BattleEffectsScreen.WeatherSunlight,
+		[7] = Resources.BattleEffectsScreen.WeatherHail,
+		["default"] = Resources.BattleEffectsScreen.WeatherDefault,
+	}
+	BattleEffectsScreen.TerrainNameMap = {
+		[0] = Resources.BattleEffectsScreen.TerrainGrass,
+		[1] = Resources.BattleEffectsScreen.Terrain,
+		[2] = Resources.BattleEffectsScreen.TerrainSand,
+		[3] = Resources.BattleEffectsScreen.TerrainUnderwater,
+		[4] = Resources.BattleEffectsScreen.TerrainWater,
+		[5] = Resources.BattleEffectsScreen.TerrainPond,
+		[6] = Resources.BattleEffectsScreen.TerrainMountain,
+		[7] = Resources.BattleEffectsScreen.TerrainCave,
+		["default"] = Resources.BattleEffectsScreen.TerrainDefault,
 	}
 
 	BattleEffectsScreen.viewingIndividualStatuses = true
@@ -161,7 +162,6 @@ function BattleEffectsScreen.initialize()
 	BattleEffectsScreen.viewedSideIndex = 0
 	BattleEffectsScreen.currentPage = 1
 	BattleEffectsScreen.numPages = 1
-	BattleEffectsScreen.pageSize = 7
 	BattleEffectsScreen.testing = false
 	BattleEffectsScreen.PerSideDetails = {
 		[0] = {},
@@ -806,7 +806,6 @@ local function drawTitle()
 	local offsetY = Constants.SCREEN.MARGIN
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local defaultArrowColorList = {Theme.COLORS[BattleEffectsScreen.Colors.text]}
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 
 	local screenTitle = Utils.toUpperUTF8(Resources.BattleEffectsScreen.Title)
@@ -817,14 +816,14 @@ local function drawTitle()
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, rightEdge, bottomEdge, Theme.COLORS[BattleEffectsScreen.Colors.border], Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 
 	--Header
-	Drawing.drawText(offsetX, offsetY, screenTitle, textColor, nil, 15, Constants.Font.FAMILY)
+	Drawing.drawText(offsetX, offsetY, screenTitle, textColor, boxInfoTopShadow, 15, Constants.Font.FAMILY)
 	offsetY = offsetY + 15
 	offsetX = offsetX + 2
 
 	--Battle scope details
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
 	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
 	offsetY = offsetY - linespacing - linespacing + 33
 
 	local prefix = Resources.BattleEffectsScreen.TextAllied
@@ -844,8 +843,6 @@ local function drawTitle()
 end
 
 local function drawBattleDetailsUI()
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
@@ -854,7 +851,6 @@ local function drawBattleDetailsUI()
 
 	local linesOnPage = 0
 
-	local Xdelta = 2
 	local size = 0
 	local allBattleStatuses = BattleEffectsScreen.BattleDetails
 	local weatherText
@@ -879,8 +875,6 @@ local function drawBattleDetailsUI()
 end
 
 local function drawPerSideUI()
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
@@ -891,7 +885,6 @@ local function drawPerSideUI()
 
 	local allSideStatuses = BattleEffectsScreen.PerSideDetails[BattleEffectsScreen.viewedSideIndex]
 
-	local Xdelta = 2
 	local size = 0
 	for key, value in pairs(allSideStatuses) do
 		size = size + 1
@@ -906,15 +899,12 @@ local function drawPerSideUI()
 end
 
 local function drawPerMonUI()
-	local rightEdge = Constants.SCREEN.RIGHT_GAP - (2 * Constants.SCREEN.MARGIN)
-	local bottomEdge = Constants.SCREEN.HEIGHT - (2 * Constants.SCREEN.MARGIN)
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 
-	local Xdelta = 2
 	local size = 0
 
 	local allMonStatuses = BattleEffectsScreen.PerMonDetails[BattleEffectsScreen.viewedMonIndex]
