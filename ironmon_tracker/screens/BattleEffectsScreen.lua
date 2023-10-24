@@ -47,7 +47,7 @@ function loadTerrain()
 		#define BATTLE_TERRAIN_CAVE         7
 		#define BATTLE_TERRAIN_BUILDING     8
 	]]
-	local battleTerrain = Memory.readbyte(0x02022ff0)
+	local battleTerrain = Memory.readbyte(GameSettings.gBattleTerrain)
 	local terrainText = BattleEffectsScreen.TerrainNameMap[battleTerrain]
 	BattleEffectsScreen.BattleDetails.Terrain = Utils.inlineIf(terrainText ~= nil,terrainText, BattleEffectsScreen.TerrainNameMap["default"])
 end
