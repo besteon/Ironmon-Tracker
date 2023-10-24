@@ -169,15 +169,16 @@ function Battle.updateBattleStatus()
 		Battle.beginNewBattle()
 	elseif Battle.dataReady and not battleStatusActive and msgTiming.DataEnd[battleMainFunction] then
 		Battle.endCurrentBattle()
-		-- Check if we need to swap to the game over screen
-		if GameOverScreen.checkForGameOver(statusOrOutcome) then
-			GameOverScreen.isDisplayed = true
-			LogOverlay.isGameOver = true
-			Program.GameTimer:pause()
-			GameOverScreen.randomizeAnnouncerQuote()
-			GameOverScreen.nextTeamPokemon()
-			Program.changeScreenView(GameOverScreen)
-		end
+	end
+
+	-- Check if we need to swap to the game over screen, based on battle outcome
+	if Battle.dataReady and GameOverScreen.checkForGameOver(statusOrOutcome) then
+		GameOverScreen.isDisplayed = true
+		LogOverlay.isGameOver = true
+		Program.GameTimer:pause()
+		GameOverScreen.randomizeAnnouncerQuote()
+		GameOverScreen.nextTeamPokemon()
+		Program.changeScreenView(GameOverScreen)
 	end
 end
 
