@@ -326,7 +326,6 @@ TrackerScreen.Buttons = {
 	},
 	BattleDetails = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		text = "",
 		textColor = "Default text",
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 40, Constants.SCREEN.MARGIN + 65, 53, 8},
 		isVisible = function() return Battle.inActiveBattle() and not Battle.isWildEncounter end,

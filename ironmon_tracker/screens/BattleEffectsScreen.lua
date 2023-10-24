@@ -295,9 +295,9 @@ local function loadStatus2(index)
 		battleStructAddress = 0x02000000 -- gSharedMem
 	end
 	local status2Data = Memory.readdword(GameSettings.gBattleMons + (index * 0x58) +0x50)
-	local status2Map = Utils.generatebitwisemap(status2Data, 32)
+	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
 	if status2Map[0] or status2Map[1] or status2Map[2] then
-		turnsText = string.format("1- 4 %ss", Resources.BattleEffectsScreen.TextTurn)
+		local turnsText = string.format("1- 4 %ss", Resources.BattleEffectsScreen.TextTurn)
 		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectConfused] = {active=true, totalTurns = turnsText}
 	end
 	if status2Map[4] or status2Map[5] or status2Map[6] then
@@ -385,7 +385,7 @@ local function loadStatus3(index)
 		return
 	end
 	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
-	local status3Map = Utils.generatebitwisemap(status3Data, 21)
+	local status3Map = Utils.generateBitwiseMap(status3Data, 21)
 	if status3Map[2] then
 		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
 		if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLeechSeed] then
@@ -521,7 +521,7 @@ local function loadSideStatuses(index)
 	end
 	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
 	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
-	local sideStatusMap = Utils.generatebitwisemap(sideStatuses, 9)
+	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
 
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
@@ -809,7 +809,7 @@ local function drawTitle()
 	local defaultArrowColorList = {Theme.COLORS[BattleEffectsScreen.Colors.text]}
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 
-	local screenTitle = Resources.BattleEffectsScreen.Title
+	local screenTitle = Utils.toUpperUTF8(Resources.BattleEffectsScreen.Title)
 
 	--Background
 	Drawing.drawBackgroundAndMargins()

@@ -40,14 +40,10 @@ function Utils.getbits(value, startIndex, numBits)
 	return math.floor(Utils.bit_rshift(value, startIndex) % Utils.bit_lshift(1, numBits))
 end
 
-function Utils.generatebitwisemap(value, size)
+function Utils.generateBitwiseMap(value, size)
 	local map = {}
 	for i=0,size-1, 1 do
-		if value % 2 == 1 then
-			map[i] = true
-		else
-			map[i] = false
-		end
+		map[i] = value % 2 == 1
 		if value > 0 then
 			value = Utils.bit_rshift(value, 1)
 		end

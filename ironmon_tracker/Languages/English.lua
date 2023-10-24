@@ -564,7 +564,7 @@ ScreenResources{
 		FilterRouteName = "Route Name",
 	},
 	BattleEffectsScreen = {
-		Title = "BATTLE EFFECTS",
+		Title = "Battle Effects",
 		TextTurn = "Turn",
 		TextTerrain = "Terrain",
 		TextWeather = "Weather",
