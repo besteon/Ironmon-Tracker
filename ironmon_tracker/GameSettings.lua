@@ -498,7 +498,6 @@ function GameSettings.setEwramAddresses()
 		-- RS: gAbilitiesPerBank
 
 		sBattlerAbilities = { 0x0203926c, 0x0203aba4, { 0x02039a30, 0x02039a30 + jpOffset }, },
-		gBattleTerrain = { 0x0300428c, 0x02022ff0, {0x02022b50, 0x02022b50 + jpOffset},},
 		gBattleWeather = { 0x02024db8, 0x020243cc, {0x02023f1c, 0x02023f1c + jpOffset},},
 		gStatuses3 = { 0x02024c98, 0x020242ac, {0x02023dfc, 0x02023dfc + jpOffset},},
 		gSideStatuses = { 0x02024c7a, 0x0202428e, {0x02023dde, 0x02023dde + jpOffset},},
