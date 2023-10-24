@@ -1,5 +1,4 @@
 BattleEffectsScreen = {
-	stale = false,
 	viewingIndividualStatuses = true,
 	viewingSideStauses = false,
 	viewedMonIndex = 0,
@@ -927,8 +926,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 0
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -942,8 +939,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 1
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -957,8 +952,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 2
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -972,8 +965,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = true
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedMonIndex = 3
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -987,8 +978,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = false
 				BattleEffectsScreen.viewingSideStauses = true
 				BattleEffectsScreen.viewedSideIndex = 0
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -1002,8 +991,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingIndividualStatuses = false
 				BattleEffectsScreen.viewingSideStauses = true
 				BattleEffectsScreen.viewedSideIndex = 1
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
@@ -1018,8 +1005,6 @@ function BattleEffectsScreen.initialize()
 				BattleEffectsScreen.viewingSideStauses = false
 				BattleEffectsScreen.viewedSideIndex = 0
 				BattleEffectsScreen.viewedMonIndex = 0
-				BattleEffectsScreen.currentPage = 1
-				BattleEffectsScreen.stale = true
 				Program.redraw(true)
 			end
 		},
