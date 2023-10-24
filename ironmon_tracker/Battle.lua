@@ -169,16 +169,15 @@ function Battle.updateBattleStatus()
 		Battle.beginNewBattle()
 	elseif Battle.dataReady and not battleStatusActive and msgTiming.DataEnd[battleMainFunction] then
 		Battle.endCurrentBattle()
-	end
-
-	-- Should occur exactly once per lost battle
-	if GameOverScreen.checkForGameOver(statusOrOutcome) then
-		GameOverScreen.isDisplayed = true
-		LogOverlay.isGameOver = true
-		Program.GameTimer:pause()
-		GameOverScreen.randomizeAnnouncerQuote()
-		GameOverScreen.nextTeamPokemon()
-		Program.changeScreenView(GameOverScreen)
+		-- Check if we need to swap to the game over screen
+		if GameOverScreen.checkForGameOver(statusOrOutcome) then
+			GameOverScreen.isDisplayed = true
+			LogOverlay.isGameOver = true
+			Program.GameTimer:pause()
+			GameOverScreen.randomizeAnnouncerQuote()
+			GameOverScreen.nextTeamPokemon()
+			Program.changeScreenView(GameOverScreen)
+		end
 	end
 end
 
