@@ -630,9 +630,9 @@ function drawTitle()
 	offsetX = offsetX + 2
 
 	--Battle scope details
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, nil, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
 	offsetY = offsetY + linespacing
-	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY)
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, nil, linespacing, Constants.Font.FAMILY,boxInfoTopShadow)
 	offsetY = offsetY - linespacing - linespacing + 33
 
 	local prefix = Resources.BattleEffectsScreen.TextAllied
@@ -648,7 +648,7 @@ function drawTitle()
 	elseif BattleEffectsScreen.viewedSideIndex % 2 == 1 then
 		prefix = Resources.BattleEffectsScreen.TextEnemy
 	end
-	Drawing.drawText(offsetX,offsetY, prefix .. " " .. suffix, textColor, nil, 12, Constants.Font.FAMILY, "bold")
+	Drawing.drawText(offsetX,offsetY, prefix .. " " .. suffix, textColor, boxInfoTopShadow, 12, Constants.Font.FAMILY, "bold")
 end
 
 function drawBattleDetailsUI()
@@ -658,6 +658,8 @@ function drawBattleDetailsUI()
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+
 	local linesOnPage = 0
 
 	local Xdelta = 2
@@ -667,7 +669,7 @@ function drawBattleDetailsUI()
 	if allBattleStatuses.WeatherTurns > 0 then
 		size = size + 1
 		weatherText =  Resources.BattleEffectsScreen.TextWeatherTurns .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining .. ":  " .. allBattleStatuses.WeatherTurns
-		Drawing.drawText(offsetX,offsetY, weatherText, textColor, nil, linespacing, Constants.Font.FAMILY)
+		Drawing.drawText(offsetX,offsetY, weatherText, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY)
 		offsetY = offsetY + linespacing + 1
 		linesOnPage = linesOnPage + 1
 	end
@@ -676,7 +678,7 @@ function drawBattleDetailsUI()
 		size = size + 1
 		if linesOnPage < BattleEffectsScreen.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" and value.active then
 			local text = parseInput(key,value)
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
 		end
@@ -691,6 +693,8 @@ function drawPerSideUI()
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
+
 	local linesOnPage = 0
 
 	local allSideStatuses = BattleEffectsScreen.PerSideDetails[BattleEffectsScreen.viewedSideIndex]
@@ -701,8 +705,7 @@ function drawPerSideUI()
 		size = size + 1
 		if linesOnPage < BattleEffectsScreen.pageSize then
 			local text = parseInput(key,value)
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-			Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
 		end
@@ -717,7 +720,7 @@ function drawPerMonUI()
 	local offsetY = Constants.SCREEN.MARGIN + 50
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
-	local linesOnPage = 0
+	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
 
 	local Xdelta = 2
 	local size = 0
@@ -728,9 +731,8 @@ function drawPerMonUI()
 		size = size + 1
 		if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
 			local firstLine = "- ".. Resources.BattleEffectsScreen.TextLastMove .. ": " .. allMonStatuses[Resources.BattleEffectsScreen.TextLastMove]
-			Drawing.drawText(offsetX,offsetY, firstLine, textColor, nil, linespacing, Constants.Font.FAMILY)
+			Drawing.drawText(offsetX,offsetY, firstLine, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY)
 			offsetY = offsetY + linespacing + 1
-			linesOnPage = linesOnPage + 1
 		end
 	end
 	for key, value in pairs(allMonStatuses) do
@@ -739,10 +741,8 @@ function drawPerMonUI()
 			if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
 				local text = parseInput(key,value)
 
-				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
-				Drawing.drawText(offsetX,offsetY, text, textColor, nil, linespacing, Constants.Font.FAMILY)
+				Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow, linespacing, Constants.Font.FAMILY)
 				offsetY = offsetY + linespacing + 1
-				linesOnPage = linesOnPage + 1
 			end
 		end
 	end
@@ -806,6 +806,7 @@ function drawBattleDiagram()
 	local RightAllyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 116,y=Constants.SCREEN.MARGIN + 37,height=11,width=11}
 	local RightEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 109,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
 	local LeftEnemyBall = {x=Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 123,y=Constants.SCREEN.MARGIN + 22,height=11,width=11}
+
 	local TeamBoxes = {[0] = AllyTeamBox, [1] = EnemyTeamBox}
 	local MonBoxes = {[0] = LeftAllyBall, [1] = LeftEnemyBall, [2] = RightAllyBall, [3] = RightEnemyBall}
 
@@ -857,9 +858,9 @@ function drawPaging()
 		if BattleEffectsScreen.currentPage > 1 then
 			Drawing.drawButton(BattleEffectsScreen.Buttons.PageLeft, shadowColor)
 		end
-		Drawing.drawText(offsetX + 14, offsetY - 3, BattleEffectsScreen.currentPage .. "/" .. BattleEffectsScreen.numPages, textColor, nil, linespacing, Constants.Font.FAMILY)
+		Drawing.drawText(offsetX + 14, offsetY - 3, BattleEffectsScreen.currentPage .. "/" .. BattleEffectsScreen.numPages, textColor, shadowColor, linespacing, Constants.Font.FAMILY)
 		if BattleEffectsScreen.currentPage < BattleEffectsScreen.numPages then
-			Drawing.drawButton(BattleEffectsScreen.Buttons.PageRight)
+			Drawing.drawButton(BattleEffectsScreen.Buttons.PageRight, shadowColor)
 		end
 	end
 end
@@ -869,10 +870,7 @@ function BattleEffectsScreen.drawScreen()
 		BattleEffectsScreen.Buttons.Back.onClick()
 		return
 	end
-	if BattleEffectsScreen.stale then
-		BattleEffectsScreen.stale = false
-		BattleEffectsScreen.loadData()
-	end
+	BattleEffectsScreen.loadData()
 	drawTitle()
 	drawBattleDiagram()
 	if BattleEffectsScreen.viewingIndividualStatuses then
@@ -1052,15 +1050,3 @@ function BattleEffectsScreen.initialize()
 		end),
 	}
 end
---[[
-Various passive battle situations
-1) Environment (Sandstorm, Hail, Sun, Rain, Type of Floor)
-2) Hazards (Spikes, Stealth Rock, Mud Sport, Water Sport)
-3) Volatile Statuses (Harmful): (Confuse, Infatuation, Imprisoned, Bound. Cursed, Drowsy, Encored, Identified, Nightmared, Perish Songed, Seeded, Taunted, Tormented)
-4) Volatile Statuses (Beneficial): (Aqua Ring, Focused[from Focus Energy], Rooted[Ingrain], Minimized, Recharging[Hyper Beam], Reflect, Light Screen)
-5) Hardcoded details (Trainer Items, Pokemon Levels)
-
-TODO:
-Get Memory addresses
-	- gBattleTerrain, gBattleWeather, gSideStatuses, gBattleMons[gActiveBattler].status2, gStatuses3, gWishFutureKnock
-]]--
