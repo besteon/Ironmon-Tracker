@@ -216,7 +216,7 @@ local function loadTerrain()
 	]]
 	local battleTerrain = Memory.readbyte(GameSettings.gBattleTerrain)
 	local terrainText = BattleEffectsScreen.TerrainNameMap[battleTerrain]
-	BattleEffectsScreen.BattleDetails.Terrain = Utils.inlineIf(terrainText ~= nil,terrainText, BattleEffectsScreen.TerrainNameMap["default"])
+	BattleEffectsScreen.BattleDetails.Terrain = terrainText or BattleEffectsScreen.TerrainNameMap["default"]
 end
 
 local function loadWeather()
@@ -244,7 +244,7 @@ local function loadWeather()
 			weatherBitIndex = weatherBitIndex + 1
 		end
 		local weatherText = BattleEffectsScreen.WeatherNameMap[weatherBitIndex]
-		BattleEffectsScreen.BattleDetails.Weather = Utils.inlineIf(weatherText ~= nil,weatherText, BattleEffectsScreen.WeatherNameMap["default"])
+		BattleEffectsScreen.BattleDetails.Weather = weatherText or BattleEffectsScreen.WeatherNameMap["default"]
 		--Weather Turns are not reset to 0 when temporary weather becomes permanent
 		if weatherBitIndex == 0 or weatherBitIndex == 3 or weatherBitIndex == 5 or weatherBitIndex == 7 then
 			BattleEffectsScreen.BattleDetails.WeatherTurns = weatherTurns
@@ -389,7 +389,7 @@ local function loadStatus3(index)
 		#define STATUS3_TRACE                   (1 << 20)
 	]]--
 	if index == nil or index < 0 or index > 3 then
-		return
+		index = 0
 	end
 	local status3Data = Memory.readdword(GameSettings.gStatuses3 + index * (0x04))
 	local status3Map = Utils.generateBitwiseMap(status3Data, 21)
