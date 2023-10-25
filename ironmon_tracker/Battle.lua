@@ -171,8 +171,8 @@ function Battle.updateBattleStatus()
 		Battle.endCurrentBattle()
 	end
 
-	-- Should occur exactly once per lost battle
-	if GameOverScreen.checkForGameOver(statusOrOutcome) then
+	-- Check if we need to swap to the game over screen, based on battle outcome
+	if Battle.dataReady and GameOverScreen.checkForGameOver(statusOrOutcome) then
 		GameOverScreen.isDisplayed = true
 		LogOverlay.isGameOver = true
 		Program.GameTimer:pause()
