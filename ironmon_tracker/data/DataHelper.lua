@@ -6,7 +6,7 @@ DataHelper = {}
 ---@return number pokemonID
 function DataHelper.findPokemonId(name, threshold)
 	threshold = threshold or 3
-	if name == nil or name == "" then
+	if Utils.isNilOrEmpty(name) then
 		return PokemonData.BlankPokemon.pokemonID
 	end
 
@@ -28,7 +28,7 @@ end
 ---@return number moveId
 function DataHelper.findMoveId(name, threshold)
 	threshold = threshold or 3
-	if name == nil or name == "" then
+	if Utils.isNilOrEmpty(name) then
 		return tonumber(MoveData.BlankMove.id) or 0
 	end
 
@@ -48,7 +48,7 @@ end
 ---@return number abilityId
 function DataHelper.findAbilityId(name, threshold)
 	threshold = threshold or 3
-	if name == nil or name == "" then
+	if Utils.isNilOrEmpty(name) then
 		return AbilityData.DefaultAbility.id
 	end
 
@@ -68,7 +68,7 @@ end
 ---@return number mapId
 function DataHelper.findRouteId(name, threshold)
 	threshold = threshold or 5
-	if name == nil or name == "" then
+	if Utils.isNilOrEmpty(name) then
 		return RouteData.BlankRoute.id
 	end
 
@@ -93,7 +93,7 @@ end
 ---@return string? type PokemonData.Type
 function DataHelper.findPokemonType(name, threshold)
 	threshold = threshold or 3
-	if name == nil or name == "" then
+	if Utils.isNilOrEmpty(name) then
 		return nil
 	end
 
@@ -139,7 +139,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
 	data.p.name = pokemonInternal.name or Constants.BLANKLINE
-	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
+	if Options["Show nicknames"] and not Utils.isNilOrEmpty(viewedPokemon.nickname) and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
 	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
@@ -264,7 +264,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		local move = data.m.moves[i]
 
 		move.id = tonumber(move.id) or 0
-		move.starred = stars[i] ~= nil and stars[i] ~= ""
+		move.starred = not Utils.isNilOrEmpty(stars[i])
 
 		-- Update: Specific Moves
 		if move.id == 237 then -- 237 = Hidden Power
@@ -851,7 +851,7 @@ end
 ---@param infoDelimeter string? [Optional] Defaults to " | "
 ---@return string response Example: "Prefix Info Item 1 | Info Item 2 | Info Item 3"
 local function buildResponse(prefix, infoList, infoDelimeter)
-	prefix = prefix and prefix ~= "" and (prefix .. " ") or ""
+	prefix = not Utils.isNilOrEmpty(prefix) and (prefix .. " ") or ""
 	if not infoList or #infoList == 0 then
 		return prefix .. DEFAULT_OUTPUT_MSG
 	elseif type(infoList) ~= "table" then
@@ -861,7 +861,7 @@ local function buildResponse(prefix, infoList, infoDelimeter)
 	end
 end
 local function buildDefaultResponse(input)
-	if (input or "") == "" then
+	if not Utils.isNilOrEmpty(input, true) then
 		return buildResponse()
 	else
 		return buildResponse(string.format("%s %s", input, OUTPUT_CHAR))
@@ -870,7 +870,7 @@ end
 
 local function getPokemonOrDefault(input)
 	local id
-	if (input or "") ~= "" then
+	if not Utils.isNilOrEmpty(input, true) then
 		id = DataHelper.findPokemonId(input)
 	else
 		local pokemon = Tracker.getPokemon(1, true) or {}
@@ -879,14 +879,15 @@ local function getPokemonOrDefault(input)
 	return PokemonData.Pokemon[id or false]
 end
 local function getMoveOrDefault(input)
-	if (input or "") == "" then
+	if not Utils.isNilOrEmpty(input, true) then
+		return MoveData.Moves[DataHelper.findMoveId(input) or false]
+	else
 		return nil
 	end
-	return MoveData.Moves[DataHelper.findMoveId(input) or false]
 end
 local function getAbilityOrDefault(input)
 	local id
-	if (input or "") ~= "" then
+	if not Utils.isNilOrEmpty(input, true) then
 		id = DataHelper.findAbilityId(input)
 	else
 		local pokemon = Tracker.getPokemon(1, true) or {}
@@ -897,7 +898,7 @@ local function getAbilityOrDefault(input)
 	return AbilityData.Abilities[id or false]
 end
 local function getRouteIdOrDefault(input)
-	if (input or "") ~= "" then
+	if not Utils.isNilOrEmpty(input, true) then
 		local id = DataHelper.findRouteId(input)
 		-- Special check for Route 21 North/South in FRLG
 		if not RouteData.Info[id or false] and Utils.containsText(input, "21") then
@@ -983,11 +984,11 @@ function DataHelper.EventRequests.getWeak(args)
 	local info = {}
 	local pokemonDefenses = PokemonData.getEffectiveness(pokemon.pokemonID)
 	local weak4x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[4] or {}, ", "))
-	if weak4x ~= "" then
+	if not Utils.isNilOrEmpty(weak4x) then
 		table.insert(info, string.format("[4x] %s", weak4x))
 	end
 	local weak2x = Utils.firstToUpperEachWord(table.concat(pokemonDefenses[2] or {}, ", "))
-	if weak2x ~= "" then
+	if not Utils.isNilOrEmpty(weak2x) then
 		table.insert(info, string.format("[2x] %s", weak2x))
 	end
 	local types
@@ -1148,7 +1149,7 @@ end
 function DataHelper.EventRequests.getRevo(args)
 	local params = getParams(args)
 	local pokemonID, targetEvoId
-	if (params or "") ~= "" then
+	if not Utils.isNilOrEmpty(params) then
 		pokemonID = DataHelper.findPokemonId(params)
 		-- If more than one Pokémon name is provided, set the other as the target evo (i.e. "Eevee Vaporeon")
 		if pokemonID == 0 then
@@ -1194,7 +1195,7 @@ function DataHelper.EventRequests.getCoverage(args)
 	local calcFromLead = true
 	local onlyFullyEvolved = false
 	local moveTypes = {}
-	if params ~= "" then
+	if not Utils.isNilOrEmpty(params) then
 		for _, word in ipairs(Utils.split(params, " ", true) or {}) do
 			if Utils.containsText(word, "evolve", true) or Utils.containsText(word, "fully", true) then
 				onlyFullyEvolved = true
@@ -1251,7 +1252,7 @@ function DataHelper.EventRequests.getHeals(args)
 	local info = {}
 
 	local displayHP, displayStatus, displayPP, displayBerries
-	if params ~= "" then
+	if not Utils.isNilOrEmpty(params) then
 		local paramToLower = Utils.toLowerUTF8(params)
 		displayHP = Utils.containsText(paramToLower, "hp", true)
 		displayPP = Utils.containsText(paramToLower, "pp", true)
@@ -1342,7 +1343,7 @@ function DataHelper.EventRequests.getTMsHMs(args)
 
 	local singleTmLookup
 	local displayGym, displayNonGym, displayHM
-	if #params ~= "" then
+	if not Utils.isNilOrEmpty(params) then
 		displayGym = Utils.containsText(params, "gym", true)
 		displayHM = Utils.containsText(params, "hm", true)
 		singleTmLookup = tonumber(params:match("(%d+)") or "")
@@ -1439,7 +1440,7 @@ end
 function DataHelper.EventRequests.getSearch(args)
 	local params = getParams(args)
 	local helpResponse = "Search tracked info for a Pokémon, move, or ability."
-	if params == "" then
+	if Utils.isNilOrEmpty(params, true) then
 		return buildResponse(params, helpResponse)
 	end
 	local function getModeAndId(input, threshold)
@@ -1612,7 +1613,7 @@ end
 ---@return string response
 function DataHelper.EventRequests.getSearchNotes(args)
 	local params = getParams(args)
-	if params == "" then
+	if Utils.isNilOrEmpty(params, true) then
 		return buildDefaultResponse(params)
 	end
 
@@ -1761,13 +1762,13 @@ function DataHelper.EventRequests.getHelp(args)
 		end
 	end
 	local info = {}
-	if params ~= "" then
+	if not Utils.isNilOrEmpty(params) then
 		local paramsAsLower = Utils.toLowerUTF8(params)
 		if paramsAsLower:sub(1, 1) ~= EventHandler.COMMAND_PREFIX then
 			paramsAsLower = EventHandler.COMMAND_PREFIX .. paramsAsLower
 		end
 		local command = availableCommands[paramsAsLower]
-		if not command or (command.Help or "") == "" then
+		if not command or Utils.isNilOrEmpty(command.Help, true) then
 			return buildDefaultResponse(params)
 		end
 		table.insert(info, string.format("%s %s", paramsAsLower, command.Help))

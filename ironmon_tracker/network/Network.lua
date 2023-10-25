@@ -72,7 +72,7 @@ end
 
 function Network.loadConnectionSettings()
 	Network.CurrentConnection = Network.IConnection:new()
-	if (Network.Options["ConnectionType"] or "") ~= "" then
+	if not Utils.isNilOrEmpty(Network.Options["ConnectionType"]) then
 		Network.changeConnection(Network.Options["ConnectionType"])
 	end
 end
@@ -129,16 +129,16 @@ function Network.tryConnect()
 		C.SendReceive = Network.updateByHttp
 		C.HttpGetUrl = Network.Options["HttpGet"] or ""
 		C.HttpPostUrl = Network.Options["HttpPost"] or ""
-		if C.HttpGetUrl ~= "" then
+		if not Utils.isNilOrEmpty(C.HttpGetUrl) then
 			-- Necessary for comm.httpTest()
 			comm.httpSetGetUrl(C.HttpGetUrl)
 		end
-		if C.HttpPostUrl ~= "" then
+		if not Utils.isNilOrEmpty(C.HttpPostUrl) then
 			-- Necessary for comm.httpTest()
 			comm.httpSetPostUrl(C.HttpPostUrl)
 		end
 		local result
-		if C.HttpGetUrl ~= "" and C.HttpPostUrl then
+		if not Utils.isNilOrEmpty(C.HttpGetUrl) and C.HttpPostUrl then
 			-- See HTTP WARNING at the top of this file
 			pcall(function() result = comm.httpTest() or "N/A" end)
 		end
@@ -153,7 +153,7 @@ function Network.tryConnect()
 		local folder = Network.Options["DataFolder"] or ""
 		C.InboundFile = folder .. FileManager.slash .. Network.TEXT_INBOUND_FILE
 		C.OutboundFile = folder .. FileManager.slash .. Network.TEXT_OUTBOUND_FILE
-		local ableToConnect = (folder ~= "") and FileManager.folderExists(folder)
+		local ableToConnect = not Utils.isNilOrEmpty(folder) and FileManager.folderExists(folder)
 		if ableToConnect then
 			C.State = Network.ConnectionState.Listen
 		end
@@ -246,7 +246,7 @@ end
 --- The update function used by the "Http" Network connection type
 function Network.updateByHttp()
 	local C = Network.CurrentConnection
-	if C.HttpGetUrl == "" or C.HttpPostUrl == "" or not FileManager.JsonLibrary then
+	if Utils.isNilOrEmpty(C.HttpGetUrl) or Utils.isNilOrEmpty(C.HttpPostUrl) or not FileManager.JsonLibrary then
 		return
 	end
 	-- TODO: Not implemented. Requires asynchronous compatibility

@@ -294,7 +294,7 @@ function LogTabRouteDetails.createTrainerButton(trainer)
 		updateSelf = function(self)
 			self.isSelected = false
 			-- Highlight anything that is found by the search
-			if LogSearchScreen.searchText == "" then
+			if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 				return
 			end
 			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.TrainerName then
@@ -377,7 +377,7 @@ function LogTabRouteDetails.createPokemonButton(encounterKey, encounterInfo)
 		updateSelf = function(self)
 			self.isSelected = false
 			-- Highlight anything that is found by the search
-			if LogSearchScreen.searchText == "" then
+			if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 				return
 			end
 			if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonName then

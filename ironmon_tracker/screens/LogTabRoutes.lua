@@ -156,7 +156,7 @@ function LogTabRoutes.buildPagedButtons()
 			end,
 			includeInGrid = function(self)
 				-- If no search text entered, check any filter groups and/or show all results
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					-- (Optional nav filters would go here)
 					return true
 				end

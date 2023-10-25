@@ -611,7 +611,7 @@ function Main.GenerateNextRom()
 		-- It's possible this message changes in the future?
 		---@diagnostic disable-next-line: cast-local-type
 		success = (output:find("Randomized successfully!", 1, true) ~= nil)
-		if not success and output ~= "" then -- only print if something went wrong
+		if not success and not Utils.isNilOrEmpty(output) then -- only print if something went wrong
 			print("> ERROR: " .. output)
 		end
 	end
@@ -662,7 +662,7 @@ function Main.GetQuickloadFiles()
 	end
 
 	-- Search the quickload folder for compatible files used for quickload
-	if Options["Use premade ROMs"] and Options.FILES["ROMs Folder"] ~= nil and Options.FILES["ROMs Folder"] ~= "" then
+	if Options["Use premade ROMs"] and not Utils.isNilOrEmpty(Options.FILES["ROMs Folder"]) then
 		-- First make sure the ROMs Folder ends with a slash
 		if Options.FILES["ROMs Folder"]:sub(-1) ~= FileManager.slash then
 			Options.FILES["ROMs Folder"] = Options.FILES["ROMs Folder"] .. FileManager.slash
@@ -704,7 +704,7 @@ end
 
 -- Returns two results for the next rom: name and filepath. This is the legacy method prior to mGBA changes.
 function Main.GetNextBizhawkRomInfoLegacy()
-	if not Main.IsOnBizhawk() or Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then
+	if not Main.IsOnBizhawk() or Utils.isNilOrEmpty(Options.FILES["ROMs Folder"]) then
 		return nil
 	end
 
@@ -789,7 +789,7 @@ function Main.GetAttemptsFile(forceUseSettingsFile)
 	-- First, try using a filename based on the Quickload settings file name
 	-- The case when using Quickload method: auto-generate a ROM
 	local attemptsFileName, attemptsFilePath, settingsFileName
-	if Options["Generate ROM each time"] and Options.FILES["Settings File"] ~= nil and Options.FILES["Settings File"] ~= "" then
+	if Options["Generate ROM each time"] and not Utils.isNilOrEmpty(Options.FILES["Settings File"]) then
 		settingsFileName = FileManager.extractFileNameFromPath(Options.FILES["Settings File"])
 	else
 		quickloadFiles = quickloadFiles or Main.GetQuickloadFiles()
@@ -859,7 +859,7 @@ function Main.ReadAttemptsCount(forceUseSettingsFile)
 			if romnumber ~= "1" then
 				Main.currentSeed = tonumber(romnumber)
 			end
-		elseif Options.FILES["ROMs Folder"] == nil or Options.FILES["ROMs Folder"] == "" then -- mostly for mGBA
+		elseif Utils.isNilOrEmpty(Options.FILES["ROMs Folder"]) then -- mostly for mGBA
 			local smallestSeedNumber = Main.FindSmallestSeedFromQuickloadFiles()
 			if smallestSeedNumber ~= -1 then
 				Main.currentSeed = smallestSeedNumber
@@ -1079,7 +1079,7 @@ function Main.SaveSettings(forced)
 end
 
 function Main.SetMetaSetting(section, key, value)
-	if section == nil or key == nil or value == nil or section == "" or key == "" then return end
+	if Utils.isNilOrEmpty(section) or Utils.isNilOrEmpty(key) or value == nil then return end
 	if Main.MetaSettings[section] == nil then
 		Main.MetaSettings[section] = {}
 	end
@@ -1087,7 +1087,7 @@ function Main.SetMetaSetting(section, key, value)
 end
 
 function Main.RemoveMetaSetting(section, key)
-	if section == nil or key == nil or section == "" or key == "" then return end
+	if Utils.isNilOrEmpty(section) or Utils.isNilOrEmpty(key) then return end
 	if Main.MetaSettings[section] ~= nil then
 		Main.MetaSettings[section][key] = nil
 	end

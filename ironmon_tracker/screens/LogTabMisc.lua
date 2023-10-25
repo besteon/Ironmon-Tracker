@@ -113,7 +113,7 @@ LogTabMisc.Buttons = {
 			local segmentWidth = 38
 			for i = 1, 999, (segmentWidth + 1) do
 				local settingsSegment = settingsString:sub(i, i + segmentWidth)
-				if settingsSegment == "" then
+				if Utils.isNilOrEmpty(settingsSegment) then
 					break
 				end
 				Drawing.drawText(self.box[1] + 8, offsetY, settingsSegment, Theme.COLORS[self.textColor], shadowcolor)

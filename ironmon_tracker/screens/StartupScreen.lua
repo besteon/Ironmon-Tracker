@@ -45,7 +45,7 @@ StartupScreen.Buttons = {
 		textColor = "Lower box text",
 		boxColors = { "Lower box border", "Lower box background" },
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 128, Constants.SCREEN.MARGIN + 137, 10, 10 },
-		isVisible = function() return not Options["Show on new game screen"] and Options["Welcome message"] == "" end,
+		isVisible = function() return not Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) end,
 		onClick = function(self) Program.changeScreenView(StreamerScreen) end
 	},
 	-- EraseGame = { -- Currently unused
@@ -54,7 +54,7 @@ StartupScreen.Buttons = {
 	-- 	textColor = "Lower box text",
 	-- 	boxColors = { "Lower box border", "Lower box background" },
 	-- 	box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 103, Constants.SCREEN.MARGIN + 135, 33, 11 },
-	-- 	isVisible = function() return false and Options["Welcome message"] == "" end, -- TODO: For now, we aren't using this button
+	-- 	isVisible = function() return false and Utils.isNilOrEmpty(Options["Welcome message"]) end, -- TODO: For now, we aren't using this button
 	-- 	onClick = function(self)
 	-- 		if Main.IsOnBizhawk() then
 	-- 			local joypadButtons = {
@@ -285,7 +285,7 @@ function StartupScreen.drawScreen()
 	end
 
 	-- If Favorites are selected to be shown and no custom welcome message has been written, show game controls by default
-	local showCustomWelcome = Options["Show on new game screen"] or Options["Welcome message"] ~= ""
+	local showCustomWelcome = Options["Show on new game screen"] or not Utils.isNilOrEmpty(Options["Welcome message"])
 
 	-- HEADER DIVIDER
 	if showCustomWelcome then
@@ -350,7 +350,7 @@ function StartupScreen.drawScreen()
 
 	-- Temporarily vertically center-align the Favorite Pokemon icons if no welcome message
 	local prevYs = {}
-	if Options["Show on new game screen"] and Options["Welcome message"] == "" then
+	if Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) then
 		prevYs = {
 			StartupScreen.Buttons.PokemonFavorite1.box[2],
 			StartupScreen.Buttons.PokemonFavorite2.box[2],
@@ -367,7 +367,7 @@ function StartupScreen.drawScreen()
 		Drawing.drawButton(button, buttonShadow)
 	end
 
-	if Options["Show on new game screen"] and Options["Welcome message"] == "" then
+	if Options["Show on new game screen"] and Utils.isNilOrEmpty(Options["Welcome message"]) then
 		StartupScreen.Buttons.PokemonFavorite1.box[2] = prevYs[1]
 		StartupScreen.Buttons.PokemonFavorite2.box[2] = prevYs[2]
 		StartupScreen.Buttons.PokemonFavorite3.box[2] = prevYs[3]

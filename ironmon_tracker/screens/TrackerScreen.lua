@@ -464,7 +464,7 @@ function TrackerScreen.buildCarousel()
 		getContentList = function(pokemonID)
 			local noteText = Tracker.getNote(pokemonID)
 			if Main.IsOnBizhawk() then
-				if noteText ~= nil and noteText ~= "" then
+				if not Utils.isNilOrEmpty(noteText) then
 					return { noteText }
 				else
 					return { TrackerScreen.Buttons.NotepadTracking }
@@ -695,7 +695,7 @@ function TrackerScreen.openEditStepGoalWindow()
 
 	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
+		if not Utils.isNilOrEmpty(formInput) then
 			local newStepGoal = tonumber(formInput)
 			if newStepGoal ~= nil then
 				Program.Pedometer.goalSteps = newStepGoal
@@ -806,7 +806,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			end
 		end
 	else
-		if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
+		if not Utils.isNilOrEmpty(data.p.lastlevel) then
 			extraInfoText = string.format("%s %s.%s", Resources.TrackerScreen.BattleLastSeen, Resources.TrackerScreen.LevelAbbreviation, data.p.lastlevel)
 		else
 			extraInfoText = Resources.TrackerScreen.BattleNewEncounter
@@ -1205,7 +1205,7 @@ function TrackerScreen.drawBallPicker()
 	if EventHandler.Queues.BallRedeems.HasPickedBall then
 		local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
 		local direction = EventHandler.Queues.BallRedeems.ChosenDirection or ""
-		if username ~= "" then
+		if not Utils.isNilOrEmpty(username) then
 			topText = string.format("%s %s:", username, "picks") -- TODO: Language
 		else
 			topText = string.format("%s:", "Chosen Ball")

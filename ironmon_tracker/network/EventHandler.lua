@@ -81,7 +81,7 @@ end
 ---@param command string Example: !testcommand
 ---@return table? event
 function EventHandler.getEventForCommand(command)
-	if (command or "") == "" then
+	if Utils.isNilOrEmpty(command) then
 		return nil
 	end
 	if command:sub(1,1) ~= EventHandler.COMMAND_PREFIX then
@@ -99,7 +99,7 @@ end
 ---@param rewardId string
 ---@return table? event
 function EventHandler.getEventForReward(rewardId)
-	if (rewardId or "") == "" then
+	if Utils.isNilOrEmpty(rewardId) then
 		return nil
 	end
 	for _, event in pairs(EventHandler.Events) do
@@ -118,7 +118,7 @@ function EventHandler.updateRewardList(rewards)
 	end
 
 	for _, reward in pairs(rewards or {}) do
-		if reward.Id and reward.Title and reward.Id ~= "" then
+		if reward.Id and not Utils.isNilOrEmpty(reward.Title) then
 			EventHandler.RewardsExternal[reward.Id] = reward.Title
 		end
 	end
@@ -166,7 +166,7 @@ function EventHandler.loadEventSettings(event)
 		end
 	end
 	-- Disable any rewards without associations defined
-	if event.IsEnabled and event.RewardId == "" then
+	if event.IsEnabled and Utils.isNilOrEmpty(event.RewardId) then
 		event.IsEnabled = false
 	end
 	event.ConfigurationUpdated = anyLoaded or nil
@@ -262,9 +262,9 @@ function EventHandler.addDefaultEvents()
 			local allowedEvents = {}
 			for _, event in pairs(EventHandler.Events) do
 				if event.IsEnabled and not event.Exclude then
-					if event.Command and event.Command ~= "" then
+					if not Utils.isNilOrEmpty(event.Command) then
 						table.insert(allowedEvents, event.Command:sub(2))
-					elseif event.RewardId and event.RewardId ~= "" then
+					elseif not Utils.isNilOrEmpty(event.RewardId) then
 						table.insert(allowedEvents, event.RewardId)
 					end
 				end
@@ -318,7 +318,7 @@ function EventHandler.outputCurrentRedemption()
 		local file = io.open(FileManager.getCustomFolderPath() .. filename, "w")
 		if file then
 			local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
-			file:write(username ~= "" and username or Constants.BLANKLINE)
+			file:write(not Utils.isNilOrEmpty(username) and username or Constants.BLANKLINE)
 			file:close()
 		end
 	end
@@ -507,7 +507,7 @@ EventHandler.DefaultEvents = {
 				-- Parse user input or the reward name to determine the chosen ball direction; default random
 				local args = request.Args or {}
 				local input = Utils.toLowerUTF8(args.Input or "")
-				if input == "" then
+				if Utils.isNilOrEmpty(input) then
 					input = Utils.toLowerUTF8(args.RewardName or "")
 				end
 				local direction, ballNumber = parseBallChoice(input)
@@ -565,7 +565,7 @@ EventHandler.DefaultEvents = {
 				-- Parse user input or the reward name to determine the chosen ball direction; default random
 				local args = request.Args or {}
 				local input = Utils.toLowerUTF8(args.Input or "")
-				if input == "" then
+				if Utils.isNilOrEmpty(input) then
 					input = Utils.toLowerUTF8(args.RewardName or "")
 				end
 				local direction, ballNumber = parseBallChoice(input)

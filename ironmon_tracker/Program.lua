@@ -842,7 +842,7 @@ end
 function Program.focusBizhawkWindow()
 	if not Main.IsOnBizhawk() then return end
 	local bizhawkWindowName = GameSettings.getRomName()
-	if bizhawkWindowName and bizhawkWindowName ~= "" then
+	if not Utils.isNilOrEmpty(bizhawkWindowName) then
 		local command = string.format("AppActivate(%s)", bizhawkWindowName)
 		FileManager.tryOsExecute(command)
 	end

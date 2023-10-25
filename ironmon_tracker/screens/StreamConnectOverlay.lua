@@ -363,7 +363,7 @@ function StreamConnectOverlay.createButtons()
 			local x, y = self.box[1], self.box[2]
 			Drawing.drawText(startX + 1, y, "Connection Folder:", Theme.COLORS[SCREEN.Colors.text], shadowcolor) -- TODO: Language
 			local folder = FileManager.extractFolderNameFromPath(Network.Options["DataFolder"] or "")
-			if folder == "" then
+			if Utils.isNilOrEmpty(folder) then
 				folder = "/"
 			end
 			Drawing.drawText(startX + 90 - 1, y, folder, Theme.COLORS[SCREEN.Colors.highlight], shadowcolor)
@@ -619,11 +619,11 @@ local function buildRewardsTab()
 			image = Constants.PixelImages.REFERENCE_UP,
 			getText = function(self)
 				local externalTitle
-				if (event.RewardId or "") == "" then
+				if Utils.isNilOrEmpty(event.RewardId) then
 					externalTitle = NOT_ASSIGNED
 				else
 					externalTitle = ASSIGNED_UNKNOWN
-					if (EventHandler.RewardsExternal[event.RewardId] or "") ~= "" then
+					if not Utils.isNilOrEmpty(EventHandler.RewardsExternal[event.RewardId]) then
 						externalTitle = EventHandler.RewardsExternal[event.RewardId]
 						externalTitle = Utils.formatSpecialCharacters(externalTitle)
 						externalTitle = Utils.shortenText(externalTitle, 156, true)
@@ -983,7 +983,7 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 	forms.setdropdownitems(dropdown, rewardsList, true) -- true = alphabetize the list
 	forms.setproperty(dropdown, "AutoCompleteSource", "ListItems")
 	forms.setproperty(dropdown, "AutoCompleteMode", "Append")
-	if (EventHandler.RewardsExternal[event.RewardId] or "") ~= "" then
+	if not Utils.isNilOrEmpty(EventHandler.RewardsExternal[event.RewardId]) then
 		forms.settext(dropdown, EventHandler.RewardsExternal[event.RewardId])
 	end
 
@@ -999,7 +999,7 @@ function StreamConnectOverlay.openRewardListPrompt(event)
 				end
 			end
 		end
-		event.IsEnabled = event.RewardId ~= ""
+		event.IsEnabled = not Utils.isNilOrEmpty(event.RewardId)
 		EventHandler.saveEventSetting(event, "RewardId")
 		SCREEN.refreshButtons()
 		Program.redraw(true)
@@ -1046,7 +1046,7 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 	local filterOptions = "Text File (*.TXT)|*.txt|All files (*.*)|*.*"
 	Utils.tempDisableBizhawkSound()
 	local filepath = forms.openfile("SELECT ANY FILE IN THE FOLDER", path, filterOptions)
-	if filepath ~= "" then
+	if not Utils.isNilOrEmpty(filepath) then
 		-- Since the user had to pick a file, strip out the file name to just get the folder path
 		local pattern = "^.*()" .. FileManager.slash
 		filepath = filepath:sub(0, (filepath:match(pattern) or 1) - 1)
@@ -1055,7 +1055,7 @@ function StreamConnectOverlay.openNetworkFolderPrompt(modeKey)
 		if not Utils.containsText(Network.Options[modeKey], filepath) then
 			Network.closeConnections()
 		end
-		if filepath == nil or filepath == "" then
+		if Utils.isNilOrEmpty(filepath) then
 			Network.Options[modeKey] = ""
 		else
 			Network.Options[modeKey] = filepath

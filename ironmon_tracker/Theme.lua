@@ -375,7 +375,7 @@ end
 -- returns true if successful; false otherwise.
 -- applyTheme: if false, this won't replace current theme, but set it as the preview for the mini tracker preview
 function Theme.importThemeFromText(themeCode, applyTheme)
-	if themeCode == nil or themeCode == "" then
+	if Utils.isNilOrEmpty(themeCode) then
 		return false
 	end
 
@@ -452,7 +452,7 @@ end
 
 -- A simple way to check if user imports an old theme config string
 function Theme.isOldThemeString(themeCode)
-	if themeCode == nil or themeCode == "" then return false end
+	if Utils.isNilOrEmpty(themeCode) then return false end
 
 	local oldHexCountGBA = 10 -- version 0.6.2 and below
 	local oldHexCountNDS = 13 -- version 0.3.31 and below
@@ -585,7 +585,7 @@ function Theme.openSaveCurrentThemeWindow()
 		forms.settext(Theme.Manager.SaveNewWarning, "")
 
 		local themeName = forms.gettext(saveTextBox)
-		if themeName == nil or themeName == "" then
+		if Utils.isNilOrEmpty(themeName) then
 			return
 		end
 

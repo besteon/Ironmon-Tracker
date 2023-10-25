@@ -53,7 +53,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			updateSelf = function(self)
 				self.isSelected = false
 				self.textColor = LogTabTrainerDetails.Colors.text
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return
 				end
 				-- Highlight moves that are found by the search
@@ -91,7 +91,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 			box = { startX + offsetX, startY + offsetY - 4, 32, 32, },
 			updateSelf = function(self)
 				self.isSelected = false
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return
 				end
 				-- If found through search
@@ -151,7 +151,7 @@ function LogTabTrainerDetails.buildZoomButtons(trainerId)
 				updateSelf = function(self)
 					self.textColor = moveColor
 					-- Highlight moves that are found by the search
-					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and LogSearchScreen.searchText ~= "" then
+					if LogSearchScreen.currentFilter == LogSearchScreen.FilterBy.PokemonMove and not Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 						if Utils.containsText(moveInfo.name, LogSearchScreen.searchText, true) then
 							self.textColor = LogTabTrainerDetails.Colors.highlight
 						end

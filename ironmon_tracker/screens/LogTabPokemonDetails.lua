@@ -118,7 +118,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			box = { abilityButtonArea.x, abilityButtonArea.y + offsetY, 60, Constants.SCREEN.LINESPACING },
 			updateSelf = function(self)
 				self.textColor = LogTabPokemonDetails.Colors.text
-				if LogSearchScreen.searchText == "" or not AbilityData.isValid(abilityId) then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) or not AbilityData.isValid(abilityId) then
 					return
 				end
 				local abilityName = AbilityData.Abilities[abilityId].name
@@ -547,7 +547,7 @@ function LogTabPokemonDetails.buildZoomButtons(pokemonID)
 			isVisible = function(self) return LogTabPokemonDetails.Pager.currentTab == self.tab and LogTabPokemonDetails.Pager.currentPage == self.pageVisible end,
 			updateSelf = function(self)
 				self.textColor = moveColor
-				if LogSearchScreen.searchText == "" then
+				if Utils.isNilOrEmpty(LogSearchScreen.searchText) then
 					return
 				end
 				-- Highlight moves that are found by the search

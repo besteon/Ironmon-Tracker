@@ -390,14 +390,14 @@ MGBA.ScreenUtils = {
 	defaultLabelTimer = 30 * 2, -- (# of seconds to display) * 2, because its based on redraw events
 
 	setLabel = function(screen, label)
-		if screen ~= nil and screen.textBuffer ~= nil and label ~= nil and label ~= "" then
+		if screen and screen.textBuffer ~= nil and not Utils.isNilOrEmpty(label) then
 			MGBA.ScreenUtils.removeLabels(screen)
 			screen.textBuffer:setName(string.format("%s - %s", screen:getMenuLabel() or "", label))
 			screen.labelTimer = MGBA.ScreenUtils.defaultLabelTimer
 		end
 	end,
 	removeLabels = function(screen)
-		if screen ~= nil and screen.textBuffer ~= nil then
+		if screen and screen.textBuffer ~= nil then
 			screen.textBuffer:setName(screen:getMenuLabel() or "")
 			screen.labelTimer = 0
 		end
@@ -716,7 +716,7 @@ function MGBA.buildOptionMapDefaults()
 			if opt.optionKey == "Load next seed" or opt.optionKey == "Toggle view" or opt.optionKey == "Cycle through stats" or opt.optionKey == "Mark stat" then
 				updateFunction = function(self, params)
 					local comboFormatted = Utils.formatControls(params) or ""
-					if comboFormatted == "" then
+					if Utils.isNilOrEmpty(comboFormatted) then
 						return false, Resources.MGBA.ButtonInputRequired
 					end
 					Options.CONTROLS[self.optionKey] = comboFormatted
@@ -776,7 +776,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'HELP "command"',
 		usageExample = 'HELP "POKEMON"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.HelpError1)
 				return
@@ -805,7 +805,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'NOTE "text"',
 		usageExample = 'NOTE "Very fast, no HP"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.NoteError1)
 				return
@@ -832,7 +832,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'POKEMON "name"',
 		usageExample = 'POKEMON "Espeon"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.PokemonError1)
 				return
@@ -855,7 +855,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'MOVE "name"',
 		usageExample = 'MOVE "Wrap"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.MoveError1)
 				return
@@ -878,7 +878,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'ABILITY "name"',
 		usageExample = 'ABILITY "Flash Fire"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.AbilityError1)
 				return
@@ -901,7 +901,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'ROUTE "name"',
 		usageExample = 'ROUTE "Route 2"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.RouteError1)
 				return
@@ -961,7 +961,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'HIDDENPOWER "type"',
 		usageExample = 'HIDDENPOWER "Water"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s.", Resources.MGBACommands.HiddenPowerError1)
 				return
@@ -1041,7 +1041,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'SAVEDATA "filename"',
 		usageExample = 'SAVEDATA "FireRed Seed 12"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.SaveDataError1)
 				return
@@ -1060,7 +1060,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'LOADDATA "filename"',
 		usageExample = 'LOADDATA "FireRed Seed 12"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.LoadDataError1)
 				return
@@ -1192,7 +1192,7 @@ MGBA.CommandMap = {
 		usageSyntax = 'LANGUAGE "language"',
 		usageExample = 'LANGUAGE "French"',
 		execute = function(self, params)
-			if params == nil or params == "" then
+			if Utils.isNilOrEmpty(params) then
 				printf(" %s: %s", Resources.MGBACommands.UsageError, self.usageSyntax or "N/A")
 				printf(" - %s", Resources.MGBACommands.LanguageError1)
 				return

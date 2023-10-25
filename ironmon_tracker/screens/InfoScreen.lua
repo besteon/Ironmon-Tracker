@@ -278,7 +278,7 @@ InfoScreen.Buttons = {
 		image = Constants.PixelImages.NOTEPAD,
 		getContentList = function(pokemonId)
 			local noteText = Tracker.getNote(pokemonId)
-			if noteText ~= nil and noteText ~= "" then
+			if not Utils.isNilOrEmpty(noteText) then
 				return noteText
 			else
 				return string.format("(%s)", Resources.TrackerScreen.LeaveANote)

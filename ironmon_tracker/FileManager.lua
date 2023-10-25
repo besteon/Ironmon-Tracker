@@ -585,7 +585,7 @@ function FileManager.readTableFromFile(filepath)
 
 	if file ~= nil then
 		local dataString = file:read("*a")
-		if dataString ~= nil and dataString ~= "" then
+		if not Utils.isNilOrEmpty(dataString) then
 			tableData = Pickle.unpickle(dataString)
 		end
 		file:close()
@@ -609,7 +609,7 @@ function FileManager.readLinesFromFile(filename)
 	end
 
 	local fileContents = file:read("*a")
-	if fileContents ~= nil and fileContents ~= "" then
+	if not Utils.isNilOrEmpty(fileContents) then
 		for line in fileContents:gmatch("([^\r\n]+)[\r\n]*") do
 			if line ~= nil then
 				table.insert(lines, line)

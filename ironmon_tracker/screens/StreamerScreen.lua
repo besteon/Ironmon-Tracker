@@ -118,7 +118,7 @@ function StreamerScreen.openEditAttemptsWindow()
 	local textBox = forms.textbox(form, Main.currentSeed, 200, 30, "UNSIGNED", 50, 30)
 	forms.button(form, Resources.AllScreens.Save, function()
 		local formInput = forms.gettext(textBox)
-		if formInput ~= nil and formInput ~= "" then
+		if not Utils.isNilOrEmpty(formInput) then
 			local newAttemptsCount = tonumber(formInput)
 			if newAttemptsCount ~= nil and Main.currentSeed ~= newAttemptsCount then
 				Main.currentSeed = newAttemptsCount

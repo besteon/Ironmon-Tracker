@@ -112,7 +112,7 @@ MGBADisplay.DataFormatter = {
 			end
 		end
 
-		if data.x.note == nil or data.x.note == "" then
+		if Utils.isNilOrEmpty(data.x.note) then
 			data.x.note = Resources.MGBAScreens.PokemonInfoLeaveNote
 		end
 	end,
@@ -182,7 +182,7 @@ MGBADisplay.DataFormatter = {
 		-- Don't capitalize if nicknames are being used
 		data.p.name = Options["Show nicknames"] and data.p.name or Utils.toUpperUTF8(data.p.name)
 
-		if data.p.status ~= "" then
+		if not Utils.isNilOrEmpty(data.p.status) then
 			data.p.status = Utils.formatUTF8("[%s]", data.p.status)
 		end
 
@@ -329,7 +329,7 @@ MGBADisplay.LineBuilder = {
 			-- local opt = MGBA.OptionMap[romFolderId]
 			-- if opt ~= nil then
 			-- 	local foldername = opt:getValue()
-			-- 	if foldername == "" then
+			-- 	if Utils.isNilOrEmpty(foldername) then
 			-- 		foldername = "(NOT SET)"
 			-- 	end
 			-- 	table.insert(lines, Utils.formatUTF8(fileBar, romFolderId, opt:getText() .. " *"))
@@ -349,7 +349,7 @@ MGBADisplay.LineBuilder = {
 			-- 		local filename = opt:getValue()
 			-- 		if filename:len() > 32 then
 			-- 			filename = filename:sub(1, 29) .. "..."
-			-- 		elseif filename == "" then
+			-- 		elseif Utils.isNilOrEmpty(filename) then
 			-- 			filename = "(NOT SET)"
 			-- 		end
 			-- 		table.insert(lines, Utils.formatUTF8(fileBar, i, opt:getText() .. ": *"))
@@ -707,7 +707,7 @@ MGBADisplay.LineBuilder = {
 			lines[3] = Utils.formatUTF8(topFormattedLine, levelLine, formattedStats.hp)
 
 			local lastLevelSeen
-			if data.p.lastlevel ~= nil and data.p.lastlevel ~= "" then
+			if not Utils.isNilOrEmpty(data.p.lastlevel) then
 				lastLevelSeen = Utils.formatUTF8("%s %s.%s", Resources.MGBAScreens.TrackerLastSeen, Resources.MGBAScreens.TrackerLevel, data.p.lastlevel)
 			else
 				lastLevelSeen = Resources.MGBAScreens.TrackerNewEncounter

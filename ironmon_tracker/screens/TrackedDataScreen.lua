@@ -125,7 +125,7 @@ function TrackedDataScreen.openSaveDataPrompt()
 	forms.label(form, ".TDAT", 219, 32, 45, 20)
 	forms.button(form, Resources.TrackedDataScreen.ButtonSaveData, function()
 		local formInput = forms.gettext(saveTextBox)
-		if formInput ~= nil and formInput ~= "" then
+		if not Utils.isNilOrEmpty(formInput) then
 			if formInput:sub(-5):lower() ~= FileManager.Extensions.TRACKED_DATA then
 				formInput = formInput .. FileManager.Extensions.TRACKED_DATA
 			end
@@ -143,14 +143,14 @@ function TrackedDataScreen.openLoadDataPrompt()
 	local filterOptions = "Tracker Data (*.TDAT)|*.tdat|All files (*.*)|*.*"
 
 	local workingDir = FileManager.dir
-	if workingDir ~= "" then
+	if not Utils.isNilOrEmpty(workingDir) then
 		workingDir = workingDir:sub(1, -2) -- remove trailing slash
 	end
 
 	Utils.tempDisableBizhawkSound()
 
 	local filepath = forms.openfile(suggestedFileName, workingDir, filterOptions)
-	if filepath ~= "" then
+	if not Utils.isNilOrEmpty(filepath) then
 		local playtime = Tracker.Data.playtime
 		local loadStatus = Tracker.loadData(filepath, true)
 		Tracker.Data.playtime = playtime

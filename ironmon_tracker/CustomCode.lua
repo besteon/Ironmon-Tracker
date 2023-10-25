@@ -62,7 +62,7 @@ end
 
 -- Loads a single extension based on its key (filename) and returns it. Doesn't enable it by default
 function CustomCode.loadExtension(extensionKey)
-	if extensionKey == nil or extensionKey == "" then
+	if Utils.isNilOrEmpty(extensionKey) then
 		return nil
 	end
 
