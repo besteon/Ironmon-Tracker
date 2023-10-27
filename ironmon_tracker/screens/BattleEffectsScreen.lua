@@ -701,6 +701,13 @@ function BattleEffectsScreen.refreshIndex()
 	BattleEffectsScreen.viewingSideStauses = false
 	BattleEffectsScreen.viewedMonIndex = 0
 	BattleEffectsScreen.viewedSideIndex = 0
+
+	if Battle.numBattlers == 2 then
+		--increase clickable area for team boxes
+		BattleEffectsScreen.Buttons.AllyTeam.box[1] = BattleEffectsScreen.Buttons.AllyTeam.box[1] - 14
+		BattleEffectsScreen.Buttons.AllyTeam.box[3] = BattleEffectsScreen.Buttons.AllyTeam.box[3] + 14
+		BattleEffectsScreen.Buttons.EnemyTeam.box[3] = BattleEffectsScreen.Buttons.EnemyTeam.box[3] + 14
+	end
 end
 
 local function parseInput(key, value)
