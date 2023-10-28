@@ -213,65 +213,11 @@ function EventHandler.cancelAllQueues()
 end
 
 function EventHandler.addDefaultEvents()
-	-- TS_: Tracker Server (Core events that shouldn't be modified)
-	EventHandler.addNewEvent(EventHandler.IEvent:new({
-		Key = EventHandler.CoreEventTypes.Start,
-		Exclude = true,
-		Process = function(self, request)
-			-- Wait to hear from Streamerbot before fulfilling this request
-			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
-		end,
-		Fulfill = function(self, request)
-			Network.updateConnectionState(Network.ConnectionState.Established)
-			RequestHandler.removedExcludedRequests()
-			StreamConnectOverlay.refreshButtons()
-			return RequestHandler.REQUEST_COMPLETE
-		end,
-	}))
-	EventHandler.addNewEvent(EventHandler.IEvent:new({
-		Key = EventHandler.CoreEventTypes.Stop,
-		Exclude = true,
-		Process = function(self, request)
-			local ableToStop = Network.CurrentConnection.State >= Network.ConnectionState.Established
-			-- Wait to hear from Streamerbot before fulfilling this request
-			return ableToStop and request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
-		end,
-		Fulfill = function(self, request)
-			Network.updateConnectionState(Network.ConnectionState.Listen)
-			RequestHandler.removedExcludedRequests()
-			StreamConnectOverlay.refreshButtons()
-			return RequestHandler.REQUEST_COMPLETE
-		end,
-	}))
-	EventHandler.addNewEvent(EventHandler.IEvent:new({
-		Key = EventHandler.CoreEventTypes.GetRewards,
-		Exclude = true,
-		Process = function(self, request)
-			-- Wait to hear from Streamerbot before fulfilling this request
-			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
-		end,
-		Fulfill = function(self, request)
-			EventHandler.updateRewardList(request.Args.Rewards)
-			return RequestHandler.REQUEST_COMPLETE
-		end,
-	}))
-	EventHandler.addNewEvent(EventHandler.IEvent:new({
-		Key = EventHandler.CoreEventTypes.UpdateEvents,
-		Exclude = true,
-		Fulfill = function(self, request)
-			local allowedEvents = {}
-			for _, event in pairs(EventHandler.Events) do
-				if event.IsEnabled and not event.Exclude then
-					if not Utils.isNilOrEmpty(event.Command) then
-						table.insert(allowedEvents, event.Command:sub(2))
-					elseif not Utils.isNilOrEmpty(event.RewardId) then
-						table.insert(allowedEvents, event.RewardId)
-					end
-				end
-			end
-			return #allowedEvents > 0 and table.concat(allowedEvents, ",") or ""
-		end,
-	}))
+	-- Add these events directly, as they aren't modifiable by the user
+	for key, event in pairs(EventHandler.CoreEvents) do
+		event.Key = key
+		EventHandler.addNewEvent(event)
+	end
 
 	-- Make a copy of each default event, such that they can still be referenced without being changed.
 	for key, event in pairs(EventHandler.DefaultEvents) do
@@ -332,6 +278,67 @@ function EventHandler.outputCurrentRedemption()
 		end
 	end
 end
+
+EventHandler.CoreEvents = {
+	-- TS_: Tracker Server (Core events that shouldn't be modified)
+	[EventHandler.CoreEventTypes.Start] = {
+		Exclude = true,
+		Process = function(self, request)
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
+		end,
+		Fulfill = function(self, request)
+			Network.updateConnectionState(Network.ConnectionState.Established)
+			RequestHandler.removedExcludedRequests()
+			StreamConnectOverlay.refreshButtons()
+			return RequestHandler.REQUEST_COMPLETE
+		end,
+	},
+	[EventHandler.CoreEventTypes.Stop] = {
+		Exclude = true,
+		Process = function(self, request)
+			local ableToStop = Network.CurrentConnection.State >= Network.ConnectionState.Established
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return ableToStop and request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
+		end,
+		Fulfill = function(self, request)
+			Network.updateConnectionState(Network.ConnectionState.Listen)
+			RequestHandler.removedExcludedRequests()
+			StreamConnectOverlay.refreshButtons()
+			return RequestHandler.REQUEST_COMPLETE
+		end,
+	},
+	[EventHandler.CoreEventTypes.GetRewards] = {
+		Exclude = true,
+		Process = function(self, request)
+			-- Wait to hear from Streamerbot before fulfilling this request
+			return request.Args.Source == RequestHandler.SOURCE_STREAMERBOT
+		end,
+		Fulfill = function(self, request)
+			EventHandler.updateRewardList(request.Args.Rewards)
+			return RequestHandler.REQUEST_COMPLETE
+		end,
+	},
+	[EventHandler.CoreEventTypes.UpdateEvents] = {
+		Exclude = true,
+		Process = function(self, request) return true end,
+		Fulfill = function(self, request)
+			local allowedEvents = {}
+			for _, event in pairs(EventHandler.Events) do
+				if event.IsEnabled and not event.Exclude then
+					if not Utils.isNilOrEmpty(event.Command) then
+						table.insert(allowedEvents, event.Command:sub(2))
+					elseif not Utils.isNilOrEmpty(event.RewardId) then
+						table.insert(allowedEvents, event.RewardId)
+					end
+				end
+			end
+			return #allowedEvents > 0 and table.concat(allowedEvents, ",") or ""
+		end,
+	}
+	-- TODO: Need to retrieve code version from StreamerBot, and display in the !about command.
+	-- Use this version number to compare against tracker's knowledge of what streamerbot code version should be, to require an update
+}
 
 EventHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
