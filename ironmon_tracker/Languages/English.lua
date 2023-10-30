@@ -605,7 +605,7 @@ ScreenResources{
 		EffectPerishCount = "Perish Count",
 		EffectCannotEscape = "Can't Escape",
 		EffectTruant = "Loafing",
-		EffectLastMove = "Last Move",
+		EffectFutureSight = "Future Attack",
 	},
 	TeamViewArea = {
 		EggNickname = "EGG",

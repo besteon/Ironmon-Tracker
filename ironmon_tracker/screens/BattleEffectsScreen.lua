@@ -678,12 +678,12 @@ local function loadWishStruct(index)
 end
 
 local function loadOther(index)
-	--local lastMoveID = Battle.LastMoves[index]
-	local lastMoveID = Battle.lastEnemyMoveId
+	local lastMoveID = Battle.LastMoves[index] or 0
+	--local lastMoveID = Battle.lastEnemyMoveId
 	if MoveData.isValid(lastMoveID) then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLastMove] = MoveData.Moves[lastMoveID].name
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.TextLastMove] = MoveData.Moves[lastMoveID].name
 	else
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectLastMove] = Resources.BattleEffectsScreen.TextNotAvailable
+		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.TextLastMove] = Resources.BattleEffectsScreen.TextNotAvailable
 	end
 end
 

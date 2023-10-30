@@ -22,6 +22,7 @@ Battle = {
 	prevDamageTotal = 0,
 	damageReceived = 0,
 	lastEnemyMoveId = 0,
+
 	enemyHasAttacked = false,
 	firstActionTaken = false,
 
@@ -53,6 +54,7 @@ Battle = {
 		[0] = {},
 		[1] = {},
 	},
+	LastMoves = {},
 }
 
 -- Game Code maps the combatants in battle as follows: OwnTeamIndexes [L=0, R=2], EnemyTeamIndexes [L=1, R=3]
@@ -269,15 +271,19 @@ function Battle.updateViewSlots()
 	--Track if ally pokemon changes, to reset transform and ability changes
 	if prevOwnPokemonLeft ~= nil and prevOwnPokemonLeft ~= Battle.Combatants.LeftOwn and Battle.BattleParties[0][prevOwnPokemonLeft] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonLeft,true)
+		Battle.LastMoves[0] = 0
 	elseif Battle.numBattlers == 4 and prevOwnPokemonRight ~= nil and prevOwnPokemonRight ~= Battle.Combatants.RightOwn and Battle.BattleParties[0][prevOwnPokemonRight] ~= nil then
 		Battle.resetAbilityMapPokemon(prevOwnPokemonRight,true)
+		Battle.LastMoves[2] = 0
 	end
 	-- Pokemon on the left is not the one that was there previously
 	if prevEnemyPokemonLeft ~= nil and prevEnemyPokemonLeft ~= Battle.Combatants.LeftOther and Battle.BattleParties[1][prevEnemyPokemonLeft] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonLeft,false)
+		Battle.LastMoves[1] = 0
 		Battle.changeOpposingPokemonView(true)
 	elseif Battle.numBattlers == 4 and prevEnemyPokemonRight ~= nil and prevEnemyPokemonRight ~= Battle.Combatants.RightOther and Battle.BattleParties[1][prevEnemyPokemonRight] then
 		Battle.resetAbilityMapPokemon(prevEnemyPokemonRight,false)
+		Battle.LastMoves[3] = 0
 		Battle.changeOpposingPokemonView(false)
 	end
 end
@@ -356,57 +362,63 @@ function Battle.updateTrackedInfo()
 		-- firstActionTaken fixes leftover data issue going from Single to Double battle
 		-- If the same attacker was just logged, stop logging
 
-			if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 and currentAction == 0 then
-				-- 0 = MOVE_USED
-				if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
-					if Battle.AbilityChangeData.prevAction ~= actionCount then
-						Battle.AbilityChangeData.recordNextMove = true
-						Battle.AbilityChangeData.prevAction = actionCount
-					elseif Battle.AbilityChangeData.recordNextMove then
-						local hitFlags = Memory.readdword(GameSettings.gHitMarker)
-						local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
-						--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
-						if Utils.bit_and(hitFlags,0x80000) == 0 then
-							-- Track move so long as the mon was able to use it
-
-							--Handle snatch
-							if Battle.battleMsg == GameSettings.BattleScript_SnatchedMove then
-								local battlerSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
-								local battler = Battle.BattleParties[Battle.battler % 2][battlerSlot]
-								local battlerTransformData = battler.transformData
-								if not battlerTransformData.isOwn then
-									local lastMoveByBattler = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.battler % 2) * 0x2))
-									if lastMoveByBattler == battler.moves[1] or lastMoveByBattler == battler.moves[2] or lastMoveByBattler == battler.moves[3] or lastMoveByBattler == battler.moves[4] then
-										local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
-										if battlerMon ~= nil then
-											Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+			if actionCount < Battle.numBattlers and Battle.firstActionTaken and confirmedCount == 0 then
+				if currentAction == 0 then
+					-- 0 = MOVE_USED
+					if lastMoveByAttacker > 0 and lastMoveByAttacker < #MoveData.Moves + 1 then
+						if Battle.AbilityChangeData.prevAction ~= actionCount then
+							Battle.AbilityChangeData.recordNextMove = true
+							Battle.AbilityChangeData.prevAction = actionCount
+						elseif Battle.AbilityChangeData.recordNextMove then
+							local hitFlags = Memory.readdword(GameSettings.gHitMarker)
+							local moveFlags = Memory.readbyte(GameSettings.gMoveResultFlags)
+							--Do nothing if attacker was unable to use move (Fully paralyzed, Truant, etc.; HITMARKER_UNABLE_TO_USE_MOVE)
+							if Utils.bit_and(hitFlags,0x80000) == 0 then
+								-- Track move so long as the mon was able to use it
+								Battle.LastMoves[Battle.attacker] = lastMoveByAttacker
+								--Handle snatch
+								if Battle.battleMsg == GameSettings.BattleScript_SnatchedMove then
+									local battlerSlot = Battle.Combatants[Battle.IndexMap[Battle.battler]]
+									local battler = Battle.BattleParties[Battle.battler % 2][battlerSlot]
+									local battlerTransformData = battler.transformData
+									if not battlerTransformData.isOwn then
+										local lastMoveByBattler = Memory.readword(GameSettings.gBattleResults + 0x22 + ((Battle.battler % 2) * 0x2))
+										if lastMoveByBattler == battler.moves[1] or lastMoveByBattler == battler.moves[2] or lastMoveByBattler == battler.moves[3] or lastMoveByBattler == battler.moves[4] then
+											local battlerMon = Tracker.getPokemon(battlerTransformData.slot,battlerTransformData.isOwn)
+											if battlerMon ~= nil then
+												Tracker.TrackMove(battlerMon.pokemonID, lastMoveByBattler, battlerMon.level)
+											end
 										end
+									end
+								else
+									-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
+									local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
+									local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
+									local transformData = attacker.transformData
+									if transformData and not transformData.isOwn then
+										-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic)
+										if lastMoveByAttacker == attacker.moves[1] or lastMoveByAttacker == attacker.moves[2] or lastMoveByAttacker == attacker.moves[3] or lastMoveByAttacker == attacker.moves[4] then
+											local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
+											if attackingMon ~= nil then
+												Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
+											end
+										end
+									end
+
+									--Only track ability-changing moves if they also did not fail/miss
+									if Utils.bit_and(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
+										Battle.trackAbilityChanges(lastMoveByAttacker,nil)
 									end
 								end
 							else
-								-- Only track moves for enemies or NPC allies; our moves could be TM moves, or moves we didn't forget from earlier levels
-								local attackerSlot = Battle.Combatants[Battle.IndexMap[Battle.attacker]] or 0
-								local attacker = Battle.BattleParties[Battle.attacker % 2][attackerSlot] or {}
-								local transformData = attacker.transformData
-								if transformData and not transformData.isOwn then
-									-- Only track moves which the pokemon knew at the start of battle (in case of Sketch/Mimic)
-									if lastMoveByAttacker == attacker.moves[1] or lastMoveByAttacker == attacker.moves[2] or lastMoveByAttacker == attacker.moves[3] or lastMoveByAttacker == attacker.moves[4] then
-										local attackingMon = Tracker.getPokemon(transformData.slot,transformData.isOwn)
-										if attackingMon ~= nil then
-											Tracker.TrackMove(attackingMon.pokemonID, lastMoveByAttacker, attackingMon.level)
-										end
-									end
-								end
-
-								--Only track ability-changing moves if they also did not fail/miss
-								if Utils.bit_and(moveFlags,0x29) == 0 then -- MOVE_RESULT_MISSED | MOVE_RESULT_DOESNT_AFFECT_FOE | MOVE_RESULT_FAILED
-									Battle.trackAbilityChanges(lastMoveByAttacker,nil)
-								end
+								Battle.LastMoves[Battle.attacker] = 0
 							end
+							--only get one chance to record
+							Battle.AbilityChangeData.recordNextMove = false
 						end
-						--only get one chance to record
-						Battle.AbilityChangeData.recordNextMove = false
 					end
+				else
+					Battle.LastMoves[Battle.attacker] = 0
 				end
 			end
 		else
@@ -777,6 +789,7 @@ function Battle.endCurrentBattle()
 		[0] = {},
 		[1] = {},
 	}
+	Battle.LastMoves = {}
 
 	Program.recalcLeadPokemonHealingInfo()
 	-- While the below clears our currently stored enemy pokemon data, most gets read back in from memory anyway
