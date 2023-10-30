@@ -5,7 +5,7 @@ BattleEffectsScreen = {
 	viewedSideIndex = 0,
 	currentPage = 1,
 	numPages = 1,
-	pageSize = 7,
+	pageSize = 6,
 	Colors = {
 		text = "Default text",
 		highlight = "Intermediate text",
@@ -131,6 +131,10 @@ BattleEffectsScreen.Buttons = {
 	},
 	Back = Drawing.createUIElementBackButton(function()
 		Program.changeScreenView(TrackerScreen)
+		--reset clickable area for team boxes
+		BattleEffectsScreen.Buttons.AllyTeam.box[1] = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 129
+		BattleEffectsScreen.Buttons.AllyTeam.box[3] = 6
+		BattleEffectsScreen.Buttons.EnemyTeam.box[3] = 6
 	end),
 }
 
@@ -779,7 +783,9 @@ local function drawTitle()
 	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTerrain .. ": " .. BattleEffectsScreen.BattleDetails.Terrain, textColor, boxInfoTopShadow)
 	offsetY = offsetY + linespacing
 	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextWeather .. ": " .. BattleEffectsScreen.BattleDetails.Weather, textColor, boxInfoTopShadow)
-	offsetY = offsetY - linespacing - linespacing + 32
+	offsetY = offsetY + linespacing
+	Drawing.drawText(offsetX,offsetY, Resources.BattleEffectsScreen.TextTurn .. ": " .. (Battle.turnCount or 0 ) + 1, textColor, boxInfoTopShadow)
+	offsetY = Constants.SCREEN.MARGIN + 50
 
 	local prefix = Resources.BattleEffectsScreen.TextAllied
 	local suffix = Resources.BattleEffectsScreen.TextTeam
@@ -799,7 +805,7 @@ end
 
 local function drawBattleDetailsUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 50
+	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
@@ -831,7 +837,7 @@ end
 
 local function drawPerSideUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 50
+	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
@@ -855,7 +861,7 @@ end
 
 local function drawPerMonUI()
 	local offsetX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 10
-	local offsetY = Constants.SCREEN.MARGIN + 50
+	local offsetY = Constants.SCREEN.MARGIN + 62
 	local linespacing = Constants.SCREEN.LINESPACING - 1
 	local textColor = Theme.COLORS[BattleEffectsScreen.Colors.text]
 	local boxInfoTopShadow = Utils.calcShadowColor(Theme.COLORS[BattleEffectsScreen.Colors.boxFill])
