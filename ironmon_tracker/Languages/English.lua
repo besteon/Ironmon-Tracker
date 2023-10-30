@@ -568,7 +568,7 @@ ScreenResources{
 		TextTurn = "Turn",
 		TextTerrain = "Terrain",
 		TextWeather = "Weather",
-		TextWeatherTurns = "Weather Turns",
+		TextWeatherTurns = "Weather turns",
 		TextAllied = "Allied",
 		TextEnemy = "Enemy",
 		TextTeam = "Team",
