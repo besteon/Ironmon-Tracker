@@ -262,10 +262,14 @@ local function loadFieldEffects()
 	loadWeather()
 	local gPaydayMoney = Memory.readword(GameSettings.gPaydayMoney)
 	if gPaydayMoney ~= 0 then
-		BattleEffectsScreen.BattleDetails[Resources.BattleEffectsScreen.EffectPayDay] = {active = true, amount = gPaydayMoney}
+		BattleEffectsScreen.BattleDetails.PayDay = {
+			label = Resources.BattleEffectsScreen.EffectPayDay,
+			amount = gPaydayMoney
+		}
 	end
 end
 
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
 local function loadStatus2(index)
 	--[[
 		GameSettings.gBattleMons + 0x50
@@ -309,43 +313,67 @@ local function loadStatus2(index)
 	local status2Map = Utils.generateBitwiseMap(status2Data, 32)
 	if status2Map[0] or status2Map[1] or status2Map[2] then
 		local turnsText = string.format("1- 4 %ss", Resources.BattleEffectsScreen.TextTurn)
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectConfused] = {active=true, totalTurns = turnsText}
+		BattleEffectsScreen.PerMonDetails[index].Confused = {
+			label = Resources.BattleEffectsScreen.EffectConfused,
+			totalTurns = turnsText
+		}
 	end
 	if status2Map[4] or status2Map[5] or status2Map[6] then
 		--253 = Uproar
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[253]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Uproar = {
+			label = Resources.Game.MoveNames[253]
+		}
 	end
 	if status2Map[8] or status2Map[9] then
 		remainingTurnsBide = (Utils.inlineIf(status2Map[8],1,0) + Utils.inlineIf(status2Map[9],2,0))
 		--117 = Bide
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[117]] = {active=true, remainingTurns=remainingTurnsBide}
+		BattleEffectsScreen.PerMonDetails[index].Bide = {
+			label = Resources.Game.MoveNames[117],
+			remainingTurns=remainingTurnsBide
+		}
 	end
 	if status2Map[12] and remainingTurnsBide == nil then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectMustAttack] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].MustAttack = {
+			label = Resources.BattleEffectsScreen.EffectMustAttack
+		}
 	end
 	if status2Map[13] or status2Map[14] or status2Map[15] then
 		local sourceBattlerIndex = Memory.readbyte(battleStructAddress + 0x14 + index)
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTrapped] = {active=true, source = sourceBattlerIndex}
+		BattleEffectsScreen.PerMonDetails[index].Trapped = {
+			label = Resources.BattleEffectsScreen.EffectTrapped,
+			source = sourceBattlerIndex
+		}
 	end
 	if status2Map[16] or status2Map[17] or status2Map[18] or status2Map[19] then
 		local infatuationTarget = Utils.inlineIf(status2Map[16],0,nil) or Utils.inlineIf(status2Map[17],1,nil) or Utils.inlineIf(status2Map[18],2,nil) or Utils.inlineIf(status2Map[19],3,0)
 		--213 = Attract
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[213]] = {active=true, source=infatuationTarget}
+		BattleEffectsScreen.PerMonDetails[index].Attract = {
+			label = Resources.Game.MoveNames[213],
+			source=infatuationTarget
+		}
 	end
 	if status2Map[20] then
 		--116 = Focus Energy
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[116]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].FocusEnergy = {
+			label = Resources.Game.MoveNames[116]
+		}
 	end
 	if status2Map[21] then
 		--144 = Transform
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[144]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Transform = {
+			label = Resources.Game.MoveNames[144]
+		}
 	end
 	if status2Map[22] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotAct] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].CannotAct = {
+			label = Resources.BattleEffectsScreen.EffectCannotAct
+		}
 	end
 	if status2Map[23] then
 		--99 = Rage
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[99]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Rage = {
+			label = Resources.Game.MoveNames[99]
+		}
 	end
 	--[[
 		--leaving here since it is technically a battle status, but the player can physically see the substitute in the battle
@@ -355,33 +383,48 @@ local function loadStatus2(index)
 	]]--
 	if status2Map[25] then
 		--194 = Destiny Bond
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[194]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].DestinyBond = {
+			label = Resources.Game.MoveNames[194]
+		}
 	end
 	if status2Map[26] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotEscape] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].CannotEscape = {
+			label = Resources.BattleEffectsScreen.EffectCannotEscape
+		}
 	end
 	if status2Map[27] then
 		--171 = Nightmare
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[171]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Nightmare = {
+			label = Resources.Game.MoveNames[171]
+		}
 	end
 	if status2Map[28] then
 		--174 = Curse
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[174]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Curse = {
+			label = Resources.Game.MoveNames[174]
+		}
 	end
 	if status2Map[29] then
 		--193 = Foresight
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[193]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Foresight = {
+			label = Resources.Game.MoveNames[193]
+		}
 	end
 	if status2Map[30] then
 		--111 = Defense Curl
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[111]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].DefenseCurl = {
+			label = Resources.Game.MoveNames[111]
+		}
 	end
 	if status2Map[31] then
 		--259 = Torment
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[259]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Torment = {
+			label = Resources.Game.MoveNames[259]
+		}
 	end
 end
 
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
 local function loadStatus3(index)
 	--[[
 		gStatuses3
@@ -412,72 +455,80 @@ local function loadStatus3(index)
 	if status3Map[2] then
 		local leechSeedSource = (Utils.inlineIf(status3Map[0],1,0) + Utils.inlineIf(status3Map[1],2,0))
 		--73 = Leech Seed
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[73]] = {active=true, source=leechSeedSource}
+		BattleEffectsScreen.PerMonDetails[index].LeechSeed = {
+			label = Resources.Game.MoveNames[73],
+			source=leechSeedSource
+		}
 	end
 	if status3Map[3] or status3Map[4] then
 		--199 = Lock On
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[199]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].LockOn = {
+			label = Resources.Game.MoveNames[199]
+		}
 	end
 	if status3Map[5] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishCount] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].PerishCount = {
+			label = Resources.BattleEffectsScreen.EffectPerishCount
+		}
 	end
 	if status3Map[6] or status3Map[7] or status3Map[18] then
 		local invulnerableType = Utils.inlineIf(status3Map[6],Resources.BattleEffectsScreen.EffectAirborne,nil) or Utils.inlineIf(status3Map[7],Resources.BattleEffectsScreen.EffectUnderground,nil) or Utils.inlineIf(status3Map[18],Resources.BattleEffectsScreen.EffectUnderwater,"")
-		BattleEffectsScreen.PerMonDetails[index][invulnerableType] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Invulnerable = {
+			label = invulnerableType
+		}
 	end
 	if status3Map[8] then
 		--107 = Minimize
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[107]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Minimize = {
+			label = Resources.Game.MoveNames[107]
+		}
 	end
 	if status3Map[9] then
 		--268 = Charge
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[268]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Charge = {
+			label = Resources.Game.MoveNames[268]
+		}
 	end
 	if status3Map[10] then
 		--275 = Ingrain
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[275]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Ingrain = {
+			label = Resources.Game.MoveNames[275]
+		}
 	end
 	if status3Map[11] or status3Map[12] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectDrowsy] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Yawn = {
+			label = Resources.BattleEffectsScreen.EffectDrowsy
+		}
 	end
 	if status3Map[13] then
 		--286 = Imprison
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[286]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Imprison = {
+			label = Resources.Game.MoveNames[286]
+		}
 	end
 	if status3Map[14] then
 		--288 = Grudge
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[288]] = {active=true}
+		BattleEffectsScreen.PerMonDetails[index].Grudge = {
+			label = Resources.Game.MoveNames[288]
+		}
 	end
 	if status3Map[16] then
 		--300 = Mud Sport
-		if BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[300]] then
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[300]].active = true
-		else
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[300]] = {active=true}
-		end
-		local sources = BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[300]].sources
-		if sources then
-			sources[index] = true
-		else
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[300]].sources = {[index] = true}
-		end
+		BattleEffectsScreen.BattleDetails.MudSport = BattleEffectsScreen.BattleDetails.MudSport or {}
+		BattleEffectsScreen.BattleDetails.MudSport.sources = BattleEffectsScreen.BattleDetails.MudSport.sources or {}
+		BattleEffectsScreen.BattleDetails.MudSport.label = Resources.Game.MoveNames[300]
+		BattleEffectsScreen.BattleDetails.MudSport.sources[index] = true
 	end
 	if status3Map[17] then
 		--346 = Water Sport
-		if BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[346]] then
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[346]].active = true
-		else
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[346]] = {active=true}
-		end
-		local sources = BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[346]].sources
-		if sources then
-			sources[index] = true
-		else
-			BattleEffectsScreen.BattleDetails[Resources.Game.MoveNames[346]].sources = {[index] = true}
-		end
+		BattleEffectsScreen.BattleDetails.WaterSport = BattleEffectsScreen.BattleDetails.WaterSport or {}
+		BattleEffectsScreen.BattleDetails.WaterSport.sources = BattleEffectsScreen.BattleDetails.WaterSport.sources or {}
+		BattleEffectsScreen.BattleDetails.WaterSport.label = Resources.Game.MoveNames[346]
+		BattleEffectsScreen.BattleDetails.WaterSport.sources[index] = true
 	end
 end
 
+---@param index number Must be [0-1], inclusively; represent either the allied or enemy team
 local function loadSideStatuses(index)
 	--[[
 	gSideStatuses[2] (0x02)
@@ -510,6 +561,7 @@ local function loadSideStatuses(index)
 	if index == nil or index < 0 or index > 1 then
 		index = 0
 	end
+	BattleEffectsScreen.PerSideDetails[index] = BattleEffectsScreen.PerSideDetails[index] or {}
 	local sideStatuses = Memory.readword(GameSettings.gSideStatuses + (index * 0x02))
 	local sideTimersBase = GameSettings.gSideTimers + (index * 0x0C)
 	local sideStatusMap = Utils.generateBitwiseMap(sideStatuses, 9)
@@ -517,30 +569,46 @@ local function loadSideStatuses(index)
 	if sideStatusMap[0] then
 		local turnsLeftReflect = Memory.readbyte(sideTimersBase)
 		--115 = Reflect
-		BattleEffectsScreen.PerSideDetails[index][Resources.Game.MoveNames[115]] = {active = true,remainingTurns = turnsLeftReflect}
+		BattleEffectsScreen.PerSideDetails[index].Reflect = {
+			label = Resources.Game.MoveNames[115],
+			remainingTurns = turnsLeftReflect
+		}
 	end
 	if sideStatusMap[1] then
 		local turnsLeftLightScreen = Memory.readbyte(sideTimersBase + 0x02)
 		--113 = Light Screen
-		BattleEffectsScreen.PerSideDetails[index][Resources.Game.MoveNames[113]] = {active = true,remainingTurns = turnsLeftLightScreen}
+		BattleEffectsScreen.PerSideDetails[index].LightScreen = {
+			label = Resources.Game.MoveNames[113],
+			remainingTurns = turnsLeftLightScreen
+		}
 	end
 	if sideStatusMap[4] then
 		local amountSpikes = Memory.readbyte(sideTimersBase + 0x0A)
 		--191 = Spikes
-		BattleEffectsScreen.PerSideDetails[index][Resources.Game.MoveNames[191]] = {active = true,count = amountSpikes}
+		BattleEffectsScreen.PerSideDetails[index].Spikes = {
+			label = Resources.Game.MoveNames[191],
+			count = amountSpikes
+		}
 	end
 	if sideStatusMap[5] then
 		local turnsLeftSafeguard = Memory.readbyte(sideTimersBase + 0x06)
 		--219 = Safeguard
-		BattleEffectsScreen.PerSideDetails[index][Resources.Game.MoveNames[219]] = {active = true,remainingTurns = turnsLeftSafeguard}
+		BattleEffectsScreen.PerSideDetails[index].Safeguard = {
+			label = Resources.Game.MoveNames[219],
+			remainingTurns = turnsLeftSafeguard
+		}
 	end
 	if sideStatusMap[8] then
 		local turnsLeftMist = Memory.readbyte(sideTimersBase + 0x04)
 		--54 = Mist
-		BattleEffectsScreen.PerSideDetails[index][Resources.Game.MoveNames[54]] = {active = true,remainingTurns = turnsLeftMist}
+		BattleEffectsScreen.PerSideDetails[index].Mist = {
+			label = Resources.Game.MoveNames[54],
+			remainingTurns = turnsLeftMist
+		}
 	end
 end
 
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
 local function loadDisableStruct(index)
 	--[[
 		gDisableStructs
@@ -583,49 +651,68 @@ local function loadDisableStruct(index)
 	local disabledMove = Memory.readword(disableStructBase + 0x04)
 	if disabledMove ~= 0 then
 		--50 = Disable
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[50]] = {active = true, move = disabledMove}
+		BattleEffectsScreen.PerMonDetails[index].Disable = {
+			label = Resources.Game.MoveNames[50],
+			move = disabledMove
+		}
 	end
 	local encoredMove = Memory.readword(disableStructBase + 0x06)
 	if encoredMove ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[227]] = {active = true, move = encoredMove}
+		BattleEffectsScreen.PerMonDetails[index].Encore = {
+			label = Resources.Game.MoveNames[227],
+			move = encoredMove
+		}
 	end
 	local protectUses = Memory.readbyte(disableStructBase + 0x08)
 	if protectUses ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectProtectUses] = {active = true, count = protectUses}
+		BattleEffectsScreen.PerMonDetails[index].Protection = {
+			label = Resources.BattleEffectsScreen.EffectProtectUses,
+			count = protectUses}
 	end
 	local stockpileCount = Memory.readbyte(disableStructBase + 0x09)
 	if stockpileCount ~= 0 then
 		--254 = Stockpile
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[254]] = {active = true, count = stockpileCount}
+		BattleEffectsScreen.PerMonDetails[index].Stockpile = {
+			label = Resources.Game.MoveNames[254],
+			count = stockpileCount
+		}
 	end
 
-	if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong] and BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].active == true then
+	if BattleEffectsScreen.PerMonDetails[index].PerishCount then
 		local perishSongCount = Utils.getbits(Memory.readword(disableStructBase + 0x0F),0,4)
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectPerishSong].count = perishSongCount + 1
+		BattleEffectsScreen.PerMonDetails[index].PerishCount.count = perishSongCount + 1
 	end
 	local furyCutterCount = Memory.readbyte(disableStructBase + 0x10)
 	if furyCutterCount ~= 0 then
 		--210 = Fury Cutter
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[210]] = {active = true, count = furyCutterCount}
+		BattleEffectsScreen.PerMonDetails[index].FuryCutter = {
+			label = Resources.Game.MoveNames[210],
+			count = furyCutterCount}
 	end
 	local rolloutCount = Utils.getbits(Memory.readword(disableStructBase + 0x11),0,4)
 	if rolloutCount ~= 0 then
 		local lockedMoves = Memory.readword (GameSettings.gLockedMoves + (index * 0x02))
 		local moveName = Resources.Game.MoveNames[lockedMoves] or ""
-		BattleEffectsScreen.PerMonDetails[index][moveName] = {active = true, remainingTurns = rolloutCount}
+		BattleEffectsScreen.PerMonDetails[index].Rollout = {
+			label = moveName,
+			remainingTurns = rolloutCount
+		}
 	end
 	local tauntTimer = Utils.getbits(Memory.readword(disableStructBase + 0x13),0,4)
 	if tauntTimer ~= 0 then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectTaunt] = {active = true, remainingTurns = tauntTimer}
+		BattleEffectsScreen.PerMonDetails[index].Taunt = {
+			label = Resources.BattleEffectsScreen.EffectTaunt,
+			remainingTurns = tauntTimer
+		}
 	end
 	local cannotEscapeSource = Memory.readbyte(disableStructBase + 0x14)
-	if BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotEscape] then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectCannotEscape].source = cannotEscapeSource
+	if BattleEffectsScreen.PerMonDetails[index].Trapped then
+		BattleEffectsScreen.PerMonDetails[index].Trapped.source = cannotEscapeSource
 	end
 	local lockOnSource = Memory.readbyte(disableStructBase + 0x15)
-	if BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[199]] then
+	if BattleEffectsScreen.PerMonDetails[index].LockOn then
 		--199 = Lock-On
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[199]].source = lockOnSource
+		BattleEffectsScreen.PerMonDetails[index].LockOn.source = lockOnSource
 	end
 	--[[
 		local truantCheck = Memory.readbyte(disableStructBase + 0x18)
@@ -640,6 +727,7 @@ local function loadDisableStruct(index)
 	]]--
 end
 
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
 local function loadWishStruct(index)
 	--[[
 		gWishFutureKnock
@@ -662,29 +750,40 @@ local function loadWishStruct(index)
 	local futureSightCounter = Memory.readbyte(wishStructBase + (index * 0x1))
 	if futureSightCounter ~= 0 then
 		local futureSightSource = Memory.readbyte(wishStructBase + 0x04 + (index * 0x1))
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.EffectFutureSight] = {active = true, source = futureSightSource, remainingTurns = futureSightCounter}
+		BattleEffectsScreen.PerMonDetails[index].FutureAttack = {
+			label = Resources.BattleEffectsScreen.EffectFutureSight,
+			source = futureSightSource,
+			remainingTurns = futureSightCounter}
 	end
 	local wishCounter = Memory.readbyte(wishStructBase + 0x20 + (index * 0x1))
 	if wishCounter ~= 0 then
 		local wishSource = Memory.readbyte(wishStructBase + 0x24 + (index * 0x1))
 		--273 = Wish
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[273]] = {active = true, source = wishSource, remainingTurns = wishCounter}
+		BattleEffectsScreen.PerMonDetails[index].Wish = {
+			label = Resources.Game.MoveNames[273],
+			source = wishSource,
+			remainingTurns = wishCounter}
 	end
 	local knockOffCheck = Memory.readbyte(wishStructBase + 0x29 + (index * 0x1) + Utils.inlineIf(index<2,0,1))
 	if knockOffCheck ~= 0 then
 		--282 = Knock Off
-		BattleEffectsScreen.PerMonDetails[index][Resources.Game.MoveNames[282]] = {active = true}
+		BattleEffectsScreen.PerMonDetails[index].KnockOff = {label = Resources.Game.MoveNames[282]}
 	end
 end
 
+---@param index number Must be [0-3], inclusively; represent which of the 4 battle mons to load details for
 local function loadOther(index)
 	local lastMoveID = Battle.LastMoves[index] or 0
 	--local lastMoveID = Battle.lastEnemyMoveId
+	local moveText = Resources.BattleEffectsScreen.TextNotAvailable
 	if MoveData.isValid(lastMoveID) then
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.TextLastMove] = MoveData.Moves[lastMoveID].name
-	else
-		BattleEffectsScreen.PerMonDetails[index][Resources.BattleEffectsScreen.TextLastMove] = Resources.BattleEffectsScreen.TextNotAvailable
+		moveText = MoveData.Moves[lastMoveID].name
 	end
+	BattleEffectsScreen.PerMonDetails[index] = BattleEffectsScreen.PerMonDetails[index] or {}
+	BattleEffectsScreen.PerMonDetails[index].LastMove = {
+			label = Resources.BattleEffectsScreen.TextLastMove,
+			value = moveText
+		}
 end
 
 function BattleEffectsScreen.loadData()
@@ -707,52 +806,50 @@ function BattleEffectsScreen.refreshIndex()
 	BattleEffectsScreen.viewedSideIndex = 0
 
 	if Battle.numBattlers == 2 then
-		--increase clickable area for team boxes
+		--increase clickable area for team boxes in single battles to include the unused pokeballs
 		BattleEffectsScreen.Buttons.AllyTeam.box[1] = BattleEffectsScreen.Buttons.AllyTeam.box[1] - 14
 		BattleEffectsScreen.Buttons.AllyTeam.box[3] = BattleEffectsScreen.Buttons.AllyTeam.box[3] + 14
 		BattleEffectsScreen.Buttons.EnemyTeam.box[3] = BattleEffectsScreen.Buttons.EnemyTeam.box[3] + 14
 	end
 end
 
-local function parseInput(key, value)
+local function parseInput(value)
 	local text = ""
-	if value.active then
-		text = "- " .. key
+	text = "- " .. value.label
 
-		if value.type then
-			text = text .. " (" .. value.type .. ")"
-		elseif value.move and MoveData.isValid(value.move) then
-			text = text .. " (" .. MoveData.Moves[value.move].name .. ")"
-		elseif value.count then
-			text = text .. ": " .. value.count
-		elseif value.remainingTurns then
-			text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurn
-			if value.remainingTurns > 1 or value.remainingTurns == 0 then
-				text = text .. "s"
-			end
-			text = text .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining
-		elseif value.totalTurns then
-			text = text .. " (" .. value.totalTurns .. ")"
-		elseif value.source then
-			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or 0
-			local sourceMonId = Tracker.getPokemon(sourceMonIndex,value.source%2==0).pokemonID
-			local sourceMonName = PokemonData.Pokemon[sourceMonId].name
-			text = text .. " (" .. sourceMonName .. ")"
-		elseif value.sources then
-			text = text .. " ("
-			local i = 0
-			for sourceKey, sourceValue in pairs(value.sources) do
-				if i > 0 then
-					text = text .. ", "
-				end
-				local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or 0
-				local sourceMonId = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0).pokemonID
-				local sourceMonName = PokemonData.Pokemon[sourceMonId].name
-				text = text .. sourceMonName
-				i = i + 1
-			end
-			text = text .. ")"
+	if value.type then
+		text = text .. " (" .. value.type .. ")"
+	elseif value.move and MoveData.isValid(value.move) then
+		text = text .. " (" .. MoveData.Moves[value.move].name .. ")"
+	elseif value.count then
+		text = text .. ": " .. value.count
+	elseif value.remainingTurns then
+		text = text .. ": " .. value.remainingTurns .. " " .. Resources.BattleEffectsScreen.TextTurn
+		if value.remainingTurns > 1 or value.remainingTurns == 0 then
+			text = text .. "s"
 		end
+		text = text .. " " .. Resources.BattleEffectsScreen.TextTurnsRemaining
+	elseif value.totalTurns then
+		text = text .. " (" .. value.totalTurns .. ")"
+	elseif value.source then
+		local sourceMonIndex = Battle.Combatants[Battle.IndexMap[value.source]] or 0
+		local sourceMonId = Tracker.getPokemon(sourceMonIndex,value.source%2==0).pokemonID
+		local sourceMonName = PokemonData.Pokemon[sourceMonId].name
+		text = text .. " (" .. sourceMonName .. ")"
+	elseif value.sources then
+		text = text .. " ("
+		local i = 0
+		for sourceKey, sourceValue in pairs(value.sources) do
+			if i > 0 then
+				text = text .. ", "
+			end
+			local sourceMonIndex = Battle.Combatants[Battle.IndexMap[sourceKey]] or 0
+			local sourceMonId = Tracker.getPokemon(sourceMonIndex,sourceKey%2==0).pokemonID
+			local sourceMonName = PokemonData.Pokemon[sourceMonId].name
+			text = text .. sourceMonName
+			i = i + 1
+		end
+		text = text .. ")"
 	end
 	return text
 end
@@ -825,8 +922,8 @@ local function drawBattleDetailsUI()
 
 	for key, value in pairs(allBattleStatuses) do
 		size = size + 1
-		if linesOnPage < BattleEffectsScreen.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" and value.active then
-			local text = parseInput(key,value)
+		if linesOnPage < BattleEffectsScreen.pageSize and key ~= "Weather" and key ~= "Terrain" and key ~= "WeatherTurns" then
+			local text = parseInput(value)
 			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
@@ -850,7 +947,7 @@ local function drawPerSideUI()
 	for key, value in pairs(allSideStatuses) do
 		size = size + 1
 		if linesOnPage < BattleEffectsScreen.pageSize then
-			local text = parseInput(key,value)
+			local text = parseInput(value)
 			Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
 			linesOnPage = linesOnPage + 1
@@ -870,19 +967,19 @@ local function drawPerMonUI()
 
 	local allMonStatuses = BattleEffectsScreen.PerMonDetails[BattleEffectsScreen.viewedMonIndex]
 
-	if allMonStatuses[Resources.BattleEffectsScreen.TextLastMove] then
+	if allMonStatuses.LastMove then
 		size = size + 1
 		if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
-			local firstLine = "- ".. Resources.BattleEffectsScreen.TextLastMove .. ": " .. allMonStatuses[Resources.BattleEffectsScreen.TextLastMove]
+			local firstLine = "- ".. allMonStatuses.LastMove.label .. ": " .. allMonStatuses.LastMove.value
 			Drawing.drawText(offsetX,offsetY, firstLine, textColor, boxInfoTopShadow)
 			offsetY = offsetY + linespacing + 1
 		end
 	end
 	for key, value in pairs(allMonStatuses) do
-		if key ~= Resources.BattleEffectsScreen.TextLastMove then
+		if key ~= "LastMove" then
 			size = size + 1
 			if size > (BattleEffectsScreen.currentPage - 1) * BattleEffectsScreen.pageSize and size <= (BattleEffectsScreen.currentPage) * BattleEffectsScreen.pageSize then
-				local text = parseInput(key,value)
+				local text = parseInput(value)
 
 				Drawing.drawText(offsetX,offsetY, text, textColor, boxInfoTopShadow)
 				offsetY = offsetY + linespacing + 1
