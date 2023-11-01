@@ -365,6 +365,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.encounters = 0
 	end
 
+	data.x.extras = Program.getExtras()
+
 	return data
 end
 
@@ -647,6 +649,8 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		end
 		table.insert(data.p.tmmoves, tm)
 	end
+
+	data.x.extras = Program.getExtras()
 
 	return data
 end
