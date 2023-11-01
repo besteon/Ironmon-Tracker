@@ -124,8 +124,6 @@ function PreviousEncountersScreen.refreshButtons()
 	end
 end
 
--- stopped looking here for today
-
 function PreviousEncountersScreen.createButtons()
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 	local startY = Constants.SCREEN.MARGIN
@@ -174,54 +172,8 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 	tab = tab or SCREEN.currentTab
 	SCREEN.Pager.Buttons = {}
 
-	-- -- Calculate a sorting value for a given item based on the amount it "heals"
-	-- local function calcSortValue(itemID)
-	-- 	local value = 0
-	-- 	local itemData = MiscData.HealingItems[itemID] or MiscData.PPItems[itemID] or MiscData.StatusItems[itemID] or {}
-	-- 	if MiscData.HealingItems[itemID] then
-	-- 		value = 50000
-	-- 	elseif MiscData.StatusItems[itemID] then
-	-- 		value = 40000
-	-- 	elseif MiscData.PPItems[itemID] then
-	-- 		value = 30000
-	-- 	elseif BATTLE_ITEM_IDS[itemID] then
-	-- 		value = 20000
-	-- 	end
-	-- 	if itemData.type == MiscData.HealingType.Percentage then
-	-- 		value = value + (itemData.amount or 0) + 1000
-	-- 	elseif itemData.type == MiscData.HealingType.Constant then
-	-- 		value = value + (itemData.amount or 0)
-	-- 	elseif itemData.type == MiscData.StatusType.All then -- The really good status items
-	-- 		value = value + 2
-	-- 	elseif MiscData.StatusItems[itemID] then -- All other status items
-	-- 		value = value + 1
-	-- 	end
-	-- 	return value
-	-- end
-
 	local tabContents = {}
-	-- if tab == SCREEN.Tabs.HP then
-	-- 	local
-	-- 	for itemID, _ in pairs(Program.GameData.Items.HPHeals or {}) do
-	-- 		local sortValue = calcSortValue(itemID)
-	-- 		table.insert(tabContents, { id = itemID, bagKey = "HPHeals", sortValue = sortValue })
-	-- 	end
-	-- elseif tab == SCREEN.Tabs.PP then
-	-- 	for itemID, _ in pairs(Program.GameData.Items.PPHeals or {}) do
-	-- 		local sortValue = calcSortValue(itemID)
-	-- 		table.insert(tabContents, { id = itemID, bagKey = "PPHeals", sortValue = sortValue })
-	-- 	end
-	-- elseif tab == SCREEN.Tabs.Status then
-	-- 	for itemID, _ in pairs(Program.GameData.Items.StatusHeals or {}) do
-	-- 		local sortValue = calcSortValue(itemID)
-	-- 		table.insert(tabContents, { id = itemID, bagKey = "StatusHeals", sortValue = sortValue })
-	-- 	end
-	-- elseif tab == SCREEN.Tabs.Battle then
-	-- 	for itemID, _ in pairs(Program.GameData.Items.Other or {}) do
-	-- 		if BATTLE_ITEM_IDS[itemID] then
-	-- 			table.insert(tabContents, { id = itemID, bagKey = "Other", sortValue = 20000 })
-	-- 		end
-	-- 	end
+
 	print(SCREEN.currentPokemonID)
 	local encounters = Tracker.getEncounterData(SCREEN.currentPokemonID)
 	if tab == SCREEN.Tabs.Wild then
