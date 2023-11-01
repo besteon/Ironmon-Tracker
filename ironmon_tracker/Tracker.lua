@@ -231,16 +231,17 @@ function Tracker.TrackMove(pokemonID, moveId, level)
 	end
 end
 
---- @param pokemonID number
+--- @param pokemon pokemon
 --- @param isWild boolean
-function Tracker.TrackEncounter(pokemonID, isWild)
+function Tracker.TrackEncounter(pokemon, isWild)
+	local pokemonID = pokemon.pokemonID
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
 
 	local encounters = Tracker.getEncounterData(pokemonID)
 	local encounterBucket = isWild and encounters.wild or encounters.trainer
 	-- TODO: insert trainer id / route maybe? level?
 	--    with some more glue could even store slice of tracker data at this point
-	table.insert(encounterBucket, { timestamp = os.time() })
+	table.insert(encounterBucket, { timestamp = os.time(), level = pokemon.level })
 end
 
 --- @param mapId number
@@ -403,7 +404,7 @@ function Tracker.getEncounterData(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 
 	if trackedPokemon.encounters == nil then
-		trackedPokemon.encounters = { wild = { }, trainer = { }}
+		trackedPokemon.encounters = { wild = { }, trainer = { } }
 	end
 
 	return trackedPokemon.encounters

@@ -516,7 +516,7 @@ function Battle.updateStatStages(pokemon, isOwn, isLeft)
 end
 
 function Battle.incrementEnemyEncounter(opposingPokemon, battleFlags)
-	Tracker.TrackEncounter(opposingPokemon.pokemonID, Battle.isWildEncounter)
+	Tracker.TrackEncounter(opposingPokemon, Battle.isWildEncounter)
 
 	local battleTerrain = Memory.readword(GameSettings.gBattleTerrain)
 	battleFlags = battleFlags or Memory.readdword(GameSettings.gBattleTypeFlags)

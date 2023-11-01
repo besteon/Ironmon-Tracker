@@ -64,10 +64,14 @@ SCREEN.Pager = {
 	Buttons = {},
 	currentPage = 0,
 	totalPages = 0,
+	-- TODO: should date be separated out to a header when it changes? if so should be inserting a fake button
+	--		for each different day, and adjust sort here to account for it (since os.time() gives int to the second
+	--		might be fine to
+	--		hack with setting time of 23:59:59.5 for that day?)
 	defaultSort = function(a, b) return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id) end,
 	realignButtonsToGrid = function(self)
 		table.sort(self.Buttons, self.defaultSort)
-		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 26
+		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6
 		local y = Constants.SCREEN.MARGIN + 17
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10
@@ -94,7 +98,6 @@ SCREEN.Pager = {
 
 function PreviousEncountersScreen.initialize()
 	SCREEN.currentView = 1
-	-- TODO: should probably default to tab matching current context if coming from battle
 	SCREEN.currentTab = SCREEN.Tabs.All
 	SCREEN.createButtons()
 
@@ -174,12 +177,9 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 
 	local tabContents = {}
 
-	print(SCREEN.currentPokemonID)
 	local encounters = Tracker.getEncounterData(SCREEN.currentPokemonID)
 	if tab == SCREEN.Tabs.Wild then
 		for _, wildEncounter in ipairs(encounters.wild) do
-			-- If the move doesn't provide any new information, consider it tracked
-			-- print("encountered at " .. os.date("%m-%d %H:%M:%S", instance.timestamp))
 			table.insert(tabContents, wildEncounter)
 		end
 	elseif tab == SCREEN.Tabs.Trainer then
@@ -197,13 +197,17 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 	end
 
 	for _, encounter in ipairs(tabContents) do
+		local encounterText =  "Lv." .. encounter.level .. "    " .. os.date("%Y-%m-%d  %H:%M:%S", encounter.timestamp)
+		-- TODO: am/pm a little prettier but long. Maybe swap to it if date extracted to header
+		-- local encounterText =  "Lv." .. encounter.level .. "    " .. os.date("%I:%M:%S%p", encounter.timestamp)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return os.date("%Y-%m-%d %H:%M:%S", encounter.timestamp) or Constants.BLANKLINE end,
+			-- getText = function(self) return os.date("%Y-%m-%d %H:%M:%S", encounter.timestamp) or Constants.BLANKLINE end,
+			getText = function(self) return encounterText end,
 			tab = tab,
 			id = encounter.timestamp,
 			sortValue = encounter.timestamp,
-			dimensions = { width = 85, height = 11, },
+			dimensions = { width = Utils.calcWordPixelLength(encounterText), height = 11, },
 			textColor = SCREEN.Colors.text,
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
