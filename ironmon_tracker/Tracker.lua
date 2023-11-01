@@ -235,11 +235,12 @@ end
 --- @param isWild boolean
 function Tracker.TrackEncounter(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID)
-	if isWild then
-		trackedPokemon.eW = (trackedPokemon.eW or 0) + 1
-	else
-		trackedPokemon.eT = (trackedPokemon.eT or 0) + 1
-	end
+
+	local encounters = Tracker.getEncounterData(pokemonID)
+	local encounterBucket = isWild and encounters.wild or encounters.trainer
+	-- TODO: insert trainer id / route maybe? level?
+	--    with some more glue could even store slice of tracker data at this point
+	table.insert(encounterBucket, { timestamp = os.time() })
 end
 
 --- @param mapId number
@@ -384,11 +385,38 @@ end
 --- @return number
 function Tracker.getEncounters(pokemonID, isWild)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
-	if isWild then
-		return trackedPokemon.eW or 0
-	else
-		return trackedPokemon.eT or 0
+
+	if trackedPokemon.encounters == nil then
+		return 0
 	end
+
+	local encounters = trackedPokemon.encounters
+	local encounterBucket = isWild and encounters.wild or encounters.trainer
+
+	return #encounterBucket
+end
+
+
+--- @param pokemonID number
+--- @return table
+function Tracker.getEncounterData(pokemonID)
+	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
+
+	if trackedPokemon.encounters == nil then
+		trackedPokemon.encounters = { wild = { }, trainer = { }}
+	end
+
+	-- dbg log
+	if #trackedPokemon.encounters.wild > 0 then
+		print("encountered " .. #trackedPokemon.encounters.wild .. " times")
+		-- print("last wild time " .. trackedPokemon.encounters.wild[1]["timestamp"])
+		for _, instance in ipairs(trackedPokemon.encounters.wild) do -- intentionally check ALL tracked moves
+			-- If the move doesn't provide any new information, consider it tracked
+			print("encountered at " .. os.date("%m-%d %H:%M:%S", instance.timestamp))
+		end
+	end
+
+	return trackedPokemon.encounters
 end
 
 --- @param mapId number
@@ -553,25 +581,27 @@ function Tracker.checkForLegacyTrackedData(data)
 		return
 	end
 
+	-- todo upgrade rules here, map eW -> { ew * os.time()s} or something
+	-- 		and convert old .encounters fields from numbers to lists
 	-- [v8.3.0-] Changes to tracked pokemon info
 	for pokemonID, info in pairs(data.allPokemon or {}) do
 		local pokemonInternal = Tracker.Data.allPokemon[pokemonID]
 		-- The 'encounters' table has been unpacked into individual values
 		if type(info.encounters) == "table" then
-			pokemonInternal.eW = info.encounters.wild or 0
-			pokemonInternal.eT = info.encounters.trainer or 0
-			pokemonInternal.eL = info.encounters.lastlevel or 0
-			pokemonInternal.encounters = nil
+			-- pokemonInternal.eW = info.encounters.wild or 0
+			-- pokemonInternal.eT = info.encounters.trainer or 0
+			-- pokemonInternal.eL = info.encounters.lastlevel or 0
+			-- pokemonInternal.encounters = nil
 			-- Old data stored 0's when it was just wasted storage space
-			if pokemonInternal.eW == 0 then
-				pokemonInternal.eW = nil
-			end
-			if pokemonInternal.eT == 0 then
-				pokemonInternal.eT = nil
-			end
-			if pokemonInternal.eL == 0 then
-				pokemonInternal.eL = nil
-			end
+			-- if pokemonInternal.eW == 0 then
+			-- 	pokemonInternal.eW = nil
+			-- end
+			-- if pokemonInternal.eT == 0 then
+			-- 	pokemonInternal.eT = nil
+			-- end
+			-- if pokemonInternal.eL == 0 then
+			-- 	pokemonInternal.eL = nil
+			-- end
 		end
 		-- 'statmarkings' renamed to 'sm'
 		if type(info.statmarkings) == "table" then
