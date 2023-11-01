@@ -594,7 +594,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local aux = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
@@ -604,6 +604,8 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	local nickname = ""
@@ -615,8 +617,6 @@ function Program.readNewPokemon(startAddress, personality)
 	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
-	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
 	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
@@ -702,10 +702,22 @@ function Program.readNewPokemon(startAddress, personality)
 			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
 			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
-		-- Unused data that can be added back in later
-		-- iv = misc2,
-		-- ev1 = effort1,
-		-- ev2 = effort2,
+		evs = {
+			hp = Utils.getbits(effort1, 0, 8),
+			atk = Utils.getbits(effort1, 8, 8),
+			def = Utils.getbits(effort1, 16, 8),
+			spa = Utils.getbits(effort2, 0, 8),
+			spd = Utils.getbits(effort2, 8, 8),
+			spe = Utils.getbits(effort1, 24, 8),
+		},
+		ivs = {
+			hp = Utils.getbits(misc2, 0, 5),
+			atk = Utils.getbits(misc2, 5, 5),
+			def = Utils.getbits(misc2, 10, 5),
+			spa = Utils.getbits(misc2, 20, 5),
+			spd = Utils.getbits(misc2, 25, 5),
+			spe = Utils.getbits(misc2, 15, 5),
+		},
 	})
 end
 
@@ -975,6 +987,66 @@ function Program.validPokemonData(pokemonData)
 	return true
 end
 
+-- Gets the extra pixels for screen rounding
+function Program.getExtras()
+	local extras = { lefts = {}, rights = {}, bumps = {} }
+	local p1 = Tracker.getPokemon(1, true)
+	if not p1 then
+		return extras
+	end
+	local LEFT_MIN, LEFT_MAX = 0, 31
+	local RIGHT_MIN, RIGHT_MAX = 0, 255
+	local LOWER_RIGHT_MAX = 510
+	extras.lowerleft = true
+	for key, val in pairs(p1.ivs) do
+		if val < LEFT_MIN or val > LEFT_MAX then
+			extras.lefts[key] = true
+			extras.upperleft = true
+		end
+		if extras.lowerleft and val ~= LEFT_MAX then
+			extras.lowerleft = false
+		end
+	end
+	local t = 0
+	for key, val in pairs(p1.evs) do
+		if val < RIGHT_MIN or val > RIGHT_MAX then
+			extras.rights[key] = true
+			extras.upperright = true
+		end
+		t = t + val
+	end
+	if t > LOWER_RIGHT_MAX then
+		extras.lowerright = true
+	end
+	local p2 = RandomizerLog.Data.Pokemon and RandomizerLog.Data.Pokemon[p1.pokemonID]
+	if p2 and p2.BaseStats then
+		local bumps = {}
+		for i, key in ipairs(Constants.OrderedLists.STATSTAGES) do
+			local b = p2.BaseStats[key]
+			if b then
+				local minPart1 = 2 * b + LEFT_MIN + math.floor(RIGHT_MIN / 4)
+				local maxPart1 = 2 * b + LEFT_MAX + math.floor(RIGHT_MAX / 4)
+				local finalPart = i == 1 and (p1.level + 10) or 5
+				local minPart2 = math.floor(minPart1 * p1.level / 100) + finalPart
+				local maxPart2 = math.floor(maxPart1 * p1.level / 100) + finalPart
+				local finalMult = Utils.getNatureMultiplier(key, p1.nature)
+				bumps[key] = {
+					min = math.floor(minPart2 * finalMult),
+					max = math.floor(maxPart2 * finalMult),
+				}
+			end
+		end
+		for key, val in pairs(bumps) do
+			local bump = p1.stats[key]
+			if bump < val.min or bump > val.max then
+				extras.bumps[key] = true
+				extras.anybumps = true
+			end
+		end
+	end
+	return extras
+end
+
 --- Returns true if the trainer has been defeated by the player; false otherwise
 --- @param trainerId number
 --- @param saveBlock1Addr number? (Optional) Include the SaveBlock 1 address if known to avoid extra memory reads
@@ -1172,10 +1244,8 @@ Program.DefaultPokemon = {
 		{ id = 0, level = 1, pp = 0 },
 		{ id = 0, level = 1, pp = 0 },
 	},
-	-- Unused data that can be added later
-	-- iv = misc2,
-	-- ev1 = effort1,
-	-- ev2 = effort2,
+	evs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	ivs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 }
 
 function Program.DefaultPokemon:new(o)

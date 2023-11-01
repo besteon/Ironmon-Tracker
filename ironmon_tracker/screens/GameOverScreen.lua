@@ -70,6 +70,7 @@ GameOverScreen.Buttons = {
 				Program.redraw(true)
 			else
 				GameOverScreen.status = GameOverScreen.Statuses.STILL_PLAYING
+				LogOverlay.isGameOver = false
 				LogOverlay.isDisplayed = false
 				Program.GameTimer:unpause()
 				GameOverScreen.refreshButtons()

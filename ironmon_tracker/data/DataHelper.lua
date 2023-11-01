@@ -198,7 +198,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			data.p.line1 = MiscData.Items[viewedPokemon.heldItem]
 		end
 		local abilityId = PokemonData.getAbilityId(viewedPokemon.pokemonID, viewedPokemon.abilityNum)
-		if abilityId ~= 0 then
+		if AbilityData.isValid(abilityId) then
 			data.p.line2 = AbilityData.Abilities[abilityId].name
 		end
 	elseif useOpenBookInfo then
@@ -206,7 +206,7 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 0),
 			PokemonData.getAbilityId(viewedPokemon.pokemonID, 1),
 		}
-		if abilityIds[1] ~= 0 then
+		if AbilityData.isValid(abilityIds[1]) then
 			if abilityIds[2] ~= abilityIds[1] then
 				data.p.line1 = AbilityData.Abilities[abilityIds[1]].name .. " /"
 				data.p.line2 = AbilityData.Abilities[abilityIds[2]].name
@@ -217,11 +217,11 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		end
 	else
 		local trackedAbilities = Tracker.getAbilities(viewedPokemon.pokemonID)
-		if trackedAbilities[1].id ~= nil and trackedAbilities[1].id ~= 0 then
+		if AbilityData.isValid(trackedAbilities[1].id) then
 			data.p.line1 = AbilityData.Abilities[trackedAbilities[1].id].name .. " /"
 			data.p.line2 = Constants.HIDDEN_INFO
 		end
-		if trackedAbilities[2].id ~= nil and trackedAbilities[2].id ~= 0 then
+		if AbilityData.isValid(trackedAbilities[2].id) then
 			data.p.line2 = AbilityData.Abilities[trackedAbilities[2].id].name
 		end
 	end
@@ -383,6 +383,8 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 		data.x.encounters = 0
 	end
 
+	data.x.extras = Program.getExtras()
+
 	return data
 end
 
@@ -392,12 +394,7 @@ function DataHelper.buildPokemonInfoDisplay(pokemonID)
 	data.e = {} -- data about the Type Effectiveness of the Pokemon
 	data.x = {} -- misc data to display, such as notes
 
-	local pokemon
-	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
-		pokemon = PokemonData.BlankPokemon
-	else
-		pokemon = PokemonData.Pokemon[pokemonID]
-	end
+	local pokemon = PokemonData.isValid(pokemonID) and PokemonData.Pokemon[pokemonID] or PokemonData.BlankPokemon
 
 	-- Your lead Pokémon
 	local ownLeadPokemon = Battle.getViewedPokemon(true) or {}
@@ -452,12 +449,7 @@ function DataHelper.buildMoveInfoDisplay(moveId)
 	data.m = {} -- data about the Move itself
 	data.x = {} -- misc data to display
 
-	local move
-	if moveId == nil or not MoveData.isValid(moveId) then
-		move = MoveData.BlankMove
-	else
-		move = MoveData.Moves[moveId]
-	end
+	local move = MoveData.isValid(moveId) and MoveData.Moves[moveId] or MoveData.BlankMove
 
 	data.m.id = tonumber(move.id) or 0
 	data.m.name = move.name or Constants.BLANKLINE
@@ -516,12 +508,7 @@ function DataHelper.buildAbilityInfoDisplay(abilityId)
 	data.a = {} -- data about the Ability itself
 	data.x = {} -- misc data to display
 
-	local ability
-	if abilityId == nil or not AbilityData.isValid(abilityId) then
-		ability = AbilityData.DefaultAbility
-	else
-		ability = AbilityData.Abilities[abilityId]
-	end
+	local ability = AbilityData.isValid(abilityId) and AbilityData.Abilities[abilityId] or AbilityData.DefaultAbility
 
 	data.a.id = ability.id or 0
 	data.a.name = ability.name or Constants.BLANKLINE
@@ -539,12 +526,7 @@ function DataHelper.buildRouteInfoDisplay(routeId)
 	data.e = {} -- data about each of the Routes encounter areas
 	data.x = {} -- misc data to display
 
-	local route
-	if routeId == nil or not RouteData.hasRoute(routeId) then
-		route = RouteData.BlankRoute
-	else
-		route = RouteData.Info[routeId]
-	end
+	local route = RouteData.hasRoute(routeId) and RouteData.Info[routeId] or RouteData.BlankRoute
 
 	data.r.id = routeId or 0
 	data.r.name = Utils.formatSpecialCharacters(route.name) or Constants.BLANKLINE
@@ -589,7 +571,7 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 	data.x = {} -- misc data to display, such as notes
 
 	local pokemonInternal
-	if pokemonID == nil or not PokemonData.isValid(pokemonID) then
+	if not PokemonData.isValid(pokemonID) then
 		pokemonInternal = PokemonData.BlankPokemon
 		return data -- likely want a safer way
 	else
@@ -685,6 +667,8 @@ function DataHelper.buildPokemonLogDisplay(pokemonID)
 		end
 		table.insert(data.p.tmmoves, tm)
 	end
+
+	data.x.extras = Program.getExtras()
 
 	return data
 end

@@ -370,7 +370,7 @@ MGBADisplay.LineBuilder = {
 		local instructionBar = "%-14s %-18s"
 		local quickloadCombo = Options.CONTROLS["Load next seed"]:gsub(" ", ""):gsub(",", " + ")
 		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadButtonCombo .. ":", quickloadCombo))
-		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadTextCommand .. ":", MGBA.CommandMap["QUICKLOAD"].usageSyntax))
+		table.insert(lines, Utils.formatUTF8(instructionBar, Resources.MGBAScreens.QuickloadTextCommand .. ":", MGBA.CommandMap["NEWRUN"].usageSyntax))
 		table.insert(lines, MGBADisplay.Symbols.EmptyLine)
 
 		return lines

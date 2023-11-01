@@ -160,7 +160,7 @@ ScreenResources{
 		HeaderFavorites = "Favorite Pokémon", -- NEEDS TRANSLATION
 		HeaderControls = "GBA Controls", -- NEEDS TRANSLATION
 		ControlsSwapView = "Swap viewed Pokémon", -- NEEDS TRANSLATION
-		ControlsQuickload = "Quickload next ROM", -- NEEDS TRANSLATION
+		ControlsQuickload = "Load New Run", -- NEEDS TRANSLATION
 		ControlsEraseGameSave = "Erase game save data", -- NEEDS TRANSLATION
 		PromptChooseAPokemonTitle = "Choose a Pokémon", -- NEEDS TRANSLATION
 		PromptChooseAPokemonDesc = "Choose a Pokémon to show during startup", -- NEEDS TRANSLATION
@@ -175,7 +175,7 @@ ScreenResources{
 		ButtonTheme = "Theme", -- NEEDS TRANSLATION
 		ButtonStreaming = "Streaming", -- NEEDS TRANSLATION
 		ButtonExtras = "Extras", -- NEEDS TRANSLATION
-		ButtonQuickload = "Quickload", -- NEEDS TRANSLATION
+		ButtonQuickload = "New Runs", -- NEEDS TRANSLATION
 		ButtonLanguage = "Language", -- NEEDS TRANSLATION
 		ButtonUpdate = "Update", -- NEEDS TRANSLATION
 		ButtonExtensions = "Extensions", -- NEEDS TRANSLATION
@@ -245,9 +245,9 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Reveal info if randomized", -- NEEDS TRANSLATION
 	},
 	QuickloadScreen = {
-		Title = "Quickload Setup", -- NEEDS TRANSLATION
+		Title = "New Runs Setup", -- NEEDS TRANSLATION
 		ButtonCombo = "Buttons", -- NEEDS TRANSLATION
-		ChoiceHeader = "Choose a quickload option", -- NEEDS TRANSLATION
+		ChoiceHeader = "How to load a New Run", -- NEEDS TRANSLATION
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk", -- NEEDS TRANSLATION
 		OptionPremadeRoms = "Use premade ROMs", -- NEEDS TRANSLATION
 		OptionGenerateRom = "Generate ROM each time", -- NEEDS TRANSLATION
@@ -574,7 +574,7 @@ ScreenResources{
 		MenuTrackerSettings = "Tracker Settings", -- NEEDS TRANSLATION
 		MenuGeneralSetup = "General Setup", -- NEEDS TRANSLATION
 		MenuGameplayOptions = "Gameplay Options", -- NEEDS TRANSLATION
-		MenuQuickloadSetup = "Quickload Setup", -- NEEDS TRANSLATION
+		MenuQuickloadSetup = "New Runs Setup", -- NEEDS TRANSLATION
 		MenuCheckForUpdates = "Check for Updates", -- NEEDS TRANSLATION
 		MenuNewUpdateVailable = "New Update Available", -- NEEDS TRANSLATION
 		MenuLanguage = "Language", -- NEEDS TRANSLATION
@@ -613,7 +613,7 @@ ScreenResources{
 		OptionSwapViewedPokemon = "Swap viewed Pokemon", -- NEEDS TRANSLATION
 		OptionCycleThroughStats = "Cycle through stats", -- NEEDS TRANSLATION
 		OptionMarkStat = "Mark a stat [+/-]", -- NEEDS TRANSLATION
-		OptionQuickload = "Quickload", -- NEEDS TRANSLATION
+		OptionQuickload = "Load New Run", -- NEEDS TRANSLATION
 		OptionAutoswapEnemy = "Auto swap to enemy", -- NEEDS TRANSLATION
 		OptionViewSummaryForStats = "View summary to see stats", -- NEEDS TRANSLATION
 		OptionShowMoveTypes = "Show move types", -- NEEDS TRANSLATION
@@ -659,7 +659,7 @@ ScreenResources{
 		GeneralSetupControls = "Controls", -- NEEDS TRANSLATION
 		GeneralSetupGBAButtons = "GBA Buttons", -- NEEDS TRANSLATION
 		GameplayOptionsManualSave = "Manually save/load tracked data", -- NEEDS TRANSLATION
-		QuickloadDesc = "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.", -- NEEDS TRANSLATION
+		QuickloadDesc = "To use a Load New Run option, put the required files in the [quickload] folder found in your main Tracker folder.", -- NEEDS TRANSLATION
 		QuickloadChooseMode = "Choose a mode with", -- NEEDS TRANSLATION
 		QuickloadMode = "Mode", -- NEEDS TRANSLATION
 		QuickloadSelected = "Selected", -- NEEDS TRANSLATION
@@ -793,7 +793,7 @@ ScreenResources{
 		UpdateNowSteps1 = "Complete any ongoing battles first", -- NEEDS TRANSLATION
 		UpdateNowSteps2 = "On the mGBA scripting window: Click File -> Reset", -- NEEDS TRANSLATION
 		UpdateNowSteps3 = "Click File -> Load script (or Load recent script)", -- NEEDS TRANSLATION
-		QuickloadDesc = "Forces the Tracker to Quickload a new game ROM.", -- NEEDS TRANSLATION
+		QuickloadDesc = "Forces the Tracker to automatically load a New Run game ROM.", -- NEEDS TRANSLATION
 		HelpWikiDesc = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.", -- NEEDS TRANSLATION
 		AttemptsDesc = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar.", -- NEEDS TRANSLATION
 		AttemptsError1 = "Where # is a positive number.", -- NEEDS TRANSLATION

@@ -952,13 +952,21 @@ function TrackerScreen.drawPokemonInfoArea(data)
 end
 
 function TrackerScreen.drawStatsArea(data)
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local borderColor = Theme.COLORS["Upper box border"]
+	local bgColor = Theme.COLORS["Upper box background"]
+	local shadowcolor = Utils.calcShadowColor(bgColor)
 	local statBoxWidth = 101
 	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
 	local statOffsetY = 7
 
 	-- Draw the border box for the Stats area
-	gui.drawRectangle(Constants.SCREEN.WIDTH + statBoxWidth, 5, Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
+	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
+	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
+	if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end
+	if data.x.extras.upperright then gui.drawPixel(x + w - 1, y + 1, borderColor) end
+	if data.x.extras.lowerleft then gui.drawPixel(x + 1, y + h - 1, borderColor) end
+	if data.x.extras.lowerright then gui.drawPixel(x + w - 1, y + h - 1, borderColor) end
 
 	-- Draw the six primary stats
 	local statLabels = {

@@ -727,10 +727,10 @@ function LogTabPokemonDetails.drawTab()
 
 	-- data.p.helditems -- unused
 
-	LogTabPokemonDetails.drawStatGraph(data.p, shadowcolor)
+	LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 end
 
-function LogTabPokemonDetails.drawStatGraph(pokemonData, shadowcolor)
+function LogTabPokemonDetails.drawStatGraph(data, shadowcolor)
 	local textColor = Theme.COLORS[LogTabPokemonDetails.Colors.text]
 	local borderColor = Theme.COLORS[LogTabPokemonDetails.Colors.border]
 	local fillColor = Theme.COLORS[LogTabPokemonDetails.Colors.boxFill]
@@ -745,7 +745,7 @@ function LogTabPokemonDetails.drawStatGraph(pokemonData, shadowcolor)
 	}
 
 	-- Draw header for stat box
-	local bstTotal = string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, pokemonData.bst)
+	local bstTotal = string.format("%s: %s", Resources.LogOverlay.LabelBSTTotal, data.p.bst)
 	Drawing.drawTransparentTextbox(statBox.x, statBox.y - 11, Resources.LogOverlay.LabelBaseStats, textColor, fillColor, shadowcolor)
 	Drawing.drawTransparentTextbox(statBox.x + statBox.width - 39, statBox.y - 11, bstTotal, textColor, fillColor, shadowcolor)
 
@@ -766,23 +766,26 @@ function LogTabPokemonDetails.drawStatGraph(pokemonData, shadowcolor)
 	local statX = statBox.x + 1
 	for _, statKey in ipairs(Constants.OrderedLists.STATSTAGES) do
 		-- Draw the vertical bar
-		local barH = math.floor(pokemonData[statKey] / 255 * (statBox.height - 2) + 0.5)
+		local barH = math.floor(data.p[statKey] / 255 * (statBox.height - 2) + 0.5)
 		local barY = statBox.y + statBox.height - barH - 1 -- -1/-2 for box pixel border margin
 		local barColor
-		if pokemonData[statKey] >= 180 then -- top ~70%
+		if data.p[statKey] >= 180 then -- top ~70%
 			barColor = Theme.COLORS["Positive text"]
-		elseif pokemonData[statKey] <= 40 then -- bottom ~15%
+		elseif data.p[statKey] <= 40 then -- bottom ~15%
 			barColor = Theme.COLORS["Negative text"]
 		else
 			barColor = textColor
 		end
 		gui.drawRectangle(statX + (statBox.labelW - statBox.barW) / 2, barY, statBox.barW, barH, barColor, barColor)
+		if data.x.extras.bumps[statKey] then
+			gui.drawPixel(statX + statBox.labelW / 2, statBox.y + statBox.height + 1, borderColor)
+		end
 
 		-- Draw the bar's label
 		local statLabelOffsetX = (3 - string.len(statKey)) * 2
-		local statValueOffsetX = (3 - string.len(tostring(pokemonData[statKey]))) * 2
+		local statValueOffsetX = (3 - string.len(tostring(data.p[statKey]))) * 2
 		Drawing.drawText(statX + statLabelOffsetX, statBox.y + statBox.height + 1, Utils.firstToUpper(statKey), textColor, shadowcolor)
-		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, pokemonData[statKey], barColor, shadowcolor)
+		Drawing.drawText(statX + statValueOffsetX, statBox.y + statBox.height + 11, data.p[statKey], barColor, shadowcolor)
 		statX = statX + statBox.labelW
 	end
 end
