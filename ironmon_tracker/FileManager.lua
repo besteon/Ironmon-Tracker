@@ -122,6 +122,7 @@ FileManager.LuaCode = {
 	{ name = "MoveHistoryScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "MoveHistoryScreen.lua", },
 	{ name = "TypeDefensesScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TypeDefensesScreen.lua", },
 	{ name = "HealsInBagScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "HealsInBagScreen.lua", },
+	{ name = "PreviousEncountersScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "PreviousEncountersScreen.lua", },
 	{ name = "GameOverScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "GameOverScreen.lua", },
 	{ name = "StreamerScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "StreamerScreen.lua", },
 	{ name = "TimeMachineScreen", filepath = FileManager.Folders.ScreensCode .. FileManager.slash .. "TimeMachineScreen.lua", },

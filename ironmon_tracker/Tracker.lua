@@ -406,16 +406,6 @@ function Tracker.getEncounterData(pokemonID)
 		trackedPokemon.encounters = { wild = { }, trainer = { }}
 	end
 
-	-- dbg log
-	if #trackedPokemon.encounters.wild > 0 then
-		print("encountered " .. #trackedPokemon.encounters.wild .. " times")
-		-- print("last wild time " .. trackedPokemon.encounters.wild[1]["timestamp"])
-		for _, instance in ipairs(trackedPokemon.encounters.wild) do -- intentionally check ALL tracked moves
-			-- If the move doesn't provide any new information, consider it tracked
-			print("encountered at " .. os.date("%m-%d %H:%M:%S", instance.timestamp))
-		end
-	end
-
 	return trackedPokemon.encounters
 end
 
