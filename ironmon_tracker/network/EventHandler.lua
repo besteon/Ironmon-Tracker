@@ -55,7 +55,7 @@ end
 ---@return boolean success
 function EventHandler.addNewEvent(event)
 	-- Only add new, properly structured  events
-	if EventHandler.Events[event.Key or false] then
+	if Utils.isNilOrEmpty(event.Key) or EventHandler.Events[event.Key] then
 		return false
 	end
 	if type(event.Process) ~= "function" or type(event.Fulfill) ~= "function" then
@@ -118,7 +118,7 @@ function EventHandler.updateRewardList(rewards)
 	end
 
 	for _, reward in pairs(rewards or {}) do
-		if reward.Id and not Utils.isNilOrEmpty(reward.Title) then
+		if not Utils.isNilOrEmpty(reward.Id) and reward.Title then
 			EventHandler.RewardsExternal[reward.Id] = reward.Title
 		end
 	end
@@ -166,7 +166,7 @@ function EventHandler.loadEventSettings(event)
 		end
 	end
 	-- Disable any rewards without associations defined
-	if event.IsEnabled and Utils.isNilOrEmpty(event.RewardId) then
+	if event.IsEnabled and event.RewardId and event.RewardId == "" then
 		event.IsEnabled = false
 	end
 	event.ConfigurationUpdated = anyLoaded or nil
@@ -215,6 +215,7 @@ end
 function EventHandler.addDefaultEvents()
 	-- Add these events directly, as they aren't modifiable by the user
 	for key, event in pairs(EventHandler.CoreEvents) do
+		event.IsEnabled = true
 		event.Key = key
 		EventHandler.addNewEvent(event)
 	end
