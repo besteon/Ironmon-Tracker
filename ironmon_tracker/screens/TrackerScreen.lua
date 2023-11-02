@@ -963,10 +963,12 @@ function TrackerScreen.drawStatsArea(data)
 	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
 	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
 	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
-	if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end
-	if data.x.extras.upperright then gui.drawPixel(x + w - 1, y + 1, borderColor) end
-	if data.x.extras.lowerleft then gui.drawPixel(x + 1, y + h - 1, borderColor) end
-	if data.x.extras.lowerright then gui.drawPixel(x + w - 1, y + h - 1, borderColor) end
+	if RouteData.Locations.CanPCHeal[TrackerAPI.getMapId()] then
+		if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end
+		if data.x.extras.upperright then gui.drawPixel(x + w - 1, y + 1, borderColor) end
+		if data.x.extras.lowerleft then gui.drawPixel(x + 1, y + h - 1, borderColor) end
+		if data.x.extras.lowerright then gui.drawPixel(x + w - 1, y + h - 1, borderColor) end
+	end
 
 	-- Draw the six primary stats
 	local statLabels = {

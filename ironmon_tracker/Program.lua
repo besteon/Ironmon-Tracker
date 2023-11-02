@@ -860,6 +860,12 @@ function Program.focusBizhawkWindow()
 	end
 end
 
+local function refreshExtras()
+	local p1 = Tracker.getPokemon(1, true) or {}
+	local p2 = RandomizerLog.Data.Pokemon and RandomizerLog.Data.Pokemon[p1.pokemonID] or {}
+	return p1.ivs, p1.evs, p2.BaseStats, (p1.level or 0), (p1.nature or 0), (p1.stats or {})
+end
+
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
 function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
@@ -990,15 +996,13 @@ end
 -- Gets the extra pixels for screen rounding
 function Program.getExtras()
 	local extras = { lefts = {}, rights = {}, bumps = {} }
-	local p1 = Tracker.getPokemon(1, true)
-	if not p1 then
-		return extras
-	end
+	local x, y, z, x2, y2, z2 = refreshExtras()
+	if not x or not y then return extras end
 	local LEFT_MIN, LEFT_MAX = 0, 31
 	local RIGHT_MIN, RIGHT_MAX = 0, 255
 	local LOWER_RIGHT_MAX = 510
 	extras.lowerleft = true
-	for key, val in pairs(p1.ivs) do
+	for key, val in pairs(x or {}) do
 		if val < LEFT_MIN or val > LEFT_MAX then
 			extras.lefts[key] = true
 			extras.upperleft = true
@@ -1008,7 +1012,7 @@ function Program.getExtras()
 		end
 	end
 	local t = 0
-	for key, val in pairs(p1.evs) do
+	for key, val in pairs(y or {}) do
 		if val < RIGHT_MIN or val > RIGHT_MAX then
 			extras.rights[key] = true
 			extras.upperright = true
@@ -1018,26 +1022,21 @@ function Program.getExtras()
 	if t > LOWER_RIGHT_MAX then
 		extras.lowerright = true
 	end
-	local p2 = RandomizerLog.Data.Pokemon and RandomizerLog.Data.Pokemon[p1.pokemonID]
-	if p2 and p2.BaseStats then
+	if z then
 		local bumps = {}
 		for i, key in ipairs(Constants.OrderedLists.STATSTAGES) do
-			local b = p2.BaseStats[key]
-			if b then
-				local minPart1 = 2 * b + LEFT_MIN + math.floor(RIGHT_MIN / 4)
-				local maxPart1 = 2 * b + LEFT_MAX + math.floor(RIGHT_MAX / 4)
-				local finalPart = i == 1 and (p1.level + 10) or 5
-				local minPart2 = math.floor(minPart1 * p1.level / 100) + finalPart
-				local maxPart2 = math.floor(maxPart1 * p1.level / 100) + finalPart
-				local finalMult = Utils.getNatureMultiplier(key, p1.nature)
-				bumps[key] = {
-					min = math.floor(minPart2 * finalMult),
-					max = math.floor(maxPart2 * finalMult),
-				}
+			if z[key] then
+				local minPart1 = 2 * z[key] + LEFT_MIN + math.floor(RIGHT_MIN / 4)
+				local maxPart1 = 2 * z[key] + LEFT_MAX + math.floor(RIGHT_MAX / 4)
+				local finalPart = i == 1 and (x2 + 10) or 5
+				local minPart2 = math.floor(minPart1 * x2 / 100) + finalPart
+				local maxPart2 = math.floor(maxPart1 * x2 / 100) + finalPart
+				local finalMult = Utils.getNatureMultiplier(key, y2)
+				bumps[key] = { min = math.floor(minPart2 * finalMult), max = math.floor(maxPart2 * finalMult), }
 			end
 		end
 		for key, val in pairs(bumps) do
-			local bump = p1.stats[key]
+			local bump = z2[key]
 			if bump < val.min or bump > val.max then
 				extras.bumps[key] = true
 				extras.anybumps = true
