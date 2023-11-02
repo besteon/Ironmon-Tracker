@@ -438,12 +438,35 @@ end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
 function TrackerScreen.buildCarousel()
+	-- Helper functions
+	local function isCarouselDisabled()
+		return Options["Disable mainscreen carousel"] and Battle.isViewingOwn
+	end
+	local function overrideEarlyRouteInfo()
+		-- In trainer battle
+		if Battle.inActiveBattle() and not Battle.isWildEncounter then
+			return false
+		end
+		-- Pokemon high enough level
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		if (pokemon.level or 0) >= 13 then
+			return false
+		end
+		-- No wild grass encounters available
+		if not RouteData.hasRouteEncounterArea(TrackerAPI.getMapId(), RouteData.EncounterArea.LAND) then
+			return false
+		end
+		return true
+	end
+
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
 		isVisible = function()
-			local pedometerIsShowing = Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()
-			return Battle.isViewingOwn and not pedometerIsShowing
+			if isCarouselDisabled() then
+				return not Program.Pedometer:isInUse()
+			end
+			return Battle.isViewingOwn and not overrideEarlyRouteInfo()
 		end,
 		framesToShow = 210,
 		getContentList = function()
@@ -480,9 +503,11 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 		isVisible = function()
+			if isCarouselDisabled() then
+				return false
+			end
 			local properBattleTiming = Battle.inActiveBattle() and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
-			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
+			return Options["Show last damage calcs"] and properBattleTiming
 		end,
 		framesToShow = 180,
 		getContentList = function()
@@ -522,8 +547,14 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function()
-			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo and not carouselDisabled
+			if isCarouselDisabled() then
+				return false
+			elseif overrideEarlyRouteInfo() then
+				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
+				return true
+			else
+				return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo
+			end
 		end,
 		framesToShow = 180,
 		getContentList = function()
