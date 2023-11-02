@@ -357,6 +357,7 @@ ScreenResources{
 		ButtonViewEvos = "View ...", -- NEEDS TRANSLATION
 		ButtonHistory = "History", -- NEEDS TRANSLATION
 		ButtonResistances = "Show resistances", -- NEEDS TRANSLATION
+		ExpYield = "EXP", -- NEEDS TRANSLATION
 		KilogramAbbreviation = "kg", -- NEEDS TRANSLATION
 		LabelWeight = "Weight", -- NEEDS TRANSLATION
 		LabelEvolution = "Evolution", -- NEEDS TRANSLATION
