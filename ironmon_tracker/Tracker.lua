@@ -242,6 +242,8 @@ function Tracker.TrackEncounter(pokemon, isWild)
 	-- TODO: insert trainer id / route maybe? level?
 	--    with some more glue could even store slice of tracker data at this point
 	table.insert(encounterBucket, { timestamp = os.time(), level = pokemon.level })
+	-- TODO: appears to be intention to shorten key length for tracker blob,
+	--		so need to accomodate that
 end
 
 --- @param mapId number

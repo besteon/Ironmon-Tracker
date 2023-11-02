@@ -30,6 +30,8 @@ PreviousEncountersScreen = {
 local SCREEN = PreviousEncountersScreen
 local TAB_HEIGHT = 12
 
+-- TODO: probably should close this screen automatically when opposing pokemon changes
+--		or encounter ends. Maybe this goes into InfoScreen to handle that?
 SCREEN.Buttons = {
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -197,6 +199,9 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 	end
 
 	for _, encounter in ipairs(tabContents) do
+
+		-- TODO: does String.padEnd equivalent exist already in lua / package (for level + spacing after),
+		--		or do I need to add implementation
 		local encounterText =  "Lv." .. encounter.level .. "    " .. os.date("%Y-%m-%d  %H:%M:%S", encounter.timestamp)
 		-- TODO: am/pm a little prettier but long. Maybe swap to it if date extracted to header
 		-- local encounterText =  "Lv." .. encounter.level .. "    " .. os.date("%I:%M:%S%p", encounter.timestamp)
