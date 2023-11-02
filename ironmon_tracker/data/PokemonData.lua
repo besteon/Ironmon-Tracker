@@ -412,14 +412,14 @@ PokemonData.BlankPokemon = {
 --[[
 Data for each Pokémon (Gen 3) - Sourced from Bulbapedia
 Format for an entry:
-	pokemonID: integer -> The gen 3 pokedex id number for this Pokémon
+	pokemonID: integer -> The gen 3 pokedex id number for this Pokémon; automatically populated
 	name: string -> Name of the Pokémon as it appears in game
-	types: {string, string} -> Each Pokémon can have one or two types, using the PokemonData.Types enum to alias the strings
+	types: {string, string} -> Each Pokémon can have one or two types, using the PokemonData.Types enum to alias the strings; automatically populated from game memory
 	evolution: string -> Displays the level, item, or other requirement a Pokémon needs to evolve
-	bst: string -> A sum of the base stats of the Pokémon
-	expYield: integer -> Base experience yield of the Pokémon
+	bst: integer -> A sum of the base stats of the Pokémon
+	expYield: integer -> Base experience yield of the Pokémon; automatically populated from game memory
 	movelvls: {{integer list}, {integer list}} -> A pair of tables (1:RSE/2:FRLG) declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
-	weight: pokemon's weight in kg (mainly used for Low Kick calculations)
+	weight: integer -> pokemon's weight in kg (mainly used for Low Kick calculations)
 ]]
 PokemonData.Pokemon = {
 	{

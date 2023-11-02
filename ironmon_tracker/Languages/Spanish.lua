@@ -793,7 +793,7 @@ ScreenResources{
 		UpdateNowSteps1 = "Complete any ongoing battles first", -- NEEDS TRANSLATION
 		UpdateNowSteps2 = "On the mGBA scripting window: Click File -> Reset", -- NEEDS TRANSLATION
 		UpdateNowSteps3 = "Click File -> Load script (or Load recent script)", -- NEEDS TRANSLATION
-		QuickloadDesc = "Forces the Tracker to automatically load a New Run game ROM.", -- NEEDS TRANSLATION
+		QuickloadDesc = "Forces the Tracker to automatically load a new game ROM.", -- NEEDS TRANSLATION
 		HelpWikiDesc = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.", -- NEEDS TRANSLATION
 		AttemptsDesc = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar.", -- NEEDS TRANSLATION
 		AttemptsError1 = "Where # is a positive number.", -- NEEDS TRANSLATION
@@ -1198,11 +1198,11 @@ GameResources{
 		},
 		{
 			NameKey = "DoubleSlap",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Comet Punch",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Mega Punch",
@@ -1310,7 +1310,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Attack",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Horn Drill",
@@ -1354,7 +1354,7 @@ GameResources{
 		},
 		{
 			NameKey = "Pin Missile",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Leer",
@@ -1710,7 +1710,7 @@ GameResources{
 		},
 		{
 			NameKey = "Spike Cannon",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Constrict",
@@ -1746,7 +1746,7 @@ GameResources{
 		},
 		{
 			NameKey = "Barrage",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Leech Life",
@@ -1802,7 +1802,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Swipes",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Bonemerang",
@@ -1978,7 +1978,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bone Rush",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Lock-On",
@@ -2354,7 +2354,7 @@ GameResources{
 		},
 		{
 			NameKey = "Arm Thrust",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Camouflage",
@@ -2510,7 +2510,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bullet Seed",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Aerial Ace",
@@ -2518,7 +2518,7 @@ GameResources{
 		},
 		{
 			NameKey = "Icicle Spear",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Iron Defense",
@@ -2586,7 +2586,7 @@ GameResources{
 		},
 		{
 			NameKey = "Rock Blast",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.", -- NEEDS TRANSLATION
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.", -- NEEDS TRANSLATION
 		},
 		{
 			NameKey = "Shock Wave",

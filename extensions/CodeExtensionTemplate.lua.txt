@@ -11,7 +11,6 @@ local function CodeExtensionTemplate()
 	self.name = "My Fancy Extension"
 	self.author = "My Username"
 	self.description = "This is a template file for my fancy custom code extension."
-	self.url = "https://github.com/MyUsername/ExtensionRepo" -- Remove or set to nil if no host website available for this extension
 	self.github = "MyUsername/ExtensionRepo" -- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
 	self.url = string.format("https://github.com/%s", self.github or "") -- Remove this attribute if no host website available for this extension
 
@@ -32,10 +31,10 @@ local function CodeExtensionTemplate()
 	-- Returns [true, downloadUrl] if an update is available (downloadUrl auto opens in browser for user); otherwise returns [false, downloadUrl]
 	-- Remove this function if you choose not to implement a version update check for your extension
 	function self.checkForUpdates()
-		-- Update the pattern below to match your version. You can check what this looks like by visiting the above url
+		-- Update the pattern below to match your version. You can check what this looks like by visiting the latest release url on your repo
 		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"' -- matches "1.0" in "tag_name": "v1.0"
 		local versionCheckUrl = string.format("https://api.github.com/repos/%s/releases/latest", self.github or "")
-		local downloadUrl = string.format("https://github.com/%s/releases/latest", self.github or "")
+		local downloadUrl = string.format("%s/releases/latest", self.url or "")
 		local compareFunc = function(a, b) return a ~= b and not Utils.isNewerVersion(a, b) end -- if current version is *older* than online version
 		local isUpdateAvailable = Utils.checkForVersionUpdate(versionCheckUrl, self.version, versionResponsePattern, compareFunc)
 		return isUpdateAvailable, downloadUrl
