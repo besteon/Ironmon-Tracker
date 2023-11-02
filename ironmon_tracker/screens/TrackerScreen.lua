@@ -439,10 +439,12 @@ end
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
 function TrackerScreen.buildCarousel()
 	-- Helper functions
+	-- Checks if carousel rotation has been disabled by the user settings
 	local function isCarouselDisabled()
 		return Options["Disable mainscreen carousel"] and Battle.isViewingOwn
 	end
-	local function overrideEarlyRouteInfo()
+	-- Checks if the early game conditions are correct to show route encounter info instead of the normal carousel item
+	local function showEarlyRouteEncounters()
 		-- In trainer battle
 		if Battle.inActiveBattle() and not Battle.isWildEncounter then
 			return false
@@ -466,7 +468,7 @@ function TrackerScreen.buildCarousel()
 			if isCarouselDisabled() then
 				return not Program.Pedometer:isInUse()
 			end
-			return Battle.isViewingOwn and not overrideEarlyRouteInfo()
+			return Battle.isViewingOwn and not showEarlyRouteEncounters()
 		end,
 		framesToShow = 210,
 		getContentList = function()
@@ -549,7 +551,7 @@ function TrackerScreen.buildCarousel()
 		isVisible = function()
 			if isCarouselDisabled() then
 				return false
-			elseif overrideEarlyRouteInfo() then
+			elseif showEarlyRouteEncounters() then
 				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
 				return true
 			else
