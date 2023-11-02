@@ -419,7 +419,7 @@ Format for an entry:
 	bst: integer -> A sum of the base stats of the Pokémon
 	expYield: integer -> Base experience yield of the Pokémon; automatically populated from game memory
 	movelvls: {{integer list}, {integer list}} -> A pair of tables (1:RSE/2:FRLG) declaring the levels at which a Pokémon learns new moves or an empty list means it learns nothing
-	weight: integer -> pokemon's weight in kg (mainly used for Low Kick calculations)
+	weight: number -> pokemon's weight in kg (mainly used for Low Kick calculations)
 ]]
 PokemonData.Pokemon = {
 	{
