@@ -5,14 +5,21 @@
 -- You can safely remove unused functions; they won't be called.
 
 local function CodeExtensionTemplate()
-	local self = {}
-
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
+	local self = {}
+	self.version = "1.0"
 	self.name = "My Fancy Extension"
 	self.author = "My Username"
 	self.description = "This is a template file for my fancy custom code extension."
-	self.version = "1.0"
 	self.url = "https://github.com/MyUsername/ExtensionRepo" -- Remove or set to nil if no host website available for this extension
+	self.github = "MyUsername/ExtensionRepo" -- Replace "MyUsername" and "ExtensionRepo" to match your GitHub repo url, if any
+	self.url = string.format("https://github.com/%s", self.github or "") -- Remove this attribute if no host website available for this extension
+
+	--------------------------------------
+	-- INTENRAL TRACKER FUNCTIONS BELOW
+	-- Add any number of these below functions to your extension that you want to use.
+	-- If you don't need a function, don't add it at all; leave ommitted for faster code execution.
+	--------------------------------------
 
 	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
 	-- Remove this function if you choose not to include a way for the user to configure options for your extension
@@ -25,14 +32,12 @@ local function CodeExtensionTemplate()
 	-- Returns [true, downloadUrl] if an update is available (downloadUrl auto opens in browser for user); otherwise returns [false, downloadUrl]
 	-- Remove this function if you choose not to implement a version update check for your extension
 	function self.checkForUpdates()
-		-- Replace "MyUsername" and "ExtensionRepo" in the below URL to match your repo url
-		local versionCheckUrl = "https://api.github.com/repos/MyUsername/ExtensionRepo/releases/latest"
 		-- Update the pattern below to match your version. You can check what this looks like by visiting the above url
-		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"'
-		-- Replace "MyUsername" and "ExtensionRepo" in the below URL to match your repo url
-		local downloadUrl = "https://github.com/MyUsername/ExtensionRepo/releases/latest"
-
-		local isUpdateAvailable = Utils.checkForVersionUpdate(versionCheckUrl, self.version, versionResponsePattern, nil)
+		local versionResponsePattern = '"tag_name":%s+"%w+(%d+%.%d+)"' -- matches "1.0" in "tag_name": "v1.0"
+		local versionCheckUrl = string.format("https://api.github.com/repos/%s/releases/latest", self.github or "")
+		local downloadUrl = string.format("https://github.com/%s/releases/latest", self.github or "")
+		local compareFunc = function(a, b) return a ~= b and not Utils.isNewerVersion(a, b) end -- if current version is *older* than online version
+		local isUpdateAvailable = Utils.checkForVersionUpdate(versionCheckUrl, self.version, versionResponsePattern, compareFunc)
 		return isUpdateAvailable, downloadUrl
 	end
 
