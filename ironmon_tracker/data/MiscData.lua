@@ -77,7 +77,7 @@ end
 
 -- Returns an absolute filepath to the icon image for the item, or nil if not available
 --- @param itemId number
---- @return string|nil filepath
+--- @return string? filepath
 function MiscData.getItemIcon(itemId)
 	itemId = itemId or 0
 	local item = MiscData.HealingItems[itemId]

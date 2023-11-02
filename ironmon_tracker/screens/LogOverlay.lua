@@ -456,8 +456,8 @@ function LogOverlay.viewLogFile(postfix)
 end
 
 --- Attempts to determine the log file that matches the currently loaded rom. If not match or can't find, returns nil
---- @param postFix string|nil The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
---- @return string|nil
+--- @param postFix string? The file's postFix, most likely FileManager.PostFixes.AUTORANDOMIZED or FileManager.PostFixes.PREVIOUSATTEMPT
+--- @return string?
 function LogOverlay.getLogFileAutodetected(postFix)
 	postFix = postFix or FileManager.PostFixes.AUTORANDOMIZED
 
@@ -514,7 +514,7 @@ function LogOverlay.getLogFileAutodetected(postFix)
 end
 
 --- Prompts user to select a log file to parse
---- @return string|nil
+--- @return string?
 function LogOverlay.getLogFileFromPrompt()
 	local suggestedFileName = (GameSettings.getRomName() or "") .. FileManager.Extensions.RANDOMIZER_LOGFILE
 	local filterOptions = "Randomizer Log (*.log)|*.log|All files (*.*)|*.*"

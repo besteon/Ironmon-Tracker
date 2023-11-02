@@ -117,7 +117,7 @@ UpdateScreen.Buttons = {
 				-- In such a case, open a browser window with a link for manual download...
 				Utils.openBrowserWindow(FileManager.Urls.DOWNLOAD, Resources.UpdateScreen.MessageCheckConsole)
 				-- ... and swap back to main Tracker screen. Default to remind later if they forget to manually update.
-				Main.Version.remindMe = true
+				-- Main.Version.remindMe = true -- Temporarily disabled
 				UpdateScreen.exitScreen()
 			else
 				UpdateScreen.beginAutoUpdate()
@@ -261,7 +261,7 @@ function UpdateScreen.isUpdateSupported()
 end
 
 function UpdateScreen.exitScreenAndRemindMe(shouldRemindMe)
-	Main.Version.remindMe = shouldRemindMe
+	-- Main.Version.remindMe = shouldRemindMe -- Temporarily disabled
 	Main.Version.showUpdate = false
 	-- Main.Version.updateAfterRestart = false -- Currently unused
 	Main.SaveSettings(true)
@@ -336,6 +336,9 @@ function UpdateScreen.beginAutoUpdate()
 	end
 	-- After a small delay, then continue on with the rest of the update. During this time, images can't be drawn on the Tracker to prevent them from re-caching
 	Program.addFrameCounter("PerformUpdate", updateStartDelay, function()
+		if Main.IsOnBizhawk() then
+			Drawing.clearImageCache() -- doing this an extra time to be safe
+		end
 		Main.updateRequested = true
 	end, 1, true)
 end

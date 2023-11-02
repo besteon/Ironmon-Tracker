@@ -212,7 +212,7 @@ function RandomizerLog.initBlankData()
 		PickupItems = {}, -- Currently unused
 	}
 
-	for id = 1, PokemonData.totalPokemon, 1 do
+	for id = 1, #PokemonData.Pokemon, 1 do
 		if id <= 251 or id >= 277 then -- celebi / treecko
 			RandomizerLog.Data.Pokemon[id] = {
 				Types = {},

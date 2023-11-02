@@ -1843,12 +1843,12 @@ function RouteData.setupRouteInfoAsFRLG()
 			name = "Pokémon Tower 1F",
 			icon = RouteData.Icons.BuildingDoorLarge,
 			area = RouteData.CombinedAreas.PokemonTower,
-			trainers = { 429, 430, 431 },
 		},
 		[162] = {
 			name = "Pokémon Tower 2F",
 			icon = RouteData.Icons.BuildingDoorLarge,
 			area = RouteData.CombinedAreas.PokemonTower,
+			trainers = { 429, 430, 431 },
 		},
 		[163] = {
 			name = "Pokémon Tower 3F",
@@ -3122,8 +3122,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Locations.IsInLab = {
 		[17] = true, -- Route 101
 	}
-	if not isGameEmerald then
-		-- Ironmon ends after Steven battle, not e4. This is handled by Battle.endCurrentBattle()
+	if isGameEmerald then
+		-- In Emerald, Ironmon ends after Steven battle, not e4.
+		RouteData.Locations.IsInHallOfFame = {
+			[431] = true,
+		}
+	else
 		RouteData.Locations.IsInHallOfFame = {
 			[298 + offset] = true,
 		}
@@ -3132,6 +3136,7 @@ function RouteData.setupRouteInfoAsRSE()
 	-- [AreaName] = { combained list of mapIds }
 	RouteData.CombinedAreas = {
 		GraniteCave = { name = "Granite Cave" },
+		OceanicMuseum = { name = "Oceanic Museum" },
 		TrickHouse = { name = "Trick House" },
 		MeteorFalls = { name = "Meteor Falls" },
 		LavaridgeGym = { name = "Lavaridge Gym" },
@@ -4295,10 +4300,12 @@ function RouteData.setupRouteInfoAsRSE()
 	RouteData.Info[86] = {
 		name = "Oceanic Museum 1F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 	}
 	RouteData.Info[87] = {
 		name = "Oceanic Museum 2F",
 		icon = RouteData.Icons.BuildingDoorLarge,
+		area = RouteData.CombinedAreas.OceanicMuseum,
 		trainers = { 20, 21 },
 	}
 	RouteData.Info[89] = {

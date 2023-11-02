@@ -438,12 +438,37 @@ end
 
 -- Define each Carousel Item, must will have blank data that will be populated later with contextual data
 function TrackerScreen.buildCarousel()
+	-- Helper functions
+	-- Checks if carousel rotation has been disabled by the user settings
+	local function isCarouselDisabled()
+		return Options["Disable mainscreen carousel"] and Battle.isViewingOwn
+	end
+	-- Checks if the early game conditions are correct to show route encounter info instead of the normal carousel item
+	local function showEarlyRouteEncounters()
+		-- In trainer battle
+		if Battle.inActiveBattle() and not Battle.isWildEncounter then
+			return false
+		end
+		-- Pokemon high enough level
+		local pokemon = Tracker.getPokemon(1, true) or {}
+		if (pokemon.level or 0) >= 13 then
+			return false
+		end
+		-- No wild grass encounters available
+		if not RouteData.hasRouteEncounterArea(TrackerAPI.getMapId(), RouteData.EncounterArea.LAND) then
+			return false
+		end
+		return true
+	end
+
 	--  BADGE
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.BADGES] = {
 		type = TrackerScreen.CarouselTypes.BADGES,
 		isVisible = function()
-			local pedometerIsShowing = Options["Disable mainscreen carousel"] and Program.Pedometer:isInUse()
-			return Battle.isViewingOwn and not pedometerIsShowing
+			if isCarouselDisabled() then
+				return not Program.Pedometer:isInUse()
+			end
+			return Battle.isViewingOwn and not showEarlyRouteEncounters()
 		end,
 		framesToShow = 210,
 		getContentList = function()
@@ -480,9 +505,11 @@ function TrackerScreen.buildCarousel()
 		type = TrackerScreen.CarouselTypes.LAST_ATTACK,
 		-- Don't show the last attack information while the enemy is attacking, or it spoils the move & damage
 		isVisible = function()
+			if isCarouselDisabled() then
+				return false
+			end
 			local properBattleTiming = Battle.inActiveBattle() and not Battle.enemyHasAttacked and Battle.lastEnemyMoveId ~= 0
-			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Options["Show last damage calcs"] and properBattleTiming and not carouselDisabled
+			return Options["Show last damage calcs"] and properBattleTiming
 		end,
 		framesToShow = 180,
 		getContentList = function()
@@ -522,8 +549,14 @@ function TrackerScreen.buildCarousel()
 	TrackerScreen.CarouselItems[TrackerScreen.CarouselTypes.ROUTE_INFO] = {
 		type = TrackerScreen.CarouselTypes.ROUTE_INFO,
 		isVisible = function()
-			local carouselDisabled = Battle.isViewingOwn and Options["Disable mainscreen carousel"]
-			return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo and not carouselDisabled
+			if isCarouselDisabled() then
+				return false
+			elseif showEarlyRouteEncounters() then
+				Battle.CurrentRoute.encounterArea = RouteData.EncounterArea.LAND
+				return true
+			else
+				return Battle.inActiveBattle() and Battle.CurrentRoute.hasInfo
+			end
 		end,
 		framesToShow = 180,
 		getContentList = function()
@@ -768,7 +801,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	gui.drawRectangle(Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN, Constants.SCREEN.MARGIN, 96, 52, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
 
 	-- POKEMON TYPES
-	if not Options["Reveal info if randomized"] and not Battle.isViewingOwn and PokemonData.IsRand.pokemonTypes then
+	if not Options["Reveal info if randomized"] and not Battle.isViewingOwn and PokemonData.IsRand.types then
 		-- Don't reveal randomized Pokemon types for enemies
 		Drawing.drawTypeIcon(PokemonData.Types.UNKNOWN, Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 33)
 	elseif data.p.types[1] ~= PokemonData.Types.UNKNOWN then
@@ -952,13 +985,23 @@ function TrackerScreen.drawPokemonInfoArea(data)
 end
 
 function TrackerScreen.drawStatsArea(data)
-	local shadowcolor = Utils.calcShadowColor(Theme.COLORS["Upper box background"])
+	local borderColor = Theme.COLORS["Upper box border"]
+	local bgColor = Theme.COLORS["Upper box background"]
+	local shadowcolor = Utils.calcShadowColor(bgColor)
 	local statBoxWidth = 101
 	local statOffsetX = Constants.SCREEN.WIDTH + statBoxWidth + 1
 	local statOffsetY = 7
 
 	-- Draw the border box for the Stats area
-	gui.drawRectangle(Constants.SCREEN.WIDTH + statBoxWidth, 5, Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75, Theme.COLORS["Upper box border"], Theme.COLORS["Upper box background"])
+	local x, y = Constants.SCREEN.WIDTH + statBoxWidth, 5
+	local w, h = Constants.SCREEN.RIGHT_GAP - statBoxWidth - 5, 75
+	gui.drawRectangle(x, y, w, h, borderColor, bgColor)
+	if RouteData.Locations.CanPCHeal[TrackerAPI.getMapId()] then
+		if data.x.extras.upperleft then gui.drawPixel(x + 1, y + 1, borderColor) end
+		if data.x.extras.upperright then gui.drawPixel(x + w - 1, y + 1, borderColor) end
+		if data.x.extras.lowerleft then gui.drawPixel(x + 1, y + h - 1, borderColor) end
+		if data.x.extras.lowerright then gui.drawPixel(x + w - 1, y + h - 1, borderColor) end
+	end
 
 	-- Draw the six primary stats
 	local statLabels = {

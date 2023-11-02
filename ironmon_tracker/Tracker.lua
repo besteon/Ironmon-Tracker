@@ -79,8 +79,8 @@ end
 
 --- @param slotNumber number Which party slot (1-6) to get
 --- @param isOwn boolean True for the Player's team, false for the Enemy Trainer's team
---- @param excludeEggs boolean|nil (Optional) If true, avoid Pokémon that are eggs; default=true
---- @return table|nil pokemon All of the game data known about this Pokémon; nil if it doesn't exist
+--- @param excludeEggs boolean? (Optional) If true, avoid Pokémon that are eggs; default=true
+--- @return table? pokemon All of the game data known about this Pokémon; nil if it doesn't exist
 function Tracker.getPokemon(slotNumber, isOwn, excludeEggs)
 	slotNumber = slotNumber or 1
 	isOwn = isOwn ~= false -- default to true
@@ -133,7 +133,7 @@ function Tracker.getViewedPokemon()
 end
 
 --- @param pokemonID number
---- @param createIfDoesntExist boolean|nil (Optional) If true, will create a tracked Pokémon data entry (default=true)
+--- @param createIfDoesntExist boolean? (Optional) If true, will create a tracked Pokémon data entry (default=true)
 --- @return table trackedPokemon A table containing information about this tracked Pokémon (empty if it's not being tracked)
 function Tracker.getOrCreateTrackedPokemon(pokemonID, createIfDoesntExist)
 	if not PokemonData.isValid(pokemonID) then return {} end -- Don't store tracked data for a non-existent pokemon data
@@ -303,7 +303,7 @@ function Tracker.tryTrackWhichRival(trainerId)
 end
 
 --- Returns info on which Rival the player is fighting throughout the game. If not set, returns nil
---- @return string|nil nameAndDirection FRLG: "Left/Middle/Right", RSE: "TrainerName Left/Middle/Right"
+--- @return string? nameAndDirection FRLG: "Left/Middle/Right", RSE: "TrainerName Left/Middle/Right"
 function Tracker.getWhichRival()
 	if Tracker.Data.whichRival == "" then
 		return nil
@@ -410,14 +410,15 @@ function Tracker.getNote(pokemonID)
 	return trackedPokemon.note or ""
 end
 
---- If the viewed Pokemon has the move "Hidden Power" (id=237), return it's tracked type; otherwise default type value = NORMAL
+--- If the Pokemon has the move "Hidden Power" (id=237), return it's tracked type (if set); otherwise default type value = unknown
+--- @param pokemon table? (Optional) The Pokemon data object to use for checking if hidden power type is tracked; default: currently viewed mon
 --- @return string
-function Tracker.getHiddenPowerType()
-	local viewedPokemon = Battle.getViewedPokemon(true) or {}
-	if (viewedPokemon.personality or 0) == 0 then
-		return MoveData.HiddenPowerTypeList[1]
+function Tracker.getHiddenPowerType(pokemon)
+	pokemon = pokemon or Battle.getViewedPokemon(true) or {}
+	if (pokemon.personality or 0) == 0 then
+		return MoveData.HIDDEN_POWER_NOT_SET
 	end
-	return Tracker.Data.hiddenPowers[viewedPokemon.personality] or MoveData.HiddenPowerTypeList[1]
+	return Tracker.Data.hiddenPowers[pokemon.personality] or MoveData.HIDDEN_POWER_NOT_SET
 end
 
 --- Note the last level seen of each Pokemon on the enemy team
@@ -432,7 +433,7 @@ end
 
 --- Returns the level of the Pokemon last time it was seen; returns nil if never seen before
 --- @param pokemonID number
---- @return number|nil
+--- @return number?
 function Tracker.getLastLevelSeen(pokemonID)
 	local trackedPokemon = Tracker.getOrCreateTrackedPokemon(pokemonID, false)
 	return trackedPokemon.eL

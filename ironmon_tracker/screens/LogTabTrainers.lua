@@ -4,7 +4,7 @@ LogTabTrainers = {
 		text = "Default text",
 		border = "Upper box border",
 		boxFill = "Upper box background",
-		hightlight = "Intermediate text",
+		highlight = "Intermediate text",
 	},
 	TabIcons = {
 		BoyRS = {
@@ -91,10 +91,10 @@ function LogTabTrainers.buildNavigation()
 			updateSelf = function(self)
 				if navFilter.group == TrainerData.TrainerGroups.All and LogSearchScreen.searchText ~= "" then
 					self.isSelected = true
-					self.textColor = LogTabTrainers.Colors.hightlight
+					self.textColor = LogTabTrainers.Colors.highlight
 				elseif navFilter.group == LogOverlay.Windower.filterGrid and LogSearchScreen.searchText == "" then
 					self.isSelected = true
-					self.textColor = LogTabTrainers.Colors.hightlight
+					self.textColor = LogTabTrainers.Colors.highlight
 				else
 					self.isSelected = false
 					self.textColor = LogTabTrainers.Colors.text

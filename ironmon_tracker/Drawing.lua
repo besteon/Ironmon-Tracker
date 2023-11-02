@@ -45,9 +45,10 @@ function Drawing.clearGUI()
 	gui.drawRectangle(Constants.SCREEN.WIDTH, 0, Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP, Constants.SCREEN.HEIGHT, Drawing.Colors.BLACK, Drawing.Colors.BLACK)
 end
 
----@param waitFramesBeforeClearing number|nil [Optional] Will wait N frames before clearing the cache, useful for allowing any final image draws
----@param scaleWithSpeedup boolean|nil [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
+---@param waitFramesBeforeClearing number? [Optional] Will wait N frames before clearing the cache, useful for allowing any final image draws
+---@param scaleWithSpeedup boolean? [Optional] If true, will sync the counter to real time instead of the client's frame rate, ignoring speedup
 function Drawing.clearImageCache(waitFramesBeforeClearing, scaleWithSpeedup)
+	if not Main.IsOnBizhawk() then return end
 	if type(waitFramesBeforeClearing) == "number" and waitFramesBeforeClearing > 0 then
 		Program.addFrameCounter("ClearImageCache", waitFramesBeforeClearing, function()
 			gui.clearImageCache()
@@ -69,8 +70,8 @@ end
 ---@param filepath string The absolute filepath to the image file; see FileManager.buildImagePath()
 ---@param x number The x-coordinate on the game screen canvas to draw the image
 ---@param y number The y-coordinate on the game screen canvas to draw the image
----@param width number|nil [Optional] If specified and the image is larger, will resize accordingly
----@param height number|nil [Optional] If specified and the image is larger, will resize accordingly
+---@param width number? [Optional] If specified and the image is larger, will resize accordingly
+---@param height number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImage(filepath, x, y, width, height)
 	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
 	if width ~= nil and height ~= nil then
@@ -87,8 +88,8 @@ end
 ---@param sourceH number The height to draw from the source image file
 ---@param destX number The x-coordinate on the game screen canvas to draw the image
 ---@param destY number The y-coordinate on the game screen canvas to draw the image
----@param destW number|nil [Optional] If specified and the image is larger, will resize accordingly
----@param destH number|nil [Optional] If specified and the image is larger, will resize accordingly
+---@param destW number? [Optional] If specified and the image is larger, will resize accordingly
+---@param destH number? [Optional] If specified and the image is larger, will resize accordingly
 function Drawing.drawImageRegion(filepath, sourceX, sourceY, sourceW, sourceH, destX, destY, destW, destH)
 	if not Drawing.allowCachedImages or (filepath or "") == "" then return end
 	if destW ~= nil and destH ~= nil then
@@ -565,7 +566,7 @@ function Drawing.drawTrackerThemePreview(x, y, themeColors, displayColorBars)
 end
 
 function Drawing.drawSpriteIcon(x, y, pokemonID, requiredAnimType)
-	if not SpriteData.canDrawPokemonIcon(pokemonID) then
+	if not SpriteData.canDrawIcon(pokemonID) then
 		return
 	end
 

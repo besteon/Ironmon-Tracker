@@ -37,6 +37,7 @@ MoveData.HiddenPowerTypeList = {
 	PokemonData.Types.DRAGON,
 	PokemonData.Types.DARK,
 }
+MoveData.HIDDEN_POWER_NOT_SET = MoveData.HiddenPowerTypeList[1]
 
 --Mapping of move types to move categories for gens 1-3
 MoveData.TypeToCategory = {

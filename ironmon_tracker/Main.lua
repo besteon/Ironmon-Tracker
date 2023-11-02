@@ -1,11 +1,11 @@
 Main = {}
 
 -- The latest version of the tracker. Should be updated with each PR.
-Main.Version = { major = "8", minor = "3", patch = "6" }
+Main.Version = { major = "8", minor = "3", patch = "8" }
 
 Main.CreditsList = { -- based on the PokemonBizhawkLua project by MKDasher
 	CreatedBy = "Besteon",
-	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "Aeiry", "Amber Cyprian", "bdjeffyp", "thisisatest", "kittenchilly", "IMTYP0", "brdy", "Harkenn", "TheRealTaintedWolf", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
+	Contributors = { "UTDZac", "Fellshadow", "ninjafriend", "OnlySpaghettiCode", "Aeiry", "Amber Cyprian", "bdjeffyp", "thisisatest", "kittenchilly", "IMTYP0", "brdy", "Harkenn", "TheRealTaintedWolf", "eusebyo", "Kurumas", "davidhouweling", "AKD", "rcj001", "GB127", },
 }
 
 Main.EMU = {
@@ -19,7 +19,7 @@ Main.EMU = {
 -- Returns false if an error occurs that completely prevents the Tracker from functioning; otherwise, returns true
 function Main.Initialize()
 	Main.TrackerVersion = string.format("%s.%s.%s", Main.Version.major, Main.Version.minor, Main.Version.patch)
-	Main.Version.remindMe = true
+	Main.Version.remindMe = false -- Temporarily disabled (was: true), as no explicitly visible way to "remind me later" that is clear and intuitive
 	Main.Version.latestAvailable = Main.TrackerVersion
 	Main.Version.releaseNotes = {}
 	Main.Version.dateChecked = ""
@@ -364,7 +364,7 @@ function Main.CheckForVersionUpdate(forcedCheck)
 			local newVersionAvailable = not Main.isOnLatestVersion(string.format("%s.%s.0", major, minor))
 
 			-- Other than choosing to be reminded, only notify when a release comes out that is different than the last recorded newest release
-			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion
+			local shouldNotify = Main.Version.remindMe or Main.Version.latestAvailable ~= latestReleasedVersion -- NOTE: "remindMe" temporarily disabled (always false)
 
 			-- Determine if a major version update is available and notify the user accordingly
 			if newVersionAvailable and shouldNotify then
@@ -428,11 +428,13 @@ function Main.updateReleaseNotes(response)
 	end
 end
 
--- Checks the current version of the Tracker against the version of the latest release, true if greater/equal; false otherwise.
--- 'versionToCheck': optional, if provided the version check will compare current version against the one provided.
+--- Checks the current version of the Tracker against the version of the latest release.
+--- @param versionToCheck string? (optional) Version number to check the current tracker version against.
+--- @return boolean isOnLatestVersion Returns true if current tracker version is newer/equal to the version to check.
 function Main.isOnLatestVersion(versionToCheck)
 	versionToCheck = versionToCheck or Main.Version.latestAvailable
-	return not Utils.isNewerVersion(Main.TrackerVersion, versionToCheck)
+	-- If versionToCheck is not newer than the current version, then current version is the latest version
+	return not Utils.isNewerVersion(versionToCheck, Main.TrackerVersion)
 end
 
 function Main.LoadNextRom()
@@ -442,6 +444,7 @@ function Main.LoadNextRom()
 	Utils.tempDisableBizhawkSound()
 
 	if Main.IsOnBizhawk() then
+		Drawing.clearImageCache()
 		console.clear() -- Clearing the console for each new game helps with troubleshooting issues
 	else
 		MGBA.clearConsole()
@@ -774,7 +777,7 @@ function Main.SaveCurrentRom(filename)
 end
 
 --- Attempts to find an attempts file based off of the Quickload settings file, then off of the currently loaded ROM name
---- @param forceUseSettingsFile boolean|nil Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
+--- @param forceUseSettingsFile boolean? Force return of filepath of an attempts file to be created from the Quickload settings file (default: false)
 --- @return string attemptsFilePath Filepath to an attempts file
 function Main.GetAttemptsFile(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
@@ -834,7 +837,7 @@ end
 
 --- Determines what attempts # the play session is on, either from pre-existing file or from Bizhawk's ROM Name.
 --- Resulting attempts # is stored in Main.currentSeed
---- @param forceUseSettingsFile boolean|nil Force creation of new attempts # for the current Quickload settings file (default: false)
+--- @param forceUseSettingsFile boolean? Force creation of new attempts # for the current Quickload settings file (default: false)
 function Main.ReadAttemptsCount(forceUseSettingsFile)
 	forceUseSettingsFile = forceUseSettingsFile or false
 
@@ -899,7 +902,7 @@ function Main.LoadSettings()
 	-- [CONFIG]
 	if settings.config ~= nil then
 		if settings.config.RemindMeLater ~= nil then
-			Main.Version.remindMe = settings.config.RemindMeLater
+			-- Main.Version.remindMe = settings.config.RemindMeLater -- Temporarily disabled
 		end
 		if settings.config.LatestAvailableVersion ~= nil then
 			Main.Version.latestAvailable = settings.config.LatestAvailableVersion
@@ -1015,7 +1018,7 @@ function Main.SaveSettings(forced)
 	if settings.extensions == nil then settings.extensions = {} end
 
 	-- [CONFIG]
-	settings.config.RemindMeLater = Main.Version.remindMe
+	-- settings.config.RemindMeLater = Main.Version.remindMe -- Temporarily disabled
 	settings.config.LatestAvailableVersion = Main.Version.latestAvailable
 	settings.config.DateLastChecked = Main.Version.dateChecked
 	settings.config.ShowUpdateNotification = Main.Version.showUpdate
