@@ -3,28 +3,28 @@ PreviousEncountersScreen = {
 		text = "Default text",
 		highlight = "Intermediate text",
 		border = "Upper box border",
-		boxFill = "Upper box background",
+		boxFill = "Upper box background"
 	},
 	Tabs = {
 		All = {
 			index = 1,
 			tabKey = "All",
-			resourceKey = "TabAll",
+			resourceKey = "TabAll"
 		},
 		Wild = {
 			index = 2,
 			tabKey = "Wild",
-			resourceKey = "TabWild",
+			resourceKey = "TabWild"
 		},
 		Trainer = {
 			index = 3,
 			tabKey = "Trainer",
-			resourceKey = "TabTrainer",
-		},
+			resourceKey = "TabTrainer"
+		}
 	},
 	currentView = 1,
 	currentTab = nil,
-	currentPokemonID = nil,
+	currentPokemonID = nil
 }
 
 local SCREEN = PreviousEncountersScreen
@@ -37,30 +37,43 @@ local OFFSET_FOR_NAME = 8
 SCREEN.Buttons = {
 	NameLabel = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return PokemonData.Pokemon[SCREEN.currentPokemonID].name end,
+		getText = function(self)
+			return PokemonData.Pokemon[SCREEN.currentPokemonID].name
+		end,
 		box = {
 			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN - 3,
 			Constants.SCREEN.MARGIN - 4,
 			50,
-			10,
+			10
 		}
 	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
-		getText = function(self) return SCREEN.Pager:getPageText() end,
+		getText = function(self)
+			return SCREEN.Pager:getPageText()
+		end,
 		box = {
 			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 56,
 			Constants.SCREEN.MARGIN + 136,
 			50,
-			10,
+			10
 		},
-		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
+		isVisible = function()
+			return SCREEN.Pager.totalPages > 1
+		end
 	},
 	PrevPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.LEFT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44, Constants.SCREEN.MARGIN + 137, 10, 10, },
-		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
+		box = {
+			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 44,
+			Constants.SCREEN.MARGIN + 137,
+			10,
+			10
+		},
+		isVisible = function()
+			return SCREEN.Pager.totalPages > 1
+		end,
 		onClick = function(self)
 			SCREEN.Pager:prevPage()
 		end
@@ -68,15 +81,19 @@ SCREEN.Buttons = {
 	NextPage = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.RIGHT_ARROW,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 87, Constants.SCREEN.MARGIN + 137, 10, 10, },
-		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
+		box = {Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 87, Constants.SCREEN.MARGIN + 137, 10, 10},
+		isVisible = function()
+			return SCREEN.Pager.totalPages > 1
+		end,
 		onClick = function(self)
 			SCREEN.Pager:nextPage()
 		end
 	},
-	Back = Drawing.createUIElementBackButton(function()
-		Program.changeScreenView(TrackerScreen)
-	end),
+	Back = Drawing.createUIElementBackButton(
+		function()
+			Program.changeScreenView(TrackerScreen)
+		end
+	)
 }
 
 SCREEN.Pager = {
@@ -87,7 +104,9 @@ SCREEN.Pager = {
 	--		for each different day, and adjust sort here to account for it (since os.time() gives int to the second
 	--		might be fine to
 	--		hack with setting time of 23:59:59.5 for that day?)
-	defaultSort = function(a, b) return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id) end,
+	defaultSort = function(a, b)
+		return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id)
+	end,
 	realignButtonsToGrid = function(self)
 		table.sort(self.Buttons, self.defaultSort)
 		-- +15 magic just to stick it in the middle -- Adjust if width of button changes
@@ -100,20 +119,26 @@ SCREEN.Pager = {
 		self.totalPages = totalPages or 1
 	end,
 	getPageText = function(self)
-		if self.totalPages <= 1 then return Resources.AllScreens.Page end
+		if self.totalPages <= 1 then
+			return Resources.AllScreens.Page
+		end
 		local buffer = Utils.inlineIf(self.currentPage > 9, "", " ") .. Utils.inlineIf(self.totalPages > 9, "", " ")
 		return buffer .. string.format("%s/%s", self.currentPage, self.totalPages)
 	end,
 	prevPage = function(self)
-		if self.totalPages <= 1 then return end
+		if self.totalPages <= 1 then
+			return
+		end
 		self.currentPage = ((self.currentPage - 2 + self.totalPages) % self.totalPages) + 1
 		Program.redraw(true)
 	end,
 	nextPage = function(self)
-		if self.totalPages <= 1 then return end
+		if self.totalPages <= 1 then
+			return
+		end
 		self.currentPage = (self.currentPage % self.totalPages) + 1
 		Program.redraw(true)
-	end,
+	end
 }
 
 function PreviousEncountersScreen.initialize()
@@ -126,13 +151,12 @@ function PreviousEncountersScreen.initialize()
 			button.textColor = SCREEN.Colors.text
 		end
 		if button.boxColors == nil then
-			button.boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill }
+			button.boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill}
 		end
 	end
 
 	SCREEN.refreshButtons()
 end
-
 
 function PreviousEncountersScreen.refreshButtons()
 	for _, button in pairs(SCREEN.Buttons) do
@@ -149,7 +173,9 @@ end
 
 function PreviousEncountersScreen.createButtons()
 	function padEnd(inp, targetLength, char)
-		if char == nil then char = " " end;
+		if char == nil then
+			char = " "
+		end
 		-- todo: padding with " " doesn't line up as space a little thinner than others;
 		-- does this need to be manually rendered instead of aligned?
 		return inp .. string.rep(char, targetLength - (#inp))
@@ -165,10 +191,12 @@ function PreviousEncountersScreen.createButtons()
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return tabText end,
+			getText = function(self)
+				return tabText
+			end,
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
-			box = {	startX, startY, tabWidth, TAB_HEIGHT },
+			box = {startX, startY, tabWidth, TAB_HEIGHT},
 			-- isVisible = function(self) return true end,
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
@@ -192,7 +220,9 @@ function PreviousEncountersScreen.createButtons()
 				local centeredOffsetX = Utils.getCenteredTextX(self:getText(), w) - 2
 				Drawing.drawText(x + centeredOffsetX, y, self:getText(), Theme.COLORS[self.textColor], shadowcolor)
 			end,
-			onClick = function(self) SCREEN.changeTab(self.tab) end,
+			onClick = function(self)
+				SCREEN.changeTab(self.tab)
+			end
 		}
 		startX = startX + tabWidth
 	end
@@ -225,26 +255,32 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 
 	for _, encounter in ipairs(tabContents) do
 		-- todo remove or "" when ready, don't need to nullsafe any values that will always be there
-		local levelText = padEnd(("Lv." .. (encounter.level or "") .. " "), 9, "=");
+		local levelText = padEnd(("Lv." .. (encounter.level or "") .. " "), 9, "=")
 		local encounterText = levelText .. " " .. os.date("%b %d, %I:%M%p", encounter.timestamp)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			-- getText = function(self) return os.date("%Y-%m-%d %H:%M:%S", encounter.timestamp) or Constants.BLANKLINE end,
-			getText = function(self) return encounterText end,
+			getText = function(self)
+				return encounterText
+			end,
 			tab = tab,
 			id = encounter.timestamp,
 			sortValue = encounter.timestamp,
-			dimensions = { width = Utils.calcWordPixelLength(encounterText), height = 11, },
+			dimensions = {width = Utils.calcWordPixelLength(encounterText), height = 11},
 			textColor = SCREEN.Colors.text,
-			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-			isVisible = function(self) return SCREEN.Pager.currentPage == self.pageVisible end,
-			includeInGrid = function(self) return SCREEN.currentTab == self.tab end,
+			boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
+			isVisible = function(self)
+				return SCREEN.Pager.currentPage == self.pageVisible
+			end,
+			includeInGrid = function(self)
+				return SCREEN.currentTab == self.tab
+			end,
 			-- onClick = function(self)
 			--  -- TODO if we append more info on tracked data can render state of mon at that time
 			-- 	InfoScreen.changeScreenView(InfoScreen.Screens.ITEM_INFO, self.id) -- implied redraw
 			-- end,
 			draw = function(self, shadowcolor)
-			end,
+			end
 		}
 		table.insert(SCREEN.Pager.Buttons, button)
 	end
@@ -283,7 +319,7 @@ function PreviousEncountersScreen.drawScreen()
 		text = Theme.COLORS[SCREEN.Colors.text],
 		border = Theme.COLORS[SCREEN.Colors.border],
 		fill = Theme.COLORS[SCREEN.Colors.boxFill],
-		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill]),
+		shadow = Utils.calcShadowColor(Theme.COLORS[SCREEN.Colors.boxFill])
 	}
 
 	-- Draw top border box
