@@ -33,7 +33,6 @@ local OFFSET_FOR_NAME = 8
 
 -- TODO: probably should close this screen automatically when opposing pokemon changes
 --		or encounter ends. Maybe this goes into InfoScreen to handle that?
--- TODO: List out mon name at top for context, shift everything else down
 SCREEN.Buttons = {
 	NameLabel = {
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -100,17 +99,12 @@ SCREEN.Pager = {
 	Buttons = {},
 	currentPage = 0,
 	totalPages = 0,
-	-- TODO: should date be separated out to a header when it changes? if so should be inserting a fake button
-	--		for each different day, and adjust sort here to account for it (since os.time() gives int to the second
-	--		might be fine to
-	--		hack with setting time of 23:59:59.5 for that day?)
 	defaultSort = function(a, b)
 		return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id)
 	end,
 	realignButtonsToGrid = function(self)
 		table.sort(self.Buttons, self.defaultSort)
-		-- +15 magic just to stick it in the middle -- Adjust if width of button changes
-		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15
+		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
 		local y = Constants.SCREEN.MARGIN + TAB_HEIGHT + OFFSET_FOR_NAME + 1
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10
@@ -197,7 +191,6 @@ function PreviousEncountersScreen.createButtons()
 			tab = SCREEN.Tabs[tab.tabKey],
 			isSelected = false,
 			box = {startX, startY, tabWidth, TAB_HEIGHT},
-			-- isVisible = function(self) return true end,
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
 				self.textColor = Utils.inlineIf(self.isSelected, SCREEN.Colors.highlight, SCREEN.Colors.text)
@@ -253,22 +246,26 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 		end
 	end
 
+	local trackerCenterX = Constants.SCREEN.WIDTH + (Constants.SCREEN.RIGHT_GAP / 2)
+	local encounterButtonWidth = 100
 	for _, encounter in ipairs(tabContents) do
 		-- todo remove or "" when ready, don't need to nullsafe any values that will always be there
-		local levelText = padEnd(("Lv." .. (encounter.level or "") .. " "), 9, "=")
-		local encounterText = levelText .. " " .. os.date("%b %d, %I:%M%p", encounter.timestamp)
+		local levelText = "Lv." .. (encounter.level or "")
+		local encounterTime = os.date("%b %d,  %I:%M %p", encounter.timestamp)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			-- getText = function(self) return os.date("%Y-%m-%d %H:%M:%S", encounter.timestamp) or Constants.BLANKLINE end,
-			getText = function(self)
-				return encounterText
-			end,
 			tab = tab,
 			id = encounter.timestamp,
 			sortValue = encounter.timestamp,
-			dimensions = {width = Utils.calcWordPixelLength(encounterText), height = 11},
+			dimensions = {
+				width = encounterButtonWidth,
+				height = 11
+			},
 			textColor = SCREEN.Colors.text,
-			boxColors = {SCREEN.Colors.border, SCREEN.Colors.boxFill},
+			boxColors = {
+				SCREEN.Colors.border,
+				SCREEN.Colors.boxFill
+			},
 			isVisible = function(self)
 				return SCREEN.Pager.currentPage == self.pageVisible
 			end,
@@ -280,6 +277,21 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 			-- 	InfoScreen.changeScreenView(InfoScreen.Screens.ITEM_INFO, self.id) -- implied redraw
 			-- end,
 			draw = function(self, shadowcolor)
+				local x, y = self.box[1], self.box[2]
+				Drawing.drawText(
+					trackerCenterX - (encounterButtonWidth / 2),
+					y,
+					levelText,
+					Theme.COLORS[self.textColor],
+					shadowcolor
+				)
+				Drawing.drawText(
+					trackerCenterX + (encounterButtonWidth / 2) - Utils.calcWordPixelLength(encounterTime),
+					y,
+					encounterTime,
+					Theme.COLORS[self.textColor],
+					shadowcolor
+				)
 			end
 		}
 		table.insert(SCREEN.Pager.Buttons, button)
