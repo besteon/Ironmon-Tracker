@@ -521,7 +521,9 @@ function CoverageCalcScreen.calculateCoverageTable(moveTypes, onlyFullyEvolved)
 			local eff = MoveData.TypeToEffectiveness[moveType] or {}
 			local moveEff = 1
 			moveEff = moveEff * (eff[type1] or 1)
-			moveEff = moveEff * (eff[type2] or 1)
+			if type1 ~= type2 then -- Don't check twice against mono-type Pokémon
+				moveEff = moveEff * (eff[type2] or 1)
+			end
 			if moveEff > highestEff then
 				highestEff = moveEff
 			end
