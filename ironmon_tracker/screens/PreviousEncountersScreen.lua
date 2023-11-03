@@ -29,15 +29,31 @@ PreviousEncountersScreen = {
 
 local SCREEN = PreviousEncountersScreen
 local TAB_HEIGHT = 12
+local OFFSET_FOR_NAME = 8
 
 -- TODO: probably should close this screen automatically when opposing pokemon changes
 --		or encounter ends. Maybe this goes into InfoScreen to handle that?
 -- TODO: List out mon name at top for context, shift everything else down
 SCREEN.Buttons = {
+	NameLabel = {
+		type = Constants.ButtonTypes.NO_BORDER,
+		getText = function(self) return PokemonData.Pokemon[SCREEN.currentPokemonID].name end,
+		box = {
+			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN - 3,
+			Constants.SCREEN.MARGIN - 4,
+			50,
+			10,
+		}
+	},
 	CurrentPage = {
 		type = Constants.ButtonTypes.NO_BORDER,
 		getText = function(self) return SCREEN.Pager:getPageText() end,
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 56, Constants.SCREEN.MARGIN + 136, 50, 10, },
+		box = {
+			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 56,
+			Constants.SCREEN.MARGIN + 136,
+			50,
+			10,
+		},
 		isVisible = function() return SCREEN.Pager.totalPages > 1 end,
 	},
 	PrevPage = {
@@ -74,8 +90,9 @@ SCREEN.Pager = {
 	defaultSort = function(a, b) return (a.sortValue or 0) > (b.sortValue or 0) or (a.sortValue == b.sortValue and a.id < b.id) end,
 	realignButtonsToGrid = function(self)
 		table.sort(self.Buttons, self.defaultSort)
-		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 6
-		local y = Constants.SCREEN.MARGIN + 17
+		-- +15 magic just to stick it in the middle -- Adjust if width of button changes
+		local x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15
+		local y = Constants.SCREEN.MARGIN + TAB_HEIGHT + OFFSET_FOR_NAME + 1
 		local cutoffX = Constants.SCREEN.WIDTH + Constants.SCREEN.RIGHT_GAP - Constants.SCREEN.MARGIN
 		local cutoffY = Constants.SCREEN.HEIGHT - Constants.SCREEN.MARGIN - 10
 		local totalPages = Utils.gridAlign(self.Buttons, x, y, 2, 2, true, cutoffX, cutoffY)
@@ -131,8 +148,15 @@ function PreviousEncountersScreen.refreshButtons()
 end
 
 function PreviousEncountersScreen.createButtons()
+	function padEnd(inp, targetLength, char)
+		if char == nil then char = " " end;
+		-- todo: padding with " " doesn't line up as space a little thinner than others;
+		-- does this need to be manually rendered instead of aligned?
+		return inp .. string.rep(char, targetLength - (#inp))
+	end
+
 	local startX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN
-	local startY = Constants.SCREEN.MARGIN
+	local startY = Constants.SCREEN.MARGIN + OFFSET_FOR_NAME
 	local tabPadding = 5
 
 	-- TABS
@@ -148,7 +172,7 @@ function PreviousEncountersScreen.createButtons()
 			-- isVisible = function(self) return true end,
 			updateSelf = function(self)
 				self.isSelected = (self.tab == SCREEN.currentTab)
-				self.textColor = self.isSelected and SCREEN.Colors.highlight or SCREEN.Colors.text
+				self.textColor = Utils.inlineIf(self.isSelected, SCREEN.Colors.highlight, SCREEN.Colors.text)
 			end,
 			draw = function(self, shadowcolor)
 				local x, y = self.box[1], self.box[2]
@@ -200,10 +224,9 @@ function PreviousEncountersScreen.buildPagedButtons(tab)
 	end
 
 	for _, encounter in ipairs(tabContents) do
-
-		-- TODO: does String.padEnd equivalent exist already in lua / package (for level + spacing after),
-		--		or do I need to add implementation
-		local encounterText =  "Lv." .. encounter.level .. "    " .. os.date("%b %d,  %I:%M%p", encounter.timestamp)
+		-- todo remove or "" when ready, don't need to nullsafe any values that will always be there
+		local levelText = padEnd(("Lv." .. (encounter.level or "") .. " "), 9, "=");
+		local encounterText = levelText .. " " .. os.date("%b %d, %I:%M%p", encounter.timestamp)
 		local button = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			-- getText = function(self) return os.date("%Y-%m-%d %H:%M:%S", encounter.timestamp) or Constants.BLANKLINE end,
@@ -254,9 +277,9 @@ function PreviousEncountersScreen.drawScreen()
 
 	local canvas = {
 		x = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN,
-		y = Constants.SCREEN.MARGIN + TAB_HEIGHT,
+		y = Constants.SCREEN.MARGIN + TAB_HEIGHT + OFFSET_FOR_NAME,
 		width = Constants.SCREEN.RIGHT_GAP - (Constants.SCREEN.MARGIN * 2),
-		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - TAB_HEIGHT,
+		height = Constants.SCREEN.HEIGHT - (Constants.SCREEN.MARGIN * 2) - TAB_HEIGHT - OFFSET_FOR_NAME,
 		text = Theme.COLORS[SCREEN.Colors.text],
 		border = Theme.COLORS[SCREEN.Colors.border],
 		fill = Theme.COLORS[SCREEN.Colors.boxFill],
