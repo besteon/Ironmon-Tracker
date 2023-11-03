@@ -181,7 +181,8 @@ function PreviousEncountersScreen.createButtons()
 
 	-- TABS
 	for _, tab in ipairs(Utils.getSortedList(SCREEN.Tabs)) do
-		local tabText = Resources.PreviousEncountersScreen[tab.resourceKey]
+		local tabText = tab.tabKey
+		-- local tabText = Resources.PreviousEncountersScreen[tab.resourceKey]
 		local tabWidth = (tabPadding * 2) + Utils.calcWordPixelLength(tabText)
 		SCREEN.Buttons["Tab" .. tab.tabKey] = {
 			type = Constants.ButtonTypes.NO_BORDER,
