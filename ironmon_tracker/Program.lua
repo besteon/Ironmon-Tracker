@@ -177,7 +177,14 @@ Program.Pedometer = {
 	totalSteps = 0, -- updated from GAME_STATS
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
-	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
+	initialize = function(self)
+		self.totalSteps = 0
+		self.lastResetCount = 0
+		self.goalSteps = 0
+	end,
+	getCurrentStepcount = function(self)
+		return math.max(self.totalSteps - self.lastResetCount, 0)
+	end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
 		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
@@ -229,6 +236,7 @@ function Program.initialize()
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
+	Program.Pedometer:initialize()
 	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
 	Program.lastActiveTimestamp = os.time()
