@@ -194,7 +194,6 @@ Program.Pedometer = {
 
 Program.AutoSaver = {
 	knownSaveCount = 0,
-	framesUntilNextSave = -1,
 	updateSaveCount = function(self) -- returns true if the savecount has been updated
 		local currentSaveCount = Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0
 		local saveSuccessCountdown = Memory.readbyte(GameSettings.sSaveDialogDelay) or 0
@@ -228,7 +227,26 @@ function Program.initialize()
 
 	if Main.IsOnBizhawk() then
 		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	else
+		Program.clientFpsMultiplier = 1
 	end
+
+	-- Reset variables when a new game is loaded
+	Program.inStartMenu = false
+	Program.inCatchingTutorial = false
+	Program.hasCompletedTutorial = false
+	Program.activeFormId = 0
+	Program.lastActiveTimestamp = os.time()
+	Program.Frames.waitToDraw = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
+	Program.Frames.saveData = 3600
+	Program.Frames.carouselActive = 0
+	Program.Frames.Others = {}
+
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -237,19 +255,8 @@ function Program.initialize()
 	end
 
 	Program.Pedometer:initialize()
-	Program.AutoSaver:updateSaveCount()
 	Program.GameTimer:initialize()
-	Program.lastActiveTimestamp = os.time()
-
-	Program.GameData.PlayerTeam = {}
-	Program.GameData.EnemyTeam = {}
-
-	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 0
-	Program.Frames.lowAccuracyUpdate = 0
-	Program.Frames.three_sec_update = 0
-	Program.Frames.waitToDraw = 1
-	Program.Frames.Others = {}
+	Program.AutoSaver:updateSaveCount()
 end
 
 function Program.mainLoop()
