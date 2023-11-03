@@ -204,7 +204,7 @@ function PokemonData.buildPokemonData()
 			local typeTwo = Utils.getbits(typesData, 8, 8)
 			pokemon.types = {
 				PokemonData.TypeIndexMap[typeOne],
-				PokemonData.TypeIndexMap[typeTwo],
+				typeOne ~= typeTwo and PokemonData.TypeIndexMap[typeTwo] or PokemonData.Types.EMPTY,
 			}
 
 			-- Exp Yield (1 byte)
