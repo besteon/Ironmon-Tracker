@@ -25,10 +25,10 @@ USAGE FOR MGBA
 
 To edit the Ironmon Tracker settings or theme, simply click the gear icon at the top of the tracker screen.
 
-QUICKLOAD SETUP
-- Simplified instructions can be found in: "How to use.txt" in the quickload folder
-- Detailed setup guide for the Quickload feature:
-  - https://github.com/besteon/Ironmon-Tracker/wiki/Quick-load-a-new-ROM
+NEW RUN SETUP
+- Simplified instructions can be found in: "How to use.txt" in the "quickload" folder
+- Detailed setup guide for the New Run feature:
+  - https://github.com/besteon/Ironmon-Tracker/wiki/New-Runs-Setup
 
 SUPPORTED GAMES
 - Pokémon Ruby

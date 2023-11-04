@@ -160,7 +160,7 @@ ScreenResources{
 		HeaderFavorites = "Favorite Pokémon",
 		HeaderControls = "GBA Controls",
 		ControlsSwapView = "Swap viewed Pokémon",
-		ControlsQuickload = "Quickload next ROM",
+		ControlsQuickload = "Load New Run",
 		ControlsEraseGameSave = "Erase game save data",
 		PromptChooseAPokemonTitle = "Choose a Pokémon",
 		PromptChooseAPokemonDesc = "Choose a Pokémon to show during startup",
@@ -175,7 +175,7 @@ ScreenResources{
 		ButtonTheme = "Theme",
 		ButtonStreaming = "Streaming",
 		ButtonExtras = "Extras",
-		ButtonQuickload = "Quickload",
+		ButtonQuickload = "New Runs",
 		ButtonLanguage = "Language",
 		ButtonUpdate = "Update",
 		ButtonExtensions = "Extensions",
@@ -245,9 +245,9 @@ ScreenResources{
 		OptionRevealRandomizedInfo = "Reveal info if randomized",
 	},
 	QuickloadScreen = {
-		Title = "Quickload Setup",
+		Title = "New Runs Setup",
 		ButtonCombo = "Buttons",
-		ChoiceHeader = "Choose a quickload option",
+		ChoiceHeader = "How to load a New Run",
 		OptionRefocusEmulator = "Onload: Refocus Bizhawk",
 		OptionPremadeRoms = "Use premade ROMs",
 		OptionGenerateRom = "Generate ROM each time",
@@ -618,7 +618,7 @@ ScreenResources{
 		MenuTrackerSettings = "Tracker Settings",
 		MenuGeneralSetup = "General Setup",
 		MenuGameplayOptions = "Gameplay Options",
-		MenuQuickloadSetup = "Quickload Setup",
+		MenuQuickloadSetup = "New Runs Setup",
 		MenuCheckForUpdates = "Check for Updates",
 		MenuNewUpdateVailable = "New Update Available",
 		MenuLanguage = "Language",
@@ -657,7 +657,7 @@ ScreenResources{
 		OptionSwapViewedPokemon = "Swap viewed Pokemon",
 		OptionCycleThroughStats = "Cycle through stats",
 		OptionMarkStat = "Mark a stat [+/-]",
-		OptionQuickload = "Quickload",
+		OptionQuickload = "Load New Run",
 		OptionAutoswapEnemy = "Auto swap to enemy",
 		OptionViewSummaryForStats = "View summary to see stats",
 		OptionShowMoveTypes = "Show move types",
@@ -703,7 +703,7 @@ ScreenResources{
 		GeneralSetupControls = "Controls",
 		GeneralSetupGBAButtons = "GBA Buttons",
 		GameplayOptionsManualSave = "Manually save/load tracked data",
-		QuickloadDesc = "To use either Quickload option, put the required files in the [quickload] folder found in your main Tracker folder.",
+		QuickloadDesc = "To use a Load New Run option, put the required files in the [quickload] folder found in your main Tracker folder.",
 		QuickloadChooseMode = "Choose a mode with",
 		QuickloadMode = "Mode",
 		QuickloadSelected = "Selected",
@@ -837,7 +837,7 @@ ScreenResources{
 		UpdateNowSteps1 = "Complete any ongoing battles first",
 		UpdateNowSteps2 = "On the mGBA scripting window: Click File -> Reset",
 		UpdateNowSteps3 = "Click File -> Load script (or Load recent script)",
-		QuickloadDesc = "Forces the Tracker to Quickload a new game ROM.",
+		QuickloadDesc = "Forces the Tracker to automatically load a new game ROM.",
 		HelpWikiDesc = "Opens a browser window showing helpful wiki pages that explain various features of the Tracker.",
 		AttemptsDesc = "Allows you to manually change the Attempts counter to a different number, shown on the Stats sidebar.",
 		AttemptsError1 = "Where # is a positive number.",
@@ -1656,11 +1656,11 @@ GameResources{
 		},
 		{
 			NameKey = "DoubleSlap",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.",
 		},
 		{
 			NameKey = "Comet Punch",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.",
 		},
 		{
 			NameKey = "Mega Punch",
@@ -1768,7 +1768,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Attack",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.",
 		},
 		{
 			NameKey = "Horn Drill",
@@ -1812,7 +1812,7 @@ GameResources{
 		},
 		{
 			NameKey = "Pin Missile",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Leer",
@@ -2168,7 +2168,7 @@ GameResources{
 		},
 		{
 			NameKey = "Spike Cannon",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Constrict",
@@ -2204,7 +2204,7 @@ GameResources{
 		},
 		{
 			NameKey = "Barrage",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Leech Life",
@@ -2260,7 +2260,7 @@ GameResources{
 		},
 		{
 			NameKey = "Fury Swipes",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.",
 		},
 		{
 			NameKey = "Bonemerang",
@@ -2436,7 +2436,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bone Rush",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Lock-On",
@@ -2812,7 +2812,7 @@ GameResources{
 		},
 		{
 			NameKey = "Arm Thrust",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical or trigger a contact ability.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit or trigger a contact ability.",
 		},
 		{
 			NameKey = "Camouflage",
@@ -2968,7 +2968,7 @@ GameResources{
 		},
 		{
 			NameKey = "Bullet Seed",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Aerial Ace",
@@ -2976,7 +2976,7 @@ GameResources{
 		},
 		{
 			NameKey = "Icicle Spear",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Iron Defense",
@@ -3044,7 +3044,7 @@ GameResources{
 		},
 		{
 			NameKey = "Rock Blast",
-			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Each hit has a chance to critical.",
+			Description = "Hits 2-5 times in one turn. Two: 37.5%, Three: 37.5%, Four: 12.5%, Five: 12.5%. Any of the hits can be a critical hit.",
 		},
 		{
 			NameKey = "Shock Wave",

@@ -1139,10 +1139,10 @@ MGBA.CommandMap = {
 			end
 		end,
 	},
-	["QUICKLOAD"] = {
+	["NEWRUN"] = {
 		getDesc = function(self) return Resources.MGBACommands.QuickloadDesc end,
-		usageSyntax = 'QUICKLOAD()',
-		usageExample = 'QUICKLOAD()',
+		usageSyntax = 'NEWRUN()',
+		usageExample = 'NEWRUN()',
 		execute = function(self, params)
 			Main.loadNextSeed = true
 		end,
@@ -1297,7 +1297,11 @@ function UPDATENOW(...) MGBA.CommandMap["UPDATENOW"]:execute(...) end
 function UpdateNow(...) UPDATENOW(...) end
 function updatenow(...) UPDATENOW(...) end
 
-function QUICKLOAD(...) MGBA.CommandMap["QUICKLOAD"]:execute(...) end
+function NEWRUN(...) MGBA.CommandMap["NEWRUN"]:execute(...) end
+function NewRun(...) NEWRUN(...) end
+function newrun(...) NEWRUN(...) end
+--- Keep the old quickload function but pointing to the New Run code
+function QUICKLOAD(...) MGBA.CommandMap["NEWRUN"]:execute(...) end
 function Quickload(...) QUICKLOAD(...) end
 function quickload(...) QUICKLOAD(...) end
 

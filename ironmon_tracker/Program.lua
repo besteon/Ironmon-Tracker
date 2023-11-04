@@ -177,7 +177,14 @@ Program.Pedometer = {
 	totalSteps = 0, -- updated from GAME_STATS
 	lastResetCount = 0, -- num steps since last "reset", for counting new steps
 	goalSteps = 0, -- num steps that is set by the user as a milestone goal to reach, 0 to disable
-	getCurrentStepcount = function(self) return math.max(self.totalSteps - self.lastResetCount, 0) end,
+	initialize = function(self)
+		self.totalSteps = 0
+		self.lastResetCount = 0
+		self.goalSteps = 0
+	end,
+	getCurrentStepcount = function(self)
+		return math.max(self.totalSteps - self.lastResetCount, 0)
+	end,
 	isInUse = function(self)
 		local enabledAndAllowed = Options["Display pedometer"] and Program.isValidMapLocation()
 		local hasConflict = Battle.inActiveBattle() or LogOverlay.isDisplayed or GameOverScreen.status ~= GameOverScreen.Statuses.STILL_PLAYING
@@ -187,7 +194,6 @@ Program.Pedometer = {
 
 Program.AutoSaver = {
 	knownSaveCount = 0,
-	framesUntilNextSave = -1,
 	updateSaveCount = function(self) -- returns true if the savecount has been updated
 		local currentSaveCount = Utils.getGameStat(Constants.GAME_STATS.SAVED_GAME) or 0
 		local saveSuccessCountdown = Memory.readbyte(GameSettings.sSaveDialogDelay) or 0
@@ -221,7 +227,26 @@ function Program.initialize()
 
 	if Main.IsOnBizhawk() then
 		Program.clientFpsMultiplier = math.max(client.get_approx_framerate() / 60, 1) -- minimum of 1
+	else
+		Program.clientFpsMultiplier = 1
 	end
+
+	-- Reset variables when a new game is loaded
+	Program.inStartMenu = false
+	Program.inCatchingTutorial = false
+	Program.hasCompletedTutorial = false
+	Program.activeFormId = 0
+	Program.lastActiveTimestamp = os.time()
+	Program.Frames.waitToDraw = 1
+	Program.Frames.highAccuracyUpdate = 0
+	Program.Frames.lowAccuracyUpdate = 0
+	Program.Frames.three_sec_update = 0
+	Program.Frames.saveData = 3600
+	Program.Frames.carouselActive = 0
+	Program.Frames.Others = {}
+
+	Program.GameData.PlayerTeam = {}
+	Program.GameData.EnemyTeam = {}
 
 	-- Check if requirement for Friendship evos has changed (Default:219, MakeEvolutionsFaster:159)
 	local friendshipRequired = Memory.readbyte(GameSettings.FriendshipRequiredToEvo) + 1
@@ -229,19 +254,9 @@ function Program.initialize()
 		Program.GameData.friendshipRequired = friendshipRequired
 	end
 
-	Program.AutoSaver:updateSaveCount()
+	Program.Pedometer:initialize()
 	Program.GameTimer:initialize()
-	Program.lastActiveTimestamp = os.time()
-
-	Program.GameData.PlayerTeam = {}
-	Program.GameData.EnemyTeam = {}
-
-	-- Update data asap
-	Program.Frames.highAccuracyUpdate = 0
-	Program.Frames.lowAccuracyUpdate = 0
-	Program.Frames.three_sec_update = 0
-	Program.Frames.waitToDraw = 1
-	Program.Frames.Others = {}
+	Program.AutoSaver:updateSaveCount()
 end
 
 function Program.mainLoop()
@@ -590,7 +605,7 @@ function Program.readNewPokemon(startAddress, personality)
 	local aux = personality % 24
 	local growthoffset = (MiscData.TableData.growth[aux + 1] - 1) * 12
 	local attackoffset = (MiscData.TableData.attack[aux + 1] - 1) * 12
-	-- local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
+	local effortoffset = (MiscData.TableData.effort[aux + 1] - 1) * 12
 	local miscoffset = (MiscData.TableData.misc[aux + 1] - 1) * 12
 
 	-- Pokemon Data substructure: https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_substructures_(Generation_III)
@@ -600,6 +615,8 @@ function Program.readNewPokemon(startAddress, personality)
 	local attack1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset), magicword)
 	local attack2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 4), magicword)
 	local attack3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + attackoffset + 8), magicword)
+	local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
+	local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	local misc2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 4), magicword)
 
 	local nickname = ""
@@ -611,8 +628,6 @@ function Program.readNewPokemon(startAddress, personality)
 	nickname = Utils.formatSpecialCharacters(nickname)
 
 	-- Unused data memory reads
-	-- local effort1 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset), magicword)
-	-- local effort2 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 4), magicword)
 	-- local effort3 = Utils.bit_xor(Memory.readdword(startAddress + 32 + effortoffset + 8), magicword)
 	-- local misc3   = Utils.bit_xor(Memory.readdword(startAddress + 32 + miscoffset + 8), magicword)
 
@@ -698,10 +713,22 @@ function Program.readNewPokemon(startAddress, personality)
 			{ id = Utils.getbits(attack2, 0, 16), level = 1, pp = Utils.getbits(attack3, 16, 8) },
 			{ id = Utils.getbits(attack2, 16, 16), level = 1, pp = Utils.getbits(attack3, 24, 8) },
 		},
-		-- Unused data that can be added back in later
-		-- iv = misc2,
-		-- ev1 = effort1,
-		-- ev2 = effort2,
+		evs = {
+			hp = Utils.getbits(effort1, 0, 8),
+			atk = Utils.getbits(effort1, 8, 8),
+			def = Utils.getbits(effort1, 16, 8),
+			spa = Utils.getbits(effort2, 0, 8),
+			spd = Utils.getbits(effort2, 8, 8),
+			spe = Utils.getbits(effort1, 24, 8),
+		},
+		ivs = {
+			hp = Utils.getbits(misc2, 0, 5),
+			atk = Utils.getbits(misc2, 5, 5),
+			def = Utils.getbits(misc2, 10, 5),
+			spa = Utils.getbits(misc2, 20, 5),
+			spd = Utils.getbits(misc2, 25, 5),
+			spe = Utils.getbits(misc2, 15, 5),
+		},
 	})
 end
 
@@ -845,6 +872,12 @@ function Program.focusBizhawkWindow()
 	end
 end
 
+local function refreshExtras()
+	local p1 = Tracker.getPokemon(1, true) or {}
+	local p2 = RandomizerLog.Data.Pokemon and RandomizerLog.Data.Pokemon[p1.pokemonID] or {}
+	return p1.ivs, p1.evs, p2.BaseStats, (p1.level or 0), (p1.nature or 0), (p1.stats or {})
+end
+
 -- Returns a table that contains {pokemonID, level, and moveId} of the player's Pokemon that is currently learning a new move via experience level-up.
 function Program.getLearnedMoveInfoTable()
 	local battleMsg = Memory.readdword(GameSettings.gBattlescriptCurrInstr)
@@ -970,6 +1003,59 @@ function Program.validPokemonData(pokemonData)
 	end
 
 	return true
+end
+
+-- Gets the extra pixels for screen rounding
+function Program.getExtras()
+	local extras = { lefts = {}, rights = {}, bumps = {} }
+	local x, y, z, x2, y2, z2 = refreshExtras()
+	if not x or not y then return extras end
+	local LEFT_MIN, LEFT_MAX = 0, 31
+	local RIGHT_MIN, RIGHT_MAX = 0, 255
+	local LOWER_RIGHT_MAX = 510
+	extras.lowerleft = true
+	for key, val in pairs(x or {}) do
+		if val < LEFT_MIN or val > LEFT_MAX then
+			extras.lefts[key] = true
+			extras.upperleft = true
+		end
+		if extras.lowerleft and val ~= LEFT_MAX then
+			extras.lowerleft = false
+		end
+	end
+	local t = 0
+	for key, val in pairs(y or {}) do
+		if val < RIGHT_MIN or val > RIGHT_MAX then
+			extras.rights[key] = true
+			extras.upperright = true
+		end
+		t = t + val
+	end
+	if t > LOWER_RIGHT_MAX then
+		extras.lowerright = true
+	end
+	if z then
+		local bumps = {}
+		for i, key in ipairs(Constants.OrderedLists.STATSTAGES) do
+			if z[key] then
+				local minPart1 = 2 * z[key] + LEFT_MIN + math.floor(RIGHT_MIN / 4)
+				local maxPart1 = 2 * z[key] + LEFT_MAX + math.floor(RIGHT_MAX / 4)
+				local finalPart = i == 1 and (x2 + 10) or 5
+				local minPart2 = math.floor(minPart1 * x2 / 100) + finalPart
+				local maxPart2 = math.floor(maxPart1 * x2 / 100) + finalPart
+				local finalMult = Utils.getNatureMultiplier(key, y2)
+				bumps[key] = { min = math.floor(minPart2 * finalMult), max = math.floor(maxPart2 * finalMult), }
+			end
+		end
+		for key, val in pairs(bumps) do
+			local bump = z2[key]
+			if bump < val.min or bump > val.max then
+				extras.bumps[key] = true
+				extras.anybumps = true
+			end
+		end
+	end
+	return extras
 end
 
 --- Returns true if the trainer has been defeated by the player; false otherwise
@@ -1143,10 +1229,8 @@ Program.DefaultPokemon = {
 		{ id = 0, level = 1, pp = 0 },
 		{ id = 0, level = 1, pp = 0 },
 	},
-	-- Unused data that can be added later
-	-- iv = misc2,
-	-- ev1 = effort1,
-	-- ev2 = effort2,
+	evs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
+	ivs = { hp = 0, atk = 0, def = 0, spa = 0, spd = 0, spe = 0 },
 }
 
 function Program.DefaultPokemon:new(o)
