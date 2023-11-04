@@ -29,7 +29,7 @@ TrackerScreen.Buttons = {
 		iconColors = { "Intermediate text" },
 		isHighlighted = true,
 		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 84, Constants.SCREEN.MARGIN + 10, 12, 12 },
-		isVisible = function(self) return (Tracker.getViewedPokemon() or {}).isShiny or true end,
+		isVisible = function(self) return (Tracker.getViewedPokemon() or {}).isShiny end,
 		updateSelf = function(self)
 			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
 		end,
