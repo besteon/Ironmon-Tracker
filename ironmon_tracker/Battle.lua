@@ -726,6 +726,11 @@ function Battle.beginNewBattle()
 
 	Battle.trySwapScreenBackToMain()
 
+	-- If the lead encountered enemy Pokemon is a shiny, trigger a pulsing sparkle effect
+	if (Tracker.getPokemon(1, false) or {}).isShiny then
+		TrackerScreen.Buttons.ShinyEffect:activatePulsing()
+	end
+
 	if not Main.IsOnBizhawk() then
 		MGBA.Screens.LookupPokemon.manuallySet = false
 	end

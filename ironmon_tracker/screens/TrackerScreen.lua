@@ -23,6 +23,33 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end
 	},
+	ShinyEffect = {
+		type = Constants.ButtonTypes.PIXELIMAGE,
+		image = Constants.PixelImages.SPARKLES,
+		iconColors = { "Intermediate text" },
+		isHighlighted = true,
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 84, Constants.SCREEN.MARGIN + 10, 12, 12 },
+		isVisible = function(self) return (Tracker.getViewedPokemon() or {}).isShiny or true end,
+		updateSelf = function(self)
+			self.iconColors[1] = self.isHighlighted and "Intermediate text" or "Default text"
+		end,
+		onClick = function(self)
+			self:activatePulsing()
+		end,
+		pulse = function(self)
+			self.isHighlighted = not self.isHighlighted
+			self:updateSelf()
+			Program.redraw(true)
+		end,
+		activatePulsing = function(self)
+			-- Reset the shiny pulse effect, lasts 15 seconds
+			Program.removeFrameCounter("ShinyPulse")
+			Program.addFrameCounter("ShinyPulse", 45, function()
+				self:pulse()
+			end, 19, true)
+			self:pulse()
+		end,
+	},
 	TypeDefenses = {
 		-- Invisible button area for the type defenses boxes
 		type = Constants.ButtonTypes.NO_BORDER,
@@ -977,6 +1004,7 @@ function TrackerScreen.drawPokemonInfoArea(data)
 	SpriteData.checkForFaintingStatus(data.p.id, data.p.curHP <= 0)
 	SpriteData.checkForSleepingStatus(data.p.id, data.p.status)
 	Drawing.drawButton(TrackerScreen.Buttons.PokemonIcon, shadowcolor)
+	Drawing.drawButton(TrackerScreen.Buttons.ShinyEffect, shadowcolor)
 
 	-- STATUS ICON
 	if data.p.status ~= MiscData.StatusCodeMap[MiscData.StatusType.None] then
