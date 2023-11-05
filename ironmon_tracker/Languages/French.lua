@@ -105,6 +105,7 @@ ScreenResources{
 		RandomBallMiddle = "Middle", -- NEEDS TRANSLATION
 		RandomBallRight = "Right", -- NEEDS TRANSLATION
 		HealsInBag = "Heals", -- NEEDS TRANSLATION
+		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "New encounter", -- NEEDS TRANSLATION
 		BattleLastSeen = "Last seen", -- NEEDS TRANSLATION
 		BattleSeenInTheWild = "Seen in the wild", -- NEEDS TRANSLATION

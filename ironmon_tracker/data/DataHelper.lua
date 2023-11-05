@@ -120,9 +120,13 @@ function DataHelper.buildTrackerScreenDisplay(forceView)
 
 	-- POKEMON ITSELF (data.p)
 	data.p.id = viewedPokemon.pokemonID
-	data.p.name = pokemonInternal.name or Constants.BLANKLINE
+	-- If there's a nicknames that's different that the original Pokémon name and option is on, use that name
 	if Options["Show nicknames"] and viewedPokemon.nickname ~= "" and Utils.toLowerUTF8(pokemonInternal.name) ~= Utils.toLowerUTF8(viewedPokemon.nickname) then
 		data.p.name = Utils.formatSpecialCharacters(viewedPokemon.nickname)
+	elseif viewedPokemon.pokemonID == 413 then -- Ghost
+		data.p.name = viewedPokemon.name or Constants.BLANKLINE
+	else
+		data.p.name = pokemonInternal.name or viewedPokemon.name or Constants.BLANKLINE
 	end
 	data.p.curHP = viewedPokemon.curHP or Constants.BLANKLINE
 	data.p.level = viewedPokemon.level or Constants.BLANKLINE

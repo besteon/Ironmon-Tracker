@@ -105,6 +105,7 @@ ScreenResources{
 		RandomBallMiddle = "Middle",
 		RandomBallRight = "Right",
 		HealsInBag = "Heals",
+		UnidentifiedGhost = "Ghost",
 		BattleNewEncounter = "New encounter",
 		BattleLastSeen = "Last seen",
 		BattleSeenInTheWild = "Seen in the wild",
