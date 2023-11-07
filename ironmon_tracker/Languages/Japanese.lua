@@ -105,6 +105,7 @@ ScreenResources{
 		RandomBallMiddle = "中",
 		RandomBallRight = "右",
 		HealsInBag = "道具内回復",
+		UnidentifiedGhost = "Ghost", -- NEEDS TRANSLATION
 		BattleNewEncounter = "新出現",
 		BattleLastSeen = "前出現",
 		BattleSeenInTheWild = "野生バトル",
