@@ -132,8 +132,8 @@ TrackerScreen.Buttons = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
 		textColor = "Default text",
-		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 11, 23 },
-		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 10, 12 },
+		clickableArea = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 1, 57, 96, 23 },
+		box = { Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 3, 63, 8, 12 },
 		isVisible = function() return not Battle.isViewingOwn end,
 		onClick = function(self)
 			if not RouteData.hasRouteEncounterArea(Program.GameData.mapId, Battle.CurrentRoute.encounterArea) then return end
@@ -924,7 +924,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 		end
 	elseif Battle.inActiveBattle() then
 		local encounterText, routeText, routeInfoX
-		-- todo hook up button here
 		if Battle.isWildEncounter then
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, data.x.encounters)
 			routeText = data.x.route

@@ -485,11 +485,6 @@ ScreenResources{
 		TabStatus = "Status",
 		TabBattle = "Battle",
 	},
-	PreviousEncountersScreen = {
-		TabAll = "All",
-		TabWild = "Wild",
-		TabTrainer = "Trainer",
-	},
 	MoveHistoryScreen = {
 		HeaderMoves = "Move seen at level",
 		HeaderMin = "Min",
