@@ -128,28 +128,6 @@ TrackerScreen.Buttons = {
 			InfoScreen.changeScreenView(InfoScreen.Screens.POKEMON_INFO, pokemon.pokemonID)
 		end,
 	},
-	PreviouslySeenInfo = {
-		-- Invisible clickable button
-		type = Constants.ButtonTypes.NO_BORDER,
-		box = { -- TODO does this need to be changed for trainer encounter screen? in that case do we have to dup it?
-			Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 15,
-			57,
-			75,
-			10
-		},
-		isVisible = function() return not Battle.isViewingOwn end,
-		onClick = function(self)
-			local pokemon = Tracker.getViewedPokemon() or {}
-			if not PokemonData.isValid(pokemon.pokemonID) then
-				return
-			end
-
-			local defaultTab = Battle.isWildEncounter and PreviousEncountersScreen.Tabs.Wild or PreviousEncountersScreen.Tabs.Trainer
-			PreviousEncountersScreen.changeTab(defaultTab)
-			PreviousEncountersScreen.changePokemonID(pokemon.pokemonID)
-			Program.changeScreenView(PreviousEncountersScreen)
-		end
-	},
 	RouteDetails = {
 		type = Constants.ButtonTypes.PIXELIMAGE,
 		image = Constants.PixelImages.MAP_PINDROP,
@@ -951,7 +929,6 @@ function TrackerScreen.drawPokemonInfoArea(data)
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenInTheWild, data.x.encounters)
 			routeText = data.x.route
 			routeInfoX = Constants.SCREEN.WIDTH + Constants.SCREEN.MARGIN + 11
-			Drawing.drawButton(TrackerScreen.Buttons.PreviouslySeenInfo, shadowcolor)
 			Drawing.drawButton(TrackerScreen.Buttons.RouteDetails, shadowcolor)
 		else
 			encounterText = string.format("%s: %s", Resources.TrackerScreen.BattleSeenOnTrainers, data.x.encounters)
