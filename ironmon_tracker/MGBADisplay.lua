@@ -714,7 +714,6 @@ MGBADisplay.LineBuilder = {
 			end
 			lines[4] = Utils.formatUTF8(topFormattedLine, lastLevelSeen, formattedStats.atk)
 
-			-- TODO: encounter track data here, data.x; this is not in battle, just viewing log I think?
 			local encountersText, routeText
 			if Battle.isWildEncounter then
 				encountersText = Utils.formatUTF8("%s: %s", Resources.MGBAScreens.TrackerSeenWild, data.x.encounters)
