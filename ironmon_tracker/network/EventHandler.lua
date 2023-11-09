@@ -644,7 +644,7 @@ EventHandler.DefaultEvents = {
 				return string.format("> Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.")
 			end
 
-			local index, name = request.SanitizedInput:match("^(%d*)%s*(.+)")
+			local index, name = request.SanitizedInput:match("^#?(%d*)%s*(%D.+)")
 			index = math.max(math.min(tonumber(index or "") or 1, 3), 1) -- Index must be between 1 and 3, inclusive
 			local pokemonID = name and DataHelper.findPokemonId(name) or 0
 			if PokemonData.isValid(pokemonID) then
@@ -741,6 +741,10 @@ EventHandler.DefaultEvents = {
 			end
 			local language = Resources.Languages[foundKey or false]
 			if language then
+				if Options["Autodetect language from game"] then
+					Options["Autodetect language from game"] = false
+					Main.SaveSettings(true)
+				end
 				local prevLangName = Resources.currentLanguage.DisplayName
 				Resources.loadAndApplyLanguage(language)
 				return string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
