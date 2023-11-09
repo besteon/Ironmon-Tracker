@@ -2,6 +2,7 @@ EventHandler = {
 	RewardsExternal = {}, -- A list of external rewards
 	Queues = {}, -- A table of lists for each set of processed requests that still need to be fulfilled
 	EVENT_SETTINGS_FORMAT = "Event__%s__%s",
+	DUPLICATE_COMMAND_COOLDOWN = 6, -- # of seconds
 
 	-- Shared values between server and client
 	COMMAND_PREFIX = "!",
@@ -201,8 +202,8 @@ end
 ---@return number numCancelled
 function EventHandler.cancelAllQueues()
 	local count = 0
-	for _, queue in pairs(EventHandler.Queues) do
-		for _, request in pairs(queue.Requests) do
+	for _, queue in pairs(EventHandler.Queues or {}) do
+		for _, request in pairs(queue.Requests or {}) do
 			request.IsCancelled = true
 			count = count + 1
 		end
@@ -242,6 +243,32 @@ function EventHandler.addDefaultEvents()
 			end
 		end
 		EventHandler.addNewEvent(eventToAdd)
+	end
+end
+
+function EventHandler.isDuplicateCommandRequest(event, request)
+	if not request.SanitizedInput then
+		RequestHandler.sanitizeInput(request)
+	end
+	if not event.RecentRequests then
+		event.RecentRequests = {}
+	elseif event.RecentRequests[request.SanitizedInput] then
+		return true
+	end
+	event.RecentRequests[request.SanitizedInput] = os.time() + EventHandler.DUPLICATE_COMMAND_COOLDOWN
+	return false
+end
+
+function EventHandler.cleanupDuplicateCommandRequests()
+	local currentTime = os.time()
+	for _, event in pairs(EventHandler.Events) do
+		if event.Command and event.RecentRequests then
+			for requestInput, timestamp in pairs(event.RecentRequests) do
+				if currentTime > timestamp then
+					event.RecentRequests[requestInput] = nil
+				end
+			end
+		end
 	end
 end
 
@@ -348,140 +375,140 @@ EventHandler.DefaultEvents = {
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.SanitizedInput) end,
 	},
 	CMD_BST = {
 		Name = "Pokémon BST", -- TODO: Language
 		Command = "!bst",
 		Help = "name > Displays the base stat total (BST) for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.SanitizedInput) end,
 	},
 	CMD_Weak = {
 		Name = "Pokémon Weaknesses", -- TODO: Language
 		Command = "!weak",
 		Help = "name > Displays the weaknesses for a Pokémon.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.SanitizedInput) end,
 	},
 	CMD_Move = {
 		Name = "Move Info", -- TODO: Language
 		Command = "!move",
 		Help = "name > Displays game info for a move.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.SanitizedInput) end,
 	},
 	CMD_Ability = {
 		Name = "Ability Info", -- TODO: Language
 		Command = "!ability",
 		Help = "name > Displays game info for a Pokémon's ability.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.SanitizedInput) end,
 	},
 	CMD_Route = {
 		Name = "Route Info", -- TODO: Language
 		Command = "!route",
 		Help = "name > Displays trainer and wild encounter info for a route or area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.SanitizedInput) end,
 	},
 	CMD_Dungeon = {
 		Name = "Dungeon Info", -- TODO: Language
 		Command = "!dungeon",
 		Help = "name > Displays info about which trainers have been defeated for an area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
 	CMD_Pivots = {
 		Name = "Pivots Seen", -- TODO: Language
 		Command = "!pivots",
 		Help = "name > Displays known early game wild encounters for an area.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.SanitizedInput) end,
 	},
 	CMD_Revo = {
 		Name = "Pokémon Random Evolutions", -- TODO: Language
 		Command = "!revo",
 		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.SanitizedInput) end,
 	},
 	CMD_Coverage = {
 		Name = "Move Coverage Effectiveness", -- TODO: Language
 		Command = "!coverage",
 		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.SanitizedInput) end,
 	},
 	CMD_Heals = {
 		Name = "Heals in Bag", -- TODO: Language
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.SanitizedInput) end,
 	},
 	CMD_TMs = {
 		Name = "TM Lookup", -- TODO: Language
 		Command = "!tms",
 		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.SanitizedInput) end,
 	},
 	CMD_Search = {
 		Name = "Search Tracked Info", -- TODO: Language
 		Command = "!search",
 		Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.SanitizedInput) end,
 	},
 	CMD_SearchNotes = {
 		Name = "Search Notes on Pokémon", -- TODO: Language
 		Command = "!searchnotes",
 		Help = "notes > Displays a list of Pokémon with any matching notes.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
 	CMD_Theme = {
 		Name = "Theme Export", -- TODO: Language
 		Command = "!theme",
 		Help = "name > Displays the name and code string for a Tracker theme.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.SanitizedInput) end,
 	},
 	CMD_GameStats = {
 		Name = "Game Stats", -- TODO: Language
 		Command = "!gamestats",
 		Help = "> Displays fun stats for the current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.SanitizedInput) end,
 	},
 	CMD_Progress = {
 		Name = "Game Progress", -- TODO: Language
 		Command = "!progress",
 		Help = "> Displays fun progress percentages for the current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.SanitizedInput) end,
 	},
 	CMD_Log = {
 		Name = "Log Randomizer Settings", -- TODO: Language
 		Command = "!log",
 		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
 	},
 	CMD_About = {
 		Name = "About the Tracker", -- TODO: Language
 		Command = "!about",
 		Help = "> Displays info about the Ironmon Tracker and game being played.",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.SanitizedInput) end,
 	},
 	CMD_Help = {
 		Name = "Command Help", -- TODO: Language
 		Command = "!help",
 		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
 		Roles = { EventHandler.EventRoles.Everyone, },
-		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.Args) end,
+		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.SanitizedInput) end,
 	},
 
 	-- CR_: Channel Rewards (Point Redeems)
@@ -513,10 +540,9 @@ EventHandler.DefaultEvents = {
 			-- Then pick the ball (if not already picked)
 			if not EventHandler.Queues.BallRedeems.HasPickedBall then
 				-- Parse user input or the reward name to determine the chosen ball direction; default random
-				local args = request.Args or {}
-				local input = Utils.toLowerUTF8(args.Input or "")
+				local input = Utils.toLowerUTF8(request.SanitizedInput)
 				if Utils.isNilOrEmpty(input) then
-					input = Utils.toLowerUTF8(args.RewardName or "")
+					input = Utils.toLowerUTF8((request.Args or {}).RewardName or "")
 				end
 				local direction, ballNumber = parseBallChoice(input)
 
@@ -571,10 +597,9 @@ EventHandler.DefaultEvents = {
 			-- Then pick the ball (if not already picked)
 			if not EventHandler.Queues.BallRedeems.HasPickedBall then
 				-- Parse user input or the reward name to determine the chosen ball direction; default random
-				local args = request.Args or {}
-				local input = Utils.toLowerUTF8(args.Input or "")
+				local input = Utils.toLowerUTF8(request.SanitizedInput)
 				if Utils.isNilOrEmpty(input) then
-					input = Utils.toLowerUTF8(args.RewardName or "")
+					input = Utils.toLowerUTF8((request.Args or {}).RewardName or "")
 				end
 				local direction, ballNumber = parseBallChoice(input)
 
@@ -607,39 +632,123 @@ EventHandler.DefaultEvents = {
 			return string.format("%s's ball pick redeem complete (until out): The chosen starter %s gets out!", request.Username, pokemonName)
 		end,
 	},
-	-- CR_ChangeFavorite = {
-	-- 	Name = "Change Favorite Pokémon",
-	-- 	RewardId = "",
-	-- 	Options = {
-	-- 		Duration = 10 * 60, -- # of seconds
-	-- 	},
-	-- 	Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-	-- 		return request.IsReady
-	-- 	end,
-	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	-- },
-	CR_ChangeTheme = {
-		Name = "Change Tracker Theme (DON'T USE)",
+	CR_ChangeFavorite = {
+		Name = "Change Favorite Pokémon",
 		RewardId = "",
-		Options = {
-			Duration = 10 * 60, -- # of seconds
-		},
-		Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-			return request.IsReady
+		-- Options = {
+		-- 	Duration = 10 * 60, -- # of seconds
+		-- },
+		-- Process = function(self, request) return true end,
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.")
+			end
+
+			local index, name = request.SanitizedInput:match("^(%d*)%s*(.+)")
+			index = math.max(math.min(tonumber(index or "") or 1, 3), 1) -- Index must be between 1 and 3, inclusive
+			local pokemonID = name and DataHelper.findPokemonId(name) or 0
+			if PokemonData.isValid(pokemonID) then
+				local favoritesButtons = {
+					StreamerScreen.Buttons.PokemonFavorite1,
+					StreamerScreen.Buttons.PokemonFavorite2,
+					StreamerScreen.Buttons.PokemonFavorite3,
+				}
+				local originalFaveId = favoritesButtons[index].pokemonID
+				local originalFaveName = PokemonData.isValid(originalFaveId) and PokemonData.Pokemon[originalFaveId].name or Constants.BLANKLINE
+				favoritesButtons[index].pokemonID = pokemonID
+				StreamerScreen.saveFavorites()
+				return string.format("> Favorite #%s changed from %s to %s.",
+					index,
+					originalFaveName,
+					PokemonData.Pokemon[pokemonID].name)
+			else
+				return string.format("%s > Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.", request.SanitizedInput)
+			end
 		end,
-		Fulfill = function(self, request) return "" end, -- TODO: build a response to send
 	},
-	-- CR_ChangeLanguage = {
-	-- 	Name = "Change Tracker Language",
-	-- 	RewardId = "",
-	-- 	Options = {
-	-- 		Duration = 10 * 60, -- # of seconds
-	-- 	},
-	-- 	Process = function(self, request) -- TODO: insert into Tracker code where it needs to be
-	-- 		return request.IsReady
-	-- 	end,
-	-- 	Fulfill = function(self, request) return "" end, -- TODO: build a response to send
-	-- },
+	CR_ChangeTheme = {
+		Name = "Change Tracker Theme",
+		RewardId = "",
+		-- Options = {
+		-- 	Duration = 10 * 60, -- # of seconds
+		-- },
+		-- Process = function(self, request) return true end,
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change Tracker Theme, please enter a valid theme code or name.")
+			end
+			local themeName
+			-- Check if the input a theme code
+			if Theme.importThemeFromText(request.SanitizedInput, true) then
+				themeName = "Custom"
+				for i, themePair in ipairs(Theme.Presets or {}) do
+					-- Skip the "Active Theme"
+					if i ~= 1 and themePair.code == request.SanitizedInput then
+						themeName = themePair:getText()
+						break
+					end
+				end
+			else -- Otherwise, check if the input is a theme name
+				local inputAsLower = Utils.toLowerUTF8(request.SanitizedInput)
+				local themeNames = {}
+				for i, themePair in ipairs(Theme.Presets or {}) do
+					-- Skip the "Active Theme"
+					if i ~= 1 then
+						themeNames[i] = Utils.toLowerUTF8(themePair:getText())
+					end
+				end
+				local foundThemeKey = Utils.getClosestWord(inputAsLower, themeNames, 3)
+				if foundThemeKey then
+					local themePair = Theme.Presets[foundThemeKey]
+					if Theme.importThemeFromText(themePair.code, true) then
+						themeName = themePair:getText()
+					end
+				end
+			end
+
+			if themeName then
+				Theme.setNextMoveLevelHighlight(true)
+				return string.format("> Tracker Theme changed to %s.", themeName)
+			else
+				return string.format("%s > Unable to change Tracker Theme, please enter a valid theme code or name.", request.SanitizedInput)
+			end
+		end,
+	},
+	CR_ChangeLanguage = {
+		Name = "Change Tracker Language",
+		RewardId = "",
+		-- Options = {
+		-- 	Duration = 10 * 60, -- # of seconds
+		-- },
+		-- Process = function(self, request) return true end,
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change Tracker language, please enter a valid language name.")
+			end
+
+			-- Search both the language keys (English names) and their display names
+			local langKeys, langDisplays = {}, {}
+			for key, lang in pairs(Resources.Languages or {}) do
+				if not lang.ExcludeFromSettings then
+					langKeys[key] = Utils.toLowerUTF8(key)
+					langDisplays[key] = Utils.toLowerUTF8(lang.DisplayName)
+				end
+			end
+			local inputAsLower = Utils.toLowerUTF8(request.SanitizedInput)
+			local foundKey = Utils.getClosestWord(inputAsLower, langKeys, 3)
+			if not foundKey then
+				foundKey = Utils.getClosestWord(inputAsLower, langDisplays, 3)
+			end
+			local language = Resources.Languages[foundKey or false]
+			if language then
+				local prevLangName = Resources.currentLanguage.DisplayName
+				Resources.loadAndApplyLanguage(language)
+				return string.format("> Tracker Language changed from %s to %s.", prevLangName, language.DisplayName)
+			else
+				return string.format("%s > Unable to change Tracker language, please enter a valid language name.", request.SanitizedInput)
+			end
+		end,
+	},
 }
 
 -- Event object prototypes
@@ -651,7 +760,7 @@ EventHandler.IEvent = {
 	Name = "",
 	-- Enable/Disable from triggering
 	IsEnabled = true,
-	-- Determine what to do with the IRequest, return true if ready to fulfill (IRequest.IsReady = true)
+	-- Determine what to do with the IRequest, return true if ready to fulfill
 	Process = function(self, request) return true end,
 	-- Only after fully processed and ready, finish completing the request and return a response message
 	Fulfill = function(self, request) return "" end,

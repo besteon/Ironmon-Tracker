@@ -123,8 +123,26 @@ function RequestHandler.receiveJsonRequests(jsonTable)
 	end
 end
 
+---Checks if the request includes an input string, and if so get it ready to be processed
+---@param request table IRequest object
+---@return string sanitizedInput
+function RequestHandler.sanitizeInput(request)
+	if request.SanitizedInput then
+		return request.SanitizedInput
+	end
+	if type(request.Args) == "table" and request.Args.Input ~= nil then
+		local input = tostring(request.Args.Input)
+		request.SanitizedInput = input:match("^%s*(.-)%s*$") or ""
+	else
+		request.SanitizedInput = ""
+	end
+	return request.SanitizedInput
+end
+
 --- Processes all IRequests (if able), adding them to the Responses
 function RequestHandler.processAllRequests()
+	EventHandler.cleanupDuplicateCommandRequests()
+
 	-- Filter out unknown requests
 	local toProcess, toRemove = {}, {}
 	for _, request in pairs(RequestHandler.Requests) do
@@ -141,7 +159,6 @@ function RequestHandler.processAllRequests()
 		end
 	end
 
-	-- TODO: Implement better, dont process if something ahead of it in queue of same event type (if that matters), somehow avoid duplicate requests
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
 	for _, request in ipairs(toProcess) do
@@ -156,13 +173,20 @@ function RequestHandler.processAllRequests()
 		elseif request.IsCancelled then
 			request.Message = "Cancelled."
 			request.SentResponse = false
-		elseif type(event.Process) == "function" and type(event.Fulfill) == "function" then
-			response.StatusCode = RequestHandler.StatusCodes.PROCESSING
-			if request.IsReady or event:Process(request) then
-				-- TODO: Check if the request is a recent duplicate: StatusCodes.ALREADY_REPORTED
-				response.StatusCode = RequestHandler.StatusCodes.SUCCESS
-				response.Message = RequestHandler.validateMessage(event:Fulfill(request))
-				request.SentResponse = false
+		else
+			RequestHandler.sanitizeInput(request)
+			if event.Command and EventHandler.isDuplicateCommandRequest(event, request) then
+				response.StatusCode = RequestHandler.StatusCodes.ALREADY_REPORTED
+			else
+				response.StatusCode = RequestHandler.StatusCodes.PROCESSING
+				if type(event.Process) ~= "function" or event:Process(request) then
+					response.StatusCode = RequestHandler.StatusCodes.SUCCESS
+					request.SentResponse = false
+					if type(event.Fulfill) == "function" then
+						local responseMessage = event:Fulfill(request)
+						response.Message = RequestHandler.validateMessage(responseMessage)
+					end
+				end
 			end
 		end
 		if not request.SentResponse then
@@ -235,8 +259,6 @@ RequestHandler.IRequest = {
 	CreatedAt = -1,
 	-- A Request should always send a response (at least once) when received
 	SentResponse = false,
-	-- If the request is ready to fulfill
-	IsReady = false,
 	-- Username of the user creating the request
 	Username = "",
 	-- Optional arguments included with the request
