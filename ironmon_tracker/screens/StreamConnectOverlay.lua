@@ -202,7 +202,7 @@ function StreamConnectOverlay.createButtons()
 	-- 	isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Rewards end,
 	-- 	onClick = function(self)
 	-- 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-	-- 			EventType = EventHandler.Events[EventHandler.CoreEventTypes.GET_REWARDS].Key,
+	-- 			EventKey = EventHandler.CoreEventTypes.GetRewards,
 	-- 			Args = { Received = "No" }
 	-- 		}))
 	-- 	end,
@@ -465,7 +465,7 @@ local function buildCommandsTab()
 
 	local tabContents = {}
 	for _, event in pairs(EventHandler.Events) do
-		if not event.Exclude and event.Command then
+		if event.Type == EventHandler.EventTypes.Command and not event.Exclude then
 			table.insert(tabContents, event)
 		end
 	end
@@ -553,7 +553,7 @@ local function buildRewardsTab()
 
 	local tabContents = {}
 	for _, event in pairs(EventHandler.Events) do
-		if not event.Exclude and event.RewardId then
+		if event.Type == EventHandler.EventTypes.Reward and not event.Exclude then
 			table.insert(tabContents, event)
 		end
 	end
@@ -758,7 +758,7 @@ local function buildQueueTab()
 
 	for i, item in ipairs(tabContents) do
 		local Q = EventHandler.Queues[item.QueueName]
-		local event = EventHandler.Events[item.Request.EventType] or EventHandler.Events.None
+		local event = EventHandler.Events[item.Request.EventKey] or EventHandler.Events.None
 
 		resetButtonRow()
 		local buttonRow = {

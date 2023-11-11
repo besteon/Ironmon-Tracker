@@ -14,7 +14,15 @@ EventHandler = {
 	RedemptionDirectionOutput = "RedemptionDirection.txt",
 }
 
-EventHandler.CoreEventTypes = {
+EventHandler.EventTypes = {
+	None = "None",
+	Command = "Command", -- For chat commands
+	Reward = "Reward", -- For channel rewards (channel point redeem)
+	Tracker = "Tracker", -- Trigger off of a change to the Tracker itself
+	Game = "Game", -- Trigger off of something in the actual game
+}
+
+EventHandler.CoreEventKeys = {
 	Start = "TS_Start",
 	Stop = "TS_Stop",
 	GetRewards = "TS_GetRewardsList",
@@ -22,7 +30,7 @@ EventHandler.CoreEventTypes = {
 }
 
 EventHandler.Events = {
-	None = { Key = "None", Exclude = true },
+	None = { Key = "None", Type = EventHandler.EventTypes.None, Exclude = true },
 }
 
 EventHandler.EventRoles = {
@@ -45,10 +53,11 @@ function EventHandler.reset()
 end
 
 ---Checks if the event is of a known event type
----@param eventType string IEvent.Type
+---@param event table IEvent
 ---@return boolean
-function EventHandler.isValidEvent(eventType)
-	return EventHandler.Events[eventType or false] and eventType ~= EventHandler.Events.None.Key
+function EventHandler.isValidEvent(event)
+	if not event then return false end
+	return EventHandler.Events[event.Key or false] and event.Key ~= EventHandler.Events.None.Key
 end
 
 --- Adds an IEvent to the events list; returns true if successful
@@ -59,16 +68,39 @@ function EventHandler.addNewEvent(event)
 	if Utils.isNilOrEmpty(event.Key) or EventHandler.Events[event.Key] then
 		return false
 	end
-	if type(event.Process) ~= "function" or type(event.Fulfill) ~= "function" then
-		return false
+	-- Attempt to auto-detect the event type, based on other properties
+	if Utils.isNilOrEmpty(event.Type) or event.Type == EventHandler.EventTypes.None then
+		if event.Command and not event.RewardId then
+			event.Type = EventHandler.EventTypes.Command
+		elseif event.RewardId and not event.Command then
+			event.Type = EventHandler.EventTypes.Reward
+		else
+			event.Type = EventHandler.EventTypes.None
+		end
 	end
 	EventHandler.Events[event.Key] = event
 	EventHandler.loadEventSettings(event)
 	return true
 end
 
+--- Adds an IEvent to the events list; returns true if successful
+---@param eventKey string IEvent.Key
+---@param fulfillFunc function Must return a string or a partial Response table { Message="", GlobalVars={} }
+---@return boolean success
+function EventHandler.addNewGameEvent(eventKey, fulfillFunc)
+	if Utils.isNilOrEmpty(eventKey) or type(fulfillFunc) ~= "function" then
+		return false
+	end
+	return EventHandler.addNewEvent(EventHandler.IEvent:new({
+		Key = eventKey,
+		Type = EventHandler.EventTypes.Game,
+		Name = eventKey,
+		Fulfill = fulfillFunc,
+	}))
+end
+
 --- Removes an IEvent from the events list; returns true if successful
----@param eventKey string IEvent.KEY
+---@param eventKey string IEvent.Key
 ---@return boolean success
 function EventHandler.removeEvent(eventKey)
 	if not EventHandler.Events[eventKey] then
@@ -125,7 +157,7 @@ function EventHandler.updateRewardList(rewards)
 	end
 	-- Temp disable any Reward events without matching reward ids
 	for _, event in pairs(EventHandler.Events) do
-		if event.IsEnabled and event.RewardId and not EventHandler.RewardsExternal[event.RewardId] then
+		if event.Type == EventHandler.EventTypes.Reward and event.IsEnabled and event.RewardId and not EventHandler.RewardsExternal[event.RewardId] then
 			event.IsEnabled = false
 		end
 	end
@@ -135,7 +167,7 @@ end
 ---@param event table IEvent
 ---@param attribute string The IEvent attribute being saved
 function EventHandler.saveEventSetting(event, attribute)
-	if not EventHandler.isValidEvent(event.Key) or not attribute then
+	if not EventHandler.isValidEvent(event) or not attribute then
 		return
 	end
 	local defaultEvent = EventHandler.DefaultEvents[event.Key] or {}
@@ -154,7 +186,7 @@ end
 ---Loads all configurable settings for an event from the Settings.ini file
 ---@param event table IEvent
 function EventHandler.loadEventSettings(event)
-	if not EventHandler.isValidEvent(event.Key) then
+	if not EventHandler.isValidEvent(event) then
 		return false
 	end
 	local anyLoaded = false
@@ -167,10 +199,24 @@ function EventHandler.loadEventSettings(event)
 		end
 	end
 	-- Disable any rewards without associations defined
-	if event.IsEnabled and event.RewardId and event.RewardId == "" then
+	if event.Type == EventHandler.EventTypes.Reward and event.IsEnabled and event.RewardId and event.RewardId == "" then
 		event.IsEnabled = false
 	end
 	event.ConfigurationUpdated = anyLoaded or nil
+end
+
+---Internally triggers an event by creating a new Request for it
+---@param eventKey string IEvent.Key
+---@param input? string
+function EventHandler.triggerEvent(eventKey, input)
+	local event = EventHandler.Events[eventKey or false]
+	if not EventHandler.isValidEvent(event) then
+		return
+	end
+	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+		EventKey = eventKey,
+		Args = { Input = input },
+	}))
 end
 
 function EventHandler.checkForConfigChanges()
@@ -183,7 +229,7 @@ function EventHandler.checkForConfigChanges()
 	end
 	if #modifiedEvents > 0 then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = EventHandler.Events[EventHandler.CoreEventTypes.UpdateEvents].Key,
+			EventKey = EventHandler.Events[EventHandler.CoreEventKeys.UpdateEvents].Key,
 			Args = modifiedEvents
 		}))
 	end
@@ -230,12 +276,12 @@ function EventHandler.addDefaultEvents()
 			Process = event.Process,
 			Fulfill = event.Fulfill,
 		})
-		if event.Command then
+		if event.Type == EventHandler.EventTypes.Command then
 			eventToAdd.Command = event.Command
 			eventToAdd.Help = event.Help
 			eventToAdd.Roles = {}
 			FileManager.copyTable(event.Roles, eventToAdd.Roles)
-		elseif event.RewardId then
+		elseif event.Type == EventHandler.EventTypes.Reward then
 			eventToAdd.RewardId = event.RewardId
 			if event.Options then
 				eventToAdd.Options = {}
@@ -247,6 +293,9 @@ function EventHandler.addDefaultEvents()
 end
 
 function EventHandler.isDuplicateCommandRequest(event, request)
+	if event.Type ~= EventHandler.EventTypes.Command then
+		return false
+	end
 	if not request.SanitizedInput then
 		RequestHandler.sanitizeInput(request)
 	end
@@ -262,7 +311,7 @@ end
 function EventHandler.cleanupDuplicateCommandRequests()
 	local currentTime = os.time()
 	for _, event in pairs(EventHandler.Events) do
-		if event.Command and event.RecentRequests then
+		if event.Type == EventHandler.EventTypes.Command and event.RecentRequests then
 			for requestInput, timestamp in pairs(event.RecentRequests) do
 				if currentTime > timestamp then
 					event.RecentRequests[requestInput] = nil
@@ -309,7 +358,8 @@ end
 
 EventHandler.CoreEvents = {
 	-- TS_: Tracker Server (Core events that shouldn't be modified)
-	[EventHandler.CoreEventTypes.Start] = {
+	[EventHandler.CoreEventKeys.Start] = {
+		Type = EventHandler.EventTypes.Tracker,
 		Exclude = true,
 		Process = function(self, request)
 			-- Wait to hear from Streamerbot before fulfilling this request
@@ -317,12 +367,14 @@ EventHandler.CoreEvents = {
 		end,
 		Fulfill = function(self, request)
 			Network.updateConnectionState(Network.ConnectionState.Established)
+			Network.checkVersion(request.Args and request.Args.Version or "")
 			RequestHandler.removedExcludedRequests()
 			StreamConnectOverlay.refreshButtons()
 			return RequestHandler.REQUEST_COMPLETE
 		end,
 	},
-	[EventHandler.CoreEventTypes.Stop] = {
+	[EventHandler.CoreEventKeys.Stop] = {
+		Type = EventHandler.EventTypes.Tracker,
 		Exclude = true,
 		Process = function(self, request)
 			local ableToStop = Network.CurrentConnection.State >= Network.ConnectionState.Established
@@ -336,7 +388,8 @@ EventHandler.CoreEvents = {
 			return RequestHandler.REQUEST_COMPLETE
 		end,
 	},
-	[EventHandler.CoreEventTypes.GetRewards] = {
+	[EventHandler.CoreEventKeys.GetRewards] = {
+		Type = EventHandler.EventTypes.Tracker,
 		Exclude = true,
 		Process = function(self, request)
 			-- Wait to hear from Streamerbot before fulfilling this request
@@ -347,16 +400,17 @@ EventHandler.CoreEvents = {
 			return RequestHandler.REQUEST_COMPLETE
 		end,
 	},
-	[EventHandler.CoreEventTypes.UpdateEvents] = {
+	[EventHandler.CoreEventKeys.UpdateEvents] = {
+		Type = EventHandler.EventTypes.Tracker,
 		Exclude = true,
 		Process = function(self, request) return true end,
 		Fulfill = function(self, request)
 			local allowedEvents = {}
 			for _, event in pairs(EventHandler.Events) do
 				if event.IsEnabled and not event.Exclude then
-					if not Utils.isNilOrEmpty(event.Command) then
+					if event.Type == EventHandler.EventTypes.Command then
 						table.insert(allowedEvents, event.Command:sub(2))
-					elseif not Utils.isNilOrEmpty(event.RewardId) then
+					elseif event.Type == EventHandler.EventTypes.Reward then
 						table.insert(allowedEvents, event.RewardId)
 					end
 				end
@@ -371,6 +425,7 @@ EventHandler.CoreEvents = {
 EventHandler.DefaultEvents = {
 	-- CMD_: Chat Commands
 	CMD_Pokemon = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Pokémon Info", -- TODO: Language
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
@@ -378,6 +433,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.SanitizedInput) end,
 	},
 	CMD_BST = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Pokémon BST", -- TODO: Language
 		Command = "!bst",
 		Help = "name > Displays the base stat total (BST) for a Pokémon.",
@@ -385,6 +441,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.SanitizedInput) end,
 	},
 	CMD_Weak = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Pokémon Weaknesses", -- TODO: Language
 		Command = "!weak",
 		Help = "name > Displays the weaknesses for a Pokémon.",
@@ -392,6 +449,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.SanitizedInput) end,
 	},
 	CMD_Move = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Move Info", -- TODO: Language
 		Command = "!move",
 		Help = "name > Displays game info for a move.",
@@ -399,6 +457,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.SanitizedInput) end,
 	},
 	CMD_Ability = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Ability Info", -- TODO: Language
 		Command = "!ability",
 		Help = "name > Displays game info for a Pokémon's ability.",
@@ -406,6 +465,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.SanitizedInput) end,
 	},
 	CMD_Route = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Route Info", -- TODO: Language
 		Command = "!route",
 		Help = "name > Displays trainer and wild encounter info for a route or area.",
@@ -413,6 +473,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.SanitizedInput) end,
 	},
 	CMD_Dungeon = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Dungeon Info", -- TODO: Language
 		Command = "!dungeon",
 		Help = "name > Displays info about which trainers have been defeated for an area.",
@@ -420,6 +481,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
 	CMD_Pivots = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Pivots Seen", -- TODO: Language
 		Command = "!pivots",
 		Help = "name > Displays known early game wild encounters for an area.",
@@ -427,6 +489,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.SanitizedInput) end,
 	},
 	CMD_Revo = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Pokémon Random Evolutions", -- TODO: Language
 		Command = "!revo",
 		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
@@ -434,6 +497,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.SanitizedInput) end,
 	},
 	CMD_Coverage = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Move Coverage Effectiveness", -- TODO: Language
 		Command = "!coverage",
 		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
@@ -448,6 +512,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.SanitizedInput) end,
 	},
 	CMD_TMs = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "TM Lookup", -- TODO: Language
 		Command = "!tms",
 		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
@@ -462,6 +527,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.SanitizedInput) end,
 	},
 	CMD_SearchNotes = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Search Notes on Pokémon", -- TODO: Language
 		Command = "!searchnotes",
 		Help = "notes > Displays a list of Pokémon with any matching notes.",
@@ -476,6 +542,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.SanitizedInput) end,
 	},
 	CMD_GameStats = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Game Stats", -- TODO: Language
 		Command = "!gamestats",
 		Help = "> Displays fun stats for the current game.",
@@ -483,6 +550,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.SanitizedInput) end,
 	},
 	CMD_Progress = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Game Progress", -- TODO: Language
 		Command = "!progress",
 		Help = "> Displays fun progress percentages for the current game.",
@@ -490,6 +558,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.SanitizedInput) end,
 	},
 	CMD_Log = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Log Randomizer Settings", -- TODO: Language
 		Command = "!log",
 		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
@@ -497,6 +566,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
 	},
 	CMD_About = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "About the Tracker", -- TODO: Language
 		Command = "!about",
 		Help = "> Displays info about the Ironmon Tracker and game being played.",
@@ -504,6 +574,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.SanitizedInput) end,
 	},
 	CMD_Help = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Command Help", -- TODO: Language
 		Command = "!help",
 		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
@@ -513,6 +584,7 @@ EventHandler.DefaultEvents = {
 
 	-- CR_: Channel Rewards (Point Redeems)
 	CR_PickBallOnce = {
+		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
 		Process = function(self, request)
@@ -570,6 +642,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	CR_PickBallUntilOut = {
+		Type = EventHandler.EventTypes.Reward,
 		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
 		Process = function(self, request)
@@ -633,6 +706,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	CR_ChangeFavorite = {
+		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Favorite Pokémon",
 		RewardId = "",
 		-- Options = {
@@ -667,6 +741,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	CR_ChangeTheme = {
+		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Tracker Theme",
 		RewardId = "",
 		-- Options = {
@@ -715,6 +790,7 @@ EventHandler.DefaultEvents = {
 		end,
 	},
 	CR_ChangeLanguage = {
+		Type = EventHandler.EventTypes.Reward,
 		Name = "Change Tracker Language",
 		RewardId = "",
 		-- Options = {
@@ -760,18 +836,21 @@ EventHandler.DefaultEvents = {
 EventHandler.IEvent = {
 	-- Required unique key
 	Key = EventHandler.Events.None.Key,
+	-- Required type
+	Type = EventHandler.EventTypes.None,
 	-- Required display name of the event
 	Name = "",
 	-- Enable/Disable from triggering
 	IsEnabled = true,
 	-- Determine what to do with the IRequest, return true if ready to fulfill
 	Process = function(self, request) return true end,
-	-- Only after fully processed and ready, finish completing the request and return a response message
+	-- Only after fully processed and ready, finish completing the request and return a response message or partial response table
 	Fulfill = function(self, request) return "" end,
 }
 function EventHandler.IEvent:new(o)
 	o = o or {}
 	o.Key = o.Key or EventHandler.Events.None.Key
+	o.Type = o.Type or EventHandler.EventTypes.None
 	o.IsEnabled = o.IsEnabled ~= nil and o.IsEnabled or true
 	setmetatable(o, self)
 	self.__index = self

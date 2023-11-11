@@ -32,7 +32,7 @@ end
 ---@return boolean success
 function RequestHandler.addUpdateRequest(request)
 	-- Only add requests if they match an existing event type
-	if not request or request.EventType == EventHandler.Events.None.Key then
+	if not request or request.EventKey == EventHandler.Events.None.Key then
 		return false
 	end
 	if RequestHandler.Requests[request.GUID] then
@@ -88,7 +88,7 @@ end
 function RequestHandler.removedExcludedRequests()
 	local toRemove = {}
 	for _, request in pairs(RequestHandler.Requests or {}) do
-		local event = EventHandler.Events[request.EventType] or EventHandler.Events.None
+		local event = EventHandler.Events[request.EventKey] or EventHandler.Events.None
 		if event.Exclude then
 			table.insert(toRemove, request)
 		end
@@ -103,19 +103,19 @@ end
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
 		-- If missing, try and automatically detect the event type based on provided args
-		if not EventHandler.Events[request.EventType] then
+		if not EventHandler.Events[request.EventKey] then
 			if request.Args.Command then
 				local event = EventHandler.getEventForCommand(request.Args.Command)
-				request.EventType = event and event.Key or request.EventType
+				request.EventKey = event and event.Key or request.EventKey
 			elseif request.Args.RewardId then
 				local event = EventHandler.getEventForReward(request.Args.RewardId)
-				request.EventType = event and event.Key or request.EventType
+				request.EventKey = event and event.Key or request.EventKey
 			end
 		end
 		-- Then add to the Requests queue
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
 			GUID = request.GUID,
-			EventType = request.EventType,
+			EventKey = request.EventKey,
 			CreatedAt = request.CreatedAt,
 			Username = request.Username,
 			Args = request.Args,
@@ -146,13 +146,13 @@ function RequestHandler.processAllRequests()
 	-- Filter out unknown requests
 	local toProcess, toRemove = {}, {}
 	for _, request in pairs(RequestHandler.Requests) do
-		local event = EventHandler.Events[request.EventType] or EventHandler.Events.None
+		local event = EventHandler.Events[request.EventKey] or EventHandler.Events.None
 		if event ~= EventHandler.Events.None then
 			table.insert(toProcess, request)
 		else
 			RequestHandler.addUpdateResponse(RequestHandler.IResponse:new({
 				GUID = request.GUID,
-				EventType = request.EventType,
+				EventKey = request.EventKey,
 				StatusCode = RequestHandler.StatusCodes.NOT_FOUND,
 			}))
 			table.insert(toRemove, request)
@@ -162,12 +162,18 @@ function RequestHandler.processAllRequests()
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
 	for _, request in ipairs(toProcess) do
-		local event = EventHandler.Events[request.EventType]
+		local event = EventHandler.Events[request.EventKey]
 		local response = RequestHandler.IResponse:new({
 			GUID = request.GUID,
-			EventType = request.EventType,
+			EventKey = request.EventKey,
 			StatusCode = RequestHandler.StatusCodes.FAIL,
 		})
+		if event.Type == EventHandler.EventTypes.Reward then
+			response.AdditionalInfo = {
+				RewardId = request.Args and request.Args["RewardId"] or nil,
+				RedemptionId = request.Args and request.Args["RedemptionId"] or nil,
+			}
+		end
 		if not event.IsEnabled then
 			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
 		elseif request.IsCancelled then
@@ -175,7 +181,7 @@ function RequestHandler.processAllRequests()
 			request.SentResponse = false
 		else
 			RequestHandler.sanitizeInput(request)
-			if event.Command and EventHandler.isDuplicateCommandRequest(event, request) then
+			if EventHandler.isDuplicateCommandRequest(event, request) then
 				response.StatusCode = RequestHandler.StatusCodes.ALREADY_REPORTED
 			else
 				response.StatusCode = RequestHandler.StatusCodes.PROCESSING
@@ -183,19 +189,29 @@ function RequestHandler.processAllRequests()
 					response.StatusCode = RequestHandler.StatusCodes.SUCCESS
 					request.SentResponse = false
 					if type(event.Fulfill) == "function" then
-						local responseMessage = event:Fulfill(request)
-						response.Message = RequestHandler.validateMessage(responseMessage)
+						local result = event:Fulfill(request)
+						if type(result) == "string" then
+							response.Message = RequestHandler.validateMessage(result)
+						elseif type(result) == "table" then
+							response.Message = RequestHandler.validateMessage(result.Message)
+							if type(result.AdditionalInfo) == "table" then
+								response.AdditionalInfo = response.AdditionalInfo or {}
+								for k, v in pairs(result.AdditionalInfo) do
+									response.AdditionalInfo[k] = v
+								end
+							end
+							if type(result.GlobalVars) == "table" then
+								response.GlobalVars = response.GlobalVars or {}
+								for k, v in pairs(result.GlobalVars) do
+									response.GlobalVars[k] = v
+								end
+							end
+						end
 					end
 				end
 			end
 		end
 		if not request.SentResponse then
-			-- If this request is a channel point redeem, send back info to complete/cancel it
-			if not Utils.isNilOrEmpty(event.RewardId)then
-				response.AdditionalInfo = response.AdditionalInfo or {}
-				response.AdditionalInfo["RewardId"] = request.Args["RewardId"]
-				response.AdditionalInfo["RedemptionId"] = request.Args["RedemptionId"]
-			end
 			RequestHandler.addUpdateResponse(response)
 			request.SentResponse = true
 		end
@@ -254,7 +270,7 @@ RequestHandler.IRequest = {
 	-- Required unique GUID, for syncing request/responses with the client
 	GUID = "",
 	-- Must match an existing Event
-	EventType = EventHandler.Events.None.Key,
+	EventKey = EventHandler.Events.None.Key,
 	-- Number of seconds, representing time the originating request was created
 	CreatedAt = -1,
 	-- A Request should always send a response (at least once) when received
@@ -267,7 +283,7 @@ RequestHandler.IRequest = {
 function RequestHandler.IRequest:new(o)
 	o = o or {}
 	o.GUID = o.GUID or Utils.newGUID()
-	o.EventType = o.EventType or EventHandler.Events.None.Key
+	o.EventKey = o.EventKey or EventHandler.Events.None.Key
 	o.CreatedAt = o.CreatedAt or os.time()
 	setmetatable(o, self)
 	self.__index = self
@@ -278,7 +294,7 @@ RequestHandler.IResponse = {
 	-- Required unique GUID, for syncing request/responses with the client
 	GUID = "",
 	-- Must match an existing Event
-	EventType = EventHandler.Events.None.Key,
+	EventKey = EventHandler.Events.None.Key,
 	-- Number of seconds, representing time the request was processed into a response
 	CreatedAt = -1,
 	StatusCode = RequestHandler.StatusCodes.NOT_FOUND,

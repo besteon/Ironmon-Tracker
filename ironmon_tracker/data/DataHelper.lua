@@ -1710,6 +1710,7 @@ function DataHelper.EventRequests.getAbout(params)
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Version, Main.TrackerVersion))
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Game, GameSettings.gamename))
 	table.insert(info, string.format("%s: %s", Resources.StartupScreen.Attempts, Main.currentSeed or 1))
+	table.insert(info, string.format("%s: v%s", "Streamerbot Code", Network.currentStreamerbotVersion or "N/A")) -- TODO: Language
 	local prefix = string.format("%s %s", Resources.StartupScreen.Title, OUTPUT_CHAR)
 	return buildResponse(prefix, info)
 end
@@ -1719,7 +1720,7 @@ end
 function DataHelper.EventRequests.getHelp(params)
 	local availableCommands = {}
 	for _, event in pairs(EventHandler.Events or {}) do
-		if event.Command and event.IsEnabled then
+		if event.Type == EventHandler.EventTypes.Command and event.Command and event.IsEnabled then
 			availableCommands[event.Command] = event
 		end
 	end

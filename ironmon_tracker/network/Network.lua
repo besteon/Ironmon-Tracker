@@ -1,6 +1,7 @@
 Network = {
 	CurrentConnection = {},
 	lastUpdateTime = 0,
+	STREAMERBOT_VERSION = "1.0.1", -- Known streamerbot version. Update this value to inform user to update streamerbot code
 	TEXT_UPDATE_FREQUENCY = 2, -- # of seconds
 	SOCKET_UPDATE_FREQUENCY = 2, -- # of seconds
 	HTTP_UPDATE_FREQUENCY = 2, -- # of seconds
@@ -47,10 +48,21 @@ function Network.initialize()
 	RequestHandler.loadRequestsData()
 	RequestHandler.removedExcludedRequests()
 
+	Network.requiresUpdating = false
 	Network.lastUpdateTime = 0
 	Network.loadConnectionSettings()
 	if Network.Options["AutoConnectStartup"] then
 		Network.tryConnect()
+	end
+end
+
+---Checks current version of the Tracker's Network code against the Streamerbot code version
+---@param version string
+function Network.checkVersion(version)
+	Network.currentStreamerbotVersion = version
+	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, version)
+	if Network.requiresUpdating then
+		-- TODO: Somehow notify the user that an update is required
 	end
 end
 
@@ -160,13 +172,13 @@ function Network.tryConnect()
 	end
 	if C.State == Network.ConnectionState.Listen then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = EventHandler.Events[EventHandler.CoreEventTypes.Start].Key,
+			EventKey = EventHandler.CoreEventKeys.Start,
 		}))
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = EventHandler.Events[EventHandler.CoreEventTypes.GetRewards].Key,
+			EventKey = EventHandler.CoreEventKeys.GetRewards,
 		}))
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = EventHandler.Events[EventHandler.CoreEventTypes.UpdateEvents].Key,
+			EventKey = EventHandler.CoreEventKeys.UpdateEvents,
 		}))
 	end
 	return C.State
@@ -182,7 +194,7 @@ end
 function Network.closeConnections()
 	if Network.isConnected() then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventType = EventHandler.Events[EventHandler.CoreEventTypes.Stop].Key,
+			EventKey = EventHandler.CoreEventKeys.Stop,
 		}))
 		Network.CurrentConnection:SendReceive()
 		Network.updateConnectionState(Network.ConnectionState.Closed)
