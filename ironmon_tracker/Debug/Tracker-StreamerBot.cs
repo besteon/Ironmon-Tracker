@@ -20,6 +20,7 @@ public class CPHInline
 
 	private const string GVAR_ConnectionDataFolder = "connectionDataFolder";
 	private const string COMMAND_REGEX = @"^!([A-Za-z0-9\-\.]+)\s*(.*)";
+	private const string INVISIBLE_CHAR = "󠀀"; // U+E0000 (this is *not* an empty string)
 	private const string SOURCE_STREAMERBOT = "Streamerbot";
 	private const string REQUEST_COMPLETE = "Complete";
 
@@ -121,16 +122,20 @@ public class CPHInline
 				return;
 		}
 
+		var input = matchesCommand.Groups[2].Value ?? string.Empty;
+		// Fix to stop 7TV spam prevention character
+		input = Regex.Replace(input, INVISIBLE_CHAR, string.Empty);
+
 		var request = new Request()
 		{
 			GUID = Guid.NewGuid().ToString(),
-			EventKey = "", // Lazily ask the server to automatically figure out which command event is triggering
+			EventKey = string.Empty, // Lazily ask the server to automatically figure out which command event is triggering
 			CreatedAt = GetTime(),
 			Username = VARS.User,
 			Args = new Dictionary<string, object>()
 		};
 		request.Args.Add("Command", command);
-		request.Args.Add("Input", matchesCommand.Groups[2].Value ?? "");
+		request.Args.Add("Input", input);
 		request.Args.Add("Counter", VARS.Counter);
 		AddNewRequestAndSend(request);
 	}
@@ -139,14 +144,14 @@ public class CPHInline
 	public void ProcessChannelRedeemEvent()
 	{
 		// Only process allowed channel redeems (allowed list received on server startup)
-		var rewardId = VARS.RewardId ?? "";
+		var rewardId = VARS.RewardId ?? string.Empty;
 		if (!_allowedEvents.ContainsKey(rewardId))
 			return;
 
 		var request = new Request()
 		{
 			GUID = Guid.NewGuid().ToString(),
-			EventKey = "", // Lazily ask the server to automatically figure out which channel reward is triggering
+			EventKey = string.Empty, // Lazily ask the server to automatically figure out which channel reward is triggering
 			CreatedAt = GetTime(),
 			Username = VARS.User,
 			Args = new Dictionary<string, object>()
@@ -580,7 +585,7 @@ public class CPHInline
 			if (!string.IsNullOrEmpty(key) && Args.ContainsKey(key))
 				return Args[key].ToString();
 			else
-				return "";
+				return string.Empty;
 		}
 
 		// Broadcaster Variables
