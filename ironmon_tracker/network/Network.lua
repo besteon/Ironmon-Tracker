@@ -64,7 +64,7 @@ function Network.checkVersion(version)
 	Network.currentStreamerbotVersion = version
 	Network.requiresUpdating = Utils.isNewerVersion(Network.STREAMERBOT_VERSION, version)
 	if Network.requiresUpdating then
-		-- TODO: Somehow notify the user that an update is required
+		Network.openUpdateRequiredPrompt()
 	end
 end
 
@@ -306,10 +306,30 @@ function Network.IConnection:new(o)
 	return o
 end
 
--- Temp, will figure this out later
 function Network.getStreamerbotCode()
 	local filepath = FileManager.prependDir(FileManager.Files.STREAMERBOT_CODE)
 	return FileManager.readLinesFromFile(filepath)[1] or ""
+end
+
+function Network.openUpdateRequiredPrompt()
+	local form = Utils.createBizhawkForm("Streamerbot Update Required", 350, 150, 100, 50)
+	local x, y, lineHeight = 20, 20, 20
+	forms.label(form, string.format("Streamerbot Tracker Integration code requires an update."), x, y, 330, 20)
+	y = y + lineHeight
+	forms.label(form, string.format("You must re-import the code to continue using Stream Connect."), x, y, 330, 20)
+	y = y + lineHeight
+	-- Bottom row buttons
+	y = y + 10
+	forms.button(form, "Show Me", function() -- TODO: Language
+		Utils.closeBizhawkForm(form)
+		StreamConnectOverlay.openGetCodeWindow()
+	end, 40, y, 80, lineHeight + 5)
+	forms.button(form, "Turn Off Stream Connect", function() -- TODO: Language
+		Network.Options["AutoConnectStartup"] = false
+		Main.SaveSettings(true)
+		Network.closeConnections()
+		Utils.closeBizhawkForm(form)
+	end, 150, y, 150, lineHeight + 5)
 end
 
 -- Not supported

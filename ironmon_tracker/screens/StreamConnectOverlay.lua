@@ -916,11 +916,15 @@ function StreamConnectOverlay.changeTab(tab)
 end
 
 function StreamConnectOverlay.openCommandRenamePrompt(event)
-	local form = Utils.createBizhawkForm("Edit Command Name", 320, 130, 100, 50) -- TODO: Language
-	forms.label(form, "Command:", 28, 20, 110, 20) -- TODO: Language
+	local form = Utils.createBizhawkForm("Edit Command", 320, 150, 100, 50)
+	local x, y, lineHeight = 30, 15, 20
 
-	local textbox = forms.textbox(form, event.Command, 134, 20, nil, 150, 18)
+	forms.label(form, string.format("Command: %s", event.Name), x - 1, y, 300, y)
+	y = y + lineHeight
+	local textbox = forms.textbox(form, event.Command, 120, lineHeight, nil, x, y)
+	y = y + lineHeight
 
+	y = y + 10
 	forms.button(form, Resources.AllScreens.Save, function()
 		local text = forms.gettext(textbox) or ""
 		if #text > 2 and text:sub(1,1) == "!" then -- Command requirements
@@ -930,16 +934,16 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 			Program.redraw(true)
 		end
 		Utils.closeBizhawkForm(form)
-	end, 30, 50)
+	end, 30, y)
 	forms.button(form, "(Default)", function() -- TODO: Language
 		local defaultEvent = EventHandler.DefaultEvents[event.Key]
 		if defaultEvent then
 			forms.settext(textbox, defaultEvent.Command)
 		end
-	end, 120, 50)
+	end, 120, y)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
-	end, 210, 50)
+	end, 210, y)
 end
 
 function StreamConnectOverlay.openCommandRolesPrompt()
@@ -1136,13 +1140,19 @@ end
 
 function StreamConnectOverlay.openGetCodeWindow()
 	local form = Utils.createBizhawkForm("Import to Streamerbot", 800, 600) -- TODO: Language
+	local x, y, lineHeight = 20, 15, 20
 	local codeText = Network.getStreamerbotCode()
 
-	forms.label(form, "Copy all of the below code and IMPORT into Streamer.bot:", 9, 10, 495, 20) -- TODO: Language
-	forms.textbox(form, codeText, 775, 485, nil, 10, 35, true, true, "Vertical")
+	forms.label(form, '1. On Streamerbot, click the IMPORT button at the top.', x, y, 495, lineHeight)
+	y = y + lineHeight
+	forms.label(form, '2. Copy/paste the below code into the top textbox. Click "Import" and "OK".', x, y, 495, lineHeight)
+	y = y + lineHeight
+	forms.label(form, '3. Restart Streamerbot.', x, y, 495, lineHeight)
+	y = y + lineHeight
+	forms.textbox(form, codeText, 763, 442, nil, x - 1, y, true, true, "Vertical")
 	forms.button(form, Resources.AllScreens.Close, function()
 		Utils.closeBizhawkForm(form)
-	end, 350, 528)
+	end, 350, 530)
 end
 
 -- USER INPUT FUNCTIONS
