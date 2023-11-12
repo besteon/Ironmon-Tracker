@@ -33,13 +33,14 @@ EventHandler.Events = {
 	None = { Key = "None", Type = EventHandler.EventTypes.None, Exclude = true },
 }
 
-EventHandler.EventRoles = {
+EventHandler.CommandRoles = {
+	Broadcaster = "Broadcaster", -- Allow the one user who is the Broadcaster (always allowed)
 	Everyone = "Everyone", -- Allow all users, regardless of other roles selected
-	Broadcaster = "Broadcaster", -- Allow the one user who is the Broadcaster
-	Mods = "Mods", -- Allow users that are Moderators
-	VIPs = "VIPs", -- Allow users with VIP
-	Subs = "Subs", -- Allow users that are Subscribers
+	Moderator = "Moderator", -- Allow users that are Moderators
+	Vip = "Vip", -- Allow users with VIP
+	Subscriber = "Subscriber", -- Allow users that are Subscribers
 	Custom = "Custom", -- Allow users that belong to a custom-defined role
+	Viewer = "Viewer", -- Unused
 }
 
 function EventHandler.reset()
@@ -229,7 +230,7 @@ function EventHandler.checkForConfigChanges()
 	end
 	if #modifiedEvents > 0 then
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-			EventKey = EventHandler.Events[EventHandler.CoreEventKeys.UpdateEvents].Key,
+			EventKey = EventHandler.CoreEventKeys.UpdateEvents,
 			Args = modifiedEvents
 		}))
 	end
@@ -403,7 +404,6 @@ EventHandler.CoreEvents = {
 	[EventHandler.CoreEventKeys.UpdateEvents] = {
 		Type = EventHandler.EventTypes.Tracker,
 		Exclude = true,
-		Process = function(self, request) return true end,
 		Fulfill = function(self, request)
 			local allowedEvents = {}
 			for _, event in pairs(EventHandler.Events) do
@@ -415,11 +415,14 @@ EventHandler.CoreEvents = {
 					end
 				end
 			end
-			return #allowedEvents > 0 and table.concat(allowedEvents, ",") or ""
+			return {
+				AdditionalInfo = {
+					AllowedEvents = table.concat(allowedEvents, ","),
+					CommandRoles = Network.Options["CommandRoles"] or EventHandler.CommandRoles.Everyone,
+				},
+			}
 		end,
 	}
-	-- TODO: Need to retrieve code version from StreamerBot, and display in the !about command.
-	-- Use this version number to compare against tracker's knowledge of what streamerbot code version should be, to require an update
 }
 
 EventHandler.DefaultEvents = {
@@ -429,7 +432,6 @@ EventHandler.DefaultEvents = {
 		Name = "Pokémon Info", -- TODO: Language
 		Command = "!pokemon",
 		Help = "name > Displays useful game info for a Pokémon.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPokemon(request.SanitizedInput) end,
 	},
 	CMD_BST = {
@@ -437,7 +439,6 @@ EventHandler.DefaultEvents = {
 		Name = "Pokémon BST", -- TODO: Language
 		Command = "!bst",
 		Help = "name > Displays the base stat total (BST) for a Pokémon.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getBST(request.SanitizedInput) end,
 	},
 	CMD_Weak = {
@@ -445,7 +446,6 @@ EventHandler.DefaultEvents = {
 		Name = "Pokémon Weaknesses", -- TODO: Language
 		Command = "!weak",
 		Help = "name > Displays the weaknesses for a Pokémon.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getWeak(request.SanitizedInput) end,
 	},
 	CMD_Move = {
@@ -453,7 +453,6 @@ EventHandler.DefaultEvents = {
 		Name = "Move Info", -- TODO: Language
 		Command = "!move",
 		Help = "name > Displays game info for a move.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getMove(request.SanitizedInput) end,
 	},
 	CMD_Ability = {
@@ -461,7 +460,6 @@ EventHandler.DefaultEvents = {
 		Name = "Ability Info", -- TODO: Language
 		Command = "!ability",
 		Help = "name > Displays game info for a Pokémon's ability.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbility(request.SanitizedInput) end,
 	},
 	CMD_Route = {
@@ -469,7 +467,6 @@ EventHandler.DefaultEvents = {
 		Name = "Route Info", -- TODO: Language
 		Command = "!route",
 		Help = "name > Displays trainer and wild encounter info for a route or area.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRoute(request.SanitizedInput) end,
 	},
 	CMD_Dungeon = {
@@ -477,7 +474,6 @@ EventHandler.DefaultEvents = {
 		Name = "Dungeon Info", -- TODO: Language
 		Command = "!dungeon",
 		Help = "name > Displays info about which trainers have been defeated for an area.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getDungeon(request.SanitizedInput) end,
 	},
 	CMD_Pivots = {
@@ -485,7 +481,6 @@ EventHandler.DefaultEvents = {
 		Name = "Pivots Seen", -- TODO: Language
 		Command = "!pivots",
 		Help = "name > Displays known early game wild encounters for an area.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getPivots(request.SanitizedInput) end,
 	},
 	CMD_Revo = {
@@ -493,7 +488,6 @@ EventHandler.DefaultEvents = {
 		Name = "Pokémon Random Evolutions", -- TODO: Language
 		Command = "!revo",
 		Help = "name [target-evo] > Displays randomized evolution possibilities for a Pokémon, and it's [target-evo] if more than one available.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getRevo(request.SanitizedInput) end,
 	},
 	CMD_Coverage = {
@@ -501,14 +495,12 @@ EventHandler.DefaultEvents = {
 		Name = "Move Coverage Effectiveness", -- TODO: Language
 		Command = "!coverage",
 		Help = "types [fully evolved] > For a list of move types, checks all Pokémon matchups (or only [fully evolved]) for effectiveness.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.SanitizedInput) end,
 	},
 	CMD_Heals = {
 		Name = "Heals in Bag", -- TODO: Language
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHeals(request.SanitizedInput) end,
 	},
 	CMD_TMs = {
@@ -516,14 +508,12 @@ EventHandler.DefaultEvents = {
 		Name = "TM Lookup", -- TODO: Language
 		Command = "!tms",
 		Help = "[gym hm #] > Displays all TMs in the bag, or only those for a specified [category] or TM #.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.SanitizedInput) end,
 	},
 	CMD_Search = {
 		Name = "Search Tracked Info", -- TODO: Language
 		Command = "!search",
 		Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearch(request.SanitizedInput) end,
 	},
 	CMD_SearchNotes = {
@@ -531,14 +521,12 @@ EventHandler.DefaultEvents = {
 		Name = "Search Notes on Pokémon", -- TODO: Language
 		Command = "!searchnotes",
 		Help = "notes > Displays a list of Pokémon with any matching notes.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
 	CMD_Theme = {
 		Name = "Theme Export", -- TODO: Language
 		Command = "!theme",
 		Help = "name > Displays the name and code string for a Tracker theme.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTheme(request.SanitizedInput) end,
 	},
 	CMD_GameStats = {
@@ -546,7 +534,6 @@ EventHandler.DefaultEvents = {
 		Name = "Game Stats", -- TODO: Language
 		Command = "!gamestats",
 		Help = "> Displays fun stats for the current game.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getGameStats(request.SanitizedInput) end,
 	},
 	CMD_Progress = {
@@ -554,7 +541,6 @@ EventHandler.DefaultEvents = {
 		Name = "Game Progress", -- TODO: Language
 		Command = "!progress",
 		Help = "> Displays fun progress percentages for the current game.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getProgress(request.SanitizedInput) end,
 	},
 	CMD_Log = {
@@ -562,7 +548,6 @@ EventHandler.DefaultEvents = {
 		Name = "Log Randomizer Settings", -- TODO: Language
 		Command = "!log",
 		Help = "> If the log has been opened, displays shareable randomizer settings from the log for current game.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getLog(request.SanitizedInput) end,
 	},
 	CMD_About = {
@@ -570,7 +555,6 @@ EventHandler.DefaultEvents = {
 		Name = "About the Tracker", -- TODO: Language
 		Command = "!about",
 		Help = "> Displays info about the Ironmon Tracker and game being played.",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getAbout(request.SanitizedInput) end,
 	},
 	CMD_Help = {
@@ -578,7 +562,6 @@ EventHandler.DefaultEvents = {
 		Name = "Command Help", -- TODO: Language
 		Command = "!help",
 		Help = "[command] > Displays a list of all commands, or help info for a specified [command].",
-		Roles = { EventHandler.EventRoles.Everyone, },
 		Fulfill = function(self, request) return DataHelper.EventRequests.getHelp(request.SanitizedInput) end,
 	},
 

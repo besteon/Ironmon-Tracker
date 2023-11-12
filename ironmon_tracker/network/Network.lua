@@ -38,6 +38,8 @@ Network.Options = {
 	["WebSocketPort"] = "8080",
 	["HttpGet"] = "",
 	["HttpPost"] = "",
+	["CommandRoles"] = "Everyone", -- A comma-separated list of allowed roles for command events
+	["CustomCommandRole"] = "", -- Currently unused, not supported
 }
 
 function Network.initialize()

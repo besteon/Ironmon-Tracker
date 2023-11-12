@@ -460,7 +460,7 @@ local function buildCommandsTab()
 		box = {	SCREEN.Canvas.x + 4, SCREEN.Canvas.y + SCREEN.Canvas.h - 15, Utils.calcWordPixelLength("Role Permissions") + 5, 11 },
 		boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 		isVisible = function(self) return SCREEN.currentTab == SCREEN.Tabs.Commands end,
-		onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt({Key="",Command="DO NOT USE YET"} ) end,
+		onClick = function(self) StreamConnectOverlay.openCommandRolesPrompt() end,
 	}
 
 	local tabContents = {}
@@ -893,7 +893,7 @@ end
 function StreamConnectOverlay.open()
 	if SCREEN.isDisplayed then return end
 	SCREEN.isDisplayed = true
-	if Network.isConnected() then
+	if Network.isConnected() and Network.CurrentConnection.State >= Network.ConnectionState.Established then
 		local firstTab = Utils.getSortedList(SCREEN.Tabs)[1]
 		SCREEN.changeTab(firstTab)
 	else
@@ -942,28 +942,95 @@ function StreamConnectOverlay.openCommandRenamePrompt(event)
 	end, 210, 50)
 end
 
-function StreamConnectOverlay.openCommandRolesPrompt(event)
-	local form = Utils.createBizhawkForm("Edit Command Roles", 320, 130, 100, 50) -- TODO: Language
-	local commandLabel = string.format("Change allowed roles for command: %s", event.Command) -- TODO: Language
-	forms.label(form, commandLabel, 28, 20, 250, 20)
+function StreamConnectOverlay.openCommandRolesPrompt()
+	local form = Utils.createBizhawkForm("Edit Command Roles", 320, 255, 100, 40) -- TODO: Language
 
-	-- TODO: Implement this
+	local x, y = 20, 15
+	local lineHeight = 21
+	local commandLabel = string.format("Select user roles that can use Tracker chat commands:") -- TODO: Language
+	forms.label(form, commandLabel, x - 1, y, 300, 20)
+	y = y + lineHeight
 
+	-- Current role options, from the user settings
+	local currentRoles = {}
+	for _, roleKey in pairs(Utils.split(Network.Options["CommandRoles"], ",", true) or {}) do
+		currentRoles[roleKey] = true
+	end
+	-- All available role options, in a predefined order
+	local orderedRoles = { "Broadcaster", "Moderator", "Vip", "Subscriber", --[["Custom",]] "Everyone" }
+	local roleCheckboxes = {}
+	local customRoleTextbox
+
+	for i, roleKey in ipairs(orderedRoles) do
+		local roleLabel = roleKey
+		if roleKey == "Custom" then
+			roleLabel = "Custom Role:"
+			customRoleTextbox = forms.textbox(form, Network.Options["CustomCommandRole"], 120, 19, nil, x + 143, y + lineHeight * (i - 1))
+		end
+		roleCheckboxes[roleKey] = forms.checkbox(form, roleLabel, x, y + lineHeight * (i - 1)) -- TODO: Language
+		local roleAllowed = currentRoles["Everyone"] ~= nil or currentRoles[roleKey] ~= nil
+		forms.setproperty(roleCheckboxes[roleKey], "Checked", roleAllowed)
+	end
+	forms.setproperty(roleCheckboxes["Broadcaster"], "Checked", true)
+	forms.setproperty(roleCheckboxes["Broadcaster"], "Enabled", false)
+
+	-- Enable or Disable all non-Everyone roles based on the state of Everyone role being allowed
+	local function enableDisableAll()
+		local allowEveryone = forms.ischecked(roleCheckboxes["Everyone"])
+		for _, roleKey in ipairs(orderedRoles) do
+			if roleKey ~= "Everyone" and roleKey ~= "Broadcaster" then
+				forms.setproperty(roleCheckboxes[roleKey], "Enabled", not allowEveryone)
+			end
+		end
+		if customRoleTextbox then
+			forms.setproperty(customRoleTextbox, "Enabled", not allowEveryone)
+		end
+	end
+	forms.addclick(roleCheckboxes["Everyone"], enableDisableAll)
+	enableDisableAll()
+
+	local buttonRowY = y + lineHeight * #orderedRoles + 15
 	forms.button(form, Resources.AllScreens.Save, function()
-		-- EventHandler.saveEventSetting(event, "Roles")
+		if forms.ischecked(roleCheckboxes["Everyone"]) then
+			Network.Options["CommandRoles"] = EventHandler.CommandRoles.Everyone
+		else
+			if forms.ischecked(roleCheckboxes["Custom"]) and customRoleTextbox then
+				Network.Options["CustomCommandRole"] = forms.gettext(customRoleTextbox) or ""
+			else
+				Network.Options["CustomCommandRole"] = ""
+			end
+			local allowedRoles = {}
+			for _, roleKey in ipairs(orderedRoles) do
+				if forms.ischecked(roleCheckboxes[roleKey]) then
+					if roleKey == "Custom" then
+						if not Utils.isNilOrEmpty(Network.Options["CustomCommandRole"]) then
+							table.insert(allowedRoles, Network.Options["CustomCommandRole"])
+						end
+					else
+						table.insert(allowedRoles, EventHandler.CommandRoles[roleKey])
+					end
+				end
+			end
+			Network.Options["CommandRoles"] = table.concat(allowedRoles, ",")
+		end
+		Main.SaveSettings(true)
+		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+			EventKey = EventHandler.CoreEventKeys.UpdateEvents,
+		}))
 		SCREEN.refreshButtons()
 		Program.redraw(true)
 		Utils.closeBizhawkForm(form)
-	end, 30, 50)
+	end, 30, buttonRowY)
 	forms.button(form, "(Default)", function() -- TODO: Language
-		local defaultEvent = EventHandler.DefaultEvents[event.Key]
-		if defaultEvent then
-			-- defaultEvent.Roles
+		for _, roleKey in ipairs(orderedRoles) do
+			forms.setproperty(roleCheckboxes[roleKey], "Checked", true)
 		end
-	end, 120, 50)
+		forms.settext(customRoleTextbox, "")
+		enableDisableAll()
+	end, 120, buttonRowY)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
-	end, 210, 50)
+	end, 210, buttonRowY)
 end
 
 function StreamConnectOverlay.openRewardListPrompt(event)
