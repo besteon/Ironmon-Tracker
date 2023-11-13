@@ -498,6 +498,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getCoverage(request.SanitizedInput) end,
 	},
 	CMD_Heals = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Heals in Bag", -- TODO: Language
 		Command = "!heals",
 		Help = "[hp pp status berries] > Displays all healing items in the bag, or only those for a specified [category].",
@@ -511,6 +512,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getTMsHMs(request.SanitizedInput) end,
 	},
 	CMD_Search = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Search Tracked Info", -- TODO: Language
 		Command = "!search",
 		Help = "searchterms > Search tracked info for a Pokémon, move, or ability.",
@@ -524,6 +526,7 @@ EventHandler.DefaultEvents = {
 		Fulfill = function(self, request) return DataHelper.EventRequests.getSearchNotes(request.SanitizedInput) end,
 	},
 	CMD_Theme = {
+		Type = EventHandler.EventTypes.Command,
 		Name = "Theme Export", -- TODO: Language
 		Command = "!theme",
 		Help = "name > Displays the name and code string for a Tracker theme.",
