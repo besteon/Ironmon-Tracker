@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.1"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.2"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const bool DEBUG_LOG_EVENTS = false;
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
 	private const string INBOUND_FILENAME = @"Tracker-Responses.txt"; // Located inside the DATA_FOLDER
 	private const string OUTBOUND_FILENAME = @"Tracker-Requests.txt"; // Located inside the DATA_FOLDER
@@ -117,7 +118,6 @@ public class CPHInline
 			bool allowModerator = _commandRoles["Moderator"] && VARS.IsModerator;
 			bool allowVip = _commandRoles["Vip"] && VARS.IsVip;
 			bool allowSubscriber = _commandRoles["Subscriber"] && VARS.IsSubscribed;
-			// CPH.LogInfo($"TRACKER DEBUG: B:{allowBroadcaster} - M:{allowModerator} - V:{allowVip} - S:{allowSubscriber}");
 			if (!allowBroadcaster && !allowModerator && !allowVip && !allowSubscriber)
 				return;
 		}
@@ -188,7 +188,6 @@ public class CPHInline
 		if (string.IsNullOrEmpty(rewardId) || string.IsNullOrEmpty(redemptionId))
 			return;
 
-		CPH.LogInfo($"DEBUG --- Attempting to cancel: RewardId: {rewardId}");
 		try
 		{
 			if (cancelInstead)
@@ -293,7 +292,7 @@ public class CPHInline
 			}
 
 			_receivedResponses.Add(response.GUID + response.StatusCode, timeNow);
-			if (!string.IsNullOrEmpty(response.EventKey))
+			if (DEBUG_LOG_EVENTS && !string.IsNullOrEmpty(response.EventKey))
 				CPH.LogInfo($"Tracker Event: {response.EventKey} [{response.StatusCode}] GUID:{response.GUID}, Message:'{response.Message}'");
 
 			// Don't remove special response/requests that are still processing
@@ -317,6 +316,7 @@ public class CPHInline
 			{
 				_isConnected = true;
 				// Other on-start code here
+				CPH.LogInfo($"START: Successfully connected to the Tracker!");
 			}
 			if (!response.Message.Contains(REQUEST_COMPLETE))
 			{
@@ -330,6 +330,7 @@ public class CPHInline
 			{
 				_isConnected = false;
 				// Other on-stop code here
+				CPH.LogInfo($"STOP: Disconnected from the Tracker.");
 			}
 			return true;
 		}
@@ -483,7 +484,7 @@ public class CPHInline
 
 			// Check first if the user has defined alternative data folder
 			var directoryOverride = CPH.GetGlobalVar<string>(GVAR_ConnectionDataFolder, true);
-			if (!string.IsNullOrEmpty(directoryOverride) && !directoryOverride.Equals("NONE"))
+			if (!string.IsNullOrEmpty(directoryOverride) && !directoryOverride.Equals("NONE") && Directory.Exists(directoryOverride))
 				dataDirectory = directoryOverride;
 
 			// Create required inbound/outbound files

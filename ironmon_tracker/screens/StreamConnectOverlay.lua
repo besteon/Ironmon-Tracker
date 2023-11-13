@@ -1101,12 +1101,6 @@ function StreamConnectOverlay.openNetworkOptionPrompt(modeKey)
 		end
 		Utils.closeBizhawkForm(form)
 	end, 30, 50)
-	-- forms.button(form, "(Default)", function() -- TODO: Language
-	-- 	local defaultEvent = EventHandler.DefaultEvents[event.Key]
-	-- 	if defaultEvent then
-	-- 		forms.settext(textbox, defaultEvent.Command)
-	-- 	end
-	-- end, 120, 50)
 	forms.button(form, Resources.AllScreens.Cancel, function()
 		Utils.closeBizhawkForm(form)
 	end, 210, 50)
