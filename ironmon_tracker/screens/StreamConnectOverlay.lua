@@ -537,7 +537,7 @@ local function buildCommandsTab()
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 1
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 3
 			end,
 			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
 		}
@@ -772,40 +772,6 @@ local function buildQueueTab()
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
 
-		-- local btnEnabled = {
-		-- 	type = Constants.ButtonTypes.CHECKBOX,
-		-- 	box = { -1, -1, 8, 8 },
-		-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-		-- 	toggleState = item.IsEnabled,
-		-- 	isVisible = function(self) return buttonRow:isVisible() end,
-		-- 	updateSelf = function(self)
-		-- 		self.toggleState = item.IsEnabled
-		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING + 1
-		-- 	end,
-		-- 	onClick = function(self)
-		-- 		self.toggleState = not self.toggleState
-		-- 		item.IsEnabled = (self.toggleState == true)
-		-- 		EventHandler.saveEventSetting(item, "IsEnabled")
-		-- 		SCREEN.refreshButtons()
-		-- 		Program.redraw(true)
-		-- 	end,
-		-- }
-		-- table.insert(SCREEN.Pager.Buttons, btnEnabled)
-		-- addLeftAligned(btnEnabled)
-
-		-- local btnWidth = Utils.calcWordPixelLength(item.QueueName) + 5
-		-- local btnQueueName = {
-		-- 	type = Constants.ButtonTypes.NO_BORDER,
-		-- 	getText = function(self) return item.QueueName end,
-		-- 	textColor = SCREEN.Colors.text,
-		-- 	box = { -1, -1, btnWidth, 11 },
-		-- 	isVisible = function(self) return buttonRow:isVisible() end,
-		-- 	updateSelf = function(self)
-		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
-		-- 	end,
-		-- }
-		-- table.insert(SCREEN.Pager.Buttons, btnQueueName)
-
 		local btnWidth = Utils.calcWordPixelLength(event.Name) + 5
 		local btnRequestName = {
 			type = Constants.ButtonTypes.NO_BORDER,
@@ -848,21 +814,28 @@ local function buildQueueTab()
 		_leftEdgeX = btnRequestName.box[1] + btnWidth + ROW_PADDING
 
 		-- Add buttons to row from right-to-left
-		-- btnWidth = Utils.calcWordPixelLength("X" or Resources.StreamConnectOverlay.X) + 5 -- TODO: Language
-		-- local btnRoles = {
-		-- 	type = Constants.ButtonTypes.FULL_BORDER,
-		-- 	getText = function(self) return "X" or Resources.StreamConnectOverlay.X end, -- TODO: Language
-		-- 	textColor = SCREEN.Colors.text,
-		-- 	box = { -1, -1, btnWidth, 11 },
-		-- 	boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
-		-- 	isVisible = function(self) return buttonRow:isVisible() end,
-		-- 	updateSelf = function(self)
-		-- 		self.box[2] = buttonRow.box[2] + ROW_PADDING
-		-- 	end,
-		-- 	onClick = function(self) end,
-		-- }
-		-- table.insert(SCREEN.Pager.Buttons, btnRoles)
-		-- addRightAligned(btnRoles)
+		btnWidth = Utils.calcWordPixelLength("Cancel" or Resources.StreamConnectOverlay.ButtonRemove) + 5 -- TODO: Language
+		local btnCancel = {
+			type = Constants.ButtonTypes.FULL_BORDER,
+			getText = function(self) return "Cancel" or Resources.StreamConnectOverlay.ButtonRemove end, -- TODO: Language
+			textColor = SCREEN.Colors.text,
+			box = { -1, -1, btnWidth, 11 },
+			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
+			isVisible = function(self) return buttonRow:isVisible() end,
+			updateSelf = function(self)
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 3
+			end,
+			onClick = function(self)
+				if Q.ActiveRequest == item.Request then
+					Q.ActiveRequest = nil
+				end
+				Q.Requests[item.Request.GUID] = nil
+				item.Request.IsCancelled = true
+				buildQueueTab()
+			end,
+		}
+		table.insert(SCREEN.Pager.Buttons, btnCancel)
+		addRightAligned(btnCancel)
 	end
 	SCREEN.Pager:realignButtonsToGrid(SCREEN.Canvas.x + ROW_MARGIN, SCREEN.Canvas.y + ROW_MARGIN)
 end
