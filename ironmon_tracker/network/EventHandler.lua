@@ -43,12 +43,11 @@ EventHandler.CommandRoles = {
 	Viewer = "Viewer", -- Unused
 }
 
+---Clears out existing event info; similar to initialize(), but managed by Network
 function EventHandler.reset()
 	EventHandler.RewardsExternal = {}
 	EventHandler.Queues = {
 		BallRedeems = { Requests = {}, },
-		-- ThemeChanges = { Requests = {}, },
-		-- LanguageChanges = { Requests = {}, },
 	}
 	EventHandler.outputCurrentRedemption()
 end
@@ -97,6 +96,20 @@ function EventHandler.addNewGameEvent(eventKey, fulfillFunc)
 		Type = EventHandler.EventTypes.Game,
 		Name = eventKey,
 		Fulfill = fulfillFunc,
+	}))
+end
+
+---Internally triggers an event by creating a new Request for it
+---@param eventKey string IEvent.Key
+---@param input? string
+function EventHandler.triggerEvent(eventKey, input)
+	local event = EventHandler.Events[eventKey or false]
+	if not EventHandler.isValidEvent(event) then
+		return
+	end
+	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
+		EventKey = eventKey,
+		Args = { Input = input },
 	}))
 end
 
@@ -206,20 +219,7 @@ function EventHandler.loadEventSettings(event)
 	event.ConfigurationUpdated = anyLoaded or nil
 end
 
----Internally triggers an event by creating a new Request for it
----@param eventKey string IEvent.Key
----@param input? string
-function EventHandler.triggerEvent(eventKey, input)
-	local event = EventHandler.Events[eventKey or false]
-	if not EventHandler.isValidEvent(event) then
-		return
-	end
-	RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
-		EventKey = eventKey,
-		Args = { Input = input },
-	}))
-end
-
+---Checks if any event settings have been modified, and if so notify the external application of the changes
 function EventHandler.checkForConfigChanges()
 	local modifiedEvents = {}
 	for _, event in pairs(EventHandler.Events) do
@@ -236,7 +236,11 @@ function EventHandler.checkForConfigChanges()
 	end
 end
 
-function EventHandler.queueNewRequest(queueKey, request)
+---Queues up a request to be processed at a later time (not immediate), determined by the event
+---@param queueKey string The event queue this request will belong to
+---@param request table IRequest
+---@return boolean success
+function EventHandler.queueRequestForLater(queueKey, request)
 	local Q = EventHandler.Queues[queueKey]
 	if not Q or Q.Requests[request.GUID] then
 		return false
@@ -574,7 +578,7 @@ EventHandler.DefaultEvents = {
 		Name = "Pick Starter Ball (One Try)",
 		RewardId = "",
 		Process = function(self, request)
-			EventHandler.queueNewRequest("BallRedeems", request)
+			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
 				return false
 			elseif not EventHandler.Queues.BallRedeems.ActiveRequest then
@@ -632,7 +636,7 @@ EventHandler.DefaultEvents = {
 		Name = "Pick Starter Ball (Until Out)",
 		RewardId = "",
 		Process = function(self, request)
-			EventHandler.queueNewRequest("BallRedeems", request)
+			EventHandler.queueRequestForLater("BallRedeems", request)
 			if EventHandler.Queues.BallRedeems.CannotRedeemThisSeed then
 				return false
 			elseif not EventHandler.Queues.BallRedeems.ActiveRequest then

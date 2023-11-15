@@ -21,6 +21,7 @@ RequestHandler.StatusCodes = {
 	UNAVAILABLE = 503, -- The server (Tracker) is not able to handle the request, usually because its event hook disabled
 }
 
+---Clears out existing request info; similar to initialize(), but managed by Network
 function RequestHandler.reset()
 	RequestHandler.Requests = {}
 	RequestHandler.Responses = {}
@@ -80,7 +81,7 @@ function RequestHandler.getResponses()
 end
 
 ---Removes all responses
-function RequestHandler.clearResponses()
+function RequestHandler.clearAllResponses()
 	RequestHandler.Responses = {}
 end
 
@@ -141,88 +142,99 @@ end
 
 --- Processes all IRequests (if able), adding them to the Responses
 function RequestHandler.processAllRequests()
+	-- Clear out expired cooldowns for recent commands
 	EventHandler.cleanupDuplicateCommandRequests()
 
-	-- Filter out unknown requests
-	local toProcess, toRemove = {}, {}
+	-- Sort requests by time created
+	local toProcess = {}
 	for _, request in pairs(RequestHandler.Requests) do
-		local event = EventHandler.Events[request.EventKey] or EventHandler.Events.None
-		if event ~= EventHandler.Events.None then
-			table.insert(toProcess, request)
-		else
-			RequestHandler.addUpdateResponse(RequestHandler.IResponse:new({
-				GUID = request.GUID,
-				EventKey = request.EventKey,
-				StatusCode = RequestHandler.StatusCodes.NOT_FOUND,
-			}))
-			table.insert(toRemove, request)
-		end
+		table.insert(toProcess, request)
 	end
-
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
 	for _, request in ipairs(toProcess) do
-		local event = EventHandler.Events[request.EventKey]
-		local response = RequestHandler.IResponse:new({
-			GUID = request.GUID,
-			EventKey = request.EventKey,
-			StatusCode = RequestHandler.StatusCodes.FAIL,
-		})
-		if event.Type == EventHandler.EventTypes.Reward then
-			response.AdditionalInfo = {
-				RewardId = request.Args and request.Args["RewardId"] or nil,
-				RedemptionId = request.Args and request.Args["RedemptionId"] or nil,
-			}
-		end
-		if not event.IsEnabled then
-			response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
-		elseif request.IsCancelled then
-			request.Message = "Cancelled."
-			request.SentResponse = false
-		else
-			RequestHandler.sanitizeInput(request)
-			if EventHandler.isDuplicateCommandRequest(event, request) then
-				response.StatusCode = RequestHandler.StatusCodes.ALREADY_REPORTED
-			else
-				response.StatusCode = RequestHandler.StatusCodes.PROCESSING
-				if type(event.Process) ~= "function" or event:Process(request) then
-					response.StatusCode = RequestHandler.StatusCodes.SUCCESS
-					request.SentResponse = false
-					if type(event.Fulfill) == "function" then
-						local result = event:Fulfill(request)
-						if type(result) == "string" then
-							response.Message = RequestHandler.validateMessage(result)
-						elseif type(result) == "table" then
-							response.Message = RequestHandler.validateMessage(result.Message)
-							if type(result.AdditionalInfo) == "table" then
-								response.AdditionalInfo = response.AdditionalInfo or {}
-								for k, v in pairs(result.AdditionalInfo) do
-									response.AdditionalInfo[k] = v
-								end
-							end
-							if type(result.GlobalVars) == "table" then
-								response.GlobalVars = response.GlobalVars or {}
-								for k, v in pairs(result.GlobalVars) do
-									response.GlobalVars[k] = v
-								end
-							end
-						end
-					end
-				end
-			end
-		end
+		local response = RequestHandler.processAndBuildResponse(request)
 		if not request.SentResponse then
 			RequestHandler.addUpdateResponse(response)
 			request.SentResponse = true
 		end
 		if response.StatusCode ~= RequestHandler.StatusCodes.PROCESSING then
-			table.insert(toRemove, request)
+			RequestHandler.removeRequest(request.GUID)
+		end
+	end
+end
+
+---Processes the Request as much as it can, returning a Response with a proper StatusCode
+---@param request table IRequest
+---@return table response IResponse
+function RequestHandler.processAndBuildResponse(request)
+	local event = EventHandler.Events[request.EventKey]
+	local response = RequestHandler.IResponse:new({
+		GUID = request.GUID,
+		EventKey = request.EventKey,
+	})
+	if event.Type == EventHandler.EventTypes.Reward then
+		response.AdditionalInfo = {
+			RewardId = request.Args and request.Args["RewardId"] or nil,
+			RedemptionId = request.Args and request.Args["RedemptionId"] or nil,
+		}
+	end
+
+	-- Check if the event is valid and the request is okay to process
+	if not EventHandler.isValidEvent(event) then
+		response.StatusCode = RequestHandler.StatusCodes.NOT_FOUND
+		return response
+	end
+	if not event.IsEnabled then
+		response.StatusCode = RequestHandler.StatusCodes.UNAVAILABLE
+		return response
+	end
+	if request.IsCancelled then
+		response.StatusCode = RequestHandler.StatusCodes.FAIL
+		request.Message = "Cancelled."
+		request.SentResponse = false
+		return response
+	end
+
+	RequestHandler.sanitizeInput(request)
+
+	-- Don't process recent similar command requests
+	if EventHandler.isDuplicateCommandRequest(event, request) then
+		response.StatusCode = RequestHandler.StatusCodes.ALREADY_REPORTED
+		return response
+	end
+
+	-- Process the request and see if it's ready to be fulfilled
+	local readyToFulfill = not event.Process or event:Process(request)
+	if not readyToFulfill then
+		response.StatusCode = RequestHandler.StatusCodes.PROCESSING
+		return response
+	end
+
+	-- Complete the request and determine the output information to send back
+	local result = event.Fulfill and event:Fulfill(request) or ""
+	if type(result) == "string" then
+		response.Message = RequestHandler.validateMessage(result)
+	elseif type(result) == "table" then
+		response.Message = RequestHandler.validateMessage(result.Message)
+		if type(result.AdditionalInfo) == "table" then
+			response.AdditionalInfo = response.AdditionalInfo or {}
+			for k, v in pairs(result.AdditionalInfo) do
+				response.AdditionalInfo[k] = v
+			end
+		end
+		if type(result.GlobalVars) == "table" then
+			response.GlobalVars = response.GlobalVars or {}
+			for k, v in pairs(result.GlobalVars) do
+				response.GlobalVars[k] = v
+			end
 		end
 	end
 
-	for _, request in pairs(toRemove) do
-		RequestHandler.removeRequest(request.GUID)
-	end
+	response.StatusCode = RequestHandler.StatusCodes.SUCCESS
+	request.SentResponse = false
+
+	return response
 end
 
 ---Ensures the 'msg' is valid for sending (doesn't exceed the MESSAGE_CAP)

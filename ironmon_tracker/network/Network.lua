@@ -230,7 +230,7 @@ function Network.updateByText()
 	if #responses > 0 or not C.InboundWasEmpty then
 		local success = FileManager.encodeToJsonFile(C.OutboundFile, responses)
 		C.InboundWasEmpty = (success == false) -- false if no resulting json data
-		RequestHandler.clearResponses()
+		RequestHandler.clearAllResponses()
 	end
 end
 
@@ -253,7 +253,7 @@ function Network.updateBySocket()
 	local responses = RequestHandler.getResponses()
 	if #responses > 0 then
 		local output = FileManager.JsonLibrary.encode(responses) or "[]"
-		RequestHandler.clearResponses()
+		RequestHandler.clearAllResponses()
 	end
 end
 
@@ -278,7 +278,7 @@ function Network.updateByHttp()
 		local payload = FileManager.JsonLibrary.encode(responses) or "[]"
 		local resultPost = comm.httpPost(C.HttpPostUrl, payload)
 		-- Utils.printDebug("POST Response Code: %s", resultPost or "N/A")
-		RequestHandler.clearResponses()
+		RequestHandler.clearAllResponses()
 	end
 end
 

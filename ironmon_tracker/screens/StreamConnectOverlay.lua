@@ -537,7 +537,7 @@ local function buildCommandsTab()
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_PADDING
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 1
 			end,
 			onClick = function(self) SCREEN.openCommandRenamePrompt(event) end,
 		}
