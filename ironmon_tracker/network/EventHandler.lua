@@ -49,7 +49,6 @@ function EventHandler.reset()
 	EventHandler.Queues = {
 		BallRedeems = { Requests = {}, },
 	}
-	EventHandler.outputCurrentRedemption()
 end
 
 ---Checks if the event is of a known event type
@@ -86,15 +85,16 @@ end
 --- Adds an IEvent to the events list; returns true if successful
 ---@param eventKey string IEvent.Key
 ---@param fulfillFunc function Must return a string or a partial Response table { Message="", GlobalVars={} }
+---@param name? string (Optional) A descriptive name for the event
 ---@return boolean success
-function EventHandler.addNewGameEvent(eventKey, fulfillFunc)
+function EventHandler.addNewGameEvent(eventKey, fulfillFunc, name)
 	if Utils.isNilOrEmpty(eventKey) or type(fulfillFunc) ~= "function" then
 		return false
 	end
 	return EventHandler.addNewEvent(EventHandler.IEvent:new({
 		Key = eventKey,
 		Type = EventHandler.EventTypes.Game,
-		Name = eventKey,
+		Name = name or eventKey,
 		Fulfill = fulfillFunc,
 	}))
 end
@@ -126,10 +126,11 @@ end
 
 ---Returns the IEvent for a given command; or nil if not found
 ---@param command string Example: !testcommand
----@return table? event
-function EventHandler.getEventForCommand(command)
+---@return table events List of events with matching commands
+function EventHandler.getEventsForCommand(command)
+	local events = {}
 	if Utils.isNilOrEmpty(command) then
-		return nil
+		return events
 	end
 	if command:sub(1,1) ~= EventHandler.COMMAND_PREFIX then
 		command = EventHandler.COMMAND_PREFIX .. command
@@ -137,23 +138,26 @@ function EventHandler.getEventForCommand(command)
 	command = Utils.toLowerUTF8(command)
 	for _, event in pairs(EventHandler.Events) do
 		if event.Command == command then
-			return event
+			table.insert(events, event)
 		end
 	end
+	return events
 end
 
 ---Returns the IEvent for a given rewardId; or nil if not found
 ---@param rewardId string
----@return table? event
-function EventHandler.getEventForReward(rewardId)
+---@return table events List of events with matching rewards
+function EventHandler.getEventsForReward(rewardId)
+	local events = {}
 	if Utils.isNilOrEmpty(rewardId) then
-		return nil
+		return events
 	end
 	for _, event in pairs(EventHandler.Events) do
 		if event.RewardId == rewardId then
-			return event
+			table.insert(events, event)
 		end
 	end
+	return events
 end
 
 ---Updates internal Reward events with associated RewardIds and RewardTitles
@@ -339,26 +343,28 @@ local function parseBallChoice(input)
 	end
 end
 
--- Temporary
-function EventHandler.outputCurrentRedemption()
-	if EventHandler.OutputToFileRewardUsername then
-		local filename = EventHandler.RedemptionUsernameOutput or "RedemptionUsernameOutput.txt"
-		local file = io.open(FileManager.getCustomFolderPath() .. filename, "w")
-		if file then
-			local username = EventHandler.Queues.BallRedeems.ChosenUsername or ""
-			file:write(not Utils.isNilOrEmpty(username) and username or Constants.BLANKLINE)
-			file:close()
-		end
+local function changeStarterFavorite(pokemonName, slotNumber)
+	-- Slot must be between 1 and 3, inclusive
+	slotNumber = math.max(math.min(tonumber(slotNumber or "") or 1, 3), 1)
+	local pokemonID = pokemonName and DataHelper.findPokemonId(pokemonName) or 0
+	if not PokemonData.isValid(pokemonID) then
+		return nil
 	end
-	if EventHandler.OutputToFileRewardDirection then
-		local filename = EventHandler.RedemptionDirectionOutput or "RedemptionDirectionOutput.txt"
-		local file = io.open(FileManager.getCustomFolderPath() .. filename, "w")
-		if file then
-			local direction = EventHandler.Queues.BallRedeems.ChosenDirection or Constants.BLANKLINE
-			file:write(direction)
-			file:close()
-		end
-	end
+
+	local faveButtons = {
+		StreamerScreen.Buttons.PokemonFavorite1,
+		StreamerScreen.Buttons.PokemonFavorite2,
+		StreamerScreen.Buttons.PokemonFavorite3,
+	}
+	local originalFaveId = faveButtons[slotNumber].pokemonID
+	local originalFaveName = PokemonData.isValid(originalFaveId) and PokemonData.Pokemon[originalFaveId].name or Constants.BLANKLINE
+	faveButtons[slotNumber].pokemonID = pokemonID
+	StreamerScreen.saveFavorites()
+
+	return string.format("Favorite #%s changed from %s to %s.",
+		slotNumber,
+		originalFaveName,
+		PokemonData.Pokemon[pokemonID].name)
 end
 
 EventHandler.CoreEvents = {
@@ -612,7 +618,6 @@ EventHandler.DefaultEvents = {
 				EventHandler.Queues.BallRedeems.ChosenUsername = request.Username
 				EventHandler.Queues.BallRedeems.ChosenDirection = direction
 				EventHandler.Queues.BallRedeems.HasPickedBall = true
-				EventHandler.outputCurrentRedemption() -- TODO: For Maple, remove later
 			end
 			-- Finally, wait until the player has a Pokemon before completing the redeem request
 			if not hasPokemon then
@@ -670,7 +675,6 @@ EventHandler.DefaultEvents = {
 				EventHandler.Queues.BallRedeems.ChosenUsername = request.Username
 				EventHandler.Queues.BallRedeems.ChosenDirection = direction
 				EventHandler.Queues.BallRedeems.HasPickedBall = true
-				EventHandler.outputCurrentRedemption() -- TODO: For Maple, remove later
 			end
 			-- Finally, wait until the player has a Pokemon before completing the redeem request
 			if not hasPokemon then
@@ -697,37 +701,51 @@ EventHandler.DefaultEvents = {
 	},
 	CR_ChangeFavorite = {
 		Type = EventHandler.EventTypes.Reward,
-		Name = "Change Favorite Pokémon",
+		Name = "Change Starter Favorite: # NAME",
 		RewardId = "",
-		-- Options = {
-		-- 	Duration = 10 * 60, -- # of seconds
-		-- },
-		-- Process = function(self, request) return true end,
 		Fulfill = function(self, request)
 			if Utils.isNilOrEmpty(request.SanitizedInput) then
 				return string.format("> Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.")
 			end
-
-			local index, name = request.SanitizedInput:match("^#?(%d*)%s*(%D.+)")
-			index = math.max(math.min(tonumber(index or "") or 1, 3), 1) -- Index must be between 1 and 3, inclusive
-			local pokemonID = name and DataHelper.findPokemonId(name) or 0
-			if PokemonData.isValid(pokemonID) then
-				local favoritesButtons = {
-					StreamerScreen.Buttons.PokemonFavorite1,
-					StreamerScreen.Buttons.PokemonFavorite2,
-					StreamerScreen.Buttons.PokemonFavorite3,
-				}
-				local originalFaveId = favoritesButtons[index].pokemonID
-				local originalFaveName = PokemonData.isValid(originalFaveId) and PokemonData.Pokemon[originalFaveId].name or Constants.BLANKLINE
-				favoritesButtons[index].pokemonID = pokemonID
-				StreamerScreen.saveFavorites()
-				return string.format("> Favorite #%s changed from %s to %s.",
-					index,
-					originalFaveName,
-					PokemonData.Pokemon[pokemonID].name)
-			else
-				return string.format("%s > Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.", request.SanitizedInput)
+			local slotNumber, pokemonName = request.SanitizedInput:match("^#?(%d*)%s*(%D.+)")
+			local resultMsg = changeStarterFavorite(pokemonName, slotNumber)
+			return resultMsg or string.format("%s > Unable to change a favorite, please enter a number (1, 2, or 3) followed by a Pokémon name.", request.SanitizedInput)
+		end,
+	},
+	CR_ChangeFavoriteOne = {
+		Type = EventHandler.EventTypes.Reward,
+		Name = "Change Starter Favorite: #1",
+		RewardId = "",
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change favorite #1, please enter a valid Pokémon name.")
 			end
+			local resultMsg = changeStarterFavorite(request.SanitizedInput, 1)
+			return resultMsg or string.format("%s > Unable to change favorite #1, please enter a valid Pokémon name.", request.SanitizedInput)
+		end,
+	},
+	CR_ChangeFavoriteTwo = {
+		Type = EventHandler.EventTypes.Reward,
+		Name = "Change Starter Favorite: #2",
+		RewardId = "",
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change favorite #2, please enter a valid Pokémon name.")
+			end
+			local resultMsg = changeStarterFavorite(request.SanitizedInput, 2)
+			return resultMsg or string.format("%s > Unable to change favorite #2, please enter a valid Pokémon name.", request.SanitizedInput)
+		end,
+	},
+	CR_ChangeFavoriteThree = {
+		Type = EventHandler.EventTypes.Reward,
+		Name = "Change Starter Favorite: #3",
+		RewardId = "",
+		Fulfill = function(self, request)
+			if Utils.isNilOrEmpty(request.SanitizedInput) then
+				return string.format("> Unable to change favorite #3, please enter a valid Pokémon name.")
+			end
+			local resultMsg = changeStarterFavorite(request.SanitizedInput, 3)
+			return resultMsg or string.format("%s > Unable to change favorite #3, please enter a valid Pokémon name.", request.SanitizedInput)
 		end,
 	},
 	CR_ChangeTheme = {

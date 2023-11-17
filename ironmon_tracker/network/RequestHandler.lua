@@ -103,20 +103,30 @@ end
 ---@param jsonTable table?
 function RequestHandler.receiveJsonRequests(jsonTable)
 	for _, request in pairs(jsonTable or {}) do
+		local eventKeys = {}
+
 		-- If missing, try and automatically detect the event type based on provided args
 		if not EventHandler.Events[request.EventKey] then
 			if request.Args.Command then
-				local event = EventHandler.getEventForCommand(request.Args.Command)
-				request.EventKey = event and event.Key or request.EventKey
+				local events = EventHandler.getEventsForCommand(request.Args.Command)
+				for _, event in pairs(events) do
+					table.insert(eventKeys, event.Key)
+				end
 			elseif request.Args.RewardId then
-				local event = EventHandler.getEventForReward(request.Args.RewardId)
-				request.EventKey = event and event.Key or request.EventKey
+				local events = EventHandler.getEventsForReward(request.Args.RewardId)
+				for _, event in pairs(events) do
+					table.insert(eventKeys, event.Key)
+				end
 			end
 		end
+		if #eventKeys == 0 then
+			table.insert(eventKeys, request.EventKey)
+		end
+
 		-- Then add to the Requests queue
 		RequestHandler.addUpdateRequest(RequestHandler.IRequest:new({
 			GUID = request.GUID,
-			EventKey = request.EventKey,
+			EventKey = table.concat(eventKeys, ","),
 			CreatedAt = request.CreatedAt,
 			Username = request.Username,
 			Args = request.Args,
@@ -153,30 +163,35 @@ function RequestHandler.processAllRequests()
 	table.sort(toProcess, function(a,b) return a.CreatedAt < b.CreatedAt end)
 
 	for _, request in ipairs(toProcess) do
-		local response = RequestHandler.processAndBuildResponse(request)
-		if not request.SentResponse then
-			RequestHandler.addUpdateResponse(response)
-			request.SentResponse = true
-		end
-		if response.StatusCode ~= RequestHandler.StatusCodes.PROCESSING then
-			RequestHandler.removeRequest(request.GUID)
+		for _, eventKey in pairs(Utils.split(request.EventKey, ",", true) or {}) do
+			local event = EventHandler.Events[eventKey]
+			local response = RequestHandler.processAndBuildResponse(request, event)
+			if not request.SentResponse then
+				RequestHandler.addUpdateResponse(response)
+				request.SentResponse = true
+			end
+			if response.StatusCode ~= RequestHandler.StatusCodes.PROCESSING then
+				RequestHandler.removeRequest(request.GUID)
+			end
 		end
 	end
 end
 
 ---Processes the Request as much as it can, returning a Response with a proper StatusCode
 ---@param request table IRequest
+---@param event? table IEvent
 ---@return table response IResponse
-function RequestHandler.processAndBuildResponse(request)
-	local event = EventHandler.Events[request.EventKey]
+function RequestHandler.processAndBuildResponse(request, event)
+	event = event or EventHandler.Events[request.EventKey] or EventHandler.Events.None
 	local response = RequestHandler.IResponse:new({
 		GUID = request.GUID,
-		EventKey = request.EventKey,
+		EventKey = event.Key,
 	})
 	if event.Type == EventHandler.EventTypes.Reward then
 		response.AdditionalInfo = {
 			RewardId = request.Args and request.Args["RewardId"] or nil,
 			RedemptionId = request.Args and request.Args["RedemptionId"] or nil,
+			AutoComplete = true, -- TODO: Expose option to enable/disable this
 		}
 	end
 
@@ -281,7 +296,7 @@ end
 RequestHandler.IRequest = {
 	-- Required unique GUID, for syncing request/responses with the client
 	GUID = "",
-	-- Must match an existing Event
+	-- A comma-separate list of event keys; must match one or more existing Events
 	EventKey = EventHandler.Events.None.Key,
 	-- Number of seconds, representing time the originating request was created
 	CreatedAt = -1,

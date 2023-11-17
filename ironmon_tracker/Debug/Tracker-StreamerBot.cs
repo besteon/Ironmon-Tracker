@@ -11,11 +11,11 @@ using Newtonsoft.Json;
 public class CPHInline
 {
 	// Internal Streamerbot Properties
-	private const string VERSION = "1.0.2"; // Used to compare against known version # in Tracker code, to check if this code needs updating
+	private const string VERSION = "1.0.3"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
-	private const string INBOUND_FILENAME = @"Tracker-Responses.txt"; // Located inside the DATA_FOLDER
-	private const string OUTBOUND_FILENAME = @"Tracker-Requests.txt"; // Located inside the DATA_FOLDER
+	private const string INBOUND_FILENAME = @"Tracker-Responses.json"; // Located inside the DATA_FOLDER
+	private const string OUTBOUND_FILENAME = @"Tracker-Requests.json"; // Located inside the DATA_FOLDER
 	private const string COMMAND_ACTION_ID = "0f58bcaf-4a93-442b-b66d-774ee5ba954d";
 	private const int TEXT_UPDATE_FREQUENCY = 1; // # of seconds
 
@@ -41,44 +41,50 @@ public class CPHInline
 	// Required Streamerbot Method: Run when application starts up
 	public void Init()
 	{
-		_isConnected = false;
-		_allowedEvents = new Dictionary<string,bool>();
-		_commandRoles = new Dictionary<string,bool>()
+		try
 		{
-			{ "Broadcaster", true }, // For now, this is always available
-			{ "Everyone", true },
-			{ "Moderator", false },
-			{ "Vip", false },
-			{ "Subscriber", false }
-		};
-		_requests = new List<Request>();
-		_responses = new List<Response>();
-		_offlineRequests = new List<Request>();
-		_receivedResponses = new Dictionary<string,int>();
+			_isConnected = false;
+			_allowedEvents = new Dictionary<string,bool>();
+			_commandRoles = new Dictionary<string,bool>()
+			{
+				{ "Broadcaster", true }, // For now, this is always available
+				{ "Everyone", true },
+				{ "Moderator", false },
+				{ "Vip", false },
+				{ "Subscriber", false }
+			};
+			_requests = new List<Request>();
+			_responses = new List<Response>();
+			_offlineRequests = new List<Request>();
+			_receivedResponses = new Dictionary<string,int>();
 
-		VerifyOrCreateDataFiles();
+			VerifyOrCreateDataFiles();
 
-		// By default, newly imported commands are disabled; this force enables them for convenience
-		CPH.EnableCommand(COMMAND_ACTION_ID);
+			// By default, newly imported commands are disabled; this force enables them for convenience
+			CPH.EnableCommand(COMMAND_ACTION_ID);
 
-		if (!_isConnected)
-		{
-			SendStreamerbotStart();
-			SendRewardsList();
-		}
-		else
-		{
-			CPH.LogInfo($"START: Already connected to the Tracker.");
-		}
+			if (!_isConnected)
+			{
+				SendStreamerbotStart();
+				SendRewardsList();
+			}
+			else
+			{
+				CPH.LogInfo($"START: Already connected to the Tracker.");
+			}
 
-		CreateReoccuringFileReader();
+			CreateReoccuringFileReader();
+		} catch (Exception e) {}
 	}
 
 	// Required Streamerbot Method: Run when the application shuts down
 	public void Dispose()
 	{
-		SendStreamerbotStop();
-		CancelReoccuringFileReader();
+		try
+		{
+			SendStreamerbotStop();
+			CancelReoccuringFileReader();
+		} catch (Exception e) {}
 	}
 
 	// Required Streamerbot Method: Run when the action is triggered
@@ -90,11 +96,14 @@ public class CPHInline
 
 		VARS = new Vars(args);
 
-		// Determine what type of event was triggered
-		if (!string.IsNullOrEmpty(VARS.CommandId))
-			ProcessCommandEvent();
-		else if (!string.IsNullOrEmpty(VARS.RewardId))
-			ProcessChannelRedeemEvent();
+		try
+		{
+			// Determine what type of event was triggered
+			if (!string.IsNullOrEmpty(VARS.CommandId))
+				ProcessCommandEvent();
+			else if (!string.IsNullOrEmpty(VARS.RewardId))
+				ProcessChannelRedeemEvent();
+		} catch (Exception e) {}
 
 		return true; // Required
 	}
@@ -185,7 +194,11 @@ public class CPHInline
 
 		var rewardId = response.AdditionalInfo["RewardId"].ToString();
 		var redemptionId = response.AdditionalInfo["RedemptionId"].ToString();
-		if (string.IsNullOrEmpty(rewardId) || string.IsNullOrEmpty(redemptionId))
+		var shouldComplete = true;
+		if (response.AdditionalInfo.ContainsKey("AutoComplete"))
+			shouldComplete = (response.AdditionalInfo["AutoComplete"] as bool?) ?? true;
+
+		if (!shouldComplete || string.IsNullOrEmpty(rewardId) || string.IsNullOrEmpty(redemptionId))
 			return;
 
 		try
@@ -448,7 +461,9 @@ public class CPHInline
 			{
 				foreach (var eventKey in commaSeparatedEvents.Split(',').ToList())
 				{
-					_allowedEvents.Add(eventKey.Trim(), true);
+					var key = eventKey.Trim();
+					if (!_allowedEvents.ContainsKey(key))
+						_allowedEvents.Add(key, true);
 				}
 			}
 		}
@@ -519,7 +534,10 @@ public class CPHInline
 		Task.Run(async () => {
 			while (_reoccuringTokenSrc != null && !_reoccuringTokenSrc.Token.IsCancellationRequested)
 			{
-				ReadResponsesFromInbound();
+				try
+				{
+					ReadResponsesFromInbound();
+				} catch (Exception e) {}
 				await Task.Delay(TimeSpan.FromSeconds(TEXT_UPDATE_FREQUENCY), _reoccuringTokenSrc.Token);
 			}
 			if (_reoccuringTokenSrc != null)
@@ -531,7 +549,6 @@ public class CPHInline
 		if (_reoccuringTokenSrc != null)
 			_reoccuringTokenSrc.Cancel();
 	}
-
 
 	public class Request
 	{
