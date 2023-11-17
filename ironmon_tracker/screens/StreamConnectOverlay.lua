@@ -772,10 +772,22 @@ local function buildQueueTab()
 		}
 		table.insert(SCREEN.Pager.ButtonRows, buttonRow)
 
-		local btnWidth = Utils.calcWordPixelLength(event.Name) + 5
+		local rowHeaderText = string.format("%s. %s", i, event.Name)
+		local btnWidth = Utils.calcWordPixelLength(rowHeaderText) + 5
 		local btnRequestName = {
 			type = Constants.ButtonTypes.NO_BORDER,
-			getText = function(self) return event.Name end,
+			getText = function(self)
+				-- local minutesAgo = math.ceil((os.time() - item.Request.CreatedAt) / 60)
+				-- local timestampText -- TODO: Language
+				-- if minutesAgo == 1 then
+				-- 	timestampText = "1 min"
+				-- else
+				-- 	timestampText = string.format("%s mins", minutesAgo)
+				-- end
+				-- local time = os.date("%M:%S", item.Request.CreatedAt)
+				-- return string.format("%s %s", rowHeaderText, timestampText)
+				return rowHeaderText
+			end,
 			textColor = SCREEN.Colors.text,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
@@ -791,47 +803,54 @@ local function buildQueueTab()
 		local btnUsernameInfo = {
 			type = Constants.ButtonTypes.NO_BORDER,
 			getText = function(self)
-				local minutesAgo = math.ceil((os.time() - item.Request.CreatedAt) / 60)
-				local timestampText -- TODO: Language
-				if minutesAgo == 1 then
-					timestampText = "1 minute ago"
-				else
-					timestampText = string.format("%s minutes ago", minutesAgo)
-				end
-				-- local time = os.date("%M:%S", item.Request.CreatedAt)
-				return string.format("%s) %s %s %s", i, item.Request.Username, Constants.BLANKLINE, timestampText)
+				local subHeaderText = string.format("%s: %s", item.Request.Username, item.Request.SanitizedInput)
+				return Utils.shortenText(subHeaderText, 219, true)
 			end,
 			textColor = SCREEN.Colors.text,
 			box = { -1, -1, btnWidth, 11 },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2
+				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 + 2
 			end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnUsernameInfo)
 		btnRequestName.box[1] = _leftEdgeX + ROW_PADDING
-		btnUsernameInfo.box[1] = _leftEdgeX + ROW_PADDING + 2
+		btnUsernameInfo.box[1] = _leftEdgeX + ROW_PADDING
 		_leftEdgeX = btnRequestName.box[1] + btnWidth + ROW_PADDING
 
 		-- Add buttons to row from right-to-left
-		btnWidth = Utils.calcWordPixelLength("Cancel" or Resources.StreamConnectOverlay.ButtonRemove) + 5 -- TODO: Language
+		btnWidth = Utils.calcWordPixelLength("Confirm?") + 6 -- TODO: Language
 		local btnCancel = {
 			type = Constants.ButtonTypes.FULL_BORDER,
-			getText = function(self) return "Cancel" or Resources.StreamConnectOverlay.ButtonRemove end, -- TODO: Language
+			getText = function(self)
+				if self.confirmReset then
+					return string.format("%s", "Confirm?") -- TODO: Language
+				else
+					return string.format("%s", "Cancel") -- TODO: Language
+				end
+			end,
 			textColor = SCREEN.Colors.text,
+			confirmReset = false,
 			box = { -1, -1, btnWidth, 11 },
 			boxColors = { SCREEN.Colors.border, SCREEN.Colors.boxFill },
 			isVisible = function(self) return buttonRow:isVisible() end,
 			updateSelf = function(self)
-				self.box[2] = buttonRow.box[2] + ROW_HEIGHT / 2 - ROW_PADDING - 3
+				self.box[2] = buttonRow.box[2] + 2
+				self.textColor = self.confirmReset and "Negative text" or SCREEN.Colors.text
 			end,
 			onClick = function(self)
-				if Q.ActiveRequest == item.Request then
-					Q.ActiveRequest = nil
+				if self.confirmReset then
+					if Q.ActiveRequest == item.Request then
+						Q.ActiveRequest = nil
+					end
+					Q.Requests[item.Request.GUID] = nil
+					item.Request.IsCancelled = true
+						buildQueueTab()
+				else
+					self.confirmReset = true
 				end
-				Q.Requests[item.Request.GUID] = nil
-				item.Request.IsCancelled = true
-				buildQueueTab()
+				self:updateSelf()
+				Program.redraw(true)
 			end,
 		}
 		table.insert(SCREEN.Pager.Buttons, btnCancel)
