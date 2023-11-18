@@ -13,13 +13,12 @@ public class CPHInline
 	// Internal Streamerbot Properties
 	private const string VERSION = "1.0.3"; // Used to compare against known version # in Tracker code, to check if this code needs updating
 	private const bool DEBUG_LOG_EVENTS = false;
+	private const string GVAR_ConnectionDataFolder = "connectionDataFolder"; // "data" folder override global variable; define is Streamerbot
 	private const string DATA_FOLDER = @"data"; // Located at ~/Streamer.bot/data/
 	private const string INBOUND_FILENAME = @"Tracker-Responses.json"; // Located inside the DATA_FOLDER
 	private const string OUTBOUND_FILENAME = @"Tracker-Requests.json"; // Located inside the DATA_FOLDER
-	private const string COMMAND_ACTION_ID = "0f58bcaf-4a93-442b-b66d-774ee5ba954d";
 	private const int TEXT_UPDATE_FREQUENCY = 1; // # of seconds
-
-	private const string GVAR_ConnectionDataFolder = "connectionDataFolder";
+	private const string COMMAND_ACTION_ID = "0f58bcaf-4a93-442b-b66d-774ee5ba954d";
 	private const string COMMAND_REGEX = @"^!([A-Za-z0-9\-\.]+)\s*(.*)";
 	private const string INVISIBLE_CHAR = "󠀀"; // U+E0000 (this is *not* an empty string)
 	private const string SOURCE_STREAMERBOT = "Streamerbot";
@@ -35,7 +34,6 @@ public class CPHInline
 	private List<Response> _responses { get; set; }
 	private List<Request> _offlineRequests { get; set; }
 	private Dictionary<string,int> _receivedResponses { get; set; }
-
 	private Vars VARS { get; set; }
 
 	// Required Streamerbot Method: Run when application starts up
@@ -496,6 +494,10 @@ public class CPHInline
 		try
 		{
 			string dataDirectory = System.IO.Directory.GetCurrentDirectory(); // was Environment.CurrentDirectory
+
+			// Workaround if running as administrator
+			if (dataDirectory.ToLower().Contains("windows") && dataDirectory.ToLower().Contains("system32"))
+				dataDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
 
 			// Check first if the user has defined alternative data folder
 			var directoryOverride = CPH.GetGlobalVar<string>(GVAR_ConnectionDataFolder, true);
