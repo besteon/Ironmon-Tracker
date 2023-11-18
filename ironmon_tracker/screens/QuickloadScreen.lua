@@ -53,6 +53,17 @@ QuickloadScreen.Buttons = {
 			Options["Generate ROM each time"] = false
 			self.toggleState = Options.toggleSetting(self.optionKey)
 
+			-- If turned on initially, automatically locate the loaded rom path
+			if self.toggleState and Main.IsOnBizhawk() and (Options.FILES["ROMs Folder"] or "") == "" then
+				local luaconsole = client.gettool("luaconsole")
+				local luaImp = luaconsole and luaconsole.get_LuaImp()
+				local currentRomPath = luaImp and luaImp.PathEntries.LastRomPath or ""
+				if currentRomPath ~= "" then
+					Options.FILES["ROMs Folder"] = currentRomPath
+					Main.SaveSettings(true)
+				end
+			end
+
 			-- After changing the setup, read-in any existing attempts counter for the new quickload choice
 			Main.ReadAttemptsCount()
 			QuickloadScreen.verifyOptions()
@@ -176,6 +187,13 @@ function QuickloadScreen.createButtons()
 				elseif Utils.isNilOrEmpty(self.filename) then
 					if optionKey == "ROMs Folder" then
 						self.filename = FileManager.extractFolderNameFromPath(Options.FILES[optionKey] or "") or ""
+						local endChar = self.filename ~= "" and self.filename:sub(-1) or ""
+						if endChar == FileManager.slash or endChar == "/" then
+							endChar = "..."
+						else
+							endChar = "/..."
+						end
+						self.filename = self.filename .. endChar
 					else
 						self.filename = FileManager.extractFileNameFromPath(Options.FILES[optionKey] or "", true) or ""
 					end

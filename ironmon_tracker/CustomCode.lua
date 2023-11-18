@@ -74,15 +74,18 @@ function CustomCode.loadExtension(extensionKey)
 	end
 
 	-- Load the extension code
-	local extensionReturnObject = dofile(filepath)
 	local selfObject
-	if type(extensionReturnObject) == "function" then
-		selfObject = extensionReturnObject() or {}
-	elseif type(extensionReturnObject) == "table" then
-		selfObject = extensionReturnObject
-	end
+	xpcall(function()
+		local extensionReturnObject = dofile(filepath)
+		if type(extensionReturnObject) == "function" then
+			selfObject = extensionReturnObject() or {}
+		elseif type(extensionReturnObject) == "table" then
+			selfObject = extensionReturnObject
+		end
+	end, FileManager.logError)
 
 	if selfObject == nil then
+		print(string.format("> Error loading extension: %s, removing it from the extensions list.", extensionKey))
 		return nil
 	end
 

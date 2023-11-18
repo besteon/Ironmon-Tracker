@@ -458,8 +458,8 @@ function Main.LoadNextRom()
 	elseif Options["Generate ROM each time"] then
 		nextRomInfo = Main.GenerateNextRom()
 	else
-		print("> ERROR: No Quickload method has been chosen yet.")
-		Main.DisplayError("No Quickload method has been chosen yet.\n\nEnable this at: Tracker Settings (gear icon) -> Quickload")
+		print("> ERROR: No New Run method has been chosen yet.")
+		Main.DisplayError("No New Run method has been chosen yet.\n\nEnable this at: Tracker Settings (gear icon) -> New Run")
 	end
 
 	Main.ExitSafely(false)
@@ -495,12 +495,12 @@ function Main.LoadNextRom()
 				emu:reset()
 				return
 			else
-				print(string.format('> ERROR: Unable to Quickload next ROM: %s', nextRomInfo.fileName or "N/A"))
+				print(string.format('> ERROR: Unable to load next ROM: %s', nextRomInfo.fileName or "N/A"))
 			end
 		end
 	elseif Options["Use premade ROMs"] or Options["Generate ROM each time"] then
 		local quickloadVerb = Utils.inlineIf(Options["Use premade ROMs"], "find", "create")
-		print(string.format("> Unable to Quickload next ROM; couldn't %s one.", quickloadVerb))
+		print(string.format("> Unable to load next ROM; couldn't %s one.", quickloadVerb))
 	end
 
 	Utils.tempEnableBizhawkSound()
@@ -521,8 +521,8 @@ function Main.GetNextRomFromFolder()
 
 	-- Check if any quickload information is available at all
 	if nextRomName == nil and nextRomPath == nil and #quickloadFiles.romList == 0 then
-		print('> ERROR: Quickload "ROMs Folder" setting is incorrect, or ROM files are missing from the quickload folder.')
-		Main.DisplayError('Quickload "ROMs Folder" setting is incorrect, or ROM files are missing from the quickload folder.\n\nFix this at: Tracker Settings (gear icon) -> Quickload')
+		print('> ERROR: New Run "ROMs Folder" setting is incorrect, or ROM files are missing from the quickload folder.')
+		Main.DisplayError('New Run "ROMs Folder" setting is incorrect, or ROM files are missing from the quickload folder.\n\nFix this at: Tracker Settings (gear icon) -> New Run')
 		return nil
 	end
 
@@ -566,8 +566,8 @@ function Main.GenerateNextRom()
 	local files = Main.GetQuickloadFiles()
 
 	if #files.jarList == 0 or #files.settingsList == 0 or #files.romList == 0 then
-		print("> ERROR: Files missing that are required for Quickload to generate a new ROM.")
-		Main.DisplayError("Files missing that are required for Quickload to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> Quickload")
+		print("> ERROR: Files missing that are required for New Run to generate a new ROM.")
+		Main.DisplayError("Files missing that are required for New Run to generate a new ROM.\n\nFix these at: Tracker Settings (gear icon) -> New Run")
 		return nil
 	elseif #files.jarList > 1 or #files.settingsList > 1 or #files.romList > 1 then
 		local msg1 = string.format("ERROR: Too many GBA/JAR/RNQS files found in the quickload folder.")
@@ -623,9 +623,9 @@ function Main.GenerateNextRom()
 		local missing64bit = Utils.containsText(output, "Invalid maximum heap size", true)
 		local err1
 		if missingJava then
-			err1 = string.format('ERROR: Java not installed, Quickload requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Java not installed, New Run requires "Java 64-bit Offline."')
 		elseif missing64bit then
-			err1 = string.format('ERROR: Wrong Java installed, Quickload requires "Java 64-bit Offline."')
+			err1 = string.format('ERROR: Wrong Java installed, New Run requires "Java 64-bit Offline."')
 		else
 			err1 = string.format('ERROR: For more information, open the "%s" found in your Tracker folder.', FileManager.Files.RANDOMIZER_ERROR_LOG)
 		end
