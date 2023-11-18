@@ -25,6 +25,7 @@ FileManager.Files = {
 	SETTINGS = "Settings.ini",
 	THEME_PRESETS = "ThemePresets.txt",
 	RANDOMIZER_ERROR_LOG = "RandomizerErrorLog.txt",
+	TRACKER_CORE = "Ironmon-Tracker.lua",
 	UPDATE_OR_INSTALL = "UpdateOrInstall.lua",
 	OSEXECUTE_OUTPUT = FileManager.Folders.TrackerCode .. FileManager.slash .. "osexecute-output.txt",
 	ERROR_LOG = FileManager.Folders.TrackerCode .. FileManager.slash .. "errorlog.txt",
@@ -222,29 +223,58 @@ function FileManager.setupWorkingDirectory()
 		knownDirFile:close()
 		FileManager.dir = FileManager.dir:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
 		-- Then verify that this saved working directory is correct and usable (user might have moved files/folders)
-		if not FileManager.fileExists(FileManager.prependDir(FileManager.Files.UPDATE_OR_INSTALL)) then
+		if not FileManager.fileExists(FileManager.prependDir(FileManager.Files.TRACKER_CORE)) then
 			FileManager.dir = ""
 		end
 	end
 
-	-- Otherwise, if no known working directory was found, look it up the hard way
-	if knownDirFile == nil or FileManager.dir == "" then
-		-- Windows: "cd", Linux: "pwd"
-		local getDirCommand = FileManager.slash == "\\" and "cd" or "pwd"
-		-- Bizhawk handles current working directory differently, this is the only way to get it
-		local success, fileLines = FileManager.tryOsExecute(getDirCommand)
-		if success and #fileLines > 0 and Main.IsOnBizhawk() and FileManager.dir == "" then
-			FileManager.dir = fileLines[1]
-		end
-		-- Properly format the working directory
-		FileManager.dir = FileManager.formatPathForOS(FileManager.dir)
-		if FileManager.dir:sub(-1) ~= FileManager.slash then
-			FileManager.dir = FileManager.dir .. FileManager.slash
+	-- Properly format the path
+	local function formatPath(filepath)
+		filepath = FileManager.formatPathForOS(filepath)
+		if filepath:sub(-1) ~= FileManager.slash then
+			filepath = filepath .. FileManager.slash
 		end
 		-- Linux Bizhawk 2.8 doesn't support popen or working dir absolute path
-		if Main.emulator == Main.EMU.BIZHAWK28 and FileManager.dir == FileManager.slash then
-			FileManager.dir = ""
+		if Main.emulator == Main.EMU.BIZHAWK28 and filepath == FileManager.slash then
+			filepath = ""
 		end
+		return filepath
+	end
+
+	-- Otherwise, if no known working directory was found, look it up the hard way
+	if knownDirFile == nil or FileManager.dir == "" then
+		-- For Bizhawk, use luaconsole script list as a quick backup solution
+		if Main.IsOnBizhawk() then
+			local pathCheckFile = io.open(FileManager.prependDir(FileManager.Files.TRACKER_CORE), "r")
+			if pathCheckFile then
+				pathCheckFile:close()
+			else
+				local luaconsole = client.gettool("luaconsole")
+				local luaImp = luaconsole and luaconsole.get_LuaImp()
+				local scriptList = luaImp and luaImp.ScriptList or { Count = 0 }
+				for i = 0, scriptList.Count - 1, 1 do
+					local scriptPath = scriptList[i].Path or scriptList[i].path or ""
+					local index = scriptPath:find(FileManager.Files.TRACKER_CORE, 1, true)
+					if index then
+						FileManager.dir = scriptPath:sub(1, index - 1)
+						break
+					end
+				end
+				FileManager.dir = formatPath(FileManager.dir)
+			end
+		end
+		-- If still can't find the filepath, use a command to get it
+		if FileManager.dir == "" then
+			-- Windows: "cd", Linux: "pwd"
+			local getDirCommand = FileManager.slash == "\\" and "cd" or "pwd"
+			-- Bizhawk handles current working directory differently, this is the only way to get it
+			local success, fileLines = FileManager.tryOsExecute(getDirCommand)
+			if success and #fileLines > 0 and Main.IsOnBizhawk() and FileManager.dir == "" then
+				FileManager.dir = fileLines[1]
+			end
+			FileManager.dir = formatPath(FileManager.dir)
+		end
+
 		-- Save known working directory to file to load for future startups
 		if FileManager.dir ~= "" then
 			knownDirFile = io.open(knownDirPath, "w")
@@ -256,7 +286,8 @@ function FileManager.setupWorkingDirectory()
 		end
 	end
 
-	IronmonTracker.workingDir = FileManager.dir -- required so UpdateOrInstall works regardless of standalone execution
+	-- Required so UpdateOrInstall works regardless of standalone execution
+	IronmonTracker.workingDir = FileManager.dir
 end
 
 -- Attempts to execute the command, returning two results: success, outputTable
